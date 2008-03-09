@@ -25,13 +25,8 @@
                     
                     <ui:form binding="#{dynForm.form1}" id="form1">
 
-                        <ui:panelLayout binding="#{SessionBean.topPanel}"
-                                        id="topPanel"
-                                        panelLayout="flow"
-                                        styleClass="topPanel"/>
-                        <div style="left: 0px; top: 0px; position: absolute">
-                             <jsp:directive.include file="pfHeader.jspf"/>
-                        </div>
+                        <!-- include banner -->
+                        <div><jsp:directive.include file="pfHeader.jspf"/></div>
                         
                         <ui:staticText binding="#{dynForm.txtHeader}"
                                        id="txtHeader"
@@ -54,6 +49,12 @@
                                    text="Cancel"
                                    styleClass="dynformButton"
                                    style="#{DynFormFactory.btnCancelStyle}"/>
+
+                        <ui:panelLayout binding="#{SessionBean.messagePanel}"
+                                        id="msgPanel"
+                                        panelLayout="flow"
+                                        style="top: 70px; left: 500px; position: absolute"/>
+
                     </ui:form>
                 </ui:body>
             </ui:html>

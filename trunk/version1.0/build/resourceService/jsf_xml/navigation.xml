@@ -8,6 +8,10 @@
             <from-outcome>showUserQueues</from-outcome>
             <to-view-id>/userWorkQueues.jsp</to-view-id>
         </navigation-case>
+        <navigation-case>
+            <from-outcome>showAdminQueues</from-outcome>
+            <to-view-id>/adminQueues.jsp</to-view-id>
+        </navigation-case>
     </navigation-rule>
     <navigation-rule>
         <from-view-id>/userWorkQueues.jsp</from-view-id>

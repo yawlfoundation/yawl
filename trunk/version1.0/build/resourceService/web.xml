@@ -39,13 +39,6 @@
         </description>
     </context-param>
 
-    <context-param>
-        <param-name>YAWLXForms</param-name>
-        <param-value>http://localhost:8080/yawlXForms</param-value>
-        <description>
-            The URL location of YAWLXForms (Chiba). Set to "localhost" by default.
-        </description>
-    </context-param>
     <!--<context-param>-->
         <!--<param-name>UserName</param-name>-->
         <!--<param-value></param-value>-->
@@ -148,40 +141,7 @@
     </context-param>
 
 
-    <!-- Servlet definitions for the servlets that make up
-         your web application, including initialization
-         parameters.  With Tomcat, you can also send requests
-         to servlets not listed here with a request like this:
-
-           http://localhost:8080/{context-path}/servlet/{classname}
-
-         but this usage is not guaranteed to be portable.  It also
-         makes relative references to images and other resources
-         required by your servlet more complicated, so defining
-         all of your servlets (and defining a mapping to them with
-         a servlet-mapping element) is recommended.
-
-         Servlet initialization parameters can be retrieved in a
-         servlet or JSP page by calling:
-
-             String value =
-               getServletConfig().getInitParameter("name");
-
-         where "name" matches the <param-name> element of
-         one of these initialization parameters.
-
-         You can define any number of servlets, including zero.
-    -->
-
-    <!--servlet>
-        <servlet-name>ErrorServlet</servlet-name>
-        <description>
-            Reports that the URI request found nothing, hence the error report.
-        </description>
-        <servlet-class>org.yawlfoundation.yawl.engine.interfce.ErrorServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet-->
-
+    <!-- SERVLETS -->
 
     <servlet>
         <servlet-name>InterfaceB_Servlet</servlet-name>
@@ -207,39 +167,21 @@
     <servlet>
         <servlet-name>rsGateway</servlet-name>
         <description>
-            Gateway to the service
+            Gateway to the resources side of the service
         </description>
         <servlet-class>org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGateway</servlet-class>
         <load-on-startup>2</load-on-startup>
     </servlet>
 
-    <servlet>
-        <servlet-name>jLogin</servlet-name>
-        <description>
-            Provides a way to login to the service (and engine by passthrough).
-        </description>
-        <jsp-file>/login.jsp</jsp-file>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
 
     <servlet>
-        <servlet-name>jWorkQueue</servlet-name>
+        <servlet-name>wqGateway</servlet-name>
         <description>
-            A participant's work queues.
+            Gateway to the worklist side of the service
         </description>
-        <jsp-file>/workqueue.jsp</jsp-file>
+        <servlet-class>org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway</servlet-class>
         <load-on-startup>2</load-on-startup>
     </servlet>
-
-    <servlet-mapping>
-        <servlet-name>jWorkQueue</servlet-name>
-        <url-pattern>/workqueue</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>jLogin</servlet-name>
-        <url-pattern>/login</url-pattern>
-    </servlet-mapping>
 
 
     <servlet-mapping>
@@ -255,6 +197,11 @@
     <servlet-mapping>
         <servlet-name>rsGateway</servlet-name>
         <url-pattern>/gateway</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>wqGateway</servlet-name>
+        <url-pattern>/workqueuegateway</url-pattern>
     </servlet-mapping>
 
 

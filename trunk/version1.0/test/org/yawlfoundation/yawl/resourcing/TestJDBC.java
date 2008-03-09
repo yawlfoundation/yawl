@@ -94,7 +94,7 @@ public class TestJDBC extends TestCase {
 //        Iterator i = res.iterator() ;
 //        while (i.hasNext()) {
 //           Participant p = (Participant) i.next() ;
-//            System.out.println(p.getSummaryXML());
+//            System.out.println(p.toXML());
 //        }
 
 

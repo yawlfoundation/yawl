@@ -590,11 +590,10 @@ public class YPersistenceManager {
     protected static SessionFactory initialise(boolean journalising) throws YPersistenceException {
         String loggerName = "org.yawlfoundation.yawl.engine.YPersistenceManager";
         SessionFactory factory = null;
-        Connection con = null;
-        Transaction tx = null;
-        Configuration cfg = null;
+        Configuration cfg;
 
-        // Create the Hibernate config, check and create database if required, and generally set things up .....
+        // Create the Hibernate config, check and create database if required,
+        // and generally set things up .....
         if (journalising) {
             try {
                 cfg = new Configuration();
@@ -610,15 +609,6 @@ public class YPersistenceManager {
                 cfg.addClass(YAWLServiceReference.class);
                 cfg.addClass(YWorkItemTimer.class);
                 cfg.addClass(YCaseNbrStore.class);
-
-//                cfg.addClass(org.yawlfoundation.yawl.admintool.model.Resource.class);
-//                cfg.addClass(org.yawlfoundation.yawl.admintool.model.Role.class);
-//                cfg.addClass(org.yawlfoundation.yawl.admintool.model.HumanResourceRole.class);
-//                cfg.addClass(org.yawlfoundation.yawl.admintool.model.Capability.class);
-//                cfg.addClass(org.yawlfoundation.yawl.admintool.model.ResourceCapability.class);
-//                cfg.addClass(org.yawlfoundation.yawl.admintool.model.OrgGroup.class);
-//                cfg.addClass(org.yawlfoundation.yawl.admintool.model.Position.class);
-//                cfg.addClass(org.yawlfoundation.yawl.admintool.model.HResOccupiesPosition.class);
                 cfg.addClass(org.yawlfoundation.yawl.exceptions.Problem.class);
 
                 factory = cfg.buildSessionFactory();
@@ -626,43 +616,6 @@ public class YPersistenceManager {
                 Logger.getLogger(loggerName).debug("Validating existance of database for persistence");
 
                 new SchemaUpdate(cfg).execute(false, true);
-
-//                boolean createtables = false;
-//
-//                /*
-//                  Execute a select statement to see if tables are there
-//                 */
-//                Session session = factory.openSession();
-//
-//                //AJH: See if we can establish a connection
-//                try {
-//                    con = session.connection();
-//                } catch (Exception e) {
-//                    String msg = "Failure to establish connection to persistance database";
-//                    Logger.getLogger(loggerName).fatal(msg, e);
-//                    throw new YPersistenceException(msg, e);
-//                }
-//
-//                //AJH: Validate database connection by Selecting some data
-//                //todo Need a better database validation mechanism here
-//                Statement st = null;
-//                ResultSet rs = null;
-//                try {
-//                    tx = session.beginTransaction();
-//                    st = session.connection().createStatement();
-//                    rs = st.executeQuery("select * from specs");
-//                    tx.commit();
-//                } catch (Exception e) {
-//                    if (tx != null) {
-//                        tx.rollback();
-//                    }
-//                    Logger.getLogger(loggerName).warn("Database does not appear to exist - Attempting to create new database ...");
-//                    new SchemaUpdate(cfg).execute(false, true);
-//                    HumanResourceRole.addIntegrityEnforcements(session);
-//
-//                } finally {
-//                    session.close();
-//                }
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -674,43 +627,6 @@ public class YPersistenceManager {
         return factory;
     }
 
-
-
-//    public int getNextCaseNbr() {
-//        int lastCaseNbr = 0 ;                                 // default starting case
-//        try {
-//            Session session = factory.openSession();
-//
-//            // get the last persisted case number
-//            Query query = session.createQuery("from YCaseNbrStore");
-//
-//            if (query != null) {
-//                if (! query.list().isEmpty()) {
-//                    YCaseNbrStore store = (YCaseNbrStore) query.iterate().next();
-//                    lastCaseNbr = store.getCaseNbr() ;
-//                }
-//            }
-//            else {
-//
-//                // secondary attempt: if there's no case number stored (as will be
-//                // the case if this is the first restart after upgrade to v2.0)
-//                query = session.createQuery("from YCaseEvent as yce " +
-//                        "where yce._eventName = 'started' order by yce._eventTime desc");
-//                if (query != null) {
-//                    if (! query.list().isEmpty()) {
-//                        YCaseEvent caseEvent = (YCaseEvent) query.iterate().next();
-//
-//                        // only want integral case numbers
-//                        lastCaseNbr = new Double(caseEvent.get_caseID()).intValue();
-//                    }
-//                }
-//            }
-//            session.close();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return ++lastCaseNbr ;
-//    }
 
     public SessionFactory getFactory() {
         return factory;
@@ -729,7 +645,7 @@ public class YPersistenceManager {
      * @throws YPersistenceException
      */
     private String getHibernateIdentifier(Object obj) throws YPersistenceException {
-        String key = null;
+        String key;
         int objectType = 0;
 
         if (obj instanceof P_YIdentifier) {

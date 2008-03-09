@@ -6,7 +6,6 @@
  *
  */
 
-
 package org.yawlfoundation.yawl.engine;
 
 import org.apache.log4j.Logger;
@@ -44,17 +43,19 @@ import java.net.URI;
 import java.util.*;
 
 /**
- *
- *
  * @author Lachlan Aldred
  *         Date: 17/06/2003
  *         Time: 13:46:54
  *
+ * Last date 02/03/2008 (for v2.0 by Michael Adams)
  */
+
 public class YEngine implements InterfaceADesign,
-        InterfaceAManagement,
-        InterfaceBClient,
-        InterfaceBInterop {
+                                InterfaceAManagement,
+                                InterfaceBClient,
+                                InterfaceBInterop {
+
+    // Engine statuses
     public static final int ENGINE_STATUS_INITIALISING = 0;
     public static final int ENGINE_STATUS_RUNNING = 1;
     public static final int ENGINE_STATUS_TERMINATING = 2;
@@ -95,13 +96,13 @@ public class YEngine implements InterfaceADesign,
 
     private static boolean persisting;
     private static boolean restoring;
-//    private static int _nextCaseNbr = 1;
     private static YCaseNbrStore _caseNbrStore;
     private static SessionFactory factory = null;
     private static final String _yawlVersion = "2.0" ;
 
     /**
-     * AJH: Switch indicating if we generate user interface attributes with a tasks output XML doclet.
+     * AJH: Switch indicating if we generate user interface attributes with a task's
+     * output XML doclet.
      */
     private static boolean generateUIMetaData = false;
 
@@ -575,8 +576,6 @@ public class YEngine implements InterfaceADesign,
             _myInstance = new YEngine();
 			_myInstance.setEngineStatus(YEngine.ENGINE_STATUS_INITIALISING);            
             YEngine.setPersisting(persisting);
-            //todo TESTING
-//            _myInstance.setPersisting(false);
 
             // Initialise the persistence layer
             factory = YPersistenceManager.initialise(persisting);
@@ -589,6 +588,7 @@ public class YEngine implements InterfaceADesign,
             _caseNbrStore = YCaseNbrStore.getInstance();
 
             if (isPersisting()) {
+                _caseNbrStore.setPersisting(true);
                 YPersistenceManager pmgr = new YPersistenceManager(getPMSessionFactory());
                 try {
                     pmgr.setRestoring(true);

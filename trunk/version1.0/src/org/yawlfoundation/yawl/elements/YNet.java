@@ -356,7 +356,7 @@ public final class YNet extends YDecomposition {
     public boolean orJoinEnabled(YTask orJoin, YIdentifier caseID) {
 
         if (orJoin == null || caseID == null) {
-            throw new RuntimeException("Irrelavant to check the enabledness of an orjoin if " +
+            throw new RuntimeException("Irrelevant to check the enabledness of an orjoin if " +
                     "this is called with null params.");
         }
 
@@ -390,7 +390,7 @@ public final class YNet extends YDecomposition {
             }
 
         }
-//dont waste time on an orjoin with no tokens in preset
+        // don't waste time on an orjoin with no tokens in preset
         return false;
     }
 

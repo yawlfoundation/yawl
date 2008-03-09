@@ -14,7 +14,7 @@ import com.sun.rave.web.ui.model.Option;
 import com.sun.rave.web.ui.model.UploadedFile;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
-import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.FacesException;
@@ -268,6 +268,7 @@ public class caseMgt extends AbstractPageBean {
         this.script1 = s;
     }
     
+    private MessagePanel msgPanel = getSessionBean().getMessagePanel();
 
     /** Constructor */
     public caseMgt() { }
@@ -324,9 +325,10 @@ public class caseMgt extends AbstractPageBean {
     /**************** END Creator auto generated code  *****************************/
     /*******************************************************************************/
 
-
+    private ResourceManager _rm = getApplicationBean().getResourceManager() ;
 
     public void prerender() {
+        msgPanel.show();
         if (getSessionBean().isCaseLaunch()) {
             String specID = getSessionBean().getLoadedSpecListChoice() ;
             if (specID != null)
@@ -363,14 +365,13 @@ public class caseMgt extends AbstractPageBean {
         int EOF = fileContents.indexOf("</specificationSet>");
         if (BOF != -1 && EOF != -1) {
             fileContents = fileContents.substring(BOF, EOF + 19) ;
-            WorkQueueGateway wqg = getApplicationBean().getWorkQueueGateway() ;
             String handle = getSessionBean().getSessionhandle() ;
-            String result = wqg.uploadSpecification(fileContents, fileName, handle);
+            String result = _rm.uploadSpecification(fileContents, fileName, handle);
             if (Interface_Client.successful(result))
                 getSessionBean().refreshLoadedSpecs();
             else {
                 result = JDOMUtil.formatXMLString(result);
-                error("ERROR: The specification could not be loaded.\n\n" + result);
+                msgPanel.error("The specification could not be loaded.\n\n" + result);
              }
         }
     }
@@ -385,7 +386,7 @@ public class caseMgt extends AbstractPageBean {
             refPage = startCase(spec) ;
         }
         catch (NumberFormatException nfe) {
-            error("ERROR: No specification selected to launch.") ;
+            msgPanel.error("No specification selected to launch.") ;
         }
 
         return refPage;
@@ -396,13 +397,13 @@ public class caseMgt extends AbstractPageBean {
 
         // get selected case
         String choice = getSessionBean().getRunningCaseListChoice() ;
-        if (choice != null) {
+        if ((choice != null) && (choice.length() > 0)) {
             choice = choice.substring(0, choice.indexOf(':')) ;
             String result = cancelCase(choice) ;
             if (! Interface_Client.successful(result))
-                error("ERROR: Could not cancel case.\n\n" + JDOMUtil.formatXMLString(result)) ;
+                msgPanel.error("Could not cancel case.\n\n" + JDOMUtil.formatXMLString(result)) ;
         }
-        else error("ERROR: No case selected to cancel.");
+        else msgPanel.error("No case selected to cancel.");
         
         return null;
     }
@@ -410,8 +411,7 @@ public class caseMgt extends AbstractPageBean {
     private String cancelCase(String caseID) {
         try {
             String handle = getSessionBean().getSessionhandle() ;
-            WorkQueueGateway wqg = getApplicationBean().getWorkQueueGateway() ;
-            return wqg.cancelCase(caseID, handle);           
+            return _rm.cancelCase(caseID, handle);
         }
         catch (IOException ioe) {
             return "<error>IOException when attempting to cancel case</error>" ;
@@ -422,8 +422,7 @@ public class caseMgt extends AbstractPageBean {
     private String unloadSpec(String specID) {
         try {
             String handle = getSessionBean().getSessionhandle() ;
-            WorkQueueGateway wqg = getApplicationBean().getWorkQueueGateway() ;
-            return wqg.unloadSpecification(specID, handle);
+            return _rm.unloadSpecification(specID, handle);
         }
         catch (IOException ioe) {
             return null ;
@@ -441,14 +440,14 @@ public class caseMgt extends AbstractPageBean {
             String result = unloadSpec(spec.getID()) ;
             if (result.indexOf("success") == -1) {
                 result = JDOMUtil.formatXMLString(result);
-                error("ERROR: Could not unload specification.\n\n" + result);
+                msgPanel.error("Could not unload specification.\n\n" + result);
             }
             else {
                 getSessionBean().refreshLoadedSpecs();
             }
         }
         catch (NumberFormatException nfe) {
-            error("No specification selected to unload.");
+            msgPanel.error("No specification selected to unload.");
         }
         return null;
     }
@@ -485,26 +484,11 @@ public class caseMgt extends AbstractPageBean {
         String caseData = null ;
         String result ;
         if (getSessionBean().isCaseLaunch()) {
-//            Map paramMap = getSessionBean().getDynFormParams();
-
-//            if ((paramMap != null) && (! paramMap.isEmpty())) {
- //               paramMap = getDynFormFactory().updateValues(paramMap) ;
- //               Element data = new Element(specID) ;
-//                for (Object o : paramMap.values()) {
-//                    FormParameter param = (FormParameter) o ;
-//                    Element child = new Element(param.getName());
-//                    child.setText(param.getValue());
-//                    data.addContent(child);
-//                }
-//                caseData = JDOMUtil.elementToStringDump(data) ;
-//            }
-//            getSessionBean().resetDynFormParams();
             caseData = getDynFormFactory().getDataList();
             getSessionBean().setCaseLaunch(false);
         }
         try {
-            result = getApplicationBean().getWorkQueueGateway()
-                                         .launchCase(specID, caseData, handle);
+            result = _rm.launchCase(specID, caseData, handle);
             if (Interface_Client.successful(result)) updateRunningCaseList();
         }
         catch (IOException ioe) {
@@ -514,37 +498,14 @@ public class caseMgt extends AbstractPageBean {
 
     }
 
-//    private void updateLoadedSpecList() {
-//        WorkQueueGateway wqg = getApplicationBean().getWorkQueueGateway() ;
-//        String handle = getSessionBean().getSessionhandle() ;
-//        Set<SpecificationData> specDataSet = wqg.getLoadedSpecs(handle) ;
-//        if (specDataSet != null) {
-//
-//            // put the items into a treeset so they are sorted
-//            TreeSet<String> specInfo = new TreeSet<String>();
-//            for (SpecificationData specData : specDataSet) {
-//                String spec = specData.getID() + " :\t" + specData.getDocumentation() ;
-//                specInfo.add(spec) ;
-//            }
-//
-//            // now add them to the listbox
-//            Option[] options = new Option[specInfo.size()] ;
-//            int i = 0 ;
-//            for (String specStr : specInfo) {
-//                options[i++] = new Option(specStr) ;
-//            }
-//            getSessionBean().setLoadedSpecListOptions(options);
-//        }
-//    }
 
     private void updateRunningCaseList() {
-        WorkQueueGateway wqg = getApplicationBean().getWorkQueueGateway() ;
         String handle = getSessionBean().getSessionhandle() ;
-        Set<SpecificationData> specDataSet = wqg.getSpecList(handle) ;
+        Set<SpecificationData> specDataSet = _rm.getSpecList(handle) ;
         if (specDataSet != null) {
             ArrayList<Option> caseList = new ArrayList<Option>();
             for (SpecificationData specData : specDataSet) {
-                List<String> caseIDs = wqg.getRunningCases(specData.getID(), handle);
+                List<String> caseIDs = _rm.getRunningCasesAsList(specData.getID(), handle);
 
                 // srt the list using a treeset
                 TreeSet<String> caseTree = new TreeSet<String>(caseIDs) ;

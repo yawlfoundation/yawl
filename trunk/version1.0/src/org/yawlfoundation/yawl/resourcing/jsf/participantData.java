@@ -589,6 +589,7 @@ public class participantData extends AbstractPageBean {
             btnRemove.setDisabled(true);
             btnReset.setDisabled(true);
         }
+        msgPanel.show();
     }
 
     /** 
@@ -604,6 +605,8 @@ public class participantData extends AbstractPageBean {
 
     private enum Mode {add, edit}
 
+    private MessagePanel msgPanel = getSessionBean().getMessagePanel() ;
+
     public String btnSave_action() {
         if (checkValidPasswordChange()) {
             Participant p = getSessionBean().getEditedParticipant() ;
@@ -611,7 +614,7 @@ public class participantData extends AbstractPageBean {
             saveChanges(p);
             getSessionBean().saveParticipantUpdates(p);
             if (nameChange) getSessionBean().refreshOrgDataParticipantList();
-            info("INFO: Participant changes successfully saved.");
+            msgPanel.success("Participant changes successfully saved.");
         }
         return null;
     }
@@ -640,7 +643,7 @@ public class participantData extends AbstractPageBean {
         btnSave.setDisabled(true);
         btnRemove.setDisabled(true);
         btnReset.setDisabled(true);
-        info("INFO: Chosen participant successfully removed.");
+        msgPanel.success("Chosen participant successfully removed.");
         return null;
     }
 
@@ -657,7 +660,7 @@ public class participantData extends AbstractPageBean {
                 String newID = getSessionBean().addParticipant(p);
                 cbbParticipants.setSelected(newID);
                 setMode(Mode.edit);
-                info("INFO: New participant added successfully.");
+                msgPanel.success("New participant added successfully.");
             }
         }
         return null;
@@ -855,26 +858,26 @@ public class participantData extends AbstractPageBean {
 
         // unique id?
         if (hasText(txtUserID)) {
-            if (! getSessionBean().isUniqueUserID((String) txtUserID.getText())) {
-                error("ERROR: That User ID is already in use - please try another");
+            if (! getApplicationBean().isUniqueUserID((String) txtUserID.getText())) {
+                msgPanel.error("ERROR: That User ID is already in use - please try another");
                 result = false;
             }    
         }
 
         // password check
         if (! checkValidPasswordChange()) {
-            error("ERROR: Password and confirmation are different");
+            msgPanel.error("ERROR: Password and confirmation are different");
             result = false;
         }
 
         // warn if no attributes
         Participant p = getSessionBean().getAddedParticipant();
         if (p.getRoles().isEmpty())
-            warn("WARNING: No role specified for participant") ;
+            msgPanel.warn("WARNING: No role specified for participant") ;
         if (p.getPositions().isEmpty())
-            warn("WARNING: No position specified for participant") ;
+            msgPanel.warn("WARNING: No position specified for participant") ;
         if (p.getCapabilities().isEmpty())
-            warn("WARNING: No capability specified for participant") ;
+            msgPanel.warn("WARNING: No capability specified for participant") ;
 
         return result ;
     }
@@ -883,23 +886,23 @@ public class participantData extends AbstractPageBean {
     private boolean checkForRequiredValues() {
         boolean result = true;
         if (! hasText(txtLastName)) {
-            error("ERROR: A last name is required");
+            msgPanel.error("ERROR: A last name is required");
             result = false;
         }
         if (! hasText(txtFirstName)) {
-            error("ERROR: A first name is required");
+            msgPanel.error("ERROR: A first name is required");
             result = false;
         }
         if (! hasText(txtUserID)) {
-            error("ERROR: A userid is required");
+            msgPanel.error("ERROR: A userid is required");
             result = false;
         }
         if (! hasText(txtNewPassword)) {
-            error("ERROR: A password is required");
+            msgPanel.error("ERROR: A password is required");
             result = false;
         }
         if (! hasText(txtConfirmPassword)) {
-            error("ERROR: A 'confirm' password is required");
+            msgPanel.error("ERROR: A 'confirm' password is required");
             result = false;
         }
         return result ;

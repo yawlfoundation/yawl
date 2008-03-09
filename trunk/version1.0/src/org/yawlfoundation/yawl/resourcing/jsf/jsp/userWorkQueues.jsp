@@ -23,15 +23,9 @@
                          style="-rave-layout: grid">
                     <ui:form binding="#{userWorkQueues.form1}" id="form1">
 
-                        <ui:panelLayout binding="#{SessionBean.topPanel}"
-                                        id="topPanel"
-                                        panelLayout="flow"
-                                        styleClass="topPanel"/>
-                        <div style="left: 0px; top: 0px; position: absolute">
-                             <jsp:directive.include file="pfHeader.jspf"/>
-                        </div>
-
-
+                    <!-- include banner -->
+                    <div><jsp:directive.include file="pfHeader.jspf"/></div>
+ 
                         <ui:tabSet binding="#{userWorkQueues.tabSet}"
                                    id="tabSet"
                                    styleClass="queuesTabSet">
@@ -174,7 +168,12 @@
                             </ui:tab>
                         </ui:tabSet>
 
-                        <div style="height: 202px; left: 126px; top: 118px; position: absolute; width: 502px">
+                        <ui:panelLayout binding="#{SessionBean.messagePanel}"
+                                        id="msgPanel"
+                                        panelLayout="flow"
+                                        style="top: 395px; left: 150px; position: absolute"/>
+
+                        <div style="height: 202px; left: 126px; top: 118px; position: absolute; width: 542px">
                             <jsp:directive.include file="pfQueueUI.jspf"/>
                         </div>
 

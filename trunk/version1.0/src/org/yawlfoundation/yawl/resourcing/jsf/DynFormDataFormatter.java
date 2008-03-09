@@ -13,6 +13,7 @@ import com.sun.rave.web.ui.component.*;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.resourcing.util.OneToManyStringList;
 
 import javax.faces.component.UIComponent;
 import java.text.SimpleDateFormat;
@@ -29,12 +30,12 @@ import java.util.*;
 public class DynFormDataFormatter {
 
     private String _header;                                    // the outermost tag
-    private Map<String, ComplexAttributes> _attributes ;       // set of attrib-value
+    private Map<String, OneToManyStringList> _attributes ;       // set of attrib-value
     private Set<SubPanelController> _controllerSet;              // set of nested panels
 
     // CONSTRUCTOR //
     public DynFormDataFormatter(PanelLayout form) {
-        _attributes = new Hashtable<String, ComplexAttributes>() ;
+        _attributes = new Hashtable<String, OneToManyStringList>() ;
         _controllerSet = new HashSet<SubPanelController>();
         deconstructComponentList(form) ;
     }
@@ -89,13 +90,13 @@ public class DynFormDataFormatter {
      * @param value its value (as read from the dyn form)
      */
     private void addAttribute(String tag, String value) {
-        ComplexAttributes ca = _attributes.get(tag);
+        OneToManyStringList ca = _attributes.get(tag);
 
         // if this tag already mapped, add another value
         if (ca != null)
-            ca.addValue(value);
+            ca.add(value);
         else
-           _attributes.put(tag, new ComplexAttributes(tag, value));
+           _attributes.put(tag, new OneToManyStringList(tag, value));
     }
 
 
@@ -110,7 +111,7 @@ public class DynFormDataFormatter {
     /** @return the attribute-value sets as XML */
     public String getBody() {
         StringBuilder result = new StringBuilder();
-        for (ComplexAttributes ca : _attributes.values())
+        for (OneToManyStringList ca : _attributes.values())
             result.append(ca.toXML()) ;
         return result.toString();
     }
@@ -146,31 +147,5 @@ public class DynFormDataFormatter {
 
     
     /******************************************************************************/
-
-    /**
-     * Provides the storage of multiple values for a single attribute
-     */
-    private class ComplexAttributes extends ArrayList<String> {
-
-        private String _tag ;
-
-        // Constructor //
-        ComplexAttributes(String tag, String value) {
-            super() ;
-            _tag = tag ;
-            addValue(value);
-        }
-
-
-        protected void addValue(String value) { add(value); }
-
-        
-        protected String toXML() {
-            StringBuilder result = new StringBuilder() ;
-            for (String value : this)
-                result.append(StringUtil.wrap(value, _tag));
-            return result.toString() ;
-        }
-    }
 
 }

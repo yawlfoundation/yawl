@@ -29,9 +29,10 @@ import java.util.*;
 
 public class ResourceGatewayClientAdapter {
 
-    protected ResourceGatewayClient _rgclient;        // the gatewy client
+    protected ResourceGatewayClient _rgclient;        // the gateway client
     protected String _uri ;                           // the uri of the service gateway
 
+    protected ResourceMarshaller _marshaller = new ResourceMarshaller();
 
     // CONSTRUCTORS //
 
@@ -310,24 +311,12 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the engine
      */
     public List getParticipants(String handle) throws IOException {
-        List<Participant> result = new ArrayList<Participant>();
-        String cStr = _rgclient.getParticipants(handle) ;
-
-        // each child is one Participant (as xml)
-        List eList = getChildren(cStr);
-        if (eList != null) {
-            Iterator itr = eList.iterator();
-            while (itr.hasNext()) {
-                Element e = (Element) itr.next();
-                Participant p = new Participant();
-
-                // repopulate the members from its xml
-                p.reconstitute(e);
-                result.add(p);
-            }
-        }
-        if (result.isEmpty()) return null;
-        return result ;
+        String xml = _rgclient.getParticipants(handle) ;
+        Set<Participant> set = _marshaller.unmarshallParticipants(xml) ;
+        if (set != null)
+            return new ArrayList<Participant>(set);
+        else
+            return null;
     }
 
 
@@ -457,29 +446,13 @@ public class ResourceGatewayClientAdapter {
 
 
     public Set<Participant> getActiveParticipants(String handle) {
-        Set<Participant> result = new HashSet<Participant>() ;
         try {
             String xml = _rgclient.getActiveParticipants(handle) ;
-
-            // each child is one Participant (as xml)
-            List eList = getChildren(xml);
-            if (eList != null) {
-                Iterator itr = eList.iterator();
-                while (itr.hasNext()) {
-                    Element e = (Element) itr.next();
-                    Participant p = new Participant();
-
-                    // repopulate the members from its xml
-                    p.reconstitute(e);
-                    result.add(p);
-                }
-            }
+            return _marshaller.unmarshallParticipants(xml) ;
         }
         catch (IOException ioe) {
             return null;
         }
-        if (result.isEmpty()) return null ;
-        return result ;
     }
 
 

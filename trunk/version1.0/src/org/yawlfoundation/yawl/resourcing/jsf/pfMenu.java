@@ -10,25 +10,14 @@ import com.sun.rave.web.ui.appbase.AbstractFragmentBean;
 import com.sun.rave.web.ui.component.ImageComponent;
 import com.sun.rave.web.ui.component.ImageHyperlink;
 import com.sun.rave.web.ui.component.PanelLayout;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
 import javax.faces.FacesException;
 
-/**
- * <p>Fragment bean that corresponds to a similarly named JSP page
- * fragment.  This class contains component definitions (and initialization
- * code) for all components that you have defined on this fragment, as well as
- * lifecycle methods and event handlers where you may add behavior
- * to respond to incoming events.</p>
- */
 public class pfMenu extends AbstractFragmentBean {
-    // <editor-fold defaultstate="collapsed" desc="Creator-managed Component Definition">
+
     private int __placeholder;
     
-    /**
-     * <p>Automatically managed component initialization. <strong>WARNING:</strong>
-     * This method is automatically generated, so any user-specified code inserted
-     * here is subject to being replaced.</p>
-     */
     private void _init() throws Exception {
     }
 
@@ -151,45 +140,27 @@ public class pfMenu extends AbstractFragmentBean {
     }
 
 
-    /** 
-     * <p>Callback method that is called whenever a page containing
-     * this page fragment is navigated to, either directly via a URL,
-     * or indirectly via page navigation.  Override this method to acquire
-     * resources that will be needed for event handlers and lifecycle methods.</p>
-     * 
-     * <p>The default implementation does nothing.</p>
-     */
     public void init() {
-        // Perform initializations inherited from our superclass
         super.init();
-        // Perform application initialization that must complete
-        // *before* managed components are initialized
-        // TODO - add your own initialiation code here
 
-        // <editor-fold defaultstate="collapsed" desc="Creator-managed Component Initialization">
-        // Initialize automatically managed components
-        // *Note* - this logic should NOT be modified
+        // *Note* - this code should NOT be modified
         try {
             _init();
         } catch (Exception e) {
             log("pfMenu Initialization Failure", e);
             throw e instanceof FacesException ? (FacesException) e: new FacesException(e);
         }
-        // </editor-fold>
-        // Perform application initialization that must complete
-        // *after* managed components are initialized
-        // TODO - add your own initialization code here
-
+        Participant p = getSessionBean().getParticipant();
+        if (p == null)                                           // means user="admin"
+            mnuUserWorkQueues.setVisible(false) ;
+        else if (! p.isAdministrator()) {
+            mnuCaseMgt.setVisible(p.getUserPrivileges().canManageCases());
+            mnuAdminQueues.setVisible(false);
+            mnuServiceMgt.setVisible(false);
+            mnuOrgDataMgt.setVisible(false);
+        }
     }
 
-    /** 
-     * <p>Callback method that is called after rendering is completed for
-     * this request, if <code>init()</code> was called.  Override this
-     * method to release resources acquired in the <code>init()</code>
-     * resources that will be needed for event handlers and lifecycle methods.</p>
-     * 
-     * <p>The default implementation does nothing.</p>
-     */
     public void destroy() {
     }
 
@@ -202,8 +173,6 @@ public class pfMenu extends AbstractFragmentBean {
 
 
     public String mnuMyProfile_action() {
-        // TODO: Replace with your code
-        
         return null;
     }
 
@@ -215,38 +184,34 @@ public class pfMenu extends AbstractFragmentBean {
     }
 
 
-    public String mnuServiceMgt_action() {
+    public String mnuAdminQueues_action() {
         getSessionBean().checkLogon();
         getSessionBean().setMnuSelectorStyle("top: 128px");
+        return "showAdminQueues";
+    }
+
+
+    public String mnuServiceMgt_action() {
+        getSessionBean().checkLogon();
+        getSessionBean().setMnuSelectorStyle("top: 152px");
         return "showServiceMgt";
     }
 
 
     public String mnuOrgDataMgt_action() {
         getSessionBean().checkLogon();
-        getSessionBean().setMnuSelectorStyle("top: 152px");
+        getSessionBean().setMnuSelectorStyle("top: 180px");
         return "showEditOrgData";
     }
 
 
-    public String mnuAdminQueues_action() {
-        getSessionBean().checkLogon();
-        getSessionBean().setMnuSelectorStyle("top: 180px");
-        return "showAdminQueues";
-    }
-
-
     public String mnuAdUserQueues_action() {
-        // TODO: Replace with your code
-        
         return null;
     }
 
 
     public String mnuTeamQueues_action() {
-        // TODO: Replace with your code
-        
-        return null;
+         return null;
     }
 
 

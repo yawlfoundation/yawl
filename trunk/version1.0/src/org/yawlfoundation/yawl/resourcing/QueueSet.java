@@ -8,12 +8,15 @@
 
 package org.yawlfoundation.yawl.resourcing;
 
+import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
+import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
-import java.util.Set;
 import java.io.Serializable;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * A repository of work queues belonging to a participant
@@ -126,6 +129,18 @@ public class QueueSet implements Serializable {
     }
 
 
+    public void setQueue(WorkQueue queue) {
+        switch(queue.getQueueType()) {
+            case WorkQueue.OFFERED    : _qOffered = queue; break;
+            case WorkQueue.ALLOCATED  : _qAllocated = queue; break;
+            case WorkQueue.STARTED    : _qStarted = queue; break;
+            case WorkQueue.SUSPENDED  : _qSuspended = queue; break;
+            case WorkQueue.WORKLISTED : _qWorklisted = queue; break;
+            case WorkQueue.UNOFFERED  : _qUnoffered = queue;
+        }
+    }
+
+
     public void addToQueue(WorkItemRecord wir, int queue) {
         checkQueueExists(queue) ;
         getQueue(queue).add(wir);
@@ -148,8 +163,9 @@ public class QueueSet implements Serializable {
         else return getQueue(queue).getAll();
     }
 
-    public WorkQueue getCombinedQueues() {
+    public WorkQueue getWorklistedQueues() {
         WorkQueue result = new WorkQueue() ;
+        result.setQueueType(WorkQueue.WORKLISTED);
         for (int queue = WorkQueue.OFFERED; queue <= WorkQueue.SUSPENDED; queue++)
             if (! isNullQueue(queue)) result.addQueue(getQueue(queue));
         return result ;
@@ -197,18 +213,46 @@ public class QueueSet implements Serializable {
 
         // add queue only if it has items in it
 //        if (! q.isEmpty()) {
-            switch (q.getQueueType()) {
-                case WorkQueue.OFFERED    : _qOffered = q; break;
-                case WorkQueue.ALLOCATED  : _qAllocated = q; break;
-                case WorkQueue.STARTED    : _qStarted = q; break;
-                case WorkQueue.SUSPENDED  : _qSuspended = q; break;
-                case WorkQueue.WORKLISTED : _qWorklisted = q; break;
-                case WorkQueue.UNOFFERED  : _qUnoffered = q;
-            }
+        setQueue(q);
   //      }
 //        else _persist.delete(q);                 // remove empty queue from persistence
     }
 
+    public String toXML() {
+        int max, min;
+        StringBuilder xml = new StringBuilder("<QueueSet>") ;
+        if (_type == setType.adminSet) {
+            min = WorkQueue.UNOFFERED ;
+            max = WorkQueue.WORKLISTED ;
+        }
+        else {
+            min = WorkQueue.OFFERED;
+            max = WorkQueue.SUSPENDED;
+        }
+        for (int queue = min; queue <= max; queue++)
+             if (!isNullQueue(queue)) xml.append(getQueue(queue).toXML()) ;
+
+        xml.append("</QueueSet>");
+
+        return xml.toString();
+    }
+
+
+    public void fromXML(String xml) {
+        fromXML(JDOMUtil.stringToElement(xml));
+    }
+
+
+    public void fromXML(Element element) {
+        if (element != null) {
+            Iterator itr = element.getChildren().iterator();
+            while (itr.hasNext()) {
+                WorkQueue wq = new WorkQueue() ;
+                wq.fromXML((Element) itr.next());
+                setQueue(wq) ;
+            }
+        }
+    }
 
 
     // hibernate mappings

@@ -8,16 +8,17 @@
 
 package org.yawlfoundation.yawl.resourcing.resource;
 
-import org.yawlfoundation.yawl.resourcing.QueueSet;
-import org.yawlfoundation.yawl.resourcing.WorkQueue;
-import org.yawlfoundation.yawl.resourcing.ResourceManager;
-import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
-import org.yawlfoundation.yawl.util.StringUtil;
 import org.jdom.Element;
+import org.yawlfoundation.yawl.resourcing.QueueSet;
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
+import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-import java.io.Serializable;
 
 /**
  * Represents a single participant (i.e. human) resource. Also manages the participant's
@@ -96,11 +97,15 @@ public class Participant extends AbstractResource implements Serializable {
         // create a new Participant with persistence OFF
         Participant result = new Participant(_lastname, _firstname, _userID, false);
         result.setAdministrator(_isAdministrator);
-        result.setUserPrivileges(_privileges.clone());
         result.setPassword(_password);
         result.setID(_resourceID);
         result.setNotes(_notes);
         result.setDescription(_description);
+        if (_privileges != null)
+            result.setUserPrivileges(_privileges.clone());
+        else
+            result.setUserPrivileges(new UserPrivileges(_resourceID));
+
         for (Role r : _roles) result.addRole(r);
         for (Position p : _positions ) result.addPosition(p) ;
         for (Capability c : _capabilities) result.addCapability(c);
@@ -369,15 +374,33 @@ public class Participant extends AbstractResource implements Serializable {
         return (o instanceof Participant) && ((Participant) o).getID().equals(_resourceID);
     }
 
-    public String getSummaryXML() {
+    public String toXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<participant id=\"%s\">", _resourceID)) ;
         xml.append(StringUtil.wrap(_userID, "userid"));
         xml.append(StringUtil.wrap(_firstname, "firstname"));
         xml.append(StringUtil.wrap(_lastname, "lastname"));
         xml.append(StringUtil.wrap(String.valueOf(_isAdministrator), "isAdministrator")) ;
+
+        xml.append("<roles>");
+        for (Role role : _roles) xml.append(role.toXML()) ;
+        xml.append("</roles>");
+
+        xml.append("<positions>");
+        for (Position position : _positions) xml.append(position.toXML()) ;
+        xml.append("</positions>");
+
+        xml.append("<capabilities>");
+        for (Capability capability : _capabilities) xml.append(capability.toXML()) ;
+        xml.append("</capabilities>");
+
         xml.append("</participant>");
         return xml.toString() ;
+    }
+
+    public void fromXML(String xml) {
+        if (xml != null)
+            reconstitute(JDOMUtil.stringToElement(xml)) ;       
     }
 
     public void reconstitute(Element e) {

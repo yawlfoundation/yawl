@@ -1,9 +1,11 @@
 /*
- * SessionBean1.java
- *
- * Created on October 21, 2007, 6:32 PM
- * Copyright adamsmj
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
  */
+
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractSessionBean;
@@ -21,7 +23,6 @@ import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparat
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.SpecificationDataComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.YAWLServiceComparator;
 import org.yawlfoundation.yawl.resourcing.resource.*;
-import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.FacesException;
@@ -34,183 +35,138 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.*;
 
-/**
- * <p>Session scope data bean for your application.  Create properties
- *  here to represent cached data that should be made available across
- *  multiple HTTP requests for an individual user.</p>
+/*
+ * Session scope data bean for the worklist and admin pages. Each logged in user
+ * gets and individual instance of this object.
  *
- * <p>An instance of this class will be created for you automatically,
- * the first time your application evaluates a value binding expression
- * or method binding expression that references a managed bean using
- * this class.</p>
+ * @author adamsmj
+ *
+ * Create Date: 21/10/2007
+ * Last Date: 04/03/2008
  */
+
 public class SessionBean extends AbstractSessionBean {
-    // <editor-fold defaultstate="collapsed" desc="Creator-managed Component Definition">
+
+    // REQUIRED AND/OR IMPLEMENTED ABSTRACT SESSION BEAN METHODS //
+
     private int __placeholder;
-    
-    /**
-     * <p>Automatically managed component initialization.  <strong>WARNING:</strong>
-     * This method is automatically generated, so any user-specified code inserted
-     * here is subject to being replaced.</p>
-     */
-    private void _init() throws Exception {
-    }
-    // </editor-fold>
 
+    private void _init() throws Exception { }
 
-    /** 
-     * <p>Construct a new session data bean instance.</p>
-     */
-    public SessionBean() {
-    }
+     // Constructor
+    public SessionBean() { }
 
-    /** 
-     * <p>Return a reference to the scoped data bean.</p>
-     */
+    /** @return a reference to the application data bean. */
     protected ApplicationBean getApplicationBean() {
-        return (ApplicationBean)getBean("ApplicationBean");
+        return (ApplicationBean) getBean("ApplicationBean");
     }
 
-    /** 
-     * <p>This method is called when this bean is initially added to
-     * session scope.  Typically, this occurs as a result of evaluating
-     * a value binding or method binding expression, which utilizes the
-     * managed bean facility to instantiate this bean and store it into
-     * session scope.</p>
-     * 
-     * <p>You may customize this method to initialize and cache data values
-     * or resources that are required for the lifetime of a particular
-     * user session.</p>
-     */
     public void init() {
-        // Perform initializations inherited from our superclass
         super.init();
-        // Perform application initialization that must complete
-        // *before* managed components are initialized
-        // TODO - add your own initialiation code here
 
-        // <editor-fold defaultstate="collapsed" desc="Creator-managed Component Initialization">
-        // Initialize automatically managed components
-        // *Note* - this logic should NOT be modified
+        // *Note* - this code should NOT be modified
         try {
             _init();
         } catch (Exception e) {
             log("SessionBean1 Initialization Failure", e);
             throw e instanceof FacesException ? (FacesException) e: new FacesException(e);
         }
-        // </editor-fold>
-        // Perform application initialization that must complete
-        // *after* managed components are initialized
-        // TODO - add your own initialization code here
     }
 
-    /** 
-     * <p>This method is called when the session containing it is about to be
-     * passivated.  Typically, this occurs in a distributed servlet container
-     * when the session is about to be transferred to a different
-     * container instance, after which the <code>activate()</code> method
-     * will be called to indicate that the transfer is complete.</p>
-     * 
-     * <p>You may customize this method to release references to session data
-     * or resources that can not be serialized with the session itself.</p>
-     */
-    public void passivate() {
-    }
+    public void passivate() { }
 
-    /** 
-     * <p>This method is called when the session containing it was
-     * reactivated.</p>
-     * 
-     * <p>You may customize this method to reacquire references to session
-     * data or resources that could not be serialized with the
-     * session itself.</p>
-     */
-    public void activate() {
-    }
+    public void activate() { }
 
-    /** 
-     * <p>This method is called when this bean is removed from
-     * session scope.  Typically, this occurs as a result of
-     * the session timing out or being terminated by the application.</p>
-     * 
-     * <p>You may customize this method to clean up resources allocated
-     * during the execution of the <code>init()</code> method, or
-     * at any later time during the lifetime of the application.</p>
-     */
     public void destroy() {
 
         // getApplicationBean() will throw a NPE if the session has already
         // timed out due to inactivity
         try {
             ApplicationBean app = getApplicationBean();
-            if (app != null) app.removeSessionReference(participant.getID()) ;
+            if (app != null) {
+                if (participant != null) {
+                    app.removeSessionReference(participant.getID()) ;
+                    app.removeLiveUser(userid);
+                }
+
+            }
         }
         catch (Exception e) {
             // write to log that session has already expired
         }
     }
 
-    private PanelLayout topPanel = new PanelLayout();
+    /*****************************************************************************/
 
-    public PanelLayout getTopPanel() { return topPanel; }
+    private ResourceManager _rm = getApplicationBean().getResourceManager();
 
-    public void setTopPanel(PanelLayout pl) { this.topPanel = pl; }
+    /*****************************************************************************/
 
-    private Script script1 = new Script();
+    // COMPONENTS SHARED BY SEVERAL PAGES //
 
-    public Script getScript1() {
-        return script1;
+    private Script script = new Script();                     // shared jscript ref
+
+    public Script getScript() { return script; }
+
+    public void setScript(Script s) { script = s; }
+
+
+    /******************************************************************************/
+
+    // MEMBERS, GETTERS & SETTERS //
+
+    private String userid;                          // currently userid of this session
+
+    public String getUserid() { return userid; }
+
+    public void setUserid(String id) { userid = id; }
+
+
+    private String sessionhandle;                   // engine allocated handle
+
+    public String getSessionhandle() { return sessionhandle; }
+
+    public void setSessionhandle(String handle) { sessionhandle = handle; }
+
+
+    private Participant participant ;              // logged on participant
+
+    public Participant getParticipant() { return participant ; }
+
+    public void setParticipant(Participant p) {
+        participant = p ;
+
+        // set some other members relevant to this participant
+        queueSet = p.getWorkQueues() ;
+        userFullName = p.getFullName() ;
+        getApplicationBean().addSessionReference(p.getID(), this) ;
+        if (p.isAdministrator())
+            adminQueueSet = _rm.getAdminQueues();
     }
 
-    public void setScript1(Script s) {
-        this.script1 = s;
-    }
 
-    /**
-     * Holds value of property userid.
-     */
-    private String userid;
+    private String userFullName ;                  // full name of current user
 
-    /**
-     * Getter for property userid.
-     * @return Value of property userid.
-     */
-    public String getUserid() {
+    public void setUserName(String userName) { userFullName = userName ; }
 
-        return this.userid;
-    }
+    public String getUserName() { return userFullName ; }
 
-    /**
-     * Setter for property userid.
-     * @param userid New value of property userid.
-     */
-    public void setUserid(String userid) {
 
-        this.userid = userid;
-    }
+    private QueueSet adminQueueSet = null;         // admin work queues
 
-    /**
-     * Holds value of property sessionhandle.
-     */
-    private String sessionhandle;
+    public QueueSet getAdminQueueSet() { return adminQueueSet; }
 
-    /**
-     * Getter for property sessionhandle.
-     * @return Value of property sessionhandle.
-     */
-    public String getSessionhandle() {
+    public void setAdminQueueSet(QueueSet qSet) { adminQueueSet = qSet; }
 
-        return this.sessionhandle;
-    }
 
-    /**
-     * Setter for property sessionhandle.
-     * @param sessionhandle New value of property sessionhandle.
-     */
-    public void setSessionhandle(String sessionhandle) {
-        this.sessionhandle = sessionhandle;
-    }
+    private QueueSet queueSet ;                     // the user's work queues
 
+    public QueueSet getQueueSet() { return queueSet; }
+
+    public void setQueueSet(QueueSet qSet) { queueSet = qSet; }
+
+
+    /** @return the id of the external http session */
     public String getExternalSessionID() {
         ExternalContext externalContext = getFacesContext().getExternalContext();
         if (externalContext != null)
@@ -219,41 +175,8 @@ public class SessionBean extends AbstractSessionBean {
            return null ;
     }
 
-    private Participant participant ;
 
-    public Participant getParticipant() { return participant ; }
-
-    public void setParticipant(Participant p) {
-        participant = p ;
-        queueSet = p.getWorkQueues() ;
-        userFullName = p.getFullName() ;
-        getApplicationBean().addSessionReference(p.getID(), this) ;
-        if (p.isAdministrator()) adminQueueSet = getGateway().getAdminQueues();
-    }
-
-
-    private String userFullName ;
-
-    public void setUserName(String userName) { userFullName = userName ; }
-
-    public String getUserName() { return userFullName ; }
-
-    private QueueSet adminQueueSet = null;
-
-    public QueueSet getAdminQueueSet() {
-        return adminQueueSet;
-    }
-
-    public void setAdminQueueSet(QueueSet qSet) {
-        adminQueueSet = qSet;
-    }
-
-    private QueueSet queueSet ;
-
-    public QueueSet getQueueSet() { return queueSet; }
-
-    public void setQueueSet(QueueSet qSet) { queueSet = qSet; }
-
+    /** @return the set of wir's for the queue passed */
     public Set<WorkItemRecord> getQueue(int qType) {
         Set<WorkItemRecord> result = null ;
         QueueSet qSet = (qType < WorkQueue.UNOFFERED) ? queueSet : adminQueueSet ;
@@ -261,135 +184,26 @@ public class SessionBean extends AbstractSessionBean {
         return result ;
     }
 
+
     public int getQueueSize(int qType) {
         QueueSet qSet = (qType < WorkQueue.UNOFFERED) ? queueSet : adminQueueSet ;
         return ( (qSet != null) ? qSet.getQueueSize(qType) : 0 ) ;
     }
 
+
     public Set<WorkItemRecord> refreshQueue(int qType) {
-        queueSet = participant.getWorkQueues() ;
-        if (participant.isAdministrator()) adminQueueSet = getGateway().getAdminQueues();
+        if (participant != null) {
+            queueSet = participant.getWorkQueues() ;
+            if (participant.isAdministrator())
+                adminQueueSet = _rm.getAdminQueues();
+        }
+        else adminQueueSet = _rm.getAdminQueues();
+
         return getQueue(qType) ;
     }
 
-    public boolean isUniqueUserID(String id) {
-        return (getGateway().getParticipantFromUserID(id) == null) ;
-    }
 
-
-    /**
-     * Holds value of property worklistOptions.
-     */
-    private com.sun.rave.web.ui.model.Option[] worklistOptions;
-    private com.sun.rave.web.ui.model.Option[] loadedSpecListOptions;
-    private com.sun.rave.web.ui.model.Option[] runningCaseListOptions;
-    private com.sun.rave.web.ui.model.Option[] selectUserListOptions;
-    private com.sun.rave.web.ui.model.Option[] ownedResourceAttributes;
-    private com.sun.rave.web.ui.model.Option[] availableResourceAttributes;
-
-    public Option[] getOwnedResourceAttributes() {
-        return ownedResourceAttributes;
-    }
-
-    public void setOwnedResourceAttributes(Option[] ownedResourceAttributes) {
-        this.ownedResourceAttributes = ownedResourceAttributes;
-    }
-
-    public Option[] getAvailableResourceAttributes() {
-        return availableResourceAttributes;
-    }
-
-    public void setAvailableResourceAttributes(Option[] availableResourceAttributes) {
-        this.availableResourceAttributes = availableResourceAttributes;
-    }
-
-    /**
-     * Getter for property worklistOptions.
-     * @return Value of property worklistOptions.
-     */
-    public com.sun.rave.web.ui.model.Option[] getWorklistOptions() {
-        return this.worklistOptions;
-    }
-
-    public com.sun.rave.web.ui.model.Option[] getLoadedSpecListOptions() {
-        return this.loadedSpecListOptions;
-    }
-
-    public com.sun.rave.web.ui.model.Option[] getRunningCaseListOptions() {
-        return this.runningCaseListOptions;
-    }
-
-    public com.sun.rave.web.ui.model.Option[] getSelectUserListOptions() {
-        return this.selectUserListOptions;
-    }
-
-    /**
-     * Setter for property worklistOptions.
-     * @param worklistOptions New value of property worklistOptions.
-     */
-    public void setWorklistOptions(com.sun.rave.web.ui.model.Option[] worklistOptions) {
-        this.worklistOptions = worklistOptions;
-    }
-
-    public void setLoadedSpecListOptions(com.sun.rave.web.ui.model.Option[] options) {
-        loadedSpecListOptions = options;
-    }
-
-    public void setRunningCaseListOptions(com.sun.rave.web.ui.model.Option[] options) {
-        runningCaseListOptions = options;
-    }
-
-    public void setSelectUserListOptions(com.sun.rave.web.ui.model.Option[] options) {
-        selectUserListOptions = options;
-    }
-
-    /**
-     * Holds value of property worklistChoice.
-     */
-    private String worklistChoice;
-    private String loadedSpecListChoice;
-    private String runningCaseListChoice;
-    private String selectUserListChoice;
-
-    private WorkItemRecord chosenWIR = null;
-
-    /**
-     * Getter for property worklistChoice.
-     * @return Value of property worklistChoice.
-     */
-    public String getWorklistChoice() { return worklistChoice; }
-    public String getLoadedSpecListChoice() { return loadedSpecListChoice; }
-    public String getRunningCaseListChoice() { return runningCaseListChoice; }
-    public String getSelectUserListChoice() { return selectUserListChoice; }
-
-    /**
-     * Setter for property worklistChoice.
-     * @param choice New value of property worklistChoice.
-     */
-    public void setWorklistChoice(String choice) { worklistChoice = choice ; }
-    public void setLoadedSpecListChoice(String choice) { loadedSpecListChoice = choice ; }
-    public void setRunningCaseListChoice(String choice) { runningCaseListChoice = choice ; }
-    public void setSelectUserListChoice(String choice) { selectUserListChoice = choice; }
-
-
-    public WorkItemRecord getChosenWIR(int qType) {
-        if (participant != null) {
-            Set<WorkItemRecord> items = getQueue(qType);
-            if (items != null) {
-                for (WorkItemRecord wir : items) {
-                    if (wir != null) {
-                        if (wir.getID().equals(worklistChoice)) {
-                            chosenWIR = wir ;
-                            break ;
-                        }
-                    }    
-                }
-                return chosenWIR ;
-            }
-        }    
-        return null ;
-    }
-
+    // 'case' if initialising case or 'item' if editing workitem
     private String dynFormLevel;
 
     public String getDynFormLevel() { return dynFormLevel; }
@@ -397,11 +211,117 @@ public class SessionBean extends AbstractSessionBean {
     public void setDynFormLevel(String level) { dynFormLevel = level; }
 
 
+    /*******************************************************************************/
+
+    // LISTBOX MEMBERS, GETTERS & SETTERS
+
+    // option sets for the various listboxes
+    private Option[] worklistOptions;
+    private Option[] loadedSpecListOptions;
+    private Option[] runningCaseListOptions;
+    private Option[] selectUserListOptions;
+    private Option[] ownedResourceAttributes;
+    private Option[] availableResourceAttributes;
+
+    // user selection from each listbox
+    private String worklistChoice;
+    private String loadedSpecListChoice;
+    private String runningCaseListChoice;
+    private String selectUserListChoice;
+
+    public Option[] getOwnedResourceAttributes() {
+        return ownedResourceAttributes;
+    }
+
+    public Option[] getAvailableResourceAttributes() {
+        return availableResourceAttributes;
+    }
+
+    public Option[] getWorklistOptions() {
+        return worklistOptions;
+    }
+
+    public Option[] getLoadedSpecListOptions() {
+        return loadedSpecListOptions;
+    }
+
+    public Option[] getRunningCaseListOptions() {
+        return runningCaseListOptions;
+    }
+
+    public Option[] getSelectUserListOptions() {
+        return selectUserListOptions;
+    }
+
+    public void setOwnedResourceAttributes(Option[] attributes) {
+        ownedResourceAttributes = attributes;
+    }
+
+    public void setWorklistOptions(Option[] options) {
+        worklistOptions = options;
+    }
+
+    public void setLoadedSpecListOptions(Option[] options) {
+        loadedSpecListOptions = options;
+    }
+
+    public void setRunningCaseListOptions(Option[] options) {
+        runningCaseListOptions = options;
+    }
+
+    public void setSelectUserListOptions(Option[] options) {
+        selectUserListOptions = options;
+    }
+
+    public void setAvailableResourceAttributes(Option[] attributes) {
+        availableResourceAttributes = attributes;
+    }
+
+    public String getWorklistChoice() { return worklistChoice; }
+    public String getLoadedSpecListChoice() { return loadedSpecListChoice; }
+    public String getRunningCaseListChoice() { return runningCaseListChoice; }
+    public String getSelectUserListChoice() { return selectUserListChoice; }
+
+    public void setWorklistChoice(String choice) { worklistChoice = choice ; }
+    public void setLoadedSpecListChoice(String choice) { loadedSpecListChoice = choice ; }
+    public void setRunningCaseListChoice(String choice) { runningCaseListChoice = choice ; }
+    public void setSelectUserListChoice(String choice) { selectUserListChoice = choice; }
+
+
+    // the wir matching the item id selected by the user
+    private WorkItemRecord chosenWIR = null;
+
+    public WorkItemRecord getChosenWIR(int qType) {
+        Set<WorkItemRecord> items = getQueue(qType);
+        if (items != null) {
+            for (WorkItemRecord wir : items) {
+                if (wir != null) {
+                    if (wir.getID().equals(worklistChoice)) {
+                        chosenWIR = wir ;
+                        return wir;
+                    }
+                }
+            }
+        }   
+        return null ;
+    }
+
+    public boolean isFirstWorkItemChosen() {
+        if ((worklistOptions != null) && (worklistOptions.length > 0)) {
+            String first = (String) getWorklistOptions()[0].getValue();
+            return (first.equals(worklistChoice));
+        }
+        else return false;
+    }
+
 
     public void setChosenWIR(WorkItemRecord wir) { chosenWIR = wir ; }
 
+    
     public void doLogout() {
-        getGateway().logout(sessionhandle) ;
+        _rm.logout(sessionhandle) ;
+        getApplicationBean().removeLiveUser(userid);
+        
         FacesContext context = FacesContext.getCurrentInstance();
         if (context != null) {             // if null, session already destroyed
             HttpSession session = (HttpSession) context.getExternalContext().getSession(false);
@@ -410,7 +330,7 @@ public class SessionBean extends AbstractSessionBean {
     }
 
     public void checkLogon() {
-        if (! getGateway().isValidSession(sessionhandle)) {
+        if (! _rm.isValidSession(sessionhandle)) {
             doLogout();
             gotoPage("Login");
         }
@@ -436,14 +356,6 @@ public class SessionBean extends AbstractSessionBean {
                 // message about destroyed app
             }
         }
-    }
-
-    private WorkQueueGateway getGateway() {
-        return getApplicationBean().getWorkQueueGateway() ;
-    }
-
-    private ResourceManager getResourceManager() {
-        return getApplicationBean().getResourceManager();
     }
 
     private Map<String, FormParameter> dynFormParams ;
@@ -529,7 +441,7 @@ public class SessionBean extends AbstractSessionBean {
         String result = null;
         try {
             YAWLServiceReference service = registeredServices.get(listIndex);
-            result = getGateway().removeRegisteredService(service.get_yawlServiceID(),
+            result = _rm.removeRegisteredService(service.get_yawlServiceID(),
                                                                          sessionhandle);
             if (Interface_Client.successful(result)) refreshRegisteredServices();
         }
@@ -545,7 +457,7 @@ public class SessionBean extends AbstractSessionBean {
         try {
             YAWLServiceReference service = new YAWLServiceReference(uri, null, name);
             service.set_documentation(doco);
-            result = getGateway().addRegisteredService(service, sessionhandle);
+            result = _rm.addRegisteredService(service, sessionhandle);
             if (Interface_Client.successful(result)) refreshRegisteredServices();
         }
         catch (IOException ioe) {
@@ -556,27 +468,22 @@ public class SessionBean extends AbstractSessionBean {
 
     
     public void refreshRegisteredServices() {
-        try {
-            Set services = getGateway().getRegisteredServices(sessionhandle);
-            if (services != null) {
+        Set services = _rm.getRegisteredServices(sessionhandle);
+        if (services != null) {
 
-                // sort the items
-                List<YAWLServiceReference> servList =
-                                                   new ArrayList<YAWLServiceReference>();
-                for (Object obj : services) {
-                    YAWLServiceReference service = (YAWLServiceReference) obj;
-                    if (service.isAssignable())
-                        servList.add(service) ;
-                }
-                registeredServices = servList;
-                Collections.sort(registeredServices, new YAWLServiceComparator());
+            // sort the items
+            List<YAWLServiceReference> servList =
+                    new ArrayList<YAWLServiceReference>();
+            for (Object obj : services) {
+                YAWLServiceReference service = (YAWLServiceReference) obj;
+                if (service.isAssignable())
+                    servList.add(service) ;
             }
-            else
-                registeredServices = null ;
+            registeredServices = servList;
+            Collections.sort(registeredServices, new YAWLServiceComparator());
         }
-        catch (IOException ioe) {
+        else
             registeredServices = null ;
-        }
     }
 
 
@@ -601,7 +508,7 @@ public class SessionBean extends AbstractSessionBean {
     
 
     public void refreshLoadedSpecs() {
-        Set<SpecificationData> specDataSet = getGateway().getLoadedSpecs(sessionhandle) ;
+        Set<SpecificationData> specDataSet = _rm.getLoadedSpecs(sessionhandle) ;
 
         if (specDataSet != null) {
             loadedSpecs = new ArrayList<SpecificationData>(specDataSet);
@@ -619,23 +526,23 @@ public class SessionBean extends AbstractSessionBean {
 
 
     public String getCaseSchema() {
-        return getResourceManager().getDataSchema(getLoadedSpecListChoice()) ;    
+        return _rm.getDataSchema(getLoadedSpecListChoice()) ;
     }
 
     public String getInstanceData(String schema) {
-        return getResourceManager().getInstanceData(schema, getLoadedSpecListChoice()) ;
+        return _rm.getInstanceData(schema, getLoadedSpecListChoice()) ;
     }
 
 
     public String getTaskSchema(WorkItemRecord wir) {
-        return getResourceManager().getDataSchema(wir) ;
+        return _rm.getDataSchema(wir) ;
     }
 
     public String getInstanceData(String schema, WorkItemRecord wir) {
         if (isDirty(wir.getID()))
             return JDOMUtil.elementToStringDump(wir.getUpdatedData());
         else
-            return getResourceManager().getInstanceData(schema, wir) ;
+            return _rm.getInstanceData(schema, wir) ;
     }
 
 
@@ -645,7 +552,7 @@ public class SessionBean extends AbstractSessionBean {
 //        schemaLibraries = new Hashtable<String, String>();
 //        for (SpecificationData spec : loadedSpecs) {
 //            try {
-//                String schema = getResourceManager().getSchemaLibrary(spec.getID(),
+//                String schema = _rm.getSchemaLibrary(spec.getID(),
 //                                                                      sessionhandle) ;
 //                if (schema != null)
 //                    schemaLibraries.put(spec.getID(), schema) ;
@@ -661,7 +568,7 @@ public class SessionBean extends AbstractSessionBean {
 
         // not in local cache, try getting it from engine
         if (result == null) {
-            result = getResourceManager().getDataSchema(specID) ;
+            result = _rm.getDataSchema(specID) ;
 
             // not in engine = problem or not loaded
             if (result != null) schemaLibraries.put(specID, result) ;
@@ -685,7 +592,7 @@ public class SessionBean extends AbstractSessionBean {
 
     public void populateAdminQueueAssignedList(WorkItemRecord wir) {
         adminQueueAssignedList = null ;
-        Set<Participant> pSet = getResourceManager().getParticipantsAssignedWorkItem(wir) ;
+        Set<Participant> pSet = _rm.getParticipantsAssignedWorkItem(wir) ;
 
         if (pSet != null) {
             adminQueueAssignedList = new Option[pSet.size()];
@@ -724,11 +631,11 @@ public class SessionBean extends AbstractSessionBean {
         WorkItemRecord wir ;
         if (action.startsWith("Re")) {
             wir = getChosenWIR(WorkQueue.WORKLISTED);
-            getResourceManager().reassignWorklistedItem(wir, participantID, action) ;
+            _rm.reassignWorklistedItem(wir, participantID, action) ;
         }    
         else  {
             wir = getChosenWIR(WorkQueue.UNOFFERED);
-            getResourceManager().assignUnofferedItem(wir, participantID, action) ;
+            _rm.assignUnofferedItem(wir, participantID, action) ;
         }
     }
 
@@ -756,7 +663,7 @@ public class SessionBean extends AbstractSessionBean {
 
     private HashMap<String, Participant> getParticipantMap() {
         if (participantMap == null)
-            participantMap = getResourceManager().getParticipantMap();
+            participantMap = _rm.getParticipantMap();
         return participantMap;
     }
 
@@ -839,14 +746,14 @@ public class SessionBean extends AbstractSessionBean {
     public Option[] getFullResourceAttributeList(String tab) {
         Option[] options = null;
         if (tab.equals("tabRoles")) {
-            options = getRoleList(getResourceManager().getRoleMap());
+            options = getRoleList(_rm.getRoleMap());
         }
         else if (tab.equals("tabPosition")) {
-            options = getPositionList(getResourceManager().getPositionMap());
+            options = getPositionList(_rm.getPositionMap());
 
         }
         else if (tab.equals("tabCapability"))  {
-            options = getCapabilityList(getResourceManager().getCapabilityMap());
+            options = getCapabilityList(_rm.getCapabilityMap());
         }
         availableResourceAttributes = options ;                    // set session member
         return options ;
@@ -984,7 +891,7 @@ public class SessionBean extends AbstractSessionBean {
     }
 
     public String addParticipant(Participant p) {
-        String newID = getResourceManager().addParticipant(p);
+        String newID = _rm.addParticipant(p);
         refreshOrgDataParticipantList();
         editedParticipant = p ;
         return newID;
@@ -992,7 +899,7 @@ public class SessionBean extends AbstractSessionBean {
 
     public void removeParticipant(Participant p) {
         Participant pToRemove = participantMap.get(p.getID());
-        getResourceManager().removeParticipant(pToRemove);
+        _rm.removeParticipant(pToRemove);
         refreshOrgDataParticipantList();
         editedParticipant = null ;
     }

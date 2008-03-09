@@ -471,13 +471,13 @@ public class adminQueues extends AbstractPageBean {
     }
 
     public String tabUnOffered_action() {
-        int itemCount = populateQueue(WorkQueue.UNOFFERED);
+        populateQueue(WorkQueue.UNOFFERED);
         return null;
     }
 
 
     public String tabWorklisted_action() {
-        int itemCount = populateQueue(WorkQueue.WORKLISTED);
+        populateQueue(WorkQueue.WORKLISTED);
         return null;
     }
 
@@ -505,13 +505,11 @@ public class adminQueues extends AbstractPageBean {
         Set<WorkItemRecord> queue = getSessionBean().refreshQueue(queueType);
         ((pfQueueUI) getBean("pfQueueUI")).clearQueueGUI();
 
-        if (queue != null) {
-            if (!queue.isEmpty()) {
-                WorkItemRecord firstWir = addItemsToListOptions(queue) ;
-                WorkItemRecord choice = getSessionBean().getChosenWIR(queueType) ;
-                if (choice == null) choice = firstWir ;
-                showWorkItem(choice, queueType);
-            }
+        if ((queue != null) && (!queue.isEmpty())) {
+            WorkItemRecord firstWir = addItemsToListOptions(queue) ;
+            WorkItemRecord choice = getSessionBean().getChosenWIR(queueType) ;
+            if (choice == null) choice = firstWir ;
+            showWorkItem(choice, queueType);
             result = queue.size() ;
         }
         return result ;
@@ -527,6 +525,7 @@ public class adminQueues extends AbstractPageBean {
             cbbAssignedTo.setItems(getSessionBean().getAdminQueueAssignedList());
             lblAssignedTo.setText(getSessionBean().getAssignedToText());
             txtResourceState.setText(wir.getResourceStatus());
+            processButtonEnablement(wir.getResourceStatus());
         }
     }
 
@@ -550,5 +549,9 @@ public class adminQueues extends AbstractPageBean {
         return result ;
     }
 
-
+    private void processButtonEnablement(String status) {
+        btnReallocate.setDisabled(status.equals(WorkItemRecord.statusResourceOffered));
+        btnRestart.setDisabled(status.equals(WorkItemRecord.statusResourceOffered) ||
+                               status.equals(WorkItemRecord.statusResourceAllocated));
+    }
 }

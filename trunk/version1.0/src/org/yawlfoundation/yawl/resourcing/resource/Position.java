@@ -107,18 +107,27 @@ public class Position extends AbstractResourceAttribute {
     }
 
 
-    public String getSummaryXML() {
+    public String toXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<position id=\"%s\">", _id)) ;
-        xml.append(StringUtil.wrap(_positionID, "positionID"));
+        xml.append(StringUtil.wrap(_positionID, "positionid"));
         xml.append(StringUtil.wrap(_description, "description"));
+        xml.append(StringUtil.wrap(_notes, "notes"));
+        if (_orgGroup != null)
+            xml.append(StringUtil.wrap(_orgGroup.getID(), "orggroupid"));
+        if (_reportsTo != null)
+            xml.append(StringUtil.wrap(_reportsTo.getID(), "reportstoid"));
         xml.append("</position>");
         return xml.toString() ;
     }
 
+    
+
     public void reconstitute(Element e) {
         super.reconstitute(e);
-        setPositionID(e.getChildText("positionID"));
+        setPositionID(e.getChildText("positionid"));
+        set_reportsToID(e.getChildText("reportstoid"));
+        set_orgGroupID(e.getChildText("orggroupid"));
     }
 
     // Other-than-hibernate mappings

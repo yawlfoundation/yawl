@@ -103,6 +103,17 @@ public class YLogGateway extends HttpServlet {
                String eventType = req.getParameter("eventtype");
                result = _logMgr.getAllCaseEventIDs(eventType);
            }
+           else if (action.equalsIgnoreCase("getCaseEventTime")) {
+               String eventType = req.getParameter("eventtype");
+               if (eventType != null) {
+                   String caseID = req.getParameter("caseid") ;
+                   result = _logMgr.getCaseEventTime(caseID, eventType);
+               }
+               else {
+                   String caseEventID = req.getParameter("eventid") ;
+                   result = _logMgr.getCaseEventTime(caseEventID);                   
+               }
+           }
            else if (action.equalsIgnoreCase("getWorkItemDataForChildWorkItemEventID")) {
                String childEventID = req.getParameter("eventid") ;
                result = _logMgr.getChildWorkItemData(childEventID) ;

@@ -53,18 +53,22 @@ public class Role extends AbstractResourceAttribute {
     }
    
 
-    public String getSummaryXML() {
+    public String toXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<role id=\"%s\">", _id)) ;
         xml.append(StringUtil.wrap(_role, "name"));
         xml.append(StringUtil.wrap(_description, "description"));
+        xml.append(StringUtil.wrap(_notes, "notes"));
+        if (_belongsTo !=null)
+            xml.append(StringUtil.wrap(_belongsTo.getID(), "belongsToID")) ;
         xml.append("</role>");
         return xml.toString() ;
     }
 
-        public void reconstitute(Element e) {
+    public void reconstitute(Element e) {
         super.reconstitute(e);
         setName(e.getChildText("name"));
+        set_belongsToID(e.getChildText("belongsToID"));
     }
 
     // Other-than-hibernate mappings

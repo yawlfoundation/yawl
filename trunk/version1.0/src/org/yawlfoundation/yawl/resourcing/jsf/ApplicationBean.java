@@ -12,16 +12,13 @@ import com.sun.rave.web.ui.appbase.AbstractApplicationBean;
 import com.sun.rave.web.ui.component.Link;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
-import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGateway;
 
 import javax.faces.FacesException;
 import javax.faces.application.Application;
 import javax.faces.application.ViewHandler;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Application scope data bean for the worklist and admin pages.
@@ -37,9 +34,7 @@ import java.util.Map;
 
 public class ApplicationBean extends AbstractApplicationBean {
 
-    /*******************************************************************************/
-    /**************** START Creator auto generated code ****************************/
-    /*******************************************************************************/
+    // REQUIRED AND/OR IMPLEMENTED ABSTRACT PAGE BEAN METHODS //
 
     private int __placeholder;
 
@@ -51,8 +46,6 @@ public class ApplicationBean extends AbstractApplicationBean {
     public void init() {
         super.init();
 
-        // Add init code here that must complete *before* managed components are initialized
-
         // Initialize automatically managed components - do not modify
         try {
             _init();
@@ -62,7 +55,7 @@ public class ApplicationBean extends AbstractApplicationBean {
         }
 
         // Add init code here that must complete *after* managed components are initialized
-        _wqg.registerJSFApplicationReference(this) ;
+        _rm.registerJSFApplicationReference(this) ;
     }
 
     public void destroy() { }
@@ -71,11 +64,12 @@ public class ApplicationBean extends AbstractApplicationBean {
         return super.getLocaleCharacterEncoding();
     }
 
-    /*******************************************************************************/
-    /**************** END Creator auto generated code  *****************************/
+
     /*******************************************************************************/
 
-    // the favicon link - for all pages
+    // GLOBAL COMPONENTS //
+
+    // favIcon appears in the browser's address bar for all pages
     private Link favIcon = new Link() ;
 
     public Link getFavIcon() { return favIcon; }
@@ -83,18 +77,24 @@ public class ApplicationBean extends AbstractApplicationBean {
     public void setFavIcon(Link link) { favIcon = link; }
 
 
-    // reference of gateway to resourceService
-    private WorkQueueGateway _wqg = WorkQueueGateway.getInstance();
+    /*******************************************************************************/
 
+    // MEMBERS AND METHODS USED BY ALL SESSIONS //
+
+    private static final int PAGE_AUTO_REFRESH_RATE = 30 ;
+
+    // reference to resource manager
     private ResourceManager _rm = ResourceManager.getInstance();
-
-
-    public WorkQueueGateway getWorkQueueGateway() { return _wqg ; }
 
     public ResourceManager getResourceManager() { return _rm; }
 
-    public int getDefaultJSFRefreshRate() { return 5 ; }
 
+    public int getDefaultJSFRefreshRate() {
+        return PAGE_AUTO_REFRESH_RATE ;
+    }
+
+
+    // mapping of participant id to each session
     private Map<String, SessionBean> sessionReference = new HashMap<String, SessionBean>();
 
     public void addSessionReference(String participantID, SessionBean sBean) {
@@ -115,6 +115,37 @@ public class ApplicationBean extends AbstractApplicationBean {
     }
 
 
+    // set of participants currently logged on
+    private Set<String> liveUsers = new HashSet<String>();
+
+    public Set<String> getLiveUsers() {
+        return liveUsers;
+    }
+
+    public void setLiveUsers(Set<String> userSet) {
+        liveUsers = userSet;
+    }
+
+    public void addLiveUser(String userid) {
+        liveUsers.add(userid);
+    }
+
+    public void removeLiveUser(String userid) {
+        if (isLoggedOn(userid)) liveUsers.remove(userid);
+    }
+
+    public boolean isLoggedOn(String userid) {
+        return liveUsers.contains(userid);
+    }
+
+
+    /** @return true if the id passed is not a currently used userid */
+    public boolean isUniqueUserID(String id) {
+        return (getResourceManager().getParticipantFromUserID(id) == null) ;
+    }
+
+    
+
     /**
      * formats a long time value into a string of the form 'ddd:hh:mm:ss'
      * @param age the time value (in milliseconds)
@@ -134,7 +165,7 @@ public class ApplicationBean extends AbstractApplicationBean {
         return String.format("%d:%02d:%02d:%02d", days, hours, mins, age) ;
     }
 
-
+    /** @deprecated */
     public Map<String, FormParameter> yParamListToFormParamMap(List params) {
         Map<String, FormParameter> result = new HashMap<String, FormParameter>();
         for (Object obj : params) {

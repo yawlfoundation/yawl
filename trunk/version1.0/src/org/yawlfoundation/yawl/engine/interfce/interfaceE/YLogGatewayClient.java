@@ -147,6 +147,45 @@ public class YLogGatewayClient extends Interface_Client {
         return performGet("getParentWorkItemEventsForCaseID", "caseid", caseID, handle) ;
     }
 
+
+    /**
+     * Gets the time of a case event
+     * @param handle an active sessionhandle
+     * @param eventID the id of the case event
+     * @return an XML'd String encapsulating the long value of the event timestamp
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getCaseEventTime(String eventID, String handle) throws IOException  {
+        return performGet("getCaseEventTime", "eventid", eventID, handle) ;
+    }
+
+
+    /**
+     * Gets the time of a case event
+     * @param handle an active sessionhandle
+     * @param caseID the case id 
+     * @param eventType one of "started", "completed" or "cancelled"
+     * @return an XML'd String encapsulating the long value of the event timestamp
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getCaseEventTime(String caseID, String eventType, String handle)
+                                                                  throws IOException  {
+        StringBuilder sb = new StringBuilder(_logURI) ;
+        sb.append("?action=getCaseEventTime") ;
+        sb.append("&caseid=").append(caseID);
+        sb.append("&eventtype=").append(eventType);
+        sb.append("&handle=").append(handle);
+        return executeGet(sb.toString());
+    }
+
+
+    /**
+     * Gets the list of input and output parameters and values for a workitem
+     * @param childEventID the workitem instance log id
+     * @param handle an active sessionhandle
+     * @return an XML'd String of the workitem's data
+     * @throws IOException if there's a problem connecting to the engine
+     */
     public String getChildWorkItemData(String childEventID, String handle)
                                                                      throws IOException {
         return performGet("getWorkItemDataForChildWorkItemEventID", "eventid",

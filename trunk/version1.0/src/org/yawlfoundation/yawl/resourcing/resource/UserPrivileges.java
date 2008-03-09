@@ -8,6 +8,10 @@
 
 package org.yawlfoundation.yawl.resourcing.resource;
 
+import org.jdom.Element;
+import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
+
 import java.io.Serializable;
 
 /**
@@ -173,6 +177,46 @@ public class UserPrivileges implements Serializable {
 
     public void setCanManageCases(boolean canManageCases) {
          this.canManageCases = canManageCases;
-     }
+    }
 
+
+    public String toXML() {
+        StringBuilder xml = new StringBuilder("<UserPrivileges") ;
+        xml.append(" participantid=\"").append(_participantID).append("\">")
+           .append(wrapPrivilege(canChooseItemToStart(), "canChooseItemToStart"))
+           .append(wrapPrivilege(canStartConcurrent(), "canStartConcurrent"))
+           .append(wrapPrivilege(canReorder(), "canReorder"))
+           .append(wrapPrivilege(canViewAllOffered(), "canViewAllOffered"))
+           .append(wrapPrivilege(canViewAllAllocated(), "canViewAllAllocated"))
+           .append(wrapPrivilege(canViewAllExecuting(), "canViewAllExecuting"))
+           .append(wrapPrivilege(canViewTeamItems(), "canViewTeamItems"))
+           .append(wrapPrivilege(canViewOrgGroupItems(), "canViewOrgGroupItems"))
+           .append(wrapPrivilege(canChainExecution(), "canChainExecution"))
+           .append(wrapPrivilege(canManageCases(), "canManageCases"))
+           .append("</UserPrivileges>");
+
+        return xml.toString();
+    }
+
+    public void fromXML(String xml) {
+        Element e = JDOMUtil.stringToElement(xml);
+        if (e != null) {
+            setID(e.getAttributeValue("participantid"));
+            setCanChooseItemToStart(e.getChildText("canChooseItemToStart").equals("true"));
+            setCanStartConcurrent(e.getChildText("canStartConcurrent").equals("true"));
+            setCanReorder(e.getChildText("canReorder").equals("true"));
+            setCanViewAllOffered(e.getChildText("canViewAllOffered").equals("true"));
+            setCanViewAllAllocated(e.getChildText("canViewAllAllocated").equals("true"));
+            setCanViewAllExecuting(e.getChildText("canViewAllExecuting").equals("true"));
+            setCanViewTeamItems(e.getChildText("canViewTeamItems").equals("true"));
+            setCanViewOrgGroupItems(e.getChildText("canViewOrgGroupItems").equals("true"));
+            setCanChainExecution(e.getChildText("canChainExecution").equals("true"));
+            setCanManageCases(e.getChildText("canManageCases").equals("true"));
+        }
+    }
+
+    private String wrapPrivilege(boolean value, String name) {
+        return StringUtil.wrap(String.valueOf(value), name);
+    }
 }
+

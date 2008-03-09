@@ -8,13 +8,20 @@
 
 package org.yawlfoundation.yawl.resourcing;
 
+import org.jdom.Element;
+import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
+import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
-import java.util.*;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Convenience class that encapsulates the various work queues for a Participant and/or
@@ -93,19 +100,20 @@ public class WorkQueue implements Serializable {
 
 
     /**
-     * adds an entry in the process log when a workitem is added to a queue (since that
-     * signifies a resourcing status change). Additions to admin queues are ignored.
+     * adds an entry in the process log when a workitem is added to a queue
+     * (since that signifies a resourcing status change).
+     * Additions to the admin worklisted queue is ignored.
      *
      * @param wir the workitem effecting the change
      */
     private void logEvent(WorkItemRecord wir) {
-        if (_queueType < UNOFFERED)
+        if (_queueType < WORKLISTED)
             EventLogger.log(wir, _ownerID, _queueType) ;
     }
 
 
     private void logEvent(HashMap<String, WorkItemRecord> map) {
-        if (_queueType < UNOFFERED)
+        if (_queueType < WORKLISTED)
             for (WorkItemRecord wir : map.values()) logEvent(wir) ;        
     }
 
@@ -246,6 +254,40 @@ public class WorkQueue implements Serializable {
         return getQueueName(_queueType) ;
     }
 
+
+    public String toXML() {
+        StringBuilder xml = new StringBuilder("<WorkQueue>");
+        xml.append(StringUtil.wrap(String.valueOf(_queueType), "queuetype"));
+        xml.append(StringUtil.wrap(_ownerID, "ownerid")) ;
+        xml.append("<workitems>");
+        for (WorkItemRecord wir : _workitems.values()) {
+            xml.append(wir.toXML());
+        }
+        xml.append("</workitems>");
+        xml.append("</WorkQueue>");
+        return xml.toString();
+    }
+
+
+    public void fromXML(String xml) {
+        fromXML(JDOMUtil.stringToElement(xml));
+    }
+
+    public void fromXML(Element element) {
+        if (element != null) {
+            _queueType = new Integer(element.getChildText("queuetype"));
+            _ownerID = element.getChildText("ownerid");
+            Element items = element.getChild("workitems");
+            if (items != null) {
+               Iterator itr = items.getChildren().iterator();
+                while (itr.hasNext()) {
+                    Element item = (Element) itr.next();
+                    WorkItemRecord wir = Marshaller.unmarshalWorkItem(item) ;
+                    _workitems.put(wir.getID(), wir);
+                }
+            }
+        }
+    }
 
     // hibernate mappings
 

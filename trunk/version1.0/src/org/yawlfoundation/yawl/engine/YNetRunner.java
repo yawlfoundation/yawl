@@ -482,6 +482,7 @@ public class YNetRunner // extends Thread
         }
 
         List tasks = new ArrayList(_net.getNetElements().values());
+        YEnabledTransitionSet enabledTransitions = new YEnabledTransitionSet();
 
         Iterator tasksIter = tasks.iterator();
         while (tasksIter.hasNext()) {
@@ -495,8 +496,8 @@ public class YNetRunner // extends Thread
 
                     boolean taskRecordedAsBusy = _busyTasks.contains(task);
 
-                    if (!taskRecordedAsEnabled && !taskRecordedAsBusy) {
-
+                    if (!taskRecordedAsEnabled && !taskRecordedAsBusy) {                       
+                        enabledTransitions.add(task) ;
                         if (task instanceof YAtomicTask) {
                             YAtomicTask atomicTask = (YAtomicTask) task;
                             YAWLServiceGateway wsgw = (YAWLServiceGateway) atomicTask.getDecompositionPrototype();

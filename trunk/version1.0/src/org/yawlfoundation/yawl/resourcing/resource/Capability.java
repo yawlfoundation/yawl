@@ -48,11 +48,12 @@ public class Capability extends AbstractResourceAttribute {
     }
 
     
-    public String getSummaryXML() {
+    public String toXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<capability id=\"%s\">", _id)) ;
         xml.append(StringUtil.wrap(_capability, "name"));
         xml.append(StringUtil.wrap(_description, "description"));
+        xml.append(StringUtil.wrap(_notes, "notes"));
         xml.append("</capability>");
         return xml.toString() ;
     }
