@@ -56,6 +56,9 @@ public class WorkItemRecord implements Serializable {
     private String _taskID;
     private String _uniqueID;                            // used by PDF Forms service
 
+    // identifies this item as a member of a group of deferred choice items
+    private String _deferredChoiceGroupID = null;
+
     // life-cycle time stamps
     private String _enablementTime;
     private String _firingTime;
@@ -153,6 +156,8 @@ public class WorkItemRecord implements Serializable {
 
     public void setUniqueID(String uniqueID) { _uniqueID = uniqueID;  }
 
+    public void setDeferredChoiceGroupID(String id) { _deferredChoiceGroupID = id ; }
+
 
     public void setEnablementTime(String time) { _enablementTime = time; }
 
@@ -216,6 +221,8 @@ public class WorkItemRecord implements Serializable {
 
     public String getUniqueID() { return _uniqueID; }
 
+    public String getDeferredChoiceGroupID() { return _deferredChoiceGroupID ; }
+
 
     public String getID() { return _caseID + ":" + _taskID; }
 
@@ -264,6 +271,10 @@ public class WorkItemRecord implements Serializable {
 
     public boolean isEdited() { return _edited; }
 
+    public boolean isDeferredChoiceGroupMember() {
+        return (_deferredChoiceGroupID != null) ;
+    }
+
     public boolean hasLiveStatus() {
         return _status.equals(statusFired) || _status.equals(statusEnabled) ||
                _status.equals(statusExecuting);
@@ -278,6 +289,7 @@ public class WorkItemRecord implements Serializable {
            .append(StringUtil.wrap(_caseID, "caseid"))
            .append(StringUtil.wrap(_taskID, "taskid"))
            .append(StringUtil.wrap(_uniqueID, "uniqueID"))
+           .append(StringUtil.wrap(_deferredChoiceGroupID, "deferredChoiceGroupID"))
            .append(StringUtil.wrap(_enablementTime, "enablementTime"))
            .append(StringUtil.wrap(_firingTime, "firingTime"))
            .append(StringUtil.wrap(_startTime, "startTime"))

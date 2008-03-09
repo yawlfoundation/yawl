@@ -12,7 +12,7 @@ import org.jdom.Element;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 /**
- * Represents an organisation group to which a position (occupied by a participant) may
+ * Represents an organisational group to which a position (occupied by a participant) may
  * belong. Note that one org group may belong to a larger org group (or conversely, an
  * org group may contain a number of smaller org groups).
  *
@@ -97,12 +97,15 @@ public class OrgGroup extends AbstractResourceAttribute {
     }
 
 
-    public String getSummaryXML() {
+    public String toXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<orggroup id=\"%s\">", _id)) ;
         xml.append(StringUtil.wrap(_groupName, "groupName"));
         xml.append(StringUtil.wrap(get_groupType(), "groupType"));
         xml.append(StringUtil.wrap(_description, "description"));
+        xml.append(StringUtil.wrap(_notes, "notes"));
+        if (_belongsTo !=null)
+            xml.append(StringUtil.wrap(_belongsTo.getID(), "belongsToID")) ;
         xml.append("</orggroup>");
         return xml.toString() ;
     }
@@ -111,6 +114,7 @@ public class OrgGroup extends AbstractResourceAttribute {
         super.reconstitute(e);
         setGroupName(e.getChildText("groupName"));
         set_groupType(e.getChildText("groupType"));
+        set_belongsToID(e.getChildText("belongsToID"));
     }
 
     // Other-than-hibernate mappings

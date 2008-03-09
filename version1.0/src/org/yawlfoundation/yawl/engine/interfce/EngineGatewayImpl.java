@@ -526,7 +526,7 @@ public class EngineGatewayImpl implements EngineGateway {
 	public String launchCase(String specID, String caseParams, URI caseCompletionURI, String caseID, String sessionHandle){
         try {
             _userList.checkConnection(sessionHandle);
-	    String username = _userList.getUserID(sessionHandle);
+	        String username = _userList.getUserID(sessionHandle);
             return _engine.launchCase(username, specID, caseParams, caseCompletionURI, caseID);
         } catch (YAWLException e) {
             if (e instanceof YPersistenceException) {

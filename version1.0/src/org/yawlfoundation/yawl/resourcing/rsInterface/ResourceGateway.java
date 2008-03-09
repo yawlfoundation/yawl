@@ -1,17 +1,15 @@
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
+import org.yawlfoundation.yawl.resourcing.util.Docket;
 
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
-import javax.servlet.ServletContext;
-
-import org.yawlfoundation.yawl.resourcing.ResourceManager;
-import org.yawlfoundation.yawl.resourcing.util.Docket;
-import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -101,7 +99,6 @@ public class ResourceGateway extends HttpServlet {
 
        String result = "";
 
-
        String action = req.getParameter("action");
        String handle = req.getParameter("handle");
 
@@ -159,7 +156,7 @@ public class ResourceGateway extends HttpServlet {
            }
            else if (action.equalsIgnoreCase("getParticipant")) {
                String id = req.getParameter("id");
-               result = rm.getParticipant(id).getSummaryXML();
+               result = rm.getParticipant(id).toXML();
            }
            else if (action.equalsIgnoreCase("getParticipantRoles")) {
                String id = req.getParameter("id");
@@ -204,7 +201,6 @@ public class ResourceGateway extends HttpServlet {
     public void doPost(HttpServletRequest req, HttpServletResponse res)
                                 throws IOException, ServletException {
 
-        ResourceManager rm = ResourceManager.getInstance() ;
         String action = req.getParameter("action");
         String handle = req.getParameter("handle");
 

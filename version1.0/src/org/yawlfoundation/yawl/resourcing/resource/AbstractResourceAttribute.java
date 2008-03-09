@@ -9,8 +9,8 @@
 package org.yawlfoundation.yawl.resourcing.resource;
 
 import org.jdom.Element;
-import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -88,9 +88,16 @@ public abstract class AbstractResourceAttribute {
 
     public Set getResources() { return _resources ; }
 
+
+    public void fromXML(String xml) {
+        if (xml != null) reconstitute(JDOMUtil.stringToElement(xml));
+    }
+
+    
     public void reconstitute(Element e) {
         setID(e.getAttributeValue("id"));
         setDescription(e.getChildText("description"));
+        setNotes(e.getChildText("notes"));
      }
 
 

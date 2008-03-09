@@ -17,13 +17,8 @@
                          style="-rave-layout: grid">
                     <ui:form binding="#{selectUser.form1}" id="form1">
 
-                        <ui:panelLayout binding="#{SessionBean.topPanel}"
-                                        id="topPanel"
-                                        panelLayout="flow"
-                                        styleClass="topPanel"/>
-                        <div style="left: 0px; top: 0px; position: absolute">
-                             <jsp:directive.include file="pfHeader.jspf"/>
-                        </div>  
+                        <!-- include banner -->
+                        <div><jsp:directive.include file="pfHeader.jspf"/></div>
 
                         <ui:listbox binding="#{selectUser.lbxUserList}"
                                     id="lbxUserList"

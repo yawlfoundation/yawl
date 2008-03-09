@@ -128,7 +128,7 @@ public class MessagePanel extends PanelLayout {
         _imgIcon = new ImageComponent() ;
         _imgIcon.setId("imgIcon001");
         _imgIcon.setUrl(errorIconURL);
-        _imgIcon.setStyle(getPosStyle(10, 20) + "background-color: #f0f0f0; " +
+        _imgIcon.setStyle(getPosStyle(10, 10) + "background-color: #f0f0f0; " +
                                                 "height: 48px; width: 48px;") ;
         return _imgIcon ;
     }
@@ -149,8 +149,8 @@ public class MessagePanel extends PanelLayout {
     private PanelLayout constructMessagesPanel() {
         _pnlMessages = new PanelLayout() ;
         _pnlMessages.setId("pnlMessages001");
-        _pnlMessages.setStyle("background-color: #f0f0f0; width: 300px;" +
-                               getPosStyle(70, 15)) ;
+        _pnlMessages.setStyle("background-color: #f0f0f0; width: 280px;" +
+                               getPosStyle(60, 15)) ;
         _pnlMessages.setPanelLayout("flow");
         return _pnlMessages ;
     }

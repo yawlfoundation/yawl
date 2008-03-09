@@ -24,14 +24,8 @@
                          style="-rave-layout: grid">
                     <ui:form binding="#{adminQueues.form1}" id="form1">
 
-                        <ui:panelLayout binding="#{SessionBean.topPanel}"
-                                        id="topPanel"
-                                        panelLayout="flow"
-                                        styleClass="topPanel"/>
-                        <div style="left: 0px; top: 0px; position: absolute">
-                             <jsp:directive.include file="pfHeader.jspf"/>
-                        </div>
-
+                        <!-- include banner -->
+                        <div><jsp:directive.include file="pfHeader.jspf"/></div>
 
                         <ui:tabSet binding="#{adminQueues.tabSet}"
                                    id="tabSet"
@@ -110,32 +104,38 @@
                                               for="cbbAssignedTo"
                                               id="lblAssignedTo"
                                               styleClass="queuesLabelLeft"
-                                              style="left: 177px; top: 213px"
+                                              style="left: 217px; top: 213px"
                                               text="Assigned To"/>
 
                                     <ui:label binding="#{adminQueues.lblResourceState}"
                                               for="txtResourceState"
                                               id="lblResourceState"
                                               styleClass="queuesLabelRight"
-                                              style="left: 339px; top: 213px"
+                                              style="left: 379px; top: 213px"
                                               text="Resource State"/>
 
                                     <ui:dropDown binding="#{adminQueues.cbbAssignedTo}"
                                                  id="cbbAssignedTo"
-                                                 style="left: 177px; top: 230px; position: absolute; width: 145px"/>
+                                                 style="left: 217px; top: 230px; position: absolute; width: 145px"/>
 
                                     <ui:textField binding="#{adminQueues.txtResourceState}"
                                                   id="txtResourceState"
                                                   readOnly="true"
                                                   styleClass="queuesTextField"
-                                                  style="left: 339px; top: 230px"
+                                                  style="left: 379px; top: 230px"
                                                   trim="false"/>
 
                                 </ui:panelLayout>
                             </ui:tab>
                         </ui:tabSet>
+
+                        <ui:panelLayout binding="#{SessionBean.messagePanel}"
+                                        id="msgPanel"
+                                        panelLayout="flow"
+                                        style="top: 410px; left: 150px; position: absolute"/>
                         
-                        <div style="height: 202px; left: 126px; top: 118px; position: absolute; width: 502px">
+                        
+                        <div style="height: 202px; left: 126px; top: 118px; position: absolute; width: 542px">
                             <jsp:directive.include file="pfQueueUI.jspf"/>
                         </div>
 

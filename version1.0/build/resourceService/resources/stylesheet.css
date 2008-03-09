@@ -1,28 +1,36 @@
 
 .loginPanel {
-    border-style: outset;
-    border-color: #99ccff;
     padding: 6px;
-    background-color: #cccccc;
-    height: 94px;
-    left: 120px;
-    top: 120px;
+    background-color: #98ccfe;
+    height: 120px;
+    width: 240px;
+    top: 50px;
+    border: 2px solid gray;
+    position:relative;
+}
+
+.loginLabel {
+    left:18px;
     position: absolute;
-    text-indent: 8px;
-    width: 238px;
+}
+
+.loginField {
+    left:105px;
+    position: absolute;
+    width: 120px;    
 }
 
 .loginButton {
     font-size: 18px;
-    left: 215px;
-    top: 264px;
+    left: 80px;
+    top: 90px;
     position: absolute;
     height: 30px;
-    width: 80px;
+    width: 85px;
 }
 
 .messagePanel {
-    width: 400px;
+    width: 350px;
     height: 100px;
     background-color: #f0f0f0;
     border: 2px solid gray;
@@ -103,11 +111,13 @@
     background-color: #f0f0f0;
     border-right-style: solid;
     border-bottom-style: solid;
+    border-top-style: solid;
     border-right-width: 2px;
     border-bottom-width: 2px;
     border-right-color: gray;
     border-bottom-color: gray;
-    height: 398px;
+    border-top-color: gray;
+    height: 210px;
     left: 0px;
     top: 0px;
     position: absolute;
@@ -132,10 +142,10 @@
 /* General Rules used by several pages */
 
 .topPanel {
-    background-image: url(headbg.jpg);
+    background-image: url( headbgright.jpg );
     border-bottom-style: solid;
     border-bottom-width: 2px;
-    height: 70px;
+    height: 110px;
     left: 0px;
     top: 0px;
     position: absolute;
@@ -253,7 +263,7 @@
 
 .caseMgtPanel {
    border: 2px solid gray;
-   background-color: #97cbfd;
+   background-color: #98ccfe;
    left: 126px;
    position: absolute;
    width: 600px;
@@ -277,7 +287,7 @@
 
 .servicesPanel {
     border: 2px solid gray;
-    background-color: #97cbfd;    
+    background-color: #98ccfe;
     left: 126px;
     position: absolute;
     width: 664px;
@@ -356,7 +366,7 @@
     left: 12px;
     top: 36px;
     position: absolute;
-    width: 144px;
+    width: 184px;
 }
 
 .queuesTextField {
@@ -369,18 +379,18 @@
 }
 
 .queuesLabelLeft  {
-    left: 180px;
+    left: 220px;
     position: absolute;
 }
 
 .queuesLabelRight  {
-    left: 342px;
+    left: 382px;
     position: absolute;
 }
 
 .orgDataPanel {
     border: 2px solid gray;
-    background-color: #97cbfd;
+    background-color: #98ccfe;
     position: absolute;
     width: 406px;
     -rave-layout: grid;
@@ -395,6 +405,6 @@
 .orgDataTabPanel {
     height: 165px;
     width: 100%;
-    background-color: #97cbfd;
+    background-color: #98ccfe;
 }
 

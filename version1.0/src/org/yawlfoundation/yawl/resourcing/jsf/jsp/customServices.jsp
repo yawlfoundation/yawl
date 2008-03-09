@@ -18,7 +18,7 @@
                              rel="shortcut icon"
                             type="image/x-icon" url="/resources/favicon.ico"/>
                     
-                    <ui:script binding="#{customServices.script1}" id="script1"
+                    <ui:script binding="#{customServices.script}" id="script1"
                                url="/resources/script.js"/>
 
                 </ui:head>
@@ -28,14 +28,8 @@
 
                     <ui:form binding="#{customServices.form1}" id="form1">
 
-                        <!-- include banner and menu -->
-                        <ui:panelLayout binding="#{SessionBean.topPanel}"
-                                        id="topPanel"
-                                        panelLayout="flow"
-                                        styleClass="topPanel"/>
-                        <div style="left: 0px; top: 0px; position: absolute">
-                             <jsp:directive.include file="pfHeader.jspf"/>
-                        </div>
+                        <!-- include banner -->
+                        <div><jsp:directive.include file="pfHeader.jspf"/></div>
 
                         <div style="left: 0px; top: 72px; position: absolute">
                             <jsp:directive.include file="pfMenu.jspf"/>
@@ -168,6 +162,11 @@
 
                         </ui:panelLayout>
 
+                        <ui:panelLayout binding="#{SessionBean.messagePanel}"
+                                        id="msgPanel"
+                                        panelLayout="flow"
+                                        style="top: 338px; left: 150px; position: absolute"/>
+                                                
                         <ui:hiddenField binding="#{customServices.hdnRowIndex}" id="hdnRowIndex"/>
 
                     </ui:form>

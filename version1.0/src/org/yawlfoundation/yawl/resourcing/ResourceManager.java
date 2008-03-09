@@ -40,6 +40,7 @@ import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ConnectionCache;
 import org.yawlfoundation.yawl.resourcing.util.DataSchemaProcessor;
 import org.yawlfoundation.yawl.resourcing.util.Docket;
+import org.yawlfoundation.yawl.resourcing.util.OneToManyStringList;
 import org.yawlfoundation.yawl.resourcing.util.RandomOrgDataGenerator;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
@@ -83,6 +84,10 @@ public class ResourceManager extends InterfaceBWebsideController
     // currently logged on participants: <sessionHandle, Participant>
     private HashMap<String,Participant> _liveSessions =
             new HashMap<String,Participant>();
+
+    // groups of items that are members of a deferred choice offering
+    private HashSet<OneToManyStringList> _deferredItemGroups =
+            new HashSet<OneToManyStringList>();
 
     private static ResourceManager _me ;                  // instance reference
     private ResourceAdministrator _resAdmin ;             // admin capabilities
@@ -205,6 +210,8 @@ public class ResourceManager extends InterfaceBWebsideController
 
         // service disabled, so route directly to admin's unoffered
         else _resAdmin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
+
+        if (wir.isDeferredChoiceGroupMember()) mapDeferredChoice(wir);
 
         _workItemCache.add(wir);        
     }
@@ -568,7 +575,7 @@ public class ResourceManager extends InterfaceBWebsideController
 
     public String getParticipantsAsXML() {
         StringBuilder xml = new StringBuilder("<participants>") ;
-        for (Participant p : _ds.participantMap.values()) xml.append(p.getSummaryXML()) ;
+        for (Participant p : _ds.participantMap.values()) xml.append(p.toXML()) ;
         xml.append("</participants>");
         return xml.toString() ;
     }
@@ -576,7 +583,7 @@ public class ResourceManager extends InterfaceBWebsideController
 
     public String getActiveParticipantsAsXML() {
         StringBuilder xml = new StringBuilder("<participants>") ;
-        for (Participant p : _liveSessions.values()) xml.append(p.getSummaryXML()) ;
+        for (Participant p : _liveSessions.values()) xml.append(p.toXML()) ;
         xml.append("</participants>");
         return xml.toString() ;
     }
@@ -584,7 +591,7 @@ public class ResourceManager extends InterfaceBWebsideController
     
     public String getRolesAsXML() {
         StringBuilder xml = new StringBuilder("<roles>") ;
-        for (Role r : _ds.roleMap.values()) xml.append(r.getSummaryXML()) ;
+        for (Role r : _ds.roleMap.values()) xml.append(r.toXML()) ;
         xml.append("</roles>");
         return xml.toString() ;
     }
@@ -595,7 +602,7 @@ public class ResourceManager extends InterfaceBWebsideController
         if (roles != null) {
             String header = String.format("<roles participantid=\"%s\">", pid);
             StringBuilder xml = new StringBuilder(header) ;
-            for (Role r : roles) xml.append(r.getSummaryXML()) ;
+            for (Role r : roles) xml.append(r.toXML()) ;
             xml.append("</roles>");
             return xml.toString() ;
         }
@@ -605,21 +612,21 @@ public class ResourceManager extends InterfaceBWebsideController
 
     public String getCapabilitiesAsXML() {
         StringBuilder xml = new StringBuilder("<capabilities>") ;
-        for (Capability c : _ds.capabilityMap.values()) xml.append(c.getSummaryXML()) ;
+        for (Capability c : _ds.capabilityMap.values()) xml.append(c.toXML()) ;
         xml.append("</capabilities>");
         return xml.toString() ;
     }
 
     public String getPositionsAsXML() {
         StringBuilder xml = new StringBuilder("<positions>") ;
-        for (Position p : _ds.positionMap.values()) xml.append(p.getSummaryXML()) ;
+        for (Position p : _ds.positionMap.values()) xml.append(p.toXML()) ;
         xml.append("</positions>");
         return xml.toString() ;
     }
 
     public String getOrgGroupsAsXML() {
         StringBuilder xml = new StringBuilder("<orggroups>") ;
-        for (OrgGroup o : _ds.orgGroupMap.values()) xml.append(o.getSummaryXML()) ;
+        for (OrgGroup o : _ds.orgGroupMap.values()) xml.append(o.toXML()) ;
         xml.append("</orggroups>");
         return xml.toString() ;
     }
@@ -910,7 +917,6 @@ public class ResourceManager extends InterfaceBWebsideController
 
     // WORKITEM ALLOCATION AND WORKQUEUE METHODS //
 
-
     public WorkItemRecord offerToAll(WorkItemRecord wir) {
         for (Participant p : _ds.participantMap.values()) {
             p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
@@ -945,10 +951,60 @@ public class ResourceManager extends InterfaceBWebsideController
         if (rMap != null)
             rMap.withdrawOffer(wir);
         else
-           withdrawOfferFromAll(wir);        // beta version spec
+            withdrawOfferFromAll(wir);        // beta version spec
 
         wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
         p.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
+
+        // remove other wirs if this was a member of a deferred choice group
+        if (wir.isDeferredChoiceGroupMember()) {
+            withdrawDeferredChoiceGroup(wir, rMap) ;
+        }
+    }
+
+
+    // DEFERRED CHOICE HANDLERS //
+
+    private void mapDeferredChoice(WorkItemRecord wir) {
+        String defID = wir.getDeferredChoiceGroupID() ;
+        OneToManyStringList itemGroup = getDeferredChoiceGroup(defID);
+        if (itemGroup != null) {
+            itemGroup.add(wir.getID());
+        }
+        else
+            _deferredItemGroups.add(new OneToManyStringList(defID, wir.getID())) ;
+    }
+
+
+    private void withdrawDeferredChoiceGroup(WorkItemRecord wir, ResourceMap rMap) {
+        String chosenWIR = wir.getID();
+        String groupID = wir.getDeferredChoiceGroupID();
+        OneToManyStringList itemGroup = getDeferredChoiceGroup(groupID);
+        if (itemGroup != null) {
+            for (String wirID : itemGroup) {
+                if (! wirID.equals(chosenWIR)) {
+                    if (rMap != null)
+                        rMap.withdrawOffer(wir);
+                    else
+                        withdrawOfferFromAll(wir);        // beta version spec
+
+                    _workItemCache.remove(wirID);
+                }
+            }
+            _deferredItemGroups.remove(itemGroup) ;
+        }
+    }
+
+
+    private OneToManyStringList getDeferredChoiceGroup(String groupID) {
+        OneToManyStringList result = null ;
+        for (OneToManyStringList itemGroup : _deferredItemGroups) {
+            if (groupID.equals(itemGroup.getTag())) {
+                result = itemGroup;
+                break;
+            }
+        }    
+        return result ;
     }
 
     // Deals with live workitems in a participant's queues when the participant is
@@ -1020,7 +1076,7 @@ public class ResourceManager extends InterfaceBWebsideController
      * @param wir the item to start
      * @param handle the user's current sessionhandle
      */
-    public void start(Participant p, WorkItemRecord wir, String handle) {
+    public boolean start(Participant p, WorkItemRecord wir, String handle) {
         WorkItemRecord oneToStart ;
 
         if (checkOutWorkItem(wir, handle)) {
@@ -1045,8 +1101,12 @@ public class ResourceManager extends InterfaceBWebsideController
             _workItemCache.add(oneToStart);
 
             p.getWorkQueues().movetoStarted(wir, oneToStart);
+            return true ;
         }
-        else _log.error("Could not start workitem: " + wir.getID()) ;
+        else {
+            _log.error("Could not start workitem: " + wir.getID()) ;
+            return false ;
+        }
     }
 
 
@@ -1193,6 +1253,10 @@ public class ResourceManager extends InterfaceBWebsideController
 
     public boolean hasUserTaskPrivilege(Participant p, WorkItemRecord wir,
                                         int privilege) {
+
+        // admin access overrides set privileges
+        if (p.isAdministrator()) return true ;
+
         ResourceMap rMap = getResourceMap(wir);
         if (rMap != null)
             return rMap.getTaskPrivileges().hasPrivilege(p, privilege) ;
@@ -1675,7 +1739,7 @@ public class ResourceManager extends InterfaceBWebsideController
     }
 
 
-    public List<String> getRunningCases(String specID, String handle) {
+    public List<String> getRunningCasesAsList(String specID, String handle) {
         try {
             String casesAsXML = _interfaceBClient.getCases(specID, handle);
             if (_interfaceBClient.successful(casesAsXML))
@@ -1686,6 +1750,11 @@ public class ResourceManager extends InterfaceBWebsideController
         }
         return null;
     }
+
+    public String getRunningCases(String specID, String handle) throws IOException {
+        return _interfaceBClient.getCases(specID, handle);
+    }
+
 
     public String uploadSpecification(String fileContents, String fileName, String handle) {
         return _interfaceAClient.uploadSpecification(fileContents, fileName, handle);         
@@ -1823,6 +1892,10 @@ public class ResourceManager extends InterfaceBWebsideController
 
     public Set getRegisteredServices(String handle) {
         return _interfaceAClient.getRegisteredYAWLServices(handle);
+    }
+
+    public String getRegisteredServicesAsXML(String handle) throws IOException {
+        return _interfaceAClient.getRegisteredYAWLServicesAsXML(handle);
     }
 
 

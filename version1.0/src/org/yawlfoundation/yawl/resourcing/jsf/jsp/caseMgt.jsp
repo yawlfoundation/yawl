@@ -12,7 +12,7 @@
                              rel="shortcut icon"
                             type="image/x-icon" url="/resources/favicon.ico"/>
 
-                    <ui:script binding="#{SessionBean.script1}" id="script1"
+                    <ui:script binding="#{SessionBean.script}" id="script1"
                                url="/resources/script.js"/>
 
                 </ui:head>
@@ -20,13 +20,8 @@
                          style="-rave-layout: grid">
                     <ui:form binding="#{caseMgt.form1}" id="form1">
 
-                        <ui:panelLayout binding="#{SessionBean.topPanel}"
-                                        id="topPanel"
-                                        panelLayout="flow"
-                                        styleClass="topPanel"/>
-                        <div style="left: 0px; top: 0px; position: absolute">
-                             <jsp:directive.include file="pfHeader.jspf"/>
-                        </div>                        
+                        <!-- include banner -->
+                        <div><jsp:directive.include file="pfHeader.jspf"/></div>
 
                         <div style="left: 0px; top: 72px; position: absolute">
                             <jsp:directive.include file="pfMenu.jspf"/>
@@ -158,10 +153,10 @@
                                            text="Running Cases"/>
                         </ui:panelLayout>
 
-                        <ui:messageGroup binding="#{caseMgt.msgBox}"
-                                         id="msgBox"
-                                         showGlobalOnly="true"
-                                         style="left: 126px; top: 642px; position: absolute; width: 600px"/>
+                        <ui:panelLayout binding="#{SessionBean.messagePanel}"
+                                        id="msgPanel"
+                                        panelLayout="flow"
+                                        style="top: 650px; left: 130px; position: absolute"/>
 
                         <ui:hiddenField binding="#{caseMgt.hdnRowIndex}" id="hdnRowIndex"/>
 

@@ -229,6 +229,9 @@ public class Marshaller {
                 enablementTime != null && status != null) {
 			    workItem = new WorkItemRecord(caseID, taskID, specID,
                                               enablementTime, status);
+            String deferredID = workItemElement.getChildText("deferredChoiceGroupID");
+            if (deferredID != null)
+                workItem.setDeferredChoiceGroupID(deferredID);
             String specVersion = workItemElement.getChildText("specVersion");
             workItem.setSpecVersion(specVersion);
             String firingTime = workItemElement.getChildText("firingTime");

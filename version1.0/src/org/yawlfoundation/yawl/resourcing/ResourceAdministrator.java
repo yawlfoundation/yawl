@@ -83,7 +83,7 @@ public class ResourceAdministrator {
 
         HashSet<Participant> pSet = ResourceManager.getInstance().getParticipants();
         for (Participant p : pSet)
-            _qSet.addToQueue(WorkQueue.WORKLISTED, p.getWorkQueues().getCombinedQueues());
+            _qSet.addToQueue(WorkQueue.WORKLISTED, p.getWorkQueues().getWorklistedQueues());
     }
 
 }

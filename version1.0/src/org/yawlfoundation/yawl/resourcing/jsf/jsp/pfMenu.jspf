@@ -44,27 +44,26 @@
                                styleClass="menuButton"
                                style="top: 96px"/>
 
+            <ui:imageHyperlink action="#{pfMenu.mnuAdminQueues_action}"
+                               binding="#{pfMenu.mnuAdminQueues}"
+                               id="mnuAdminQueues"
+                               imageURL="/resources/mnuAdminQueues.gif"
+                               styleClass="menuButton"
+                               style="top: 124px"/>
+
             <ui:imageHyperlink action="#{pfMenu.mnuServiceMgt_action}"
                                binding="#{pfMenu.mnuServiceMgt}"
                                id="mnuServiceMgt"
                                imageURL="/resources/mnuServiceMgt.gif"
                                styleClass="menuButton"
-                               style="top: 124px"/>
+                               style="top: 152px"/>
 
             <ui:imageHyperlink action="#{pfMenu.mnuOrgDataMgt_action}"
                                binding="#{pfMenu.mnuOrgDataMgt}"
                                id="mnuOrgDataMgt"
                                imageURL="/resources/mnuUserMgt.gif"
                                styleClass="menuButton"
-                               style="top: 152px"/>
-
-            <ui:imageHyperlink action="#{pfMenu.mnuAdminQueues_action}"
-                               binding="#{pfMenu.mnuAdminQueues}"
-                               id="mnuAdminQueues"
-                               imageURL="/resources/mnuAdminQueues.gif"
-                               styleClass="menuButton"
                                style="top: 180px"/>
-
 
         </ui:panelLayout>
     </f:subview>

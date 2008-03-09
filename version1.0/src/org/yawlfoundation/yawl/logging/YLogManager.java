@@ -323,6 +323,8 @@ public class YLogManager {
         return result ;
     }
 
+    /******************************************************************************/
+
     public String getChildWorkItemData(String childEventID) {
         String result ;
         List rows ;
@@ -353,4 +355,65 @@ public class YLogManager {
         return result ;
     }    
 
+    /*******************************************************************************/
+
+    public String getCaseEventTime(String caseEventID) {
+        String result ;
+        List rows ;
+        if (_pmgr != null) {
+            try {
+                rows = _pmgr.getObjectsForClassWhere("YCaseEvent",
+                            String.format("_caseEventID='%s'", caseEventID)) ;
+                if (rows != null) {
+                    YCaseEvent event = (YCaseEvent) rows.iterator().next();
+                    StringBuilder xml = new StringBuilder() ;
+                    xml.append(String.format("<CaseEventTime caseEventID=\"%s\">",
+                                                                    caseEventID));
+                    xml.append(StringUtil.wrap(String.valueOf(event.get_eventTime()),
+                                "eventTime")) ;
+
+                    xml.append("</CaseEventTime>");
+                    result = xml.toString();
+                }
+                else result = _noRowsStr ;
+            }
+            catch (YPersistenceException ype) {
+               result = _exErrStr ;
+            }
+        }
+        else result = _pmErrStr ;
+
+        return result ;
+    }
+
+
+    public String getCaseEventTime(String caseID, String eventType) {
+        String result ;
+        List rows ;
+        if (_pmgr != null) {
+            try {
+                rows = _pmgr.getObjectsForClassWhere("YCaseEvent",
+                             String.format("_caseID='%s' AND _eventName='%s'",
+                                             caseID, eventType)) ;
+                if (rows != null) {
+                    YCaseEvent event = (YCaseEvent) rows.iterator().next();
+                    StringBuilder xml = new StringBuilder() ;
+                    xml.append(String.format("<CaseEventTime caseID=\"%s\" eventType=\"%s\">",
+                                                                    caseID, eventType));
+                    xml.append(StringUtil.wrap(String.valueOf(event.get_eventTime()),
+                                "eventTime")) ;
+
+                    xml.append("</CaseEventTime>");
+                    result = xml.toString();
+                }
+                else result = _noRowsStr ;
+            }
+            catch (YPersistenceException ype) {
+               result = _exErrStr ;
+            }
+        }
+        else result = _pmErrStr ;
+
+        return result ;
+    }
 }

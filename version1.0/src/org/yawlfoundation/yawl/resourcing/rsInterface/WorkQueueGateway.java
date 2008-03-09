@@ -9,23 +9,21 @@
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.apache.log4j.Logger;
-import org.jdom.JDOMException;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
-import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
-import org.yawlfoundation.yawl.resourcing.jsf.FormParameter;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -38,9 +36,10 @@ import java.util.Set;
  *  Last Date: 20/09/2007
  */
 
-public class WorkQueueGateway  {          // extends HttpServlet
+public class WorkQueueGateway extends HttpServlet {
 
-    private ResourceManager rm = ResourceManager.getInstance() ;
+    private ResourceManager _rm = ResourceManager.getInstance() ;
+    private ResourceMarshaller _marshaller = new ResourceMarshaller();
     private Logger _log = Logger.getLogger(this.getClass());
     private static WorkQueueGateway _me;
 
@@ -55,231 +54,267 @@ public class WorkQueueGateway  {          // extends HttpServlet
                                 throws IOException, ServletException {
 
         String result = "";
+        String action = req.getParameter("action");
+        String handle = req.getParameter("handle");
 
-        try {
-            String action = req.getParameter("action");
-            if (action == null) {
-                   result = "<html><head>" +
-                "<title>YAWL Resource Service WorkQueue Gateway</title>" +
-                "</head><body>" +
-                "<H3>Welcome to the YAWL Resource Service \"WorkQueue Gateway\"</H3>" +
-                "<p>The WorkQueue Gateway acts as a bridge between the Resource " +
+
+        if (action == null) {
+            result = "<html><head>" +
+                    "<title>YAWL Resource Service WorkQueue Gateway</title>" +
+                    "</head><body>" +
+                    "<H3>Welcome to the YAWL Resource Service \"WorkQueue Gateway\"</H3>" +
+                    "<p>The WorkQueue Gateway acts as a bridge between the Resource " +
                     "Service and a user interface implementation " +
                     "(it isn't meant to be browsed to directly).</p>" +
-                "</body></html>";
+                    "</body></html>";
+        }
+        else if (action.equalsIgnoreCase("connect")) {
+            String userid = req.getParameter("userid");
+            String password = req.getParameter("password");
+            result = _rm.serviceConnect(userid, password);
+        }
+        else if (action.equalsIgnoreCase("checkConnection")) {
+            result = String.valueOf(_rm.checkServiceConnection(handle)) ;
+        }
+        else if (_rm.checkServiceConnection(handle)) {
+            result = doGetAction(action, req);
+        }
+        else
+            throw new IOException("Invalid or disconnected session handle");
+
+        // generate the output
+        res.setContentType("text/html");
+        PrintWriter out = res.getWriter();
+        out.write(result);
+        out.flush();
+        out.close();
+    }
+
+
+    public void doPost(HttpServletRequest req, HttpServletResponse res)
+                                throws IOException, ServletException {
+
+        String result = "";
+        String action = req.getParameter("action");
+        String handle = req.getParameter("handle");
+
+        if (_rm.checkServiceConnection(handle))
+            result = doPostAction(action, req) ;
+        else
+            throw new IOException("Invalid or disconnected session handle");
+
+        // generate the output
+        res.setContentType("text/html");
+        PrintWriter out = res.getWriter();
+        out.write(result);
+        out.flush();
+        out.close();
+    }
+    
+
+    private String doGetAction(String action, HttpServletRequest req) throws IOException {
+        String result = "";
+
+        String handle = req.getParameter("handle");
+        String userid = req.getParameter("userid") ;
+        String pid = req.getParameter("participantid");
+        String itemid = req.getParameter("workitemid");
+
+        if (action.equals("isValidSession")) {
+            result = String.valueOf(_rm.isValidSession(handle)) ;
+        }
+        else if (action.equals("getParticipantFromUserID")) {
+            result = _rm.getParticipantFromUserID(userid).toXML();  //todo
+        }
+        else if (action.equals("getFullNameForUserID")) {
+            result = _rm.getFullNameForUserID(userid) ;
+        }
+        else if (action.equals("getUserPrivileges")) {
+            Participant p = _rm.getParticipant(pid);
+            if (p != null) {
+                UserPrivileges up = p.getUserPrivileges();
+                if (up != null)  result = up.toXML();
             }
-
-
-            // generate the output
-            res.setContentType("text/html");
-            PrintWriter out = res.getWriter();
-            out.write(result);
-            out.flush();
-            out.close();
-         }
-         catch (Exception e) {
-             _log.error("Exception in doGet()", e);
-         }
-    }
-
-    public String login(String userid, String password) {
-        return rm.login(userid, password);
-    }
-
-    public void logout(String handle) {
-        rm.logout(handle);
-    }
-
-    public boolean isValidSession(String handle) {
-        return rm.isValidSession(handle) ;
-    }
-
-    public boolean checkConnection(String sessionHandle) throws IOException{
-        return rm.checkConnection(sessionHandle) ;
-    }
-
-    public Participant getParticipantFromUserID(String userid) {
-        return rm.getParticipantFromUserID(userid) ;
-    }
-    
-    public String getFullNameForUserID(String userID) {
-        String result = null ;
-        if (userID != null) result = rm.getFullNameForUserID(userID);
-        return result;                                           
-    }
-
-    public QueueSet getAdminQueues() {
-        return rm.getAdminQueues();
-    }
-
-    public boolean successful(String test) {
-        return rm.successful(test);
-    }
-
-    public Set getQueuedItems(Participant p, int queue) {
-        return p.getWorkQueues().getQueuedWorkItems(queue) ;
-    }
-
-    public Set getParticipantsAssignedWorkItem(String workItemID, int queueType) {
-        return rm.getParticipantsAssignedWorkItem(workItemID, queueType) ;
-    }
-
-
-    public void acceptOffer(Participant p, WorkItemRecord wir, String handle) throws IOException {
-        if (checkConnection(handle))
-            rm.acceptOffer(p, wir) ;
-    }
-
-    public void startItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
-        if (checkConnection(handle))
-            rm.start(p, wir, handle) ;
-    }
-
-    public void deallocateItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
-        if (checkConnection(handle))
-            rm.deallocateWorkItem(p, wir) ;
-    }
-
-    public void delegateItem(Participant pFrom, Participant pTo, WorkItemRecord wir,
-                             String handle) throws IOException {
-        if (checkConnection(handle))
-            rm.delegateWorkItem(pFrom, pTo, wir) ;
-    }
-
-    public void skipItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
-        if (checkConnection(handle))
-            rm.skipWorkItem(p, wir, handle) ;
-    }
-
-    public void pileItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
-        rm.pileWorkItem(p, wir) ;
-    }
-
-
-    public void suspendItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
-        if (checkConnection(handle))
-            rm.suspendWorkItem(p, wir) ;
-    }
-
-    public void reallocateItem(Participant pFrom, Participant pTo, WorkItemRecord wir,
-                               boolean stateful, String handle) throws IOException {
-        if (checkConnection(handle))  {
-            if (stateful)
-               rm.reallocateStatefulWorkItem(pFrom, pTo, wir) ;
-            else
-               rm.reallocateStatelessWorkItem(pFrom, pTo, wir) ;
         }
-    }
-
-    public void completeItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
-        if (checkConnection(handle))
-            rm.checkinItem(p, wir, handle) ;
-    }
-
-    public void unsuspendItem(Participant p, WorkItemRecord wir, String handle) throws IOException {
-        if (checkConnection(handle))
-            rm.unsuspendWorkItem(p, wir) ;
-    }
-
-    public Set<SpecificationData> getLoadedSpecs(String handle) {
-        return rm.getLoadedSpecs(handle) ;
-    }
-
-    public Set<SpecificationData> getSpecList(String handle) {
-        return rm.getSpecList(handle) ;
-    }
-
-    public SpecificationData getSpecData(String specID, String handle) {
-        return rm.getSpecData(specID, handle) ;
-    }
-
-    public List<String> getRunningCases(String specID, String handle) {
-        return rm.getRunningCases(specID, handle) ;
-    }
-
-    public String uploadSpecification(String fileContents, String fileName, String handle) {
-        return rm.uploadSpecification(fileContents, fileName, handle) ;
-    }
-
-    public String cancelCase(String caseID, String handle) throws IOException {
-        return rm.cancelCase(caseID, handle);
-    }
-
-    public String unloadSpecification(String specID, String handle) throws IOException {
-        return rm.unloadSpecification(specID, handle);
-    }
-
-    public String launchCase(String specID, String caseData, String handle) throws IOException {
-        return rm.launchCase(specID, caseData, handle) ;
-    }
-
-    public Set<Participant> getReportingToParticipant(String pid) {
-        return rm.getParticipantsReportingTo(pid) ;
-    }
-
-    public Participant getParticipant(String pid) {
-        return rm.getParticipant(pid) ;
-    }
-
-    public Set<Participant> getAllParticipants(String handle) throws IOException {
-        if (checkConnection(handle)) {
-            return rm.getParticipants() ;
+        else if (action.equals("getParticipantsReportingTo")) {
+            Set<Participant> set = _rm.getParticipantsReportingTo(pid);
+            result = _marshaller.marshallParticipants(set) ;
         }
-        else return null ;        
-    }
-
-    public Map<String, FormParameter> getWorkItemParams(WorkItemRecord wir, String handle)
-                                                     throws IOException, JDOMException {
-        if (checkConnection(handle)) {
-            return rm.getWorkItemParamsForPost(wir, handle);
+        else if (action.equals("getParticipant")) {
+            result = _rm.getParticipant(pid).toXML();
         }
-        return null ;
+        else if (action.equals("getParticipants")) {
+            Set<Participant> set = _rm.getParticipants();
+            result = _marshaller.marshallParticipants(set) ;
+        }
+        else if (action.equals("getAdminQueues")) {
+            QueueSet qSet = _rm.getAdminQueues();
+            result = qSet.toXML() ;
+        }
+        else if (action.equals("getQueuedWorkItems")) {
+            int queueType = new Integer(req.getParameter("queue")) ;
+            Participant p = _rm.getParticipant(pid);
+            if (p != null) {
+                Set<WorkItemRecord> set = p.getWorkQueues().getQueuedWorkItems(queueType);
+                result = _marshaller.marshallWorkItemRecords(set);
+            }
+        }
+        else if (action.equals("getParticipantsAssignedWorkItem")) {
+            int queueType = new Integer(req.getParameter("queue")) ;
+            Set<Participant> set = _rm.getParticipantsAssignedWorkItem(itemid, queueType);
+            result = _marshaller.marshallParticipants(set) ;
+        }
+        else if (action.equals("getLoadedSpecs")) {
+            Set<SpecificationData> set = _rm.getLoadedSpecs(handle) ;
+            result = _marshaller.marshallSpecificationDataSet(set) ;
+        }
+        else if (action.equals("getSpecList")) {
+            Set<SpecificationData> set = _rm.getSpecList(handle) ;
+            result = _marshaller.marshallSpecificationDataSet(set) ;
+        }
+        else if (action.equals("getSpecData")) {
+            String specID = req.getParameter("specid") ;
+            SpecificationData specData = _rm.getSpecData(specID, handle);
+            if (specData != null)
+                result = specData.getAsXML();
+        }
+        else if (action.equals("getRunningCases")) {
+            String specID = req.getParameter("specid") ;
+            result = _rm.getRunningCases(specID, handle) ;
+        }
+        else if (action.equals("getDecompID")) {
+            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
+            result = _rm.getDecompID(wir) ;
+        }
+        else if (action.equals("getCaseData")) {
+            String caseID = req.getParameter("caseid") ;
+            result = _rm.getCaseData(caseID, handle) ;
+        }
+        else if (action.equals("getRegisteredServices")) {
+            result = _rm.getRegisteredServicesAsXML(handle);
+        }
+        return result ;
     }
 
-    public void updateWIRCache(WorkItemRecord wir) {
-        rm.getWorkItemCache().update(wir) ;
+
+    private String doPostAction(String action, HttpServletRequest req)
+                                                                   throws IOException {
+        String result = "";
+
+        String handle = req.getParameter("handle");
+        String pid = req.getParameter("participantid");
+        String itemid = req.getParameter("workitemid");
+
+        if (action.equals("disconnect")) {
+           _rm.logout(handle);
+        }
+        else if (action.equals("acceptOffer")) {
+            Participant p = _rm.getParticipant(pid);
+            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
+            _rm.acceptOffer(p, wir);
+        }
+        else if (action.equals("startWorkItem")) {
+            Participant p = _rm.getParticipant(pid);
+            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
+            _rm.start(p, wir, handle);
+        }
+        else if (action.equals("deallocateWorkItem")) {
+            Participant p = _rm.getParticipant(pid);
+            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
+            boolean success = _rm.deallocateWorkItem(p, wir) ;
+            result = String.valueOf(success);
+        }
+        else if (action.equals("skipWorkItem")) {
+            Participant p = _rm.getParticipant(pid);
+            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
+            boolean success = _rm.skipWorkItem(p, wir, handle) ;
+            result = String.valueOf(success);
+        }
+        else if (action.equals("pileWorkItem")) {
+            Participant p = _rm.getParticipant(pid);
+            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
+            boolean success = _rm.pileWorkItem(p, wir) ;
+            result = String.valueOf(success);
+        }
+        else if (action.equals("suspendWorkItem")) {
+            Participant p = _rm.getParticipant(pid);
+            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
+            boolean success = _rm.suspendWorkItem(p, wir) ;
+            result = String.valueOf(success);
+        }
+        else if (action.equals("unsuspendWorkItem")) {
+            Participant p = _rm.getParticipant(pid);
+            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
+            boolean success = _rm.unsuspendWorkItem(p, wir) ;
+            result = String.valueOf(success);
+        }
+        else if (action.equals("completeWorkItem")) {
+            Participant p = _rm.getParticipant(pid);
+            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
+            boolean success = _rm.checkinItem(p, wir, handle) ;
+            result = String.valueOf(success);
+        }
+        else if (action.equals("delegateWorkItem")) {
+            String pFrom = req.getParameter("pfrom");
+            String pTo = req.getParameter("pto");
+            Participant pOrig = _rm.getParticipant(pFrom);
+            Participant pDest = _rm.getParticipant(pTo);
+            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
+            boolean success = _rm.delegateWorkItem(pOrig, pDest, wir) ;
+            result = String.valueOf(success);
+        }
+        else if (action.equals("reallocateStatefulWorkItem")) {
+            String pFrom = req.getParameter("pfrom");
+            String pTo = req.getParameter("pto");
+            Participant pOrig = _rm.getParticipant(pFrom);
+            Participant pDest = _rm.getParticipant(pTo);
+            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
+            boolean success = _rm.reallocateStatefulWorkItem(pOrig, pDest, wir) ;
+            result = String.valueOf(success);
+        }
+        else if (action.equals("reallocateStatelessWorkItem")) {
+            String pFrom = req.getParameter("pfrom");
+            String pTo = req.getParameter("pto");
+            Participant pOrig = _rm.getParticipant(pFrom);
+            Participant pDest = _rm.getParticipant(pTo);
+            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
+            boolean success = _rm.reallocateStatelessWorkItem(pOrig, pDest, wir) ;
+            result = String.valueOf(success);
+        }
+        else if (action.equals("uploadSpecification")) {
+            String fileContents = req.getParameter("fileContents") ;
+            String fileName = req.getParameter("fileName");
+            result = _rm.uploadSpecification(fileContents, fileName, handle) ;
+        }
+        else if (action.equals("unloadSpecification")) {
+            String specID = req.getParameter("specid") ;
+            result = _rm.unloadSpecification(specID, handle) ;                    
+        }
+        else if (action.equals("launchCase")) {
+            String specID = req.getParameter("specid") ;
+            String caseData = req.getParameter("casedata") ;
+            result = _rm.launchCase(specID, caseData, handle);
+        }
+        else if (action.equals("cancelCase")) {
+            String caseID = req.getParameter("caseid") ;
+            result = _rm.cancelCase(caseID, handle) ;
+        }
+        else if (action.equals("updateWorkItemCache")) {
+            String wirAsXML = req.getParameter("wir") ;
+            WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirAsXML);
+            _rm.getWorkItemCache().update(wir) ;
+        }
+        else if (action.equals("removeRegisteredService")) {
+            String id = req.getParameter("serviceid");
+            result = _rm.removeRegisteredService(id, handle);
+        }
+        else if (action.equals("addRegisteredService")) {
+            String service = req.getParameter("service");
+            YAWLServiceReference ysr = YAWLServiceReference.unmarshal(service);
+            result = _rm.addRegisteredService(ysr, handle);
+        }
+
+        return result ;
     }
-
-    public String getDecompID(WorkItemRecord wir) {
-        return rm.getDecompID(wir) ;
-    }
-
-    public void registerJSFApplicationReference(ApplicationBean app) {
-        rm.registerJSFApplicationReference(app);
-    }
-
-    public Set getRegisteredServices(String handle) throws IOException {
-        if (checkConnection(handle)) 
-            return rm.getRegisteredServices(handle);
-        else
-            return null ;
-    }
-
-    public String removeRegisteredService(String id, String handle) throws IOException {
-        if (checkConnection(handle))
-            return rm.removeRegisteredService(id, handle);
-        else
-            return null;
-    }
-
-
-    public String addRegisteredService(YAWLServiceReference service, String handle)
-                                                                    throws IOException {
-        if (checkConnection(handle))
-            return rm.addRegisteredService(service, handle);
-        else
-            return null;
-
-    }
-    
-
-    public String getCaseData(String caseID, String handle) throws IOException {
-        if (checkConnection(handle))
-            return rm.getCaseData(caseID, handle);
-        else
-            return null;
-
-    }
-
 
 }

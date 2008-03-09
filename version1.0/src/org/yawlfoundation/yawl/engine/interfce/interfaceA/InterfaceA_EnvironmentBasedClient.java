@@ -120,17 +120,13 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
      * @param sessionHandle the session handle - won't work without the correct one.
      * @return
      */
-    public Set getRegisteredYAWLServices(String sessionHandle) {
-        Set yawlServices = new HashSet();
+    public Set<YAWLServiceReference> getRegisteredYAWLServices(String sessionHandle) {
+        Set<YAWLServiceReference> yawlServices = new HashSet<YAWLServiceReference>();
         try {
-            String result = executeGet(_backEndURIStr + "?" +
-                    "action=getYAWLServices" +
-                    "&" +
-                    "sessionHandle=" + sessionHandle);
+            String result = getRegisteredYAWLServicesAsXML(sessionHandle);
             SAXBuilder builder = new SAXBuilder();
             if (result != null && successful(result)) {
-                Document doc = null;
-                doc = builder.build(new StringReader(result));
+                Document doc = builder.build(new StringReader(result));
                 Iterator yawlServiceIter = doc.getRootElement().getChildren().iterator();
                 XMLOutputter out = new XMLOutputter(Format.getCompactFormat());
 
@@ -147,6 +143,11 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
             InterfaceBWebsideController.logContactError(e, _backEndURIStr);
         }
         return yawlServices;
+    }
+
+    public String getRegisteredYAWLServicesAsXML(String sessionHandle) throws IOException {
+        return executeGet(_backEndURIStr +
+                          "?action=getYAWLServices&sessionHandle=" + sessionHandle);
     }
 
 

@@ -19,7 +19,7 @@
                              rel="shortcut icon"
                             type="image/x-icon" url="/resources/favicon.ico"/>
                     
-                    <ui:script binding="#{SessionBean.script1}" id="script1"
+                    <ui:script binding="#{SessionBean.script}" id="script1"
                                url="/resources/script.js"/>
 
                 </ui:head>
@@ -27,13 +27,8 @@
                          style="-rave-layout: grid">
                     <ui:form binding="#{participantData.form1}" id="form1">
 
-                        <ui:panelLayout binding="#{SessionBean.topPanel}"
-                                        id="topPanel"
-                                        panelLayout="flow"
-                                        styleClass="topPanel"/>
-                        <div style="left: 0px; top: 0px; position: absolute">
-                             <jsp:directive.include file="pfHeader.jspf"/>
-                        </div>
+                        <!-- include banner -->
+                        <div><jsp:directive.include file="pfHeader.jspf"/></div>
 
                         <div style="left: 0px; top: 72px; position: absolute">
                             <jsp:directive.include file="pfMenu.jspf"/>
@@ -286,11 +281,12 @@
                                    onClick="return confirmDelete()"
                                    text="Remove"/>
 
-                        <ui:messageGroup binding="#{participantData.msgGroup}"
-                                         id="msgGroup" 
-                                         showGlobalOnly="true"
-                                         style="position: absolute; left: 124px; top: 610px"/>
 
+                        <ui:panelLayout binding="#{SessionBean.messagePanel}"
+                                        id="msgPanel"
+                                        panelLayout="flow"
+                                        style="position: absolute; left: 124px; top: 630px"/>
+                        
 
                         <div style="left: 123px; top: 458px; position: absolute">
                             <jsp:directive.include file="pfAddRemove.jspf"/>

@@ -9,22 +9,21 @@
 
 package org.yawlfoundation.yawl.engine;
 
-import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.yawlfoundation.yawl.exceptions.YStateException;
-import org.yawlfoundation.yawl.logging.YEventLogger;
-import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
-import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
-import org.yawlfoundation.yawl.engine.time.YTimer;
-import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.util.StringUtil;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.yawlfoundation.yawl.elements.state.YIdentifier;
+import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
+import org.yawlfoundation.yawl.engine.time.YTimer;
+import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
+import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.yawlfoundation.yawl.logging.YEventLogger;
+import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
-import javax.xml.datatype.Duration;
-import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.Duration;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -63,6 +62,9 @@ public class YWorkItem {
     private Set _children;                                 // this item's kids (if any)
     private Element _dataList;
     private String _dataString = null;                  // persisted version of datalist
+
+    private String _deferredChoiceGroupID = null ;
+
     private Map _timerParameters ;                         // timer extensions
     private boolean _timerStarted ;
 
@@ -484,6 +486,10 @@ public class YWorkItem {
             _specID.setVersion(version);
     }
 
+    public String get_deferredChoiceGroupID() { return _deferredChoiceGroupID; }
+
+    public void set_deferredChoiceGroupID(String id) { _deferredChoiceGroupID = id; }
+
     public Date get_enablementTime() { return _enablementTime; }
 
     public void set_enablementTime(Date eTime) { _enablementTime = eTime; }
@@ -556,6 +562,10 @@ public class YWorkItem {
 
     private String getUniqueID() { return _workItemID.getUniqueID(); }
 
+    public String getDeferredChoiceGroupID() { return _deferredChoiceGroupID; }
+
+    public void setDeferredChoiceGroupID(String id) { _deferredChoiceGroupID = id; }
+
     public String getSpecName() { return _specID.getSpecName(); }
 
     public YSpecificationID getSpecificationID() { return _specID ; }
@@ -598,6 +608,7 @@ public class YWorkItem {
         xmlBuff.append(StringUtil.wrap(getCaseID().toString(), "caseID"));
         xmlBuff.append(StringUtil.wrap(getUniqueID(), "uniqueID"));
         xmlBuff.append(StringUtil.wrap(_specID.getSpecName(), "specID"));
+        xmlBuff.append(StringUtil.wrap(_deferredChoiceGroupID, "deferredChoiceGroupID"));
         xmlBuff.append(StringUtil.wrap(String.valueOf(_specID.getVersion()), "specVersion"));
         xmlBuff.append(StringUtil.wrap(_status.toString(), "status"));
         if (_dataList != null) {
