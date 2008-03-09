@@ -226,11 +226,10 @@ public class YEngine implements InterfaceADesign,
             query = pmgr.createQuery("from org.yawlfoundation.yawl.engine.YCaseNbrStore");
             if ((query != null) && (! query.list().isEmpty())) {
                 _caseNbrStore = (YCaseNbrStore) query.iterate().next();
-                _caseNbrStore.setPersisted(true);               // flag to update only
             }
             else {
                 
-                // secondary attempt: if there's no case number stored (as will be
+                // secondary attempt: eg. if there's no case number stored (as will be
                 // the case if this is the first restart after upgrade to v2.0)
                 query = pmgr.createQuery("from YCaseEvent as yce " +
                         "where yce._eventName = 'started' order by yce._eventTime desc");
@@ -241,6 +240,12 @@ public class YEngine implements InterfaceADesign,
                     _caseNbrStore.setCaseNbr(new Double(caseEvent.get_caseID()).intValue());
                 }
             }
+
+            // persisting flag must be reset as it is not itself persisted
+            _caseNbrStore.setPersisting(true);
+            _caseNbrStore.setPersisted(true);               // flag to update only
+
+            // END: restore case numbers
             
             int checkedrunners = 0;
 
