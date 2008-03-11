@@ -192,12 +192,12 @@ public class SessionBean extends AbstractSessionBean {
 
 
     public Set<WorkItemRecord> refreshQueue(int qType) {
-        if (participant != null) {
-            queueSet = participant.getWorkQueues() ;
-            if (participant.isAdministrator())
-                adminQueueSet = _rm.getAdminQueues();
+        if (qType < WorkQueue.UNOFFERED) {
+            if (participant != null)
+                queueSet = participant.getWorkQueues() ;
         }
-        else adminQueueSet = _rm.getAdminQueues();
+        else 
+           adminQueueSet = _rm.getAdminQueues();
 
         return getQueue(qType) ;
     }

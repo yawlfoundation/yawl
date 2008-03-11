@@ -415,6 +415,11 @@ public abstract class YExternalNetElement extends YNetElement implements YVerifi
     }
 
 
+    public Set getPresetFlows() {
+        return new HashSet(_presetFlows.values());
+    }
+
+
     /**
      * Validates the data against the schema
      * @param rawDecompositionData the raw decomposition data

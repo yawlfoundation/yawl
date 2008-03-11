@@ -2578,6 +2578,14 @@ public void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus old
         }
     }
 
+    protected void announceCancelledTaskToResourceService(YWorkItem item) {
+        if (_resourceObserver != null) {
+            logger.debug("Announcing cancelled task " + item.getIDString() + " on service " +
+                          _resourceObserver.get_yawlServiceID());
+            observerGatewayController.notifyRemoveWorkItem(_resourceObserver, item);
+        }
+    }
+
     // this method should be called by an IB service when it decides it is not going
     // to handle (i.e. checkout) a workitem announced to it. It passes the workitem to
     // the resourceService for normal assignment.

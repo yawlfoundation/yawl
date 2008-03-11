@@ -96,6 +96,7 @@ public class ResourceManager extends InterfaceBWebsideController
     private Logger _log ;                                 // debug log4j file
     private boolean _persisting ;                         // flag to enable persistence
     private boolean _isNonDefaultOrgDB ;                  // flag for non-yawl org model
+    private Object _mutex = new Object();                 // for synchronizing ib events
 
     private Timer _orgDataRefreshTimer;               // if set, reloads db at intervals
 
@@ -200,36 +201,40 @@ public class ResourceManager extends InterfaceBWebsideController
     // Interface B implemented methods //
 
     public void handleEnabledWorkItemEvent(WorkItemRecord wir) {
-        if (_serviceEnabled) {
-            ResourceMap rMap = getResourceMap(wir) ;
-            if (rMap != null)
-                wir = rMap.distribute(wir) ;            
-            else
-                wir = offerToAll(wir) ;        // only when no resourcing spec for item
+        synchronized(_mutex) {
+            if (_serviceEnabled) {
+                ResourceMap rMap = getResourceMap(wir) ;
+                if (rMap != null)
+                    wir = rMap.distribute(wir) ;
+                else
+                    wir = offerToAll(wir) ;   // only when no resourcing spec for item
+            }
+
+            // service disabled, so route directly to admin's unoffered
+            else _resAdmin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
+
+            if (wir.isDeferredChoiceGroupMember()) mapDeferredChoice(wir);
+
+            _workItemCache.add(wir);
         }
-
-        // service disabled, so route directly to admin's unoffered
-        else _resAdmin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
-
-        if (wir.isDeferredChoiceGroupMember()) mapDeferredChoice(wir);
-
-        _workItemCache.add(wir);        
     }
 
 
     public void handleCancelledWorkItemEvent(WorkItemRecord wir) {
-        if (_serviceEnabled) {
-            List<WorkItemRecord> itemsToRemove = new ArrayList<WorkItemRecord>() ;
-            itemsToRemove.add(wir) ;
+        synchronized(_mutex) {
+            if (_serviceEnabled) {
+                List<WorkItemRecord> itemsToRemove = new ArrayList<WorkItemRecord>() ;
+                itemsToRemove.add(wir) ;
 
-            // add list of child items (if any) to parent (if necessary)
-            if (wir.getStatus().equals(WorkItemRecord.statusIsParent))
-                itemsToRemove.addAll(getChildren(wir.getID())) ;
+                // add list of child items (if any) to parent (if necessary)
+                if (wir.getStatus().equals(WorkItemRecord.statusIsParent))
+                    itemsToRemove.addAll(getChildren(wir.getID())) ;
 
-            // remove items from all queues and cache
-            for (WorkItemRecord item : itemsToRemove) {
-                removeFromAll(item) ;
-                _workItemCache.remove(item);
+                // remove items from all queues and cache
+                for (WorkItemRecord item : itemsToRemove) {
+                    removeFromAll(item) ;
+                    _workItemCache.remove(item);
+                }
             }
         }
     }
@@ -422,6 +427,7 @@ public class ResourceManager extends InterfaceBWebsideController
 
         if (qList != null) {
             for (WorkQueue wq : qList) {
+                wq.setPersisting(true);
                 if (wq.getOwnerID().equals("admin"))
                     _resAdmin.restoreWorkQueue(wq, _workItemCache, _persisting);
                 else {

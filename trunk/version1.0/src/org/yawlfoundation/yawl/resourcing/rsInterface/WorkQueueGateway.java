@@ -73,6 +73,11 @@ public class WorkQueueGateway extends HttpServlet {
             String password = req.getParameter("password");
             result = _rm.serviceConnect(userid, password);
         }
+        else if (action.equalsIgnoreCase("login")) {
+            String userid = req.getParameter("userid");
+            String password = req.getParameter("password");
+            result = _rm.login(userid, password);            
+        }
         else if (action.equalsIgnoreCase("checkConnection")) {
             result = String.valueOf(_rm.checkServiceConnection(handle)) ;
         }

@@ -9,19 +9,13 @@
 package org.yawlfoundation.yawl.resourcing.datastore;
 
 import org.apache.log4j.Logger;
-
+import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.HibernateException;
-import org.hibernate.MappingException;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -156,6 +150,7 @@ public class HibernateEngine implements Serializable {
             Transaction tx = null;
             try {
                 Session session = _factory.getCurrentSession();
+//                session.setFlushMode(FlushMode.COMMIT);
                 tx = session.beginTransaction();
 
                 if (action == DB_INSERT) session.save(obj);
@@ -196,6 +191,7 @@ public class HibernateEngine implements Serializable {
             Transaction tx = null;
             try {
                 Session session = _factory.getCurrentSession();
+//                session.setFlushMode(FlushMode.COMMIT);
                 tx = session.beginTransaction();
                 Query query = session.createQuery(queryString);
                 if (query != null) result = query.list();

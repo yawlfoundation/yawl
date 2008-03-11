@@ -9,14 +9,14 @@
 
 package org.yawlfoundation.yawl.engine;
 
-import org.yawlfoundation.yawl.elements.*;
-import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.exceptions.*;
-import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
-import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.yawlfoundation.yawl.elements.*;
+import org.yawlfoundation.yawl.elements.state.YIdentifier;
+import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
+import org.yawlfoundation.yawl.exceptions.*;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.util.*;
 
@@ -35,8 +35,8 @@ public class YNetRunner // extends Thread
 	static final double INITIAL_VERSION = 0.1;//MLR (31/10/07): added after merge
 
     protected YNet _net;
-    private Set _enabledTasks = new HashSet();
-    private Set _busyTasks = new HashSet();
+    private Set<YExternalNetElement> _enabledTasks = new HashSet<YExternalNetElement>();
+    private Set<YExternalNetElement> _busyTasks = new HashSet<YExternalNetElement>();
     private Set _suspTasks = new HashSet();   // added
 
     private static YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
@@ -52,8 +52,8 @@ public class YNetRunner // extends Thread
      */
     protected String yNetID = null;       // name of the spec
     protected double yNetVersion = INITIAL_VERSION;  //MLF - version of the spec
-    private Set enabledTaskNames = new HashSet();
-    private Set busyTaskNames = new HashSet();
+    private Set<String> enabledTaskNames = new HashSet<String>();
+    private Set<String> busyTaskNames = new HashSet<String>();
     private P_YIdentifier _standin_caseIDForNet;
     private String _caseID = null;
     private String containingTaskID = null;
@@ -469,140 +469,162 @@ public class YNetRunner // extends Thread
     }
 
 
-    public synchronized boolean continueIfPossible(YPersistenceManager pmgr) throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
+    public synchronized boolean continueIfPossible(YPersistenceManager pmgr)
+                           throws YDataStateException, YStateException, YQueryException,
+                                  YSchemaBuildingException, YPersistenceException {
         logger.debug("--> continueIfPossible");
-        /**
-         * AJH: Check if we are suspending (or suspended?) and if so exit out as we shouldn't post new workitems
-         */
+
+        // AJH: Check if we are suspending (or suspended?) and if so exit out as we
+        // shouldn't post new workitems
         if ((getCasedata().getExecutionState() == YCaseData.SUSPEND_STATUS_SUSPENDING) ||
-                (getCasedata().getExecutionState() == YCaseData.SUSPEND_STATUS_SUSPENDED))
-        {
+            (getCasedata().getExecutionState() == YCaseData.SUSPEND_STATUS_SUSPENDED)) {
             logger.debug("Aborting runner continuation as case is currently suspending/suspended");
             return true;
         }
 
-        List tasks = new ArrayList(_net.getNetElements().values());
+        // storage for the running set of enabled tasks
         YEnabledTransitionSet enabledTransitions = new YEnabledTransitionSet();
 
+        // iterate through the full set of elements for the net
+        List tasks = new ArrayList(_net.getNetElements().values());
         Iterator tasksIter = tasks.iterator();
         while (tasksIter.hasNext()) {
             YExternalNetElement netElement = (YExternalNetElement) tasksIter.next();
-
             if (netElement instanceof YTask) {
                 YTask task = (YTask) netElement;
 
+                // if this task is an enabled 'transition'
                 if (task.t_enabled(_caseIDForNet)) {
-                    boolean taskRecordedAsEnabled = _enabledTasks.contains(task);
-
-                    boolean taskRecordedAsBusy = _busyTasks.contains(task);
-
-                    if (!taskRecordedAsEnabled && !taskRecordedAsBusy) {                       
+                    if (! (_enabledTasks.contains(task) || _busyTasks.contains(task)))
                         enabledTransitions.add(task) ;
-                        if (task instanceof YAtomicTask) {
-                            YAtomicTask atomicTask = (YAtomicTask) task;
-                            YAWLServiceGateway wsgw = (YAWLServiceGateway) atomicTask.getDecompositionPrototype();
-                            //if its not an empty task
-                            if (wsgw != null) {
-                                createEnabledWorkItem(pmgr, _caseIDForNet, atomicTask);
-                                YAWLServiceReference ys = wsgw.getYawlService();
-                                YWorkItem item = _workItemRepository.getWorkItem(_caseIDForNet.toString(), atomicTask.getID());
-                                if (ys != null)
-                                    _engine.announceTask(ys, item);
-                                else
-                                    _engine.announceEnabledTaskToResourceService(item);
-
-                                if (_exceptionObserver != null)
-                                    _engine.announceCheckWorkItemConstraints(_exceptionObserver, item, _net.getInternalDataDocument(), true);
-
-                                _enabledTasks.add(task);
-
-                                /*************************/
-                                /* INSERTED FOR PERSISTANCE*/
-                                enabledTaskNames.add(task.getID());
-//                                YPersistance.getInstance().updateData(this);
-                                if (pmgr != null) {
-                                    pmgr.updateObject(this);
-                                }
-
-                                /***********************/
-                            } else {
-                                //fire the empty atomic task
-                                YIdentifier id = null;
-                                    id = (YIdentifier) atomicTask.t_fire(pmgr).iterator().next();
-                                    atomicTask.t_start(pmgr, id);
-                                    completeTask(pmgr, null, atomicTask, id, null);//atomicTask.t_complete(id);
-                                }
-                        } else {
-
-                            //fire the composite task
-                            _busyTasks.add(task);
-
-                            /*************************/
-                            /* INSERTED FOR PERSISTANCE*/
-                            busyTaskNames.add(task.getID());
-//                            YPersistance.getInstance().updateData(this);
-                            if (pmgr != null) {
-                                pmgr.updateObject(this);
-                            }
-                            /****************************/
-
-                            Iterator caseIDs = task.t_fire(pmgr).iterator();
-                            while (caseIDs.hasNext()) {
-                                YIdentifier id = (YIdentifier) caseIDs.next();
-                                task.t_start(pmgr, id);
-                            }
-                        }
-                    }
-                } else /*if (!task.t_enabled(_caseIDForNet))*/ {
-
-                    if (_enabledTasks.contains(task)) {
-//                        YLocalWorklist.announceToWorklistsNoLongerEnabled(_caseIDForNet, task.getID());
-                        _enabledTasks.remove(task);
-                        /*************************/
-                        /* INSERTED FOR PERSISTANCE*/
-                        enabledTaskNames.remove(task.getID());
-
-                        /**
-                         * AJH: Bugfix: We need to remove from persistence the cancelled task
-                         */
-                        YWorkItem wItem = _workItemRepository.getWorkItem(_caseID, task.getID());
-                        if(wItem != null) //may already have been removed by task.cancel
-                        {
-                            //MLF: announce all cancelled work items (maybe subest to enabled/fired...?)
-                            if(task.getDecompositionPrototype() != null)
-                            {
-                                YAWLServiceGateway wsgw = (YAWLServiceGateway) task.getDecompositionPrototype();
-                                if (wsgw != null) {
-                                    YAWLServiceReference ys = wsgw.getYawlService();
-                                    if (ys != null) {
-                                        YEngine.getInstance().announceCancellationToEnvironment(ys, wItem);
-                                    }
-                                }
-                            }
-                        if (pmgr != null)
-                        {
-                            pmgr.deleteObject(wItem);
-                            }
-                        }                        
-//                        YPersistance.getInstance().updateData(this);
-                        if (pmgr != null) {
-                            pmgr.updateObject(this);
-                        }
-
-                        /******************/
-                    }
-
                 }
+                else {
+
+                    // if the task is not an enabled transition, and its been enabled
+                    // by the engine, then it must be cancelled
+                    if (_enabledTasks.contains(task))
+                        cancelEnabledTask(task, pmgr) ;
+                }
+
                 if (task.t_isBusy() && !_busyTasks.contains(task)) {
                     logger.error("Throwing RTE for lists out of sync");
-                    throw new RuntimeException("busy task list out of synch with a busy task: " + task.getID() + " busy tasks: " + _busyTasks);
+                    throw new RuntimeException("busy task list out of synch with a busy task: "
+                                           + task.getID() + " busy tasks: " + _busyTasks);
                 }
             }
         }
+
+        // fire the set of enabled 'transitions' (if any)
+        if (! enabledTransitions.isEmpty()) fireTasks(enabledTransitions, pmgr);
+
         _busyTasks = _net.getBusyTasks();
 
         logger.debug("<-- continueIfPossible");
         return _enabledTasks.size() > 0 || _busyTasks.size() > 0;
+    }
+
+
+    private void fireTasks(YEnabledTransitionSet enabledSet, YPersistenceManager pmgr)
+                              throws YDataStateException, YStateException, YQueryException,
+                                     YSchemaBuildingException, YPersistenceException {
+
+        Set<YTask> enabledTasks = new HashSet<YTask>() ;
+        List<YEnabledTransitionSet.TaskGroup> taskGroups = enabledSet.getEnabledTaskGroups();
+        for (YEnabledTransitionSet.TaskGroup group : taskGroups) {
+            if (group.hasEnabledCompositeTasks()) {
+                YCompositeTask composite = group.getRandomCompositeTaskFromTaskGroup();
+                if (! enabledTasks.contains(composite)) {
+                    fireCompositeTask(composite, pmgr) ;
+                    enabledTasks.add(composite) ;
+                }
+            }
+            else {
+                List<YAtomicTask> taskList = group.getEnabledAtomicTasks();
+                String groupID = taskList.size() > 1 ? group.getID() : null;
+                for (YAtomicTask atomic : taskList) {
+                    if (! enabledTasks.contains(atomic)) {
+                        fireAtomicTask(atomic, groupID, pmgr) ;
+                        enabledTasks.add(atomic) ;
+                    }
+                }
+            }
+        }
+    }
+
+    private void fireAtomicTask(YAtomicTask task, String groupID, YPersistenceManager pmgr)
+                           throws YDataStateException, YStateException, YQueryException,
+                                  YSchemaBuildingException, YPersistenceException {
+
+        YAWLServiceGateway wsgw = (YAWLServiceGateway) task.getDecompositionPrototype();
+
+        // if its not an empty task
+        if (wsgw != null) {
+            YWorkItem item = createEnabledWorkItem(pmgr, _caseIDForNet, task);
+            if (groupID != null) item.setDeferredChoiceGroupID(groupID);
+            YAWLServiceReference ys = wsgw.getYawlService();
+            if (ys != null)
+                _engine.announceTask(ys, item);
+            else
+                _engine.announceEnabledTaskToResourceService(item);
+
+            if (_exceptionObserver != null)
+                _engine.announceCheckWorkItemConstraints(_exceptionObserver, item,
+                                                 _net.getInternalDataDocument(), true);
+
+            _enabledTasks.add(task);
+            enabledTaskNames.add(task.getID());
+            if (pmgr != null)  pmgr.updateObject(this);
+        }
+        else {                                             //fire the empty atomic task
+            YIdentifier id = (YIdentifier) task.t_fire(pmgr).iterator().next();
+            task.t_start(pmgr, id);
+            completeTask(pmgr, null, task, id, null);
+        }
+    }
+
+
+    private void fireCompositeTask(YCompositeTask task, YPersistenceManager pmgr)
+                      throws YDataStateException, YStateException, YQueryException,
+                             YSchemaBuildingException, YPersistenceException {
+        _busyTasks.add(task);
+        busyTaskNames.add(task.getID());
+        if (pmgr != null) pmgr.updateObject(this);
+
+        Iterator caseIDs = task.t_fire(pmgr).iterator();
+        while (caseIDs.hasNext()) {
+            YIdentifier id = (YIdentifier) caseIDs.next();
+            task.t_start(pmgr, id);
+        }
+    }
+
+    private void cancelEnabledTask(YTask task, YPersistenceManager pmgr)
+                      throws YDataStateException, YStateException, YQueryException,
+                             YSchemaBuildingException, YPersistenceException {
+
+         _enabledTasks.remove(task);
+         enabledTaskNames.remove(task.getID());
+
+        //  remove the cancelled task from persistence
+        YWorkItem wItem = _workItemRepository.getWorkItem(_caseID, task.getID());
+        if (wItem != null) {               //may already have been removed by task.cancel
+
+            //MLF: announce all cancelled work items (maybe subset to enabled/fired...?)
+            if (task.getDecompositionPrototype() != null) {
+                YAWLServiceGateway wsgw = (YAWLServiceGateway) task.getDecompositionPrototype();
+                if (wsgw != null) {
+                    YAWLServiceReference ys = wsgw.getYawlService();
+                    if (ys != null)
+                        _engine.announceCancellationToEnvironment(ys, wItem);
+                    else 
+                        _engine.announceCancelledTaskToResourceService(wItem);
+
+                }
+            }
+            if (pmgr != null) {
+               pmgr.deleteObject(wItem);
+               pmgr.updateObject(this);
+            }
+        }
     }
 
 
@@ -612,7 +634,7 @@ public class YNetRunner // extends Thread
      * @param caseIDForNet the caseid for the net
      * @param atomicTask   the atomic task that contains it.
      */
-    private void createEnabledWorkItem(YPersistenceManager pmgr, YIdentifier caseIDForNet, YAtomicTask atomicTask) throws YPersistenceException, YDataStateException, YSchemaBuildingException, YQueryException, YStateException {
+    private YWorkItem createEnabledWorkItem(YPersistenceManager pmgr, YIdentifier caseIDForNet, YAtomicTask atomicTask) throws YPersistenceException, YDataStateException, YSchemaBuildingException, YQueryException, YStateException {
         logger.debug("--> createEnabledWorkItem: Case=" + caseIDForNet.get_idString() + " Task=" + atomicTask.getID());
 
         boolean allowDynamicCreation =
@@ -637,6 +659,7 @@ public class YNetRunner // extends Thread
             workItem.setTimerParameters(timerParams);
             workItem.checkStartTimer(pmgr, casedata);
         }
+        return workItem;
     }
 
 
@@ -691,12 +714,7 @@ public class YNetRunner // extends Thread
                             }
                         }
                     }
-
-                 // todo: this is always false - may remove after testing   
-              }
-//            else if (_engine != null && _containingCompositeTask != null) {
-//                    _engine.finishCase(pmgr, _caseIDForNet);
-//                }
+                }
             }
 
             continueIfPossible(pmgr);
