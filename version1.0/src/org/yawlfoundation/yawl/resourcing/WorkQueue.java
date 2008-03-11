@@ -91,9 +91,12 @@ public class WorkQueue implements Serializable {
 
     // PRIVATE METHODS //
 
-    /** called when this workqueue contents have changed */
+    /** Called when this workqueue's contents have changed.
+     *  Note that the admin worklisted queue is dynamically constructed from the union
+     *  of all participant queues and thus does not need to be persisted
+     */
     private void persistThis() {
-        if (_persisting) {
+        if (_persisting && _queueType < WORKLISTED) {
             Persister.getInstance().update(this);
         }    
     }
@@ -130,7 +133,12 @@ public class WorkQueue implements Serializable {
 
     public int getQueueType() { return _queueType ; }
 
-    public void setQueueType(int qType) { _queueType = qType ; } 
+    public void setQueueType(int qType) { _queueType = qType ; }
+
+
+    public boolean isPersisting() { return _persisting; }
+
+    public void setPersisting(boolean persist) { _persisting = persist; }
 
 
     /**
@@ -206,15 +214,19 @@ public class WorkQueue implements Serializable {
      * @return the removed workitem
      */
     public void remove(WorkItemRecord item) {
-        _workitems.remove(item.getID());
-        persistThis();
+        if (_workitems.containsKey(item.getID())) {
+            _workitems.remove(item.getID());
+            persistThis();
+        }    
     }
 
 
     /* Removes all workitems from the queue */
     public void clear() {
-        _workitems.clear();
-        persistThis() ;
+        if (! _workitems.isEmpty()) {
+            _workitems.clear();
+            persistThis() ;
+        }    
     }
 
 

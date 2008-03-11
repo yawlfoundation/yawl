@@ -47,7 +47,7 @@ public class RandomChoice extends AbstractAllocator {
         if (op.length == 0) return null ;                  // case: empty set
         if (op.length == 1) return (Participant) op[0] ;   // case: only one member
 
-        return (Participant) op[new Random().nextInt(op.length-1)];
+        return (Participant) op[new Random().nextInt(op.length)];
     }
 
 }

@@ -70,7 +70,7 @@ public class WorkQueueGatewayClientAdapter {
 
 
     /**
-     * Attempts to connect to the service
+     * Attempts to connect to the service (as a service)
      * @param userid the userid
      * @param password  the corresponding password
      * @return a sessionhandle if successful, or a failure message if otherwise
@@ -78,6 +78,22 @@ public class WorkQueueGatewayClientAdapter {
     public String connect(String userid, String password) {
         try {
             return _wqclient.connect(userid, password) ;
+        }
+        catch (IOException ioe) {
+            return "<failure>IOException attempting to connect to Service.</failure>";
+        }
+    }
+
+
+    /**
+     * Attempts to connect to the service (as a user/participant)
+     * @param userid the userid
+     * @param password  the corresponding password
+     * @return a sessionhandle if successful, or a failure message if otherwise
+     */
+    public String login(String userid, String password) {
+        try {
+            return _wqclient.login(userid, password) ;
         }
         catch (IOException ioe) {
             return "<failure>IOException attempting to connect to Service.</failure>";

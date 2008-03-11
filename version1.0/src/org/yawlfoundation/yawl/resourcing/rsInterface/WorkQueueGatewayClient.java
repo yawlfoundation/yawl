@@ -116,8 +116,9 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
 
-    public String login(String userid, String password) throws IOException {
-        return connect(userid, password);
+    public String login(String userID, String password) throws IOException {
+        return executeGet(_serviceURI + "?action=login&userid=" + userID +
+                                        "&password=" + password);
     }
 
 

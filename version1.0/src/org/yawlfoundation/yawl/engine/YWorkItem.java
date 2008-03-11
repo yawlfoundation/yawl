@@ -608,12 +608,12 @@ public class YWorkItem {
         xmlBuff.append(StringUtil.wrap(getCaseID().toString(), "caseID"));
         xmlBuff.append(StringUtil.wrap(getUniqueID(), "uniqueID"));
         xmlBuff.append(StringUtil.wrap(_specID.getSpecName(), "specID"));
-        xmlBuff.append(StringUtil.wrap(_deferredChoiceGroupID, "deferredChoiceGroupID"));
         xmlBuff.append(StringUtil.wrap(String.valueOf(_specID.getVersion()), "specVersion"));
         xmlBuff.append(StringUtil.wrap(_status.toString(), "status"));
-        if (_dataList != null) {
+        if (_deferredChoiceGroupID != null)
+            xmlBuff.append(StringUtil.wrap(_deferredChoiceGroupID, "deferredChoiceGroupID"));
+        if (_dataList != null)
             xmlBuff.append(StringUtil.wrap(getDataString(), "data"));
-        }
         xmlBuff.append(StringUtil.wrap(_df.format(getEnablementTime()), "enablementTime"));
         xmlBuff.append(StringUtil.wrap(String.valueOf(getEnablementTime().getTime()),
                        "enablementTimeMs")) ;

@@ -3,9 +3,9 @@ package org.yawlfoundation.yawl.testService;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
 import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
-import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.allocators.AbstractAllocator;
 import org.yawlfoundation.yawl.resourcing.constraints.AbstractConstraint;
 import org.yawlfoundation.yawl.resourcing.filters.AbstractFilter;
@@ -15,7 +15,7 @@ import org.yawlfoundation.yawl.resourcing.interactions.OfferInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
-import org.jdom.Document;
+import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGatewayClientAdapter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -57,7 +57,10 @@ public class TestService extends InterfaceBWebsideController {
    //     output.append(doResourceServiceGatewayTest()) ;
    //    output.append(createDummyOrgData());
    //      output.append(doLogGatewayTest()) ;
-        output.append(ibTest());
+   //     output.append(doWorkQueueGatewayTest()) ;
+   //     output.append(ibTest());
+        output.append(doRandomTest()) ;
+
 
          output.append("</p></body></html>");
          outputWriter.write(output.toString());
@@ -66,6 +69,13 @@ public class TestService extends InterfaceBWebsideController {
     }
 
     private void prn(String s) { System.out.println(s) ; }
+
+    private String doRandomTest() {
+        int max = 11 ;
+        int count = 1000 ;
+        for (int i=0; i<count; i++) prn("" + new Random().nextInt(max-1)) ;
+        return "";
+    }
 
     private String doLogGatewayTest() throws IOException {
         YLogGatewayClient logClient = new YLogGatewayClient(
@@ -108,9 +118,34 @@ public class TestService extends InterfaceBWebsideController {
         prn("getParentWorkItemEventsForCaseID - 3:");
         prn(logClient.getParentWorkItemEventsForCaseID("3", handle)) ;
 
+        prn("");
+        prn("getCaseEventTime - caseeventid passed:");
+        prn(logClient.getCaseEventTime("9a81dbb7-85f8-4ae4-a950-e29ca43cdc57", handle)) ;
+
+        prn("");
+        prn("getCaseEventTime - caseid and started passed:");
+        prn(logClient.getCaseEventTime("260", "started", handle)) ;
+
         return "" ;
     }
 
+
+    /*********************************************************************************/
+
+    private String doWorkQueueGatewayTest() throws IOException {
+
+        // STEP 1: get required data from resource service (via resource gateway)
+        String resURL = "http://localhost:8080/resourceService/workqueuegateway";
+        WorkQueueGatewayClientAdapter resClient = new WorkQueueGatewayClientAdapter(resURL) ;
+
+        String handle = resClient.login("AdamsJ", "apple");
+
+        Participant p = resClient.getParticipantFromUserID("AdamsJ", handle);
+
+        System.out.println(p.toXML());
+
+        return "";
+    }
 
     private String doResourceServiceGatewayTest() throws IOException {
         /******* TEST CODE STARTS HERE ***********************************************/

@@ -81,7 +81,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param workItem the parent work item to cancel.
      */
     public void cancelAllWorkItemsInGroupOf(YAWLServiceReference yawlService, YWorkItem workItem) {
-        if(workItem.getParent() == null){
+        if (workItem.getParent() == null) {
             Handler myHandler = new Handler(yawlService, workItem, "cancelAllInstancesUnderWorkItem");
             myHandler.start();
         }
@@ -205,14 +205,16 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                     paramsMap.put("action", "handleEnabledItem");
                     Interface_Client.executePost(urlOfYawlService, paramsMap);
                 } else if (InterfaceB_EngineBasedClient.CANCELALLWORKITEMS_CMD.equals(_command)) {
-                    Iterator iter = _workItem.getChildren().iterator();
                     InterfaceB_EngineBasedClient.cancelWorkItem(_yawlService, _workItem);
-                    while (iter.hasNext()) {
-                        YWorkItem item = (YWorkItem) iter.next();
-                        InterfaceB_EngineBasedClient.cancelWorkItem(_yawlService, item);
+                    Set children = _workItem.getChildren();
+                    if (children != null) {
+                        Iterator iter = children.iterator();
+                        while (iter.hasNext()) {
+                            YWorkItem item = (YWorkItem) iter.next();
+                            InterfaceB_EngineBasedClient.cancelWorkItem(_yawlService, item);
+                        }    
                     }
                 } else if (InterfaceB_EngineBasedClient.CANCELWORKITEM_CMD.equals(_command)) {
-                    //cancel the parent
                     String urlOfYawlService = _yawlService.getURI();
                     String workItemXML = _workItem.toXML();
                     Map paramsMap = new HashMap();

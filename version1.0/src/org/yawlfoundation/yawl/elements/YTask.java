@@ -919,10 +919,6 @@ public abstract class YTask extends YExternalNetElement {
     }
 
 
-    public YCondition getPrecedingCondition(YIdentifier id) {
-        return null;
-    }
-
 
     public Object clone() throws CloneNotSupportedException {
         YTask copy = (YTask) super.clone();
