@@ -8,20 +8,20 @@
 
 package org.yawlfoundation.yawl.resourcing.interactions;
 
-import org.yawlfoundation.yawl.resourcing.resource.*;
-import org.yawlfoundation.yawl.resourcing.filters.AbstractFilter;
-import org.yawlfoundation.yawl.resourcing.filters.FilterFactory;
-import org.yawlfoundation.yawl.resourcing.constraints.AbstractConstraint;
-import org.yawlfoundation.yawl.resourcing.constraints.ConstraintFactory;
-import org.yawlfoundation.yawl.resourcing.WorkQueue;
-import org.yawlfoundation.yawl.resourcing.ResourceManager;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-
-import java.util.*;
-
+import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.Namespace;
-import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.constraints.AbstractConstraint;
+import org.yawlfoundation.yawl.resourcing.constraints.ConstraintFactory;
+import org.yawlfoundation.yawl.resourcing.filters.AbstractFilter;
+import org.yawlfoundation.yawl.resourcing.filters.FilterFactory;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.resourcing.resource.Role;
+
+import java.util.*;
 
 /**
  *  This class describes the requirements of a task at the offer phase of
@@ -81,7 +81,7 @@ public class OfferInteraction extends AbstractInteraction {
         if (p != null)
             _participants.add(p);
         else
-            _log.error("Unknown Participant ID in Offer spec: " + id);
+            _log.warn("Unknown Participant ID in Offer spec: " + id);
     }
 
     public void addParticipantUnchecked(String id) {
@@ -98,7 +98,7 @@ public class OfferInteraction extends AbstractInteraction {
         if (_rm.isKnownParticipant(p))
            _participants.add(p);
         else
-            _log.error("Could not add unknown Participant to Offer: " + p.getID());
+            _log.warn("Could not add unknown Participant to Offer: " + p.getID());
     }
 
 
@@ -124,7 +124,7 @@ public class OfferInteraction extends AbstractInteraction {
         if (r != null)
             _roles.add(r);
         else
-            _log.error("Unknown Role ID in Offer spec: " + rid);
+            _log.warn("Unknown Role ID in Offer spec: " + rid);
     }
 
     public void addRoleUnchecked(String rid) {
@@ -138,7 +138,7 @@ public class OfferInteraction extends AbstractInteraction {
         if (_rm.isKnownRole(r))
             _roles.add(r) ;
         else
-            _log.error("Could not add unknown Role to Offer: " + r.getID());
+            _log.warn("Could not add unknown Role to Offer: " + r.getID());
     }
 
 
@@ -250,10 +250,9 @@ public class OfferInteraction extends AbstractInteraction {
                 distributionSet =
                     (HashSet<Participant>) constraint.performConstraint(distributionSet, wir) ;
 
-            // ok - got our final set
-            if (distributionSet.isEmpty()) distributionSet = null;
         }
 
+        // ok - got our final set
         return distributionSet ;
     }
 

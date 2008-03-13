@@ -10,7 +10,8 @@
     <f:view>
         <ui:page binding="#{customServices.page1}" id="page1">
             <ui:html binding="#{customServices.html1}" id="html1">
-                <ui:head binding="#{customServices.head1}" id="head1">
+                <ui:head binding="#{customServices.head1}" id="head1"
+                         title="YAWL 2.0 Service Management">
                     <ui:link binding="#{customServices.link1}" id="link1"
                              url="/resources/stylesheet.css"/>
 
@@ -18,7 +19,7 @@
                              rel="shortcut icon"
                             type="image/x-icon" url="/resources/favicon.ico"/>
                     
-                    <ui:script binding="#{customServices.script}" id="script1"
+                    <ui:script binding="#{SessionBean.script}" id="script1"
                                url="/resources/script.js"/>
 
                 </ui:head>

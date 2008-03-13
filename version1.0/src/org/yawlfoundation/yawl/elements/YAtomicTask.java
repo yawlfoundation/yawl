@@ -118,31 +118,52 @@ public class YAtomicTask extends YTask {
     }
 
 
-    public synchronized void cancel(YPersistenceManager pmgr, YIdentifier caseID) throws YPersistenceException {
-        super.cancel(pmgr);
-         if (_decompositionPrototype != null) {
-            YWorkItem workItem;
-            if (_i != null) {  //work item has fired
-                workItem = _workItemRepository.getWorkItem(_i.toString(), getID());
-            } else { //check enabled work items
-                //construct the workitem id
-                String workItemID = caseID.get_idString() + ":" + getID();
-                workItem = _workItemRepository.getWorkItem(workItemID);
-            }
-            if (null != workItem) {
-                _workItemRepository.removeWorkItemFamily(workItem);
-                workItem.cancel(pmgr);
-                //if applicable cancel yawl service
-                YAWLServiceGateway wsgw = (YAWLServiceGateway) getDecompositionPrototype();
-                if (wsgw != null) {
-                    YAWLServiceReference ys = wsgw.getYawlService();
-                    if (ys != null) {
-                        YEngine.getInstance().announceCancellationToEnvironment(ys, workItem);
-                    }
-                }
-            }
+    private synchronized boolean cancelBusyWorkItem(YPersistenceManager pmgr)
+                                                         throws YPersistenceException {
+
+        // nothing to do if not fired or has no decomposition
+        if ((_i == null) || (_decompositionPrototype == null)) return false;
+
+        YWorkItem workItem = _workItemRepository.getWorkItem(_i.toString(), getID());
+        if (null != workItem) cancelWorkItem(pmgr, workItem) ;
+        return true;
+    }
+
+
+    private synchronized void cancelWorkItem(YPersistenceManager pmgr,
+                                             YWorkItem workItem)
+                                                        throws YPersistenceException {
+        _workItemRepository.removeWorkItemFamily(workItem);
+        workItem.cancel(pmgr);
+
+        // if applicable cancel yawl service
+        YAWLServiceGateway wsgw = (YAWLServiceGateway) getDecompositionPrototype();
+        if (wsgw != null) {
+            YAWLServiceReference ys = wsgw.getYawlService();
+            if (ys != null)
+                YEngine.getInstance().announceCancellationToEnvironment(ys, workItem);
+            else
+                YEngine.getInstance().announceCancelledTaskToResourceService(workItem);
+
         }
     }
+
+
+    public synchronized void cancel(YPersistenceManager pmgr) throws YPersistenceException {
+        cancelBusyWorkItem(pmgr);
+        super.cancel(pmgr);
+    }
+
+
+    public synchronized void cancel(YPersistenceManager pmgr, YIdentifier caseID) throws YPersistenceException {
+        if (! cancelBusyWorkItem(pmgr)) {
+            String workItemID = caseID.get_idString() + ":" + getID();
+            YWorkItem workItem = _workItemRepository.getWorkItem(workItemID);
+            if (null != workItem) cancelWorkItem(pmgr, workItem) ;
+        }
+        super.cancel(pmgr);
+    }
+
 
     public boolean t_rollBackToFired(YPersistenceManager pmgr, YIdentifier caseID) throws YPersistenceException {
         if (_mi_executing.contains(caseID)) {

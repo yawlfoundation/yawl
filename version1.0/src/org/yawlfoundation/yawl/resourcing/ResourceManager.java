@@ -148,7 +148,7 @@ public class ResourceManager extends InterfaceBWebsideController
 
 
     public void initOrgDataSource(String dataSourceClassName, int refreshRate) {
-        _log.info("Loading Org Data, please wait...");
+        _log.info("Loading org data...");
 
         // get correct ref to org data backend
         _orgdb = DataSourceFactory.getInstance(dataSourceClassName);
@@ -419,7 +419,7 @@ public class ResourceManager extends InterfaceBWebsideController
 
 
     private void restoreWorkQueues() {
-        _log.info("Restoring persisted work queue data, please wait...");
+        _log.info("Restoring persisted work queue data...");
         _workItemCache.restore() ;
 
         // restore the queues to their owners
@@ -919,6 +919,21 @@ public class ResourceManager extends InterfaceBWebsideController
     }
 
 
+    public String getSessionHandle(Participant p) {
+        for (String handle : _liveSessions.keySet()) {
+            Participant pLive = _liveSessions.get(handle) ;
+            if (pLive.getID().equals(p.getID())) {
+                return handle;
+            }
+        }
+        return null;
+    }
+
+    public String getSessionHandle(String userid) {
+        return getSessionHandle(getParticipantFromUserID(userid)) ;
+    }
+
+
     /***************************************************************************/
 
     // WORKITEM ALLOCATION AND WORKQUEUE METHODS //
@@ -1246,14 +1261,24 @@ public class ResourceManager extends InterfaceBWebsideController
         return false ;
     }
 
-    // ASSUMPTION: Piling applies to this task in this case instance only (not all cases)
+
     public boolean pileWorkItem(Participant p, WorkItemRecord wir) {
         boolean success = false ;
         if (hasUserTaskPrivilege(p, wir, TaskPrivileges.CAN_PILE)) {
-            getResourceMap(wir).setPiledResource(p);
-            success = true ;
+            success = getResourceMap(wir).setPiledResource(p);
         }
         return success;
+    }
+
+    // ISSUE: If p is currently logged on, we'll use p's handle (the engine will use
+    //        it to log p as the starter). If p is not logged on, the service's handle
+    //        has to be used, and thus the service will be logged as the starter. There is
+    //        no way around this currently, but will be handled when the engine is
+    //        made completely agnostic to resources.
+    public void routePiledWorkItem(Participant p, WorkItemRecord wir) {
+        String handle = getSessionHandle(p);
+        if (handle == null) handle = _engineSessionHandle;
+        start(p, wir, handle) ;
     }
 
 
@@ -1264,10 +1289,7 @@ public class ResourceManager extends InterfaceBWebsideController
         if (p.isAdministrator()) return true ;
 
         ResourceMap rMap = getResourceMap(wir);
-        if (rMap != null)
-            return rMap.getTaskPrivileges().hasPrivilege(p, privilege) ;
-        else
-           return false ;
+        return (rMap != null) && (rMap.getTaskPrivileges().hasPrivilege(p, privilege));
     }
 
 

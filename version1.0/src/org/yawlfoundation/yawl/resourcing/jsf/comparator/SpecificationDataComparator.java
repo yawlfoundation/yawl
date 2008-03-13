@@ -21,10 +21,10 @@ public class SpecificationDataComparator implements Comparator {
         if (obj1 == null) return -1;
         if (obj2 == null) return 1;
 
-        String id1 = ((SpecificationData) obj1).getID();
-        String id2 = ((SpecificationData) obj2).getID();
+        String id1 = ((SpecificationData) obj1).getID().toLowerCase();
+        String id2 = ((SpecificationData) obj2).getID().toLowerCase();
 
-        // compare id strings
+        // compare case-insensitive id strings
         return id1.compareTo(id2);
 	}
 
