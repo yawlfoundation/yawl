@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.yawlfoundation.yawl.resourcing">
+
+	<class name="ResourceMap" table="rs_ResourceMap">
+
+        <id name="_resourceID"
+            column="ParticipantID"
+            type="string"
+            access="field"/>
+
+    	<property name="_specID"
+                  column="specid"
+                  type="string"
+                  access="field"/>
+
+        <property name="_taskID"
+                  column="taskid"
+                  type="string"
+                  access="field"/>
+
+        <property name="_isAvailable"
+                  column="Available"
+                  type="boolean"
+                  access="field"/>
+
+        <property name="_lastname"
+                  column="LastName"
+                  type="string"
+                  access="field"/>
+
+        <property name="_firstname"
+                  column="FirstName"
+                  type="string"
+                  access="field"/>
+
+        <property name="_userID"
+                  column="UserID"
+                  type="string"
+                  access="field"/>
+
+        <property name="_password"
+                  column="Password"
+                  type="string"
+                  access="field"/>
+
+        <property name="_isAdministrator"
+                  column="Administrator"
+                  type="boolean"
+                  access="field"/>
+
+         <set name="_positions" table="rs_Participant_Position" access="field">
+    		 <key column="ParticipantID"/>
+             <many-to-many class="Position" column="ID" lazy="false"/>
+	     </set>
+
+         <set name="_roles" table="rs_Participant_Role" access="field">
+            <key column="ParticipantID"/>
+            <many-to-many class="Role" column="RoleID" lazy="false"/>
+         </set>
+
+         <set name="_capabilities" table="rs_Participant_Capability" access="field">
+            <key column="ParticipantID"/>
+            <many-to-many class="Capability" column="CapabilityID" lazy="false"/>
+         </set>
+
+         <one-to-one name="_privileges" class="UserPrivileges"
+                     cascade="all" access="field" lazy="false"/>
+
+     </class> 
+	
+</hibernate-mapping>

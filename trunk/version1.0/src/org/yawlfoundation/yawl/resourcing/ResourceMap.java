@@ -8,18 +8,16 @@
 
 package org.yawlfoundation.yawl.resourcing;
 
-import org.yawlfoundation.yawl.resourcing.interactions.*;
-import org.yawlfoundation.yawl.resourcing.resource.Participant;
-import org.yawlfoundation.yawl.resourcing.allocators.ShortestQueue;
-import org.yawlfoundation.yawl.resourcing.interactions.ResourceParseException;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-
-import java.util.HashSet;
-import java.util.HashMap;
-
+import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.Namespace;
-import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.resourcing.allocators.ShortestQueue;
+import org.yawlfoundation.yawl.resourcing.interactions.*;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
+
+import java.util.HashMap;
+import java.util.HashSet;
 
 
 /**
@@ -45,7 +43,7 @@ public class ResourceMap {
     private String _taskID ;
     private String _specID ;
 
-    private Participant _piledResource ;
+    private Participant _piledResource = null ;
     private HashSet<Participant> _ignoreSet = new HashSet<Participant>();
 
     // workitem id - offered-to-participants mapping
@@ -113,7 +111,16 @@ public class ResourceMap {
 
     public Participant getPiledResource() { return _piledResource; }
 
-    public void setPiledResource(Participant p) { _piledResource = p; }
+    public boolean setPiledResource(Participant p) {
+        if (! hasPiledResource()) {
+            _piledResource = p;
+            return true ;
+        }
+        else return false;
+    }
+
+    public boolean hasPiledResource() { return _piledResource == null; }
+
 
     public void ignore(Participant p) { _ignoreSet.add(p) ; }
     
@@ -130,7 +137,7 @@ public class ResourceMap {
 
         // if this task is piled, send directly to the piled participant
         if (_piledResource != null)
-            _piledResource.getWorkQueues().addToQueue(wir, WorkQueue.STARTED);
+            rm.routePiledWorkItem(_piledResource, wir) ;
         else {
             HashSet<Participant> distributionSet ;
             Participant chosen = null ;
@@ -163,7 +170,9 @@ public class ResourceMap {
            // if pile or chain then pile / chain & END else ...
            offerSet = (HashSet<Participant>) _offer.performOffer(wir);
            if (offerSet.isEmpty()) {
-
+               _log.warn("Parse of resource specifications for workitem " + wir.getID() +
+                         " resulted in an empty distribution list. Workitem will be" +
+                         " passed to an administrator for manual distribution.");
                // put workitem in admin's unoffered queue & DONE
                admin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
                offerSet = null ;
@@ -220,7 +229,7 @@ public class ResourceMap {
                 _allocate.parse(eleSpec.getChild("allocate", nsYawl), nsYawl) ;
                 _start.parse(eleSpec.getChild("start", nsYawl), nsYawl) ;
                 _privileges.parse(eleSpec.getChild("privileges", nsYawl), nsYawl) ;
-                _log.info("Resourcing specification successfully parsed for task: " + _taskID);
+                _log.info("Resourcing specification parse completed for task: " + _taskID);
             }
             catch (ResourceParseException rpe) {
                 _log.error(

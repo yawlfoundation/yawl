@@ -4,7 +4,9 @@
     <f:view>
         <ui:page binding="#{caseMgt.page1}" id="page1">
             <ui:html binding="#{caseMgt.html1}" id="html1">
-                <ui:head binding="#{caseMgt.head1}" id="head1">
+                <ui:head binding="#{caseMgt.head1}" id="head1"
+                         title="YAWL 2.0 Case Management">
+
                     <ui:link binding="#{caseMgt.link1}" id="link1"
                              url="/resources/stylesheet.css"/>
 

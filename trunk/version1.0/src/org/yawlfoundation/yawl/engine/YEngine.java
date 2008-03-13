@@ -2578,7 +2578,7 @@ public void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus old
         }
     }
 
-    protected void announceCancelledTaskToResourceService(YWorkItem item) {
+    public void announceCancelledTaskToResourceService(YWorkItem item) {
         if (_resourceObserver != null) {
             logger.debug("Announcing cancelled task " + item.getIDString() + " on service " +
                           _resourceObserver.get_yawlServiceID());
