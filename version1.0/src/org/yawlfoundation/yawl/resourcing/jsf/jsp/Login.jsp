@@ -10,7 +10,8 @@
     <f:view>
         <ui:page binding="#{Login.page}" id="page1">
             <ui:html binding="#{Login.html}" id="html1">
-                <ui:head binding="#{Login.head}" id="head1">
+                <ui:head binding="#{Login.head}" id="head1"
+                         title="Welcome to YAWL 2.0: Please Login">
                     <ui:link binding="#{Login.link}" id="link1"
                              url="/resources/stylesheet.css"/>
                     <ui:link binding="#{ApplicationBean.favIcon}" id="lnkFavIcon"

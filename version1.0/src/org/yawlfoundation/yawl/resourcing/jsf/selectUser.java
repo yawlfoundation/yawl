@@ -228,7 +228,8 @@ public class selectUser extends AbstractPageBean {
      * this page.</p>
      */
     public void prerender() {
-        getSessionBean().setActivePage("selectUser");        
+        getSessionBean().checkLogon();
+        getSessionBean().setActivePage(ApplicationBean.PageRef.selectUser);        
     }
 
     /** 

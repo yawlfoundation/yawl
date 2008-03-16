@@ -61,7 +61,8 @@ public class dynForm extends AbstractPageBean {
     }
 
     public void prerender() {
-        getSessionBean().setActivePage("dynForm");
+        getSessionBean().checkLogon();
+        getSessionBean().setActivePage(ApplicationBean.PageRef.dynForm);
         setOKText();
     }
 
@@ -143,7 +144,7 @@ public class dynForm extends AbstractPageBean {
         String referringPage;
         SessionBean sb = getSessionBean();
 
-        if (sb.getDynFormLevel().equals("case")) {
+        if (sb.getDynFormType() == ApplicationBean.DynFormType.netlevel) {
             sb.setCaseLaunch(true);                        // temp flag for post action
             referringPage = "showCaseMgt";
         }
@@ -160,7 +161,7 @@ public class dynForm extends AbstractPageBean {
      * @return a reference to the referring page
      */
     public String btnCancel_action() {
-        if (getSessionBean().getDynFormLevel().equals("case"))
+        if (getSessionBean().getDynFormType() == ApplicationBean.DynFormType.netlevel)
            return "showCaseMgt";
         else
            return "showUserQueues";
@@ -188,7 +189,7 @@ public class dynForm extends AbstractPageBean {
 
     private void setOKText() {
         SessionBean sb = getSessionBean() ;
-        if (sb.getDynFormLevel().equals("case"))
+        if (sb.getDynFormType() == ApplicationBean.DynFormType.netlevel)
             btnOK.setText("Start");
         else
             btnOK.setText("Save");

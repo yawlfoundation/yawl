@@ -82,4 +82,9 @@
         <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.pfAddRemove</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>
+    <managed-bean>
+        <managed-bean-name>viewProfile</managed-bean-name>
+        <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.viewProfile</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
 </faces-config>

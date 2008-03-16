@@ -1326,7 +1326,7 @@
         <!-- 2d. Copy in jsps -->
         <copy todir="${yawl.resource.app.name}">
             <fileset dir="${classes}/org/yawlfoundation/yawl/resourcing/jsf/jsp"
-                     includes="*.jsp *.jspf"/>
+                     includes="*.jsp *.jspf *.html"/>
         </copy>
 
 

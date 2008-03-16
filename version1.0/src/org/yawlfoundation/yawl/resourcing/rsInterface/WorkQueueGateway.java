@@ -238,8 +238,7 @@ public class WorkQueueGateway extends HttpServlet {
         else if (action.equals("pileWorkItem")) {
             Participant p = _rm.getParticipant(pid);
             WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
-            boolean success = _rm.pileWorkItem(p, wir) ;
-            result = String.valueOf(success);
+            result = _rm.pileWorkItem(p, wir) ;
         }
         else if (action.equals("suspendWorkItem")) {
             Participant p = _rm.getParticipant(pid);

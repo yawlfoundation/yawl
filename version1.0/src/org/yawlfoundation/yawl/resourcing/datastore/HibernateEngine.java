@@ -105,6 +105,7 @@ public class HibernateEngine implements Serializable {
             _cfg.addClass(org.yawlfoundation.yawl.resourcing.resource.OrgGroup.class);
             _cfg.addClass(org.yawlfoundation.yawl.resourcing.resource.UserPrivileges.class);
             _cfg.addClass(org.yawlfoundation.yawl.resourcing.WorkQueue.class);
+            _cfg.addClass(org.yawlfoundation.yawl.resourcing.ResourceMap.class);
             _cfg.addClass(org.yawlfoundation.yawl.engine.interfce.WorkItemRecord.class);
             _cfg.addClass(
                     org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent.class);
@@ -204,7 +205,6 @@ public class HibernateEngine implements Serializable {
  //       }
     }
 
-    
     /**
      * executes a join query. For example, passing ("car", "part", "pid") will
      * return a list of 'car' objects that have in their 'part' property (a Set) a

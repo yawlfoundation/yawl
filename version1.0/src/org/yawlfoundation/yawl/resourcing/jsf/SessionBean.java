@@ -9,6 +9,7 @@
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractSessionBean;
+import com.sun.rave.web.ui.component.Button;
 import com.sun.rave.web.ui.component.PanelLayout;
 import com.sun.rave.web.ui.component.Script;
 import com.sun.rave.web.ui.model.Option;
@@ -111,11 +112,18 @@ public class SessionBean extends AbstractSessionBean {
     public void setScript(Script s) { script = s; }
 
 
+    private Button btnRefresh = new Button();
+
+    public Button getBtnRefresh() { return btnRefresh; }
+
+    public void setBtnRefresh(Button btn) { btnRefresh = btn; }
+
+
     /******************************************************************************/
 
     // MEMBERS, GETTERS & SETTERS //
 
-    private String userid;                          // currently userid of this session
+    private String userid;                          // current userid of this session
 
     public String getUserid() { return userid; }
 
@@ -203,13 +211,25 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
-    // 'case' if initialising case or 'item' if editing workitem
-    private String dynFormLevel;
+    /*******************************************************************************/
 
-    public String getDynFormLevel() { return dynFormLevel; }
+    private ApplicationBean.PageRef activePage ;
 
-    public void setDynFormLevel(String level) { dynFormLevel = level; }
+    private ApplicationBean.TabRef activeTab2 ;
 
+    private ApplicationBean.DynFormType dynFormType ;
+
+
+    public ApplicationBean.PageRef getActivePage() { return activePage; }
+
+    public void setActivePage(ApplicationBean.PageRef page) { activePage = page; }
+
+
+    public ApplicationBean.DynFormType getDynFormType() { return dynFormType; }
+
+    public void setDynFormType(ApplicationBean.DynFormType type) {
+        dynFormType = type;
+    }
 
     /*******************************************************************************/
 
@@ -222,12 +242,16 @@ public class SessionBean extends AbstractSessionBean {
     private Option[] selectUserListOptions;
     private Option[] ownedResourceAttributes;
     private Option[] availableResourceAttributes;
+    private Option[] piledTasks;
+    private Option[] chainedCases;
 
     // user selection from each listbox
     private String worklistChoice;
     private String loadedSpecListChoice;
     private String runningCaseListChoice;
     private String selectUserListChoice;
+    private String piledTasksChoice;
+    private String chainedCasesChoice;
 
     public Option[] getOwnedResourceAttributes() {
         return ownedResourceAttributes;
@@ -251,6 +275,16 @@ public class SessionBean extends AbstractSessionBean {
 
     public Option[] getSelectUserListOptions() {
         return selectUserListOptions;
+    }
+
+    public Option[] getPiledTasks() {
+        piledTasks = getParticipantPiledTasks();
+        return piledTasks;
+    }
+
+    public Option[] getChainedCases() {
+        chainedCases = getParticipantChainedCases();
+        return chainedCases;
     }
 
     public void setOwnedResourceAttributes(Option[] attributes) {
@@ -277,15 +311,28 @@ public class SessionBean extends AbstractSessionBean {
         availableResourceAttributes = attributes;
     }
 
+    public void setPiledTasks(Option[] options) {
+        piledTasks = options;
+    }
+
+    public void setChainedCases(Option[] options) {
+        chainedCases = options;
+    }
+
+
     public String getWorklistChoice() { return worklistChoice; }
     public String getLoadedSpecListChoice() { return loadedSpecListChoice; }
     public String getRunningCaseListChoice() { return runningCaseListChoice; }
     public String getSelectUserListChoice() { return selectUserListChoice; }
+    public String getPiledTasksChoice() { return piledTasksChoice; }
+    public String getChainedCasesChoice() { return chainedCasesChoice; }
 
     public void setWorklistChoice(String choice) { worklistChoice = choice ; }
     public void setLoadedSpecListChoice(String choice) { loadedSpecListChoice = choice ; }
     public void setRunningCaseListChoice(String choice) { runningCaseListChoice = choice ; }
     public void setSelectUserListChoice(String choice) { selectUserListChoice = choice; }
+    public void setPiledTasksChoice(String choice) { piledTasksChoice = choice; }
+    public void setChainedCasesChoice(String choice) { chainedCasesChoice = choice; }
 
 
     // the wir matching the item id selected by the user
@@ -399,6 +446,19 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
+    private String title ;
+
+    public String getTitle() {
+        title = "YAWL 2.0 Worklist";
+        if ((activePage == ApplicationBean.PageRef.userWorkQueues) && (participant != null))
+             title += ": " + participant.getFullName() ;
+        return title ;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     private String mnuSelectorStyle = "top: 72px";            // on workqueues initially
 
     public String getMnuSelectorStyle() {
@@ -417,6 +477,30 @@ public class SessionBean extends AbstractSessionBean {
 
     public void setUserListFormHeaderText(String userListFormHeaderText) {
         this.userListFormHeaderText = userListFormHeaderText;
+    }
+
+    private Option[] getParticipantPiledTasks() {
+        Option[] result = null ;
+        Set<String> tasks = _rm.getPiledTasks(participant) ;
+        if (! tasks.isEmpty()) {
+            result = new Option[tasks.size()];
+            int i = 0;
+            for (String task : tasks)
+                result[i++] = new Option(task);
+        }
+        return result;
+    }
+
+    private Option[] getParticipantChainedCases() {
+        Option[] result = null ;
+        Set<String> cases = _rm.getChainedCases(participant) ;
+        if (! cases.isEmpty()) {
+            result = new Option[cases.size()];
+            int i = 0;
+            for (String id : cases)
+                result[i++] = new Option(id);
+        }
+        return result;
     }
 
 
@@ -1038,15 +1122,6 @@ public class SessionBean extends AbstractSessionBean {
         sourceTab = activeTab;
     }
 
-    private String activePage ;
-
-    public String getActivePage() {
-        return activePage;
-    }
-
-    public void setActivePage(String activePage) {
-        this.activePage = activePage;
-    }
 
     public void refreshUserWorkQueues() {
 //        if (activePage.equals("userWorkQueues")) {

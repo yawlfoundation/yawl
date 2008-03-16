@@ -9,7 +9,8 @@
     <f:view>
         <ui:page binding="#{userWorkQueues.page1}" id="page1">
             <ui:html binding="#{userWorkQueues.html1}" id="html1">
-                <ui:head binding="#{userWorkQueues.head1}" id="head1" title="YAWL Worklist">
+                <ui:head binding="#{userWorkQueues.head1}" id="head1"
+                         title="#{SessionBean.title}">
 
                     <ui:link binding="#{userWorkQueues.link1}" id="link1"
                              url="/resources/stylesheet.css"/>
@@ -48,6 +49,13 @@
                                                styleClass="queuesButton"
                                                style="top: 20px"
                                                text="Accept Offer"/>
+
+                                    <ui:button action="#{userWorkQueues.btnChain_action}"
+                                               binding="#{userWorkQueues.btnChain}"
+                                               id="btnChain"
+                                               styleClass="queuesButton"
+                                               style="top: 60px"
+                                               text="Chain"/>
 
                                 </ui:panelLayout>
                             </ui:tab>
@@ -167,6 +175,14 @@
                                 </ui:panelLayout>
                             </ui:tab>
                         </ui:tabSet>
+
+                        <ui:button binding="#{SessionBean.btnRefresh}"
+                                   action="#{userWorkQueues.btnRefresh_action}"
+                                   id="btnRefresh"
+                                   imageURL="/resources/refresh.png"
+                                   styleClass="refreshButton"
+                                   toolTip="Refresh Queues"
+                                   text=""/>             
 
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"

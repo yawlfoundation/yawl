@@ -89,6 +89,10 @@ public class ResourceManager extends InterfaceBWebsideController
     private HashSet<OneToManyStringList> _deferredItemGroups =
             new HashSet<OneToManyStringList>();
 
+    // cases that have workitems chained to a participant: <caseid, Participant>
+    private Hashtable<String, Participant> _chainedCases =
+                                          new Hashtable<String, Participant>();
+
     private static ResourceManager _me ;                  // instance reference
     private ResourceAdministrator _resAdmin ;             // admin capabilities
     private DataSource _orgdb;                            // the org model db i'face
@@ -106,11 +110,12 @@ public class ResourceManager extends InterfaceBWebsideController
     private ApplicationBean _jsfApplicationReference ;   // ref to jsf app manager bean
 
     public boolean _logOffers ;
+    private boolean _persistPiling ;
 
     // authority for write access to org data entities
     private boolean[] _dsEditable = {true, true, true, true, true} ;
 
-    // Mappings for spec -> task <-> resourceMap
+    // Mappings for specid -> taskid <-> resourceMap
     private HashMap<String,HashMap<String,ResourceMap>> _specTaskResMap = 
         new HashMap<String,HashMap<String,ResourceMap>>() ;
 
@@ -1262,25 +1267,54 @@ public class ResourceManager extends InterfaceBWebsideController
     }
 
 
-    public boolean pileWorkItem(Participant p, WorkItemRecord wir) {
-        boolean success = false ;
+    public String pileWorkItem(Participant p, WorkItemRecord wir) {
+        String result ;
         if (hasUserTaskPrivilege(p, wir, TaskPrivileges.CAN_PILE)) {
-            success = getResourceMap(wir).setPiledResource(p);
+            ResourceMap map = getResourceMap(wir);
+            if (map != null)
+                result = map.setPiledResource(p, wir);
+            else
+                result = "Cannot pile task: no resourcing parameters defined for specification." ;
         }
-        return success;
+        else result = "Cannot pile task: insufficient privileges." ;
+
+        return result;
     }
+
+
+    public String unpileTask(String specID, String taskID) {
+        ResourceMap resMap = getResourceMap(specID, taskID);
+        if (resMap != null) {
+            resMap.removePiledResource();
+            return "Task successfully unpiled" ;
+        }
+        else return "Cannot unpile task - resource settings unavailable";
+    }
+
 
     // ISSUE: If p is currently logged on, we'll use p's handle (the engine will use
     //        it to log p as the starter). If p is not logged on, the service's handle
     //        has to be used, and thus the service will be logged as the starter. There is
     //        no way around this currently, but will be handled when the engine is
-    //        made completely agnostic to resources.
-    public void routePiledWorkItem(Participant p, WorkItemRecord wir) {
+    //        made completely agnostic to resources. Issue only applies to piling.
+    public boolean routePiledWorkItem(Participant p, WorkItemRecord wir) {
         String handle = getSessionHandle(p);
-        if (handle == null) handle = _engineSessionHandle;
-        start(p, wir, handle) ;
+        if ((handle == null)  && this.isPersistPiling()) {
+            handle = _engineSessionHandle;
+        }
+        return routeWorkItem(p, wir, handle) ;
     }
 
+
+    public boolean startImmediate(Participant p, WorkItemRecord wir) {
+        return routeWorkItem(p, wir, getSessionHandle(p)) ;
+    }
+
+
+    private boolean routeWorkItem(Participant p, WorkItemRecord wir, String handle) {
+        if (handle != null) start(p, wir, handle) ;
+        return (handle != null);        
+    }
 
     public boolean hasUserTaskPrivilege(Participant p, WorkItemRecord wir,
                                         int privilege) {
@@ -1292,6 +1326,153 @@ public class ResourceManager extends InterfaceBWebsideController
         return (rMap != null) && (rMap.getTaskPrivileges().hasPrivilege(p, privilege));
     }
 
+
+    public String getUltimateCaseID(String id) {
+        if ((id != null) && (id.indexOf(".") > 0))
+            return String.valueOf(new Double(id).intValue());
+         else
+            return id;
+    }
+
+
+    /*****************************************************************************/
+
+    public String chainCase(Participant p, WorkItemRecord wir) {
+        String result ;
+        if (getResourceMap(wir) != null)
+            result = addChain(p, wir);
+        else
+            result = "Cannot chain tasks: no resourcing parameters defined for specification." ;
+
+        return result;
+    }
+
+    public boolean routeChainedWorkItem(Participant p, WorkItemRecord wir) {
+
+        // only route if user is still logged on
+        return routeWorkItem(p, wir, getSessionHandle(p)) ;
+    }
+
+    public String addChain(Participant p, WorkItemRecord wir) {
+        String result ;
+        String caseID = getUltimateCaseID(wir.getCaseID()) ;
+        if (! isChainedCase(caseID)) {
+            _chainedCases.put(caseID, p);
+            routeChainedWorkItem(p, wir) ;
+            result = "Chaining successful." ;
+        }
+        else result = "Cannot chain: case already chained by another user." ;
+        return result;
+    }
+
+    public void removeChain(String caseID) {
+        _chainedCases.remove(caseID);
+    }
+
+    public Participant getChainedParticipant(String caseID) {
+        return _chainedCases.get(caseID);
+    }
+
+
+    public Set<String> getChainedCases(Participant p) {
+        cleanCaches();
+        Set<String> result = new HashSet<String>();
+        for (String caseID : _chainedCases.keySet()) {
+            Participant chainer = _chainedCases.get(caseID);
+            if (chainer.getID().equals(p.getID()))
+                result.add(caseID + "::" + getSpecIDForCase(caseID));
+        }
+        return result;
+    }
+
+    public boolean isChainedParticipant(Participant p) {
+        for (Participant chainer : _chainedCases.values())
+             if (chainer.getID().equals(p.getID()))
+                 return true;
+        return false;
+    }
+
+    public boolean isChainedCase(String caseID) {
+        return _chainedCases.containsKey(caseID);
+    }
+
+    public boolean routeIfChained(WorkItemRecord wir, Set<Participant> distributionSet) {
+        boolean result = false;
+        String caseID = getUltimateCaseID(wir.getCaseID()) ;
+        if (isChainedCase(caseID)) {
+            Participant p = getChainedParticipant(caseID);
+            if (distributionSet.contains(p))
+                 result = routeChainedWorkItem(p, wir);
+        }
+        return result;
+    }
+    
+    /*****************************************************************************/
+
+    private String getSpecIDForCase(String caseID) {
+        for (WorkItemRecord wir : _workItemCache.values()) {
+            if (getUltimateCaseID(wir.getCaseID()).equals(caseID))
+                return wir.getSpecificationID();
+        }
+        return "" ;
+    }
+
+    private void cleanCaches() {
+        Set<String> liveCases = getAllRunningCaseIDs();
+        if ((liveCases != null) && (! liveCases.isEmpty())) {
+            List<String> caseIDs = new ArrayList(_chainedCases.keySet());
+            for (String id : caseIDs) {
+                if (! liveCases.contains(id)) _chainedCases.remove(id);
+            }
+            List<WorkItemRecord> wirList = new ArrayList(_workItemCache.values());
+            for (WorkItemRecord wir : wirList) {
+                String ultID = getUltimateCaseID(wir.getCaseID());
+                if (! liveCases.contains(ultID)) _workItemCache.remove(wir);
+            }
+        }
+    }
+    
+
+    /** @return the union of persisted and unpersisted maps */
+    public Set<String> getPiledTasks(Participant p) {
+        Set<String> result = getUnpersistedPiledTasks(p);
+        if (_persisting) result.addAll(getPersistedPiledTasks(p));
+        return result ;
+    }
+
+    public Set<String> getUnpersistedPiledTasks(Participant p) {
+        Set<String> result = new HashSet<String>();
+        Set<ResourceMap> mapSet = getAllResourceMaps() ;
+        for (ResourceMap map : mapSet) {
+            Participant piler = map.getPiledResource();
+            if ((piler != null) && (piler.getID().equals(p.getID())))
+                result.add(map.getSpecID() + "::" + map.getTaskID());            
+        }
+        return result;
+    }
+
+    public Set<String> getPersistedPiledTasks(Participant p) {
+        Set<String> result = new HashSet<String>();
+        List maps = _persister.select("ResourceMap");
+        if (maps != null) {
+            Iterator itr = maps.iterator();
+            while (itr.hasNext()) {
+                ResourceMap map = (ResourceMap) itr.next();
+                String pid = map.getPiledResourceID();
+                if ((pid != null) && (pid.equals(p.getID())))
+                    result.add(map.getSpecID() + "::" + map.getTaskID());
+            }
+        }
+        return result ;
+    }
+
+
+    public Set<ResourceMap> getAllResourceMaps() {
+        Set<ResourceMap> result = new HashSet<ResourceMap>();
+        for (Map<String, ResourceMap> map : _specTaskResMap.values())
+            result.addAll(map.values());
+        return result;
+    }
 
     /***************************************************************************/
 
@@ -1322,6 +1503,12 @@ public class ResourceManager extends InterfaceBWebsideController
             _orgDataRefreshTimer.scheduleAtFixedRate(tTask, interval, interval);
         }
     }
+
+    public void setPersistPiling(boolean persist) {
+        _persistPiling = persist ;
+    }
+
+    public boolean isPersistPiling() { return _persistPiling; }
     
 
     public void addResourceMap(String specID, String taskID, ResourceMap rMap) {
@@ -1365,13 +1552,8 @@ public class ResourceManager extends InterfaceBWebsideController
 
                     if ((resElem != null) &&
                          successful(JDOMUtil.elementToString(resElem))) {
-                        // if (schemaValidate(resElem))
 
-                        // strip 'response' tags - NOW DONE IN INT B
-                      //  resElem = resElem.getChild("resourcing", _yNameSpace);
-                      //  System.out.println("getResourceMap, got xml" );
-
-                        result = new ResourceMap(specID, taskID, resElem) ;
+                        result = new ResourceMap(specID, taskID, resElem, _persisting) ;
                         addResourceMap(specID, taskID, result) ;
                     }
                 }
@@ -1384,24 +1566,39 @@ public class ResourceManager extends InterfaceBWebsideController
     }
 
 
-
     public static void setServiceInitialised() { serviceInitialised = true ; }
 
 
     public Set<Participant> getWhoCompletedTask(String taskID, WorkItemRecord wir) {
-        Set<Participant> result ; 
+        Set<Participant> result = new HashSet<Participant>();
 
-        // BUILD ADAPTER CLASS FOR LOG IE
+        // todo: BUILD ADAPTER CLASS FOR IE CLIENT
         try {
-            _interfaceEClient.getParentWorkItemEventsForCaseID(wir.getCaseID(),
-                      _engineSessionHandle) ;
+            String xml = _interfaceEClient.getParentWorkItemEventsForCaseID(
+                                                wir.getCaseID(), _engineSessionHandle) ;
+            if (xml != null) {
+                Element root = JDOMUtil.stringToElement(xml) ;
+                List events = root.getChildren();
+                if (events != null) {
+                    Iterator itr = events.iterator();
+                    while (itr.hasNext()) {
+                        Element event = (Element) itr.next();
+                        if (event.getChildText("taskID").equals(taskID) &&
+                            event.getChildText("eventName").equals("completed")) {
+                            String userid = event.getChildText("resourceID");
+                            if (userid != null)
+                                result.add(getParticipantFromUserID(userid));
+                        }
+                    }
+                }
+            }
         }
         catch (IOException ioe) {
             _log.error("Connection to engine failed.", ioe);
             result = null ;
         }
-        // return set of participants who completed workitems for this task
-        return null ;
+        // return set of participants who completed workitems for this task & case
+        return result ;
     }
 
 
@@ -1766,6 +1963,19 @@ public class ResourceManager extends InterfaceBWebsideController
         return this.getSpecData(specID, _engineSessionHandle);
     }
 
+    public Set<String> getAllRunningCaseIDs() {
+        Set<String> result = new HashSet<String>(); 
+        Set<SpecificationData> specDataSet = getSpecList(_engineSessionHandle) ;
+        if (specDataSet != null) {
+            for (SpecificationData specData : specDataSet) {
+                List<String> caseIDs = getRunningCasesAsList(specData.getID(), _engineSessionHandle);
+                if (caseIDs != null)
+                    result.addAll(caseIDs) ;
+            }
+        }
+        return result ;
+    }
+
 
     public List<String> getRunningCasesAsList(String specID, String handle) {
         try {
@@ -1801,6 +2011,7 @@ public class ResourceManager extends InterfaceBWebsideController
                 removeFromAll(wir) ;
                 _workItemCache.remove(wir);
             }
+            _chainedCases.remove(caseID);
         }
         else _log.error("Unable to remove workitems for Cancelled Case") ;
 
@@ -1845,7 +2056,14 @@ public class ResourceManager extends InterfaceBWebsideController
         return _interfaceBClient.launchCase(specID, caseData, handle) ;
     }
 
-    public Map<String, FormParameter> getWorkItemParamsForPost(WorkItemRecord wir, String handle)
+    
+    public Map<String, FormParameter> getWorkItemParamsInfo(WorkItemRecord wir)
+                                                   throws IOException, JDOMException {
+        return getWorkItemParamsInfo(wir, _engineSessionHandle);
+    }
+
+
+    public Map<String, FormParameter> getWorkItemParamsInfo(WorkItemRecord wir, String handle)
            throws IOException, JDOMException {
         Map<String, FormParameter> inputs, outputs;
         TaskInformation taskInfo = getTaskInformation(

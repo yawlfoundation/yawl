@@ -161,19 +161,20 @@ public class pfMenu extends AbstractFragmentBean {
         }
     }
 
-    public void destroy() {
+    public void destroy() { }
+
+
+    public String mnuMyProfile_action() {
+        getSessionBean().checkLogon();
+        getSessionBean().setMnuSelectorStyle("top: 44px");
+        return "showViewProfile";
     }
 
 
     public String mnuUserWorkQueues_action() {
-        getSessionBean().checkLogon();
-        getSessionBean().setMnuSelectorStyle("top: 72px");
-        return "showUserQueues";
-    }
-
-
-    public String mnuMyProfile_action() {
-        return null;
+         getSessionBean().checkLogon();
+         getSessionBean().setMnuSelectorStyle("top: 72px");
+         return "showUserQueues";
     }
 
 

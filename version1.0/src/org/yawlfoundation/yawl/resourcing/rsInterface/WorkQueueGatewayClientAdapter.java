@@ -236,9 +236,8 @@ public class WorkQueueGatewayClientAdapter {
     }
 
 
-    public boolean pileItem(String pid, String itemID, String handle) throws IOException {
-        String result = _wqclient.pileItem(pid, itemID, handle);
-        return result.equals("true");
+    public String pileItem(String pid, String itemID, String handle) throws IOException {
+        return _wqclient.pileItem(pid, itemID, handle);
     }
 
 

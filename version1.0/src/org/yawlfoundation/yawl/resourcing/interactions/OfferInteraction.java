@@ -210,9 +210,11 @@ public class OfferInteraction extends AbstractInteraction {
     public Set<Participant> performOffer(WorkItemRecord wir) {
         HashSet<Participant> distributionSet = new HashSet<Participant>();
 
+        // if familiar task specified, get the participant(s) who completed that task,
+        // & offer this item to them - no more to do
         if (_familiarParticipantTask != null) {
-            // get who completed that task, & offer this item to them
-            // distributionSet.add(getWhoCompletedTask(_familiarParticipantTask)) ;
+            Set<Participant> pSet = _rm.getWhoCompletedTask(_familiarParticipantTask, wir);
+            if (pSet != null) distributionSet.addAll(pSet) ;
         }
         else {
             // make sure each participant is added only once

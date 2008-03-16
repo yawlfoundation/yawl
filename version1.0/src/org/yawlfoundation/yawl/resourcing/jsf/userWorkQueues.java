@@ -21,7 +21,6 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import javax.faces.FacesException;
 import javax.faces.context.ExternalContext;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -255,6 +254,16 @@ public class userWorkQueues extends AbstractPageBean {
         this.btnPile = b;
     }
 
+    private Button btnChain = new Button();
+
+    public Button getBtnChain() {
+        return btnChain;
+    }
+
+    public void setBtnChain(Button b) {
+        this.btnChain = b;
+    }
+
     private Button btnSuspend = new Button();
 
     public Button getBtnSuspend() {
@@ -421,6 +430,8 @@ public class userWorkQueues extends AbstractPageBean {
      * this page.</p>
      */
     public void prerender() {
+        getSessionBean().checkLogon();
+        msgPanel.show();
         if (_sb.getSourceTab() != null) {
             tabSet.setSelected(_sb.getSourceTab());
             _sb.setSourceTab(null);
@@ -464,7 +475,7 @@ public class userWorkQueues extends AbstractPageBean {
         }
         updateTabHeaders(selTab) ;
         _sb.setActiveTab(tabSet.getSelected());
-        _sb.setActivePage("userWorkQueues");
+        _sb.setActivePage(ApplicationBean.PageRef.userWorkQueues);
     }
 
     /** 
@@ -476,6 +487,13 @@ public class userWorkQueues extends AbstractPageBean {
      * acquired during execution of an event handler).</p>
      */
     public void destroy() {
+    }
+
+    private MessagePanel msgPanel = getSessionBean().getMessagePanel() ;
+
+
+    public String btnRefresh_action() {
+        return null ;
     }
 
 
@@ -550,6 +568,11 @@ public class userWorkQueues extends AbstractPageBean {
     }
 
 
+    public String btnChain_action() {
+        return doAction(WorkQueue.OFFERED, "chain") ;
+    }
+
+
     public String btnAccept_action() {
         return doAction(WorkQueue.OFFERED, "acceptOffer") ;
     }
@@ -567,8 +590,20 @@ public class userWorkQueues extends AbstractPageBean {
                 _rm.skipWorkItem(p, wir, handle);
             else if (action.equals("start"))
                 _rm.start(p, wir, handle);
-            else if (action.equals("pile"))
-                _rm.pileWorkItem(p, wir);
+            else if (action.equals("pile")) {
+                String result = _rm.pileWorkItem(p, wir);
+                if (result.startsWith("Cannot"))
+                    msgPanel.error(result);
+                else
+                    msgPanel.success(result);
+            }
+            else if (action.equals("chain")) {
+                String result = _rm.chainCase(p, wir);
+                if (result.startsWith("Cannot"))
+                    msgPanel.error(result);
+                else
+                    msgPanel.success(result);
+            }
             else if (action.equals("suspend"))
                 _rm.suspendWorkItem(p, wir);
             else if (action.equals("unsuspend"))
@@ -651,18 +686,18 @@ public class userWorkQueues extends AbstractPageBean {
     }
 
     public String btnView_action() {
-        String handle = _sb.getSessionhandle() ;
+//        String handle = _sb.getSessionhandle() ;
         WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
-        try {
-            Map<String, FormParameter> params ;
-            if (_sb.isDirty(wir.getID()))
-                params = _sb.getDynFormParams() ;
-            else {
-                params = _rm.getWorkItemParamsForPost(wir, handle) ;
-                _sb.setDynFormParams(params);
-            }
-            if (params != null) {
-                _sb.setDynFormLevel("item");
+//        try {
+//            Map<String, FormParameter> params ;
+//            if (_sb.isDirty(wir.getID()))
+//                params = _sb.getDynFormParams() ;
+//            else {
+//                params = _rm.getWorkItemParamsInfo(wir, handle) ;
+//                _sb.setDynFormParams(params);
+//            }
+ //           if (params != null) {
+                _sb.setDynFormType(ApplicationBean.DynFormType.tasklevel);
                 _sb.setSourceTab("tabStarted");
 
                 DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");
@@ -671,13 +706,13 @@ public class userWorkQueues extends AbstractPageBean {
                 df.initDynForm("YAWL 2.0 - Edit Work Item") ;
 
                 return "showDynForm" ;
-            }
-            else {
-                   // no params to view
-            }
-        }
-        catch (Exception e) {}
-        return null ;
+//            }
+//            else {
+//                   // no params to view
+//            }
+//        }
+//        catch (Exception e) {}
+//        return null ;
     }
 
     private void postEditWIR() {
@@ -717,19 +752,20 @@ public class userWorkQueues extends AbstractPageBean {
 
     public String tabOffered_action() {
         populateQueue(WorkQueue.OFFERED);
+        processUserPrivileges(WorkQueue.OFFERED) ;
         return null;
     }
 
 
     public String tabAllocated_action() {
         populateQueue(WorkQueue.ALLOCATED);
-        processUserPrivileges() ;
         return null;
     }
 
 
     public String tabStarted_action() {
         populateQueue(WorkQueue.STARTED);
+        processUserPrivileges(WorkQueue.STARTED) ;
         return null;
     }
 
@@ -803,6 +839,7 @@ public class userWorkQueues extends AbstractPageBean {
         return result ;
     }
 
+    
     private void processTaskPrivileges(WorkItemRecord wir, int qType) {
         Participant p = _sb.getParticipant();
         if (qType == WorkQueue.ALLOCATED) {
@@ -822,20 +859,38 @@ public class userWorkQueues extends AbstractPageBean {
                                                TaskPrivileges.CAN_REALLOCATE_STATEFUL));
             btnStateless.setDisabled(! _rm.hasUserTaskPrivilege(p, wir,
                                                TaskPrivileges.CAN_REALLOCATE_STATELESS));
+
+            // set view & complete buttons
+            boolean emptyItem = getApplicationBean().isEmptyWorkItem(wir);
+            btnView.setDisabled(emptyItem);
+            if (btnView.isDisabled())
+                btnView.setToolTip("The selected workitem has no parameters to view/edit");
+            else
+                btnView.setToolTip(null);
+
+            btnComplete.setDisabled(! (emptyItem || _sb.isDirty(wir.getID())));
+            if (btnComplete.isDisabled())
+                btnComplete.setToolTip("The selected workitem needs editing before it can complete");
+            else
+                btnComplete.setToolTip(null);
         }
     }
 
 
-    private void processUserPrivileges() {
+    private void processUserPrivileges(int queue) {
         Participant p = _sb.getParticipant();
         if (! p.isAdministrator()) {
-            if (_sb.getQueueSize(WorkQueue.STARTED) > 0)
+            if ((queue == WorkQueue.OFFERED) && (_sb.getQueueSize(WorkQueue.OFFERED) > 0))
+                btnChain.setDisabled(! p.getUserPrivileges().canChainExecution());
+
+            if ((queue == WorkQueue.STARTED) && (_sb.getQueueSize(WorkQueue.STARTED) > 0)){
                 btnStart.setDisabled(! p.getUserPrivileges().canStartConcurrent());
 
                 if (! (p.getUserPrivileges().canChooseItemToStart() ||
                        p.getUserPrivileges().canReorder())) {
                     btnStart.setDisabled(! _sb.isFirstWorkItemChosen());
                 }
+            }
         }
     }
 
@@ -844,6 +899,7 @@ public class userWorkQueues extends AbstractPageBean {
         boolean isEmptyQueue = (_sb.getQueueSize(queueType) == 0) ;
         switch (queueType) {
             case WorkQueue.OFFERED   : btnAccept.setDisabled(isEmptyQueue);
+                                       btnChain.setDisabled(isEmptyQueue);
                                        break;
             case WorkQueue.ALLOCATED : btnStart.setDisabled(isEmptyQueue);
                                        btnDeallocate.setDisabled(isEmptyQueue);

@@ -7,20 +7,14 @@
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
+import com.sun.rave.web.ui.component.*;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 
 import javax.faces.FacesException;
-import javax.faces.component.html.HtmlDataTable;
-//import com.sun.jsfcl.data.DefaultTableDataModel;
 import javax.faces.component.UIColumn;
+import javax.faces.component.html.HtmlDataTable;
 import javax.faces.component.html.HtmlOutputText;
-
-import com.sun.rave.web.ui.component.*;
-
-import java.util.TreeSet;
 import java.util.List;
-import java.util.ArrayList;
-
-import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 
 /**
  * <p>Page bean that corresponds to a similarly named JSP page.  This
@@ -440,7 +434,8 @@ public class customServices extends AbstractPageBean {
      * this page.</p>
      */
     public void prerender() {
-   //     updateServicesList() ;
+        getSessionBean().checkLogon();
+        getSessionBean().setActivePage(ApplicationBean.PageRef.customServices);
     }
 
     /** 

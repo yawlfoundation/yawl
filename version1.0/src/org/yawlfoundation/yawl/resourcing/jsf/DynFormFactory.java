@@ -146,7 +146,7 @@ public class DynFormFactory extends AbstractSessionBean {
     private String getSchema() {
         String result ;
         SessionBean sb = getSessionBean() ;
-        if (sb.getDynFormLevel().equals("case"))
+        if (sb.getDynFormType() == ApplicationBean.DynFormType.netlevel)
             result = sb.getCaseSchema() ;
         else
             result = sb.getTaskSchema(displayedWIR);
@@ -158,7 +158,7 @@ public class DynFormFactory extends AbstractSessionBean {
     private String getInstanceData(String schema) {
         String result ;
         SessionBean sb = getSessionBean() ;
-        if (sb.getDynFormLevel().equals("case"))
+        if (sb.getDynFormType() == ApplicationBean.DynFormType.netlevel)
             result = sb.getInstanceData(schema) ;
         else
             result = sb.getInstanceData(schema, displayedWIR);

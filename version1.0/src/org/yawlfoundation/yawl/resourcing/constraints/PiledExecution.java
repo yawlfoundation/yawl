@@ -35,7 +35,7 @@ public class PiledExecution extends AbstractConstraint {
 
 
     public Set<Participant> performConstraint(Set<Participant> p, WorkItemRecord wir) {
-        // todo
+        // currently a stub as piling is handled elsewhere
         return null ;
     }
 
