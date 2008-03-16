@@ -66,10 +66,14 @@ public class ResourceGateway extends HttpServlet {
                 String logOffers = context.getInitParameter("LogOffers");
                 EventLogger.setOfferLogging(logOffers.equalsIgnoreCase("TRUE"));
 
+                //enable/disable the dropping of task piling on logout
+                String dropPiling = context.getInitParameter("DropTaskPilingOnLogoff");
+                rm.setPersistPiling(dropPiling.equalsIgnoreCase("FALSE")) ;
+
                 // now that we have all the settings, complete the init
                 rm.finaliseInitialisation() ;
 
-                // and generate random test data if required
+                // and then generate random test data if required
                 String randomOrgData = context.getInitParameter("GenerateRandomOrgData");
                 int generateOrgDataCount = -1;
                 try {

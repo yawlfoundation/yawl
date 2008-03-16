@@ -129,6 +129,15 @@
                             </ui:tab>
                         </ui:tabSet>
 
+                        <ui:button binding="#{SessionBean.btnRefresh}"
+                                   action="#{adminQueues.btnRefresh_action}"
+                                   id="btnRefresh"
+                                   imageURL="/resources/refresh.png"
+                                   styleClass="refreshButton"
+                                   toolTip="Refresh Queues"
+                                   text=""/>
+
+
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"
                                         panelLayout="flow"

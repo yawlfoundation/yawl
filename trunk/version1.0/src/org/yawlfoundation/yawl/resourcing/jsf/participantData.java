@@ -582,6 +582,7 @@ public class participantData extends AbstractPageBean {
      * this page.</p>
      */
     public void prerender() {
+        getSessionBean().checkLogon();
         // a null tooltip indicates the first rendering of this page
         if (btnAdd.getToolTip() == null) {
             setMode(Mode.edit);
@@ -589,6 +590,7 @@ public class participantData extends AbstractPageBean {
             btnRemove.setDisabled(true);
             btnReset.setDisabled(true);
         }
+        getSessionBean().setActivePage(ApplicationBean.PageRef.participantData);        
         msgPanel.show();
     }
 

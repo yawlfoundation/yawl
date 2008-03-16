@@ -328,6 +328,7 @@ public class caseMgt extends AbstractPageBean {
     private ResourceManager _rm = getApplicationBean().getResourceManager() ;
 
     public void prerender() {
+        getSessionBean().checkLogon();
         msgPanel.show();
         if (getSessionBean().isCaseLaunch()) {
             String specID = getSessionBean().getLoadedSpecListChoice() ;
@@ -335,8 +336,7 @@ public class caseMgt extends AbstractPageBean {
                 beginCase(specID, getSessionBean().getSessionhandle());    
         }
         updateRunningCaseList();
-   //     updateLoadedSpecList() ;
-        getSessionBean().setActivePage("caseMgt");        
+        getSessionBean().setActivePage(ApplicationBean.PageRef.caseMgt);        
     }
 
     private String stripPath(String fileName) {
@@ -462,7 +462,7 @@ public class caseMgt extends AbstractPageBean {
                         getApplicationBean().yParamListToFormParamMap(inputParams) ;
 
                 getSessionBean().setDynFormParams(paramMap);
-                getSessionBean().setDynFormLevel("case");
+                getSessionBean().setDynFormType(ApplicationBean.DynFormType.netlevel);
                 getSessionBean().setLoadedSpecListChoice(specData.getID());
 
                 DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");

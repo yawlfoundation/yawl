@@ -52,7 +52,8 @@ public class SeparationOfDuties extends AbstractConstraint {
         if (famTaskID != null) {
             Set<Participant> pSet = ResourceManager.getInstance()
                                                    .getWhoCompletedTask(famTaskID, wir);
-            for (Participant p : pSet) resources.remove(p);
+            if (pSet != null)
+                for (Participant p : pSet) resources.remove(p);
         }
         return resources ;
     }

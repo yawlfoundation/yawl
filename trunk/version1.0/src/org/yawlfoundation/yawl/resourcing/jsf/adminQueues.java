@@ -362,6 +362,7 @@ public class adminQueues extends AbstractPageBean {
      * this page.</p>
      */
     public void prerender() {
+        getSessionBean().checkLogon();
 
         // 
         getSessionBean().performAdminQueueAction();
@@ -398,7 +399,7 @@ public class adminQueues extends AbstractPageBean {
         }
         updateTabHeaders(selTab) ;
         getSessionBean().setActiveTab(tabSet.getSelected());
-        getSessionBean().setActivePage("adminQueues");
+        getSessionBean().setActivePage(ApplicationBean.PageRef.adminQueues);
     }
 
     /**
@@ -412,6 +413,10 @@ public class adminQueues extends AbstractPageBean {
     public void destroy() {
     }
 
+    public String btnRefresh_action() {
+        return null ;
+    }
+    
 
     public String btnOffer_action() {
         return showUserList("Offer") ;

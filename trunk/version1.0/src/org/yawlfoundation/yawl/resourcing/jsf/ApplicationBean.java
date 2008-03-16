@@ -11,6 +11,7 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 import com.sun.rave.web.ui.appbase.AbstractApplicationBean;
 import com.sun.rave.web.ui.component.Link;
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 
 import javax.faces.FacesException;
@@ -68,6 +69,13 @@ public class ApplicationBean extends AbstractApplicationBean {
     /*******************************************************************************/
 
     // GLOBAL COMPONENTS //
+
+    public enum PageRef { adminQueues, caseMgt, customServices, dynForm, Login,
+                          participantData, selectUser, userWorkQueues, viewProfile }
+
+    public enum TabRef { offered, allocated, started, suspended, unoffered, worklisted }
+
+    public enum DynFormType { netlevel, tasklevel }
 
     // favIcon appears in the browser's address bar for all pages
     private Link favIcon = new Link() ;
@@ -144,6 +152,15 @@ public class ApplicationBean extends AbstractApplicationBean {
         return (getResourceManager().getParticipantFromUserID(id) == null) ;
     }
 
+
+    public boolean isEmptyWorkItem(WorkItemRecord wir) {
+        try {
+            Map<String, FormParameter> x =
+                                 getResourceManager().getWorkItemParamsInfo(wir);
+            return ((x == null) || (x.size() == 0)) ;
+        }
+        catch (Exception e) { return false; }
+    }
     
 
     /**

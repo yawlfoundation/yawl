@@ -80,11 +80,14 @@ public class QueueSet implements Serializable {
         addToQueue(wir, WorkQueue.SUSPENDED) ;
     }
 
-    // moving from allocated to start occurs when workitem moves from enabled to
-    // executing. Therefore, the allocated queue contains the parent; the started
+    // moving from offered/allocated to start occurs when workitem moves from enabled to
+    // executing. Thus, the offered/allocated queue contains the parent; the started
     // queue must receive the child
     public void movetoStarted(WorkItemRecord parent, WorkItemRecord child) {
-        removeFromQueue(parent, WorkQueue.ALLOCATED);
+        if (parent.getResourceStatus().equals(WorkItemRecord.statusResourceAllocated))
+            removeFromQueue(parent, WorkQueue.ALLOCATED);
+        else
+            removeFromQueue(parent, WorkQueue.OFFERED);
         addToQueue(child, WorkQueue.STARTED);
     }
 

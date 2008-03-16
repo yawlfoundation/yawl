@@ -8,12 +8,14 @@
 
 package org.yawlfoundation.yawl.resourcing;
 
-import org.yawlfoundation.yawl.resourcing.resource.Participant;
-
-import java.util.*;
-
 import org.jdom.Element;
 import org.jdom.Namespace;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Maps each of a set of User-Task Privileges to a set of Participants (if any) for
@@ -47,8 +49,9 @@ public class TaskPrivileges {
     public static final int CAN_SKIP = 5 ;
     public static final int CAN_PILE = 6 ;
 
-    // the task this set of privileges applies to
-    private String _ownerTaskID ;
+    // the specification & task this set of privileges applies to
+    private String _specID;
+    private String _taskID;
 
     // a flag to allow or disallow all for a particular privilege
     private boolean[] _allowAll = {false, false, false, false, false, false, false};
@@ -62,14 +65,25 @@ public class TaskPrivileges {
     
     public TaskPrivileges() {}                                     // for persistence
 
-    public TaskPrivileges(String ownerTaskID) { _ownerTaskID = ownerTaskID; }
+    public TaskPrivileges(String taskID) { _taskID = taskID; }
+
+    public TaskPrivileges(String specID, String taskID) {
+        _specID = specID ;
+        _taskID = taskID ;
+    }
 
 
     // GETTER & SETTER //
 
-    public String getOwnerTaskID() { return _ownerTaskID; }
+    public String getSpecID() { return _specID; }
 
-    public void setOwnerTaskID(String ownerTaskID) { _ownerTaskID = ownerTaskID; }
+    public void setSpecID(String specID) { _specID = specID; }
+
+
+    public String getTaskID() { return _taskID; }
+
+    public void setTaskID(String taskID) { _taskID = taskID; }
+
 
     /*******************************************************************************/
 

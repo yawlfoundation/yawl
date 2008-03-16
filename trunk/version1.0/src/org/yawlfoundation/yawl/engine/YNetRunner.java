@@ -44,6 +44,7 @@ public class YNetRunner // extends Thread
     private YCompositeTask _containingCompositeTask;
     private YEngine _engine;
     private boolean _cancelling;
+                                                                 
 
     /**
      * **************************

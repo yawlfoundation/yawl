@@ -13,11 +13,11 @@ import org.jdom.Element;
 import org.jdom.Namespace;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.allocators.ShortestQueue;
+import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.interactions.*;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 
 /**
@@ -40,10 +40,14 @@ public class ResourceMap {
     // user-task privileges
     private TaskPrivileges _privileges ;
 
+    private long _id ;                                             // hibernate pkey
     private String _taskID ;
     private String _specID ;
 
     private Participant _piledResource = null ;
+    private String _piledResourceID ;                              // for persistence
+    private Persister _persister ;
+
     private HashSet<Participant> _ignoreSet = new HashSet<Participant>();
 
     // workitem id - offered-to-participants mapping
@@ -52,12 +56,14 @@ public class ResourceMap {
 
     private Logger _log = Logger.getLogger(this.getClass()) ;
 
+
+    public ResourceMap() { }                                       // for persistence
+
     public ResourceMap(String taskID) {
         _taskID = taskID ;
         _offer = new OfferInteraction(taskID) ;
         _allocate = new AllocateInteraction(taskID);
         _start = new StartInteraction(taskID) ;
-        _privileges = new TaskPrivileges(taskID);
 
         _allocate.setAllocator(new ShortestQueue());               // default allocator
     }
@@ -65,8 +71,17 @@ public class ResourceMap {
     public ResourceMap(String specID, String taskID, Element eleSpec) {
         this(taskID);
         _specID = specID ;
+        _privileges = new TaskPrivileges(specID, taskID);
         parse(eleSpec);
+        restorePiledResource() ;
     }
+
+    public ResourceMap(String specID, String taskID, Element eleSpec, boolean persisting) {
+        this(specID, taskID, eleSpec);
+        if (persisting) setPersisting(true);
+        restorePiledResource() ;
+    }
+
 
     public void setOfferInteraction(OfferInteraction oi) {
        _offer = oi ;
@@ -108,18 +123,75 @@ public class ResourceMap {
 
     public void setSpecID(String specID) { _specID = specID ; }
 
+    public String getPiledResourceID() { return _piledResourceID; }
+
+    public void setPiledResourceID(String id) { _piledResourceID = id; }
+
 
     public Participant getPiledResource() { return _piledResource; }
 
-    public boolean setPiledResource(Participant p) {
+    public String setPiledResource(Participant p, WorkItemRecord wir) {
+        String result;
         if (! hasPiledResource()) {
             _piledResource = p;
-            return true ;
+            _piledResourceID = p.getID();
+            if (getPersisting()) _persister.insert(this);
+            rm.routePiledWorkItem(_piledResource, wir) ;
+            result = "Task successfully piled." ;
         }
-        else return false;
+        else result = "Cannot pile task: already piled by another resource.";
+
+        return result ;
     }
 
-    public boolean hasPiledResource() { return _piledResource == null; }
+    public void removePiledResource() {
+        _piledResource = null ;
+        _piledResourceID = null ;
+        if (getPersisting()) {
+
+            // have to get persisted map first, so we can delete it (since 'this' is not
+            // the same object as the one persisted)
+            ResourceMap map = getPersistedMap();
+            if (map != null) _persister.delete(map);
+        }
+    }
+
+    
+    private ResourceMap getPersistedMap() {
+        ResourceMap result = null;
+        if (getPersisting()) {
+            String where = String.format("_specID='%s' and _taskID='%s'",
+                                          _specID, _taskID);
+            List map = _persister.selectWhere("ResourceMap", where) ;
+            if ((map != null) && (! map.isEmpty())) {
+                result = (ResourceMap) map.iterator().next();
+            }
+        }
+        return result;
+    }
+
+    public boolean hasPiledResource() { return _piledResource != null; }
+
+    private void restorePiledResource() {
+        ResourceMap map = getPersistedMap();
+        if (map != null) {
+            if (rm.isPersistPiling()) {
+                _piledResourceID = map.getPiledResourceID();
+                _piledResource = rm.getParticipant(_piledResourceID) ;
+            }
+            else _persister.delete(map);
+        }
+    }
+
+
+    public void setPersisting(boolean persist) {
+        if ((persist) && (_persister == null))
+            _persister = Persister.getInstance();
+        else
+            _persister = null;
+    }
+
+    public boolean getPersisting() { return (_persister != null); }
 
 
     public void ignore(Participant p) { _ignoreSet.add(p) ; }
@@ -134,18 +206,30 @@ public class ResourceMap {
     /****************************************************************************/
 
     public WorkItemRecord distribute(WorkItemRecord wir) {
+        boolean routed = false;
 
-        // if this task is piled, send directly to the piled participant
+        // if this task is piled, send directly to the piled participant's started queue
         if (_piledResource != null)
-            rm.routePiledWorkItem(_piledResource, wir) ;
-        else {
-            HashSet<Participant> distributionSet ;
-            Participant chosen = null ;
+            routed = rm.routePiledWorkItem(_piledResource, wir) ;
 
-            distributionSet = doOffer(wir) ;
-            if (distributionSet != null) removeIgnoredParticipants(distributionSet);
-            if (distributionSet != null) chosen = doAllocate(distributionSet, wir) ;
-            if (chosen != null) doStart(chosen, wir) ;
+        if (! routed) {
+
+            // construct distribution set from resource spec
+            HashSet<Participant> distributionSet = doOffer(wir) ;
+            if (distributionSet != null) {
+
+                // if case is chained and the chained participant is in the
+                // distribution set, route it directly to their started queue
+                routed = rm.routeIfChained(wir, distributionSet) ;
+
+                if (! routed) {
+
+                    // not piled or chained, distribute in normal manner
+                    removeIgnoredParticipants(distributionSet);
+                    Participant chosen = doAllocate(distributionSet, wir) ;
+                    if (chosen != null) doStart(chosen, wir) ;
+                }
+            }
         }
         return wir ;
     }
@@ -167,7 +251,6 @@ public class ResourceMap {
             admin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
         }
         else {
-           // if pile or chain then pile / chain & END else ...
            offerSet = (HashSet<Participant>) _offer.performOffer(wir);
            if (offerSet.isEmpty()) {
                _log.warn("Parse of resource specifications for workitem " + wir.getID() +
@@ -179,22 +262,23 @@ public class ResourceMap {
            }
         }
         return offerSet ;
-    }
+    }    
 
     private Participant doAllocate(HashSet<Participant> pSet, WorkItemRecord wir) {
         Participant chosenOne = null;
         if (_allocate.getInitiator() == AbstractInteraction.USER_INITIATED) {
 
-           // for each participant in set, place workitem on their offered queue
-           for (Participant p : pSet) {
-               QueueSet qs = p.getWorkQueues() ;
-               if (qs == null) qs = p.createQueueSet(rm.getPersisting());
-               qs.addToQueue(wir, WorkQueue.OFFERED);
-               rm.announceModifiedQueue(p.getID()) ;
-           }
-           _offered.put(wir.getID(), pSet) ; 
+            // for each participant in set, place workitem on their offered queue
+            for (Participant p : pSet) {
+                QueueSet qs = p.getWorkQueues() ;
+                if (qs == null) qs = p.createQueueSet(rm.getPersisting());
+                qs.addToQueue(wir, WorkQueue.OFFERED);
+                rm.announceModifiedQueue(p.getID()) ;
+            }
+            _offered.put(wir.getID(), pSet) ;
+            wir.setResourceStatus(WorkItemRecord.statusResourceOffered);
         }
-        else {      
+        else {
             chosenOne = _allocate.performAllocation(pSet);
         }
         return chosenOne ;
@@ -204,10 +288,12 @@ public class ResourceMap {
         QueueSet qs = p.getWorkQueues() ;
         if (qs == null) qs = p.createQueueSet(rm.getPersisting());
 
-        if (_start.getInitiator() == AbstractInteraction.USER_INITIATED)
+        if (_start.getInitiator() == AbstractInteraction.USER_INITIATED) {
             qs.addToQueue(wir, WorkQueue.ALLOCATED);
+            wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
+        }
         else
-            qs.addToQueue(wir, WorkQueue.STARTED);
+            rm.startImmediate(p, wir) ;
     }
 
 
@@ -249,4 +335,10 @@ public class ResourceMap {
         return xml.toString() ;
     }
 
+
+    // hibernate pkey getter & setter
+
+    public long get_id() { return _id; }
+
+    public void set_id(long id) { _id = id; }
 }

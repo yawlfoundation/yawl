@@ -183,10 +183,16 @@ public class Login extends AbstractPageBean {
 
 
     private boolean validateUser(String u, String p) {
+        if ((u == null) || (p == null)) {
+            msgPanel.info("Please enter a username and password") ;
+            return false;
+        }
+
 //        if (getApplicationBean().isLoggedOn(u)) {
 //            msgPanel.error("Userid " + u + " is already logged on elsewhere.");
 //            return false;
 //        }
+
         ResourceManager rm = getApplicationBean().getResourceManager();
         if (rm != null) {
             String handle = rm.login(u, p);
