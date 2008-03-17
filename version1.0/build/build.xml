@@ -21,10 +21,7 @@
                     webui.jar commons-digester.jar commons-beanutils.jar
                     commons-fileupload-1.0.jar standard.jar jstl.jar
                     rowset.jar dataprovider.jar errorhandler.jar defaulttheme-gray.jar"/>
-                    <!--richfaces-api-3.1.3.GA.jar richfaces-ui-3.1.3.GA.jar-->
-                    <!--richfaces-impl-3.1.3.GA.jar"/>-->
     <property name="xforms.dist" value="./build/yawlXForms/dist"/>
-    <!--property name="extra.libs" value="./build/extras"/-->        <!-- AJH -->
     <property name="property.files" value="./build/properties"/>     <!-- AJH -->
     <property name="schema.files" value="./schema"/>
     <property name="classes" value="classes"/>
@@ -33,15 +30,13 @@
     <property name="output" value="output"/>
 
 
-
-
-
-    <!-- The various Hibernate database types. Set one of these to 'true' for the required database type -->
+    <!-- The various Hibernate database types. Set one of these to 'true' for
+         the required database type -->
     <property name="use_postgres7" value="false"/>
     <property name="use_postgres8" value="true"/>
     <property name="use_hypersonic" value="false"/>
 
-    <!-- <property file="${user.home}/build.properties"/>-->
+
     <!--
     These are insterted from the Apache Build file.
     Some may have no relevance.
@@ -51,14 +46,13 @@
     <property name="yawl.webService.app.name" value="yawlWSInvoker"/>
     <property name="yawl.smsService.app.name" value="yawlSMSInvoker"/>
     <property name="yawl.TimeService.app.name" value="timeService"/>
-    <property name="yawl.admintool.app.name" value="admintool"/>
     <property name="yawl.xforms.app.name" value="yawlXForms"/>
     <property name="yawl.worklet.app.name" value="workletService"/>
     <property name="yawl.resource.app.name" value="resourceService"/>
     <property name="yawl.eng.app.path" value="/${yawl.eng.app.name}"/>
     <property name="yawl.worklist.app.path" value="/${yawl.worklist.app.name}"/>
     <property name="yawl.webService.app.path" value="/${yawl.webService.app.name}"/>
-    <property name="app.version" value="1.0"/>
+    <property name="app.version" value="2.0beta"/>
     <property name="build.home" value="${basedir}/build"/>
     <property name="graphics.home" value="${basedir}/graphics"/>
     <property name="dist.home" value="${basedir}/dist"/>
@@ -214,6 +208,7 @@
         <pathelement location="${jdom.jar}"/>
         <pathelement location="${servlet.jar}"/>
         <pathelement location="${log4j}"/>
+
         <!-- Include all elements that Tomcat exposes to applications -->
         <pathelement location="${env.CATALINA_HOME}/common/classes"/>
         <fileset dir="${env.CATALINA_HOME}/common/endorsed">
@@ -324,9 +319,6 @@
     Deletes directories and intermediate files.
     -->
     <target name="clean" depends="copy">
-        <!--<delete dir="${classes}/META-INF"/>-->
-        <!--<delete dir="${classes}/au"/>-->
-        <!--<delete dir="${classes}/records"/>-->
         <delete dir="${classes}"/>
         <delete dir="${output}"/>
     </target>
@@ -391,7 +383,11 @@
     <target name="build_Standalone" depends="compile">
         <mkdir dir="${enumeratedClasses}"/>
         <unzip dest="${enumeratedClasses}">
-            <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs} jaxen-full.jar jcommon-1.0.0-rc1.jar jdom.jar jfreechart-1.0.0-rc1.jar log4j*.jar postgresql-8.0-311.jdbc3.jar saxon7.jar saxpath.jar servlet-api.jar xercesImpl.jar xml-apis.jar" excludes="hibernate.cfg.xml"/>
+            <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs}
+                    jaxen-full.jar jcommon-1.0.0-rc1.jar jdom.jar jfreechart-1.0.0-rc1.jar
+                    log4j*.jar postgresql-8.0-311.jdbc3.jar saxon7.jar saxpath.jar
+                    servlet-api.jar xercesImpl.jar xml-apis.jar"
+                     excludes="hibernate.cfg.xml"/>
         </unzip>	
     	
         <!--=======================================================================
@@ -403,7 +399,8 @@
             <fileset dir="${enumeratedClasses}"/>
             <manifest>
                 <attribute name="Created-By" value="${developer.name}"/>
-                <attribute name="Main-Class" value="org/org/yawlfoundation/yawl/engine/gui/TabbedEngineGUI"/>
+                <attribute name="Main-Class"
+                           value="org/org/yawlfoundation/yawl/engine/gui/TabbedEngineGUI"/>
             </manifest>
         </jar>
         <delete dir="${enumeratedClasses}"/>
@@ -492,10 +489,6 @@
               tofile="${yawl.eng.app.name}/WEB-INF/classes/hibernate.properties"/>
         <copy file="${property.files}/hibernate.properties.postgres7"
               tofile="${classes}/hibernate.properties"/>
-
-        <copy file="${postgres7.path}" tofile="${yawl.admintool.app.name}/WEB-INF/lib/${postgres7.jar}"/>
-        <copy file="${property.files}/hibernate.properties.postgres7" tofile="${yawl.admintool.app.name}/WEB-INF/classes/hibernate.properties"/>
-
         <copy file="${postgres7.path}" tofile="${yawl.worklist.app.name}/WEB-INF/lib/${postgres7.jar}"/>
         <copy file="${property.files}/hibernate.properties.postgres7" tofile="${yawl.worklist.app.name}/WEB-INF/classes/hibernate.properties"/>
     </target>
@@ -507,10 +500,6 @@
             tofile="${yawl.eng.app.name}/WEB-INF/classes/hibernate.properties"/>
         <copy file="${property.files}/hibernate.properties.postgres8"
             tofile="${classes}/hibernate.properties"/>
-
-        <copy file="${postgres8.path}" tofile="${yawl.admintool.app.name}/WEB-INF/lib/${postgres8.jar}"/>
-        <copy file="${property.files}/hibernate.properties.postgres8"
-            tofile="${yawl.admintool.app.name}/WEB-INF/classes/hibernate.properties"/>
 
         <copy file="${postgres8.path}" tofile="${yawl.worklist.app.name}/WEB-INF/lib/${postgres8.jar}"/>
         <copy file="${property.files}/hibernate.properties.postgres8"
@@ -893,120 +882,6 @@
         </jar>
         <delete dir="${yawl.TimeService.app.name}"/>
     </target>
-
-
-
-    <!--
-    Build the application jar/war files
-
-    Creates a jar file for the main application sources.
-    -->
-    <target name="build_admintool.war" depends="compile">
-        <!-- ======================================================================
-        Prepare YAWL AdminTool WebApplication
-        -->
-        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/lib"/>
-        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/worklist"/>
-        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/elements/data"/>
-        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/engine"/>
-        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/engine/interfce"/>
-        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/engine/interfce/interfaceA"/>
-        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/engine/interfce/interfaceB"/>
-        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/admintool"/>
-        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/admintool/model"/>
-        <mkdir dir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/authentication"/>
-        <!-- start copying files into war directory -->
-        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/elements/data">
-            <fileset
-                dir="${classes}/org/yawlfoundation/yawl/elements/data"
-                />
-        </copy>
-        <!-- start copying files into war directory -->
-        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/elements">
-            <fileset dir="${classes}/org/yawlfoundation/yawl/elements" includes="**/*.class **/*.xsd"/>
-        </copy>
-        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/util">
-            <fileset dir="${classes}/org/yawlfoundation/yawl/util" includes="*.class"/>
-        </copy>
-        <!-- start copying files into war directory -->
-        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/unmarshal">
-            <fileset
-                dir="${classes}/org/yawlfoundation/yawl/unmarshal"
-                includes="YDecompositionParser.class"/>
-            <fileset dir="${schema.files}" includes="*.xsd"/>
-        </copy>
-        <copy todir="${yawl.admintool.app.name}/WEB-INF/lib">
-            <fileset dir="${libs}" includes="${persistence.libs} jcommon-1.0.0-rc1.jar jdom.jar jfreechart-1.0.0-rc1.jar log4j*.jar postgresql-8.0-311.jdbc3.jar"/>
-        </copy>
-
-        <copy file="${property.files}/log4j.properties" todir="${yawl.admintool.app.name}/WEB-INF/classes"/>
-
-        <antcall target="decidePostgresVersion"/>
-        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/engine/interfce">
-            <fileset
-                dir="${classes}/org/yawlfoundation/yawl/engine/interfce"/>
-        </copy>
-        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/engine/interfce/interfaceA">
-            <fileset
-                dir="${classes}/org/yawlfoundation/yawl/engine/interfce/interfaceA"/>
-        </copy>
-        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/engine/interfce/interfaceB">
-            <fileset
-                dir="${classes}/org/yawlfoundation/yawl/engine/interfce/interfaceB"/>
-        </copy>
-        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/engine"
-              file="${classes}/org/yawlfoundation/yawl/engine/YSpecificationID.class"/>
-
-        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/authentication">
-            <fileset
-                dir="${classes}/org/yawlfoundation/yawl/authentication"/>
-        </copy>
-        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/engine">
-            <fileset
-                dir="${classes}/org/yawlfoundation/yawl/engine"
-                includes=" YWorkItem.hbm.xml YWorkItem.class YWorkItemID.class YWorkItemRepository.class YPersistenceManager.class
-				YLogIdentifier.class YLogIdentifier.hbm.xml YWorkItemEvent.class YWorkItemEvent.hbm.xml"/>
-        </copy>
-
-        <!-- copy all supportive jsps & graphics into webapp -->
-        <copy todir="${yawl.admintool.app.name}">
-            <fileset dir="${classes}/org/yawlfoundation/yawl/admintool">
-                <include name="*.jsp"/>
-                <include name="*.html"/>
-                <include name="*.jpg"/>
-            </fileset>
-        </copy>
-        <copy todir="${yawl.admintool.app.name}/graphics">
-            <fileset dir="${basedir}/graphics"/>
-        </copy>
-        <!-- copy all major support classes into webapp -->
-        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/admintool">
-            <fileset dir="${classes}/org/yawlfoundation/yawl/admintool">
-                <include name="*.class"/>
-            </fileset>
-        </copy>
-        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/admintool/model">
-            <fileset dir="${classes}/org/yawlfoundation/yawl/admintool/model">
-                <include name="*.class"/>
-		<include name="*.xml"/>
-            </fileset>
-        </copy>
-        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/worklist/model">
-            <fileset dir="${classes}/org/yawlfoundation/yawl/worklist/model"/>
-        </copy>
-        <copy todir="${yawl.admintool.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/exceptions">
-            <fileset dir="${classes}/org/yawlfoundation/yawl/exceptions"/>
-        </copy>
-        <copy todir="${yawl.admintool.app.name}/WEB-INF">
-            <fileset file="${build.home}/${yawl.admintool.app.name}/web.xml"/>
-        </copy>
-
-        <!-- prepare Web Archive file -->
-        <jar destfile="${output}/${yawl.admintool.app.name}.war">
-            <fileset dir="${yawl.admintool.app.name}"/>
-        </jar>
-        <delete dir="${yawl.admintool.app.name}"/>
-	</target>
 
 
 
@@ -1500,8 +1375,6 @@
         build_yawlSMSInvoker.war,
         build_yawlWSInvoker.war,
         build_TimeService.war,
-        build_admintool.war,
-        build_admintool.war,
         build_workletService.war,
         build_resourceService.war"
         description=
@@ -1550,13 +1423,6 @@
         <antcall target="cleanup"/>
     </target>
 
-    <target name="deployAdminTool" depends="build_admintool.war">
-        <!-- Deploy Admin Tool -->
-        <copy todir="${env.CATALINA_HOME}/webapps">
-            <fileset file="${output}/${yawl.admintool.app.name}.war"/>
-        </copy>
-        <antcall target="cleanup"/>
-    </target>
 
     <!--<target name="deployXForms" depends="build_yawlXForms.war">-->
         <!-- Deploy XForms -->
@@ -1598,7 +1464,6 @@
         deployWsInvoker,
         deploySMS,
         deployTimeService,
-        deployAdminTool,
         deployWorkletService,
         deployResourceService"
         description=
@@ -1607,7 +1472,6 @@
 
     <target name="cleanup">
         <delete dir="${yawl.eng.app.name}"/>
-        <delete dir="${yawl.admintool.app.name}"/>
         <delete dir="${yawl.worklist.app.name}"/>
         <delete dir="${yawl.worklet.app.name}"/>
         <delete dir="${yawl.resource.app.name}"/>
@@ -1625,7 +1489,6 @@
         build_yawlWSInvoker.war,
         build_yawlSMSInvoker.war,
         build_TimeService.war,
-        build_admintool.war,
         build_workletService.war,
         build_resourceService.war,
         javadoc">
