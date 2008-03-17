@@ -28,7 +28,7 @@ import java.io.File;
  */
 public class FileNameRewriter {
     public static void main(String[] args) {
-        File currentDir = new File("/D:/YAWL/engine/src/org/org/yawlfoundation/yawl");
+        File currentDir = new File("/D:/YAWL/engine/src/org/yawlfoundation/yawl");
         cleanGarbage(currentDir, currentDir.list());
     }
 

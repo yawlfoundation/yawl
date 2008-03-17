@@ -8,6 +8,8 @@
 
 package org.yawlfoundation.yawl.resourcing.datastore.orgdata;
 
+import org.yawlfoundation.yawl.resourcing.util.Docket;
+
 import java.util.*;
 import java.io.*;
 
@@ -59,9 +61,8 @@ public class DataSourceFactory {
         HashSet ds = new HashSet();
 
         // retrieve a list of (filtered) class names in this package
-        // todo String[] classes = new File(".").list(new ConstraintClassFileFilter());
-        String[] classes = new File("./classes/org/org/yawlfoundation/yawl/resourcing/persistence").list(
-                           new DataSourceFactory.ClassFileFilter());
+        String pkgPath = Docket.getPackageFileDir("datastore/orgdata") ;
+        String[] classes = new File(pkgPath).list(new DataSourceClassFileFilter());
 
         for (String aClass : classes) {
 
@@ -79,7 +80,7 @@ public class DataSourceFactory {
      * This class is used by the File.list call in 'getDataSources' so that only
      * valid class files of this package are included
      */
-    private static class ClassFileFilter implements FilenameFilter {
+    private static class DataSourceClassFileFilter implements FilenameFilter {
 
         public boolean accept(File dir, String name) {
             if (( new File(dir, name).isDirectory() ) ||        // ignore dirs
