@@ -47,13 +47,13 @@
                                    binding="#{dynForm.btnCancel}"
                                    id="btnCancel"
                                    text="Cancel"
+                                   immediate="true"
                                    styleClass="dynformButton"
                                    style="#{DynFormFactory.btnCancelStyle}"/>
 
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"
-                                        panelLayout="flow"
-                                        style="top: 70px; left: 500px; position: absolute"/>
+                                        panelLayout="flow"/>
 
                     </ui:form>
                 </ui:body>

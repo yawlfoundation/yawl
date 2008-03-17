@@ -35,8 +35,7 @@ public class SessionListener implements HttpSessionListener {
             handleSessionTimeout(session);
         }
         catch(Exception e) {
-            System.out.println("Error while logging out at session destroyed : "
-                    + e.getMessage());
+            _log.error("Error while logging out at session destroyed : ", e) ;
         }
     }
 

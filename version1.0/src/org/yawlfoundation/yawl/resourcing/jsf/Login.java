@@ -39,7 +39,9 @@ public class Login extends AbstractPageBean {
 
     public void preprocess() { }
 
-    public void prerender() { msgPanel.show(); }         // show messages as required
+    public void prerender() {
+        msgPanel.show(70, 0, "relative");             // show messages as required
+    }
 
     public void destroy() { }
 

@@ -435,6 +435,7 @@ public class customServices extends AbstractPageBean {
      */
     public void prerender() {
         getSessionBean().checkLogon();
+        getSessionBean().getMessagePanel().show(338, 150, "absolute");
         getSessionBean().setActivePage(ApplicationBean.PageRef.customServices);
     }
 

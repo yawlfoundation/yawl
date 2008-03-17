@@ -42,6 +42,7 @@
                         <ui:button action="#{selectUser.btnCancel_action}"
                                    binding="#{selectUser.btnCancel}"
                                    id="btnCancel"
+                                   immediate="true"
                                    styleClass="selectUserButton"
                                    style="left: 125px"
                                    text="Cancel"/>

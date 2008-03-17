@@ -431,7 +431,7 @@ public class userWorkQueues extends AbstractPageBean {
      */
     public void prerender() {
         getSessionBean().checkLogon();
-        msgPanel.show();
+        msgPanel.show(395, 150, "absolute");
         if (_sb.getSourceTab() != null) {
             tabSet.setSelected(_sb.getSourceTab());
             _sb.setSourceTab(null);

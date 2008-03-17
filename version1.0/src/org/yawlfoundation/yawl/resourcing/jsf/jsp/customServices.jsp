@@ -165,8 +165,7 @@
 
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"
-                                        panelLayout="flow"
-                                        style="top: 338px; left: 150px; position: absolute"/>
+                                        panelLayout="flow"/>
                                                 
                         <ui:hiddenField binding="#{customServices.hdnRowIndex}" id="hdnRowIndex"/>
 

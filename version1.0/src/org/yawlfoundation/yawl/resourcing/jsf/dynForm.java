@@ -62,6 +62,7 @@ public class dynForm extends AbstractPageBean {
 
     public void prerender() {
         getSessionBean().checkLogon();
+        getSessionBean().getMessagePanel().show(140, 500, "absolute");
         getSessionBean().setActivePage(ApplicationBean.PageRef.dynForm);
         setOKText();
     }
@@ -143,6 +144,8 @@ public class dynForm extends AbstractPageBean {
     public String btnOK_action() {
         String referringPage;
         SessionBean sb = getSessionBean();
+        if (! getDynFormFactory().validateInputs())
+            return null;
 
         if (sb.getDynFormType() == ApplicationBean.DynFormType.netlevel) {
             sb.setCaseLaunch(true);                        // temp flag for post action

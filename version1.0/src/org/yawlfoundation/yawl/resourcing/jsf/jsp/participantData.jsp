@@ -284,8 +284,7 @@
 
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"
-                                        panelLayout="flow"
-                                        style="position: absolute; left: 124px; top: 630px"/>
+                                        panelLayout="flow"/>
                         
 
                         <div style="left: 123px; top: 458px; position: absolute">

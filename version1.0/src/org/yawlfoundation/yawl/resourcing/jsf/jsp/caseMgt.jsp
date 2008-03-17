@@ -157,8 +157,7 @@
 
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"
-                                        panelLayout="flow"
-                                        style="top: 650px; left: 130px; position: absolute"/>
+                                        panelLayout="flow"/>
 
                         <ui:hiddenField binding="#{caseMgt.hdnRowIndex}" id="hdnRowIndex"/>
 
