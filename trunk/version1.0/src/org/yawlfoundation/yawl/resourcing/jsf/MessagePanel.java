@@ -27,6 +27,8 @@ public class MessagePanel extends PanelLayout {
     private List<String> _infoMessage;
     private List<String> _successMessage;
     private int idSuffix = 0 ;
+    private String _style = "";
+    private int msgTop = 0 ;
 
     private PanelLayout _pnlMessages;
     private ImageComponent _imgIcon;
@@ -68,6 +70,12 @@ public class MessagePanel extends PanelLayout {
                (_warnMessage != null) || (_successMessage != null);
     }
 
+    public void show(int top, int left, String position) {
+        _style = String.format("top: %dpx; left: %dpx; position: %s;",
+                                top, left, position);
+        show();
+    }
+
     public void show() {
         MsgType msgType = getDominantType() ;
         if (msgType != null) {                          // if msgs to show
@@ -90,7 +98,7 @@ public class MessagePanel extends PanelLayout {
 
     private List<String> addMessage(List<String> list, String message) {
         if (list == null)  list = new ArrayList<String>();
-        list.add(message);
+        list.add(message + System.getProperty("line.separator"));
         return list ;
     }
 
@@ -110,7 +118,7 @@ public class MessagePanel extends PanelLayout {
     private String getFontColor(MsgType msgType) {
         switch (msgType) {
             case error :  return "red" ;
-            case warn : return "yellow" ;
+            case warn : return "orange" ;
             case info : return "blue" ;
             case success : return "green" ;
         }
@@ -149,8 +157,8 @@ public class MessagePanel extends PanelLayout {
     private PanelLayout constructMessagesPanel() {
         _pnlMessages = new PanelLayout() ;
         _pnlMessages.setId("pnlMessages001");
-        _pnlMessages.setStyle("background-color: #f0f0f0; width: 280px;" +
-                               getPosStyle(60, 15)) ;
+        _pnlMessages.setStyle("background-color: #f0f0f0; width: 270px;" +
+                               getPosStyle(70, 15)) ;
         _pnlMessages.setPanelLayout("flow");
         return _pnlMessages ;
     }
@@ -166,27 +174,42 @@ public class MessagePanel extends PanelLayout {
 
 
     private void setMessages() {
-        listMessages(_errorMessage, MsgType.error);
-        listMessages(_warnMessage, MsgType.warn);
-        listMessages(_infoMessage, MsgType.info);
-        listMessages(_successMessage, MsgType.success);
+        int lineCount = 0;
+        lineCount += listMessages(_errorMessage, MsgType.error, lineCount);
+        lineCount += listMessages(_warnMessage, MsgType.warn, lineCount);
+        lineCount += listMessages(_infoMessage, MsgType.info, lineCount);
+        lineCount += listMessages(_successMessage, MsgType.success, lineCount);
+        setHeight(lineCount);
     }
 
-    private void listMessages(List<String> list, MsgType msgType) {
+    private int listMessages(List<String> list, MsgType msgType, int lineCount) {
         if (list != null) {
-            for (String message : list) listMessage(message, msgType) ;
+            for (String message : list) {
+                lineCount += (message.length() / 45) + 1;     // approx. 45chrs per line
+                listMessage(message, msgType, lineCount) ;
+            }
+            return lineCount;
         }
+        return 0;
     }
 
-    private void listMessage(String message, MsgType msgType) {
+    private void listMessage(String message, MsgType msgType, int lineCount) {
         StaticText sttMessage = new StaticText();
         sttMessage.setId("stt" + getNextIDSuffix()) ;
         sttMessage.setText(message);
-        sttMessage.setStyle(getFontStyle(0, msgType) + "width: 400px;");
+        sttMessage.setStyle(getFontStyle(0, msgType) +
+                "width: 270px; top: " + (lineCount * 15) + "px; position: absolute;");
         _pnlMessages.getChildren().add(sttMessage) ;
     }
 
     private int getNextIDSuffix() {
         return ++idSuffix ;
+    }
+
+    private void setHeight(int lineCount) {
+
+        // rough est. - assume 45 chars/line, 15px per line height, min height 70 (for icon)
+        long height = Math.round(Math.max(70, lineCount * 15));
+        this.setStyle(String.format("%s height: %dpx", _style, height));
     }
 }

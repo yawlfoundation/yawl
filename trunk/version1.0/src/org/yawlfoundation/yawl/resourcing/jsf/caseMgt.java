@@ -329,7 +329,7 @@ public class caseMgt extends AbstractPageBean {
 
     public void prerender() {
         getSessionBean().checkLogon();
-        msgPanel.show();
+        msgPanel.show(650, 130, "absolute");
         if (getSessionBean().isCaseLaunch()) {
             String specID = getSessionBean().getLoadedSpecListChoice() ;
             if (specID != null)

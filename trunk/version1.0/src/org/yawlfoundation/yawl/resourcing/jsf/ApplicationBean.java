@@ -155,13 +155,33 @@ public class ApplicationBean extends AbstractApplicationBean {
 
     public boolean isEmptyWorkItem(WorkItemRecord wir) {
         try {
-            Map<String, FormParameter> x =
-                                 getResourceManager().getWorkItemParamsInfo(wir);
-            return ((x == null) || (x.size() == 0)) ;
+            Map<String, FormParameter> params = getWorkItemParams(wir);
+            return ((params == null) || (params.size() == 0)) ;
         }
         catch (Exception e) { return false; }
     }
-    
+
+
+    private Map<String, Map<String, FormParameter>> _workItemParams = new
+            HashMap<String, Map<String, FormParameter>>();
+
+
+    public Map<String, FormParameter> getWorkItemParams(WorkItemRecord wir) {
+        Map<String, FormParameter> result = _workItemParams.get(wir.getID());
+        if (result == null) {
+            try {
+                result = getResourceManager().getWorkItemParamsInfo(wir);
+                if (result != null)
+                    _workItemParams.put(wir.getID(), result);
+            }
+            catch (Exception e) { return null; }
+        }
+        return result;
+    }
+
+    public void removeWorkItemParams(WorkItemRecord wir) {
+        _workItemParams.remove(wir.getID());
+    }
 
     /**
      * formats a long time value into a string of the form 'ddd:hh:mm:ss'

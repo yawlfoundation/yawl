@@ -363,7 +363,7 @@ public class adminQueues extends AbstractPageBean {
      */
     public void prerender() {
         getSessionBean().checkLogon();
-
+        getSessionBean().getMessagePanel().show(410, 150, "absolute");
         // 
         getSessionBean().performAdminQueueAction();
 

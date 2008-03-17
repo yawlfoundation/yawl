@@ -16,10 +16,7 @@ import org.yawlfoundation.yawl.authentication.User;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.engine.interfce.Marshaller;
-import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
-import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.engine.interfce.*;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
 import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
@@ -2190,6 +2187,20 @@ public class ResourceManager extends InterfaceBWebsideController
             _log.error("Could not retrieve schema for workitem parameters", e)  ;
         }
         return result ;
+    }
+
+
+    public Map<String, FormParameter> getCaseInputParams(String specID) {
+        Map<String, FormParameter> result = new HashMap<String, FormParameter>();
+        SpecificationData specData = getSpecData(specID);
+        if (specData != null) {
+            List<YParameter> inputs = specData.getInputParams();
+            for (YParameter input : inputs) {
+                FormParameter param = new FormParameter(input);
+                result.put(param.getName(), param);
+            }
+        }
+        return result;
     }
 
 

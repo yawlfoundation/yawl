@@ -11,6 +11,7 @@ import com.sun.rave.web.ui.component.Calendar;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
+import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
@@ -19,6 +20,8 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.el.MethodBinding;
 import javax.faces.event.ActionEvent;
+import javax.xml.datatype.DatatypeFactory;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -121,6 +124,12 @@ public class DynFormFactory extends AbstractSessionBean {
     }
 
 
+    /** @return a reference to the application bean */
+     private ApplicationBean getApplicationBean() {
+         return (ApplicationBean) getBean("ApplicationBean") ;
+     }
+
+
     /**
      * Initialises a new dynamic form
      * @param title the page title
@@ -137,7 +146,8 @@ public class DynFormFactory extends AbstractSessionBean {
         String schema = getSchema();
         if (schema != null) {
             String data = getInstanceData(schema) ;
-            buildForm(schema, data);
+            Map<String, FormParameter> params = getParamInfo();
+            buildForm(schema, data, params);
         }
     }
 
@@ -166,15 +176,24 @@ public class DynFormFactory extends AbstractSessionBean {
     }
 
 
+    private Map<String, FormParameter> getParamInfo() {
+        SessionBean sb = getSessionBean() ;
+        if (sb.getDynFormType() == ApplicationBean.DynFormType.netlevel)
+           return getSessionBean().getCaseParams();
+        else
+            return getApplicationBean().getWorkItemParams(displayedWIR);
+    }
 
-    private void buildForm(String schema, String dataStr) {
+
+
+    private void buildForm(String schema, String dataStr, Map<String, FormParameter> params) {
         Element data = JDOMUtil.stringToElement(dataStr);
         Document doc = JDOMUtil.stringToDocument(schema);
         Element root = doc.getRootElement();                        // schema
         Namespace ns = root.getNamespace();
         Element element = root.getChild("element", ns) ;
         String topLabel = element.getAttributeValue("name") ;       // name of case/task
-        List content = buildInnerForm(null, data, element, ns, -1) ;
+        List content = buildInnerForm(null, data, element, params, ns, -1) ;
         compPanel.getChildren().add(makeHeaderText(topLabel)) ;
         compPanel.getChildren().addAll(content) ;
         sizeAndPositionContent(content) ;
@@ -233,7 +252,7 @@ public class DynFormFactory extends AbstractSessionBean {
 
     
     private DynFormContentList buildInnerForm(SubPanel container, Element data, Element element,
-                                Namespace ns, int level) {
+                                Map<String, FormParameter> params, Namespace ns, int level) {
         DynFormContentList result = new DynFormContentList();
         DynFormContentList innerContent ;
         int top = 0 ;                                  // top (yPos) posn of component
@@ -258,14 +277,14 @@ public class DynFormFactory extends AbstractSessionBean {
                 // new complex type - recurse in a new container
                 SubPanelController spc = null;
                 Element subData = (data != null)? data.getChild(name) : null;
-
+                params = null;
 
                 int instances = getInitialInstanceCount(minOccurs, subData) ;
                 for (int i = 0; i < instances; i++) {
                     top += getNextInc(prevComponent, ComponentType.panel);
                     SubPanel subPanel = makeSubPanel(top, name, level, minOccurs, maxOccurs);
                     Element e = (instances > 1) ? getIteratedContent(subData, i) : subData ;
-                    innerContent = buildInnerForm(subPanel, e, field, ns, level);
+                    innerContent = buildInnerForm(subPanel, e, field, params, ns, level);
                     subPanel.getChildren().addAll(innerContent);
                     result.add(subPanel);
                     if (spc != null)
@@ -300,7 +319,13 @@ public class DynFormFactory extends AbstractSessionBean {
                 top += getNextInc(prevComponent, ComponentType.field);
 
                 String value = (data != null)? data.getChildText(name) : "";
-                innerContent = makeInputField(name, type, top, value);
+                FormParameter param;
+                if (params != null)
+                    param = params.get(name);
+                else
+                    param = makeParam(name, minOccurs, maxOccurs, type, ns);
+
+                innerContent = makeInputField(name, type, param, top, value);
                 if (container != null)
                     container.getController().addSimpleContent(innerContent, top);
                 result.addAll(innerContent);
@@ -313,6 +338,19 @@ public class DynFormFactory extends AbstractSessionBean {
         return result;
     }
 
+    private FormParameter makeParam(String name, String minOccurs, String maxOccurs,
+                                    String type, Namespace ns) {
+        // required = both null or both are 1
+        boolean required = ((minOccurs == null) && (maxOccurs == null)) ||
+                           (((minOccurs != null) && (minOccurs.equals("1"))) &&
+                            ((maxOccurs != null) && (maxOccurs.equals("1"))));
+
+        YParameter yparam = new YParameter(null, "inputParam");
+        yparam.setDataTypeAndName(type, name, ns.getURI());
+        FormParameter result = new FormParameter(yparam) ;
+        result.setMandatory(required);
+        return result ;
+    }
 
     private int getInitialInstanceCount(String min, Element data) {
         int dataCount = 1;
@@ -378,23 +416,26 @@ public class DynFormFactory extends AbstractSessionBean {
         return button ;
     }
 
-    public DynFormContentList makeInputField(String name, String type, int top, String value) {
+
+    private boolean isRequired(FormParameter param) {
+        return (param.isRequired() || param.isMandatory());
+    }
+
+
+    public DynFormContentList makeInputField(String name, String type, FormParameter param,
+                                             int top, String value) {
         UIComponent field;
         DynFormContentList result = new DynFormContentList();
 
         // create and add a label for the parameter
-        Label label = makeLabel(name, makeTopStyle(top));
+        Label label = makeLabel(name, isRequired(param), makeTopStyle(top));
 
         if (type.equals("xsd:boolean"))
-            field = makeCheckbox(name, top, value);
+            field = makeCheckbox(name, param, top, value);
         else if (type.equals("xsd:date"))
-            field = makeCalendar(name, top, value);
-        else {
-//            if (param.isInputOnly())
-//                field = makeReadOnlyTextField(param, topStyle);
-//            else
-                field = makeTextField(name, type, top, value);
-        }
+            field = makeCalendar(name, param, top, value);
+        else
+            field = makeTextField(name, param, type, top, value);
 
         label.setFor(field.getId());
         
@@ -415,11 +456,11 @@ public class DynFormFactory extends AbstractSessionBean {
     }
 
 
-    public Label makeLabel(String name, String topStyle) {
+    public Label makeLabel(String name, boolean required, String topStyle) {
         Label label = makeSimpleLabel(name) ;
         label.setStyleClass("dynformLabel");
+        label.setRequiredIndicator(required);
         label.setStyle(topStyle) ;
-  //      label.setRequiredIndicator(param.isMandatory() || param.isRequired());
         return label;
     }
 
@@ -441,25 +482,25 @@ public class DynFormFactory extends AbstractSessionBean {
     }
 
 
-    public Checkbox makeCheckbox(String name, int top, String value) {
+    public Checkbox makeCheckbox(String name, FormParameter param, int top, String value) {
         Checkbox cbox = new Checkbox();
         cbox.setId(createUniqueID("cbx" + name));
         if (value == null) value = "false" ;
         cbox.setSelected(value.equalsIgnoreCase("true")) ;
- //       cbox.setReadOnly(param.isInputOnly());
+        cbox.setDisabled(param.isInputOnly());
         cbox.setStyleClass("dynformInput");
         cbox.setStyle(makeTopStyle(top)) ;
-  //      cbox.setValueChangeListener(bindListener());
         return cbox ;
     }
 
 
-    public Calendar makeCalendar(String name, int top, String value) {
+    public Calendar makeCalendar(String name, FormParameter param, int top, String value) {
         Calendar cal = new Calendar();
         cal.setId(createUniqueID("cal" + name));
         cal.setSelectedDate(createDate(value));
         cal.setDateFormatPatternHelp("");
-    //    cal.setReadOnly(param.isInputOnly());
+        cal.setDisabled(param.isInputOnly());
+        cal.setRequired(isRequired(param));
         cal.setColumns(15);
         cal.setStyleClass("dynformInput");
         cal.setStyle(makeTopStyle(top)) ;
@@ -491,14 +532,15 @@ public class DynFormFactory extends AbstractSessionBean {
 
 
 
-    public TextField makeTextField(String name, String type, int top, String value) {
+    public TextField makeTextField(String name, FormParameter param, String type,
+                                                int top, String value) {
         TextField textField = new TextField() ;
         textField.setId(createUniqueID("txt" + name));
         textField.setText(value);
-     //   textField.setRequired(param.isMandatory() || param.isRequired());
+        textField.setRequired(isRequired(param));
         textField.setStyleClass("dynformInput");
         textField.setStyle(makeTopStyle(top));
-  //      textField.setValueChangeListener(bindListener());
+        textField.setDisabled(param.isInputOnly());
         textField.setToolTip(makeToolTip(type));
         return textField ;
     }
@@ -722,6 +764,7 @@ public class DynFormFactory extends AbstractSessionBean {
         Label newLabel = new Label() ;
         newLabel.setText(oldLabel.getText());
         newLabel.setId(createUniqueID(oldLabel.getId())) ;
+        newLabel.setRequiredIndicator(oldLabel.isRequiredIndicator());
         newLabel.setStyle(oldLabel.getStyle());
         newLabel.setStyleClass(oldLabel.getStyleClass());
         newLabel.setRequiredIndicator(oldLabel.isRequiredIndicator()) ;
@@ -735,6 +778,7 @@ public class DynFormFactory extends AbstractSessionBean {
         newField.setText(oldField.getText());
         newField.setId(createUniqueID(oldField.getId()));
         newField.setRequired(oldField.isRequired());
+        newField.setDisabled(oldField.isDisabled());
         newField.setStyleClass(oldField.getStyleClass());
         newField.setStyle(oldField.getStyle());
         return newField;
@@ -745,7 +789,8 @@ public class DynFormFactory extends AbstractSessionBean {
         Calendar newField = new Calendar() ;
         newField.setId(createUniqueID(oldField.getId()));
         newField.setDateFormatPatternHelp("");
-        newField.setReadOnly(oldField.isReadOnly());
+        newField.setDisabled(oldField.isDisabled());
+        newField.setRequired(oldField.isRequired());        
         newField.setColumns(oldField.getColumns());
         newField.setStyleClass(oldField.getStyleClass());
         newField.setStyle(oldField.getStyle()) ;
@@ -758,7 +803,8 @@ public class DynFormFactory extends AbstractSessionBean {
         Checkbox newCbox = new Checkbox() ;
         newCbox.setId(createUniqueID(oldCbox.getId()));
         newCbox.setSelected(oldCbox.isChecked()) ;
-        newCbox.setReadOnly(oldCbox.isReadOnly());
+        newCbox.setRequired(oldCbox.isRequired());
+        newCbox.setDisabled(oldCbox.isDisabled());
         newCbox.setStyleClass(oldCbox.getStyleClass());
         newCbox.setStyle(oldCbox.getStyle()) ;
         return newCbox ;
@@ -828,4 +874,125 @@ public class DynFormFactory extends AbstractSessionBean {
         return result.toString();
     }
 
+
+    public boolean validateInputs() {
+        return validateInputs(compPanel);
+    }
+
+    public boolean validateInputs(PanelLayout panel) {
+        boolean subResult = true, finalResult = true ;
+        List components = panel.getChildren();
+        if (components != null) {
+            Iterator itr = components.iterator();
+
+            // checkboxes & calendars are self validating - only need to do textfields
+            while (itr.hasNext()) {
+                UIComponent component = (UIComponent) itr.next();
+                if (component instanceof SubPanel)
+                    subResult = validateInputs((SubPanel) component) ;
+                else if (component instanceof TextField) {
+                    TextField field = (TextField) component;
+                    if ((! field.isDisabled()) && (field.getText() != null) &&
+                         (((String) field.getText()).length() > 0)) {
+
+                        // strip type out of tooltip - this construct was necessary
+                        // since the whole string is passed with an offset, causing
+                        // equals to fail in the validateField method
+                        String type = new String(field.getToolTip().split(" ")[5]);
+                        subResult = validateField(type, field);
+                    }
+                }
+                finalResult = (finalResult && subResult) ;
+            }
+        }
+        return finalResult ;
+    }
+
+    private boolean validateField(String type, TextField field) {
+        String text = (String) field.getText();
+        boolean result = true;
+        if (type.equals("string"))
+            result = true ;
+        else if (type.equals("long"))
+            result = validateLong(text, field.getId());
+        else if (type.equals("double"))
+            result = validateDouble(text, field.getId());
+        else if (type.equals("time"))
+            result = validateTime(text, field.getId());
+        else if (type.equals("duration"))
+            result = validateDuration(text, field.getId());
+        return result ;
+    }
+
+
+    private boolean validateLong(String value, String fieldName) {
+        try {
+            Long dummy = new Long(value);
+            return true;
+        }
+        catch (NumberFormatException nfe) {
+            addValidationErrorMessage(value, fieldName, "long") ;
+            return false ;
+        }
+    }
+
+
+    private boolean validateDouble(String value, String fieldName) {
+        try {
+            Double dummy = new Double(value);
+            return true;
+        }
+        catch (NumberFormatException nfe) {
+            addValidationErrorMessage(value, fieldName, "double") ;
+            return false ;
+        }
+    }
+
+
+    private boolean validateTime(String value, String fieldName) {
+        try {
+            DateFormat df = DateFormat.getTimeInstance();
+            df.parse(value);
+            return true;
+        }
+        catch (ParseException pe) {
+            addValidationErrorMessage(value, fieldName, "time") ;
+            return false ;
+        }
+    }
+
+
+    private boolean validateDuration(String value, String fieldName) {
+        try {
+            DatatypeFactory dummy = DatatypeFactory.newInstance();
+            dummy.newDuration(value);
+            return true;
+        }
+        catch (Exception e) {
+            addValidationErrorMessage(value, fieldName, "duration") ;
+            return false ;
+        }
+    }
+
+
+    private void addValidationErrorMessage(String value, String fieldName, String type) {
+        MessagePanel msgPanel = getSessionBean().getMessagePanel();
+        String msg  =
+            String.format("Invalid value '%s' in field %s, expecting a valid %s value",
+                           value, normaliseFieldName(fieldName), type);
+        msgPanel.error(msg);
+    }
+
+
+    private String normaliseFieldName(String name) {
+        char[] chars = name.toCharArray();
+        int len = chars.length ;
+        char c = chars[--len];
+        while ((c >= '0') && (c <= '9')) c = chars[--len];
+        char[] result = new char[len-2];
+        for (int i = 3; i <= len; i++) {
+            result[i-3] = chars[i];
+        }
+        return new String(result);
+    }
 }

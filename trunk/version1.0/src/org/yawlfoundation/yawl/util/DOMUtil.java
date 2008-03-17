@@ -8,6 +8,7 @@
 
 package org.yawlfoundation.yawl.util;
 
+import net.sf.saxon.TransformerFactoryImpl;
 import org.apache.commons.beanutils.BeanComparator;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
@@ -32,8 +33,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.Vector;
-
-import net.sf.saxon.TransformerFactoryImpl;
 
 /**
  *

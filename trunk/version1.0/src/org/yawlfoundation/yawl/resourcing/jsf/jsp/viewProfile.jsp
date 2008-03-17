@@ -199,8 +199,7 @@
 
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"
-                                        panelLayout="flow"
-                                        style="position: absolute; left: 124px; top: 455px"/>
+                                        panelLayout="flow""/>
                         
                     </ui:form>
                 </ui:body>

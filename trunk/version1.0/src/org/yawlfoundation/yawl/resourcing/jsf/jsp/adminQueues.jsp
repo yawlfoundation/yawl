@@ -140,8 +140,7 @@
 
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"
-                                        panelLayout="flow"
-                                        style="top: 410px; left: 150px; position: absolute"/>
+                                        panelLayout="flow"/>
                         
                         
                         <div style="height: 202px; left: 126px; top: 118px; position: absolute; width: 542px">

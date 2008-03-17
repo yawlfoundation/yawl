@@ -613,6 +613,10 @@ public class SessionBean extends AbstractSessionBean {
         return _rm.getDataSchema(getLoadedSpecListChoice()) ;
     }
 
+    public Map<String, FormParameter> getCaseParams() {
+        return _rm.getCaseInputParams(getLoadedSpecListChoice());
+    }
+
     public String getInstanceData(String schema) {
         return _rm.getInstanceData(schema, getLoadedSpecListChoice()) ;
     }

@@ -591,7 +591,7 @@ public class participantData extends AbstractPageBean {
             btnReset.setDisabled(true);
         }
         getSessionBean().setActivePage(ApplicationBean.PageRef.participantData);        
-        msgPanel.show();
+        msgPanel.show(630, 124, "absolute");
     }
 
     /** 
