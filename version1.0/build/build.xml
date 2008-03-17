@@ -8,6 +8,7 @@
     Source and resource directories
     -->
     <property name="developer.name" value="Lachlan_Aldred"/>
+    <property name="app.version" value="_Release_2.0_beta"/>
     <property name="src" value="src"/>
     <property name="test" value="test"/>
     <property name="backup" value="backup"/>
@@ -52,7 +53,6 @@
     <property name="yawl.eng.app.path" value="/${yawl.eng.app.name}"/>
     <property name="yawl.worklist.app.path" value="/${yawl.worklist.app.name}"/>
     <property name="yawl.webService.app.path" value="/${yawl.webService.app.name}"/>
-    <property name="app.version" value="2.0beta"/>
     <property name="build.home" value="${basedir}/build"/>
     <property name="graphics.home" value="${basedir}/graphics"/>
     <property name="dist.home" value="${basedir}/dist"/>
@@ -400,7 +400,7 @@
             <manifest>
                 <attribute name="Created-By" value="${developer.name}"/>
                 <attribute name="Main-Class"
-                           value="org/org/yawlfoundation/yawl/engine/gui/TabbedEngineGUI"/>
+                           value="org/yawlfoundation/yawl/engine/gui/TabbedEngineGUI"/>
             </manifest>
         </jar>
         <delete dir="${enumeratedClasses}"/>

@@ -15,7 +15,6 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.yawlfoundation.yawl.admintool.model.HumanResource;
 import org.yawlfoundation.yawl.authentication.UserList;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
@@ -165,29 +164,17 @@ public class YEngine implements InterfaceADesign,
 
         try {
             restoring = true;
-
-            logger.info("Restoring Users");
-            Query query = pmgr.createQuery("from org.yawlfoundation.yawl.admintool.model.Resource" +
-                    " where IsOfResourceType = 'Human'");
-
-            for (Iterator it = query.iterate(); it.hasNext();) {
-                HumanResource user = (HumanResource) it.next();
-                logger.debug("Restoring user '" + user.getRsrcID() + "'");
-                UserList.getInstance().addUser(
-                        user.getRsrcID(),
-                        user.getPassword(),
-                        user.getIsAdministrator());
-            }
-
-            //Lachlan: later we delete these loaded services and reload them anew
-            //this seems kind of redundant, don't you think?
-            logger.info("Restoring Services");
-            query = pmgr.createQuery("from org.yawlfoundation.yawl.elements.YAWLServiceReference");
+           
+            logger.info("Restoring Services - Starts");
+            Query query = pmgr.createQuery(
+                    "from org.yawlfoundation.yawl.elements.YAWLServiceReference");
 
             for (Iterator it = query.iterate(); it.hasNext();) {
                 YAWLServiceReference service = (YAWLServiceReference) it.next();
                 addYawlService(service);
             }
+            logger.info("Restoring Services - Ends");
+
 
             logger.info("Restoring Specifications - Starts");
             query = pmgr.createQuery("from org.yawlfoundation.yawl.engine.YSpecFile");
@@ -210,15 +197,14 @@ public class YEngine implements InterfaceADesign,
             }
             logger.info("Restoring Specifications - Ends");
 
+            
             logger.info("Restoring process instances - Starts");
             query = pmgr.createQuery("from org.yawlfoundation.yawl.engine.YNetRunner order by case_id");
             for (Iterator it = query.iterate(); it.hasNext();) {
                 YNetRunner runner = (YNetRunner) it.next();
-                /**
-                 * FRA-67 - Set engine reference for parent and composite nets
-                 */
+
+                //FRA-67 - Set engine reference for parent and composite nets
                 runner.setEngine(this);
-                // FRA-67: End
                 runners.add(runner);
             }
 
@@ -269,7 +255,6 @@ public class YEngine implements InterfaceADesign,
                             /* This occurs when a specification has been unloaded, but the case is still there
                                This case is not persisted, since we must have the specification stored as well.
                              */
-                            // todo AJH Sort this
                             pmgr.deleteObject(runner);
                             storedrunners.remove(runner);
                             //MLF: remove all the workitems for this case
@@ -584,9 +569,6 @@ public class YEngine implements InterfaceADesign,
 
             // Initialise the persistence layer
             factory = YPersistenceManager.initialise(persisting);
-            /***************************
-             START POSSIBLE RESTORATION PROCESS
-             */
 
             _userList = UserList.getInstance();
             _workItemRepository = YWorkItemRepository.getInstance();
@@ -607,46 +589,24 @@ public class YEngine implements InterfaceADesign,
                     throw new YPersistenceException("Failure to restart engine from persistence image");
                 }
             }
+            else {
 
-            /***************************/
-            /**
-             * Delete and re-create the standard engine InterfaceB services
-             */
-            YAWLServiceReference ys;
+                // not persisting, so make sure standard services are loaded
+                YAWLServiceReference ys;
 
-            ys = new YAWLServiceReference("http://localhost:8080/yawlWSInvoker/", null);
-            ys.setDocumentation("This YAWL Service enables suitably declared" +
-                    " workflow tasks to invoke RPC style service on the Web.");
-            ys.set_serviceName("yawlWSInvoker");
-            _myInstance.removeYawlService(ys.getURI());
-            _myInstance.addYawlService(ys);
+                ys = new YAWLServiceReference("http://localhost:8080/workletService/ib", null);
+                ys.setDocumentation("Worklet Dynamic Process Selection and Exception Service");
+                ys.set_serviceName("workletService");
+                _myInstance.addYawlService(ys);
 
-            ys = new YAWLServiceReference("http://localhost:8080/workletService/ib", null);
-            ys.setDocumentation("Worklet Dynamic Process Selection and Exception Service");
-            ys.set_serviceName("workletService");
-            _myInstance.removeYawlService(ys.getURI());
-            _myInstance.addYawlService(ys);
-
-            ys = new YAWLServiceReference("http://localhost:8080/yawlSMSInvoker/ib", null);
-            ys.setDocumentation("SMS Message Module. Works if you have an account.");
-            ys.set_serviceName("yawlSMSInvoker");
-            _myInstance.removeYawlService(ys.getURI());
-            _myInstance.addYawlService(ys);
-
-            ys = new YAWLServiceReference("http://localhost:8080/timeService/ib", null);
-            ys.setDocumentation("Time service, allows tasks to be a timeout task.");
-            ys.set_serviceName("timeService");
-            _myInstance.removeYawlService(ys.getURI());
-            _myInstance.addYawlService(ys);
-
-            ys = new YAWLServiceReference("http://localhost:8080/resourceService/ib", null);
-            ys.setDocumentation("Resource Service, assigns workitems to resources.");
-            ys.set_serviceName("resourceService");
-            ys.set_assignable(false);                            // don't show in editor
-            _myInstance.removeYawlService(ys.getURI());
-            _myInstance.addYawlService(ys);
-            _myInstance.setResourceService(ys);
-
+                ys = new YAWLServiceReference("http://localhost:8080/resourceService/ib", null);
+                ys.setDocumentation("Resource Service, assigns workitems to resources.");
+                ys.set_serviceName("resourceService");
+                ys.set_assignable(false);                            // don't show in editor
+                _myInstance.addYawlService(ys);
+                _myInstance.setResourceService(ys);
+            }
+            
             /**
              * Ensure we have an 'admin' user
              */
