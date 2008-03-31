@@ -4,7 +4,7 @@
      xmlns:ui="http://www.sun.com/web/ui">
 
     <f:subview id="pfMenu2">
-        <ui:panelLayout binding="#{pfMenu.layoutPanel1}"
+        <ui:panelLayout binding="#{pfMenu.menuPanel}"
                         id="layoutPanel1"
                         styleClass="menuPanel">
 
@@ -58,12 +58,19 @@
                                styleClass="menuButton"
                                style="top: 152px"/>
 
-            <ui:imageHyperlink action="#{pfMenu.mnuOrgDataMgt_action}"
-                               binding="#{pfMenu.mnuOrgDataMgt}"
-                               id="mnuOrgDataMgt"
+            <ui:imageHyperlink action="#{pfMenu.mnuUserMgt_action}"
+                               binding="#{pfMenu.mnuUserMgt}"
+                               id="mnuUserMgt"
                                imageURL="/resources/mnuUserMgt.gif"
                                styleClass="menuButton"
                                style="top: 180px"/>
+
+            <ui:imageHyperlink action="#{pfMenu.mnuOrgDataMgt_action}"
+                               binding="#{pfMenu.mnuOrgDataMgt}"
+                               id="mnuOrgDataMgt"
+                               imageURL="/resources/mnuOrgDataMgt.gif"
+                               styleClass="menuButton"
+                               style="top: 208px"/>
 
         </ui:panelLayout>
     </f:subview>

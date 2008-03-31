@@ -218,51 +218,41 @@ public class Marshaller {
 
     public static WorkItemRecord unmarshalWorkItem(Element workItemElement) {
 
-        WorkItemRecord workItem = null;
+        WorkItemRecord wir = null;
         String status = workItemElement.getChildText("status");
-        String caseID = workItemElement.getChildText("caseID");
-        String taskID = workItemElement.getChildText("taskID");
-        String specID = workItemElement.getChildText("specID");
-        String uniqueID = workItemElement.getChildText("uniqueID");
+        String caseID = workItemElement.getChildText("caseid");
+        String taskID = workItemElement.getChildText("taskid");
+        String specID = workItemElement.getChildText("specid");
         String enablementTime = workItemElement.getChildText("enablementTime");
         if (caseID != null && taskID != null && specID != null &&
-                enablementTime != null && status != null) {
-			    workItem = new WorkItemRecord(caseID, taskID, specID,
-                                              enablementTime, status);
-            String deferredID = workItemElement.getChildText("deferredChoiceGroupID");
-            if (deferredID != null)
-                workItem.setDeferredChoiceGroupID(deferredID);
-            String specVersion = workItemElement.getChildText("specVersion");
-            workItem.setSpecVersion(specVersion);
-            String firingTime = workItemElement.getChildText("firingTime");
-            workItem.setFiringTime(firingTime);
-            String startTime = workItemElement.getChildText("startTime");
-            workItem.setStartTime(startTime);
-            String enableTimeMs = workItemElement.getChildText("enablementTimeMs");
-            if (enableTimeMs != null)
-                workItem.setEnablementTimeMs(enableTimeMs);
-            String fireTimeMs = workItemElement.getChildText("firingTimeMs");
-            if (fireTimeMs != null)
-                workItem.setFiringTimeMs(fireTimeMs);
-            String startTimeMs = workItemElement.getChildText("startTimeMs");
-            if (startTimeMs != null)
-                workItem.setStartTimeMs(startTimeMs);
-            String completeTimeMs = workItemElement.getChildText("completionTimeMs");
-            if (completeTimeMs != null)
-                workItem.setCompletionTimeMs(completeTimeMs);
-            String user = workItemElement.getChildText("assignedTo");
-            workItem.setStartedBy(user);
+            enablementTime != null && status != null) {
+
+            wir = new WorkItemRecord(caseID, taskID, specID, enablementTime, status);
+
+            wir.setUniqueID(workItemElement.getChildText("uniqueid"));
+            wir.setDeferredChoiceGroupID(workItemElement.getChildText(
+                                                              "deferredChoiceGroupid"));
+            wir.setSpecVersion(workItemElement.getChildText("specversion"));
+            wir.setFiringTime(workItemElement.getChildText("firingTime"));
+            wir.setStartTime(workItemElement.getChildText("startTime"));
+            wir.setCompletionTimeMs(workItemElement.getChildText("completionTime"));
+            wir.setEnablementTimeMs(workItemElement.getChildText("enablementTimeMs"));
+            wir.setFiringTimeMs(workItemElement.getChildText("firingTimeMs"));
+            wir.setStartTimeMs(workItemElement.getChildText("startTimeMs"));
+            wir.setCompletionTimeMs(workItemElement.getChildText("completionTimeMs"));
+            wir.setCompletionTimeMs(workItemElement.getChildText("resourceStatus"));
+            wir.setStartedBy(workItemElement.getChildText("startedBy"));
+            wir.setTag(workItemElement.getChildText("tag"));
+
             String edited = workItemElement.getChildText("edited") ;
             if (edited != null)
-                workItem.setEdited(edited.equalsIgnoreCase("true"));
-            else
-                workItem.setEdited(false);
+                wir.setEdited(edited.equalsIgnoreCase("true"));
+
             Element data = workItemElement.getChild("data");
-            workItem.setUniqueID(uniqueID);
-            if (null != data) {
-                workItem.setDataList((Element) data.getContent(0));
-            }
-            return workItem;
+            if ((null != data) && (data.getContentSize() > 0))
+                   wir.setDataList((Element) data.getContent(0));
+            
+            return wir;
         }
         throw new IllegalArgumentException("Input element could not be parsed.");
     }

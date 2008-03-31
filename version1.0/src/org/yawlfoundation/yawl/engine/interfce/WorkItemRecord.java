@@ -283,26 +283,32 @@ public class WorkItemRecord implements Serializable {
     /********************************************************************************/
 
     public String toXML() {
-        StringBuilder xml = new StringBuilder("<itemRecord>");
+        StringBuilder xml = new StringBuilder("<workItemRecord>");
         xml.append(StringUtil.wrap(getID(), "id"))
-           .append(StringUtil.wrap(_specificationID, "specid"))
+           .append(StringUtil.wrap(_specificationID, "specid"))                
+           .append(StringUtil.wrap(_specVersion, "specversion"))
            .append(StringUtil.wrap(_caseID, "caseid"))
            .append(StringUtil.wrap(_taskID, "taskid"))
-           .append(StringUtil.wrap(_uniqueID, "uniqueID"))
-           .append(StringUtil.wrap(_deferredChoiceGroupID, "deferredChoiceGroupID"))
+           .append(StringUtil.wrap(_uniqueID, "uniqueid"))
+           .append(StringUtil.wrap(_deferredChoiceGroupID, "deferredChoiceGroupid"))
            .append(StringUtil.wrap(_enablementTime, "enablementTime"))
            .append(StringUtil.wrap(_firingTime, "firingTime"))
            .append(StringUtil.wrap(_startTime, "startTime"))
            .append(StringUtil.wrap(_completionTime, "completionTime"))
+           .append(StringUtil.wrap(_enablementTimeMs, "enablementTimeMs"))
+           .append(StringUtil.wrap(_firingTimeMs, "firingTimeMs"))
+           .append(StringUtil.wrap(_startTimeMs, "startTimeMs"))
+           .append(StringUtil.wrap(_completionTimeMs, "completionTimeMs"))
            .append(StringUtil.wrap(_status, "status"))
            .append(StringUtil.wrap(_resourceStatus, "resourceStatus"))
            .append(StringUtil.wrap(_startedBy, "startedBy"))
            .append(StringUtil.wrap(_completedBy, "completedBy"))
            .append(StringUtil.wrap(String.valueOf(_edited), "edited"))
+           .append(StringUtil.wrap(String.valueOf(_tag), "tag"))
            .append("<data>")
            .append(_dataList != null? JDOMUtil.elementToStringDump(_dataList) : "")
            .append("</data>")
-           .append("</itemRecord>");
+           .append("</workItemRecord>");
         return xml.toString() ;
     }
 

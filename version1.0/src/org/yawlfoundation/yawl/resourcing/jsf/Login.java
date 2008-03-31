@@ -47,7 +47,7 @@ public class Login extends AbstractPageBean {
 
     public Login() { }
 
-    public void init() {
+    public void init() {                             
         super.init();
 
         // *Note* - this code must not be modified

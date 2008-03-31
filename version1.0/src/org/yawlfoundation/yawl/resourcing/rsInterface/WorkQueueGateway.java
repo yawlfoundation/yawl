@@ -138,7 +138,7 @@ public class WorkQueueGateway extends HttpServlet {
             Participant p = _rm.getParticipant(pid);
             if (p != null) {
                 UserPrivileges up = p.getUserPrivileges();
-                if (up != null)  result = up.toXML();
+                if (up != null) result = up.toXML();
             }
         }
         else if (action.equals("getParticipantsReportingTo")) {

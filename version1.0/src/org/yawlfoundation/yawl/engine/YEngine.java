@@ -172,6 +172,8 @@ public class YEngine implements InterfaceADesign,
             for (Iterator it = query.iterate(); it.hasNext();) {
                 YAWLServiceReference service = (YAWLServiceReference) it.next();
                 addYawlService(service);
+                if (service.get_serviceName().equals("resourceService"))
+                    _myInstance.setResourceService(service);
             }
             logger.info("Restoring Services - Ends");
 

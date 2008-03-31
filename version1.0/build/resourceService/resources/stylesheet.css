@@ -9,6 +9,15 @@
     position:relative;
 }
 
+.viewProfilePanel {
+    background-color: #98ccfe;
+    height: 376px;
+    width: 540px;
+    top: 50px;
+    border: 2px solid gray;
+    position:relative;
+}
+
 .loginLabel {
     left:18px;
     position: absolute;
@@ -117,7 +126,7 @@
     border-right-color: gray;
     border-bottom-color: gray;
     border-top-color: gray;
-    height: 210px;
+    height: 235px;
     left: 0px;
     top: 0px;
     position: absolute;

@@ -19,7 +19,9 @@
                             type="image/x-icon" url="/resources/favicon.ico"/>
                 </ui:head>
 
-                <ui:body binding="#{Login.body}" id="body1" style="-rave-layout: grid">
+                <ui:body binding="#{Login.body}" id="body1"
+                         focus="form1:txtUserName"
+                         style="-rave-layout: grid">
                     <br/>
                     <ui:form binding="#{Login.form}" id="form1">
 

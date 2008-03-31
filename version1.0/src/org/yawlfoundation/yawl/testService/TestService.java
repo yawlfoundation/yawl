@@ -6,6 +6,7 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
+import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.allocators.AbstractAllocator;
 import org.yawlfoundation.yawl.resourcing.constraints.AbstractConstraint;
 import org.yawlfoundation.yawl.resourcing.filters.AbstractFilter;
@@ -25,6 +26,7 @@ import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA. User: Default Date: 17/09/2007 Time: 17:48:13 To change this
@@ -57,9 +59,9 @@ public class TestService extends InterfaceBWebsideController {
    //     output.append(doResourceServiceGatewayTest()) ;
    //    output.append(createDummyOrgData());
    //      output.append(doLogGatewayTest()) ;
-   //     output.append(doWorkQueueGatewayTest()) ;
+       output.append(doWorkQueueGatewayTest()) ;
    //     output.append(ibTest());
-        output.append(doRandomTest()) ;
+   //     output.append(doRandomTest()) ;
 
 
          output.append("</p></body></html>");
@@ -136,13 +138,16 @@ public class TestService extends InterfaceBWebsideController {
 
         // STEP 1: get required data from resource service (via resource gateway)
         String resURL = "http://localhost:8080/resourceService/workqueuegateway";
-        WorkQueueGatewayClientAdapter resClient = new WorkQueueGatewayClientAdapter(resURL) ;
+        WorkQueueGatewayClientAdapter resClient = new WorkQueueGatewayClientAdapter(resURL);
+        
 
-        String handle = resClient.login("AdamsJ", "apple");
+        String handle = resClient.connect("admin", "YAWL");
 
         Participant p = resClient.getParticipantFromUserID("AdamsJ", handle);
 
-        System.out.println(p.toXML());
+        Set<WorkItemRecord> set = resClient.getQueuedWorkItems(p.getID(), WorkQueue.OFFERED, handle) ;
+
+        System.out.println(set);
 
         return "";
     }

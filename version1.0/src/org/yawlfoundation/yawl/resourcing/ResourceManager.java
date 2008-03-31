@@ -558,24 +558,63 @@ public class ResourceManager extends InterfaceBWebsideController
     }
 
     public void removeRole(Role r) {
+        disconnectResources(r);
+        for (Role role : _ds.roleMap.values()) {
+            Role owner = role.getOwnerRole() ;
+            if ((owner != null) && owner.getID().equals(r.getID()))
+                role.setOwnerRole(null);
+        }
         _ds.roleMap.remove(r.getID());
         _orgdb.delete(r);
     }
 
 
     public void removeCapability(Capability c) {
+        disconnectResources(c);
         _ds.capabilityMap.remove(c.getID());
         _orgdb.delete(c);
     }
 
     public void removePosition(Position p) {
+        disconnectResources(p);
+        for (Position position : _ds.positionMap.values()) {
+            Position boss = position.getReportsTo();
+            if ((boss != null) && boss.getID().equals(p.getID()))
+                position.setReportsTo(null);
+        }
         _ds.positionMap.remove(p.getID());
         _orgdb.delete(p);
     }
 
     public void removeOrgGroup(OrgGroup o) {
+        for (Position position : _ds.positionMap.values()) {
+            OrgGroup group = position.getOrgGroup();
+            if ((group != null) && group.getID().equals(o.getID()))
+                position.setOrgGroup(null);
+        }
+        for (OrgGroup group : _ds.orgGroupMap.values()) {
+            OrgGroup owner = group.getBelongsTo();
+            if ((owner != null) && owner.getID().equals(o.getID()))
+                group.setBelongsTo(null);
+        }
         _ds.orgGroupMap.remove(o.getID());
         _orgdb.delete(o);
+    }
+
+    private void disconnectResources(AbstractResourceAttribute attrib) {
+        Set<AbstractResource> resources = attrib.getResources();
+
+        // get ids to avoid ConcurrentModificationException
+        List<String> ids = new ArrayList<String>();
+        for (AbstractResource resource : resources)
+            ids.add(resource.getID());
+
+        for (String id : ids) {
+            Participant p = getParticpant(id);
+            if (attrib instanceof Role) p.removeRole((Role) attrib);
+            else if (attrib instanceof Capability) p.removeCapability((Capability) attrib);
+            else if (attrib instanceof Position) p.removePosition((Position) attrib);
+        }
     }
 
 
@@ -816,7 +855,7 @@ public class ResourceManager extends InterfaceBWebsideController
     public Set<Participant> getRoleParticipants(String rid) {
         Role r = _ds.roleMap.get(rid);
         if (r != null)
-            return r.getResources() ;
+            return castToParticipantSet(r.getResources()) ;
         else
             return null ;
     }
@@ -824,7 +863,7 @@ public class ResourceManager extends InterfaceBWebsideController
     public Set<Participant> getCapabiltyParticipants(String cid) {
         Capability c = _ds.capabilityMap.get(cid);
         if (c != null)
-            return c.getResources() ;
+            return castToParticipantSet(c.getResources()) ;
         else
             return null ;
     }
@@ -832,9 +871,18 @@ public class ResourceManager extends InterfaceBWebsideController
     public Set<Participant> getPositionParticipants(String pid) {
         Position p = _ds.positionMap.get(pid);
         if (p != null)
-            return p.getResources() ;
+            return castToParticipantSet(p.getResources());
         else
             return null ;
+    }
+
+    public Set<Participant> castToParticipantSet(Set<AbstractResource> resources) {
+        if (resources == null) return null;
+
+        Set<Participant> result = new HashSet<Participant>();
+        for (AbstractResource resource : resources)
+            result.add((Participant) resource);
+        return result;
     }
 
     public Set<Capability> getParticipantCapabilities(String pid) {

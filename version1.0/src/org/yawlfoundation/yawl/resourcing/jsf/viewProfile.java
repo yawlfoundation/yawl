@@ -411,6 +411,14 @@ public class viewProfile extends AbstractPageBean {
         this.msgGroup = msgGroup;
     }
 
+
+    private PanelLayout pnlContainer ;
+
+    public PanelLayout getPnlContainer() { return pnlContainer; }
+
+    public void setPnlContainer(PanelLayout pnl) { pnlContainer = pnl; }
+
+
     // </editor-fold>
 
 

@@ -604,11 +604,11 @@ public class YWorkItem {
 
     public String toXML() {
         StringBuilder xmlBuff = new StringBuilder("<workItem>");
-        xmlBuff.append(StringUtil.wrap(getTaskID(), "taskID"));
-        xmlBuff.append(StringUtil.wrap(getCaseID().toString(), "caseID"));
-        xmlBuff.append(StringUtil.wrap(getUniqueID(), "uniqueID"));
-        xmlBuff.append(StringUtil.wrap(_specID.getSpecName(), "specID"));
-        xmlBuff.append(StringUtil.wrap(String.valueOf(_specID.getVersion()), "specVersion"));
+        xmlBuff.append(StringUtil.wrap(getTaskID(), "taskid"));
+        xmlBuff.append(StringUtil.wrap(getCaseID().toString(), "caseid"));
+        xmlBuff.append(StringUtil.wrap(getUniqueID(), "uniqueid"));
+        xmlBuff.append(StringUtil.wrap(_specID.getSpecName(), "specid"));
+        xmlBuff.append(StringUtil.wrap(String.valueOf(_specID.getVersion()), "specversion"));
         xmlBuff.append(StringUtil.wrap(_status.toString(), "status"));
         if (_deferredChoiceGroupID != null)
             xmlBuff.append(StringUtil.wrap(_deferredChoiceGroupID, "deferredChoiceGroupID"));
@@ -626,7 +626,7 @@ public class YWorkItem {
             xmlBuff.append(StringUtil.wrap(_df.format(getStartTime()), "startTime"));
             xmlBuff.append(StringUtil.wrap(String.valueOf(getStartTime().getTime()),
                          "startTimeMs")) ;
-            xmlBuff.append(StringUtil.wrap(getUserWhoIsExecutingThisItem(), "assignedTo"));
+            xmlBuff.append(StringUtil.wrap(getUserWhoIsExecutingThisItem(), "startedBy"));
         }
         xmlBuff.append("</workItem>");
         return xmlBuff.toString();
