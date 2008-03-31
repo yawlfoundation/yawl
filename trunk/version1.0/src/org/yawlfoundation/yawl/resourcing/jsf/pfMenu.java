@@ -21,14 +21,14 @@ public class pfMenu extends AbstractFragmentBean {
     private void _init() throws Exception {
     }
 
-    private PanelLayout layoutPanel1 = new PanelLayout();
+    private PanelLayout menuPanel = new PanelLayout();
 
-    public PanelLayout getLayoutPanel1() {
-        return layoutPanel1;
+    public PanelLayout getMenuPanel() {
+        return menuPanel;
     }
 
-    public void setLayoutPanel1(PanelLayout pl) {
-        this.layoutPanel1 = pl;
+    public void setMenuPanel(PanelLayout pl) {
+        this.menuPanel = pl;
     }
 
     private ImageHyperlink mnuLogout = new ImageHyperlink();
@@ -79,6 +79,16 @@ public class pfMenu extends AbstractFragmentBean {
 
     public void setMnuServiceMgt(ImageHyperlink ih) {
         this.mnuServiceMgt = ih;
+    }
+
+    private ImageHyperlink mnuUserMgt = new ImageHyperlink();
+
+    public ImageHyperlink getMnuUserMgt() {
+        return mnuUserMgt;
+    }
+
+    public void setMnuUserMgt(ImageHyperlink ih) {
+        this.mnuUserMgt = ih;
     }
 
     private ImageHyperlink mnuOrgDataMgt = new ImageHyperlink();
@@ -154,10 +164,18 @@ public class pfMenu extends AbstractFragmentBean {
         if (p == null)                                           // means user="admin"
             mnuUserWorkQueues.setVisible(false) ;
         else if (! p.isAdministrator()) {
-            mnuCaseMgt.setVisible(p.getUserPrivileges().canManageCases());
+            if (p.getUserPrivileges().canManageCases()) {
+                mnuCaseMgt.setVisible(true);
+                menuPanel.setStyle("height: 130px");
+            }
+            else {
+                mnuCaseMgt.setVisible(false);
+                menuPanel.setStyle("height: 95px");
+            }
             mnuAdminQueues.setVisible(false);
             mnuServiceMgt.setVisible(false);
             mnuOrgDataMgt.setVisible(false);
+            mnuUserMgt.setVisible(false);
         }
     }
 
@@ -199,9 +217,15 @@ public class pfMenu extends AbstractFragmentBean {
     }
 
 
-    public String mnuOrgDataMgt_action() {
+    public String mnuUserMgt_action() {
         getSessionBean().checkLogon();
         getSessionBean().setMnuSelectorStyle("top: 180px");
+        return "showEditUserData";
+    }
+
+    public String mnuOrgDataMgt_action() {
+        getSessionBean().checkLogon();
+        getSessionBean().setMnuSelectorStyle("top: 208px");
         return "showEditOrgData";
     }
 

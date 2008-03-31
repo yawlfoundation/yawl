@@ -258,6 +258,9 @@ public class StringUtil
      * @return the encased string (e.g. "<wrapTag>core</wrapTag>")
      */
     public static String wrap(String core, String wrapTag) {
-        return String.format("<%s>%s</%s>", wrapTag, core, wrapTag) ;
+        if (core != null)
+            return String.format("<%s>%s</%s>", wrapTag, core, wrapTag) ;
+        else
+            return String.format("<%s/>", wrapTag);
     }
 }

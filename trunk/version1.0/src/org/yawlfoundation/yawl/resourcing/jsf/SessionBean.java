@@ -244,6 +244,9 @@ public class SessionBean extends AbstractSessionBean {
     private Option[] availableResourceAttributes;
     private Option[] piledTasks;
     private Option[] chainedCases;
+    private Option[] orgDataOptions;
+    private Option[] orgDataBelongsItems;
+    private Option[] orgDataGroupItems;
 
     // user selection from each listbox
     private String worklistChoice;
@@ -252,6 +255,9 @@ public class SessionBean extends AbstractSessionBean {
     private String selectUserListChoice;
     private String piledTasksChoice;
     private String chainedCasesChoice;
+    private String orgDataChoice;
+    private String orgDataBelongsChoice;
+    private String orgDataGroupChoice;
 
     public Option[] getOwnedResourceAttributes() {
         return ownedResourceAttributes;
@@ -277,6 +283,18 @@ public class SessionBean extends AbstractSessionBean {
         return selectUserListOptions;
     }
 
+    public Option[] getOrgDataOptions() {
+        return orgDataOptions;
+    }
+
+    public Option[] getOrgDataBelongsItems() {
+        return orgDataBelongsItems;
+    }
+
+    public Option[] getOrgDataGroupItems() {
+        return orgDataGroupItems;
+    }
+
     public Option[] getPiledTasks() {
         piledTasks = getParticipantPiledTasks();
         return piledTasks;
@@ -286,6 +304,7 @@ public class SessionBean extends AbstractSessionBean {
         chainedCases = getParticipantChainedCases();
         return chainedCases;
     }
+
 
     public void setOwnedResourceAttributes(Option[] attributes) {
         ownedResourceAttributes = attributes;
@@ -311,6 +330,18 @@ public class SessionBean extends AbstractSessionBean {
         availableResourceAttributes = attributes;
     }
 
+    public void setOrgDataOptions(Option[] orgDataOptions) {
+        this.orgDataOptions = orgDataOptions;
+    }
+
+    public void setOrgDataBelongsItems(Option[] orgDataBelongsItems) {
+        this.orgDataBelongsItems = orgDataBelongsItems;
+    }
+
+    public void setOrgDataGroupItems(Option[] orgDataGroupItems) {
+        this.orgDataGroupItems = orgDataGroupItems;
+    }
+
     public void setPiledTasks(Option[] options) {
         piledTasks = options;
     }
@@ -324,16 +355,21 @@ public class SessionBean extends AbstractSessionBean {
     public String getLoadedSpecListChoice() { return loadedSpecListChoice; }
     public String getRunningCaseListChoice() { return runningCaseListChoice; }
     public String getSelectUserListChoice() { return selectUserListChoice; }
+    public String getOrgDataChoice() { return orgDataChoice; }
     public String getPiledTasksChoice() { return piledTasksChoice; }
     public String getChainedCasesChoice() { return chainedCasesChoice; }
+    public String getOrgDataBelongsChoice() { return orgDataBelongsChoice; }
+    public String getOrgDataGroupChoice() { return orgDataGroupChoice; }
 
     public void setWorklistChoice(String choice) { worklistChoice = choice ; }
     public void setLoadedSpecListChoice(String choice) { loadedSpecListChoice = choice ; }
     public void setRunningCaseListChoice(String choice) { runningCaseListChoice = choice ; }
     public void setSelectUserListChoice(String choice) { selectUserListChoice = choice; }
+    public void setOrgDataChoice(String choice) { orgDataChoice = choice ;}
     public void setPiledTasksChoice(String choice) { piledTasksChoice = choice; }
     public void setChainedCasesChoice(String choice) { chainedCasesChoice = choice; }
-
+    public void setOrgDataBelongsChoice(String choice) { orgDataBelongsChoice = choice; }
+    public void setOrgDataGroupChoice(String choice) { orgDataGroupChoice = choice; }
 
     // the wir matching the item id selected by the user
     private WorkItemRecord chosenWIR = null;
@@ -831,6 +867,18 @@ public class SessionBean extends AbstractSessionBean {
         p.save();
     }
 
+    public Option[] getFullResourceAttributeListPlusNil(String tab) {
+        Option[] result = null;
+        Option[] list = getFullResourceAttributeList(tab);
+        if (list != null) {
+            result = new Option[list.length + 1];
+            result[0] = new Option("nil", "nil");
+            for (int i = 1; i < result.length; i++)
+                result[i] = list[i-1];
+        }
+        return result;
+    }
+
     public Option[] getFullResourceAttributeList(String tab) {
         Option[] options = null;
         if (tab.equals("tabRoles")) {
@@ -842,6 +890,9 @@ public class SessionBean extends AbstractSessionBean {
         }
         else if (tab.equals("tabCapability"))  {
             options = getCapabilityList(_rm.getCapabilityMap());
+        }
+        else if (tab.equals("tabOrgGroup")) {
+            options = getOrgGroupList(_rm.getOrgGroupMap());            
         }
         availableResourceAttributes = options ;                    // set session member
         return options ;
@@ -927,6 +978,16 @@ public class SessionBean extends AbstractSessionBean {
         }
         else return null ;
 
+    }
+
+    private boolean orgDataItemRemovedFlag ;
+
+    public boolean isOrgDataItemRemovedFlag() {
+        return orgDataItemRemovedFlag;
+    }
+
+    public void setOrgDataItemRemovedFlag(boolean orgDataItemRemovedFlag) {
+        this.orgDataItemRemovedFlag = orgDataItemRemovedFlag;
     }
 
     private String activeResourceAttributeTab = "tabRoles";           // start value
@@ -1154,6 +1215,37 @@ public class SessionBean extends AbstractSessionBean {
     public void setMessagePanel(MessagePanel messagePanel) {
         this.messagePanel = messagePanel;
     }
+
+    private String orgDataListLabelText = "List Label";
+
+    public String getOrgDataListLabelText() {
+        return orgDataListLabelText;
+    }
+
+    public void setOrgDataListLabelText(String orgDataListLabelText) {
+        this.orgDataListLabelText = orgDataListLabelText;
+    }
+
+    private String orgDataBelongsLabelText = "Belongs To";
+
+    public String getOrgDataBelongsLabelText() {
+        return orgDataBelongsLabelText;
+    }
+
+    public void setOrgDataBelongsLabelText(String orgDataBelongsLabelText) {
+        this.orgDataBelongsLabelText = orgDataBelongsLabelText;
+    }
+
+        private String orgDataGroupLabelText = "Org Group";
+
+    public String getOrgDataGroupLabelText() {
+        return orgDataGroupLabelText;
+    }
+
+    public void setOrgDataGroupLabelText(String orgDataGroupLabelText) {
+        this.orgDataGroupLabelText = orgDataGroupLabelText;
+    }
+
 }
 
 

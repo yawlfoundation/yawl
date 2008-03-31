@@ -108,7 +108,7 @@ public class RandomOrgDataGenerator {
                 // and some capabiities
                 Capability c1 = new Capability("firstaid", "first aid officer", true);
                 Capability c2 = new Capability("java", "java programmer", true);
-                Capability c3 = new Capability("forklift", "forklist license", true);
+                Capability c3 = new Capability("forklift", "forklift license", true);
                 Capability c4 = new Capability("mandarin", "mandarin speaker", true);
                 _rm.addCapability(c1);
                 _rm.addCapability(c2);

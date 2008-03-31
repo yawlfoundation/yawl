@@ -473,7 +473,7 @@
             <fileset file="${build.home}/engine/web.xml"/>
         </copy>
         <copy todir="${yawl.eng.app.name}/WEB-INF/lib">
-            <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs} jaxen-full.jar jcommon-1.0.0-rc1.jar jdom.jar jfreechart-1.0.0-rc1.jar log4j*.jar postgresql-8.0-311.jdbc3.jar saxon7.jar saxpath.jar xercesImpl.jar"/>
+            <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs} jaxen-full.jar jcommon-1.0.0-rc1.jar jdom.jar log4j*.jar postgresql-8.0-311.jdbc3.jar saxon7.jar saxpath.jar xercesImpl.jar"/>
         </copy>
         <antcall target="decidePostgresVersion"/>
         <jar destfile="${output}/yawl.war">
@@ -533,7 +533,7 @@
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/schema"/>
         <!-- Copy library dependencies into worklist -->
         <copy todir="${yawl.worklist.app.name}/WEB-INF/lib" >
-            <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs} bcprov-jdk14-130.jar commons-fileupload-1.1.jar dom.jar itext-1.4.jar jaxen-full.jar jaxp-api.jar jcommon-1.0.0-rc1.jar jdbc2_0-stdext.jar jdom.jar jfreechart-1.0.0-rc1.jar jstl.jar log4j*.jar postgresql-8.0-311.jdbc3.jar sax.jar saxon7.jar saxpath.jar standard.jar xalan.jar xercesImpl.jar"/>
+            <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs} bcprov-jdk14-130.jar commons-fileupload-1.1.jar dom.jar itext-1.4.jar jaxen-full.jar jaxp-api.jar jcommon-1.0.0-rc1.jar jdbc2_0-stdext.jar jdom.jar jstl.jar log4j*.jar postgresql-8.0-311.jdbc3.jar sax.jar saxon7.jar saxpath.jar standard.jar xalan.jar xercesImpl.jar"/>
         </copy>  	
     	
         <antcall target="decidePostgresVersion"/>

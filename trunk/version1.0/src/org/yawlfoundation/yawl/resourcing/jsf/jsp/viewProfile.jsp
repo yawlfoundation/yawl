@@ -199,8 +199,8 @@
 
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"
-                                        panelLayout="flow""/>
-                        
+                                        panelLayout="flow"/>
+
                     </ui:form>
                 </ui:body>
             </ui:html>

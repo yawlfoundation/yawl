@@ -29,13 +29,13 @@ import java.util.*;
 
 public class DynFormDataFormatter {
 
-    private String _header;                                    // the outermost tag
-    private Map<String, OneToManyStringList> _attributes ;       // set of attrib-value
+    private String _header;                                      // the outermost tag
+    private List<OneToManyStringList> _attributes ;              // set of attrib-value
     private Set<SubPanelController> _controllerSet;              // set of nested panels
 
     // CONSTRUCTOR //
     public DynFormDataFormatter(PanelLayout form) {
-        _attributes = new Hashtable<String, OneToManyStringList>() ;
+        _attributes = new ArrayList<OneToManyStringList>() ;
         _controllerSet = new HashSet<SubPanelController>();
         deconstructComponentList(form) ;
     }
@@ -90,13 +90,17 @@ public class DynFormDataFormatter {
      * @param value its value (as read from the dyn form)
      */
     private void addAttribute(String tag, String value) {
-        OneToManyStringList ca = _attributes.get(tag);
+        for (OneToManyStringList attribute : _attributes) {
 
-        // if this tag already mapped, add another value
-        if (ca != null)
-            ca.add(value);
-        else
-           _attributes.put(tag, new OneToManyStringList(tag, value));
+            // if this tag already mapped, add another value
+            if (attribute.getTag().equals(tag)) {
+                attribute.add(value) ;
+                return ;
+            }
+        }
+
+       // else add new tag to the list
+       _attributes.add(new OneToManyStringList(tag, value));
     }
 
 
@@ -111,8 +115,8 @@ public class DynFormDataFormatter {
     /** @return the attribute-value sets as XML */
     public String getBody() {
         StringBuilder result = new StringBuilder();
-        for (OneToManyStringList ca : _attributes.values())
-            result.append(ca.toXML()) ;
+        for (OneToManyStringList attribute : _attributes)
+            result.append(attribute.toXML()) ;
         return result.toString();
     }
 

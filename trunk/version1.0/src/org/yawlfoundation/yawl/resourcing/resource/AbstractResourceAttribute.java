@@ -86,7 +86,7 @@ public abstract class AbstractResourceAttribute {
         return _resources.contains(resource);
     }
 
-    public Set getResources() { return _resources ; }
+    public Set<AbstractResource> getResources() { return _resources ; }
 
 
     public void fromXML(String xml) {
