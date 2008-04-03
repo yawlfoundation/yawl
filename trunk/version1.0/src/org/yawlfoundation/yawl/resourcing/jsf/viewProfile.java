@@ -530,7 +530,8 @@ public class viewProfile extends AbstractPageBean {
 
     public String btnSavePassword_action() {
         if (checkValidPasswordChange()) {
-            participant.setPassword((String) txtNewPassword.getText());
+            if (participant != null)
+                participant.setPassword((String) txtNewPassword.getText());
             msgPanel.success("Password change successfully saved.");
         }
         return null;
@@ -560,19 +561,20 @@ public class viewProfile extends AbstractPageBean {
     }
 
     private void populateFields(Participant p) {
+        if (p != null) {
 
-        // set simple fields
-        txtName.setText(p.getFullName());
-        txtUserID.setText(p.getUserID());
-        cbbRoles.setItems(getRolesList(p));
-        cbbPositions.setItems(getPositionsList(p));
-        cbbCapabilities.setItems(getCapabilitiesList(p));
-        cbxAdmin.setValue(p.isAdministrator());
+            // set simple fields
+            txtName.setText(p.getFullName());
+            txtUserID.setText(p.getUserID());
+            cbbRoles.setItems(getRolesList(p));
+            cbbPositions.setItems(getPositionsList(p));
+            cbbCapabilities.setItems(getCapabilitiesList(p));
+            cbxAdmin.setValue(p.isAdministrator());
 
-        // clear any leftover passwords
-        txtNewPassword.setPassword("");
-        txtConfirmPassword.setPassword("");
-
+            // clear any leftover passwords
+            txtNewPassword.setPassword("");
+            txtConfirmPassword.setPassword("");
+        }
     }
 
     private Option[] getRolesList(Participant p) {

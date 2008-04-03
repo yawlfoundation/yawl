@@ -568,7 +568,7 @@ public class orgDataMgt extends AbstractPageBean {
         if (aType != null) {
             Option[] attribs = _sb.getFullResourceAttributeList(getTabString(aType));
             _sb.setOrgDataOptions(attribs);
-            if (attribs != null) {
+            if ((attribs != null) && (attribs.length > 0)) {
                 String id = _sb.getOrgDataChoice();
                 if (id == null) id = (String) attribs[0].getValue();
                 showItem(id, aType);
