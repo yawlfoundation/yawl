@@ -73,11 +73,6 @@ public class WorkQueueGateway extends HttpServlet {
             String password = req.getParameter("password");
             result = _rm.serviceConnect(userid, password);
         }
-        else if (action.equalsIgnoreCase("login")) {
-            String userid = req.getParameter("userid");
-            String password = req.getParameter("password");
-            result = _rm.login(userid, password);            
-        }
         else if (action.equalsIgnoreCase("checkConnection")) {
             result = String.valueOf(_rm.checkServiceConnection(handle)) ;
         }
@@ -211,7 +206,7 @@ public class WorkQueueGateway extends HttpServlet {
         String itemid = req.getParameter("workitemid");
 
         if (action.equals("disconnect")) {
-           _rm.logout(handle);
+           _rm.serviceDisconnect(handle);
         }
         else if (action.equals("acceptOffer")) {
             Participant p = _rm.getParticipant(pid);

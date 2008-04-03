@@ -1900,7 +1900,8 @@ public abstract class YTask extends YExternalNetElement {
             // if there's an expiry time, get it and we're done
             Date expiry = (Date) _timerParams.get("expiry") ;
             if (expiry != null) {
-                xml.append(StringUtil.wrap(expiry.toString(), "expiry"));
+                Long dateAsLong = expiry.getTime();
+                xml.append(StringUtil.wrap(dateAsLong.toString(), "expiry"));
             }
             else {
                 // this is a duration timer

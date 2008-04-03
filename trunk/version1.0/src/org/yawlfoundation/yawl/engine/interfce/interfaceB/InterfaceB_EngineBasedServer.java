@@ -60,7 +60,7 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
         try {
             _engine = (EngineGateway) context.getAttribute("engine");
             if (_engine == null) {
-                String persistOn = context.getInitParameter("EnablePersistance");
+                String persistOn = context.getInitParameter("EnablePersistence");
                 boolean persist = "true".equalsIgnoreCase(persistOn);
                 _engine = new EngineGatewayImpl(persist);
                 context.setAttribute("engine", _engine);
