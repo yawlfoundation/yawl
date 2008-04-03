@@ -197,8 +197,8 @@ public class MessagePanel extends PanelLayout {
         StaticText sttMessage = new StaticText();
         sttMessage.setId("stt" + getNextIDSuffix()) ;
         sttMessage.setText(message);
-        sttMessage.setStyle(getFontStyle(0, msgType) +
-                "width: 270px; top: " + (lineCount * 15) + "px; position: absolute;");
+        sttMessage.setStyle(getFontStyle(0, msgType)); // +
+            //    "width: 270px; top: " + (lineCount * 15) + "px; position: absolute;");
         _pnlMessages.getChildren().add(sttMessage) ;
     }
 

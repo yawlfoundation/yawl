@@ -37,7 +37,7 @@ public class ConnectionCache extends HashMap<String,ServiceConnection> {
 
     public String connect(String userid, String password) {
         String result ;
-        if (! connected(userid)) {
+   //     if (! connected(userid)) {
             if (validUser(userid))  {
                 if (validPassword(userid, password)) {
                     ServiceConnection con = new ServiceConnection(userid) ;
@@ -47,8 +47,8 @@ public class ConnectionCache extends HashMap<String,ServiceConnection> {
                 else result = failMsg("Incorrect Password");
             }
             else result = failMsg(String.format("Unknown Username: '%s'", userid));
-        }
-        else result = failMsg(String.format("User '%s' is already connected", userid));
+ //       }
+ //       else result = failMsg(String.format("User '%s' is already connected", userid));
         
         return result ;
     }
