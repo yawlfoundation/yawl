@@ -155,16 +155,21 @@ public class ResourceManager extends InterfaceBWebsideController
         // get correct ref to org data backend
         _orgdb = DataSourceFactory.getInstance(dataSourceClassName);
 
-        // set flag to true if the org model db backend is not the default
-        _isNonDefaultOrgDB =
-                ! (_orgdb.getClass().getSimpleName().equalsIgnoreCase("HibernateImpl"));
+        if (_orgdb != null) {
 
-        // load all org data into the resources dataset
-        loadResources() ;
+            // set flag to true if the org model db backend is not the default
+            _isNonDefaultOrgDB =
+                 ! (_orgdb.getClass().getSimpleName().equalsIgnoreCase("HibernateImpl"));
 
-        // set refresh rate if required
-        if (refreshRate > 0) startOrgDataRefreshTimer(refreshRate);
+            // load all org data into the resources dataset
+            loadResources() ;
 
+            // set refresh rate if required
+            if (refreshRate > 0) startOrgDataRefreshTimer(refreshRate);
+        }
+        else
+            _log.warn("Invalid Datasource: No dataset loaded." +
+                      "Check datasource settings in 'web.xml'") ;
     }
 
     public void initEngineURI(String uri) {

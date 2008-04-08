@@ -463,16 +463,18 @@ public class orgDataMgt extends AbstractPageBean {
     public String btnRemove_action() {
         ResourceManager rm = getApplicationBean().getResourceManager();
         String id = _sb.getOrgDataChoice();
-        AttribType type = getAttribType(_sb.getActiveTab());
-        switch (type) {
-            case role       : rm.removeRole(rm.getRole(id)); break ;
-            case capability : rm.removeCapability(rm.getCapability(id)); break ;
-            case position   : rm.removePosition(rm.getPosition(id)); break;
-            case orggroup   : rm.removeOrgGroup(rm.getOrgGroup(id));
+        if (id != null) {
+            AttribType type = getAttribType(_sb.getActiveTab());
+            switch (type) {
+                case role       : rm.removeRole(rm.getRole(id)); break ;
+                case capability : rm.removeCapability(rm.getCapability(id)); break ;
+                case position   : rm.removePosition(rm.getPosition(id)); break;
+                case orggroup   : rm.removeOrgGroup(rm.getOrgGroup(id));
+            }
+            innerForm.clearFieldsAfterRemove();
+            msgPanel.success("Chosen item successfully removed.");
+            _sb.setOrgDataItemRemovedFlag(true) ;
         }
-        innerForm.clearFieldsAfterRemove();
-        msgPanel.success("Chosen item successfully removed.");
-        _sb.setOrgDataItemRemovedFlag(true) ;
         return null;
     }
 
@@ -590,10 +592,12 @@ public class orgDataMgt extends AbstractPageBean {
 
 
     private AttribType getAttribType(String tabName) {
-        if (tabName.equals("tabRoles")) return AttribType.role;
-        if (tabName.equals("tabCapability")) return AttribType.capability;
-        if (tabName.equals("tabPosition")) return AttribType.position;
-        if (tabName.equals("tabOrgGroup")) return AttribType.orggroup;
+        if (tabName != null) {
+            if (tabName.equals("tabRoles")) return AttribType.role;
+            if (tabName.equals("tabCapability")) return AttribType.capability;
+            if (tabName.equals("tabPosition")) return AttribType.position;
+            if (tabName.equals("tabOrgGroup")) return AttribType.orggroup;
+        }
         return null;
     }
 

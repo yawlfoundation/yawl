@@ -517,6 +517,7 @@ public class adminQueues extends AbstractPageBean {
             showWorkItem(choice, queueType);
             result = queue.size() ;
         }
+        else disableAllButtons(queueType);
         return result ;
     }
 
@@ -532,6 +533,7 @@ public class adminQueues extends AbstractPageBean {
             txtResourceState.setText(wir.getResourceStatus());
             processButtonEnablement(wir.getResourceStatus());
         }
+        else enableUnofferedButtons();
     }
 
     private WorkItemRecord addItemsToListOptions(Set<WorkItemRecord> queue) {
@@ -555,8 +557,28 @@ public class adminQueues extends AbstractPageBean {
     }
 
     private void processButtonEnablement(String status) {
+        btnReoffer.setDisabled(false);
         btnReallocate.setDisabled(status.equals(WorkItemRecord.statusResourceOffered));
         btnRestart.setDisabled(status.equals(WorkItemRecord.statusResourceOffered) ||
                                status.equals(WorkItemRecord.statusResourceAllocated));
+    }
+
+    private void disableAllButtons(int queueType) {
+        if (queueType == WorkQueue.UNOFFERED) {
+            btnOffer.setDisabled(true);
+            btnAllocate.setDisabled(true);
+            btnStart.setDisabled(true);
+        }
+        else {
+            btnReoffer.setDisabled(true);
+            btnReallocate.setDisabled(true);
+            btnRestart.setDisabled(true);
+        }
+    }
+
+    private void enableUnofferedButtons() {
+        btnOffer.setDisabled(false);
+        btnAllocate.setDisabled(false);
+        btnStart.setDisabled(false);        
     }
 }

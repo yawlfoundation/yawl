@@ -639,14 +639,16 @@ public class participantData extends AbstractPageBean {
 
     public String btnRemove_action() {
         Participant p = getSessionBean().getEditedParticipant() ;
-        getSessionBean().removeParticipant(p);
-        cbbParticipants.setSelected("");
-        clearFields();
-        btnSave.setDisabled(true);
-        btnRemove.setDisabled(true);
-        btnReset.setDisabled(true);
-        msgPanel.success("Chosen participant successfully removed.");
-        return null;
+        if (p != null) {
+            getSessionBean().removeParticipant(p);
+            cbbParticipants.setSelected("");
+            clearFields();
+            btnSave.setDisabled(true);
+            btnRemove.setDisabled(true);
+            btnReset.setDisabled(true);
+            msgPanel.success("Chosen participant successfully removed.");
+        }
+        return null;    
     }
 
 
