@@ -246,9 +246,10 @@ public class selectUser extends AbstractPageBean {
 
     public String btnOK_action() {
         if (lbxUserList.getSelected() != null)  {
-            if (getSessionBean().getUserListFormHeaderText().startsWith("Delegate"))
+            String header = getSessionBean().getUserListFormHeaderText();
+            if (header.startsWith("Delegate"))
                 getSessionBean().setDelegating(true);
-            else
+            else if (header.startsWith("Reallocate workitem"))
                 getSessionBean().setReallocating(true);
             return getSessionBean().getNavigateTo();
         }

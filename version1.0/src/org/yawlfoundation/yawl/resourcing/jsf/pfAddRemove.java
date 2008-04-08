@@ -7,13 +7,14 @@
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractFragmentBean;
-import javax.faces.FacesException;
-
+import com.sun.rave.web.ui.component.Button;
+import com.sun.rave.web.ui.component.Label;
+import com.sun.rave.web.ui.component.Listbox;
+import com.sun.rave.web.ui.component.TextField;
 import com.sun.rave.web.ui.model.DefaultOptionsList;
-import com.sun.rave.web.ui.model.MultipleSelectOptionsList;
-import com.sun.rave.web.ui.model.Option;
-import com.sun.rave.web.ui.component.*;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
+
+import javax.faces.FacesException;
 
 /**
  * <p>Fragment bean that corresponds to a similarly named JSP page
@@ -216,8 +217,6 @@ public class pfAddRemove extends AbstractFragmentBean {
     }
 
 
-
-
     public String btnSelect_action() {
         String id = (String) lbxAvailable.getSelected() ;
         if (id != null) {
@@ -242,9 +241,11 @@ public class pfAddRemove extends AbstractFragmentBean {
     }
 
     public void populateLists(String selTab, Participant p) {
-        if (selTab == null) selTab = "tabRoles" ;
-        lbxAvailable.setItems(getSessionBean().getFullResourceAttributeList(selTab)) ;
-        lbxOwns.setItems(getSessionBean().getParticipantAttributeList(selTab, p));
+        if (p != null) {
+            if (selTab == null) selTab = "tabRoles" ;
+            lbxAvailable.setItems(getSessionBean().getFullResourceAttributeList(selTab)) ;
+            lbxOwns.setItems(getSessionBean().getParticipantAttributeList(selTab, p));
+        }    
     }
 
     public void clearLists() {

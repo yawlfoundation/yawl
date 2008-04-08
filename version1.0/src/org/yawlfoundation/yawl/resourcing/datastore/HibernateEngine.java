@@ -11,6 +11,7 @@ package org.yawlfoundation.yawl.resourcing.datastore;
 import org.apache.log4j.Logger;
 import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.exception.JDBCConnectionException;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
 import java.io.Serializable;
@@ -24,7 +25,7 @@ import java.util.List;
  *  @author Michael Adams
  *  v0.1, 03/08/2007
  *
- *  last update: 11/02/2008 (for v2.0)
+ *  last update: 07/04/2008 (for v2.0)
  */
 
 public class HibernateEngine implements Serializable {
@@ -147,25 +148,22 @@ public class HibernateEngine implements Serializable {
      */
     public void exec(Object obj, int action) {
 
-   //     synchronized(_mutex) {
-            Transaction tx = null;
-            try {
-                Session session = _factory.getCurrentSession();
-//                session.setFlushMode(FlushMode.COMMIT);
-                tx = session.beginTransaction();
+        Transaction tx = null;
+        try {
+            Session session = _factory.getCurrentSession();
+            tx = session.beginTransaction();
 
-                if (action == DB_INSERT) session.save(obj);
-                else if (action == DB_UPDATE) updateOrMerge(session, obj);
-                else if (action == DB_DELETE) session.delete(obj);
+            if (action == DB_INSERT) session.save(obj);
+            else if (action == DB_UPDATE) updateOrMerge(session, obj);
+            else if (action == DB_DELETE) session.delete(obj);
 
-                tx.commit();
-            }
-            catch (HibernateException he) {
-                _log.error("Error persisting object (" + actionToString(action) +
-                           "): " + obj.toString(), he);
-                if (tx != null) tx.rollback();
-            }    
-  //      }
+            tx.commit();
+        }
+        catch (HibernateException he) {
+            _log.error("Error persisting object (" + actionToString(action) +
+                    "): " + obj.toString(), he);
+            if (tx != null) tx.rollback();
+        }
     }
 
 
@@ -187,23 +185,25 @@ public class HibernateEngine implements Serializable {
      */
     private List execQuery(String queryString) {
 
-//        synchronized(_mutex) {
-            List result = null;
-            Transaction tx = null;
-            try {
-                Session session = _factory.getCurrentSession();
-//                session.setFlushMode(FlushMode.COMMIT);
-                tx = session.beginTransaction();
-                Query query = session.createQuery(queryString);
-                if (query != null) result = query.list();
-            }
-            catch (HibernateException he) {
-                _log.error("Error executing query: " + queryString, he);
-                if (tx != null) tx.rollback();
-            }
-            return result;
- //       }
-    }
+        List result = null;
+        Transaction tx = null;
+        try {
+            Session session = _factory.getCurrentSession();
+            tx = session.beginTransaction();
+            Query query = session.createQuery(queryString);
+            if (query != null) result = query.list();
+        }
+        catch (JDBCConnectionException jce) {
+            _log.error("Caught Exception: Couldn't connect to datasource - " +
+                    "starting with an empty dataset");
+        }
+        catch (HibernateException he) {
+            _log.error("Caught Exception: Error executing query: " + queryString, he);
+            if (tx != null) tx.rollback();
+        }
+
+        return result;
+     }
 
     /**
      * executes a join query. For example, passing ("car", "part", "pid") will

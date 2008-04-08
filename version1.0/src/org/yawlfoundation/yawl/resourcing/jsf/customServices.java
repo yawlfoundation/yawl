@@ -435,7 +435,7 @@ public class customServices extends AbstractPageBean {
      */
     public void prerender() {
         getSessionBean().checkLogon();
-        getSessionBean().getMessagePanel().show(338, 150, "absolute");
+        getSessionBean().getMessagePanel().show(538, 150, "absolute");
         getSessionBean().setActivePage(ApplicationBean.PageRef.customServices);
     }
 
@@ -467,9 +467,13 @@ public class customServices extends AbstractPageBean {
     public String btnAdd_action() {
         String name = (String) txtName.getText() ;
         String uri = (String) txtURL.getText();
-        String doco = (String) txtDescription.getText();
-        getSessionBean().addRegisteredService(name, uri, doco);
-        clearInputs();
+        if ((name != null) && (uri != null)) {
+            String doco = (String) txtDescription.getText();
+            getSessionBean().addRegisteredService(name, uri, doco);
+            clearInputs();
+        }
+        else
+            getSessionBean().getMessagePanel().warn("Add Service: name and URI required.");
         return null;
     }
 
