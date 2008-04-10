@@ -16,7 +16,10 @@ import org.yawlfoundation.yawl.authentication.User;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.engine.interfce.*;
+import org.yawlfoundation.yawl.engine.interfce.Marshaller;
+import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
+import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
 import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
@@ -28,6 +31,7 @@ import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataSource;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataSourceFactory;
+import org.yawlfoundation.yawl.resourcing.datastore.orgdata.EmptyDataSource;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.HibernateImpl;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.filters.FilterFactory;
@@ -81,6 +85,10 @@ public class ResourceManager extends InterfaceBWebsideController
     // currently logged on participants: <sessionHandle, Participant>
     private HashMap<String,Participant> _liveSessions =
             new HashMap<String,Participant>();
+
+    // currently logged on 'admin' users (not participants with admin privileges)
+    private ArrayList<String> _liveAdmins = new ArrayList<String>();
+
 
     // groups of items that are members of a deferred choice offering
     private HashSet<OneToManyStringList> _deferredItemGroups =
@@ -201,6 +209,10 @@ public class ResourceManager extends InterfaceBWebsideController
 
     public void registerJSFApplicationReference(ApplicationBean app) {
         _jsfApplicationReference = app;
+    }
+
+    public boolean hasOrgDataSource() {
+        return (_orgdb != null);
     }
 
     /*********************************************************************************/
@@ -367,18 +379,23 @@ public class ResourceManager extends InterfaceBWebsideController
 
     /** Loads all the org data from db into the ResourceDataSet mappings */
     public void loadResources() {
-        _ds = _orgdb.loadResources() ;
+        if (_orgdb != null) {
+            _ds = _orgdb.loadResources() ;
 
-        // complete mappings for non-default org data backends
-        if (_isNonDefaultOrgDB) finaliseNonDefaultLoad() ;
+            // complete mappings for non-default org data backends
+            if (_isNonDefaultOrgDB) finaliseNonDefaultLoad() ;
 
-        // rebuild a work queue set and userid keymap for each participant
-        for (Participant p : _ds.participantMap.values()) {
-            p.createQueueSet(_persisting) ;
-            _userKeys.put(p.getUserID(), p.getID()) ;
+            // rebuild a work queue set and userid keymap for each participant
+            for (Participant p : _ds.participantMap.values()) {
+                p.createQueueSet(_persisting) ;
+                _userKeys.put(p.getUserID(), p.getID()) ;
+            }
+
+            _resAdmin.createWorkQueues(_persisting);   // ... and the administrator
         }
-
-        _resAdmin.createWorkQueues(_persisting);   // ... and the administrator
+        else {
+            _ds = new EmptyDataSource().getDataSource();
+        }
     }
 
 
@@ -438,8 +455,10 @@ public class ResourceManager extends InterfaceBWebsideController
                 if (wq.getOwnerID().equals("admin"))
                     _resAdmin.restoreWorkQueue(wq, _workItemCache, _persisting);
                 else {
-                    Participant p = _ds.participantMap.get(wq.getOwnerID()) ;
-                    p.restoreWorkQueue(wq, _workItemCache, _persisting);
+                    if (_ds != null) {
+                        Participant p = _ds.participantMap.get(wq.getOwnerID()) ;
+                        p.restoreWorkQueue(wq, _workItemCache, _persisting);
+                    }    
                 }
             }
         }
@@ -1829,6 +1848,7 @@ public class ResourceManager extends InterfaceBWebsideController
         String handle ;
         try {
             handle = connect("admin", password);
+            if (successful(handle)) _liveAdmins.add(handle) ;
         }
         catch (IOException ioe) {
             _log.error("IOException trying to connect admin user to engine");
@@ -1840,10 +1860,11 @@ public class ResourceManager extends InterfaceBWebsideController
     // pseudo-logout by removing session handle from map of live users
     public void logout(String handle) {
         _liveSessions.remove(handle);
+        _liveAdmins.remove(handle);
     }
 
     public boolean isValidSession(String handle) {
-        return _liveSessions.containsKey(handle) ;
+        return _liveSessions.containsKey(handle) || _liveAdmins.contains(handle);
     }
 
 
