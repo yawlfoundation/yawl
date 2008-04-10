@@ -160,9 +160,12 @@ public class pfMenu extends AbstractFragmentBean {
             log("pfMenu Initialization Failure", e);
             throw e instanceof FacesException ? (FacesException) e: new FacesException(e);
         }
+        
         Participant p = getSessionBean().getParticipant();
-        if (p == null)                                           // means user="admin"
+        if (p == null) {                                          // means user="admin"
             mnuUserWorkQueues.setVisible(false) ;
+            mnuMyProfile.setVisible(false);
+        }
         else if (! p.isAdministrator()) {
             if (p.getUserPrivileges().canManageCases()) {
                 mnuCaseMgt.setVisible(true);

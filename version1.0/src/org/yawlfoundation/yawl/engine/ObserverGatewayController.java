@@ -9,12 +9,9 @@
 
 package org.yawlfoundation.yawl.engine;
 
+import org.jdom.Document;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.engine.YWorkItem;
-import org.yawlfoundation.yawl.engine.YWorkItemStatus;
-
-import org.jdom.Document;
 
 import java.util.Vector;
 
@@ -63,14 +60,20 @@ public class ObserverGatewayController
      * @param yawlService
      * @param item
      */
-    void notifyAddWorkItem(YAWLServiceReference yawlService, YWorkItem item)
+    void notifyAddWorkItem(final YAWLServiceReference yawlService, final YWorkItem item)
     {
-        Vector<ObserverGateway> affectedShims = getGatewaysForProtocol(yawlService.getScheme());
-
-        for(ObserverGateway observerGateway : affectedShims)
+        new Thread(new Runnable()
         {
-            observerGateway.announceWorkItem(yawlService, item);
-        }
+            public void run()
+            {
+                Vector<ObserverGateway> affectedShims = getGatewaysForProtocol(yawlService.getScheme());
+
+                for(ObserverGateway observerGateway : affectedShims)
+                {
+                    observerGateway.announceWorkItem(yawlService, item);
+                }
+            }
+        }).start();
     }
 
     /**
@@ -79,14 +82,20 @@ public class ObserverGatewayController
      * @param yawlService
      * @param item
      */
-    void notifyRemoveWorkItem(YAWLServiceReference yawlService, YWorkItem item)
+    void notifyRemoveWorkItem(final YAWLServiceReference yawlService, final YWorkItem item)
     {
-        Vector<ObserverGateway> affectedShims = getGatewaysForProtocol(yawlService.getScheme());
-
-        for(ObserverGateway observerGateway : affectedShims)
+        new Thread(new Runnable()
         {
-            observerGateway.cancelAllWorkItemsInGroupOf(yawlService, item);
-        }
+            public void run()
+            {
+                Vector<ObserverGateway> affectedShims = getGatewaysForProtocol(yawlService.getScheme());
+
+                for(ObserverGateway observerGateway : affectedShims)
+                {
+                    observerGateway.cancelAllWorkItemsInGroupOf(yawlService, item);
+                }
+            }
+        }).start();
     }
 
     /**
@@ -117,14 +126,20 @@ public class ObserverGatewayController
      * @param yawlService
      * @param caseID
      */
-    public void notifyCaseCompletion(YAWLServiceReference yawlService, 
-                                     YIdentifier caseID, Document casedata) {
-        Vector<ObserverGateway> affectedShims = getGatewaysForProtocol(yawlService.getScheme());
-
-        for(ObserverGateway observerGateway : affectedShims)
+    public void notifyCaseCompletion(final YAWLServiceReference yawlService, final YIdentifier caseID, final Document casedata)
+    {
+        new Thread(new Runnable()
         {
-            observerGateway.announceCaseCompletion(yawlService, caseID, casedata);
-        }
+            public void run()
+            {
+                Vector<ObserverGateway> affectedShims = getGatewaysForProtocol(yawlService.getScheme());
+
+                for(ObserverGateway observerGateway : affectedShims)
+                {
+                    observerGateway.announceCaseCompletion(yawlService, caseID, casedata);
+                }
+            }
+        }).start();
     }
 
     /**
@@ -133,47 +148,71 @@ public class ObserverGatewayController
      * @param oldStatus previous status
      * @param newStatus new status
      */
-    public void notifyWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus oldStatus, YWorkItemStatus newStatus)
+    public void notifyWorkItemStatusChange(final YWorkItem workItem, final YWorkItemStatus oldStatus, final YWorkItemStatus newStatus)
     {
-        for(ObserverGateway observerGateway : gateways)
+        new Thread(new Runnable()
         {
-            observerGateway.announceWorkItemStatusChange(workItem, oldStatus, newStatus);
-        }
+            public void run()
+            {
+                for(ObserverGateway observerGateway : gateways)
+                {
+                    observerGateway.announceWorkItemStatusChange(workItem, oldStatus, newStatus);
+                }
+            }
+        }).start();
     }
 
     /**
      * Notify the case is suspending
      * @param caseID
      */
-    public void notifyCaseSuspending(YIdentifier caseID)
+    public void notifyCaseSuspending(final YIdentifier caseID)
     {
-        for(ObserverGateway observerGateway : gateways)
+        new Thread(new Runnable()
         {
-            observerGateway.announceCaseSuspending(caseID);
-        }
+            public void run()
+            {
+                for(ObserverGateway observerGateway : gateways)
+                {
+                    observerGateway.announceCaseSuspending(caseID);
+                }
+            }
+        }).start();
     }
 
     /**
      * Notify the case is suspended
      * @param caseID
      */
-    public void notifyCaseSuspended(YIdentifier caseID)
+    public void notifyCaseSuspended(final YIdentifier caseID)
     {
-        for(ObserverGateway observerGateway : gateways)
+        new Thread(new Runnable()
         {
-            observerGateway.announceCaseSuspended(caseID);
-        }
+            public void run()
+            {
+                for(ObserverGateway observerGateway : gateways)
+                {
+                    observerGateway.announceCaseSuspended(caseID);
+                }
+            }
+        }).start();
     }
 
     /**
      * Notify the case is resumption
      * @param caseID
      */
-    public void notifyCaseResumption(YIdentifier caseID)
+    public void notifyCaseResumption(final YIdentifier caseID)
     {
-        for(ObserverGateway observerGateway : gateways)
+        new Thread(new Runnable()
         {
-            observerGateway.announceCaseResumption(caseID);
-        }
+            public void run()
+            {
+                for(ObserverGateway observerGateway : gateways)
+                {
+                    observerGateway.announceCaseResumption(caseID);
+                }
+            }
+        }).start();
     }
 }

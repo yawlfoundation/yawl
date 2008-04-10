@@ -167,20 +167,29 @@ public class Login extends AbstractPageBean {
     // SPECIFIC DELARATIONS AND METHODS //
 
     private MessagePanel msgPanel = getSessionBean().getMessagePanel() ;
-    
+    private ResourceManager rm = getApplicationBean().getResourceManager();
 
     public String btnLogin_action() {
         String nextPage = null ;
-        String user = (String) txtUserName.getText() ;
-        String pword = (String) txtPassword.getText();
-        if (validateUser(user, pword)) {
-            if (user.equals("admin")) {                              // special case
-                nextPage = "showAdminQueues" ;
-                getSessionBean().setMnuSelectorStyle("top: 128px");
+        if (rm.hasOrgDataSource()) {
+            String user = (String) txtUserName.getText() ;
+            String pword = (String) txtPassword.getText();
+            if (validateUser(user, pword)) {
+                if (user.equals("admin")) {                              // special case
+                    getSessionBean().setMnuSelectorStyle("top: 128px");
+                    nextPage = "showAdminQueues" ;
+                }
+                else nextPage =  "showUserQueues" ;
             }
-            else nextPage =  "showUserQueues" ;
         }
-        return nextPage;
+        else {
+            msgPanel.error("Missing or invalid organisational data source. The resource" +
+                           " service requires a connection to a valid data source" +
+                           " that contains organisational data. Please check the" +
+                           " settings in the service's web.xml to ensure a valid" +
+                           " data source is set.");
+        }
+        return nextPage;           
     }
 
 
@@ -195,7 +204,6 @@ public class Login extends AbstractPageBean {
 //            return false;
 //        }
 
-        ResourceManager rm = getApplicationBean().getResourceManager();
         if (rm != null) {
             String handle = rm.login(u, p);
             if (Interface_Client.successful(handle)) {
