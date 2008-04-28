@@ -61,6 +61,6 @@ function getBgColorForRow(i) {
 // gives the user a chance to back out of a deletion
 function confirmDelete() {
     var okPressed = confirm("Are you sure you want to remove this participant?");
-    return ! okPressed;       // weird but correct!
+    return okPressed;       
 }
 
