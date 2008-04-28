@@ -425,7 +425,9 @@ public class pfOrgData extends AbstractFragmentBean {
         }
         else if (activeTab.equals("tabOrgGroup")) {
             OrgGroup orgGroup = new OrgGroup();
+            orgGroup.setGroupName((String) txtAdd.getText());
             orgGroup.setBelongsTo(rm.getOrgGroup(belongsToID));
+            orgGroup.setGroupType(OrgGroup.GroupType.GROUP);           // default type
             setCommonFields(orgGroup);
             rm.addOrgGroup(orgGroup);
             lbxItems.setSelected(orgGroup.getID());
@@ -446,6 +448,11 @@ public class pfOrgData extends AbstractFragmentBean {
         txtDesc.setText("");
         txtNotes.setText("");
         lbxItems.setSelected(getFirstListboxItem());
+    }
+
+    public void clearFields() {
+        txtDesc.setText("");
+        txtNotes.setText("");        
     }
 
     private String getFirstListboxItem() {

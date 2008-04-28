@@ -1922,10 +1922,13 @@ public class YEngine implements InterfaceADesign,
         for (String name : inputs.keySet())
             if (outputs.get(name) == null) outputData.removeChild(name);
 
-        // for each output param
+        // for each output param:
+        //   1. if matching input param, use its value
+        //   2. else if default value specified, use its value
+        //   3. else use default value for the param's data type
         for (String name : outputs.keySet()) {
 
-            // if the output param has no corresponding input param, add an emelent
+            // if the output param has no corresponding input param, add an element
             if (inputs.get(name) == null) {
                 Element outData = new Element(name) ;
                 YParameter outParam = outputs.get(name);

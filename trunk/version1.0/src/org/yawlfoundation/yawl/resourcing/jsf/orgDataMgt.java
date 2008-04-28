@@ -395,6 +395,8 @@ public class orgDataMgt extends AbstractPageBean {
         _sb.setActiveTab(tabSet.getSelected());
         _sb.setActivePage(ApplicationBean.PageRef.orgDataMgt);
 
+        btnRemove.setDisabled(_sb.getOrgDataOptions().length == 0);
+        
         if (_sb.isOrgDataItemRemovedFlag()) {
             btnReset_action();
             _sb.setOrgDataItemRemovedFlag(false) ;
@@ -576,6 +578,7 @@ public class orgDataMgt extends AbstractPageBean {
                 showItem(id, aType);
                 result = attribs.length ;
             }
+            else innerForm.clearFields();
         }
         return result ;
     }
