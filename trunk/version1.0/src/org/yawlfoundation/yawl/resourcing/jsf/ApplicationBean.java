@@ -150,7 +150,7 @@ public class ApplicationBean extends AbstractApplicationBean {
 
     /** @return true if the id passed is not a currently used userid */
     public boolean isUniqueUserID(String id) {
-        return (getResourceManager().getParticipantFromUserID(id) == null) ;
+        return (! getResourceManager().isKnownUserID(id));
     }
 
 

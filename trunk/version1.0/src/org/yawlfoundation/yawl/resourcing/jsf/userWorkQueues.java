@@ -279,6 +279,13 @@ public class userWorkQueues extends AbstractPageBean {
     public void setBtnView(Button b) { btnView = b; }
 
 
+    private Button btnNewInstance = new Button();
+
+    public Button getBtnNewInstance() { return btnNewInstance; }
+
+    public void setBtnNewInstance(Button b) { btnNewInstance = b; }
+
+
     private Meta metaRefresh = new Meta();
 
     public Meta getMetaRefresh() { return metaRefresh; }
@@ -365,6 +372,10 @@ public class userWorkQueues extends AbstractPageBean {
 
     public String btnRefresh_action() {
         return null ;
+    }
+
+    public String btnNewInstance_action() {
+        return null;
     }
 
 
@@ -748,6 +759,13 @@ public class userWorkQueues extends AbstractPageBean {
                 btnComplete.setToolTip("The selected workitem needs editing before it can complete");
             else
                 btnComplete.setToolTip(null);
+
+            // set 'New Instance' button (not a task priv but convenient to do it here)
+            if (wir != null)  {
+                String canCreate = wir.getAllowsDynamicCreation();
+                btnNewInstance.setDisabled((canCreate != null) &&
+                                            ! canCreate.equalsIgnoreCase("true"));
+            }    
         }
     }
 
@@ -786,6 +804,7 @@ public class userWorkQueues extends AbstractPageBean {
                                        btnSuspend.setDisabled(isEmptyQueue);
                                        btnStateful.setDisabled(isEmptyQueue);
                                        btnStateless.setDisabled(isEmptyQueue);
+                                       btnNewInstance.setDisabled(isEmptyQueue);
                                        btnComplete.setDisabled(isEmptyQueue);
                                        break;
             case WorkQueue.SUSPENDED : btnUnsuspend.setDisabled(isEmptyQueue);

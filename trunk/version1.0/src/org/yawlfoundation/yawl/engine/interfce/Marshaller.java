@@ -230,6 +230,8 @@ public class Marshaller {
             wir = new WorkItemRecord(caseID, taskID, specID, enablementTime, status);
 
             wir.setUniqueID(workItemElement.getChildText("uniqueid"));
+            wir.setAllowsDynamicCreation(workItemElement.getChildText(
+                                                              "allowsdynamiccreation"));
             wir.setDeferredChoiceGroupID(workItemElement.getChildText(
                                                               "deferredChoiceGroupid"));
             wir.setSpecVersion(workItemElement.getChildText("specversion"));

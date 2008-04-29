@@ -388,7 +388,7 @@ public class ResourceManager extends InterfaceBWebsideController
             // rebuild a work queue set and userid keymap for each participant
             for (Participant p : _ds.participantMap.values()) {
                 p.createQueueSet(_persisting) ;
-                _userKeys.put(p.getUserID(), p.getID()) ;
+                addUserKey(p) ;
             }
 
             _resAdmin.createWorkQueues(_persisting);   // ... and the administrator
@@ -464,6 +464,21 @@ public class ResourceManager extends InterfaceBWebsideController
         }
     }
 
+    private void addUserKey(Participant p) {
+        _userKeys.put(p.getUserID(), p.getID()) ;
+    }
+
+    private void removeUserKey(Participant p) {
+        removeUserKey(p.getUserID()) ;
+    }
+
+    private void removeUserKey(String userKey) {
+        _userKeys.remove(userKey) ;
+    }
+
+    public boolean isKnownUserID(String userid) {
+        return _userKeys.containsKey(userid);
+    }
 
     // ADD (NEW) ORG DATA OBJECTS //
 
@@ -490,6 +505,7 @@ public class ResourceManager extends InterfaceBWebsideController
 
         // ...and add it to the data set
         _ds.participantMap.put(newID, p) ;
+        addUserKey(p);                                       // and the userid--pid map
         return newID;
     }
 
@@ -531,6 +547,7 @@ public class ResourceManager extends InterfaceBWebsideController
     public void updateParticipant(Participant p) {
         _orgdb.update(p);                              // persist it
         _ds.participantMap.put(p.getID(), p) ;         // ... and update the data set
+        addUserKey(p);                                 // and the userid--pid map
         if (_isNonDefaultOrgDB) {
             _persister.update(p.getUserPrivileges());  // persist other classes
             _persister.update(p.getWorkQueues());
@@ -573,8 +590,9 @@ public class ResourceManager extends InterfaceBWebsideController
     public void removeParticipant(Participant p) {
         handleWorkQueuesOnRemoval(p);    
         p.removeAttributeReferences() ;
-        _ds.participantMap.remove(p.getID()) ;
+        removeUserKey(p);
         _orgdb.delete(p);
+        _ds.participantMap.remove(p.getID()) ;
         if (_isNonDefaultOrgDB) {
             _persister.delete(p.getUserPrivileges());
             _persister.delete(p.getWorkQueues());

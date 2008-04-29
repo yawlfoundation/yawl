@@ -55,7 +55,7 @@ public class YWorkItem {
     private Date _startTime;
 
     private YWorkItemStatus _status;
-    private YWorkItemStatus _prevStatus = null;   //added by MJA for worklet service. TODO: see if this can be removed by using the new methods in YEngine
+    private YWorkItemStatus _prevStatus = null;   //added by MJA for worklet service.
     private String _whoStartedMe;
     private boolean _allowsDynamicCreation;
     private YWorkItem _parent;                             // this item's parent (if any)
@@ -610,6 +610,7 @@ public class YWorkItem {
         xmlBuff.append(StringUtil.wrap(_specID.getSpecName(), "specid"));
         xmlBuff.append(StringUtil.wrap(String.valueOf(_specID.getVersion()), "specversion"));
         xmlBuff.append(StringUtil.wrap(_status.toString(), "status"));
+        xmlBuff.append(StringUtil.wrap(String.valueOf(_allowsDynamicCreation), "allowsdynamiccreation"));
         if (_deferredChoiceGroupID != null)
             xmlBuff.append(StringUtil.wrap(_deferredChoiceGroupID, "deferredChoiceGroupID"));
         if (_dataList != null)
