@@ -124,7 +124,9 @@ public class Participant extends AbstractResource implements Serializable {
         setRoles(p.getRoles());
         setPositions(p.getPositions());
         setCapabilities(p.getCapabilities());
-        _privileges.merge(p.getUserPrivileges());
+
+        if (_privileges == null) _privileges = new UserPrivileges(_resourceID) ; 
+         _privileges.merge(p.getUserPrivileges());
     }
 
 
