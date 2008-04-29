@@ -63,10 +63,9 @@ public class ResourceAdministrator {
                 wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
                 p.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
             }
-            else if (action.equals("Start")) {
-                wir.setResourceStatus(WorkItemRecord.statusResourceStarted);
-                p.getWorkQueues().addToQueue(wir, WorkQueue.STARTED);
-            }
+
+            // 'Start' actions are handled by the resMgr.start() method
+
             unoffered.remove(wir);
         }
     }

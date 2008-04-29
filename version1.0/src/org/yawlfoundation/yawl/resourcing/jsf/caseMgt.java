@@ -367,12 +367,10 @@ public class caseMgt extends AbstractPageBean {
             fileContents = fileContents.substring(BOF, EOF + 19) ;
             String handle = getSessionBean().getSessionhandle() ;
             String result = _rm.uploadSpecification(fileContents, fileName, handle);
-            if (Interface_Client.successful(result))
-                getSessionBean().refreshLoadedSpecs();
-            else {
-                result = JDOMUtil.formatXMLString(result);
-                msgPanel.error("The specification could not be loaded.\n\n" + result);
-             }
+            if (! Interface_Client.successful(result))
+                msgPanel.error(JDOMUtil.formatXMLString(result));
+
+            getSessionBean().refreshLoadedSpecs();
         }
     }
 
