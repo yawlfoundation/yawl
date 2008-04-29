@@ -55,6 +55,7 @@ public class WorkItemRecord implements Serializable {
     private String _caseID;
     private String _taskID;
     private String _uniqueID;                            // used by PDF Forms service
+    private String _allowsDynamicCreation;
 
     // identifies this item as a member of a group of deferred choice items
     private String _deferredChoiceGroupID = null;
@@ -156,6 +157,10 @@ public class WorkItemRecord implements Serializable {
 
     public void setUniqueID(String uniqueID) { _uniqueID = uniqueID;  }
 
+    public void setAllowsDynamicCreation(String allows) {
+        _allowsDynamicCreation = allows ;
+    }
+
     public void setDeferredChoiceGroupID(String id) { _deferredChoiceGroupID = id ; }
 
 
@@ -220,6 +225,8 @@ public class WorkItemRecord implements Serializable {
     public String getTaskID() { return _taskID; }
 
     public String getUniqueID() { return _uniqueID; }
+
+    public String getAllowsDynamicCreation() { return _allowsDynamicCreation ; }
 
     public String getDeferredChoiceGroupID() { return _deferredChoiceGroupID ; }
 
@@ -290,6 +297,7 @@ public class WorkItemRecord implements Serializable {
            .append(StringUtil.wrap(_caseID, "caseid"))
            .append(StringUtil.wrap(_taskID, "taskid"))
            .append(StringUtil.wrap(_uniqueID, "uniqueid"))
+           .append(StringUtil.wrap(_allowsDynamicCreation, "allowsdynamiccreation"))
            .append(StringUtil.wrap(_deferredChoiceGroupID, "deferredChoiceGroupid"))
            .append(StringUtil.wrap(_enablementTime, "enablementTime"))
            .append(StringUtil.wrap(_firingTime, "firingTime"))

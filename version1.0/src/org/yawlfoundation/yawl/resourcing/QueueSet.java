@@ -213,12 +213,7 @@ public class QueueSet implements Serializable {
     
     public void restoreWorkQueue(WorkQueue q, WorkItemCache cache) {
         q.restore(cache) ;
-
-        // add queue only if it has items in it
-//        if (! q.isEmpty()) {
         setQueue(q);
-  //      }
-//        else _persist.delete(q);                 // remove empty queue from persistence
     }
 
     public String toXML() {

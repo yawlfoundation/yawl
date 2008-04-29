@@ -47,14 +47,14 @@
                                                id="btnAccept"
                                                primary="true"
                                                styleClass="queuesButton"
-                                               style="top: 20px"
+                                               style="top: 15px"
                                                text="Accept Offer"/>
 
                                     <ui:button action="#{userWorkQueues.btnChain_action}"
                                                binding="#{userWorkQueues.btnChain}"
                                                id="btnChain"
                                                styleClass="queuesButton"
-                                               style="top: 60px"
+                                               style="top: 50px"
                                                text="Chain"/>
 
                                 </ui:panelLayout>
@@ -74,35 +74,35 @@
                                                binding="#{userWorkQueues.btnStart}"
                                                id="btnStart"
                                                styleClass="queuesButton"
-                                               style="top: 20px"
+                                               style="top: 15px"
                                                text="Start"/>
 
                                     <ui:button action="#{userWorkQueues.btnDeallocate_action}"
                                                binding="#{userWorkQueues.btnDeallocate}"
                                                id="btnDeallocate"
                                                styleClass="queuesButton"
-                                               style="top: 60px"
+                                               style="top: 50px"
                                                text="Deallocate"/>
 
                                     <ui:button action="#{userWorkQueues.btnDelegate_action}"
                                                binding="#{userWorkQueues.btnDelegate}"
                                                id="btnDelegate"
                                                styleClass="queuesButton"
-                                               style="top: 100px"
+                                               style="top: 85px"
                                                text="Delegate"/>
                                     
                                     <ui:button action="#{userWorkQueues.btnSkip_action}"
                                                binding="#{userWorkQueues.btnSkip}"
                                                id="btnSkip"
                                                styleClass="queuesButton"
-                                               style="top: 140px"
+                                               style="top: 120px"
                                                text="Skip"/>
 
                                     <ui:button action="#{userWorkQueues.btnPile_action}"
                                                binding="#{userWorkQueues.btnPile}"
                                                id="btnPile"
                                                styleClass="queuesButton"
-                                               style="top: 180px"
+                                               style="top: 155px"
                                                text="Pile"/>
                                 </ui:panelLayout>
                             </ui:tab>
@@ -121,35 +121,42 @@
                                                binding="#{userWorkQueues.btnView}"
                                                id="btnView"
                                                styleClass="queuesButton"
-                                               style="top: 20px"
+                                               style="top: 15px"
                                                text="View/Edit"/>
 
                                     <ui:button action="#{userWorkQueues.btnSuspend_action}"
                                                binding="#{userWorkQueues.btnSuspend}"
                                                id="btnSuspend"
                                                styleClass="queuesButton"
-                                               style="top: 60px"
+                                               style="top: 50px"
                                                text="Suspend"/>
 
                                     <ui:button action="#{userWorkQueues.btnStateless_action}"
                                                binding="#{userWorkQueues.btnStateless}"
                                                id="btnStateless"
                                                styleClass="queuesButton"
-                                               style="top: 100px"
+                                               style="top: 85px"
                                                text="Reallocate s/l"/>
 
                                     <ui:button action="#{userWorkQueues.btnStateful_action}"
                                                binding="#{userWorkQueues.btnStateful}"
                                                id="btnStateful"
                                                styleClass="queuesButton"
-                                               style="top: 140px"
+                                               style="top: 120px"
                                                text="Reallocate s/f"/>
+
+                                    <ui:button action="#{userWorkQueues.btnNewInstance_action}"
+                                               binding="#{userWorkQueues.btnNewInstance}"
+                                               id="btnNewInstance"
+                                               styleClass="queuesButton"
+                                               style="top: 155px"
+                                               text="New Instance"/>
 
                                     <ui:button action="#{userWorkQueues.btnComplete_action}"
                                                binding="#{userWorkQueues.btnComplete}"
                                                id="btnComplete"
                                                styleClass="queuesButton"
-                                               style="top: 180px"
+                                               style="top: 190px"
                                                text="Complete"/>
 
                                 </ui:panelLayout>
@@ -170,7 +177,7 @@
                                                binding="#{userWorkQueues.btnUnsuspend}"
                                                id="btnUnsuspend"
                                                styleClass="queuesButton"
-                                               style="top: 20px"
+                                               style="top: 15px"
                                                text="Unsuspend"/>
                                 </ui:panelLayout>
                             </ui:tab>
