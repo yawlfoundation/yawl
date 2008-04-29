@@ -2309,11 +2309,13 @@ public class ResourceManager extends InterfaceBWebsideController
 
     public void assignUnofferedItem(WorkItemRecord wir, String participantID,
                                         String action) {
-        if (action.equals("Start") &&
+        if (wir != null) {
+            if (action.equals("Start") &&
                    wir.getStatus().equals(WorkItemRecord.statusEnabled))
-            start(getParticipant(participantID), wir, _engineSessionHandle);
+                start(getParticipant(participantID), wir, _engineSessionHandle);
 
-        _resAdmin.assignUnofferedItem(wir, getParticipant(participantID), action) ;
+            _resAdmin.assignUnofferedItem(wir, getParticipant(participantID), action) ;
+        }
     }
 
 

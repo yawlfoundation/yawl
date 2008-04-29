@@ -1,9 +1,11 @@
 /*
- * userWorkQueues.java
- *
- * Created on October 23, 2007, 11:18 AM
- * Copyright adamsmj
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
  */
+
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
@@ -18,385 +20,34 @@ import org.yawlfoundation.yawl.resourcing.jsf.comparator.WorkItemAgeComparator;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
-import javax.faces.FacesException;
 import javax.faces.context.ExternalContext;
+import javax.faces.FacesException;
 import java.io.IOException;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-/**
- * <p>Page bean that corresponds to a similarly named JSP page.  This
- * class contains component definitions (and initialization code) for
- * all components that you have defined on this page, as well as
- * lifecycle methods and event handlers where you may add behavior
- * to respond to incoming events.</p>
+/*
+ * The backing bean for the YAWL 2.0 user work queues form
+ *
+ * @author Michael Adams
+ * Date: 21/10/2007
+ *
+ * Last Date: 28/04/2008
  */
+
 public class userWorkQueues extends AbstractPageBean {
-    // <editor-fold defaultstate="collapsed" desc="Creator-managed Component Definition">
+
+    // REQUIRED AND/OR IMPLEMENTED ABSTRACT PAGE BEAN METHODS //
+
     private int __placeholder;
-    
-    /**
-     * <p>Automatically managed component initialization.  <strong>WARNING:</strong>
-     * This method is automatically generated, so any user-specified code inserted
-     * here is subject to being replaced.</p>
-     */
-    private void _init() throws Exception {
-    }
-    
-    private Page page1 = new Page();
-    
-    public Page getPage1() {
-        return page1;
-    }
-    
-    public void setPage1(Page p) {
-        this.page1 = p;
-    }
-    
-    private Html html1 = new Html();
-    
-    public Html getHtml1() {
-        return html1;
-    }
-    
-    public void setHtml1(Html h) {
-        this.html1 = h;
-    }
-    
-    private Head head1 = new Head();
-    
-    public Head getHead1() {
-        return head1;
-    }
-    
-    public void setHead1(Head h) {
-        this.head1 = h;
-    }
-    
-    private Link link1 = new Link();
-    
-    public Link getLink1() {
-        return link1;
-    }
-    
-    public void setLink1(Link l) {
-        this.link1 = l;
-    }
-    
-    private Body body1 = new Body();
-    
-    public Body getBody1() {
-        return body1;
-    }
-    
-    public void setBody1(Body b) {
-        this.body1 = b;
-    }
-    
-    private Form form1 = new Form();
-    
-    public Form getForm1() {
-        return form1;
-    }
-    
-    public void setForm1(Form f) {
-        this.form1 = f;
-    }
 
-    private TabSet tabSet = new TabSet();
+    private void _init() throws Exception { }
 
-    public TabSet getTabSet() {
-        return tabSet;
-    }
 
-    public void setTabSet(TabSet ts) {
-        this.tabSet = ts;
-    }
-
-    private Tab tabOffered = new Tab();
-
-    public Tab getTabOffered() {
-        return tabOffered;
-    }
-
-    public void setTabOffered(Tab t) {
-        this.tabOffered = t;
-    }
-
-    private PanelLayout lpOffered = new PanelLayout();
-
-    public PanelLayout getLpOffered() {
-        return lpOffered;
-    }
-
-    public void setLpOffered(PanelLayout pl) {
-        this.lpOffered = pl;
-    }
-
-    private Tab tabAllocated = new Tab();
-
-    public Tab getTabAllocated() {
-        return tabAllocated;
-    }
-
-    public void setTabAllocated(Tab t) {
-        this.tabAllocated = t;
-    }
-
-    private PanelLayout lpAllocated = new PanelLayout();
-
-    public PanelLayout getLpAllocated() {
-        return lpAllocated;
-    }
-
-    public void setLpAllocated(PanelLayout pl) {
-        this.lpAllocated = pl;
-    }
-
-    private Tab tabStarted = new Tab();
-
-    public Tab getTabStarted() {
-        return tabStarted;
-    }
-
-    public void setTabStarted(Tab t) {
-        this.tabStarted = t;
-    }
-
-    private PanelLayout lpStarted = new PanelLayout();
-
-    public PanelLayout getLpStarted() {
-        return lpStarted;
-    }
-
-    public void setLpStarted(PanelLayout pl) {
-        this.lpStarted = pl;
-    }
-
-    private Button btnAccept = new Button();
-
-    public Button getBtnAccept() {
-        return btnAccept;
-    }
-
-    public void setBtnAccept(Button b) {
-        this.btnAccept = b;
-    }
-
-    private Tab tabSuspended = new Tab();
-
-    public Tab getTabSuspended() {
-        return tabSuspended;
-    }
-
-    public void setTabSuspended(Tab t) {
-        this.tabSuspended = t;
-    }
-
-    private PanelLayout lpSuspended = new PanelLayout();
-
-    public PanelLayout getLpSuspended() {
-        return lpSuspended;
-    }
-
-    public void setLpSuspended(PanelLayout pl) {
-        this.lpSuspended = pl;
-    }
-
-    private Button btnStart = new Button();
-
-    public Button getBtnStart() {
-        return btnStart;
-    }
-
-    public void setBtnStart(Button b) {
-        this.btnStart = b;
-    }
-
-    private Button btnDeallocate = new Button();
-
-    public Button getBtnDeallocate() {
-        return btnDeallocate;
-    }
-
-    public void setBtnDeallocate(Button b) {
-        this.btnDeallocate = b;
-    }
-
-    private Button btnDelegate = new Button();
-
-    public Button getBtnDelegate() {
-        return btnDelegate;
-    }
-
-    public void setBtnDelegate(Button b) {
-        this.btnDelegate = b;
-    }
-
-    private Button btnSkip = new Button();
-
-    public Button getBtnSkip() {
-        return btnSkip;
-    }
-
-    public void setBtnSkip(Button b) {
-        this.btnSkip = b;
-    }
-
-    private Button btnPile = new Button();
-
-    public Button getBtnPile() {
-        return btnPile;
-    }
-
-    public void setBtnPile(Button b) {
-        this.btnPile = b;
-    }
-
-    private Button btnChain = new Button();
-
-    public Button getBtnChain() {
-        return btnChain;
-    }
-
-    public void setBtnChain(Button b) {
-        this.btnChain = b;
-    }
-
-    private Button btnSuspend = new Button();
-
-    public Button getBtnSuspend() {
-        return btnSuspend;
-    }
-
-    public void setBtnSuspend(Button b) {
-        this.btnSuspend = b;
-    }
-
-    private Button btnStateless = new Button();
-
-    public Button getBtnStateless() {
-        return btnStateless;
-    }
-
-    public void setBtnStateless(Button b) {
-        this.btnStateless = b;
-    }
-
-    private Button btnStateful = new Button();
-
-    public Button getBtnStateful() {
-        return btnStateful;
-    }
-
-    public void setBtnStateful(Button b) {
-        this.btnStateful = b;
-    }
-
-    private Button btnUnsuspend = new Button();
-
-    public Button getBtnUnsuspend() {
-        return btnUnsuspend;
-    }
-
-    public void setBtnUnsuspend(Button b) {
-        this.btnUnsuspend = b;
-    }
-
-    private Button btnComplete = new Button();
-
-    public Button getBtnComplete() {
-        return btnComplete;
-    }
-
-    public void setBtnComplete(Button b) {
-        this.btnComplete = b;
-    }
-
-    private Button btnView = new Button();
-
-    public Button getBtnView() {
-        return btnView;
-    }
-
-    public void setBtnView(Button b) {
-        this.btnView = b;
-    }
-
-    private Meta metaRefresh = new Meta();
-
-    public Meta getMetaRefresh() {
-        return metaRefresh;
-    }
-
-    public void setMetaRefresh(Meta m) {
-        this.metaRefresh = m;
-    }
-    
-    // </editor-fold>
-
-    private boolean pageLoaded = false ;
-    /** 
-     * <p>Construct a new Page bean instance.</p>
-     */
-    public userWorkQueues() {
-    }
-
-    private SessionBean _sb = getSessionBean();
-
-    private ResourceManager _rm = getApplicationBean().getResourceManager();
-
-    /** 
-     * <p>Return a reference to the scoped data bean.</p>
-     */
-    protected RequestBean getRequestBean() {
-        return (RequestBean)getBean("RequestBean");
-    }
-
-
-    /** 
-     * <p>Return a reference to the scoped data bean.</p>
-     */
-    protected ApplicationBean getApplicationBean() {
-        return (ApplicationBean)getBean("ApplicationBean");
-    }
-
-    /** 
-     * <p>Return a reference to the scoped data bean.</p>
-     */
-    protected SessionBean getSessionBean() {
-        return (SessionBean)getBean("SessionBean");
-    }
-
-    /** @return a reference to the session scoped factory bean. */
-    private DynFormFactory getDynFormFactory() {
-        return (DynFormFactory) getBean("DynFormFactory");
-    }
-
-    
-
-    /** 
-     * <p>Callback method that is called whenever a page is navigated to,
-     * either directly via a URL, or indirectly via page navigation.
-     * Customize this method to acquire resources that will be needed
-     * for event handlers and lifecycle methods, whether or not this
-     * page is performing post back processing.</p>
-     * 
-     * <p>Note that, if the current request is a postback, the property
-     * values of the components do <strong>not</strong> represent any
-     * values submitted with this request.  Instead, they represent the
-     * property values that were saved for this view when it was rendered.</p>
-     */
     public void init() {
-        // Perform initializations inherited from our superclass
         super.init();
-        // Perform application initialization that must complete
-        // *before* managed components are initialized
-        // TODO - add your own initialiation code here
 
-        // <editor-fold defaultstate="collapsed" desc="Creator-managed Component Initialization">
-        // Initialize automatically managed components
         // *Note* - this logic should NOT be modified
         try {
             _init();
@@ -404,56 +55,283 @@ public class userWorkQueues extends AbstractPageBean {
             log("userWorkQueues Initialization Failure", e);
             throw e instanceof FacesException ? (FacesException) e: new FacesException(e);
         }
-        // </editor-fold>
-        // Perform application initialization that must complete
-        // *after* managed components are initialized
-        // TODO - add your own initialization code here
-        tabOffered_action();
+
+        tabOffered_action();                     // select the offered worklist on init
     }
 
-    /** 
-     * <p>Callback method that is called after the component tree has been
-     * restored, but before any event processing takes place.  This method
-     * will <strong>only</strong> be called on a postback request that
-     * is processing a form submit.  Customize this method to allocate
-     * resources that will be required in your event handlers.</p>
-     */
-    public void preprocess() {
+    public void preprocess() { }
+
+    public void destroy() { }
+
+
+    public userWorkQueues() { }
+
+    // Return references to scoped data beans //
+    protected RequestBean getRequestBean() {
+        return (RequestBean)getBean("RequestBean");
     }
 
-    /** 
-     * <p>Callback method that is called just before rendering takes place.
-     * This method will <strong>only</strong> be called for the page that
-     * will actually be rendered (and not, for example, on a page that
-     * handled a postback and then navigated to a different page).  Customize
-     * this method to allocate resources that will be required for rendering
-     * this page.</p>
+    protected ApplicationBean getApplicationBean() {
+        return (ApplicationBean)getBean("ApplicationBean");
+    }
+
+    protected SessionBean getSessionBean() {
+        return (SessionBean)getBean("SessionBean");
+    }
+
+    /********************************************************************************/
+
+    // PAGE COMPONENT DECLARATIONS, GETTERS & SETTERS //
+
+    private Page page1 = new Page();
+    
+    public Page getPage1() { return page1; }
+    
+    public void setPage1(Page p) { page1 = p; }
+    
+
+    private Html html1 = new Html();
+    
+    public Html getHtml1() { return html1; }
+    
+    public void setHtml1(Html h) { html1 = h; }
+
+    
+    private Head head1 = new Head();
+    
+    public Head getHead1() { return head1; }
+    
+    public void setHead1(Head h) { head1 = h; }
+    
+
+    private Link link1 = new Link();
+    
+    public Link getLink1() { return link1; }
+    
+    public void setLink1(Link l) { link1 = l; }
+
+    
+    private Body body1 = new Body();
+    
+    public Body getBody1() { return body1; }
+    
+    public void setBody1(Body b) { body1 = b; }
+
+
+    private Form form1 = new Form();
+    
+    public Form getForm1() { return form1; }
+    
+    public void setForm1(Form f) { form1 = f; }
+
+
+    private TabSet tabSet = new TabSet();
+
+    public TabSet getTabSet() { return tabSet; }
+
+    public void setTabSet(TabSet ts) { tabSet = ts; }
+
+
+    private Tab tabOffered = new Tab();
+
+    public Tab getTabOffered() { return tabOffered; }
+
+    public void setTabOffered(Tab t) { tabOffered = t; }
+
+
+    private PanelLayout lpOffered = new PanelLayout();
+
+    public PanelLayout getLpOffered() { return lpOffered; }
+
+    public void setLpOffered(PanelLayout pl) { lpOffered = pl; }
+
+
+    private Tab tabAllocated = new Tab();
+
+    public Tab getTabAllocated() { return tabAllocated; }
+
+    public void setTabAllocated(Tab t) { tabAllocated = t; }
+
+
+    private PanelLayout lpAllocated = new PanelLayout();
+
+    public PanelLayout getLpAllocated() { return lpAllocated; }
+
+    public void setLpAllocated(PanelLayout pl) { lpAllocated = pl; }
+
+
+    private Tab tabStarted = new Tab();
+
+    public Tab getTabStarted() { return tabStarted; }
+
+    public void setTabStarted(Tab t) { tabStarted = t; }
+
+
+    private PanelLayout lpStarted = new PanelLayout();
+
+    public PanelLayout getLpStarted() { return lpStarted; }
+
+    public void setLpStarted(PanelLayout pl) { lpStarted = pl; }
+
+
+    private Button btnAccept = new Button();
+
+    public Button getBtnAccept() { return btnAccept; }
+
+    public void setBtnAccept(Button b) { btnAccept = b; }
+
+
+    private Tab tabSuspended = new Tab();
+
+    public Tab getTabSuspended() { return tabSuspended; }
+
+    public void setTabSuspended(Tab t) { tabSuspended = t; }
+
+
+    private PanelLayout lpSuspended = new PanelLayout();
+
+    public PanelLayout getLpSuspended() { return lpSuspended; }
+
+    public void setLpSuspended(PanelLayout pl) { lpSuspended = pl; }
+
+
+    private Button btnStart = new Button();
+
+    public Button getBtnStart() { return btnStart; }
+
+    public void setBtnStart(Button b) { btnStart = b; }
+
+
+    private Button btnDeallocate = new Button();
+
+    public Button getBtnDeallocate() { return btnDeallocate; }
+
+    public void setBtnDeallocate(Button b) { btnDeallocate = b; }
+
+
+    private Button btnDelegate = new Button();
+
+    public Button getBtnDelegate() { return btnDelegate; }
+
+    public void setBtnDelegate(Button b) { btnDelegate = b; }
+
+
+    private Button btnSkip = new Button();
+
+    public Button getBtnSkip() { return btnSkip; }
+
+    public void setBtnSkip(Button b) { btnSkip = b; }
+
+
+    private Button btnPile = new Button();
+
+    public Button getBtnPile() { return btnPile; }
+
+    public void setBtnPile(Button b) { btnPile = b; }
+
+
+    private Button btnChain = new Button();
+
+    public Button getBtnChain() { return btnChain; }
+
+    public void setBtnChain(Button b) { btnChain = b; }
+
+
+    private Button btnSuspend = new Button();
+
+    public Button getBtnSuspend() { return btnSuspend; }
+
+    public void setBtnSuspend(Button b) { btnSuspend = b; }
+
+
+    private Button btnStateless = new Button();
+
+    public Button getBtnStateless() { return btnStateless; }
+
+    public void setBtnStateless(Button b) { btnStateless = b; }
+
+
+    private Button btnStateful = new Button();
+
+    public Button getBtnStateful() { return btnStateful; }
+
+    public void setBtnStateful(Button b) { btnStateful = b; }
+
+
+    private Button btnUnsuspend = new Button();
+
+    public Button getBtnUnsuspend() { return btnUnsuspend; }
+
+    public void setBtnUnsuspend(Button b) { btnUnsuspend = b; }
+
+
+    private Button btnComplete = new Button();
+
+    public Button getBtnComplete() { return btnComplete; }
+
+    public void setBtnComplete(Button b) { btnComplete = b; }
+
+
+    private Button btnView = new Button();
+
+    public Button getBtnView() { return btnView; }
+
+    public void setBtnView(Button b) { btnView = b; }
+
+
+    private Meta metaRefresh = new Meta();
+
+    public Meta getMetaRefresh() { return metaRefresh; }
+
+    public void setMetaRefresh(Meta m) { metaRefresh = m; }
+    
+
+    /********************************************************************************/
+
+    // SPECIFIC DELARATIONS AND METHODS //
+
+    private SessionBean _sb = getSessionBean();
+    private ResourceManager _rm = getApplicationBean().getResourceManager();
+    private MessagePanel msgPanel = _sb.getMessagePanel() ;
+
+
+    /** @return a reference to the session scoped form factory bean. */
+    private DynFormFactory getDynFormFactory() {
+        return (DynFormFactory) getBean("DynFormFactory");
+    }
+
+
+    /**
+     * Overridden method that is called immediately before the page is rendered
      */
     public void prerender() {
-        getSessionBean().checkLogon();
-        msgPanel.show(395, 150, "absolute");
+        getSessionBean().checkLogon();                     // check session still live
+        msgPanel.show(395, 150, "absolute");               // show msgs (if any)
+
+        // return to same tab on a refresh
         if (_sb.getSourceTab() != null) {
             tabSet.setSelected(_sb.getSourceTab());
             _sb.setSourceTab(null);
         }
-        
+
+        // check flags & take post-roundtrip action if any are set 
         if (_sb.isDelegating()) postDelegate();
         else if (_sb.isReallocating()) postReallocate();
         else if (_sb.isWirEdit()) postEditWIR() ;
-        
+
+        // get the last selected tab
         String selTabName = tabSet.getSelected() ;
         Tab selTab = null;
 
+        // if no last selected tab, this is the first rendering of the page
         if (selTabName == null) {
 
-            // this is the first rendering of the page in this session
+            // default to offered list
             WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.OFFERED) ;
             if (wir != null) ((pfQueueUI) getBean("pfQueueUI")).populateTextBoxes(wir);
-            
-       //     setRefreshRate(0) ;               // get default refresh rate from web.xml
             tabSet.setSelected("tabOffered");
             selTab = tabOffered;
-            tabOffered_action() ;           // default
+            tabOffered_action() ;
         }    
         else {
             if (selTabName.equals("tabOffered")) {
@@ -473,23 +351,16 @@ public class userWorkQueues extends AbstractPageBean {
                 selTab = tabSuspended;
             }
         }
-        updateTabHeaders(selTab) ;
+        updateTabHeaders(selTab) ;          // highlight selected tab and update counts
+
         _sb.setActiveTab(tabSet.getSelected());
         _sb.setActivePage(ApplicationBean.PageRef.userWorkQueues);
+
+        //     setRefreshRate(0) ;               // get default refresh rate from web.xml
     }
 
-    /** 
-     * <p>Callback method that is called after rendering is completed for
-     * this request, if <code>init()</code> was called (regardless of whether
-     * or not this was the page that was actually rendered).  Customize this
-     * method to release resources acquired in the <code>init()</code>,
-     * <code>preprocess()</code>, or <code>prerender()</code> methods (or
-     * acquired during execution of an event handler).</p>
-     */
-    public void destroy() {
-    }
 
-    private MessagePanel msgPanel = getSessionBean().getMessagePanel() ;
+
 
 
     public String btnRefresh_action() {
@@ -582,8 +453,12 @@ public class userWorkQueues extends AbstractPageBean {
         WorkItemRecord wir = _sb.getChosenWIR(queueType);
         String handle = _sb.getSessionhandle() ;
         try {
-            if (action.equals("acceptOffer"))
-                _rm.acceptOffer(p, wir);
+            if (action.equals("acceptOffer")) {
+                if (wir != null)
+                    _rm.acceptOffer(p, wir);
+                else
+                    msgPanel.info("Another participant has already accepted this offer.");
+            }
             else if (action.equals("deallocate"))
                 _rm.deallocateWorkItem(p, wir);
             else if (action.equals("skip"))

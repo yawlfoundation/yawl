@@ -26,7 +26,7 @@ import java.util.Set;
  * @author Michael Adams
  * Date: 21/10/2007
  *
- * Last Date: 04/03/2008
+ * Last Date: 28/04/2008
  */
 
 public class Login extends AbstractPageBean {
@@ -45,8 +45,6 @@ public class Login extends AbstractPageBean {
 
     public void destroy() { }
 
-    public Login() { }
-
     public void init() {                             
         super.init();
 
@@ -59,6 +57,8 @@ public class Login extends AbstractPageBean {
         }
     }
 
+
+    public Login() { }
 
     // Return references to scoped data beans //
     protected SessionBean getSessionBean() {
@@ -166,22 +166,40 @@ public class Login extends AbstractPageBean {
 
     // SPECIFIC DELARATIONS AND METHODS //
 
-    private MessagePanel msgPanel = getSessionBean().getMessagePanel() ;
     private ResourceManager rm = getApplicationBean().getResourceManager();
+    private SessionBean sb = getSessionBean();
+    private MessagePanel msgPanel = sb.getMessagePanel() ;
 
+    
+    /**
+     * Respond to a user-click of the Login button
+     * @return the next page to show, or null to stay on this page
+     */
     public String btnLogin_action() {
         String nextPage = null ;
-        if (rm.hasOrgDataSource()) {
+
+        // check if this browser session already has a logged in user
+        if (sb.getParticipant() != null) {
+            msgPanel.error("User '" + sb.getUserid() + "' is already logged on in this" +
+                           " browser instance. Only one user logon per browser " +
+                           " instance is possible. If you wish to logon, please " +
+                           " logout the previous user first.") ;
+        }
+
+        // session is free, so if there's a valid org data source --> process the logon
+        else if (rm.hasOrgDataSource()) {
             String user = (String) txtUserName.getText() ;
             String pword = (String) txtPassword.getText();
             if (validateUser(user, pword)) {
                 if (user.equals("admin")) {                              // special case
-                    getSessionBean().setMnuSelectorStyle("top: 128px");
+                    sb.setMnuSelectorStyle("top: 128px");
                     nextPage = "showAdminQueues" ;
                 }
                 else nextPage =  "showUserQueues" ;
             }
         }
+
+        // else no org data source --> can't proceed
         else {
             msgPanel.error("Missing or invalid organisational data source. The resource" +
                            " service requires a connection to a valid data source" +
@@ -193,40 +211,48 @@ public class Login extends AbstractPageBean {
     }
 
 
+    /**
+     * Validates a userid - password combination
+     * @param u the userid
+     * @param p the password
+     * @return true if the userid-password combination is valid
+     */
     private boolean validateUser(String u, String p) {
         if ((u == null) || (p == null)) {
-            msgPanel.info("Please enter a username and password") ;
+            msgPanel.info("Please enter a valid username and password") ;
             return false;
         }
 
-//        if (getApplicationBean().isLoggedOn(u)) {
-//            msgPanel.error("Userid " + u + " is already logged on elsewhere.");
-//            return false;
-//        }
-
+        // attempt to log on (and gain a session) to the service
         if (rm != null) {
             String handle = rm.login(u, p);
-            if (Interface_Client.successful(handle)) {
-                initSession(rm, u, handle) ;
+            if (Interface_Client.successful(handle)) {           // successful login
+                initSession(u, handle) ;
                 msgPanel.clear();
                 return true ;
             }
             else {
-                msgPanel.error(msgPanel.format(handle));
+                msgPanel.error(msgPanel.format(handle));        // show error msg to user
                 return false ;
             }    
         }
         else throw new ValidatorException(new FacesMessage("Could not connect to work queue"));
     }
 
-    
-    private void initSession(ResourceManager rm, String userid, String handle) {
-        SessionBean sb = getSessionBean();
+
+    /**
+     * Initialise session data in the session bean
+     * @param userid the userid
+     * @param handle the session handle supplied by the service 
+     */
+    private void initSession(String userid, String handle) {
         sb.setSessionhandle(handle);
         sb.setUserid(userid);
         if (! userid.equals("admin")) {
             sb.setParticipant(rm.getParticipantFromUserID(userid));
             getApplicationBean().addLiveUser(userid);
+
+            // initialise workqueue
             Set<WorkItemRecord> wirSet = sb.getQueue(WorkQueue.OFFERED);
 
             if ((wirSet != null) && (! wirSet.isEmpty()))
