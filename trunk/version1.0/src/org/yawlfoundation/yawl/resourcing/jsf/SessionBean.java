@@ -746,8 +746,10 @@ public class SessionBean extends AbstractSessionBean {
     }
 
     public void performAdminQueueAction() {
-        if (getAdminQueueAction() != null)
+        if (getAdminQueueAction() != null) {
             performAdminQueueAction(getAdminQueueAction());
+            setAdminQueueAction(null);
+        }
     }
 
     public void performAdminQueueAction(String action) {
