@@ -58,6 +58,7 @@ public class ResourceAdministrator {
             if (action.equals("Offer")) {
                 wir.setResourceStatus(WorkItemRecord.statusResourceOffered);
                 p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
+                ResourceManager.getInstance().addToOfferedSet(wir, p);
             }
             else if (action.equals("Allocate")) {
                 wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);

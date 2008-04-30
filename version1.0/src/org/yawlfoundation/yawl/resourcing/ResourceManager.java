@@ -2095,7 +2095,7 @@ public class ResourceManager extends InterfaceBWebsideController
         String result =  _interfaceBClient.cancelCase(caseID, handle);
 
         // remove live items for case from workqueues and cache
-        if (successful(result)) {
+        if (successful(result) && (liveItems != null)) {
             for (WorkItemRecord wir : liveItems) {
                 removeFromAll(wir) ;
                 _workItemCache.remove(wir);
@@ -2114,13 +2114,15 @@ public class ResourceManager extends InterfaceBWebsideController
         try {
             result = _interfaceBClient.getLiveWorkItemsForIdentifier("case", caseID,
                                                                          handle) ;
+            if (result != null) {
 
-            // the above method only gets parents, so get any child items too
-            for (WorkItemRecord wir : result) {
-                List<WorkItemRecord> children = getChildren(wir.getID()) ;
-                childList.addAll(children) ;
-            }
-            result.addAll(childList) ;
+                // the above method only gets parents, so get any child items too
+                for (WorkItemRecord wir : result) {
+                    List<WorkItemRecord> children = getChildren(wir.getID()) ;
+                    childList.addAll(children) ;
+                }
+                result.addAll(childList) ;
+            }    
         }
         catch (Exception e) {
             _log.error("Exception attempting to retrieve work item list from engine");
@@ -2335,6 +2337,13 @@ public class ResourceManager extends InterfaceBWebsideController
 
             _resAdmin.assignUnofferedItem(wir, p, action) ;
         }
+    }
+
+    
+    public void addToOfferedSet(WorkItemRecord wir, Participant p) {
+        ResourceMap rMap = getResourceMap(wir);
+        if (rMap != null)
+            rMap.addToOfferedSet(wir, p);
     }
 
 
