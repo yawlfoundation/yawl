@@ -301,6 +301,16 @@ public class ResourceMap {
         for (Participant p : _ignoreSet) distributionSet.remove(p) ;
     }
 
+    
+    public void addToOfferedSet(WorkItemRecord wir, Participant p) {
+        HashSet<Participant> pSet = _offered.get(wir.getID());
+        if (pSet == null)
+            pSet = new HashSet<Participant>();
+
+        pSet.add(p);
+        _offered.put(wir.getID(), pSet);
+    }
+
     /**
      * Parse the Element passed for task resourcing info and build the appropriate
      * objects.

@@ -121,7 +121,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
                  if ((idType.equalsIgnoreCase("spec") &&
                       wir.getSpecificationID().equals(id)) ||
                      (idType.equalsIgnoreCase("case") &&
-                      wir.getCaseID().equals(id)) ||
+                      (wir.getCaseID().equals(id) ||
+                       wir.getCaseID().startsWith(id + "."))) ||
                      (idType.equalsIgnoreCase("task") &&
                       wir.getTaskID().equals(id)))
                     result.add(wir);
