@@ -98,6 +98,23 @@ public class ObserverGatewayController
         }).start();
     }
 
+
+    void notifyTimerExpiry(final YAWLServiceReference yawlService, final YWorkItem item)
+    {
+        new Thread(new Runnable()
+        {
+            public void run()
+            {
+                Vector<ObserverGateway> affectedShims = getGatewaysForProtocol(yawlService.getScheme());
+
+                for(ObserverGateway observerGateway : affectedShims)
+                {
+                    observerGateway.announceTimerExpiry(yawlService, item);
+                }                    
+            }
+        }).start();
+    }
+
     /**
      * Helper method which returns a vactor of gateways which satisfy the requested protocol.<P>
      *

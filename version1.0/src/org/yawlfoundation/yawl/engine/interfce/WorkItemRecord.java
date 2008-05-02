@@ -49,13 +49,14 @@ public class WorkItemRecord implements Serializable {
     public final static String statusResourceUnresourced = "Unresourced" ;
 
     // item identifiers
-    private long _id;                                  // hibernate primary key
+    private long _id;                                    // hibernate primary key
     private String _specificationID;
     private String _specVersion ;
     private String _caseID;
     private String _taskID;
     private String _uniqueID;                            // used by PDF Forms service
     private String _allowsDynamicCreation;
+    private String _requiresManualResourcing;
 
     // identifies this item as a member of a group of deferred choice items
     private String _deferredChoiceGroupID = null;
@@ -71,6 +72,10 @@ public class WorkItemRecord implements Serializable {
     private String _firingTimeMs;
     private String _startTimeMs ;
     private String _completionTimeMs ;
+
+    // timer values (if item has a timer enabled)
+    private String _timerTrigger;
+    private String _timerExpiry;
 
     // current statuses
     private String _status;
@@ -161,6 +166,10 @@ public class WorkItemRecord implements Serializable {
         _allowsDynamicCreation = allows ;
     }
 
+    public void setRequiresManualResourcing(String manual) {
+        _requiresManualResourcing = manual;
+    }
+
     public void setDeferredChoiceGroupID(String id) { _deferredChoiceGroupID = id ; }
 
 
@@ -179,6 +188,10 @@ public class WorkItemRecord implements Serializable {
     public void setStartTimeMs(String time) { _startTimeMs = time; }
 
     public void setCompletionTimeMs(String time) {_completionTimeMs = time; }
+
+    public void setTimerTrigger(String trigger) { _timerTrigger = trigger; }
+
+    public void setTimerExpiry(String expiry) { _timerExpiry = expiry; }
     
 
     public void setStatus(String status) {_status = status; }
@@ -230,6 +243,7 @@ public class WorkItemRecord implements Serializable {
 
     public String getDeferredChoiceGroupID() { return _deferredChoiceGroupID ; }
 
+    public String getRequiresManualResourcing() { return _requiresManualResourcing; }
 
     public String getID() { return _caseID + ":" + _taskID; }
 
@@ -248,6 +262,10 @@ public class WorkItemRecord implements Serializable {
     public String getStartTimeMs() { return _startTimeMs; }
 
     public String getCompletionTimeMs() { return _completionTimeMs; }
+
+    public String getTimerTrigger() { return _timerTrigger; }
+
+    public String getTimerExpiry() { return _timerExpiry; }
 
     public String getStatus() { return _status; }
 
@@ -298,6 +316,7 @@ public class WorkItemRecord implements Serializable {
            .append(StringUtil.wrap(_taskID, "taskid"))
            .append(StringUtil.wrap(_uniqueID, "uniqueid"))
            .append(StringUtil.wrap(_allowsDynamicCreation, "allowsdynamiccreation"))
+           .append(StringUtil.wrap(_requiresManualResourcing, "requiresmanualresourcing"))
            .append(StringUtil.wrap(_deferredChoiceGroupID, "deferredChoiceGroupid"))
            .append(StringUtil.wrap(_enablementTime, "enablementTime"))
            .append(StringUtil.wrap(_firingTime, "firingTime"))
@@ -307,6 +326,8 @@ public class WorkItemRecord implements Serializable {
            .append(StringUtil.wrap(_firingTimeMs, "firingTimeMs"))
            .append(StringUtil.wrap(_startTimeMs, "startTimeMs"))
            .append(StringUtil.wrap(_completionTimeMs, "completionTimeMs"))
+           .append(StringUtil.wrap(_timerTrigger, "timertrigger"))
+           .append(StringUtil.wrap(_timerExpiry, "timerexpiry"))
            .append(StringUtil.wrap(_status, "status"))
            .append(StringUtil.wrap(_resourceStatus, "resourceStatus"))
            .append(StringUtil.wrap(_startedBy, "startedBy"))

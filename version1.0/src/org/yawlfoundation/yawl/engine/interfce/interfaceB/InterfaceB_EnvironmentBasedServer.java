@@ -9,10 +9,11 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
+import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -22,10 +23,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Method;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
-import java.lang.reflect.Method;
-import org.apache.log4j.Logger;
 
 
 /**
@@ -163,6 +163,9 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
         } else if ("cancelWorkItem".equals(action)) {
             WorkItemRecord workItem = Marshaller.unmarshalWorkItem(workItemXML);
             _controller.handleCancelledWorkItemEvent(workItem);
+        } else if ("timerExpiry".equals(action)) {
+            WorkItemRecord workItem = Marshaller.unmarshalWorkItem(workItemXML);
+            _controller.handleTimerExpiryEvent(workItem);
         } else if (InterfaceB_EngineBasedClient.ANNOUNCE_COMPLETE_CASE_CMD.equals(action)) {
             String caseID = request.getParameter("caseID");
             String casedata = request.getParameter("casedata");

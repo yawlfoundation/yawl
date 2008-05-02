@@ -37,6 +37,7 @@ import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.filters.FilterFactory;
 import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
 import org.yawlfoundation.yawl.resourcing.jsf.FormParameter;
+import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ConnectionCache;
 import org.yawlfoundation.yawl.resourcing.util.DataSchemaProcessor;
@@ -222,11 +223,16 @@ public class ResourceManager extends InterfaceBWebsideController
     public void handleEnabledWorkItemEvent(WorkItemRecord wir) {
         synchronized(_mutex) {
             if (_serviceEnabled) {
-                ResourceMap rMap = getResourceMap(wir) ;
-                if (rMap != null)
-                    wir = rMap.distribute(wir) ;
-                else
-                    wir = offerToAll(wir) ;   // only when no resourcing spec for item
+                if (isAutoTask(wir)) {
+                    handleAutoTask(wir, false);
+                }
+                else {
+                    ResourceMap rMap = getResourceMap(wir) ;
+                    if (rMap != null)
+                        wir = rMap.distribute(wir) ;
+                    else
+                        wir = offerToAll(wir) ;   // only when no resourcing spec for item
+                }
             }
 
             // service disabled, so route directly to admin's unoffered
@@ -234,7 +240,8 @@ public class ResourceManager extends InterfaceBWebsideController
 
             if (wir.isDeferredChoiceGroupMember()) mapDeferredChoice(wir);
 
-            _workItemCache.add(wir);
+            // store all manually-resourced workitems in the local cache
+            if (! isAutoTask(wir)) _workItemCache.add(wir);
         }
     }
 
@@ -256,6 +263,14 @@ public class ResourceManager extends InterfaceBWebsideController
                 }
             }
         }
+    }
+
+
+    public void handleTimerExpiryEvent(WorkItemRecord wir) {
+        if (isAutoTask(wir))
+            handleAutoTask(wir, true);
+        else
+            handleCancelledWorkItemEvent(wir);                 // remove from worklists   
     }
 
 
@@ -663,8 +678,12 @@ public class ResourceManager extends InterfaceBWebsideController
     // RETRIEVAL METHODS //
 
     public String getParticipantsAsXML() {
+        ArrayList<Participant> pList = new ArrayList<Participant>(_ds.participantMap.values());
+        Collections.sort(pList, new ParticipantNameComparator());
+        
         StringBuilder xml = new StringBuilder("<participants>") ;
-        for (Participant p : _ds.participantMap.values()) xml.append(p.toXML()) ;
+   //     for (Participant p : _ds.participantMap.values()) xml.append(p.toXML()) ;
+        for (Participant p : pList) xml.append(p.toXML()) ;
         xml.append("</participants>");
         return xml.toString() ;
     }
@@ -720,14 +739,20 @@ public class ResourceManager extends InterfaceBWebsideController
         return xml.toString() ;
     }
 
+    private ArrayList<Participant> sortFullParticipantListByName() {
+        ArrayList<Participant> pList = new ArrayList<Participant>(_ds.participantMap.values());
+        Collections.sort(pList, new ParticipantNameComparator());
+        return pList ;
+    }
 
 
     /**
      * @return a csv listing of the full name of each participant
      */
     public String getParticipantNames() {
+        ArrayList<Participant> pList = sortFullParticipantListByName();
         StringBuilder csvList = new StringBuilder() ;
-        for  (Participant p : _ds.participantMap.values()) {
+        for  (Participant p : pList) {
             if (csvList.length() > 0) csvList.append(",");
             csvList.append(p.getFullName()) ;
         }
@@ -745,6 +770,15 @@ public class ResourceManager extends InterfaceBWebsideController
             csvList.append(r.getName()) ;
         }
         return csvList.toString();
+    }
+
+
+    public Role getRoleByName(String roleName) {
+        for (Role r : _ds.roleMap.values()) {
+            if (r.getName().equalsIgnoreCase(roleName))
+                return r ;
+        }
+        return null ;                    // no match
     }
 
 
@@ -2372,5 +2406,63 @@ public class ResourceManager extends InterfaceBWebsideController
         }
     }
 
+
+    private boolean isAutoTask(WorkItemRecord wir) {
+        boolean result = false ;
+        String needsResourcingStr = wir.getRequiresManualResourcing();
+        if (needsResourcingStr != null)
+            result = needsResourcingStr.equalsIgnoreCase("false");
+
+        return result;
+    }
+
+
+    private void handleAutoTask(WorkItemRecord wir, boolean timedOut) {
+
+        // if this autotask has started a timer, don't process now - wait for timeout
+        if ((! timedOut) && (wir.getTimerTrigger() != null)) return;
+
+        synchronized(_mutex) {
+
+            // check out the auto workitem
+            if (checkOutWorkItem(wir, _engineSessionHandle)) {
+                List children = getChildren(wir.getID(), _engineSessionHandle);
+
+                if ((children != null) && (! children.isEmpty())) {
+                    try {
+                        wir = (WorkItemRecord) children.get(0) ;  // get executing child
+
+                        // get output params
+                        TaskInformation taskInfo = getTaskInformation(
+                                wir.getSpecificationID(), wir.getTaskID(),
+                                _engineSessionHandle);
+                        List<YParameter> outputs =
+                                           taskInfo.getParamSchema().getOutputParams() ;
+
+                        // execute & evaluate
+                        // TODO HERE: will go calls to codelet class plugins to do
+                        // TODO       whatever needs doing in this auto task
+                        Element outData = wir.getDataList();
+
+
+                        // check item back in
+                        String msg = checkInWorkItem(wir.getID(), wir.getDataList(),
+                                        outData, _engineSessionHandle) ;
+                        if (successful(msg))
+                            _log.info("Automated task '" + wir.getID() +
+                            "' successfully processed and checked back into the engine.");
+                        else
+                            _log.error("Automated task '" + wir.getID() +
+                                       " could not be successfully completed. Result " +
+                                       " message: " + msg) ;
+                    }
+                    catch (Exception e) {
+                        _log.error("Exception attempting to execute automatic task: " +
+                                wir.getID(), e);
+                    }
+                }
+            }
+        }
+    }
 
 }                                                                                  

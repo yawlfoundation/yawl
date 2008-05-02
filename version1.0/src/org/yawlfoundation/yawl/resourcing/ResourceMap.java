@@ -247,7 +247,7 @@ public class ResourceMap {
         HashSet<Participant> offerSet = null;
         if (_offer.getInitiator() == AbstractInteraction.USER_INITIATED) {
 
-            // put workitem in admin's unoffered & DONE
+            // put workitem in admin's unoffered queue & DONE
             admin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
         }
         else {
@@ -256,6 +256,7 @@ public class ResourceMap {
                _log.warn("Parse of resource specifications for workitem " + wir.getID() +
                          " resulted in an empty distribution list. Workitem will be" +
                          " passed to an administrator for manual distribution.");
+
                // put workitem in admin's unoffered queue & DONE
                admin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
                offerSet = null ;

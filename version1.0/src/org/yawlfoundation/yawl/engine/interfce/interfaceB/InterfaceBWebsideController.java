@@ -8,25 +8,17 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
-import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.engine.interfce.WorklistModel;
-import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
-import org.yawlfoundation.yawl.engine.interfce.AuthenticationConfig;
-import org.yawlfoundation.yawl.engine.interfce.Marshaller;
-import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
-import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.engine.interfce.WorklistModel;
-import org.yawlfoundation.yawl.exceptions.YAWLException;
-import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
-import org.apache.log4j.Category;
-import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.elements.data.YParameter;
+import static org.yawlfoundation.yawl.engine.YWorkItemStatus.statusEnabled;
+import org.yawlfoundation.yawl.engine.interfce.*;
+import org.yawlfoundation.yawl.exceptions.YAWLException;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -110,6 +102,14 @@ public abstract class InterfaceBWebsideController {
     public void handleCompleteCaseEvent(String caseID, String casedata) {
 
     }
+
+
+    /**
+     * Override this method to handle timeout on timed workitems
+     * @param expiredWorkItem
+     */
+    public void handleTimerExpiryEvent(WorkItemRecord expiredWorkItem) { }
+
 
     /**
      * Override this method if you wish to allow other tools to find out what

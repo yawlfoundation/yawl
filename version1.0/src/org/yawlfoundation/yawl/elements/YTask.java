@@ -1151,7 +1151,7 @@ public abstract class YTask extends YExternalNetElement {
         } catch (ClassCastException e) {
             if(resultObj != null)
             {
-            RuntimeException f = new RuntimeException("The result of the query yeilded an object of type "
+            RuntimeException f = new RuntimeException("The result of the query yielded an object of type "
                     + resultObj.getClass()
                     + ", but this engine insists on queries that produce elements only.");
             f.setStackTrace(e.getStackTrace());

@@ -1050,6 +1050,7 @@
 
         <!-- 1a. Make the dirs for the resourcing classes -->
         <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing"/>
+        <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/autoresource"/>
         <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/allocators"/>
         <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/constraints"/>
         <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/datastore"/>
@@ -1091,7 +1092,8 @@
         <copy todir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/exceptions">
            <fileset dir="${classes}/org/yawlfoundation/yawl/exceptions"
                     includes="YSchemaBuildingException.class YDataStateException.class
-                              YSyntaxException.class YAWLException.class" />
+                              YSyntaxException.class YAWLException.class
+                              YStateException.class YQueryException.class" />
         </copy>
 
         <copy todir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/forms">
@@ -1126,6 +1128,10 @@
         <!-- 2a. copy resourcing classes to relevant dirs -->
         <copy todir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing">
             <fileset dir="${classes}/org/yawlfoundation/yawl/resourcing"
+                     includes="*.class *.xml"/>
+        </copy>
+        <copy todir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/autoresource">
+            <fileset dir="${classes}/org/yawlfoundation/yawl/resourcing/autoresource"
                      includes="*.class *.xml"/>
         </copy>
         <copy todir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/allocators">
@@ -1212,7 +1218,7 @@
         <!-- 3. Copy required 3rd party libraries into dir structure -->
         <copy todir="${yawl.resource.app.name}/WEB-INF/lib">
            <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs} jdom.jar
-                    log4j*.jar postgresql-8.0-311.jdbc3.jar ${jsf.libs}
+                    log4j*.jar postgresql-8.0-311.jdbc3.jar ${jsf.libs} saxon7.jar
                     commons-lang-2.3.jar xercesImpl.jar"/>            
         </copy>
 

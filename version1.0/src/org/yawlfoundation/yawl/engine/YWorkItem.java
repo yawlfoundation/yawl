@@ -55,9 +55,10 @@ public class YWorkItem {
     private Date _startTime;
 
     private YWorkItemStatus _status;
-    private YWorkItemStatus _prevStatus = null;   //added by MJA for worklet service.
+    private YWorkItemStatus _prevStatus = null;             // for worklet service.
     private String _whoStartedMe;
     private boolean _allowsDynamicCreation;
+    private boolean _requiresManualResourcing;
     private YWorkItem _parent;                             // this item's parent (if any)
     private Set _children;                                 // this item's kids (if any)
     private Element _dataList;
@@ -67,6 +68,7 @@ public class YWorkItem {
 
     private Map _timerParameters ;                         // timer extensions
     private boolean _timerStarted ;
+    private long _timerExpiry = 0;
 
     private YEventLogger _eventLog = YEventLogger.getInstance();
     private Logger _log = Logger.getLogger(YWorkItem.class);
@@ -186,8 +188,11 @@ public class YWorkItem {
         if (timerParams == null) return false ;            // no var with param's name
 
         String trigger = timerParams.getChildText("trigger");
-        if (trigger == null) return false ;                // no trigger value set
-        
+        if (trigger == null) {
+            _log.warn("Unable to set timer for workitem: " + getIDString() +
+                      ". Missing 'trigger' parameter." ) ;
+            return false ;                                 // no trigger value set
+        }
         _timerParameters.put("trigger", YWorkItemTimer.Trigger.valueOf(trigger));
 
         String expiry = timerParams.getChildText("expiry");
@@ -206,7 +211,9 @@ public class YWorkItem {
                     return true ;                        // OK - trigger & duration set
                 }
                 catch (DatatypeConfigurationException dce) {
-                    return false ;   // invalid duration value - timer won't be set
+                    _log.warn("Unable to set timer for workitem: " + getIDString() +
+                              ". Missing or invalid 'duration' parameter." ) ;
+                    return false ;
                 }
             }
             else {
@@ -216,6 +223,10 @@ public class YWorkItem {
                     _timerParameters.put("ticks", new Long(ticks)) ;
                     _timerParameters.put("interval", YTimer.TimeUnit.valueOf(interval)) ;
                     return true ;                      // OK - trigger, ticks & i'val set
+                }
+                else {
+                    _log.warn("Unable to set timer for workitem: " + getIDString() +
+                              ". Missing or invalid 'ticks' and/or 'interval' parameter.") ;                    
                 }
                 return false ;                         // not all values valid
             }    
@@ -251,6 +262,9 @@ public class YWorkItem {
             YWorkItem childItem = new YWorkItem(pmgr,
                     new YWorkItemID(childCaseID, getWorkItemID().getTaskID()),
                     _specID, getEnablementTime(), this, _allowsDynamicCreation);
+
+            childItem.setRequiresManualResourcing(requiresManualResourcing());
+            childItem.setTimerParameters(getTimerParameters());
 
             _children.add(childItem);
             if (pmgr != null) pmgr.updateObject(this);
@@ -305,6 +319,8 @@ public class YWorkItem {
 
 
     public void checkStartTimer(YPersistenceManager pmgr, YCaseData data) {
+        YWorkItemTimer timer = null ;
+
         if (_timerParameters != null) {
 
             // get values from net-level var if necessary
@@ -325,14 +341,14 @@ public class YWorkItem {
                 String expiry = (String) _timerParameters.get("expiry");
                 if (expiry != null) {
                     Date expiryTime = new Date(new Long(expiry)) ;
-                    new YWorkItemTimer(_workItemID.toString(), expiryTime, (pmgr != null)) ;
+                    timer = new YWorkItemTimer(_workItemID.toString(), expiryTime, (pmgr != null)) ;
                     _timerStarted = true ;
                 }
                 else {
                     // try duration type
                     Duration duration = (Duration) _timerParameters.get("duration");
                     if (duration != null) {
-                        new YWorkItemTimer(_workItemID.toString(), duration, (pmgr != null));
+                        timer = new YWorkItemTimer(_workItemID.toString(), duration, (pmgr != null));
                         _timerStarted = true ;
                     }
                     else {
@@ -343,13 +359,15 @@ public class YWorkItem {
                                                       _timerParameters.get("interval") ;
 
                             if (interval == null) interval = YTimer.TimeUnit.MSEC ;
-                            new YWorkItemTimer(_workItemID.toString(),
+                            timer = new YWorkItemTimer(_workItemID.toString(),
                                                        ticks, interval, (pmgr != null)) ;
                             _timerStarted = true ;
                         }
                     }    
                 }
             }
+            if (_timerStarted && (timer != null))
+                _timerExpiry = timer.getEndTime();
         }
     }
 
@@ -486,6 +504,14 @@ public class YWorkItem {
             _specID.setVersion(version);
     }
 
+    public boolean requiresManualResourcing() {
+        return _requiresManualResourcing;
+    }
+
+    public void setRequiresManualResourcing(boolean requires) {
+        _requiresManualResourcing = requires;
+    }
+
     public String get_deferredChoiceGroupID() { return _deferredChoiceGroupID; }
 
     public void set_deferredChoiceGroupID(String id) { _deferredChoiceGroupID = id; }
@@ -580,6 +606,10 @@ public class YWorkItem {
 
     public void setTimerStarted(boolean started) { _timerStarted = started; }
 
+    public long getTimerExpiry() { return _timerExpiry; }
+
+    public void setTimerExpiry(long time) { _timerExpiry = time; }
+
     public boolean allowsDynamicCreation() { return _allowsDynamicCreation; }
 
     public String toString() {
@@ -610,7 +640,10 @@ public class YWorkItem {
         xmlBuff.append(StringUtil.wrap(_specID.getSpecName(), "specid"));
         xmlBuff.append(StringUtil.wrap(String.valueOf(_specID.getVersion()), "specversion"));
         xmlBuff.append(StringUtil.wrap(_status.toString(), "status"));
-        xmlBuff.append(StringUtil.wrap(String.valueOf(_allowsDynamicCreation), "allowsdynamiccreation"));
+        xmlBuff.append(StringUtil.wrap(String.valueOf(_allowsDynamicCreation),
+                                                              "allowsdynamiccreation"));
+        xmlBuff.append(StringUtil.wrap(String.valueOf(_requiresManualResourcing),
+                                                              "requiresmanualresourcing"));
         if (_deferredChoiceGroupID != null)
             xmlBuff.append(StringUtil.wrap(_deferredChoiceGroupID, "deferredChoiceGroupID"));
         if (_dataList != null)
@@ -628,6 +661,12 @@ public class YWorkItem {
             xmlBuff.append(StringUtil.wrap(String.valueOf(getStartTime().getTime()),
                          "startTimeMs")) ;
             xmlBuff.append(StringUtil.wrap(getUserWhoIsExecutingThisItem(), "startedBy"));
+        }
+        if (_timerParameters != null) {
+            String trigger =
+                       ((YWorkItemTimer.Trigger) _timerParameters.get("trigger")).name();
+            xmlBuff.append(StringUtil.wrap(trigger, "timertrigger"));
+            xmlBuff.append(StringUtil.wrap(String.valueOf(_timerExpiry), "timerexpiry"));
         }
         xmlBuff.append("</workItem>");
         return xmlBuff.toString();

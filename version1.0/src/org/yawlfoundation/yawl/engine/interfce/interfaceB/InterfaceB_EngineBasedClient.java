@@ -43,6 +43,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     protected static final String CANCELALLWORKITEMS_CMD =      "cancelAllInstancesUnderWorkItem";
     protected static final String CANCELWORKITEM_CMD =          "cancelWorkItem";
     protected static final String ANNOUNCE_COMPLETE_CASE_CMD =  "announceCompletion";
+    protected static final String ANNOUNCE_TIMER_EXPIRY_CMD =   "announceTimerExpiry";
 
     /**
      * Indicates which protocol this shim services.<P>
@@ -90,6 +91,19 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
             myHandler.start();
         }
     }
+
+
+    /**
+     * Announces a workitem timer expiry
+     * @param yawlService the yawl service reference.
+     * @param workItem the work item that has expired
+     */
+    public void announceTimerExpiry(YAWLServiceReference yawlService, YWorkItem workItem) {
+        Handler myHandler = new Handler(yawlService, workItem, ANNOUNCE_TIMER_EXPIRY_CMD);
+        myHandler.start();
+    }
+
+
 
     /**
      * Called by the engine to annouce when a case suspends (i.e. becomes fully
@@ -197,31 +211,31 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
 
         public void run() {
             try {
-                if (InterfaceB_EngineBasedClient.ADDWORKITEM_CMD.equals(_command)) {
+                if (ADDWORKITEM_CMD.equals(_command)) {
                     String urlOfYawlService = _yawlService.getURI();
                     String workItemXML = _workItem.toXML();
                     Map paramsMap = new HashMap();
                     paramsMap.put("workItem", workItemXML);
                     paramsMap.put("action", "handleEnabledItem");
                     Interface_Client.executePost(urlOfYawlService, paramsMap);
-                } else if (InterfaceB_EngineBasedClient.CANCELALLWORKITEMS_CMD.equals(_command)) {
-                    InterfaceB_EngineBasedClient.cancelWorkItem(_yawlService, _workItem);
+                } else if (CANCELALLWORKITEMS_CMD.equals(_command)) {
+                    cancelWorkItem(_yawlService, _workItem);
                     Set children = _workItem.getChildren();
                     if (children != null) {
                         Iterator iter = children.iterator();
                         while (iter.hasNext()) {
                             YWorkItem item = (YWorkItem) iter.next();
-                            InterfaceB_EngineBasedClient.cancelWorkItem(_yawlService, item);
+                            cancelWorkItem(_yawlService, item);
                         }    
                     }
-                } else if (InterfaceB_EngineBasedClient.CANCELWORKITEM_CMD.equals(_command)) {
+                } else if (CANCELWORKITEM_CMD.equals(_command)) {
                     String urlOfYawlService = _yawlService.getURI();
                     String workItemXML = _workItem.toXML();
                     Map paramsMap = new HashMap();
                     paramsMap.put("workItem", workItemXML);
                     paramsMap.put("action", "cancelWorkItem");
                     Interface_Client.executePost(urlOfYawlService, paramsMap);
-                } else if (InterfaceB_EngineBasedClient.ANNOUNCE_COMPLETE_CASE_CMD.equals(_command)) {
+                } else if (ANNOUNCE_COMPLETE_CASE_CMD.equals(_command)) {
                     String urlOfYawlService = _yawlService.getURI();
                     String caseID = _caseID.toString();
                     String casedataStr = JDOMUtil.documentToString(_casedata) ;
@@ -229,6 +243,13 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                     paramsMap.put("action", _command);
                     paramsMap.put("caseID", caseID);
                     paramsMap.put("casedata", casedataStr) ;
+                    Interface_Client.executePost(urlOfYawlService, paramsMap);
+                } else if (ANNOUNCE_TIMER_EXPIRY_CMD.equals(_command)) {
+                    String urlOfYawlService = _yawlService.getURI();
+                    String workItemXML = _workItem.toXML();
+                    Map paramsMap = new HashMap();
+                    paramsMap.put("workItem", workItemXML);
+                    paramsMap.put("action", "timerExpiry");
                     Interface_Client.executePost(urlOfYawlService, paramsMap);
                 }
             } catch (IOException e) {

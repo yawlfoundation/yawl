@@ -54,7 +54,7 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
     private Hashtable _attribues;
 
     // if true, this decomposition requires resourcing decisions made at runtime
-    protected boolean _manualInteraction ;
+    protected boolean _manualInteraction = true;
 
     /*
   INSERTED FOR PERSISTANCE
