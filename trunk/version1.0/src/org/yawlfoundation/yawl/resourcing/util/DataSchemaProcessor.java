@@ -76,7 +76,7 @@ public class DataSchemaProcessor {
     private String buildSchema(List<Instruction> instructions, SpecificationData specData,
                                String rootElementName)
              throws IOException, JDOMException, YSchemaBuildingException, YSyntaxException{
-
+        Collections.sort(instructions);
         XMLToolsForYAWL xmlToolsForYawl = new XMLToolsForYAWL();
         xmlToolsForYawl.setPrimarySchema(specData.getSchemaLibrary());
         return xmlToolsForYawl.createYAWLSchema(instructions, rootElementName);

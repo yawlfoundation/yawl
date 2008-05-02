@@ -3316,7 +3316,10 @@ public void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus old
             ixClient.announceTimeOut(item, timeOutTaskIds);
     }
 
-    public void announceTimerExpiryToExceptionService(YWorkItem item) {
+    public void announceTimerExpiryEvent(YWorkItem item) {
+        if (_resourceObserver != null)
+            observerGatewayController.notifyTimerExpiry(_resourceObserver, item);
+
         if (_exceptionObserver != null) _exceptionObserver.announceTimeOut(item, null);
     }
 

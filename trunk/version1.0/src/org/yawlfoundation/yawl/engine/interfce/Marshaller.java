@@ -232,6 +232,8 @@ public class Marshaller {
             wir.setUniqueID(workItemElement.getChildText("uniqueid"));
             wir.setAllowsDynamicCreation(workItemElement.getChildText(
                                                               "allowsdynamiccreation"));
+            wir.setRequiresManualResourcing(workItemElement.getChildText(
+                                                           "requiresmanualresourcing"));
             wir.setDeferredChoiceGroupID(workItemElement.getChildText(
                                                               "deferredChoiceGroupid"));
             wir.setSpecVersion(workItemElement.getChildText("specversion"));
@@ -243,6 +245,8 @@ public class Marshaller {
             wir.setStartTimeMs(workItemElement.getChildText("startTimeMs"));
             wir.setCompletionTimeMs(workItemElement.getChildText("completionTimeMs"));
             wir.setCompletionTimeMs(workItemElement.getChildText("resourceStatus"));
+            wir.setTimerTrigger(workItemElement.getChildText("timertrigger"));
+            wir.setTimerExpiry(workItemElement.getChildText("timerexpiry"));
             wir.setStartedBy(workItemElement.getChildText("startedBy"));
             wir.setTag(workItemElement.getChildText("tag"));
 

@@ -83,19 +83,19 @@ public class YWorkItemTimer implements YTimedObject {
     public void handleTimerExpiry() {
 
         // when workitem completes, check if there's a timer for it and if so, cancel it.
-
-        // getstatus
         YEngine engine = YEngine.getInstance();
         YWorkItem item = engine.getWorkItem(_ownerID) ;
         if (item != null) {
             try {
                 if (item.getStatus().equals(YWorkItemStatus.statusEnabled)) {
-                    engine.skipWorkItem(item, "_timerExpiry") ;
-                    engine.announceTimerExpiryToExceptionService(item);
+                    if (item.requiresManualResourcing())              // not an autotask
+                        engine.skipWorkItem(item, "_timerExpiry") ;
+                    engine.announceTimerExpiryEvent(item);
                 }
                 else if (item.hasUnfinishedStatus()) {
-                    engine.completeWorkItem(item, "_timerExpiry", true) ;
-                    engine.announceTimerExpiryToExceptionService(item);
+                    if (item.requiresManualResourcing())              // not an autotask
+                        engine.completeWorkItem(item, "_timerExpiry", true) ;
+                    engine.announceTimerExpiryEvent(item);
                 }
             }
             catch (Exception e) {

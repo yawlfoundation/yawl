@@ -654,12 +654,16 @@ public class YNetRunner // extends Thread
 			workItem.setData(pmgr, data);
         }
 
+        workItem.setRequiresManualResourcing(
+                 atomicTask.getDecompositionPrototype().requiresResourcingDecisions());
+
         // set timer params and start timer if required
         Map timerParams = atomicTask.getTimeParameters();
         if (timerParams != null) {
             workItem.setTimerParameters(timerParams);
             workItem.checkStartTimer(pmgr, casedata);
         }
+        
         return workItem;
     }
 

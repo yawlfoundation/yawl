@@ -9,12 +9,9 @@
 
 package org.yawlfoundation.yawl.engine;
 
+import org.jdom.Document;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.engine.YWorkItem;
-import org.yawlfoundation.yawl.engine.YWorkItemStatus;
-
-import org.jdom.Document;
 
 
 /**
@@ -43,6 +40,14 @@ public interface ObserverGateway
      * @param item
      */
     void cancelAllWorkItemsInGroupOf(YAWLServiceReference yawlService, YWorkItem item);
+
+    /**
+     * Called by the engine when a timer for a workitem expires.<P>
+     *
+     * @param yawlService
+     * @param item
+     */
+    void announceTimerExpiry(YAWLServiceReference yawlService, YWorkItem item);
 
 
     /**

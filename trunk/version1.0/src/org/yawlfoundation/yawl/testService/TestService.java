@@ -59,9 +59,10 @@ public class TestService extends InterfaceBWebsideController {
    //     output.append(doResourceServiceGatewayTest()) ;
    //    output.append(createDummyOrgData());
    //      output.append(doLogGatewayTest()) ;
-       output.append(doWorkQueueGatewayTest()) ;
+   //    output.append(doWorkQueueGatewayTest()) ;
    //     output.append(ibTest());
    //     output.append(doRandomTest()) ;
+        output.append(doGetParticipantsTest()) ;
 
 
          output.append("</p></body></html>");
@@ -71,6 +72,21 @@ public class TestService extends InterfaceBWebsideController {
     }
 
     private void prn(String s) { System.out.println(s) ; }
+
+    private String doGetParticipantsTest() {
+        String resURL = "http://localhost:8080/resourceService/gateway";
+        ResourceGatewayClientAdapter resClient = new ResourceGatewayClientAdapter(resURL) ;
+        String handle = resClient.connect("admin", "YAWL");
+
+        try {
+            List<String> pSet = resClient.getAllParticipantNames(handle);
+            for (String s : pSet) {
+                System.out.println(s);
+            }
+        }
+        catch (IOException ioe) {}
+        return "";
+    }
 
     private String doRandomTest() {
         int max = 11 ;

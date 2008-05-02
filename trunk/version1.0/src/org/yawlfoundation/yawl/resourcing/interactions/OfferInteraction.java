@@ -554,18 +554,23 @@ public class OfferInteraction extends AbstractInteraction {
             String varID = wir.getWorkItemData().getChildText(_name) ;
 
             if (_refers == USER_PARAM) {
-                Participant p = _rm.getParticipant(varID) ;
+                Participant p = _rm.getParticipantFromUserID(varID);
                 if (p != null)
                     result.add(p) ;
                 else
-                    _log.error("Unknown participant ID in dynamic parameter: " + _name );
+                    _log.error("Unknown participant userID '" + varID +
+                               "' in dynamic parameter: " + _name );
             }
             else {
-                Set<Participant> rpSet = _rm.getRoleParticipants(varID) ;
-                if (rpSet != null)
-                    result.addAll(rpSet) ;
+                Role r = _rm.getRoleByName(varID) ;
+                if (r != null) {
+                    Set<Participant> rpSet = _rm.getRoleParticipants(r.getID()) ;
+                    if (rpSet != null)
+                        result.addAll(rpSet) ;
+                }    
                 else
-                    _log.error("Unknown role ID in dynamic parameter: " + _name );
+                    _log.error("Unknown role '" + varID + "' in dynamic parameter: " +
+                                _name );
             }
             if (result.isEmpty()) result = null ;
             return result ;

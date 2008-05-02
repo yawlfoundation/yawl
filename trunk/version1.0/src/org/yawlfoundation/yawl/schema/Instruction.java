@@ -17,7 +17,7 @@ package org.yawlfoundation.yawl.schema;
  * Time: 12:31:15
  * 
  */
-public abstract class Instruction {
+public abstract class Instruction implements Comparable {
     protected String _elementName;
 
 
@@ -31,5 +31,9 @@ public abstract class Instruction {
 
     public String toString() {
         return _elementName;
+    }
+
+    public int compareTo(Object other) {
+        return _elementName.compareToIgnoreCase(((Instruction) other).getElementName());
     }
 }
