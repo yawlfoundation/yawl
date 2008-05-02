@@ -175,6 +175,10 @@ public class YEngine implements InterfaceADesign,
                 if (service.get_serviceName().equals("resourceService"))
                     _myInstance.setResourceService(service);
             }
+
+            // make sure the resourceService is loaded
+            if (_resourceObserver == null) loadBasicServices() ;
+
             logger.info("Restoring Services - Ends");
 
 
@@ -210,10 +214,11 @@ public class YEngine implements InterfaceADesign,
                 runners.add(runner);
             }
 
-            // restore next available case number
+            // START: restore next available case number
             query = pmgr.createQuery("from org.yawlfoundation.yawl.engine.YCaseNbrStore");
             if ((query != null) && (! query.list().isEmpty())) {
                 _caseNbrStore = (YCaseNbrStore) query.iterate().next();
+                _caseNbrStore.setPersisted(true);               // flag to update only
             }
             else {
                 
@@ -231,7 +236,6 @@ public class YEngine implements InterfaceADesign,
 
             // persisting flag must be reset as it is not itself persisted
             _caseNbrStore.setPersisting(true);
-            _caseNbrStore.setPersisted(true);               // flag to update only
 
             // END: restore case numbers
             
@@ -594,19 +598,7 @@ public class YEngine implements InterfaceADesign,
             else {
 
                 // not persisting, so make sure standard services are loaded
-                YAWLServiceReference ys;
-
-                ys = new YAWLServiceReference("http://localhost:8080/workletService/ib", null);
-                ys.setDocumentation("Worklet Dynamic Process Selection and Exception Service");
-                ys.set_serviceName("workletService");
-                _myInstance.addYawlService(ys);
-
-                ys = new YAWLServiceReference("http://localhost:8080/resourceService/ib", null);
-                ys.setDocumentation("Resource Service, assigns workitems to resources.");
-                ys.set_serviceName("resourceService");
-                ys.set_assignable(false);                            // don't show in editor
-                _myInstance.addYawlService(ys);
-                _myInstance.setResourceService(ys);
+                loadBasicServices() ;
             }
             
             /**
@@ -626,6 +618,39 @@ public class YEngine implements InterfaceADesign,
         return _myInstance;
     }
 
+
+    private static void loadBasicServices() throws YPersistenceException {
+        // TODO : load these from a properties file & cleanup method
+
+        YAWLServiceReference ys;
+
+        ys = new YAWLServiceReference("http://localhost:8080/workletService/ib", null);
+        ys.setDocumentation("Worklet Dynamic Process Selection and Exception Service");
+        ys.set_serviceName("workletService");
+        _myInstance.addYawlService(ys);
+
+        if (isPersisting()) persistYAWLService(ys);
+
+        ys = new YAWLServiceReference("http://localhost:8080/resourceService/ib", null);
+        ys.setDocumentation("Resource Service, assigns workitems to resources.");
+        ys.set_serviceName("resourceService");
+        ys.set_assignable(false);                            // don't show in editor
+        _myInstance.addYawlService(ys);
+        _myInstance.setResourceService(ys);
+
+        if (isPersisting()) persistYAWLService(ys);
+    }
+
+
+    private static void persistYAWLService(YAWLServiceReference ys)
+                                                      throws YPersistenceException {
+        YPersistenceManager pmgr = new YPersistenceManager(getPMSessionFactory());
+        pmgr.startTransactionalSession();
+        pmgr.storeObject(ys);
+        pmgr.commit();
+    }
+
+    
     public static YEngine getInstance() {
         if (_myInstance == null) {
             try {
