@@ -30,7 +30,8 @@ public interface EngineGateway extends Remote {
      * @return boolean
      */
     public boolean enginePersistenceFailure();
-    
+
+    public void setStaticYAWLProperties(String props); 
 
     /**
      *

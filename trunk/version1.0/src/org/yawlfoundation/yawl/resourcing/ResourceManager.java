@@ -52,7 +52,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -64,8 +63,7 @@ import java.util.*;
  *  v0.1, 03/08/2007
  */
 
-public class ResourceManager extends InterfaceBWebsideController
-                             implements Serializable {
+public class ResourceManager extends InterfaceBWebsideController {
 
     // store of organisational resources and their attributes
     private DataSource.ResourceDataSet _ds ;
@@ -494,6 +492,7 @@ public class ResourceManager extends InterfaceBWebsideController
     public boolean isKnownUserID(String userid) {
         return _userKeys.containsKey(userid);
     }
+
 
     // ADD (NEW) ORG DATA OBJECTS //
 
@@ -1350,9 +1349,18 @@ public class ResourceManager extends InterfaceBWebsideController
             p.getWorkQueues().removeFromQueue(wir, WorkQueue.ALLOCATED);
 
             ResourceMap rMap = getResourceMap(wir) ;
-            rMap.ignore(p);                           // add Participant to ignore list
-            rMap.distribute(wir);                     // redistribute workitem
-            success = true ;
+            if (rMap != null) {
+                rMap.ignore(p);                       // add Participant to ignore list
+                rMap.distribute(wir);                 // redistribute workitem
+                success = true ;
+            }
+            else {                                    // pre version 2.0
+                if (getParticipantCount() > 1) {
+                    offerToAll(wir);
+                    p.getWorkQueues().removeFromQueue(wir, WorkQueue.OFFERED);
+                }
+                else _resAdmin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
+            }
         }
         return success ;
     }
@@ -1940,20 +1948,23 @@ public class ResourceManager extends InterfaceBWebsideController
 
 
     private String connectParticipant(String userid, String password) {
-        String handle = null ;
+        String handle ;
+        String result = "success" ;
         try {
             // create new user for service if necessary
             if (! isRegisteredUser(userid))
-               _interfaceAClient.createUser(userid, password, false, _engineSessionHandle);
-
-            handle = connect(userid, password);
+                result = _interfaceAClient.createUser(userid, password, false,
+                                                                   _engineSessionHandle);
+            if (successful(result))
+                handle = connect(userid, password);
+            else
+                handle = result ;
         }
         catch (IOException ioe) {
             _log.error("IOException trying to connect user to engine: " + userid);
             handle = "<failure>Failed to connect to YAWL engine</failure>";
         }
         return handle ;
-
     }
 
 
@@ -2386,15 +2397,20 @@ public class ResourceManager extends InterfaceBWebsideController
         Participant p = getParticipant(participantID);
         removeFromAll(wir) ;
 
-        if (action.equals("Reoffer")) {
+        if (action.equals("Reoffer")) {            
+            ResourceMap rMap = getResourceMap(wir);
+            if (rMap != null) {
+                rMap.withdrawOffer(wir);
+                rMap.addToOfferedSet(wir, p);
+            }
             wir.resetDataState();
-            p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
             wir.setResourceStatus(WorkItemRecord.statusResourceOffered);
+            p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
         }
         else if (action.equals("Reallocate")) {
             wir.resetDataState();
-            p.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
             wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
+            p.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
         }
         else if (action.equals("Restart")) {
             if (wir.getStatus().equals(WorkItemRecord.statusEnabled))
@@ -2404,6 +2420,7 @@ public class ResourceManager extends InterfaceBWebsideController
                 wir.setResourceStatus(WorkItemRecord.statusResourceStarted);
             }
         }
+        _workItemCache.update(wir);
     }
 
 

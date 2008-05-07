@@ -9,6 +9,11 @@
 
 package org.yawlfoundation.yawl.elements;
 
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.elements.e2wfoj.E2WFOJNet;
@@ -23,22 +28,9 @@ import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.util.Order;
 import org.yawlfoundation.yawl.util.Sorter;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
 
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * 
@@ -574,6 +566,7 @@ public final class YNet extends YDecomposition {
             }
         }
 
+        // validate against schema
         getSpecification().getDataValidator().validate(
                                    getInputParameters().values(), incomingData, getID());
 

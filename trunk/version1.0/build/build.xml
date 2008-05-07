@@ -468,6 +468,7 @@
         </copy>
 
         <copy file="${property.files}/log4j.properties" todir="${yawl.eng.app.name}/WEB-INF/classes"/>
+        <copy file="${property.files}/yawl.properties" todir="${yawl.eng.app.name}/WEB-INF/classes"/>
 
         <copy todir="${yawl.eng.app.name}/WEB-INF">
             <fileset file="${build.home}/engine/web.xml"/>

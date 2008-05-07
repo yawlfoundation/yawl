@@ -834,14 +834,31 @@ public class participantData extends AbstractPageBean {
 
 
     private boolean checkValidPasswordChange() {
+        boolean result = true ;
+
         String password = (String) txtNewPassword.getPassword();
-        if (password.length() > 0) {
-            if (password.indexOf(" ") > -1)
-                return false;                // no spaces allowed
-            String confirm = (String) txtConfirmPassword.getPassword();
-            return password.equals(confirm);
+        if (password.length() == 0) {
+            msgPanel.error("ERROR: No password entered");
+            result = false ;
         }
-        return true ;
+        else {
+            if (password.length() < 4) {
+                msgPanel.error("ERROR: Password must contain at least 4 characters");
+                result = false ;
+            }
+
+            if (password.indexOf(" ") > -1) {
+                msgPanel.error("ERROR: Password cannot contain spaces");
+                result = false;
+            }
+
+            String confirm = (String) txtConfirmPassword.getPassword();
+            if (! password.equals(confirm)) {
+                msgPanel.error("ERROR: Password and confirmation are different");
+                result = false;
+            }
+        }
+        return result ;
     }
 
 
@@ -869,10 +886,8 @@ public class participantData extends AbstractPageBean {
         }
 
         // password check
-        if (! checkValidPasswordChange()) {
-            msgPanel.error("ERROR: Password and confirmation are different");
+        if (! checkValidPasswordChange()) 
             result = false;
-        }
 
         // warn if no attributes
         Participant p = getSessionBean().getAddedParticipant();

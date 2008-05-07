@@ -9,12 +9,12 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
+import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.apache.log4j.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -43,7 +43,6 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
     private static Logger logger = null;
 
 
-
     public void init() throws ServletException {
 
         /**
@@ -51,20 +50,41 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
          */
         logger = Logger.getLogger(this.getClass());
 
-        ServletContext context = getServletContext();
 
         /*
         ADDED FOR PERSISTANCE TO CHECK IF
         DATABASE IS ENABLED/DISABLED
         */
         try {
+            ServletContext context = getServletContext();
+            
             _engine = (EngineGateway) context.getAttribute("engine");
             if (_engine == null) {
                 String persistOn = context.getInitParameter("EnablePersistence");
                 boolean persist = "true".equalsIgnoreCase(persistOn);
                 _engine = new EngineGatewayImpl(persist);
                 context.setAttribute("engine", _engine);
-            }
+//
+//                // load yawl.properties (if any)
+//                String prop = "";
+//                InputStream in = context.getResourceAsStream(
+//                                   "/WEB-INF/classes/yawl.properties");
+//                if (in != null) {
+//                    byte[] buf = new byte[1024];
+//                    int data;
+//                    do {
+//                        data = in.read(buf);
+//                        prop += new String(buf);
+//                    } while (data != -1);
+//
+//                    in.close();
+//
+//                    if (prop != null) _engine.setStaticYAWLProperties(prop);
+//                }
+          }
+//        } catch (IOException ioe) {
+//            logger.warn("Could not load static properties from file.");
+
         } catch (YPersistenceException e) {
             logger.fatal("Failure to initialise runtime (persistence failure)", e);
             throw new UnavailableException("Persistence failure");
