@@ -23,10 +23,7 @@ import org.yawlfoundation.yawl.elements.state.YInternalCondition;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceADesign;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceAManagement;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceAManagementObserver;
-import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBClient;
-import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBClientObserver;
-import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBInterop;
-import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBasedClient;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.*;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
@@ -98,6 +95,7 @@ public class YEngine implements InterfaceADesign,
     private static YCaseNbrStore _caseNbrStore;
     private static SessionFactory factory = null;
     private static final String _yawlVersion = "2.0" ;
+    private static String _staticYAWLProperties = null ;
 
     /**
      * AJH: Switch indicating if we generate user interface attributes with a task's
@@ -175,9 +173,9 @@ public class YEngine implements InterfaceADesign,
                 if (service.get_serviceName().equals("resourceService"))
                     _myInstance.setResourceService(service);
             }
-
-            // make sure the resourceService is loaded
-            if (_resourceObserver == null) loadBasicServices() ;
+           
+            // if no services loaded, go to secondary load method (from properties file)
+            if (_yawlServices.isEmpty()) loadBasicServices() ;
 
             logger.info("Restoring Services - Ends");
 
@@ -237,7 +235,7 @@ public class YEngine implements InterfaceADesign,
             // persisting flag must be reset as it is not itself persisted
             _caseNbrStore.setPersisting(true);
 
-            // END: restore case numbers
+            // END: restore case number
             
             int checkedrunners = 0;
 
@@ -425,6 +423,8 @@ public class YEngine implements InterfaceADesign,
             logger.info("Restarting restored process instances - Ends");
 
             restoring = false;
+
+            _staticYAWLProperties = null;                     // free up processed props
 
             logger.info("Restore completed OK");
 
@@ -621,6 +621,10 @@ public class YEngine implements InterfaceADesign,
 
     private static void loadBasicServices() throws YPersistenceException {
         // TODO : load these from a properties file & cleanup method
+//        if (_staticYAWLProperties != null )  {
+//            ArrayList<String> services = processYAWLProperties("service") ;
+//            System.out.println(services);
+//        }
 
         YAWLServiceReference ys;
 
@@ -650,7 +654,34 @@ public class YEngine implements InterfaceADesign,
         pmgr.commit();
     }
 
-    
+
+//    public void setStaticYAWLProperties(String props) {
+//        _staticYAWLProperties = props ;
+//    }
+//
+//
+//    private static ArrayList<String> processYAWLProperties(String label) {
+//        ArrayList<String> result = new ArrayList<String>();
+//        // split on \n   --> get each entry
+//        String[] entries = _staticYAWLProperties.split("\n");
+//
+//        // for each entry
+//        for (String entry : entries) {
+//
+//            //    if begins with #, ignore
+//            if (! entry.startsWith("#")) {
+//        //    else split on =
+//                String[] parts = entry.split("=");
+//                if (label.equals(parts[0])) result.add(parts[1]);
+//
+//        //    left is entity name (eg. service), right is settings
+//        //    split settings on ;
+//        // loadService(name, uri, assignable?, desc)
+//            }
+//        }
+//        return result ;
+//    }
+
     public static YEngine getInstance() {
         if (_myInstance == null) {
             try {

@@ -3,8 +3,6 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 import com.sun.rave.web.ui.component.ImageComponent;
 import com.sun.rave.web.ui.component.PanelLayout;
 import com.sun.rave.web.ui.component.StaticText;
-import org.jdom.Element;
-import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,13 +86,26 @@ public class MessagePanel extends PanelLayout {
         else this.setVisible(false);
     }
 
-    public String format(String xml) {
-        Element root = JDOMUtil.stringToElement(xml) ;
-        if (root != null)
-            return root.getText() ;
-        else
-            return null ;
+
+    private String unwrap(String xml) {
+        String result = null;
+        if (xml != null) {
+            int start = xml.indexOf(">") + 1;
+            int finish = xml.lastIndexOf("<");
+            if (start >= 0 && finish >= 0) {
+                result = xml.substring(start, finish);
+            }
+        }
+        return result;
     }
+
+
+    public String format(String xml) {
+        while ((xml != null) && xml.startsWith("<"))
+            xml = unwrap(xml);
+        return xml ;
+    }
+
 
     private List<String> addMessage(List<String> list, String message) {
         if (list == null)  list = new ArrayList<String>();

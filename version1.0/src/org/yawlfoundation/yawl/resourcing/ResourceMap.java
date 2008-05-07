@@ -48,7 +48,7 @@ public class ResourceMap {
     private String _piledResourceID ;                              // for persistence
     private Persister _persister ;
 
-    private HashSet<Participant> _ignoreSet = new HashSet<Participant>();
+    private HashSet<String> _ignoreSet = new HashSet<String>();
 
     // workitem id - offered-to-participants mapping
     private HashMap<String, HashSet<Participant>> _offered = new
@@ -194,11 +194,12 @@ public class ResourceMap {
     public boolean getPersisting() { return (_persister != null); }
 
 
-    public void ignore(Participant p) { _ignoreSet.add(p) ; }
+    public void ignore(Participant p) { _ignoreSet.add(p.getID()) ; }
     
     public HashSet<Participant> getOfferedParticipants(String itemID) {
         return _offered.get(itemID) ;
     }
+
     /****************************************************************************/
 
     
@@ -226,8 +227,15 @@ public class ResourceMap {
 
                     // not piled or chained, distribute in normal manner
                     removeIgnoredParticipants(distributionSet);
-                    Participant chosen = doAllocate(distributionSet, wir) ;
-                    if (chosen != null) doStart(chosen, wir) ;
+                    if (! distributionSet.isEmpty()) {
+                        Participant chosen = doAllocate(distributionSet, wir) ;
+                        if (chosen != null) doStart(chosen, wir) ;
+                    }
+                    else {
+
+                        // ignored p's --> empty distribution set: put in unoffered
+                        addToAdminUnofferedQueue(wir);
+                    }
                 }
             }
         }
@@ -242,13 +250,20 @@ public class ResourceMap {
     }
 
 
-    private HashSet<Participant> doOffer(WorkItemRecord wir) {
+    private void addToAdminUnofferedQueue(WorkItemRecord wir) {
         ResourceAdministrator admin = ResourceAdministrator.getInstance();
+        wir.setResourceStatus(WorkItemRecord.statusResourceUnoffered);
+        admin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
+    }
+
+
+
+    private HashSet<Participant> doOffer(WorkItemRecord wir) {
         HashSet<Participant> offerSet = null;
         if (_offer.getInitiator() == AbstractInteraction.USER_INITIATED) {
 
             // put workitem in admin's unoffered queue & DONE
-            admin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
+            addToAdminUnofferedQueue(wir);
         }
         else {
            offerSet = (HashSet<Participant>) _offer.performOffer(wir);
@@ -258,7 +273,7 @@ public class ResourceMap {
                          " passed to an administrator for manual distribution.");
 
                // put workitem in admin's unoffered queue & DONE
-               admin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
+               addToAdminUnofferedQueue(wir);
                offerSet = null ;
            }
         }
@@ -299,7 +314,10 @@ public class ResourceMap {
 
 
     private void removeIgnoredParticipants(HashSet<Participant> distributionSet) {
-        for (Participant p : _ignoreSet) distributionSet.remove(p) ;
+        for (Participant p : distributionSet) {
+            if (_ignoreSet.contains(p.getID()))
+                distributionSet.remove(p) ;
+        }
     }
 
     

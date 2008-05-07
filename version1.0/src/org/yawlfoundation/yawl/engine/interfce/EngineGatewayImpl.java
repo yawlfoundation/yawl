@@ -106,6 +106,10 @@ public class EngineGatewayImpl implements EngineGateway {
         return enginePersistenceFailure;
     }
 
+    public void setStaticYAWLProperties(String props) {
+//        _engine.setStaticYAWLProperties(props);
+    }
+
     /**
      *
      * @param sessionHandle
