@@ -15,6 +15,7 @@ import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.yawlfoundation.yawl.util.YProperties;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -57,35 +59,39 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
         */
         try {
             ServletContext context = getServletContext();
-            
+
+            // load yawl.properties (if any)
+            String props = "";
+            InputStream in = context.getResourceAsStream(
+                               "/WEB-INF/classes/yawl.properties");
+            if (in != null) {
+                int data;
+                do {
+                    byte[] buf = new byte[1024];
+                    data = in.read(buf);
+                    props += new String(buf);
+                } while (data != -1);
+
+                in.close();
+
+                if (props != null) {
+                    YProperties yProp = YProperties.getInstance();
+                    yProp.setProperties(props);
+                }
+            }
+
             _engine = (EngineGateway) context.getAttribute("engine");
             if (_engine == null) {
                 String persistOn = context.getInitParameter("EnablePersistence");
                 boolean persist = "true".equalsIgnoreCase(persistOn);
                 _engine = new EngineGatewayImpl(persist);
                 context.setAttribute("engine", _engine);
-//
-//                // load yawl.properties (if any)
-//                String prop = "";
-//                InputStream in = context.getResourceAsStream(
-//                                   "/WEB-INF/classes/yawl.properties");
-//                if (in != null) {
-//                    byte[] buf = new byte[1024];
-//                    int data;
-//                    do {
-//                        data = in.read(buf);
-//                        prop += new String(buf);
-//                    } while (data != -1);
-//
-//                    in.close();
-//
-//                    if (prop != null) _engine.setStaticYAWLProperties(prop);
-//                }
-          }
-//        } catch (IOException ioe) {
-//            logger.warn("Could not load static properties from file.");
-
-        } catch (YPersistenceException e) {
+            }
+        }
+        catch (IOException ioe) {
+            logger.warn("Could not load static properties from file.");
+        }
+        catch (YPersistenceException e) {
             logger.fatal("Failure to initialise runtime (persistence failure)", e);
             throw new UnavailableException("Persistence failure");
         }

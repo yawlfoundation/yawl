@@ -1701,7 +1701,6 @@ public class ResourceManager extends InterfaceBWebsideController {
     public Set<Participant> getWhoCompletedTask(String taskID, WorkItemRecord wir) {
         Set<Participant> result = new HashSet<Participant>();
 
-        // todo: BUILD ADAPTER CLASS FOR IE CLIENT
         try {
             String xml = _interfaceEClient.getParentWorkItemEventsForCaseID(
                                                 wir.getCaseID(), _engineSessionHandle) ;
@@ -1713,7 +1712,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                     while (itr.hasNext()) {
                         Element event = (Element) itr.next();
                         if (event.getChildText("taskID").equals(taskID) &&
-                            event.getChildText("eventName").equals("completed")) {
+                            event.getChildText("eventName").equals("Complete")) {
                             String userid = event.getChildText("resourceID");
                             if (userid != null)
                                 result.add(getParticipantFromUserID(userid));
