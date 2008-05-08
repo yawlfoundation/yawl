@@ -95,7 +95,6 @@ public class YEngine implements InterfaceADesign,
     private static YCaseNbrStore _caseNbrStore;
     private static SessionFactory factory = null;
     private static final String _yawlVersion = "2.0" ;
-    private static String _staticYAWLProperties = null ;
 
     /**
      * AJH: Switch indicating if we generate user interface attributes with a task's
@@ -175,7 +174,7 @@ public class YEngine implements InterfaceADesign,
             }
            
             // if no services loaded, go to secondary load method (from properties file)
-            if (_yawlServices.isEmpty()) loadBasicServices() ;
+            if (_yawlServices.isEmpty()) loadServicesFromProperties() ;
 
             logger.info("Restoring Services - Ends");
 
@@ -424,8 +423,6 @@ public class YEngine implements InterfaceADesign,
 
             restoring = false;
 
-            _staticYAWLProperties = null;                     // free up processed props
-
             logger.info("Restore completed OK");
 
             if (logger.isDebugEnabled()) {
@@ -598,7 +595,7 @@ public class YEngine implements InterfaceADesign,
             else {
 
                 // not persisting, so make sure standard services are loaded
-                loadBasicServices() ;
+                loadServicesFromProperties() ;
             }
             
             /**
@@ -619,30 +616,18 @@ public class YEngine implements InterfaceADesign,
     }
 
 
-    private static void loadBasicServices() throws YPersistenceException {
-        // TODO : load these from a properties file & cleanup method
-//        if (_staticYAWLProperties != null )  {
-//            ArrayList<String> services = processYAWLProperties("service") ;
-//            System.out.println(services);
-//        }
+    private static void loadServicesFromProperties() throws YPersistenceException {
+        YProperties yProps = YProperties.getInstance() ;
+        List<YAWLServiceReference> services = yProps.getServices();
 
-        YAWLServiceReference ys;
-
-        ys = new YAWLServiceReference("http://localhost:8080/workletService/ib", null);
-        ys.setDocumentation("Worklet Dynamic Process Selection and Exception Service");
-        ys.set_serviceName("workletService");
-        _myInstance.addYawlService(ys);
-
-        if (isPersisting()) persistYAWLService(ys);
-
-        ys = new YAWLServiceReference("http://localhost:8080/resourceService/ib", null);
-        ys.setDocumentation("Resource Service, assigns workitems to resources.");
-        ys.set_serviceName("resourceService");
-        ys.set_assignable(false);                            // don't show in editor
-        _myInstance.addYawlService(ys);
-        _myInstance.setResourceService(ys);
-
-        if (isPersisting()) persistYAWLService(ys);
+        if (services != null) {
+            for (YAWLServiceReference service : services) {
+                _myInstance.addYawlService(service);
+                if (service.get_serviceName().equals("resourceService"))
+                    _myInstance.setResourceService(service);
+                if (isPersisting()) persistYAWLService(service);
+            }
+        }
     }
 
 
@@ -654,33 +639,6 @@ public class YEngine implements InterfaceADesign,
         pmgr.commit();
     }
 
-
-//    public void setStaticYAWLProperties(String props) {
-//        _staticYAWLProperties = props ;
-//    }
-//
-//
-//    private static ArrayList<String> processYAWLProperties(String label) {
-//        ArrayList<String> result = new ArrayList<String>();
-//        // split on \n   --> get each entry
-//        String[] entries = _staticYAWLProperties.split("\n");
-//
-//        // for each entry
-//        for (String entry : entries) {
-//
-//            //    if begins with #, ignore
-//            if (! entry.startsWith("#")) {
-//        //    else split on =
-//                String[] parts = entry.split("=");
-//                if (label.equals(parts[0])) result.add(parts[1]);
-//
-//        //    left is entity name (eg. service), right is settings
-//        //    split settings on ;
-//        // loadService(name, uri, assignable?, desc)
-//            }
-//        }
-//        return result ;
-//    }
 
     public static YEngine getInstance() {
         if (_myInstance == null) {
