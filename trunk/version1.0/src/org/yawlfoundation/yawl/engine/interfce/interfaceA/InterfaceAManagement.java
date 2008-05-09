@@ -9,16 +9,17 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceA;
 
+import org.apache.log4j.Logger;
+import org.jdom.JDOMException;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.yawlfoundation.yawl.exceptions.YStateException;
-import org.yawlfoundation.yawl.exceptions.YEngineStateException;
-import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceAManagementObserver;
+import org.yawlfoundation.yawl.engine.AnnouncementContext;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.YWorkItem;
-import org.jdom.JDOMException;
+import org.yawlfoundation.yawl.exceptions.YEngineStateException;
+import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.yawlfoundation.yawl.exceptions.YStateException;
 
 import java.io.File;
 import java.io.IOException;
@@ -246,9 +247,13 @@ public interface InterfaceAManagement {
      * Invokes a diagnostic dump of the engine's internal tables.
      */
     void dump();
+
+    void dump(Logger logger);
+
     void setEngineStatus(int engineStatus);
 
     int getEngineStatus();
 
-    int getReannouncementContext();
+    AnnouncementContext getAnnouncementContext();
+
 }

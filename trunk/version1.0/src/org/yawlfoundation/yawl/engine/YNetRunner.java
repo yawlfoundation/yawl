@@ -257,10 +257,12 @@ public class YNetRunner // extends Thread
             logger.debug("YNetRunner not able to continue");
             if (_engine != null) {
                 //case completion
-                if (_caseObserver != null) {
+                if (_caseObserver != null)
                     _engine.announceCaseCompletionToEnvironment(_caseObserver,
                                       _caseIDForNet, _net.getOutputData());
-                }
+                else
+                    _engine.announceCaseCompletionToEnvironment(_caseIDForNet,
+                                                                _net.getOutputData());
 
                 // notify exception checkpoint to service if available (post's for case end)
                 if (_exceptionObserver != null) {
@@ -859,6 +861,11 @@ public class YNetRunner // extends Thread
     }
 
     public void dump()
+    {
+        dump(logger);
+    }
+
+    public void dump(Logger logger)
     {
         logger.debug("*** DUMP OF NETRUNNER ENABLED TASKS ***");
 

@@ -84,7 +84,7 @@ public class YEngine implements InterfaceADesign,
     private Map _unloadedSpecifications = new HashMap();
     private final Object mutex = new Object();
     private int engineStatus;
-    private int reannouncementContext;
+    private AnnouncementContext announcementContext;
     private boolean workItemsAnnounced = false;
 
     private static InterfaceX_EngineSideClient _exceptionObserver = null ;
@@ -1396,7 +1396,7 @@ public class YEngine implements InterfaceADesign,
                 workItemsAnnounced = true;
                 logger.info("Detected first gateway registration. Reannouncing all work items.");
 
-                setReannouncementContext(REANNOUNCEMENT_CONTEXT_RECOVERING);
+                setAnnouncementContext(AnnouncementContext.RECOVERING);
 
                 try
                 {
@@ -1426,7 +1426,7 @@ public class YEngine implements InterfaceADesign,
                     logger.error("Failure whilst reannouncing workitems. Some workitems might not have been reannounced.", e);
                 }
 
-                setReannouncementContext(REANNOUNCEMENT_CONTEXT_NORMAL);
+                setAnnouncementContext(AnnouncementContext.NORMAL);
 
                 logger.info("Reannounced " + sum + " workitems in total.");
             }
@@ -1716,20 +1716,20 @@ public class YEngine implements InterfaceADesign,
         }
     }
 
-    private void setReannouncementContext(int context)
+    private void setAnnouncementContext(AnnouncementContext context)
     {
-        this.reannouncementContext = context;
+        this.announcementContext = context;
     }
 
 
-    public int getReannouncementContext()
+    public AnnouncementContext getAnnouncementContext()
     {
         /**
          * SYNC'D External interface
          */
         synchronized (mutex)
         {
-            return this.reannouncementContext;
+            return this.announcementContext;
         }
     }
 
@@ -2398,7 +2398,7 @@ public class YEngine implements InterfaceADesign,
      */
     protected void announceTask(YAWLServiceReference yawlService, YWorkItem item) {
         logger.debug("Announcing " + item.getStatus() + " task " + item.getIDString() + " on service " + yawlService.get_yawlServiceID());
-        observerGatewayController.notifyAddWorkItem(yawlService, item);
+        observerGatewayController.notifyAddWorkItem(yawlService, item, announcementContext);
     }
 
 
@@ -2411,7 +2411,11 @@ public class YEngine implements InterfaceADesign,
         observerGatewayController.notifyCaseCompletion(yawlService, caseID, casedata);
     }
 
-public void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus oldStatus, YWorkItemStatus newStatus)
+    protected void announceCaseCompletionToEnvironment(YIdentifier caseID, Document casedata) {
+        observerGatewayController.notifyCaseCompletion(caseID, casedata);
+    }
+    
+    public void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus oldStatus, YWorkItemStatus newStatus)
     {
         logger.debug("Announcing workitem status change from '" + oldStatus + "' to new status '" + newStatus +
                      "' for workitem '" + workItem.getWorkItemID().toString() + "'.");
@@ -2553,7 +2557,7 @@ public void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus old
         if (_resourceObserver != null) {
             logger.debug("Announcing enabled task " + item.getIDString() + " on service " +
                           _resourceObserver.get_yawlServiceID());
-            observerGatewayController.notifyAddWorkItem(_resourceObserver, item);
+            observerGatewayController.notifyAddWorkItem(_resourceObserver, item, announcementContext);
         }
     }
 
@@ -2670,10 +2674,14 @@ public void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus old
         persisting = arg;
     }
 
+    public void dump() {
+        dump(logger);
+    }
+
     /**
      * Performs a diagnostic dump of the engine internal tables and state to trace.<P>
      */
-    public void dump() {
+    public void dump(Logger logger) {
         /**
          * SYNC'D External interface
          */

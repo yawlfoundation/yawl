@@ -60,7 +60,8 @@ public class ObserverGatewayController
      * @param yawlService
      * @param item
      */
-    void notifyAddWorkItem(final YAWLServiceReference yawlService, final YWorkItem item)
+    void notifyAddWorkItem(final YAWLServiceReference yawlService, final YWorkItem item,
+                           final AnnouncementContext context)
     {
         new Thread(new Runnable()
         {
@@ -70,7 +71,7 @@ public class ObserverGatewayController
 
                 for(ObserverGateway observerGateway : affectedShims)
                 {
-                    observerGateway.announceWorkItem(yawlService, item);
+                    observerGateway.announceWorkItem(yawlService, item, context);
                 }
             }
         }).start();
@@ -142,6 +143,7 @@ public class ObserverGatewayController
      * Notify the case completion
      * @param yawlService
      * @param caseID
+     * @param casedata
      */
     public void notifyCaseCompletion(final YAWLServiceReference yawlService, final YIdentifier caseID, final Document casedata)
     {
@@ -154,6 +156,26 @@ public class ObserverGatewayController
                 for(ObserverGateway observerGateway : affectedShims)
                 {
                     observerGateway.announceCaseCompletion(yawlService, caseID, casedata);
+                }
+            }
+        }).start();
+    }
+
+
+    /**
+     * Notify the case completion
+     * @param caseID
+     * @param casedata
+     */
+    public void notifyCaseCompletion(final YIdentifier caseID, final Document casedata)
+    {
+        new Thread(new Runnable()
+        {
+            public void run()
+            {
+                for(ObserverGateway observerGateway : gateways)
+                {
+                    observerGateway.announceCaseCompletion(caseID, casedata);
                 }
             }
         }).start();

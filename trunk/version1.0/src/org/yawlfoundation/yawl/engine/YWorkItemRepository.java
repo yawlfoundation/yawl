@@ -337,26 +337,27 @@ public class YWorkItemRepository {
             } else {
                 continue;
             }
-            boolean foundOne = false;
-            Set busyTasks = runner.getBusyTasks();
-            Set enableTasks = runner.getEnabledTasks();
-            Set workItemTasks = new HashSet();
-            workItemTasks.addAll(busyTasks);
-            workItemTasks.addAll(enableTasks);
+            if (runner != null) {                                      //MLF can be null
+                boolean foundOne = false;
+                Set busyTasks = runner.getBusyTasks();
+                Set enableTasks = runner.getEnabledTasks();
+                Set workItemTasks = new HashSet();
+                workItemTasks.addAll(busyTasks);
+                workItemTasks.addAll(enableTasks);
 
-            for (Iterator iterator = workItemTasks.iterator(); iterator.hasNext();) {
-                YTask task = (YTask) iterator.next();
-                if (task.getID().equals(workitem.getTaskID())) {
-                    foundOne = true;
-                    aSet.add(workitem);
+                for (Iterator iterator = workItemTasks.iterator(); iterator.hasNext();) {
+                    YTask task = (YTask) iterator.next();
+                    if (task.getID().equals(workitem.getTaskID())) {
+                        foundOne = true;
+                        aSet.add(workitem);
+                    }
+                }
+                //clean up all the work items that are out of synch with the engine.
+                if (!foundOne) {
+                    itemsToRemove.add(workitem.getIDString());
                 }
             }
-            //clean up all the work items that are out of synch with the engine.
-            if (!foundOne) {
-                itemsToRemove.add(workitem.getIDString());
-            }
         }
-
         removeItems(itemsToRemove);
         return aSet;
     }

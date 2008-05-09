@@ -161,7 +161,7 @@ public class pfMenu extends AbstractFragmentBean {
             throw e instanceof FacesException ? (FacesException) e: new FacesException(e);
         }
         
-        Participant p = getSessionBean().getParticipant();
+        Participant p = _sb.getParticipant();
         if (p == null) {                                          // means user="admin"
             mnuUserWorkQueues.setVisible(false) ;
             mnuMyProfile.setVisible(false);
@@ -184,51 +184,54 @@ public class pfMenu extends AbstractFragmentBean {
 
     public void destroy() { }
 
+    private SessionBean _sb = getSessionBean();
+
 
     public String mnuMyProfile_action() {
-        getSessionBean().checkLogon();
-        getSessionBean().setMnuSelectorStyle("top: 44px");
+        _sb.checkLogon();
+        _sb.setMnuSelectorStyle("top: 44px");
         return "showViewProfile";
     }
 
 
     public String mnuUserWorkQueues_action() {
-         getSessionBean().checkLogon();
-         getSessionBean().setMnuSelectorStyle("top: 72px");
+         _sb.checkLogon();
+         _sb.setMnuSelectorStyle("top: 72px");
          return "showUserQueues";
     }
 
 
     public String mnuCaseMgt_action() {
-        getSessionBean().checkLogon();
-        getSessionBean().setMnuSelectorStyle("top: 100px");
+        _sb.checkLogon();
+        _sb.setMnuSelectorStyle("top: 100px");
         return "showCaseMgt";
     }
 
 
     public String mnuAdminQueues_action() {
-        getSessionBean().checkLogon();
-        getSessionBean().setMnuSelectorStyle("top: 128px");
+        _sb.checkLogon();
+        _sb.setMnuSelectorStyle("top: 128px");
         return "showAdminQueues";
     }
 
 
     public String mnuServiceMgt_action() {
-        getSessionBean().checkLogon();
-        getSessionBean().setMnuSelectorStyle("top: 152px");
+        _sb.checkLogon();
+        _sb.setMnuSelectorStyle("top: 152px");
         return "showServiceMgt";
     }
 
 
     public String mnuUserMgt_action() {
-        getSessionBean().checkLogon();
-        getSessionBean().setMnuSelectorStyle("top: 180px");
+        _sb.checkLogon();
+        _sb.resetPageDefaults(ApplicationBean.PageRef.participantData);
+        _sb.setMnuSelectorStyle("top: 180px");
         return "showEditUserData";
     }
 
     public String mnuOrgDataMgt_action() {
-        getSessionBean().checkLogon();
-        getSessionBean().setMnuSelectorStyle("top: 208px");
+        _sb.checkLogon();
+        _sb.setMnuSelectorStyle("top: 208px");
         return "showEditOrgData";
     }
 
@@ -244,7 +247,7 @@ public class pfMenu extends AbstractFragmentBean {
 
 
     public String mnuLogout_action() {
-        getSessionBean().doLogout();
+        _sb.doLogout();
         return "loginPage";
     }
 

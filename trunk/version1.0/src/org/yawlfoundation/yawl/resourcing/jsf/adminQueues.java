@@ -459,7 +459,7 @@ public class adminQueues extends AbstractPageBean {
         ExternalContext externalContext = getFacesContext().getExternalContext();
         if (externalContext != null) {
             try {
-                externalContext.redirect("userWorkQueues.jsp");
+                externalContext.redirect("adminQueues.jsp");
             }
             catch (IOException ioe) {}
         }
