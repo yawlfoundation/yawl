@@ -242,6 +242,7 @@ public class pfAddRemove extends AbstractFragmentBean {
 
     public void populateLists(String selTab, Participant p) {
         if (p != null) {
+            clearLists();
             if (selTab == null) selTab = "tabRoles" ;
             lbxAvailable.setItems(getSessionBean().getFullResourceAttributeList(selTab)) ;
             lbxOwns.setItems(getSessionBean().getParticipantAttributeList(selTab, p));
@@ -249,12 +250,16 @@ public class pfAddRemove extends AbstractFragmentBean {
     }
 
     public void clearLists() {
+        getSessionBean().setAvailableResourceAttributes(null);
         lbxAvailable.setItems(null);
-        lbxOwns.setItems(null);
+        lbxAvailable.setSelected(null);
+        clearOwnsList();
     }
 
     public void clearOwnsList() {
+        getSessionBean().setOwnedResourceAttributes(null);
         lbxOwns.setItems(null);
+        lbxOwns.setSelected(null);
     }
 
     public void populateAvailableList() {

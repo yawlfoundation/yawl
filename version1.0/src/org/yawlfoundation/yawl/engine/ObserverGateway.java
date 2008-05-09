@@ -31,7 +31,7 @@ public interface ObserverGateway
      * @param yawlService
      * @param item
      */
-    void announceWorkItem(YAWLServiceReference yawlService, YWorkItem item);
+    void announceWorkItem(YAWLServiceReference yawlService, YWorkItem item, AnnouncementContext context);
 
     /**
      * Called by the engine when a previously posted workitem has been cancelled.<P>
@@ -54,9 +54,18 @@ public interface ObserverGateway
      * Called by engine to announce when a case is complete.
      * @param yawlService the yawl service
      * @param caseID the case that completed
+     * @param casedata the output data of the case
      */
     void announceCaseCompletion(YAWLServiceReference yawlService, 
                                 YIdentifier caseID, Document casedata);
+
+    /**
+     * Called by engine to announce when a case is complete.
+     * @param caseID the case that completed
+     * @param casedata the output data of the case
+     */
+    void announceCaseCompletion(YIdentifier caseID, Document casedata);
+
     /**
      * Called by the engine to annouce when a case suspends (i.e. becomes fully
      * suspended as opposed to entering the 'suspending' state.

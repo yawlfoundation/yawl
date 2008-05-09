@@ -9,20 +9,21 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
-import org.yawlfoundation.yawl.elements.YAWLServiceReference;
-import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.engine.YWorkItem;
-import org.yawlfoundation.yawl.engine.ObserverGateway;
-import org.yawlfoundation.yawl.engine.YWorkItemStatus;
-import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
-import org.yawlfoundation.yawl.unmarshal.YDecompositionParser;
-import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.apache.log4j.Category;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.apache.log4j.Category;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.elements.state.YIdentifier;
+import org.yawlfoundation.yawl.engine.AnnouncementContext;
+import org.yawlfoundation.yawl.engine.ObserverGateway;
+import org.yawlfoundation.yawl.engine.YWorkItem;
+import org.yawlfoundation.yawl.engine.YWorkItemStatus;
+import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
+import org.yawlfoundation.yawl.unmarshal.YDecompositionParser;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -60,7 +61,8 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param yawlService the reference to a YAWL service in the environment
      * @param workItem the work item to announce,
      */
-    public void announceWorkItem(YAWLServiceReference yawlService, YWorkItem workItem) {
+    public void announceWorkItem(YAWLServiceReference yawlService, YWorkItem workItem,
+                                 AnnouncementContext context) {
         Handler myHandler = new Handler(yawlService, workItem, ADDWORKITEM_CMD);
         myHandler.start();
     }
@@ -139,6 +141,17 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param newStatus new status
      */
     public void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus oldStatus, YWorkItemStatus newStatus)
+    {
+        //todo MLF: this has been stubbed
+    }
+
+    /**
+     * Called by engine to announce when a case is complete.
+     *
+     * @param caseID   the case that completed
+     * @param casedata the output data of the case
+     */
+    public void announceCaseCompletion(YIdentifier caseID, Document casedata)
     {
         //todo MLF: this has been stubbed
     }

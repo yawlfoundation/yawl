@@ -1260,6 +1260,17 @@ public class SessionBean extends AbstractSessionBean {
         this.orgDataGroupLabelText = orgDataGroupLabelText;
     }
 
+    public void resetPageDefaults(ApplicationBean.PageRef page) {
+        switch (page) {
+            case participantData :
+                setEditedParticipant((Participant) null);
+                setActiveResourceAttributeTab(null);
+                setAddParticipantMode(false);
+                setAddedParticipant(null);                
+                break ;
+        }
+    }
+
 }
 
 

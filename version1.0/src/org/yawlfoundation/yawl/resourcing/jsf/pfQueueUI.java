@@ -282,6 +282,7 @@ public class pfQueueUI extends AbstractFragmentBean {
 
     protected void clearQueueGUI() {
         getSessionBean().setWorklistOptions(null);
+        getSessionBean().setWorklistChoice(null);
         txtCaseID.setText(" ");
         txtSpecID.setText(" ");
         txtTaskID.setText(" ");

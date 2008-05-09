@@ -1456,11 +1456,12 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
+    // truncates the case number
     public String getUltimateCaseID(String id) {
-        if ((id != null) && (id.indexOf(".") > 0))
-            return String.valueOf(new Double(id).intValue());
-         else
-            return id;
+        if ((id != null) && (id.indexOf(".") > 0)) {
+            id = id.split("\\.")[0] ;
+        }
+        return id ;
     }
 
 
