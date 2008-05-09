@@ -446,7 +446,8 @@ public class adminQueues extends AbstractPageBean {
 
     public String showUserList(String action) {
         SessionBean sb = getSessionBean();
-        sb.setAdminQueueAction(action) ; 
+        sb.setAdminQueueAction(action) ;
+        sb.setBlankStartOfParticipantList(false);
         sb.setSelectUserListOptions(sb.getOrgDataParticipantList());
         sb.setUserListFormHeaderText(action + " selected workitem(s) to:") ;
         sb.setNavigateTo("showAdminQueues");

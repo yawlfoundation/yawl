@@ -793,6 +793,15 @@ public class SessionBean extends AbstractSessionBean {
         return participantMap;
     }
 
+    private boolean blankStartOfList ;
+
+    // if true, the first entry in the participant list will be empty
+    public void setBlankStartOfParticipantList(boolean b) {
+        if (b != blankStartOfList) {                           // if there's a change
+            blankStartOfList = b ;
+            refreshOrgDataParticipantList();
+        }
+    }
 
 
     public void setOrgDataParticipantList(Option[] list) {
@@ -805,12 +814,16 @@ public class SessionBean extends AbstractSessionBean {
         HashMap<String, Participant> pMap = getParticipantMap();
 
         if (pMap != null) {
-            orgDataParticipantList = new Option[pMap.size() + 1];
+            int i = 0 ;
+            if (blankStartOfList) {
+                orgDataParticipantList = new Option[pMap.size() + 1];
+                i = 1 ;
 
-            // make the first option blank (for initial screen & add users)
-            orgDataParticipantList[0] = new Option("", "");
+                // make the first option blank (for initial screen & add users)
+                orgDataParticipantList[0] = new Option("", "");
+            }
+            else orgDataParticipantList = new Option[pMap.size()];
             
-            int i = 1 ;
             ArrayList<Participant> pList = new ArrayList<Participant>(pMap.values());
             Collections.sort(pList, new ParticipantNameComparator());
             for (Participant p : pList) {
@@ -822,6 +835,7 @@ public class SessionBean extends AbstractSessionBean {
             orgDataParticipantList = null ;
     }
 
+    
     private boolean addParticipantMode = false ;
 
     public boolean isAddParticipantMode() {
@@ -847,15 +861,12 @@ public class SessionBean extends AbstractSessionBean {
         addedParticipant = p;
     }
 
+    // stores the currently selected participant on the 'User Mgt' form
     private Participant editedParticipant ;
 
-    public Participant getEditedParticipant() {
-        return editedParticipant;
-    }
+    public Participant getEditedParticipant() { return editedParticipant; }
 
-    public void setEditedParticipant(Participant editedParticipant) {
-        this.editedParticipant = editedParticipant;
-    }
+    public void setEditedParticipant(Participant p) { editedParticipant = p; }
 
     public Participant setEditedParticipant(String pid) {
         editedParticipant = getParticipantMap().get(pid).clone();
@@ -869,6 +880,7 @@ public class SessionBean extends AbstractSessionBean {
         p.save();
     }
 
+    
     public Option[] getFullResourceAttributeListPlusNil(String tab) {
         Option[] result = null;
         Option[] list = getFullResourceAttributeList(tab);

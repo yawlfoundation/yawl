@@ -1,651 +1,465 @@
 /*
- * participantData.java
- *
- * Created on 26 January 2008, 19:35
- * Copyright adamsmj
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
  */
+
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
-import com.sun.rave.web.ui.model.SingleSelectOptionsList;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
 
-import javax.faces.FacesException;
 import javax.faces.event.ValueChangeEvent;
+import javax.faces.FacesException;
 
 /**
- * <p>Page bean that corresponds to a similarly named JSP page.  This
- * class contains component definitions (and initialization code) for
- * all components that you have defined on this page, as well as
- * lifecycle methods and event handlers where you may add behavior
- * to respond to incoming events.</p>
+ *  Backing bean for the participant data or 'User Mgt' form.
+ *
+ *  @author Michael Adams
+ *  Create Date: 26/01/2008
+ *  Last Date: 09/05/2008
  */
+
 public class participantData extends AbstractPageBean {
-    // <editor-fold defaultstate="collapsed" desc="Creator-managed Component Definition">
+
+    // REQUIRED AND/OR IMPLEMENTED ABSTRACT PAGE BEAN METHODS //
+
     private int __placeholder;
-    
-    /**
-     * <p>Automatically managed component initialization.  <strong>WARNING:</strong>
-     * This method is automatically generated, so any user-specified code inserted
-     * here is subject to being replaced.</p>
-     */
-    private void _init() throws Exception {
-    }
-    
-    private Page page1 = new Page();
-    
-    public Page getPage1() {
-        return page1;
-    }
-    
-    public void setPage1(Page p) {
-        this.page1 = p;
-    }
-    
-    private Html html1 = new Html();
-    
-    public Html getHtml1() {
-        return html1;
-    }
-    
-    public void setHtml1(Html h) {
-        this.html1 = h;
-    }
-    
-    private Head head1 = new Head();
-    
-    public Head getHead1() {
-        return head1;
-    }
-    
-    public void setHead1(Head h) {
-        this.head1 = h;
-    }
-    
-    private Link link1 = new Link();
-    
-    public Link getLink1() {
-        return link1;
-    }
-    
-    public void setLink1(Link l) {
-        this.link1 = l;
-    }
-    
-    private Body body1 = new Body();
-    
-    public Body getBody1() {
-        return body1;
-    }
-    
-    public void setBody1(Body b) {
-        this.body1 = b;
-    }
-    
-    private Form form1 = new Form();
-    
-    public Form getForm1() {
-        return form1;
-    }
-    
-    public void setForm1(Form f) {
-        this.form1 = f;
-    }
 
-    private PanelLayout pnlPrivileges = new PanelLayout();
+    private void _init() throws Exception { }
 
-    public PanelLayout getPnlPrivileges() {
-        return pnlPrivileges;
-    }
-
-    public void setPnlPrivileges(PanelLayout pl) {
-        this.pnlPrivileges = pl;
-    }
-
-    private StaticText staticText1 = new StaticText();
-
-    public StaticText getStaticText1() {
-        return staticText1;
-    }
-
-    public void setStaticText1(StaticText st) {
-        this.staticText1 = st;
-    }
-
-    private StaticText sttPassword = new StaticText();
-
-    public StaticText getSttPassword() {
-        return sttPassword;
-    }
-
-    public void setSttPassword(StaticText st) {
-        this.sttPassword = st;
-    }
-
-    private PasswordField txtNewPassword ;
-
-    private PasswordField txtConfirmPassword ;
-
-    public PasswordField getTxtNewPassword() {
-        return txtNewPassword;
-    }
-
-    public void setTxtNewPassword(PasswordField txtNewPassword) {
-        this.txtNewPassword = txtNewPassword;
-    }
-
-    public PasswordField getTxtConfirmPassword() {
-        return txtConfirmPassword;
-    }
-
-    public void setTxtConfirmPassword(PasswordField txtConfirmPassword) {
-        this.txtConfirmPassword = txtConfirmPassword;
-    }
-
-    private Checkbox cbxChooseItemToStart = new Checkbox();
-
-    public Checkbox getCbxChooseItemToStart() {
-        return cbxChooseItemToStart;
-    }
-
-    public void setCbxChooseItemToStart(Checkbox c) {
-        this.cbxChooseItemToStart = c;
-    }
-
-    private Checkbox cbxStartConcurrent = new Checkbox();
-
-    public Checkbox getCbxStartConcurrent() {
-        return cbxStartConcurrent;
-    }
-
-    public void setCbxStartConcurrent(Checkbox c) {
-        this.cbxStartConcurrent = c;
-    }
-
-    private Checkbox cbxReorderItems = new Checkbox();
-
-    public Checkbox getCbxReorderItems() {
-        return cbxReorderItems;
-    }
-
-    public void setCbxReorderItems(Checkbox c) {
-        this.cbxReorderItems = c;
-    }
-
-    private Checkbox cbxViewAllOffered = new Checkbox();
-
-    public Checkbox getCbxViewAllOffered() {
-        return cbxViewAllOffered;
-    }
-
-    public void setCbxViewAllOffered(Checkbox c) {
-        this.cbxViewAllOffered = c;
-    }
-
-    private Checkbox cbxViewAllAllocated = new Checkbox();
-
-    public Checkbox getCbxViewAllAllocated() {
-        return cbxViewAllAllocated;
-    }
-
-    public void setCbxViewAllAllocated(Checkbox c) {
-        this.cbxViewAllAllocated = c;
-    }
-
-    private Checkbox cbxViewAllExecuting = new Checkbox();
-
-    public Checkbox getCbxViewAllExecuting() {
-        return cbxViewAllExecuting;
-    }
-
-    public void setCbxViewAllExecuting(Checkbox c) {
-        this.cbxViewAllExecuting = c;
-    }
-
-    private Checkbox cbxViewTeamItems = new Checkbox();
-
-    public Checkbox getCbxViewTeamItems() {
-        return cbxViewTeamItems;
-    }
-
-    public void setCbxViewTeamItems(Checkbox c) {
-        this.cbxViewTeamItems = c;
-    }
-
-    private Checkbox cbxViewOrgGroupItems = new Checkbox();
-
-    public Checkbox getCbxViewOrgGroupItems() {
-        return cbxViewOrgGroupItems;
-    }
-
-    public void setCbxViewOrgGroupItems(Checkbox c) {
-        this.cbxViewOrgGroupItems = c;
-    }
-
-    private Checkbox cbxChainItems = new Checkbox();
-
-    public Checkbox getCbxChainItems() {
-        return cbxChainItems;
-    }
-
-    public void setCbxChainItems(Checkbox c) {
-        this.cbxChainItems = c;
-    }
-
-    private Checkbox cbxManageCases = new Checkbox();
-
-    public Checkbox getCbxManageCases() {
-        return cbxManageCases;
-    }
-
-    public void setCbxManageCases(Checkbox c) {
-        this.cbxManageCases = c;
-    }
-
-    private PanelLayout pnlUserDetails = new PanelLayout();
-
-    public PanelLayout getPnlUserDetails() {
-        return pnlUserDetails;
-    }
-
-    public void setPnlUserDetails(PanelLayout pl) {
-        this.pnlUserDetails = pl;
-    }
-
-    private TextField txtFirstName = new TextField();
-
-    public TextField getTxtFirstName() {
-        return txtFirstName;
-    }
-
-    public void setTxtFirstName(TextField tf) {
-        this.txtFirstName = tf;
-    }
-
-    private TextField txtLastName = new TextField();
-
-    public TextField getTxtLastName() {
-        return txtLastName;
-    }
-
-    public void setTxtLastName(TextField tf) {
-        this.txtLastName = tf;
-    }
-
-    private TextField txtUserID = new TextField();
-
-    public TextField getTxtUserID() {
-        return txtUserID;
-    }
-
-    public void setTxtUserID(TextField tf) {
-        this.txtUserID = tf;
-    }
-
-    private Checkbox cbxAdmin = new Checkbox();
-
-    public Checkbox getCbxAdmin() {
-        return cbxAdmin;
-    }
-
-    public void setCbxAdmin(Checkbox c) {
-        this.cbxAdmin = c;
-    }
-
-    private TextArea txtDesc = new TextArea();
-
-    public TextArea getTxtDesc() {
-        return txtDesc;
-    }
-
-    public void setTxtDesc(TextArea ta) {
-        this.txtDesc = ta;
-    }
-
-    private TextArea txtNotes = new TextArea();
-
-    public TextArea getTxtNotes() {
-        return txtNotes;
-    }
-
-    public void setTxtNotes(TextArea ta) {
-        this.txtNotes = ta;
-    }
-
-    private TabSet tabSetAttributes = new TabSet();
-
-    public TabSet getTabSetAttributes() {
-        return tabSetAttributes;
-    }
-
-    public void setTabSetAttributes(TabSet ts) {
-        this.tabSetAttributes = ts;
-    }
-
-    private Tab tabRoles = new Tab();
-
-    public Tab getTabRoles() {
-        return tabRoles;
-    }
-
-    public void setTabRoles(Tab t) {
-        this.tabRoles = t;
-    }
-
-    private PanelLayout tabPanelRole = new PanelLayout();
-
-    public PanelLayout getTabPanelRole() {
-        return tabPanelRole;
-    }
-
-    public void setTabPanelRole(PanelLayout pl) {
-        this.tabPanelRole = pl;
-    }
-
-    private Tab tabPosition = new Tab();
-
-    public Tab getTabPosition() {
-        return tabPosition;
-    }
-
-    public void setTabPosition(Tab t) {
-        this.tabPosition = t;
-    }
-
-    private PanelLayout tabPanelPosition = new PanelLayout();
-
-    public PanelLayout getTabPanelPosition() {
-        return tabPanelPosition;
-    }
-
-    public void setTabPanelPosition(PanelLayout pl) {
-        this.tabPanelPosition = pl;
-    }
-
-    private Tab tabCapability = new Tab();
-
-    public Tab getTabCapability() {
-        return tabCapability;
-    }
-
-    public void setTabCapability(Tab t) {
-        this.tabCapability = t;
-    }
-
-    private PanelLayout tabPanelCapability = new PanelLayout();
-
-    public PanelLayout getTabPanelCapability() {
-        return tabPanelCapability;
-    }
-
-    public void setTabPanelCapability(PanelLayout pl) {
-        this.tabPanelCapability = pl;
-    }
-
-    private PanelLayout pnlSelectUser = new PanelLayout();
-
-    public PanelLayout getPnlSelectUser() {
-        return pnlSelectUser;
-    }
-
-    public void setPnlSelectUser(PanelLayout pl) {
-        this.pnlSelectUser = pl;
-    }
-
-    private PanelLayout pnlNewPassword = new PanelLayout();
-
-    public PanelLayout getPnlNewPassword() {
-        return pnlNewPassword;
-    }
-
-    public void setPnlNewPassword(PanelLayout pl) {
-        this.pnlNewPassword = pl;
-    }
-
-
-    private DropDown cbbParticipants = new DropDown();
-
-    public DropDown getCbbParticipants() {
-        return cbbParticipants;
-    }
-
-    public void setCbbParticipants(DropDown dd) {
-        this.cbbParticipants = dd;
-    }
-
-    private SingleSelectOptionsList cbbParticipantsDefaultOptions = new SingleSelectOptionsList();
-
-    public SingleSelectOptionsList getCbbParticipantsDefaultOptions() {
-        return cbbParticipantsDefaultOptions;
-    }
-
-    public void setCbbParticipantsDefaultOptions(SingleSelectOptionsList ssol) {
-        this.cbbParticipantsDefaultOptions = ssol;
-    }
-
-    private Label label1 = new Label();
-
-    public Label getLabel1() {
-        return label1;
-    }
-
-    public void setLabel1(Label l) {
-        this.label1 = l;
-    }
-
-    private Button btnSave = new Button();
-
-    public Button getBtnSave() {
-        return btnSave;
-    }
-
-    public void setBtnSave(Button b) {
-        this.btnSave = b;
-    }
-
-    private Button btnReset = new Button();
-
-    public Button getBtnReset() {
-        return btnReset;
-    }
-
-    public void setBtnReset(Button b) {
-        this.btnReset = b;
-    }
-
-    private Button btnClose = new Button();
-
-    public Button getBtnClose() {
-        return btnClose;
-    }
-
-    public void setBtnClose(Button b) {
-        this.btnClose = b;
-    }
-
-    private Button btnRemove = new Button();
-
-    public Button getBtnRemove() {
-        return btnRemove;
-    }
-
-    public void setBtnRemove(Button b) {
-        this.btnRemove = b;
-    }
-
-    private Button btnAdd = new Button();
-
-    public Button getBtnAdd() {
-        return btnAdd;
-    }
-
-    public void setBtnAdd(Button b) {
-        this.btnAdd = b;
-    }
-
-    private MessageGroup msgGroup = new MessageGroup();
-
-    public MessageGroup getMsgGroup() {
-        return msgGroup;
-    }
-
-    public void setMsgGroup(MessageGroup msgGroup) {
-        this.msgGroup = msgGroup;
-    }
-
-    // </editor-fold>
-
-
-    /** 
-     * <p>Construct a new Page bean instance.</p>
-     */
-    public participantData() {
-    }
-
-    /** 
-     * <p>Return a reference to the scoped data bean.</p>
-     */
-    protected ApplicationBean getApplicationBean() {
-        return (ApplicationBean)getBean("ApplicationBean");
-    }
-
-
-    /** 
-     * <p>Return a reference to the scoped data bean.</p>
-     */
-    protected SessionBean getSessionBean() {
-        return (SessionBean)getBean("SessionBean");
-    }
-
-
-    /** 
-     * <p>Return a reference to the scoped data bean.</p>
-     */
-    protected RequestBean getRequestBean() {
-        return (RequestBean)getBean("RequestBean");
-    }
-
-
-    /** 
-     * <p>Callback method that is called whenever a page is navigated to,
-     * either directly via a URL, or indirectly via page navigation.
-     * Customize this method to acquire resources that will be needed
-     * for event handlers and lifecycle methods, whether or not this
-     * page is performing post back processing.</p>
-     * 
-     * <p>Note that, if the current request is a postback, the property
-     * values of the components do <strong>not</strong> represent any
-     * values submitted with this request.  Instead, they represent the
-     * property values that were saved for this view when it was rendered.</p>
-     */
     public void init() {
-        // Perform initializations inherited from our superclass
         super.init();
-        // Perform application initialization that must complete
-        // *before* managed components are initialized
-        // TODO - add your own initialiation code here
 
-        // <editor-fold defaultstate="collapsed" desc="Creator-managed Component Initialization">
-        // Initialize automatically managed components
-        // *Note* - this logic should NOT be modified
+        // *Note* - this code should NOT be modified
         try {
             _init();
         } catch (Exception e) {
             log("participantData Initialization Failure", e);
             throw e instanceof FacesException ? (FacesException) e: new FacesException(e);
         }
-        // </editor-fold>
-        // Perform application initialization that must complete
-        // *after* managed components are initialized
-        // TODO - add your own initialization code here
-
     }
 
-    /** 
-     * <p>Callback method that is called after the component tree has been
-     * restored, but before any event processing takes place.  This method
-     * will <strong>only</strong> be called on a postback request that
-     * is processing a form submit.  Customize this method to allocate
-     * resources that will be required in your event handlers.</p>
-     */
-    public void preprocess() {
+    public void destroy() { }
+
+    public void preprocess() { }
+
+
+
+    public participantData() { }
+
+    // Return references to scoped data beans //
+     protected ApplicationBean getApplicationBean() {
+        return (ApplicationBean)getBean("ApplicationBean");
     }
 
-    /** 
-     * <p>Callback method that is called just before rendering takes place.
-     * This method will <strong>only</strong> be called for the page that
-     * will actually be rendered (and not, for example, on a page that
-     * handled a postback and then navigated to a different page).  Customize
-     * this method to allocate resources that will be required for rendering
-     * this page.</p>
-     */
+
+    protected SessionBean getSessionBean() {
+        return (SessionBean)getBean("SessionBean");
+    }
+
+
+    protected RequestBean getRequestBean() {
+        return (RequestBean)getBean("RequestBean");
+    }
+    
+
+    /********************************************************************************/
+
+    // PAGE COMPONENT DECLARATIONS, GETTERS & SETTERS //
+
+    private Page page1 = new Page();
+    
+    public Page getPage1() { return page1; }
+    
+    public void setPage1(Page p) { page1 = p; }
+
+
+    private Html html1 = new Html();
+    
+    public Html getHtml1() { return html1; }
+    
+    public void setHtml1(Html h) { html1 = h; }
+
+
+    private Head head1 = new Head();
+    
+    public Head getHead1() { return head1; }
+    
+    public void setHead1(Head h) { head1 = h; }
+
+
+    private Link link1 = new Link();
+    
+    public Link getLink1() { return link1; }
+    
+    public void setLink1(Link l) { link1 = l; }
+    
+
+    private Body body1 = new Body();
+    
+    public Body getBody1() { return body1; }
+    
+    public void setBody1(Body b) { body1 = b; }
+    
+
+    private Form form1 = new Form();
+    
+    public Form getForm1() { return form1; }
+    
+    public void setForm1(Form f) { form1 = f; }
+
+
+    private PanelLayout pnlPrivileges = new PanelLayout();
+
+    public PanelLayout getPnlPrivileges() { return pnlPrivileges; }
+
+    public void setPnlPrivileges(PanelLayout pl) { pnlPrivileges = pl; }
+
+
+    private StaticText staticText1 = new StaticText();
+
+    public StaticText getStaticText1() { return staticText1; }
+
+    public void setStaticText1(StaticText st) { staticText1 = st; }
+
+
+    private StaticText sttPassword = new StaticText();
+
+    public StaticText getSttPassword() { return sttPassword; }
+
+    public void setSttPassword(StaticText st) { sttPassword = st; }
+
+
+    private PasswordField txtNewPassword ;
+
+    public PasswordField getTxtNewPassword() { return txtNewPassword; }
+
+    public void setTxtNewPassword(PasswordField pw) { txtNewPassword = pw; }
+
+
+    private PasswordField txtConfirmPassword ;
+
+    public PasswordField getTxtConfirmPassword() { return txtConfirmPassword; }
+
+    public void setTxtConfirmPassword(PasswordField pw) { txtConfirmPassword = pw; }
+
+
+    private Checkbox cbxChooseItemToStart = new Checkbox();
+
+    public Checkbox getCbxChooseItemToStart() { return cbxChooseItemToStart; }
+
+    public void setCbxChooseItemToStart(Checkbox c) { cbxChooseItemToStart = c; }
+
+
+    private Checkbox cbxStartConcurrent = new Checkbox();
+
+    public Checkbox getCbxStartConcurrent() { return cbxStartConcurrent; }
+
+    public void setCbxStartConcurrent(Checkbox c) { cbxStartConcurrent = c; }
+
+
+    private Checkbox cbxReorderItems = new Checkbox();
+
+    public Checkbox getCbxReorderItems() { return cbxReorderItems; }
+
+    public void setCbxReorderItems(Checkbox c) { cbxReorderItems = c; }
+
+
+    private Checkbox cbxViewAllOffered = new Checkbox();
+
+    public Checkbox getCbxViewAllOffered() { return cbxViewAllOffered; }
+
+    public void setCbxViewAllOffered(Checkbox c) { cbxViewAllOffered = c; }
+
+
+    private Checkbox cbxViewAllAllocated = new Checkbox();
+
+    public Checkbox getCbxViewAllAllocated() { return cbxViewAllAllocated; }
+
+    public void setCbxViewAllAllocated(Checkbox c) { cbxViewAllAllocated = c; }
+
+
+    private Checkbox cbxViewAllExecuting = new Checkbox();
+
+    public Checkbox getCbxViewAllExecuting() { return cbxViewAllExecuting; }
+
+    public void setCbxViewAllExecuting(Checkbox c) { cbxViewAllExecuting = c; }
+
+
+    private Checkbox cbxViewTeamItems = new Checkbox();
+
+    public Checkbox getCbxViewTeamItems() { return cbxViewTeamItems; }
+
+    public void setCbxViewTeamItems(Checkbox c) { cbxViewTeamItems = c; }
+
+
+    private Checkbox cbxViewOrgGroupItems = new Checkbox();
+
+    public Checkbox getCbxViewOrgGroupItems() { return cbxViewOrgGroupItems; }
+
+    public void setCbxViewOrgGroupItems(Checkbox c) { cbxViewOrgGroupItems = c; }
+
+
+    private Checkbox cbxChainItems = new Checkbox();
+
+    public Checkbox getCbxChainItems() { return cbxChainItems; }
+
+    public void setCbxChainItems(Checkbox c) { cbxChainItems = c; }
+
+
+    private Checkbox cbxManageCases = new Checkbox();
+
+    public Checkbox getCbxManageCases() { return cbxManageCases; }
+
+    public void setCbxManageCases(Checkbox c) { cbxManageCases = c; }
+
+
+    private PanelLayout pnlUserDetails = new PanelLayout();
+
+    public PanelLayout getPnlUserDetails() { return pnlUserDetails; }
+
+    public void setPnlUserDetails(PanelLayout pl) { pnlUserDetails = pl; }
+
+
+    private TextField txtFirstName = new TextField();
+
+    public TextField getTxtFirstName() { return txtFirstName; }
+
+    public void setTxtFirstName(TextField tf) { txtFirstName = tf; }
+
+
+    private TextField txtLastName = new TextField();
+
+    public TextField getTxtLastName() { return txtLastName; }
+
+    public void setTxtLastName(TextField tf) { txtLastName = tf; }
+
+
+    private TextField txtUserID = new TextField();
+
+    public TextField getTxtUserID() { return txtUserID; }
+
+    public void setTxtUserID(TextField tf) { txtUserID = tf; }
+
+
+    private Checkbox cbxAdmin = new Checkbox();
+
+    public Checkbox getCbxAdmin() { return cbxAdmin; }
+
+    public void setCbxAdmin(Checkbox c) { cbxAdmin = c; }
+
+
+    private TextArea txtDesc = new TextArea();
+
+    public TextArea getTxtDesc() { return txtDesc; }
+
+    public void setTxtDesc(TextArea ta) { txtDesc = ta; }
+
+
+    private TextArea txtNotes = new TextArea();
+
+    public TextArea getTxtNotes() { return txtNotes; }
+
+    public void setTxtNotes(TextArea ta) { txtNotes = ta; }
+
+
+    private TabSet tabSetAttributes = new TabSet();
+
+    public TabSet getTabSetAttributes() { return tabSetAttributes; }
+
+    public void setTabSetAttributes(TabSet ts) { tabSetAttributes = ts; }
+
+
+    private Tab tabRoles = new Tab();
+
+    public Tab getTabRoles() { return tabRoles; }
+
+    public void setTabRoles(Tab t) { tabRoles = t; }
+
+
+    private PanelLayout tabPanelRole = new PanelLayout();
+
+    public PanelLayout getTabPanelRole() { return tabPanelRole; }
+
+    public void setTabPanelRole(PanelLayout pl) { tabPanelRole = pl; }
+
+
+    private Tab tabPosition = new Tab();
+
+    public Tab getTabPosition() { return tabPosition; }
+
+    public void setTabPosition(Tab t) { tabPosition = t; }
+
+
+    private PanelLayout tabPanelPosition = new PanelLayout();
+
+    public PanelLayout getTabPanelPosition() { return tabPanelPosition; }
+
+    public void setTabPanelPosition(PanelLayout pl) { tabPanelPosition = pl; }
+
+
+    private Tab tabCapability = new Tab();
+
+    public Tab getTabCapability() { return tabCapability; }
+
+    public void setTabCapability(Tab t) { tabCapability = t; }
+
+
+    private PanelLayout tabPanelCapability = new PanelLayout();
+
+    public PanelLayout getTabPanelCapability() { return tabPanelCapability; }
+
+    public void setTabPanelCapability(PanelLayout pl) { tabPanelCapability = pl; }
+
+
+    private PanelLayout pnlSelectUser = new PanelLayout();
+
+    public PanelLayout getPnlSelectUser() { return pnlSelectUser; }
+
+    public void setPnlSelectUser(PanelLayout pl) { pnlSelectUser = pl; }
+
+
+    private PanelLayout pnlNewPassword = new PanelLayout();
+
+    public PanelLayout getPnlNewPassword() { return pnlNewPassword; }
+
+    public void setPnlNewPassword(PanelLayout pl) { pnlNewPassword = pl; }
+
+
+    private DropDown cbbParticipants = new DropDown();
+
+    public DropDown getCbbParticipants() { return cbbParticipants; }
+
+    public void setCbbParticipants(DropDown dd) { cbbParticipants = dd; }
+
+
+    private Label label1 = new Label();
+
+    public Label getLabel1() { return label1; }
+
+    public void setLabel1(Label l) { label1 = l; }
+
+
+    private Button btnSave = new Button();
+
+    public Button getBtnSave() { return btnSave; }
+
+    public void setBtnSave(Button b) { btnSave = b; }
+
+
+    private Button btnReset = new Button();
+
+    public Button getBtnReset() { return btnReset; }
+
+    public void setBtnReset(Button b) { btnReset = b; }
+
+
+    private Button btnClose = new Button();
+
+    public Button getBtnClose() { return btnClose; }
+
+    public void setBtnClose(Button b) { btnClose = b; }
+
+
+    private Button btnRemove = new Button();
+
+    public Button getBtnRemove() { return btnRemove; }
+
+    public void setBtnRemove(Button b) { btnRemove = b; }
+
+
+    private Button btnAdd = new Button();
+
+    public Button getBtnAdd() { return btnAdd; }
+
+    public void setBtnAdd(Button b) { btnAdd = b; }
+
+
+    /********************************************************************************/
+
+    // SPECIFIC DELARATIONS AND IMPLEMENTATION //
+
+    private enum Mode {edit, add}
+
+    private SessionBean sb = getSessionBean();
+    private MessagePanel msgPanel = sb.getMessagePanel() ;
+    
+
+    // This method is called immediately before the page is rendered
     public void prerender() {
-        getSessionBean().checkLogon();
-        // a null tooltip indicates the first rendering of this page
-        if (btnAdd.getToolTip() == null) {
+        sb.checkLogon();                // check if session still active
+
+        // a null btnAdd tooltip indicates the first rendering of this page
+        if (btnAdd.getToolTip() == null)
             setMode(Mode.edit);
-            btnSave.setDisabled(true);
-            btnRemove.setDisabled(true);
-            btnReset.setDisabled(true);
+
+        // prime the resources listboxes
+        Participant p;
+        if (getCurrentMode() == Mode.edit) {
+            p = sb.getEditedParticipant();
+            if (p != null) {
+                String selTab = sb.getActiveResourceAttributeTab() ;
+                if (selTab == null) selTab = "tabRoles";
+                sb.getFullResourceAttributeList(selTab) ;
+                sb.getParticipantAttributeList(selTab, p);
+            }
+            else {
+                sb.setAvailableResourceAttributes(null);
+                sb.setOwnedResourceAttributes(null);
+            }
         }
-        getSessionBean().setActivePage(ApplicationBean.PageRef.participantData);        
+
+        // set active page and show any pending messages to user
+        sb.setBlankStartOfParticipantList(true);
+        sb.setActivePage(ApplicationBean.PageRef.participantData);
         msgPanel.show(630, 124, "absolute");
     }
 
-    /** 
-     * <p>Callback method that is called after rendering is completed for
-     * this request, if <code>init()</code> was called (regardless of whether
-     * or not this was the page that was actually rendered).  Customize this
-     * method to release resources acquired in the <code>init()</code>,
-     * <code>preprocess()</code>, or <code>prerender()</code> methods (or
-     * acquired during execution of an event handler).</p>
-     */
-    public void destroy() {
-    }
 
-    private enum Mode {add, edit}
-
-    private MessagePanel msgPanel = getSessionBean().getMessagePanel() ;
-
+    // respond to a 'save' button click
     public String btnSave_action() {
-        if (checkValidPasswordChange()) {
-            Participant p = getSessionBean().getEditedParticipant() ;
-            boolean nameChange = ! ((String) txtLastName.getText()).equals(p.getLastName());
+        if (checkValidPasswordChange(true)) {
+            Participant p = sb.getEditedParticipant() ;
+            boolean nameChange = ! (txtLastName.getText()).equals(p.getLastName());
             saveChanges(p);
-            getSessionBean().saveParticipantUpdates(p);
-            if (nameChange) getSessionBean().refreshOrgDataParticipantList();
+            sb.saveParticipantUpdates(p);
+            if (nameChange) sb.refreshOrgDataParticipantList();
             msgPanel.success("Participant changes successfully saved.");
         }
         return null;
     }
 
 
+    // discards edits/iputs, and resets to original values
     public String btnReset_action() {
 
         // if in 'add new' mode, discard inputs and go back to edit mode
-        if (btnAdd.getText().equals("Add")) {
+        if (getCurrentMode() == Mode.add) {
+            clearFields();
             setMode(Mode.edit);
         }
         else {
             // if already in edit mode, discard edits
-            Participant p = getSessionBean().resetParticipant();
+            Participant p = sb.resetParticipant();
             populateFields(p) ;
         }
         return null;   
     }
 
 
+    // delete the selected participant
     public String btnRemove_action() {
-        Participant p = getSessionBean().getEditedParticipant() ;
+        Participant p = sb.getEditedParticipant() ;
         if (p != null) {
-            getSessionBean().removeParticipant(p);
+            sb.removeParticipant(p);
             cbbParticipants.setSelected("");
             clearFields();
-            btnSave.setDisabled(true);
-            btnRemove.setDisabled(true);
-            btnReset.setDisabled(true);
+            setMode(Mode.edit);
             msgPanel.success("Chosen participant successfully removed.");
         }
         return null;    
@@ -654,14 +468,14 @@ public class participantData extends AbstractPageBean {
 
     public String btnAdd_action() {
         // if 'new', we're in edit mode - move to add mode
-        if (btnAdd.getText().equals("New")) {
+        if (getCurrentMode() == Mode.edit) {
             setMode(Mode.add) ;
         }
         else {
             // we're in add mode - add new participant and go back to edit mode
             if (validateNewData()) {
                 Participant p = createParticipant();
-                String newID = getSessionBean().addParticipant(p);
+                String newID = sb.addParticipant(p);
                 cbbParticipants.setSelected(newID);
                 setMode(Mode.edit);
                 msgPanel.success("New participant added successfully.");
@@ -681,45 +495,53 @@ public class participantData extends AbstractPageBean {
             clearFields();
             cbbParticipants.setSelected("");
             cbbParticipants.setDisabled(true);
+            tabSetAttributes.setSelected("tabRoles");
+            sb.setActiveResourceAttributeTab("tabRoles") ;
             ((pfAddRemove) getBean("pfAddRemove")).clearOwnsList();
             ((pfAddRemove) getBean("pfAddRemove")).populateAvailableList();
-            getSessionBean().setAddParticipantMode(true);
-            getSessionBean().setAddedParticipant(new Participant());
+            sb.setAddParticipantMode(true);
+            sb.setAddedParticipant(new Participant());
+            sb.setEditedParticipant((Participant) null);
         }
         else {   // edit mode
             btnAdd.setText("New");
             btnAdd.setToolTip("Add a new participant");
             btnReset.setToolTip("Discard changes for the current participant");
-            btnSave.setDisabled(false);
-            btnRemove.setDisabled(false);
-            btnReset.setDisabled(false);
+            boolean participantIsNull = (sb.getEditedParticipant() == null);
+            btnSave.setDisabled(participantIsNull);
+            btnRemove.setDisabled(participantIsNull);
+            btnReset.setDisabled(participantIsNull);
             cbbParticipants.setDisabled(false);
             ((pfAddRemove) getBean("pfAddRemove")).clearLists();            
-            getSessionBean().setAddParticipantMode(false);
-            getSessionBean().setAddedParticipant(null);
+            sb.setAddParticipantMode(false);
+            sb.setAddedParticipant(null);
         }
     }
 
+    private Mode getCurrentMode() {
+        return sb.isAddParticipantMode() ? Mode.add : Mode.edit ;
+    }
+
     public String tabRoles_action() {
-        Participant p = getSessionBean().getParticipantForCurrentMode() ;
+        Participant p = sb.getParticipantForCurrentMode() ;
         ((pfAddRemove) getBean("pfAddRemove")).populateLists("tabRoles", p);
-        getSessionBean().setActiveResourceAttributeTab("tabRoles") ;
+        sb.setActiveResourceAttributeTab("tabRoles") ;
         return null;
     }
 
 
     public String tabPosition_action() {
-        Participant p = getSessionBean().getParticipantForCurrentMode() ;
+        Participant p = sb.getParticipantForCurrentMode() ;
         ((pfAddRemove) getBean("pfAddRemove")).populateLists("tabPosition", p);
-        getSessionBean().setActiveResourceAttributeTab("tabPosition") ;
+        sb.setActiveResourceAttributeTab("tabPosition") ;
         return null;
     }
 
 
     public String tabCapability_action() {
-        Participant p = getSessionBean().getParticipantForCurrentMode() ;
+        Participant p = sb.getParticipantForCurrentMode() ;
         ((pfAddRemove) getBean("pfAddRemove")).populateLists("tabCapability", p);
-        getSessionBean().setActiveResourceAttributeTab("tabCapability") ;
+        sb.setActiveResourceAttributeTab("tabCapability") ;
         return null;
     }
 
@@ -727,16 +549,14 @@ public class participantData extends AbstractPageBean {
     public void cbbParticipants_processValueChange(ValueChangeEvent event) {
         String pid = (String) event.getNewValue();
         if (pid.length() > 0) {
-            Participant p = getSessionBean().setEditedParticipant(pid);
+            Participant p = sb.setEditedParticipant(pid);
             populateFields(p) ;
-            setMode(Mode.edit);
         }
         else {
             clearFields();                    // blank (first) option selected
-            btnSave.setDisabled(true);
-            btnRemove.setDisabled(true);
-            btnReset.setDisabled(true);
+            sb.setEditedParticipant((Participant) null) ;
         }
+        setMode(Mode.edit);
     }
 
     
@@ -833,10 +653,16 @@ public class participantData extends AbstractPageBean {
     }
 
 
-    private boolean checkValidPasswordChange() {
+    /** @return true if the password is valid */
+    private boolean checkValidPasswordChange(boolean updating) {
         boolean result = true ;
-
         String password = (String) txtNewPassword.getPassword();
+        String confirm = (String) txtConfirmPassword.getPassword();
+
+        // if this is an update an no changes are made, no validation necessary
+        if (updating && (password.length() == 0) && (confirm.length() == 0))
+            return result ;
+
         if (password.length() == 0) {
             msgPanel.error("ERROR: No password entered");
             result = false ;
@@ -852,7 +678,6 @@ public class participantData extends AbstractPageBean {
                 result = false;
             }
 
-            String confirm = (String) txtConfirmPassword.getPassword();
             if (! password.equals(confirm)) {
                 msgPanel.error("ERROR: Password and confirmation are different");
                 result = false;
@@ -864,7 +689,7 @@ public class participantData extends AbstractPageBean {
 
     private Participant createParticipant() {
         Participant p = new Participant(true);
-        Participant temp = getSessionBean().getAddedParticipant();
+        Participant temp = sb.getAddedParticipant();
         saveChanges(p);
         p.setRoles(temp.getRoles());
         p.setPositions(temp.getPositions());
@@ -886,11 +711,11 @@ public class participantData extends AbstractPageBean {
         }
 
         // password check
-        if (! checkValidPasswordChange()) 
+        if (! checkValidPasswordChange(false))
             result = false;
 
         // warn if no attributes
-        Participant p = getSessionBean().getAddedParticipant();
+        Participant p = sb.getAddedParticipant();
         if (p.getRoles().isEmpty())
             msgPanel.warn("WARNING: No role specified for participant") ;
         if (p.getPositions().isEmpty())
