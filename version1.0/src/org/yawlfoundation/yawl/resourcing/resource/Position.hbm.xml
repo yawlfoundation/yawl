@@ -4,7 +4,7 @@
 
 <hibernate-mapping package="org.yawlfoundation.yawl.resourcing.resource">
 
-	<class name="Position" table="rs_Position">
+	<class name="Position" table="rs_Position" lazy="false">
 
         <id  name="_id"
                   column="ID"

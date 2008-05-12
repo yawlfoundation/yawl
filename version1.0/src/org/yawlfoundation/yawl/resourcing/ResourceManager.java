@@ -117,6 +117,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private boolean _persistPiling ;
 
     // authority for write access to org data entities
+    private enum ResUnit {Participant, Role, Capability, OrgGroup, Position}
     private boolean[] _dsEditable = {true, true, true, true, true} ;
 
     // Mappings for specid -> taskid <-> resourceMap
@@ -377,11 +378,16 @@ public class ResourceManager extends InterfaceBWebsideController {
     // ORG DATA METHODS //
 
     public boolean mayEditDataset(String dsName) {
-       if (dsName.equalsIgnoreCase("participant")) return _dsEditable[0] ;
-       else if (dsName.equalsIgnoreCase("role")) return _dsEditable[1] ;
-       else if (dsName.equalsIgnoreCase("capability")) return _dsEditable[2] ;
-       else if (dsName.equalsIgnoreCase("position")) return _dsEditable[3] ;
-       else if (dsName.equalsIgnoreCase("orggroup")) return _dsEditable[4] ;
+       if (dsName.equalsIgnoreCase("participant"))
+           return _dsEditable[ResUnit.Participant.ordinal()] ;
+       else if (dsName.equalsIgnoreCase("role"))
+           return _dsEditable[ResUnit.Role.ordinal()] ;
+       else if (dsName.equalsIgnoreCase("capability"))
+           return _dsEditable[ResUnit.Capability.ordinal()] ;
+       else if (dsName.equalsIgnoreCase("position"))
+           return _dsEditable[ResUnit.Position.ordinal()] ;
+       else if (dsName.equalsIgnoreCase("orggroup"))
+           return _dsEditable[ResUnit.OrgGroup.ordinal()] ;
        return false ;                                      // should not be reachable
    }
 
@@ -405,6 +411,8 @@ public class ResourceManager extends InterfaceBWebsideController {
             }
 
             _resAdmin.createWorkQueues(_persisting);   // ... and the administrator
+
+   //         setPersistenceFlagForAllResources();
         }
         else {
             _ds = new EmptyDataSource().getDataSource();
@@ -422,27 +430,29 @@ public class ResourceManager extends InterfaceBWebsideController {
             _serviceEnabled = false ;
             return ;
         }
-        else _dsEditable[0] = false ;          // external data - do not allow modify
+        else
+            // external data - do not allow modify
+            _dsEditable[ResUnit.Participant.ordinal()] = false ;
 
         // check roles
         if (_ds.roleMap.isEmpty())
             _ds.roleMap = yawlDB.loadRoles();
-        else _dsEditable[1] = false ;
+        else _dsEditable[ResUnit.Role.ordinal()] = false ;
 
         // check capbilities
         if (_ds.capabilityMap.isEmpty())
             _ds.capabilityMap = yawlDB.loadCapabilities();
-        else _dsEditable[2] = false ;
+        else _dsEditable[ResUnit.Capability.ordinal()] = false ;
 
         // check orgGroups
         if (_ds.orgGroupMap.isEmpty())
             _ds.orgGroupMap = yawlDB.loadOrgGroups();
-        else _dsEditable[3] = false ;
+        else _dsEditable[ResUnit.OrgGroup.ordinal()] = false ;
 
         // check positions
         if (_ds.positionMap.isEmpty())
             _ds.positionMap = yawlDB.loadPositions();
-        else _dsEditable[4] = false ;
+        else _dsEditable[ResUnit.Position.ordinal()] = false ;
 
         // restore user privileges for each participant
         HashMap<String,UserPrivileges> upMap =
@@ -504,7 +514,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
         // persist it to the data store
         String newID = _orgdb.insert(p) ;
-        p.setPersisting(_persisting);
+ //       p.setPersisting(_persisting);
         p.createQueueSet(_persisting) ;
 
         // cleanup for non-default db
@@ -525,7 +535,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public void addRole(Role r) {
-        r.setPersisting(_persisting);
+//        r.setPersisting(_persisting);
         String newID = _orgdb.insert(r) ;             // persist it
         if (_isNonDefaultOrgDB) r.setID(newID);       // cleanup for non-default db
         _ds.roleMap.put(newID, r) ;                   // ...and add it to the data set
@@ -533,7 +543,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public void addCapability(Capability c) {
-        c.setPersisting(_persisting);
+ //       c.setPersisting(_persisting);
         String newID = _orgdb.insert(c) ;             // persist it
         if (_isNonDefaultOrgDB) c.setID(newID);       // cleanup for non-default db
         _ds.capabilityMap.put(newID, c) ;             // ...and add it to the data set
@@ -541,7 +551,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public void addPosition(Position p) {
-        p.setPersisting(_persisting);
+ //       p.setPersisting(_persisting);
         String newID = _orgdb.insert(p) ;             // persist it
         if (_isNonDefaultOrgDB) p.setID(newID);       // cleanup for non-default db
         _ds.positionMap.put(newID, p) ;               // ...and add it to the data set
@@ -549,7 +559,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public void addOrgGroup(OrgGroup o) {
-        o.setPersisting(_persisting);
+ //       o.setPersisting(_persisting);
         String newID = _orgdb.insert(o) ;             // persist it
         if (_isNonDefaultOrgDB) o.setID(newID);       // cleanup for non-default db
         _ds.orgGroupMap.put(newID, o) ;               // ...and add it to the data set
@@ -670,6 +680,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             if (attrib instanceof Role) p.removeRole((Role) attrib);
             else if (attrib instanceof Capability) p.removeCapability((Capability) attrib);
             else if (attrib instanceof Position) p.removePosition((Position) attrib);
+            updateParticipant(p);
         }
     }
 

@@ -4,7 +4,7 @@
 
 <hibernate-mapping package="org.yawlfoundation.yawl.resourcing.resource">
 
-	<class name="Role" table="rs_Role">
+	<class name="Role" table="rs_Role" lazy="false">
 
         <id name="_id"
             column="RoleID"
@@ -26,7 +26,7 @@
                      class="Role"
                      access="field" />
 
-        <set name="_resources" table="rs_Participant_Role" inverse="true">
+        <set name="_resources" table="rs_Participant_Role" inverse="true" cascade="all">
             <key column="RoleID"/>
             <many-to-many class="Participant" column="ParticipantID" lazy="false"/>
         </set>

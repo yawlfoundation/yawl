@@ -20,7 +20,7 @@ import javax.faces.FacesException;
  *  Backing bean for the participant data or 'User Mgt' form.
  *
  *  @author Michael Adams
- *  Create Date: 26/01/2008
+ *  Date: 26/01/2008
  *  Last Date: 09/05/2008
  */
 
@@ -395,8 +395,10 @@ public class participantData extends AbstractPageBean {
         sb.checkLogon();                // check if session still active
 
         // a null btnAdd tooltip indicates the first rendering of this page
-        if (btnAdd.getToolTip() == null)
+        if (btnAdd.getToolTip() == null) {
             setMode(Mode.edit);
+            sb.setActiveResourceAttributeTab("tabRoles") ;            
+        }
 
         // prime the resources listboxes
         Participant p;

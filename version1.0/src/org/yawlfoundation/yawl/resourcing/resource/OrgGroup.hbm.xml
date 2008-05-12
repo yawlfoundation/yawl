@@ -4,7 +4,7 @@
 
 <hibernate-mapping package="org.yawlfoundation.yawl.resourcing.resource">
 
-	<class name="OrgGroup" table="rs_OrgGroup">
+	<class name="OrgGroup" table="rs_OrgGroup" lazy="false">
 
         <id name="_id"
             column="GroupID"

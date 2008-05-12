@@ -30,4 +30,6 @@ public class EmptyDataSource extends DataSource {
     public String insert(Object obj) {
         return null; 
     }
+
+    public int execUpdate(String query) { return -1; } 
 }
