@@ -131,7 +131,8 @@ public class Participant extends AbstractResource implements Serializable {
 
 
     private void updateThis() {
-        if (_persisting) _resMgr.updateParticipant(this);
+ //       if (_persisting) _resMgr.updateParticipant(this);
+  //      _resMgr.updateParticipant(this);
     }
 
     public void save() { _resMgr.updateParticipant(this); }

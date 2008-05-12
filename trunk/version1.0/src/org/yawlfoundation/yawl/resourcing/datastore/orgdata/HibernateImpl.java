@@ -145,6 +145,10 @@ public class HibernateImpl extends DataSource {
         return id ;
     }
 
+    public int execUpdate(String query) {
+        return _db.execUpdate(query);
+    }
+
 }
 
 

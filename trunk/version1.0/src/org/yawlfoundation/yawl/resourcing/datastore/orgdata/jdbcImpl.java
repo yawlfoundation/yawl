@@ -9,11 +9,10 @@
 package org.yawlfoundation.yawl.resourcing.datastore.orgdata;
 
 import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.resourcing.resource.*;
 
 import java.sql.*;
 import java.util.*;
-
-import org.yawlfoundation.yawl.resourcing.resource.*;
 
 /**
  * A vanilla JDBC implementation of the DataSource abstraction
@@ -138,7 +137,7 @@ public class jdbcImpl extends DataSource {
      * @param sql the statement to execute
      * @return the number of affected rows (or -1 if not successful)
      */
-    private int execUpdate(String sql) {
+    public int execUpdate(String sql) {
         if (openConnection()) {
             Statement s = createStatement() ;
             if (s != null) {

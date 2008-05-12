@@ -94,5 +94,8 @@ public abstract class DataSource {
      */
     public abstract String insert(Object obj) ;
 
+
+    public abstract int execUpdate(String query) ; 
+
 }
 

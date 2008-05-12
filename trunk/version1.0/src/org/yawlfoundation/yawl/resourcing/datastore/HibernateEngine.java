@@ -14,7 +14,6 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.exception.JDBCConnectionException;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +27,7 @@ import java.util.List;
  *  last update: 07/04/2008 (for v2.0)
  */
 
-public class HibernateEngine implements Serializable {
+public class HibernateEngine {
 
     // persistence actions
     public static final int DB_UPDATE = 0;
@@ -41,7 +40,7 @@ public class HibernateEngine implements Serializable {
     private List bulkDeletes = new ArrayList();
     private boolean bulkMode = false;
 
-    // referrence to Hibernate objects
+    // reference to Hibernate
     private static SessionFactory _factory = null;
 
     // instance reference
@@ -152,6 +151,7 @@ public class HibernateEngine implements Serializable {
         try {
             Session session = _factory.getCurrentSession();
             tx = session.beginTransaction();
+  //          session.flush();
 
             if (action == DB_INSERT) session.save(obj);
             else if (action == DB_UPDATE) updateOrMerge(session, obj);
@@ -204,6 +204,29 @@ public class HibernateEngine implements Serializable {
 
         return result;
      }
+
+
+    public int execUpdate(String queryString) {
+
+        int result = -1;
+        Transaction tx = null;
+        try {
+            Session session = _factory.getCurrentSession();
+            tx = session.beginTransaction();
+            result = session.createQuery(queryString).executeUpdate();
+        }
+        catch (JDBCConnectionException jce) {
+            _log.error("Caught Exception: Couldn't connect to datasource - " +
+                    "starting with an empty dataset");
+        }
+        catch (HibernateException he) {
+            _log.error("Caught Exception: Error executing query: " + queryString, he);
+            if (tx != null) tx.rollback();
+        }
+
+        return result;
+     }
+
 
     /**
      * executes a join query. For example, passing ("car", "part", "pid") will

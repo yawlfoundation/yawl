@@ -41,7 +41,8 @@ public abstract class AbstractResourceAttribute {
     protected AbstractResourceAttribute() {}
 
     protected void updateThis() {
-        if (_persisting) _resMgr.updateResourceAttribute(this);
+     //   if (_persisting) _resMgr.updateResourceAttribute(this);
+       // _resMgr.updateResourceAttribute(this);
     }
 
     public void save() { _resMgr.updateResourceAttribute(this); }
