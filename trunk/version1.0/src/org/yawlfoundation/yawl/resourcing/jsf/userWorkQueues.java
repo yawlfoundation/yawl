@@ -498,9 +498,12 @@ public class userWorkQueues extends AbstractPageBean {
                 if (! _sb.isDirty(wir.getID())) {
                     //message about not editing the item
                 }
-                _rm.checkinItem(p, wir, handle);
-                _sb.removeDirtyFlag(wir.getID());
-                _sb.resetDynFormParams();
+                String result = _rm.checkinItem(p, wir, handle);
+                if (_rm.successful(result)) {
+                    _sb.removeDirtyFlag(wir.getID());
+                    _sb.resetDynFormParams();
+                }
+                else msgPanel.error(msgPanel.format(result)) ;
                 
             }
             

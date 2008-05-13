@@ -72,7 +72,7 @@ public class TestYAtomicTask extends TestCase{
         YParameter p = new YParameter(null, YParameter._INPUT_PARAM_TYPE);
         p.setName("stub");
         p.setUntyped(true);
-        _ydecomp.setInputParam(p);
+        _ydecomp.setInputParameter(p);
         YAtomicTask before = new YAtomicTask("before", YAtomicTask._OR, YAtomicTask._AND, deadNet);
         YAtomicTask after = new YAtomicTask("after", YAtomicTask._OR, YAtomicTask._AND, deadNet);
         _c1 = new YCondition("c1", "c1", deadNet);
