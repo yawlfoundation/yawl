@@ -131,7 +131,7 @@ public class TestYExternalTask extends TestCase{
         p.setName("fred");
         YParameter q = new YParameter(ysg, YParameter._OUTPUT_PARAM_TYPE);
         q.setName("fred");
-        ysg.setInputParam(p);
+        ysg.setInputParameter(p);
         ysg.setOutputParameter(q);
         task.setPreset(new YFlow(task, task));
 
@@ -153,7 +153,7 @@ public class TestYExternalTask extends TestCase{
         p.setName("fred");
         YParameter q = new YParameter(ysg, YParameter._OUTPUT_PARAM_TYPE);
         q.setName("fred");
-        ysg.setInputParam(p);
+        ysg.setInputParameter(p);
         ysg.setOutputParameter(q);
         task.setPreset(new YFlow(task, task));
 

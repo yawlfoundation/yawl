@@ -1827,31 +1827,32 @@ public class ResourceManager extends InterfaceBWebsideController {
      *  @param handle - the sessionHndle of the current user
      *  @return true id checkin is successful
      */
-    public boolean checkinItem(Participant p, WorkItemRecord wir, String handle) {
-
+    public String checkinItem(Participant p, WorkItemRecord wir, String handle) {
+        String result = "<failure/>";                              // assume the worst
         try {
-            wir = _workItemCache.get(wir.getID()) ;   // refresh wir
+            wir = _workItemCache.get(wir.getID()) ;                // refresh wir
 
             if (wir != null) {
                 Element outData = wir.getUpdatedData();
                 if (outData == null) outData = wir.getDataList();
                 checkCacheForWorkItem(wir);
-                String result = checkInWorkItem(wir.getID(), wir.getDataList(),
+                result = checkInWorkItem(wir.getID(), wir.getDataList(),
                                                 outData, handle) ;
                 if (successful(result)) {
                     p.getWorkQueues().getQueue(WorkQueue.STARTED).remove(wir);
                     _workItemCache.remove(wir) ;
-                    return true ;
                 }
             }
         }
         catch (IOException ioe) {
-            _log.error("checkinItem method caused java IO Exception", ioe) ;
+            result = "<failure>checkinItem method caused java IO Exception</failure>";
+            _log.error(result, ioe) ;
         }
         catch (JDOMException jde) {
-            _log.error("checkinItem method caused JDOM Exception", jde) ;
+            result = "<failure>checkinItem method caused JDOM Exception</failure>" ;
+            _log.error(result, jde) ;
         }
-        return false ;                                 // check-in unsucessful
+        return result ;
     }
 
 //***************************************************************************//

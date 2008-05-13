@@ -22,7 +22,6 @@ import javax.xml.datatype.Duration;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.*;
-import java.text.DateFormat;
 
 /**
  * Builds decomposition objects from XML doclets.
@@ -130,7 +129,7 @@ public class YDecompositionParser {
             YParameter yparameter = new YParameter(_decomposition, YParameter._INPUT_PARAM_TYPE);
             yparameter.setOrdering(i);
             parseParameter(inputParamElem, yparameter, _yawlNS, isBeta2Version());
-            decomposition.setInputParam(yparameter);
+            decomposition.setInputParameter(yparameter);
         }
         List outputParamElems = decompElem.getChildren("outputParam", _yawlNS);
         for (int i = 0; i < outputParamElems.size(); i++) {

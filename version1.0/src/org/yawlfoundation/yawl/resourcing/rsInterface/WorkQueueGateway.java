@@ -250,8 +250,7 @@ public class WorkQueueGateway extends HttpServlet {
         else if (action.equals("completeWorkItem")) {
             Participant p = _rm.getParticipant(pid);
             WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
-            boolean success = _rm.checkinItem(p, wir, handle) ;
-            result = String.valueOf(success);
+            result = _rm.checkinItem(p, wir, handle) ;
         }
         else if (action.equals("delegateWorkItem")) {
             String pFrom = req.getParameter("pfrom");
