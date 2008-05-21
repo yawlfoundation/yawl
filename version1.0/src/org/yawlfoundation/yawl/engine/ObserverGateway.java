@@ -12,6 +12,9 @@ package org.yawlfoundation.yawl.engine;
 import org.jdom.Document;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
+import org.yawlfoundation.yawl.engine.announcement.Announcements;
+import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
+import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
 
 
 /**
@@ -28,18 +31,16 @@ public interface ObserverGateway
     /**
      * Called by the engine when a new workitem gets enabled.<P>
      *
-     * @param yawlService
-     * @param item
+     * @param announcements
      */
-    void announceWorkItem(YAWLServiceReference yawlService, YWorkItem item, AnnouncementContext context);
+    void announceWorkItems(Announcements<NewWorkItemAnnouncement> announcements);
 
     /**
      * Called by the engine when a previously posted workitem has been cancelled.<P>
      *
-     * @param yawlService
-     * @param item
+     * @param announcements
      */
-    void cancelAllWorkItemsInGroupOf(YAWLServiceReference yawlService, YWorkItem item);
+    void cancelAllWorkItemsInGroupOf(Announcements<CancelWorkItemAnnouncement> announcements);
 
     /**
      * Called by the engine when a timer for a workitem expires.<P>

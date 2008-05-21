@@ -24,12 +24,10 @@ import java.nio.CharBuffer;
 public class YSpecFile{
     String xml = "";
     P_YSpecFileID specid = new P_YSpecFileID();
-    private static Logger logger;
+    private static final Logger logger = Logger.getLogger(YSpecFile.class);
 
 
-    public YSpecFile() {
-        logger = Logger.getLogger(this.getClass());
-    }
+    public YSpecFile() { }
 
     public YSpecFile(String filename) {
         this();

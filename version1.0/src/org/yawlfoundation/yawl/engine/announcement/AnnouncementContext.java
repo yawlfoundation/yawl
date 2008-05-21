@@ -6,7 +6,7 @@
  *
  */
 
-package org.yawlfoundation.yawl.engine;
+package org.yawlfoundation.yawl.engine.announcement;
 
 /**
  * @author Mike Fowler

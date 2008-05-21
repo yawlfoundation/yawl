@@ -30,13 +30,10 @@ public class TabbedEngineGUI extends JPanel {
     private JTabbedPane _tabbedPane;
     private static boolean journalising = false;
     private static boolean generateUIMetaData = false;
-    private static Logger logger;
+    private static final Logger logger = Logger.getLogger(TabbedEngineGUI.class);
 
     public TabbedEngineGUI() {
         super(new BorderLayout());
-
-        logger = Logger.getLogger(this.getClass());
-
         logger.debug("Init");
 
         ImageIcon logo = new ImageIcon(

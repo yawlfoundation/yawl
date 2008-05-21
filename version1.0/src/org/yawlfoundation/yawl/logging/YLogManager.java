@@ -31,7 +31,7 @@ public class YLogManager {
 
     private static YLogManager _me ;
     private YPersistenceManager _pmgr ;
-    private Logger _log ;
+    private static final Logger _log = Logger.getLogger(YLogManager.class);
 
     // some error messages
     private final String _exErrStr = "<failure>Unable to retrieve data.</failure>";
@@ -42,7 +42,6 @@ public class YLogManager {
     // CONSTRUCTOR - called from getInstance() //
 
     private YLogManager() {
-        _log = Logger.getLogger(this.getClass());
         if (YEngine.isPersisting()) {
             _pmgr = new YPersistenceManager(YEngine.getPMSessionFactory());
             try {

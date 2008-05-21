@@ -28,6 +28,7 @@ public class YWorkItemRepository {
     private static Map _idStringToWorkItemsMap;//[case&taskIDStr=YWorkItem]
     protected static Map _caseToNetRunnerMap;
     private static YWorkItemRepository _myInstance;
+    private static final Logger logger = Logger.getLogger(YWorkItemRepository.class);
 
 
     private YWorkItemRepository() {
@@ -88,19 +89,19 @@ public class YWorkItemRepository {
 
     //mutators
     protected void addNewWorkItem(YWorkItem workItem) {
-        Logger.getLogger(this.getClass()).debug("--> addNewWorkItem: " + workItem.getIDString());
+        logger.debug("--> addNewWorkItem: " + workItem.getIDString());
         _idStringToWorkItemsMap.put(workItem.getIDString(), workItem);
     }
 
 
     private void removeWorkItem(YWorkItem workItem) {
-        Logger.getLogger(this.getClass()).debug("--> cancelAllWorkItemsInGroupOf: " + workItem.getIDString());
+        logger.debug("--> cancelAllWorkItemsInGroupOf: " + workItem.getIDString());
         _idStringToWorkItemsMap.remove(workItem.getIDString());
     }
 
 
     public boolean removeWorkItemFamily(YWorkItem workItem) {
-        Logger.getLogger(this.getClass()).debug("--> removeWorkItemFamily: " + workItem.getIDString());
+        logger.debug("--> removeWorkItemFamily: " + workItem.getIDString());
         Set children = workItem.getParent() == null ? workItem.getChildren() : workItem.getParent().getChildren();
         YWorkItem parent = workItem.getParent() == null ? workItem : workItem.getParent();
         if (parent != null) {
@@ -173,7 +174,9 @@ public class YWorkItemRepository {
 
 
     public Set getEnabledWorkItems() {
-        Logger.getLogger(this.getClass()).debug("--> getEnabledWorkItems: _idStringToWorkItemsMap=" + _idStringToWorkItemsMap.size() + " _caseToNetRunnerMap=" + _caseToNetRunnerMap.size());
+        logger.debug("--> getEnabledWorkItems: _idStringToWorkItemsMap=" +
+                     _idStringToWorkItemsMap.size() + " _caseToNetRunnerMap=" +
+                     _caseToNetRunnerMap.size());
         Set aSet = new HashSet();
         Set itemsToRemove = new HashSet();
         Iterator iter = _idStringToWorkItemsMap.values().iterator();
@@ -199,7 +202,7 @@ public class YWorkItemRepository {
         }
         removeItems(itemsToRemove);
 
-        Logger.getLogger(this.getClass()).debug("<-- getEnabledWorkItems");
+        logger.debug("<-- getEnabledWorkItems");
         return aSet;
     }
 

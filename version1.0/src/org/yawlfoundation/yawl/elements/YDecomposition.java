@@ -16,7 +16,6 @@ import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YCaseData;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.yawlfoundation.yawl.schema.YParamNameComparator;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
@@ -236,7 +235,8 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
     private String paramMapToXML(Map<String, YParameter> paramMap) {
         StringBuilder result = new StringBuilder() ;
         List parameters = new ArrayList<YParameter>(paramMap.values());
-        Collections.sort(parameters, new YParamNameComparator());
+        Collections.sort(parameters);
+//        Collections.sort(parameters, new YParamNameComparator());
         for (Iterator iterator = parameters.iterator(); iterator.hasNext();) {
             YParameter parameter = (YParameter) iterator.next();
             result.append(parameter.toXML());
@@ -301,7 +301,8 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
         //now prepare a list of output params to iterate over.
         List<YParameter> outputParamsList = new ArrayList<YParameter>(
                                                         getOutputParameters().values());
-        Collections.sort(outputParamsList, new YParamNameComparator());
+//        Collections.sort(outputParamsList, new YParamNameComparator());
+        Collections.sort(outputParamsList);
 
         for (Iterator iterator = outputParamsList.iterator(); iterator.hasNext();) {
             YParameter parameter = (YParameter) iterator.next();

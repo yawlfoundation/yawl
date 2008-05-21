@@ -9,11 +9,12 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceA;
 
-import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
+import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -28,8 +29,6 @@ import java.rmi.RemoteException;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
 
-import org.apache.log4j.Logger;
-
 
 /**
  * 
@@ -41,21 +40,15 @@ import org.apache.log4j.Logger;
 public class InterfaceA_EngineBasedServer extends HttpServlet {
     private EngineGateway _engine;
     private static final boolean _debug = false;
-    private static Logger logger = null;
+    private static final Logger logger = Logger.getLogger(InterfaceA_EngineBasedServer.class);
 
     public void init() throws ServletException {
 
         /**
          * Initialise logging
          */
-        logger = Logger.getLogger(this.getClass());
-        
         ServletContext context = getServletContext();
 
-        /*
-  ADDED FOR PERSISTANCE TO CHECK IF
-  DATABASE IS ENABLED/DISABLED
-*/
         try {
             String persistOn = context.getInitParameter("EnablePersistance") ;
             boolean enablePersist = "true".equalsIgnoreCase(persistOn);

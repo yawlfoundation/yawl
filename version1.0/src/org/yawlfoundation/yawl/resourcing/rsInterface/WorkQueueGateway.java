@@ -40,7 +40,7 @@ public class WorkQueueGateway extends HttpServlet {
 
     private ResourceManager _rm = ResourceManager.getInstance() ;
     private ResourceMarshaller _marshaller = new ResourceMarshaller();
-    private Logger _log = Logger.getLogger(this.getClass());
+    private static final Logger _log = Logger.getLogger(WorkQueueGateway.class);
     private static WorkQueueGateway _me;
 
 

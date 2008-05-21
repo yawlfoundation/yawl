@@ -26,7 +26,7 @@ public class YCaseNbrStore {
     private boolean persisted = false ;                   // has this been persisted yet?
     private boolean persisting = false ;                  // is persistence on?
     private static YCaseNbrStore _instance ;
-    private Logger log = Logger.getLogger(this.getClass()) ;
+    private static final Logger log = Logger.getLogger(YCaseNbrStore.class) ;
 
     protected YCaseNbrStore() {}
 

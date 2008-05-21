@@ -27,6 +27,7 @@ import java.util.Date;
  */
 public class YProblemEvent {
     private static final String EXECUTION_ERROR_STR = "Engine Execution Problem";
+    private static final Logger logger = Logger.getLogger(YProblemEvent.class);
     private Object _source;
     private String _message;
     private int _eventType;
@@ -72,7 +73,7 @@ public class YProblemEvent {
     }
 
     public void logProblem(YPersistenceManager pmgr) throws YPersistenceException {
-        Logger.getLogger(this.getClass()).error("Problem source: " + _source + " " +
+        logger.error("Problem source: " + _source + " " +
                 " Message: " + _message);
         Problem error = new Problem();
         error.setMessage(_message);

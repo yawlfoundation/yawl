@@ -99,7 +99,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
     private TabbedEngineGUI _tabbedGUI;
 
     // Log4J Logger
-    private static Logger logger;
+    private static final Logger logger = Logger.getLogger(YAdminGUI.class);
 
     // Engine references (via set interfaces)
     private InterfaceADesign _engineDesign;
@@ -111,7 +111,6 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
 
     private YAdminGUI() {
         super();
-        logger = Logger.getLogger(this.getClass());
     }
 
 

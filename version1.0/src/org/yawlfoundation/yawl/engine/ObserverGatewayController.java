@@ -12,6 +12,9 @@ package org.yawlfoundation.yawl.engine;
 import org.jdom.Document;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
+import org.yawlfoundation.yawl.engine.announcement.Announcements;
+import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
+import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
 
 import java.util.Vector;
 
@@ -57,21 +60,24 @@ public class ObserverGatewayController
     /**
      * Notify affected gateways of a new work item being posted.<P>
      *
-     * @param yawlService
-     * @param item
+     * @param announcements
      */
-    void notifyAddWorkItem(final YAWLServiceReference yawlService, final YWorkItem item,
-                           final AnnouncementContext context)
+    void notifyAddWorkItems(final Announcements<NewWorkItemAnnouncement> announcements)
     {
         new Thread(new Runnable()
         {
             public void run()
             {
-                Vector<ObserverGateway> affectedShims = getGatewaysForProtocol(yawlService.getScheme());
-
-                for(ObserverGateway observerGateway : affectedShims)
+                for(String scheme : announcements.getSchemes())
                 {
-                    observerGateway.announceWorkItem(yawlService, item, context);
+                    Vector<ObserverGateway> affectedShims = getGatewaysForProtocol(scheme);
+                    Announcements<NewWorkItemAnnouncement> announceies =
+                            announcements.getAnnouncementsForScheme(scheme);
+
+                    for(ObserverGateway observerGateway : affectedShims)
+                    {
+                        observerGateway.announceWorkItems(announceies);
+                    }
                 }
             }
         }).start();
@@ -80,20 +86,24 @@ public class ObserverGatewayController
     /**
      * Notify affected gateways of a work item being removed.<P>
      *
-     * @param yawlService
-     * @param item
+     * @param announcements
      */
-    void notifyRemoveWorkItem(final YAWLServiceReference yawlService, final YWorkItem item)
+    void notifyRemoveWorkItems(final Announcements<CancelWorkItemAnnouncement> announcements)
     {
         new Thread(new Runnable()
         {
             public void run()
             {
-                Vector<ObserverGateway> affectedShims = getGatewaysForProtocol(yawlService.getScheme());
-
-                for(ObserverGateway observerGateway : affectedShims)
+                for(String scheme : announcements.getSchemes())
                 {
-                    observerGateway.cancelAllWorkItemsInGroupOf(yawlService, item);
+                    Vector<ObserverGateway> affectedShims = getGatewaysForProtocol(scheme);
+                    Announcements<CancelWorkItemAnnouncement> announceies =
+                                          announcements.getAnnouncementsForScheme(scheme);
+
+                    for(ObserverGateway observerGateway : affectedShims)
+                    {
+                        observerGateway.cancelAllWorkItemsInGroupOf(announceies);
+                    }
                 }
             }
         }).start();
@@ -121,7 +131,6 @@ public class ObserverGatewayController
      *
      * @param scheme    The scheme or protocol the gateway needs to support.
      * @return Gateways of protocol scheme
-
      */
     private Vector<ObserverGateway> getGatewaysForProtocol(String scheme)
     {

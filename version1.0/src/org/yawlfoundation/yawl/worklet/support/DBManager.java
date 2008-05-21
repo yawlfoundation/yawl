@@ -8,15 +8,15 @@
 
 package org.yawlfoundation.yawl.worklet.support;
 
-import org.hibernate.cfg.Configuration;
+import org.apache.log4j.Logger;
 import org.hibernate.*;
+import org.hibernate.cfg.Configuration;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
-import java.util.*;
 import java.sql.Statement;
-
-import org.apache.log4j.Logger;
+import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -34,7 +34,7 @@ public class DBManager {
     public static final int DB_INSERT = 2;
 
     private static boolean _persistOn = false;
-    private static Logger _log = null;
+    private static final Logger _log = Logger.getLogger(DBManager.class);
     private Configuration _cfg = null;
     private static SessionFactory _factory = null;
     private static DBManager _me;
@@ -43,7 +43,6 @@ public class DBManager {
     /** The constuctor - called from getInstance() */
     private DBManager(boolean persistenceOn) throws HibernateException {
          _persistOn = persistenceOn;
-        _log = Logger.getLogger(this.getClass());
         initialise();
     }
 

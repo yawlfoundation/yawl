@@ -45,7 +45,7 @@ import java.util.Set;
  * 
  */
 public class YWorklistModel {
-    private Logger logger = Logger.getLogger(this.getClass());
+    private static final Logger logger = Logger.getLogger(YWorklistModel.class);
     private YWorklistTableModel _availableWork;
     private YWorklistTableModel _myActiveTasks;
     private DateFormat _formatter;
@@ -83,7 +83,7 @@ public class YWorklistModel {
 
     private void addEnabledWorkItem(YWorkItem workItem) {
 
-        Logger.getLogger(this.getClass()).debug("addEnabledWorkItem: " + workItem.getIDString());
+        logger.debug("addEnabledWorkItem: " + workItem.getIDString());
 
         String caseIDStr = workItem.getCaseID().toString();
         String taskID = workItem.getTaskID();

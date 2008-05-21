@@ -23,7 +23,7 @@ import java.util.*;
 /**
  * 
  * This class has control over data structures that allow for
- * storing an identifer and manging a set of children.
+ * storing an identifer and managing a set of children.
  * @author Lachlan Aldred
  * 
  */
@@ -264,19 +264,8 @@ public class YIdentifier {
         if (task == null) {
             throw new RuntimeException("Cannot remove null task from this identifier.");
         }
-        this._locations.remove(task);
-
-        /*
-          INSERTED FOR PERSISTANCE
-         */
-        this.locationNames.remove(task.getID());
-
-        /**
-         * AJH: Bugfix - YIdentifiers get deleted elsewhere, so don't attempt here
-         */
-//        if (pmgr != null) {
-//            pmgr.updateObjectExternal(this);
-//        }
+        _locations.remove(task);
+        locationNames.remove(task.getID());
     }
 
 

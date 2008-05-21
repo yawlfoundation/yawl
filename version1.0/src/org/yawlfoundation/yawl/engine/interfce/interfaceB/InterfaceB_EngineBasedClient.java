@@ -6,7 +6,6 @@
  *
  */
 
-
 package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
 import org.apache.log4j.Category;
@@ -17,10 +16,12 @@ import org.jdom.input.SAXBuilder;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.engine.AnnouncementContext;
 import org.yawlfoundation.yawl.engine.ObserverGateway;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.YWorkItemStatus;
+import org.yawlfoundation.yawl.engine.announcement.Announcements;
+import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
+import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.unmarshal.YDecompositionParser;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -58,13 +59,17 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     /**
      * PRE: The work item is enabled.
      * announces a work item to a YAWL Service.
-     * @param yawlService the reference to a YAWL service in the environment
-     * @param workItem the work item to announce,
+     * @param announcements
      */
-    public void announceWorkItem(YAWLServiceReference yawlService, YWorkItem workItem,
-                                 AnnouncementContext context) {
-        Handler myHandler = new Handler(yawlService, workItem, ADDWORKITEM_CMD);
-        myHandler.start();
+    public void announceWorkItems(Announcements<NewWorkItemAnnouncement> announcements)
+    {
+        for (NewWorkItemAnnouncement announcement :
+                announcements.getAnnouncementsForScheme(getScheme()).getAllAnnouncements())
+        {
+            Handler myHandler = new Handler(announcement.getYawlService(),
+                                            announcement.getItem(), ADDWORKITEM_CMD);
+            myHandler.start();
+        }
     }
 
     /**
@@ -80,17 +85,28 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     /**
      * Cancels the work item, and all child
      * workitems under the provided work item.
-     * @param yawlService the yawl service reference.
-     * @param workItem the parent work item to cancel.
+     * @param announcements
      */
-    public void cancelAllWorkItemsInGroupOf(YAWLServiceReference yawlService, YWorkItem workItem) {
-        if (workItem.getParent() == null) {
-            Handler myHandler = new Handler(yawlService, workItem, "cancelAllInstancesUnderWorkItem");
-            myHandler.start();
-        }
-        else {
-            Handler myHandler = new Handler(yawlService, workItem.getParent(), "cancelAllInstancesUnderWorkItem");
-            myHandler.start();
+    public void cancelAllWorkItemsInGroupOf(Announcements<CancelWorkItemAnnouncement> announcements)
+    {
+        for (CancelWorkItemAnnouncement announcement :
+                announcements.getAnnouncementsForScheme(getScheme()).getAllAnnouncements())
+        {
+            YAWLServiceReference yawlService = announcement.getYawlService();
+            YWorkItem workItem = announcement.getItem();
+
+            System.out.println("Thread::yawlService.getURI() = " + yawlService.getURI());
+            System.out.println("\rworkItem.toXML() = " + workItem.toXML());
+            if (workItem.getParent() == null) {
+                Handler myHandler = new Handler(yawlService, workItem,
+                                                "cancelAllInstancesUnderWorkItem");
+                myHandler.start();
+            }
+            else {
+                Handler myHandler = new Handler(yawlService, workItem.getParent(),
+                                                "cancelAllInstancesUnderWorkItem");
+                myHandler.start();
+            }
         }
     }
 
@@ -175,7 +191,8 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @throws IOException if connection problem
      * @throws JDOMException if XML content problem.
      */
-    public static YParameter[] getRequiredParamsForService(YAWLServiceReference yawlService) throws IOException, JDOMException {
+    public static YParameter[] getRequiredParamsForService(YAWLServiceReference yawlService)
+                                                     throws IOException, JDOMException {
         List paramResults = new ArrayList();
 
         String urlOfYawlService = yawlService.getURI();
@@ -201,7 +218,9 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         return (YParameter[]) paramResults.toArray(new YParameter[paramResults.size()]);
     }
 
-
+    /*******************************************************************************/
+    /*******************************************************************************/
+    
     static class Handler extends Thread {
         private YWorkItem _workItem;
         private YAWLServiceReference _yawlService;

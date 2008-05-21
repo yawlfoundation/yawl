@@ -48,7 +48,7 @@ public class HibernateEngine {
 
     private static boolean _persistOn = false;
     private final Object _mutex = new Object();
-    private static Logger _log = null;
+    private static final Logger _log = Logger.getLogger(HibernateEngine.class);
 
     // table name abbreviations
     private static final String _pkg = "org.yawlfoundation.yawl.resourcing." ;
@@ -69,7 +69,6 @@ public class HibernateEngine {
     /** The constuctor - called from getInstance() */
     private HibernateEngine(boolean persistenceOn) throws HibernateException {
         _persistOn = persistenceOn;
-        _log = Logger.getLogger(this.getClass());
         initialise();
     }
 
