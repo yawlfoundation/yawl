@@ -20,10 +20,17 @@ import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.elements.state.YInternalCondition;
+import org.yawlfoundation.yawl.engine.announcement.AnnouncementContext;
+import org.yawlfoundation.yawl.engine.announcement.Announcements;
+import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
+import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceADesign;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceAManagement;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceAManagementObserver;
-import org.yawlfoundation.yawl.engine.interfce.interfaceB.*;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBClient;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBClientObserver;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBInterop;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
@@ -2393,19 +2400,19 @@ public class YEngine implements InterfaceADesign,
      * YAWL service.
      * PRE: the YAWL service exists and is on line.
      *
-     * @param yawlService the YAWL service
-     * @param item        the work item must be enabled.
+     * @param announcements
      */
-    protected void announceTask(YAWLServiceReference yawlService, YWorkItem item) {
-        logger.debug("Announcing " + item.getStatus() + " task " + item.getIDString() + " on service " + yawlService.get_yawlServiceID());
-        observerGatewayController.notifyAddWorkItem(yawlService, item, announcementContext);
+    protected void announceTasks(Announcements<NewWorkItemAnnouncement> announcements) {
+        logger.debug("Announcing " + announcements.size() + " workitems.");
+        observerGatewayController.notifyAddWorkItems(announcements);
+    }
+
+    public void announceCancellationToEnvironment(Announcements<CancelWorkItemAnnouncement> announcements) {
+        logger.debug("Announcing " + announcements.size() + " cancelled workitems.");
+        observerGatewayController.notifyRemoveWorkItems(announcements);
     }
 
 
-    public void announceCancellationToEnvironment(YAWLServiceReference yawlService, YWorkItem item) {
-        logger.debug("Announcing task cancellation " + item.getIDString() + " on service " + yawlService.get_yawlServiceID());
-        observerGatewayController.notifyRemoveWorkItem(yawlService, item);
-    }
 
     protected void announceCaseCompletionToEnvironment(YAWLServiceReference yawlService, YIdentifier caseID, Document casedata) {
         observerGatewayController.notifyCaseCompletion(yawlService, caseID, casedata);
@@ -2557,7 +2564,17 @@ public class YEngine implements InterfaceADesign,
         if (_resourceObserver != null) {
             logger.debug("Announcing enabled task " + item.getIDString() + " on service " +
                           _resourceObserver.get_yawlServiceID());
-            observerGatewayController.notifyAddWorkItem(_resourceObserver, item, announcementContext);
+            try {
+                Announcements<NewWorkItemAnnouncement> announcements =
+                                 new Announcements<NewWorkItemAnnouncement>();
+                announcements.addAnnouncement(new NewWorkItemAnnouncement(
+                                 _resourceObserver, item, getAnnouncementContext()));
+                observerGatewayController.notifyAddWorkItems(announcements);
+            }
+            catch (YStateException yse) {
+                logger.error("Failed to announce enablement of workitem '" +
+                               item.getIDString() + "': ",yse);
+            }
         }
     }
 
@@ -2565,7 +2582,17 @@ public class YEngine implements InterfaceADesign,
         if (_resourceObserver != null) {
             logger.debug("Announcing cancelled task " + item.getIDString() + " on service " +
                           _resourceObserver.get_yawlServiceID());
-            observerGatewayController.notifyRemoveWorkItem(_resourceObserver, item);
+            try {
+                Announcements<CancelWorkItemAnnouncement> announcements =
+                                 new Announcements<CancelWorkItemAnnouncement>();
+                announcements.addAnnouncement(new CancelWorkItemAnnouncement(
+                                 _resourceObserver, item));
+                observerGatewayController.notifyRemoveWorkItems(announcements);
+            }
+            catch (YStateException yse) {
+                logger.error("Failed to announce cancellation of workitem '" +
+                               item.getIDString() + "': ",yse);                 
+            }
         }
     }
 

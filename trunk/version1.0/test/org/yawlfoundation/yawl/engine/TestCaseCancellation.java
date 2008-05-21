@@ -8,29 +8,30 @@
 
 package org.yawlfoundation.yawl.engine;
 
-import org.yawlfoundation.yawl.elements.YSpecification;
-import org.yawlfoundation.yawl.elements.YAWLServiceReference;
-import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.unmarshal.YMarshal;
-import org.yawlfoundation.yawl.exceptions.*;
-import org.yawlfoundation.yawl.engine.ObserverGateway;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+import org.jdom.Document;
+import org.jdom.JDOMException;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.elements.state.YIdentifier;
+import org.yawlfoundation.yawl.engine.announcement.Announcements;
+import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
+import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
+import org.yawlfoundation.yawl.exceptions.*;
+import org.yawlfoundation.yawl.unmarshal.YMarshal;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Iterator;
-import java.util.Set;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-
-import org.jdom.JDOMException;
-import org.jdom.Document;
+import java.util.Set;
 
 /**
  * @author Lachlan Aldred
@@ -64,17 +65,20 @@ public class TestCaseCancellation extends TestCase {
 
         ObserverGateway og = new ObserverGateway() {
             public void cancelAllWorkItemsInGroupOf(
-                    YAWLServiceReference ys,
-                    YWorkItem item) {
-                _taskCancellationReceived.add(item);
+                              Announcements<CancelWorkItemAnnouncement> announcements) {
+                _taskCancellationReceived.add(announcements);
             }
             public void announceCaseCompletion(YAWLServiceReference yawlService, YIdentifier caseID, Document d) {
+                _caseCompletionReceived.add(caseID);
+            }
+            public void announceCaseCompletion(YIdentifier caseID, Document d) {
                 _caseCompletionReceived.add(caseID);
             }
             public String getScheme() {
                 return "mock";
             }
-            public void announceWorkItem(YAWLServiceReference ys, YWorkItem i) {}
+            public void announceWorkItems(Announcements<NewWorkItemAnnouncement> a) {}
+            public void announceTimerExpiry(YAWLServiceReference ys, YWorkItem i) {}
             public void announceCaseSuspended(YIdentifier id) {}
             public void announceCaseSuspending(YIdentifier id) {}
             public void announceCaseResumption(YIdentifier id) {}

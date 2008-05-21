@@ -30,7 +30,7 @@ public class jdbcImpl extends DataSource {
     private final String dbPassword = "yawl";
 
     private Connection connection = null;
-    private Logger _log = Logger.getLogger(this.getClass());
+    private static final Logger _log = Logger.getLogger(jdbcImpl.class);
 
 
     // the constructor - loads the driver and creates tables if they don't already exist

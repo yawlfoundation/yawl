@@ -42,21 +42,11 @@ import java.util.StringTokenizer;
  */
 public class InterfaceB_EngineBasedServer extends HttpServlet {
     private EngineGateway _engine;
-    private static Logger logger = null;
+    private static final Logger logger = Logger.getLogger(InterfaceB_EngineBasedServer.class);
 
 
     public void init() throws ServletException {
 
-        /**
-         * Initialise logging
-         */
-        logger = Logger.getLogger(this.getClass());
-
-
-        /*
-        ADDED FOR PERSISTANCE TO CHECK IF
-        DATABASE IS ENABLED/DISABLED
-        */
         try {
             ServletContext context = getServletContext();
 

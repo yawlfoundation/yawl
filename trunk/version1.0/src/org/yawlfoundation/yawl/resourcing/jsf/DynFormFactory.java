@@ -509,6 +509,7 @@ public class DynFormFactory extends AbstractSessionBean {
         cal.setDateFormatPatternHelp("");
         cal.setDisabled(param.isInputOnly());
         cal.setRequired(isRequired(param));
+        cal.setMinDate(new Date(1));
         cal.setColumns(15);
         cal.setStyleClass("dynformInput");
         cal.setStyle(makeTopStyle(top)) ;

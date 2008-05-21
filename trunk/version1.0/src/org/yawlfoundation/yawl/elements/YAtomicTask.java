@@ -9,27 +9,19 @@
 
 package org.yawlfoundation.yawl.elements;
 
+import org.apache.log4j.Logger;
+import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.engine.YWorkItem;
-import org.yawlfoundation.yawl.exceptions.YDataStateException;
-import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.yawlfoundation.yawl.exceptions.YQueryException;
-import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
-import org.yawlfoundation.yawl.exceptions.YStateException;
+import org.yawlfoundation.yawl.engine.announcement.Announcements;
+import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
+import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
-import org.jdom.Element;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
 
 /**
@@ -41,6 +33,7 @@ import java.util.Vector;
  */
 public class YAtomicTask extends YTask {
 
+    private static Logger logger = Logger.getLogger(YAtomicTask.class);
 
     public YAtomicTask(String id, int joinType, int splitType, YNet container) {
         super(id, joinType, splitType, container);
@@ -140,11 +133,20 @@ public class YAtomicTask extends YTask {
         YAWLServiceGateway wsgw = (YAWLServiceGateway) getDecompositionPrototype();
         if (wsgw != null) {
             YAWLServiceReference ys = wsgw.getYawlService();
-            if (ys != null)
-                YEngine.getInstance().announceCancellationToEnvironment(ys, workItem);
+            if (ys != null) {
+                try {
+                    Announcements<CancelWorkItemAnnouncement> announcements =
+                                         new Announcements<CancelWorkItemAnnouncement>();
+                    announcements.addAnnouncement(new CancelWorkItemAnnouncement(ys, workItem));
+                    YEngine.getInstance().announceCancellationToEnvironment(announcements);
+                }
+                catch (YStateException e) {
+                    logger.error("Failed to announce cancellation of workitem '" +
+                                  workItem.getIDString() + "': ",e);
+                }
+            }
             else
                 YEngine.getInstance().announceCancelledTaskToResourceService(workItem);
-
         }
     }
 

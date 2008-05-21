@@ -50,7 +50,7 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
     private JFrame _frame;
 
     // Log4J Logger
-    private static Logger logger;
+    private static final Logger logger = Logger.getLogger(YWorklistGUI.class);
 
     /**
      * Creates a new <code>JPanel</code> with a double buffer
@@ -58,7 +58,6 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
      */
     public YWorklistGUI() {
         super();
-        logger = Logger.getLogger(this.getClass());
     }
 
     public YWorklistGUI(String userName, YWorklistModel worklistModel, JFrame frame) {

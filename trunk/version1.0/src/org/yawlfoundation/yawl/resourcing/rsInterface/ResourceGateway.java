@@ -29,7 +29,7 @@ import java.io.PrintWriter;
 public class ResourceGateway extends HttpServlet {
 
     private ResourceManager rm = ResourceManager.getInstance() ;
-    private Logger _log = Logger.getLogger(this.getClass());
+    private static final Logger _log = Logger.getLogger(ResourceGateway.class);
 
 
     /** Read settings from web.xml and use them to initialise the service */

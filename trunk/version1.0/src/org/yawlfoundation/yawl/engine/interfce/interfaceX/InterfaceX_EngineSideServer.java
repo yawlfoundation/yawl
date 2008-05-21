@@ -7,19 +7,21 @@
  */
 package org.yawlfoundation.yawl.engine.interfce.interfaceX;
 
+import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 
-import javax.servlet.http.*;
-import javax.servlet.*;
-
-import org.apache.log4j.Logger;
-
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.UnavailableException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.StringTokenizer;
 import java.rmi.RemoteException;
+import java.util.StringTokenizer;
 
 
 /**
@@ -51,11 +53,10 @@ import java.rmi.RemoteException;
 public class InterfaceX_EngineSideServer extends HttpServlet {
 
     private EngineGateway _engine;
-    private static Logger logger = null;
+    private static final Logger logger = Logger.getLogger(InterfaceX_EngineSideServer.class);
 
 
     public void init() throws ServletException {
-        logger = Logger.getLogger(this.getClass());
         ServletContext context = getServletContext();
 
         try {

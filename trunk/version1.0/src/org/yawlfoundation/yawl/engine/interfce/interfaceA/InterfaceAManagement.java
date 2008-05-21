@@ -14,7 +14,7 @@ import org.jdom.JDOMException;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.engine.AnnouncementContext;
+import org.yawlfoundation.yawl.engine.announcement.AnnouncementContext;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.exceptions.YEngineStateException;

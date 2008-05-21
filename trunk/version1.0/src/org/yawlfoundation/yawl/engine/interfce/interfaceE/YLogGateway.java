@@ -24,7 +24,7 @@ import java.io.PrintWriter;
 
 public class YLogGateway extends HttpServlet {
 
-    private Logger _log = Logger.getLogger(this.getClass());
+    private static final Logger _log = Logger.getLogger(YLogGateway.class);
     private YLogManager _logMgr = YLogManager.getInstance() ;
     private EngineGatewayImpl _engine ;
 

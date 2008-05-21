@@ -54,7 +54,7 @@ public class ResourceMap {
     private HashMap<String, HashSet<Participant>> _offered = new
             HashMap<String, HashSet<Participant>>() ;
 
-    private Logger _log = Logger.getLogger(this.getClass()) ;
+    private static final Logger _log = Logger.getLogger(ResourceMap.class) ;
 
 
     public ResourceMap() { }                                       // for persistence

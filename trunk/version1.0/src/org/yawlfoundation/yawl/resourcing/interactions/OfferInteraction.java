@@ -45,7 +45,7 @@ public class OfferInteraction extends AbstractInteraction {
     private String _familiarParticipantTask ;
 
     private ResourceManager _rm = ResourceManager.getInstance() ;
-    private Logger _log = Logger.getLogger(this.getClass());
+    private static final Logger _log = Logger.getLogger(OfferInteraction.class);
 
 
     // Dynamic Parameter types

@@ -86,7 +86,7 @@ public class YPersistenceManager {
      * Constructor
      */
     public YPersistenceManager(SessionFactory factory) {
-        logger = Logger.getLogger(this.getClass());
+        logger = Logger.getLogger(YPersistenceManager.class);
 
         objectsToStore = new Hashtable(5);        // Arbitary initial size
         objectsToUpdate = new Hashtable(5);
