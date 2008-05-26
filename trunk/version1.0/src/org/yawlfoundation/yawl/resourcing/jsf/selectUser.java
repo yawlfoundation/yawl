@@ -257,12 +257,11 @@ public class selectUser extends AbstractPageBean {
             // message  - select a user
             return null ;
         }
-
-
     }
 
 
     public String btnCancel_action() {
+        getSessionBean().setAdminQueueAction(null) ;
         return getSessionBean().getNavigateTo();
     }
 }
