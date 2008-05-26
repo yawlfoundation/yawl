@@ -452,7 +452,11 @@ public class pfOrgData extends AbstractFragmentBean {
 
     public void clearFields() {
         txtDesc.setText("");
-        txtNotes.setText("");        
+        txtNotes.setText("");
+        cbbBelongs.setItems(null);
+        cbbGroup.setItems(null);
+        getSessionBean().setOrgDataBelongsItems(null);
+        getSessionBean().setOrgDataGroupItems(null);
     }
 
     private String getFirstListboxItem() {

@@ -149,7 +149,7 @@
     <property name="hsql.path" value="${libs}/${hsql.jar}"/>
     <property name="postgres7.jar" value="postgresql-7.4.5.jdbc.jar"/>
     <property name="postgres7.path" value="${libs}/${postgres7.jar}"/>
-    <property name="postgres8.jar" value="postgresql-8.0-311.jdbc3.jar"/>
+    <property name="postgres8.jar" value="postgresql-8.3-603.jdbc3.jar"/>
     <property name="postgres8.path" value="${libs}/${postgres8.jar}"/>
     <property name="jta" value="${libs}/jta.jar"/>
     <property name="odmg" value="${libs}/odmg-3.0.jar"/>
@@ -385,7 +385,7 @@
         <unzip dest="${enumeratedClasses}">
             <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs}
                     jaxen-full.jar jcommon-1.0.0-rc1.jar jdom.jar jfreechart-1.0.0-rc1.jar
-                    log4j*.jar postgresql-8.0-311.jdbc3.jar saxon7.jar saxpath.jar
+                    log4j*.jar postgresql-8.3-603.jdbc3.jar saxon7.jar saxpath.jar
                     servlet-api.jar xercesImpl.jar xml-apis.jar"
                      excludes="hibernate.cfg.xml"/>
         </unzip>	
@@ -474,7 +474,7 @@
             <fileset file="${build.home}/engine/web.xml"/>
         </copy>
         <copy todir="${yawl.eng.app.name}/WEB-INF/lib">
-            <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs} jaxen-full.jar jcommon-1.0.0-rc1.jar jdom.jar log4j*.jar postgresql-8.0-311.jdbc3.jar saxon7.jar saxpath.jar xercesImpl.jar"/>
+            <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs} jaxen-full.jar jcommon-1.0.0-rc1.jar jdom.jar log4j*.jar postgresql-8.3-603.jdbc3.jar saxon7.jar saxpath.jar xercesImpl.jar"/>
         </copy>
         <antcall target="decidePostgresVersion"/>
         <jar destfile="${output}/yawl.war">
@@ -534,7 +534,7 @@
         <mkdir dir="${yawl.worklist.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/schema"/>
         <!-- Copy library dependencies into worklist -->
         <copy todir="${yawl.worklist.app.name}/WEB-INF/lib" >
-            <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs} bcprov-jdk14-130.jar commons-fileupload-1.1.jar dom.jar itext-1.4.jar jaxen-full.jar jaxp-api.jar jcommon-1.0.0-rc1.jar jdbc2_0-stdext.jar jdom.jar jstl.jar log4j*.jar postgresql-8.0-311.jdbc3.jar sax.jar saxon7.jar saxpath.jar standard.jar xalan.jar xercesImpl.jar"/>
+            <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs} bcprov-jdk14-130.jar commons-fileupload-1.1.jar dom.jar itext-1.4.jar jaxen-full.jar jaxp-api.jar jcommon-1.0.0-rc1.jar jdbc2_0-stdext.jar jdom.jar jstl.jar log4j*.jar postgresql-8.3-603.jdbc3.jar sax.jar saxon7.jar saxpath.jar standard.jar xalan.jar xercesImpl.jar"/>
         </copy>  	
     	
         <antcall target="decidePostgresVersion"/>
@@ -837,7 +837,7 @@
         <copy todir="${yawl.TimeService.app.name}/WEB-INF/lib">
             <fileset dir="${libs}" includes="jdom.jar log4j*.jar"/>
         </copy>
-    	
+
         <copy file="${property.files}/log4j.properties" todir="${yawl.TimeService.app.name}/WEB-INF/classes"/>
 
         <copy todir="${yawl.TimeService.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/engine/interfce">
@@ -883,7 +883,6 @@
         </jar>
         <delete dir="${yawl.TimeService.app.name}"/>
     </target>
-
 
 
 	<!-- Build the WorkletService war file  -->
@@ -1011,7 +1010,7 @@
 
         <!-- 3. Copy required 3rd party libraries into dir structure -->
     	<copy todir="${yawl.worklet.app.name}/WEB-INF/lib">
-    	   <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs} jdom.jar log4j*.jar postgresql-8.0-311.jdbc3.jar"/>
+    	   <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs} jdom.jar log4j*.jar postgresql-8.3-603.jdbc3.jar"/>
         </copy>
 
         <!-- 4. Copy hibernate & postgres files (assumes version 8) -->
@@ -1219,7 +1218,7 @@
         <!-- 3. Copy required 3rd party libraries into dir structure -->
         <copy todir="${yawl.resource.app.name}/WEB-INF/lib">
            <fileset dir="${libs}" includes="${persistence.libs} ${xsd.libs} jdom.jar
-                    log4j*.jar postgresql-8.0-311.jdbc3.jar ${jsf.libs} saxon7.jar
+                    log4j*.jar postgresql-8.3-603.jdbc3.jar ${jsf.libs} saxon7.jar
                     commons-lang-2.3.jar xercesImpl.jar"/>            
         </copy>
 

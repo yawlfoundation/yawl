@@ -91,6 +91,15 @@ public class QueueSet implements Serializable {
         addToQueue(child, WorkQueue.STARTED);
     }
 
+
+    // this variation is called when a workitem that is already started gets
+    // reallocated or reoffered, then eventually moves back to a started queue.
+    // Since it was previously started, its already the child item
+    public void movetoStarted(WorkItemRecord wir) {
+        removeFromQueue(wir, WorkQueue.ALLOCATED);
+        addToQueue(wir, WorkQueue.STARTED);
+    }
+
     public void movetoUnsuspend(WorkItemRecord wir) {
         removeFromQueue(wir, WorkQueue.SUSPENDED);
         addToQueue(wir, WorkQueue.STARTED);

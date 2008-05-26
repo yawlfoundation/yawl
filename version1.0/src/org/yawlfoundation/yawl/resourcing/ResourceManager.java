@@ -1236,6 +1236,12 @@ public class ResourceManager extends InterfaceBWebsideController {
     public boolean start(Participant p, WorkItemRecord wir, String handle) {
         WorkItemRecord oneToStart ;
 
+        // if 'executing', it's already been started so move queues & we're done
+        if (wir.getStatus().equals(WorkItemRecord.statusExecuting)) {
+            p.getWorkQueues().movetoStarted(wir);            
+            return true ;
+        }
+
         if (checkOutWorkItem(wir, handle)) {
 
             // get all the child instances of this workitem

@@ -282,12 +282,6 @@ public class orgDataMgt extends AbstractPageBean {
         return (SessionBean)getBean("SessionBean");
     }
 
-    /** @return a reference to the session scoped factory bean. */
-    private DynFormFactory getDynFormFactory() {
-        return (DynFormFactory) getBean("DynFormFactory");
-    }
-
-
 
     /**
      * <p>Callback method that is called whenever a page is navigated to,
@@ -360,6 +354,7 @@ public class orgDataMgt extends AbstractPageBean {
        //     setRefreshRate(0) ;               // get default refresh rate from web.xml
             tabSet.setSelected("tabRoles");
             selTab = tabRoles;
+            _sb.getOrgDataOptions();
             tabRoles_action() ;           // default
             setVisibleComponents("tabRoles");
             setMode(Mode.edit);
@@ -572,6 +567,7 @@ public class orgDataMgt extends AbstractPageBean {
         if (aType != null) {
             Option[] attribs = _sb.getFullResourceAttributeList(getTabString(aType));
             _sb.setOrgDataOptions(attribs);
+            innerForm.getLbxItems().setItems(attribs);
             if ((attribs != null) && (attribs.length > 0)) {
                 String id = _sb.getOrgDataChoice();
                 if (id == null) id = (String) attribs[0].getValue();
