@@ -107,7 +107,7 @@ public class YEngine implements InterfaceADesign,
      * AJH: Switch indicating if we generate user interface attributes with a task's
      * output XML doclet.
      */
-    private static boolean generateUIMetaData = false;
+    private static boolean generateUIMetaData = true;
 
     /**
      * Constructor.

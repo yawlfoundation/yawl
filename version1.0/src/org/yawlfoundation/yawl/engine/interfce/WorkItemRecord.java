@@ -14,6 +14,7 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.Serializable;
+import java.util.Hashtable;
 
 /**
  * A 'stringified' record of a workitem for passing across various HTTP interfaces
@@ -23,7 +24,7 @@ import java.io.Serializable;
  * Time: 18:30:18
  *
  * Extended & refactored for version 2.0 by Michael Adams
- * Last Date: 28/02/2008
+ * Last Date: 27/05/2008
  * 
  */
 
@@ -57,6 +58,10 @@ public class WorkItemRecord implements Serializable {
     private String _uniqueID;                            // used by PDF Forms service
     private String _allowsDynamicCreation;
     private String _requiresManualResourcing;
+
+    // task/decomp level attribs
+    private Hashtable<String, String> _attributeTable;
+    private String _extendedAttributes = "";
 
     // identifies this item as a member of a group of deferred choice items
     private String _deferredChoiceGroupID = null;
@@ -172,6 +177,15 @@ public class WorkItemRecord implements Serializable {
 
     public void setDeferredChoiceGroupID(String id) { _deferredChoiceGroupID = id ; }
 
+    public void setExtendedAttributes(Hashtable<String, String> attribs) {
+        _attributeTable = attribs ;
+        _extendedAttributes = attributeTableToXMLString() ;
+    }
+
+    public void setExtendedAttributes(String attribStr) {
+        _extendedAttributes = attribStr ;
+        _attributeTable = attributeStringToTable();
+    }
 
     public void setEnablementTime(String time) { _enablementTime = time; }
 
@@ -245,6 +259,13 @@ public class WorkItemRecord implements Serializable {
 
     public String getRequiresManualResourcing() { return _requiresManualResourcing; }
 
+    public String getExtendedAttributes() { return _extendedAttributes ; }
+
+    public Hashtable<String, String> getAttributeTable() {
+        if ((_extendedAttributes.length() > 0) && (_attributeTable == null))
+            _attributeTable = attributeStringToTable();
+        return _attributeTable; }
+
     public String getID() { return _caseID + ":" + _taskID; }
 
     public String getEnablementTime() { return _enablementTime; }
@@ -308,8 +329,10 @@ public class WorkItemRecord implements Serializable {
     /********************************************************************************/
 
     public String toXML() {
-        StringBuilder xml = new StringBuilder("<workItemRecord>");
-        xml.append(StringUtil.wrap(getID(), "id"))
+        StringBuilder xml = new StringBuilder("<workItemRecord");
+        xml.append(_extendedAttributes)
+           .append(">")
+           .append(StringUtil.wrap(getID(), "id"))
            .append(StringUtil.wrap(_specificationID, "specid"))                
            .append(StringUtil.wrap(_specVersion, "specversion"))
            .append(StringUtil.wrap(_caseID, "caseid"))
@@ -341,6 +364,35 @@ public class WorkItemRecord implements Serializable {
         return xml.toString() ;
     }
 
+
+    private String attributeTableToXMLString() {
+        if ((_attributeTable == null) || _attributeTable.isEmpty()) return "" ;
+        
+        StringBuilder xml = new StringBuilder();
+        for (String key : _attributeTable.keySet()) {
+            xml.append(" ")
+               .append(key)
+               .append("=\"")
+               .append(_attributeTable.get(key))
+               .append("\"");
+        }
+        return xml.toString();
+    }
+
+
+    private Hashtable<String, String> attributeStringToTable() {
+        if ((_extendedAttributes == null) || (_extendedAttributes.length() == 0))
+            return null;
+
+        Hashtable<String, String> result = new Hashtable<String, String>();
+        String attribStr = _extendedAttributes.trim() ;
+        String[] attribs = attribStr.split(" ");
+        for (int i = 0; i < attribs.length; i++) {
+            String[] attrib = attribs[0].split("=");
+            result.put(attrib[0], attrib[1]);
+        }
+        return result;
+    }
 
  
     /********************************************************************************/
