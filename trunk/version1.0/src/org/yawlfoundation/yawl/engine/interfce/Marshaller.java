@@ -9,6 +9,7 @@
 
 package org.yawlfoundation.yawl.engine.interfce;
 
+import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -202,7 +203,7 @@ public class Marshaller {
 
     public static WorkItemRecord unmarshalWorkItem(String workItemXML) {
         WorkItemRecord workItem = null;
-        Document doc = null;
+        Document doc;
         try {
             SAXBuilder builder = new SAXBuilder();
             doc = builder.build(new StringReader(workItemXML));
@@ -218,7 +219,7 @@ public class Marshaller {
 
     public static WorkItemRecord unmarshalWorkItem(Element workItemElement) {
 
-        WorkItemRecord wir = null;
+        WorkItemRecord wir;
         String status = workItemElement.getChildText("status");
         String caseID = workItemElement.getChildText("caseid");
         String taskID = workItemElement.getChildText("taskid");
@@ -228,6 +229,8 @@ public class Marshaller {
             enablementTime != null && status != null) {
 
             wir = new WorkItemRecord(caseID, taskID, specID, enablementTime, status);
+
+            wir.setExtendedAttributes(unmarshalWorkItemAttributes(workItemElement));
 
             wir.setUniqueID(workItemElement.getChildText("uniqueid"));
             wir.setAllowsDynamicCreation(workItemElement.getChildText(
@@ -263,6 +266,20 @@ public class Marshaller {
         throw new IllegalArgumentException("Input element could not be parsed.");
     }
 
+
+    public static Hashtable<String, String> unmarshalWorkItemAttributes(Element item) {
+        Hashtable<String, String> result = null ;
+        List attributes = item.getAttributes();
+        if (attributes != null) {
+            result = new Hashtable<String, String>();
+            Iterator itr = attributes.iterator();
+            while (itr.hasNext()) {
+                Attribute attribute = (Attribute) itr.next();
+                result.put(attribute.getName(), attribute.getValue()) ;
+            }
+        }
+        return result ;
+    }
 
     public static List<String> unmarshalCaseIDs(String casesAsXML) {
         List<String> cases = new ArrayList<String>();

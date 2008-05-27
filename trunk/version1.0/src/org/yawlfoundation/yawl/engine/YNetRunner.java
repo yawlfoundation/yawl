@@ -680,8 +680,12 @@ public class YNetRunner // extends Thread
 			workItem.setData(pmgr, data);
         }
 
-        workItem.setRequiresManualResourcing(
-                 atomicTask.getDecompositionPrototype().requiresResourcingDecisions());
+        // copy in relevant data from the task's decomposition
+        YDecomposition decomp = atomicTask.getDecompositionPrototype();
+        if (decomp != null) {
+            workItem.setRequiresManualResourcing(decomp.requiresResourcingDecisions());
+            workItem.setAttributes(decomp.getAttributes());
+        }
 
         // set timer params and start timer if required
         Map timerParams = atomicTask.getTimeParameters();

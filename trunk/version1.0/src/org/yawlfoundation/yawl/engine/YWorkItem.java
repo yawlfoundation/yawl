@@ -54,6 +54,8 @@ public class YWorkItem {
     private Date _firingTime;
     private Date _startTime;
 
+    private Hashtable<String, String> _attributes;          // decomposition attributes
+
     private YWorkItemStatus _status;
     private YWorkItemStatus _prevStatus = null;             // for worklet service.
     private String _whoStartedMe;
@@ -264,6 +266,7 @@ public class YWorkItem {
                     _specID, getEnablementTime(), this, _allowsDynamicCreation);
 
             childItem.setRequiresManualResourcing(requiresManualResourcing());
+            childItem.setAttributes(getAttributes());
             childItem.setTimerParameters(getTimerParameters());
 
             _children.add(childItem);
@@ -504,6 +507,14 @@ public class YWorkItem {
             _specID.setVersion(version);
     }
 
+    public Hashtable<String, String> getAttributes() {
+        return _attributes;
+    }
+
+    public void setAttributes(Hashtable<String, String> attributes) {
+        _attributes = attributes;
+    }
+
     public boolean requiresManualResourcing() {
         return _requiresManualResourcing;
     }
@@ -633,7 +644,10 @@ public class YWorkItem {
 
 
     public String toXML() {
-        StringBuilder xmlBuff = new StringBuilder("<workItem>");
+        StringBuilder xmlBuff = new StringBuilder("<workItem");
+        if ((_attributes != null) && ! _attributes.isEmpty())
+            xmlBuff.append(attributesToXML());
+        xmlBuff.append(">");
         xmlBuff.append(StringUtil.wrap(getTaskID(), "taskid"));
         xmlBuff.append(StringUtil.wrap(getCaseID().toString(), "caseid"));
         xmlBuff.append(StringUtil.wrap(getUniqueID(), "uniqueid"));
@@ -670,6 +684,18 @@ public class YWorkItem {
         }
         xmlBuff.append("</workItem>");
         return xmlBuff.toString();
+    }
+
+    public String attributesToXML() {
+        StringBuilder xml = new StringBuilder();
+        for (String key : _attributes.keySet()) {
+            xml.append(" ")
+               .append(key)
+               .append("=\"")
+               .append(_attributes.get(key))
+               .append("\"");
+        }
+        return xml.toString();
     }
 
 }
