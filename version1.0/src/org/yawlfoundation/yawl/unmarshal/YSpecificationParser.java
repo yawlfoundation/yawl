@@ -108,7 +108,7 @@ class YSpecificationParser {
             _decompositionParser[0] = new YDecompositionParser(
                     rootNetElem,
                     this,
-                    _specification.getBetaVersion());
+                    _specification.getVersion());
             YNet rootNet = (YNet) _decompositionParser[0].getDecomposition();
             _specification.setRootNet(rootNet);
 
@@ -117,7 +117,7 @@ class YSpecificationParser {
                 _decompositionParser[i] = new YDecompositionParser(
                         decompositionElem,
                         this,
-                        _specification.getBetaVersion());
+                        _specification.getVersion());
                 YDecomposition decomposition = _decompositionParser[i].getDecomposition();
                 _specification.setDecomposition(decomposition);
             }
@@ -128,7 +128,7 @@ class YSpecificationParser {
                 _decompositionParser[i] = new YDecompositionParser(
                         decompositionElem,
                         this,
-                        _specification.getBetaVersion());
+                        _specification.getVersion());
                 YDecomposition decomposition = _decompositionParser[i].getDecomposition();
                 _specification.setDecomposition(decomposition);
             }

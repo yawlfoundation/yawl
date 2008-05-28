@@ -303,7 +303,8 @@
 					</xs:element>
 					<xs:element name="timer" type="yawl:TimerType" minOccurs="0"/>
 					<xs:element name="resourcing" type="yawl:ResourcingFactsType" minOccurs="0"/>
-					<xs:element name="decomposesTo" type="yawl:DecompositionType" minOccurs="0"/>
+                    <xs:element name="customForm" type="xs:anyURI" minOccurs="0"/>
+                    <xs:element name="decomposesTo" type="yawl:DecompositionType" minOccurs="0"/>
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
@@ -655,7 +656,7 @@
 							<xs:field xpath="@id"/>
 						</xs:keyref>
 						<xs:unique name="VariableUnique">
-							<xs:selector xpath="yawl:inputParam | yawl:localVariable"/>
+							<xs:selector xpath="yawl:inputParam|yawl:localVariable"/>
 							<xs:field xpath="yawl:name"/>
 						</xs:unique>
 						<xs:unique name="OutputExpresionUnique">

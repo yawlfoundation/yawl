@@ -20,8 +20,9 @@ import org.yawlfoundation.yawl.resourcing.jsf.comparator.WorkItemAgeComparator;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
-import javax.faces.context.ExternalContext;
 import javax.faces.FacesException;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import java.io.IOException;
 import java.util.Set;
 import java.util.SortedSet;
@@ -324,6 +325,7 @@ public class userWorkQueues extends AbstractPageBean {
         // check flags & take post-roundtrip action if any are set 
         if (_sb.isDelegating()) postDelegate();
         else if (_sb.isReallocating()) postReallocate();
+        else if (_sb.isCustomFormPost()) postCustomForm();
         else if (_sb.isWirEdit()) postEditWIR() ;
 
         // get the last selected tab
@@ -495,14 +497,12 @@ public class userWorkQueues extends AbstractPageBean {
             else if (action.equals("unsuspend"))
                 _rm.unsuspendWorkItem(p, wir);
             else if (action.equals("complete")) {
-                if (! _sb.isDirty(wir.getID())) {
+                if (wir.getUpdatedData() == null) {
                     //message about not editing the item
                 }
                 String result = _rm.checkinItem(p, wir, handle);
-                if (_rm.successful(result)) {
-                    _sb.removeDirtyFlag(wir.getID());
+                if (_rm.successful(result))
                     _sb.resetDynFormParams();
-                }
                 else msgPanel.error(msgPanel.format(result)) ;
                 
             }
@@ -575,53 +575,78 @@ public class userWorkQueues extends AbstractPageBean {
     }
 
     public String btnView_action() {
-//        String handle = _sb.getSessionhandle() ;
+        _sb.setSourceTab("tabStarted");
         WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
-//        try {
-//            Map<String, FormParameter> params ;
-//            if (_sb.isDirty(wir.getID()))
-//                params = _sb.getDynFormParams() ;
-//            else {
-//                params = _rm.getWorkItemParamsInfo(wir, handle) ;
-//                _sb.setDynFormParams(params);
-//            }
- //           if (params != null) {
-                _sb.setDynFormType(ApplicationBean.DynFormType.tasklevel);
-                _sb.setSourceTab("tabStarted");
-
-                DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");
-                df.setHeaderText("Edit Work Item: " + wir.getID());
-                df.setDisplayedWIR(wir);
-                df.initDynForm("YAWL 2.0 - Edit Work Item") ;
-
-                return "showDynForm" ;
-//            }
-//            else {
-//                   // no params to view
-//            }
-//        }
-//        catch (Exception e) {}
-//        return null ;
+        if (wir.getCustomFormURL() != null) {
+            showCustomForm(wir) ;
+            return null ;
+        }
+        else {
+            _sb.setDynFormType(ApplicationBean.DynFormType.tasklevel);
+            DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");
+            df.setHeaderText("Edit Work Item: " + wir.getID());
+            df.setDisplayedWIR(wir);
+            df.initDynForm("YAWL 2.0 - Edit Work Item") ;
+            return "showDynForm" ;
+        }
     }
+
 
     private void postEditWIR() {
         if (_sb.isWirEdit()) {
             WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
             Element data = JDOMUtil.stringToElement(getDynFormFactory().getDataList());
-
             wir.setUpdatedData(data);
-            getApplicationBean().getResourceManager().getWorkItemCache().update(wir) ;
-            _sb.setDirtyFlag(wir.getID());
-
+            _rm.getWorkItemCache().update(wir) ;
             _sb.setWirEdit(false);
         }
-
     }
 
 
     public String btnComplete_action() {
         return doAction(WorkQueue.STARTED, "complete") ;
     }
+
+
+    private void showCustomForm(WorkItemRecord wir) {
+        String url = wir.getCustomFormURL();
+        if (url != null) {
+            _sb.setCustomFormPost(true);
+            String xml = wir.toXML();
+            FacesContext context = FacesContext.getCurrentInstance();
+            try {
+                if (wir.getUpdatedData() != null) {
+                    WorkItemRecord dirtywir = wir.clone() ;
+                    dirtywir.setDataList(wir.getUpdatedData());
+                    xml = dirtywir.toXML();
+                }
+                context.getExternalContext().getSessionMap().put("workitem", xml);
+                context.getExternalContext().redirect(url);
+            }
+            catch (Exception e) {
+                _sb.setCustomFormPost(false);
+                msgPanel.error("IO Exception attempting to display custom form.");
+            }
+        }
+    }
+
+
+    private void postCustomForm() {
+
+        // retrieve and remove wir from custom form's post data
+        FacesContext context = FacesContext.getCurrentInstance();
+        ExternalContext extContext = context.getExternalContext();
+        String wirXML = (String) extContext.getSessionMap().remove("workitem");
+        WorkItemRecord updated = _rm.unMarshallWIR(wirXML);
+
+        // update edited wir
+        WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
+        wir.setUpdatedData(updated.getDataList());
+        _rm.getWorkItemCache().update(wir) ;
+
+        _sb.setCustomFormPost(false);                                  // reset flag
+    }
+
 
     private void updateTabHeaders(Tab selected) {
         tabOffered.setStyle("");
@@ -757,7 +782,7 @@ public class userWorkQueues extends AbstractPageBean {
             else
                 btnView.setToolTip(null);
 
-            btnComplete.setDisabled(! (emptyItem || _sb.isDirty(wir.getID())));
+            btnComplete.setDisabled(! (emptyItem || (wir.getUpdatedData() != null)));
             if (btnComplete.isDisabled())
                 btnComplete.setToolTip("The selected workitem needs editing before it can complete");
             else

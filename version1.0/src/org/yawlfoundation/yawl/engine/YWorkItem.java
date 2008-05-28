@@ -27,6 +27,7 @@ import javax.xml.datatype.Duration;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.net.URL;
 
 /**
  * 
@@ -71,6 +72,8 @@ public class YWorkItem {
     private Map _timerParameters ;                         // timer extensions
     private boolean _timerStarted ;
     private long _timerExpiry = 0;
+
+    private URL _customFormURL ;
 
     private YEventLogger _eventLog = YEventLogger.getInstance();
     private Logger _log = Logger.getLogger(YWorkItem.class);
@@ -265,9 +268,11 @@ public class YWorkItem {
                     new YWorkItemID(childCaseID, getWorkItemID().getTaskID()),
                     _specID, getEnablementTime(), this, _allowsDynamicCreation);
 
+            // map relevant (genetic, perhaps?) attributes to child
             childItem.setRequiresManualResourcing(requiresManualResourcing());
             childItem.setAttributes(getAttributes());
             childItem.setTimerParameters(getTimerParameters());
+            childItem.setCustomFormURL(getCustomFormURL());
 
             _children.add(childItem);
             if (pmgr != null) pmgr.updateObject(this);
@@ -523,6 +528,11 @@ public class YWorkItem {
         _requiresManualResourcing = requires;
     }
 
+    public URL getCustomFormURL() { return _customFormURL; }
+
+    public void setCustomFormURL(URL formURL) { _customFormURL = formURL; }
+
+
     public String get_deferredChoiceGroupID() { return _deferredChoiceGroupID; }
 
     public void set_deferredChoiceGroupID(String id) { _deferredChoiceGroupID = id; }
@@ -682,6 +692,9 @@ public class YWorkItem {
             xmlBuff.append(StringUtil.wrap(trigger, "timertrigger"));
             xmlBuff.append(StringUtil.wrap(String.valueOf(_timerExpiry), "timerexpiry"));
         }
+        if (_customFormURL != null)
+            xmlBuff.append(StringUtil.wrap(_customFormURL.toString(), "customform"));
+
         xmlBuff.append("</workItem>");
         return xmlBuff.toString();
     }

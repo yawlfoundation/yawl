@@ -13,7 +13,6 @@ import org.jdom.Element;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
-import java.io.Serializable;
 import java.util.Hashtable;
 
 /**
@@ -28,7 +27,7 @@ import java.util.Hashtable;
  * 
  */
 
-public class WorkItemRecord implements Serializable {
+public class WorkItemRecord implements Cloneable {
 
     // workitem execution statuses
     public static final String statusEnabled = "Enabled";
@@ -97,6 +96,8 @@ public class WorkItemRecord implements Serializable {
     // interim data store - for use by custome services for temp storage
     private Element _dataListUpdated ;
     private String _dataListUpdatedString ;
+
+    private String _customFormURL ;                         // path to alternate jsp
 
     private boolean _edited ;                       // for use on custom service side
 
@@ -239,6 +240,9 @@ public class WorkItemRecord implements Serializable {
         _dataListUpdatedString = JDOMUtil.elementToString(dataListUpdated);
     }
 
+    public void setCustomFormURL(String url) { _customFormURL = url ; }
+
+
     /********************************************************************************/
 
     // GETTERS //
@@ -321,6 +325,8 @@ public class WorkItemRecord implements Serializable {
         return (_deferredChoiceGroupID != null) ;
     }
 
+    public String getCustomFormURL() { return _customFormURL; }
+
     public boolean hasLiveStatus() {
         return _status.equals(statusFired) || _status.equals(statusEnabled) ||
                _status.equals(statusExecuting);
@@ -357,6 +363,7 @@ public class WorkItemRecord implements Serializable {
            .append(StringUtil.wrap(_completedBy, "completedBy"))
            .append(StringUtil.wrap(String.valueOf(_edited), "edited"))
            .append(StringUtil.wrap(String.valueOf(_tag), "tag"))
+           .append(StringUtil.wrap(_customFormURL, "customform"))
            .append("<data>")
            .append(_dataList != null? JDOMUtil.elementToStringDump(_dataList) : "")
            .append("</data>")
@@ -392,6 +399,13 @@ public class WorkItemRecord implements Serializable {
             result.put(attrib[0], attrib[1]);
         }
         return result;
+    }
+
+
+    /*******************************************************************************/
+
+    public WorkItemRecord clone() throws CloneNotSupportedException {
+        return (WorkItemRecord) super.clone() ;
     }
 
  

@@ -9,18 +9,21 @@
 
 package org.yawlfoundation.yawl.unmarshal;
 
+import org.apache.log4j.Logger;
+import org.jdom.Attribute;
+import org.jdom.Element;
+import org.jdom.Namespace;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
-import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.engine.time.YTimer;
-import org.jdom.Element;
-import org.jdom.Namespace;
-import org.jdom.Attribute;
+import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 
-import javax.xml.datatype.Duration;
-import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.Duration;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 /**
@@ -215,6 +218,7 @@ public class YDecompositionParser {
         if ((task != null) && (_version.equals(YSpecification._Version2_0))) {
             task.setResourcingSpecs(taskElem.getChild("resourcing", _yawlNS));
             parseTimerParameters(task, taskElem) ;
+            parseCustomFormURL(task, taskElem) ;
         }
         
         return task;
@@ -367,6 +371,21 @@ public class YDecompositionParser {
         element.setDocumentation(documentation);
     }
 
+
+    private void parseCustomFormURL(YTask task, Element taskElem) {
+        String formStr = taskElem.getChildText("customForm", _yawlNS);
+        if (formStr != null) {
+            try {
+                URL formURI = new URL(formStr) ;
+                task.setCustomFormURI(formURI);
+            }
+            catch (MalformedURLException use) {
+                Logger.getLogger(this.getClass()).error(
+                    "Invalid custom form URL in specification for task " + task.getID() +
+                    ": " + formStr + ". Custom form URL will be ignored.");
+            }
+        }
+    }
 
     private void parseTimerParameters(YTask task, Element taskElem) {
         Element timerElem = taskElem.getChild("timer", _yawlNS);
