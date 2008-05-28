@@ -2442,6 +2442,11 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
+    public WorkItemRecord unMarshallWIR(String xml) {
+        return Marshaller.unmarshalWorkItem(xml);
+    }
+
+
     private boolean isAutoTask(WorkItemRecord wir) {
         boolean result = false ;
         String needsResourcingStr = wir.getRequiresManualResourcing();

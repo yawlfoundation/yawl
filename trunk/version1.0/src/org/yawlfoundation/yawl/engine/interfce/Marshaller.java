@@ -252,6 +252,7 @@ public class Marshaller {
             wir.setTimerExpiry(workItemElement.getChildText("timerexpiry"));
             wir.setStartedBy(workItemElement.getChildText("startedBy"));
             wir.setTag(workItemElement.getChildText("tag"));
+            wir.setCustomFormURL(workItemElement.getChildText("customform"));
 
             String edited = workItemElement.getChildText("edited") ;
             if (edited != null)
@@ -317,6 +318,7 @@ public class Marshaller {
                 if (o instanceof Element) {
                     Element child = (Element) o;
                     child.detach();
+                    child.setAttributes(null);
                     //the input data will be removed from the merged doc and
                     //the output data will be added.
                     mergedDoc.getRootElement().removeChild(child.getName());

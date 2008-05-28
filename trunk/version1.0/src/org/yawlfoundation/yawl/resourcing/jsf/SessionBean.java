@@ -481,6 +481,11 @@ public class SessionBean extends AbstractSessionBean {
         this.reallocatingStateful = reallocatingStateful;
     }
 
+    private boolean customFormPost = false ;
+
+    public boolean isCustomFormPost() { return customFormPost ; }
+
+    public void setCustomFormPost(boolean flag) { customFormPost = flag ; }
 
     private String title ;
 
@@ -663,7 +668,7 @@ public class SessionBean extends AbstractSessionBean {
     }
 
     public String getInstanceData(String schema, WorkItemRecord wir) {
-        if (isDirty(wir.getID()))
+        if (wir.getUpdatedData() != null)
             return JDOMUtil.elementToStringDump(wir.getUpdatedData());
         else
             return _rm.getInstanceData(schema, wir) ;
@@ -1163,19 +1168,19 @@ public class SessionBean extends AbstractSessionBean {
         this.wirEdit = wirEdit;
     }
 
-    private Set<String> dirtyWIRSet = new HashSet<String>();
-
-    public void setDirtyFlag(String id) {
-        dirtyWIRSet.add(id) ;
-    }
-
-    public boolean isDirty(String id) {
-        return dirtyWIRSet.contains(id);
-    }
-
-    public void removeDirtyFlag(String id) {
-        dirtyWIRSet.remove(id);
-    }
+//    private Set<String> dirtyWIRSet = new HashSet<String>();
+//
+//    public void setDirtyFlag(String id) {
+//        dirtyWIRSet.add(id) ;
+//    }
+//
+//    public boolean isDirty(String id) {
+//        return dirtyWIRSet.contains(id);
+//    }
+//
+//    public void removeDirtyFlag(String id) {
+//        dirtyWIRSet.remove(id);
+//    }
 
     public String sourceTab ;
 

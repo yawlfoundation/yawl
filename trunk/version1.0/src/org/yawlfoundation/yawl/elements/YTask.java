@@ -9,22 +9,6 @@
 
 package org.yawlfoundation.yawl.elements;
 
-import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.elements.data.YVariable;
-import org.yawlfoundation.yawl.elements.e2wfoj.E2WFOJNet;
-import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.elements.state.YInternalCondition;
-import org.yawlfoundation.yawl.engine.YEngine;
-import org.yawlfoundation.yawl.engine.YPersistenceManager;
-import org.yawlfoundation.yawl.engine.YWorkItemRepository;
-import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
-import org.yawlfoundation.yawl.engine.time.YTimer;
-import org.yawlfoundation.yawl.exceptions.*;
-import org.yawlfoundation.yawl.resourcing.ResourceMap;
-import org.yawlfoundation.yawl.schema.YDataValidator;
-import org.yawlfoundation.yawl.util.YSaxonOutPutter;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
-import org.yawlfoundation.yawl.util.StringUtil;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.om.DocumentInfo;
 import net.sf.saxon.om.NodeInfo;
@@ -41,25 +25,30 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.DOMOutputter;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.elements.data.YVariable;
+import org.yawlfoundation.yawl.elements.e2wfoj.E2WFOJNet;
+import org.yawlfoundation.yawl.elements.state.YIdentifier;
+import org.yawlfoundation.yawl.elements.state.YInternalCondition;
+import org.yawlfoundation.yawl.engine.YEngine;
+import org.yawlfoundation.yawl.engine.YPersistenceManager;
+import org.yawlfoundation.yawl.engine.YWorkItemRepository;
+import org.yawlfoundation.yawl.engine.time.YTimer;
+import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
+import org.yawlfoundation.yawl.exceptions.*;
+import org.yawlfoundation.yawl.resourcing.ResourceMap;
+import org.yawlfoundation.yawl.schema.YDataValidator;
+import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.YSaxonOutPutter;
+import org.yawlfoundation.yawl.util.YVerificationMessage;
 
+import javax.xml.datatype.Duration;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
-import javax.xml.datatype.Duration;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.Vector;
+import java.net.URL;
+import java.util.*;
 
 /**
  * A superclass of any type of task in the YAWL paper.
@@ -110,6 +99,9 @@ public abstract class YTask extends YExternalNetElement {
 
     // optional timer params [name, value]
     private Map<String, Object> _timerParams ;
+
+    // optional URI to a custom form (rather than inbuilt dynamic form)
+    private URL _customFormURL;
 
     /**
      * AJH: Extensions to cater for task level XML attributes.
@@ -1406,6 +1398,9 @@ public abstract class YTask extends YExternalNetElement {
         if (_resourceMap != null) {
             xml.append(_resourceMap.toXML()) ;
         }
+        if (_customFormURL != null) {
+            xml.append(StringUtil.wrap(_customFormURL.toString(), "customForm"));
+        }
         if (_decompositionPrototype != null) {
             xml.append("<decomposesTo id=\"").
                     append(_decompositionPrototype.getID()).
@@ -1845,6 +1840,14 @@ public abstract class YTask extends YExternalNetElement {
     public void setResourcingSpecs(Element resSpec) {
         _resourcingSpec = resSpec ;
     }
+
+
+    public void setCustomFormURI(URL formURL) {
+        _customFormURL = formURL ;
+    }
+
+    public URL getCustomFormURL() { return _customFormURL; }
+
 
     /*** TIMER SETTINGS ***/
 

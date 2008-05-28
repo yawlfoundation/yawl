@@ -21,6 +21,7 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideC
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
+import java.net.URL;
 import java.util.*;
 
 /**
@@ -693,6 +694,11 @@ public class YNetRunner // extends Thread
             workItem.setTimerParameters(timerParams);
             workItem.checkStartTimer(pmgr, casedata);
         }
+
+        // set custom form for workitem if specified
+        URL customFormURL = atomicTask.getCustomFormURL();
+        if (customFormURL != null)
+            workItem.setCustomFormURL(customFormURL) ;
         
         return workItem;
     }
