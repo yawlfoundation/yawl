@@ -37,13 +37,13 @@ import java.text.DateFormat;
 import java.util.*;
 
 /*
- * Session scope data bean for the worklist and admin pages. Each logged in user
- * gets and individual instance of this object.
+ * Session scope data bean for all the worklist and admin pages. Each logged in user
+ * gets an individual instance of this object.
  *
- * @author adamsmj
+ * @author Michael Adams
  *
  * Create Date: 21/10/2007
- * Last Date: 04/03/2008
+ * Last Date: 28/05/2008
  */
 
 public class SessionBean extends AbstractSessionBean {
@@ -193,12 +193,14 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
+    /** @return the number of workitems in the queue passed */
     public int getQueueSize(int qType) {
         QueueSet qSet = (qType < WorkQueue.UNOFFERED) ? queueSet : adminQueueSet ;
         return ( (qSet != null) ? qSet.getQueueSize(qType) : 0 ) ;
     }
 
 
+    /** Updates the queue data members (ie participant or admin queues) */
     public Set<WorkItemRecord> refreshQueue(int qType) {
         if (qType < WorkQueue.UNOFFERED) {
             if (participant != null)
@@ -213,9 +215,9 @@ public class SessionBean extends AbstractSessionBean {
 
     /*******************************************************************************/
 
-    private ApplicationBean.PageRef activePage ;
+    // ENUMS FOR ACTIVE PAGES AND DYN FORM TYPES //
 
-    private ApplicationBean.TabRef activeTab2 ;
+    private ApplicationBean.PageRef activePage ;
 
     private ApplicationBean.DynFormType dynFormType ;
 
@@ -231,41 +233,24 @@ public class SessionBean extends AbstractSessionBean {
         dynFormType = type;
     }
 
+    
     /*******************************************************************************/
 
     // LISTBOX MEMBERS, GETTERS & SETTERS
 
-    // option sets for the various listboxes
-    private Option[] worklistOptions;
-    private Option[] loadedSpecListOptions;
-    private Option[] runningCaseListOptions;
-    private Option[] selectUserListOptions;
-    private Option[] ownedResourceAttributes;
-    private Option[] availableResourceAttributes;
-    private Option[] piledTasks;
-    private Option[] chainedCases;
-    private Option[] orgDataOptions;
-    private Option[] orgDataBelongsItems;
-    private Option[] orgDataGroupItems;
+    // option sets for the various listboxes                      //  PAGES  //
+    private Option[] worklistOptions;                             // pfQueueUI
+    private Option[] loadedSpecListOptions;                       // case mgt
+    private Option[] runningCaseListOptions;                      // case mgt
+    private Option[] selectUserListOptions;                       // user select
+    private Option[] ownedResourceAttributes;                     // user mgt
+    private Option[] availableResourceAttributes;                 // user mgt
+    private Option[] piledTasks;                                  // user profile
+    private Option[] chainedCases;                                // user profile
+    private Option[] orgDataOptions;                              // org data mgt
+    private Option[] orgDataBelongsItems;                         // org data mgt
+    private Option[] orgDataGroupItems;                           // org data mgt
 
-    // user selection from each listbox
-    private String worklistChoice;
-    private String loadedSpecListChoice;
-    private String runningCaseListChoice;
-    private String selectUserListChoice;
-    private String piledTasksChoice;
-    private String chainedCasesChoice;
-    private String orgDataChoice;
-    private String orgDataBelongsChoice;
-    private String orgDataGroupChoice;
-
-    public Option[] getOwnedResourceAttributes() {
-        return ownedResourceAttributes;
-    }
-
-    public Option[] getAvailableResourceAttributes() {
-        return availableResourceAttributes;
-    }
 
     public Option[] getWorklistOptions() {
         return worklistOptions;
@@ -283,16 +268,12 @@ public class SessionBean extends AbstractSessionBean {
         return selectUserListOptions;
     }
 
-    public Option[] getOrgDataOptions() {
-        return orgDataOptions;
+    public Option[] getOwnedResourceAttributes() {
+        return ownedResourceAttributes;
     }
 
-    public Option[] getOrgDataBelongsItems() {
-        return orgDataBelongsItems;
-    }
-
-    public Option[] getOrgDataGroupItems() {
-        return orgDataGroupItems;
+    public Option[] getAvailableResourceAttributes() {
+        return availableResourceAttributes;
     }
 
     public Option[] getPiledTasks() {
@@ -305,10 +286,18 @@ public class SessionBean extends AbstractSessionBean {
         return chainedCases;
     }
 
-
-    public void setOwnedResourceAttributes(Option[] attributes) {
-        ownedResourceAttributes = attributes;
+    public Option[] getOrgDataOptions() {
+        return orgDataOptions;
     }
+
+    public Option[] getOrgDataBelongsItems() {
+        return orgDataBelongsItems;
+    }
+
+    public Option[] getOrgDataGroupItems() {
+        return orgDataGroupItems;
+    }
+
 
     public void setWorklistOptions(Option[] options) {
         worklistOptions = options;
@@ -326,8 +315,20 @@ public class SessionBean extends AbstractSessionBean {
         selectUserListOptions = options;
     }
 
+    public void setOwnedResourceAttributes(Option[] attributes) {
+        ownedResourceAttributes = attributes;
+    }
+
     public void setAvailableResourceAttributes(Option[] attributes) {
         availableResourceAttributes = attributes;
+    }
+
+    public void setPiledTasks(Option[] options) {
+         piledTasks = options;
+    }
+
+     public void setChainedCases(Option[] options) {
+         chainedCases = options;
     }
 
     public void setOrgDataOptions(Option[] orgDataOptions) {
@@ -342,13 +343,17 @@ public class SessionBean extends AbstractSessionBean {
         this.orgDataGroupItems = orgDataGroupItems;
     }
 
-    public void setPiledTasks(Option[] options) {
-        piledTasks = options;
-    }
 
-    public void setChainedCases(Option[] options) {
-        chainedCases = options;
-    }
+    // user selection from each listbox
+    private String worklistChoice;
+    private String loadedSpecListChoice;
+    private String runningCaseListChoice;
+    private String selectUserListChoice;
+    private String piledTasksChoice;
+    private String chainedCasesChoice;
+    private String orgDataChoice;
+    private String orgDataBelongsChoice;
+    private String orgDataGroupChoice;
 
 
     public String getWorklistChoice() { return worklistChoice; }
@@ -371,9 +376,17 @@ public class SessionBean extends AbstractSessionBean {
     public void setOrgDataBelongsChoice(String choice) { orgDataBelongsChoice = choice; }
     public void setOrgDataGroupChoice(String choice) { orgDataGroupChoice = choice; }
 
+
+    /********************************************************************************/
+
+    // WORKITEM SELECTED FROM LIST //
+
     // the wir matching the item id selected by the user
     private WorkItemRecord chosenWIR = null;
 
+    public void setChosenWIR(WorkItemRecord wir) { chosenWIR = wir ; }
+
+    /** @return the WorkItemRecord for the id selected in the list */
     public WorkItemRecord getChosenWIR(int qType) {
         Set<WorkItemRecord> items = getQueue(qType);
         if (items != null) {
@@ -389,6 +402,7 @@ public class SessionBean extends AbstractSessionBean {
         return null ;
     }
 
+    /** @return true if the chosen item in the list is also the first listed item */
     public boolean isFirstWorkItemChosen() {
         if ((worklistOptions != null) && (worklistOptions.length > 0)) {
             String first = (String) getWorklistOptions()[0].getValue();
@@ -398,9 +412,11 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
-    public void setChosenWIR(WorkItemRecord wir) { chosenWIR = wir ; }
+    /**********************************************************************************/
 
-    
+    // PAGE NAVIGATION METHODS //
+
+    // logs out of session //
     public void doLogout() {
         _rm.logout(sessionhandle) ;
         getApplicationBean().removeLiveUser(userid);
@@ -412,6 +428,8 @@ public class SessionBean extends AbstractSessionBean {
         }
     }
 
+
+    // if seesionhandle is invalid, logs out of session //
     public void checkLogon() {
         if (! _rm.isValidSession(sessionhandle)) {
             doLogout();
@@ -419,9 +437,10 @@ public class SessionBean extends AbstractSessionBean {
         }
     }
 
-        /**
+
+    /**
      * redirects to the specified page
-      * @param page the name of the page to go to
+     * @param page the name of the page to go to
      */
     public void gotoPage(String page) {
         Application app = getApplication() ;
@@ -441,17 +460,10 @@ public class SessionBean extends AbstractSessionBean {
         }
     }
 
-    private Map<String, FormParameter> dynFormParams ;
 
-    public Map<String, FormParameter> getDynFormParams() {
-        return dynFormParams;
-    }
+    /********************************************************************************/
 
-    public void setDynFormParams(Map<String, FormParameter> dynFormParams) {
-        this.dynFormParams = dynFormParams;
-    }
-
-    public void resetDynFormParams() { dynFormParams = null ; }
+    // FLAGS FOR POSTBACK ACTIONS //
 
     private boolean caseLaunch = false ;
 
@@ -459,17 +471,20 @@ public class SessionBean extends AbstractSessionBean {
 
     public void setCaseLaunch(boolean caseLaunch) { this.caseLaunch = caseLaunch; }
 
+
     private boolean delegating = false ;
 
     public boolean isDelegating() { return delegating; }
 
     public void setDelegating(boolean delegating) { this.delegating = delegating; }
 
+
     private boolean reallocating = false ;
 
     public boolean isReallocating() { return reallocating; }
 
     public void setReallocating(boolean reallocating) { this.reallocating = reallocating; }
+
 
     private boolean reallocatingStateful ;
 
@@ -481,12 +496,16 @@ public class SessionBean extends AbstractSessionBean {
         this.reallocatingStateful = reallocatingStateful;
     }
 
+
     private boolean customFormPost = false ;
 
     public boolean isCustomFormPost() { return customFormPost ; }
 
     public void setCustomFormPost(boolean flag) { customFormPost = flag ; }
 
+
+    /********************************************************************************/
+    
     private String title ;
 
     public String getTitle() {
@@ -499,6 +518,7 @@ public class SessionBean extends AbstractSessionBean {
     public void setTitle(String title) {
         this.title = title;
     }
+
 
     private String mnuSelectorStyle = "top: 72px";            // on workqueues initially
 
@@ -1168,19 +1188,19 @@ public class SessionBean extends AbstractSessionBean {
         this.wirEdit = wirEdit;
     }
 
-//    private Set<String> dirtyWIRSet = new HashSet<String>();
-//
-//    public void setDirtyFlag(String id) {
-//        dirtyWIRSet.add(id) ;
-//    }
-//
-//    public boolean isDirty(String id) {
-//        return dirtyWIRSet.contains(id);
-//    }
-//
-//    public void removeDirtyFlag(String id) {
-//        dirtyWIRSet.remove(id);
-//    }
+    private Set<String> warnedWIRSet = new HashSet<String>();
+
+    public void setWarnedForNonEdit(String id) {
+        warnedWIRSet.add(id) ;
+    }
+
+    public boolean hasWarnedForNonEdit(String id) {
+        return warnedWIRSet.contains(id);
+    }
+
+    public void removeWarnedForNonEdit(String id) {
+        warnedWIRSet.remove(id);
+    }
 
     public String sourceTab ;
 
