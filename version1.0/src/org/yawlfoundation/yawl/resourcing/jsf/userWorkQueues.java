@@ -34,7 +34,7 @@ import java.util.TreeSet;
  * @author Michael Adams
  * Date: 21/10/2007
  *
- * Last Date: 28/04/2008
+ * Last Date: 28/05/2008
  */
 
 public class userWorkQueues extends AbstractPageBean {
@@ -369,300 +369,9 @@ public class userWorkQueues extends AbstractPageBean {
     }
 
 
+    /**********************************************************************************/
 
-
-
-    public String btnRefresh_action() {
-        return null ;
-    }
-
-    public String btnNewInstance_action() {
-        return null;
-    }
-
-
-    public String btnStart_action() {
-        return doAction(WorkQueue.ALLOCATED, "start") ;
-    }
-
-
-    public String btnDeallocate_action() {
-        return doAction(WorkQueue.ALLOCATED, "deallocate") ;
-    }
-
-
-    public String btnDelegate_action() {
-        String pid = _sb.getParticipant().getID();
-        Set<Participant> underlings = _rm.getParticipantsReportingTo(pid);
-
-        if (underlings != null) {
-            // build the option list
-            Option[] options = new Option[underlings.size()];
-            int i = 0 ;
-            for (Participant p : underlings) {
-                options[i++] = new Option(p.getID(), p.getFullName());
-            }
-            _sb.setSelectUserListOptions(options);
-            _sb.setUserListFormHeaderText("Delegate workitem to:") ;
-            _sb.setNavigateTo("showUserQueues");
-            return "userSelect" ;
-        }
-        else {
-            // message no underlings
-            return null ;
-        }
-    }
-
-    private void postDelegate() {
-        if (_sb.isDelegating()) {
-            Participant pFrom = _sb.getParticipant();
-            String pIDTo = _sb.getSelectUserListChoice() ;        // this is the p-id
-            Participant pTo =  _rm.getParticipant(pIDTo) ;
-            WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.ALLOCATED);
-
-            try {
-                _rm.delegateWorkItem(pFrom, pTo, wir);
-                // message successful
-            }
-            catch (Exception e) {
-               // show connection error or timeout
-            }
-            _sb.setDelegating(false);
-        }
-        
-    }
-
-
-    public String btnSkip_action() {
-        return doAction(WorkQueue.ALLOCATED, "skip") ;
-    }
-
-    public void forceRefresh() {
-        ExternalContext externalContext = getFacesContext().getExternalContext();
-        if (externalContext != null) {
-            try {
-                externalContext.redirect("userWorkQueues.jsp");
-            }
-            catch (IOException ioe) {}
-        }
-    }
-
-    public String btnPile_action() {
-        return doAction(WorkQueue.ALLOCATED, "pile") ;
-    }
-
-
-    public String btnChain_action() {
-        return doAction(WorkQueue.OFFERED, "chain") ;
-    }
-
-
-    public String btnAccept_action() {
-        return doAction(WorkQueue.OFFERED, "acceptOffer") ;
-    }
-
-    private String doAction(int queueType, String action) {
-        Participant p = _sb.getParticipant();
-        WorkItemRecord wir = _sb.getChosenWIR(queueType);
-        String handle = _sb.getSessionhandle() ;
-        try {
-            if (action.equals("acceptOffer")) {
-                if (wir != null)
-                    _rm.acceptOffer(p, wir);
-                else
-                    msgPanel.info("Another participant has already accepted this offer.");
-            }
-            else if (action.equals("deallocate"))
-                _rm.deallocateWorkItem(p, wir);
-            else if (action.equals("skip"))
-                _rm.skipWorkItem(p, wir, handle);
-            else if (action.equals("start"))
-                _rm.start(p, wir, handle);
-            else if (action.equals("pile")) {
-                String result = _rm.pileWorkItem(p, wir);
-                if (result.startsWith("Cannot"))
-                    msgPanel.error(result);
-                else
-                    msgPanel.success(result);
-            }
-            else if (action.equals("chain")) {
-                String result = _rm.chainCase(p, wir);
-                if (result.startsWith("Cannot"))
-                    msgPanel.error(result);
-                else
-                    msgPanel.success(result);
-            }
-            else if (action.equals("suspend"))
-                _rm.suspendWorkItem(p, wir);
-            else if (action.equals("unsuspend"))
-                _rm.unsuspendWorkItem(p, wir);
-            else if (action.equals("complete")) {
-                if (wir.getUpdatedData() == null) {
-                    //message about not editing the item
-                }
-                String result = _rm.checkinItem(p, wir, handle);
-                if (_rm.successful(result))
-                    _sb.resetDynFormParams();
-                else msgPanel.error(msgPanel.format(result)) ;
-                
-            }
-            
-            return null ;
-        }
-        catch (Exception e) {
-           // show connection error or timeout
-            return "loginPage" ;
-        }
-    }
-
-    public String btnUnsuspend_action() {
-        return doAction(WorkQueue.SUSPENDED, "unsuspend") ;
-    }
-
-
-    public String btnSuspend_action() {
-        return doAction(WorkQueue.STARTED, "suspend") ;
-    }
-
-
-    public String btnStateless_action() {
-        return reallocateItem(false) ;
-    }
-
-    private String reallocateItem(boolean stateful) {
-
-        Set<Participant> pSet = _rm.getParticipants();
-
-        if (pSet != null) {
-            // build the option list
-            Option[] options = new Option[pSet.size()];
-            int i = 0 ;
-            for (Participant p : pSet) {
-                options[i++] = new Option(p.getID(), p.getFullName());
-            }
-            _sb.setReallocatingStateful(stateful);
-            _sb.setSelectUserListOptions(options);
-            _sb.setUserListFormHeaderText("Reallocate workitem to:") ;
-            _sb.setNavigateTo("showUserQueues");
-            return "userSelect" ;
-        }
-        else return null ;
-
-    }
-
-
-
-    private void postReallocate() {
-        SessionBean sb = _sb;
-        if (sb.isReallocating()) {
-            Participant pFrom = sb.getParticipant();
-            String userIDTo = sb.getSelectUserListChoice() ;        // this is the p-id
-            Participant pTo = _rm.getParticipant(userIDTo) ;
-            WorkItemRecord wir = sb.getChosenWIR(WorkQueue.STARTED);
-
-            if (sb.isReallocatingStateful())
-                _rm.reallocateStatefulWorkItem(pFrom, pTo, wir);
-            else
-                _rm.reallocateStatelessWorkItem(pFrom, pTo, wir);
-
-            sb.setReallocating(false);
-        }
-    }
-
-
-    public String btnStateful_action() {
-        return reallocateItem(true);
-    }
-
-    public String btnView_action() {
-        _sb.setSourceTab("tabStarted");
-        WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
-        if (wir.getCustomFormURL() != null) {
-            showCustomForm(wir) ;
-            return null ;
-        }
-        else {
-            _sb.setDynFormType(ApplicationBean.DynFormType.tasklevel);
-            DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");
-            df.setHeaderText("Edit Work Item: " + wir.getID());
-            df.setDisplayedWIR(wir);
-            df.initDynForm("YAWL 2.0 - Edit Work Item") ;
-            return "showDynForm" ;
-        }
-    }
-
-
-    private void postEditWIR() {
-        if (_sb.isWirEdit()) {
-            WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
-            Element data = JDOMUtil.stringToElement(getDynFormFactory().getDataList());
-            wir.setUpdatedData(data);
-            _rm.getWorkItemCache().update(wir) ;
-            _sb.setWirEdit(false);
-        }
-    }
-
-
-    public String btnComplete_action() {
-        return doAction(WorkQueue.STARTED, "complete") ;
-    }
-
-
-    private void showCustomForm(WorkItemRecord wir) {
-        String url = wir.getCustomFormURL();
-        if (url != null) {
-            _sb.setCustomFormPost(true);
-            String xml = wir.toXML();
-            FacesContext context = FacesContext.getCurrentInstance();
-            try {
-                if (wir.getUpdatedData() != null) {
-                    WorkItemRecord dirtywir = wir.clone() ;
-                    dirtywir.setDataList(wir.getUpdatedData());
-                    xml = dirtywir.toXML();
-                }
-                context.getExternalContext().getSessionMap().put("workitem", xml);
-                context.getExternalContext().redirect(url);
-            }
-            catch (Exception e) {
-                _sb.setCustomFormPost(false);
-                msgPanel.error("IO Exception attempting to display custom form.");
-            }
-        }
-    }
-
-
-    private void postCustomForm() {
-
-        // retrieve and remove wir from custom form's post data
-        FacesContext context = FacesContext.getCurrentInstance();
-        ExternalContext extContext = context.getExternalContext();
-        String wirXML = (String) extContext.getSessionMap().remove("workitem");
-        WorkItemRecord updated = _rm.unMarshallWIR(wirXML);
-
-        // update edited wir
-        WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
-        wir.setUpdatedData(updated.getDataList());
-        _rm.getWorkItemCache().update(wir) ;
-
-        _sb.setCustomFormPost(false);                                  // reset flag
-    }
-
-
-    private void updateTabHeaders(Tab selected) {
-        tabOffered.setStyle("");
-        tabAllocated.setStyle("");
-        tabStarted.setStyle("");
-        tabSuspended.setStyle("");
-        if (selected != null) selected.setStyle("color: #3277ba");
-        
-        int[] itemCount = new int[4] ;
-        for (int queue = WorkQueue.OFFERED; queue <= WorkQueue.SUSPENDED; queue++)
-            itemCount[queue] = _sb.getQueueSize(queue) ;
-        tabOffered.setText(String.format("Offered (%d)", itemCount[WorkQueue.OFFERED]));
-        tabAllocated.setText(String.format("Allocated (%d)", itemCount[WorkQueue.ALLOCATED]));
-        tabStarted.setText(String.format("Started (%d)", itemCount[WorkQueue.STARTED]));
-        tabSuspended.setText(String.format("Suspended (%d)", itemCount[WorkQueue.SUSPENDED]));
-    }
+    // TAB ACTIONS //
 
     public String tabOffered_action() {
         populateQueue(WorkQueue.OFFERED);
@@ -689,6 +398,342 @@ public class userWorkQueues extends AbstractPageBean {
         return null;
     }
 
+
+    /**********************************************************************************/
+
+    // BUTTON ACTIONS //
+
+    public String btnRefresh_action() {
+        return null ;
+    }
+
+    public String btnNewInstance_action() {
+        return null;      // todo
+    }
+
+    public String btnStart_action() {
+        return doAction(WorkQueue.ALLOCATED, "start") ;
+    }
+
+    public String btnDeallocate_action() {
+        return doAction(WorkQueue.ALLOCATED, "deallocate") ;
+    }
+
+    public String btnSkip_action() {
+        return doAction(WorkQueue.ALLOCATED, "skip") ;
+    }
+
+    public String btnPile_action() {
+        return doAction(WorkQueue.ALLOCATED, "pile") ;
+    }
+
+    public String btnChain_action() {
+        return doAction(WorkQueue.OFFERED, "chain") ;
+    }
+
+    public String btnAccept_action() {
+        return doAction(WorkQueue.OFFERED, "acceptOffer") ;
+    }
+
+    public String btnUnsuspend_action() {
+        return doAction(WorkQueue.SUSPENDED, "unsuspend") ;
+    }
+
+    public String btnSuspend_action() {
+        return doAction(WorkQueue.STARTED, "suspend") ;
+    }
+
+    public String btnStateless_action() {
+        return reallocateItem(false) ;
+    }
+
+    public String btnStateful_action() {
+        return reallocateItem(true);
+    }
+
+    public String btnComplete_action() {
+        return doAction(WorkQueue.STARTED, "complete") ;
+    }
+
+
+    public String btnView_action() {
+        _sb.setSourceTab("tabStarted");                      // come back to started tab
+        WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
+
+        // if there's a custom form for this item, use it
+        if (wir.getCustomFormURL() != null) {
+            showCustomForm(wir) ;
+            return null ;
+        }
+
+        // otherwise default to a dynamic form
+        else {
+            _sb.setDynFormType(ApplicationBean.DynFormType.tasklevel);
+            DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");
+            df.setHeaderText("Edit Work Item: " + wir.getID());
+            df.setDisplayedWIR(wir);
+            df.initDynForm("YAWL 2.0 - Edit Work Item") ;
+            return "showDynForm" ;
+        }
+    }
+
+
+    public String btnDelegate_action() {
+        String pid = _sb.getParticipant().getID();
+
+        // participant can only delegate to those reporting to he or she
+        Set<Participant> underlings = _rm.getParticipantsReportingTo(pid);
+        if (underlings != null) {
+
+            // build the option list
+            Option[] options = new Option[underlings.size()];
+            int i = 0 ;
+            for (Participant p : underlings) {
+                options[i++] = new Option(p.getID(), p.getFullName());
+            }
+            _sb.setSelectUserListOptions(options);
+
+            // setup and show the user select form
+            _sb.setUserListFormHeaderText("Delegate workitem to:") ;
+            _sb.setNavigateTo("showUserQueues");
+            return "userSelect" ;
+        }
+        else {
+            msgPanel.warn("There are no participants that you are authorised to delegate to.") ;
+            return null ;
+        }
+    }
+
+    /** Performs the appropriate user action with the specified queue */
+    private String doAction(int queueType, String action) {
+        Participant p = _sb.getParticipant();
+        WorkItemRecord wir = _sb.getChosenWIR(queueType);
+        String handle = _sb.getSessionhandle() ;
+        try {
+            if (action.equals("deallocate"))
+                _rm.deallocateWorkItem(p, wir);
+            else if (action.equals("skip"))
+                _rm.skipWorkItem(p, wir, handle);
+            else if (action.equals("start"))
+                _rm.start(p, wir, handle);
+            else if (action.equals("suspend"))
+                _rm.suspendWorkItem(p, wir);
+            else if (action.equals("unsuspend"))
+                _rm.unsuspendWorkItem(p, wir);
+            else if (action.equals("acceptOffer")) {
+                if (wir != null)
+                    _rm.acceptOffer(p, wir);
+                else
+                    msgPanel.info("Another participant has already accepted this offer.");
+            }
+            else if (action.equals("pile")) {
+                String result = _rm.pileWorkItem(p, wir);
+                if (result.startsWith("Cannot"))
+                    msgPanel.error(result);
+                else
+                    msgPanel.success(result);
+            }
+            else if (action.equals("chain")) {
+                String result = _rm.chainCase(p, wir);
+                if (result.startsWith("Cannot"))
+                    msgPanel.error(result);
+                else
+                    msgPanel.success(result);
+            }
+            else if (action.equals("complete")) {
+                if ((wir.getUpdatedData() == null) && (! _sb.hasWarnedForNonEdit(wir.getID()))) {
+                    msgPanel.info("Warning: This item has not been edited. If you are " +
+                                  "sure you want to complete without editing, click " +
+                                  "the 'Complete' button again.");
+                    _sb.setWarnedForNonEdit(wir.getID()) ;
+                    return null ;
+                }
+                String result = _rm.checkinItem(p, wir, handle);
+                if (_rm.successful(result))
+                    _sb.removeWarnedForNonEdit(wir.getID());
+                else
+                    msgPanel.error(msgPanel.format(result)) ;                
+            }
+            return null ;                                         // stay on same form
+        }
+        catch (Exception e) {
+            msgPanel.info("Your session has expired. Please log back in.") ;
+            return "loginPage" ;
+        }
+    }
+
+
+    /**
+     * Reallocate a workitem to the chosen participant
+     * @param stateful - if true, reallocate with state preserved
+     * @return which form to navigate to
+     */
+    private String reallocateItem(boolean stateful) {
+        Set<Participant> pSet = _rm.getParticipants();
+        if (pSet != null) {
+
+            // build the option list
+            Option[] options = new Option[pSet.size()];
+            int i = 0 ;
+            for (Participant p : pSet) {
+                options[i++] = new Option(p.getID(), p.getFullName());
+            }
+
+            // init and show the user select form
+            _sb.setReallocatingStateful(stateful);
+            _sb.setSelectUserListOptions(options);
+            _sb.setUserListFormHeaderText("Reallocate workitem to:") ;
+            _sb.setNavigateTo("showUserQueues");
+            return "userSelect" ;
+        }
+        else return null ;
+    }
+
+
+    /** prepare workitem data, pass to and show custom form */
+    private void showCustomForm(WorkItemRecord wir) {
+        String url = wir.getCustomFormURL();
+        if (url != null) {
+            _sb.setCustomFormPost(true);
+            String xml = wir.toXML();
+            FacesContext context = FacesContext.getCurrentInstance();
+            try {
+
+                // if wir has updated data, clone it & copy updates to datalist
+                if (wir.getUpdatedData() != null) {
+                    WorkItemRecord dirtywir = wir.clone() ;
+                    dirtywir.setDataList(wir.getUpdatedData());
+                    xml = dirtywir.toXML();
+                }
+
+                // show the custom form
+                context.getExternalContext().getSessionMap().put("workitem", xml);
+                context.getExternalContext().redirect(url);
+            }
+            catch (Exception e) {
+                _sb.setCustomFormPost(false);
+                msgPanel.error("IO Exception attempting to display custom form.");
+            }
+        }
+    }
+
+
+    /**********************************************************************************/
+
+    // POST BACK ACTIONS //
+
+    /** perform reallocation after user selection on secondary screen */
+    private void postReallocate() {
+        if (_sb.isReallocating()) {
+            Participant pFrom = _sb.getParticipant();
+            String userIDTo = _sb.getSelectUserListChoice() ;        // this is the p-id
+            Participant pTo = _rm.getParticipant(userIDTo) ;
+            WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
+
+            boolean successful ;
+            if (_sb.isReallocatingStateful())
+                successful = _rm.reallocateStatefulWorkItem(pFrom, pTo, wir);
+            else
+                successful = _rm.reallocateStatelessWorkItem(pFrom, pTo, wir);
+
+            if (successful)
+               msgPanel.success("Workitem successfully reallocated.");
+            else
+               msgPanel.error("Failed to reallocate workitem.");
+
+            _sb.setReallocating(false);                              // reset flag
+            forceRefresh() ;                                         // to show message
+        }
+    }
+
+
+    /** perform delegation after user selection on secondary screen */
+    private void postDelegate() {
+        if (_sb.isDelegating()) {
+            Participant pFrom = _sb.getParticipant();
+            String pIDTo = _sb.getSelectUserListChoice() ;        // this is the p-id
+            Participant pTo =  _rm.getParticipant(pIDTo) ;
+            WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.ALLOCATED);
+
+            if (_rm.delegateWorkItem(pFrom, pTo, wir))
+                msgPanel.success("Workitem successfully delegated.");
+            else
+                msgPanel.error("Failed to delegate workitem");
+
+            _sb.setDelegating(false);
+            forceRefresh() ;                                         // to show message
+        }
+    }
+
+
+    /** updates a workitem after editing on a dynamic form */
+    private void postEditWIR() {
+        if (_sb.isWirEdit()) {
+            WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
+            Element data = JDOMUtil.stringToElement(getDynFormFactory().getDataList());
+            wir.setUpdatedData(data);
+            _rm.getWorkItemCache().update(wir) ;
+            _sb.setWirEdit(false);
+        }
+    }
+
+
+    /** retrieves and updates a workitem after editing on a custom form */
+    private void postCustomForm() {
+
+        // retrieve and remove wir from custom form's post data
+        FacesContext context = FacesContext.getCurrentInstance();
+        ExternalContext extContext = context.getExternalContext();
+        String wirXML = (String) extContext.getSessionMap().remove("workitem");
+        WorkItemRecord updated = _rm.unMarshallWIR(wirXML);
+
+        // update edited wir
+        WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
+        wir.setUpdatedData(updated.getDataList());
+        _rm.getWorkItemCache().update(wir) ;
+
+        _sb.setCustomFormPost(false);                                  // reset flag
+    }
+
+
+    /*******************************************************************************/
+
+    // MISC METHODS //
+
+    /** refreshes the page */
+    public void forceRefresh() {
+        ExternalContext externalContext = getFacesContext().getExternalContext();
+        if (externalContext != null) {
+            try {
+                externalContext.redirect("userWorkQueues.jsp");
+            }
+            catch (IOException ioe) {}
+        }
+    }
+
+
+    // Highlight selected tab's name and show queue's item count on each tab
+    private void updateTabHeaders(Tab selected) {
+
+        // reset tab heading styles and highlight the selected one
+        tabOffered.setStyle("");
+        tabAllocated.setStyle("");
+        tabStarted.setStyle("");
+        tabSuspended.setStyle("");
+        if (selected != null) selected.setStyle("color: #3277ba");
+
+        // get counts for each queue
+        int[] itemCount = new int[4] ;
+        for (int queue = WorkQueue.OFFERED; queue <= WorkQueue.SUSPENDED; queue++)
+            itemCount[queue] = _sb.getQueueSize(queue) ;
+
+        // update heading text for each tab
+        tabOffered.setText(String.format("Offered (%d)", itemCount[WorkQueue.OFFERED]));
+        tabAllocated.setText(String.format("Allocated (%d)", itemCount[WorkQueue.ALLOCATED]));
+        tabStarted.setText(String.format("Started (%d)", itemCount[WorkQueue.STARTED]));
+        tabSuspended.setText(String.format("Suspended (%d)", itemCount[WorkQueue.SUSPENDED]));
+    }
+
     /**
      * Sets the auto refresh rate of the page
      * @param rate if <0, disables page refreshes; if >0, set refresh rate to that
@@ -704,41 +749,53 @@ public class userWorkQueues extends AbstractPageBean {
         }
     }
 
-    /******************************************************************************/
 
-
+    /**
+     * Populates the specified queue's workitem list and shows the selected items details
+     * @param queueType the queue to populate
+     * @return the number of items in the queue
+     */
     private int populateQueue(int queueType) {
         int result = -1;                                    // default for empty queue
         Set<WorkItemRecord> queue = _sb.refreshQueue(queueType);
-        processButtonEnablement(queueType) ;
+        processButtonEnablement(queueType) ;                // disable btns if queue empty
         ((pfQueueUI) getBean("pfQueueUI")).clearQueueGUI();
 
         if ((queue != null) && (! queue.isEmpty())) {
+
+            // add items to listbox and get first one in list
             WorkItemRecord firstWir = addItemsToListOptions(queue) ;
             WorkItemRecord choice = _sb.getChosenWIR(queueType) ;
             if (choice == null) choice = firstWir ;
-            showWorkItem(choice);
+            showWorkItem(choice);                                   // show details
             processTaskPrivileges(choice, queueType) ;
             result = queue.size() ;
         }
         return result ;
     }
 
-
+    /** populate the text fields with the details of the workitem */
     private void showWorkItem(WorkItemRecord wir) {
         pfQueueUI itemsSubPage = (pfQueueUI) getBean("pfQueueUI");
-        Listbox lbx = itemsSubPage.getLbxItems();
-        lbx.setSelected(wir.getID());
+        itemsSubPage.getLbxItems().setSelected(wir.getID());
         itemsSubPage.populateTextBoxes(wir) ;
     }
 
 
+    /**
+     * Create list of queued items and add to listbox (via sessionbean)
+     * @param queue the set of items in the queue
+     * @return the first item in the list
+     */
     private WorkItemRecord addItemsToListOptions(Set<WorkItemRecord> queue) {
         Option[] options = new Option[queue.size()] ;
         WorkItemRecord result = null;
+
+        // sort the items by age
         SortedSet<WorkItemRecord> qSorted =
                                new TreeSet<WorkItemRecord>(new WorkItemAgeComparator());
         qSorted.addAll(queue);
+
         int i = 0 ;
         for (WorkItemRecord wir : qSorted) {
             if (wir != null) {
@@ -753,7 +810,8 @@ public class userWorkQueues extends AbstractPageBean {
         return result ;
     }
 
-    
+
+    /** Enable/disable buttons depending on user/task privileges */
     private void processTaskPrivileges(WorkItemRecord wir, int qType) {
         Participant p = _sb.getParticipant();
         if (qType == WorkQueue.ALLOCATED) {
@@ -777,16 +835,7 @@ public class userWorkQueues extends AbstractPageBean {
             // set view & complete buttons
             boolean emptyItem = getApplicationBean().isEmptyWorkItem(wir);
             btnView.setDisabled(emptyItem);
-            if (btnView.isDisabled())
-                btnView.setToolTip("The selected workitem has no parameters to view/edit");
-            else
-                btnView.setToolTip(null);
-
             btnComplete.setDisabled(! (emptyItem || (wir.getUpdatedData() != null)));
-            if (btnComplete.isDisabled())
-                btnComplete.setToolTip("The selected workitem needs editing before it can complete");
-            else
-                btnComplete.setToolTip(null);
 
             // set 'New Instance' button (not a task priv but convenient to do it here)
             if (wir != null)  {
@@ -798,6 +847,7 @@ public class userWorkQueues extends AbstractPageBean {
     }
 
 
+    /** Enable/disable buttons using user  privileges */
     private void processUserPrivileges(int queue) {
         Participant p = _sb.getParticipant();
         if (! p.isAdministrator()) {
@@ -815,7 +865,8 @@ public class userWorkQueues extends AbstractPageBean {
         }
     }
 
-
+    
+    /** Disables buttons if queue is empty, enables them if not */
     private void processButtonEnablement(int queueType) {
         boolean isEmptyQueue = (_sb.getQueueSize(queueType) == 0) ;
         switch (queueType) {
@@ -838,5 +889,7 @@ public class userWorkQueues extends AbstractPageBean {
             case WorkQueue.SUSPENDED : btnUnsuspend.setDisabled(isEmptyQueue);
         }
     }
+
+    /********************************************************************************/
 }
 

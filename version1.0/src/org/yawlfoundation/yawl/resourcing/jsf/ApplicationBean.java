@@ -154,6 +154,7 @@ public class ApplicationBean extends AbstractApplicationBean {
     }
 
 
+    /** @return true if the workitem has no parameters */
     public boolean isEmptyWorkItem(WorkItemRecord wir) {
         try {
             Map<String, FormParameter> params = getWorkItemParams(wir);

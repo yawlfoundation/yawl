@@ -459,7 +459,6 @@ public class caseMgt extends AbstractPageBean {
                 Map<String, FormParameter> paramMap =
                         getApplicationBean().yParamListToFormParamMap(inputParams) ;
 
-                getSessionBean().setDynFormParams(paramMap);
                 getSessionBean().setDynFormType(ApplicationBean.DynFormType.netlevel);
                 getSessionBean().setLoadedSpecListChoice(specData.getID());
 

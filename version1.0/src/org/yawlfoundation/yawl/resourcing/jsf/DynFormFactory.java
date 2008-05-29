@@ -22,6 +22,7 @@ import org.jdom.Namespace;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.faces.application.Application;
 import javax.faces.component.UIComponent;
@@ -510,10 +511,17 @@ public class DynFormFactory extends AbstractSessionBean {
         cal.setDisabled(param.isInputOnly());
         cal.setRequired(isRequired(param));
         cal.setMinDate(new Date(1));
+        cal.setMaxDate(getDate(25));
         cal.setColumns(15);
         cal.setStyleClass("dynformInput");
         cal.setStyle(makeTopStyle(top)) ;
         return cal;
+    }
+
+    private Date getDate(int yearAdj) {
+        GregorianCalendar result = new GregorianCalendar() ;
+        result.add(java.util.Calendar.YEAR, yearAdj);
+        return result.getTime();
     }
 
 
@@ -863,23 +871,44 @@ public class DynFormFactory extends AbstractSessionBean {
 
 
     private String getPanelDataList(PanelLayout panel) {
-        StringBuilder result = new StringBuilder();
-        DynFormDataFormatter formatter = new DynFormDataFormatter(panel) ;
-        result.append(formatter.getHeaderOpen());
-        result.append(formatter.getBody());
+        StringBuilder result = new StringBuilder() ;
+        List children = panel.getChildren();
 
-        // process subpanels recursively
-        Set<SubPanelController> controllerSet = formatter.getSubPanelControllers();
-        for (SubPanelController controller : controllerSet) {
-            String name = controller.getName();
-            StringBuilder subResult = new StringBuilder();
-            for (SubPanel subPanel : controller.getSubPanels()) {
-                subResult.append(getPanelDataList(subPanel));
+        // first child is always the panel heading (and thus the element name)
+        String parentTag = (String) ((StaticText) children.get(0)).getValue() ;
+        result.append("<").append(parentTag).append(">") ;
+
+        for (int i = 1; i < children.size(); i++) {
+            UIComponent child = (UIComponent) children.get(i) ;
+
+            // if subpanel, build inner output recursively
+            if (child instanceof SubPanel)
+                result.append(getPanelDataList((PanelLayout) child)) ;
+
+            // ordinary fields - all have an associated label
+            else if (child instanceof Label) {
+                Label label = (Label) child ;
+                String tag = (String) label.getText();
+                tag = tag.trim().replaceFirst(":", "");               // remove prompt
+
+                // get the component this label is 'for', then get its value
+                String forID = label.getFor();
+                String value = "";
+                UIComponent field = panel.findComponent(forID);
+                if (field instanceof TextField)
+                    value = (String) ((TextField) field).getValue();
+                else if (field instanceof Checkbox)
+                   value =  ((Checkbox) field).getValue().toString();
+                else if (field instanceof Calendar)
+                    value = new SimpleDateFormat("yyyy-MM-dd")
+                                         .format(((Calendar) field).getSelectedDate());
+
+                result.append(StringUtil.wrap(value, tag));
             }
-            String output = formatter.cleanPanelSetOutput(name, subResult.toString()) ;
-            result.append(output);
         }
-        result.append(formatter.getHeaderClose());
+
+        // close the xml and return
+        result.append("</").append(parentTag).append(">") ;
         return result.toString();
     }
 
@@ -1004,4 +1033,8 @@ public class DynFormFactory extends AbstractSessionBean {
         }
         return new String(result);
     }
+
+
+
+
 }
