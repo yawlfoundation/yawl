@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+	<!-- General description of your web application -->
+	<display-name>YAWL Engine</display-name>
+	<description>
+        This is the YAWL Workflow Engine.   It performs the execution of Workflow
+        specifications (declared in XML), and it handles
+        worklist, and application invokation.
+        Author: Lachlan Aldred
+        Date: 24/12/2003
+        Time: 16:17:01
+    </description>
+
+	<!-- Context initialization parameters that define shared
+         String constants used within your application.
+    -->
+	<context-param>
+		<param-name>webmaster</param-name>
+		<param-value>your.email.adress@your.domain</param-value>
+		<description>
+            The EMAIL address of the administrator to whom questions
+            and comments about this application should be addressed.
+        </description>
+	</context-param>
+
+	<context-param>
+		<param-name>EnablePersistence</param-name>
+		<param-value>true</param-value>
+		<description>
+			Set this value to 'true' to enable persistance and logging
+			set to 'false' to disable
+        </description>
+	</context-param>
+
+	<context-param>
+		<param-name>RMIServerName</param-name>
+		<param-value>//localhost/EngineGateway</param-value>
+		<description>
+            The RMI registry name of the RMI gateway into the YAWL Engine.
+        </description>
+	</context-param>
+
+
+    <!-- PARAMS FOR EXCEPTION SERVICE -->
+
+    <context-param>
+	<param-name>EnableExceptionService</param-name>
+	<param-value>false</param-value>
+	<description>
+		Set this value to 'true' to enable monitoring by an Exception Service
+		(specified by the URI param below).
+		Set it to 'false' to disable the Exception Service.
+        </description>
+	</context-param>
+
+    <context-param>
+        <param-name>ExceptionObserverURI</param-name>
+        <param-value>http://localhost:8080/workletService/ix</param-value>
+        <description>
+            This value provides the URI of an Exception Service that monitors
+            for process exceptions through Interface X.
+        </description>
+    </context-param>
+
+
+    <!-- Servlet definitions for the servlets that make up
+         your web application, including initialization
+         parameters.
+    -->
+	<servlet>
+		<servlet-name>InterfaceBServlet</servlet-name>
+		<description>
+            Performs the necessary functionality to web-enable the YAWL
+            engine.   It provides a REST based interface.
+            It specifically provides access to the control and execution of
+            cases in the workflow engine.
+        </description>
+		<servlet-class>
+            org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBasedServer
+        </servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>InterfaceAServlet</servlet-name>
+		<description>
+            Performs the necessary functionality to web-enable the YAWL
+            engine.   It provides a REST based interface.
+            It specifically provides access to the management features of
+            the workflow engine.
+        </description>
+		<servlet-class>
+            org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EngineBasedServer
+        </servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+    <servlet>
+        <servlet-name>InterfaceXServlet</servlet-name>
+        <description>
+            This servlet provides access to the monitoring and management of
+            process exceptions.
+        </description>
+        <servlet-class>
+            org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideServer
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+	<servlet>
+		<servlet-name>ErrorServlet</servlet-name>
+		<description>
+            Reports that the URI request found nothing, hence the error report.
+        </description>
+		<servlet-class>org.yawlfoundation.yawl.engine.interfce.ErrorServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+    <servlet>
+        <servlet-name>InterfaceEGateway</servlet-name>
+        <description>
+            Provides an external API to the Engine's process event logs
+        </description>
+        <servlet-class>
+            org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGateway
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <!-- Define mappings that are used by the servlet container to
+         translate a particular request URI (context-relative) to a
+         particular servlet.
+    -->
+	<servlet-mapping>
+		<servlet-name>InterfaceAServlet</servlet-name>
+		<url-pattern>/ia/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>InterfaceBServlet</servlet-name>
+		<url-pattern>/work</url-pattern>
+		<url-pattern>/ib/*</url-pattern>
+	</servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>InterfaceXServlet</servlet-name>
+        <url-pattern>/ix/*</url-pattern>
+    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ErrorServlet</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>InterfaceEGateway</servlet-name>
+        <url-pattern>/logGateway</url-pattern>
+    </servlet-mapping>
+    <!-- Define the default session timeout for your application,
+         in minutes. -->
+	<session-config>
+		<session-timeout>30</session-timeout>
+		<!-- 30 minutes -->
+	</session-config>
+
+</web-app>

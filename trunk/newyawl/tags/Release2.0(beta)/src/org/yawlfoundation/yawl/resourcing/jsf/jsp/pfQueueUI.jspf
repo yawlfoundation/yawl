@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div style="height: 200px; width: 540px; -rave-layout: grid"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://www.sun.com/web/ui">
+
+    <f:subview id="pfQueueUI">
+        <ui:listbox binding="#{pfQueueUI.lbxItems}"
+                    id="lbxItems"
+                    items="#{SessionBean.worklistOptions}"
+                    selected="#{SessionBean.worklistChoice}"
+                    onChange="common_timeoutSubmitForm(this.form, 'lbxItems');"
+                    styleClass="queuesListbox"
+                    valueChangeListener="#{pfQueueUI.lbxItems_processValueChange}"/>
+
+        <ui:label binding="#{pfQueueUI.lblSpecID}"
+                  for="txtSpecID"
+                  id="lblSpecID"
+                  styleClass="queuesLabelLeft"
+                  style="top: 18px"
+                  text="Specification"/>
+
+        <ui:textField binding="#{pfQueueUI.txtSpecID}"
+                      id="txtSpecID"
+                      readOnly="true"
+                      styleClass="queuesTextField"
+                      style="left: 220px; top: 36px"
+                      text="#{SessionBean.initSpecID}"
+                      trim="false"/>
+
+        <ui:label binding="#{pfQueueUI.lblCaseID}"
+                  for="txtCaseID"
+                  id="lblCaseID"
+                  styleClass="queuesLabelLeft"
+                  style="top: 84px"
+                  text="Case"/>
+
+        <ui:label binding="#{pfQueueUI.lblCreated}"
+                  for="txtCreated"
+                  id="lblCreated"
+                  styleClass="queuesLabelLeft"
+                  style="top: 150px"
+                  text="Created"/>
+
+        <ui:textField binding="#{pfQueueUI.txtCreated}"
+                      id="txtCreated"
+                      readOnly="true"
+                      styleClass="queuesTextField"
+                      style="left: 220px; top: 168px"
+                      text="#{SessionBean.initCreatedDate}"
+                      trim="false"/>
+
+        <ui:textField binding="#{pfQueueUI.txtCaseID}"
+                      id="txtCaseID"
+                      readOnly="true"
+                      styleClass="queuesTextField"
+                      style="left: 220px; top: 102px"
+                      text="#{SessionBean.initCaseID}"
+                      trim="false"/>
+
+        <ui:textField binding="#{pfQueueUI.txtAge}"
+                      id="txtAge"
+                      readOnly="true"
+                      styleClass="queuesTextField"
+                      style="left: 382px; top: 168px"
+                      text="#{SessionBean.initAge}"
+                      trim="false"/>
+
+        <ui:textField binding="#{pfQueueUI.txtStatus}"
+                      id="txtStatus"
+                      readOnly="true"
+                      styleClass="queuesTextField"
+                      style="left: 382px; top: 102px"
+                      text="#{SessionBean.initStatus}"
+                      trim="false"/>
+
+        <ui:textField binding="#{pfQueueUI.txtTaskID}"
+                      id="txtTaskID"
+                      readOnly="true"
+                      styleClass="queuesTextField"
+                      style="left: 382px; top: 36px"
+                      text="#{SessionBean.initTaskID}"
+                      trim="false"/>
+
+        <ui:label binding="#{pfQueueUI.lblTaskID}"
+                  for="txtTaskID"
+                  id="lblTaskID"
+                  styleClass="queuesLabelRight"
+                  style="top: 18px"
+                  text="Task"/>
+
+        <ui:label binding="#{pfQueueUI.lblAge}"
+                  for="txtAge"
+                  id="lblAge"
+                  styleClass="queuesLabelRight"
+                  style="top: 150px"
+                  text="Age"/>
+
+        <ui:label binding="#{pfQueueUI.lblStatus}"
+                  for="txtStatus"
+                  id="lblStatus"
+                  styleClass="queuesLabelRight"
+                  style="top: 84px"
+                  text="Status"/>
+
+        <ui:label binding="#{pfQueueUI.lblItems}"
+                  for="lbxItems"
+                  id="lblItems"
+                  style="left: 12px; top: 18px; position: absolute"
+                  text="Work Items"/>
+    </f:subview>
+</div>
