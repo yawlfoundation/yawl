@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.yawlfoundation.yawl.logging">
+
+	<class name="YCaseEvent" table="log_CaseEvent">
+
+        <id name="_caseEventID"        column="CaseEventID"></id>
+
+    	<property name="_caseID"      column="CaseID"/>
+    	<property name="_eventTime"   column="EventTime"         type="long"/>
+    	<property name="_eventName"   column="EventName"/>
+    	<property name="_resourceID"  column="ResourceID"/>
+    	<property name="_specID"      column="SpecID"/>
+    	<property name="_subnetID"    column="SubnetID"/>
+
+	</class>
+	
+</hibernate-mapping>

@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+	<class name="org.yawlfoundation.yawl.engine.YWorkItem" table="Work_Items">
+
+       <id name="_thisID" column="id" type="string" access="field">
+   		<generator class="assigned"/>
+    	</id>
+		
+        <property name="_specName" column="specs" type="string"/>
+        <property name="_specVersion" column="version" type="double"/>
+    	<property name="_enablementTime" column="enablement_time" type="timestamp" access="field"/>
+    	<property name="_firingTime" column="firing_time" type="timestamp" access="field"/>
+    	<property name="_startTime" column="start_time" type="timestamp" access="field"/>
+    	<property name="_status" column="status" type="string"/>
+        <property name="_prevStatus" column="prevstatus" access="field"/>
+        <property name="_startEventID" column="startlogid" access="field"/>
+        <property name="_endEventID" column="endlogid" access="field"/>
+        <property name="_whoStartedMe" column="who_started_me" type="string" access="field"/>
+        <property name="_allowsDynamicCreation" column="allows_dynamic_creation" type="boolean" access="field"/>  	  
+        <property name="_requiresManualResourcing" column="requires_manual_resourcing" type="boolean" access="field"/>
+        <property name="_dataString" column="data_string" type="text" access="field"/>
+        <property name="_timerStarted" column="timerstarted" type="boolean" access="field"/>
+        <property name="_timerExpiry" column="timerexpiry" type="long" access="field"/>
+        <property name="_deferredChoiceGroupID" column="deferredgroupid" access="field"/>
+
+        <!--_timerParameters-->
+
+        <set name="_children" access="field" lazy="false">
+    		<key column="parent_id"/>
+	    	<one-to-many class="org.yawlfoundation.yawl.engine.YWorkItem"/>
+        </set>
+
+        <many-to-one name="_parent" column="parent"
+                     class="org.yawlfoundation.yawl.engine.YWorkItem" access="field" lazy="false"/>
+
+
+	</class>
+	
+</hibernate-mapping>
