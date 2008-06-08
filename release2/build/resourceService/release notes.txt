@@ -1,23 +1,4 @@
-Version 0.7.1 24/02/2006
-========================
- - ported all logging (except events) to log4j - the worklet 'Logger' 
-   class became 'EventLogger'.
 
- - added methods coonectAsService() and isRegisteredUser() to allow 
-   a service to logon to the engine using a specific service logon 
-   id & password, rather than the generic admin ones.
-
- - general code cleanup throughout.
-
- - BUILD changes:
-    - sourced common graphics file for welcome page from build/graphics
-      instead of having a copy in the worklet build files.
-
-    - changed log4j properties so that the log file path is replaced 
-      with {env.CATALINA_HOME} rather than the static {catalina.home}
-      entry in the build.properties file.
-      
-
-Version 0.7   11/12/2005
+Version 2.0 (beta) 30/05/2008
 ========================
  - initial version

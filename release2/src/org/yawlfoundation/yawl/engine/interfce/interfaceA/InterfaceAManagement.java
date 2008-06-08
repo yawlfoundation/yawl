@@ -12,11 +12,12 @@ package org.yawlfoundation.yawl.engine.interfce.interfaceA;
 import org.apache.log4j.Logger;
 import org.jdom.JDOMException;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.engine.announcement.AnnouncementContext;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.YWorkItem;
+import org.yawlfoundation.yawl.engine.announcement.AnnouncementContext;
 import org.yawlfoundation.yawl.exceptions.YEngineStateException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.exceptions.YStateException;
@@ -86,7 +87,7 @@ public interface InterfaceAManagement {
      * @param specID
      * @param version Given version of the specification
      */
-    YSpecification getSpecification(String specID, double version);
+    YSpecification getSpecification(String specID, YSpecVersion version);
 
     /**
      * Unloads a specification from the engine.<P>

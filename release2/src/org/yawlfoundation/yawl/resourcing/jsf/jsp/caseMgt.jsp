@@ -42,7 +42,7 @@
                                            text="Upload Specification"/>
 
                             <ui:upload binding="#{caseMgt.fileUpload1}"
-                                       columns="70" id="fileUpload1"
+                                       columns="60" id="fileUpload1"
                                        styleClass="fileUpload"
                                        style="left: 10px; top: 40px"
                                        valueChangeListener="#{caseMgt.fileUpload1_processValueChange}"/>

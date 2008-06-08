@@ -77,7 +77,7 @@ public class YEngine implements InterfaceADesign,
 	private static final boolean ENGINE_PERSISTS_BY_DEFAULT = false;
     private static Logger logger;
 
-    private YSpecificationMap _specifications = new YSpecificationMap();
+    private YSpecificationTable _specifications = new YSpecificationTable();
     protected Map<YIdentifier, YNetRunner> _caseIDToNetRunnerMap = new HashMap<YIdentifier, YNetRunner>();
     private Map<YIdentifier,YSpecification> _runningCaseIDToSpecMap = new HashMap<YIdentifier, YSpecification>(); //todo MLF: changed to direct refence to spec, should it be YSpecID?
     private static YWorkItemRepository _workItemRepository;
@@ -136,7 +136,7 @@ public class YEngine implements InterfaceADesign,
 
     protected void addRunner(YNetRunner runner) {
         String specID = runner.getYNetID();
-        double version = runner.getYNetVersion();
+        YSpecVersion version = runner.getYNetVersion();
         YSpecification specification = (YSpecification) _specifications.getSpecification(specID, version);
         if (specification != null) {
             /*
@@ -242,73 +242,47 @@ public class YEngine implements InterfaceADesign,
             _caseNbrStore.setPersisting(true);
 
             // END: restore case number
-            
-            int checkedrunners = 0;
 
             Vector storedrunners = (Vector) runners.clone();
 
-            while (checkedrunners < runners.size()) {
+            for (int i = 0; i < runners.size(); i++) {
+                YNetRunner runner = (YNetRunner) runners.get(i);
+                YSpecification specification = getSpecification(runner.getYNetID(),
+                                                                runner.getYNetVersion());
+                if (specification == null) {
+                    /* This occurs when a specification has been unloaded, but the case is still there
+                       This case is not persisted, since we must have the specification stored as well.
+                    */
+                    // todo AJH Sort this
+                    pmgr.deleteObject(runner);
+                    storedrunners.remove(runner);
+                    continue;
+                }
+                if (runner.getContainingTaskID() == null) {
+                    //This is a root net runner
+                    YNet net = (YNet) specification.getRootNet().clone();
+                    runner.setNet(net);
+                    runnermap.put(runner.get_standin_caseIDForNet().toString(), runner);
+                }
+                else {
+                    //This is not a root net, but a decomposition
+                    // Find the parent runner
+                    String myid = runner.get_standin_caseIDForNet().toString();
+                    String parentid = myid.substring(0, myid.lastIndexOf("."));
+                    YNetRunner parentrunner = (YNetRunner) runnermap.get(parentid);
+                    if (parentrunner != null) {
+                        logger.debug("Restoring composite YNetRunner: " + parentrunner.get_caseID());
+                        YNet parentnet = parentrunner.getNet();
 
-                for (int i = 0; i < runners.size(); i++) {
-                    YNetRunner runner = (YNetRunner) runners.get(i);
+                        YCompositeTask task = (YCompositeTask) parentnet.getNetElement(runner.getContainingTaskID());
+                        runner.setTask(task);
 
-                    if (runner.getContainingTaskID() == null) {
-
-                        //This is a root net runner
-                        YSpecification specification = getSpecification(runner.getYNetID(), runner.getYNetVersion());
-                        if (specification != null) {
-                            YNet net = (YNet) specification.getRootNet().clone();
-                            runner.setNet(net);
-
-                            runnermap.put(runner.get_standin_caseIDForNet().toString(), runner);
-                        } else {
-                            /* This occurs when a specification has been unloaded, but the case is still there
-                               This case is not persisted, since we must have the specification stored as well.
-                             */
-                            pmgr.deleteObject(runner);
-                            storedrunners.remove(runner);
-                            //MLF: remove all the workitems for this case
-                            String wiquery = "DELETE FROM YWorkItem WHERE (" +
-                                             "id like '" + runner.get_caseID() + ":%" + "') OR (" +
-                                             "id like '" + runner.get_caseID() + ".%:%" + "')";
-                            logger.debug("Deleting work_items on query " + wiquery);
-                            pmgr.getSession().createQuery(wiquery).executeUpdate();
-
-                        }
-                        checkedrunners++;
-
-                    } else {
-                        //This is not a root net, but a decomposition
-
-                        // Find the parent runner
-                        String myid = runner.get_standin_caseIDForNet().toString();
-                        String parentid = myid.substring(0, myid.lastIndexOf("."));
-
-
-                        YNetRunner parentrunner = (YNetRunner) runnermap.get(parentid);
-
-                        if (parentrunner != null) {
-                            logger.debug("Restoring composite YNetRunner: " + parentrunner.get_caseID());
-                            YNet parentnet = parentrunner.getNet();
-
-                            YCompositeTask task = (YCompositeTask) parentnet.getNetElement(runner.getContainingTaskID());
-                            runner.setTask(task);
-
-                            YNet net = (YNet) task.getDecompositionPrototype().clone();
-                            runner.setNet(net);
-                            runnermap.put(runner.get_standin_caseIDForNet().toString(), runner);
-
-                            checkedrunners++;
-                        }
-                        else
-                        {
-                            logger.error("No parent netrunner found for parentid '" + parentid + "'.");
-                        }
-
+                        YNet net = (YNet) task.getDecompositionPrototype().clone();
+                        runner.setNet(net);
+                        runnermap.put(runner.get_standin_caseIDForNet().toString(), runner);
                     }
                 }
             }
-
             runners = storedrunners;
 
             for (int i = 0; i < runners.size(); i++) {
@@ -316,7 +290,6 @@ public class YEngine implements InterfaceADesign,
                 YNetRunner runner = (YNetRunner) runners.get(i);
 
                 YNet net = runner.getNet();
-
 
                 P_YIdentifier pid = runner.get_standin_caseIDForNet();
 
@@ -362,9 +335,16 @@ public class YEngine implements InterfaceADesign,
             logger.info("Restoring process instances - Ends");
 
             logger.info("Restoring work items - Starts");
+            List<YWorkItem> toBeDeleted = new ArrayList<YWorkItem>();
             query = pmgr.createQuery("from org.yawlfoundation.yawl.engine.YWorkItem");
             for (Iterator it = query.iterate(); it.hasNext();) {
                 YWorkItem witem = (YWorkItem) it.next();
+
+              	// MJF: if parent is to be deleted, must delete for contraints
+               	if (toBeDeleted.contains(witem.get_parent())) {
+                 		toBeDeleted.add(witem);
+                 		continue;
+               	}
 
                 String data = witem.getDataString();
                 if (data != null)
@@ -373,22 +353,42 @@ public class YEngine implements InterfaceADesign,
 
                 java.util.StringTokenizer st = new java.util.StringTokenizer(witem.get_thisID(), ":");
                 String caseandid = st.nextToken();
-//				MLR (02/11/07): next two lines commented out as used by M2 to assist in debugging only
-                //java.util.StringTokenizer st2 = new java.util.StringTokenizer(caseandid, ".");
-                //String caseid = st2.nextToken();
                 String taskid = st.nextToken();
+                String uniqueId = null;
                 // AJH: Strip off unique ID to obtain our taskID
-                {
-                    java.util.StringTokenizer st3 = new java.util.StringTokenizer(taskid, "!");
-                    taskid = st3.nextToken();
-                }
+
+                java.util.StringTokenizer st3 = new java.util.StringTokenizer(taskid, "!");
+                taskid = st3.nextToken();
+                uniqueId = st3.nextToken();
+
+                YWorkItemID witemID;
                 YIdentifier workitemid = (YIdentifier) idtoid.get(caseandid);
                 if (workitemid != null) {
                     witem.setWorkItemID(new YWorkItemID(workitemid, taskid));
+
+                    // MJF: use the unique id if we have one - stays in synch
+                    if (uniqueId != null) {
+                        witemID = new YWorkItemID(workitemid, taskid, uniqueId);
+                    } else {
+                        witemID = new YWorkItemID(workitemid, taskid);
+                    }
+                    witem.setWorkItemID(witemID);
                     witem.addToRepository();
+
+                    // MJF: for any work items with data, we need to restore to
+                    // netrunner instance
+                    witem.restoreDataToNet();
                 } else {
                     pmgr.deleteObject(witem);
+                    toBeDeleted.add(witem);
                 }
+            }
+            if (toBeDeleted.size() > 0) {
+              	for (Iterator<YWorkItem> deletes = toBeDeleted.iterator(); deletes.hasNext();) {
+            	    	YWorkItem deleted = deletes.next();
+            	    	pmgr.getSession().delete(deleted);
+              	}
+              	pmgr.getSession().flush();
             }
             logger.info("Restoring work items - Ends");
 
@@ -574,7 +574,7 @@ public class YEngine implements InterfaceADesign,
             logger = Logger.getLogger("org.yawlfoundation.yawl.engine.YEngine");
             logger.debug("--> YEngine: Creating initial instance");
             _myInstance = new YEngine();
-			_myInstance.setEngineStatus(YEngine.ENGINE_STATUS_INITIALISING);            
+		      	_myInstance.setEngineStatus(YEngine.ENGINE_STATUS_INITIALISING);
             YEngine.setPersisting(persisting);
 
             // Initialise the persistence layer
@@ -724,9 +724,8 @@ public class YEngine implements InterfaceADesign,
                             yspec.getSpecid().setVersion(specification.getMetaData().getVersion());
 
                             if (persisting) {
-                                YPersistenceManager pmgr = new YPersistenceManager(getPMSessionFactory());
+                                YPersistenceManager pmgr = getPersistenceSession();
                                 try {
-                                    pmgr.startTransactionalSession();
                                     pmgr.storeObject(yspec);
                                     pmgr.commit();
                                 } catch (YPersistenceException e) {
@@ -749,6 +748,16 @@ public class YEngine implements InterfaceADesign,
             logger.debug("<-- addSpecifications: " + returnIDs.size() + " IDs loaded");
             return returnIDs;
         }
+    }
+
+    
+    private YPersistenceManager getPersistenceSession() throws YPersistenceException {
+        YPersistenceManager pmgr = null ;
+        if (isPersisting()) {
+            pmgr = new YPersistenceManager(getPMSessionFactory());
+            pmgr.startTransactionalSession();
+        }
+        return pmgr ;
     }
 
 
@@ -873,14 +882,11 @@ public class YEngine implements InterfaceADesign,
          */
         synchronized (mutex) {
 
-            YPersistenceManager pmgr = null;
+            YPersistenceManager pmgr = getPersistenceSession();
             YSpecification spec = _specifications.getSpecification(specID);
 
-            if (isPersisting()) {
-                pmgr = new YPersistenceManager(getPMSessionFactory());
-                pmgr.startTransactionalSession();
-            }
-            logger.debug("--> unloadSpecification: ID=" + specID.getSpecName() + " Version=" + specID.getVersion());
+            logger.debug("--> unloadSpecification: ID=" + specID.getSpecName() +
+                         " Version=" + specID.getVersion().toString());
 
             /**
              * AJH: Reject unload request if we have active cases using it
@@ -893,14 +899,10 @@ public class YEngine implements InterfaceADesign,
 
                 if (specForCase.equals(spec))
                 {
-                    if (isPersisting())
-                    {
-                        pmgr.rollbackTransaction();
-                    }
+                    if (pmgr != null) pmgr.rollbackTransaction();
                     throw new YStateException("Cannot unload specification with id [" + specID + "] as one or more cases are currently active against it.");
                 }
             }
-            
 
             if (_specifications.contains(specID)) {
                 /* REMOVE FROM PERSISTANT STORAGE*/
@@ -909,25 +911,18 @@ public class YEngine implements InterfaceADesign,
                 yspec.getSpecid().setId(specID.getSpecName());
                 yspec.getSpecid().setVersion(specID.getVersion());
 
-//AJH           yper.removeData(yspec);
-                if (pmgr != null) {
-                    pmgr.deleteObject(yspec);
-                }
+                if (pmgr != null) pmgr.deleteObject(yspec);
 
                 _specifications.unloadSpecification(spec);
             } else {
 
-                if (isPersisting()) {
-                    pmgr.rollbackTransaction();
-                }
+                if (pmgr != null) pmgr.rollbackTransaction();
                 throw new YStateException(
                         "Engine contains no such specification with id [" +
                         specID + "].");
             }
 
-            if (isPersisting()) {
-                pmgr.commit();
-            }
+            if (pmgr != null) pmgr.commit();
             logger.debug("<-- unloadSpecification");
         }
     }
@@ -971,43 +966,22 @@ public class YEngine implements InterfaceADesign,
 
 
     /**
-     * Cancels the case - External interface.<P>
+     * Cancels the case - External interface.
      *
-     * For NetRunner calls to cancel a case, see the other overloaded method which accepts an instance of the
-     * current persistence manager object.
-     *
-     * AJH - MODIFIED FOR TRANSACTIONAL PERSISTENCE
-     *
+     * For NetRunner calls to cancel a case, see the other overloaded method which
+     * accepts an instance of the current persistence manager object.
      *
      * @param id the case ID.
      */
     public void cancelCase(YIdentifier id) throws YPersistenceException, YEngineStateException {
-        /**
-         * SYNC'D External interface
-         */
         synchronized (mutex) {
-            if (getEngineStatus() != ENGINE_STATUS_RUNNING)
-            {
-                throw new YEngineStateException("Unable to accept request as engine not in correct state: Current state = " + getEngineStatus());
+            if (getEngineStatus() == ENGINE_STATUS_RUNNING) {
+                YPersistenceManager pmgr = getPersistenceSession();
+                cancelCase(pmgr, id);
+                if (pmgr != null) pmgr.commit();
             }
-
-            YPersistenceManager pmgr = null;
-
-            if (isPersisting()) {
-                pmgr = new YPersistenceManager(getPMSessionFactory());
-                pmgr.startTransactionalSession();
-            }
-
-            cancelCase(pmgr, id);
-
-            try {
-                if (isPersisting()) {
-                    pmgr.commit();
-                    pmgr = null;
-                }
-            } catch (YPersistenceException e) {
-                logger.warn("Persistence exception ignored (to be fixed)", e);
-            }
+            else throw new YEngineStateException("Unable to accept request as engine" +
+                          " not in correct state: Current state = " + getEngineStatus());
         }
     }
 
@@ -1131,7 +1105,7 @@ public class YEngine implements InterfaceADesign,
         }
     }
 
-    public YSpecification getSpecification(String specID, double version) {
+    public YSpecification getSpecification(String specID, YSpecVersion version) {
         /**
          * SYNC'D External interface
          */
@@ -1553,25 +1527,14 @@ public class YEngine implements InterfaceADesign,
                                     throws YStateException, YDataStateException, 
                                            YQueryException, YSchemaBuildingException,
                                            YPersistenceException, YEngineStateException {
-        /**
-         * SYNC'D External interface
-         */
         synchronized (mutex) {
             if (getEngineStatus() != ENGINE_STATUS_RUNNING)
-            {
                 throw new YEngineStateException("Unable to accept request as engine not in correct state: Current state = " + getEngineStatus());
-            }
-
-            YPersistenceManager pmgr = null;
 
             logger.debug("--> startWorkItem");
+            YPersistenceManager pmgr = getPersistenceSession();
 
             try {
-                if (isPersisting()) {
-                    pmgr = new YPersistenceManager(getPMSessionFactory());
-                    pmgr.startTransactionalSession();
-                }
-
                 YNetRunner netRunner;
                 YWorkItem resultantItem = null;
                 if (workItem != null) {
@@ -1618,32 +1581,23 @@ public class YEngine implements InterfaceADesign,
                     } else if (workItem.getStatus().equals(YWorkItemStatus.statusDeadlocked)) {
                         resultantItem = workItem;
                     } else {
-                        if (isPersisting()) {
-                            pmgr.rollbackTransaction();
-                        }
-
+                        if (pmgr != null) pmgr.rollbackTransaction();
                         throw new YStateException("Item (" + workItem.getIDString() + ") status (" +
                                 workItem.getStatus() + ") does not permit starting.");
                         //this work item is likely already executing.
                     }
                 } else {
-                    if (isPersisting()) {
-                        pmgr.rollbackTransaction();
-                    }
+                    if (pmgr != null) pmgr.rollbackTransaction();
                     throw new YStateException("No such work item currently available.");
                 }
 
                 // COMMIT POINT
-                if (persisting) {
-                    pmgr.commit();
-                }
+                if (pmgr != null) pmgr.commit();
 
                 logger.debug("<-- startWorkItem");
                 return resultantItem;
             } catch (Exception e) {
-                if (persisting) {
-                    pmgr.rollbackTransaction();
-                }
+                if (pmgr != null) pmgr.rollbackTransaction();
 
                 // re-throw exception (tacky code ....)
                 if (e instanceof YStateException) {
@@ -1769,7 +1723,7 @@ public class YEngine implements InterfaceADesign,
             {
                 throw new YEngineStateException("Unable to accept request as engine not in correct state: Current state = " + getEngineStatus());
             }
-            YPersistenceManager pmgr = null;
+            YPersistenceManager pmgr = getPersistenceSession();
             if (logger.isDebugEnabled())
             {
                 logger.debug("--> completeWorkItem");
@@ -1778,12 +1732,6 @@ public class YEngine implements InterfaceADesign,
             }
 
             try {
-                // Create a PM
-                if (isPersisting()) {
-                    pmgr = new YPersistenceManager(getPMSessionFactory());
-                    pmgr.startTransactionalSession();
-                }
-
                 if (force) data = mapOutputDataForSkippedWorkItem(workItem);
 
                 Document doc;
@@ -1821,19 +1769,17 @@ public class YEngine implements InterfaceADesign,
                                     logger.debug("Recalling continue (looping bugfix???)");
                                     netRunner.continueIfPossible(pmgr);
                                 }
-                            } catch (JDOMException e) {
+                            }
+                            catch (JDOMException e) {
                                 YStateException f = new YStateException(e.getMessage());
                                 f.setStackTrace(e.getStackTrace());
-                                if (isPersisting()) {
-                                    pmgr.rollbackTransaction();
-                                }
+                                if (pmgr != null) pmgr.rollbackTransaction();
                                 throw f;
-                            } catch (IOException e) {
+                            }
+                            catch (IOException e) {
                                 YStateException f = new YStateException(e.getMessage());
                                 f.setStackTrace(e.getStackTrace());
-                                if (isPersisting()) {
-                                    pmgr.rollbackTransaction();
-                                }
+                                if (pmgr != null) pmgr.rollbackTransaction();
                                 throw f;
                             }
                         }
@@ -1856,24 +1802,18 @@ public class YEngine implements InterfaceADesign,
                     }
 
                     // COMMIT POINT
-                    if (isPersisting()) {
-                        pmgr.commit();
-                    }
+                    if (pmgr != null) pmgr.commit();
 
                     /**
                      * AJH: Test hook for revised persistence
                      */
                     persistCase(workItem.getCaseID());
                 } else {
-                    if (isPersisting()) {
-                        pmgr.rollbackTransaction();
-                    }
+                    if (pmgr != null) pmgr.rollbackTransaction();
                     throw new YStateException("WorkItem argument is equal to null.");
                 }
             } catch (Exception e) {
-                if (isPersisting()) {
-                    pmgr.rollbackTransaction();
-                }
+                if (pmgr != null)  pmgr.rollbackTransaction();
 
                 // Re-Throw exception
                 if (e instanceof YStateException) {
@@ -2025,17 +1965,8 @@ public class YEngine implements InterfaceADesign,
      *                         its state or its design.
      */
     public YWorkItem createNewInstance(YWorkItem workItem, String paramValueForMICreation) throws YStateException, YPersistenceException {
-        /**
-         * SYNC'D External interface
-         */
         synchronized (mutex) {
-
-            YPersistenceManager pmgr = null;
-
-            if (isPersisting()) {
-                pmgr = new YPersistenceManager(getPMSessionFactory());
-                pmgr.startTransactionalSession();
-            }
+            YPersistenceManager pmgr = getPersistenceSession();
 
             try {
                 if (workItem == null) {
@@ -2057,119 +1988,75 @@ public class YEngine implements InterfaceADesign,
                         YIdentifier id = netRunner.addNewInstance(pmgr, taskID, workItem.getCaseID(), el);
                         if (id != null) {
                             YWorkItem firedItem = workItem.getParent().createChild(pmgr, id);
-
-                            if (pmgr != null) {
-                                pmgr.commit();
-                            }
-
+                            if (pmgr != null) pmgr.commit();
                             return firedItem;
                             //success!!!!
                         } else {
-                            if (isPersisting()) {
-                                pmgr.rollbackTransaction();
-                            }
-
+                            if (pmgr != null) pmgr.rollbackTransaction();
                             throw new YStateException("New work item not created.");
                         }
                     } catch (Exception e) {
-                        if (isPersisting()) {
-                            pmgr.rollbackTransaction();
-                        }
+                        if (pmgr != null) pmgr.rollbackTransaction();
                         throw new YStateException(e.getMessage());
                     }
                 }
             } catch (YStateException e1) {
-                if (pmgr != null) {
-                    pmgr.rollbackTransaction();
-                }
+                if (pmgr != null)  pmgr.rollbackTransaction();
                 throw e1;
             }
         }
     }
 
-   //added method
+
     public YWorkItem suspendWorkItem(String workItemID) throws YStateException, YPersistenceException {
-
         synchronized (mutex) {
-
-            YPersistenceManager pmgr = null;
-
+            YPersistenceManager pmgr = getPersistenceSession();
             YWorkItem workItem = _workItemRepository.getWorkItem(workItemID);
-            if (workItem != null) {
-                if (isPersisting()) {
-                    pmgr = new YPersistenceManager(getPMSessionFactory());
-                    pmgr.startTransactionalSession();
-                }
-
-                if (workItem.hasLiveStatus()) {
-                    workItem.setStatusToSuspended(pmgr);  //added
-            }
+            if ((workItem != null) && (workItem.hasLiveStatus()))
+                    workItem.setStatusToSuspended(pmgr);
+            if (pmgr != null) pmgr.closeSession();
+            return workItem ;
         }
-        if (pmgr != null) pmgr.closeSession();
-        return workItem ;
     }
-   }
 
     public YWorkItem unsuspendWorkItem(String workItemID) throws YStateException, YPersistenceException {
-
         synchronized (mutex) {
-            YPersistenceManager pmgr = null;
+            YPersistenceManager pmgr = getPersistenceSession();
             YWorkItem workItem = _workItemRepository.getWorkItem(workItemID);
-            if (workItem != null) {
-                if (isPersisting()) {
-                    pmgr = new YPersistenceManager(getPMSessionFactory());
-                    pmgr.startTransactionalSession();
-                }
-
-                if (workItem.getStatus().equals(YWorkItemStatus.statusSuspended))
-                    workItem.setStatusToUnsuspended(pmgr);  //added
-            }
+            if ((workItem != null) &&
+                (workItem.getStatus().equals(YWorkItemStatus.statusSuspended)))
+                 workItem.setStatusToUnsuspended(pmgr);
             if (pmgr != null) pmgr.closeSession();
-
             return workItem ;
         }
     }
 
     // rolls back a workitem from executing to fired
-    public void rollbackWorkItem(String workItemID, String userName) throws YStateException, YPersistenceException {
-        /**
-         * SYNC'D External interface
-         */
+    public void rollbackWorkItem(String workItemID, String userName)
+                                        throws YStateException, YPersistenceException {
         synchronized (mutex) {
-
-            YPersistenceManager pmgr = null;
-
+            YPersistenceManager pmgr = getPersistenceSession();
             YWorkItem workItem = _workItemRepository.getWorkItem(workItemID);
             if (workItem != null) {
-                if (isPersisting()) {
-                    pmgr = new YPersistenceManager(getPMSessionFactory());
-                    pmgr.startTransactionalSession();
-                }
-
                 if (workItem.getStatus().equals(YWorkItemStatus.statusExecuting)) {
                     workItem.rollBackStatus(pmgr);
-                    YNetRunner netRunner = _workItemRepository.getNetRunner(workItem.getCaseID().getParent());
-                    if (netRunner.rollbackWorkItem(pmgr, workItem.getCaseID(), workItem.getTaskID())) {
-                    } else {
-                        if (isPersisting()) {
-                            pmgr.rollbackTransaction();
-                        }
-
+                    YNetRunner netRunner =
+                         _workItemRepository.getNetRunner(workItem.getCaseID().getParent());
+                    if (! netRunner.rollbackWorkItem(pmgr, workItem.getCaseID(), workItem.getTaskID())) {
+                        if (pmgr != null) pmgr.rollbackTransaction();
                         throw new YStateException("Work Item[" + workItemID +
                                 "] is not in executing state.");
                     }
+                    if (pmgr != null) pmgr.commit();
                 }
-                if (pmgr != null) {
-                    pmgr.commit();
-                }
-            } else {
-                if (isPersisting()) {
-                    pmgr.rollbackTransaction();
-                }
+            }
+            else {
+                if (pmgr != null) pmgr.rollbackTransaction();
                 throw new YStateException("Work Item[" + workItemID + "] not found.");
             }
         }
     }
+
 
     public String launchCase(String username, String specID, String caseParams, URI completionObserver, String caseID) throws YStateException, YDataStateException, YSchemaBuildingException, YPersistenceException, YEngineStateException
     {
@@ -2203,51 +2090,37 @@ public class YEngine implements InterfaceADesign,
         }
     }    
 
-    private String _launchCase(String username, String specID, String caseParams, URI completionObserver, String caseID) throws YStateException, YDataStateException, YSchemaBuildingException, YPersistenceException {
-            YPersistenceManager pmgr = null;
-			YIdentifier yCaseID = null;
-            String caseIDString = null;
+    private String _launchCase(String username, String specID, String caseParams,
+                               URI completionObserver, String caseID)
+                                 throws YStateException, YDataStateException,
+                                        YSchemaBuildingException, YPersistenceException {
+        YPersistenceManager pmgr = getPersistenceSession();
+		YIdentifier yCaseID = null;
+        String caseIDString = null;
 
-            logger.debug("--> launchCase");
+        logger.debug("--> launchCase");
 
-            // Create a PM
-            if (isPersisting()) {
-                pmgr = new YPersistenceManager(getPMSessionFactory());
-                pmgr.startTransactionalSession();
-            }
+        try {
+            if (caseID != null) {
 
-       try
-        {
-            if (caseID != null)
-            {
-                //ensure that this is not already in use
-                if(getCaseID(caseID) == null)
-                {
+                // ensure that this is not already in use
+                if (getCaseID(caseID) == null)
                     yCaseID = startCase(username, pmgr, specID, caseParams, completionObserver, caseID);
-                }
                 else
-                {
                     throw new YStateException("CaseID '" + caseID + "' is already active.");
-                }
             }
             else
-            {
                 yCaseID = startCase(username, pmgr, specID, caseParams, completionObserver, null);
-            }
 
-            if (yCaseID != null) {
+
+            if (yCaseID != null)
                 caseIDString = yCaseID.toString();
-            } else {
-                if (isPersisting()) {
-                    pmgr.rollbackTransaction();
-                }
-
+            else {
+                if (pmgr != null)  pmgr.rollbackTransaction();
                 throw new YStateException("No specification found for [" + specID + "].");
             }
 
-            if (isPersisting()) {
-                pmgr.commit();
-            }
+            if (pmgr != null) pmgr.commit();
         }
         catch (Exception e)
         {
@@ -2256,9 +2129,7 @@ public class YEngine implements InterfaceADesign,
              * tacky code to propagate correct exception class back up call stack.
              */
             logger.error("Failure returned from startCase - Rolling back Hibernate TXN", e);
-            if (isPersisting()) {
-                pmgr.rollbackTransaction();
-            }
+            if (pmgr != null) pmgr.rollbackTransaction();
 
             /**
              * AJH: Re-throw appropriate exception back up call stack
@@ -2348,43 +2219,28 @@ public class YEngine implements InterfaceADesign,
 
 
     /**
-     * Adds a YAWL service to the engine.<P>
-     *
-     * AJH - MODIFIED FOR TRANSACTIONAL PERSISTENCE
-     *
+     * Adds a YAWL service to the engine.
      * @param yawlService
      */
     public void addYawlService(YAWLServiceReference yawlService) throws YPersistenceException {
-        /**
-         * SYNC'D External interface
-         */
         synchronized (mutex) {
-
             logger.debug("--> addYawlService: Service=" + yawlService.getURI());
 
             _yawlServices.put(yawlService.getURI(), yawlService);
 
-            /*
-              INSERTED FOR PERSISTANCE
-             */
             if (!restoring && isPersisting()) {
-
-                logger.info("Persisting YAWL Service " + yawlService.getURI() + " with ID " + yawlService.get_yawlServiceID());
-                YPersistenceManager pmgr = new YPersistenceManager(getPMSessionFactory());
-                pmgr.startTransactionalSession();
+                logger.info("Persisting YAWL Service " + yawlService.getURI() +
+                            " with ID " + yawlService.get_yawlServiceID());
+                YPersistenceManager pmgr =getPersistenceSession();
                 pmgr.storeObject(yawlService);
                 pmgr.commit();
             }
-
             logger.debug("<-- addYawlService");
         }
     }
 
 
     public Set getChildrenOfWorkItem(YWorkItem workItem) {
-        /**
-         * SYNC'D External interface
-         */
         synchronized (mutex) {
             if (workItem != null)
                 return _workItemRepository.getChildrenOf(workItem.getIDString());
@@ -2643,33 +2499,20 @@ public class YEngine implements InterfaceADesign,
     }
 
     /**
-     *
-     *
-     * AJH - MODIFIED FOR TRANSACTIONAL PERSISTENCE
-     *
      * @param serviceURI
      * @return
      * @throws YPersistenceException
      */
     public YAWLServiceReference removeYawlService(String serviceURI) throws YPersistenceException {
-        /**
-         * SYNC'D External interface
-         */
         synchronized (mutex) {
-
-            /*
-              INSERTED FOR PERSISTANCE
-             */
             YAWLServiceReference service = (YAWLServiceReference) _yawlServices.remove(serviceURI);
 
             if (service != null) {
                 if (isPersisting()) {
-                    logger.info("Deleting persisted entry for YAWL service " + service.getURI() + " with ID " + service.get_yawlServiceID());
-
-                    YPersistenceManager pmgr = new YPersistenceManager(getPMSessionFactory());
-
+                    logger.info("Deleting persisted entry for YAWL service " +
+                            service.getURI() + " with ID " + service.get_yawlServiceID());
+                    YPersistenceManager pmgr = getPersistenceSession();
                     try {
-                        pmgr.startTransactionalSession();
                         pmgr.deleteObject(service);
                         pmgr.commit();
                     } catch (YPersistenceException e) {
@@ -2678,7 +2521,6 @@ public class YEngine implements InterfaceADesign,
                     }
                 }
             }
-
             return service;
         }
     }
@@ -2800,46 +2642,37 @@ public class YEngine implements InterfaceADesign,
      * @throws YPersistenceException
      */
     public void storeObject(Object obj) throws YPersistenceException {
-        /**
-         * SYNC'D External interface
-         */
         synchronized (mutex) {
-
             if (isPersisting()) {
-                YPersistenceManager pmgr = new YPersistenceManager(getPMSessionFactory());
-                pmgr.startTransactionalSession();
-                pmgr.storeObject(obj);
-                pmgr.commit();
+                YPersistenceManager pmgr = getPersistenceSession();
+                if (pmgr != null) {
+                    pmgr.storeObject(obj);
+                    pmgr.commit();
+                }
             }
         }
     }
 
     public void updateObject(Object obj) throws YPersistenceException {
-        /**
-         * SYNC'D External interface
-         */
         synchronized (mutex) {
-
             if (isPersisting()) {
-                YPersistenceManager pmgr = new YPersistenceManager(getPMSessionFactory());
-                pmgr.startTransactionalSession();
-                pmgr.updateObject(obj);
-                pmgr.commit();
+                YPersistenceManager pmgr = getPersistenceSession();
+                if (pmgr != null) {
+                    pmgr.updateObject(obj);
+                    pmgr.commit();
+                }
             }
         }
     }
 
     public void deleteObject(Object obj) throws YPersistenceException {
-        /**
-         * SYNC'D External interface
-         */
         synchronized (mutex) {
-
             if (isPersisting()) {
-                YPersistenceManager pmgr = new YPersistenceManager(getPMSessionFactory());
-                pmgr.startTransactionalSession();
-                pmgr.deleteObject(obj);
-                pmgr.commit();
+                YPersistenceManager pmgr = getPersistenceSession();
+                if (pmgr != null) {
+                    pmgr.deleteObject(obj);
+                    pmgr.commit();
+                }
             }
         }
     }
@@ -2992,46 +2825,23 @@ public class YEngine implements InterfaceADesign,
      * @param id
      * @throws YPersistenceException
      */
-    public void suspendCase(YIdentifier id) throws YPersistenceException, YStateException
-    {
-       /**
-         * SYNC'D External interface
-         */
-        synchronized (mutex)
-        {
-            YPersistenceManager pmgr = null;
-
-            try
-            {
-
-                if (isPersisting())
-                {
-                    pmgr = new YPersistenceManager(getPMSessionFactory());
-                    pmgr.startTransactionalSession();
-                }
-
+    public void suspendCase(YIdentifier id) throws YPersistenceException, YStateException {
+        synchronized (mutex) {
+            YPersistenceManager pmgr = getPersistenceSession();
+             try {
                 suspendCase(pmgr, id);
-
-                if (isPersisting())
-                {
-                    pmgr.commit();
-                    pmgr = null;
-                }
+                if (pmgr != null) pmgr.commit();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 logger.error("Failure to suspend case " + id, e);
-                if (isPersisting())
-                {
-                    pmgr.rollbackTransaction();
-                }
+                if (pmgr != null) pmgr.rollbackTransaction();
                 throw new YStateException("Could not suspend case (See log for details)");
             }
         }
     }
 
-    private void suspendCase(YPersistenceManager pmgr, YIdentifier id) throws YPersistenceException, YStateException
-    {
+    private void suspendCase(YPersistenceManager pmgr, YIdentifier id)
+                                          throws YPersistenceException, YStateException {
         logger.debug("--> suspendCase: CaseID = " + id.toString());
 
         // Check current case status and reject call if this case not currently in a normal state
@@ -3074,38 +2884,16 @@ public class YEngine implements InterfaceADesign,
      * @param id
      * @throws YPersistenceException
      */
-    public void resumeCase(YIdentifier id) throws YPersistenceException, YStateException
-    {
-       /**
-         * SYNC'D External interface
-         */
-        synchronized (mutex)
-        {
-            YPersistenceManager pmgr = null;
-
-            try
-            {
-                if (isPersisting())
-                {
-                    pmgr = new YPersistenceManager(getPMSessionFactory());
-                    pmgr.startTransactionalSession();
-                }
-
+    public void resumeCase(YIdentifier id) throws YPersistenceException, YStateException {
+        synchronized (mutex) {
+            YPersistenceManager pmgr = getPersistenceSession();
+            try {
                 resumeCase(pmgr, id);
-
-                if (isPersisting())
-                {
-                    pmgr.commit();
-                    pmgr = null;
-                }
+                if (pmgr != null) pmgr.commit();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 logger.error("Failure to resume case " + id, e);
-                if (isPersisting())
-                {
-                    pmgr.rollbackTransaction();
-                }
+                if (pmgr != null) pmgr.rollbackTransaction();
                 throw new YStateException("Could not resume case (See log for details)");
             }
         }
@@ -3376,19 +3164,9 @@ public class YEngine implements InterfaceADesign,
     public boolean updateWorkItemData(String workItemID, String data) {
         synchronized (mutex) {
             YWorkItem workItem = getWorkItem(workItemID);
-            YPersistenceManager pmgr = null ;
-
             if (workItem != null) {
-                if (isPersisting()) {
-                    try {
-                        pmgr = new YPersistenceManager(getPMSessionFactory());
-                        pmgr.startTransactionalSession();
-                    }
-                    catch (YPersistenceException e) {
-                        pmgr = null ;
-                    }
-                }
                 try {
+                    YPersistenceManager pmgr = getPersistenceSession() ;
                     workItem.setData(pmgr, JDOMUtil.stringToElement(data));
                     if (pmgr != null) pmgr.commit();
                     return true ;
@@ -3404,21 +3182,10 @@ public class YEngine implements InterfaceADesign,
     /** updates the case data with the data passed after completion of an exception handler */
     public boolean updateCaseData(String idStr, String data) {
         synchronized (mutex) {
-            YPersistenceManager pmgr = null ;
-            YNetRunner runner = (YNetRunner) _caseIDToNetRunnerMap.get(getCaseID(idStr));
-
+            YNetRunner runner = _caseIDToNetRunnerMap.get(getCaseID(idStr));
             if (runner != null) {
-                if (isPersisting()) {
-                    try {
-                        pmgr = new YPersistenceManager(getPMSessionFactory());
-                        pmgr.startTransactionalSession();
-                    }
-                    catch (YPersistenceException e) {
-                        pmgr = null ;
-                    }
-                }
-
                 try {
+                    YPersistenceManager pmgr = getPersistenceSession() ;
                     YNet net = runner.getNet();
                     Element updatedVars = JDOMUtil.stringToElement(data);
                     List vars = updatedVars.getChildren();
@@ -3450,25 +3217,17 @@ public class YEngine implements InterfaceADesign,
     /** cancels the workitem - marks final status as 'failed' if statusFail is true,
      *  or 'cancelled' if it is false */
     public void cancelWorkItem(YWorkItem workItem, boolean statusFail)  {
-
          synchronized (mutex) {
-             YPersistenceManager pmgr = null;
-
              try {
                 if (workItem != null) {
                    if (workItem.getStatus().equals(YWorkItemStatus.statusExecuting)) {
                        YIdentifier caseID = workItem.getCaseID().getParent() ;
                        YNetRunner runner = _workItemRepository.getNetRunner(caseID);
                        String taskID = workItem.getTaskID();
-
-                       if (isPersisting()) {
-                          pmgr = new YPersistenceManager(getPMSessionFactory());
-                          pmgr.startTransactionalSession();
-                       }
+                       YPersistenceManager pmgr = getPersistenceSession();
                        runner.cancelTask(pmgr, taskID);
                        workItem.setStatusToDeleted(pmgr, statusFail);
                        runner.continueIfPossible(pmgr);
-
                        if (pmgr != null) pmgr.commit();
                    }
                 }

@@ -9,18 +9,15 @@
 
 package org.yawlfoundation.yawl.unmarshal;
 
-import org.yawlfoundation.yawl.elements.YDecomposition;
-import org.yawlfoundation.yawl.elements.YNet;
-import org.yawlfoundation.yawl.elements.YSpecification;
-import org.yawlfoundation.yawl.elements.YTask;
-import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
-import org.yawlfoundation.yawl.exceptions.YSyntaxException;
-import org.yawlfoundation.yawl.schema.XMLToolsForYAWL;
 import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.yawlfoundation.yawl.elements.*;
+import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
+import org.yawlfoundation.yawl.exceptions.YSyntaxException;
+import org.yawlfoundation.yawl.schema.XMLToolsForYAWL;
 
 import java.text.ParseException;
 import java.util.HashMap;
@@ -43,7 +40,7 @@ class YSpecificationParser {
     private Namespace _yawlNS;
 
 	//MLR 22/10/2007 (merge): this is the initial value of a spec's version
-	static final double INITIAL_VERSION = 0.1;
+	static final String INITIAL_VERSION = "0.1";
 
     /**
      * build a specification object from part of an XML document
@@ -192,9 +189,9 @@ class YSpecificationParser {
         String version = metaDataElem.getChildText("version", _yawlNS);
         if(version != null && version.trim().length() > 0)
         {
-            metaData.setVersion(Double.parseDouble(version.trim()));
+            metaData.setVersion(new YSpecVersion(version.trim()));
         }
-        else metaData.setVersion(INITIAL_VERSION);
+        else metaData.setVersion(new YSpecVersion(INITIAL_VERSION));
 
         metaData.setStatus(metaDataElem.getChildText("status", _yawlNS));
         /**

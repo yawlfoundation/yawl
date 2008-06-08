@@ -56,7 +56,6 @@ public class userWorkQueues extends AbstractPageBean {
             log("userWorkQueues Initialization Failure", e);
             throw e instanceof FacesException ? (FacesException) e: new FacesException(e);
         }
-
         tabOffered_action();                     // select the offered worklist on init
     }
 
@@ -541,13 +540,17 @@ public class userWorkQueues extends AbstractPageBean {
                     msgPanel.success(result);
             }
             else if (action.equals("complete")) {
-                if ((wir.getUpdatedData() == null) && (! _sb.hasWarnedForNonEdit(wir.getID()))) {
+
+                // warn user if workitem has params but hasn't yet been edited
+                if ((! getApplicationBean().isEmptyWorkItem(wir)) &&
+                   (wir.getUpdatedData() == null) && (! _sb.hasWarnedForNonEdit(wir.getID()))) {
                     msgPanel.info("Warning: This item has not been edited. If you are " +
                                   "sure you want to complete without editing, click " +
                                   "the 'Complete' button again.");
                     _sb.setWarnedForNonEdit(wir.getID()) ;
                     return null ;
                 }
+                
                 String result = _rm.checkinItem(p, wir, handle);
                 if (_rm.successful(result))
                     _sb.removeWarnedForNonEdit(wir.getID());

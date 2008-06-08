@@ -12,7 +12,7 @@
     	</id>
 		
         <property name="_specName" column="specs" type="string"/>
-        <property name="_specVersion" column="version" type="double"/>
+        <property name="_specVersion" column="version" type="string"/>
     	<property name="_enablementTime" column="enablement_time" type="timestamp" access="field"/>
     	<property name="_firingTime" column="firing_time" type="timestamp" access="field"/>
     	<property name="_startTime" column="start_time" type="timestamp" access="field"/>

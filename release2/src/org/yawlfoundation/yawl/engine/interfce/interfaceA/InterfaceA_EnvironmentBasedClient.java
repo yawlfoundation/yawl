@@ -244,7 +244,7 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
         Map params = new HashMap();
         params.put("action", "unload");
         params.put("specID", specID.getSpecName());
-        params.put("version", specID.getVersion());
+        params.put("version", specID.getVersion().toString());
         params.put("sessionHandle", sessionHandle);
         return executePost(_backEndURIStr, params);
     }

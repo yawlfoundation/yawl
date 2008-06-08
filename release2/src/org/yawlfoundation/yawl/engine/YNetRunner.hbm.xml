@@ -15,10 +15,10 @@
 
         <many-to-one name="casedata" class="org.yawlfoundation.yawl.engine.YCaseData" column="casedata" cascade="all"/>
 
-    	<property name="yNetID" column="net_id" type="string" access="field"/>
-        <property name="yNetVersion" column="net_version" type="double" access="field"/>
+    	  <property name="yNetID" column="net_id" type="string" access="field"/>
+        <property name="_yNetVersion" column="net_version" type="string"/>
 
-    	<property name="containingTaskID" column="containing_task_id" access="field"/>
+    	  <property name="containingTaskID" column="containing_task_id" access="field"/>
 
 
         <property name="_caseObserverStr"/>

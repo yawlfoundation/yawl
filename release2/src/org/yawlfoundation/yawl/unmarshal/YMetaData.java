@@ -9,6 +9,8 @@
 
 package org.yawlfoundation.yawl.unmarshal;
 
+import org.yawlfoundation.yawl.elements.YSpecVersion;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,8 +28,8 @@ import java.util.Set;
  * 
  */
 public class YMetaData {
-	//MLR 22/10/2007 (merge): this is the initial value of a spec's version
-	static final double INITIAL_VERSION = 0.1;
+
+  	static final String INITIAL_VERSION = "0.1";
     static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     
     private String title;
@@ -39,7 +41,7 @@ public class YMetaData {
     private Date validFrom;
     private Date validUntil;
     private Date created;
-    private double version = INITIAL_VERSION;
+    private YSpecVersion version = new YSpecVersion(INITIAL_VERSION);
     private String status;
 	private Boolean persistent;
 
@@ -94,11 +96,11 @@ public class YMetaData {
         this.created = created;
     }
 
-    public double getVersion() {
+    public YSpecVersion getVersion() {
         return version;
     }
 
-    public void setVersion(double version) {
+    public void setVersion(YSpecVersion version) {
         this.version = version;
     }
 
@@ -187,7 +189,7 @@ public class YMetaData {
             mds.append("<created>" + dateFormat.format(created) + "</created>");
         }
 
-        mds.append("<version>" + version + "</version>");
+        mds.append("<version>" + version.toString() + "</version>");
 
         if (status != null) {
             mds.append("<status>" + status + "</status>");

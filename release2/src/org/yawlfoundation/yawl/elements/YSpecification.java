@@ -174,7 +174,15 @@ public final class YSpecification implements Cloneable, YVerifiable {
                             append(decomposition.getAttribute(key)).append("\"");
                 }
                 
-                xml.append(">").append(decomposition.toXML());
+                xml.append(">");
+                xml.append(decomposition.toXML());
+
+                // set flag for resourcing requirements on task decompositions
+                if (! (decomposition instanceof YNet)) {
+                  xml.append("<externalInteraction>")
+                     .append(decomposition.requiresResourcingDecisions() ? "manual": "automated")
+                     .append("</externalInteraction>");
+                }
                 xml.append("</decomposition>");
             }
         }

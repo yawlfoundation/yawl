@@ -9,6 +9,8 @@
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 /**
+ * Factory class responsible for generating dynamic forms
+ *
  * Author: Michael Adams
  * Creation Date: 19/01/2008
  */

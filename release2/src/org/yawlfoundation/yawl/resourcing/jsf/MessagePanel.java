@@ -1,3 +1,11 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
+ */
+
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.component.ImageComponent;
@@ -8,25 +16,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * A JSF component that is used to display messages to users
+ *
  * Author: Michael Adams
  * Creation Date: 28/02/2008
  */
+
 public class MessagePanel extends PanelLayout {
 
+    // types of messages
     public enum MsgType { error, info, warn, success }
 
+    // icons corresponding to each message type
     private static final String errorIconURL = "/resources/error.png" ;
     private static final String infoIconURL = "/resources/info.png" ;
     private static final String warnIconURL = "/resources/warn.png" ;
     private static final String successIconURL = "/resources/success.png" ;
 
+    // list of messages for each type
     private List<String> _errorMessage;
     private List<String> _warnMessage;
     private List<String> _infoMessage;
     private List<String> _successMessage;
-    private int idSuffix = 0 ;
+
+    private int idSuffix = 0 ;                         // used in creation of unique ids
     private String _style = "";
-    private int msgTop = 0 ;
+
 
     private PanelLayout _pnlMessages;
     private ImageComponent _imgIcon;
@@ -36,26 +51,30 @@ public class MessagePanel extends PanelLayout {
         this.setStyleClass("messagePanel") ;
         this.getChildren().add(constructImage());
         this.getChildren().add(constructMessagesPanel());
-        this.setVisible(false);
+        this.setVisible(false);                                   // hide it initially
     }
 
-    
+    /* adds an error message */
     public void error(String message) {
         _errorMessage = addMessage(_errorMessage, message);
     }
 
+    /* adds a warning message */
     public void warn(String message) {
         _warnMessage = addMessage(_warnMessage, message);
     }
 
+    /* adds an info message */
     public void info(String message) {
         _infoMessage = addMessage(_infoMessage, message);
     }
 
+    /* adds a success message */
     public void success(String message) {
         _successMessage = addMessage(_successMessage, message);
     }
 
+    /* removes all messages */
     public void clear() {
         _errorMessage = null;
         _infoMessage = null;
@@ -68,25 +87,29 @@ public class MessagePanel extends PanelLayout {
                (_warnMessage != null) || (_successMessage != null);
     }
 
+
+    /* show the panel in the coords passed - position = absolute or relative */
     public void show(int top, int left, String position) {
         _style = String.format("top: %dpx; left: %dpx; position: %s;",
                                 top, left, position);
         show();
     }
 
+    /* show the panel */
     public void show() {
         MsgType msgType = getDominantType() ;
         if (msgType != null) {                          // if msgs to show
             _pnlMessages.getChildren().clear();
             _imgIcon.setUrl(getImageURL(msgType));        
             setMessages();
-            this.setVisible(true);
-            clear();
+            this.setVisible(true);                     // show the form
+            clear();                                   // remove msgs from next rendering
         }
         else this.setVisible(false);
     }
 
 
+    /* returns strings from inside xml tags */
     private String unwrap(String xml) {
         String result = null;
         if (xml != null) {
@@ -106,7 +129,7 @@ public class MessagePanel extends PanelLayout {
         return xml ;
     }
 
-
+    /* adds a message to a particular list */
     private List<String> addMessage(List<String> list, String message) {
         if (list == null)  list = new ArrayList<String>();
         list.add(message + System.getProperty("line.separator"));
@@ -114,12 +137,13 @@ public class MessagePanel extends PanelLayout {
     }
 
 
-
+    /* not currently used */
     private String getStyle(int left, int top, int fontSize, MsgType msgType) {
         return getPosStyle(left, top) + getFontStyle(fontSize, msgType) ;
     }
 
 
+    /* creates a style string for positioning */
     private String getPosStyle(int left, int top) {
         return String.format("position: absolute; left: %dpx; top: %dpx;", left, top);
 

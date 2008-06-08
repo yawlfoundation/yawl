@@ -195,7 +195,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
                 "&" +
                 "specID=" + specID.getSpecName() +
                 "&" +
-                "version=" + specID.getVersion() +
+                "version=" + specID.getVersion().toString() +
                 "&" +
                 "sessionHandle=" + sessionHandle));
     }
@@ -264,7 +264,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
                 "&" +
                 "specID=" + specificationID.getSpecName() +
                 "&" +
-                "version=" + specificationID.getVersion() +
+                "version=" + specificationID.getVersion().toString() +
                 "&" +
                 "sessionHandle=" + sessionHandle);
         return msg;
@@ -497,7 +497,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
                 "&" +
                 "specID=" + specID.getSpecName() +
                 "&" +
-                "version=" + specID.getVersion() +
+                "version=" + specID.getVersion().toString() +
                 "&" +
                 "sessionHandle=" + sessionHandle);
     }
