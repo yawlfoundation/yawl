@@ -12,6 +12,9 @@ package org.yawlfoundation.yawl.engine;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.yawlfoundation.yawl.elements.YAtomicTask;
+import org.yawlfoundation.yawl.elements.YNet;
+import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
 import org.yawlfoundation.yawl.engine.time.YTimer;
@@ -24,10 +27,10 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.net.URL;
 
 /**
  * 
@@ -40,7 +43,7 @@ import java.net.URL;
  */
 public class YWorkItem {
 
-    private static final double INITIAL_VERSION = 0.1; //MLR (30/10/07): added after merge
+    private static final String INITIAL_VERSION = "0.1"; //MLR (30/10/07): added after merge
     private static DateFormat _df = new SimpleDateFormat("MMM:dd, yyyy H:mm:ss");
     private static YWorkItemRepository _workItemRepository =
                                              YWorkItemRepository.getInstance();
@@ -48,9 +51,7 @@ public class YWorkItem {
     private String _thisID = null;
     private String _startEventID ;
     private String _endEventID ;
-//    private String _specificationID;
     private YSpecificationID _specID;
-//    private double _version = INITIAL_VERSION;
     private Date _enablementTime;
     private Date _firingTime;
     private Date _startTime;
@@ -131,7 +132,7 @@ public class YWorkItem {
         _workItemID = workItemID;
         _specID = specificationID;
  //       _specificationID = _specID.getSpecName();
- //       _version = _specID.getVersion();
+ //       _version = _specID.toString();
         _allowsDynamicCreation = allowsDynamicInstanceCreation;
         _status = status ;
         set_thisID(_workItemID.toString() + "!" + _workItemID.getUniqueID());
@@ -307,6 +308,29 @@ public class YWorkItem {
             Element child = (Element) iter.next();
             _eventLog.logData(
                     pmgr, child.getName(), child.getValue(), _endEventID, 'o');
+        }
+    }
+
+      public void restoreDataToNet() throws YPersistenceException {
+        if (getDataString() != null) {
+            YNet net;
+            try {
+                net = YWorkItemRepository.getInstance()
+                                         .getNetRunner(getCaseID().getParent()).getNet();
+            }
+            catch (Exception e) {
+                return;
+            }
+            YAtomicTask task = (YAtomicTask) net.getNetElement(getTaskID());
+            if (task != null) {
+           	    try {
+                    task.prepareDataForInstanceStarting(getCaseID());
+                    net.addNetElement(task);
+             	  }
+                catch (Exception e) {
+                  	throw new YPersistenceException(e);
+            	  }
+            }
         }
     }
 
@@ -499,15 +523,15 @@ public class YWorkItem {
     public String get_specName() { return _specID.getSpecName(); }
 
     public void set_specName(String specID) {
-        _specID = new YSpecificationID(specID, get_specVersion());
+        _specID = new YSpecificationID(specID, new YSpecVersion(get_specVersion()));
     }
 
-    public double get_specVersion() {
+    public String get_specVersion() {
         if (_specID == null) return INITIAL_VERSION;
-        return _specID.getVersion();
+        return _specID.getVersion().toString();
     }
 
-    public void set_specVersion(double version) {
+    public void set_specVersion(String version) {
         if (_specID != null)
             _specID.setVersion(version);
     }

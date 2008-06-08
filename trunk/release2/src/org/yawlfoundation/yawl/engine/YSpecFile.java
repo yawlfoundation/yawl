@@ -9,17 +9,16 @@
 
 package org.yawlfoundation.yawl.engine;
 
+import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
-import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.List;
-import java.util.Vector;
 import java.nio.CharBuffer;
+import java.util.List;
 
 public class YSpecFile{
     String xml = "";
@@ -39,7 +38,6 @@ public class YSpecFile{
             Document document = builder.build(filename);
             Element specificationSetEl = document.getRootElement();
 
-            List specifications = new Vector();
             List specificationElemList = specificationSetEl.getChildren();
             for (int i = 0; i < specificationElemList.size(); i++) {
 
@@ -51,7 +49,6 @@ public class YSpecFile{
             e.printStackTrace();
         }
 
-        String temp = null;
         try {
             /**
              * Following code is good example of how not to load a file into a String instance!!!.

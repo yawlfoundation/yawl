@@ -1,9 +1,11 @@
 /*
- * pfMenu.java
- *
- * Created on October 31, 2007, 10:41 AM
- * Copyright adamsmj
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
  */
+
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractFragmentBean;
@@ -13,6 +15,15 @@ import com.sun.rave.web.ui.component.PanelLayout;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
 import javax.faces.FacesException;
+
+/*
+ * Fragment bean that provides the menu foreach form
+ *
+ * @author: Michael Adams
+ * Date: 26/01/2008
+ *
+ * Last date: 10/05/2008
+ */
 
 public class pfMenu extends AbstractFragmentBean {
 

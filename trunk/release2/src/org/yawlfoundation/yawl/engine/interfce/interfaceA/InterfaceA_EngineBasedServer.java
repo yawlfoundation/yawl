@@ -10,6 +10,7 @@
 package org.yawlfoundation.yawl.engine.interfce.interfaceA;
 
 import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
@@ -272,20 +273,20 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
     }
 
     private YSpecificationID makeYSpecificationID(HttpServletRequest request) {
-        double version = 0.1 ;
+        String version = "0.1" ;
         String handle = request.getParameter("sessionHandle") ;
         String id = request.getParameter("specID");
-        String verStr = request.getParameter("version");
+        String verParam = request.getParameter("version");
 
         try {
-            if (verStr == null) verStr = _engine.getLatestSpecVersion(id, handle);
-            version = Double.parseDouble(verStr);
+            if (verParam == null) verParam = _engine.getLatestSpecVersion(id, handle);
+            if (verParam != null) version = verParam;
         }
         catch (Exception e) {
-            version = 0.1 ;       // redundant but the catch block needs something
+            // nothing to do
         }
 
-        return new YSpecificationID(id, version);
+        return new YSpecificationID(id, new YSpecVersion(version));
     }
 }
 

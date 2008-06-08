@@ -223,11 +223,6 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
         xml.append(paramMapToXML(_outputParameters));
         xml.append(paramMapToXML(_enablementParameters));
 
-        // flag for resourcing requirements
-        xml.append("<externalInteraction>")
-           .append(_manualInteraction ? "manual": "automated")
-           .append("</externalInteraction>");
-
         return xml.toString();
     }
 

@@ -1,9 +1,11 @@
 /*
- * participantData.java
- *
- * Created on 26 January 2008, 19:35
- * Copyright adamsmj
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
  */
+
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
@@ -19,12 +21,14 @@ import javax.faces.FacesException;
 import java.util.Set;
 
 /**
- * <p>Page bean that corresponds to a similarly named JSP page.  This
- * class contains component definitions (and initialization code) for
- * all components that you have defined on this page, as well as
- * lifecycle methods and event handlers where you may add behavior
- * to respond to incoming events.</p>
+ * Backing bean for edit profile form
+ *
+ * @author: Michael Adams
+ *
+ * Date: 31/01/2008
+ * Last Date: 16/03/2008
  */
+
 public class viewProfile extends AbstractPageBean {
     // <editor-fold defaultstate="collapsed" desc="Creator-managed Component Definition">
     private int __placeholder;

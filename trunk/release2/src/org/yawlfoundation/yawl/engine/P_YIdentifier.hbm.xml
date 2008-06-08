@@ -20,7 +20,7 @@
 	    <list name="locationNames" table="LOCATIONS" access="field">
 	      <key column="id_key"/>
 	      <index column="ix"/>
-	      <element column="condition" type="string"/>
+	      <element column="loc_condition" type="string"/>
 	    </list>
 
 	</class>

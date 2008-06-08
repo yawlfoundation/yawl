@@ -1,8 +1,9 @@
 /*
- * dynForm.java
- *
- * Created on 6 January 2008, 11:57
- * Copyright adamsmj
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
  */
 
 package org.yawlfoundation.yawl.resourcing.jsf;
@@ -16,6 +17,17 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import java.util.HashMap;
 import java.util.Map;
+
+/**
+ *  Backing bean for the dynamic forms.
+ *
+ *  @author Michael Adams
+ *  BPM Group, QUT Australia
+ *  v0.1, 08/01/2008
+ *
+ *
+ *  Last Date: 16/03/2008
+ */
 
 public class dynForm extends AbstractPageBean {
 
@@ -57,8 +69,7 @@ public class dynForm extends AbstractPageBean {
 
     /****** Abstract Method Implementations *************************************/
 
-    public void preprocess() {
-    }
+    public void preprocess() { }
 
     public void prerender() {
         getSessionBean().checkLogon();
@@ -190,14 +201,17 @@ public class dynForm extends AbstractPageBean {
         updateMap.put(source.getId(), value);
     }
 
+
     private void setOKText() {
         SessionBean sb = getSessionBean() ;
         if (sb.getDynFormType() == ApplicationBean.DynFormType.netlevel)
-            btnOK.setText("Start");
+            btnOK.setText("Start");                        // start new case
         else
-            btnOK.setText("Save");
+            btnOK.setText("Save");                         // save workitem edits
     }
 
+
+    // adds or substracts an instance of fields for a complex type
     public String btnOccursAction(ActionEvent event) {
         Button source = (Button) event.getComponent() ;
         SubPanel parent = (SubPanel) source.getParent();

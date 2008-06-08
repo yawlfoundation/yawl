@@ -1,3 +1,11 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
+ */
+
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import org.yawlfoundation.yawl.elements.data.YParameter;
@@ -5,7 +13,7 @@ import org.yawlfoundation.yawl.elements.data.YParameter;
 import java.io.Serializable;
 
 /**
- *  Adds a few extra members to a YParameter object, so it ca be used to populate
+ *  Adds a few extra members to a YParameter object, so it can be used to populate
  *  JSF pages.
  *
  *  @author: Michael Adams

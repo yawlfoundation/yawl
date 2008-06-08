@@ -1,5 +1,7 @@
 package org.yawlfoundation.yawl.engine;
 
+import org.yawlfoundation.yawl.elements.YSpecVersion;
+
 /**
  * @author Mike Fowler
  *         Date: 05-Sep-2006
@@ -7,9 +9,9 @@ package org.yawlfoundation.yawl.engine;
 public class YSpecificationID implements Comparable<YSpecificationID>
 {
     private String specName;
-    private double version;
+    private YSpecVersion version;
 
-    public YSpecificationID(String specName, double version)
+    public YSpecificationID(String specName, YSpecVersion version)
     {
         this.specName = specName;
         this.version = version;
@@ -20,14 +22,18 @@ public class YSpecificationID implements Comparable<YSpecificationID>
         return specName;
     }
 
-    public double getVersion()
+    public String getVersionAsString()
     {
-        return version;
+        return version.toString();
     }
+
+    public YSpecVersion getVersion() { return version; }
 
     public void setSpecName(String name) { specName = name ; }
 
-    public void setVersion(double ver) { version = ver ; }
+    public void setVersion(String ver) { version.setVersion(ver) ; }
+
+    public void setVersion(YSpecVersion ver) { version = ver ; }
 
     @Override public boolean equals(Object obj)
     {
@@ -35,7 +41,8 @@ public class YSpecificationID implements Comparable<YSpecificationID>
         {
             YSpecificationID id = (YSpecificationID) obj;
 
-            return id.getSpecName().equals(getSpecName()) && id.getVersion() == getVersion();
+            return id.getSpecName().equals(getSpecName()) &&
+                   id.getVersion().equals(getVersion());
         }
         else
         {
@@ -45,7 +52,7 @@ public class YSpecificationID implements Comparable<YSpecificationID>
 
     @Override public String toString()
     {
-        return specName + " - version " + version;
+        return specName + " - version " + version.toString();
     }
 
 
@@ -53,9 +60,7 @@ public class YSpecificationID implements Comparable<YSpecificationID>
     {
         if(specName.equals(o.getSpecName()))
         {
-            if(version == o.getVersion()) return 0;
-            else if(version > o.getVersion()) return 1;
-            else return -1;
+          return version.compareTo(o.getVersion());
         }
         else return o.getSpecName().compareTo(specName);
     }

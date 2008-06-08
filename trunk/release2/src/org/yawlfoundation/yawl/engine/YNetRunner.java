@@ -36,7 +36,7 @@ public class YNetRunner // extends Thread
 {
     private static final Logger logger = Logger.getLogger(YNetRunner.class);
 	
-	static final double INITIAL_VERSION = 0.1;//MLR (31/10/07): added after merge
+	static final String INITIAL_VERSION = "0.1";     //MLR (31/10/07): added after merge
 
     protected YNet _net;
     private Set<YExternalNetElement> _enabledTasks = new HashSet<YExternalNetElement>();
@@ -56,7 +56,7 @@ public class YNetRunner // extends Thread
      * ***************************
      */
     protected String yNetID = null;       // name of the spec
-    protected double yNetVersion = INITIAL_VERSION;  //MLF - version of the spec
+    protected YSpecVersion _yNetVersion = new YSpecVersion(INITIAL_VERSION);  //MLF - version of the spec
     private Set<String> enabledTaskNames = new HashSet<String>();
     private Set<String> busyTaskNames = new HashSet<String>();
     private P_YIdentifier _standin_caseIDForNet;
@@ -110,14 +110,14 @@ public class YNetRunner // extends Thread
     }
 
     //BEGIN: MLF - Accessors for the version number of the spec this is running against
-    public double getYNetVersion()
+    public YSpecVersion getYNetVersion()
     {
-        return yNetVersion;
+        return _yNetVersion;
     }
 
-    public void setYNetVersion(double yNetVersion)
+    public void setYNetVersion(YSpecVersion yNetVersion)
     {
-        this.yNetVersion = yNetVersion;
+        this._yNetVersion = yNetVersion;
     }
     //END: MLF
 
@@ -178,8 +178,16 @@ public class YNetRunner // extends Thread
     /**
      * Needed for hibernate to work.
      */
-    protected YNetRunner() { }
+    protected YNetRunner() {
+        logger.debug("YNetRunner: <init>");
 
+        // MJF: also needed for persistence
+        try {
+       	    _engine = YEngine.getInstance(YEngine.isPersisting());
+        } catch (YPersistenceException e) {
+        	  logger.error(getClass().getCanonicalName(), e);
+        }
+    }
 
     public YNetRunner(YPersistenceManager pmgr, YNet netPrototype, Element paramsData,
                       String caseID) throws YDataStateException, YSchemaBuildingException,
@@ -195,7 +203,7 @@ public class YNetRunner // extends Thread
         _net.initializeDataStore(pmgr, casedata);
         _engine = YEngine.getInstance();
         yNetID = netPrototype.getSpecification().getID();
-        yNetVersion = netPrototype.getSpecification().getMetaData().getVersion();
+        _yNetVersion = netPrototype.getSpecification().getMetaData().getVersion();
 
         prepare(pmgr);
         if (paramsData != null) _net.setIncomingData(pmgr, paramsData);
@@ -369,6 +377,10 @@ public class YNetRunner // extends Thread
                     YNetRunner parentRunner = _workItemRepository.getNetRunner(_caseIDForNet.getParent());
                     if (parentRunner != null) {
                         synchronized (parentRunner) {
+
+                           // MJF: Added below to avoid NPE
+                            parentRunner.setEngine(_engine);
+
                             if (_containingCompositeTask.t_isBusy()) {
 
                                 Document dataDoc = _net.usesSimpleRootData() ?
@@ -1038,6 +1050,19 @@ public class YNetRunner // extends Thread
             return eTask.getChild("flowsInto").getChild("nextElementRef").getAttributeValue("id");
         }
         return null ;
+    }
+
+
+    /****************************************************************************/
+
+    // For Hibernate //
+
+    public String get_yNetVersion() {
+        return _yNetVersion.toString();
+    }
+
+    public void set_yNetVersion(String version) {
+        this._yNetVersion = new YSpecVersion(version);
     }
 }
 
