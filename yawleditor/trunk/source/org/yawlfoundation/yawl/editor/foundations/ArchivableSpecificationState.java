@@ -24,19 +24,16 @@
 
 package org.yawlfoundation.yawl.editor.foundations;
 
-import java.io.Serializable;
-
-import java.awt.Dimension;
-import java.awt.Rectangle;
-
-import java.util.HashSet;
-import java.util.HashMap;
-
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+
+import java.awt.*;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
 
 public class ArchivableSpecificationState implements Serializable {
 
@@ -76,7 +73,7 @@ public class ArchivableSpecificationState implements Serializable {
     setDescription(specificationModel.getDescription());
     setAuthor(specificationModel.getAuthor());
     
-    setVersionNumber(specificationModel.getVersionNumber());
+    setVersionNumber(specificationModel.getVersionNumber().getVersionAsDouble());
     setValidFromTimestamp(specificationModel.getValidFromTimestamp());
     setValidUntilTimestamp(specificationModel.getValidUntilTimestamp());
     

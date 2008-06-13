@@ -22,16 +22,14 @@
 
 package org.yawlfoundation.yawl.editor.actions.view;
 
-import java.awt.event.ActionEvent;
-import java.util.prefs.Preferences;
-
-import javax.swing.Action;
-import javax.swing.JCheckBoxMenuItem;
-
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.util.prefs.Preferences;
 
 public class AntiAliasedToggleAction extends YAWLBaseAction {
   /**
@@ -45,7 +43,7 @@ public class AntiAliasedToggleAction extends YAWLBaseAction {
     putValue(Action.SHORT_DESCRIPTION, " Toggle anti-aliasing of drawn graph elements. ");
     putValue(Action.NAME, "Anti-alias diagrams");
     putValue(Action.LONG_DESCRIPTION, "Toggle anti-aliasing of drawn graph elements.");
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_T));
+    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_A));
   }
 
   public AntiAliasedToggleAction() {

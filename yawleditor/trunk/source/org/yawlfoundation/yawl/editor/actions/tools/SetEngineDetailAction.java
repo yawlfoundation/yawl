@@ -22,32 +22,18 @@
 
 package org.yawlfoundation.yawl.editor.actions.tools;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Window;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
+import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.FocusTraversalPolicy;
 import java.util.prefs.Preferences;
-
-import javax.swing.Action;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.JPasswordField;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JOptionPane;
-import javax.swing.JButton;
-
-import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
-import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
-import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.swing.ActionAndFocusListener;
-import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
 public class SetEngineDetailAction extends YAWLBaseAction {
   /**
@@ -60,11 +46,11 @@ public class SetEngineDetailAction extends YAWLBaseAction {
   private boolean invokedAtLeastOnce = false;
   
   {
-    putValue(Action.SHORT_DESCRIPTION, " Specify login detail for a running YAWL Engine. ");
-    putValue(Action.NAME, "Set Engine Detail");
-    putValue(Action.LONG_DESCRIPTION, "Specify login detail for a running YAWL Engine.");
+    putValue(Action.SHORT_DESCRIPTION, " Specify login details for a running YAWL Engine.");
+    putValue(Action.NAME, "Engine Connection Settings...");
+    putValue(Action.LONG_DESCRIPTION, "Specify login details for a running YAWL Engine.");
 //    putValue(Action.SMALL_ICON, getIconByName("Blank"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_S));
+    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_E));
   }
   
   public SetEngineDetailAction() {}
@@ -91,13 +77,13 @@ class EngineDetailDialog extends AbstractDoneDialog {
   private JTextField engineURIField;
   private JTextField engineUserField;
   private JPasswordField enginePasswordField;
-  private JPasswordField engineVerifyPasswordField;
+//  private JPasswordField engineVerifyPasswordField;
   
   private JButton testButton;
   private JLabel testMessage = new JLabel();
   
   public EngineDetailDialog() {
-    super("Specify Engine Detail", true);
+    super("YAWL Engine Connection Settings", true);
     setContentPanel(getEngineDetailPanel());
 
     getDoneButton().addActionListener(new ActionListener(){
@@ -119,6 +105,8 @@ class EngineDetailDialog extends AbstractDoneDialog {
              "engineUserPassword", 
              new String(enginePasswordField.getPassword())
          );
+
+         SpecificationUndoManager.getInstance().setDirty(true);
        }
     });
   }
@@ -141,7 +129,7 @@ class EngineDetailDialog extends AbstractDoneDialog {
     gbc.insets = new Insets(0,0,5,5);
     gbc.anchor = GridBagConstraints.EAST;
 
-    JLabel uriLabel = new JLabel("YAWL Engine URI :");
+    JLabel uriLabel = new JLabel("YAWL Engine URI:");
     uriLabel.setDisplayedMnemonic('U');
     panel.add(uriLabel, gbc);
     
@@ -160,7 +148,7 @@ class EngineDetailDialog extends AbstractDoneDialog {
     gbc.insets = new Insets(5,0,5,5);
     gbc.anchor = GridBagConstraints.EAST;
 
-    JLabel userLabel = new JLabel("User Name :");
+    JLabel userLabel = new JLabel("User Name:");
     userLabel.setDisplayedMnemonic('N');
     panel.add(userLabel, gbc);
     
@@ -174,7 +162,7 @@ class EngineDetailDialog extends AbstractDoneDialog {
     gbc.gridy++;
     gbc.anchor = GridBagConstraints.EAST;
 
-    JLabel passwordLabel = new JLabel("Password :");
+    JLabel passwordLabel = new JLabel("Password:");
     passwordLabel.setDisplayedMnemonic('P');
     panel.add(passwordLabel, gbc);
     
@@ -186,17 +174,17 @@ class EngineDetailDialog extends AbstractDoneDialog {
 
     gbc.gridx = 0;
     gbc.gridy++;
-    gbc.anchor = GridBagConstraints.EAST;
-
-    JLabel verifyPasswordLabel = new JLabel("Verify Password :");
-    verifyPasswordLabel.setDisplayedMnemonic('V');
-    panel.add(verifyPasswordLabel, gbc);
+//    gbc.anchor = GridBagConstraints.EAST;
+//
+//    JLabel verifyPasswordLabel = new JLabel("Verify Password :");
+//    verifyPasswordLabel.setDisplayedMnemonic('V');
+//    panel.add(verifyPasswordLabel, gbc);
     
     gbc.gridx++;
     gbc.anchor = GridBagConstraints.WEST;
 
-    panel.add(getEngineVerifyPasswordField(), gbc);
-    verifyPasswordLabel.setLabelFor(engineVerifyPasswordField);
+//    panel.add(getEngineVerifyPasswordField(), gbc);
+//    verifyPasswordLabel.setLabelFor(engineVerifyPasswordField);
     
     gbc.gridx = 2;
     gbc.gridy = 1;
@@ -243,9 +231,9 @@ class EngineDetailDialog extends AbstractDoneDialog {
           return enginePasswordField;
         }
         if (aComponent.equals(enginePasswordField)) {
-          return engineVerifyPasswordField;
-        }
-        if (aComponent.equals(engineVerifyPasswordField)) {
+//          return engineVerifyPasswordField;
+//        }
+//        if (aComponent.equals(engineVerifyPasswordField)) {
           return testButton;
         }
         if (aComponent.equals(testButton)) {
@@ -263,9 +251,9 @@ class EngineDetailDialog extends AbstractDoneDialog {
 
       public Component getComponentBefore(Container focusCycleRoot, Component aComponent) {
         if (aComponent.equals(testButton)) {
-          return engineVerifyPasswordField;
-        }
-        if (aComponent.equals(engineVerifyPasswordField)) {
+//          return engineVerifyPasswordField;
+//        }
+//        if (aComponent.equals(engineVerifyPasswordField)) {
           return enginePasswordField;
         }
         if (aComponent.equals(enginePasswordField)) {
@@ -297,7 +285,7 @@ class EngineDetailDialog extends AbstractDoneDialog {
   }
   
   private JTextField getEngineURIField() {
-    engineURIField = new JTextField(20);
+    engineURIField = new JTextField(30);
     return engineURIField;
   }
 
@@ -311,32 +299,32 @@ class EngineDetailDialog extends AbstractDoneDialog {
     return enginePasswordField;
   }
 
-  private JTextField getEngineVerifyPasswordField() {
-    engineVerifyPasswordField = new JPasswordField(10);
-    
-    new ActionAndFocusListener(engineVerifyPasswordField) {
-      public void focusGained(FocusEvent event) {} // don't process on focus gain.
-      
-      public void process(Object eventSource) {
-        if (!passwordsMatch(
-                enginePasswordField.getPassword(),
-                engineVerifyPasswordField.getPassword()
-             )) {
-
-        JOptionPane.showMessageDialog(
-            engineVerifyPasswordField, 
-            "The password specified does not match it's verification", 
-            "Passwords do not Match", 
-            JOptionPane.ERROR_MESSAGE
-        );
-        
-        enginePasswordField.setText("");
-        engineVerifyPasswordField.setText("");
-        enginePasswordField.requestFocus();
-      }
-    }};
-    return engineVerifyPasswordField;
-  }
+//  private JTextField getEngineVerifyPasswordField() {
+//    engineVerifyPasswordField = new JPasswordField(10);
+//
+//    new ActionAndFocusListener(engineVerifyPasswordField) {
+//      public void focusGained(FocusEvent event) {} // don't process on focus gain.
+//
+//      public void process(Object eventSource) {
+//        if (!passwordsMatch(
+//                enginePasswordField.getPassword(),
+//                engineVerifyPasswordField.getPassword()
+//             )) {
+//
+//        JOptionPane.showMessageDialog(
+//            engineVerifyPasswordField,
+//            "The password specified does not match it's verification",
+//            "Passwords do not Match",
+//            JOptionPane.ERROR_MESSAGE
+//        );
+//
+//        enginePasswordField.setText("");
+//        engineVerifyPasswordField.setText("");
+//        enginePasswordField.requestFocus();
+//      }
+//    }};
+//    return engineVerifyPasswordField;
+//  }
   
   private JButton getTestConnectionButton() {
    testButton = new JButton("Test Connection"); 
@@ -357,9 +345,11 @@ class EngineDetailDialog extends AbstractDoneDialog {
        );
        
        if (connectionResult == false) {
-         testMessage.setText("Failed to connect to a running engine with the above detail.");
+         testMessage.setText("Failed to connect to a running engine with the specified details.");
+         testMessage.setForeground(Color.RED);
        } else {
-         testMessage.setText("Successfully connected to a running engine with the above detail.");
+         testMessage.setText("Successfully connected to a running YAWL engine.");
+         testMessage.setForeground(Color.BLACK);
        }
        testMessage.setVisible(true);
        detailDialog.pack();
@@ -388,10 +378,10 @@ class EngineDetailDialog extends AbstractDoneDialog {
             prefs.get("engineUserPassword", 
             YAWLEngineProxy.DEFAULT_ENGINE_ADMIN_PASSWORD)
         );
-        engineVerifyPasswordField.setText(
-            prefs.get("engineUserPassword", 
-            YAWLEngineProxy.DEFAULT_ENGINE_ADMIN_PASSWORD)
-        );
+//        engineVerifyPasswordField.setText(
+//            prefs.get("engineUserPassword",
+//            YAWLEngineProxy.DEFAULT_ENGINE_ADMIN_PASSWORD)
+//        );
       }
     }
     super.setVisible(visible);

@@ -1,21 +1,16 @@
 package org.yawlfoundation.yawl.editor.swing.resourcing;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import org.yawlfoundation.yawl.editor.resourcing.AllocationMechanism;
+import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
+import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.List;
-
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.border.EmptyBorder;
-
-import org.yawlfoundation.yawl.editor.resourcing.AllocationMechanism;
-import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
-import org.yawlfoundation.yawl.editor.swing.resourcing.ResourcingWizardPanel;
-import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 
 public class SetSystemAllocateBehaviourPanel extends ResourcingWizardPanel {
   
@@ -43,10 +38,10 @@ public class SetSystemAllocateBehaviourPanel extends ResourcingWizardPanel {
     gbc.insets = new Insets(0,0,20,0);
 
     JLabel discussion = new JLabel(
-        "<html><body>The allocation process involves choossing a single user, from those " +
-        "offered a work item, to actually undertake that work.  As you have asked that the " +
-        "system automatically do this, you must now select the mechanism for doing so. " +
-        "Choose from one of the mechanisms, supplied by a running engine, below.</body></html>"
+        "<html><body>The allocation process involves choosing a single participant, from those " +
+        "who are offered a work item, to actually undertake that work.  As you have specified that the " +
+        "system dynamically do this, you must now select the strategy for doing so. " +
+        "Choose from one of the strategies below.</body></html>"
     );
     
     add(discussion,gbc);
@@ -58,7 +53,7 @@ public class SetSystemAllocateBehaviourPanel extends ResourcingWizardPanel {
     gbc.weightx = 0.5;
     gbc.anchor = GridBagConstraints.EAST;
     
-    JLabel mechanismLabel = new JLabel("Choose the runtime allocation mechanism:");
+    JLabel mechanismLabel = new JLabel("Choose the runtime allocation strategy:");
     mechanismLabel.setDisplayedMnemonic(KeyEvent.VK_A);
     
     add(mechanismLabel, gbc);

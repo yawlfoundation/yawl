@@ -22,18 +22,14 @@
 
 package org.yawlfoundation.yawl.editor.actions;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-import javax.swing.KeyStroke;
-import javax.swing.TransferHandler;
-
 import org.jgraph.event.GraphSelectionEvent;
-
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionSubscriber;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 /**
  * @author Lindsay Bradford
@@ -52,7 +48,7 @@ public class CutAction extends YAWLBaseAction implements TooltipTogglingWidget, 
     putValue(Action.NAME, "Cut");
     putValue(Action.LONG_DESCRIPTION, "Cut the selected elements");
     putValue(Action.SMALL_ICON, getIconByName("Cut"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_T));
+    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_U));
     putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control X"));
   }
   

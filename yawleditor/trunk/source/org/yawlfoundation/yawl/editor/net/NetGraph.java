@@ -24,80 +24,28 @@
 
 package org.yawlfoundation.yawl.editor.net;
 
-import java.awt.Dimension;
-import java.awt.Point;
-
-import java.awt.geom.Point2D;
-
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Map;
-
-import javax.swing.ImageIcon;
-
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.MouseEvent;
-import java.util.prefs.Preferences;
-
 import org.jgraph.JGraph;
-import org.jgraph.graph.CellView;
-import org.jgraph.graph.GraphCell;
-import org.jgraph.graph.EdgeView;
-import org.jgraph.graph.VertexView;
-import org.jgraph.graph.ConnectionSet;
-import org.jgraph.graph.Edge;
-import org.jgraph.graph.ParentMap;
-import org.jgraph.graph.GraphConstants;
-
-import org.jgraph.graph.Port;
-
+import org.jgraph.graph.*;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.actions.net.*;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
-import org.yawlfoundation.yawl.editor.elements.model.InputCondition;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLCompositeTask;
-import org.yawlfoundation.yawl.editor.elements.model.OutputCondition;
-
-import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLCell;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLPort;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
-import org.yawlfoundation.yawl.editor.elements.model.VertexLabel;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.editor.elements.model.Decorator;
-import org.yawlfoundation.yawl.editor.elements.model.JoinDecorator;
-import org.yawlfoundation.yawl.editor.elements.model.SplitDecorator;
-
+import org.yawlfoundation.yawl.editor.elements.model.*;
 import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
-
-import org.yawlfoundation.yawl.editor.specification.*;
+import org.yawlfoundation.yawl.editor.net.utilities.NetCellUtilities;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.net.YAWLEditorNetFrame;
 import org.yawlfoundation.yawl.editor.swing.undo.UndoableTaskDecompositionChange;
 import org.yawlfoundation.yawl.editor.swing.undo.UndoableTaskIconChange;
 
-import org.yawlfoundation.yawl.editor.actions.net.MoveElementsDownAction;
-import org.yawlfoundation.yawl.editor.actions.net.MoveElementsLeftAction;
-import org.yawlfoundation.yawl.editor.actions.net.MoveElementsRightAction;
-import org.yawlfoundation.yawl.editor.actions.net.MoveElementsUpAction;
-
-import org.yawlfoundation.yawl.editor.net.utilities.NetCellUtilities;
-
-import java.awt.event.KeyEvent;
-import java.awt.Color;
-
-import javax.swing.ActionMap;
-import javax.swing.Action;
-import javax.swing.JComponent;
-import javax.swing.InputMap;
-import javax.swing.KeyStroke;
-import javax.swing.ToolTipManager;
-
-import org.yawlfoundation.yawl.editor.actions.net.AddToVisibleCancellationSetAction;
-import org.yawlfoundation.yawl.editor.actions.net.RemoveFromVisibleCancellationSetAction;
-import org.yawlfoundation.yawl.editor.actions.net.SelectAllNetElementsAction;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.Point2D;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.prefs.Preferences;
 
 public class NetGraph extends JGraph {
   
@@ -183,8 +131,16 @@ public class NetGraph extends JGraph {
   }
   
   public void buildNewGraphContent(){
+    buildNewGraphContent(getDefaultSize());
+  }
+
+  public void buildNewGraphContent(Rectangle bounds) {
+    buildNewGraphContent(new Dimension(bounds.width, bounds.height));
+  }
+
+  private void buildNewGraphContent(Dimension dimension) {
     stopUndoableEdits();
-    setSize(getDefaultSize());
+    setSize(dimension);
     addInputCondition();
     addOutputCondition();
     startUndoableEdits();
@@ -1239,7 +1195,7 @@ public class NetGraph extends JGraph {
   
   public void setTaskDecomposition(YAWLTask task, Decomposition decomposition) {
     Decomposition oldDecomposition = task.getDecomposition();
-    if (decomposition.equals(oldDecomposition)) {
+    if ((decomposition != null) && decomposition.equals(oldDecomposition)) {
       return;
     }
     task.setDecomposition(decomposition);
@@ -1247,7 +1203,7 @@ public class NetGraph extends JGraph {
 
     getNetModel().beginUpdate();
     
-    if (task.getLabel() == null) {
+    if ((decomposition != null) && (task.getLabel() == null)) {
       setElementLabelInsideUpdate(task, decomposition.getLabel());
     }
     

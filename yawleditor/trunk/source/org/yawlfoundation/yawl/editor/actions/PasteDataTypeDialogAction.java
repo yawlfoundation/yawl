@@ -1,11 +1,9 @@
 /*
- * Created on 05/10/2003
+ * Created on 9/10/2003
  * YAWLEditor v1.0 
  *
  * @author Lindsay Bradford
  * 
- * 
- *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -22,30 +20,32 @@
  *
  */
 
-package org.yawlfoundation.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.actions;
 
-import org.yawlfoundation.yawl.editor.actions.ShowAboutEditorAction;
+import org.yawlfoundation.yawl.editor.swing.menu.DataTypeDialogToolBarMenu;
 
 import javax.swing.*;
-import java.awt.event.KeyEvent;
+import java.awt.event.ActionEvent;
 
-class HelpMenu extends JMenu {
+public class PasteDataTypeDialogAction extends YAWLBaseAction {
 
-  /**
-   * 
+   /**
+   *
    */
   private static final long serialVersionUID = 1L;
 
-  public HelpMenu() {
-    super("Help");
-    buildInterface();
-  }
-  
-  protected void buildInterface() {
-    setMnemonic(KeyEvent.VK_H);
-//    add(new YAWLMenuItem(new ShowCopyrightDetailAction()));
-//    add(new YAWLMenuItem(new ShowAcknowledgementsAction()));
-    add(new YAWLMenuItem(new ShowAboutEditorAction()));
-    
+
+    {
+      putValue(Action.SHORT_DESCRIPTION, " Paste contents of clipboard ");
+      putValue(Action.NAME, "Paste");
+      putValue(Action.LONG_DESCRIPTION, "Paste contents of clipboard");
+      putValue(Action.SMALL_ICON, getIconByName("Paste"));
+      putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_P));
+      putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control V"));
+    }
+
+
+  public void actionPerformed(ActionEvent event) {
+      DataTypeDialogToolBarMenu.getInstance().getEditorPane().getEditor().paste();
   }
 }

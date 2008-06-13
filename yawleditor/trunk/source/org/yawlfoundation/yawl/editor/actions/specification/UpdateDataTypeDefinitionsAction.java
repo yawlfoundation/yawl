@@ -21,19 +21,18 @@
 
 package org.yawlfoundation.yawl.editor.actions.specification;
 
-import java.awt.BorderLayout;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.Action;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.data.JXMLSchemaEditorPane;
+import org.yawlfoundation.yawl.editor.swing.menu.DataTypeDialogToolBarMenu;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class UpdateDataTypeDefinitionsAction extends YAWLOpenSpecificationAction {
   /**
@@ -73,20 +72,22 @@ class UpdateDataTypeDefinitionDialog extends AbstractDoneDialog {
   public UpdateDataTypeDefinitionDialog() {
     super("Update Data Type Definitions", true);
     setContentPanel(getVariablePanel());
-    getDoneButton().addActionListener( 
+    getContentPane().add(getToolbarMenuPanel(), BorderLayout.NORTH) ;
+    getDoneButton().addActionListener(
       new ActionListener() {
         public void actionPerformed(ActionEvent event) {
           SpecificationModel.getInstance().setDataTypeDefinition(
               dataTypeDefinitionEditor.getText()
-          );
+          );          
+          SpecificationUndoManager.getInstance().setDirty(true);
         }
       }
     );
-    getRootPane().setDefaultButton(getCancelButton());
+    getRootPane().setDefaultButton(getCancelButton());  
   }
 
   protected void makeLastAdjustments() {
-    setSize(600,300);
+    setSize(800,800);
   }
   
   private JPanel getVariablePanel() {
@@ -104,13 +105,23 @@ class UpdateDataTypeDefinitionDialog extends AbstractDoneDialog {
       dataTypeDefinitionEditor.setText(
           SpecificationModel.getInstance().getDataTypeDefinition()
       );
+      dataTypeDefinitionEditor.getEditor().setCaretPosition(56);
     }
     super.setVisible(state);
   }
   
   private JXMLSchemaEditorPane getDataTypeDefinitionEditor() {
     dataTypeDefinitionEditor = new JXMLSchemaEditorPane();
-    
     return dataTypeDefinitionEditor;
   }
+
+    private JPanel getToolbarMenuPanel() {
+      JPanel toolbarMenuPanel = new JPanel();
+      toolbarMenuPanel.setLayout(new BoxLayout(toolbarMenuPanel, BoxLayout.X_AXIS));
+      toolbarMenuPanel.add(new DataTypeDialogToolBarMenu(dataTypeDefinitionEditor));
+      toolbarMenuPanel.add(Box.createVerticalGlue());
+      return toolbarMenuPanel;
+    }
+
+    
 }

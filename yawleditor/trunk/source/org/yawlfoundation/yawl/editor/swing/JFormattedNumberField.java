@@ -24,18 +24,14 @@
 
 package org.yawlfoundation.yawl.editor.swing;
 
-import java.text.DecimalFormat;
-import java.text.ParsePosition;
-
-import javax.swing.InputVerifier;
-import javax.swing.JComponent;
-import javax.swing.JFormattedTextField;
+import javax.swing.*;
 import javax.swing.JFormattedTextField.AbstractFormatter;
-
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.NumberFormatter;
+import java.text.DecimalFormat;
+import java.text.ParsePosition;
 
 public class JFormattedNumberField extends JFormattedSelectField {
   /**

@@ -11,7 +11,7 @@ public abstract class AbstractWizardPanel extends JPanel {
     super();
     this.dialog = dialog;
     this.setBorder(new EmptyBorder(10,10,10,10));
-
+    dialog.setAlwaysOnTop(true);
     buildInterface();
     initialise();
   }

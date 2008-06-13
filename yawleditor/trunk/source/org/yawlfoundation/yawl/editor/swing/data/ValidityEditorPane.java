@@ -23,12 +23,10 @@
  
 package org.yawlfoundation.yawl.editor.swing.data;
 
-import java.util.List;
-
-import java.awt.Color;
-import java.awt.Font;
-import javax.swing.JEditorPane;
+import javax.swing.*;
 import javax.swing.border.EtchedBorder;
+import java.awt.*;
+import java.util.List;
 
 public class ValidityEditorPane extends JEditorPane implements AbstractXMLStyledDocumentValidityListener {
 

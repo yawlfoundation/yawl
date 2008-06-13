@@ -22,22 +22,15 @@
 
 package org.yawlfoundation.yawl.editor.swing.net;
 
-import javax.swing.JInternalFrame;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
-import java.awt.Color;
-import java.awt.Point;
-import java.awt.Rectangle;
-
-import javax.swing.JComponent;
-import javax.swing.JScrollPane;
-import javax.swing.JOptionPane;
-
-import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
-import org.yawlfoundation.yawl.editor.net.*;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
+
+import javax.swing.*;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
+import java.awt.*;
 
 public class YAWLEditorNetFrame extends JInternalFrame {
 
@@ -58,16 +51,18 @@ public class YAWLEditorNetFrame extends JInternalFrame {
     installEventListener();
   }
   
-  public YAWLEditorNetFrame(Point location) {
+  public YAWLEditorNetFrame(Rectangle bounds) {
     super(null,
           true, //resizable
           true, //closable
           true, //maximizable
           false);//iconifiable
 
+    Point location = new Point(bounds.x, bounds.y);
     setLocation(location);
+    setBounds(bounds);
     NetGraph newGraph = new NetGraph();
-    newGraph.buildNewGraphContent();
+    newGraph.buildNewGraphContent(bounds);
     
     String newTitleString = "";
     boolean validNameFound = false;

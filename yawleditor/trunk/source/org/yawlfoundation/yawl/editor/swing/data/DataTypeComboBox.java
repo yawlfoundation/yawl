@@ -23,12 +23,11 @@
 
 package org.yawlfoundation.yawl.editor.swing.data;
 
-import java.util.Arrays;
-
-import javax.swing.JComboBox;
-
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+
+import javax.swing.*;
+import java.util.Arrays;
 
 public class DataTypeComboBox extends JComboBox {
   

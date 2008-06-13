@@ -23,37 +23,29 @@
 
 package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
-import java.util.Set;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-
-import java.util.Iterator;
-import java.util.prefs.Preferences;
-
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DocumentFilter;
-
 import net.sf.saxon.expr.Expression;
 import net.sf.saxon.query.QueryParser;
 import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.xpath.XPathException;
-
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.data.AbstractXMLStyledDocument;
 import org.yawlfoundation.yawl.editor.swing.data.ValidityEditorPane;
-import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
-import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBasedClient;
-import org.yawlfoundation.yawl.schema.XMLToolsForYAWL;
-import org.yawlfoundation.yawl.schema.ElementCreationInstruction;
-import org.yawlfoundation.yawl.unmarshal.SchemaForSchemaValidator;
-
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBasedClient;
+import org.yawlfoundation.yawl.schema.ElementCreationInstruction;
+import org.yawlfoundation.yawl.schema.XMLToolsForYAWL;
+import org.yawlfoundation.yawl.unmarshal.SchemaForSchemaValidator;
+
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
+import java.util.*;
+import java.util.prefs.Preferences;
 
 public class AvailableEngineProxyImplementation implements
   YAWLEngineProxyInterface {
@@ -69,6 +61,8 @@ public class AvailableEngineProxyImplementation implements
   private String sessionID = "";
   
   private InterfaceA_EnvironmentBasedClient clientInterfaceA;
+
+  private String engineURI;
   
   private XMLToolsForYAWL xmlTools;
   
@@ -110,28 +104,26 @@ public class AvailableEngineProxyImplementation implements
     clientInterfaceA = null;
   }
   
-  private String tryConnect(String engineURI, String engineUserID, String engineUserPassword) {
-    String sessionID;
-    try {
-      if (clientInterfaceA == null) {
-        clientInterfaceA = new InterfaceA_EnvironmentBasedClient(
-          engineURI
-        );
+  private String tryConnect(String uri, String userID, String password) {
+    if ((userID == null) || (userID.length() == 0))
+       return "<failure>No userid specified.</failure>";
+    else if ((password == null) || (password.length() == 0))
+       return "<failure>No password specified.</failure>";
+    else {
+      if ((clientInterfaceA == null) || (engineURI == null) || (! uri.equals(engineURI))) {
+        engineURI = uri;
+        clientInterfaceA = new InterfaceA_EnvironmentBasedClient(engineURI);
       }
-      
-      sessionID = clientInterfaceA.connect(
-          engineUserID,
-          engineUserPassword
-      );
-    } catch (Exception e) {
-      // e.printStackTrace();
-      return "";
-    } 
-    
-    return sessionID;
-    // System.out.println("Connection to engine attempted. ID = \"" + sessionID + "\"");
+      try {
+        sessionID = clientInterfaceA.connect(userID, password);
+        return sessionID;
+      }
+      catch (Exception e) {
+        return "<failure>Exception attempting to connect to Engine.</failure>";
+      }
+    }
   }
-  
+
   private void tryConnect() {
     sessionID = tryConnect(
         prefs.get("engineURI", 
@@ -141,6 +133,7 @@ public class AvailableEngineProxyImplementation implements
         prefs.get("engineUserPassword", 
              DEFAULT_ENGINE_ADMIN_PASSWORD)
     );
+    if (sessionID.startsWith("<failure")) sessionID = "";
   }
 
   public HashMap getRegisteredYAWLServices() {

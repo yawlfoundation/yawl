@@ -1,32 +1,24 @@
 package org.yawlfoundation.yawl.editor.swing.resourcing;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
+import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
+import org.yawlfoundation.yawl.editor.resourcing.ResourcingFilter;
+import org.yawlfoundation.yawl.editor.swing.JSingleSelectTable;
+import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.AbstractTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.AbstractTableModel;
-
-import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
-import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
-import org.yawlfoundation.yawl.editor.resourcing.ResourcingFilter;
-import org.yawlfoundation.yawl.editor.swing.JSingleSelectTable;
-import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 
 public class SpecifyDistributionSetFiltersPanel extends ResourcingWizardPanel {
 
@@ -94,8 +86,11 @@ public class SpecifyDistributionSetFiltersPanel extends ResourcingWizardPanel {
     
     List<ResourcingFilter> filters = ResourcingServiceProxy.getInstance().getRegisteredResourcingFilters();
 
-    if (filters.size() == 0 && getTask().getResourceMapping().getResourcingFilters().size() > 0) {
-      filters = getTask().getResourceMapping().getResourcingFilters();      
+    if (filters.size() == 0) {
+       List<ResourcingFilter> cachedFilters =
+               getTask().getResourceMapping().getResourcingFilters();
+       if ((cachedFilters != null) && (cachedFilters.size() > 0))
+          filters = cachedFilters;      
     }
     
     runtimeFiltersPanel.setFilters(
@@ -165,9 +160,9 @@ class RuntimeFiltersPanel extends JPanel implements ListSelectionListener {
     gbc.fill = GridBagConstraints.HORIZONTAL;
 
     add(new JLabel(
-            "<html><body>Tick those filters to be run over the specified "+ 
-            "participant set. Set parameter values for the selected "+
-            "filter as appropriate.</body></html>"
+            "<html><body>Tick those filters to be applied to the specified "+
+            "distribution set. Set parameter values for the selected "+
+            "filter as required.</body></html>"
         ),gbc
     );
     
@@ -218,7 +213,7 @@ class SelectableFilterTable extends JSingleSelectTable {
   public SelectableFilterTable() {
     super();
     setModel(new SelectableFilterTableModel());
-
+    this.setPreferredSize(new Dimension(25,10));
     getColumn("").setPreferredWidth(24);
     getColumn("").setMaxWidth(24);
     getColumn("").setResizable(false);
@@ -432,6 +427,8 @@ class FilterParameterTable extends JSingleSelectTable {
   
   public FilterParameterTable() {
     super();
+      this.setPreferredSize(new Dimension(25,10));
+      
     setModel(new FilterParameterTableModel());
   }
   
@@ -648,7 +645,7 @@ class RuntimeConstraintsPanel extends JPanel {
   }
   
   private JCheckBox buildRetainFamiliarButton() {
-    final JCheckBox button = new JCheckBox("Retain user from a familiar task: ");
+    final JCheckBox button = new JCheckBox("Choose participant(s) who completed previous task: ");
     button.setHorizontalTextPosition(SwingConstants.RIGHT);
     button.setMnemonic(KeyEvent.VK_R);
     button.addActionListener(
@@ -661,6 +658,7 @@ class RuntimeConstraintsPanel extends JPanel {
             );
           } else {
             familiarTaskComboBox.setEnabled(false);
+            getResourceMapping().setRetainFamiliarTask(null);
           }
         }
       }
@@ -686,7 +684,8 @@ class RuntimeConstraintsPanel extends JPanel {
   }
   
   private JCheckBox buildPiledExecutionCheckBox() {
-    piledExecutionCheckBox = new JCheckBox("Allow workitems of this task to be piled across cases to a single user.");
+    piledExecutionCheckBox = new JCheckBox("Allow this task to be piled to a single participant.");
+    piledExecutionCheckBox.setMnemonic(KeyEvent.VK_P);
     piledExecutionCheckBox.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
@@ -702,7 +701,8 @@ class RuntimeConstraintsPanel extends JPanel {
   }
   
   private JCheckBox buildSeparationOfDutiesCheckBox() {
-    separationOfDutiesCheckBox = new JCheckBox("Do not allow users who've done workitems of the following previous task to also do this task: ");
+    separationOfDutiesCheckBox = new JCheckBox("Do not choose participant(s) who completed previous task: ");
+    separationOfDutiesCheckBox.setMnemonic(KeyEvent.VK_N);
     separationOfDutiesCheckBox.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
@@ -713,6 +713,7 @@ class RuntimeConstraintsPanel extends JPanel {
               );
             } else {
               separationOfDutiesFamiliarTaskBox.setEnabled(false);
+              getResourceMapping().setSeparationOfDutiesTask(null);  
             }
           }
         }
@@ -774,27 +775,25 @@ class RuntimeConstraintsPanel extends JPanel {
       
       return;
     } 
-        
-    if (getResourceMapping().getSeparationOfDutiesTask()== null) {
+
+    YAWLAtomicTask famTask = getResourceMapping().getSeparationOfDutiesTask();
+    if (famTask == null) {
       separationOfDutiesCheckBox.setSelected(false);
       separationOfDutiesFamiliarTaskBox.setEnabled(false);
     } else {
       separationOfDutiesFamiliarTaskBox.setEnabled(true);
-      separationOfDutiesFamiliarTaskBox.setSelectedFamiliarTask(
-          getResourceMapping().getSeparationOfDutiesTask()    
-      );
+      separationOfDutiesFamiliarTaskBox.setSelectedFamiliarTask(famTask);
       separationOfDutiesCheckBox.setSelected(true);
       separationOfDutiesCheckBox.setEnabled(true);
     } 
-    
-    if (getResourceMapping().getRetainFamiliarTask() == null) {
+
+    famTask = getResourceMapping().getRetainFamiliarTask();
+    if (famTask == null) {
       retainFamiliarCheckBox.setSelected(false);
       familiarTaskComboBox.setEnabled(false);
     } else {
       familiarTaskComboBox.setEnabled(true);
-      familiarTaskComboBox.setSelectedFamiliarTask(
-          getResourceMapping().getRetainFamiliarTask()    
-      );
+      familiarTaskComboBox.setSelectedFamiliarTask(famTask);
       retainFamiliarCheckBox.setSelected(true);
       retainFamiliarCheckBox.setEnabled(true);
     }

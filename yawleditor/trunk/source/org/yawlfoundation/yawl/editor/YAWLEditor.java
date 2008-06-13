@@ -22,25 +22,7 @@
 
 package org.yawlfoundation.yawl.editor;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.prefs.Preferences;
-
-import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.plaf.basic.BasicSplitPaneDivider;
-
 import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
-
 import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.specification.SpecificationFileModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationFileModelListener;
@@ -55,6 +37,16 @@ import org.yawlfoundation.yawl.editor.swing.menu.YAWLMenuBar;
 import org.yawlfoundation.yawl.editor.swing.specification.ProblemMessagePanel;
 import org.yawlfoundation.yawl.editor.swing.specification.SpecificationBottomPanel;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.prefs.Preferences;
 
 /**
  * The core executable class of the YAWL Editor, responsible for  bootstrapping the editor
@@ -91,6 +83,8 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
   public static void main(String[] args) {
 
+//    setLookAndFeel();
+
     startLoading();
 
     validateParameter(args);
@@ -110,6 +104,15 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     SpecificationFileModel.getInstance().subscribe(this);
   }
 
+  private static void setLookAndFeel() {
+    try {
+        UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+    }
+    catch (Exception e) {
+      // do nothing
+    }   
+  }
+
   private static JSplashScreen getSplashScreen() {
     return splashScreen;
   }
@@ -122,7 +125,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     getSplashScreen().setContent(
         "/org/yawlfoundation/yawl/editor/resources/yawlSplashScreen.jpg",
         "YAWLEditor" + getSizeDistinction() + " v " +
-        getVersionNumber() + " - (c) 2007 The YAWL Foundation");
+        getVersionNumber() + " - (c) 2008 The YAWL Foundation");
 
     getSplashScreen().show();
   }

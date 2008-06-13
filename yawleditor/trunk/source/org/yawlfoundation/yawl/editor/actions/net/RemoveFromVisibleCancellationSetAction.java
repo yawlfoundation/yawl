@@ -24,20 +24,17 @@
 
 package org.yawlfoundation.yawl.editor.actions.net;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-
-
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.net.CancellationSetModel;
 import org.yawlfoundation.yawl.editor.net.CancellationSetModelListener;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 
-import javax.swing.KeyStroke;
-import java.awt.event.KeyEvent;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
 public class RemoveFromVisibleCancellationSetAction extends YAWLSelectedNetAction
        implements CancellationSetModelListener, TooltipTogglingWidget {
@@ -68,6 +65,7 @@ public class RemoveFromVisibleCancellationSetAction extends YAWLSelectedNetActio
     final NetGraph graph = getGraph();
     if (graph != null) {
       graph.removeSelectedCellsFromVisibleCancellationSet();
+      SpecificationUndoManager.getInstance().setDirty(true);      
     }
   }
   

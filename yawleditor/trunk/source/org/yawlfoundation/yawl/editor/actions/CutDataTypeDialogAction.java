@@ -1,11 +1,9 @@
 /*
- * Created on 05/10/2003
+ * Created on 9/10/2003
  * YAWLEditor v1.0 
  *
  * @author Lindsay Bradford
  * 
- * 
- *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -22,30 +20,30 @@
  *
  */
 
-package org.yawlfoundation.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.actions;
 
-import org.yawlfoundation.yawl.editor.actions.ShowAboutEditorAction;
+import org.yawlfoundation.yawl.editor.swing.menu.DataTypeDialogToolBarMenu;
 
 import javax.swing.*;
-import java.awt.event.KeyEvent;
+import java.awt.event.ActionEvent;
 
-class HelpMenu extends JMenu {
+public class CutDataTypeDialogAction extends YAWLBaseAction {
 
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
 
-  public HelpMenu() {
-    super("Help");
-    buildInterface();
+  {
+    putValue(Action.SHORT_DESCRIPTION, " Cut the selected text to the Clipboard");
+    putValue(Action.NAME, "Cut");
+    putValue(Action.LONG_DESCRIPTION, "Cut the selected text");
+    putValue(Action.SMALL_ICON, getIconByName("Cut"));
+    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_U));
+    putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control X"));
   }
-  
-  protected void buildInterface() {
-    setMnemonic(KeyEvent.VK_H);
-//    add(new YAWLMenuItem(new ShowCopyrightDetailAction()));
-//    add(new YAWLMenuItem(new ShowAcknowledgementsAction()));
-    add(new YAWLMenuItem(new ShowAboutEditorAction()));
-    
+
+  public CutDataTypeDialogAction() { }
+
+  public void actionPerformed(ActionEvent event) {
+    DataTypeDialogToolBarMenu.getInstance().getEditorPane().getEditor().cut();
+    DataTypeDialogToolBarMenu.getInstance().getButton("paste").setEnabled(true);
   }
 }

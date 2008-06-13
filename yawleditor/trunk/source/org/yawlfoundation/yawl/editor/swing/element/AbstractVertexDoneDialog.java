@@ -24,12 +24,12 @@
 
 package org.yawlfoundation.yawl.editor.swing.element;
 
-import javax.swing.JPanel;
-
 import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.JUtilities;
+
+import javax.swing.*;
 
 public abstract class AbstractVertexDoneDialog extends AbstractDoneDialog {
   
@@ -65,7 +65,7 @@ public abstract class AbstractVertexDoneDialog extends AbstractDoneDialog {
   }
   
   public void setVisible(boolean state) {
-    if (state == true) {
+    if (state) {
       JUtilities.centreWindowUnderVertex(graph, this, vertex, 10);
     }
     super.setVisible(state);

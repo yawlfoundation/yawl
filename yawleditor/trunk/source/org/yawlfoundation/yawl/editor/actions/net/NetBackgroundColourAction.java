@@ -22,12 +22,11 @@
 
 package org.yawlfoundation.yawl.editor.actions.net;
 
-import java.awt.Color;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-import javax.swing.JColorChooser;
 
 public class NetBackgroundColourAction extends YAWLSelectedNetAction {
   
@@ -55,6 +54,7 @@ public class NetBackgroundColourAction extends YAWLSelectedNetAction {
     );
     if (newColor != null) {
       getGraph().setBackground(newColor);
+      SpecificationUndoManager.getInstance().setDirty(true);              
     }
   }
 }

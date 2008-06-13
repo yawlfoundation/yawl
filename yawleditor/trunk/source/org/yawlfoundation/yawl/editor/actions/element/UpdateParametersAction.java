@@ -24,37 +24,24 @@
 
 package org.yawlfoundation.yawl.editor.actions.element;
 
+import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
+import org.yawlfoundation.yawl.editor.data.ParameterList;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
-import org.yawlfoundation.yawl.editor.swing.element.AbstractTaskDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.AbstractTableUpdatePanel;
 import org.yawlfoundation.yawl.editor.swing.JOrderedSingleSelectTable;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.swing.data.DataVariableTable;
 import org.yawlfoundation.yawl.editor.swing.data.ParameterUpdateDialog;
 import org.yawlfoundation.yawl.editor.swing.data.TaskParameterTable;
 import org.yawlfoundation.yawl.editor.swing.data.TaskParameterTableModel;
-import org.yawlfoundation.yawl.editor.swing.data.DataVariableTable;
+import org.yawlfoundation.yawl.editor.swing.element.AbstractTaskDoneDialog;
 
-import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
-import org.yawlfoundation.yawl.editor.data.ParameterList;
-
-import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
-
-
-import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
-
-import javax.swing.JTable;
+import java.awt.*;
+import java.awt.event.ActionEvent;
 
 public class UpdateParametersAction extends YAWLSelectedNetAction 
                                     implements TooltipTogglingWidget {
@@ -71,7 +58,7 @@ public class UpdateParametersAction extends YAWLSelectedNetAction
   
   {
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-    putValue(Action.NAME, "Update Parameters...");
+    putValue(Action.NAME, "Update Parameter Mappings...");
     putValue(Action.LONG_DESCRIPTION, "Update Parameters for this task.");
     putValue(Action.SMALL_ICON, getIconByName("Blank"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_P));
@@ -89,12 +76,12 @@ public class UpdateParametersAction extends YAWLSelectedNetAction
   }
   
   public String getEnabledTooltipText() {
-    return " Update Parameters for this task ";
+    return " Update Parameter Mappings for this task ";
   }
   
   public String getDisabledTooltipText() {
     return " You must have task with a decomposition selected" + 
-           " to update its parameters ";
+           " to update its parameter mappings ";
   }
   
   public boolean shouldBeEnabled() {
@@ -339,6 +326,7 @@ abstract class ParameterUpdatePanel extends AbstractTableUpdatePanel {
         getParameterTable().getSelectedRow()
       )
     );
+    updateDialog.setRadioButtonSelected();
     
     updateDialog.setVisible(true);
     
@@ -364,6 +352,7 @@ abstract class ParameterUpdatePanel extends AbstractTableUpdatePanel {
           getParameterTable().getSelectedRow()
         )
     );
+    updateDialog.setRadioButtonSelected();
     updateState();
     updateDialog.setVisible(true);
     refreshSelectedRow();

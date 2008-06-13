@@ -24,24 +24,16 @@
 
 package org.yawlfoundation.yawl.editor.swing;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.util.LinkedList;
-
-import javax.swing.JDesktopPane;
-import javax.swing.JInternalFrame;
-import javax.swing.JScrollPane;
-import javax.swing.JViewport;
-import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.InternalFrameListener;
-
-import org.yawlfoundation.yawl.editor.net.*;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.net.YAWLEditorNetFrame;
+
+import javax.swing.*;
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.InternalFrameListener;
+import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 public class YAWLEditorDesktop extends JDesktopPane 
                                implements InternalFrameListener {
@@ -75,14 +67,22 @@ public class YAWLEditorDesktop extends JDesktopPane
    }
 
   public YAWLEditorNetFrame newNet() {
-    YAWLEditorNetFrame frame = new YAWLEditorNetFrame(getNewLocation());
+    YAWLEditorNetFrame frame = new YAWLEditorNetFrame(getDefaultNetFrameBounds());
     bindFrame(frame);
     return frame;
+  }
+
+  private Rectangle getDefaultNetFrameBounds() {
+    Point location = getNewLocation();
+    Rectangle outerBounds = this.getBounds();
+    return new Rectangle(location.x, location.y,
+                         Math.max(outerBounds.width-60, 150),
+                         Math.max(outerBounds.height-150, 100));
   }
   
   public void openNet(NetGraph graph) {
     openNet(
-       new Rectangle(10,10,200,200),
+       new Rectangle(10,10,400,200),
        false,
        graph
     );

@@ -22,87 +22,44 @@
 
 package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.prefs.Preferences;
-
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.Duration;
-
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.data.Parameter;
 import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
-
-import org.yawlfoundation.yawl.editor.elements.model.AtomicTask;
-import org.yawlfoundation.yawl.editor.elements.model.Condition;
-import org.yawlfoundation.yawl.editor.elements.model.Decorator;
-import org.yawlfoundation.yawl.editor.elements.model.JoinDecorator;
-import org.yawlfoundation.yawl.editor.elements.model.SplitDecorator;
-import org.yawlfoundation.yawl.editor.elements.model.TaskTimeoutDetail;
-import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLMultipleInstanceTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
-
+import org.yawlfoundation.yawl.editor.elements.model.*;
 import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 import org.yawlfoundation.yawl.editor.net.NetElementSummary;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
-
-import org.yawlfoundation.yawl.editor.resourcing.DataVariableContent;
-import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
-import org.yawlfoundation.yawl.editor.resourcing.ResourcingFilter;
-import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
-import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
-
+import org.yawlfoundation.yawl.editor.resourcing.*;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
-
-import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
-import org.yawlfoundation.yawl.elements.YAWLServiceReference;
-import org.yawlfoundation.yawl.elements.YAtomicTask;
-import org.yawlfoundation.yawl.elements.YCompositeTask;
-import org.yawlfoundation.yawl.elements.YCondition;
-import org.yawlfoundation.yawl.elements.YDecomposition;
-import org.yawlfoundation.yawl.elements.YExternalNetElement;
-import org.yawlfoundation.yawl.elements.YFlow;
-import org.yawlfoundation.yawl.elements.YInputCondition;
-import org.yawlfoundation.yawl.elements.YMultiInstanceAttributes;
-import org.yawlfoundation.yawl.elements.YNet;
-import org.yawlfoundation.yawl.elements.YOutputCondition;
-import org.yawlfoundation.yawl.elements.YSpecification;
-import org.yawlfoundation.yawl.elements.YTask;
+import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
-
-import org.yawlfoundation.yawl.resourcing.filters.GenericFilter;
-import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
-import org.yawlfoundation.yawl.resourcing.interactions.OfferInteraction;
-import org.yawlfoundation.yawl.resourcing.interactions.AllocateInteraction;
-import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
+import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
-
 import org.yawlfoundation.yawl.resourcing.allocators.GenericAllocator;
 import org.yawlfoundation.yawl.resourcing.constraints.PiledExecution;
 import org.yawlfoundation.yawl.resourcing.constraints.SeparationOfDuties;
-
-import org.yawlfoundation.yawl.resourcing.ResourceMap;
+import org.yawlfoundation.yawl.resourcing.filters.GenericFilter;
+import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
+import org.yawlfoundation.yawl.resourcing.interactions.AllocateInteraction;
+import org.yawlfoundation.yawl.resourcing.interactions.OfferInteraction;
+import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.unmarshal.YMetaData;
+
+import javax.swing.*;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.Duration;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.*;
+import java.util.prefs.Preferences;
 
 public class EngineSpecificationExporter extends EngineEditorInterpretor {
   
@@ -110,25 +67,30 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
   public static String VERIFICATION_WITH_EXPORT_PREFERENCE = "verifyWithExportCheck";
   public static String ANALYSIS_WITH_EXPORT_PREFERENCE = "analyseWithExportCheck";
-  
+  public static String AUTO_INCREMENT_VERSION_WITH_EXPORT_PREFERENCE = "autoIncVersionExportCheck";
+
   public static void exportEngineSpecToFile(SpecificationModel editorSpec, String fullFileName) {
-     exportStringToFile(
-         getEngineSpecificationXML(
-             editorSpec
-         ),
-         fullFileName
-     );
+      exportIfSucessful(getEngineSpecificationXML(editorSpec), fullFileName);
   }
   
   public static void checkAndExportEngineSpecToFile(SpecificationModel editorSpec, String fullFileName) {
-    exportStringToFile(
-        getAndCheckEngineSpecificationXML(
-            editorSpec
-        ),
-        fullFileName
-    );
+      exportIfSucessful(getAndCheckEngineSpecificationXML(editorSpec), fullFileName);
   }
 
+  private static void exportIfSucessful(String xml, String fullFileName) {
+    if ((xml == null) || (xml.equals("null")) || (xml.startsWith("<fail"))) {
+      String msg = "Export resulted in a 'null' xml specification.\n File not created.\n";
+      if ((xml != null) && (xml.startsWith("<fail"))) {
+         int start = xml.indexOf('>') + 1;
+         int len = xml.lastIndexOf('<') - start;
+         msg += "\nDetail: " + xml.substring(start, len) + '\n';
+      }
+      JOptionPane.showMessageDialog(null, msg, "Export File Generation Error",
+                                    JOptionPane.ERROR_MESSAGE);
+    }
+    else
+        exportStringToFile(xml, fullFileName);
+  }
   
   private static void exportStringToFile(String string, String fullFileName) {
     try {
@@ -537,6 +499,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       populateTaskParameterQueries(engineAtomicTask, editorTask);
       populateMultipleInstanceDetail(engineAtomicTask, editorTask);
       populateResourceDetail(engineAtomicTask, editorTask);
+      setCustomFormDetail(engineAtomicTask, editorTask);
       
       engineNet.addNetElement(engineAtomicTask);
       editorToEngineElementMap.put(editorTask, engineAtomicTask);
@@ -741,7 +704,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
     
     if (engineParameterType == YParameter._INPUT_PARAM_TYPE) {
-      engineDecomposition.setInputParam(engineParameter);
+      engineDecomposition.setInputParameter(engineParameter);
     } else {
       engineDecomposition.setOutputParameter(engineParameter);
     }
@@ -860,7 +823,15 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       }
     }
   }
-  
+
+  private static void setCustomFormDetail(YTask engineTask, YAWLTask editorTask) {
+    if (!(editorTask instanceof YAWLAtomicTask)) {
+      return;
+    }
+
+    engineTask.setCustomFormURI(editorTask.getCustomFormURL());
+  }
+
   private static void populateResourceDetail(YTask engineTask, YAWLTask editorTask) {
     populateResourceMappingDetail(engineTask, editorTask);
   }
@@ -894,7 +865,9 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     
     ResourceMap engineResourceMapping = engineTask.getResourceMap(true);
     
-    engineTask.getDecompositionPrototype().setExternalInteraction(true);
+    engineTask.getDecompositionPrototype().setExternalInteraction(
+            atomicEditorTask.getWSDecomposition().isManualInteraction()
+    );
 
     populateOfferInteractionDetail(
       atomicEditorTask.getResourceMapping(),
@@ -1045,10 +1018,10 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
   private static int convertVariableContentType(int contentType) {
     switch(contentType) {
-      case(DataVariableContent.USERS_CONTENT_TYPE): {
+      case(DataVariableContent.PARTICIPANT_CONTENT_TYPE): {
         return OfferInteraction.USER_PARAM;
       }
-      case(DataVariableContent.ROLES_CONTENT_TYPE): {
+      case(DataVariableContent.ROLE_CONTENT_TYPE): {
         return OfferInteraction.ROLE_PARAM;
       }
       default: {

@@ -22,33 +22,19 @@
 
 package org.yawlfoundation.yawl.editor.actions.tools;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.FocusTraversalPolicy;
-import java.util.prefs.Preferences;
-
-import javax.swing.Action;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.JPasswordField;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JOptionPane;
-import javax.swing.JButton;
-
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
-import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.swing.ActionAndFocusListener;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.prefs.Preferences;
 
 public class SetResourcingServiceAction extends YAWLBaseAction {
   /**
@@ -61,11 +47,11 @@ public class SetResourcingServiceAction extends YAWLBaseAction {
   private boolean invokedAtLeastOnce = false;
   
   {
-    putValue(Action.SHORT_DESCRIPTION, " Specify login detail for a running resourcing service. ");
-    putValue(Action.NAME, "Set Resourcing Service");
-    putValue(Action.LONG_DESCRIPTION, "Specify login detail for a running resourcing service.");
+    putValue(Action.SHORT_DESCRIPTION, " Specify login details for a running resourcing service. ");
+    putValue(Action.NAME, "Resource Service Connection Settings...");
+    putValue(Action.LONG_DESCRIPTION, "Specify login details for a running resourcing service.");
 //    putValue(Action.SMALL_ICON, getIconByName("Blank"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_S));
+    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_R));
   }
   
   public SetResourcingServiceAction() {}
@@ -92,13 +78,13 @@ class ResourceServiceDialog extends AbstractDoneDialog {
   private JTextField resourcingServiceURIField;
   private JTextField resourcingServiceUserField;
   private JPasswordField resourcingServicePasswordField;
-  private JPasswordField resourcingServiceVerifyPasswordField;
+//  private JPasswordField resourcingServiceVerifyPasswordField;
   
   private JButton testButton;
   private JLabel testMessage = new JLabel();
   
   public ResourceServiceDialog() {
-    super("Specify Resourcing Service", true);
+    super("Resource Service Connection Settings", true);
     setContentPanel(buildResourcingServiceDetailPanel());
 
     getDoneButton().addActionListener(new ActionListener(){
@@ -120,6 +106,8 @@ class ResourceServiceDialog extends AbstractDoneDialog {
              "resourcingServiceUserPassword", 
              new String(resourcingServicePasswordField.getPassword())
          );
+
+         SpecificationUndoManager.getInstance().setDirty(true);                            
        }
     });
   }
@@ -142,8 +130,8 @@ class ResourceServiceDialog extends AbstractDoneDialog {
     gbc.insets = new Insets(0,0,5,5);
     gbc.anchor = GridBagConstraints.EAST;
 
-    JLabel uriLabel = new JLabel("Resourcing Service URI :");
-    uriLabel.setDisplayedMnemonic('U');
+    JLabel uriLabel = new JLabel("Resource Service URI:");
+    uriLabel.setDisplayedMnemonic('R');
     panel.add(uriLabel, gbc);
     
     gbc.gridx++;
@@ -161,7 +149,7 @@ class ResourceServiceDialog extends AbstractDoneDialog {
     gbc.insets = new Insets(5,0,5,5);
     gbc.anchor = GridBagConstraints.EAST;
 
-    JLabel userLabel = new JLabel("User Name :");
+    JLabel userLabel = new JLabel("User Name:");
     userLabel.setDisplayedMnemonic('N');
     panel.add(userLabel, gbc);
     
@@ -175,7 +163,7 @@ class ResourceServiceDialog extends AbstractDoneDialog {
     gbc.gridy++;
     gbc.anchor = GridBagConstraints.EAST;
 
-    JLabel passwordLabel = new JLabel("Password :");
+    JLabel passwordLabel = new JLabel("Password:");
     passwordLabel.setDisplayedMnemonic('P');
     panel.add(passwordLabel, gbc);
     
@@ -187,17 +175,17 @@ class ResourceServiceDialog extends AbstractDoneDialog {
 
     gbc.gridx = 0;
     gbc.gridy++;
-    gbc.anchor = GridBagConstraints.EAST;
-
-    JLabel verifyPasswordLabel = new JLabel("Verify Password :");
-    verifyPasswordLabel.setDisplayedMnemonic('V');
-    panel.add(verifyPasswordLabel, gbc);
+//    gbc.anchor = GridBagConstraints.EAST;
+//
+//    JLabel verifyPasswordLabel = new JLabel("Verify Password :");
+//    verifyPasswordLabel.setDisplayedMnemonic('V');
+//    panel.add(verifyPasswordLabel, gbc);
     
     gbc.gridx++;
     gbc.anchor = GridBagConstraints.WEST;
 
-    panel.add(getResourcingServiceVerifyPasswordField(), gbc);
-    verifyPasswordLabel.setLabelFor(resourcingServiceVerifyPasswordField);
+//    panel.add(getResourcingServiceVerifyPasswordField(), gbc);
+//    verifyPasswordLabel.setLabelFor(resourcingServiceVerifyPasswordField);
     
     gbc.gridx = 2;
     gbc.gridy = 1;
@@ -244,9 +232,9 @@ class ResourceServiceDialog extends AbstractDoneDialog {
           return resourcingServicePasswordField;
         }
         if (aComponent.equals(resourcingServicePasswordField)) {
-          return resourcingServiceVerifyPasswordField;
-        }
-        if (aComponent.equals(resourcingServiceVerifyPasswordField)) {
+//          return resourcingServiceVerifyPasswordField;
+//        }
+//        if (aComponent.equals(resourcingServiceVerifyPasswordField)) {
           return testButton;
         }
         if (aComponent.equals(testButton)) {
@@ -264,9 +252,9 @@ class ResourceServiceDialog extends AbstractDoneDialog {
 
       public Component getComponentBefore(Container focusCycleRoot, Component aComponent) {
         if (aComponent.equals(testButton)) {
-          return resourcingServiceVerifyPasswordField;
-        }
-        if (aComponent.equals(resourcingServiceVerifyPasswordField)) {
+//          return resourcingServiceVerifyPasswordField;
+//        }
+//        if (aComponent.equals(resourcingServiceVerifyPasswordField)) {
           return resourcingServicePasswordField;
         }
         if (aComponent.equals(resourcingServicePasswordField)) {
@@ -298,7 +286,7 @@ class ResourceServiceDialog extends AbstractDoneDialog {
   }
   
   private JTextField getResourcingServiceURIField() {
-    resourcingServiceURIField = new JTextField(20);
+    resourcingServiceURIField = new JTextField(30);
     return resourcingServiceURIField;
   }
 
@@ -312,32 +300,32 @@ class ResourceServiceDialog extends AbstractDoneDialog {
     return resourcingServicePasswordField;
   }
 
-  private JTextField getResourcingServiceVerifyPasswordField() {
-    resourcingServiceVerifyPasswordField = new JPasswordField(10);
-    
-    new ActionAndFocusListener(resourcingServiceVerifyPasswordField) {
-      public void focusGained(FocusEvent event) {} // don't process on focus gain.
-      
-      public void process(Object eventSource) {
-        if (!passwordsMatch(
-                resourcingServicePasswordField.getPassword(),
-                resourcingServiceVerifyPasswordField.getPassword()
-             )) {
-
-        JOptionPane.showMessageDialog(
-            resourcingServiceVerifyPasswordField, 
-            "The password specified does not match it's verification", 
-            "Passwords do not Match", 
-            JOptionPane.ERROR_MESSAGE
-        );
-        
-        resourcingServicePasswordField.setText("");
-        resourcingServiceVerifyPasswordField.setText("");
-        resourcingServicePasswordField.requestFocus();
-      }
-    }};
-    return resourcingServiceVerifyPasswordField;
-  }
+//  private JTextField getResourcingServiceVerifyPasswordField() {
+//    resourcingServiceVerifyPasswordField = new JPasswordField(10);
+//
+//    new ActionAndFocusListener(resourcingServiceVerifyPasswordField) {
+//      public void focusGained(FocusEvent event) {} // don't process on focus gain.
+//
+//      public void process(Object eventSource) {
+//        if (!passwordsMatch(
+//                resourcingServicePasswordField.getPassword(),
+//                resourcingServiceVerifyPasswordField.getPassword()
+//             )) {
+//
+//        JOptionPane.showMessageDialog(
+//            resourcingServiceVerifyPasswordField,
+//            "The password specified does not match it's verification",
+//            "Passwords do not Match",
+//            JOptionPane.ERROR_MESSAGE
+//        );
+//
+//        resourcingServicePasswordField.setText("");
+//        resourcingServiceVerifyPasswordField.setText("");
+//        resourcingServicePasswordField.requestFocus();
+//      }
+//    }};
+//    return resourcingServiceVerifyPasswordField;
+//  }
   
   private JButton getTestConnectionButton() {
    testButton = new JButton("Test Connection"); 
@@ -358,9 +346,11 @@ class ResourceServiceDialog extends AbstractDoneDialog {
        );
        
        if (connectionResult == false) {
-         testMessage.setText("Failed to connect to a running resourcing service with the above detail.");
+         testMessage.setText("Failed to connect to a running resource service with the specified details.");
+         testMessage.setForeground(Color.RED);
        } else {
-         testMessage.setText("Successfully connected to a running resourcing service with the above detail.");
+         testMessage.setText("Successfully connected to a running resource service.");
+         testMessage.setForeground(Color.BLACK);
        }
        testMessage.setVisible(true);
        detailDialog.pack();
@@ -395,12 +385,12 @@ class ResourceServiceDialog extends AbstractDoneDialog {
                 ResourcingServiceProxy.DEFAULT_RESOURCING_SERVICE_USER_PASSWORD
             )
         );
-        resourcingServiceVerifyPasswordField.setText(
-            prefs.get(
-                "resourcingServiceUserPassword", 
-                ResourcingServiceProxy.DEFAULT_RESOURCING_SERVICE_USER_PASSWORD
-            )
-        );
+//        resourcingServiceVerifyPasswordField.setText(
+//            prefs.get(
+//                "resourcingServiceUserPassword",
+//                ResourcingServiceProxy.DEFAULT_RESOURCING_SERVICE_USER_PASSWORD
+//            )
+//        );
       }
     }
     super.setVisible(visible);

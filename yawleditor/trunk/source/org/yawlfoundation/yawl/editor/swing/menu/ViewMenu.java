@@ -24,30 +24,18 @@
 
 package org.yawlfoundation.yawl.editor.swing.menu;
 
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.util.LinkedList;
-import java.util.Set;
-import java.util.SortedSet;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.KeyStroke;
-
-import org.yawlfoundation.yawl.editor.actions.view.AntiAliasedToggleAction;
-import org.yawlfoundation.yawl.editor.actions.view.FontSizeAction;
-import org.yawlfoundation.yawl.editor.actions.view.DefaultNetBackgroundColourAction;
-import org.yawlfoundation.yawl.editor.actions.view.ShowGridToggleAction;
-import org.yawlfoundation.yawl.editor.actions.view.ToolTipToggleAction;
+import org.yawlfoundation.yawl.editor.actions.view.*;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModelListener;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.util.LinkedList;
+import java.util.SortedSet;
 
 
 class ViewMenu extends JMenu implements SpecificationModelListener {
@@ -59,7 +47,7 @@ class ViewMenu extends JMenu implements SpecificationModelListener {
   private static final SpecificationModel specificationModel =  
     SpecificationModel.getInstance(); 
   
-  private static final int NET_LIST_START_INDEX = 4;
+  private static final int NET_LIST_START_INDEX = 5;
   
   private boolean noNetList = true;
   
@@ -161,6 +149,11 @@ class ViewMenu extends JMenu implements SpecificationModelListener {
 
     noNetList = false;
     int position = NET_LIST_START_INDEX;
+
+    JPopupMenu.Separator separator = new JPopupMenu.Separator();
+    add(separator, position++);
+    netListMenuItems.add(separator);
+
     for(NetGraphModel net : nets) {
       JMenuItem newItem = new JMenuItem(
             new ViewNetAction(net)
@@ -168,9 +161,6 @@ class ViewMenu extends JMenu implements SpecificationModelListener {
       add(newItem, position++);
       netListMenuItems.add(newItem);
     }
-    JPopupMenu.Separator separator = new JPopupMenu.Separator();
-    add(separator, position);
-    netListMenuItems.add(separator);
   }
 }
 

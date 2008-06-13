@@ -21,27 +21,23 @@
 
 package org.yawlfoundation.yawl.editor.swing.element;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-
 import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.ActionAndFocusListener;
 import org.yawlfoundation.yawl.editor.swing.JUtilities;
-import org.yawlfoundation.yawl.editor.swing.data.WebServiceDecompositionComboBox;
 import org.yawlfoundation.yawl.editor.swing.data.TaskDecompositionUpdateDialog;
+import org.yawlfoundation.yawl.editor.swing.data.WebServiceDecompositionComboBox;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 
 public class TaskDecompositionSelectionDialog extends AbstractTaskDoneDialog {
   /**
@@ -64,7 +60,8 @@ public class TaskDecompositionSelectionDialog extends AbstractTaskDoneDialog {
         getGraph().setTaskDecomposition(
             getTask(),
             chosenDecomposition
-          );
+          );          
+          SpecificationUndoManager.getInstance().setDirty(true);
       }
     });
   }

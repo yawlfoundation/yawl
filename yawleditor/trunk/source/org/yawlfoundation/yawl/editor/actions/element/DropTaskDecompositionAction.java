@@ -1,6 +1,6 @@
 /*
- * Created on 27/05/2005
- * YAWLEditor v1.3 
+ * Created on 09/10/2003
+ * YAWLEditor v1.0 
  *
  * @author Lindsay Bradford
  * 
@@ -25,56 +25,54 @@
 package org.yawlfoundation.yawl.editor.actions.element;
 
 import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
-import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
-import org.yawlfoundation.yawl.editor.swing.resourcing.ManageResourcingDialog;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-public class ManageResourcingAction extends YAWLSelectedNetAction
-                                    implements TooltipTogglingWidget {
-  
+public class DropTaskDecompositionAction extends YAWLSelectedNetAction
+                                           implements TooltipTogglingWidget {
+
+  /**
+   *
+   */
   private static final long serialVersionUID = 1L;
 
-  private YAWLTask task;
   private NetGraph graph;
-  
-  private ManageResourcingDialog dialog = new ManageResourcingDialog();
-  
+  private YAWLTask task;
+
   {
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-    putValue(Action.NAME, "Manage Resourcing");
-    putValue(Action.LONG_DESCRIPTION, "Manage the resourcing requirements of this task.");
-    putValue(Action.SMALL_ICON, getIconByName("ResourcingWizard"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_N));
+    putValue(Action.NAME, "Drop Task Decomposition...");
+    putValue(Action.LONG_DESCRIPTION, "Remove the current decomposition from this task.");
+    putValue(Action.SMALL_ICON, getIconByName("Blank"));
+    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_R));
   }
-  
-  public ManageResourcingAction(YAWLTask task, NetGraph graph) {
+
+  public DropTaskDecompositionAction(YAWLTask task, NetGraph graph) {
     super();
     this.task = task;
     this.graph = graph;
-  }  
+  }
 
   public void actionPerformed(ActionEvent event) {
-    dialog.setTask(task, graph);
-    dialog.setVisible(true);
+    graph.setTaskDecomposition(task, null);
+    graph.clearSelection();
+    SpecificationUndoManager.getInstance().setDirty(true);
   }
- 
+
   public String getEnabledTooltipText() {
-    return " Manage the resourcing requirements of this task ";
+    return " Remove the current decomposition from this task ";
   }
-  
+
   public String getDisabledTooltipText() {
-    return " You must have an atomic task with a worklist decomposition selected" +
-           " to update its resourcing requirements ";
+    return " You need to have selected a task with a decomposition to drop ";
   }
-  
-  public boolean shouldBeEnabled() {
-    Decomposition decomp = task.getDecomposition();
-    return ((decomp != null) && decomp.invokesWorklist() && decomp.isManualInteraction());
+
+    public boolean shouldBeEnabled() {
+     return (task.getDecomposition() != null);
   }
-    
 }

@@ -23,35 +23,19 @@
 
 package org.yawlfoundation.yawl.editor.swing.data;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.event.ActionListener;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.swing.ActionAndFocusListener;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
-
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
-
-import org.yawlfoundation.yawl.editor.data.DataVariable;
-import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
-import org.yawlfoundation.yawl.editor.swing.ActionAndFocusListener;
-import org.yawlfoundation.yawl.editor.swing.data.DataVariableField;
-import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 abstract public class DataVariableUpdateDialog extends AbstractDoneDialog {
   
@@ -317,7 +301,7 @@ abstract public class DataVariableUpdateDialog extends AbstractDoneDialog {
   }
   
   private DataVariableField buildNameField() {
-    nameField = new DataVariableField(10);
+    nameField = new DataVariableField(25);
 
     nameField.addKeyListener(
         new NameFieldDocumentListener()

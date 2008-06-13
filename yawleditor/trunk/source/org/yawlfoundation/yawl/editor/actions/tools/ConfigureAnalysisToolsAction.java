@@ -22,33 +22,20 @@
 
 package org.yawlfoundation.yawl.editor.actions.tools;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.BorderLayout;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
+import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.analyser.YAWLResetAnalyser;
+import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
 
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-
-
 import java.util.prefs.Preferences;
-
-import javax.swing.Action;
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JSeparator;
-import javax.swing.JTabbedPane;
-
-import javax.swing.border.EmptyBorder;
-
-import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
-import org.yawlfoundation.yawl.editor.analyser.YAWLResetAnalyser;
-
-import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
-import org.yawlfoundation.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
 
 
 public class ConfigureAnalysisToolsAction extends YAWLBaseAction {
@@ -63,10 +50,10 @@ public class ConfigureAnalysisToolsAction extends YAWLBaseAction {
   
   {
     putValue(Action.SHORT_DESCRIPTION, " Configure Specification Analysis ");
-    putValue(Action.NAME, "Configure Specification Analysis");
+    putValue(Action.NAME, "Configure Specification Analysis...");
     putValue(Action.LONG_DESCRIPTION, "Configure Specification Analysis.");
 //    putValue(Action.SMALL_ICON, getIconByName("Blank"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_A));
+    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_C));
   }
   
   public ConfigureAnalysisToolsAction() {}
@@ -114,7 +101,8 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
     getDoneButton().addActionListener(new ActionListener(){
        public void actionPerformed(ActionEvent e) {
          rememberResetNetAnalysisPreferences();
-         rememberWofYAWLAnalysisPreferences();      
+         rememberWofYAWLAnalysisPreferences();
+         SpecificationUndoManager.getInstance().setDirty(true);                 
        }
     });
   }

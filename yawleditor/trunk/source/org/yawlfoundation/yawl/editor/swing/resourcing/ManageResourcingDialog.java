@@ -2,14 +2,15 @@ package org.yawlfoundation.yawl.editor.swing.resourcing;
 
 import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
-
 import org.yawlfoundation.yawl.editor.net.NetGraph;
-
 import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
-
 import org.yawlfoundation.yawl.editor.swing.AbstractWizardDialog;
 import org.yawlfoundation.yawl.editor.swing.AbstractWizardPanel;
 import org.yawlfoundation.yawl.editor.swing.JUtilities;
+import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
+
+import javax.swing.*;
 
 public class ManageResourcingDialog extends AbstractWizardDialog {
   private static final long serialVersionUID = 1L;
@@ -60,6 +61,13 @@ public class ManageResourcingDialog extends AbstractWizardDialog {
     for(AbstractWizardPanel panel : getPanels()) {
       ((ResourcingWizardPanel) panel).refresh();
     }
+
+    if (! ResourcingServiceProxy.getInstance().isLiveService()) {
+      JOptionPane.showMessageDialog(this,
+              "A Connection to a running resource service could not be etablished.\n" +
+              "Attempting to use a local cache of resource data, if possible.",
+              "Resource Service Connection Warning", JOptionPane.WARNING_MESSAGE);
+    }
     
     doFirst();
     
@@ -85,6 +93,7 @@ public class ManageResourcingDialog extends AbstractWizardDialog {
   */
 
   public void doFinish() {
+      SpecificationUndoManager.getInstance().setDirty(true);       // 'save' needed flag     
   /*
     System.out.println("----Finish resource mapping----");
     System.out.println(

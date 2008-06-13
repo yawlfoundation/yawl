@@ -21,15 +21,10 @@
  
 package org.yawlfoundation.yawl.editor.swing.data;
 
-import java.util.List;
-
-import javax.swing.JSplitPane;
-import javax.swing.JScrollPane;
-
 import org.yawlfoundation.yawl.editor.swing.ProblemTable;
 
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import javax.swing.*;
+import java.util.List;
 
 public class JProblemReportingEditorPane extends JSplitPane 
                                          implements AbstractXMLStyledDocumentValidityListener{

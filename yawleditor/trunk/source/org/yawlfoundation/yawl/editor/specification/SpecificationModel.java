@@ -23,39 +23,24 @@
 
 package org.yawlfoundation.yawl.editor.specification;
 
-import java.awt.Color;
-
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Iterator;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import org.yawlfoundation.yawl.editor.data.Decomposition;
-import org.yawlfoundation.yawl.editor.data.DataVariable;
-import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
-import org.yawlfoundation.yawl.editor.net.NetGraphModel;
-import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
-import org.yawlfoundation.yawl.editor.net.NetGraph;
-
 import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.swing.undo.UndoableDecompositionLabelChange;
-import org.yawlfoundation.yawl.editor.swing.undo.UndoableNetFrameTitleChange;
-import org.yawlfoundation.yawl.editor.swing.undo.UndoableFontSizeChange;
-import org.yawlfoundation.yawl.editor.swing.undo.UndoableNetDeletion;
-import org.yawlfoundation.yawl.editor.swing.undo.UndoableNetAddition;
-import org.yawlfoundation.yawl.editor.swing.undo.UndoableStartingNetChange;
-
-import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
-
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
+import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.elements.model.SplitDecorator;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLCompositeTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLMultipleInstanceTask;
-
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
+import org.yawlfoundation.yawl.editor.swing.undo.*;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.elements.YSpecVersion;
+
+import java.awt.*;
+import java.util.*;
 
 public class SpecificationModel {
   
@@ -75,7 +60,7 @@ public class SpecificationModel {
   public static final int   DEFAULT_NET_BACKGROUND_COLOR = Color.WHITE.getRGB();
   
   public static final String DEFAULT_TYPE_DEFINITION = 
-    "<schema xmlns=\"http://www.w3.org/2001/XMLSchema\">\n\n</schema>";
+    "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n\n</xs:schema>";
   
   private String dataTypeDefinition = DEFAULT_TYPE_DEFINITION;
   
@@ -95,7 +80,7 @@ public class SpecificationModel {
   private String  description         = "No description has been given.";
   private String  id                 = "";
   private String  author              = System.getProperty("user.name");
-  private double  versionNumber       = 0.1;
+  private YSpecVersion versionNumber  = new YSpecVersion("0.1");
   private String  validFromTimestamp  = "";
   private String  validUntilTimestamp = "";
   
@@ -189,7 +174,7 @@ public class SpecificationModel {
     setDescription("No description has been given.");
     setId("");
     setAuthor(System.getProperty("user.name"));
-    setVersionNumber(0.1);
+    setVersionNumber(new YSpecVersion("0.0"));
     setValidFromTimestamp("");
     setValidUntilTimestamp("");
     YAWLEditor.setStatusBarText("Open or create a net to begin.");
@@ -673,11 +658,11 @@ public class SpecificationModel {
     return this.author;
   }
 
-  public void setVersionNumber(double versionNumber) {
+  public void setVersionNumber(YSpecVersion versionNumber) {
     this.versionNumber = versionNumber;
   }
   
-  public double getVersionNumber() {
+  public YSpecVersion getVersionNumber() {
     return this.versionNumber;
   }
   

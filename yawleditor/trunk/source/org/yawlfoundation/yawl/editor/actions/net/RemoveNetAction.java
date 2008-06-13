@@ -24,14 +24,13 @@
 
 package org.yawlfoundation.yawl.editor.actions.net;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-import javax.swing.KeyStroke;
-
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
-import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 public class RemoveNetAction extends YAWLSelectedNetAction implements TooltipTogglingWidget {
   /**
@@ -49,7 +48,8 @@ public class RemoveNetAction extends YAWLSelectedNetAction implements TooltipTog
   }
 
   public void actionPerformed(ActionEvent event) {
-    YAWLEditorDesktop.getInstance().removeActiveNet();
+    YAWLEditorDesktop.getInstance().removeActiveNet();          
+    SpecificationUndoManager.getInstance().setDirty(true);
   }
   
   public void receiveSpecificationModelNotification(SpecificationModel.State state) {
