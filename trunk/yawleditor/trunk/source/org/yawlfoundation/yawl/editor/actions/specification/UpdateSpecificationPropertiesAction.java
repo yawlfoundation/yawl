@@ -24,39 +24,22 @@
 
 package org.yawlfoundation.yawl.editor.actions.specification;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
+import org.yawlfoundation.yawl.editor.swing.*;
+import org.yawlfoundation.yawl.elements.YSpecVersion;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.text.Document;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-
 import java.util.Date;
-
-import javax.swing.Action;
-import javax.swing.InputVerifier;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JRadioButton;
-import javax.swing.ButtonGroup;
-
-import javax.swing.border.EmptyBorder;
-import javax.swing.text.Document;
-
-import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.actions.specification.YAWLOpenSpecificationAction;
-import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
-import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
-import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
-
-import org.yawlfoundation.yawl.editor.swing.JFormattedDateField;
-import org.yawlfoundation.yawl.editor.swing.JFormattedAlphaNumericField;
-import org.yawlfoundation.yawl.editor.swing.JFormattedNumberField;
-import org.yawlfoundation.yawl.editor.swing.JFormattedSafeXMLCharacterField;
 
 public class UpdateSpecificationPropertiesAction extends YAWLOpenSpecificationAction 
                                                  implements TooltipTogglingWidget {
@@ -130,9 +113,10 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
           SpecificationModel.getInstance().setDescription(specificationDescriptionField.getText());
           SpecificationModel.getInstance().setId(specificationIDField.getText());
           SpecificationModel.getInstance().setAuthor(specificationAuthorField.getText());
-          SpecificationModel.getInstance().setVersionNumber(versionNumberField.getDouble());
+          SpecificationModel.getInstance().setVersionNumber(new YSpecVersion(String.valueOf(versionNumberField.getDouble())));
           SpecificationModel.getInstance().setValidFromTimestamp(validFromPanel.getTimestamp());
-          SpecificationModel.getInstance().setValidUntilTimestamp(validUntilPanel.getTimestamp());
+          SpecificationModel.getInstance().setValidUntilTimestamp(validUntilPanel.getTimestamp());           
+          SpecificationUndoManager.getInstance().setDirty(true);
         }
       }
     );
@@ -284,10 +268,10 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
           SpecificationModel.getInstance().getAuthor()    
       );
       versionNumberField.setDouble(
-          SpecificationModel.getInstance().getVersionNumber()    
+          SpecificationModel.getInstance().getVersionNumber().getVersionAsDouble()
       );
       versionNumberField.setLowerBound(
-          SpecificationModel.getInstance().getVersionNumber()    
+          SpecificationModel.getInstance().getVersionNumber().getVersionAsDouble()    
       );
       validFromPanel.setTimestamp(SpecificationModel.getInstance().getValidFromTimestamp());
       validUntilPanel.setTimestamp(SpecificationModel.getInstance().getValidUntilTimestamp());

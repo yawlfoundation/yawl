@@ -24,4 +24,9 @@ public class DataVariableUtilities {
     
     return filteredList;
   }
+
+  public static List<DataVariable> getVariablesOfType(DataVariableSet variables, String dataType) {
+      return getVariablesOfType(variables.getVariableSet(), dataType);
+  }
+
 }

@@ -23,12 +23,11 @@
 
 package org.yawlfoundation.yawl.editor.swing.resourcing;
 
-import java.util.List;
-
 import org.yawlfoundation.yawl.editor.data.DataVariable;
-
 import org.yawlfoundation.yawl.editor.resourcing.DataVariableContent;
 import org.yawlfoundation.yawl.editor.swing.AbstractOrderedRowTableModel;
+
+import java.util.List;
 
 public class ResourcingInputParamTableModel extends AbstractOrderedRowTableModel {
   /**
@@ -40,13 +39,12 @@ public class ResourcingInputParamTableModel extends AbstractOrderedRowTableModel
   
   private static final String[] COLUMN_LABELS = { 
     "Name",
-    "Type",
-    "Contains"  
+    "Refers to"
   };
 
   public static final int NAME_COLUMN          = 0;
-  public static final int TYPE_COLUMN          = 1;
-  public static final int CONTAINS_COLUMN      = 2;
+//  public static final int TYPE_COLUMN          = 1;
+  public static final int CONTAINS_COLUMN      = 1;
 
   public ResourcingInputParamTableModel() {
     super();
@@ -119,9 +117,6 @@ public class ResourcingInputParamTableModel extends AbstractOrderedRowTableModel
     switch (col) {
       case NAME_COLUMN:  {
         return getNameAt(row);
-      }
-      case TYPE_COLUMN:  {
-        return getDataTypeAt(row);
       }
       case CONTAINS_COLUMN:  {
         return getContentAt(row).getContentTypeAsString();

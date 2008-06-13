@@ -24,16 +24,15 @@
 
 package org.yawlfoundation.yawl.editor.specification;
 
-import javax.swing.event.UndoableEditEvent;
-import javax.swing.undo.CompoundEdit;
-import javax.swing.undo.UndoableEdit;
-
-import org.jgraph.graph.GraphUndoManager;
 import org.jgraph.graph.DefaultGraphModel;
-
+import org.jgraph.graph.GraphUndoManager;
 import org.yawlfoundation.yawl.editor.actions.RedoAction;
 import org.yawlfoundation.yawl.editor.actions.UndoAction;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
+
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.undo.CompoundEdit;
+import javax.swing.undo.UndoableEdit;
 
 /**
  * The <code>SpecificationUndoManager</code> is a special case of an <code>UndoManager</code> 
@@ -63,6 +62,7 @@ public class SpecificationUndoManager extends GraphUndoManager {
 
   private int     nonAcceptanceLevel = 0;
   private boolean compoundingEdits = false;
+  private boolean dirty = false ;
   
   public static SpecificationUndoManager getInstance() {
     return INSTANCE;
@@ -119,6 +119,7 @@ public class SpecificationUndoManager extends GraphUndoManager {
         addEdit(event.getEdit());
       }
     }
+    setDirty(true);
     refreshButtons();
   }
   
@@ -163,7 +164,8 @@ public class SpecificationUndoManager extends GraphUndoManager {
   
   public void discardAllEdits() {
 		super.discardAllEdits();
-		refreshButtons(); 
+    setDirty(false);
+    refreshButtons();
   }
 
   private void refreshButtons() {
@@ -236,7 +238,19 @@ public class SpecificationUndoManager extends GraphUndoManager {
       model.getGraph().getFrame().requestFocus();
     } catch (Exception e) {}
   }
-  
+
+
+  public boolean isDirty() {
+    return dirty ;
+  }
+
+  public void setDirty(boolean newValue) {
+    dirty = newValue;
+  }
+
+
+  /******************************************************************/
+
   class SpecificationCompoundEdit extends CompoundEdit {
     /**
      * 

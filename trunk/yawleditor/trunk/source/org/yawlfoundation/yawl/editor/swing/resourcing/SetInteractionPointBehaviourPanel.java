@@ -1,13 +1,10 @@
 package org.yawlfoundation.yawl.editor.swing.resourcing;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-
-import javax.swing.JLabel;
-import javax.swing.border.EmptyBorder;
-
 import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 
 public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
   
@@ -41,14 +38,14 @@ public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
     gbc.insets = new Insets(0,0,20,0);
 
     JLabel discussion = new JLabel(
-        "<html><body>There are three key decision points to managing the resourcing of " +
+        "<html><body>There are three key decision points for managing the resourcing of " +
         "work items spawned from a task. At each of these <em>interaction points</em>, " +
-        "you may choose to have the system automatically decide on resourcing, " +
-        "or alternately, allow a user to manually make this decision. Each interaction point is " +
-        "briefly described below:<ul><li>Offer: The point at which it is decided that a number of users " +
-        "<em>could</em> undertake the work item.<li>Allocation: The point at which one of the users " +
+        "you may choose to have the system dynamic make a decision on resourcing at each point, " +
+        "or alternately, allow a user to manually make each decision. Each interaction point is " +
+        "briefly described below:<ul><li>Offer: The point at which it is decided that a number of participants " +
+        "<em>could</em> undertake the work item.<li>Allocation: The point at which one of the participants " +
         "offered the work item is <em>nominated to do</em> that work item." +
-        "<li>Start: The point at which the user allocated a work item <em>has begun</em> working on it." +
+        "<li>Start: The point at which the participant allocated a work item <em>begins</em> working on it." +
         "</ul></body></html>"
     );
     
@@ -75,7 +72,7 @@ public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
   
   private InteractionPointPanel getOfferPanel() {
     return new InteractionPointPanel(
-        "Offering a work item for this task to a number of users is to be done by:"
+        "Offering a work item for this task to a number of participants is to be done by:"
     ) {
       private static final long serialVersionUID = 1L;
 
@@ -95,7 +92,7 @@ public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
 
   private InteractionPointPanel getAllocationPanel() {
     return new InteractionPointPanel(
-        "Allocating a work item for this task to one of the users offered the work item is to be done by:"
+        "Allocating a work item for this task to one of the offered participants is to be done by:"
     ) {
       private static final long serialVersionUID = 1L;
 

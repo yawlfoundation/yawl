@@ -75,7 +75,7 @@
     <delete file="${lite.editor.jar.file}" />
     <delete file="${distribution.directory}/${compatible.engine.jar.name}" />
     <delete file="${source.archive}" />
-    <delete file="${web.page.archive}" />
+<!--    <delete file="${web.page.archive}" />  -->
   </target>
 
   <target name="compile"  
@@ -129,7 +129,7 @@
            destdir="${build.directory}">
       <include name="${root.class.directory}/Test${root.source.file}" />
       <classpath>
-        <pathelement path="${enginePath}" />
+<!--        <pathelement path="${enginePath}" />  -->
       </classpath>
     </javac>
   </target>
@@ -221,27 +221,27 @@
     
    <!-- Update 06/10/2006: shrinking seems to work for Progard 3.6 with the 7.2.1 engine -->
     
-    <proguard optimize="true" obfuscate="false" shrink="true" ignorewarnings="true">
+    <proguard optimize="true" obfuscate="false" shrink="true" warn="false" ignorewarnings="true">
       <libraryjar file="${java.home}/lib/rt.jar"/>
       <injar  file="${lite.editor.jar.file}"/>
-      <injar  file="${engine.jar.file}"/> 
-      <outjar file="${temporary.editor.jar.file}"/> 
-     
+      <injar  file="${engine.jar.file}"/>
+      <outjar file="${temporary.editor.jar.file}"/>
+
       <!--  Keep Bootstap class and its main() method.  -->
 
       <keepclasseswithmembers name="${source.file.class.path}">
-        <method access="public static" type="void" name="main" parameters="java.lang.String[]"/> 
+        <method access="public static" type="void" name="main" parameters="java.lang.String[]"/>
       </keepclasseswithmembers>
 
       <!-- Basic - Library. Keep all externally accessible classes, fields, and methods. -->
-      
+
       <keep access="public">
         <field access="public protected"/>
         <method access="public protected"/>
       </keep>
-      
+
       <!-- Keep Serialization code. -->
-     
+
       <keepclassmembers type="class" name="*" extends="java.io.Serializable">
         <field access="static final" type="long" name="serialVersionUID"/>
         <method access="private" type="void" name="writeObject" parameters="java.io.ObjectOutputStream"/>
@@ -251,11 +251,11 @@
       </keepclassmembers>
 
       <!-- Keep Clone code. -->
-      
+
       <keepclassmembers type="class" name="*" extends="Cloneable">
         <method access="public" name="clone" />
       </keepclassmembers>
-      
+
     </proguard>
     <move file="${temporary.editor.jar.file}" tofile="${editor.jar.file}" />
   </target>

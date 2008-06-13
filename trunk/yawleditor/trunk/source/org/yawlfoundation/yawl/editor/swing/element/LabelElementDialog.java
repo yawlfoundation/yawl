@@ -21,20 +21,16 @@
 
 package org.yawlfoundation.yawl.editor.swing.element;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.Timer;
-import javax.swing.border.EmptyBorder;
-
 import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.JFormattedSafeXMLCharacterField;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class LabelElementDialog extends AbstractVertexDoneDialog {
 
@@ -50,7 +46,8 @@ public class LabelElementDialog extends AbstractVertexDoneDialog {
     getDoneButton().addActionListener(new ActionListener(){
         public void actionPerformed(ActionEvent e) {
           graph.setElementLabel(getVertex(), labelField.getText());
-          graph.clearSelection();
+          graph.clearSelection();           
+          SpecificationUndoManager.getInstance().setDirty(true);
         }
       }
     );

@@ -23,36 +23,29 @@
  */
 package org.yawlfoundation.yawl.editor.specification;
 
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
-import java.beans.ExceptionListener;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-
-import java.io.File;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
-
 import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.net.NetGraph;
-import org.yawlfoundation.yawl.editor.net.NetGraphModel;
-import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
-
 import org.yawlfoundation.yawl.editor.foundations.ArchivableNetState;
 import org.yawlfoundation.yawl.editor.foundations.ArchivableSpecificationState;
 import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
 import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
-import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.swing.FileChooserFactory;
+import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.elements.YSpecVersion;
+
+import javax.swing.*;
+import java.beans.ExceptionListener;
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 public class SpecificationArchiveHandler {
 
@@ -186,6 +179,7 @@ public class SpecificationArchiveHandler {
         temporarySpec.getName(), 
         fullFileName
     );
+    SpecificationUndoManager.getInstance().setDirty(false);
   }
   
   public void saveUpdatingGUI() {
@@ -237,25 +231,30 @@ public class SpecificationArchiveHandler {
     if (SpecificationFileModel.getInstance().getFileCount() == 0) {
      return; 
     }
-    int response = getSaveOnCloseConfirmation();
-    if (response == JOptionPane.CANCEL_OPTION) {
-      YAWLEditor.setStatusBarTextToPrevious();
-      return;
+    if (SpecificationUndoManager.getInstance().isDirty()) {
+      int response = getSaveOnCloseConfirmation();
+      if (response == JOptionPane.CANCEL_OPTION) {
+        YAWLEditor.setStatusBarTextToPrevious();
+        return;
+      }
+      if (response == JOptionPane.YES_OPTION) {
+        saveWhilstClosing();
+      }
+      else {
+        closeWithoutSaving();
+      }
     }
-    if (response == JOptionPane.YES_OPTION) {
-      saveWhilstClosing();
-    } else {
-      closeWithoutSaving();
-    }
+    else closeWithoutSaving();
   }
   
   private int getSaveOnCloseConfirmation() {
     return JOptionPane.showConfirmDialog(
         YAWLEditor.getInstance(),
-        "You have chosen to close this specification.\n"
-            + "Do you wish to save your changes before closing?\n\n"
-            + "Choose 'yes' to save the specification as-is, 'no' to lose all unsaved changes.",
-        "Save changes before closing?", 
+            "Do you wish to save your changes before closing?   \n\n"
+            + "\t\t\t'Yes' to save the specification,\n"
+            + "\t\t\t'No' to discard unsaved changes,\n"
+            + "\t\t\t'Cancel' to continue editing.\n\n",
+        "Save changes?",
         JOptionPane.YES_NO_CANCEL_OPTION,
         JOptionPane.QUESTION_MESSAGE);
   }
@@ -309,17 +308,20 @@ public class SpecificationArchiveHandler {
     boolean saveNotCancelled = true;
 
     if (SpecificationFileModel.getInstance().getFileCount() > 0) {
-      int response = getSaveOnCloseConfirmation();
-      if (response == JOptionPane.CANCEL_OPTION) {
-        YAWLEditor.setStatusBarTextToPrevious();
-        return;
-      }
+      if (SpecificationUndoManager.getInstance().isDirty()) {
+        int response = getSaveOnCloseConfirmation();
+        if (response == JOptionPane.CANCEL_OPTION) {
+          YAWLEditor.setStatusBarTextToPrevious();
+          return;
+        }
       
-      if (response == JOptionPane.YES_OPTION) {
-        saveNotCancelled = saveWhilstClosing();
-      } else {
-        closeWithoutSaving();
+        if (response == JOptionPane.YES_OPTION) {
+          saveNotCancelled = saveWhilstClosing();
+        } else {
+          closeWithoutSaving();
+        }
       }
+      else closeWithoutSaving();
     }
 
     if (saveNotCancelled) {
@@ -455,7 +457,7 @@ public class SpecificationArchiveHandler {
     SpecificationModel.getInstance().setDescription(state.getDescription());
     SpecificationModel.getInstance().setId(state.getId());
     SpecificationModel.getInstance().setAuthor(state.getAuthor());
-    SpecificationModel.getInstance().setVersionNumber(state.getVersionNumber());
+    SpecificationModel.getInstance().setVersionNumber(new YSpecVersion(String.valueOf(state.getVersionNumber())));
     SpecificationModel.getInstance().setValidFromTimestamp(state.getValidFromTimestamp());
     SpecificationModel.getInstance().setValidUntilTimestamp(state.getValidUntilTimestamp());
     

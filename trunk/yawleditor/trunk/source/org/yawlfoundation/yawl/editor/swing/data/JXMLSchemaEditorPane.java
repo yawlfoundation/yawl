@@ -22,9 +22,14 @@
 
 package org.yawlfoundation.yawl.editor.swing.data;
 
-import java.util.List;
-
+import org.yawlfoundation.yawl.editor.swing.menu.DataTypeDialogToolBarMenu;
+import org.yawlfoundation.yawl.editor.swing.menu.YAWLToolBarButton;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
+import javax.swing.text.PlainDocument;
+import java.util.List;
 
 public class JXMLSchemaEditorPane extends JProblemReportingEditorPane {
   
@@ -49,9 +54,12 @@ class JXMLSchemaEditor extends ValidityEditorPane {
     setDocument(
         new XMLSchemaStyledDocument(this)
     );
+    getDocument().putProperty(PlainDocument.tabSizeAttribute, 2);
+    addCaretListener(new SelectionListener());
   }
+    
 
-  class XMLSchemaStyledDocument extends AbstractXMLStyledDocument {
+ class XMLSchemaStyledDocument extends AbstractXMLStyledDocument {
 
     /**
      * 
@@ -87,5 +95,21 @@ class JXMLSchemaEditor extends ValidityEditorPane {
       );
     }
   }
+
+  class SelectionListener implements CaretListener {
+     public SelectionListener() {
+         super();
+     }
+
+     public void caretUpdate(CaretEvent e) {
+        YAWLToolBarButton btnCut = 
+                            DataTypeDialogToolBarMenu.getInstance().getButton("cut") ;
+        YAWLToolBarButton btnCopy =
+                            DataTypeDialogToolBarMenu.getInstance().getButton("copy") ;
+        if (btnCut != null) btnCut.setEnabled(e.getDot() != e.getMark());
+        if (btnCopy != null) btnCopy.setEnabled(e.getDot() != e.getMark());
+     }
+  }
+
 }
 

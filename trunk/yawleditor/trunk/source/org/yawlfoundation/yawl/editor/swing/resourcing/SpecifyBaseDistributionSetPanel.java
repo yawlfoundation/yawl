@@ -1,37 +1,19 @@
 package org.yawlfoundation.yawl.editor.swing.resourcing;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import org.yawlfoundation.yawl.editor.resourcing.DataVariableContent;
+import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
+import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
+import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
+import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-
-import org.yawlfoundation.yawl.editor.data.DataVariable;
-import org.yawlfoundation.yawl.editor.data.DataVariableUtilities;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
-import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
-import org.yawlfoundation.yawl.editor.resourcing.DataVariableContent;
-import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
-import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
-import org.yawlfoundation.yawl.editor.swing.JUtilities;
-import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
+import java.awt.*;
+import java.util.LinkedList;
+import java.util.List;
 
 public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
 
@@ -60,11 +42,13 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
     gbc.insets = new Insets(0,0,15,0);
 
     JLabel discussion = new JLabel(
-        "<html><body>The offer process involves choossing a number of users that should be " +
-        "informed of the existance of the work item, one of whom should eventually do this " +
-        "work. As you have asked that the system automatically do this, you must now specify " +
-        "how the system should automatically go about offering the work item. Begin by" +
-        "specifying a set of users to distribute offers of work to.</body></html>"
+        "<html><body>The offer process involves choosing which participants should be " +
+        "informed of the existence of the work item, one of whom will eventually do this " +
+        "work. As you have specified the system manage the offer process, you must now choose " +
+        "who the work item should be offered to. Begin by " +
+        "specifying a set of participants and/or to distribute offers of work to. " +
+        "You may also specify a net parameter which at runtime will contain " +
+        "a participant's userid or the name of a role.</body></html>"
     );
     
     add(discussion,gbc);
@@ -125,28 +109,27 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
   }
 
   public void refresh() {
-    userPanel.setUserList(
-        ResourcingServiceProxy.getInstance().getAllParticipants()
-    );
+    List<ResourcingParticipant> liveList =
+                               ResourcingServiceProxy.getInstance().getAllParticipants();
+    userPanel.setUserList(liveList);
 
     /* 
      * We got nothing back, but we still have a list of users already
      * recorded. Use this recorded list as the base list.
      */
-    if (ResourcingServiceProxy.getInstance().getAllParticipants().size() == 0 &&
-        getResourceMapping().getBaseUserDistributionList().size() > 0) {
-      userPanel.setUserList(
-          getResourceMapping().getBaseUserDistributionList()    
-      );
+    if (liveList.size() == 0) {
+      List<ResourcingParticipant> cacheList =
+                                  getResourceMapping().getBaseUserDistributionList() ;
+      if ((cacheList != null) && (cacheList.size() > 0))
+        userPanel.setUserList(cacheList);
     }
     
     userPanel.setSelectedUsers(
       getResourceMapping().getBaseUserDistributionList()    
     );
 
-    rolesPanel.setRoles(
-        ResourcingServiceProxy.getInstance().getAllRoles()
-    );
+    List<ResourcingRole> liveRoles = ResourcingServiceProxy.getInstance().getAllRoles();
+    rolesPanel.setRoles(liveRoles);
 
 
     /* 
@@ -154,11 +137,10 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
      * recorded. Use this recorded list as the base list.
      */
 
-    if (ResourcingServiceProxy.getInstance().getAllRoles().size() == 0 &&
-        getResourceMapping().getBaseRoleDistributionList().size() > 0) {
-      rolesPanel.setRoles(
-          getResourceMapping().getBaseRoleDistributionList()    
-      );
+    if (liveRoles.size() == 0) {
+       List<ResourcingRole> cacheRoles = getResourceMapping().getBaseRoleDistributionList();
+       if ((cacheRoles != null) && (cacheRoles.size() > 0))
+          rolesPanel.setRoles(cacheRoles);
     }
     
     rolesPanel.setSelectedRoles(
@@ -196,7 +178,7 @@ class UserPanel extends JPanel implements ListSelectionListener {
   }
   
   private void buildInterface() {
-    setBorder(new TitledBorder("Users"));
+    setBorder(new TitledBorder("Participants"));
 
     GridBagLayout gbl = new GridBagLayout();
     GridBagConstraints gbc = new GridBagConstraints();
@@ -434,7 +416,7 @@ class TaskInputParameterPanel extends JPanel {
   }
   
   private void buildInterface() {
-    setBorder(new TitledBorder("Task Input Parameters"));
+    setBorder(new TitledBorder("Net Parameters"));
 
     GridBagLayout gbl = new GridBagLayout();
     GridBagConstraints gbc = new GridBagConstraints();

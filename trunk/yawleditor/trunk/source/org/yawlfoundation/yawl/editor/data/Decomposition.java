@@ -146,4 +146,8 @@ public class Decomposition implements Serializable {
   public boolean invokesWorklist() {
     return false;
   }
+
+  public boolean isManualInteraction() {
+    return false;
+  }
 }

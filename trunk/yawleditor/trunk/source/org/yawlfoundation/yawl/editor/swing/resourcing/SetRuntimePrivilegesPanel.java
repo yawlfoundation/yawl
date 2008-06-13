@@ -1,12 +1,9 @@
 package org.yawlfoundation.yawl.editor.swing.resourcing;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
 
 import javax.swing.border.EmptyBorder;
-
-import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
+import java.awt.*;
 
 public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
 
@@ -68,7 +65,7 @@ public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
   
   private RuntimePrivilegePanel getSuspendWorkItemPanel() {
     return new RuntimePrivilegePanel(
-        "Can a user suspend a started work item of this task?",
+        "Can a participant suspend a started work item of this task?",
         ResourceMapping.CAN_SUSPEND_PRIVILEGE,
         this
     );
@@ -76,7 +73,7 @@ public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
 
   private RuntimePrivilegePanel getReallocateStatelessPanel() {
     return new RuntimePrivilegePanel(
-        "Can a user reallocate a work item of this task to another user, resetting state?",
+        "Can a participant reallocate a work item of this task to another participant, resetting state?",
         ResourceMapping.CAN_REALLOCATE_STATELESS_PRIVILEGE,
         this
     );
@@ -84,7 +81,7 @@ public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
 
   private RuntimePrivilegePanel getReallocateStatefulPanel() {
     return new RuntimePrivilegePanel(
-        "Can a user reallocate a work item of this task to another user, retaining state?",    
+        "Can a participant reallocate a work item of this task to another participant, retaining state?",
         ResourceMapping.CAN_REALLOCATE_STATEFUL_PRIVILEGE,
         this
     );
@@ -92,7 +89,7 @@ public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
 
   private RuntimePrivilegePanel getDeallocatePanel() {
     return new RuntimePrivilegePanel(
-        "Can a user deallocate themselves from a work item of this task?",
+        "Can a participant deallocate themselves from a work item of this task?",
         ResourceMapping.CAN_DEALLOCATE_PRIVILEGE,
         this
     );
@@ -100,7 +97,7 @@ public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
 
   private RuntimePrivilegePanel getDelegatePanel() {
     return new RuntimePrivilegePanel(
-        "Can a user delegate a work item of this task to some other user?",
+        "Can a participant delegate a work item of this task to another participant?",
         ResourceMapping.CAN_DELEGATE_PRIVILEGE,
         this
     );
@@ -108,14 +105,14 @@ public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
 
   private RuntimePrivilegePanel getSkipPanel() {
     return new RuntimePrivilegePanel(
-        "Can a user skip a work item of this task?",
+        "Can a participant skip a work item of this task?",
         ResourceMapping.CAN_SKIP_PRIVILEGE,
         this
     );
   }
 
   public String getWizardStepTitle() {
-    return "Establish Default User Runtime Privileges";
+    return "Establish Default User Runtime Privileges for this Task";
   }
   
   protected void initialise() {

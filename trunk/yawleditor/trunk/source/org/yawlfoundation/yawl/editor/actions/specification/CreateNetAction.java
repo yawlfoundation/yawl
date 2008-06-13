@@ -24,13 +24,12 @@
 
 package org.yawlfoundation.yawl.editor.actions.specification;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-import javax.swing.KeyStroke;
-
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 public class CreateNetAction extends YAWLOpenSpecificationAction implements TooltipTogglingWidget {
   /**
@@ -49,6 +48,7 @@ public class CreateNetAction extends YAWLOpenSpecificationAction implements Tool
   
   public void actionPerformed(ActionEvent event) {
     YAWLEditorDesktop.getInstance().newNet();
+    SpecificationUndoManager.getInstance().setDirty(true);      
   }
   
   public String getEnabledTooltipText() {

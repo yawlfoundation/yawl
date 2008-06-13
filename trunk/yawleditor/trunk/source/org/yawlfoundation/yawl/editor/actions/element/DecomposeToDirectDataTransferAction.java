@@ -21,14 +21,13 @@
 
 package org.yawlfoundation.yawl.editor.actions.element;
 
-import org.yawlfoundation.yawl.editor.net.NetGraph;
-import org.yawlfoundation.yawl.editor.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.DataVariableSet;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
-
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.JSingleSelectTable;
 import org.yawlfoundation.yawl.editor.swing.JUtilities;
@@ -36,26 +35,18 @@ import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.swing.data.DecompositionLabelField;
 import org.yawlfoundation.yawl.editor.swing.element.AbstractTaskDoneDialog;
 
-import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.AbstractTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.swing.Action;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.SwingConstants;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.table.AbstractTableModel;
 
 public class DecomposeToDirectDataTransferAction extends YAWLSelectedNetAction
                                            implements TooltipTogglingWidget {
@@ -72,7 +63,7 @@ public class DecomposeToDirectDataTransferAction extends YAWLSelectedNetAction
     putValue(Action.NAME, "Decompose to Direct Data Transfer...");
     putValue(Action.LONG_DESCRIPTION, "Decompose task to directly transfer data to and from the net.");
     putValue(Action.SMALL_ICON, getIconByName("Blank"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_D));
+    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_E));
   }
   
   public DecomposeToDirectDataTransferAction(YAWLTask task, NetGraph graph) {

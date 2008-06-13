@@ -1,15 +1,15 @@
 package org.yawlfoundation.yawl.editor.resourcing;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.DataVariableUtilities;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+
+import java.io.Serializable;
+import java.util.*;
 
 public class ResourceMapping implements Serializable, Cloneable  {
   
@@ -102,13 +102,8 @@ public class ResourceMapping implements Serializable, Cloneable  {
   
   private List<DataVariableContent> buildDefaultBaseVariableContentList() {
     LinkedList<DataVariableContent> list = new LinkedList<DataVariableContent>();
-    
-    List<DataVariable> validPossibleVariables = 
-      DataVariableUtilities.getVariablesOfType(
-          ((YAWLTask) getResourceRequiringTask()).getVariables().getInputVariables(),
-          DataVariable.XML_SCHEMA_STRING_TYPE
-    );
-    
+
+    List<DataVariable> validPossibleVariables = getNetVariablesValidForResourcing();
     for(DataVariable variable : validPossibleVariables) {
       
       list.add(new DataVariableContent(variable));
@@ -116,6 +111,16 @@ public class ResourceMapping implements Serializable, Cloneable  {
 
     return list;
   }
+
+
+  private List<DataVariable> getNetVariablesValidForResourcing() {
+    NetGraph selectedGraph = YAWLEditorDesktop.getInstance().getSelectedGraph() ;
+    Decomposition decomp = selectedGraph.getNetModel().getDecomposition();
+
+    return  DataVariableUtilities.getVariablesOfType(decomp.getVariables(),
+                                         DataVariable.XML_SCHEMA_STRING_TYPE);
+  }
+
 
   public void setBaseUserDistributionList(List<ResourcingParticipant> userList) {
     serializationProofAttributeMap.put("baseUserDistributionList", userList);
@@ -164,7 +169,8 @@ public class ResourceMapping implements Serializable, Cloneable  {
     }
     
     LinkedList<DataVariable> variablesToAdd = new LinkedList<DataVariable>();
-    for(DataVariable variable : ((YAWLTask) getResourceRequiringTask()).getVariables().getInputVariables()) {
+    List<DataVariable> varList = getNetVariablesValidForResourcing();
+    for(DataVariable variable : varList) {
       boolean variableFound = false;
       for(DataVariableContent variableContent : getBaseVariableContentList()) {
         if (variableContent.getVariable() == variable) {

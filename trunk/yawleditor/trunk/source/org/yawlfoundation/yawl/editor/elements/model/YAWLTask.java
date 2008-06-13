@@ -24,24 +24,18 @@
 
 package org.yawlfoundation.yawl.editor.elements.model;
 
+import org.jgraph.graph.GraphConstants;
 import org.yawlfoundation.yawl.editor.data.DataVariableSet;
-import org.yawlfoundation.yawl.editor.data.ParameterLists;
-import org.yawlfoundation.yawl.editor.data.Parameter;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
-
+import org.yawlfoundation.yawl.editor.data.Parameter;
+import org.yawlfoundation.yawl.editor.data.ParameterLists;
 import org.yawlfoundation.yawl.editor.net.CancellationSet;
 import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-
-import org.jgraph.graph.GraphConstants;
+import java.net.URL;
+import java.util.*;
 
 public abstract class YAWLTask extends YAWLVertex {
 
@@ -253,6 +247,14 @@ public abstract class YAWLTask extends YAWLVertex {
   
   public ResourceMapping getResourceMapping() {
     return (ResourceMapping) serializationProofAttributeMap.get("resourceMapping");
+  }
+
+  public void setCustomFormURL(URL url) {
+    serializationProofAttributeMap.put("customFormURL", url);
+  }
+
+  public URL getCustomFormURL() {
+    return (URL) serializationProofAttributeMap.get("customFormURL");
   }
 
   public DataVariableSet getVariables() {

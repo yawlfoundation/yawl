@@ -24,29 +24,22 @@
 
 package org.yawlfoundation.yawl.editor.actions.specification;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.util.prefs.Preferences;
-
-import javax.swing.Action;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.border.EmptyBorder;
-
 import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.actions.specification.YAWLOpenSpecificationAction;
 import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.JFormattedNumberField;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.EngineSpecificationExporter;
+import org.yawlfoundation.yawl.elements.YSpecVersion;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.util.prefs.Preferences;
 
 public class ExportToEngineFormatAction extends YAWLOpenSpecificationAction implements TooltipTogglingWidget {
 
@@ -108,10 +101,11 @@ class ExportConfigDialog extends AbstractDoneDialog {
   
   private JCheckBox verificationCheckBox;
   private JCheckBox analysisCheckBox;
+  private JCheckBox autoIncVersionCheckBox;
   private JCheckBox showDialogCheckBox;
   
   public ExportConfigDialog() {
-    super("Configure Export Behaviour", true);
+    super("Configure Export Settings", true);
 
     setContentPanel(getFontSizePanel());
     getDoneButton().addActionListener(
@@ -126,10 +120,16 @@ class ExportConfigDialog extends AbstractDoneDialog {
                 analysisCheckBox.isSelected()
             );
             prefs.putBoolean(
+                EngineSpecificationExporter.AUTO_INCREMENT_VERSION_WITH_EXPORT_PREFERENCE,
+                autoIncVersionCheckBox.isSelected()
+            );
+            prefs.putBoolean(
                 ExportToEngineFormatAction.SHOW_EXPORT_DIALOG_PREFERENCE, 
                 showDialogCheckBox.isSelected()
             );
-            
+
+            setSpecVersionNumber() ;
+
             ArchivingThread.getInstance().engineFileExport(
                 SpecificationModel.getInstance()    
             );
@@ -179,6 +179,11 @@ class ExportConfigDialog extends AbstractDoneDialog {
     panel.add(getAnalysisCheckBox(), gbc);
 
     gbc.gridy++;
+
+    panel.add(getAutoIncVersionCheckBox(), gbc);
+
+    gbc.gridy++;
+
     gbc.insets = new Insets(15,5,5,5);
     
     panel.add(getShowDialogCheckBox(), gbc);
@@ -196,7 +201,7 @@ class ExportConfigDialog extends AbstractDoneDialog {
     verificationCheckBox = new JCheckBox();
 
     verificationCheckBox.setText("Verify on export");
-    verificationCheckBox.setMnemonic(KeyEvent.VK_V);
+    verificationCheckBox.setMnemonic(KeyEvent.VK_E);
 
     return verificationCheckBox;
   }
@@ -210,6 +215,15 @@ class ExportConfigDialog extends AbstractDoneDialog {
     return analysisCheckBox;
   }
 
+  private JCheckBox getAutoIncVersionCheckBox() {
+    autoIncVersionCheckBox = new JCheckBox();
+
+    autoIncVersionCheckBox.setText("Auto Increment Minor Version Number");
+    autoIncVersionCheckBox.setMnemonic(KeyEvent.VK_I);
+
+    return autoIncVersionCheckBox;
+  }
+
   private JCheckBox getShowDialogCheckBox() {
     showDialogCheckBox = new JCheckBox();
 
@@ -218,15 +232,14 @@ class ExportConfigDialog extends AbstractDoneDialog {
 
     return showDialogCheckBox;
   }
+
+  private void setSpecVersionNumber() {
+      String version = String.valueOf(versionNumberField.getDouble());
+      SpecificationModel.getInstance().setVersionNumber(new YSpecVersion(version));
+  }
   
   public void setVisible(boolean visible) {
     if (visible) {
-      versionNumberField.setDouble(
-          SpecificationModel.getInstance().getVersionNumber()    
-      );
-      versionNumberField.setLowerBound(
-          SpecificationModel.getInstance().getVersionNumber()    
-      );
       verificationCheckBox.setSelected(
           prefs.getBoolean(
               EngineSpecificationExporter.VERIFICATION_WITH_EXPORT_PREFERENCE, 
@@ -239,7 +252,25 @@ class ExportConfigDialog extends AbstractDoneDialog {
               true
           )
       );
-      showDialogCheckBox.setSelected(true);
+      autoIncVersionCheckBox.setSelected(
+          prefs.getBoolean(
+              EngineSpecificationExporter.AUTO_INCREMENT_VERSION_WITH_EXPORT_PREFERENCE,
+              true
+          )
+      );
+      showDialogCheckBox.setSelected(
+          prefs.getBoolean(
+              ExportToEngineFormatAction.SHOW_EXPORT_DIALOG_PREFERENCE,
+              true
+          )
+      );
+
+      YSpecVersion version = SpecificationModel.getInstance().getVersionNumber();
+      if (autoIncVersionCheckBox.isSelected() || version.getVersion().equals("0.0")) {
+          version.minorIncrement();
+      }
+      versionNumberField.setDouble(version.getVersionAsDouble());
+      versionNumberField.setLowerBound(version.getVersionAsDouble());       
     }
     super.setVisible(visible);
   }

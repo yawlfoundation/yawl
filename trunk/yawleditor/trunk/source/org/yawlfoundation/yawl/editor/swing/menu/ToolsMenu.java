@@ -24,16 +24,14 @@
 
 package org.yawlfoundation.yawl.editor.swing.menu;
 
-import java.awt.event.KeyEvent;
-
-import javax.swing.JMenu;
-
 import org.yawlfoundation.yawl.editor.actions.tools.ConfigureAnalysisToolsAction;
 import org.yawlfoundation.yawl.editor.actions.tools.SetEngineDetailAction;
 import org.yawlfoundation.yawl.editor.actions.tools.SetResourcingServiceAction;
-
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 import org.yawlfoundation.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
+
+import javax.swing.*;
+import java.awt.event.KeyEvent;
 
 class ToolsMenu extends JMenu {
     
@@ -49,20 +47,18 @@ class ToolsMenu extends JMenu {
   }   
   
   protected void buildInterface() {
-    add(new YAWLMenuItem(new SetResourcingServiceAction()));
-    
-    if (YAWLEngineProxy.engineLibrariesAvailable()) {
-      addSeparator();
+
+    if (YAWLEngineProxy.engineLibrariesAvailable())
       add(new YAWLMenuItem(new SetEngineDetailAction()));
-      addSeparator();
+    
+    add(new YAWLMenuItem(new SetResourcingServiceAction()));
+
+    if (YAWLEngineProxy.engineLibrariesAvailable())
       add(new YAWLMenuItem(new ConfigureAnalysisToolsAction()));
-    }
+
   }
   
   public static boolean needsToBeAddedToMenus() {
-    if (YAWLEngineProxy.engineLibrariesAvailable() || WofYAWLProxy.wofYawlAvailable()) {
-      return true;
-    } 
-    return false;
+      return YAWLEngineProxy.engineLibrariesAvailable() || WofYAWLProxy.wofYawlAvailable();
   }
 }

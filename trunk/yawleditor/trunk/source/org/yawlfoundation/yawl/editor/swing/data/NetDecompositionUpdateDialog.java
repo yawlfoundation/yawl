@@ -23,30 +23,22 @@
 
 package org.yawlfoundation.yawl.editor.swing.data;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.BorderLayout;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyListener;
-import java.awt.event.KeyEvent;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.border.CompoundBorder;
-
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
-
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.JUtilities;
 
-import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 public class NetDecompositionUpdateDialog extends AbstractDoneDialog {
 
@@ -79,6 +71,7 @@ public class NetDecompositionUpdateDialog extends AbstractDoneDialog {
           getDecomposition().setLabel(labelField.getText());
           SpecificationModel.getInstance().propogateDecompositionLabelChange(getDecomposition(), oldLabel);
         }
+        SpecificationUndoManager.getInstance().setDirty(true);                
       }
     });
     

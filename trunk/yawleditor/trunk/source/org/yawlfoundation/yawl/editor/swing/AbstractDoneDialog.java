@@ -22,27 +22,20 @@
 
 package org.yawlfoundation.yawl.editor.swing;
 
-import javax.swing.JDialog;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 
-import java.awt.event.ActionEvent;
-
-import java.awt.BorderLayout;
-
-import java.util.LinkedList;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import java.awt.event.KeyEvent;
-import java.awt.Insets;
-import java.awt.event.ActionListener;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-
-import javax.swing.JPanel;
-import javax.swing.JButton;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.util.LinkedList;
 
 public abstract class AbstractDoneDialog extends JDialog {
   private JButton doneButton = buildDoneButton();
   private JButton cancelButton = buildCancelButton();
+  private JPanel buttonPanel;
   private boolean showCancelButton;
   
   public static final int DONE_BUTTON = 0;
@@ -107,6 +100,7 @@ public abstract class AbstractDoneDialog extends JDialog {
    button.addActionListener(new ActionListener(){
        public void actionPerformed(ActionEvent e) {
          dialog.setVisible(false);
+         SpecificationUndoManager.getInstance().setDirty(true);
          buttonSelected = DONE_BUTTON;
        }
      }
@@ -144,16 +138,16 @@ public abstract class AbstractDoneDialog extends JDialog {
   }
   
   private JPanel buildButtonPanel() {
-    JPanel panel = new JPanel();
-    panel.setBorder(new EmptyBorder(17,12,11,11));
-    panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+    buttonPanel = new JPanel();
+    buttonPanel.setBorder(new EmptyBorder(17,12,11,11));
+    buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
   
-    panel.add(Box.createHorizontalGlue());
-    panel.add(doneButton); 
+    buttonPanel.add(Box.createHorizontalGlue());
+    buttonPanel.add(doneButton);
 
     if (showCancelButton) {
-      panel.add(Box.createHorizontalStrut(10));
-      panel.add(cancelButton); 
+      buttonPanel.add(Box.createHorizontalStrut(10));
+      buttonPanel.add(cancelButton);
 
       LinkedList<JButton> buttonList = new LinkedList<JButton>();
 
@@ -162,11 +156,15 @@ public abstract class AbstractDoneDialog extends JDialog {
       
       JUtilities.equalizeComponentSizes(buttonList);
     }
-    panel.add(Box.createHorizontalGlue());
+    buttonPanel.add(Box.createHorizontalGlue());
   
-    return panel;
+    return buttonPanel;
   }
-  
+
+  protected JPanel getButtonPanel() {
+      return buttonPanel;
+  }
+
   public boolean cancelButtonSelected() {
     return this.buttonSelected == CANCEL_BUTTON;
   }

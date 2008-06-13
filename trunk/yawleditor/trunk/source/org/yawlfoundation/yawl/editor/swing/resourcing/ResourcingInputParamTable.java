@@ -23,24 +23,15 @@
 
 package org.yawlfoundation.yawl.editor.swing.resourcing;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
-
-import javax.swing.AbstractCellEditor;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JTable;
-import javax.swing.JLabel;
-
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
-
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.resourcing.DataVariableContent;
 import org.yawlfoundation.yawl.editor.swing.JOrderedSingleSelectTable;
+
+import javax.swing.*;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import java.awt.*;
+import java.util.List;
 
 public class ResourcingInputParamTable extends JOrderedSingleSelectTable {
 
@@ -75,25 +66,25 @@ public class ResourcingInputParamTable extends JOrderedSingleSelectTable {
         getMaximumNameWidth()
     );
 
-    getColumn("Type").setMinWidth(
-        getMaximumTypeWidth()
-    );
-    getColumn("Type").setPreferredWidth(
-        getMaximumTypeWidth()
-    );
-    
-    getColumn("Contains").setMinWidth(
+//    getColumn("Type").setMinWidth(
+//        getMaximumTypeWidth()
+//    );
+//    getColumn("Type").setPreferredWidth(
+//        getMaximumTypeWidth()
+//    );
+//
+    getColumn("Refers to").setMinWidth(
         getMessageWidth(
             DataVariable.usageToString(DataVariable.USAGE_INPUT_AND_OUTPUT)
          )
     );
-    getColumn("Contains").setPreferredWidth(
+    getColumn("Refers to").setPreferredWidth(
         getMessageWidth(
             DataVariable.usageToString(DataVariable.USAGE_INPUT_AND_OUTPUT)
          )
     );
 
-    getColumn("Contains").setResizable(false);
+    getColumn("Refers to").setResizable(false);
     
     getColumnModel().getColumn(
        ResourcingInputParamTableModel.CONTAINS_COLUMN    
@@ -118,9 +109,9 @@ public class ResourcingInputParamTable extends JOrderedSingleSelectTable {
 
     JComponent component = (JComponent) super.prepareRenderer(renderer, row, col);
     
-    if (col == ResourcingInputParamTableModel.TYPE_COLUMN) {
-      ((JLabel) component).setHorizontalAlignment(JLabel.CENTER);
-    }
+//    if (col == ResourcingInputParamTableModel.TYPE_COLUMN) {
+//      ((JLabel) component).setHorizontalAlignment(JLabel.CENTER);
+//    }
 
     return component;
   }
@@ -219,7 +210,7 @@ class VariableContentsComboBoxEditor extends AbstractCellEditor implements Table
   
   private JComboBox buildComponent() {
     final JComboBox box = new JComboBox(
-        new String[] { "Data", "Roles", "Users" }
+        new String[] { "Data", "Participant", "Role" }
     );
 
     return box;

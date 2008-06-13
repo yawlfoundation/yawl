@@ -24,29 +24,20 @@
 
 package org.yawlfoundation.yawl.editor.actions.net;
 
-import java.awt.event.ActionEvent;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
-
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 
-import java.awt.event.ActionListener;
-
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-
-import java.util.Set;
-import java.util.Arrays;
-
-import javax.swing.Action;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JComboBox;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Arrays;
+import java.util.Set;
 
 public class SetStartingNetAction extends YAWLExistingNetAction {
   /**
@@ -95,7 +86,8 @@ class StartingNetDialog extends AbstractDoneDialog {
                       SpecificationModel.getInstance(),
                       (String) netComboBox.getSelectedItem()
                   )
-              );
+              );           
+              SpecificationUndoManager.getInstance().setDirty(true);
             }
           }
         }

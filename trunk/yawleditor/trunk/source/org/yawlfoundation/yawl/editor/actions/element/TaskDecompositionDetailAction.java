@@ -24,21 +24,19 @@
 
 package org.yawlfoundation.yawl.editor.actions.element;
 
-import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
-
 import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.swing.JUtilities;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
-import org.yawlfoundation.yawl.editor.swing.data.TaskDecompositionUpdateDialog;
 import org.yawlfoundation.yawl.editor.swing.data.NetDecompositionUpdateDialog;
+import org.yawlfoundation.yawl.editor.swing.data.TaskDecompositionUpdateDialog;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.HashMap;
-
-import javax.swing.Action;
 
 public class TaskDecompositionDetailAction extends YAWLSelectedNetAction 
                                            implements TooltipTogglingWidget {
@@ -58,7 +56,7 @@ public class TaskDecompositionDetailAction extends YAWLSelectedNetAction
     putValue(Action.NAME, "Task Decomposition Detail...");
     putValue(Action.LONG_DESCRIPTION, "Manage the decomposition this task points to.");
     putValue(Action.SMALL_ICON, getIconByName("DecompositionDetail"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_D));
+    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_A));
   }
   
   public TaskDecompositionDetailAction(YAWLTask task, NetGraph graph) {

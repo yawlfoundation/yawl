@@ -23,38 +23,23 @@
 
 package org.yawlfoundation.yawl.editor.swing.data;
 
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.BorderLayout;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
-
-import javax.swing.BorderFactory;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.border.CompoundBorder;
-
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.DataVariableSet;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
-
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.swing.data.YawlServiceComboBox;
-
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+
+import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.io.IOException;
 
 public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog {
   
@@ -66,7 +51,8 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
   private YawlServiceComboBox yawlServiceComboBox;
   
   private JPanel webServicePanel;
-  
+  private JCheckBox cbxAutomated ;
+
   private String cachedYAWLServiceID;
   
   protected JPanel attributesPanel; //MLF
@@ -96,6 +82,7 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
             applyChange();
           }
         }
+        getWebServiceDecomposition().setManualInteraction(! cbxAutomated.isSelected());        
       }
       
       private void applyChange() {
@@ -107,7 +94,7 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
         getWebServiceDecomposition().setYawlServiceDescription(
             (String) yawlServiceComboBox.getSelectedItem()
         );
-          
+
         getDecomposition().setVariables(
             generateDataVariablesFromServiceSelection()
         );
@@ -137,6 +124,7 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
     JPanel innerPanel = new JPanel(new BorderLayout()); //MLF
 
     innerPanel.add(getWebServiceDecompositionPanel(), BorderLayout.NORTH);
+    innerPanel.add(getInteractionPanel(), BorderLayout.CENTER);
     innerPanel.add(getExtendedAttributeDisablePanel(), BorderLayout.SOUTH);
     panel.add(innerPanel, BorderLayout.SOUTH);
 
@@ -208,7 +196,7 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
 
     return webServicePanel;
   }
-  
+
   private YawlServiceComboBox getYawlServiceComboBox() {
     yawlServiceComboBox = new YawlServiceComboBox();
     yawlServiceComboBox.setEnabled(false);
@@ -224,14 +212,34 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
     });
     return yawlServiceComboBox;
   }
-  
+
+
+  private JPanel getInteractionPanel() {
+    JPanel result = new JPanel();
+
+    result.setBorder(
+      new CompoundBorder(
+        new EmptyBorder(0,10,0,12),
+        new TitledBorder("External Interaction")
+      )
+    );
+
+    cbxAutomated = new JCheckBox("Automated");
+    cbxAutomated.setMnemonic(KeyEvent.VK_A);
+
+    result.add(cbxAutomated);
+    return result;
+  }
+
+
   protected void setContent() {
     super.setContent();
 
     cachedYAWLServiceID = getWebServiceDecomposition().getYawlServiceID();
+    cbxAutomated.setSelected(! getWebServiceDecomposition().isManualInteraction());
 
     setTitle(DataVariable.SCOPE_TASK);
-    
+
     yawlServiceComboBox.setEnabled(false);
     
     Thread refreshThread = new Thread(){

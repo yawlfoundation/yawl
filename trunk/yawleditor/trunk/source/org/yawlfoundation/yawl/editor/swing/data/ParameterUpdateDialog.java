@@ -23,41 +23,21 @@
 
 package org.yawlfoundation.yawl.editor.swing.data;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.BorderLayout;
-import java.awt.Insets;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseAdapter;
-
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JButton;
-import javax.swing.Timer;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.TitledBorder;
-
-import org.yawlfoundation.yawl.editor.data.Parameter;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.DataVariableSet;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
-
+import org.yawlfoundation.yawl.editor.data.Parameter;
 import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
-
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.JUtilities;
-import org.yawlfoundation.yawl.editor.swing.data.JXQueryEditorPane;
-import org.yawlfoundation.yawl.editor.swing.data.DataVariableComboBox;
+
+import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.awt.event.*;
 
 public class ParameterUpdateDialog extends AbstractDoneDialog {
   /**
@@ -88,6 +68,9 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
 
   private JButton inputVariableQueryContentButton;
   private JButton inputVariableQueryElementButton;
+
+  private JRadioButton rbElement;
+  private JRadioButton rbExpression;
   
   private JButton newVariableButton;
   private XQueryEditorPanel xQueryEditorPanel;
@@ -152,6 +135,10 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
   public void setOutputVariableScope(Decomposition variableScope) {
     this.outputVariableScope = variableScope;
   }
+
+  public void setRadioButtonSelected() {
+    if (rbElement != null) rbElement.setSelected(true);
+  }
   
   private void setTitle() {
     if (parameter.getVariable() == null ||
@@ -181,25 +168,58 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
     gbc.weighty = 0;
     gbc.weightx = 0.333;
     gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.EAST;
 
-    gbc.insets = new Insets(0,0,5,5);
-    JLabel sourceVariableLabel = 
-      new JLabel(
-          "from element of " +
-          DataVariable.scopeToString(inputType).toLowerCase() + 
-          " variable:"
-      );
-    sourceVariableLabel.setHorizontalAlignment(JLabel.RIGHT);
-    sourceVariableLabel.setDisplayedMnemonic('v');
+    if (transitionType == NET_TO_TASK) {
+      gbc.anchor = GridBagConstraints.EAST;
+      gbc.insets = new Insets(0,0,5,5);
 
-    panel.add(sourceVariableLabel, gbc);
+      JLabel sourceVariableLabel =
+        new JLabel(
+            "from element of " +
+            DataVariable.scopeToString(inputType).toLowerCase() +
+            " variable:"
+        );
+      sourceVariableLabel.setHorizontalAlignment(JLabel.RIGHT);
+      sourceVariableLabel.setDisplayedMnemonic('v');
+      panel.add(sourceVariableLabel, gbc);
+      gbc.fill = GridBagConstraints.HORIZONTAL;
+      gbc.anchor = GridBagConstraints.EAST;
+    }
+    else {
+      gbc.anchor = GridBagConstraints.FIRST_LINE_START;
+      rbElement = new JRadioButton("from element of " +
+            DataVariable.scopeToString(inputType).toLowerCase() +
+            " variable:"
+        );
+      rbElement.setMnemonic('v');
+      rbElement.setSelected(true);
+      rbElement.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent event) {
+          enableElementControls(true);
+        }
+      } ) ;
+      panel.add(rbElement, gbc);
+
+      gbc.gridy++;
+      rbExpression = new JRadioButton("from expression");
+      rbExpression.setMnemonic('x');
+      rbExpression.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent event) {
+          enableElementControls(false);
+        }
+      } ) ;
+      panel.add(rbExpression, gbc);
+
+      ButtonGroup group = new ButtonGroup();
+      group.add(rbElement);
+      group.add(rbExpression);
+    
+    gbc.gridy = 0;
+    }
 
     gbc.gridx++;
-    gbc.fill = GridBagConstraints.HORIZONTAL;
     gbc.insets = new Insets(0,5,5,5);
     panel.add(getSourceVariableComboBox(),gbc);
-    sourceVariableLabel.setLabelFor(sourceVariableComboBox);
     
     gbc.gridx++;
     gbc.gridheight = 1;
@@ -237,7 +257,7 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
           " variable:"
       );
     sinkVariableLabel.setHorizontalAlignment(JLabel.RIGHT);
-    sinkVariableLabel.setDisplayedMnemonic('v');
+    sinkVariableLabel.setDisplayedMnemonic('p');
 
     panel.add(sinkVariableLabel, gbc);
 
@@ -252,6 +272,12 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
     panel.add(getNewOutputVariableButton(),gbc);
 
     return panel;
+  }
+
+  private void enableElementControls(boolean flag) {
+    inputVariableQueryElementButton.setEnabled(flag);
+    inputVariableQueryContentButton.setEnabled(flag);
+    sourceVariableComboBox.setEnabled(flag);
   }
   
   private JButton getNewInputVariableQueryElementButton() {

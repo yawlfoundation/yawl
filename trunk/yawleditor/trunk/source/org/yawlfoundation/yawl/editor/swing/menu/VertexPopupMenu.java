@@ -23,33 +23,14 @@
 
 package org.yawlfoundation.yawl.editor.swing.menu;
 
-import org.yawlfoundation.yawl.editor.actions.CutAction;
 import org.yawlfoundation.yawl.editor.actions.CopyAction;
-import org.yawlfoundation.yawl.editor.actions.element.LabelElementAction;
-import org.yawlfoundation.yawl.editor.actions.element.ManageResourcingAction;
-import org.yawlfoundation.yawl.editor.actions.element.SetMultipleInstanceDetailAction;
-import org.yawlfoundation.yawl.editor.actions.element.SetUnfoldingNetAction;
-import org.yawlfoundation.yawl.editor.actions.element.TaskTimeoutDetailAction;
-import org.yawlfoundation.yawl.editor.actions.element.UpdateParametersAction;
-import org.yawlfoundation.yawl.editor.actions.element.UpdateFlowDetailsAction;
-import org.yawlfoundation.yawl.editor.actions.element.ViewCancellationSetAction;
-import org.yawlfoundation.yawl.editor.actions.element.DecomposeToDirectDataTransferAction;
-import org.yawlfoundation.yawl.editor.actions.element.SelectTaskDecompositionAction;
-import org.yawlfoundation.yawl.editor.actions.element.TaskDecompositionDetailAction;
-
+import org.yawlfoundation.yawl.editor.actions.CutAction;
+import org.yawlfoundation.yawl.editor.actions.element.*;
 import org.yawlfoundation.yawl.editor.actions.net.DeleteAction;
-
-import org.yawlfoundation.yawl.editor.elements.model.AtomicTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLCell;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLCompositeTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLMultipleInstanceTask;
-
+import org.yawlfoundation.yawl.editor.elements.model.*;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 
-import javax.swing.JPopupMenu;
+import javax.swing.*;
 
 public class VertexPopupMenu extends JPopupMenu {
 
@@ -62,6 +43,8 @@ public class VertexPopupMenu extends JPopupMenu {
   private YAWLPopupMenuItem updateFlowDetailsItem;
   private YAWLPopupMenuItem decompositionDetailItem;
   private YAWLPopupMenuItem manageResourcingItem;
+  private YAWLPopupMenuItem dropTaskDecompositionItem;
+  private YAWLPopupMenuItem customFormItem;
 
   
   public VertexPopupMenu(YAWLCell cell, NetGraph graph) {
@@ -117,6 +100,7 @@ public class VertexPopupMenu extends JPopupMenu {
     }
     
     if (vertex instanceof AtomicTask) {
+      addSeparator();
       add(
           new YAWLPopupMenuItem(
               new TaskTimeoutDetailAction(
@@ -151,6 +135,8 @@ public class VertexPopupMenu extends JPopupMenu {
               (YAWLTask) vertex, graph)
           )
       );
+
+      add(buildDropTaskDecompositionItem()) ;
     }
 
     add(buildDecompositionDetailItem());
@@ -171,9 +157,10 @@ public class VertexPopupMenu extends JPopupMenu {
     if (vertex instanceof YAWLAtomicTask) {
       addSeparator();
       add(buildManageResourcingItem());
+      add(buildCustomFormItem());
     }
   }
-  
+
   private YAWLPopupMenuCheckBoxItem buildViewCancellationSetItem() {
     ViewCancellationSetAction action = 
       new ViewCancellationSetAction((YAWLTask) cell, graph);
@@ -205,10 +192,23 @@ public class VertexPopupMenu extends JPopupMenu {
     return manageResourcingItem;
   }
 
+  private YAWLPopupMenuItem buildCustomFormItem() {
+    customFormItem =
+        new YAWLPopupMenuItem(new SetCustomFormAction((YAWLTask) cell, graph));
+    return customFormItem;
+  }
+
+
   private YAWLPopupMenuItem buildDecompositionDetailItem() {
     decompositionDetailItem = 
     new YAWLPopupMenuItem(new TaskDecompositionDetailAction((YAWLTask) cell, graph));
     return decompositionDetailItem;
+  }
+
+  private YAWLPopupMenuItem buildDropTaskDecompositionItem() {
+    dropTaskDecompositionItem =
+       new YAWLPopupMenuItem(new DropTaskDecompositionAction((YAWLTask) cell, graph));
+    return dropTaskDecompositionItem;
   }
 
   private YAWLPopupMenuItem buildFlowDetailItem() {
@@ -263,6 +263,17 @@ public class VertexPopupMenu extends JPopupMenu {
             manageResourcingItem.shouldBeEnabled()
         );
       }
+      if (dropTaskDecompositionItem != null) {
+        dropTaskDecompositionItem.setEnabled(
+            dropTaskDecompositionItem.shouldBeEnabled()
+        );
+      }
+      if (customFormItem != null) {
+        customFormItem.setEnabled(
+            customFormItem.shouldBeEnabled()
+        );
+      }
+
     }
     super.setVisible(state);
   }

@@ -42,12 +42,14 @@ public class WebServiceDecomposition extends Decomposition {
     super();
     setYawlServiceID(null);
     setYawlServiceDescription("");
+    setManualInteraction(true);
   }
   
   public WebServiceDecomposition(String yawlServiceID,
                                  String yawlServiceDescription) {
     setYawlServiceID(yawlServiceID);
     setYawlServiceDescription(yawlServiceDescription);
+    setManualInteraction(false);
   }
 
   public String getYawlServiceID() {
@@ -71,5 +73,13 @@ public class WebServiceDecomposition extends Decomposition {
       return true;
     }
     return false;
+  }
+
+  public void setManualInteraction(boolean isManual) {
+    serializationProofAttributeMap.put("manualInteraction", isManual);
+  }
+
+  public boolean isManualInteraction() {
+    return (Boolean) serializationProofAttributeMap.get("manualInteraction");
   }
 }

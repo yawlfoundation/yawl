@@ -24,43 +24,31 @@
 
 package org.yawlfoundation.yawl.editor.actions.element;
 
-import org.yawlfoundation.yawl.editor.net.NetGraph;
+import com.toedter.calendar.JDateChooser;
 import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
+import org.yawlfoundation.yawl.editor.data.DataVariableSet;
 import org.yawlfoundation.yawl.editor.elements.model.AtomicTask;
 import org.yawlfoundation.yawl.editor.elements.model.TaskTimeoutDetail;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
-
-import org.yawlfoundation.yawl.editor.data.DataVariable;
-import org.yawlfoundation.yawl.editor.data.DataVariableSet;
-import org.yawlfoundation.yawl.editor.data.Decomposition;
-import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.JFormattedDateField;
 import org.yawlfoundation.yawl.editor.swing.JUtilities;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.swing.data.DurationDataVariableComboBox;
 import org.yawlfoundation.yawl.editor.swing.data.JXMLSchemaDurationEditorPane;
-import org.yawlfoundation.yawl.editor.swing.data.TaskDecompositionUpdateDialog;
-import org.yawlfoundation.yawl.editor.swing.data.NetDecompositionUpdateDialog;
 import org.yawlfoundation.yawl.editor.swing.element.AbstractTaskDoneDialog;
-import org.yawlfoundation.yawl.editor.swing.resourcing.ManageResourcingDialog;
+import org.yawlfoundation.yawl.editor.swing.resourcing.JTimeSpinner;
 
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.util.HashMap;
-
-import javax.swing.Action;
-import javax.swing.ButtonGroup;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JSeparator;
-import javax.swing.border.EmptyBorder;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class TaskTimeoutDetailAction extends YAWLSelectedNetAction 
                                            implements TooltipTogglingWidget {
@@ -74,8 +62,8 @@ public class TaskTimeoutDetailAction extends YAWLSelectedNetAction
   
   {
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-    putValue(Action.NAME, "Task Timeout Detail...");
-    putValue(Action.LONG_DESCRIPTION, "Manage the timeout behaviour of this task. ");
+    putValue(Action.NAME, "Set Task Timer...");
+    putValue(Action.LONG_DESCRIPTION, "Manage the timer behaviour of this task. ");
     putValue(Action.SMALL_ICON, getIconByName("TaskTimeout"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_T));
   }
@@ -118,7 +106,8 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
   private JRadioButton viaNetVariableRadioButton;
   
   private JRadioButton viaStaticDateRadioButton;
-  private JFormattedDateField dateValueField;
+//  private JFormattedDateField dateValueField;
+    private JPanel dateValueField;
 
   private JRadioButton viaStaticDurationRadioButton;
   private JXMLSchemaDurationEditorPane durationValueEditor;
@@ -157,8 +146,8 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
           );
         }
         if (viaStaticDateRadioButton.isSelected()) {
-          detail.setTimeoutDate(
-            dateValueField.getDate()
+         detail.setTimeoutDate(
+            getStaticDate(dateValueField)
           );
         }
 
@@ -175,12 +164,14 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
         getAtomicTask().setTimeoutDetail(
             detail
         );
+
+        SpecificationUndoManager.getInstance().setDirty(true);
       }
     });
   }
 
   protected void makeLastAdjustments() {
-    setSize(500,400);
+    setSize(550,400);
 //    pack();
     JUtilities.setMinSizeToCurrent(this); 
     setResizable(true);
@@ -226,9 +217,9 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
 
       if (getAtomicTask().getTimeoutDetail().getTimeoutDate() != null) {
         this.viaStaticDateRadioButton.setSelected(true);
-        this.dateValueField.setDate(
-            getAtomicTask().getTimeoutDetail().getTimeoutDate()
-        );
+//        this.dateValueField.setDate(
+//            getAtomicTask().getTimeoutDetail().getTimeoutDate()
+//        );
       }
       
       if (getAtomicTask().getTimeoutDetail().getTrigger() == TaskTimeoutDetail.TRIGGER_ON_ENABLEMENT) {
@@ -307,8 +298,9 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
     gbc.gridx++;
     gbc.fill = GridBagConstraints.HORIZONTAL;
 
-    panel.add(buildDateValueField(), gbc);
-    
+//    panel.add(buildDateValueField(), gbc);
+      panel.add(buildDateTimeValueField(), gbc);
+
     gbc.gridx--;
     gbc.gridy++;
     gbc.anchor = GridBagConstraints.NORTHWEST;
@@ -444,16 +436,60 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
   }
   
   private JFormattedDateField buildDateValueField() {
-    dateValueField = new JFormattedDateField("dd/MM/yyyy hh:mm:ss",20);
-    dateValueField.setToolTipText(" Specify a date limit in the form of 'dd/mm/yyyy hh:mm:ss' here ");
-
-    return dateValueField;
+//    dateValueField = new JFormattedDateField("dd/MM/yyyy hh:mm:ss",20);
+//    dateValueField.setToolTipText(" Specify a date limit in the form of 'dd/mm/yyyy hh:mm:ss' here ");
+//
+//    return dateValueField;
+      return null;
   }
 
-  
+  private JPanel buildDateTimeValueField() {
+      dateValueField = new JPanel();
+//      JTimeSpinner timePanel = new JTimeSpinner();
+      JDateChooser chooser = new JDateChooser();
+      chooser.setMinSelectableDate(Calendar.getInstance().getTime());
+      chooser.setDate(Calendar.getInstance().getTime());
+
+      // workaround for too narrow an edit field
+      chooser.setDateFormatString("dd/MM/yyyy ");
+      
+      dateValueField.add(chooser) ;
+      dateValueField.add(new JTimeSpinner()) ;
+      return dateValueField ;
+    }
+
+
+    private Date getStaticDate(JPanel dateField) {
+        Date date = null;
+        int time = 0;
+        Component[] widgets = dateField.getComponents();
+
+        for (int i=0; i<widgets.length; i++) {
+            Component widget = widgets[i] ;
+            if (widget instanceof JDateChooser) {
+                JDateChooser chooser = (JDateChooser) widget ;
+                date = chooser.getDate();
+            }
+            else if (widget instanceof JTimeSpinner) {
+                JTimeSpinner spinner = (JTimeSpinner) widget;
+                time = spinner.getTimeAsSeconds();
+            }
+        }
+        GregorianCalendar cal = new GregorianCalendar();
+        if (date != null) {
+            cal.setTime(date);
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
+            cal.add(Calendar.SECOND, time) ;
+            return cal.getTime();
+        }
+        else return null ;
+    }
+
   private DurationDataVariableComboBox buildDurationDataVariableComboBox() {
     durationVariableComboBox = new DurationDataVariableComboBox();
-    
+      
     durationVariableComboBox.setValidUsageType(
         DataVariableSet.VALID_USAGE_INPUT_FROM_NET    
     );

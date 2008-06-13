@@ -23,13 +23,12 @@
 
 package org.yawlfoundation.yawl.editor.thirdparty.resourcing;
 
-import java.util.List;
-
 import org.yawlfoundation.yawl.editor.resourcing.AllocationMechanism;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingFilter;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
-import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+
+import java.util.List;
 
 public class ResourcingServiceProxy implements ResourcingServiceProxyInterface {
   
@@ -87,6 +86,11 @@ public class ResourcingServiceProxy implements ResourcingServiceProxyInterface {
 
   public boolean testConnection() {
     return getImplementation().testConnection();
+  }
+
+  public boolean isLiveService() {
+    ResourcingServiceProxyInterface proxy = getImplementation();
+    return (proxy instanceof AvailableResourcingServiceProxyImplementation);
   }
   
   public boolean testConnection(String serviceURI, String userID, String password) {

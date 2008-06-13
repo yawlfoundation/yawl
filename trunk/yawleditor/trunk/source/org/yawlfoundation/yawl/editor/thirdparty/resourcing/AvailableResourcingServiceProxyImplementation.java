@@ -21,22 +21,20 @@
 
 package org.yawlfoundation.yawl.editor.thirdparty.resourcing;
 
-import java.util.prefs.Preferences;
-
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.resourcing.AllocationMechanism;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingFilter;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
-
-import java.util.List;
-import java.util.LinkedList;
-
-import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
 import org.yawlfoundation.yawl.resourcing.allocators.AbstractAllocator;
 import org.yawlfoundation.yawl.resourcing.filters.AbstractFilter;
-import org.yawlfoundation.yawl.resourcing.resource.Role;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.resourcing.resource.Role;
+import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.prefs.Preferences;
 
 public class AvailableResourcingServiceProxyImplementation implements ResourcingServiceProxyInterface {
   
@@ -46,6 +44,8 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
   private static String sessionHandle = null;
 
   private ResourceGatewayClientAdapter gateway;
+
+  private String serviceURI ;
   
   public void connect() {
     connect(
@@ -79,13 +79,18 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
     }
   }
   
-  private String tryConnect(String serviceURI, String userID, String password) {
-    if (gateway == null) {
-      gateway = new ResourceGatewayClientAdapter(serviceURI);
+  private String tryConnect(String uri, String userID, String password) {    
+    if ((userID == null) || (userID.length() == 0))
+       return "<failure>No userid specified.</failure>";
+    else if ((password == null) || (password.length() == 0))
+       return "<failure>No password specified.</failure>";
+    else {
+      if ((gateway == null) || (serviceURI == null) || (! uri.equals(serviceURI))) {
+        serviceURI = uri;
+        gateway = new ResourceGatewayClientAdapter(serviceURI);
+      }
+      return gateway.connect(userID, password) ;
     }
-    String thisSessionHandle = gateway.connect(userID, password);
-    //System.out.println("Session Handle on connect attempt = " + thisSessionHandle);
-    return thisSessionHandle;
   }
   
   public void disconnect() {
@@ -100,16 +105,16 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
     connect();
     
     List engineParticipants;
-    
+    LinkedList<ResourcingParticipant> participantList = new LinkedList<ResourcingParticipant>();
+
     try {
       engineParticipants = gateway.getParticipants(sessionHandle);
     } catch (Exception e) {
       e.printStackTrace();
-      return null;
+      return participantList;
     }
     
-    LinkedList<ResourcingParticipant> participantList = new LinkedList<ResourcingParticipant>();
-    
+
     for (Object engineParticipant: engineParticipants) {
       Participant participant = (Participant) engineParticipant;
 
@@ -131,15 +136,15 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
     connect();
    
     List engineRoles;
-    
+    LinkedList<ResourcingRole> registeredRoles = new LinkedList<ResourcingRole>();
+
     try {
       engineRoles = gateway.getRoles(sessionHandle);
     } catch (Exception e) {
       e.printStackTrace();
-      return null;
+      return registeredRoles;
     }
     
-    LinkedList<ResourcingRole> registeredRoles = new LinkedList<ResourcingRole>();
 
     for (Object engineRole: engineRoles) {
       Role role = (Role) engineRole;
@@ -245,6 +250,11 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
        e.printStackTrace();
        testSessionID = "";
      }
-     return (!testSessionID.startsWith("<failure>"));
+     return (testSessionID.length() > 0) && (! testSessionID.startsWith("<failure>"));
+  }
+
+  public boolean checkConnection() {
+    if ((gateway == null) || (sessionHandle == null)) return false ;
+    return gateway.checkConnection(sessionHandle);
   }
 }

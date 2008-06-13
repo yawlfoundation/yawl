@@ -22,20 +22,15 @@
 
 package org.yawlfoundation.yawl.editor.actions;
 
-import java.awt.event.ActionEvent;
-import javax.swing.Action;
+import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.swing.JUtilities;
 
-import java.awt.BorderLayout;
-
+import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
-
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-
-import org.yawlfoundation.yawl.editor.swing.JUtilities;
-import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
+import java.awt.*;
+import java.awt.event.ActionEvent;
 
 
 public class ShowAboutEditorAction extends YAWLBaseAction {
@@ -47,9 +42,9 @@ public class ShowAboutEditorAction extends YAWLBaseAction {
 
   {
     putValue(Action.SHORT_DESCRIPTION, "About this version of the YAWLEditor.");
-    putValue(Action.NAME, "About the Editor");
+    putValue(Action.NAME, "About...");
     putValue(Action.LONG_DESCRIPTION, "About this version of the YAWLEditor.");
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_B));
+    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_A));
   }
  
   public void actionPerformed(ActionEvent event) {
