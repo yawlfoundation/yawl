@@ -20,7 +20,6 @@ public class JTimeSpinner extends JPanel {
 
     public JTimeSpinner() {
         super(new BorderLayout());
-        Date now = Calendar.getInstance().getTime();
 
         hourSpinner = createSpinner(Interval.Hour);
         hourSpinner.setToolTipText(" Hours ");
@@ -48,6 +47,24 @@ public class JTimeSpinner extends JPanel {
         return (hour * 3600) + (min * 60) + sec ;
     }
 
+    public int getHourValue() {
+        return new Integer((String) hourSpinner.getValue());
+    }
+
+    public int getMinuteValue() {
+        return new Integer((String) minSpinner.getValue());
+    }
+
+    public int getSecondValue() {
+        return new Integer((String) secSpinner.getValue());
+    }
+
+    public void setTime(Date date) {
+        if (date != null) {
+            setSpinnerValues(date);
+        }    
+    }
+
     public JFormattedTextField getTextField(JSpinner spinner) {
         JComponent editor = spinner.getEditor();
         if (editor instanceof JSpinner.DefaultEditor) {
@@ -59,6 +76,12 @@ public class JTimeSpinner extends JPanel {
                              + " isn't a descendant of DefaultEditor");
             return null;
         }
+    }
+
+    public void setEnabled(boolean enable) {
+        hourSpinner.setEnabled(enable);
+        minSpinner.setEnabled(enable);
+        secSpinner.setEnabled(enable);
     }
 
 
@@ -89,10 +112,15 @@ public class JTimeSpinner extends JPanel {
 
 
     private void setSpinnerValuesToNow() {
-        Calendar now = new GregorianCalendar();
-        hourSpinner.setValue(String.format("%02d", now.get(Calendar.HOUR_OF_DAY)));
-        minSpinner.setValue(String.format("%02d", now.get(Calendar.MINUTE)));
-        secSpinner.setValue(String.format("%02d", now.get(Calendar.SECOND)));
+        setSpinnerValues(new Date());
+    }
+
+    private void setSpinnerValues(Date date) {
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(date);
+        hourSpinner.setValue(String.format("%02d", cal.get(Calendar.HOUR_OF_DAY)));
+        minSpinner.setValue(String.format("%02d", cal.get(Calendar.MINUTE)));
+        secSpinner.setValue(String.format("%02d", cal.get(Calendar.SECOND)));
     }
     
     /*******************************************************************************/

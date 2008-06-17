@@ -104,6 +104,7 @@ public class JProblemReportingEditorPane extends JSplitPane
   }
   
   public void hideProblemTable() {
+    problemScrollPane.setVisible(false);
     setDividerLocation((double)1);
   }
   
@@ -119,6 +120,8 @@ public class JProblemReportingEditorPane extends JSplitPane
       hideProblemTable();
       return;
     }
+    problemScrollPane.setVisible(true);      
+
     if (parseProblemsTable.getPreferredSize().getWidth() > getWidth()) {
       setDividerLocation(
           getHeight() - (parseProblemsTable.getRowHeight() * 3)

@@ -23,12 +23,9 @@
 
 package org.yawlfoundation.yawl.editor.swing.data;
 
-import java.util.Iterator;
-
-import javax.swing.JComboBox;
-
 import org.yawlfoundation.yawl.editor.data.DataVariable;
-import org.yawlfoundation.yawl.editor.data.Decomposition;
+
+import java.util.Iterator;
 
 /**
  * A Data variable combo-box that shows only variables in the given
@@ -37,15 +34,15 @@ import org.yawlfoundation.yawl.editor.data.Decomposition;
  *
  */
 
-public class DurationDataVariableComboBox extends DataVariableComboBox {
+public class TimerDataVariableComboBox extends DataVariableComboBox {
 
   private static final long serialVersionUID = 1L;
   
-  public DurationDataVariableComboBox() {
+  public TimerDataVariableComboBox() {
     super();
   }
   
-  public DurationDataVariableComboBox(int validUsageType) {
+  public TimerDataVariableComboBox(int validUsageType) {
     super();
     initialise(validUsageType);
   }
@@ -68,7 +65,7 @@ public class DurationDataVariableComboBox extends DataVariableComboBox {
     while(variableIterator.hasNext()) {
       DataVariable variable = 
         (DataVariable) variableIterator.next();
-      if (variable.getDataType().equals(DataVariable.XML_SCHEMA_DURATION_TYPE)) {
+      if (variable.getDataType().equals(DataVariable.YAWL_SCHEMA_TIMER_TYPE)) {
         addItem(variable.getName());
       }
     }

@@ -23,10 +23,7 @@
 package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.data.DataVariable;
-import org.yawlfoundation.yawl.editor.data.Decomposition;
-import org.yawlfoundation.yawl.editor.data.Parameter;
-import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
+import org.yawlfoundation.yawl.editor.data.*;
 import org.yawlfoundation.yawl.editor.elements.model.*;
 import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 import org.yawlfoundation.yawl.editor.net.NetElementSummary;
@@ -64,6 +61,7 @@ import java.util.prefs.Preferences;
 public class EngineSpecificationExporter extends EngineEditorInterpretor {
   
   protected static final Preferences prefs =  Preferences.userNodeForPackage(YAWLEditor.class);
+
 
   public static String VERIFICATION_WITH_EXPORT_PREFERENCE = "verifyWithExportCheck";
   public static String ANALYSIS_WITH_EXPORT_PREFERENCE = "analyseWithExportCheck";
@@ -163,14 +161,16 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     
     generateEngineMetaData(editorSpec,engineSpec);
     
-    generateEngineDataTypeDefinition(editorSpec,engineSpec);
+//    generateEngineDataTypeDefinition(editorSpec,engineSpec);
 
     //important:  Engine API expects nets to be pre-generated before composite tasks reference them.
     //            We need to build the nets first, and THEN populate the nets with elements.
     
     generateRootNet(editorSpec,engineSpec);
     generateSubNets(editorSpec,engineSpec);
-    
+
+    generateEngineDataTypeDefinition(editorSpec,engineSpec);
+
     populateEngineNets(editorSpec,engineSpec);
       
     return engineSpec;
@@ -178,16 +178,20 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   
   private static void generateEngineDataTypeDefinition(SpecificationModel editorSpec, 
                                                 YSpecification engineSpec) {
+    String schema = null;
+        
     try {
-      engineSpec.setSchema(
-          editorSpec.getDataTypeDefinition()
-      );
-    } catch (Exception eActual) {
+      schema = YTimerType.adjustSchema(editorSpec.getDataTypeDefinition(),
+                                         SpecificationParametersIncludeYTimerType);
+      engineSpec.setSchema(schema);
+    }
+    catch (Exception eActual) {
       try {
-        engineSpec.setSchema(
-            SpecificationModel.DEFAULT_TYPE_DEFINITION
-        );      
-      } catch (Exception eDefault) {}
+        schema = YTimerType.adjustSchema(SpecificationModel.DEFAULT_TYPE_DEFINITION,
+                                           SpecificationParametersIncludeYTimerType);
+        engineSpec.setSchema(schema);
+      }
+      catch (Exception eDefault) {}
     }
   }
   
@@ -222,7 +226,13 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
           )
       );
     }
-    metaData.setVersion(editorSpec.getVersionNumber());
+
+    YSpecVersion version = editorSpec.getVersionNumber();
+    if (version.toString().equals("0.0")) {
+        version.minorIncrement();
+    }
+    metaData.setVersion(version);
+
     try {
       if (editorSpec.getValidFromTimestamp() != null &&
           !editorSpec.getValidFromTimestamp().trim().equals("")) {
@@ -545,7 +555,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
     
     if (editorAtomicTask.getTimeoutDetail().getTimeoutVariable() != null) {
-      // TODO: How come I can't set a trigger for the net variable?
+      // How come I can't set a trigger for the net variable?
       // Answer: specified in the variable. must be a complex type, known by the editor.
       engineTask.setTimerParameters(
         editorAtomicTask.getTimeoutDetail().getTimeoutVariable().getName()    
@@ -707,6 +717,10 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       engineDecomposition.setInputParameter(engineParameter);
     } else {
       engineDecomposition.setOutputParameter(engineParameter);
+    }
+
+    if (dataType.equals(DataVariable.YAWL_SCHEMA_TIMER_TYPE)) {
+        SpecificationParametersIncludeYTimerType = true ;
     }
   }
   

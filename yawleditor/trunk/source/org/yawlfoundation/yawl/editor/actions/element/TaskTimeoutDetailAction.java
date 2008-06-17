@@ -32,11 +32,10 @@ import org.yawlfoundation.yawl.editor.elements.model.TaskTimeoutDetail;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
-import org.yawlfoundation.yawl.editor.swing.JFormattedDateField;
 import org.yawlfoundation.yawl.editor.swing.JUtilities;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
-import org.yawlfoundation.yawl.editor.swing.data.DurationDataVariableComboBox;
 import org.yawlfoundation.yawl.editor.swing.data.JXMLSchemaDurationEditorPane;
+import org.yawlfoundation.yawl.editor.swing.data.TimerDataVariableComboBox;
 import org.yawlfoundation.yawl.editor.swing.element.AbstractTaskDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.resourcing.JTimeSpinner;
 
@@ -101,13 +100,12 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
   
   private JCheckBox timeoutNeededCheckBox;
   
-  private DurationDataVariableComboBox durationVariableComboBox;
+  private TimerDataVariableComboBox timerVariableComboBox;
 
   private JRadioButton viaNetVariableRadioButton;
   
   private JRadioButton viaStaticDateRadioButton;
-//  private JFormattedDateField dateValueField;
-    private JPanel dateValueField;
+  private JPanel dateValueField;
 
   private JRadioButton viaStaticDurationRadioButton;
   private JXMLSchemaDurationEditorPane durationValueEditor;
@@ -137,7 +135,7 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
         
         if (viaNetVariableRadioButton.isSelected()) {
           detail.setTimeoutVariable(
-            durationVariableComboBox.getSelectedVariable()    
+            timerVariableComboBox.getSelectedVariable()
           );
         }
         if (viaStaticDurationRadioButton.isSelected()) {
@@ -189,7 +187,7 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
   public void setTask(YAWLTask task, NetGraph graph) {
     super.setTask(task, graph);
     
-    durationVariableComboBox.setDecomposition(
+    timerVariableComboBox.setDecomposition(
       getGraph().getNetModel().getDecomposition()    
     );
     
@@ -202,31 +200,30 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
 
       if (getAtomicTask().getTimeoutDetail().getTimeoutVariable() != null) {
         this.viaNetVariableRadioButton.setSelected(true);
-        this.durationVariableComboBox.setSelectedItem(
+        this.timerVariableComboBox.setSelectedItem(
             getAtomicTask().getTimeoutDetail().getTimeoutVariable()
         );
       }
+      else {
 
-      
-      if (getAtomicTask().getTimeoutDetail().getTimeoutValue() != null) {
-        this.viaStaticDurationRadioButton.setSelected(true);
-        this.durationValueEditor.setText(
-            getAtomicTask().getTimeoutDetail().getTimeoutValue()
-        );
-      }
+          if (getAtomicTask().getTimeoutDetail().getTimeoutValue() != null) {
+              this.viaStaticDurationRadioButton.setSelected(true);
+              this.durationValueEditor.setText(
+                      getAtomicTask().getTimeoutDetail().getTimeoutValue()
+              );
+          }
 
-      if (getAtomicTask().getTimeoutDetail().getTimeoutDate() != null) {
-        this.viaStaticDateRadioButton.setSelected(true);
-//        this.dateValueField.setDate(
-//            getAtomicTask().getTimeoutDetail().getTimeoutDate()
-//        );
-      }
-      
-      if (getAtomicTask().getTimeoutDetail().getTrigger() == TaskTimeoutDetail.TRIGGER_ON_ENABLEMENT) {
-        onEnablementRadioButton.setSelected(true);
-      }
-      if (getAtomicTask().getTimeoutDetail().getTrigger() == TaskTimeoutDetail.TRIGGER_ON_STARTING) {
-        onStartingRadioButton.setSelected(true);
+          if (getAtomicTask().getTimeoutDetail().getTimeoutDate() != null) {
+              this.viaStaticDateRadioButton.setSelected(true);
+              setStaticDate(dateValueField, getAtomicTask().getTimeoutDetail().getTimeoutDate());
+          }
+
+          if (getAtomicTask().getTimeoutDetail().getTrigger() == TaskTimeoutDetail.TRIGGER_ON_ENABLEMENT) {
+              onEnablementRadioButton.setSelected(true);
+          }
+          if (getAtomicTask().getTimeoutDetail().getTrigger() == TaskTimeoutDetail.TRIGGER_ON_STARTING) {
+              onStartingRadioButton.setSelected(true);
+          }
       }
     }
     
@@ -298,8 +295,7 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
     gbc.gridx++;
     gbc.fill = GridBagConstraints.HORIZONTAL;
 
-//    panel.add(buildDateValueField(), gbc);
-      panel.add(buildDateTimeValueField(), gbc);
+    panel.add(buildDateTimeValueField(), gbc);
 
     gbc.gridx--;
     gbc.gridy++;
@@ -434,18 +430,10 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
     
     return viaStaticDateRadioButton;
   }
-  
-  private JFormattedDateField buildDateValueField() {
-//    dateValueField = new JFormattedDateField("dd/MM/yyyy hh:mm:ss",20);
-//    dateValueField.setToolTipText(" Specify a date limit in the form of 'dd/mm/yyyy hh:mm:ss' here ");
-//
-//    return dateValueField;
-      return null;
-  }
+
 
   private JPanel buildDateTimeValueField() {
       dateValueField = new JPanel();
-//      JTimeSpinner timePanel = new JTimeSpinner();
       JDateChooser chooser = new JDateChooser();
       chooser.setMinSelectableDate(Calendar.getInstance().getTime());
       chooser.setDate(Calendar.getInstance().getTime());
@@ -456,6 +444,22 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
       dateValueField.add(chooser) ;
       dateValueField.add(new JTimeSpinner()) ;
       return dateValueField ;
+    }
+
+    private void setStaticDate(JPanel dateField, Date date) {
+        Component[] widgets = dateField.getComponents();
+
+        for (int i=0; i<widgets.length; i++) {
+            Component widget = widgets[i] ;
+            if (widget instanceof JDateChooser) {
+                JDateChooser chooser = (JDateChooser) widget ;
+                chooser.setDate(date);
+            }
+            else if (widget instanceof JTimeSpinner) {
+                JTimeSpinner spinner = (JTimeSpinner) widget;
+                spinner.setTime(date);
+            }
+        }
     }
 
 
@@ -487,42 +491,45 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
         else return null ;
     }
 
-  private DurationDataVariableComboBox buildDurationDataVariableComboBox() {
-    durationVariableComboBox = new DurationDataVariableComboBox();
-      
-    durationVariableComboBox.setValidUsageType(
+  private TimerDataVariableComboBox buildDurationDataVariableComboBox() {
+    timerVariableComboBox = new TimerDataVariableComboBox();
+
+    timerVariableComboBox.setValidUsageType(
         DataVariableSet.VALID_USAGE_INPUT_FROM_NET    
     );
+
     
-    return durationVariableComboBox;
+    return timerVariableComboBox;
   }
   
   private JXMLSchemaDurationEditorPane buildDurationValueEditor() {
     durationValueEditor = new JXMLSchemaDurationEditorPane();
-    
-    durationValueEditor.hideProblemTable();
+    durationValueEditor.getBottomComponent().setVisible(false);    // hide initially
     durationValueEditor.setToolTipText(" Specify a duration in the form of an XMLSchema duration basic type ");
-
-    
     return durationValueEditor;
   }
   
   private void enableWidgetsAsRequired() {
     boolean timeoutNeeded = timeoutNeededCheckBox.isSelected();
-    
-    onEnablementRadioButton.setEnabled(timeoutNeeded);
-    onStartingRadioButton.setEnabled(timeoutNeeded);
-      
-    viaNetVariableRadioButton.setEnabled(timeoutNeeded);
 
-    durationVariableComboBox.setEnabled(
+    viaNetVariableRadioButton.setEnabled(timeoutNeeded &&
+                                        (timerVariableComboBox.getItemCount() > 0));
+
+    if (viaNetVariableRadioButton.isSelected() && (! viaNetVariableRadioButton.isEnabled())) {
+        viaNetVariableRadioButton.setSelected(false);    
+    }
+
+    timerVariableComboBox.setEnabled(
         viaNetVariableRadioButton.isEnabled() &&
         viaNetVariableRadioButton.isSelected()
     );
-    
+
+    onEnablementRadioButton.setEnabled(timeoutNeeded && (! viaNetVariableRadioButton.isSelected()));
+    onStartingRadioButton.setEnabled(timeoutNeeded && (! viaNetVariableRadioButton.isSelected()));
+
     viaStaticDateRadioButton.setEnabled(timeoutNeeded);
     
-    dateValueField.setEnabled(
+    setDateValueFieldEnabled(
         viaStaticDateRadioButton.isEnabled() &&
         viaStaticDateRadioButton.isSelected()
     );
@@ -533,5 +540,22 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
         viaStaticDurationRadioButton.isEnabled() &&
         viaStaticDurationRadioButton.isSelected()
     );
+  }
+
+  private void setDateValueFieldEnabled(boolean enable) {
+
+      Component[] widgets = dateValueField.getComponents();
+
+      for (int i=0; i<widgets.length; i++) {
+          Component widget = widgets[i] ;
+          if (widget instanceof JDateChooser) {
+              JDateChooser chooser = (JDateChooser) widget ;
+              chooser.setEnabled(enable);
+          }
+          else if (widget instanceof JTimeSpinner) {
+              JTimeSpinner spinner = (JTimeSpinner) widget;
+              spinner.setEnabled(enable);
+          }
+      }
   }
 }

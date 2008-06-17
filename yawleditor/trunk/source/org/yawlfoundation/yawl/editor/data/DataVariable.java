@@ -23,12 +23,12 @@
 
 package org.yawlfoundation.yawl.editor.data;
 
+import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Hashtable;
-
-import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
-import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 
 public class DataVariable implements Serializable, Cloneable {
   
@@ -58,11 +58,12 @@ public class DataVariable implements Serializable, Cloneable {
   public static final String XML_SCHEMA_BOOLEAN_TYPE  = "boolean";
   public static final String XML_SCHEMA_DATE_TYPE     = "date";
   public static final String XML_SCHEMA_DOUBLE_TYPE   = "double";
+  public static final String XML_SCHEMA_DURATION_TYPE = "duration";
   public static final String XML_SCHEMA_LONG_TYPE     = "long";
   public static final String XML_SCHEMA_STRING_TYPE   = "string";
   public static final String XML_SCHEMA_TIME_TYPE     = "time";
-  public static final String XML_SCHEMA_DURATION_TYPE = "duration";
-  
+  public static final String YAWL_SCHEMA_TIMER_TYPE   = "YTimerType";
+
   /**
    * A string array of base XMLSchema data types that can
    * be used directly in the editor without users needing to 
@@ -73,14 +74,15 @@ public class DataVariable implements Serializable, Cloneable {
     XML_SCHEMA_BOOLEAN_TYPE,
     XML_SCHEMA_DATE_TYPE,
     XML_SCHEMA_DOUBLE_TYPE,
+    XML_SCHEMA_DURATION_TYPE,
     XML_SCHEMA_LONG_TYPE,
     XML_SCHEMA_STRING_TYPE,
     XML_SCHEMA_TIME_TYPE,
-    XML_SCHEMA_DURATION_TYPE
+    YAWL_SCHEMA_TIMER_TYPE
   };
   
   
-  private static final int DEFAULT_TYPE = 4; // String
+  private static final int DEFAULT_TYPE = 5; // String
   
   public static final String PROPERTY_LOCATION = FileUtilities.getVariablePropertiesExtendedAttributePath();
   
