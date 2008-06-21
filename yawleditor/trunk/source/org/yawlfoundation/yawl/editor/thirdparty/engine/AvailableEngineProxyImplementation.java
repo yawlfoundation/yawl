@@ -162,14 +162,9 @@ public class AvailableEngineProxyImplementation implements
         }
         
         // Short and sweet description for the editor.
-        
-        if (serviceReference.getDocumentation().equals(
-            "This YAWL Service enables suitably declared workflow tasks to" +
-            " invoke RPC style service on the Web.")) {
-          serviceReference.setDocumentation("RPC-Style Web Service Invoker");
-        }
-        
-        servicesForEditor.put(serviceReference.getDocumentation(), serviceReference.getURI());
+        String doco = serviceReference.getDocumentation();
+        if (doco == null) doco = serviceReference.get_serviceName();          
+        servicesForEditor.put(doco, serviceReference.getURI());
       }
     }
     return servicesForEditor;
