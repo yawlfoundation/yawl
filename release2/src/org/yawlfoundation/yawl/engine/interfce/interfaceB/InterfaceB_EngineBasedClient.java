@@ -94,9 +94,6 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         {
             YAWLServiceReference yawlService = announcement.getYawlService();
             YWorkItem workItem = announcement.getItem();
-
-            System.out.println("Thread::yawlService.getURI() = " + yawlService.getURI());
-            System.out.println("\rworkItem.toXML() = " + workItem.toXML());
             if (workItem.getParent() == null) {
                 Handler myHandler = new Handler(yawlService, workItem,
                                                 "cancelAllInstancesUnderWorkItem");
@@ -197,8 +194,8 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
 
         String urlOfYawlService = yawlService.getURI();
 
-        String parametersAsString = Interface_Client.executeGet(
-                urlOfYawlService + "?action=ParameterInfoRequest");
+        String parametersAsString = executeGet(
+                                     urlOfYawlService + "?action=ParameterInfoRequest");
         //above should have returned a xml doc containing params descriptions
         //of required params to operate custom service.
         SAXBuilder builder = new SAXBuilder();
@@ -234,11 +231,18 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
             _command = command;
         }
 
-        public Handler(YAWLServiceReference yawlService, YIdentifier caseID, Document casedata, String command) {
+        public Handler(YAWLServiceReference yawlService, YIdentifier caseID,
+                        Document casedata, String command) {
             _yawlService = yawlService;
             _caseID = caseID;
             _command = command;
             _casedata = casedata;
+        }
+
+        private Map<String, String> prepareParamMap(String action) {
+            Map<String, String> map = new HashMap<String, String>();
+            map.put("action", action);
+            return map;
         }
 
         public void run() {
@@ -246,10 +250,9 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                 if (ADDWORKITEM_CMD.equals(_command)) {
                     String urlOfYawlService = _yawlService.getURI();
                     String workItemXML = _workItem.toXML();
-                    Map paramsMap = new HashMap();
+                    Map<String, String> paramsMap = prepareParamMap("handleEnabledItem");
                     paramsMap.put("workItem", workItemXML);
-                    paramsMap.put("action", "handleEnabledItem");
-                    Interface_Client.executePost(urlOfYawlService, paramsMap);
+                    executePost(urlOfYawlService, paramsMap);
                 } else if (CANCELALLWORKITEMS_CMD.equals(_command)) {
                     cancelWorkItem(_yawlService, _workItem);
                     Set children = _workItem.getChildren();
@@ -263,26 +266,23 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                 } else if (CANCELWORKITEM_CMD.equals(_command)) {
                     String urlOfYawlService = _yawlService.getURI();
                     String workItemXML = _workItem.toXML();
-                    Map paramsMap = new HashMap();
+                    Map<String, String> paramsMap = prepareParamMap("cancelWorkItem");
                     paramsMap.put("workItem", workItemXML);
-                    paramsMap.put("action", "cancelWorkItem");
-                    Interface_Client.executePost(urlOfYawlService, paramsMap);
+                    executePost(urlOfYawlService, paramsMap);
                 } else if (ANNOUNCE_COMPLETE_CASE_CMD.equals(_command)) {
                     String urlOfYawlService = _yawlService.getURI();
                     String caseID = _caseID.toString();
                     String casedataStr = JDOMUtil.documentToString(_casedata) ;
-                    Map paramsMap = new HashMap();
-                    paramsMap.put("action", _command);
+                    Map<String, String> paramsMap = prepareParamMap(_command);
                     paramsMap.put("caseID", caseID);
                     paramsMap.put("casedata", casedataStr) ;
-                    Interface_Client.executePost(urlOfYawlService, paramsMap);
+                    executePost(urlOfYawlService, paramsMap);
                 } else if (ANNOUNCE_TIMER_EXPIRY_CMD.equals(_command)) {
                     String urlOfYawlService = _yawlService.getURI();
                     String workItemXML = _workItem.toXML();
-                    Map paramsMap = new HashMap();
+                    Map<String, String> paramsMap = prepareParamMap("timerExpiry");
                     paramsMap.put("workItem", workItemXML);
-                    paramsMap.put("action", "timerExpiry");
-                    Interface_Client.executePost(urlOfYawlService, paramsMap);
+                    executePost(urlOfYawlService, paramsMap);
                 }
             } catch (IOException e) {
                 logger.error("failed to call YAWL service", e);

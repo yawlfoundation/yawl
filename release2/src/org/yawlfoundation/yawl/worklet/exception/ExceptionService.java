@@ -7,20 +7,23 @@
  */
 package org.yawlfoundation.yawl.worklet.exception;
 
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+import org.jdom.JDOMException;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_Service;
+import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_ServiceSideClient;
 import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.engine.interfce.interfaceX.*;
-
-import org.yawlfoundation.yawl.worklet.rdr.*;
 import org.yawlfoundation.yawl.worklet.WorkletService;
+import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
+import org.yawlfoundation.yawl.worklet.rdr.RdrTree;
 import org.yawlfoundation.yawl.worklet.selection.CheckedOutItem;
-import org.yawlfoundation.yawl.worklet.support.*;
+import org.yawlfoundation.yawl.worklet.support.DBManager;
+import org.yawlfoundation.yawl.worklet.support.EventLogger;
+import org.yawlfoundation.yawl.worklet.support.Library;
 
 import java.io.IOException;
 import java.util.*;
-
-import org.jdom.*;
-import org.apache.log4j.Logger;
 
 /**
  *  The ExceptionService class manages the handling of exceptions that may occur
@@ -1376,9 +1379,6 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
          }
          catch (IOException ioe) {
              _log.error("Exception attempting to get work items for: " + id, ioe);
-         }
-         catch (JDOMException jde) {
-             _log.error("JDOM Exception attempting to get work items for: " + id, jde);
          }
          if (result.isEmpty()) result = null ;
          return result ;

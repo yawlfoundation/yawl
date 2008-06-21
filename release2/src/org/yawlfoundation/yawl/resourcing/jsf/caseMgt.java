@@ -350,7 +350,7 @@ public class caseMgt extends AbstractPageBean {
             String handle = _sb.getSessionhandle() ;
             String result = _rm.uploadSpecification(fileContents, fileName, handle);
             if (! Interface_Client.successful(result))
-                msgPanel.error(JDOMUtil.formatXMLString(result));
+                msgPanel.error(msgPanel.format((result)));
 
             _sb.refreshLoadedSpecs();
         }

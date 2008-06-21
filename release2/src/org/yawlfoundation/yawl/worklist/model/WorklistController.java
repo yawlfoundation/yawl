@@ -9,21 +9,22 @@
 
 package org.yawlfoundation.yawl.worklist.model;
 
-import org.yawlfoundation.yawl.elements.YAWLServiceReference;
-import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
-import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
-import org.yawlfoundation.yawl.engine.interfce.Marshaller;
-import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.engine.interfce.YParametersSchema;
-import org.yawlfoundation.yawl.exceptions.YQueryException;
-import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.yawlfoundation.yawl.exceptions.Problem;
+import org.hibernate.HibernateException;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.interfce.Marshaller;
+import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.engine.interfce.YParametersSchema;
+import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
+import org.yawlfoundation.yawl.exceptions.Problem;
+import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.yawlfoundation.yawl.exceptions.YQueryException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -32,8 +33,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.sql.SQLException;
 import java.util.*;
-
-import org.hibernate.HibernateException;
 
 /**
  * 
@@ -355,8 +354,13 @@ public class WorklistController extends InterfaceBWebsideController {
     }
 
     public boolean checkConnectionForAdmin(String sessionHandle) {
-        String msg = _interfaceAClient.checkConnection(sessionHandle);
-        return _interfaceBClient.successful(msg);
+        try {
+            String msg = _interfaceAClient.checkConnection(sessionHandle);
+            return _interfaceBClient.successful(msg);
+        }
+        catch (IOException ioe) {
+            return false;
+        }
     }
 
 
@@ -374,7 +378,12 @@ public class WorklistController extends InterfaceBWebsideController {
     }
 
     public String uploadSpecification(String specification, String filename, String sessionHandle) {
-        return _interfaceAClient.uploadSpecification(specification, filename, sessionHandle);
+        try {
+            return _interfaceAClient.uploadSpecification(specification, filename, sessionHandle);
+        }
+        catch (IOException ioe)  {
+            return "";
+        }
     }
 
     public String unloadSpecification(String specID, String sessionHandle) throws IOException {
@@ -387,7 +396,13 @@ public class WorklistController extends InterfaceBWebsideController {
     }
 
     public List getUsers(String sessionHandle) {
-        return _interfaceAClient.getUsers(sessionHandle);
+        try {
+            return _interfaceAClient.getUsers(sessionHandle);
+        }
+        catch (IOException ioe) {
+            return new ArrayList();                                           // no list
+        }
+
     }
 
 

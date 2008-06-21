@@ -233,7 +233,6 @@
 					<xs:element name="documentation" type="yawl:DocumentationType" minOccurs="0"/>
 					<xs:element name="inputParam" type="yawl:InputParameterFactsType" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element name="outputParam" type="yawl:OutputParameterFactsType" minOccurs="0" maxOccurs="unbounded"/>
-					<xs:element name="externalInteraction" type="yawl:ResourcingExternalInteractionType" minOccurs="0"/>
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
@@ -609,23 +608,26 @@
 				<xs:sequence>
 					<xs:element name="enablementParam" type="yawl:InputParameterFactsType" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element name="yawlService" minOccurs="0">
-                        <xs:complexType>
-                            <xs:sequence>
-                                <xs:element name="documentation" type="xs:string" minOccurs="0"/>
-							    <xs:choice>
-								    <xs:sequence>
-									    <xs:element name="wsdlLocation" type="xs:anyURI"/>
-									    <xs:element name="operationName" type="xs:NMTOKEN"/>
-								    </xs:sequence>
-								    <xs:sequence/>
-							    </xs:choice>
-                            </xs:sequence>
-                            <xs:attribute name="id" type="yawl:YAWLServiceIDType" use="required"/>
-						</xs:complexType>
+              <xs:complexType>
+                  <xs:sequence>
+                      <xs:element name="documentation" type="xs:string" minOccurs="0"/>
+                      <xs:choice>
+                          <xs:sequence>
+                              <xs:element name="wsdlLocation" type="xs:anyURI"/>
+                              <xs:element name="operationName" type="xs:NMTOKEN"/>
+                          </xs:sequence>
+                          <xs:sequence/>
+                      </xs:choice>
+                  </xs:sequence>
+                  <xs:attribute name="id" type="yawl:YAWLServiceIDType" use="required"/>
+              </xs:complexType>
 					</xs:element>
-				</xs:sequence>
+          <xs:element name="codelet" type="xs:NCName" minOccurs="0"/>
+          <xs:element name="externalInteraction"
+                      type="yawl:ResourcingExternalInteractionType" minOccurs="0"/>
+        </xs:sequence>
 				<!-- Extended Attributes whose validation will be skipped -->
-                <xs:anyAttribute processContents="skip"/>
+        <xs:anyAttribute processContents="skip"/>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>

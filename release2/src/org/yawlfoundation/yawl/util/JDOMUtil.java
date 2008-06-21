@@ -123,6 +123,24 @@ import java.io.*;
 
     /****************************************************************************/
 
+    public static String encodeEscapes(String s) {
+        return s.replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")                
+                .replaceAll(">", "&gt;")
+                .replaceAll("\"", "&quot;")
+                .replaceAll("'", "&apos;") ;
+    }
+
+    public static String decodeEscapes(String s) {
+        return s.replaceAll("&amp;", "&")
+                .replaceAll("&lt;","<")               
+                .replaceAll("&gt;", ">")
+                .replaceAll("&quot;","\"")
+                .replaceAll("&apos;", "'") ;
+    }
+
+    /****************************************************************************/
+
     public static String formatXMLString(String s) {
         return elementToString(stringToElement(s));
     }

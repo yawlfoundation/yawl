@@ -632,8 +632,7 @@
         <mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/worklist"/>
         <mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/elements/data"/>
         <mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/engine/interfce"/>
-        <mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/engine/interfceA"/>
-        <mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/engine/interfceB"/>
+        <mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/util"/>
         <mkdir dir="${yawl.webService.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/wsif"/>
         <!-- start copying files into war directory -->
         <copy todir="${yawl.webService.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/elements/data">
@@ -644,6 +643,10 @@
         <!-- start copying files into war directory -->
         <copy todir="${yawl.webService.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/elements">
             <fileset dir="${classes}/org/yawlfoundation/yawl/elements" includes="**/*.class **/*.xsd"/>
+        </copy>
+        <copy todir="${yawl.webService.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/util">
+            <fileset dir="${classes}/org/yawlfoundation/yawl/util"
+                     includes="JDOMUtil.class StringUtil.class"/>
         </copy>
         <!-- start copying files into war directory -->
         <copy todir="${yawl.webService.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/unmarshal">
@@ -1050,7 +1053,7 @@
 
         <!-- 1a. Make the dirs for the resourcing classes -->
         <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing"/>
-        <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/autoresource"/>
+        <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/codelets"/>
         <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/allocators"/>
         <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/constraints"/>
         <mkdir dir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/datastore"/>
@@ -1130,8 +1133,8 @@
             <fileset dir="${classes}/org/yawlfoundation/yawl/resourcing"
                      includes="*.class *.xml"/>
         </copy>
-        <copy todir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/autoresource">
-            <fileset dir="${classes}/org/yawlfoundation/yawl/resourcing/autoresource"
+        <copy todir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/codelets">
+            <fileset dir="${classes}/org/yawlfoundation/yawl/resourcing/codelets"
                      includes="*.class *.xml"/>
         </copy>
         <copy todir="${yawl.resource.app.name}/WEB-INF/classes/org/yawlfoundation/yawl/resourcing/allocators">

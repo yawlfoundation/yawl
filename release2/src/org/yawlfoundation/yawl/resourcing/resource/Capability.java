@@ -18,7 +18,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
  *  v0.1, 03/08/2007
  */
 
-public class Capability extends AbstractResourceAttribute {
+public class Capability extends AbstractResourceAttribute implements Comparable {
 
     private String _capability ;
 
@@ -47,19 +47,24 @@ public class Capability extends AbstractResourceAttribute {
         return (o instanceof Capability) && ((Capability) o).getID().equals(_id);
     }
 
-    
+    public int compareTo(Object o) {
+        if ((o == null) || (! (o instanceof Capability))) return 1;
+        return this.getCapability().compareTo(((Capability) o).getCapability());
+    }
+
+   
     public String toXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<capability id=\"%s\">", _id)) ;
-        xml.append(StringUtil.wrap(_capability, "name"));
-        xml.append(StringUtil.wrap(_description, "description"));
-        xml.append(StringUtil.wrap(_notes, "notes"));
+        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_capability), "name"));
+        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_description), "description"));
+        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_notes), "notes"));
         xml.append("</capability>");
         return xml.toString() ;
     }
 
     public void reconstitute(Element e) {
         super.reconstitute(e);
-        setCapability(e.getChildText("name"));
+        setCapability(StringUtil.xmlDecode(e.getChildText("name")));
     }
 }

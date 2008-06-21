@@ -12,9 +12,10 @@ import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
+import org.yawlfoundation.yawl.resourcing.util.PasswordEncryptor;
 
-import javax.faces.event.ValueChangeEvent;
 import javax.faces.FacesException;
+import javax.faces.event.ValueChangeEvent;
 
 /**
  *  Backing bean for the participant data or 'User Mgt' form.
@@ -636,7 +637,14 @@ public class participantData extends AbstractPageBean {
 
         // only change password if a new one is entered and after its been validated
         String password = (String) txtNewPassword.getPassword();
-        if (password.length() > 0) p.setPassword(password);
+        if (password.length() > 0) {
+            try {
+                p.setPassword(PasswordEncryptor.getInstance().encrypt(password));
+            }
+            catch (Exception e) {
+                msgPanel.warn("Could not change password - encryption service unavailable");
+            }
+        }
         txtNewPassword.setPassword("");
         txtConfirmPassword.setPassword("");
 

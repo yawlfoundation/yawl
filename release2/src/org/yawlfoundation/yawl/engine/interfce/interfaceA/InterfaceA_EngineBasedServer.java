@@ -171,7 +171,7 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
         if (msg.length() == 0) {
             msg.append(
                     "<failure><reason>" +
-                    "params invalid or execption was thrown." +
+                    "params invalid or exception was thrown." +
                     "</reason></failure>");
         }
         if (_debug) {
@@ -241,8 +241,8 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                     YSpecificationID specID = makeYSpecificationID(request);
                     msg.append(_engine.unloadSpecification(specID, sessionHandle));
                 }
-			}
-            if (lastPartOfPath.equals("uploader")) {
+            }
+            if (request.getRequestURI().endsWith("/upload")) {
                 sessionHandle = request.getHeader("YAWLSessionHandle");
                 String fileName = request.getHeader("filename");
                 StringBuffer specification = new StringBuffer();

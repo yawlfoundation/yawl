@@ -12,15 +12,11 @@ package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
-import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
-import org.yawlfoundation.yawl.engine.interfce.Marshaller;
-import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.engine.interfce.*;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.*;
 
 /**
@@ -28,8 +24,11 @@ import java.util.*;
  * @author Lachlan Aldred
  * Date: 27/01/2004
  * Time: 18:50:10
+ *
+ * Refactored for v2.0 by Michael Adams
  * 
  */
+
 public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     private String _backEndURIStr;
 
@@ -53,10 +52,10 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException  if engine cannot be found
      */
     public String connect(String userID, String password) throws IOException {
-        Map queryMap = new HashMap();
-        queryMap.put("userid", userID);
-        queryMap.put("password", password);
-        return executePost(_backEndURIStr + "/connect", queryMap);
+        Map<String, String> params = prepareParamMap("connect", null);
+        params.put("userid", userID);
+        params.put("password", password);
+        return executePost(_backEndURIStr, params);
     }
 
 
@@ -69,31 +68,15 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException if engine can't be found.
      * @throws JDOMException
      */
-    public List getCompleteListOfLiveWorkItems(String sessionHandle) throws IOException, JDOMException {
-        String result = null;
-
-        result = executeGet(_backEndURIStr +
-                "?action=verbose&sessionHandle=" + sessionHandle);
-
-        SAXBuilder builder = new SAXBuilder();
-        List workItems = new ArrayList();
-
-        if (result != null && successful(result)) {
-            Document doc = builder.build(new StringReader(result));
-            Iterator workItemEls = doc.getRootElement().getChildren().iterator();
-            while (workItemEls.hasNext()) {
-                Element workItemElement = (Element) workItemEls.next();
-                WorkItemRecord workItem = Marshaller.unmarshalWorkItem(workItemElement);
-                workItems.add(workItem);
-            }
-        }
-        return workItems;
+    public List<WorkItemRecord> getCompleteListOfLiveWorkItems(String sessionHandle)
+            throws IOException {
+        return unPackWorkItemList(getCompleteListOfLiveWorkItemsAsXML(sessionHandle));
     }
 
+
     public String getCompleteListOfLiveWorkItemsAsXML(String sessionHandle)
-                                                throws IOException, JDOMException {
-        return executeGet(_backEndURIStr +
-                          "?action=verbose&sessionHandle=" + sessionHandle);
+               throws IOException {
+        return executeGet(_backEndURIStr, prepareParamMap("getLiveItems", sessionHandle));
     }
 
 
@@ -108,33 +91,30 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @throws JDOMException if there's a problem with xml conversions
      */
     public List<WorkItemRecord> getLiveWorkItemsForIdentifier(String idType, String id,
-                                                              String sessionHandle)
-                                                      throws IOException, JDOMException {
-         ArrayList<WorkItemRecord> result = new ArrayList<WorkItemRecord>() ;
-         List wirs = getCompleteListOfLiveWorkItems(sessionHandle) ;
-         if (wirs != null){
+                               String sessionHandle) throws IOException, JDOMException {
+        ArrayList<WorkItemRecord> result = new ArrayList<WorkItemRecord>() ;
+        List<WorkItemRecord> wirs = getCompleteListOfLiveWorkItems(sessionHandle) ;
 
-             // find out which wirs belong to the specified case/spec/task
-             Iterator itr = wirs.iterator();
-             while (itr.hasNext()) {
-                 WorkItemRecord wir = (WorkItemRecord) itr.next() ;
-                 if ((idType.equalsIgnoreCase("spec") &&
-                      wir.getSpecificationID().equals(id)) ||
-                     (idType.equalsIgnoreCase("case") &&
-                      (wir.getCaseID().equals(id) ||
-                       wir.getCaseID().startsWith(id + "."))) ||
-                     (idType.equalsIgnoreCase("task") &&
-                      wir.getTaskID().equals(id)))
-                    result.add(wir);
-             }
-         }
-         if (result.isEmpty()) result = null ;
-         return result ;
-     }
+        if (wirs != null) {
+
+            // find out which wirs belong to the specified case/spec/task
+            for (WorkItemRecord wir : wirs) {
+                if ((idType.equalsIgnoreCase("spec") &&
+                       wir.getSpecificationID().equals(id)) ||
+                    (idType.equalsIgnoreCase("case") &&
+                       (wir.getCaseID().equals(id) ||
+                        wir.getCaseID().startsWith(id + "."))) ||
+                    (idType.equalsIgnoreCase("task") &&
+                        wir.getTaskID().equals(id)))
+                  result.add(wir);
+            }
+        }
+        if (result.isEmpty()) result = null ;
+        return result ;
+    }
 
     public String getLiveWorkItemsForIdentifierAsXML(String idType, String id,
-                                                     String sessionHandle)
-                                               throws IOException, JDOMException {
+                         String sessionHandle) throws IOException, JDOMException {
         List<WorkItemRecord> wirList = getLiveWorkItemsForIdentifier(idType, id,
                                                                      sessionHandle) ;
         if (! wirList.isEmpty()) {
@@ -148,6 +128,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
         return null ;
     }
 
+
     /**
      * Creates a list of SpecificationData objects loaded into the engine.
      * These are brief meta data summary
@@ -156,16 +137,12 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @return  the list of spec data objects
      * @throws IOException if engine can't be found.
      */
-    public List getSpecificationList(String sessionHandle) throws IOException {
-        String result = null;
+    public List<SpecificationData> getSpecificationList(String sessionHandle)
+            throws IOException {
+        String result = executeGet(_backEndURIStr,
+                        prepareParamMap("getSpecificationPrototypesList", sessionHandle));
 
-        result = executeGet(_backEndURIStr +
-                "?action=getSpecificationPrototypesList" +
-                "&" +
-                "sessionHandle=" + sessionHandle);
-
-        List specList = Marshaller.unmarshalSpecificationSummary(result);
-        return specList;
+        return Marshaller.unmarshalSpecificationSummary(result);
     }
 
 
@@ -177,40 +154,41 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException if the engine can't be found.
      */
     public String getSpecification(String specID, String sessionHandle) throws IOException {
-
-        return stripOuterElement(executeGet(_backEndURIStr +
-                "?action=getSpecification" +
-                "&" +
-                "specID=" + specID +
-                "&" +
-                "sessionHandle=" + sessionHandle));
-
+        Map<String, String> params = prepareParamMap("getSpecification", sessionHandle);
+        params.put("specID", specID) ;
+        return stripOuterElement(executeGet(_backEndURIStr, params));
     }
 
+    
     /** this overload is to handle YSpecificationID objects */
     public String getSpecification(YSpecificationID specID, String sessionHandle)
                                                                  throws IOException {
-        return stripOuterElement(executeGet(_backEndURIStr +
-                "?action=getSpecification" +
-                "&" +
-                "specID=" + specID.getSpecName() +
-                "&" +
-                "version=" + specID.getVersion().toString() +
-                "&" +
-                "sessionHandle=" + sessionHandle));
+        Map<String, String> params = prepareParamMap("getSpecification", sessionHandle);
+        params.put("specID", specID.getSpecName()) ;
+        params.put("version", specID.getVersion().toString());
+        return stripOuterElement(executeGet(_backEndURIStr, params));
     }
 
 
     public String getSpecificationDataSchema(String specID, String sessionHandle)
                                                                  throws IOException {
-        return stripOuterElement(executeGet(_backEndURIStr +
-                "?action=getSpecificationDataSchema" +
-                "&" +
-                "specID=" + specID +
-                "&" +
-                "sessionHandle=" + sessionHandle));
-
+        Map<String, String> params = prepareParamMap("getSpecificationDataSchema",
+                                                      sessionHandle);
+        params.put("specID", specID) ;
+        return stripOuterElement(executeGet(_backEndURIStr, params));
     }
+
+
+    /** this overload is to handle YSpecificationID objects */
+    public String getSpecificationDataSchema(YSpecificationID specID, String sessionHandle)
+                                                                 throws IOException {
+        Map<String, String> params = prepareParamMap("getSpecificationDataSchema",
+                                                      sessionHandle);
+        params.put("specID", specID.getSpecName()) ;
+        params.put("version", specID.getVersion().toString());
+        return stripOuterElement(executeGet(_backEndURIStr, params));
+    }
+
 
     /**
      * Allows clients to obtain ownership of a unit of work.  This means that the
@@ -223,10 +201,9 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException
      */
     public String checkOutWorkItem(String workItemID, String sessionHandle) throws IOException {
-        HashMap params = new HashMap();
-        params.put("sessionHandle", sessionHandle);
-        params.put("action", "checkout");
-        return executePost(_backEndURIStr + "/workItem/" + workItemID, params);
+        Map<String, String> params = prepareParamMap("checkout", sessionHandle);
+        params.put("workItemID", workItemID);
+        return executePost(_backEndURIStr, params);
     }
 
 
@@ -241,33 +218,21 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      */
     public String getTaskInformationStr(String specificationID, String taskID,
                                         String sessionHandle) throws IOException {
-        String msg = null;
-        msg = executeGet(
-                _backEndURIStr + "/task/" + taskID +
-                "?" +
-                "action=taskInformation" +
-                "&" +
-                "specID=" + specificationID +
-                "&" +
-                "sessionHandle=" + sessionHandle);
-        return msg;
+        Map<String, String> params = prepareParamMap("taskInformation", sessionHandle);
+        params.put("specID", specificationID);
+        params.put("taskID", taskID);
+        return executeGet(_backEndURIStr, params);
     }
+
 
     /** this overload handles YSpecificationID objects */
     public String getTaskInformationStr(YSpecificationID specificationID, String taskID,
                                         String sessionHandle) throws IOException {
-        String msg = null;
-        msg = executeGet(
-                _backEndURIStr + "/task/" + taskID +
-                "?" +
-                "action=taskInformation" +
-                "&" +
-                "specID=" + specificationID.getSpecName() +
-                "&" +
-                "version=" + specificationID.getVersion().toString() +
-                "&" +
-                "sessionHandle=" + sessionHandle);
-        return msg;
+        Map<String, String> params = prepareParamMap("taskInformation", sessionHandle);
+        params.put("specID", specificationID.getSpecName());
+        params.put("version", specificationID.getVersion().toString());
+        params.put("taskID", taskID);
+        return executeGet(_backEndURIStr, params);
     }
 
 
@@ -279,11 +244,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException if engine cannot be found.
      */
     public String checkConnection(String sessionHandle) throws IOException {
-        return executeGet(_backEndURIStr + "?" +
-                "action=checkConnection" +
-                "&" +
-                "sessionHandle=" + sessionHandle);
-
+        Map<String, String> params = prepareParamMap("checkConnection", sessionHandle);
+        return executeGet(_backEndURIStr, params);
     }
 
 
@@ -297,14 +259,12 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * returns the reason for failure.
      * @throws IOException
      */
-    public String checkInWorkItem(String workItemID, String data, String sessionHandle) throws IOException {
-        //todo make the data param into an first class api object
-        HashMap params = new HashMap();
-        params.put("sessionHandle", sessionHandle);
+    public String checkInWorkItem(String workItemID, String data, String sessionHandle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("checkin", sessionHandle);
         params.put("data", data);
-        params.put("action", "checkin");
-        String msg = executePost(_backEndURIStr + "/workItem/" + workItemID, params);
-        return msg;
+        params.put("workItemID", workItemID);
+        return executePost(_backEndURIStr, params);
     }
 
 
@@ -324,12 +284,12 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * or if current number of instances is not less than the maxInstances
      * for the task.
      */
-    public String checkPermissionToAddInstances(String workItemID, String sessionHandle) throws IOException {
-        return executeGet(_backEndURIStr + "/workItem/" + workItemID +
-                "?" +
-                "action=checkAddInstanceEligible" +
-                "&" +
-                "sessionHandle=" + sessionHandle);
+    public String checkPermissionToAddInstances(String workItemID, String sessionHandle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("checkAddInstanceEligible",
+                                                      sessionHandle);
+        params.put("workItemID", workItemID);
+        return executeGet(_backEndURIStr, params);
     }
 
 
@@ -344,12 +304,10 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     public String createNewInstance(String workItemID,
                                     String paramValueForMICreation,
                                     String sessionHandle) throws IOException {
-        Map paramsMap = new HashMap();
-        paramsMap.put("sessionHandle", sessionHandle);
-        paramsMap.put("action", "createInstance");
-        paramsMap.put("paramValueForMICreation", paramValueForMICreation);
-        return executePost(_backEndURIStr + "/workItem/" + workItemID,
-                paramsMap);
+        Map<String, String> params = prepareParamMap("createInstance", sessionHandle);
+        params.put("paramValueForMICreation", paramValueForMICreation);
+        params.put("workItemID", workItemID);
+        return executePost(_backEndURIStr, params);
     }
 
 
@@ -361,13 +319,10 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException if the engine can't be found.
      */
     public String skipWorkItem(String workItemID, String sessionHandle) throws IOException {
-        Map paramsMap = new HashMap();
-        paramsMap.put("sessionHandle", sessionHandle);
-        paramsMap.put("action", "skip");
-        return executePost(_backEndURIStr + "/workItem/" + workItemID,
-                paramsMap);
+        Map<String, String> params = prepareParamMap("skip", sessionHandle);
+        params.put("workItemID", workItemID);
+        return executePost(_backEndURIStr, params);
     }
-
 
 
     /**
@@ -378,11 +333,9 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException if the engine can't be found.
      */
     public String suspendWorkItem(String workItemID, String sessionHandle) throws IOException {
-         Map paramsMap = new HashMap();
-        paramsMap.put("sessionHandle", sessionHandle);
-        paramsMap.put("action", "suspend");
-        return executePost(_backEndURIStr + "/workItem/" + workItemID,
-                paramsMap);
+        Map<String, String> params = prepareParamMap("suspend", sessionHandle);
+        params.put("workItemID", workItemID);
+        return executePost(_backEndURIStr, params);
     }
 
 
@@ -394,11 +347,9 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
       * @throws IOException if the engine can't be found.
       */
      public String unsuspendWorkItem(String workItemID, String sessionHandle) throws IOException {
-          Map paramsMap = new HashMap();
-         paramsMap.put("sessionHandle", sessionHandle);
-         paramsMap.put("action", "unsuspend");
-         return executePost(_backEndURIStr + "/workItem/" + workItemID,
-                 paramsMap);
+         Map<String, String> params = prepareParamMap("unsuspend", sessionHandle);
+         params.put("workItemID", workItemID);
+         return executePost(_backEndURIStr, params);
      }
 
 
@@ -410,11 +361,9 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException if the engine can't be found.
      */
     public String rollbackWorkItem(String workItemID, String sessionHandle) throws IOException {
-        Map paramsMap = new HashMap();
-        paramsMap.put("sessionHandle", sessionHandle);
-        paramsMap.put("action", "rollback");
-        return executePost(_backEndURIStr + "/workItem/" + workItemID,
-                paramsMap);
+        Map<String, String> params = prepareParamMap("rollback", sessionHandle);
+        params.put("workItemID", workItemID);
+        return executePost(_backEndURIStr, params);
     }
 
 
@@ -433,15 +382,12 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @return returns a diagnostic message in case of failure
      * @throws IOException if engine can't be found
      */
-    public String launchCase(String specID, String caseParams, String sessionHandle) throws IOException {
-        Map paramsMap = new HashMap();
-        paramsMap.put("sessionHandle", sessionHandle);
-        paramsMap.put("action", "launchCase");
-        if (caseParams != null) {
-            paramsMap.put("caseParams", caseParams);
-        }
-        return executePost(_backEndURIStr + "/specID/" + specID,
-                paramsMap);
+    public String launchCase(String specID, String caseParams, String sessionHandle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("launchCase", sessionHandle);
+        params.put("specID", specID);
+        if (caseParams != null) params.put("caseParams", caseParams);
+        return executePost(_backEndURIStr, params);
     }
     
 
@@ -460,15 +406,12 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     public String launchCase(String specID, String caseParams, 
                              String sessionHandle, String completionObserverURI) 
                                      throws IOException {
-        Map paramsMap = new HashMap();
-        paramsMap.put("sessionHandle", sessionHandle);
-        paramsMap.put("action", "launchCase");
-        if (caseParams != null) 
-            paramsMap.put("caseParams", caseParams);
+        Map<String, String> params = prepareParamMap("launchCase", sessionHandle);
+        params.put("specID", specID);
+        if (caseParams != null) params.put("caseParams", caseParams);
         if (completionObserverURI != null)    
-            paramsMap.put("completionObserverURI", completionObserverURI);
-
-        return executePost(_backEndURIStr + "/specID/" + specID, paramsMap);
+            params.put("completionObserverURI", completionObserverURI);
+        return executePost(_backEndURIStr, params);
     }
 
 
@@ -482,25 +425,23 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException if engine cannot be found
      */
     public String getCases(String specID, String sessionHandle) throws IOException {
-        return executeGet(_backEndURIStr +
-                "?action=getCasesForSpecification" +
-                "&" +
-                "specID=" + specID +
-                "&" +
-                "sessionHandle=" + sessionHandle);
+        Map<String, String> params = prepareParamMap("getCasesForSpecification",
+                                                      sessionHandle);
+        params.put("specID", specID);
+        return executeGet(_backEndURIStr, params);
     }
 
+
+    /** and an overload for YSpecification versions */
     public String getCases(YSpecificationID specID, String sessionHandle)
                                                                  throws IOException {
-        return executeGet(_backEndURIStr +
-                "?action=getCasesForSpecification" +
-                "&" +
-                "specID=" + specID.getSpecName() +
-                "&" +
-                "version=" + specID.getVersion().toString() +
-                "&" +
-                "sessionHandle=" + sessionHandle);
+        Map<String, String> params = prepareParamMap("getCasesForSpecification",
+                                                      sessionHandle);
+        params.put("specID", specID.getSpecName());
+        params.put("version", specID.getVersion().toString());
+        return executeGet(_backEndURIStr, params);
     }
+
 
     /**
      * Gets the state description of the case
@@ -511,17 +452,24 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException if engine cannot be found
      */
     public String getCaseState(String caseID, String sessionHandle) throws IOException {
-        return stripOuterElement(executeGet(_backEndURIStr + "/caseID/" + caseID +
-                "?" +
-                "action=getState" +
-                "&" +
-                "sessionHandle=" + sessionHandle));
+        Map<String, String> params = prepareParamMap("getCaseState", sessionHandle);
+        params.put("caseID", caseID);
+        return stripOuterElement(executeGet(_backEndURIStr, params));
     }
 
 
+    /**
+     * Gets the data of the case
+     * @param caseID the case id.
+     * @param sessionHandle the session handle
+     * @return An XML representation of the case data, or a diagnostic error
+     * message.
+     * @throws IOException if engine cannot be found
+     */
     public String getCaseData(String caseID, String sessionHandle) throws IOException {
-        return stripOuterElement(executeGet(_backEndURIStr + "/caseID/" + caseID +
-                "?action=getCaseData&sessionHandle=" + sessionHandle));
+        Map<String, String> params = prepareParamMap("getCaseData", sessionHandle);
+        params.put("caseID", caseID);
+        return stripOuterElement(executeGet(_backEndURIStr, params));
     }
 
 
@@ -534,11 +482,9 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException if the engine cannot be found.
      */
     public String cancelCase(String caseID, String sessionHandle) throws IOException {
-        Map params = new HashMap();
-        params.put("action", "cancelCase");
-        params.put("sessionHandle", sessionHandle);
-        String result = executePost(_backEndURIStr + "/caseID/" + caseID, params);
-        return result;
+        Map<String, String> params = prepareParamMap("cancelCase", sessionHandle);
+        params.put("caseID", caseID);
+        return executePost(_backEndURIStr, params);
     }
 
 
@@ -548,33 +494,13 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @param workItemID the work item id.
      * @param sessionHandle the session handle
      * @return a Java.util.List of WorkItemRecord objects.
+     * @throws IOException if the engine cannot be found.
      */
-    public List getChildrenOfWorkItem(String workItemID, String sessionHandle) {
-        String result = null;
-        try {
-            result = executeGet(_backEndURIStr + "/" + workItemID +
-                    "?action=getChildren&sessionHandle=" + sessionHandle);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        SAXBuilder builder = new SAXBuilder();
-        List workItems = new ArrayList();
-        try {
-            if (result != null && successful(result)) {
-                Document doc = builder.build(new StringReader(result));
-                Iterator workItemEls = doc.getRootElement().getChildren().iterator();
-                while (workItemEls.hasNext()) {
-                    Element workItemElement = (Element) workItemEls.next();
-                    WorkItemRecord workItem = Marshaller.unmarshalWorkItem(workItemElement);
-                    workItems.add(workItem);
-                }
-            }
-        } catch (JDOMException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return workItems;
+    public List<WorkItemRecord> getChildrenOfWorkItem(String workItemID,
+                                               String sessionHandle) throws IOException{
+        Map<String, String> params = prepareParamMap("getChildren", sessionHandle);
+        params.put("workItemID", workItemID);
+        return unPackWorkItemList(executeGet(_backEndURIStr, params));
     }
 
 
@@ -586,56 +512,72 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @return the TaskInformation object
      */
     public static TaskInformation parseTaskInformation(String taskInfoStr) {
-        TaskInformation taskInfo = null;
-        //strip off extraneous <response> tag
-        int beginClipping = taskInfoStr.indexOf(">") + 1;
-        int endClipping = taskInfoStr.lastIndexOf("<");
-        if (beginClipping >= 0 && endClipping >= 0) {
-            taskInfoStr = taskInfoStr.substring(beginClipping, endClipping);
-        }
-        if (successful(taskInfoStr)) {
-            taskInfo = Marshaller.unmarshalTaskInformation(taskInfoStr);
-        }
-        return taskInfo;
+        taskInfoStr = stripOuterElement(taskInfoStr);
+        return successful(taskInfoStr) ?
+               Marshaller.unmarshalTaskInformation(taskInfoStr) : null ;
     }
 
 
+    /**
+     * Checks if the session has administrative access
+     * @param sessionHandle the session to check
+     * @return true if this session has administration privileges
+     * @throws IOException
+     */
     public boolean isAdministrator(String sessionHandle) throws IOException {
-        String result = executeGet(_backEndURIStr +
-                "?action=checkIsAdmin&sessionHandle=" + sessionHandle);
-        return result.indexOf("administrator") != -1;
+        String result = executeGet(_backEndURIStr, prepareParamMap("checkIsAdmin",
+                                                                   sessionHandle));
+        return (result.indexOf("administrator") != -1);
     }
 
-        /**
+    /**
      * Gets an XML representation of information the task declaration.
      * This can be parsed into a copy of a YTask by using the
-     * @param specificationID the spec id.
+     * @param specID the spec id.
      * @param taskID the task id.
      * @param sessionHandle the session handle
      * @return an XML Representation of the task information
      * @throws IOException
      */
-    public String getMITaskAttributes(String specificationID, String taskID, String sessionHandle) throws IOException {
-        return executeGet(
-                _backEndURIStr + "/task/" + taskID + "?" +
-                "action=getMITaskAttributes" + "&" +
-                "specID=" + specificationID  + "&" +
-                "sessionHandle=" + sessionHandle);
-
+    public String getMITaskAttributes(String specID, String taskID,
+                                      String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("getMITaskAttributes", sessionHandle);
+        params.put("taskID", taskID);
+        params.put("specID", specID);
+        return executeGet(_backEndURIStr, params);
     }
 
+    /**
+     * Gets the set of resourcing specifications for the specified spec and task
+     * @param specID the specification id
+     * @param taskID the id of the task to get the resourcing specs for
+     * @param sessionHandle the session handle
+     * @return an XML Representation of the resourcing information for the task
+     * @throws IOException
+     */
     public String getResourcingSpecs(String specID, String taskID,
                                       String sessionHandle) throws IOException {
-        String result = executeGet(_backEndURIStr + "?action=getResourcingSpecs" +
-                "&specID=" + specID +
-                "&taskID=" + taskID +
-                "&sessionHandle=" + sessionHandle);
-        if (successful(result))
-            return stripOuterElement(result) ;
-        else
-            return result ;
+        Map<String, String> params = prepareParamMap("getResourcingSpecs", sessionHandle);
+        params.put("taskID", taskID);
+        params.put("specID", specID);
+        String result = executeGet(_backEndURIStr, params);
+        return (successful(result)) ? stripOuterElement(result) : result ;
     }
 
 
-    
+    private List<WorkItemRecord> unPackWorkItemList(String xml) {
+        List<WorkItemRecord> result = new ArrayList<WorkItemRecord>();
+        if (xml != null && successful(xml)) {
+            Document doc = JDOMUtil.stringToDocument(xml);
+            if (doc != null) {
+                Iterator itr = doc.getRootElement().getChildren().iterator();
+                while (itr.hasNext()) {
+                    Element item = (Element) itr.next();
+                    result.add(Marshaller.unmarshalWorkItem(item));
+                }
+            }
+        }
+        return result;
+    }
+
 }

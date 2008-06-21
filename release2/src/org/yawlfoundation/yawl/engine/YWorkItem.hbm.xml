@@ -27,6 +27,7 @@
         <property name="_timerStarted" column="timerstarted" type="boolean" access="field"/>
         <property name="_timerExpiry" column="timerexpiry" type="long" access="field"/>
         <property name="_deferredChoiceGroupID" column="deferredgroupid" access="field"/>
+        <property name="_codelet" column="codelet" access="field"/>
 
         <!--_timerParameters-->
 

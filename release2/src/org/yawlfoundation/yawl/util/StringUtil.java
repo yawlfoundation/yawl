@@ -12,7 +12,10 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -262,5 +265,44 @@ public class StringUtil
             return String.format("<%s>%s</%s>", wrapTag, core, wrapTag) ;
         else
             return String.format("<%s/>", wrapTag);
+    }
+
+    /**
+     * Encodes reserved characters in an xml string
+     * @param s the string to encode
+     * @return the newly encoded string
+     */
+    public static String xmlEncode(String s) {
+        if (s == null) return s;
+        try {
+            return URLEncoder.encode(s, "UTF-8");
+        }
+        catch (UnsupportedEncodingException uee) {
+            return s;
+        }
+    }
+
+    /**
+     * Decodes reserved characters in an xml string
+     * @param s the string to decode
+     * @return the newly decoded string
+     */
+    public static String xmlDecode(String s) {
+        if (s == null) return s;
+        try {
+            return URLDecoder.decode(s, "UTF-8");
+        }
+        catch (UnsupportedEncodingException uee) {
+            return s;
+        }
+    }
+
+    public static boolean isIntegerString(String s) {
+        if (s == null) return false;
+        char[] digits = s.toCharArray() ;
+        for (int i=0; i < digits.length; i++) {
+            if ((digits[i] < '0') || (digits[i] > '9')) return false;
+        }
+        return true;
     }
 }

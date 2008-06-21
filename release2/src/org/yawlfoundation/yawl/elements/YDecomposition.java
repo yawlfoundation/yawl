@@ -49,6 +49,8 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
     // if true, this decomposition requires resourcing decisions made at runtime
     protected boolean _manualInteraction = true;
 
+    protected String _codelet;       // specified codelet to execute for automated tasks
+
 
     // CONSTRUCTOR //
 
@@ -197,6 +199,10 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
     public boolean requiresResourcingDecisions() { return _manualInteraction ; }
 
 
+    public String getCodelet() { return _codelet; }
+
+    public void setCodelet(String codelet) { _codelet = codelet ; }
+
     public String toXML() {
         StringBuilder xml = new StringBuilder();
         //just do the decomposition facts (not the surrounding element) - to keep life simple
@@ -231,7 +237,6 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
         StringBuilder result = new StringBuilder() ;
         List parameters = new ArrayList<YParameter>(paramMap.values());
         Collections.sort(parameters);
-//        Collections.sort(parameters, new YParamNameComparator());
         for (Iterator iterator = parameters.iterator(); iterator.hasNext();) {
             YParameter parameter = (YParameter) iterator.next();
             result.append(parameter.toXML());
@@ -296,7 +301,6 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
         //now prepare a list of output params to iterate over.
         List<YParameter> outputParamsList = new ArrayList<YParameter>(
                                                         getOutputParameters().values());
-//        Collections.sort(outputParamsList, new YParamNameComparator());
         Collections.sort(outputParamsList);
 
         for (Iterator iterator = outputParamsList.iterator(); iterator.hasNext();) {

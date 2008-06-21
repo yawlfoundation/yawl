@@ -9,8 +9,6 @@
 
 package org.yawlfoundation.yawl.elements.data;
 
-import org.yawlfoundation.yawl.elements.YDecomposition;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -18,6 +16,9 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -192,6 +193,8 @@ public class YParameter extends YVariable implements Comparable {
         }
 
         xml.append(toXMLGuts());
+        xml.append(StringUtil.wrap(String.valueOf(_ordering), "ordering"));
+        
         if (super.isMandatory()) {
             xml.append("<mandatory/>");
         }
@@ -257,14 +260,7 @@ public class YParameter extends YVariable implements Comparable {
 
     public int compareTo(Object o) {
         YParameter s = (YParameter) o;
-        int dif = this._ordering - s._ordering;
-        if (dif < 0) {
-            return -1;
-        }
-        if (dif > 0) {
-            return 1;
-        }
-        return 0;
+        return this._ordering - s._ordering;
     }
 
     public boolean isInput() {

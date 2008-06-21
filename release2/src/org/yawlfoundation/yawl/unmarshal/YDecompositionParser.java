@@ -18,6 +18,7 @@ import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -112,6 +113,7 @@ public class YDecompositionParser {
 
         // added for resourcing
         parseExternalInteraction(_decomposition, decompElem);
+        parseCodelet(_decomposition, decompElem);
 
         return _decomposition;
     }
@@ -390,7 +392,7 @@ public class YDecompositionParser {
     private void parseTimerParameters(YTask task, Element taskElem) {
         Element timerElem = taskElem.getChild("timer", _yawlNS);
         if (timerElem != null) {
-            String netParam = timerElem.getChildText("netParam", _yawlNS) ;
+            String netParam = timerElem.getChildText("netparam", _yawlNS) ;
 
             // net-level param holds values at runtime
             if (netParam != null)
@@ -552,6 +554,10 @@ public class YDecompositionParser {
     public static void parseParameter(Element paramElem, YParameter parameter, Namespace ns, boolean version2) {
         parseLocalVariable(paramElem, parameter, ns, version2);
 
+        String orderStr = paramElem.getChildText("ordering");
+        if ((orderStr != null) && (StringUtil.isIntegerString(orderStr))) 
+            parameter.setOrdering(Integer.parseInt(orderStr));
+
         boolean isCutThroughParam = paramElem.getChild("isCutThroughParam", ns) != null;
         if (isCutThroughParam) {
             parameter.setIsCutThroughParam(isCutThroughParam);
@@ -581,6 +587,13 @@ public class YDecompositionParser {
              decomposition.setExternalInteraction(
                            interactionStr.equalsIgnoreCase("manual"));
      }
+
+    private void parseCodelet(YDecomposition decomposition,
+                                          Element decompElem){
+        String codelet = decompElem.getChildText("codelet", _yawlNS);
+        if (codelet != null) decomposition.setCodelet(codelet);
+    }
+
 
     //#################################################################################################
     //                                         ACCESSOR

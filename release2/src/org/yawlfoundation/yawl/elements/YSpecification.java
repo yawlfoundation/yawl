@@ -77,7 +77,7 @@ public final class YSpecification implements Cloneable, YVerifiable {
     }
 
     public String getVersion() {
-        return _version ;
+        return _version;
     }
 
     public boolean usesSimpleRootData() {

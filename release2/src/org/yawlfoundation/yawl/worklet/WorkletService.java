@@ -621,6 +621,15 @@ public class WorkletService extends InterfaceBWebsideController {
 
  //***************************************************************************//
 
+    private List<WorkItemRecord> getChildren(String parentID) {
+        try {
+            return getChildren(parentID, _sessionHandle) ;
+        }
+        catch (IOException ioe) {
+            return null;
+        }
+    }
+
     /**
      *  Checks out all the child workitems of the parent item specified
      *  @param coi - the parent's data object
@@ -630,11 +639,11 @@ public class WorkletService extends InterfaceBWebsideController {
         _log.info("Checking out child workitems...") ;
 
         // get all the child instances of this workitem
-        List children = getChildren(coi.getItem().getID(), _sessionHandle);
+        List<WorkItemRecord> children = getChildren(coi.getItem().getID());
+        if (children == null) return;
 
         // checkout each child instance
-        for (int i = 0; i < children.size(); i++) {
-           WorkItemRecord itemRec = (WorkItemRecord) children.get(i);
+        for (WorkItemRecord itemRec : children) {
 
            // if its 'fired' check it out
            if (WorkItemRecord.statusFired.equals(itemRec.getStatus())) {
@@ -651,17 +660,16 @@ public class WorkletService extends InterfaceBWebsideController {
         }
 
         // update child item list after checkout (to capture status changes)
-        children = getChildren(coi.getItem().getID(), _sessionHandle);
+        children = getChildren(coi.getItem().getID());
 
         // if checkout ok and status is 'executing' add each child to parent coi
-        for (int j=0; j < children.size(); j++) {
-            WorkItemRecord w = (WorkItemRecord) children.get(j) ;
+        for (WorkItemRecord w : children) {
 
             if (WorkItemRecord.statusExecuting.equals(w.getStatus())) {
                coi.addChild(w) ;
             }
             else
-               _log.error("child " + j + " has NOT been added to CheckedOutItems") ;
+               _log.error("child '" + w.getID() + "' has NOT been added to CheckedOutItems") ;
         }
 
         // remember how many workitems were spawned for task
@@ -855,16 +863,23 @@ public class WorkletService extends InterfaceBWebsideController {
         String wSpec = Library.FileToString(fullFileName);  // needs spec as String
 
         if (wSpec != null) {
-           if (successful(_interfaceAClient.uploadSpecification(wSpec,
+           try {
+               if (successful(_interfaceAClient.uploadSpecification(wSpec,
                             fileName, _sessionHandle))) {
-               _log.info("Successfully uploaded worklet specification: "
+                  _log.info("Successfully uploaded worklet specification: "
                             + workletName) ;
-               return true ;
-           }
-           else {
-              _log.info("Unsuccessful worklet specification upload : "
+                  return true ;
+              }
+              else {
+                 _log.error("Unsuccessful worklet specification upload : "
                            + workletName)	;
-              return false ;
+                 return false ;
+              }
+           }
+           catch (IOException ioe) {
+               _log.error("Unsuccessful worklet specification upload : "
+                         + workletName)	;
+               return false ;
            }
         }
           else {
@@ -1370,14 +1385,14 @@ public class WorkletService extends InterfaceBWebsideController {
     *        checked out workitem to the log 
     */
    private void attemptToGetChildDataList(WorkItemRecord w) {
-         List children = getChildren(w.getID(), _sessionHandle);
-
-        for (int j=0; j < children.size(); j++) {
-            WorkItemRecord x = (WorkItemRecord) children.get(j);
-            _log.info("workitem child " + j + " has a status of " +
-                       x.getStatus() );
-            _log.info("workitem child " + j + " has a datalist of ... ") ;
-            _log.info(x.getWorkItemData());
+        List<WorkItemRecord> children = getChildren(w.getID());
+        if (children != null) {
+            for (WorkItemRecord wir : children) {
+                _log.info("workitem child '" + wir.getID() + "' has a status of " +
+                           wir.getStatus() );
+                _log.info("workitem child '" + wir.getID() + "' has a datalist of ... ") ;
+                _log.info(wir.getDataListString());
+            }
         }
     }
 
@@ -1533,8 +1548,13 @@ public class WorkletService extends InterfaceBWebsideController {
 
     /** returns true if the session specified is an admin session */
     public boolean isAdminSession(String sessionHandle) {
-        String msg = _interfaceAClient.checkConnection(sessionHandle);
-        return successful(msg);
+        try {
+            String msg = _interfaceAClient.checkConnection(sessionHandle);
+            return successful(msg);
+        }
+        catch (IOException ioe) {
+            return false;
+        }
     }
 
 //***************************************************************************//
@@ -1589,14 +1609,19 @@ public class WorkletService extends InterfaceBWebsideController {
     private boolean isRegisteredUser(String user) {
 
         // check if service is a registered user
-        ArrayList users = (ArrayList) _interfaceAClient.getUsers(_sessionHandle);
-
-        Iterator itr = users.iterator();
-           while (itr.hasNext()) {
-           User u = (User) itr.next() ;
-           if ( u.getUserID().equals(user) ) return true ;      // user in list
+        try {
+            ArrayList users = (ArrayList) _interfaceAClient.getUsers(_sessionHandle);
+            Iterator itr = users.iterator();
+            while (itr.hasNext()) {
+                User u = (User) itr.next() ;
+                if ( u.getUserID().equals(user) ) return true ;       // user in list
+            }
+            return false;                                             // user not in list
         }
-        return false;                                       // user not in list
+        catch (IOException ioe) {
+            return false;                                             // no list 
+        }
+
     }
 
 //***************************************************************************//

@@ -18,7 +18,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
  *  v0.1, 21/08/2007
  */
 
-public class Role extends AbstractResourceAttribute {
+public class Role extends AbstractResourceAttribute implements Comparable {
 
     private String _role ;
     private Role _belongsTo ;                   // is this role part of a larger group
@@ -51,14 +51,19 @@ public class Role extends AbstractResourceAttribute {
     public boolean equals(Object o) {
         return (o instanceof Role) && ((Role) o).getID().equals(_id);
     }
+
+    public int compareTo(Object o) {
+        if ((o == null) || (! (o instanceof Role))) return 1;
+        return this.getName().compareTo(((Role) o).getName());
+    }
    
 
     public String toXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<role id=\"%s\">", _id)) ;
-        xml.append(StringUtil.wrap(_role, "name"));
-        xml.append(StringUtil.wrap(_description, "description"));
-        xml.append(StringUtil.wrap(_notes, "notes"));
+        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_role), "name"));
+        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_description), "description"));
+        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_notes), "notes"));
         if (_belongsTo !=null)
             xml.append(StringUtil.wrap(_belongsTo.getID(), "belongsToID")) ;
         xml.append("</role>");
@@ -67,7 +72,7 @@ public class Role extends AbstractResourceAttribute {
 
     public void reconstitute(Element e) {
         super.reconstitute(e);
-        setName(e.getChildText("name"));
+        setName(StringUtil.xmlDecode(e.getChildText("name")));
         set_belongsToID(e.getChildText("belongsToID"));
     }
 

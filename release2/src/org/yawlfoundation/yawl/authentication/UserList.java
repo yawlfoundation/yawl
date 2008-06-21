@@ -178,7 +178,7 @@ public class UserList {
                 _connections.put(connection._sessionHandle, connection);
                 return connection._sessionHandle;
             }
-            throw new YAuthenticationException("Password (" + password + ") not valid.");
+            throw new YAuthenticationException("Invalid Password.");
         }
         throw new YAuthenticationException("Userid (" + userID + ") not valid.");
     }

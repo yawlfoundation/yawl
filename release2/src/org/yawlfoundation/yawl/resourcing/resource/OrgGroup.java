@@ -20,7 +20,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
  *  v0.1, 03/08/2007
  */
 
-public class OrgGroup extends AbstractResourceAttribute {
+public class OrgGroup extends AbstractResourceAttribute implements Comparable {
 
     private String _groupName ;
     private GroupType _groupType ;
@@ -96,14 +96,19 @@ public class OrgGroup extends AbstractResourceAttribute {
         return (o instanceof OrgGroup) && ((OrgGroup) o).getID().equals(_id);
     }
 
+    public int compareTo(Object o) {
+        if ((o == null) || (! (o instanceof OrgGroup))) return 1;
+        return this.getGroupName().compareTo(((OrgGroup) o).getGroupName());
+    }
+
 
     public String toXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<orggroup id=\"%s\">", _id)) ;
-        xml.append(StringUtil.wrap(_groupName, "groupName"));
+        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_groupName), "groupName"));
         xml.append(StringUtil.wrap(get_groupType(), "groupType"));
-        xml.append(StringUtil.wrap(_description, "description"));
-        xml.append(StringUtil.wrap(_notes, "notes"));
+        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_description), "description"));
+        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_notes), "notes"));
         if (_belongsTo !=null)
             xml.append(StringUtil.wrap(_belongsTo.getID(), "belongsToID")) ;
         xml.append("</orggroup>");
@@ -112,7 +117,7 @@ public class OrgGroup extends AbstractResourceAttribute {
 
     public void reconstitute(Element e) {
         super.reconstitute(e);
-        setGroupName(e.getChildText("groupName"));
+        setGroupName(StringUtil.xmlDecode(e.getChildText("groupName")));
         set_groupType(e.getChildText("groupType"));
         set_belongsToID(e.getChildText("belongsToID"));
     }

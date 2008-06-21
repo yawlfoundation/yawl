@@ -15,7 +15,6 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.yawlfoundation.yawl.elements.data.YParameter;
-import static org.yawlfoundation.yawl.engine.YWorkItemStatus.statusEnabled;
 import org.yawlfoundation.yawl.engine.interfce.*;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -344,7 +343,8 @@ public abstract class InterfaceBWebsideController {
     }
 
 
-    public List getChildren(String workItemID, String sessionHandle) {
+    public List<WorkItemRecord> getChildren(String workItemID, String sessionHandle)
+            throws IOException {
         return _interfaceBClient.getChildrenOfWorkItem(workItemID, sessionHandle);
     }
 
@@ -432,7 +432,7 @@ public abstract class InterfaceBWebsideController {
         if (null == enabledWorkItem) 
             throw new IllegalArgumentException("Param enabledWorkItem cannot be null.");
 
-        if (!enabledWorkItem.getStatus().equals(statusEnabled))
+        if (!enabledWorkItem.getStatus().equals(WorkItemRecord.statusEnabled))
             throw new IllegalArgumentException("Param enabledWorkItem must be enabled.");
 
         List executingChildrenOfWorkItem = new ArrayList();

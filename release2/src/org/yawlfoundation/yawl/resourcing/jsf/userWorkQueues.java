@@ -313,7 +313,7 @@ public class userWorkQueues extends AbstractPageBean {
      */
     public void prerender() {
         getSessionBean().checkLogon();                     // check session still live
-        msgPanel.show(395, 150, "absolute");               // show msgs (if any)
+        msgPanel.show(350, 200, "absolute");               // show msgs (if any)
 
         // return to same tab on a refresh
         if (_sb.getSourceTab() != null) {
@@ -557,12 +557,13 @@ public class userWorkQueues extends AbstractPageBean {
                 else
                     msgPanel.error(msgPanel.format(result)) ;                
             }
-            return null ;                                         // stay on same form
         }
         catch (Exception e) {
-            msgPanel.info("Your session has expired. Please log back in.") ;
-            return "loginPage" ;
+            msgPanel.error("The attempt to " + action + " the selected workitem was "+
+                           "unsuccessful. Please check the log files for details.");
+            _rm.getLogger().error("Exception in user work queues: ", e);
         }
+        return null ;                                         // stay on same form
     }
 
 
