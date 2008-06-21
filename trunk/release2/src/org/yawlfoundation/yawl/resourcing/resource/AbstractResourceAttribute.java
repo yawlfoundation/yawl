@@ -11,6 +11,7 @@ package org.yawlfoundation.yawl.resourcing.resource;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -97,8 +98,8 @@ public abstract class AbstractResourceAttribute {
     
     public void reconstitute(Element e) {
         setID(e.getAttributeValue("id"));
-        setDescription(e.getChildText("description"));
-        setNotes(e.getChildText("notes"));
+        setDescription(StringUtil.xmlDecode(e.getChildText("description")));
+        setNotes(StringUtil.xmlDecode(e.getChildText("notes")));
      }
 
 

@@ -697,6 +697,7 @@ public class YNetRunner // extends Thread
         YDecomposition decomp = atomicTask.getDecompositionPrototype();
         if (decomp != null) {
             workItem.setRequiresManualResourcing(decomp.requiresResourcingDecisions());
+            workItem.setCodelet(decomp.getCodelet());
             workItem.setAttributes(decomp.getAttributes());
         }
 

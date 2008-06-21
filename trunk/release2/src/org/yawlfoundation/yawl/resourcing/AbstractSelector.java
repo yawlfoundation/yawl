@@ -24,7 +24,7 @@ import java.util.Set;
  * to provide values for:
  *    _name --> the class name
  *    _displayName --> a 'pretty' name to show to designers/users when required
- *    _description --> a user-oriented description of what the exteding class does
+ *    _description --> a user-oriented description of what the extending class does
  *    _params --> a set of parameters needed when applying the extending class's
  *                'perform...' method  (the param value should be set to null when
  *                initialised).

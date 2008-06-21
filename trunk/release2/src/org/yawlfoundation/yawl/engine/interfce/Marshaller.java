@@ -150,12 +150,13 @@ public class Marshaller {
      * @param specificationSummaryListXML
      * @return  the list
      */
-    public static List unmarshalSpecificationSummary(String specificationSummaryListXML) {
-        List specSummaryList = new ArrayList();
-        Document doc = null;
+    public static List<SpecificationData> unmarshalSpecificationSummary(
+                                             String specificationSummaryListXML) {
+        List<SpecificationData> specSummaryList = new ArrayList<SpecificationData>();
+
         try {
             SAXBuilder builder = new SAXBuilder();
-            doc = builder.build(new StringReader(specificationSummaryListXML));
+            Document doc = builder.build(new StringReader(specificationSummaryListXML));
             List specSummaryElements = doc.getRootElement().getChildren();
             for (int i = 0; i < specSummaryElements.size(); i++) {
                 SpecificationData specData = null;
@@ -231,12 +232,12 @@ public class Marshaller {
             wir = new WorkItemRecord(caseID, taskID, specID, enablementTime, status);
 
             wir.setExtendedAttributes(unmarshalWorkItemAttributes(workItemElement));
-
             wir.setUniqueID(workItemElement.getChildText("uniqueid"));
             wir.setAllowsDynamicCreation(workItemElement.getChildText(
                                                               "allowsdynamiccreation"));
             wir.setRequiresManualResourcing(workItemElement.getChildText(
                                                            "requiresmanualresourcing"));
+            wir.setCodelet(workItemElement.getChildText("codelet"));
             wir.setDeferredChoiceGroupID(workItemElement.getChildText(
                                                               "deferredChoiceGroupid"));
             wir.setSpecVersion(workItemElement.getChildText("specversion"));

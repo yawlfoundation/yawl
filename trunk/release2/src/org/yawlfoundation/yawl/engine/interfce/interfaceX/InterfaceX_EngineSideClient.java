@@ -8,15 +8,16 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceX;
 
+import org.apache.log4j.Logger;
+import org.jdom.Document;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
-import org.apache.log4j.Category;
-import org.jdom.Document;
-
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *  InterfaceX_EngineSideClient passes exception event calls from the engine to the
@@ -46,7 +47,7 @@ import java.util.*;
 
 public class InterfaceX_EngineSideClient extends Interface_Client implements ExceptionGateway {
 
-    protected static Category logger = Category.getInstance(InterfaceX_EngineSideClient.class);
+    protected static Logger logger = Logger.getLogger(InterfaceX_EngineSideClient.class);
 
     // event types
     protected static final int NOTIFY_CHECK_CASE_CONSTRAINTS = 0;
@@ -219,7 +220,7 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
                 }
 
                 // run the post with the appropriate params
-                Interface_Client.executePost(_observerURI, paramsMap);
+                executePost(_observerURI, paramsMap);
 
             } catch (IOException e) {
                 logger.error("failed to call YAWL service", e);

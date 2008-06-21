@@ -25,6 +25,8 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideContr
 import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.resourcing.allocators.AllocatorFactory;
+import org.yawlfoundation.yawl.resourcing.codelets.AbstractCodelet;
+import org.yawlfoundation.yawl.resourcing.codelets.CodeletFactory;
 import org.yawlfoundation.yawl.resourcing.constraints.ConstraintFactory;
 import org.yawlfoundation.yawl.resourcing.datastore.HibernateEngine;
 import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
@@ -104,7 +106,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private Logger _log ;                                 // debug log4j file
     private boolean _persisting ;                         // flag to enable persistence
     private boolean _isNonDefaultOrgDB ;                  // flag for non-yawl org model
-    private Object _mutex = new Object();                 // for synchronizing ib events
+    private final Object _mutex = new Object();           // for synchronizing ib events
 
     private Timer _orgDataRefreshTimer;               // if set, reloads db at intervals
 
@@ -214,6 +216,8 @@ public class ResourceManager extends InterfaceBWebsideController {
     public boolean hasOrgDataSource() {
         return (_orgdb != null);
     }
+
+    public Logger getLogger() { return _log ; }
 
     /*********************************************************************************/
 
@@ -688,11 +692,9 @@ public class ResourceManager extends InterfaceBWebsideController {
     // RETRIEVAL METHODS //
 
     public String getParticipantsAsXML() {
-        ArrayList<Participant> pList = new ArrayList<Participant>(_ds.participantMap.values());
-        Collections.sort(pList, new ParticipantNameComparator());
+        ArrayList<Participant> pList = sortFullParticipantListByName();
         
         StringBuilder xml = new StringBuilder("<participants>") ;
-   //     for (Participant p : _ds.participantMap.values()) xml.append(p.toXML()) ;
         for (Participant p : pList) xml.append(p.toXML()) ;
         xml.append("</participants>");
         return xml.toString() ;
@@ -708,8 +710,11 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     
     public String getRolesAsXML() {
+        ArrayList<Role> rList = new ArrayList<Role>(_ds.roleMap.values());
+        Collections.sort(rList);
+
         StringBuilder xml = new StringBuilder("<roles>") ;
-        for (Role r : _ds.roleMap.values()) xml.append(r.toXML()) ;
+        for (Role r : rList) xml.append(r.toXML()) ;
         xml.append("</roles>");
         return xml.toString() ;
     }
@@ -729,22 +734,31 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public String getCapabilitiesAsXML() {
+        ArrayList<Capability> cList = new ArrayList<Capability>(_ds.capabilityMap.values());
+        Collections.sort(cList);
+
         StringBuilder xml = new StringBuilder("<capabilities>") ;
-        for (Capability c : _ds.capabilityMap.values()) xml.append(c.toXML()) ;
+        for (Capability c : cList) xml.append(c.toXML()) ;
         xml.append("</capabilities>");
         return xml.toString() ;
     }
 
     public String getPositionsAsXML() {
+        ArrayList<Position> pList = new ArrayList<Position>(_ds.positionMap.values());
+        Collections.sort(pList);
+
         StringBuilder xml = new StringBuilder("<positions>") ;
-        for (Position p : _ds.positionMap.values()) xml.append(p.toXML()) ;
+        for (Position p : pList) xml.append(p.toXML()) ;
         xml.append("</positions>");
         return xml.toString() ;
     }
 
     public String getOrgGroupsAsXML() {
+        ArrayList<OrgGroup> oList = new ArrayList<OrgGroup>(_ds.orgGroupMap.values());
+        Collections.sort(oList);
+
         StringBuilder xml = new StringBuilder("<orggroups>") ;
-        for (OrgGroup o : _ds.orgGroupMap.values()) xml.append(o.toXML()) ;
+        for (OrgGroup o : oList) xml.append(o.toXML()) ;
         xml.append("</orggroups>");
         return xml.toString() ;
     }
@@ -1245,7 +1259,12 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (checkOutWorkItem(wir, handle)) {
 
             // get all the child instances of this workitem
-            List children = getChildren(wir.getID(), _engineSessionHandle);
+            List children = getChildren(wir.getID());
+
+            if (children == null) {
+                _log.error("Checkout of workitem '" + wir.getID() + "' unsuccessful.");
+                return false;
+            }
 
             if (children.size() > 1) {                   // i.e. if multi atomic task
 
@@ -1878,8 +1897,9 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
 
         // update child item list after checkout (to capture status changes) & return
-        return getChildren(wir.getID(), _engineSessionHandle);
+        return getChildren(wir.getID());
     }
+
 
 
     private WorkItemRecord getExecutingChild(WorkItemRecord wir, List children) {
@@ -1953,8 +1973,12 @@ public class ResourceManager extends InterfaceBWebsideController {
     protected boolean connected() {
         try {
             // if not connected
-             if ((_engineSessionHandle == null) || (!checkConnection(_engineSessionHandle)))
+             if ((_engineSessionHandle == null)
+                     || (_engineSessionHandle.length() == 0)
+                     || (! checkConnection(_engineSessionHandle))) {
+
                 _engineSessionHandle = connectAsService();
+             }
         }
         catch (IOException ioe) {
              _log.error("Exception attempting to connect to engine", ioe);
@@ -2014,14 +2038,18 @@ public class ResourceManager extends InterfaceBWebsideController {
     private boolean isRegisteredUser(String user) {
 
         // check if service is a registered user
-        ArrayList users = (ArrayList) _interfaceAClient.getUsers(_engineSessionHandle);
-
-        Iterator itr = users.iterator();
-           while (itr.hasNext()) {
-           User u = (User) itr.next() ;
-           if ( u.getUserID().equals(user) ) return true ;      // user in list
+        try {
+            ArrayList users = (ArrayList) _interfaceAClient.getUsers(_engineSessionHandle);
+            Iterator itr = users.iterator();
+               while (itr.hasNext()) {
+                   User u = (User) itr.next() ;
+                   if ( u.getUserID().equals(user) ) return true ;    // user in list
+            }
+            return false;                                             // user not in list
         }
-        return false;                                       // user not in list
+        catch (IOException ioe) {
+            return false;                                             // no list
+        }
     }
 
 
@@ -2147,7 +2175,12 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public String uploadSpecification(String fileContents, String fileName, String handle) {
-        return _interfaceAClient.uploadSpecification(fileContents, fileName, handle);         
+        try {
+            return _interfaceAClient.uploadSpecification(fileContents, fileName, handle);
+        }
+        catch (IOException ioe) {
+            return "<failure>IOException uploading specification " + fileName + "</failure>";
+        }
     }
 
     
@@ -2194,10 +2227,12 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
     private List<WorkItemRecord> getChildren(String parentID) {
-        List<WorkItemRecord> result = new ArrayList<WorkItemRecord>();
-        List children = getChildren(parentID, _engineSessionHandle) ;
-        for (Object obj : children) result.add((WorkItemRecord) obj) ;
-        return result ;
+        try {
+            return getChildren(parentID, _engineSessionHandle) ;
+        }
+        catch (IOException ioe) {
+            return null;
+        }
     }
 
     public String unloadSpecification(String specID, String handle) throws IOException {
@@ -2466,24 +2501,19 @@ public class ResourceManager extends InterfaceBWebsideController {
 
             // check out the auto workitem
             if (checkOutWorkItem(wir, _engineSessionHandle)) {
-                List children = getChildren(wir.getID(), _engineSessionHandle);
+                List children = getChildren(wir.getID());
 
                 if ((children != null) && (! children.isEmpty())) {
                     try {
                         wir = (WorkItemRecord) children.get(0) ;  // get executing child
 
-                        // get output params
-                        TaskInformation taskInfo = getTaskInformation(
-                                wir.getSpecificationID(), wir.getTaskID(),
-                                _engineSessionHandle);
-                        List<YParameter> outputs =
-                                           taskInfo.getParamSchema().getOutputParams() ;
+                        Element codeletResult = null ;
+                        String codelet = wir.getCodelet();
+                        if (codelet != null)
+                            codeletResult = execCodelet(codelet, wir) ; 
 
-                        // execute & evaluate
-                        // TODO HERE: will go calls to codelet class plugins to do
-                        // TODO       whatever needs doing in this auto task
-                        Element outData = wir.getDataList();
-
+                        Element outData = (codeletResult != null) ? codeletResult
+                                                                  : wir.getDataList();
 
                         // check item back in
                         String msg = checkInWorkItem(wir.getID(), wir.getDataList(),
@@ -2504,5 +2534,60 @@ public class ResourceManager extends InterfaceBWebsideController {
             }
         }
     }
+
+
+    private Element execCodelet(String clName, WorkItemRecord wir) {
+        Element result = null;
+        try {
+             // get params
+             TaskInformation taskInfo = getTaskInformation(
+                                        wir.getSpecificationID(), wir.getTaskID(),
+                                        _engineSessionHandle);
+              List<YParameter> inputs =
+                                        taskInfo.getParamSchema().getInputParams() ;
+              List<YParameter> outputs =
+                                        taskInfo.getParamSchema().getOutputParams() ;
+
+             // get class instance
+             AbstractCodelet codelet = CodeletFactory.getInstance(clName);
+             if (codelet != null) {
+                 result = codelet.execute(wir.getDataList(), inputs, outputs);
+                 if (result != null)
+                     result = updateOutputDataList(wir.getDataList(), result);
+             }
+         }
+         catch (Exception e) {
+             _log.error("Exception executing codelet '" + clName + "'", e);
+         }
+        return result;
+    }
+
+    /** updates the input datalist with the changed data in the output datalist
+     *  @param in - the JDOM Element containing the input params
+     *  @param out - the JDOM Element containing the output params
+     *  @return a JDOM Element with the data updated
+     */
+    private Element updateOutputDataList(Element in, Element out) {
+
+         // get a copy of the 'in' list
+         Element result = (Element) in.clone() ;
+
+         // for each child in 'out' list, get its value and copy to 'in' list
+         for (Object o : (out.getChildren())) {
+             Element e = (Element) o;
+
+             // if there's a matching 'in' data item, update its value
+             Element resData = result.getChild(e.getName());
+             if (resData != null) {
+                 if (resData.getContentSize() > 0) resData.setContent(e.cloneContent()) ;
+                 else resData.setText(e.getText());
+             }
+             else {
+                 result.addContent((Element) e.clone()) ;
+             }
+         }
+
+         return result ;
+   }
 
 }                                                                                  

@@ -380,9 +380,9 @@ public class Participant extends AbstractResource implements Serializable {
     public String toXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<participant id=\"%s\">", _resourceID)) ;
-        xml.append(StringUtil.wrap(_userID, "userid"));
-        xml.append(StringUtil.wrap(_firstname, "firstname"));
-        xml.append(StringUtil.wrap(_lastname, "lastname"));
+        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_userID), "userid"));
+        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_firstname), "firstname"));
+        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_lastname), "lastname"));
         xml.append(StringUtil.wrap(String.valueOf(_isAdministrator), "isAdministrator")) ;
 
         xml.append("<roles>");
@@ -408,9 +408,9 @@ public class Participant extends AbstractResource implements Serializable {
 
     public void reconstitute(Element e) {
         setID(e.getAttributeValue("id"));
-        setUserID(e.getChildText("userid"));
-        setFirstName(e.getChildText("firstname"));
-        setLastName(e.getChildText("lastname"));
+        setUserID(StringUtil.xmlDecode(e.getChildText("userid")));
+        setFirstName(StringUtil.xmlDecode(e.getChildText("firstname")));
+        setLastName(StringUtil.xmlDecode(e.getChildText("lastname")));
         setAdministrator(e.getChildText("isAdministrator").equals("true"));
     }
 

@@ -9,22 +9,16 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceA;
 
+import org.jdom.Document;
+import org.jdom.Element;
 import org.yawlfoundation.yawl.authentication.User;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -33,11 +27,12 @@ import java.util.*;
  * @author Lachlan Aldred
  * Date: 16/04/2004
  * Time: 16:15:02
+ *
+ * @author Michael Adams (refactored for v2.0, 06/2008)
  * 
  */
 public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
     private String _backEndURIStr;
-    private SAXBuilder _builder = new SAXBuilder();
 
 
     /**
@@ -51,17 +46,11 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
     }
 
 
-    public String checkConnection(String sessionHandle) {
-        try {
-            return executeGet(_backEndURIStr + "?" +
-                    "action=checkConnection" +
-                    "&" +
-                    "sessionHandle=" + sessionHandle);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public String checkConnection(String sessionHandle) throws IOException {
+        return executeGet(_backEndURIStr,
+                          prepareParamMap("checkConnection", sessionHandle));
     }
+
 
     /**
      * Change the password of a user on the engine.
@@ -72,12 +61,9 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException
      */
     public String changeUserPassword(String password, String sessionHandle) throws IOException {
-        Map map = new HashMap();
-        map.put("action", "newPassword");
-        map.put("password", password);
-        map.put("sessionHandle", sessionHandle);
-
-        return executePost(_backEndURIStr, map);
+        Map<String, String> params = prepareParamMap("newPassword", sessionHandle);
+        params.put("password", password);
+        return executePost(_backEndURIStr, params);
     }
 
 
@@ -90,12 +76,9 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
      * @return
      */
     public String deleteUser(String username, String sessionHandle) throws IOException {
-        Map map = new HashMap();
-        map.put("action", "deleteUser");
-        map.put("userName", username);
-        map.put("sessionHandle", sessionHandle);
-
-        return executePost(_backEndURIStr, map);
+        Map<String, String> params = prepareParamMap("deleteUser", sessionHandle);
+        params.put("userName", username);
+        return executePost(_backEndURIStr, params);
     }
 
 
@@ -107,47 +90,42 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
      * @return the sessionHandle - expires after one hour.
      */
     public String connect(String userID, String password) throws IOException {
-        Map queryMap = new HashMap();
-        queryMap.put("userid", userID);
-        queryMap.put("password", password);
-        return executePost(_backEndURIStr + "/connect", queryMap);
+        Map<String, String> params = prepareParamMap("connect", null);
+        params.put("userid", userID);
+        params.put("password", password);
+        return executePost(_backEndURIStr, params);
     }
 
 
     /**
-     * Returns a list of YAWL service objects registered with
-     * the engine.
+     * Returns a list of YAWL service objects registered with the engine.
      * @param sessionHandle the session handle - won't work without the correct one.
-     * @return
+     * @return te set of active yawl services
      */
     public Set<YAWLServiceReference> getRegisteredYAWLServices(String sessionHandle) {
-        Set<YAWLServiceReference> yawlServices = new HashSet<YAWLServiceReference>();
+        Set<YAWLServiceReference> result = new HashSet<YAWLServiceReference>();
         try {
-            String result = getRegisteredYAWLServicesAsXML(sessionHandle);
-            SAXBuilder builder = new SAXBuilder();
-            if (result != null && successful(result)) {
-                Document doc = builder.build(new StringReader(result));
+            String xml = getRegisteredYAWLServicesAsXML(sessionHandle);
+            if (xml != null && successful(xml)) {
+                Document doc = JDOMUtil.stringToDocument(xml);
                 Iterator yawlServiceIter = doc.getRootElement().getChildren().iterator();
-                XMLOutputter out = new XMLOutputter(Format.getCompactFormat());
 
                 while (yawlServiceIter.hasNext()) {
-                    Element yawlServiceElem = (Element) yawlServiceIter.next();
-                    YAWLServiceReference service =
-                            YAWLServiceReference.unmarshal(out.outputString(yawlServiceElem));
-                    yawlServices.add(service);
+                    Element service = (Element) yawlServiceIter.next();
+                    result.add(
+                       YAWLServiceReference.unmarshal(JDOMUtil.elementToString(service)));
                 }
             }
-        } catch (JDOMException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             InterfaceBWebsideController.logContactError(e, _backEndURIStr);
         }
-        return yawlServices;
+        return result;
     }
 
+    
     public String getRegisteredYAWLServicesAsXML(String sessionHandle) throws IOException {
-        return executeGet(_backEndURIStr +
-                          "?action=getYAWLServices&sessionHandle=" + sessionHandle);
+        Map<String, String> params = prepareParamMap("getYAWLServices", sessionHandle);
+        return executeGet(_backEndURIStr, params);
     }
 
 
@@ -158,13 +136,11 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
      * @return a diagnostic XML message.
      * @throws IOException if something goes awry.
      */
-    public String setYAWLService(YAWLServiceReference service, String sessionHandle) throws IOException {
-        String serialisedYAWLService = service.toXMLComplete();
-        Map queryMap = new HashMap();
-        queryMap.put("sessionHandle", sessionHandle);
-        queryMap.put("action", "newYAWLService");
-        queryMap.put("service", serialisedYAWLService);
-        return executePost(_backEndURIStr, queryMap);
+    public String setYAWLService(YAWLServiceReference service, String sessionHandle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("newYAWLService", sessionHandle);
+        params.put("service", service.toXMLComplete());
+        return executePost(_backEndURIStr, params);
     }
 
 
@@ -176,11 +152,9 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException if bad connection.
      */
     public String removeYAWLService(String serviceURI, String sessionHandle) throws IOException {
-        Map queryMap = new HashMap();
-        queryMap.put("sessionHandle", sessionHandle);
-        queryMap.put("action", "removeYAWLService");
-        queryMap.put("serviceURI", serviceURI);
-        return executePost(_backEndURIStr, queryMap);
+        Map<String, String> params = prepareParamMap("removeYAWLService", sessionHandle);
+        params.put("serviceURI", serviceURI);
+        return executePost(_backEndURIStr, params);
     }
 
 
@@ -191,61 +165,24 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
      * @param sessionHandle
      * @return a result message indicting failure/success and some diagnostics
      */
-    public String uploadSpecification(String specification, String filename, String sessionHandle) {
-        return executeUpload(_backEndURIStr + "/uploader", specification, filename, sessionHandle);
+    public String uploadSpecification(String specification, String filename,
+                                      String sessionHandle) throws IOException {
+        return executeUpload(_backEndURIStr + "/upload", specification, filename,
+                             sessionHandle);
     }
 
-    private String executeUpload(String urlStr, String specification, String filename, String sessionHandle) {
-        StringBuffer result = new StringBuffer();
-        try {
-            URL url = new URL(urlStr);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoOutput(true);
-            connection.setDoInput(true);
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("YAWLSessionHandle", sessionHandle);
-            connection.setRequestProperty("filename", filename);
-            connection.setRequestProperty("Content-Type", "text/xml");
-
-            //send query
-            PrintWriter out = new PrintWriter(connection.getOutputStream());
-            out.print(specification);
-            out.flush();
-
-            //retrieve reply
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream()));
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                result.append(inputLine);
-            }
-            //clean up
-            in.close();
-            out.close();
-            connection.disconnect();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            InterfaceBWebsideController.logContactError(e, _backEndURIStr);
-        }
-        String msg = result.toString();
-        return stripOuterElement(msg);
-    }
-
+    
     public String unloadSpecification(String specID, String sessionHandle) throws IOException {
-        Map params = new HashMap();
-        params.put("action", "unload");
+        Map<String, String> params = prepareParamMap("unload", sessionHandle);
         params.put("specID", specID);
-        params.put("sessionHandle", sessionHandle);
         return executePost(_backEndURIStr, params);
     }
 
+
     public String unloadSpecification(YSpecificationID specID, String sessionHandle) throws IOException {
-        Map params = new HashMap();
-        params.put("action", "unload");
+        Map<String, String> params = prepareParamMap("unload", sessionHandle);
         params.put("specID", specID.getSpecName());
         params.put("version", specID.getVersion().toString());
-        params.put("sessionHandle", sessionHandle);
         return executePost(_backEndURIStr, params);
     }
 
@@ -260,48 +197,32 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException
      */
     public String createUser(String userName, String password, boolean isAdmin, String sessionHandle) throws IOException {
-        Map params = new HashMap();
+        String action = isAdmin ? "createAdmin" :"createUser";
+        Map<String, String> params = prepareParamMap(action, sessionHandle);
         params.put("userName", userName);
         params.put("password", password);
-        if (isAdmin) {
-            params.put("action", "createAdmin");
-        } else {
-            params.put("action", "createUser");
-        }
-        params.put("sessionHandle", sessionHandle);
         return executePost(_backEndURIStr, params);
     }
 
-    public List getUsers(String sessionHandle) {
-        String result = null;
-        try {
-            result = executeGet(_backEndURIStr +
-                    "?" +
-                    "action=getUsers" +
-                    "&" +
-                    "sessionHandle=" + sessionHandle);
-        } catch (IOException e) {
-            InterfaceBWebsideController.logContactError(e, _backEndURIStr);
-        }
-        ArrayList users = new ArrayList();
+
+    public List<User> getUsers(String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("getUsers", sessionHandle);
+        ArrayList<User> users = new ArrayList<User>();
+        String result = executeGet(_backEndURIStr, params);
+
         if (successful(result)) {
-            try {
-                Document doc = _builder.build(new StringReader(result));
+            Document doc = JDOMUtil.stringToDocument(result);
+            if (doc != null) {
                 List userElems = doc.getRootElement().getChildren();
                 for (int i = 0; i < userElems.size(); i++) {
                     Element element = (Element) userElems.get(i);
                     String id = element.getChildText("id");
-                    String isAdmin = element.getChildText("isAdmin");
                     User u = new User(id, null);
-                    if (isAdmin.equals("true")) {
+                    if (element.getChildText("isAdmin").equals("true")) {
                         u.setAdmin(true);
                     }
                     users.add(u);
                 }
-            } catch (JDOMException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         }
         return users;

@@ -139,7 +139,7 @@ public class RandomOrgDataGenerator {
                     _rm.addParticipant(p);
 
                     p.setAdministrator(rand.nextBoolean());
-                    p.setPassword("apple");
+                    p.setPassword(PasswordEncryptor.getInstance().encrypt("apple"));
 
                     p.addPosition(positions[rand.nextInt(4)]);
                     p.addCapability(capabilities[rand.nextInt(4)]);

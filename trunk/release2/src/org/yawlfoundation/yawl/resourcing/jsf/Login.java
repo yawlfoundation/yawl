@@ -14,10 +14,11 @@ import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.util.PasswordEncryptor;
 
 import javax.faces.FacesException;
-import javax.faces.application.FacesMessage;
-import javax.faces.validator.ValidatorException;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Set;
 
 /*
@@ -183,7 +184,7 @@ public class Login extends AbstractPageBean {
             msgPanel.error("User '" + sb.getUserid() + "' is already logged on in this" +
                            " browser instance. Only one user logon per browser " +
                            " instance is possible. If you wish to logon, please " +
-                           " logout the previous user first.") ;
+                           " logout the current user first.") ;
         }
 
         // session is free, so if there's a valid org data source --> process the logon
@@ -225,7 +226,22 @@ public class Login extends AbstractPageBean {
 
         // attempt to log on (and gain a session) to the service
         if (rm != null) {
-            String handle = rm.login(u, p);
+            String pEncrypt = p ;                                // default for admin
+            if (! u.equals("admin")) {
+                try {
+                    pEncrypt = PasswordEncryptor.getInstance().encrypt(p) ;
+                }
+                catch(NoSuchAlgorithmException nsae) {
+                    msgPanel.error("Password Encryption Algorithm not available. Login failed.");
+                    return false;
+                }
+                catch(UnsupportedEncodingException uee) {
+                    msgPanel.error("Password could not be encrypted. Login failed.");
+                    return false;
+                }
+            }
+
+            String handle = rm.login(u, pEncrypt);
             if (Interface_Client.successful(handle)) {           // successful login
                 initSession(u, handle) ;
                 msgPanel.clear();
@@ -236,7 +252,11 @@ public class Login extends AbstractPageBean {
                 return false ;
             }    
         }
-        else throw new ValidatorException(new FacesMessage("Could not connect to work queue"));
+        else {
+            msgPanel.error("Could not connect to work queue, service unavailable.");
+            return false;
+        }
+
     }
 
 

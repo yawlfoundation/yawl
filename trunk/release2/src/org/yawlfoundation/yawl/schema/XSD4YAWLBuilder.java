@@ -479,6 +479,8 @@ class XSD4YAWLBuilder {
      */
     protected Collection getGlobalDependencies(XSDParticle particle) {
         Set set = new HashSet();
+        if (particle == null) return set ;                               // avoid npe
+
         EList contents = particle.eContents();
         for (int i = 0; i < contents.size(); i++) {
             XSDParticleContent particleContent = (XSDParticleContent) contents.get(i);

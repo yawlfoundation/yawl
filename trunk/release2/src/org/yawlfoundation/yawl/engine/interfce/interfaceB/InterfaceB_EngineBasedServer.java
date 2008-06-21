@@ -10,13 +10,13 @@
 package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
 import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.util.YProperties;
-import org.yawlfoundation.yawl.elements.YSpecVersion;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -31,7 +31,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.rmi.RemoteException;
 import java.util.Enumeration;
-import java.util.StringTokenizer;
 
 
 /**
@@ -140,7 +139,7 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
     }
 
 
-    protected void doDelete(HttpServletRequest request, HttpServletResponse responce) {
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) {
 
     }
 
@@ -148,95 +147,85 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
     //###############################################################################
     //      Start YAWL Processing methods
     //###############################################################################
+
     private String processGetQuery(HttpServletRequest request) {
         StringBuffer msg = new StringBuffer();
+        String sessionHandle = request.getParameter("sessionHandle");
+        String action = request.getParameter("action");
+        String workItemID = request.getParameter("workItemID");
+        String taskID = request.getParameter("taskID");
+
         try {
             if (logger.isDebugEnabled()) {
-                logger.debug("\nInterfaceB_EngineBasedServer::doGet() request.getRequestURL = "
-                        + request.getRequestURL());
-                logger.debug("InterfaceB_EngineBasedServer::doGet() request.parameters:");
-                Enumeration paramNms = request.getParameterNames();
-                while (paramNms.hasMoreElements()) {
-                    String name = (String) paramNms.nextElement();
-                    logger.debug("\trequest.getParameter(" + name + ") = "
-                            + request.getParameter(name));
-                }
+                debug(request, "Get");
             }
-            StringTokenizer tokens = new StringTokenizer(request.getRequestURI(), "/");
-            String secondLastPartOfPath = null;
-            String lastPartOfPath = null;
-            String temp = null;
-            while (tokens.hasMoreTokens()) {
-                secondLastPartOfPath = temp;
-                temp = tokens.nextToken();
-                if (!tokens.hasMoreTokens()) {
-                    lastPartOfPath = temp;
-                }
-            }
-            //if parameters exist do the while
-            String sessionHandle = request.getParameter("sessionHandle");
-            String action = request.getParameter("action");
+
             if (action != null) {
                 if (action.equals("details")) {
-                    String workItemID = lastPartOfPath;
                     msg.append(_engine.getWorkItemDetails(workItemID, sessionHandle));
-                } else if (action.equals("startOne")) {
+                }
+                else if (action.equals("startOne")) {
                     String userID = request.getParameter("user");
-                    if (userID != null && sessionHandle != null) {
-                        msg.append(_engine.startWorkItem(lastPartOfPath, sessionHandle));
-                    }
-                } else if (action.equals("verbose")) {
+                    msg.append(_engine.startWorkItem(userID, sessionHandle));
+                }
+                else if (action.equals("getLiveItems")) {
                     msg.append(_engine.describeAllWorkItems(sessionHandle));
-                } else if (action.equals("checkConnection")) {
+                }
+                else if (action.equals("checkConnection")) {
                     msg.append(_engine.checkConnection(sessionHandle));
-                } else if (action.equals("taskInformation")) {
+                }
+                else if (action.equals("taskInformation")) {
                     YSpecificationID specID = makeYSpecificationID(request);
-                    String taskID = lastPartOfPath;
-                    String results = _engine.getTaskInformation(
-                            specID, taskID, sessionHandle);
-                    msg.append(results);
-                } else if (action.equals("getMITaskAttributes")) {
+                    msg.append(_engine.getTaskInformation(specID, taskID, sessionHandle));
+                }
+                else if (action.equals("getMITaskAttributes")) {
                     String specID = request.getParameter("specID");
-                    String taskID = lastPartOfPath;
                     msg.append(_engine.getMITaskAttributes(specID, taskID, sessionHandle));
-                } else if (action.equals("getResourcingSpecs")) {
+                }
+                else if (action.equals("getResourcingSpecs")) {
                     String specID = request.getParameter("specID");
-                    String taskID = request.getParameter("taskID");
                     msg.append(_engine.getResourcingSpecs(specID, taskID, sessionHandle));
-                } else if (action.equals("checkAddInstanceEligible")) {
-                    String workItemID = lastPartOfPath;
+                }
+                else if (action.equals("checkAddInstanceEligible")) {
                     msg.append(_engine.checkElegibilityToAddInstances(
-                            workItemID,
-                            sessionHandle));
-                } else if (action.equals("getSpecificationPrototypesList")) {
+                                                              workItemID, sessionHandle));
+                }
+                else if (action.equals("getSpecificationPrototypesList")) {
                     msg.append(_engine.getSpecificationList(sessionHandle));
-                } else if (action.equals("getSpecification")) {
+                }
+                else if (action.equals("getSpecification")) {
                     YSpecificationID specID = makeYSpecificationID(request);
                     msg.append(_engine.getProcessDefinition(specID, sessionHandle));
-                } else if (action.equals("getSpecificationDataSchema")) {
+                }
+                else if (action.equals("getSpecificationDataSchema")) {
                     YSpecificationID specID = makeYSpecificationID(request);
                     msg.append(_engine.getSpecificationDataSchema(specID, sessionHandle));                   
-                } else if (action.equals("getCasesForSpecification")) {
+                }
+                else if (action.equals("getCasesForSpecification")) {
                     YSpecificationID specID = makeYSpecificationID(request);
                     msg.append(_engine.getCasesForSpecification(specID, sessionHandle));
-                } else if (action.equals("getState")) {
-                    String caseID = lastPartOfPath;
+                }
+                else if (action.equals("getCaseState")) {
+                    String caseID = request.getParameter("caseID");
                     msg.append(_engine.getCaseState(caseID, sessionHandle));
-                } else if (action.equals("getCaseData")) {
-                    String caseID = lastPartOfPath;
+                }
+                else if (action.equals("getCaseData")) {
+                    String caseID = request.getParameter("caseID");
                     msg.append(_engine.getCaseData(caseID, sessionHandle));
-                } else if (action.equals("getChildren")) {
-                    String workItemID = lastPartOfPath;
+                }
+                else if (action.equals("getChildren")) {
                     msg.append(_engine.getChildrenOfWorkItem(workItemID, sessionHandle));
                 }
-            } else if ("ib".equals(lastPartOfPath)) {
+            }  // action is null
+            else if (request.getRequestURI().endsWith("ib")) {
                 msg.append(_engine.getAvailableWorkItemIDs(sessionHandle));
-            } else if ("workItem".equals(secondLastPartOfPath)) {
-                msg.append(_engine.getWorkItemOptions(lastPartOfPath,
+            }
+            else if (request.getRequestURI().contains("workItem")) {
+                msg.append(_engine.getWorkItemOptions(workItemID,
                         request.getRequestURL().toString(), sessionHandle));
             }
         } catch (RemoteException e) {
-            e.printStackTrace();
+            logger.error("Remote Exception in Interface B with action: " + action, e);
         }
         if (logger.isDebugEnabled()) {
             logger.debug("InterfaceB_EngineBasedServer::doGet() result = " + msg);
@@ -248,76 +237,73 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
 
     private String processPostQuery(HttpServletRequest request) {
         StringBuffer msg = new StringBuffer();
+        String action = request.getParameter("action");
+
         try {
             if (logger.isDebugEnabled()) {
-                logger.debug("\nInterfaceB_EngineBasedServer::doPost() " +
-                        "request.getRequestURL = " + request.getRequestURL());
-                logger.debug("InterfaceB_EngineBasedServer::doPost() request.parameters = ");
-                Enumeration paramNms = request.getParameterNames();
-                while (paramNms.hasMoreElements()) {
-                    String name = (String) paramNms.nextElement();
-                    logger.debug("\trequest.getParameter(" + name + ") = " +
-                            request.getParameter(name));
-                }
+                debug(request, "Post");
             }
-            StringTokenizer tokens = new StringTokenizer(request.getRequestURI(), "/");
-            String lastPartOfPath = null;
-            String temp = null;
-            while (tokens.hasMoreTokens()) {
-                temp = tokens.nextToken();
-                if (!tokens.hasMoreTokens()) {
-                    lastPartOfPath = temp;
-                }
-            }
-            if (!lastPartOfPath.equals("ib")) {
-                if (lastPartOfPath.equals("connect")) {
+
+            if (action != null) {
+                if (action.equals("connect")) {
                     String userID = request.getParameter("userid");
                     String password = request.getParameter("password");
                     msg.append(_engine.connect(userID, password));
-                } else {
-
-                    String action = request.getParameter("action");
-                    String workItemID = lastPartOfPath;
+                }
+                else {
+                    String workItemID = request.getParameter("workItemID");
                     String sessionHandle = request.getParameter("sessionHandle");
-                    if ("checkout".equals(action)) {
+
+                    if (action.equals("checkout")) {
                         msg.append(_engine.startWorkItem(workItemID, sessionHandle));
-                    } else if (action.equals("checkin")) {
+                    }
+                    else if (action.equals("checkin")) {
                         String data = request.getParameter("data");
-                        msg.append(_engine.completeWorkItem(workItemID, data, false, sessionHandle));
-                    } else if (action.equals("createInstance")) {
-                        String paramValueForMICreation =
-                                request.getParameter("paramValueForMICreation");
-                        msg.append(_engine.createNewInstance(
-                                workItemID,
-                                paramValueForMICreation,
+                        msg.append(_engine.completeWorkItem(workItemID, data, false,
                                 sessionHandle));
-                    } else if (action.equals("suspend")) {
-                        msg.append(_engine.suspendWorkItem(workItemID, sessionHandle));
-                    } else if (action.equals("rollback")) {
-                        msg.append(_engine.rollbackWorkItem(workItemID, sessionHandle));
-                    } else if (action.equals("unsuspend")) {
-                        msg.append(_engine.unsuspendWorkItem(workItemID, sessionHandle));
-                    } else if (action.equals("skip")) {
-                        msg.append(_engine.skipWorkItem(workItemID, sessionHandle));
-                    } else if (action.equals("launchCase")) {
-                        String specID = lastPartOfPath;
+                    }
+                    else if (action.equals("launchCase")) {
+                        String specID = request.getParameter("specID");
                         URI completionObserver = getCompletionObserver(request);
                         String caseParams = request.getParameter("caseParams");
-                        msg.append(_engine.launchCase(specID, caseParams, completionObserver, sessionHandle));
-                    } else if (action.equals("cancelCase")) {
-                        msg.append(_engine.cancelCase(lastPartOfPath, sessionHandle));
+                        msg.append(_engine.launchCase(specID, caseParams,
+                                completionObserver, sessionHandle));
+                    }
+                    else if (action.equals("cancelCase")) {
+                        String caseID = request.getParameter("caseID");
+                        msg.append(_engine.cancelCase(caseID, sessionHandle));
+                    }
+                    else if (action.equals("createInstance")) {
+                        String paramValueForMICreation =
+                                request.getParameter("paramValueForMICreation");
+                        msg.append(_engine.createNewInstance(workItemID,
+                                paramValueForMICreation, sessionHandle));
+                    }
+                    else if (action.equals("suspend")) {
+                        msg.append(_engine.suspendWorkItem(workItemID, sessionHandle));
+                    }
+                    else if (action.equals("rollback")) {
+                        msg.append(_engine.rollbackWorkItem(workItemID, sessionHandle));
+                    }
+                    else if (action.equals("unsuspend")) {
+                        msg.append(_engine.unsuspendWorkItem(workItemID, sessionHandle));
+                    }
+                    else if (action.equals("skip")) {
+                        msg.append(_engine.skipWorkItem(workItemID, sessionHandle));
                     }
                 }
             }
-        } catch (RemoteException e) {
-            e.printStackTrace();
+            else logger.error("Interface B called with null action.");
+        }
+        catch (RemoteException e) {
+            logger.error("Remote Exception in Interface B with action: " + action, e);
         }
         if (logger.isDebugEnabled()) {
-            logger.debug("InterfaceB_EngineBasedServer::doPost() result = " + msg);
-            logger.debug("\n");
+            logger.debug("InterfaceB_EngineBasedServer::doPost() result = " + msg + "\n");
         }
         return msg.toString();
     }
+
 
     private URI getCompletionObserver(HttpServletRequest request) {
         String completionObserver = request.getParameter("completionObserverURI");
@@ -346,6 +332,18 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
         }
 
         return new YSpecificationID(id, new YSpecVersion(version));
+    }
+
+    private void debug(HttpServletRequest request, String service) {
+        logger.debug("\nInterfaceB_EngineBasedServer::do" + service + "() " +
+                "request.getRequestURL = " + request.getRequestURL());
+        logger.debug("InterfaceB_EngineBasedServer::do" + service + "() request.parameters = ");
+        Enumeration paramNms = request.getParameterNames();
+        while (paramNms.hasMoreElements()) {
+            String name = (String) paramNms.nextElement();
+            logger.debug("\trequest.getParameter(" + name + ") = " +
+                    request.getParameter(name));
+        }
     }
 
 }

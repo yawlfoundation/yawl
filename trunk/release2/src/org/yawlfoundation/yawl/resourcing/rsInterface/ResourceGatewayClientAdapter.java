@@ -8,11 +8,12 @@
 
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
+import org.jdom.Element;
 import org.yawlfoundation.yawl.resourcing.AbstractSelector;
+import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
 import org.yawlfoundation.yawl.resourcing.resource.AbstractResourceAttribute;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.jdom.Element;
 
 import java.io.IOException;
 import java.util.*;
@@ -313,8 +314,11 @@ public class ResourceGatewayClientAdapter {
     public List getParticipants(String handle) throws IOException {
         String xml = _rgclient.getParticipants(handle) ;
         Set<Participant> set = _marshaller.unmarshallParticipants(xml) ;
-        if (set != null)
-            return new ArrayList<Participant>(set);
+        if (set != null) {
+            ArrayList<Participant> result = new ArrayList<Participant>(set);
+            Collections.sort(result, new ParticipantNameComparator());
+            return result;
+        }
         else
             return null;
     }

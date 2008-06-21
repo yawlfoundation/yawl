@@ -555,7 +555,7 @@ public class DynFormFactory extends AbstractSessionBean {
                                                 int top, String value) {
         TextField textField = new TextField() ;
         textField.setId(createUniqueID("txt" + name));
-        textField.setText(value);
+        textField.setText(JDOMUtil.decodeEscapes(value));
         textField.setRequired(isRequired(param));
         textField.setStyleClass("dynformInput");
         textField.setStyle(makeTopStyle(top));
@@ -898,7 +898,7 @@ public class DynFormFactory extends AbstractSessionBean {
                 String value = "";
                 UIComponent field = panel.findComponent(forID);
                 if (field instanceof TextField)
-                    value = (String) ((TextField) field).getValue();
+                    value = JDOMUtil.encodeEscapes((String) ((TextField) field).getValue());
                 else if (field instanceof Checkbox)
                    value =  ((Checkbox) field).getValue().toString();
                 else if (field instanceof Calendar)

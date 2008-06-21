@@ -57,6 +57,7 @@ public class WorkItemRecord implements Cloneable {
     private String _uniqueID;                            // used by PDF Forms service
     private String _allowsDynamicCreation;
     private String _requiresManualResourcing;
+    private String _codelet;
 
     // task/decomp level attribs
     private Hashtable<String, String> _attributeTable;
@@ -176,6 +177,8 @@ public class WorkItemRecord implements Cloneable {
         _requiresManualResourcing = manual;
     }
 
+    public void setCodelet(String codelet) { _codelet = codelet; }
+
     public void setDeferredChoiceGroupID(String id) { _deferredChoiceGroupID = id ; }
 
     public void setExtendedAttributes(Hashtable<String, String> attribs) {
@@ -263,6 +266,8 @@ public class WorkItemRecord implements Cloneable {
 
     public String getRequiresManualResourcing() { return _requiresManualResourcing; }
 
+    public String getCodelet() { return _codelet; }
+
     public String getExtendedAttributes() { return _extendedAttributes ; }
 
     public Hashtable<String, String> getAttributeTable() {
@@ -346,6 +351,7 @@ public class WorkItemRecord implements Cloneable {
            .append(StringUtil.wrap(_uniqueID, "uniqueid"))
            .append(StringUtil.wrap(_allowsDynamicCreation, "allowsdynamiccreation"))
            .append(StringUtil.wrap(_requiresManualResourcing, "requiresmanualresourcing"))
+           .append(StringUtil.wrap(_codelet, "codelet"))
            .append(StringUtil.wrap(_deferredChoiceGroupID, "deferredChoiceGroupid"))
            .append(StringUtil.wrap(_enablementTime, "enablementTime"))
            .append(StringUtil.wrap(_firingTime, "firingTime"))

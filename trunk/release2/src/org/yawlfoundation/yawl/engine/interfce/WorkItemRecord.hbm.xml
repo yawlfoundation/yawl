@@ -20,6 +20,7 @@
         <property name="_uniqueID" column="uniqueID" access="field"/>
         <property name="_extendedAttributes" column="ExtendedAttributes" access="field"/>
         <property name="_allowsDynamicCreation" column="canCreate" access="field"/>
+        <property name="_codelet" column="codelet" access="field"/>
         <property name="_deferredChoiceGroupID" column="deferredID" access="field"/>
         <property name="_firingTime" column="firingTime" access="field"/>
         <property name="_enablementTime" column="enablementTime" access="field"/>

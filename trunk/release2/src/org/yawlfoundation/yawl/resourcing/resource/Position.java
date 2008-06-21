@@ -18,7 +18,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
  *  v0.1, 09/08/2007
  */
 
-public class Position extends AbstractResourceAttribute {
+public class Position extends AbstractResourceAttribute implements Comparable {
 
     private String _positionID ;
     private String _title;
@@ -106,17 +106,23 @@ public class Position extends AbstractResourceAttribute {
         return (o instanceof Position) && ((Position) o).getID().equals(_id);
     }
 
+    public int compareTo(Object o) {
+        if ((o == null) || (! (o instanceof Position))) return 1;
+        return this.getTitle().compareTo(((Position) o).getTitle());
+    }
+
 
     public String toXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<position id=\"%s\">", _id)) ;
-        xml.append(StringUtil.wrap(_positionID, "positionid"));
-        xml.append(StringUtil.wrap(_description, "description"));
-        xml.append(StringUtil.wrap(_notes, "notes"));
+        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_positionID), "positionid"));
+        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_description), "description"));
+        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_notes), "notes"));
         if (_orgGroup != null)
             xml.append(StringUtil.wrap(_orgGroup.getID(), "orggroupid"));
         if (_reportsTo != null)
-            xml.append(StringUtil.wrap(_reportsTo.getID(), "reportstoid"));
+            xml.append(StringUtil.wrap(StringUtil.xmlEncode(_reportsTo.getID()),
+                                                            "reportstoid"));
         xml.append("</position>");
         return xml.toString() ;
     }
@@ -125,8 +131,8 @@ public class Position extends AbstractResourceAttribute {
 
     public void reconstitute(Element e) {
         super.reconstitute(e);
-        setPositionID(e.getChildText("positionid"));
-        set_reportsToID(e.getChildText("reportstoid"));
+        setPositionID(StringUtil.xmlDecode(e.getChildText("positionid")));
+        set_reportsToID(StringUtil.xmlDecode(e.getChildText("reportstoid")));
         set_orgGroupID(e.getChildText("orggroupid"));
     }
 

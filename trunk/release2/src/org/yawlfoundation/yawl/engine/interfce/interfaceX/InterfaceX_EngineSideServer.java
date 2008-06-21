@@ -10,6 +10,7 @@ package org.yawlfoundation.yawl.engine.interfce.interfaceX;
 import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
+import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 
 import javax.servlet.ServletContext;

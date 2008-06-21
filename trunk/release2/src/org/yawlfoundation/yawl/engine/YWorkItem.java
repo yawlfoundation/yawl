@@ -43,7 +43,7 @@ import java.util.*;
  */
 public class YWorkItem {
 
-    private static final String INITIAL_VERSION = "0.1"; //MLR (30/10/07): added after merge
+    private static final String INITIAL_VERSION = "0.1";
     private static DateFormat _df = new SimpleDateFormat("MMM:dd, yyyy H:mm:ss");
     private static YWorkItemRepository _workItemRepository =
                                              YWorkItemRepository.getInstance();
@@ -75,6 +75,7 @@ public class YWorkItem {
     private long _timerExpiry = 0;
 
     private URL _customFormURL ;
+    private String _codelet ;
 
     private YEventLogger _eventLog = YEventLogger.getInstance();
     private Logger _log = Logger.getLogger(YWorkItem.class);
@@ -184,10 +185,22 @@ public class YWorkItem {
         }
     }
 
-
+    /**
+     * Finds the net-level param specified, then deconstructs its data to simple
+     * timer parameters. The data in the net-level param is a complex type YTimerType
+     * consisting of two elements: 'trigger' (either 'OnEnabled' or 'OnExecuting'), and
+     * 'expiry': a string that may represent a duration type or a long value to be
+     * converted to a Date.
+     * @param param the name of the YTimerType parameter
+     * @param data the case or net-level data object
+     * @return true if the param is successfully unpacked.
+     */
     private boolean unpackTimerParams(String param, YCaseData data) {
         if (data == null)
             data = YEngine.getInstance().getCaseData(_workItemID.getCaseID());
+
+        if (data == null) return false ;                    // couldn't get case data
+
         Element eData = JDOMUtil.stringToElement(data.getData());
 
         Element timerParams = eData.getChild(param) ;
@@ -202,40 +215,32 @@ public class YWorkItem {
         _timerParameters.put("trigger", YWorkItemTimer.Trigger.valueOf(trigger));
 
         String expiry = timerParams.getChildText("expiry");
-        if (expiry != null) {
-            _timerParameters.put("expiry", new Date(new Long(expiry)));
+        if (expiry == null) {
+            _log.warn("Unable to set timer for workitem: " + getIDString() +
+                      ". Missing 'expiry' parameter." ) ;
+            return false ;                                 // no expiry value set            
+        }
+
+        if (expiry.startsWith("P")) {                    // duration types start with P
+            try {
+                Duration duration = DatatypeFactory.newInstance().newDuration(expiry) ;
+                _timerParameters.put("duration", duration);
+                return true ;                        // OK - trigger & duration set
+            }
+            catch (DatatypeConfigurationException dce) {
+                // do nothing here
+            }
+        }    
+
+        try {
+            long time = Long.parseLong(expiry);                 // test for long value
+            _timerParameters.put("expiry", new Date(time));
             return true ;                                 // OK - trigger & expiry set
         }
-        else {
-            String durationStr = timerParams.getChildText("duration");
-
-            if (durationStr != null) {
-                try {
-                    Duration duration = DatatypeFactory.newInstance()
-                                                       .newDuration(durationStr) ;
-                    _timerParameters.put("duration", duration);
-                    return true ;                        // OK - trigger & duration set
-                }
-                catch (DatatypeConfigurationException dce) {
-                    _log.warn("Unable to set timer for workitem: " + getIDString() +
-                              ". Missing or invalid 'duration' parameter." ) ;
-                    return false ;
-                }
-            }
-            else {
-                String ticks = timerParams.getChildText("ticks") ;
-                String interval = timerParams.getChildText("interval") ;
-                if ((ticks != null) && (interval != null)) {
-                    _timerParameters.put("ticks", new Long(ticks)) ;
-                    _timerParameters.put("interval", YTimer.TimeUnit.valueOf(interval)) ;
-                    return true ;                      // OK - trigger, ticks & i'val set
-                }
-                else {
-                    _log.warn("Unable to set timer for workitem: " + getIDString() +
-                              ". Missing or invalid 'ticks' and/or 'interval' parameter.") ;                    
-                }
-                return false ;                         // not all values valid
-            }    
+        catch (NumberFormatException nfe) {
+            _log.warn("Unable to set timer for workitem: " + getIDString() +
+                      ". Invalid 'expiry' parameter." ) ;
+            return false ;                                     // not duration or long
         }
     }
 
@@ -274,6 +279,7 @@ public class YWorkItem {
             childItem.setAttributes(getAttributes());
             childItem.setTimerParameters(getTimerParameters());
             childItem.setCustomFormURL(getCustomFormURL());
+            childItem.setCodelet(getCodelet());
 
             _children.add(childItem);
             if (pmgr != null) pmgr.updateObject(this);
@@ -552,6 +558,11 @@ public class YWorkItem {
         _requiresManualResourcing = requires;
     }
 
+    public String getCodelet() { return _codelet; }
+
+    public void setCodelet(String codelet) { _codelet = codelet ; }
+
+
     public URL getCustomFormURL() { return _customFormURL; }
 
     public void setCustomFormURL(URL formURL) { _customFormURL = formURL; }
@@ -692,6 +703,7 @@ public class YWorkItem {
                                                               "allowsdynamiccreation"));
         xmlBuff.append(StringUtil.wrap(String.valueOf(_requiresManualResourcing),
                                                               "requiresmanualresourcing"));
+        xmlBuff.append(StringUtil.wrap(_codelet, "codelet"));
         if (_deferredChoiceGroupID != null)
             xmlBuff.append(StringUtil.wrap(_deferredChoiceGroupID, "deferredChoiceGroupID"));
         if (_dataList != null)
