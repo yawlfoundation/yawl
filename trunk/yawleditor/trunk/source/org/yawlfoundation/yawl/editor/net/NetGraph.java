@@ -1099,6 +1099,12 @@ public class NetGraph extends JGraph {
     }
     getModel().edit(attributes, null, null, null);
   }
+
+  public Color getCellForeground(GraphCell cell) {
+      String colourKey = (cell instanceof Edge) ? GraphConstants.LINECOLOR :
+                                                  GraphConstants.FOREGROUND;
+      return (Color) getModel().getAttributes(cell).get(colourKey);
+  }
   
   private void changeNetCellForeground(YAWLCell cell, Color color) {
     changeCellForeground((GraphCell) cell,color);

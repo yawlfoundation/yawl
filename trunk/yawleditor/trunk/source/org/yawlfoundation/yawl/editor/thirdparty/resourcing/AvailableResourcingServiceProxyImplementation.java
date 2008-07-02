@@ -34,6 +34,7 @@ import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapt
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.prefs.Preferences;
 
 public class AvailableResourcingServiceProxyImplementation implements ResourcingServiceProxyInterface {
@@ -222,6 +223,20 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
 
     return resultsList;
   }
+
+
+    public Map<String, String> getRegisteredCodelets() {
+        connect();
+
+        try {
+           return gateway.getCodeletMap(sessionHandle);
+        }
+        catch (Exception e) {
+           e.printStackTrace();
+            return null;
+        }
+    }
+
 
   
   public boolean testConnection() {

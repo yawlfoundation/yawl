@@ -23,13 +23,14 @@
 
 package org.yawlfoundation.yawl.editor.thirdparty.resourcing;
 
-import java.util.List;
-import java.util.LinkedList;
-
 import org.yawlfoundation.yawl.editor.resourcing.AllocationMechanism;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingFilter;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class UnavailableResourcingServiceProxyImplementation implements ResourcingServiceProxyInterface {
   public boolean isDatabaseConnectionAvailable() {
@@ -103,4 +104,8 @@ public class UnavailableResourcingServiceProxyImplementation implements Resourci
     */
     return new LinkedList<ResourcingFilter>();
   }
+
+  public Map<String, String> getRegisteredCodelets() {
+    return null ;
+  }  
 }

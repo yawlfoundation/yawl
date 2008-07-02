@@ -29,6 +29,7 @@ import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
 
 import java.util.List;
+import java.util.Map;
 
 public class ResourcingServiceProxy implements ResourcingServiceProxyInterface {
   
@@ -112,4 +113,9 @@ public class ResourcingServiceProxy implements ResourcingServiceProxyInterface {
   public List<AllocationMechanism> getRegisteredAllocationMechanisms() {
     return getImplementation().getRegisteredAllocationMechanisms();
   }
+
+  public Map<String, String> getRegisteredCodelets() {
+    return getImplementation().getRegisteredCodelets();     
+  }
+
 }

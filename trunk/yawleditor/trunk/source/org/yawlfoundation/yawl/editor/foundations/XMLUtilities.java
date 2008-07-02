@@ -380,7 +380,7 @@ public class XMLUtilities {
    */
   public static String fileNameToURI(String fullFilePath) {
     if (fullFilePath == null || fullFilePath.trim().equals("")) {
-      fullFilePath = "unnamed.ywl";
+      fullFilePath = "";
     }
     File theFile = new File(fullFilePath);
     return toValidXMLName(theFile.getName());

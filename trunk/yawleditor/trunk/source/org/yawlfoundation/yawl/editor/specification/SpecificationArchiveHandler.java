@@ -43,6 +43,7 @@ import java.io.*;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -119,6 +120,9 @@ public class SpecificationArchiveHandler {
     SpecificationModel.getInstance().setFileName(
         getFullNameFromFile(file)
     );
+      
+    SpecificationModel.getInstance().setUniqueID(UUID.randomUUID().toString());
+
     return true;
   }
   

@@ -25,7 +25,6 @@
 package org.yawlfoundation.yawl.editor.actions.specification;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.*;
@@ -33,7 +32,6 @@ import org.yawlfoundation.yawl.elements.YSpecVersion;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.text.Document;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -434,39 +432,6 @@ class TimeStampPanel extends JPanel {
    }
 }
 
-class SpecificationIdVerifier extends InputVerifier {
 
-  public SpecificationIdVerifier() {
-    super();
-  }
 
-  public boolean verify(JComponent component) {
-    assert component instanceof JFormattedAlphaNumericField;
-    JFormattedAlphaNumericField field = (JFormattedAlphaNumericField) component;
-
-    String docContent = null;
-    try {
-      Document doc = field.getDocument();
-      docContent = doc.getText(0,doc.getLength());
-    } catch (Exception e) {};
-
-    if (docContent == null || docContent.equals("")) {
-      return false;
-    }
-    if (XMLUtilities.isValidXMLName(docContent.trim().replace(' ','_'))) {
-      return true;
-    }
-    
-    return false;
-  }
-
-  public boolean shouldYieldFocus(JComponent component) {
-    boolean isValid = verify(component);
-    JFormattedAlphaNumericField field = (JFormattedAlphaNumericField) component;
-    if (!isValid) {
-      field.invalidEdit();
-    } 
-    return isValid;
-  }
-}
 

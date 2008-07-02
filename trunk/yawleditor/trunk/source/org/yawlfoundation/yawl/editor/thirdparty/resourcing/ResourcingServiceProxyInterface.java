@@ -23,12 +23,13 @@
 
 package org.yawlfoundation.yawl.editor.thirdparty.resourcing;
 
-import java.util.List;
-
 import org.yawlfoundation.yawl.editor.resourcing.AllocationMechanism;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingFilter;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
+
+import java.util.List;
+import java.util.Map;
 
 public interface ResourcingServiceProxyInterface {
   
@@ -53,4 +54,7 @@ public interface ResourcingServiceProxyInterface {
   public List<ResourcingFilter> getRegisteredResourcingFilters();
   
   public List<AllocationMechanism> getRegisteredAllocationMechanisms();
+
+  public Map<String, String> getRegisteredCodelets() ;
+
 }

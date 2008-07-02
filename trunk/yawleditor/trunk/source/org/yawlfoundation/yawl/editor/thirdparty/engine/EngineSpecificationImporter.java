@@ -22,78 +22,41 @@
 
 package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
-import java.awt.Point;
-import java.io.File;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
+import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
+import org.yawlfoundation.yawl.editor.elements.model.*;
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.net.CancellationSet;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
+import org.yawlfoundation.yawl.editor.specification.SpecificationFileModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
+import org.yawlfoundation.yawl.editor.swing.LayoutManager;
+import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.elements.*;
+import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.elements.data.YVariable;
+import org.yawlfoundation.yawl.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.unmarshal.YMetaData;
 
+import javax.swing.*;
+import java.awt.*;
+import java.io.File;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.JOptionPane;
-
-import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.data.DataVariable;
-import org.yawlfoundation.yawl.editor.data.Decomposition;
-import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
-import org.yawlfoundation.yawl.editor.elements.model.Decorator;
-import org.yawlfoundation.yawl.editor.elements.model.InputCondition;
-import org.yawlfoundation.yawl.editor.elements.model.JoinDecorator;
-import org.yawlfoundation.yawl.editor.elements.model.OutputCondition;
-import org.yawlfoundation.yawl.editor.elements.model.AtomicTask;
-import org.yawlfoundation.yawl.editor.elements.model.MultipleAtomicTask;
-import org.yawlfoundation.yawl.editor.elements.model.MultipleCompositeTask;
-import org.yawlfoundation.yawl.editor.elements.model.CompositeTask;
-import org.yawlfoundation.yawl.editor.elements.model.Condition;
-import org.yawlfoundation.yawl.editor.elements.model.SplitDecorator;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLMultipleInstanceTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLPort;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLCompositeTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLCell;
-
-
-import org.yawlfoundation.yawl.editor.net.CancellationSet;
-import org.yawlfoundation.yawl.editor.net.NetGraph;
-import org.yawlfoundation.yawl.editor.net.NetGraphModel;
-import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
-
-import org.yawlfoundation.yawl.editor.specification.SpecificationFileModel;
-import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
-import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
-import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
-import org.yawlfoundation.yawl.editor.swing.LayoutManager;
-
-import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
-
-
-import org.yawlfoundation.yawl.elements.YMultiInstanceAttributes;
-import org.yawlfoundation.yawl.elements.YNet;
-import org.yawlfoundation.yawl.elements.YSpecification;
-import org.yawlfoundation.yawl.elements.YDecomposition;
-import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
-import org.yawlfoundation.yawl.elements.YInputCondition;
-import org.yawlfoundation.yawl.elements.YOutputCondition;
-import org.yawlfoundation.yawl.elements.YAtomicTask;
-import org.yawlfoundation.yawl.elements.YCondition;
-import org.yawlfoundation.yawl.elements.YFlow;
-import org.yawlfoundation.yawl.elements.YExternalNetElement;
-import org.yawlfoundation.yawl.elements.YTask;
-import org.yawlfoundation.yawl.elements.YCompositeTask;
-
-import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.elements.data.YVariable;
-
-import org.yawlfoundation.yawl.unmarshal.YMarshal;
-import org.yawlfoundation.yawl.unmarshal.YMetaData;
-
 public class EngineSpecificationImporter extends EngineEditorInterpretor {
   
   private static final Point DEFAULT_LOCATION = new Point(100,100);
+  private static Point OPEN_NET_LOCATION = new Point(0,0);
+
   
   public static void importEngineSpecificationFromFile(SpecificationModel editorSpec, String fullFileName) {
     if (fullFileName == null) {
@@ -196,6 +159,10 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
           TIMESTAMP_FORMAT.format(metaData.getValidUntil())
       );
     }
+
+    if (metaData.getUniqueID() != null) {
+        SpecificationModel.getInstance().setUniqueID(metaData.getUniqueID());
+    }
   }
   
   private static void convertEngineDataTypeDefinition(YSpecification engineSpecification) {
@@ -227,12 +194,10 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
 
     SpecificationModel.getInstance().addNetNotUndoable(editorNet.getNetModel());
 
-    YAWLEditorDesktop.getInstance().openNet(editorNet);
-    if (!editorNet.getNetModel().isStartingNet()) {
-      try {
-        editorNet.getFrame().setIcon(true);
-      } catch (Exception e) {}
-    }
+    OPEN_NET_LOCATION.x += 30;
+    OPEN_NET_LOCATION.y += 30;
+
+    YAWLEditorDesktop.getInstance().openNet(editorNet, OPEN_NET_LOCATION);
 
     editorToEngineNetMap.put(engineNet, editorNet.getNetModel());
 
@@ -719,13 +684,9 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
 
       YAWLFlowRelation editorFlow = editorNet.getGraph().connect(sourceEditorElement, targetEditorElement);
       
-      editorFlow.setPredicate(
-        engineFlow.getXpathPredicate()    
-      );
+      editorFlow.setPredicate(engineFlow.getXpathPredicate());
       if (engineFlow.getEvalOrdering() != null) {
-        editorFlow.setPriority(
-            engineFlow.getEvalOrdering().intValue()
-          );
+        editorFlow.setPriority(engineFlow.getEvalOrdering());
       }
     }
   }
@@ -784,7 +745,11 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
             );
 
             YAWLFlowRelation editorFlow = editorNet.getGraph().connect(sourceTask, targetTask);
-            
+
+            // map predicate & priority from removed condition to new flow  
+            editorFlow.setPredicate(sourceFlow.getPredicate());
+            editorFlow.setPriority(sourceFlow.getPriority());
+
             editorFlowEngineConditionMap.put(engineCondition, editorFlow);
           }
         }
