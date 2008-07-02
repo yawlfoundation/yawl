@@ -25,24 +25,6 @@
 package org.yawlfoundation.yawl.editor.actions.element;
 
 
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-
-import java.util.LinkedList;
-import java.util.List;
-
-
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.Action;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-
 import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
 import org.yawlfoundation.yawl.editor.elements.model.Decorator;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
@@ -51,8 +33,19 @@ import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.swing.AbstractOrderedTablePanel;
 import org.yawlfoundation.yawl.editor.swing.JUtilities;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
-import org.yawlfoundation.yawl.editor.swing.element.AbstractTaskDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.data.FlowPriorityTable;
+import org.yawlfoundation.yawl.editor.swing.element.AbstractTaskDoneDialog;
+
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
 
 public class UpdateFlowDetailsAction extends YAWLSelectedNetAction 
                                      implements TooltipTogglingWidget {
@@ -110,12 +103,11 @@ class FlowPriorityDialog extends AbstractTaskDoneDialog {
   private FlowDetailTablePanel flowDetailPanel;
   private JButton updatePredicateButton;
 
-  
   private static final long serialVersionUID = 1L;
   
   public FlowPriorityDialog() {
     super(null, true, false);
-    
+    setResizable(false);
     buildContentPanel(
         new FlowDetailTablePanel(this)
     );
@@ -179,7 +171,7 @@ class FlowPriorityDialog extends AbstractTaskDoneDialog {
     }
   }
   
-  
+
   public void setVisible(boolean state) {
     if (state == true) {
       JUtilities.centreWindowUnderVertex(
@@ -224,6 +216,7 @@ class FlowDetailTablePanel extends AbstractOrderedTablePanel {
   private FlowPriorityTable flowTable = new FlowPriorityTable();
 
   private NetGraph netOfTask;
+  private Map<YAWLFlowRelation, Color> flowColours;             // previous flow colour
 
   private static final long serialVersionUID = 1L;
   
@@ -237,6 +230,7 @@ class FlowDetailTablePanel extends AbstractOrderedTablePanel {
   public void setTaskAndNet(YAWLTask task, NetGraph net) {
     this.netOfTask = net;
     flowTable.setTaskAndNet(task, net);
+    rememberOriginalFlowColours(task);
   }
   
   public NetGraph getNetOfTask() {
@@ -262,6 +256,10 @@ class FlowDetailTablePanel extends AbstractOrderedTablePanel {
   public List<YAWLFlowRelation> getAllFlows() {
     return  flowTable.getFlowModel().getOrderedRows();
   }
+
+  public void setFlowColours(Map<YAWLFlowRelation, Color> colours) {
+      flowColours = colours;
+  }
   
   public void valueChanged(ListSelectionEvent e) {
     if (e.getValueIsAdjusting()) {
@@ -277,7 +275,7 @@ class FlowDetailTablePanel extends AbstractOrderedTablePanel {
       if (getSelectedFlow() == flow) {
         colorSelectedFlow(Color.GREEN.darker());
       } else {
-        colorFlow(flow, Color.BLACK);
+        colorFlow(flow, flowColours.get(flow));
       }
     }
   }
@@ -291,5 +289,15 @@ class FlowDetailTablePanel extends AbstractOrderedTablePanel {
     getNetOfTask().changeCellForeground(flow, color);
     getNetOfTask().startUndoableEdits();      
   }
+
+  private void rememberOriginalFlowColours(YAWLTask task) {
+      SortedSet flows = task.getSplitDecorator().getFlowsInPriorityOrder();
+      flowColours = new HashMap<YAWLFlowRelation, Color>();
+      for (Object obj: flows) {
+          YAWLFlowRelation flow = (YAWLFlowRelation) obj;
+          flowColours.put(flow, netOfTask.getCellForeground(flow));
+      }
+  }
+    
 }
 

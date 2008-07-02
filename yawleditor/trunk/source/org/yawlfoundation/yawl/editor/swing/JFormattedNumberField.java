@@ -89,6 +89,10 @@ public class JFormattedNumberField extends JFormattedSelectField {
     }
   }
 
+  public double getLowerBound() {
+      return boundVerifier.getLowerBound();
+  }
+
   public void setUpperBound(double upperBound) {
     boundVerifier.setUpperBound(upperBound);
     if (upperBound < getDouble()) {
@@ -113,6 +117,10 @@ public class JFormattedNumberField extends JFormattedSelectField {
     public BoundVerifier(double lowerBound, double upperBound) {
       super();
       setBounds(lowerBound, upperBound);
+    }
+
+    public double getLowerBound() {
+        return lowerBound;
     }
 
     public boolean verify(JComponent component) {

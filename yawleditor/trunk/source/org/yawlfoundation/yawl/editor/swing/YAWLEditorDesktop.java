@@ -72,20 +72,31 @@ public class YAWLEditorDesktop extends JDesktopPane
     return frame;
   }
 
+  private Rectangle getDefaultNetFrameBounds(Point location) {
+      Rectangle outerBounds = this.getBounds();
+      return new Rectangle(location.x, location.y,
+                           Math.max(outerBounds.width-60, 150),
+                           Math.max(outerBounds.height-150, 100));
+  }
+
   private Rectangle getDefaultNetFrameBounds() {
-    Point location = getNewLocation();
-    Rectangle outerBounds = this.getBounds();
-    return new Rectangle(location.x, location.y,
-                         Math.max(outerBounds.width-60, 150),
-                         Math.max(outerBounds.height-150, 100));
+    return getDefaultNetFrameBounds(getNewLocation());
   }
   
   public void openNet(NetGraph graph) {
     openNet(
-       new Rectangle(10,10,400,200),
+       getDefaultNetFrameBounds(),
        false,
        graph
     );
+  }
+
+  public void openNet(NetGraph graph, Point location) {
+      openNet(
+         getDefaultNetFrameBounds(location),
+         false,
+         graph
+      );
   }
   
   public void openNet(Rectangle bounds, 
@@ -99,6 +110,8 @@ public class YAWLEditorDesktop extends JDesktopPane
     try {
       frame.setMaximum(maximised);
     } catch (Exception e) {};
+
+    if (graph.getNetModel().isStartingNet()) frame.moveToFront();  
   }
   
   private void bindFrame(final YAWLEditorNetFrame frame) {

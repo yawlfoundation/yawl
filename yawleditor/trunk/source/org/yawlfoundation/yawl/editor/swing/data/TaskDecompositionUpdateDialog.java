@@ -28,8 +28,11 @@ import org.yawlfoundation.yawl.editor.data.DataVariableSet;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.resourcing.SelectCodeletDialog;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -52,8 +55,10 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
   
   private JPanel webServicePanel;
   private JCheckBox cbxAutomated ;
+  private JButton btnCodelet;  
 
   private String cachedYAWLServiceID;
+  private SelectCodeletDialog codeletDialog ;
   
   protected JPanel attributesPanel; //MLF
   protected ExtendedAttributesTableModel model; //MLF
@@ -68,21 +73,28 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
     
     getDoneButton().addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        
-        if (yawlServiceComboBox.getSelectedItemID() != null) {
-          if (cachedYAWLServiceID != null) {
-            if (!yawlServiceComboBox.getSelectedItemID().equals(cachedYAWLServiceID)) {
-               applyChange();              
+
+        String selectedYAWLServiceID = yawlServiceComboBox.getSelectedItemID();
+        if (selectedYAWLServiceID != null) {
+            if (cachedYAWLServiceID != null) {
+                if (!selectedYAWLServiceID.equals(cachedYAWLServiceID)) {
+                   applyChange();
+                }
             }
-          } else { // getSelectedItemID != null && cachedYAWLServiceID == null 
-            applyChange();
-          }
-        } else { // getSelectedItemID == null 
-          if (cachedYAWLServiceID != null) {
-            applyChange();
-          }
+            else { // getSelectedItemID != null && cachedYAWLServiceID == null
+                applyChange();
+            }
         }
-        getWebServiceDecomposition().setManualInteraction(! cbxAutomated.isSelected());        
+        else { // getSelectedItemID == null
+            if (cachedYAWLServiceID != null) {
+                applyChange();
+            }
+        }
+
+        getWebServiceDecomposition().setManualInteraction(! cbxAutomated.isSelected());
+        if (! cbxAutomated.isSelected()) getWebServiceDecomposition().setCodelet(null);
+        getWebServiceDecomposition().setVariables(getDataVariablePanel().getVariables());
+
       }
       
       private void applyChange() {
@@ -226,8 +238,36 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
 
     cbxAutomated = new JCheckBox("Automated");
     cbxAutomated.setMnemonic(KeyEvent.VK_A);
-
+    cbxAutomated.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          btnCodelet.setEnabled(cbxAutomated.isSelected());
+        }
+    });
     result.add(cbxAutomated);
+
+    btnCodelet = new JButton("Set Codelet...");
+    btnCodelet.setMnemonic(KeyEvent.VK_S);
+    btnCodelet.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            if (ResourcingServiceProxy.getInstance().isLiveService()) {
+                if (codeletDialog == null) {
+                    codeletDialog = new SelectCodeletDialog();
+                    codeletDialog.setDecomposition(getWebServiceDecomposition());
+                }
+                codeletDialog.setLocationRelativeTo(YAWLEditor.getInstance());
+                codeletDialog.setSelectedCodelet();
+                codeletDialog.setVisible(true);
+            }
+            else {
+              JOptionPane.showMessageDialog(null,
+                   "A connection to a running resource service could not be etablished.\n" +
+                   "Codelets cannot be selected without a valid resource service conection.",
+                   "Resource Service Connection Error", JOptionPane.ERROR_MESSAGE);
+            }           
+        }
+    });    
+    result.add(btnCodelet);
+
     return result;
   }
 
@@ -237,6 +277,7 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
 
     cachedYAWLServiceID = getWebServiceDecomposition().getYawlServiceID();
     cbxAutomated.setSelected(! getWebServiceDecomposition().isManualInteraction());
+    btnCodelet.setEnabled(cbxAutomated.isSelected()) ;
 
     setTitle(DataVariable.SCOPE_TASK);
 

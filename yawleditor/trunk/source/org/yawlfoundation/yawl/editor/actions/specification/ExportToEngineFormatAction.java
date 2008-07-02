@@ -30,6 +30,7 @@ import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.JFormattedNumberField;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.swing.JFormattedAlphaNumericField;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.EngineSpecificationExporter;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 
@@ -39,6 +40,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.prefs.Preferences;
 
 public class ExportToEngineFormatAction extends YAWLOpenSpecificationAction implements TooltipTogglingWidget {
@@ -63,12 +65,13 @@ public class ExportToEngineFormatAction extends YAWLOpenSpecificationAction impl
   }
   
   public void actionPerformed(ActionEvent event) {
-    shouldShowExportDialog = prefs.getBoolean(SHOW_EXPORT_DIALOG_PREFERENCE, true);
+//    shouldShowExportDialog = prefs.getBoolean(SHOW_EXPORT_DIALOG_PREFERENCE, true);
     if (shouldShowExportDialog) {
       if (!isDialogShownPreviously) {
         dialog.setLocationRelativeTo(YAWLEditor.getInstance());
         isDialogShownPreviously = true;       
       }
+      dialog.showOrHideSpecIDField();
       dialog.setVisible(true);
     } else {
       ArchivingThread.getInstance().engineFileExport(
@@ -97,17 +100,18 @@ class ExportConfigDialog extends AbstractDoneDialog {
 
   private static final long serialVersionUID = 1L;
 
-  private JFormattedNumberField versionNumberField;
-  
+  private JFormattedAlphaNumericField specificationIDField;
+  private JFormattedNumberField versionNumberField;  
   private JCheckBox verificationCheckBox;
   private JCheckBox analysisCheckBox;
   private JCheckBox autoIncVersionCheckBox;
-  private JCheckBox showDialogCheckBox;
-  
+  private JLabel idLabel;
+
   public ExportConfigDialog() {
     super("Configure Export Settings", true);
 
     setContentPanel(getFontSizePanel());
+    getDoneButton().setText("OK");  
     getDoneButton().addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
@@ -123,12 +127,16 @@ class ExportConfigDialog extends AbstractDoneDialog {
                 EngineSpecificationExporter.AUTO_INCREMENT_VERSION_WITH_EXPORT_PREFERENCE,
                 autoIncVersionCheckBox.isSelected()
             );
-            prefs.putBoolean(
-                ExportToEngineFormatAction.SHOW_EXPORT_DIALOG_PREFERENCE, 
-                showDialogCheckBox.isSelected()
-            );
+//            prefs.putBoolean(
+//                ExportToEngineFormatAction.SHOW_EXPORT_DIALOG_PREFERENCE,
+//                showDialogCheckBox.isSelected()
+//            );
 
             setSpecVersionNumber() ;
+
+            if (showSpecIDField()) {
+                SpecificationModel.getInstance().setId(specificationIDField.getText());
+            }
 
             ArchivingThread.getInstance().engineFileExport(
                 SpecificationModel.getInstance()    
@@ -155,8 +163,27 @@ class ExportConfigDialog extends AbstractDoneDialog {
     gbc.gridy = 0;
     gbc.insets = new Insets(0,5,5,5);
     gbc.anchor = GridBagConstraints.EAST;
+
+    if (showSpecIDField()) {
+        idLabel = new JLabel("Specification ID :");
+        idLabel.setDisplayedMnemonic('S');
+        panel.add(idLabel, gbc);
+
+        gbc.gridx++;
+        gbc.anchor = GridBagConstraints.WEST;
+
+        panel.add(getSpecificationIDField(), gbc);
+        idLabel.setLabelFor(specificationIDField);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.anchor = GridBagConstraints.EAST; 
+
+        getDoneButton().setEnabled(false);
+    }
+
     gbc.fill = GridBagConstraints.NONE;
-    
+
     JLabel versionNumberLabel = new JLabel("Version Number:");
     versionNumberLabel.setDisplayedMnemonic('V');
     panel.add(versionNumberLabel, gbc);
@@ -182,15 +209,27 @@ class ExportConfigDialog extends AbstractDoneDialog {
 
     panel.add(getAutoIncVersionCheckBox(), gbc);
 
-    gbc.gridy++;
-
-    gbc.insets = new Insets(15,5,5,5);
-    
-    panel.add(getShowDialogCheckBox(), gbc);
+//    gbc.gridy++;
+//
+//    gbc.insets = new Insets(15,5,5,5);
+//
+//    panel.add(getShowDialogCheckBox(), gbc);
     
     return panel;
   }
-  
+
+   
+    private JFormattedAlphaNumericField getSpecificationIDField() {
+      specificationIDField = new JFormattedAlphaNumericField(10);
+
+      specificationIDField.setInputVerifier(new SpecificationIdVerifier());
+      specificationIDField.allowXMLNames();
+      specificationIDField.addKeyListener(new SpecificationIdFieldDocumentListener());
+      specificationIDField.setToolTipText(" Enter the unique engine identifier (XML element name) for this specification ");
+      return specificationIDField;
+    }
+
+
   private JFormattedNumberField getVersionNumberField() {
     versionNumberField = new JFormattedNumberField("###,###,##0.0###",0.1,10);
     versionNumberField.setToolTipText(" Enter a version number for this specification ");
@@ -224,18 +263,33 @@ class ExportConfigDialog extends AbstractDoneDialog {
     return autoIncVersionCheckBox;
   }
 
-  private JCheckBox getShowDialogCheckBox() {
-    showDialogCheckBox = new JCheckBox();
-
-    showDialogCheckBox.setText("Show this dialog in the future");
-    showDialogCheckBox.setMnemonic(KeyEvent.VK_S);
-
-    return showDialogCheckBox;
-  }
+//  private JCheckBox getShowDialogCheckBox() {
+//    showDialogCheckBox = new JCheckBox();
+//
+//    showDialogCheckBox.setText("Show this dialog in the future");
+//    showDialogCheckBox.setMnemonic(KeyEvent.VK_S);
+//
+//    return showDialogCheckBox;
+//  }
 
   private void setSpecVersionNumber() {
-      String version = String.valueOf(versionNumberField.getDouble());
+
+      String version = String.valueOf(
+            Math.max(versionNumberField.getDouble(), versionNumberField.getLowerBound()));
       SpecificationModel.getInstance().setVersionNumber(new YSpecVersion(version));
+  }
+
+
+  private boolean showSpecIDField() {
+      String id = SpecificationModel.getInstance().getId();
+      return (id == null) || (id.length() == 0) || (id.equals("unnamed.ywl"));
+  }
+
+  public void showOrHideSpecIDField() {
+      if (idLabel != null)
+          idLabel.setVisible(showSpecIDField());
+      if (specificationIDField != null)
+          specificationIDField.setVisible(showSpecIDField());
   }
   
   public void setVisible(boolean visible) {
@@ -258,15 +312,17 @@ class ExportConfigDialog extends AbstractDoneDialog {
               true
           )
       );
-      showDialogCheckBox.setSelected(
-          prefs.getBoolean(
-              ExportToEngineFormatAction.SHOW_EXPORT_DIALOG_PREFERENCE,
-              true
-          )
-      );
+//      showDialogCheckBox.setSelected(
+//          prefs.getBoolean(
+//              ExportToEngineFormatAction.SHOW_EXPORT_DIALOG_PREFERENCE,
+//              true
+//          )
+//      );
 
-      YSpecVersion version = SpecificationModel.getInstance().getVersionNumber();
-      if (autoIncVersionCheckBox.isSelected() || version.getVersion().equals("0.0")) {
+      String verStr = SpecificationModel.getInstance().getVersionNumber().getVersion();
+      YSpecVersion version = new YSpecVersion(verStr);
+
+      if (autoIncVersionCheckBox.isSelected() || verStr.equals("0.0")) {
           version.minorIncrement();
       }
       versionNumberField.setDouble(version.getVersionAsDouble());
@@ -274,4 +330,26 @@ class ExportConfigDialog extends AbstractDoneDialog {
     }
     super.setVisible(visible);
   }
+
+
+  class SpecificationIdFieldDocumentListener implements KeyListener {
+
+    public void keyPressed(KeyEvent e) {
+      // deliberately does nothing
+    }
+
+    public void keyTyped(KeyEvent e) {
+      // deliberately does nothing
+    }
+
+    public void keyReleased(KeyEvent e) {
+      getDoneButton().setEnabled(nameFieldValid());
+    }
+
+    private boolean nameFieldValid() {
+      return specificationIDField.getInputVerifier().verify(specificationIDField) &&
+             ! specificationIDField.getText().equals("unnamed.ywl") ;
+    }
+  }
+  
 }

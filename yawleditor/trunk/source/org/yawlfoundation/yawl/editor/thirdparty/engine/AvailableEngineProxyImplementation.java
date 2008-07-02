@@ -206,10 +206,8 @@ public class AvailableEngineProxyImplementation implements
       }
       
       String[] errorsAsArray = errors.split("\n");
-      
-      for(int i = 0; i < errorsAsArray.length; i++) {
-        errorList.add(errorsAsArray[i]);
-      }
+
+      errorList.addAll(Arrays.asList(errorsAsArray));
       return errorList;
       
     } catch (Exception e) {
@@ -311,7 +309,6 @@ public class AvailableEngineProxyImplementation implements
         
         if (serviceReference.getURI().equals(registeredYAWLServiceURI)) {
           registeredService = serviceReference;
-          continue;
         }
       }
       if (registeredService == null) {

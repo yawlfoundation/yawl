@@ -250,6 +250,10 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
             )
         );
       }
+      if (editorSpec.getUniqueID() != null) {
+          metaData.setUniqueID(editorSpec.getUniqueID());
+        }
+
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -882,6 +886,11 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     engineTask.getDecompositionPrototype().setExternalInteraction(
             atomicEditorTask.getWSDecomposition().isManualInteraction()
     );
+
+    engineTask.getDecompositionPrototype().setCodelet(
+            atomicEditorTask.getWSDecomposition().getCodelet()
+    );
+      
 
     populateOfferInteractionDetail(
       atomicEditorTask.getResourceMapping(),
