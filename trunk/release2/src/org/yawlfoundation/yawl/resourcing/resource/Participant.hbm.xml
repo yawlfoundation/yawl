@@ -42,7 +42,7 @@
                   access="field"/>
 
         <property name="_password"
-                  column="Password"
+                  column="pword"
                   type="string"
                   access="field"/>
 
@@ -53,7 +53,7 @@
 
          <set name="_positions" table="rs_Participant_Position" access="field">
     		 <key column="ParticipantID"/>
-             <many-to-many class="Position" column="ID" lazy="false"/>
+             <many-to-many class="Position" column="P_ID" lazy="false"/>
 	     </set>
 
          <set name="_roles" table="rs_Participant_Role" access="field">

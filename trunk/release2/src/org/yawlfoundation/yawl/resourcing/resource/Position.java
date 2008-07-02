@@ -9,6 +9,7 @@
 package org.yawlfoundation.yawl.resourcing.resource;
 
 import org.jdom.Element;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 /**
@@ -115,14 +116,13 @@ public class Position extends AbstractResourceAttribute implements Comparable {
     public String toXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<position id=\"%s\">", _id)) ;
-        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_positionID), "positionid"));
-        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_description), "description"));
-        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_notes), "notes"));
+        xml.append(StringUtil.wrapEscaped(_positionID, "positionid"));
+        xml.append(StringUtil.wrapEscaped(_description, "description"));
+        xml.append(StringUtil.wrapEscaped(_notes, "notes"));
         if (_orgGroup != null)
             xml.append(StringUtil.wrap(_orgGroup.getID(), "orggroupid"));
         if (_reportsTo != null)
-            xml.append(StringUtil.wrap(StringUtil.xmlEncode(_reportsTo.getID()),
-                                                            "reportstoid"));
+            xml.append(StringUtil.wrapEscaped(_reportsTo.getID(), "reportstoid"));
         xml.append("</position>");
         return xml.toString() ;
     }
@@ -131,8 +131,8 @@ public class Position extends AbstractResourceAttribute implements Comparable {
 
     public void reconstitute(Element e) {
         super.reconstitute(e);
-        setPositionID(StringUtil.xmlDecode(e.getChildText("positionid")));
-        set_reportsToID(StringUtil.xmlDecode(e.getChildText("reportstoid")));
+        setPositionID(JDOMUtil.decodeEscapes(e.getChildText("positionid")));
+        set_reportsToID(JDOMUtil.decodeEscapes(e.getChildText("reportstoid")));
         set_orgGroupID(e.getChildText("orggroupid"));
     }
 

@@ -144,8 +144,9 @@ public class DynFormFactory extends AbstractSessionBean {
     /**
      * Initialises a new dynamic form
      * @param title the page title
+     * @return true if form is successfully initialised
      */
-    public void initDynForm(String title) {
+    public boolean initDynForm(String title) {
         setTitle(title);
 
         // start with a clean form
@@ -159,6 +160,10 @@ public class DynFormFactory extends AbstractSessionBean {
             String data = getInstanceData(schema) ;
             Map<String, FormParameter> params = getParamInfo();
             buildForm(schema, data, params);
+            return true ;
+        }
+        else {
+            return false;
         }
     }
 

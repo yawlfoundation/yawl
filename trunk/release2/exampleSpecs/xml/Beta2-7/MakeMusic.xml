@@ -43,7 +43,7 @@
 					</flowsInto>
 					<join code="and"/>
 					<split code="xor"/>
-					<decomposesTo id="Decide to make music"/>
+					<decomposesTo id="Decide_to_make_music"/>
 				</task>
 				<task id="learn" xsi:type="MultipleInstanceExternalTaskFactsType">
 					<flowsInto>
@@ -57,7 +57,7 @@
 							<mapsTo>applicant</mapsTo>
 						</mapping>
 					</startingMappings>
-					<decomposesTo id="Learn to play instrument"/>
+					<decomposesTo id="Learn_to_play_instrument"/>
 					<minimum>1</minimum>
 					<maximum>4</maximum>
 					<threshold>3</threshold>
@@ -86,7 +86,7 @@
 					</flowsInto>
 					<join code="and"/>
 					<split code="and"/>
-					<decomposesTo id="Decide to Go Solo"/>
+					<decomposesTo id="Decide_to_Go_Solo"/>
 				</task>
 				<task id="joinBand">
 					<flowsInto>
@@ -97,7 +97,7 @@
 					</flowsInto>
 					<join code="and"/>
 					<split code="and"/>
-					<decomposesTo id="Join a Band"/>
+					<decomposesTo id="Join_a_Band"/>
 				</task>
 				<task id="audition">
 					<flowsInto>
@@ -110,7 +110,7 @@
 					</flowsInto>
 					<join code="xor"/>
 					<split code="xor"/>
-					<decomposesTo id="Do boy/girl band audition"/>
+					<decomposesTo id="Do_boy/girl_band_audition"/>
 				</task>
 				<task id="write" xsi:type="MultipleInstanceExternalTaskFactsType">
 					<flowsInto>
@@ -118,7 +118,7 @@
 					</flowsInto>
 					<join code="xor"/>
 					<split code="and"/>
-					<decomposesTo id="Write a Song"/>
+					<decomposesTo id="Write_a_Song"/>
 					<minimum>1</minimum>
 					<maximum>10</maximum>
 					<threshold>100</threshold>
@@ -135,7 +135,7 @@
 					</flowsInto>
 					<join code="or"/>
 					<split code="and"/>
-					<decomposesTo id="Get a Recording Contract"/>
+					<decomposesTo id="Get_a_Recording_Contract"/>
 				</task>
 				<task id="tour">
 					<flowsInto>
@@ -143,7 +143,7 @@
 					</flowsInto>
 					<join code="and"/>
 					<split code="and"/>
-					<decomposesTo id="Do tour"/>
+					<decomposesTo id="Do_tour"/>
 				</task>
 				<condition id="passed">
 					<name>Audition Passed</name>
@@ -166,7 +166,7 @@
 							<mapsTo>songs</mapsTo>
 						</mapping>
 					</startingMappings>
-					<decomposesTo id="make record"/>
+					<decomposesTo id="make_record"/>
 				</task>
 				<task id="doAll">
 					<flowsInto>
@@ -174,7 +174,7 @@
 					</flowsInto>
 					<join code="and"/>
 					<split code="and"/>
-					<decomposesTo id="Do everything you are told"/>
+					<decomposesTo id="Do_everything_you_are_told"/>
 				</task>
 				<task id="initPerform">
 					<flowsInto>
@@ -199,7 +199,7 @@
 							<mapsTo>numPerformances</mapsTo>
 						</mapping>
 					</completedMappings>
-					<decomposesTo id="Do initial performance"/>
+					<decomposesTo id="Do_initial_performance"/>
 				</task>
 				<task id="developDrug">
 					<flowsInto>
@@ -207,7 +207,7 @@
 					</flowsInto>
 					<join code="and"/>
 					<split code="and"/>
-					<decomposesTo id="Develop drug habit"/>
+					<decomposesTo id="Develop_drug_habit"/>
 				</task>
 				<task id="rehearse">
 					<flowsInto>
@@ -215,7 +215,7 @@
 					</flowsInto>
 					<join code="and"/>
 					<split code="and"/>
-					<decomposesTo id="Rehearse Tour"/>
+					<decomposesTo id="Rehearse_Tour"/>
 				</task>
 				<task id="finishJoin">
 					<flowsInto>
@@ -248,16 +248,16 @@
 					</flowsInto>
 					<join code="and"/>
 					<split code="and"/>
-					<decomposesTo id="Develop as artist"/>
+					<decomposesTo id="Develop_as_artist"/>
 				</task>
 				<outputCondition id="finis">
 					<name>complete</name>
 				</outputCondition>
 			</processControlElements>
 		</rootNet>
-		<decomposition id="Rehearse Tour" xsi:type="WebServiceGatewayFactsType"/>
-		<decomposition id="Get a Recording Contract" xsi:type="WebServiceGatewayFactsType"/>
-		<decomposition id="make record" xsi:type="NetFactsType">
+		<decomposition id="Rehearse_Tour" xsi:type="WebServiceGatewayFactsType"/>
+		<decomposition id="Get_a_Recording_Contract" xsi:type="WebServiceGatewayFactsType"/>
+		<decomposition id="make_record" xsi:type="NetFactsType">
 			<inputParam name="songs">
 				<type>mm:SongType</type>
 				<mandatory/>
@@ -275,7 +275,7 @@
 					</flowsInto>
 					<join code="and"/>
 					<split code="and"/>
-					<decomposesTo id="Record Song"/>
+					<decomposesTo id="Record_Song"/>
 					<minimum>1</minimum>
 					<maximum>5</maximum>
 					<threshold>3</threshold>
@@ -301,7 +301,7 @@
 					</flowsInto>
 					<join code="and"/>
 					<split code="and"/>
-					<decomposesTo id="Send recording to marketing deptartment"/>
+					<decomposesTo id="Send_recording_to_marketing_deptartment"/>
 				</task>
 				<task id="choose">
 					<flowsInto>
@@ -309,38 +309,38 @@
 					</flowsInto>
 					<join code="xor"/>
 					<split code="and"/>
-					<decomposesTo id="Choose Songs"/>
+					<decomposesTo id="Choose_Songs"/>
 				</task>
 				<outputCondition id="finisMakeRecord">
 					<name>Done</name>
 				</outputCondition>
 			</processControlElements>
 		</decomposition>
-		<decomposition id="Do initial performance" xsi:type="WebServiceGatewayFactsType">
+		<decomposition id="Do_initial_performance" xsi:type="WebServiceGatewayFactsType">
 			<inputParam name="numPerformances">
 				<type>xs:string</type>
 			</inputParam>
 			<outputExpression query="&lt;numPerformances&gt;{/data/numPerformances + 1}&lt;/numPerformances&gt;"/>
 		</decomposition>
-		<decomposition id="Do boy/girl band audition" xsi:type="WebServiceGatewayFactsType"/>
-		<decomposition id="Write a Song" xsi:type="WebServiceGatewayFactsType">
+		<decomposition id="Do_boy/girl_band_audition" xsi:type="WebServiceGatewayFactsType"/>
+		<decomposition id="Write_a_Song" xsi:type="WebServiceGatewayFactsType">
 			<inputParam name="song">
 				<type>xs:string</type>
 			</inputParam>
 		</decomposition>
-		<decomposition id="Do tour" xsi:type="WebServiceGatewayFactsType"/>
-		<decomposition id="Choose Songs" xsi:type="WebServiceGatewayFactsType"/>
-		<decomposition id="Record Song" xsi:type="WebServiceGatewayFactsType">
+		<decomposition id="Do_tour" xsi:type="WebServiceGatewayFactsType"/>
+		<decomposition id="Choose_Songs" xsi:type="WebServiceGatewayFactsType"/>
+		<decomposition id="Record_Song" xsi:type="WebServiceGatewayFactsType">
 			<inputParam name="song">
 				<type>mm:SongType</type>
 			</inputParam>
 		</decomposition>
-		<decomposition id="Join a Band" xsi:type="WebServiceGatewayFactsType"/>
-		<decomposition id="Decide to Go Solo" xsi:type="WebServiceGatewayFactsType"/>
-		<decomposition id="Decide to make music" xsi:type="WebServiceGatewayFactsType"/>
-		<decomposition id="Send recording to marketing deptartment" xsi:type="WebServiceGatewayFactsType"/>
-		<decomposition id="Develop drug habit" xsi:type="WebServiceGatewayFactsType"/>
-		<decomposition id="Learn to play instrument" xsi:type="WebServiceGatewayFactsType">
+		<decomposition id="Join_a_Band" xsi:type="WebServiceGatewayFactsType"/>
+		<decomposition id="Decide_to_Go_Solo" xsi:type="WebServiceGatewayFactsType"/>
+		<decomposition id="Decide_to_make_music" xsi:type="WebServiceGatewayFactsType"/>
+		<decomposition id="Send_recording_to_marketing_deptartment" xsi:type="WebServiceGatewayFactsType"/>
+		<decomposition id="Develop_drug_habit" xsi:type="WebServiceGatewayFactsType"/>
+		<decomposition id="Learn_to_play_instrument" xsi:type="WebServiceGatewayFactsType">
 			<inputParam name="instrument">
 				<type>xs:string</type>
 			</inputParam>
@@ -351,7 +351,7 @@
 				<type>xs:string</type>
 			</outputParam>
 		</decomposition>
-		<decomposition id="Do everything you are told" xsi:type="WebServiceGatewayFactsType"/>
-		<decomposition id="Develop as artist" xsi:type="WebServiceGatewayFactsType"/>
+		<decomposition id="Do_everything_you_are_told" xsi:type="WebServiceGatewayFactsType"/>
+		<decomposition id="Develop_as_artist" xsi:type="WebServiceGatewayFactsType"/>
 	</specification>
 </specificationSet>

@@ -396,23 +396,19 @@ public abstract class InterfaceBWebsideController {
      * @throws java.io.IOException
      */
     public SpecificationData getSpecificationData(String specID, String sessionHandle) throws IOException {
-//        if(_model.getSpecificationData(specID) == null){
-            List specs = _interfaceBClient.getSpecificationList(sessionHandle);
-            for (int i = 0; i < specs.size(); i++) {
-                SpecificationData data = (SpecificationData) specs.get(i);
-                if (data.getID().equals(specID)) {
-                    String specAsXML = data.getAsXML();
-                    if (specAsXML == null) {
-                        specAsXML = _interfaceBClient.getSpecification(specID, sessionHandle);
-                        data.setSpecAsXML(specAsXML);
-                        _model.setSpecificationData(data);
-                    }
-                    return data;
+        List specs = _interfaceBClient.getSpecificationList(sessionHandle);
+        for (int i = 0; i < specs.size(); i++) {
+            SpecificationData data = (SpecificationData) specs.get(i);
+            if (data.getID().equals(specID)) {
+                String specAsXML = data.getAsXML();
+                if (specAsXML == null) {
+                    specAsXML = _interfaceBClient.getSpecification(specID, sessionHandle);
+                    data.setSpecAsXML(specAsXML);
+                    _model.setSpecificationData(data);
                 }
+                return data;
             }
-//        } else {
-//            return _model.getSpecificationData(specID);
-//        }
+        }
         return null;
     }
 

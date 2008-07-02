@@ -1,11 +1,20 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
+ */
+
 package org.yawlfoundation.yawl.resourcing.codelets;
 
 import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.xml.datatype.DatatypeFactory;
 import java.text.SimpleDateFormat;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -16,8 +25,8 @@ public abstract class AbstractCodelet {
 
     protected String _description ;                // what does it do?
     private Element _inData;
-    private List _inParams;
-    private List _outParams;
+    private List<YParameter> _inParams;
+    private List<YParameter> _outParams;
     private Element _outData;
 
     protected AbstractCodelet() {}
@@ -28,20 +37,21 @@ public abstract class AbstractCodelet {
     
     public void setDescription(String desc) { _description = desc; }
 
-    protected void setInputs(Element inData, List inParams, List outParams) {
+    protected void setInputs(Element inData, List<YParameter> inParams,
+                             List<YParameter> outParams) {
         _inData = inData ;
         _inParams = inParams ;
         _outParams = outParams ;
     }
 
     protected Object getParameterValue(String varName) throws CodeletExecutionException {
-        Object result = null ;
+        Object result ;
         YParameter param = getInputParameter(varName);
         String dataType = param.getDataTypeName();
         String value = getValue(varName);
         try {
             if (dataType.endsWith("boolean")) 
-                result = new Boolean(value);
+                result = value.equalsIgnoreCase("true");
             else if (dataType.endsWith("date"))
                 result = new SimpleDateFormat().parse(value);    
             else if (dataType.endsWith("double"))
@@ -90,15 +100,13 @@ public abstract class AbstractCodelet {
     }
 
 
-    private YParameter getParameter(String paramName, List params)
+    private YParameter getParameter(String paramName, List<YParameter> params)
                                                       throws CodeletExecutionException {
         YParameter result = null;
         if (params != null) {
-            Iterator itr = params.iterator();
-            while (itr.hasNext()) {
-                YParameter param = (YParameter) itr.next();
+            for (YParameter param : params) {
                 if (param.getName().equals(paramName)) {
-                    result = param ;
+                    result = param;
                     break;
                 }
             }
@@ -125,10 +133,23 @@ public abstract class AbstractCodelet {
                     "the workitem's data.");
     }
 
+    public String getClassName() { return this.getClass().getSimpleName(); }
+    
+
+    public String toXML() {
+        StringBuilder xml = new StringBuilder("<codelet>");
+        xml.append(StringUtil.wrap(getClassName(), "name"))
+           .append(StringUtil.wrap(JDOMUtil.encodeEscapes(_description), "description"))
+           .append("</codelet>");
+        return xml.toString();
+    }
+
 
     /********************************************************************************/
 
-    public abstract Element execute(Element inData, List inParams, List outParams)
-                                                 throws CodeletExecutionException;
+    public abstract Element execute(Element inData,
+                                    List<YParameter> inParams,
+                                    List<YParameter> outParams)
+                                    throws CodeletExecutionException;
 
 }

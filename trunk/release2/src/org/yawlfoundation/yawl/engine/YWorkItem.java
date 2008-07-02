@@ -518,7 +518,7 @@ public class YWorkItem {
 
     public void add_child(YWorkItem child) { _children.add(child); }
 
-	public void add_children(Set children) { _children.addAll(children); }
+	  public void add_children(Set children) { _children.addAll(children); }
 
     public void setWorkItemID(YWorkItemID workitemid) { _workItemID = workitemid; } //
 
@@ -584,11 +584,21 @@ public class YWorkItem {
 
     public void set_startTime(Date sTime) { _startTime = sTime; }
 
+
     public String get_status() { return _status.toString(); }
 
     public void set_status(String status) {                         // for hibernate
         _status = YWorkItemStatus.fromString(status);
     }
+
+    public String get_prevStatus() {
+        return (_prevStatus != null) ? _prevStatus.toString() : null;         
+    }
+
+    public void set_prevStatus(String status) {
+         _prevStatus = (status != null ) ? YWorkItemStatus.fromString(status) : null ;
+    }
+
 
     public void set_status(YPersistenceManager pmgr, YWorkItemStatus status)
                                                          throws YPersistenceException {

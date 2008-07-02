@@ -7,15 +7,14 @@
  */
 package org.yawlfoundation.yawl.engine.interfce.interfaceX;
 
+import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.io.IOException;
-import java.util.*;
-
-import org.jdom.Element;
+import java.util.Map;
 
 /**
  *  InterfaceX_ServiceSideClient posts method calls from an exception service to the
@@ -59,99 +58,89 @@ public class InterfaceX_ServiceSideClient extends Interface_Client {
 
 
     public String setExceptionObserver(String observerURI) throws IOException {
-        HashMap params = new HashMap();
+        Map<String, String> params = prepareParamMap("setExceptionObserver", null);
         params.put("observerURI", observerURI);
-        return executePost(_backEndURIStr + "/setExceptionObserver", params);
+        return executePost(_backEndURIStr, params);
     }
 
 
     public void removeExceptionObserver() throws IOException {
-        HashMap params = new HashMap();
-        executePost(_backEndURIStr + "/removeExceptionObserver", params);
+        Map<String, String> params = prepareParamMap("removeExceptionObserver", null);
+        executePost(_backEndURIStr, params);
     }
 
 
     public void updateWorkItemData(WorkItemRecord wir, Element data,
                                      String sessionHandle) throws IOException {
-        HashMap params = new HashMap() ;
+        Map<String, String> params = prepareParamMap("updateWorkItemData", sessionHandle);
         params.put("workitemID", wir.getID());
         params.put("data", JDOMUtil.elementToString(data));
-        params.put("sessionHandle", sessionHandle);
-        executePost(_backEndURIStr + "/updateWorkItemData", params);
+        executePost(_backEndURIStr, params);
     }
 
 
     public void updateCaseData(String caseID, Element data, String sessionHandle)
                                                                throws IOException {
-        HashMap params = new HashMap() ;
+        Map<String, String> params = prepareParamMap("updateCaseData", sessionHandle);
         params.put("caseID", caseID);
         params.put("data", JDOMUtil.elementToString(data));
-        params.put("sessionHandle", sessionHandle);
-        executePost(_backEndURIStr + "/updateCaseData", params);
+        executePost(_backEndURIStr, params);
     }
 
 
     public void forceCompleteWorkItem(WorkItemRecord wir, Element data,
                                  String sessionHandle) throws IOException {
-        HashMap params = new HashMap() ;
+        Map<String, String> params = prepareParamMap("completeWorkItem", sessionHandle);
         params.put("workitemID", wir.getID());
         params.put("data", JDOMUtil.elementToString(data));
         params.put("force", "true");
-        params.put("sessionHandle", sessionHandle);
-        executePost(_backEndURIStr + "/completeWorkItem", params);
+        executePost(_backEndURIStr, params);
     }
 
 
     public WorkItemRecord continueWorkItem(String workItemID, String sessionHandle)
                                                            throws IOException {
-        HashMap params = new HashMap() ;
+        Map<String, String> params = prepareParamMap("continueWorkItem", sessionHandle);
         params.put("workitemID", workItemID);
-        params.put("sessionHandle", sessionHandle);
-        String result = executePost(_backEndURIStr + "/continueWorkItem", params);
+        String result = executePost(_backEndURIStr, params);
 
         // process result
-        result = stripOuterElement(result);
-        return Marshaller.unmarshalWorkItem(result);
+        return Marshaller.unmarshalWorkItem(stripOuterElement(result));
     }
 
 
     public WorkItemRecord unsuspendWorkItem(String workItemID, String sessionHandle)
                                                            throws IOException {
-        HashMap params = new HashMap() ;
+        Map<String, String> params = prepareParamMap("unsuspendWorkItem", sessionHandle);
         params.put("workitemID", workItemID);
-        params.put("sessionHandle", sessionHandle);
-        String result = executePost(_backEndURIStr + "/unsuspendWorkItem", params);
+        String result = executePost(_backEndURIStr, params);
 
         // process result
-        result = stripOuterElement(result);
-        return Marshaller.unmarshalWorkItem(result);
+        return Marshaller.unmarshalWorkItem(stripOuterElement(result));
     }
 
     public void restartWorkItem(String workItemID, String sessionHandle)
                                                            throws IOException {
-        HashMap params = new HashMap() ;
+        Map<String, String> params = prepareParamMap("restartWorkItem", sessionHandle);
         params.put("workitemID", workItemID);
-        params.put("sessionHandle", sessionHandle);
-        executePost(_backEndURIStr + "/restartWorkItem", params);
+        executePost(_backEndURIStr, params);
     }
 
 
     public void startWorkItem(String workItemID, String sessionHandle)
                                                            throws IOException {
-        HashMap params = new HashMap() ;
+        Map<String, String> params = prepareParamMap("startWorkItem", sessionHandle);
         params.put("workitemID", workItemID);
-        params.put("sessionHandle", sessionHandle);
-        executePost(_backEndURIStr + "/restartWorkItem", params);
+        executePost(_backEndURIStr, params);
     }
 
 
     public void cancelWorkItem(String workItemID, boolean fail, String sessionHandle)
                                                            throws IOException {
-        HashMap params = new HashMap() ;
+        Map<String, String> params = prepareParamMap("cancelWorkItem", sessionHandle);
         params.put("workitemID", workItemID);
         params.put("fail", String.valueOf(fail));
-        params.put("sessionHandle", sessionHandle);
-        executePost(_backEndURIStr + "/cancelWorkItem", params);
+        executePost(_backEndURIStr, params);
     }
 
 }

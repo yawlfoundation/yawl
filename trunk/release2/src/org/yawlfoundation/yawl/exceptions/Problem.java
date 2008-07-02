@@ -21,7 +21,7 @@ import java.io.Serializable;
  */
 public class Problem implements Serializable {
     private String _source;
-    private Date _timeStamp;
+    private Date _problemTime;
     private String _messageType;
     private String _message;
     public static final String EMPTY_RESOURCE_SET_MESSAGETYPE = "EmptyResourceSetType";
@@ -34,12 +34,12 @@ public class Problem implements Serializable {
         this._source = source;
     }
 
-    public Date getTimeStamp() {
-        return _timeStamp;
+    public Date getProblemTime() {
+        return _problemTime;
     }
 
-    public void setTimeStamp(Date timeStamp) {
-        this._timeStamp = timeStamp;
+    public void setProblemTime(Date timeStamp) {
+        this._problemTime = timeStamp;
     }
 
     public String getMessageType() {
@@ -64,7 +64,7 @@ public class Problem implements Serializable {
 
         final Problem warning = (Problem) o;
 
-        if (!_timeStamp.equals(warning._timeStamp)) return false;
+        if (!_problemTime.equals(warning._problemTime)) return false;
         if (!_source.equals(warning._source)) return false;
 
         return true;
@@ -73,7 +73,7 @@ public class Problem implements Serializable {
     public int hashCode() {
         int result;
         result = _source.hashCode();
-        result = 29 * result + _timeStamp.hashCode();
+        result = 29 * result + _problemTime.hashCode();
         return result;
     }
 }

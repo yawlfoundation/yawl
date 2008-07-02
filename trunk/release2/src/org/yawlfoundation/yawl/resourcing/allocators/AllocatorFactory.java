@@ -8,13 +8,14 @@
 
 package org.yawlfoundation.yawl.resourcing.allocators;
 
+import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.resourcing.util.Docket;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.io.File;
-import java.io.FilenameFilter;
 
 /**
  * This factory class creates and instantiates instances of the various allocator
@@ -29,6 +30,7 @@ import java.io.FilenameFilter;
 public class AllocatorFactory {
 
     static String pkg = "org.yawlfoundation.yawl.resourcing.allocators." ;
+    static Logger _log = Logger.getLogger(AllocatorFactory.class) ;
 
     /**
      * Instantiates a class of the name passed.
@@ -39,21 +41,25 @@ public class AllocatorFactory {
      */
     public static AbstractAllocator getInstance(String allocatorName) {
         try {
-//			AbstractAllocator newClass = (AbstractAllocator)
-//                                         Class.forName(pkg + allocatorName).newInstance();
-//            if (newClass != null) newClass.setName(allocatorName);
-//            return newClass ;
             return (AbstractAllocator) Class.forName(pkg + allocatorName).newInstance();
         }
         catch (ClassNotFoundException cnfe) {
-			System.out.println("Class not found - " + allocatorName);
+            _log.error("AllocatorFactory ClassNotFoundException: class '" + allocatorName +
+                       "' could not be found - class ignored.");
         }
         catch (IllegalAccessException iae) {
-			System.out.println("Illegal access - " + allocatorName);
-		}
+            _log.error("AllocatorFactory IllegalAccessException: class '" + allocatorName +
+                       "' could not be accessed - class ignored.");
+	    	}
         catch (InstantiationException ie) {
-			System.out.println("Instantiation - " + allocatorName);
-		}
+            _log.error("AllocatorFactory InstantiationException: class '" + allocatorName +
+                       "' could not be instantiated - class ignored.");
+		    }
+        catch (ClassCastException cce) {
+            _log.error("AllocatorFactory ClassCastException: class '" + allocatorName +
+                       "' does not extend AbstractAllocator - class ignored.");
+        }
+        
         return null ;
     }
 

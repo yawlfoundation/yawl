@@ -8,13 +8,14 @@
 
 package org.yawlfoundation.yawl.resourcing.filters;
 
+import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.resourcing.util.Docket;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.io.File;
-import java.io.FilenameFilter;
 
 /**
  * This factory class creates and instantiates instances of the various filter
@@ -22,14 +23,14 @@ import java.io.FilenameFilter;
  *
  *  Create Date: 10/07/2007. Last Date: 12/11/2007
  *
- *  @author Michael Adams (BPM Group, QUT Australia)
+ *  @author Michael Adams
  *  @version 2.0
  */
 
 public class FilterFactory {
 
     static String pkg = "org.yawlfoundation.yawl.resourcing.filters." ;
-    
+    static Logger _log = Logger.getLogger(FilterFactory.class);
     /**
      * Instantiates a class of the name passed.
      *
@@ -39,21 +40,24 @@ public class FilterFactory {
      */
     public static AbstractFilter getInstance(String filterName) {
         try {
-//			AbstractFilter newClass = (AbstractFilter)
-//                                       Class.forName(pkg + filterName).newInstance() ;
-//            if (newClass != null) newClass.setName(filterName);
-//            return newClass ;
             return (AbstractFilter) Class.forName(pkg + filterName).newInstance() ;
         }
         catch (ClassNotFoundException cnfe) {
-			System.out.println("Class not found - " + filterName);
+            _log.error("FilterFactory ClassNotFoundException: class '" + filterName +
+                       "' could not be found - class ignored.");
         }
         catch (IllegalAccessException iae) {
-			System.out.println("Illegal access - " + filterName);
-		}
+            _log.error("FilterFactory IllegalAccessException: class '" + filterName +
+                       "' could not be accessed - class ignored.");
+	    	}
         catch (InstantiationException ie) {
-			System.out.println("Instantiation - " + filterName );
-		}
+            _log.error("FilterFactory InstantiationException: class '" + filterName +
+                       "' could not be instantiated - class ignored.");
+		    }
+        catch (ClassCastException cce) {
+            _log.error("FilterFactory ClassCastException: class '" + filterName +
+                       "' does not extend AbstractConstraint - class ignored.");
+        }
         return null ;
     }
 

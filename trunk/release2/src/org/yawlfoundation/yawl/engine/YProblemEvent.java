@@ -78,7 +78,7 @@ public class YProblemEvent {
         Problem error = new Problem();
         error.setMessage(_message);
         error.setMessageType(EXECUTION_ERROR_STR);
-        error.setTimeStamp(new Date());
+        error.setProblemTime(new Date());
         error.setSource(_source.toString());
 
         /**

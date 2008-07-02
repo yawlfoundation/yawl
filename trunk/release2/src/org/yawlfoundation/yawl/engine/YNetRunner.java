@@ -165,11 +165,11 @@ public class YNetRunner // extends Thread
         this._caseID = ID;
     }
 
-    public Set getEnabledTaskNames() {
+    public Set<String> getEnabledTaskNames() {
         return enabledTaskNames;
     }
 
-    public Set getBusyTaskNames() {
+    public Set<String> getBusyTaskNames() {
         return busyTaskNames;
     }
     /************************************************/

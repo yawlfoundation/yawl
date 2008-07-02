@@ -26,6 +26,7 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.resourcing.allocators.AllocatorFactory;
 import org.yawlfoundation.yawl.resourcing.codelets.AbstractCodelet;
+import org.yawlfoundation.yawl.resourcing.codelets.CodeletExecutionException;
 import org.yawlfoundation.yawl.resourcing.codelets.CodeletFactory;
 import org.yawlfoundation.yawl.resourcing.constraints.ConstraintFactory;
 import org.yawlfoundation.yawl.resourcing.datastore.HibernateEngine;
@@ -370,6 +371,20 @@ public class ResourceManager extends InterfaceBWebsideController {
         for (AbstractSelector item : items) result.append(item.getInformation(tag));
         return result.toString();
     }
+
+    public String getCodeletsAsXML() {
+        Set<AbstractCodelet> codelets = getCodelets();
+        StringBuilder result = new StringBuilder("<codelets>") ;
+        for (AbstractCodelet codelet : codelets) result.append(codelet.toXML());
+        result.append("</codelets>");
+        return result.toString();
+
+    }
+
+    public Set<AbstractCodelet> getCodelets() {
+        return CodeletFactory.getCodelets() ;
+    }
+
 
    /******************************************************************************/
 
@@ -1089,14 +1104,21 @@ public class ResourceManager extends InterfaceBWebsideController {
     // WORKITEM ALLOCATION AND WORKQUEUE METHODS //
 
     public WorkItemRecord offerToAll(WorkItemRecord wir) {
-        for (Participant p : _ds.participantMap.values()) {
-            p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
-            announceModifiedQueue(p.getID()) ;
+        if (getParticipantCount() > 0) {
+            for (Participant p : _ds.participantMap.values()) {
+                p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
+                announceModifiedQueue(p.getID()) ;
+            }
+            wir.setResourceStatus(WorkItemRecord.statusResourceOffered);
         }
-        wir.setResourceStatus(WorkItemRecord.statusResourceOffered);
+        else {
+            _resAdmin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
+            wir.setResourceStatus(WorkItemRecord.statusResourceUnoffered);
+        }
         return wir ;
     }
 
+    
     public void withdrawOfferFromAll(WorkItemRecord wir) {
         for (Participant p : _ds.participantMap.values()) {
             p.getWorkQueues().removeFromQueue(wir, WorkQueue.OFFERED);
@@ -1327,11 +1349,10 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public boolean unsuspendWorkItem(Participant p, WorkItemRecord wir) {
 
-        // if user can suspend they also have unsuspend privileges
+        // if user successfully suspended they also have unsuspend privileges
         boolean success = false;
         try {
 
-            // reset status before polling engine
             if (successful(
                 _interfaceBClient.unsuspendWorkItem(wir.getID(), _engineSessionHandle))) {
                 wir.setResourceStatus(WorkItemRecord.statusResourceStarted);
@@ -1355,6 +1376,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             // reset the item's data params to original values
             wir.setUpdatedData(wir.getDataList());
             reallocateWorkItem(pFrom, pTo, wir);
+            EventLogger.log(wir, pFrom.getID(), EventLogger.event.reallocate_stateless);
             success = true ;
         }
         return success ;
@@ -1366,6 +1388,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         boolean success = false ;
         if (hasUserTaskPrivilege(pFrom, wir, TaskPrivileges.CAN_REALLOCATE_STATEFUL)) {
             reallocateWorkItem(pFrom, pTo, wir);
+            EventLogger.log(wir, pFrom.getID(), EventLogger.event.reallocate_stateful);
             success = true ;
         }
         return success ;
@@ -1388,7 +1411,6 @@ public class ResourceManager extends InterfaceBWebsideController {
             if (rMap != null) {
                 rMap.ignore(p);                       // add Participant to ignore list
                 rMap.distribute(wir);                 // redistribute workitem
-                success = true ;
             }
             else {                                    // pre version 2.0
                 if (getParticipantCount() > 1) {
@@ -1397,6 +1419,8 @@ public class ResourceManager extends InterfaceBWebsideController {
                 }
                 else _resAdmin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
             }
+            EventLogger.log(wir, p.getID(), EventLogger.event.deallocate);
+            success = true;
         }
         return success ;
     }
@@ -1408,6 +1432,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (hasUserTaskPrivilege(pFrom, wir, TaskPrivileges.CAN_DELEGATE)) {
             pFrom.getWorkQueues().removeFromQueue(wir, WorkQueue.ALLOCATED);
             pTo.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
+            EventLogger.log(wir, pFrom.getID(), EventLogger.event.delegate);
             success = true ;
         }
         return success ;
@@ -1421,6 +1446,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                 result = _interfaceBClient.skipWorkItem(wir.getID(), handle) ;
                 if (successful(result)) {
                     p.getWorkQueues().removeFromQueue(wir, WorkQueue.ALLOCATED);
+                    EventLogger.log(wir, p.getID(), EventLogger.event.skip);
                     return true ;
                 }
             }
@@ -1436,8 +1462,11 @@ public class ResourceManager extends InterfaceBWebsideController {
         String result ;
         if (hasUserTaskPrivilege(p, wir, TaskPrivileges.CAN_PILE)) {
             ResourceMap map = getResourceMap(wir);
-            if (map != null)
+            if (map != null) {
                 result = map.setPiledResource(p, wir);
+                if (! result.startsWith("Cannot"))
+                    EventLogger.log(wir, p.getID(), EventLogger.event.pile);
+            }
             else
                 result = "Cannot pile task: no resourcing parameters defined for specification." ;
         }
@@ -1525,6 +1554,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (! isChainedCase(caseID)) {
             _chainedCases.put(caseID, p);
             routeChainedWorkItem(p, wir) ;
+            EventLogger.log(wir, p.getID(), EventLogger.event.chain);
             result = "Chaining successful." ;
         }
         else result = "Cannot chain: case already chained by another user." ;
@@ -1866,6 +1896,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                 if (successful(result)) {
                     p.getWorkQueues().getQueue(WorkQueue.STARTED).remove(wir);
                     _workItemCache.remove(wir) ;
+                    EventLogger.log(wir, p.getID(), EventLogger.event.complete);
                 }
             }
         }
@@ -2538,27 +2569,32 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     private Element execCodelet(String clName, WorkItemRecord wir) {
         Element result = null;
+        String errMsg = " Codelet could not be executed; default value returned for" +
+                        " workitem " + wir.getID();
         try {
              // get params
              TaskInformation taskInfo = getTaskInformation(
                                         wir.getSpecificationID(), wir.getTaskID(),
                                         _engineSessionHandle);
-              List<YParameter> inputs =
-                                        taskInfo.getParamSchema().getInputParams() ;
-              List<YParameter> outputs =
-                                        taskInfo.getParamSchema().getOutputParams() ;
+             List<YParameter> inputs = taskInfo.getParamSchema().getInputParams() ;
+             List<YParameter> outputs = taskInfo.getParamSchema().getOutputParams() ;
 
              // get class instance
              AbstractCodelet codelet = CodeletFactory.getInstance(clName);
              if (codelet != null) {
-                 result = codelet.execute(wir.getDataList(), inputs, outputs);
-                 if (result != null)
-                     result = updateOutputDataList(wir.getDataList(), result);
+                result = codelet.execute(wir.getDataList(), inputs, outputs);
+                if (result != null)
+                   result = updateOutputDataList(wir.getDataList(), result);
              }
          }
-         catch (Exception e) {
-             _log.error("Exception executing codelet '" + clName + "'", e);
+         catch (CodeletExecutionException e) {
+             _log.error("Exception executing codelet '" + clName + "': " +
+                         e.getMessage() + errMsg);
          }
+        catch (IOException ioe) {
+            _log.error("Exception retrieving task information for codelet '" + clName +
+                       "'." + errMsg);
+        }
         return result;
     }
 

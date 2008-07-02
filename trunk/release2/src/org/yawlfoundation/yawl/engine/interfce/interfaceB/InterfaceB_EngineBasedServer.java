@@ -38,7 +38,9 @@ import java.util.Enumeration;
  * @author Lachlan Aldred
  * Date: 22/12/2003
  * Time: 12:03:41
- * 
+ *
+ * @author Michael Adams (refactored for v2.0, 06/2008)
+ *
  */
 public class InterfaceB_EngineBasedServer extends HttpServlet {
     private EngineGateway _engine;
@@ -317,6 +319,7 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
         return null;
     }
 
+
     private YSpecificationID makeYSpecificationID(HttpServletRequest request) {
         String version = "0.1" ;
         String handle = request.getParameter("sessionHandle") ;
@@ -334,10 +337,12 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
         return new YSpecificationID(id, new YSpecVersion(version));
     }
 
+
     private void debug(HttpServletRequest request, String service) {
         logger.debug("\nInterfaceB_EngineBasedServer::do" + service + "() " +
                 "request.getRequestURL = " + request.getRequestURL());
-        logger.debug("InterfaceB_EngineBasedServer::do" + service + "() request.parameters = ");
+        logger.debug("\nInterfaceB_EngineBasedServer::do" + service +
+                "() request.parameters = ");
         Enumeration paramNms = request.getParameterNames();
         while (paramNms.hasMoreElements()) {
             String name = (String) paramNms.nextElement();

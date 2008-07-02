@@ -77,7 +77,7 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
      */
     public String deleteUser(String username, String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("deleteUser", sessionHandle);
-        params.put("userName", username);
+        params.put("userID", username);
         return executePost(_backEndURIStr, params);
     }
 
@@ -91,7 +91,7 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
      */
     public String connect(String userID, String password) throws IOException {
         Map<String, String> params = prepareParamMap("connect", null);
-        params.put("userid", userID);
+        params.put("userID", userID);
         params.put("password", password);
         return executePost(_backEndURIStr, params);
     }
@@ -199,7 +199,7 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
     public String createUser(String userName, String password, boolean isAdmin, String sessionHandle) throws IOException {
         String action = isAdmin ? "createAdmin" :"createUser";
         Map<String, String> params = prepareParamMap(action, sessionHandle);
-        params.put("userName", userName);
+        params.put("userID", userName);
         params.put("password", password);
         return executePost(_backEndURIStr, params);
     }

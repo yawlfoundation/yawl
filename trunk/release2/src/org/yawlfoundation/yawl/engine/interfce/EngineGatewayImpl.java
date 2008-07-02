@@ -178,9 +178,13 @@ public class EngineGatewayImpl implements EngineGateway {
         String version = spec.getVersion();
         specList.add(spec);
         try {
-            // MJF - need to remove the xml preamble otherwise not well-formed
             String specString = YMarshal.marshal(specList, version);
-            return specString.substring(specString.indexOf("\r\n"));
+
+            // MJF - need to remove the xml preamble otherwise not well-formed
+            if (specString.startsWith("\r\n"))
+                specString = specString.substring(specString.indexOf("\r\n"));
+
+            return specString;
         } catch (Exception e) {
             logger.error("Failed to marshal a specification into XML.", e);
             return "";

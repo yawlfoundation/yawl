@@ -11,7 +11,7 @@ package org.yawlfoundation.yawl.resourcing.rsInterface;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An API to be used by clients that want to converse with the Resource Service.
@@ -45,14 +45,15 @@ public class ResourceGatewayClient extends Interface_Client {
      * @throws IOException
      */
     private String performGet(String action, String handle) throws IOException {
-        return executeGet(_serviceURI + "?action=" + action + "&handle=" + handle) ;
-
+        return executeGet(_serviceURI, prepareParamMap(action, handle)) ;
     }
 
+    
     private String executeBooleanGet(String action, String id, String handle)
                                                              throws IOException {
-        return executeGet(_serviceURI + "?action=" + action + "&id=" + id +
-                                                              "&handle=" + handle) ;
+        Map<String, String> params = prepareParamMap(action, handle);
+        params.put("id", id);
+        return executeGet(_serviceURI, params) ;
     }
 
 
@@ -106,6 +107,11 @@ public class ResourceGatewayClient extends Interface_Client {
     }
 
 
+    public String getCodelets(String handle) throws IOException {
+        return performGet("getCodelets", handle);
+    }
+
+
 
     // GET METHODS - returning boolean //
 
@@ -132,17 +138,19 @@ public class ResourceGatewayClient extends Interface_Client {
     }
 
     public String checkConnection(String handle) throws IOException {
-        return executeGet(_serviceURI + "?action=checkConnection&handle=" + handle) ;  
+        return executeGet(_serviceURI, prepareParamMap("checkConnection", handle)) ;
     }
 
     public String getParticipant(String id, String handle) throws IOException {
-        return executeGet(_serviceURI + "?action=getParticipant&id=" + id +
-                                        "&handle=" + handle) ;
+        Map<String, String> params = prepareParamMap("getParticipant", handle);
+        params.put("id", id);
+        return executeGet(_serviceURI, params) ;
     }
 
     public String getParticipantRoles(String id, String handle) throws IOException {
-        return executeGet(_serviceURI + "?action=getParticipantRoles&id=" + id +
-                                        "&handle=" + handle) ;
+        Map<String, String> params = prepareParamMap("getParticipantRoles", handle);
+        params.put("id", id);
+        return executeGet(_serviceURI, params) ;
     }
 
 
@@ -155,8 +163,10 @@ public class ResourceGatewayClient extends Interface_Client {
      * @throws IOException
      */
     public String connect(String userID, String password) throws IOException {
-        return executeGet(_serviceURI + "?action=connect&userid=" + userID +
-                                        "&password=" + password);
+        Map<String, String> params = prepareParamMap("connect", null);
+        params.put("userid", userID);
+        params.put("password", password);
+        return executeGet(_serviceURI, params) ;
     }
 
 
@@ -166,10 +176,7 @@ public class ResourceGatewayClient extends Interface_Client {
 
     /** triggers a reload of org data */
     public void refreshOrgDataSet(String handle) throws IOException {
-        HashMap<String,String> params = new HashMap<String,String>();
-        params.put("action", "refreshOrgDataSet") ;
-        params.put("handle", handle);
-        executePost(_serviceURI, params);
+        executePost(_serviceURI, prepareParamMap("refreshOrgDataSet", handle));
     }
 
     
@@ -179,10 +186,8 @@ public class ResourceGatewayClient extends Interface_Client {
      * @throws IOException
      */
     public void resetOrgDataRefreshRate(int minutes, String handle) throws IOException {
-        HashMap<String,String> params = new HashMap<String,String>();
-        params.put("action", "resetOrgDataRefreshRate") ;
+        Map<String,String> params = prepareParamMap("resetOrgDataRefreshRate", handle);
         params.put("rate", String.valueOf(minutes));
-        params.put("handle", handle);
         executePost(_serviceURI, params);
     }
 
@@ -193,10 +198,7 @@ public class ResourceGatewayClient extends Interface_Client {
      * @throws IOException
      */
     public void disconnect(String handle) throws IOException {
-        HashMap<String,String> params = new HashMap<String,String>();
-        params.put("action", "disconnect") ;
-        params.put("handle", handle);
-        executePost(_serviceURI, params);
+        executePost(_serviceURI, prepareParamMap("disconnect", handle));
     }
 
 

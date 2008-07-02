@@ -7,11 +7,11 @@
 
 	<class name="org.yawlfoundation.yawl.engine.P_YIdentifier" table="YIdentifiers">
 
-	    <id name="_idString" column="id" type="string">
+	    <id name="_idString" column="idString" type="string">
     		<generator class="assigned"/>
-    	   </id>
+    	</id>
    	
-          <list name="_children">
+      <list name="_children">
     		<key column="parent"/>
     		<index column="ix"/>
 	    	<one-to-many class="org.yawlfoundation.yawl.engine.P_YIdentifier"/>

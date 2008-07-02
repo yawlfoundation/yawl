@@ -565,6 +565,11 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     }
 
 
+    /**
+     * Transforms an xml-string set of WorkItemRecords into a list 
+     * @param xml the string describing the WorkItemRecords
+     * @return a list of WorkItemRecord objects
+     */
     private List<WorkItemRecord> unPackWorkItemList(String xml) {
         List<WorkItemRecord> result = new ArrayList<WorkItemRecord>();
         if (xml != null && successful(xml)) {

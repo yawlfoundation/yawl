@@ -54,38 +54,30 @@ public class WorkQueueGatewayClient extends Interface_Client {
      * @throws IOException
      */
     private String performGet(String action, String handle) throws IOException {
-        return executeGet(_serviceURI + "?action=" + action + "&handle=" + handle) ;
+        return executeGet(_serviceURI, prepareParamMap(action, handle)) ;
 
     }
 
     /**
      * a wrapper for the executeGet method - returns a String
      * @param action the name of the gateway method to call
-     * @param params a map of parameters and values
+     * @param map a map of parameters and values
      * @param handle an active sessionhandle
      * @return the resultant Element
      * @throws java.io.IOException if there's a problem connecting to the engine
      */
-    private String performGet(String action, Map<String, String> params, String handle)
+    private String performGet(String action, Map<String, String> map, String handle)
                                                                      throws IOException {
-        return executeGet(buildRequest(action, params, handle));
+        Map<String, String> params = prepareParamMap(action, handle);
+        if (map != null) params.putAll(map);
+        return executeGet(_serviceURI, params);
     }
 
     private String performPost(String action, Map<String, String> map, String handle)
                                                                      throws IOException {
-        if (map == null) map = new HashMap<String, String>();
-        map.put("action", action);
-        map.put("sessionHandle", handle);
-        return executePost(_serviceURI, map);
-    }
-
-    private String buildRequest(String action, Map<String, String> params, String handle) {
-        StringBuilder request = new StringBuilder(_serviceURI) ;
-        request.append("?action=").append(action) ;
-        for (String pName : params.keySet())
-            request.append("&").append(pName).append("=").append(params.get(pName));
-        request.append("&handle=").append(handle);
-        return request.toString();
+        Map<String, String> params = prepareParamMap(action, handle);
+        if (map != null) params.putAll(map);
+        return executePost(_serviceURI, params);
     }
 
 
@@ -101,8 +93,10 @@ public class WorkQueueGatewayClient extends Interface_Client {
      * @throws IOException
      */
     public String connect(String userID, String password) throws IOException {
-        return executeGet(_serviceURI + "?action=connect&userid=" + userID +
-                                        "&password=" + password);
+        Map<String, String> params = prepareParamMap("connect", null);
+        params.put("userid", userID);
+        params.put("password", password);
+        return executeGet(_serviceURI, params);
     }
 
 
@@ -117,8 +111,10 @@ public class WorkQueueGatewayClient extends Interface_Client {
 
 
     public String login(String userID, String password) throws IOException {
-        return executeGet(_serviceURI + "?action=login&userid=" + userID +
-                                        "&password=" + password);
+        Map<String, String> params = prepareParamMap("login", null);
+        params.put("userid", userID);
+        params.put("password", password);
+        return executeGet(_serviceURI, params);
     }
 
 
@@ -143,9 +139,9 @@ public class WorkQueueGatewayClient extends Interface_Client {
 
     public String getParticipantFromUserID(String userid, String handle)
                                                                throws IOException {
-        params.clear();
+        Map<String, String> params = prepareParamMap("getParticipantFromUserID", handle);
         params.put("userid", userid);
-        return performGet("getParticipantFromUserID", params, handle) ;
+        return executeGet(_serviceURI, params) ;
     }
 
 

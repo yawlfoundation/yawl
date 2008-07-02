@@ -115,7 +115,7 @@ public class MessagePanel extends PanelLayout {
         if (xml != null) {
             int start = xml.indexOf(">") + 1;
             int finish = xml.lastIndexOf("<");
-            if (start >= 0 && finish >= 0) {
+            if (start >= 0 && finish >= 0 && finish > start) {
                 result = xml.substring(start, finish);
             }
         }

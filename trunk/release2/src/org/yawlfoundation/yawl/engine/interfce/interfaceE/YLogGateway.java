@@ -43,8 +43,6 @@ public class YLogGateway extends HttpServlet {
                                throws IOException {
 
        String result = "";
-
-
        String action = req.getParameter("action");
        String handle = req.getParameter("handle");
 

@@ -41,7 +41,7 @@ public class YWorkItemID {
     * @access package
     */
     YWorkItemID(YIdentifier caseID, String taskID, String uniqueID) {
-        if (uniqueID == null)
+        if (uniqueID == null) 
             throw new IllegalArgumentException("uniqueID cannot be null");
 
         while (compare(_uniqifier, uniqueID.toCharArray()) > 0) {

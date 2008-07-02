@@ -77,10 +77,9 @@ public class Marshaller {
         String specificationID = null;
         String taskName = null;
         String taskDocumentation = null;
-	    HashMap attributemap = new HashMap();
-	
-
+	      HashMap attributemap = new HashMap();
         String decompositionID = null;
+
         try {
             SAXBuilder builder = new SAXBuilder();
             Document doct = builder.build(new StringReader(taskInfoAsXML));
@@ -92,14 +91,14 @@ public class Marshaller {
             decompositionID = taskInfo.getChildText("decompositionID");
             Element yawlService = taskInfo.getChild("yawlService");
 
-	        Element attributes = taskInfo.getChild("attributes");
-    	    if (attributes!=null) {
-    		List attributelist = attributes.getChildren();
-	    	for (int i = 0; i < attributelist.size(); i++) {
-		        Element attribute = (Element) attributelist.get(i);
-		        attributemap.put(attribute.getName(),attributes.getChildText(attribute.getName()));
-		    }
-	    }
+	          Element attributes = taskInfo.getChild("attributes");
+    	      if (attributes!=null) {
+    	      	List attributelist = attributes.getChildren();
+	    	      for (int i = 0; i < attributelist.size(); i++) {
+		              Element attribute = (Element) attributelist.get(i);
+		              attributemap.put(attribute.getName(),attributes.getChildText(attribute.getName()));
+		          }
+	          }
 
             Element params = taskInfo.getChild("params");
             List paramElementsList = params.getChildren();
@@ -121,8 +120,10 @@ public class Marshaller {
                     paramsForTaskNCase.setOutputParam(param);
                 }
                 String paramOrdering = paramElem.getChildText("ordering");
-                int order = Integer.parseInt(paramOrdering);
-                param.setOrdering(order);
+                if (paramOrdering != null) {
+                    int order = Integer.parseInt(paramOrdering);
+                    param.setOrdering(order);
+                }    
             }
         } catch (JDOMException e) {
             e.printStackTrace();
@@ -137,7 +138,7 @@ public class Marshaller {
                 taskDocumentation,
                 decompositionID);
 
-	taskInfo.setAttributes(attributemap);
+	      taskInfo.setAttributes(attributemap);
 
         return taskInfo;
     }

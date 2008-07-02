@@ -7,7 +7,7 @@
 	<class name="WorkQueue" table="rs_WorkQueue" select-before-update="true">
 
         <id name="_id"
-            column="id"
+            column="q_id"
             type="long">
             <generator class="native"/>
         </id>
@@ -16,12 +16,12 @@
                   column="ownerID"
                   type="string"/>
 
-    	<property name="_queueType"
+      	<property name="_queueType"
                   column="queueType"
                   type="int"/>
 
         <set name="_itemIDs" table="rs_queueItems">
-            <key column="id"/>
+            <key column="q_id"/>
             <element column="itemid" type="string"/>
         </set>
 

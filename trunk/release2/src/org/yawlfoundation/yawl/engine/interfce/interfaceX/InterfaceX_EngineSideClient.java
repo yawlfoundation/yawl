@@ -191,7 +191,7 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
         // POST the event
         public void run() {
 
-           Map paramsMap = new HashMap();
+           Map<String, String> paramsMap = new HashMap<String, String>();
            try {
 
                // all events have an event type

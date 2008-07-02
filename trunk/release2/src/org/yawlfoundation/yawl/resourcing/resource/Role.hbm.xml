@@ -12,7 +12,7 @@
             access="field"/>
 
         <property name="_role"
-                  column="Role"
+                  column="RoleName"
                   type="string"
                   access="field"/>
 

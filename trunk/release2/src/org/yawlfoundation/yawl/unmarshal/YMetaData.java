@@ -10,6 +10,7 @@
 package org.yawlfoundation.yawl.unmarshal;
 
 import org.yawlfoundation.yawl.elements.YSpecVersion;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -43,7 +44,8 @@ public class YMetaData {
     private Date created;
     private YSpecVersion version = new YSpecVersion(INITIAL_VERSION);
     private String status;
-	private Boolean persistent;
+	  private Boolean persistent;
+    private String uniqueID;
 
     public YMetaData() {
     }
@@ -158,6 +160,14 @@ public class YMetaData {
         this.persistent = Boolean.valueOf(persistent);
     }
 
+    public String getUniqueID() {
+        return uniqueID;
+    }
+
+    public void setUniqueID(String uniqueID) {
+        this.uniqueID = uniqueID;
+    }
+
     public String toXML() {
         StringBuffer mds = new StringBuffer();
         mds.append("<metaData>");
@@ -197,6 +207,9 @@ public class YMetaData {
         if (persistent != null)
         {
             mds.append("<persistent>" + persistent.toString() + "</persistent>");
+        }
+        if (uniqueID != null) {
+            mds.append(StringUtil.wrap(uniqueID, "identifier"));
         }
 
         mds.append("</metaData>");

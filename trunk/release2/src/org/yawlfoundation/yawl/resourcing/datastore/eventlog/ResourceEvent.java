@@ -1,10 +1,20 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
+ */
+
 package org.yawlfoundation.yawl.resourcing.datastore.eventlog;
 
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
 /**
- * Created by IntelliJ IDEA. User: Default Date: 23/08/2007 Time: 20:40:55 To change this
- * template use File | Settings | File Templates.
+ * An object representing one resourcing event for logging.
+ *
+ * @author: Michael Adams
+ * Date: 23/08/2007
  */
 public class ResourceEvent {
 

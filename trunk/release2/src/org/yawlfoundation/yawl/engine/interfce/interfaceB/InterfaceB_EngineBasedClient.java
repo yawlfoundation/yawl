@@ -36,7 +36,8 @@ import java.util.*;
  * @author Lachlan Aldred
  * Date: 22/01/2004
  * Time: 17:19:12
- * 
+ *
+ * @author Michael Adams (refactored for v2.0, 06/2008)
  */
 public class InterfaceB_EngineBasedClient extends Interface_Client implements ObserverGateway {
     protected static Category logger = Category.getInstance(InterfaceB_EngineBasedClient.class);

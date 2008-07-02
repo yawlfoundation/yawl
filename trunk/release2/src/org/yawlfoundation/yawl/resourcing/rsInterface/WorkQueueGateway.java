@@ -55,7 +55,7 @@ public class WorkQueueGateway extends HttpServlet {
 
         String result = "";
         String action = req.getParameter("action");
-        String handle = req.getParameter("handle");
+        String handle = req.getParameter("sessionHandle");
 
 
         if (action == null) {
@@ -96,7 +96,7 @@ public class WorkQueueGateway extends HttpServlet {
 
         String result = "";
         String action = req.getParameter("action");
-        String handle = req.getParameter("handle");
+        String handle = req.getParameter("sessionHandle");
 
         if (_rm.checkServiceConnection(handle))
             result = doPostAction(action, req) ;
@@ -115,7 +115,7 @@ public class WorkQueueGateway extends HttpServlet {
     private String doGetAction(String action, HttpServletRequest req) throws IOException {
         String result = "";
 
-        String handle = req.getParameter("handle");
+        String handle = req.getParameter("sessionHandle");
         String userid = req.getParameter("userid") ;
         String pid = req.getParameter("participantid");
         String itemid = req.getParameter("workitemid");
@@ -201,7 +201,7 @@ public class WorkQueueGateway extends HttpServlet {
                                                                    throws IOException {
         String result = "";
 
-        String handle = req.getParameter("handle");
+        String handle = req.getParameter("sessionHandle");
         String pid = req.getParameter("participantid");
         String itemid = req.getParameter("workitemid");
 

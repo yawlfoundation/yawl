@@ -32,16 +32,15 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBClientObserv
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBInterop;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
-import org.yawlfoundation.yawl.engine.time.YTimer;
-import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.*;
-import org.yawlfoundation.yawl.logging.YCaseEvent;
 import org.yawlfoundation.yawl.logging.YEventLogger;
 import org.yawlfoundation.yawl.schema.YDataValidator;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.*;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
 import java.net.URI;
 import java.util.*;
 
@@ -50,7 +49,7 @@ import java.util.*;
  *         Date: 17/06/2003
  *         Time: 13:46:54
  *
- * Last date 02/03/2008 (for v2.0 by Michael Adams)
+ * Last date 26/06/2008 (for v2.0 by Michael Adams)
  */
 
 public class YEngine implements InterfaceADesign,
@@ -118,7 +117,6 @@ public class YEngine implements InterfaceADesign,
 
         /**
          * Initialise the standard Observer Gateways.
-         *
          * Currently the only standard gateway is the HTTP driven Servlet client.
          */
         ObserverGateway stdHttpObserverGateway = new InterfaceB_EngineBasedClient();
@@ -134,439 +132,52 @@ public class YEngine implements InterfaceADesign,
         }
     }
 
-    protected void addRunner(YNetRunner runner) {
-        String specID = runner.getYNetID();
-        YSpecVersion version = runner.getYNetVersion();
-        YSpecification specification = (YSpecification) _specifications.getSpecification(specID, version);
+
+    // initialise the runner
+    public void addRunner(YNetRunner runner, YSpecification specification) {
         if (specification != null) {
-            /*
-              initialise the runner
-             */
             runner.setEngine(this);
             runner.restoreprepare();
             _caseIDToNetRunnerMap.put(runner.getCaseID(), runner);
             _runningCaseIDToSpecMap.put(runner.getCaseID(), specification);
 
             if (_interfaceBClient != null) {
-                _interfaceBClient.addCase(specID, runner.getCaseID().toString());
+                _interfaceBClient.addCase(specification.getID(),
+                        runner.getCaseID().toString());
             }
         }
-
     }
 
-    /**
-     * Restore the engine state from perstistent storage.<P>
-     *
-     * @throws YPersistenceException
-     */
+    protected void addRunner(YNetRunner runner) {
+        String specID = runner.getYNetID();
+        YSpecVersion version = runner.getYNetVersion();
+        YSpecification specification = _specifications.getSpecification(specID, version);
+        addRunner(runner,specification);
+    }
+
+
     private void restore(YPersistenceManager pmgr) throws YPersistenceException {
-        Vector runners = new Vector();
-        HashMap runnermap = new HashMap();
-        Map idtoid = new HashMap();
-
         logger.debug("--> restore");
+        restoring = true;
 
-        try {
-            restoring = true;
-           
-            logger.info("Restoring Services - Starts");
-            Query query = pmgr.createQuery(
-                    "from org.yawlfoundation.yawl.elements.YAWLServiceReference");
+        YEngineRestorer restorer = new YEngineRestorer(_myInstance, pmgr);
 
-            for (Iterator it = query.iterate(); it.hasNext();) {
-                YAWLServiceReference service = (YAWLServiceReference) it.next();
-                addYawlService(service);
-                if (service.get_serviceName().equals("resourceService"))
-                    _myInstance.setResourceService(service);
-            }
-           
-            // if no services loaded, go to secondary load method (from properties file)
-            if (_yawlServices.isEmpty()) loadServicesFromProperties() ;
+        restorer.restoreYAWLServices();
 
-            logger.info("Restoring Services - Ends");
+        // if no services loaded, go to secondary load method (from properties file)
+        if (_yawlServices.isEmpty()) loadServicesFromProperties() ;
 
+        restorer.restoreSpecifications();
+        _caseNbrStore = restorer.restoreNextAvailableCaseNumber();
+        restorer.restoreProcessInstances();
+        restorer.restoreWorkItems();
+        restorer.restoreWorkItemTimers();
+        restorer.restartRestoredProcessInstances();
 
-            logger.info("Restoring Specifications - Starts");
-            query = pmgr.createQuery("from org.yawlfoundation.yawl.engine.YSpecFile");
-
-            for (Iterator it = query.iterate(); it.hasNext();) {
-                YSpecFile spec = (YSpecFile) it.next();
-                String xml = spec.getXML();
-
-                {
-                    logger.debug("Restoring specification " + spec.getSpecid().getId());
-
-                    File f = File.createTempFile("yawltemp", null);
-                    BufferedWriter buf = new BufferedWriter(new FileWriter(f));
-                    buf.write(xml, 0, xml.length());
-                    buf.close();
-                    addSpecifications(spec.getSpecid().getId(), f.getAbsolutePath());
-
-                    f.delete();
-                }
-            }
-            logger.info("Restoring Specifications - Ends");
-
-            
-            logger.info("Restoring process instances - Starts");
-            query = pmgr.createQuery("from org.yawlfoundation.yawl.engine.YNetRunner order by case_id");
-            for (Iterator it = query.iterate(); it.hasNext();) {
-                YNetRunner runner = (YNetRunner) it.next();
-
-                //FRA-67 - Set engine reference for parent and composite nets
-                runner.setEngine(this);
-                runners.add(runner);
-            }
-
-            // START: restore next available case number
-            query = pmgr.createQuery("from org.yawlfoundation.yawl.engine.YCaseNbrStore");
-            if ((query != null) && (! query.list().isEmpty())) {
-                _caseNbrStore = (YCaseNbrStore) query.iterate().next();
-                _caseNbrStore.setPersisted(true);               // flag to update only
-            }
-            else {
-                
-                // secondary attempt: eg. if there's no case number stored (as will be
-                // the case if this is the first restart after upgrade to v2.0)
-                query = pmgr.createQuery("from YCaseEvent as yce " +
-                        "where yce._eventName = 'started' order by yce._eventTime desc");
-                if ((query != null) && (! query.list().isEmpty())) {
-                    YCaseEvent caseEvent = (YCaseEvent) query.iterate().next();
-
-                    // only want integral case numbers
-                    _caseNbrStore.setCaseNbr(new Double(caseEvent.get_caseID()).intValue());
-                }
-            }
-
-            // persisting flag must be reset as it is not itself persisted
-            _caseNbrStore.setPersisting(true);
-
-            // END: restore case number
-
-            Vector storedrunners = (Vector) runners.clone();
-
-            for (int i = 0; i < runners.size(); i++) {
-                YNetRunner runner = (YNetRunner) runners.get(i);
-                YSpecification specification = getSpecification(runner.getYNetID(),
-                                                                runner.getYNetVersion());
-                if (specification == null) {
-                    /* This occurs when a specification has been unloaded, but the case is still there
-                       This case is not persisted, since we must have the specification stored as well.
-                    */
-                    // todo AJH Sort this
-                    pmgr.deleteObject(runner);
-                    storedrunners.remove(runner);
-                    continue;
-                }
-                if (runner.getContainingTaskID() == null) {
-                    //This is a root net runner
-                    YNet net = (YNet) specification.getRootNet().clone();
-                    runner.setNet(net);
-                    runnermap.put(runner.get_standin_caseIDForNet().toString(), runner);
-                }
-                else {
-                    //This is not a root net, but a decomposition
-                    // Find the parent runner
-                    String myid = runner.get_standin_caseIDForNet().toString();
-                    String parentid = myid.substring(0, myid.lastIndexOf("."));
-                    YNetRunner parentrunner = (YNetRunner) runnermap.get(parentid);
-                    if (parentrunner != null) {
-                        logger.debug("Restoring composite YNetRunner: " + parentrunner.get_caseID());
-                        YNet parentnet = parentrunner.getNet();
-
-                        YCompositeTask task = (YCompositeTask) parentnet.getNetElement(runner.getContainingTaskID());
-                        runner.setTask(task);
-
-                        YNet net = (YNet) task.getDecompositionPrototype().clone();
-                        runner.setNet(net);
-                        runnermap.put(runner.get_standin_caseIDForNet().toString(), runner);
-                    }
-                }
-            }
-            runners = storedrunners;
-
-            for (int i = 0; i < runners.size(); i++) {
-
-                YNetRunner runner = (YNetRunner) runners.get(i);
-
-                YNet net = runner.getNet();
-
-                P_YIdentifier pid = runner.get_standin_caseIDForNet();
-
-                if (runner.getContainingTaskID() == null) {
-                    // This is a root net runner
-                    YIdentifier id = restoreYID(pmgr, runnermap, idtoid, pid, null, runner.getYNetID(), net);
-                    runner.set_caseIDForNet(id);
-                    addRunner(runner);
-                }
-
-                YIdentifier yid = new YIdentifier(runner.get_caseID());
-                YWorkItemRepository.getInstance().setNetRunnerToCaseIDBinding(runner, yid);
-
-                Set busytasks = runner.getBusyTaskNames();
-
-                for (Iterator busyit = busytasks.iterator(); busyit.hasNext();) {
-                    String name = (String) busyit.next();
-                    YExternalNetElement element = net.getNetElement(name);
-
-                    runner.addBusyTask(element);
-                }
-
-                Set enabledtasks = runner.getEnabledTaskNames();
-
-                for (Iterator enabit = enabledtasks.iterator(); enabit.hasNext();) {
-                    String name = (String) enabit.next();
-                    YExternalNetElement element = net.getNetElement(name);
-
-                    if (element instanceof YTask) {
-                        YTask externalTask = (YTask) element;
-                        runner.addEnabledTask(externalTask);
-                    }
-
-                }
-            }
-
-            // restore case & exception observers (where they exist)
-            for (int i = 0; i < runners.size(); i++) {
-                YNetRunner runner = (YNetRunner) runners.get(i);
-                runner.restoreObservers();
-            }
-
-            logger.info("Restoring process instances - Ends");
-
-            logger.info("Restoring work items - Starts");
-            List<YWorkItem> toBeDeleted = new ArrayList<YWorkItem>();
-            query = pmgr.createQuery("from org.yawlfoundation.yawl.engine.YWorkItem");
-            for (Iterator it = query.iterate(); it.hasNext();) {
-                YWorkItem witem = (YWorkItem) it.next();
-
-              	// MJF: if parent is to be deleted, must delete for contraints
-               	if (toBeDeleted.contains(witem.get_parent())) {
-                 		toBeDeleted.add(witem);
-                 		continue;
-               	}
-
-                String data = witem.getDataString();
-                if (data != null)
-                    witem.setInitData(JDOMUtil.stringToElement(data));
-                
-
-                java.util.StringTokenizer st = new java.util.StringTokenizer(witem.get_thisID(), ":");
-                String caseandid = st.nextToken();
-                String taskid = st.nextToken();
-                String uniqueId = null;
-                // AJH: Strip off unique ID to obtain our taskID
-
-                java.util.StringTokenizer st3 = new java.util.StringTokenizer(taskid, "!");
-                taskid = st3.nextToken();
-                uniqueId = st3.nextToken();
-
-                YWorkItemID witemID;
-                YIdentifier workitemid = (YIdentifier) idtoid.get(caseandid);
-                if (workitemid != null) {
-                    witem.setWorkItemID(new YWorkItemID(workitemid, taskid));
-
-                    // MJF: use the unique id if we have one - stays in synch
-                    if (uniqueId != null) {
-                        witemID = new YWorkItemID(workitemid, taskid, uniqueId);
-                    } else {
-                        witemID = new YWorkItemID(workitemid, taskid);
-                    }
-                    witem.setWorkItemID(witemID);
-                    witem.addToRepository();
-
-                    // MJF: for any work items with data, we need to restore to
-                    // netrunner instance
-                    witem.restoreDataToNet();
-                } else {
-                    pmgr.deleteObject(witem);
-                    toBeDeleted.add(witem);
-                }
-            }
-            if (toBeDeleted.size() > 0) {
-              	for (Iterator<YWorkItem> deletes = toBeDeleted.iterator(); deletes.hasNext();) {
-            	    	YWorkItem deleted = deletes.next();
-            	    	pmgr.getSession().delete(deleted);
-              	}
-              	pmgr.getSession().flush();
-            }
-            logger.info("Restoring work items - Ends");
-
-            logger.info("Restoring work item timers - Starts");
-            query = pmgr.createQuery("from org.yawlfoundation.yawl.engine.time.YWorkItemTimer");
-            for (Iterator it = query.iterate(); it.hasNext();) {
-                YWorkItemTimer witemTimer = (YWorkItemTimer) it.next();
-
-                // check to see if workitem still exists
-                YWorkItem witem = getWorkItem(witemTimer.getOwnerID()) ;
-                if (witem == null)
-                    deleteObject(witemTimer) ;          // remove from persistence
-                else {
-                     long endTime = witemTimer.getEndTime();
-
-                    // if the deadline has passed, time the workitem out
-                    if (endTime < System.currentTimeMillis())
-                        witemTimer.handleTimerExpiry();
-                    else {
-                        // reschedule the workitem's timer
-                        YTimer.getInstance().schedule(witemTimer, new Date(endTime));
-                        witem.setTimerStarted(true);
-                    }
-                }
-            }    
-            logger.info("Restoring work item timers - Ends");
-
-            /*
-              Start net runners. This is a restart of a NetRunner not a clean start, therefore, the net runner should not create any new work items, if they have already been created.
-             */
-            logger.info("Restarting restored process instances - Starts");
-
-            for (int i = 0; i < runners.size(); i++) {
-                YNetRunner runner = (YNetRunner) runners.get(i);
-                logger.debug("Restarting " + runner.get_caseID());
-                runner.start(pmgr);
-            }
-            logger.info("Restarting restored process instances - Ends");
-
-            restoring = false;
-
-            logger.info("Restore completed OK");
-
-            if (logger.isDebugEnabled()) {
-                dump();
-            }
-
-        } catch (Exception e) {
-            throw new YPersistenceException("Failure whilst restoring engine session", e);
-        }
+        if (logger.isDebugEnabled()) dump();
+        logger.info("Restore completed OK");
+        restoring = false;
     }
-
-
-    public YIdentifier restoreYID(YPersistenceManager pmgr, HashMap runnermap, Map idtoid, P_YIdentifier pid, YIdentifier father, String specname, YNet net) throws YPersistenceException {
-
-        YIdentifier id = new YIdentifier(pid.toString());
-
-        YNet sendnet = net;
-
-        id.set_father(father);
-
-        List list = pid.get_children();
-
-        if (list.size() > 0) {
-            List idlist = new Vector();
-
-            for (int i = 0; i < list.size(); i++) {
-                P_YIdentifier child = (P_YIdentifier) list.get(i);
-
-                YNetRunner netRunner = (YNetRunner) runnermap.get(child.toString());
-                if (netRunner != null) {
-                    sendnet = netRunner.getNet();
-                }
-                YIdentifier caseid = restoreYID(pmgr, runnermap, idtoid, child, id, specname, sendnet);
-
-                if (netRunner != null) {
-                    netRunner.set_caseIDForNet(caseid);
-                }
-
-                idlist.add(caseid);
-            }
-
-            id.set_children(idlist);
-        }
-
-
-        for (int i = 0; i < pid.getLocationNames().size(); i++) {
-
-            String name = (String) pid.getLocationNames().get(i);
-            YExternalNetElement element = net.getNetElement(name);
-
-            if (element == null) {
-                name = name.substring(0, name.length() - 1);
-                String[] splitname = name.split(":");
-
-
-                /*
-                  Get the task associated with this condition
-                */
-                YTask task = null;
-                if (name.indexOf("CompositeTask") != -1) {
-                    YNetRunner netRunner_temp = (YNetRunner) runnermap.get(father.toString());
-                    task = (YTask) netRunner_temp.getNet().getNetElement(splitname[1]);
-                } else {
-                    task = (YTask) net.getNetElement(splitname[1]);
-                }
-
-                /**
-                 * FRA-66: Check if we need to find the father task and post conditions against it
-                 */
-                if ((task == null) && (father != null))
-
-                {
-//                    logger.debug("++++++++++++++++++++++++++++++ Frig on " + splitname[1] + " ++++++++++++++++");
-                    YNetRunner netRunner_temp = (YNetRunner) runnermap.get(father.toString());
-
-                    // FRA-70 Start
-                    Object obj = netRunner_temp.getNet().getNetElement(splitname[1]);
-                    if (obj instanceof YTask)
-                    {
-                        task = (YTask)obj;
-                    }
-                    // FRA-70 End
-                }
-                // FRA-66: End
-                if (task != null) {
-                    logger.debug("Posting conditions on task " + task);
-                    YInternalCondition condition;
-                    if (splitname[0].startsWith(YInternalCondition._mi_active)) {
-
-                        condition = task.getMIActive();
-                        condition.add(pmgr, id);
-
-                    } else if (splitname[0].startsWith(YInternalCondition._mi_complete)) {
-
-                        condition = task.getMIComplete();
-                        condition.add(pmgr, id);
-
-                    } else if (splitname[0].startsWith(YInternalCondition._mi_entered)) {
-
-                        condition = task.getMIEntered();
-                        condition.add(pmgr, id);
-
-                    } else if (splitname[0].startsWith(YInternalCondition._executing)) {
-
-                        condition = task.getMIExecuting();
-                        condition.add(pmgr, id);
-
-                    } else {
-                        logger.error("Unknown YInternalCondition state");
-                    }
-                } else {
-                    if (splitname[0].startsWith("InputCondition")) {
-                        net.getInputCondition().add(pmgr, id);
-                    } else if (splitname[0].startsWith("OutputCondition")) {
-                        net.getOutputCondition().add(pmgr, id);
-                    }
-                }
-            } else {
-                if (element instanceof YTask) {
-                    ((YTask) element).setI(id);
-                    ((YTask) element).prepareDataDocsForTaskOutput();
-                    id.addLocation(pmgr, (YTask) element);
-                } else if (element instanceof YCondition) {
-
-                   ((YConditionInterface) element).add(pmgr, id);
-                }
-            }
-        }
-
-        idtoid.put(id.toString(), id);
-        return id;
-    }
-
-
-    /**
-     * *********************************************
-     */
 
 
     public static YEngine getInstance(boolean persisting) throws YPersistenceException {
@@ -2732,7 +2343,7 @@ public class YEngine implements InterfaceADesign,
                 // it's not a runner, so remove the P_YIdentifier only
                 if (!runnerfound) {
                     Query quer = pmgr.getSession().createQuery(
-                                 "from org.yawlfoundation.yawl.engine.P_YIdentifier where id = '"
+                        "from org.yawlfoundation.yawl.engine.P_YIdentifier where _id = '"
                                  + id.toString() + "'");
                     Iterator itx = quer.iterate();
 

@@ -7,11 +7,11 @@
 
 	<class name="org.yawlfoundation.yawl.worklet.selection.CheckedOutItem" table="Worklet_CheckedOutItem">
 
-       <id name="_persistID" column="id" type="string" access="field">
+       <id name="_persistID" column="p_id" type="string" access="field">
    		    <generator class="assigned"/>
        </id>
 		
-       <property name="_wirStr" type="text"/>
+       <property name="_wirStr" column="wirStr" type="text"/>
 
 	</class>
 	

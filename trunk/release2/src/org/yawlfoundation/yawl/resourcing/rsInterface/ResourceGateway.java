@@ -104,7 +104,7 @@ public class ResourceGateway extends HttpServlet {
        String result = "";
 
        String action = req.getParameter("action");
-       String handle = req.getParameter("handle");
+       String handle = req.getParameter("sessionHandle");
 
        if (action == null) {
               result = "<html><head>" +
@@ -169,6 +169,9 @@ public class ResourceGateway extends HttpServlet {
            else if (action.equalsIgnoreCase("getActiveParticipants")) {
                result = rm.getActiveParticipantsAsXML();
            }
+           else if (action.equalsIgnoreCase("getCodelets")) {
+               result = rm.getCodeletsAsXML();
+           }
            else if (action.equalsIgnoreCase("isKnownParticipant")) {
                String id = req.getParameter("id");
                result = String.valueOf(rm.isKnownParticipant(id)) ;
@@ -206,7 +209,7 @@ public class ResourceGateway extends HttpServlet {
                                 throws IOException, ServletException {
 
         String action = req.getParameter("action");
-        String handle = req.getParameter("handle");
+        String handle = req.getParameter("sessionHandle");
 
         if (rm.checkServiceConnection(handle)) {
             if (action.equalsIgnoreCase("refreshOrgDataSet")) {
