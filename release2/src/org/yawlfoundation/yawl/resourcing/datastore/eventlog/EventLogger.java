@@ -1,12 +1,23 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
+ */
+
 package org.yawlfoundation.yawl.resourcing.datastore.eventlog;
 
+import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 
 /**
- * Created by IntelliJ IDEA. User: Default Date: 27/09/2007 Time: 11:35:22 To change this
- * template use File | Settings | File Templates.
+ * Handles the logging of resource 'events'
+ *
+ * @author: Michael Adams
+ * Date: 27/09/2007 
  */
 public class EventLogger {
 
@@ -17,7 +28,7 @@ public class EventLogger {
 
     public static enum event { offer, allocate, start, suspend, deallocate, delegate,
                                reallocate_stateless, reallocate_stateful, skip, pile,
-                               cancel, complete, unoffer }
+                               cancel, chain, complete, unoffer, unchain, unpile, resume }
 
     public static void setLogging(boolean flag) {
         _logging = flag;
@@ -32,6 +43,18 @@ public class EventLogger {
             ResourceEvent resEvent = new ResourceEvent(wir, pid, eType);
             Persister persister = Persister.getInstance() ;
             if (persister != null) persister.insert(resEvent);
+        }
+    }
+
+
+    public static void log(WorkItemRecord wir, String pid, String eventString) {
+        try {
+            event eType = event.valueOf(eventString);
+            log(wir, pid, eType);
+        }
+        catch (Exception e) {
+            Logger.getLogger(EventLogger.class).error("'" + eventString +
+                                                      "' is not a valid event type.");
         }
     }
 

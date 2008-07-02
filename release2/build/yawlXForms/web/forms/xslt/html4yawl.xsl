@@ -235,7 +235,7 @@
                         <xsl:attribute name="type">
                             <xsl:value-of select="@type"/>
                         </xsl:attribute>
-                        <xsl:attribute name="src">
+                        <xsl:attribute name="src.dir">
                             <xsl:value-of select="@src"/>
                         </xsl:attribute>
                     </script>
@@ -633,7 +633,7 @@
         </xsl:variable>
 
         <xsl:call-template name="trigger">
-            <xsl:with-param name="classes" select="$control-classes"/>
+            <xsl:with-param name="classes.dir" select="$control-classes"/>
         </xsl:call-template>
     </xsl:template>
 
@@ -741,7 +741,7 @@
                 <xsl:apply-templates select="xforms:alert"/>
             </xsl:when>
             <xsl:when test="local-name()='output'">
-                <xsl:call-template name="output"/>
+                <xsl:call-template name="output.dir"/>
                 <xsl:apply-templates select="xforms:help"/>
                 <xsl:apply-templates select="xforms:alert"/>
             </xsl:when>

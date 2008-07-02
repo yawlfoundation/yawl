@@ -226,7 +226,7 @@
     -->
 
     <session-config>
-        <session-timeout>30</session-timeout>   <!-- 30 minutes -->
+        <session-timeout>60</session-timeout>   <!-- 60 minutes -->
     </session-config>
 
     <error-page>

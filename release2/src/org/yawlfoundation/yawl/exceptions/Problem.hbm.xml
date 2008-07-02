@@ -9,11 +9,11 @@
 
         <composite-id>
             <key-property name="source" />
-            <key-property name="timeStamp" type="timestamp" />
+            <key-property name="problemTime" type="timestamp" />
         </composite-id>
 
         <property name="messageType" />
-        <property name="message" />
+        <property name="message" type="text"/>
 
     </class>
 

@@ -1,3 +1,11 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation. The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
+ */
+
 package org.yawlfoundation.yawl.resourcing.codelets;
 
 import net.sf.saxon.Configuration;
@@ -10,11 +18,8 @@ import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.xpath.XPathException;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.exceptions.YQueryException;
-import org.yawlfoundation.yawl.exceptions.YStateException;
 import org.yawlfoundation.yawl.util.YSaxonOutPutter;
 
 import javax.xml.transform.stream.StreamSource;
@@ -22,59 +27,46 @@ import java.io.StringReader;
 import java.util.List;
 
 /**
- * Author: Michael Adams
+ * @author: Michael Adams
  * Creation Date: 30/04/2008
  */
-public class XQueryEvaluator {
+public class XQueryEvaluator extends AbstractCodelet {
 
-    private Element _inputs ;
-    private Element _outData ;
-    private List<YParameter> _outputs ;
-
-
-    public XQueryEvaluator() { }
-
-    public XQueryEvaluator(Element inputs, List<YParameter> outputs, Element outData) {
-        _inputs = inputs ;
-        _outputs = outputs ;
-        _outData = outData ;
+    public XQueryEvaluator() {
+        super();
+        setDescription("This codelet executes an XQuery. Required parameters:<br> " +
+                       "Input: query (type String, required): the XQuery<br>" +
+                       "       plus other values used by the XQuery" +
+                       "Output: result (type String)");
     }
 
-    public void setInputData(Element inputs) { _inputs = inputs ; }
 
-    public void setOutputParams(List<YParameter> outputs) { _outputs = outputs ; }
+    public Element execute(Element inData, List<YParameter> inParams,
+                           List<YParameter> outParams) throws CodeletExecutionException {
 
-    public void setOutData(Element out) { _outData = out ; }
-
-
-    public Element evaluate() throws CodeletExecutionException,
-                                     YStateException, YQueryException {
-        if (_outputs == null) {
+        if (outParams == null) {
            String msg = "Cannot perform evaluation: Missing or empty output parameter list.";
            throw new CodeletExecutionException(msg) ;
         }
 
-        // convert input vars to a Doc
-        Document dataDoc = new Document((Element) _inputs.clone());
-        
-        // for each wir.output params, do evalQuery & add it to the result
-        for (YParameter param : _outputs) {
-            String name = param.getName();
-            String query = param.getInitialValue() ;
-            Element output = evaluateQuery(query, dataDoc);
-            if (output != null)
-                _outData.addContent((Element) output.clone()) ;
-        }
+        this.setInputs(inData, inParams, outParams);
 
-        return _outData ;
+        // convert input vars to a Doc
+        Document dataDoc = new Document((Element) inData.clone());
+
+        String query = (String) getParameterValue("query");
+        String output = evaluateQuery(query, dataDoc);
+
+        setParameterValue("result", output);
+        return getOutputData() ;
     }
 
     
     // based on YTask.evaluateTreeQuery //
-    private Element evaluateQuery(String query, Document dataDoc)
-               throws CodeletExecutionException, YStateException, YQueryException {
+    private String evaluateQuery(String query, Document dataDoc)
+               throws CodeletExecutionException {
 
-        Element resultingData;
+        String resultingData;
 
         try {
 
@@ -98,29 +90,21 @@ public class XQueryEvaluator {
             // output the result 
             if (nodeInfo != null) {
                 YSaxonOutPutter saxonOutputter = new YSaxonOutPutter(nodeInfo);
-                String result = saxonOutputter.getString();
-                SAXBuilder builder = new SAXBuilder();
-                Document doclet = builder.build(new StringReader(result));
-                resultingData = doclet.detachRootElement();
+                resultingData = saxonOutputter.getString();
             }
             else {
-                throw new CodeletExecutionException("No data produced.");
+                throw new CodeletExecutionException("No data produced for query:" +
+                                                     query + ".");
             }
         }
         catch (XPathException e) {
-            YQueryException yqe = new YQueryException(
+            throw new CodeletExecutionException(
                     "Invalid query: " + query + ".\n" +
                     "Message from parser: [" + e.getMessage() + "]");
-            yqe.setStackTrace(e.getStackTrace());
-            throw yqe;
         }
         catch (Exception e) {
-            if (e instanceof CodeletExecutionException)
-                throw (CodeletExecutionException) e;
-            
-            YStateException se = new YStateException(e.getMessage());
-            se.setStackTrace(e.getStackTrace());
-            throw se;
+            throw new CodeletExecutionException(
+                    "Exception in query evaluation: " + query + ".");
         }
         return resultingData;
     }

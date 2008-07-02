@@ -8,13 +8,13 @@
 
 package org.yawlfoundation.yawl.resourcing.codelets;
 
+import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.resourcing.util.Docket;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This factory class creates and instantiates codelet instances found in this package.
@@ -28,6 +28,7 @@ import java.io.FilenameFilter;
 public class CodeletFactory {
 
     static String pkg = "org.yawlfoundation.yawl.resourcing.codelets." ;
+    static Logger _log = Logger.getLogger(CodeletFactory.class);
 
     /**
      * Instantiates a class of the name passed.
@@ -41,28 +42,22 @@ public class CodeletFactory {
             return (AbstractCodelet) Class.forName(pkg + codeletName).newInstance();
         }
         catch (ClassNotFoundException cnfe) {
-		       	System.out.println("Class not found - " + codeletName);
+            _log.error("CodeletFactory ClassNotFoundException: class '" + codeletName +
+                       "' could not be found - class ignored.");
         }
         catch (IllegalAccessException iae) {
-			      System.out.println("Illegal access - " + codeletName);
+            _log.error("CodeletFactory IllegalAccessException: class '" + codeletName +
+                       "' could not be accessed - class ignored.");
 	    	}
         catch (InstantiationException ie) {
-			      System.out.println("Instantiation - " + codeletName);
-	    	}
+            _log.error("CodeletFactory InstantiationException: class '" + codeletName +
+                       "' could not be instantiated - class ignored.");
+		    }
+        catch (ClassCastException cce) {
+            _log.error("CodeletFactory ClassCastException: class '" + codeletName + 
+                       "' does not extend AbstractCodelet - class ignored.");
+        }
         return null ;
-    }
-
-
-    /**
-     * Instantiates a class of the name passed (via a call to the above method)
-     * @param codeletName the name of the class to instantiate
-     * @param params a Map of parameters required by the class to perform its allocation
-     * @return the instantiated class, or null if there was a problem
-     */
-    public static AbstractCodelet getInstance(String codeletName, HashMap params) {
-        AbstractCodelet newClass = getInstance(codeletName);
- //       if (newClass != null) newClass.setParams(params);   todo: base class
-        return newClass ;
     }
 
 
@@ -70,11 +65,11 @@ public class CodeletFactory {
      * Constructs and returns a list of instantiated codelet objects, one for each
      * of the different codelet classes available in this package
      *
-     * @return a List of instantiated codelet objects
+     * @return a Set of instantiated codelet objects
      */
-    public static Set getCodelets() {
+    public static Set<AbstractCodelet> getCodelets() {
 
-        HashSet codelets = new HashSet();
+        HashSet<AbstractCodelet> codelets = new HashSet<AbstractCodelet>();
 
         // retrieve a list of (filtered) class names in this package
         String pkgPath = Docket.getPackageFileDir("codelets") ;

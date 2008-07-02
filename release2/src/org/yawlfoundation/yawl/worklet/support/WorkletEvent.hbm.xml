@@ -12,13 +12,13 @@
    		    <generator class="assigned"/>
        </id>
 		
-       <property name="_event"/>
-       <property name="_caseId"/>
-       <property name="_specId"/>
-       <property name="_taskId"/>
-       <property name="_parentCaseId"/>
-       <property name="_stamp"/>
-       <property name="_xType" type="int"/>
+       <property name="_event"        column="eventName"/>
+       <property name="_caseId"       column="caseId"/>
+       <property name="_specId"       column="specId"/>
+       <property name="_taskId"       column="taskId"/>
+       <property name="_parentCaseId" column="parentCaseId"/>
+       <property name="_stamp"        column="tStamp"/>
+       <property name="_xType"        column="xType" type="int"/>
 
     </class>
 	

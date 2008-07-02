@@ -10,7 +10,6 @@ package org.yawlfoundation.yawl.engine.interfce.interfaceX;
 import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
-import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 
 import javax.servlet.ServletContext;
@@ -22,7 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.rmi.RemoteException;
-import java.util.StringTokenizer;
 
 
 /**
@@ -146,55 +144,45 @@ public class InterfaceX_EngineSideServer extends HttpServlet {
     // pass the POST request as a method call to the engine
     private String processPostQuery(HttpServletRequest request) {
         StringBuffer msg = new StringBuffer();
-        StringTokenizer tokens = new StringTokenizer(request.getRequestURI(), "/");
-
-        //find method call name at end of uri
-        String lastPartOfPath = null;
-        String temp;
-        while (tokens.hasMoreTokens()) {
-            temp = tokens.nextToken();
-            if (!tokens.hasMoreTokens()) {
-                lastPartOfPath = temp;
-            }
-        }
 
         // unpack the params
+        String action = request.getParameter("action");
         String sessionHandle = request.getParameter("sessionHandle");
         String workitemID  = request.getParameter("workitemID");
         String data = request.getParameter("data");
 
         // call the specified method
         try {
-            if ("setExceptionObserver".equals(lastPartOfPath)) {
+            if ("setExceptionObserver".equals(action)) {
                 String observerURI = request.getParameter("observerURI");
                 msg.append(_engine.setExceptionObserver(observerURI));
             }
-            else if ("removeExceptionObserver".equals(lastPartOfPath)) {
+            else if ("removeExceptionObserver".equals(action)) {
                 msg.append(_engine.removeExceptionObserver());
             }
-            else if ("updateWorkItemData".equals(lastPartOfPath)) {
+            else if ("updateWorkItemData".equals(action)) {
                 msg.append(_engine.updateWorkItemData(workitemID, data, sessionHandle));
             }
-            else if ("updateCaseData".equals(lastPartOfPath)) {
+            else if ("updateCaseData".equals(action)) {
                 String caseID = request.getParameter("caseID");
                 msg.append(_engine.updateCaseData(caseID, data, sessionHandle));
             }
-            else if ("completeWorkItem".equals(lastPartOfPath)) {
+            else if ("completeWorkItem".equals(action)) {
                 msg.append(_engine.completeWorkItem(workitemID, data, true, sessionHandle));
             }
-            else if ("continueWorkItem".equals(lastPartOfPath)) {
+            else if ("continueWorkItem".equals(action)) {
                 msg.append(_engine.startWorkItem(workitemID, sessionHandle));
             }
-            else if ("unsuspendWorkItem".equals(lastPartOfPath)) {
+            else if ("unsuspendWorkItem".equals(action)) {
                 msg.append(_engine.unsuspendWorkItem(workitemID, sessionHandle));
             }
-            else if ("restartWorkItem".equals(lastPartOfPath)) {
+            else if ("restartWorkItem".equals(action)) {
                 msg.append(_engine.restartWorkItem(workitemID, sessionHandle));
             }
-            else if ("startWorkItem".equals(lastPartOfPath)) {
+            else if ("startWorkItem".equals(action)) {
                 msg.append(_engine.startWorkItem(workitemID, sessionHandle));
             }
-            else if ("cancelWorkItem".equals(lastPartOfPath)) {
+            else if ("cancelWorkItem".equals(action)) {
                 String fail = request.getParameter("fail");
                 msg.append(_engine.cancelWorkItem(workitemID, fail, sessionHandle));
             }

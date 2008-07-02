@@ -8,13 +8,14 @@
 
 package org.yawlfoundation.yawl.resourcing.constraints;
 
+import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.resourcing.util.Docket;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.io.File;
-import java.io.FilenameFilter;
 
 /**
  * This factory class creates and instantiates instances of the various constraint
@@ -29,6 +30,7 @@ import java.io.FilenameFilter;
 public class ConstraintFactory {
 
     static String pkg = "org.yawlfoundation.yawl.resourcing.constraints." ;
+    static Logger _log = Logger.getLogger(ConstraintFactory.class);
 
     /**
      * Instantiates a class of the name passed.
@@ -39,21 +41,24 @@ public class ConstraintFactory {
      */
     public static AbstractConstraint getInstance(String constraintName) {
         try {
-//			AbstractConstraint newClass = (AbstractConstraint)
-//                                           Class.forName(pkg + constraintName).newInstance() ;
-//            if (newClass != null) newClass.setName(constraintName);
-//            return newClass ;
-            return (AbstractConstraint) Class.forName(pkg + constraintName).newInstance();            
+            return (AbstractConstraint) Class.forName(pkg + constraintName).newInstance();
         }
         catch (ClassNotFoundException cnfe) {
-			System.out.println("Class not found - " + constraintName);
+            _log.error("ConstraintFactory ClassNotFoundException: class '" + constraintName +
+                       "' could not be found - class ignored.");
         }
         catch (IllegalAccessException iae) {
-			System.out.println("Illegal access - " + constraintName);
-		}
+            _log.error("ConstraintFactory IllegalAccessException: class '" + constraintName +
+                       "' could not be accessed - class ignored.");
+	    	}
         catch (InstantiationException ie) {
-			System.out.println("Instantiation - " + constraintName );
-		}
+            _log.error("ConstraintFactory InstantiationException: class '" + constraintName +
+                       "' could not be instantiated - class ignored.");
+		    }
+        catch (ClassCastException cce) {
+            _log.error("ConstraintFactory ClassCastException: class '" + constraintName +
+                       "' does not extend AbstractConstraint - class ignored.");
+        }
         return null ;
     }
 

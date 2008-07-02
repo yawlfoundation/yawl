@@ -8,16 +8,16 @@
 	<class name="org.yawlfoundation.yawl.worklet.selection.CheckedOutChildItem"
            table="Worklet_CheckedOutChildItem">
 
-       <id name="_persistID" column="id" type="string" access="field">
+       <id name="_persistID" column="p_id" type="string" access="field">
    		    <generator class="assigned"/>
        </id>
 		
-       <property name="_parentID"/>
-       <property name="_wirStr" type="text"/>
-       <property name="_runningCaseIdStr"/>
-       <property name="_runningWorkletStr"/>
-       <property name="_reasonType" type="int"/>
-       <property name="_searchPairStr" type="text"/>
+       <property name="_parentID"          column="parentID"/>
+       <property name="_wirStr"            column="wirStr"        type="text"/>
+       <property name="_runningCaseIdStr"  column="runningCaseIdStr"/>
+       <property name="_runningWorkletStr" column="runningWorkletStr"/>
+       <property name="_reasonType"        column="reasonType"    type="int"/>
+       <property name="_searchPairStr"     column="searchPairStr" type="text"/>
 
     </class>
 	

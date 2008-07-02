@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.rmi.RemoteException;
 import java.util.Enumeration;
-import java.util.StringTokenizer;
 
 
 /**
@@ -36,7 +35,8 @@ import java.util.StringTokenizer;
  * @author Lachlan Aldred
  * Date: 22/12/2003
  * Time: 12:03:41
- * 
+ *
+ * @author Michael Adams (refactored for v2.0, 06/2008)
  */
 public class InterfaceA_EngineBasedServer extends HttpServlet {
     private EngineGateway _engine;
@@ -67,8 +67,6 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
 
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        //reloading of the remote engine.
-
         PrintWriter outputWriter = ServletUtils.prepareResponse(response);
         StringBuffer output = new StringBuffer();
         output.append("<response>");
@@ -89,8 +87,6 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
 
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        //reloading of the remote engine.
-
         PrintWriter outputWriter = ServletUtils.prepareResponse(response);
         StringBuffer output = new StringBuffer();
         output.append("<response>");
@@ -122,56 +118,38 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
     //###############################################################################
     //      Start YAWL Processing methods
     //###############################################################################
+
     private String processGetQuery(HttpServletRequest request) {
         StringBuffer msg = new StringBuffer();
+        String sessionHandle = request.getParameter("sessionHandle");
+        String action = request.getParameter("action");
+
         try {
             if (_debug) {
-                logger.debug("\nInterfaceA_EngineBasedServer:doGet() request.getRequestURL = "
-                        + request.getRequestURL());
-                logger.debug("InterfaceA_EngineBasedServer::doGet() request.parameters:");
-                Enumeration paramNms = request.getParameterNames();
-                while (paramNms.hasMoreElements()) {
-                    String name = (String) paramNms.nextElement();
-                    logger.debug("\trequest.getParameter(" + name + ") = "
-                            + request.getParameter(name));
-                }
+                debug(request, "Get") ;
             }
-            StringTokenizer tokens = new StringTokenizer(request.getRequestURI(), "/");
-            String secondLastPartOfPath = null;
-            String lastPartOfPath = null;
-            String temp = null;
-            while (tokens.hasMoreTokens()) {
-                secondLastPartOfPath = temp;
-                temp = tokens.nextToken();
-                if (!tokens.hasMoreTokens()) {
-                    lastPartOfPath = temp;
-                }
-            }
-            //if parameters exist do the while
-            String sessionHandle = request.getParameter("sessionHandle");
-            String action = request.getParameter("action");
+            
             if (action != null) {
                 if (action.equals("checkConnection")) {
                     msg.append(_engine.checkConnectionForAdmin(sessionHandle));
-                } else if (action.equals("getUsers")) {
+                }
+                else if (action.equals("getUsers")) {
                     msg.append(_engine.getUsers(sessionHandle));
-                } else if (action.equals("getList")) {
+                }
+                else if (action.equals("getList")) {
                     msg.append(_engine.getSpecificationList(sessionHandle));
-                } else if (action.equals("getYAWLServices")) {
+                }
+                else if (action.equals("getYAWLServices")) {
                     msg.append(_engine.getYAWLServices(sessionHandle));
                 }
             }
-//            String specid = request.getParameter("specid");  //MLR (01/11/07) TODO: check for spec versioning
-//            if (specid != null) {
-//                msg.append(_engine.getProcessDefinition(specid, sessionHandle));
-//            }
         } catch (RemoteException e) {
-            e.printStackTrace();
+            logger.error("Exception in Interface B with action: " + action, e);
         }
         if (msg.length() == 0) {
             msg.append(
                     "<failure><reason>" +
-                    "params invalid or exception was thrown." +
+                    "Invalid action or exception was thrown." +
                     "</reason></failure>");
         }
         if (_debug) {
@@ -183,66 +161,44 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
 
     private String processPostQuery(HttpServletRequest request) {
         StringBuffer msg = new StringBuffer();
+        String sessionHandle = request.getParameter("sessionHandle");
+        String action = request.getParameter("action");
+        String userID = request.getParameter("userID");
+        String password = request.getParameter("password");
+
         try {
             if (_debug) {
-                logger.debug("\nInterfaceA_EngineBasedServer::doPost() request.getRequestURL = "
-                        + request.getRequestURL());
-                logger.debug("InterfaceA_EngineBasedServer::doPost() request.parameters:");
-                Enumeration paramNms = request.getParameterNames();
-                while (paramNms.hasMoreElements()) {
-                    String name = (String) paramNms.nextElement();
-                    logger.debug("\trequest.getParameter(" + name + ") = "
-                            + request.getParameter(name));
-                }
+                debug(request, "Post");
             }
-            StringTokenizer tokens = new StringTokenizer(request.getRequestURI(), "/");
-            String secondLastPartOfPath = null;
-            String lastPartOfPath = null;
-            String temp = null;
-            while (tokens.hasMoreTokens()) {
-                secondLastPartOfPath = temp;
-                temp = tokens.nextToken();
-                if (!tokens.hasMoreTokens()) {
-                    lastPartOfPath = temp;
-                }
-            }
-            //if parameters exist do the while
-            String sessionHandle = request.getParameter("sessionHandle");
-            String action = request.getParameter("action");
-            if (lastPartOfPath.equals("connect")) {
-                String userID = request.getParameter("userid");
-                String password = request.getParameter("password");
-                msg.append(_engine.connect(userID, password));
-            }
+
             if (action != null) {
-                if ("createUser".equals(action) || "createAdmin".equals(action)) {
-                    String userName = request.getParameter("userName");
-                    String password = request.getParameter("password");
-                    boolean isAdmin;
-                    if ("createAdmin".equals(action)) {
-                        isAdmin = true;
-                    } else {
-                        isAdmin = false;
-                    }
-                    msg.append(_engine.createUser(userName, password, isAdmin, sessionHandle));
-                } else if ("deleteUser".equals(action)) {
-                    String userName = request.getParameter("userName");
-                    msg.append(_engine.deleteUser(userName, sessionHandle));
-                } else if ("newPassword".equals(action)) {
-                    String password = request.getParameter("password");
+                if ("connect".equals(action)) {
+                    msg.append(_engine.connect(userID, password));
+                }
+                else if ("createUser".equals(action) || "createAdmin".equals(action)) {
+                    boolean isAdmin = ("createAdmin".equals(action));
+                    msg.append(_engine.createUser(userID, password, isAdmin, sessionHandle));
+                }
+                else if ("deleteUser".equals(action)) {
+                    msg.append(_engine.deleteUser(userID, sessionHandle));
+                }
+                else if ("newPassword".equals(action)) {
                     msg.append(_engine.changePassword(password, sessionHandle));
-                } else if ("newYAWLService".equals(action)) {
+                }
+                else if ("newYAWLService".equals(action)) {
                     String serviceStr = request.getParameter("service");
                     msg.append(_engine.addYAWLService(serviceStr, sessionHandle));
-                } else if ("removeYAWLService".equals(action)) {
+                }
+                else if ("removeYAWLService".equals(action)) {
                     String serviceURI = request.getParameter("serviceURI");
                     msg.append(_engine.removeYAWLService(serviceURI, sessionHandle));
-                } else if ("unload".equals(action)) {
+                }
+                else if ("unload".equals(action)) {
                     YSpecificationID specID = makeYSpecificationID(request);
                     msg.append(_engine.unloadSpecification(specID, sessionHandle));
                 }
             }
-            if (request.getRequestURI().endsWith("/upload")) {
+            else if (request.getRequestURI().endsWith("/upload")) {
                 sessionHandle = request.getHeader("YAWLSessionHandle");
                 String fileName = request.getHeader("filename");
                 StringBuffer specification = new StringBuffer();
@@ -252,19 +208,17 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                     specification.append((char) i);
                     i = in.read();
                 }
-                msg.append(_engine.loadSpecification(
-                        specification.toString(),
-                        fileName,
-                        sessionHandle));
+                msg.append(_engine.loadSpecification(specification.toString(),
+                                                     fileName, sessionHandle));
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        }
+        catch (Exception e) {
+            logger.error("Exception in Interface B with action: " + action, e);
         }
         if (msg.length() == 0) {
-            msg.append(
-                    "<failure><reason>" +
-                    "params invalid or exception was thrown." +
-                    "</reason></failure>");
+            msg.append("<failure><reason>" +
+                       "Null action or exception was thrown." +
+                       "</reason></failure>");
         }
         if (_debug) {
             logger.debug("return = " + msg);
@@ -272,6 +226,7 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
         return msg.toString();
     }
 
+    
     private YSpecificationID makeYSpecificationID(HttpServletRequest request) {
         String version = "0.1" ;
         String handle = request.getParameter("sessionHandle") ;
@@ -287,6 +242,20 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
         }
 
         return new YSpecificationID(id, new YSpecVersion(version));
+    }
+
+
+    private void debug(HttpServletRequest request, String service) {
+        logger.debug("\nInterfaceA_EngineBasedServer::do" + service + "() " +
+                "request.getRequestURL = " + request.getRequestURL());
+        logger.debug("\nInterfaceA_EngineBasedServer::do" + service +
+                "() request.parameters = ");
+        Enumeration paramNms = request.getParameterNames();
+        while (paramNms.hasMoreElements()) {
+            String name = (String) paramNms.nextElement();
+            logger.debug("\trequest.getParameter(" + name + ") = " +
+                    request.getParameter(name));
+        }
     }
 }
 

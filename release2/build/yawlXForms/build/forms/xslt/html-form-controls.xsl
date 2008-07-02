@@ -179,7 +179,7 @@
 -->
 
     <!-- build output -->
-    <xsl:template name="output">
+    <xsl:template name="output.dir">
 
         <xsl:variable name="id" select="@id"/>
         <xsl:variable name="css" select="@class"/>
@@ -196,7 +196,7 @@
                     <xsl:attribute name="id">
                         <xsl:value-of select="concat($id,'-value')"/>
                     </xsl:attribute>
-                    <xsl:attribute name="src">
+                    <xsl:attribute name="src.dir">
                         <xsl:value-of select="chiba:data/text()"/>
                     </xsl:attribute>
                     <xsl:attribute name="alt"><xsl:value-of select="xforms:label"/></xsl:attribute>
@@ -307,7 +307,7 @@
         <xsl:param name="end"/>
 
         <xsl:if test="$current &lt;= $end">
-            <xsl:variable name="classes">
+            <xsl:variable name="classes.dir">
                 <xsl:choose>
                     <xsl:when test="$value = $current">step rangevalue</xsl:when>
                     <xsl:otherwise>step</xsl:otherwise>
@@ -351,7 +351,7 @@
         <xsl:param name="end"/>
 
         <xsl:if test="$current &lt;= $end">
-            <xsl:variable name="classes">
+            <xsl:variable name="classes.dir">
                 <xsl:choose>
                     <xsl:when test="$value = $current">step rangevalue</xsl:when>
                     <xsl:otherwise>step</xsl:otherwise>
@@ -683,7 +683,7 @@
     <!-- build submit -->
     <!-- todo: align with trigger template -->
     <xsl:template name="submit">
-        <xsl:param name="classes"/>
+        <xsl:param name="classes.dir"/>
         <xsl:variable name="repeat-id" select="ancestor::*[local-name(.)='repeat'][1]/@id"/>
         <xsl:variable name="pos" select="position()"/>
         <xsl:variable name="id" select="@id"/>
@@ -722,7 +722,7 @@
 
     <!-- build trigger -->
     <xsl:template name="trigger">
-        <xsl:param name="classes"/>
+        <xsl:param name="classes.dir"/>
         <xsl:variable name="repeat-id" select="ancestor::*[local-name(.)='repeat'][1]/@id"/>
         <xsl:variable name="pos" select="position()"/>
         <xsl:variable name="id" select="@id"/>

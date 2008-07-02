@@ -11,6 +11,8 @@ package org.yawlfoundation.yawl.engine.interfce.interfaceE;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An API to be used by clients that want to retrieve data from the YAWL process logs.
@@ -48,12 +50,17 @@ public class YLogGatewayClient extends Interface_Client {
      */
     private String performGet(String action, String pName, String pValue, String handle)
                                                                      throws IOException {
-        StringBuilder sb = new StringBuilder(_logURI) ;
-        sb.append("?action=").append(action) ;
-        if (pName != null)
-            sb.append("&").append(pName).append("=").append(pValue);
-        sb.append("&handle=").append(handle);
-        return executeGet(sb.toString());
+//        StringBuilder sb = new StringBuilder(_logURI) ;
+//        sb.append("?action=").append(action) ;
+//        if (pName != null)
+//            sb.append("&").append(pName).append("=").append(pValue);
+//        sb.append("&handle=").append(handle);
+//        return executeGet(sb.toString());
+        Map<String, String> params = new HashMap <String, String>();
+        params.put("action", action);
+        params.put("handle", handle);
+        if (pName != null) params.put(pName, pValue);
+        return executeGet(_logURI, params);
     }
 
     /**

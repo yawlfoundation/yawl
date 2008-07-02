@@ -7,7 +7,7 @@
 	<class name="Position" table="rs_Position" lazy="false">
 
         <id  name="_id"
-                  column="ID"
+                  column="P_ID"
                   type="string"
                   access="field"/>
 

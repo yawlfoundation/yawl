@@ -267,6 +267,11 @@ public class StringUtil
             return String.format("<%s/>", wrapTag);
     }
 
+    public static String wrapEscaped(String core, String wrapTag) {
+        return wrap(JDOMUtil.encodeEscapes(core), wrapTag);
+    }
+
+    
     /**
      * Encodes reserved characters in an xml string
      * @param s the string to encode

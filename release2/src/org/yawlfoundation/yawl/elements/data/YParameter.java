@@ -9,19 +9,11 @@
 
 package org.yawlfoundation.yawl.elements.data;
 
-import org.apache.log4j.Logger;
-import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
 import org.yawlfoundation.yawl.elements.YDecomposition;
-import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.*;
 
 /**
@@ -193,7 +185,7 @@ public class YParameter extends YVariable implements Comparable {
         }
 
         xml.append(toXMLGuts());
-        xml.append(StringUtil.wrap(String.valueOf(_ordering), "ordering"));
+ //       xml.append(StringUtil.wrap(String.valueOf(_ordering), "ordering"));
         
         if (super.isMandatory()) {
             xml.append("<mandatory/>");
@@ -208,38 +200,19 @@ public class YParameter extends YVariable implements Comparable {
     }
 
     public String toSummaryXML() {
-        SAXBuilder builder = new SAXBuilder();
-        String xml = toXML();
-
-        Document doc = null;
-        try {
-            doc = builder.build(new StringReader(xml));
-        } catch (JDOMException e) {
-            /**
-             * AJH: Silent failure here.
-             */
-            Logger.getLogger(YParameter.class).error(xml);
-            e.printStackTrace();
-        } catch (IOException e) {
-            /**
-             * AJH: Silent failure here.
-             */
-            Logger.getLogger(YParameter.class).error(xml);
-            e.printStackTrace();
+        String result = "";
+        Element eParam = JDOMUtil.stringToElement(toXML());
+        if (eParam != null) {
+            eParam.removeChild("initialValue");
+            Element typeElement = eParam.getChild("type");
+            Element orderingElem = new Element("ordering");
+            orderingElem.setText("" + _ordering);
+            int insPos = (null == typeElement) ? 0 : 1 ;
+            eParam.addContent(insPos, orderingElem);
+            result = JDOMUtil.elementToString(eParam);
         }
-        Element paramElem = doc.getRootElement();
-        paramElem.removeChild("initialValue");
-        Element typeElement = paramElem.getChild("type");
-        Element orderingElem = new Element("ordering");
-        orderingElem.setText("" + _ordering);
-        if(null == typeElement){
-            paramElem.addContent(0, orderingElem);
-        } else {
-            paramElem.addContent(1, orderingElem);
-        }
-        XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
-        return outputter.outputString(paramElem);
-    }
+        return result ;
+    }    
 
     public String toString() {
         return toXML();

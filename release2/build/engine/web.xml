@@ -133,15 +133,18 @@
 		<servlet-name>InterfaceAServlet</servlet-name>
 		<url-pattern>/ia/*</url-pattern>
 	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>InterfaceBServlet</servlet-name>
-		<url-pattern>/work</url-pattern>
-		<url-pattern>/ib/*</url-pattern>
-	</servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>InterfaceXServlet</servlet-name>
-        <url-pattern>/ix/*</url-pattern>
-    </servlet-mapping>
+  <servlet-mapping>
+     <servlet-name>InterfaceBServlet</servlet-name>
+     <url-pattern>/ib/*</url-pattern>
+  </servlet-mapping>    
+  <servlet-mapping>
+    <servlet-name>InterfaceBServlet</servlet-name>
+    <url-pattern>/work</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>InterfaceXServlet</servlet-name>
+    <url-pattern>/ix/*</url-pattern>
+  </servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>ErrorServlet</servlet-name>
 		<url-pattern>/</url-pattern>
@@ -153,8 +156,8 @@
     <!-- Define the default session timeout for your application,
          in minutes. -->
 	<session-config>
-		<session-timeout>30</session-timeout>
-		<!-- 30 minutes -->
+		<session-timeout>60</session-timeout>
+		<!-- 60 minutes default -->
 	</session-config>
 
 </web-app>

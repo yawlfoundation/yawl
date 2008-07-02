@@ -836,7 +836,7 @@ public class jdbcImpl extends DataSource {
         String reportsTo = (p.getReportsTo() != null) ? p.getReportsTo().getID() : null ;
         String qry = String.format(
                   "UPDATE rsj_Position SET positionID = '%s', title = '%s', " +
-                  "description = '%s', orgGroup = '%s', reportsTo = '%s' WHERE ID = '%s'",
+                  "description = '%s', orgGroup = '%s', reportsTo = '%s' WHERE P_ID = '%s'",
                    p.getPositionID(), p.getTitle(), p.getDescription(),
                    belongsTo, reportsTo, p.getID());
         execUpdate(qry);
@@ -858,7 +858,7 @@ public class jdbcImpl extends DataSource {
 
     private void deletePosition(Position p) {
         String qry = String.format(
-                   "DELETE FROM rsj_Position WHERE ID = '%s'",p.getID());
+                   "DELETE FROM rsj_Position WHERE P_ID = '%s'",p.getID());
         execUpdate(qry);
     }
 

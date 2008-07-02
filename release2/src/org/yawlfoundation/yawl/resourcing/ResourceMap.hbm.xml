@@ -6,13 +6,13 @@
 
 	<class name="ResourceMap" table="rs_PiledTasks">
 
-        <id name="_id" column="id" type="long">
+        <id name="_id" column="p_id" type="long">
             <generator class="native"/>
         </id>
 
     	<property name="_specID"          column="specid"  type="string" access="field"/>
-        <property name="_taskID"          column="taskid"  type="string" access="field"/>
-        <property name="_piledResourceID" column="piledid" type="string" access="field"/>
+      <property name="_taskID"          column="taskid"  type="string" access="field"/>
+      <property name="_piledResourceID" column="piledid" type="string" access="field"/>
 
      </class> 
 	

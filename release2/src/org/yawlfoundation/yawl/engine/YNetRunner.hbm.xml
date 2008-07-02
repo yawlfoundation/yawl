@@ -21,8 +21,8 @@
     	  <property name="containingTaskID" column="containing_task_id" access="field"/>
 
 
-        <property name="_caseObserverStr"/>
-        <property name="_exceptionObserverStr"/>
+        <property name="_caseObserverStr" column="caseObserver"/>
+        <property name="_exceptionObserverStr" column="exceptionObserver"/>
 
 
         <set name="enabledTaskNames" table="RUNNER_ENABLED_TASKS" access="field">

@@ -9,6 +9,7 @@
 package org.yawlfoundation.yawl.resourcing.resource;
 
 import org.jdom.Element;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 /**
@@ -105,10 +106,10 @@ public class OrgGroup extends AbstractResourceAttribute implements Comparable {
     public String toXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<orggroup id=\"%s\">", _id)) ;
-        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_groupName), "groupName"));
+        xml.append(StringUtil.wrapEscaped(_groupName, "groupName"));
         xml.append(StringUtil.wrap(get_groupType(), "groupType"));
-        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_description), "description"));
-        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_notes), "notes"));
+        xml.append(StringUtil.wrapEscaped(_description, "description"));
+        xml.append(StringUtil.wrapEscaped(_notes, "notes"));
         if (_belongsTo !=null)
             xml.append(StringUtil.wrap(_belongsTo.getID(), "belongsToID")) ;
         xml.append("</orggroup>");
@@ -117,7 +118,7 @@ public class OrgGroup extends AbstractResourceAttribute implements Comparable {
 
     public void reconstitute(Element e) {
         super.reconstitute(e);
-        setGroupName(StringUtil.xmlDecode(e.getChildText("groupName")));
+        setGroupName(JDOMUtil.decodeEscapes(e.getChildText("groupName")));
         set_groupType(e.getChildText("groupType"));
         set_belongsToID(e.getChildText("belongsToID"));
     }

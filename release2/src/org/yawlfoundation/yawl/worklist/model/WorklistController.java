@@ -114,7 +114,7 @@ public class WorklistController extends InterfaceBWebsideController {
                     } catch (YQueryException e) {
 	                    e.printStackTrace();
 	                    Problem warning = new Problem();
-	                    warning.setTimeStamp(new Date());
+	                    warning.setProblemTime(new Date());
 	                    warning.setSource(workItemRecord.getID());
 	                    warning.setMessageType(Problem.EMPTY_RESOURCE_SET_MESSAGETYPE);
 	                    _dbConnector.saveWarning(warning);
@@ -197,7 +197,7 @@ public class WorklistController extends InterfaceBWebsideController {
     public String getMarshalledOutputParamsForTask(String specificationID, String taskID, String sessionHandle) throws IOException {
         YParametersSchema params = getParamsForTask(specificationID, taskID, sessionHandle);
 
-        String dataRootElementNm = _model.getDataRootElementName(specificationID, taskID, sessionHandle);
+        String dataRootElementNm = _model.getDataRootElementName(specificationID, taskID);
 
         return Marshaller.getOutputParamsInXML(params, dataRootElementNm);
     }

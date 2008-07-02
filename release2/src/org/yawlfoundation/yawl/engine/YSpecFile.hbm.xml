@@ -7,8 +7,8 @@
 	<class name="org.yawlfoundation.yawl.engine.YSpecFile" table="specs">
 
     <composite-id name="specid" class="org.yawlfoundation.yawl.engine.P_YSpecFileID">
-      <key-property name="version"/>
-      <key-property name="id"/>
+      <key-property name="version" column="s_version"/>
+      <key-property name="id" column="s_id"/>
     </composite-id>
 	<property name="XML" column="specs" type="text"/>
 

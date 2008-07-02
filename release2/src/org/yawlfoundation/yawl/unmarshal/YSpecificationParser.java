@@ -12,12 +12,11 @@ package org.yawlfoundation.yawl.unmarshal;
 import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.Namespace;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.schema.XMLToolsForYAWL;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.text.ParseException;
 import java.util.HashMap;
@@ -38,8 +37,10 @@ class YSpecificationParser {
     private YDecompositionParser[] _decompositionParser;
     private Map _decompAndTypeMap = new HashMap();
     private Namespace _yawlNS;
+    private static final String _defaultSchema =
+                           "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"/>";
 
-	//MLR 22/10/2007 (merge): this is the initial value of a spec's version
+  //MLR 22/10/2007 (merge): this is the initial value of a spec's version
 	static final String INITIAL_VERSION = "0.1";
 
     /**
@@ -82,8 +83,13 @@ class YSpecificationParser {
         Namespace schema4SchemaNS = Namespace.getNamespace(XMLToolsForYAWL.getSchema4SchemaNameSpace());
         Element schemElem = specificationElem.getChild("schema", schema4SchemaNS);
         if (null != schemElem) {
-            XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
-            _specification.setSchema(outputter.outputString(schemElem));
+            _specification.setSchema(JDOMUtil.elementToString(schemElem));
+        }
+        else {
+
+            // if the spec has no schema definition insert a default one so that a
+            // DataValidator gets created
+            _specification.setSchema(_defaultSchema);
         }
 
         // if name and doco fields missing from spec, see if they are in metadata
@@ -205,15 +211,15 @@ class YSpecificationParser {
             {
                 metaData.setPersistent(false);
             }
-            else if (persistentText.trim().toUpperCase().equals("TRUE"))
-            {
-                metaData.setPersistent(true);
-            }
             else
             {
-                metaData.setPersistent(false);
+                metaData.setPersistent(persistentText.trim().equalsIgnoreCase("TRUE"));
             }
         }
+
+        String uniqueID = metaDataElem.getChildText("identifier", _yawlNS);
+        if (uniqueID != null)
+            metaData.setUniqueID(uniqueID);
 
         return metaData;
     }
@@ -235,10 +241,8 @@ class YSpecificationParser {
 
         Element schemaElem = specificationElem.getChild("schema");
         if (schemaElem != null) {
-            XMLOutputter xmlo = new XMLOutputter(Format.getCompactFormat());
-            String schemaStr = xmlo.outputString(schemaElem);
             try {
-                _specification.setSchema(schemaStr);
+                _specification.setSchema(JDOMUtil.elementToString(schemaElem));
             } catch (YSchemaBuildingException e) {
                 YSyntaxException f = new YSyntaxException(e.getMessage());
                 f.setStackTrace(e.getStackTrace());

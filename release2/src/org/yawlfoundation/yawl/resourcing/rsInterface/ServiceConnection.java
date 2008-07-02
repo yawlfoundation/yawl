@@ -27,7 +27,7 @@ public class ServiceConnection {
     public String getUserID() { return _userid; }
 
     /**
-     * Starts a timer task to timeout the connection after 60 mins inactivity
+     * Starts a timertask to timeout the connection after 60 mins inactivity
      */
     private void startActivityTimer() {
         long interval = 3600000 ;                              // 60 min in millisecs

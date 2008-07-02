@@ -8,7 +8,7 @@
            table="rs_WorkItemCache">
 
         <id name="_id"
-            column="id"
+            column="wir_id"
             type="long">
             <generator class="native"/>
         </id>

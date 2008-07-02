@@ -9,6 +9,7 @@
 package org.yawlfoundation.yawl.resourcing.resource;
 
 import org.jdom.Element;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 /**
@@ -56,15 +57,15 @@ public class Capability extends AbstractResourceAttribute implements Comparable 
     public String toXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<capability id=\"%s\">", _id)) ;
-        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_capability), "name"));
-        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_description), "description"));
-        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_notes), "notes"));
+        xml.append(StringUtil.wrapEscaped(_capability, "name"));
+        xml.append(StringUtil.wrapEscaped(_description, "description"));
+        xml.append(StringUtil.wrapEscaped(_notes, "notes"));
         xml.append("</capability>");
         return xml.toString() ;
     }
 
     public void reconstitute(Element e) {
         super.reconstitute(e);
-        setCapability(StringUtil.xmlDecode(e.getChildText("name")));
+        setCapability(JDOMUtil.decodeEscapes(e.getChildText("name")));
     }
 }

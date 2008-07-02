@@ -24,7 +24,7 @@ import java.io.*;
  *  @author Michael Adams
  *  04/07/2006
  *
- *  Last date: 18/01/08
+ *  Last date: 22/06/08
  */
 
  public class JDOMUtil {
@@ -116,7 +116,8 @@ import java.io.*;
     /****************************************************************************/
 
     public static String getDefaultValueForType(String dataType) {
-        if (dataType.equalsIgnoreCase("boolean")) return "false" ;
+        if (dataType == null) return "null";
+        else if (dataType.equalsIgnoreCase("boolean")) return "false" ;
         else if (dataType.equalsIgnoreCase("string")) return "" ;
         else return "0";
     }
@@ -124,6 +125,7 @@ import java.io.*;
     /****************************************************************************/
 
     public static String encodeEscapes(String s) {
+        if (s == null) return s;
         return s.replaceAll("&", "&amp;")
                 .replaceAll("<", "&lt;")                
                 .replaceAll(">", "&gt;")
@@ -132,6 +134,7 @@ import java.io.*;
     }
 
     public static String decodeEscapes(String s) {
+        if (s == null) return s;
         return s.replaceAll("&amp;", "&")
                 .replaceAll("&lt;","<")               
                 .replaceAll("&gt;", ">")

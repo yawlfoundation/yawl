@@ -1,6 +1,15 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
+ */
+
 package org.yawlfoundation.yawl.resourcing.codelets;
 
 import org.jdom.Element;
+import org.yawlfoundation.yawl.elements.data.YParameter;
 
 import java.util.List;
 
@@ -27,10 +36,10 @@ public class ExampleCodelet extends AbstractCodelet {
 
     public ExampleCodelet() {
         super();
-        setDescription("This codelet is a simple example of codelet construction and " +
-                       "usage. It adds two integers. Required parameters:\n " +
-                       "\tInputs: a, b (both long types)\n" +
-                       "\tOutput: c (also a long)");
+        setDescription("This codelet is a simple example of codelet construction and<br> " +
+                       "usage. It adds two integers. Required parameters:<br> " +
+                       "Inputs: a, b (both long types)<br>" +
+                       "Output: c (also a long)");
     }
 
     /**
@@ -44,8 +53,8 @@ public class ExampleCodelet extends AbstractCodelet {
      * @return the result of the codelet's work as a JDOM Element
      * @throws CodeletExecutionException
      */
-    public Element execute(Element inData, List inParams, List outParams)
-                                                     throws CodeletExecutionException {
+    public Element execute(Element inData, List<YParameter> inParams,
+                           List<YParameter> outParams) throws CodeletExecutionException {
         // set the inputs passed in the base class
         setInputs(inData, inParams, outParams);
 

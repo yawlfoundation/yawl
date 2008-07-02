@@ -8,10 +8,7 @@
 
 package org.yawlfoundation.yawl.engine.interfce;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -148,7 +145,7 @@ public class Interface_Client {
         if (inputXML != null) {
             int beginClipping = inputXML.indexOf(">") + 1;
             int endClipping = inputXML.lastIndexOf("<");
-            if (beginClipping >= 0 && endClipping >= 0) {
+            if (beginClipping >= 0 && endClipping >= 0 && endClipping > beginClipping) {
                 inputXML = inputXML.substring(beginClipping, endClipping);
             }
         }
@@ -199,7 +196,7 @@ public class Interface_Client {
     /**
      * Initialises a HTTP connection
      * @param url the url to connect to
-     * @return an generic initialised connection (for GET or POST requests)
+     * @return a generic initialised connection (for GET or POST requests)
      * @throws IOException when there's some kind of communication problem
      */
     private static HttpURLConnection initConnection(URL url) throws IOException {
@@ -209,6 +206,12 @@ public class Interface_Client {
     }
 
     
+    /**
+     * Initialises a HTTP POST connection
+     * @param urlStr the url to connect to
+     * @return an initialised POST connection
+     * @throws IOException when there's some kind of communication problem
+     */
     private static HttpURLConnection initPostConnection(String urlStr) throws IOException {
         URL url = new URL(urlStr);
         HttpURLConnection connection = initConnection(url);
@@ -218,6 +221,12 @@ public class Interface_Client {
     }
 
 
+    /**
+     * Encodes parameter values for HTTP transport
+     * @param data a string of the data parameter values, of the form
+     *        "param1=value1&param2=value2..."
+     * @return a string of the same format with the data values encoded
+     */
     private static String encodeData(String data) {
         Map<String, String> map = new HashMap<String, String>();
         String[] params = data.split("&");
@@ -230,6 +239,12 @@ public class Interface_Client {
     }
 
 
+    /**
+     * Encodes parameter values for HTTP transport
+     * @param params a map of the data parameter values, of the form
+     *        [param1,value1],[param2=value2]...
+     * @return a formatted url suffix string  with the data values encoded
+     */
     private static String encodeData(Map<String, String> params) {
         StringBuilder result = new StringBuilder("");
         for (String param : params.keySet()) {
@@ -242,6 +257,12 @@ public class Interface_Client {
     }
 
 
+    /**
+     * Submits data on a HTTP connection
+     * @param connection a valid, open HTTP connection
+     * @param data the data to submit
+     * @throws IOException when there's some kind of communication problem
+     */
     private static void sendData(HttpURLConnection connection, String data)
             throws IOException {
         PrintWriter out = new PrintWriter(connection.getOutputStream());
@@ -251,20 +272,23 @@ public class Interface_Client {
     }
 
 
+    /**
+     * Receives a reply from a HTTP submission
+     * @param is the InputStream or a URL or Connection object
+     * @return the stream's contents (ie. the HTTP reply)
+     * @throws IOException when there's some kind of communication problem
+     */
     private static String getReply(InputStream is) throws IOException {
-        String result = "";
         InputStreamReader isr = new InputStreamReader(is);
-        int data = 0 ;
-        int chrsRead = 0;
-        char[] buf = new char[512];
-        while (data != -1) {
-            data = isr.read(buf);
-            result += new String(buf) ;
-            chrsRead += data;
-        } 
+        StringWriter out = new StringWriter(8192);
+        char[] buffer = new char[8192];
+        int count;
+
+        while ((count = isr.read(buffer)) > 0)
+           out.write(buffer, 0, count);
 
         isr.close();
-        return result.substring(0, chrsRead + 1);
+        return out.toString();
     }
 
 

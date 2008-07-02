@@ -380,10 +380,10 @@ public class Participant extends AbstractResource implements Serializable {
     public String toXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<participant id=\"%s\">", _resourceID)) ;
-        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_userID), "userid"));
-        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_firstname), "firstname"));
-        xml.append(StringUtil.wrap(StringUtil.xmlEncode(_lastname), "lastname"));
-        xml.append(StringUtil.wrap(String.valueOf(_isAdministrator), "isAdministrator")) ;
+        xml.append(StringUtil.wrapEscaped(_userID, "userid"));
+        xml.append(StringUtil.wrapEscaped(_firstname, "firstname"));
+        xml.append(StringUtil.wrapEscaped(_lastname, "lastname"));
+        xml.append(StringUtil.wrapEscaped(String.valueOf(_isAdministrator), "isAdministrator")) ;
 
         xml.append("<roles>");
         for (Role role : _roles) xml.append(role.toXML()) ;
@@ -408,9 +408,9 @@ public class Participant extends AbstractResource implements Serializable {
 
     public void reconstitute(Element e) {
         setID(e.getAttributeValue("id"));
-        setUserID(StringUtil.xmlDecode(e.getChildText("userid")));
-        setFirstName(StringUtil.xmlDecode(e.getChildText("firstname")));
-        setLastName(StringUtil.xmlDecode(e.getChildText("lastname")));
+        setUserID(JDOMUtil.decodeEscapes(e.getChildText("userid")));
+        setFirstName(JDOMUtil.decodeEscapes(e.getChildText("firstname")));
+        setLastName(JDOMUtil.decodeEscapes(e.getChildText("lastname")));
         setAdministrator(e.getChildText("isAdministrator").equals("true"));
     }
 

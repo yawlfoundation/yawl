@@ -11,7 +11,7 @@ package org.yawlfoundation.yawl.resourcing;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
-import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.io.Serializable;
@@ -40,7 +40,6 @@ public class QueueSet implements Serializable {
     private String _ownerID ;
     private setType _type ;
     private boolean _persisting ;
-    private Persister _persist = Persister.getInstance();
 
     public enum setType { participantSet, adminSet }
 
@@ -94,13 +93,16 @@ public class QueueSet implements Serializable {
 
     // this variation is called when a workitem that is already started gets
     // reallocated or reoffered, then eventually moves back to a started queue.
-    // Since it was previously started, its already the child item
+    // Since it was previously started, it's already the child item
     public void movetoStarted(WorkItemRecord wir) {
         removeFromQueue(wir, WorkQueue.ALLOCATED);
         addToQueue(wir, WorkQueue.STARTED);
     }
 
     public void movetoUnsuspend(WorkItemRecord wir) {
+
+        // explicitly log the resume event
+        EventLogger.log(wir, _ownerID, EventLogger.event.resume);
         removeFromQueue(wir, WorkQueue.SUSPENDED);
         addToQueue(wir, WorkQueue.STARTED);
     }

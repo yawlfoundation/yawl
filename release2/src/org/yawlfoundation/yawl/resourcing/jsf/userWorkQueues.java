@@ -471,8 +471,15 @@ public class userWorkQueues extends AbstractPageBean {
             DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");
             df.setHeaderText("Edit Work Item: " + wir.getID());
             df.setDisplayedWIR(wir);
-            df.initDynForm("YAWL 2.0 - Edit Work Item") ;
-            return "showDynForm" ;
+            if (df.initDynForm("YAWL 2.0 - Edit Work Item")) {
+                return "showDynForm" ;
+            }
+            else {
+                msgPanel.error("Problem initialising form from task specification. " +
+                               "Please see the log files for details.");
+                return null;
+            }
+
         }
     }
 

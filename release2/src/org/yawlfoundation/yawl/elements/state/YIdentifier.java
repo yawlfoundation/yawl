@@ -9,7 +9,6 @@
 
 package org.yawlfoundation.yawl.elements.state;
 
-import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.elements.YCondition;
 import org.yawlfoundation.yawl.elements.YConditionInterface;
 import org.yawlfoundation.yawl.elements.YInputCondition;
@@ -18,21 +17,39 @@ import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Vector;
 
 /**
  * 
  * This class has control over data structures that allow for
  * storing an identifer and managing a set of children.
  * @author Lachlan Aldred
+ *
+ * @author Michael Adams (refactored for v2.0, 06/08)
  * 
  */
 public class YIdentifier {
-    /*************************/
-    /* INSERTED VARIABLES AND METHODS FOR PERSISTANCE* /
-    /**************************/
-    private List locationNames = new Vector();
+
+    private List<String> locationNames = new Vector<String>();
+    private List _locations = new Vector();
+    private List<YIdentifier> _children = new Vector<YIdentifier>();
+    private YIdentifier _parent;
     private String id = null;
+    private String _idString;
+
+
+    public YIdentifier() {
+         _idString = YEngine.getInstance().getNextCaseNbr();
+     }
+
+     public YIdentifier(String idString) {
+         _idString = idString;
+     }
+
+    
 
     public String getId() {
         return id;
@@ -42,12 +59,12 @@ public class YIdentifier {
         this.id = id;
     }
 
-    public List getLocationNames() {
+    public List<String> getLocationNames() {
         return locationNames;
     }
 
-    public void setLocationNames(List names) {
-        this.locationNames = names;
+    public void setLocationNames(List<String> names) {
+        locationNames = names;
     }
 
     public String get_idString() {
@@ -55,86 +72,47 @@ public class YIdentifier {
     }
 
     public void set_idString(String id) {
-        this._idString = id;
+        _idString = id;
     }
 
-    public void set_children(List children) {
-        this._children = children;
+    public void set_children(List<YIdentifier> children) {
+        _children = children;
     }
 
-    public List get_children() {
+    public List<YIdentifier> get_children() {
         return _children;
     }
 
-    public YIdentifier get_father() {
-        return _father;
+    public YIdentifier get_parent() {
+        return _parent;
     }
 
-    public void set_father(YIdentifier father) {
-        _father = father;
-    }
-
-    /************************************************/
-
-    private List _locations = new Vector();
-    private String _idString;
-    private List _children = new Vector();
-    private YIdentifier _father;
-
-
-    public YIdentifier() {
-        _idString = YEngine.getInstance().getNextCaseNbr();
+    public void set_parent(YIdentifier parent) {
+        _parent = parent;
     }
 
 
-    /**
-     * Constructor Identifier.
-     * @param idString
-
-     Changed to public for persistance
-     */
-    public YIdentifier(String idString) {
-        _idString = idString;
-    }
-
-
-    public List getChildren() {
+    public List<YIdentifier> getChildren() {
         return _children;
     }
 
 
-    public Set getDescendants() {
-        Set descendants = new HashSet();
+    public Set<YIdentifier> getDescendants() {
+        Set<YIdentifier> descendants = new HashSet<YIdentifier>();
         descendants.add(this);
 
-        if (_children.size() > 0) {
-            Iterator childIter = _children.iterator();
-            while (childIter.hasNext()) {
-                descendants.addAll(((YIdentifier) childIter.next())
-                        .getDescendants());
-            }
+        for (YIdentifier child : _children) {
+            descendants.addAll(child.getDescendants());
         }
         return descendants;
     }
 
 
     public YIdentifier createChild(YPersistenceManager pmgr) throws YPersistenceException {
-        YIdentifier identifier =
-                new YIdentifier(this._idString + "." + (_children.size() + 1));
-        _children.add(identifier);
-        identifier._father = this;
-
-        /*
-          INSERTED FOR PERSISTANCE
-         */
-        if (pmgr != null) {
-//            YPersistance.getInstance().storeData(identifier);
-//            YPersistance.getInstance().updateData(this);
-            pmgr.storeObjectFromExternal(identifier);
-            pmgr.updateObjectExternal(this);
-        }
-        return identifier;
+        String newID = String.format("%s.%d", this._idString, _children.size() + 1);
+        return createChildWithID(pmgr, newID);
     }
+
 
     /**
      * Creates a child identifier.
@@ -142,47 +120,46 @@ public class YIdentifier {
      * @param childNum
      * @return the child YIdentifier object with id == childNum
      */
-    public YIdentifier createChild(YPersistenceManager pmgr, int childNum) throws YPersistenceException {
+    public YIdentifier createChild(YPersistenceManager pmgr, int childNum)
+            throws YPersistenceException {
         if (childNum < 1) {
-            throw new IllegalArgumentException("Childnum must > 0");
+            throw new IllegalArgumentException("Childnum must be > 0");
         }
         String childNumStr = "" + childNum;
-        for (int i = 0; i < _children.size(); i++) {
-            YIdentifier identifier = (YIdentifier) _children.get(i);
-            String exisitingChildNumString = identifier.toString();
-            String lastPartOfExisistingChildNumString =
-                    exisitingChildNumString.substring(exisitingChildNumString.lastIndexOf('.') + 1);
-            if (childNumStr.equals(lastPartOfExisistingChildNumString)) {
-                throw new IllegalArgumentException("" +
-                        "Childnum uses an int already being used.");
+        for (YIdentifier child : _children) {
+            String childID = child.toString();
+            String childIDSuffix = childID.substring(childID.lastIndexOf('.') + 1);
+            if (childNumStr.equals(childIDSuffix)) {
+                throw new IllegalArgumentException(
+                                   "Childnum uses an int already being used.");
             }
         }
-        YIdentifier identifier =
-                new YIdentifier(this._idString + "." + childNumStr);
-        _children.add(identifier);
-        identifier._father = this;
+        return createChildWithID(pmgr, this._idString + "." + childNumStr);
+    }
 
-        /*
-          INSERTED FOR PERSISTANCE
-         */
-//        YPersistance.getInstance().storeData(identifier);
-//        YPersistance.getInstance().updateData(this);
+
+    private YIdentifier createChildWithID(YPersistenceManager pmgr, String id)
+            throws YPersistenceException {
+
+        YIdentifier identifier = new YIdentifier(id);
+        _children.add(identifier);
+        identifier.set_parent(this);
+
         if (pmgr != null) {
             pmgr.storeObjectFromExternal(identifier);
             pmgr.updateObjectExternal(this);
         }
-
         return identifier;
     }
 
 
     public YIdentifier getParent() {
-        return _father;
+        return _parent;
     }
 
 
     public boolean isImmediateChildOf(YIdentifier identifier) {
-        return this._father == identifier;
+        return (_parent == identifier);
     }
 
 
@@ -191,76 +168,65 @@ public class YIdentifier {
     }
 
 
-    public synchronized void addLocation(YPersistenceManager pmgr, YConditionInterface condition) throws YPersistenceException {
+    public synchronized void addLocation(YPersistenceManager pmgr,
+                                         YConditionInterface condition)
+            throws YPersistenceException {
         if (condition == null) {
             throw new RuntimeException("Cannot add null condition to this identifier.");
         }
-        this._locations.add(condition);
+        _locations.add(condition);
 
-        /*
-          INSERTED FOR PERSISTANCE
-         */
         if ((condition instanceof YCondition) && !(condition instanceof YInputCondition)) {
-
-            this.locationNames.add(condition.toString().substring(condition.toString().indexOf(":") + 1, condition.toString().length()));
+            String locName = condition.toString();
+            locationNames.add(locName.substring(locName.indexOf(":") + 1, locName.length()));
         } else {
-            this.locationNames.add(condition.toString());
+            locationNames.add(condition.toString());
         }
 
-//    YPersistance.getInstance().updateData(this);
         if (pmgr != null) {
             pmgr.updateObjectExternal(this);
         }
     }
 
 
-    public synchronized void removeLocation(YPersistenceManager pmgr, YConditionInterface condition) throws YPersistenceException {
+    public synchronized void removeLocation(YPersistenceManager pmgr,
+                                            YConditionInterface condition)
+            throws YPersistenceException {
         if (condition == null) {
             throw new RuntimeException("Cannot remove null condition from this identifier.");
         }
 
-        this._locations.remove(condition);
+        _locations.remove(condition);
 
-        /*
-          INSERTED FOR PERSISTANCE
-         */
         if (condition instanceof YCondition && !(condition instanceof YInputCondition)) {
-            this.locationNames.remove(condition.toString().substring(condition.toString().indexOf(":") + 1, condition.toString().length()));
+            String locName = condition.toString();
+            locationNames.remove(locName.substring(locName.indexOf(":") + 1, locName.length()));
         } else {
-            this.locationNames.remove(condition.toString());
+            locationNames.remove(condition.toString());
         }
 
-//        YPersistance.getInstance().updateData(this);
         if (pmgr != null) {
             pmgr.updateObjectExternal(this);
         }
-
     }
 
 
-
-
-    public synchronized void addLocation(YPersistenceManager pmgr, YTask task) throws YPersistenceException {
+    public synchronized void addLocation(YPersistenceManager pmgr, YTask task)
+            throws YPersistenceException {
         if (task == null) {
             throw new RuntimeException("Cannot add null task to this identifier.");
         }
-        this._locations.add(task);
+        _locations.add(task);
+        locationNames.add(task.getID());
 
-        /*
-          INSERTED FOR PERSISTANCE
-         */
-        this.locationNames.add(task.getID());
-
-//        YPersistance.getInstance().updateData(this);
         if (pmgr != null) {
             pmgr.updateObjectExternal(this);
         }
     }
 
 
-    public synchronized void removeLocation(YPersistenceManager pmgr, YTask task) throws YPersistenceException {
-        Logger.getLogger(this.getClass()).debug("--> removeLocation: TaskID = " + task.getID());
-
+    public synchronized void removeLocation(YPersistenceManager pmgr, YTask task)
+            throws YPersistenceException {
         if (task == null) {
             throw new RuntimeException("Cannot remove null task from this identifier.");
         }
@@ -273,6 +239,7 @@ public class YIdentifier {
         return _locations;
     }
 
+    
     public YIdentifier getAncestor() {
         if (null != this.getParent()) {
             return getAncestor();
@@ -282,49 +249,17 @@ public class YIdentifier {
 
 
     public boolean equals(Object another) {
-        if (another.toString().equals(this.toString())) {
-            return true;
-        } else
-            return false;
+        return (another instanceof YIdentifier) &&
+                another.toString().equals(this.toString());
     }
 
     /**
-     * Returns a hash code value for the object. This method is
-     * supported for the benefit of hashtables such as those provided by
-     * <code>java.util.Hashtable</code>.
-     * <p/>
-     * The general contract of <code>hashCode</code> is:
-     * <ul>
-     * <li>Whenever it is invoked on the same object more than once during
-     * an execution of a Java application, the <tt>hashCode</tt> method
-     * must consistently return the same integer, provided no information
-     * used in <tt>equals</tt> comparisons on the object is modified.
-     * This integer need not remain consistent from one execution of an
-     * application to another execution of the same application.
-     * <li>If two objects are equal according to the <tt>equals(Object)</tt>
-     * method, then calling the <code>hashCode</code> method on each of
-     * the two objects must produce the same integer result.
-     * <li>It is <em>not</em> required that if two objects are unequal
-     * according to the {@link Object#equals(Object)}
-     * method, then calling the <tt>hashCode</tt> method on each of the
-     * two objects must produce distinct integer results.  However, the
-     * programmer should be aware that producing distinct integer results
-     * for unequal objects may improve the performance of hashtables.
-     * </ul>
-     * <p/>
-     * As much as is reasonably practical, the hashCode method defined by
-     * class <tt>Object</tt> does return distinct integers for distinct
-     * objects. (This is typically implemented by converting the internal
-     * address of the object into an integer, but this implementation
-     * technique is not required by the
-     * Java<font size="-2"><sup>TM</sup></font> programming language.)
-     *
+     * Returns a hash code value for the object.
      * @return a hash code value for this object.
      * @see Object#equals(Object)
      * @see java.util.Hashtable
      */
-    public int hashCode()
-    {
+    public int hashCode() {
         return this.toString().hashCode();
     }
 }

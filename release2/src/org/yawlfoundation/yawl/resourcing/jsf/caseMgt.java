@@ -335,12 +335,16 @@ public class caseMgt extends AbstractPageBean {
 
         if (uploadedFile != null) {
             String uploadedFileName = stripPath(uploadedFile.getOriginalName());
-            String fileAsString = uploadedFile.getAsString() ;
-            uploadSpec(uploadedFileName, fileAsString) ;
+            if (uploadedFileName.endsWith(".xml")) {
+                String fileAsString = uploadedFile.getAsString() ;
+                uploadSpec(uploadedFileName, fileAsString) ;
+            }
+            else msgPanel.error("Only files with an 'xml' extension may be uploaded.");
         }
         return null;
     }
 
+    
     // upload the chosen spec into the engine
     private void uploadSpec(String fileName, String fileContents) {
         int BOF = fileContents.indexOf("<?xml");
@@ -354,6 +358,9 @@ public class caseMgt extends AbstractPageBean {
 
             _sb.refreshLoadedSpecs();
         }
+        else msgPanel.error("The file '" + fileName + "' does not appear to be a " +
+                            "valid YAWL specification description or is malformed. " +
+                            "Please check the file and/or its contents and try again.");
     }
 
 
@@ -452,8 +459,14 @@ public class caseMgt extends AbstractPageBean {
 
                 DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");
                 df.setHeaderText("Starting an Instance of: " + specData.getID());
-                df.initDynForm("YAWL 2.0 Case Management - Launch Case") ;
-                return "showDynForm" ;
+                if (df.initDynForm("YAWL 2.0 Case Management - Launch Case")) {
+                    return "showDynForm" ;
+                }
+                else {
+                    msgPanel.error("Could not successfully start case - problem " +
+                                   "initialising form from specification. Please " +
+                                   "see the log files for details.");
+                }                    
             }
             else {
 

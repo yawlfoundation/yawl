@@ -136,8 +136,12 @@ public class ResourceMap {
             _piledResource = p;
             _piledResourceID = p.getID();
             if (getPersisting()) _persister.insert(this);
-            rm.routePiledWorkItem(_piledResource, wir) ;
-            result = "Task successfully piled." ;
+            if (rm.routePiledWorkItem(_piledResource, wir)) {
+                result = "Task successfully piled." ;
+            }
+            else {
+                result = "Cannot pile task: problem starting workitem." ;
+            }
         }
         else result = "Cannot pile task: already piled by another resource.";
 

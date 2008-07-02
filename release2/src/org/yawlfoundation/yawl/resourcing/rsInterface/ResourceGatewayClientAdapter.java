@@ -380,6 +380,30 @@ public class ResourceGatewayClientAdapter {
 
 
     /**
+     * Gets a complete list of available codelets
+     * @param handle the current sessionhandle
+     * @return a List of AbstractCodelet objects
+     * @throws IOException if there was a problem connecting to the engine
+     */
+    public Map<String, String> getCodeletMap(String handle) throws IOException {
+        Map<String, String> result = new TreeMap<String, String>();
+        String cStr = _rgclient.getCodelets(handle) ;
+        if (cStr != null) {
+            Element eList = JDOMUtil.stringToElement(cStr);
+            if (eList != null) {
+                Iterator itr = eList.getChildren().iterator();
+                while (itr.hasNext()) {
+                    Element codelet = (Element) itr.next();
+                    result.put(codelet.getChildText("name"),
+                            JDOMUtil.decodeEscapes(codelet.getChildText("description")));
+                }
+            }
+        }
+        return result ;
+    }
+
+
+    /**
      * Checks if an id corresponds to a capability id known to the service
      * @param capabilityID the id to check
      * @param handle the current sessionhandle
