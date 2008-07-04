@@ -58,6 +58,8 @@
   <property name="base.engine.name" value="yawl" />
   <property name="engine.jar.file"
             value="${library.directory}/${compatible.engine.jar.name}" />
+  <property name="jcal.jar.file"
+            value="${library.directory}/jcalendar-1.3.2.jar"/>
  
   <target name="initialize"
           description="Initialisation of properties and directories.">
@@ -109,6 +111,7 @@
       <include name="${source.file}" />
       <classpath>
         <pathelement location="${engine.jar.file}" />
+        <pathelement location="${jcal.jar.file}" />
       </classpath>
     </javac>
     
@@ -143,6 +146,7 @@
       <classpath>
         <pathelement location="${build.directory}" />
         <pathelement location="${engine.jar.file}" />
+        <pathelement location="${jcal.jar.file}" />
       </classpath>
     </junit>
   </target>
@@ -173,7 +177,8 @@
   	      description="Optimisation of the editor">
     <proguard optimize="true" obfuscate="false" shrink="true" note="false" overloadaggressively="false" defaultpackage="">
       <libraryjar file="${java.home}/lib/rt.jar"/>
-      <libraryjar file="${engine.jar.file}"/> 
+      <libraryjar file="${engine.jar.file}"/>
+      <libraryjar file="${jcal.jar.file}"/>
       <injar  file="${lite.editor.jar.file}"/>
       <outjar file="${temporary.editor.jar.file}"/> 
 
@@ -225,6 +230,7 @@
       <libraryjar file="${java.home}/lib/rt.jar"/>
       <injar  file="${lite.editor.jar.file}"/>
       <injar  file="${engine.jar.file}"/>
+      <injar  file="${jcal.jar.file}"/>
       <outjar file="${temporary.editor.jar.file}"/>
 
       <!--  Keep Bootstap class and its main() method.  -->
