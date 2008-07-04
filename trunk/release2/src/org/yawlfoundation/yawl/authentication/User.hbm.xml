@@ -7,13 +7,13 @@
 
     <class name="org.yawlfoundation.yawl.authentication.User" table="ResSerPosID">
 
-        <id name="userID" column="ID" type="string" access="field">
+        <id name="userID" column="userID" type="string" access="field">
             <generator class="assigned"/>
         </id>
 
         <property name="isAdmin" column="IsAdministrator" access="field"/>
 
-        <property name="password" column="password" access="field"/>
+        <property name="password" column="passwordText" access="field"/>
 
     </class>
 

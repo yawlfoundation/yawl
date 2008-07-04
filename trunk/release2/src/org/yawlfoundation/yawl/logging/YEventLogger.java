@@ -8,16 +8,19 @@
 
 package org.yawlfoundation.yawl.logging;
 
-import org.yawlfoundation.yawl.engine.*;
-import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
-import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.hibernate.Query;
-import org.hibernate.HibernateException;
-
-import java.util.*;
-
 import org.apache.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.yawlfoundation.yawl.elements.state.YIdentifier;
+import org.yawlfoundation.yawl.engine.YPersistenceManager;
+import org.yawlfoundation.yawl.engine.YWorkItem;
+import org.yawlfoundation.yawl.engine.YWorkItemStatus;
+import static org.yawlfoundation.yawl.engine.YWorkItemStatus.statusIsParent;
+import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.UUID;
 
 /**
  * Handles all logging of case, workitem and workitem data events to the process logs.
@@ -70,7 +73,7 @@ public class YEventLogger {
      * @param resourceID the userid of the user started the case (used only for starting)
      * @param eventType one of 'started', 'cancelled' or 'completed'
      * @param specID the case's specification id
-     * @param subCaseID the id of a subnet
+     * @param subtaskID the id of a subnet
      * @throws YPersistenceException if row cannot be created in the log
      */
     public void logCaseEvent(YPersistenceManager pmgr, String caseID, String resourceID,

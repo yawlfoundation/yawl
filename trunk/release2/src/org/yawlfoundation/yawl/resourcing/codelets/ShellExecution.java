@@ -41,9 +41,9 @@ public class ShellExecution extends AbstractCodelet {
     public ShellExecution() {
         super();
         setDescription("This codelet executes an external program. Required parameters:<br> " +
-                       "Input: command (type String, required)<br>" +
-                       "       env     (attrib=value pairs, optional)<br>" +
-                       "       dir     (type String, optional)<br>" +
+                       "Inputs: command (type String, required)<br>" +
+                       "&nbsp;&nbsp;&nbsp; env (attrib=value pairs, optional)<br>" +
+                       "&nbsp;&nbsp;&nbsp; dir (type String, optional)<br>" +
                        "Output: result (type String)");
     }
 

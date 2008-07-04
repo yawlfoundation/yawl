@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.util.Enumeration;
-import java.util.StringTokenizer;
 
 
 /**
@@ -141,20 +140,7 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
                         request.getParameter(name));
             }
         }
-        StringTokenizer tokens = new StringTokenizer(request.getRequestURI(), "/");
-        String secondLastPartOfPath = null;
-        String lastPartOfPath = null;
-        String temp = null;
 
-        while (tokens.hasMoreTokens()) {
-            if (temp != null) {
-                secondLastPartOfPath = temp;
-            }
-            temp = tokens.nextToken();
-            if (!tokens.hasMoreTokens() && temp != null) {
-                lastPartOfPath = temp;
-            }
-        }
         String action = request.getParameter("action");
         String workItemXML = request.getParameter("workItem");
         WorkItemRecord workItem = Marshaller.unmarshalWorkItem(workItemXML);

@@ -7,11 +7,11 @@
 
 	<class name="YParentWorkItemEvent" table="log_ParentWorkItemEvent">
 
-        <id name="_parentWorkItemEventID"   column="ParentWorkItemEventID"></id>
+      <id name="_parentWorkItemEventID"   column="ParentWorkItemEventID"/>
 
     	<property name="_caseEventID" column="CaseEventID"/>
-        <property name="_caseID"      column="CaseID"/>
-        <property name="_taskID"      column="TaskID"/>
+      <property name="_caseID"      column="CaseID"/>
+      <property name="_taskID"      column="TaskID"/>
     	<property name="_resourceID"  column="ResourceID"/>
     	<property name="_eventTime"   column="EventTime"       type="long"/>
     	<property name="_eventName"   column="EventType"/>

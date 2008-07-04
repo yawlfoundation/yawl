@@ -205,15 +205,17 @@ public class Marshaller {
 
     public static WorkItemRecord unmarshalWorkItem(String workItemXML) {
         WorkItemRecord workItem = null;
-        Document doc;
-        try {
-            SAXBuilder builder = new SAXBuilder();
-            doc = builder.build(new StringReader(workItemXML));
-            workItem = unmarshalWorkItem(doc.getRootElement());
-        } catch (JDOMException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (workItemXML != null) {
+            Document doc;
+            try {
+                SAXBuilder builder = new SAXBuilder();
+                doc = builder.build(new StringReader(workItemXML));
+                workItem = unmarshalWorkItem(doc.getRootElement());
+            } catch (JDOMException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return workItem;
     }

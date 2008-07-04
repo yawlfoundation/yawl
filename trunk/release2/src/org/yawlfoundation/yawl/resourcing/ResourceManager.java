@@ -2593,7 +2593,7 @@ public class ResourceManager extends InterfaceBWebsideController {
          }
         catch (IOException ioe) {
             _log.error("Exception retrieving task information for codelet '" + clName +
-                       "'." + errMsg);
+                       "'. " + errMsg);
         }
         return result;
     }
