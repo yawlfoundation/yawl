@@ -36,7 +36,7 @@ public class XQueryEvaluator extends AbstractCodelet {
         super();
         setDescription("This codelet executes an XQuery. Required parameters:<br> " +
                        "Input: query (type String, required): the XQuery<br>" +
-                       "       plus other values used by the XQuery" +
+                       " &nbsp;&nbsp; plus other values used by the XQuery<br>" +
                        "Output: result (type String)");
     }
 

@@ -234,13 +234,13 @@ public class jdbcImpl extends DataSource {
                     .append(" CONSTRAINT rsj_orggroup_pkey PRIMARY KEY (groupid))");
                 break;
             case rsj_position:
-                stmt.append(" (id varchar(255) NOT NULL,  positionid varchar(255),")
+                stmt.append(" (p_id varchar(255) NOT NULL,  positionid varchar(255),")
                     .append(" title varchar(255), description text,")
                     .append(" orggroup varchar(255), reportsto varchar(255),")
-                    .append(" CONSTRAINT rsj_position_pkey PRIMARY KEY (id))");
+                    .append(" CONSTRAINT rsj_position_pkey PRIMARY KEY (p_id))");
                 break;
             case rsj_role:
-                stmt.append(" (roleid varchar(255) NOT NULL, role varchar(255),")
+                stmt.append(" (roleid varchar(255) NOT NULL, rolename varchar(255),")
                     .append(" description text, belongsto varchar(255),")
                     .append(" CONSTRAINT rsj_role_pkey PRIMARY KEY (roleid))");
                 break;
@@ -248,7 +248,7 @@ public class jdbcImpl extends DataSource {
                 stmt.append(" (participantid varchar(255) NOT NULL, description text,")
                     .append(" notes text, available bool, lastname varchar(255),")
                     .append(" firstname varchar(255), userid varchar(255),")
-                    .append(" administrator bool,")
+                    .append(" pword varchar(255), administrator bool,")
                     .append(" CONSTRAINT rsj_participant_pkey PRIMARY KEY (participantid))");
                 break;
             case rsj_participant_role:
@@ -277,11 +277,11 @@ public class jdbcImpl extends DataSource {
                 break;
             case rsj_participant_position:
                 stmt.append(" (participantid varchar(255) NOT NULL,")
-                    .append(" id varchar(255) NOT NULL,")
+                    .append(" p_id varchar(255) NOT NULL,")
                     .append(" CONSTRAINT rsj_participant_position_pkey")
-                    .append(" PRIMARY KEY (participantid, id),")
+                    .append(" PRIMARY KEY (participantid, p_id),")
                     .append(" CONSTRAINT fk_rsj_participant_position FOREIGN KEY")
-                    .append(" (id) REFERENCES rsj_position (id)")
+                    .append(" (p_id) REFERENCES rsj_position (p_id)")
                     .append(" ON UPDATE NO ACTION ON DELETE NO ACTION,")
                     .append(" CONSTRAINT fk_rsj_position_participant FOREIGN KEY")
                     .append(" (participantid) REFERENCES rsj_participant (participantid)")
@@ -416,6 +416,7 @@ public class jdbcImpl extends DataSource {
         p.setFirstName(rs.getString("Firstname"));
         p.setLastName(rs.getString( "Lastname" ));
         p.setUserID(rs.getString("UserID"));
+        p.setPassword(rs.getString("pword"));
         p.setDescription(rs.getString("description"));
         p.setNotes(rs.getString("notes"));
         p.setAdministrator(rs.getBoolean("administrator"));
@@ -433,7 +434,7 @@ public class jdbcImpl extends DataSource {
     private Role makeRole(ResultSet rs) throws SQLException {
         Role r = new Role() ;
         r.setID(rs.getString("RoleID"));
-        r.setName(rs.getString("Role"));
+        r.setName(rs.getString("RoleName"));
         r.setDescription(rs.getString("Description"));
         r.set_belongsToID(rs.getString("BelongsTo"));
         return r ;
@@ -466,7 +467,7 @@ public class jdbcImpl extends DataSource {
      */
     private Position makePosition(ResultSet rs) throws SQLException {
         Position p = new Position() ;
-        p.setID(rs.getString("ID"));
+        p.setID(rs.getString("p_id"));
         p.setPositionID(rs.getString("PositionID"));
         p.setTitle(rs.getString("Title"));
         p.setDescription(rs.getString("Description"));
@@ -513,7 +514,7 @@ public class jdbcImpl extends DataSource {
                     case rsj_participant_role:
                         while(rs.next()) ids.add(rs.getString("RoleID")); break ;
                     case rsj_participant_position:
-                        while(rs.next()) ids.add(rs.getString("ID")); break ;
+                        while(rs.next()) ids.add(rs.getString("p_id")); break ;
                     case rsj_participant_capability:
                         while(rs.next()) ids.add(rs.getString("CapabilityID")); break ;
                 }
@@ -541,7 +542,7 @@ public class jdbcImpl extends DataSource {
 
         switch (table) {
             case rsj_participant_role: field = "RoleID" ; break ;
-            case rsj_participant_position: field = "ID" ; break ;
+            case rsj_participant_position: field = "p_id" ; break ;
             case rsj_participant_capability: field = "CapabilityID" ; break ;
         }
 
@@ -701,9 +702,10 @@ public class jdbcImpl extends DataSource {
         String qry = String.format(
                    "UPDATE rsj_participant SET description = '%s', notes = '%s'," +
                    " available = %b, lastname = '%s', firstname = '%s', userid = '%s'," +
-                   " administrator = %b WHERE participantID = '%s'",
+                   " pword = '%s', administrator = %b WHERE participantID = '%s'",
                    p.getDescription(), p.getNotes(), p.isAvailable(), p.getLastName(),
-                   p.getFirstName(), p.getUserID(), p.isAdministrator(), p.getID());
+                   p.getFirstName(), p.getUserID(), p.getPassword(), p.isAdministrator(),
+                   p.getID());
         execUpdate(qry);
 
         // remove and re-add many-to-many relations (in case they've changed)
@@ -716,9 +718,10 @@ public class jdbcImpl extends DataSource {
         String id = getNextID("PA") ;
         String qry = String.format(
                "INSERT INTO rsj_participant VALUES " +
-               "('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+               "('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%b')",
                id, p.getDescription(), p.getNotes(), p.isAvailable(),
-               p.getLastName(), p.getFirstName(), p.getUserID(), p.isAdministrator());
+               p.getLastName(), p.getFirstName(), p.getUserID(), p.getPassword(),
+               p.isAdministrator());
         if (qry != null) execUpdate(qry);
 
         insertParticpantAttributeRows(p, id);                // cascade to joined tables
@@ -776,7 +779,7 @@ public class jdbcImpl extends DataSource {
     private void updateRole(Role r) {
         String ownerRole = (r.getOwnerRole() != null) ? r.getOwnerRole().getID() : null ;
         String qry = String.format(
-                   "UPDATE rsj_Role SET role = '%s', description = '%s', " +
+                   "UPDATE rsj_Role SET rolename = '%s', description = '%s', " +
                    "belongsTo = '%s' WHERE roleID = '%s'",
                    r.getName(), r.getDescription(), ownerRole, r.getID());
         execUpdate(qry);          

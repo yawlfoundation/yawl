@@ -2343,7 +2343,7 @@ public class YEngine implements InterfaceADesign,
                 // it's not a runner, so remove the P_YIdentifier only
                 if (!runnerfound) {
                     Query quer = pmgr.getSession().createQuery(
-                        "from org.yawlfoundation.yawl.engine.P_YIdentifier where _id = '"
+                        "from org.yawlfoundation.yawl.engine.P_YIdentifier where idString = '"
                                  + id.toString() + "'");
                     Iterator itx = quer.iterate();
 

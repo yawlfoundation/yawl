@@ -3,7 +3,7 @@
 
     <!-- ========================== Properties ================================= -->
 
-    <property name="app.version" value="_Release_2.0_beta(update_1)"/>
+    <property name="app.version" value="_Release_2.0_beta(update1)"/>
     <property name="developer.name" value="Lachlan_Aldred, Michael Adams, Andrew Hastie,
                                            Mike Fowler, Matt Flaherty et al."/>
 
@@ -67,6 +67,7 @@
     <property name="commonsDigester"       value="commons-digester.jar"/>
     <property name="commonsDiscovery"      value="commons-discovery.jar"/>
     <property name="commonsFileupload"     value="commons-fileupload-1.1.jar"/>
+    <property name="commonsIO"             value="commons-io-1.1.jar"/>
     <property name="commonsLang"           value="commons-lang-2.3.jar"/>
     <property name="commonsLogging"        value="commons-logging-1.1.jar"/>
     <property name="dom"                   value="dom.jar"/>
@@ -127,9 +128,9 @@
               value="${common} ${ecore} ${xsd} ${xsd.resources}"/>
 
     <property name="jsf.libs"
-              value="${jsf-appbase} ${jsf-api} ${jsf-impl} ${jsf-cl}
-                     ${jsf-webui} ${commonsDigester} ${commonsBeanutils}
-                     ${commonsFileupload} ${jsf-standard} ${jstl} ${jsf-rowset}
+              value="${jsf-appbase} ${jsf-api} ${jsf-impl} ${jsf-cl} ${jsf-webui}
+                     ${commonsDigester} ${commonsBeanutils} ${commonsFileupload}
+                     ${commonsIO} ${jsf-standard} ${jstl} ${jsf-rowset}
                      ${jsf-dataprovider} ${jsf-errorhandler} ${jsf-defaulttheme-gray}"/>
 
     <property name="wsif.libs"
@@ -208,6 +209,7 @@
         <pathelement location="${lib.dir}/${commonsLang}"/>
         <pathelement location="${lib.dir}/${commonsDigester}"/>
         <pathelement location="${lib.dir}/${commonsFileupload}"/>
+        <pathelement location="${lib.dir}/${commonsIO}"/>
     </path>
 
     <path id="cp.jsf">
@@ -443,9 +445,10 @@
         <copy todir="${yawl.eng.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}"
                      includes="${persistence.libs} ${xsd.libs} ${common.libs}
-                     ${jaxenFull} ${jcommon} ${postgres8} ${saxpath}"/>
+                     ${jaxenFull} ${jcommon} ${postgres8} ${saxpath}"
+                     excludes="${servlet}"/>
         </copy>
-        <antcall target="hibernate_postgres8"/>
+        <antcall target="decidePostgresVersion"/>
         <jar destfile="${output.dir}/yawl.war">
             <fileset dir="${yawl.eng.app.name}"/>
         </jar>
@@ -488,7 +491,8 @@
             <fileset dir="${lib.dir}"
                      includes="${persistence.libs} ${xsd.libs} ${common.libs} ${bcprov}
                      ${commonsFileupload} ${dom} ${itext} ${jaxenFull} ${jaxp-api}
-                     ${jcommon} ${jstl} ${postgres8} ${saxpath} ${jsf-standard}"/>
+                     ${jcommon} ${jstl} ${postgres8} ${saxpath} ${jsf-standard}"
+                     excludes="${servlet}"/>                
         </copy>  	
     	
         <antcall target="decidePostgresVersion"/>

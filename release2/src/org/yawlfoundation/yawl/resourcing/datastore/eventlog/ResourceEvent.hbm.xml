@@ -7,7 +7,7 @@
 	<class name="ResourceEvent" table="rs_EventLog">
 
         <id name="_id"
-            column="id"
+            column="rowid"
             type="long">
             <generator class="native"/>
         </id>

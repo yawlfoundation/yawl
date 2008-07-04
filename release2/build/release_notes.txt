@@ -1,21 +1,29 @@
-                      YAWL Release 2.0 beta (Update 1) 03/07/2008
+                      YAWL Release 2.0 beta (Update 1) 04/07/2008
                       ===========================================
 
 This beta update is an interim release of the YAWL Environment, which fixes several
-problems and introduces some new features as we nove towards a version 2.0 production
+problems and introduces some new features as we move towards a version 2.0 production
 release.
 
 Please read the change list below and the previous 2.0 beta release notes further down
 the page.
 
+
 !!   IMPORTANT NOTE: If you have a existing installation of YAWL Release 2.0 beta,  !!
 !!   please be aware that there has been a number of changes to column names and    !!
 !!   data types in the persisted data tables to better support a wider variety of   !!
-!!   database backends. As a consequence, it is necessary to remove the tables in   !!
-!!   the previously created database BEFORE this update 1 version is started in     !!
-!!   Tomcat - persistence will fail if this is not done. If the current tables      !!
-!!   contain important information that is desired to be retained, please mail      !!
-!!   adamsmj@users.sourceforge.net to receive the relevant mapping instructions.    !!
+!!   database backends. As a consequence, it is necessary to remove or modify the   !!
+!!   tables in the previously created database BEFORE this update 1 version is      !!
+!!   started in Tomcat - persistence will fail if this is not done. If the current  !!
+!!   tables do not contain important information, they can all be removed (dropped) !!
+!!   from the yawl database using a Postgres admin tool - they will be recreated    !!
+!!   when Tomcat restarts. If you wish to retain the information currently in the   !!
+!!   tables, you must apply the sql script 'YAWL_update_tables.sql' to the tables   !!
+!!   using a Postgres admin tool. If you have installed the worklet service, the    !!
+!!   script 'Worklet_update_tables.sql' must also be run. Similarly for other       !!
+!!   database backends; edit the scripts as required (to mask keywords). The        !!
+!!   scripts can be downloaded from the YAWL download page on sourceForge.          !!
+
 
 QUICK START: After installation, start Tomcat and point a browser to
              http://localhost:8080/resourceService
@@ -35,7 +43,7 @@ QUICK START: After installation, start Tomcat and point a browser to
     reworded/corrected the text where necessary.
   - In the Resource Dialogs, sorted the participant and role lists. Deferred allocation
     list now shows net-level vars (restricted to String type only).
-  - In the Resource Wizard, fixed when "retain familiar" and "4-eye principle"
+  - In the Resource Wizard, fixed the "retain familiar" and "4-eye principle"
     checkboxes so they could be deselected after being selected (i.e. can now undo
     a previous choice).
   - Added the ability to mark/unmark a decomposition as 'automated' in the decomposition
@@ -57,7 +65,7 @@ QUICK START: After installation, start Tomcat and point a browser to
   - Various renaming of menu items throughout.
   - Modified the schema preamble in the data definition dialog by prefixing 'xs:',
     allowing for symbolic referencing in data schemas.
-  - Also in thr data definition dialog, added Copy, Cut, Paste, Undo and Redo buttons
+  - Also in the data definition dialog, added Copy, Cut, Paste, Undo and Redo buttons
     and CTRL-V and CTRL-C as shortcuts; also changed the length of a TAB to 2 spaces
     (down from 16); and doubled the initial size of the dialog.
   - Checkbox added to export specification dialog to auto increment version number.
@@ -74,7 +82,7 @@ QUICK START: After installation, start Tomcat and point a browser to
     session, so that it can be rejoined to the task or used by other tasks).
   - Refactored code so that new connection attempts to the engine or resource service
     with different details reinitiates the connection (previously they were ignored).
-    Also improved dialogs look and feel.
+    Also improved the dialog's look and feel.
   - When creating a new specification, its window size will completely fit within the
     outer window.
   - When importing a specification from xml, its window size will completely fit within
@@ -84,7 +92,8 @@ QUICK START: After installation, start Tomcat and point a browser to
   - Fixed a bug where, if the name of a complex type is too long, other widgets were
     "cramped" in the update parameters dialog.
   - Added the ability to specify a 'custom form' for a task.
-  - Fixed a bug where open nets were being displayed in the wrong place on the View menu.
+  - Fixed a bug where open net references were being displayed in the wrong place on
+    the View menu.
   - Fixed bug where importing a specification from xml would its lose flow parameters.
   - Fixed bug where importing a specification from xml with more than a single net
     would start non-root nets iconified.
@@ -99,11 +108,11 @@ QUICK START: After installation, start Tomcat and point a browser to
   - Removed the superfluous <externalInteraction> tags from net-level decompositions;
     external interactions are only relevant for task decompositions.
   - Added encryption to password storage for participants.
-  - Added some persistence fixes (courtesy of Matt Flaherty)
+  - Added some persistence fixes (courtesy of Matt Flaherty).
   - Corrected a couple of issues with the encoding/decoding of reserved characters in
-    xml values being passed across the variuos interfaces.
+    xml values being passed across the various interfaces.
   - Fixed an ordering bug in the specification schema which was inserting custom service
-    data in the wrong place.
+    references in the wrong place.
   - Added a unique identifier to all newly generated specifications.
   - Refactored/improved the interaction of deferred timers.
   - Added a new 'handleTimeoutEvent' to Interface B.
@@ -112,7 +121,7 @@ QUICK START: After installation, start Tomcat and point a browser to
     of code to an automated task, which will run when the task is enabled. An example
     codelet, 'ShellExecution', executes an external program on the client machine.
   - Refactored/improved/standardised the operation of Interface_Client, the foundation
-    of data passing across the interfaces, with some flowon refactoring of interfaces
+    of data passing across the interfaces, with some flow-on refactoring of interfaces
     A, B & E.
   - Fixed a bug which was causing an exception if an xml 'escaped' character was
     entered in a text field on a dynamically generated form.
@@ -125,7 +134,7 @@ QUICK START: After installation, start Tomcat and point a browser to
     discrete 'YEngineRestorer' class.
   - Fixed a bug with data validation when executing a specification that called the
     yawlWSinvoker service.
-  - corrected some of the old examples so that they will all now execute successfully.
+  - Corrected some of the old examples so that they will all now execute successfully.
   - Enhanced resource event logging to capture all resource status changes.
   - Refactored/cleaned build.xml and the way the engine war file is built (so that it
     no longer contains superfluous classes).
@@ -142,7 +151,7 @@ QUICK START: After installation, start Tomcat and point a browser to
      Explorer.
 
    - The dynamic forms generated for workitems in the resource service's worklist do not
-     yet support data schema's with simple type enumerations and restrictions.
+     yet support data schemas with simple type enumerations and restrictions.
 
    - There is an occasional issue in dynamic forms containing complex types that allow
      users to dynamically the increase the number of instances, where fields are not
