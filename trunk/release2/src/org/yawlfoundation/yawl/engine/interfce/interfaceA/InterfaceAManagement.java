@@ -21,6 +21,7 @@ import org.yawlfoundation.yawl.engine.announcement.AnnouncementContext;
 import org.yawlfoundation.yawl.exceptions.YEngineStateException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.exceptions.YStateException;
+import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,7 +59,9 @@ public interface InterfaceAManagement {
      * @throws IOException
      * @throws YPersistenceException
      */
-    List<YSpecificationID> addSpecifications(File specificationFile, boolean ignoreErors, List errorMessages) throws JDOMException, IOException, YPersistenceException;
+    List<YSpecificationID> addSpecifications(File specificationFile, boolean ignoreErors,
+                                             List<YVerificationMessage> errorMessages)
+                               throws JDOMException, IOException, YPersistenceException;
 
     boolean loadSpecification(YSpecification spec);
     Set<YSpecificationID> getLoadedSpecifications() throws YPersistenceException;

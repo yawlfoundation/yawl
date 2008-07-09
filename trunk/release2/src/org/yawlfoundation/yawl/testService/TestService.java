@@ -21,8 +21,9 @@ import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGatewayClientAdap
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -48,6 +49,8 @@ public class TestService extends InterfaceBWebsideController {
 
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
+ //       String url = "http://localhost:8080/testService/gateway";
+     //   execJSP(url) ;
 
         response.setContentType("text/html");
         PrintWriter outputWriter = response.getWriter();
@@ -72,6 +75,34 @@ public class TestService extends InterfaceBWebsideController {
     }
 
     private void prn(String s) { System.out.println(s) ; }
+
+    public String execJSP(String urlStr) throws IOException {
+
+    // create connection
+    URL url = new URL(urlStr);
+    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    connection.setDoInput(true);
+
+     //retrieve reply
+     String result = getReply(url.openStream());
+     connection.disconnect();
+
+     return result;
+}
+
+
+private static String getReply(InputStream is) throws IOException {
+    InputStreamReader isr = new InputStreamReader(is);
+    StringWriter out = new StringWriter(8192);
+    char[] buffer = new char[8192];
+    int count;
+
+    while ((count = isr.read(buffer)) > 0)
+        out.write(buffer, 0, count);
+
+    isr.close();
+    return out.toString();
+}
 
     private String doGetParticipantsTest() {
         String resURL = "http://localhost:8080/resourceService/gateway";

@@ -13,6 +13,7 @@ import com.sun.rave.web.ui.component.Link;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 
 import javax.faces.FacesException;
 import javax.faces.application.Application;

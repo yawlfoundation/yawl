@@ -6,7 +6,7 @@
  * workflow technology.
  */
 
-package org.yawlfoundation.yawl.resourcing.jsf;
+package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
 /**
  * Factory class responsible for generating dynamic forms
@@ -23,6 +23,9 @@ import org.jdom.Element;
 import org.jdom.Namespace;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
+import org.yawlfoundation.yawl.resourcing.jsf.MessagePanel;
+import org.yawlfoundation.yawl.resourcing.jsf.SessionBean;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -160,6 +163,7 @@ public class DynFormFactory extends AbstractSessionBean {
             String data = getInstanceData(schema) ;
             Map<String, FormParameter> params = getParamInfo();
             buildForm(schema, data, params);
+            DataInputMapper dim = new DataInputMapper(schema, data);
             return true ;
         }
         else {

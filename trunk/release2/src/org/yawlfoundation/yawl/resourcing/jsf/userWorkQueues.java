@@ -17,12 +17,14 @@ import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.WorkItemAgeComparator;
+import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.FacesException;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Set;
 import java.util.SortedSet;
@@ -618,8 +620,9 @@ public class userWorkQueues extends AbstractPageBean {
                 }
 
                 // show the custom form
-                context.getExternalContext().getSessionMap().put("workitem", xml);
-                context.getExternalContext().redirect(url);
+                StringBuilder s = new StringBuilder(url);
+                s.append("?workitem=").append(xml);
+                context.getExternalContext().redirect(s.toString());
             }
             catch (Exception e) {
                 _sb.setCustomFormPost(false);
@@ -692,16 +695,18 @@ public class userWorkQueues extends AbstractPageBean {
     /** retrieves and updates a workitem after editing on a custom form */
     private void postCustomForm() {
 
-        // retrieve and remove wir from custom form's post data
-        FacesContext context = FacesContext.getCurrentInstance();
-        ExternalContext extContext = context.getExternalContext();
-        String wirXML = (String) extContext.getSessionMap().remove("workitem");
+        // retrieve wir from custom form's post data
+        ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+        HttpServletRequest request = (HttpServletRequest) context.getRequest();
+        String wirXML = request.getParameter("workitem");
         WorkItemRecord updated = _rm.unMarshallWIR(wirXML);
 
         // update edited wir
-        WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
-        wir.setUpdatedData(updated.getDataList());
-        _rm.getWorkItemCache().update(wir) ;
+        if (updated != null) {
+            WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
+            wir.setUpdatedData(updated.getDataList());
+            _rm.getWorkItemCache().update(wir) ;
+        }
 
         _sb.setCustomFormPost(false);                                  // reset flag
     }

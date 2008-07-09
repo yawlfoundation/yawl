@@ -4,30 +4,56 @@
 
 <!-- *  A simple custom form example and usage guide.
      *  author Michael Adams
-     *  version 2.0, 28/05/2008  -->
+     *  version 2.0, 09/07/2008  -->
 
 <%
-    // The whole workitem record is passed via a session attribute as an XML string.
+    // The whole workitem record is passed via a request parameter as an XML string.
     // Turn it back into a WIR (for ease of use) and gets its data tree.
-    String workItemXML = (String) session.getAttribute("workitem");
-    WorkItemRecord wir = Marshaller.unmarshalWorkItem(workItemXML) ;
+    String workItemXML = request.getParameter("workitem");
+    WorkItemRecord wir;
+
+    // workItemXML won't be null on the first call from the worklist handler
+    if (workItemXML != null) {
+        wir = Marshaller.unmarshalWorkItem(workItemXML) ;
+        session.setAttribute("workitem", wir);                  // save it for the post
+    }
+
+    // if it is null, it's after a 'submit' and the request param is lost,
+    // so retreive the wir from the session attribute saved earlier
+    else {
+        wir = (WorkItemRecord) session.getAttribute("workitem");
+    }
+
     Element data = wir.getDataList();
 
-    // Here we read new values as entered on this form
+    // Here we read new values as entered on this form (see the html below)
     String input = request.getParameter("input");
 
     // if the value(s) on this form have been updated, post them back to the worklist.
-    // Note: the variable used in this example is called 'vary' - modify as required.
+    // Note: the variable used in this example is called 'var' - modify as required.
+    String varName = "var";
     if (input != null) {
-        data.getChild("vary").setText(input);                // update data var's value
+        if (data != null) {
 
-        // set the session attribute to the updated WIR; must convert it back to XML
-        // in the process.
-        session.setAttribute("workitem", wir.toXML());
-
-        // go back to sending workqueues page
-        String redirectURL = "http://localhost:8080/resourceService/faces/userWorkQueues.jsp";
-        response.sendRedirect(response.encodeURL(redirectURL));
+            // repeat this part for each item to be updated
+            Element dataitem = data.getChild(varName);        // get data var
+            if (dataitem != null) {
+                dataitem.setText(input);                      // update data var's value
+                
+                // pass the updated wir back to the calling worklist page;
+                // must convert it back to XML in the process.
+                String redirectURL = "http://localhost:8080/resourceService/" +
+                                     "faces/userWorkQueues.jsp?workitem=" + wir.toXML();
+                response.sendRedirect(response.encodeURL(redirectURL));
+            }
+            else {
+                System.out.println("This workitem does not contain a variable called '"
+                                   + varName + "'.");
+            }
+        }
+        else {
+            System.out.println("This workitem does not contain any data for updating.");
+        }
     }
 %>
 
@@ -49,7 +75,8 @@
                     <font color="blue"><b>Case ID</b></font></td>
              </tr>
             <tr>
-                <td height="30" width="150" align="center"><%=wir.getCaseID()%></td>
+                <td height="30" width="150" align="center">
+                    <%=(wir != null) ? wir.getCaseID() : "null"%></td>
                 <td/>
             </tr>
         </table>
@@ -59,7 +86,9 @@
         <table border="0" cellspacing="2" cellpadding="5">
             <tr>
                 <td valign="top" width="150"><b>Value:</b></td>
-                <td><INPUT NAME="input" VALUE="<%=data.getChildText("vary")%>"></td>
+                <td><INPUT NAME="input"
+                           VALUE="<%=(data != null) ? data.getChildText(varName) : "null"%>">
+                </td>
             </tr>
          </table>
 

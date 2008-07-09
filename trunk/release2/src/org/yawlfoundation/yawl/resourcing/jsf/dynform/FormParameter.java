@@ -6,7 +6,7 @@
  * workflow technology.
  */
 
-package org.yawlfoundation.yawl.resourcing.jsf;
+package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
 import org.yawlfoundation.yawl.elements.data.YParameter;
 

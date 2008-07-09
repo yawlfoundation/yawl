@@ -6,7 +6,7 @@
  * workflow technology.
  */
 
-package org.yawlfoundation.yawl.resourcing.jsf;
+package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
 import com.sun.rave.web.ui.component.Calendar;
 import com.sun.rave.web.ui.component.Checkbox;
@@ -14,7 +14,9 @@ import com.sun.rave.web.ui.component.Label;
 import com.sun.rave.web.ui.component.TextField;
 
 import javax.faces.component.UIComponent;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
 
 /**
  * Manages a set of 'cloned' panels on a dynamic form

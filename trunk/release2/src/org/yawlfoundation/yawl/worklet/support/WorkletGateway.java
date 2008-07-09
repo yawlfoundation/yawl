@@ -8,14 +8,17 @@
 
 package org.yawlfoundation.yawl.worklet.support;
 
-import java.io.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-
+import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.worklet.WorkletService;
 import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
 
-import org.apache.log4j.Logger;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
 
  /**
   *  The WorkletGateway class acts as a gateway between the Worklet Selection

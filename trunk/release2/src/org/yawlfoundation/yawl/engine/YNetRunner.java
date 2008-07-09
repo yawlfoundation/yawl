@@ -505,34 +505,29 @@ public class YNetRunner // extends Thread
         CancelWorkItemAnnouncement announcement;
         
         // iterate through the full set of elements for the net
-        List tasks = new ArrayList(_net.getNetElements().values());
-        Iterator tasksIter = tasks.iterator();
-        while (tasksIter.hasNext()) {
-            YExternalNetElement netElement = (YExternalNetElement) tasksIter.next();
-            if (netElement instanceof YTask) {
-                YTask task = (YTask) netElement;
+        List<YTask> tasks = _net.getNetTasks();
+        for (YTask task : tasks) {
 
-                // if this task is an enabled 'transition'
-                if (task.t_enabled(_caseIDForNet)) {
-                    if (! (_enabledTasks.contains(task) || _busyTasks.contains(task)))
-                        enabledTransitions.add(task) ;
-                }
-                else {
+            // if this task is an enabled 'transition'
+            if (task.t_enabled(_caseIDForNet)) {
+                if (! (_enabledTasks.contains(task) || _busyTasks.contains(task)))
+                    enabledTransitions.add(task) ;
+            }
+            else {
 
-                    // if the task is not an enabled transition, and its been enabled
-                    // by the engine, then it must be cancelled
-                    if (_enabledTasks.contains(task)) {
-                        announcement = cancelEnabledTask(task, pmgr) ;
-                        if (announcement != null)
-                            announceCancel.addAnnouncement(announcement);
-                    }
+                // if the task is not an enabled transition, and its been enabled
+                // by the engine, then it must be cancelled
+                if (_enabledTasks.contains(task)) {
+                    announcement = cancelEnabledTask(task, pmgr) ;
+                    if (announcement != null)
+                        announceCancel.addAnnouncement(announcement);
                 }
+            }
 
-                if (task.t_isBusy() && !_busyTasks.contains(task)) {
-                    logger.error("Throwing RTE for lists out of sync");
-                    throw new RuntimeException("busy task list out of synch with a busy task: "
-                                           + task.getID() + " busy tasks: " + _busyTasks);
-                }
+            if (task.t_isBusy() && !_busyTasks.contains(task)) {
+                logger.error("Throwing RTE for lists out of sync");
+                throw new RuntimeException("busy task list out of synch with a busy task: "
+                        + task.getID() + " busy tasks: " + _busyTasks);
             }
         }
 

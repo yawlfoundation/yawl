@@ -39,7 +39,7 @@ import org.yawlfoundation.yawl.resourcing.datastore.orgdata.HibernateImpl;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.filters.FilterFactory;
 import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
-import org.yawlfoundation.yawl.resourcing.jsf.FormParameter;
+import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ConnectionCache;
@@ -1863,8 +1863,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     // re-adds checkedout item to local cache after a restore (if required)
     private void checkCacheForWorkItem(WorkItemRecord wir) {
-        WorkItemRecord wiTemp = getCachedWorkItem(wir.getID());
-        if (wiTemp == null) {
+        if (getCachedWorkItem(wir.getID()) == null) {
 
             // if the item is not locally cached, it means a restore has occurred
             // after a checkout & the item is still checked out, so lets put it back

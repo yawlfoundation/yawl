@@ -6,7 +6,7 @@
  * workflow technology.
  */
 
-package org.yawlfoundation.yawl.resourcing.jsf;
+package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
 import javax.faces.component.UIComponent;
 import java.util.ArrayList;
