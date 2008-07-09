@@ -6,7 +6,7 @@
  * workflow technology.
  */
 
-package org.yawlfoundation.yawl.resourcing.jsf;
+package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
 import com.sun.rave.web.ui.component.Button;
 import com.sun.rave.web.ui.component.PanelLayout;
@@ -18,7 +18,7 @@ import com.sun.rave.web.ui.component.PanelLayout;
  * Date: 26/02/2008
  */
 
-class SubPanel extends PanelLayout implements Cloneable {
+public class SubPanel extends PanelLayout implements Cloneable {
 
     private int height ;
     private int top ;

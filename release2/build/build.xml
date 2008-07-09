@@ -105,6 +105,8 @@
     <property name="saaj"                  value="saaj.jar"/>
     <property name="sax"                   value="sax.jar"/>
     <property name="saxon"                 value="saxon7.jar"/>
+    <property name="saxondom"              value="saxon9-dom.jar"/>
+    <property name="saxonapis"             value="saxon9-s9api.jar"/>
     <property name="saxpath"               value="saxpath.jar"/>
     <property name="servlet"               value="servlet-api.jar"/>
     <property name="soaprmi"               value="soaprmi-1_1.jar"/>
@@ -139,6 +141,9 @@
 
     <property name="common.libs"
               value="${junit} ${xerces} ${saxon} ${jdom} ${servlet} ${log4j}"/>
+
+    <property name="saxon.libs"
+              value="${saxon} ${saxondom} ${saxonapis}"/>
 
 
     <!-- ==================== Compilation Classpath =========================== -->
@@ -445,7 +450,7 @@
         <copy todir="${yawl.eng.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}"
                      includes="${persistence.libs} ${xsd.libs} ${common.libs}
-                     ${jaxenFull} ${jcommon} ${postgres8} ${saxpath}"
+                     ${jaxenFull} ${jcommon} ${postgres8} ${saxpath} ${saxon}"
                      excludes="${servlet}"/>
         </copy>
         <antcall target="decidePostgresVersion"/>
@@ -959,7 +964,8 @@
         <copy todir="${yawl.resource.app.name}/WEB-INF/lib">
            <fileset dir="${lib.dir}"
                     includes="${persistence.libs} ${xsd.libs} ${jdom} ${log4j}
-                    ${postgres8} ${jsf.libs} ${saxon} ${commonsLang} ${xerces}"/>
+                    ${postgres8} ${jsf.libs} ${commonsLang} ${xerces}
+                    ${saxon}"/>
         </copy>
 
         <copy todir="${yawl.resource.app.name}/WEB-INF">

@@ -43,7 +43,8 @@ public final class YNet extends YDecomposition {
 
     private YInputCondition _inputCondition;
     private YOutputCondition _outputCondition;
-    private Map _netElements = new HashMap();
+    private Map<String, YExternalNetElement> _netElements =
+                                             new HashMap<String, YExternalNetElement>();
     private Map _localVariables = new HashMap();
     private YNet _clone;
 
@@ -117,8 +118,17 @@ public final class YNet extends YDecomposition {
     }
 
 
-    public Map getNetElements() {
-        return new HashMap(_netElements);
+    public Map<String, YExternalNetElement> getNetElements() {
+        return new HashMap<String, YExternalNetElement>(_netElements);
+    }
+
+    public List<YTask> getNetTasks() {
+        List<YTask> result = new ArrayList<YTask>();
+        for (YNetElement element : _netElements.values()) {
+            if (element instanceof YTask)
+                result.add((YTask) element);
+        }
+        return result;
     }
 
 

@@ -225,8 +225,8 @@ public final class YSpecification implements Cloneable, YVerifiable {
     //#####################################################################################
     //                              VERIFICATION TASKS
     //#####################################################################################
-    public List verify() {
-        List messages = new ArrayList();
+    public List<YVerificationMessage> verify() {
+        List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
         for (Iterator iterator = _decompositions.values().iterator(); iterator.hasNext();) {
             YDecomposition decomposition = (YDecomposition) iterator.next();
             messages.addAll(decomposition.verify());

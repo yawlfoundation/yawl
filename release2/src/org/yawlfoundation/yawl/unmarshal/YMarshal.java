@@ -39,7 +39,7 @@ public class YMarshal {
      * @param specificationSetDoc the JDom element con
      * @return a list of YSpecification objects taken from the XML document.
      */
-    private static List buildSpecifications(Document specificationSetDoc) throws YSchemaBuildingException, YSyntaxException {
+    private static List<YSpecification> buildSpecifications(Document specificationSetDoc) throws YSchemaBuildingException, YSyntaxException {
         Element specificationSetElem = specificationSetDoc.getRootElement();
         String version = specificationSetElem.getAttributeValue("version");
         if (null == version) {
@@ -47,7 +47,7 @@ public class YMarshal {
             //therefore a missing version number would likely be version 2
             version = YSpecification._Beta2;
         }
-        List specifications = new Vector();
+        List<YSpecification> specifications = new Vector<YSpecification>();
         List specificationElemList = specificationSetElem.getChildren();
         for (int i = 0; i < specificationElemList.size(); i++) {
             Element xmlSpecification = (Element) specificationElemList.get(i);
@@ -65,7 +65,7 @@ public class YMarshal {
      * schemas and checks well formedness of the XML.
      * @return List
      */
-    public static List unmarshalSpecifications(String specificationSetFileID)
+    public static List<YSpecification> unmarshalSpecifications(String specificationSetFileID)
             throws YSyntaxException, YSchemaBuildingException, JDOMException, IOException {
         //first check if is well formed and build a document
         SAXBuilder builder = new SAXBuilder();

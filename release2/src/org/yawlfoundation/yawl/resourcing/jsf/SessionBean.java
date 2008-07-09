@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.SpecificationDataComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.YAWLServiceComparator;
+import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 

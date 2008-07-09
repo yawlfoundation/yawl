@@ -91,7 +91,7 @@ public class YEngineRestorer {
                 BufferedWriter buf = new BufferedWriter(new FileWriter(f));
                 buf.write(xml, 0, xml.length());
                 buf.close();
-                _engine.addSpecifications(spec.getSpecid().getId(), f.getAbsolutePath());
+                addSpecifications(spec.getSpecid().getId(), f.getAbsolutePath());
             }
             catch (IOException ioe) {
                 throw new YPersistenceException("IOException creating temp file when " +
@@ -256,6 +256,17 @@ public class YEngineRestorer {
 
     private YSpecification getSpecification(YNetRunner runner) {
         return _engine.getSpecification(runner.getYNetID(), runner.getYNetVersion());
+    }
+
+
+    private List<YSpecificationID> addSpecifications(String specID, String uri)
+            throws YPersistenceException {
+        try {
+            return _engine.addSpecifications(new File(uri), true, new Vector());
+        } catch (Exception e) {
+            throw new YPersistenceException("Failure whilst restoring specification [" +
+                    specID + "]", e);
+        }
     }
 
 

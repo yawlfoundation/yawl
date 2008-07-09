@@ -1,4 +1,4 @@
-                      YAWL Release 2.0 beta (Update 1) 04/07/2008
+                      YAWL Release 2.0 beta (Update 1) 07/07/2008
                       ===========================================
 
 This beta update is an interim release of the YAWL Environment, which fixes several
@@ -14,15 +14,45 @@ the page.
 !!   data types in the persisted data tables to better support a wider variety of   !!
 !!   database backends. As a consequence, it is necessary to remove or modify the   !!
 !!   tables in the previously created database BEFORE this update 1 version is      !!
-!!   started in Tomcat - persistence will fail if this is not done. If the current  !!
-!!   tables do not contain important information, they can all be removed (dropped) !!
-!!   from the yawl database using a Postgres admin tool - they will be recreated    !!
-!!   when Tomcat restarts. If you wish to retain the information currently in the   !!
-!!   tables, you must apply the sql script 'YAWL_update_tables.sql' to the tables   !!
-!!   using a Postgres admin tool. If you have installed the worklet service, the    !!
-!!   script 'Worklet_update_tables.sql' must also be run. Similarly for other       !!
-!!   database backends; edit the scripts as required (to mask keywords). The        !!
-!!   scripts can be downloaded from the YAWL download page on sourceForge.          !!
+!!   started in Tomcat - persistence will fail if this is not done. Unless the      !!
+!!   current tables contain important information that cannot be lost, they can     !!
+!!   all be removed (dropped) from the yawl database using a Postgres admin tool -  !!
+!!   they will be recreated when Tomcat restarts.                                   !!
+!!   If you really must retain the information currently in the tables, you must    !!
+!!   apply the following sql scripts using the Postgres admin tool, in this order:  !!
+!!     1. 'remove_persisted_data.sql' - all persisted data must be removed before   !!
+!!        the required column name changes can occur.                               !!
+!!     2. 'YAWL_update_tables.sql' - to change the YAWL engine and resource         !!
+!!        service tables.                                                           !!
+!!     3. 'Worklet_update_tables.sql' - if the worklet service has been installed.  !!
+!!   Similarly for other database backends; edit the scripts as required (to mask   !!
+!!   keywords). Note that the password of each particicipant stored will be reset   !!
+!!   to 'apple' as part of this process.                                            !!
+!!   The scripts can be downloaded as 'AlterTableScripts.zip' from the YAWL         !!
+!!   Engine download page on sourceForge. The zip file also contains a document     !!
+!!   with step by step instructions.                                                !!
+
+
+!!   ANOTHER IMPORTANT NOTE: Two minor problems have been corrected in the          !!
+!!   generation of specification XML between the Editor and Engine. These           !!
+!!   corrections mean that any specification XML produced with Editor 2.0(beta)     !!
+!!   will fail validation when a load into the Engine is attempted. However, they   !!
+!!   can be easily fixed in any text editor:                                        !!
+!!      1. Release 2.0(beta) xml generation was producing an <externalInteraction>  !!
+!!         element for ALL decomposition types, but they are only meaningful for    !!
+!!         task-level decompositions, not net-level ones. This version (correctly)  !!
+!!         does not allow net-level decompositions to have <externalInteraction>    !!
+!!         elements. To fix, open the specification XML in any text editor and      !!
+!!         search for all instances of the text "NetFactsType". Within each of      !!
+!!         those decomposition types, remove (delete) the <externalInteraction>     !!
+!!         element.                                                                 !!
+!!      2. This fix is only necessary for specifications that include tasks that    !!
+!!         invoke custom services. To fix, open the specification XML in any text   !!
+!!         editor and search for all instances of the text "yawlService".           !!
+!!         Directly above each <yawlService...> element instance there will be an   !!
+!!         <externalInteraction> element. Swap the positions of these two lines     !!
+!!         (so that the <externalInteraction> element is on the bottom).            !!
+
 
 
 QUICK START: After installation, start Tomcat and point a browser to
@@ -44,8 +74,10 @@ QUICK START: After installation, start Tomcat and point a browser to
   - In the Resource Dialogs, sorted the participant and role lists. Deferred allocation
     list now shows net-level vars (restricted to String type only).
   - In the Resource Wizard, fixed the "retain familiar" and "4-eye principle"
-    checkboxes so they could be deselected after being selected (i.e. can now undo
+    checkboxes so they can be deselected after being selected (i.e. can now undo
     a previous choice).
+  - In Resource Wizard, added buttons to unselect all previous selections of roles
+    and/or paticipants in the distribution set selection screen.
   - Added the ability to mark/unmark a decomposition as 'automated' in the decomposition
     dialog.
   - Set 'Manage Resourcing' menu to only be available when the decomposition is not
@@ -60,8 +92,8 @@ QUICK START: After installation, start Tomcat and point a browser to
     basic data type.
   - Refactored the 'save on exit' dialog functionality so that it only appears if
     changes have been made since the last save.
-  - Removed the "Verify Password" field from "Set Resourcing Service" and "Set Engine
-    Detail".
+  - Removed the superfluous "Verify Password" field from "Set Resourcing Service" and
+    "Set Engine Detail".
   - Various renaming of menu items throughout.
   - Modified the schema preamble in the data definition dialog by prefixing 'xs:',
     allowing for symbolic referencing in data schemas.
@@ -119,7 +151,7 @@ QUICK START: After installation, start Tomcat and point a browser to
   - Corrected a parameter ordering bug with net-level input params.
   - Added 'codelets' functionality - the ability to associate an executable parcel
     of code to an automated task, which will run when the task is enabled. An example
-    codelet, 'ShellExecution', executes an external program on the client machine.
+    codelet, 'ShellExecution', executes an external program on the server.
   - Refactored/improved/standardised the operation of Interface_Client, the foundation
     of data passing across the interfaces, with some flow-on refactoring of interfaces
     A, B & E.
@@ -160,6 +192,12 @@ QUICK START: After installation, start Tomcat and point a browser to
    - The 'New Instance' button on the Started work queue, which provides for the
      dynamic creation of new workitem instances for multiple atomic tasks that allow
      dynamic creation, is not currently operational (ie. it does nothing).
+
+   - Where there is a condition in a process with multiple incoming arcs and an
+     outgoing arc to a task, the task is not started immediately after an incoming
+     task completes (so that multiple task instances are available concurrently -
+     the expected behaviour), rather the latter tasks are enabled sequentially (so
+     that only one can be 'live' at any one time). 
 
 
    Please report any bugs or problems via the YAWL sourceforge page:

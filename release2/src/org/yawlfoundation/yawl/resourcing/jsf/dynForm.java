@@ -18,6 +18,9 @@ import javax.faces.event.ValueChangeEvent;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.yawlfoundation.yawl.resourcing.jsf.dynform.SubPanel;
+import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
+
 /**
  *  Backing bean for the dynamic forms.
  *
