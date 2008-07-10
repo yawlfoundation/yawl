@@ -121,7 +121,7 @@ public class SpecificationArchiveHandler {
         getFullNameFromFile(file)
     );
       
-    SpecificationModel.getInstance().setUniqueID(UUID.randomUUID().toString());
+    SpecificationModel.getInstance().setUniqueID("UID_" + UUID.randomUUID().toString());
 
     return true;
   }

@@ -79,7 +79,7 @@ public class SpecificationModel {
   private String  name                = "";
   private String  description         = "No description has been given.";
   private String  id                 = "";
-  private String  uniqueID            = UUID.randomUUID().toString();
+  private String  uniqueID            = "UID_" + UUID.randomUUID().toString();
   private String  author              = System.getProperty("user.name");
   private YSpecVersion versionNumber  = new YSpecVersion("0.1");
   private String  validFromTimestamp  = "";

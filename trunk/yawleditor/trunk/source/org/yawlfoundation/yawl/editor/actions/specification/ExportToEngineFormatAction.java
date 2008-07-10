@@ -286,10 +286,12 @@ class ExportConfigDialog extends AbstractDoneDialog {
   }
 
   public void showOrHideSpecIDField() {
+      boolean showField = showSpecIDField();
       if (idLabel != null)
-          idLabel.setVisible(showSpecIDField());
+          idLabel.setVisible(showField);
       if (specificationIDField != null)
-          specificationIDField.setVisible(showSpecIDField());
+          specificationIDField.setVisible(showField);
+      getDoneButton().setEnabled(! showField);  
   }
   
   public void setVisible(boolean visible) {
