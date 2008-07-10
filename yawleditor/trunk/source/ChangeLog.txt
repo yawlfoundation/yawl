@@ -1,61 +1,64 @@
 Version 2.0 beta (update 1) (03/07/2008) (MJA)
-  * Resource Wizard dialogs now remain 'always on top' when active.
-  * In the Resource Dialogs, replaced all occurrences of 'Users' with 'Participants'Êand
+  - Resource Wizard dialogs now remain 'always on top' when active.
+  - In the Resource Dialogs, replaced all occurrences of 'Users' with 'Participants'Êand
     reworded/corrected the text where necessary.
-  * In the Resource Dialogs, sorted the participant and role lists. Deferred allocation
+  - In the Resource Dialogs, sorted the participant and role lists. Deferred allocation
     list now shows net-level vars (restricted to String type only).
-  * In the Resource Wizard, fixed when "retain familiar" and "4-eye principle"
-    checkboxes so they could be deselected after being selected (i.e. can now undo
+  - In the Resource Wizard, fixed the "retain familiar" and "4-eye principle"
+    checkboxes so they can be deselected after being selected (i.e. can now undo
     a previous choice).
-  * Added the ability to mark/unmark a decomposition as 'automated' in the decomposition
+  - In Resource Wizard, added buttons to unselect all previous selections of roles
+    and/or paticipants in the distribution set selection screen.
+  - Added the ability to mark/unmark a decomposition as 'automated' in the decomposition
     dialog.
-  * Set 'Manage Resourcing' menu to only be available when the decomposition is not
+  - Set 'Manage Resourcing' menu to only be available when the decomposition is not
     'automated'.
-  * Added the ability to set a 'codelet' for an automated task, which will be executed
+  - Added the ability to set a 'codelet' for an automated task, which will be executed
     when the task is enabled.
-  * Modified parameter mapping dialog so that a choice can be made between mapping a
+  - Modified parameter mapping dialog so that a choice can be made between mapping a
     task variable's value or an expression to an output parameter.
-  * Completed functionality of task timer setting, so that a timer can be set by
+  - Completed functionality of task timer setting, so that a timer can be set by
     fixed expiry date, duraton or deferred values via a net-level parameter. To
     facilitate the deferred option, a new type, YTimerType, has been included as a
     basic data type.
-  * Refactored the 'save on exit' dialog functionality so that it only appears if
+  - Refactored the 'save on exit' dialog functionality so that it only appears if
     changes have been made since the last save.
-  * Removed the "Verify Password" field from "Set Resourcing Service" and "Set Engine
-    Detail".
-  * Various renaming of menu items throughout.
-  * Modified the schema preamble in the data definition dialog by prefixing 'xs:',
+  - Removed the superfluous "Verify Password" field from "Set Resourcing Service" and
+    "Set Engine Detail".
+  - Various renaming of menu items throughout.
+  - Modified the schema preamble in the data definition dialog by prefixing 'xs:',
     allowing for symbolic referencing in data schemas.
-  * Also in the data definition dialog, added Copy, Cut, Paste, Undo and Redo buttons
+  - Also in the data definition dialog, added Copy, Cut, Paste, Undo and Redo buttons
     and CTRL-V and CTRL-C as shortcuts; also changed the length of a TAB to 2 spaces
     (down from 16); and doubled the initial size of the dialog.
-  * Checkbox added to export specification dialog to auto increment version number.
+  - Checkbox added to export specification dialog to auto increment version number.
     The version number is now saved when dialog exits, and is reflected in spec xml.
-  * The export specification dialog will now ask for a valid specification id the first
+  - The export specification dialog will now ask for a valid specification id the first
     time a specification is exported, if it hasn't already been set in the specification
     properties; 'unnamed.ywl' is no longer considered to be a valid id.
-  * Fixed a bug that was throwing an exception if a role name uses the "&" symbol.
-  * Fixed generation of export files containing simply the word 'null' if a problem
+  - Fixed a bug that was throwing an exception if a role name uses the "&" symbol.
+  - Fixed generation of export files containing simply the word 'null' if a problem
     occurred during xml generation. Now a warning dialog will display and the file will
     not be created.
-  * Added a 'Drop Task Decomposition' menu item to the task popup menu, which
+  - Added a 'Drop Task Decomposition' menu item to the task popup menu, which
     disconnects a task from a decomposition (but does not remove it from the editor
     session, so that it can be rejoined to the task or used by other tasks).
-  * Refactored code so that new connection attempts to the engine or resource service
+  - Refactored code so that new connection attempts to the engine or resource service
     with different details reinitiates the connection (previously they were ignored).
-    Also improved dialogs look and feel.
-  * When creating a new specification, its window size will completely fit within the
+    Also improved the dialog's look and feel.
+  - When creating a new specification, its window size will completely fit within the
     outer window.
-  * When importing a specification from xml, its window size will completely fit within
+  - When importing a specification from xml, its window size will completely fit within
     the outer window.
-  * A warning dialog displays when a connection with the resource service is not
+  - A warning dialog displays when a connection with the resource service is not
     available, and the "Manage Resourcing" menu is selected.
-  * Fixed a bug where, if the name of a complex type is too long, other widgets were
+  - Fixed a bug where, if the name of a complex type is too long, other widgets were
     "cramped" in the update parameters dialog.
-  * Added the ability to specify a 'custom form' for a task.
-  * Fixed a bug where open nets were being displayed in the wrong place on the View menu.
-  * Fixed bug where importing a specification from xml would its lose flow parameters.
-  * Fixed bug where importing a specification from xml with more than a single net
+  - Added the ability to specify a 'custom form' for a task.
+  - Fixed a bug where open net references were being displayed in the wrong place on
+    the View menu.
+  - Fixed bug where importing a specification from xml would its lose flow parameters.
+  - Fixed bug where importing a specification from xml with more than a single net
     would start non-root nets iconified.
 
 Version 2.0 beta (30/05/2008)

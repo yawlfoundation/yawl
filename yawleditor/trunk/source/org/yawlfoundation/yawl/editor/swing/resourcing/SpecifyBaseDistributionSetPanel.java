@@ -12,6 +12,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -189,12 +191,30 @@ class UserPanel extends JPanel implements ListSelectionListener {
     gbc.gridy = 0;
     gbc.weightx = 1;
     gbc.weighty = 1;
-    gbc.insets = new Insets(0,5,5,5);
+    gbc.insets = new Insets(0,5,0,5);
     gbc.fill = GridBagConstraints.BOTH;
     
     add(buildUserList(), gbc);
+    addUnselectButton(gbc);
   }
-  
+
+    private void addUnselectButton(GridBagConstraints gbc) {
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.insets = new Insets(0,0,0,0);
+        JButton unselectButton = new JButton("Unselect All");
+        unselectButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                userList.clearSelection();
+                userList.setSelectedIndices(new int[0]);
+            }
+        });
+
+        add(unselectButton, gbc);
+    }
+
   private JScrollPane buildUserList() {
     userList = new UserList();
     userList.getSelectionModel().addListSelectionListener(this);
@@ -307,10 +327,28 @@ class RolesPanel extends JPanel implements ListSelectionListener {
     gbc.gridy = 0;
     gbc.weightx = 1;
     gbc.weighty = 1;
-    gbc.insets = new Insets(0,5,5,5);
+    gbc.insets = new Insets(0,5,0,5);
     gbc.fill = GridBagConstraints.BOTH;
-    
+
     add(buildRoleList(), gbc);
+    addUnselectButton(gbc);
+  }
+
+  private void addUnselectButton(GridBagConstraints gbc) {
+      gbc.gridx = 0;
+      gbc.gridy = 1;
+      gbc.anchor = GridBagConstraints.CENTER;
+      gbc.fill = GridBagConstraints.NONE;
+      gbc.insets = new Insets(0,0,0,0);
+      JButton unselectButton = new JButton("Unselect All");
+      unselectButton.addActionListener(new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+              roleList.clearSelection();
+              roleList.setSelectedIndices(new int[0]);
+          }
+      });
+
+      add(unselectButton, gbc);      
   }
   
   private JScrollPane buildRoleList() {
