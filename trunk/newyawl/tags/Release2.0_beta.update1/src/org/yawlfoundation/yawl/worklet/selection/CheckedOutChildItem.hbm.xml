@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+	<class name="org.yawlfoundation.yawl.worklet.selection.CheckedOutChildItem"
+           table="Worklet_CheckedOutChildItem">
+
+       <id name="_persistID" column="p_id" type="string" access="field">
+   		    <generator class="assigned"/>
+       </id>
+		
+       <property name="_parentID"          column="parentID"/>
+       <property name="_wirStr"            column="wirStr"        type="text"/>
+       <property name="_runningCaseIdStr"  column="runningCaseIdStr"/>
+       <property name="_runningWorkletStr" column="runningWorkletStr"/>
+       <property name="_reasonType"        column="reasonType"    type="int"/>
+       <property name="_searchPairStr"     column="searchPairStr" type="text"/>
+
+    </class>
+	
+</hibernate-mapping>

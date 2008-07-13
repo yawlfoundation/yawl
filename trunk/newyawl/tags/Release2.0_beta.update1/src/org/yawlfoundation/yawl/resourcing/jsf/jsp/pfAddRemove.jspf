@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div style="height: 170px; width: 400px; -rave-layout: grid"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://www.sun.com/web/ui">
+
+    <f:subview id="pfAddRemove">
+        <ui:button action="#{pfAddRemove.btnSelect_action}"
+                   binding="#{pfAddRemove.btnSelect}"
+                   id="btnSelect"
+                   style="left: 183px; top: 72px; position: absolute; width: 36px"
+                   text="&lt;"/>
+
+        <ui:button action="#{pfAddRemove.btnUnselect_action}"
+                   binding="#{pfAddRemove.btnUnselect}"
+                   id="btnUnselect"
+                   style="left: 183px; top: 48px; position: absolute; width: 36px"
+                   text="&gt;"/>
+
+        <ui:listbox binding="#{pfAddRemove.lbxOwns}"
+                    id="lbxOwns"
+                    items="#{SessionBean.ownedResourceAttributes}"
+                    style="height: 120px; left: 12px; top: 30px; position: absolute; width: 150px"/>
+
+        <ui:listbox binding="#{pfAddRemove.lbxAvailable}"
+                    id="lbxAvailable"
+                    items="#{SessionBean.availableResourceAttributes}"
+                    style="height: 120px; left: 240px; top: 30px; position: absolute; width: 150px"/>
+
+        <ui:label binding="#{pfAddRemove.label1}"
+                  id="label1"
+                  style="left: 12px; top: 12px; position: absolute"
+                  text="Owns:"/>
+
+        <ui:label binding="#{pfAddRemove.label2}"
+                  id="label2"
+                  style="left: 240px; top: 12px; position: absolute"
+                  text="Available:"/>
+    </f:subview>
+</div>
