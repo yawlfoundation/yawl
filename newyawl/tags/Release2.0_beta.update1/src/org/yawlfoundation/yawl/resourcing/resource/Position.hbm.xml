@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.yawlfoundation.yawl.resourcing.resource">
+
+	<class name="Position" table="rs_Position" lazy="false">
+
+        <id  name="_id"
+                  column="P_ID"
+                  type="string"
+                  access="field"/>
+
+
+        <property name="_positionID"
+                  column="PositionID"
+                  type="string"
+                  access="field"/>
+
+        <property name="_title"
+                  column="Title"
+                  type="string"
+                  access="field"/>
+
+        <property name="_description"
+                  column="Description"
+                  type="text"
+                  access="field"/>
+
+        <many-to-one name="_orgGroup"
+                     column="OrgGroup"
+                     class="OrgGroup"
+                     access="field"/>
+
+        <many-to-one name="_reportsTo"
+                     column="ReportsTo"
+                     class="Position"
+                     access="field"/>
+
+
+        <set name="_resources" table="rs_Participant_Position" inverse="true">
+            <key column="ID"/>
+            <many-to-many class="Participant" column="ParticipantID" lazy="false"/>
+        </set>
+
+     </class>
+	
+</hibernate-mapping>
