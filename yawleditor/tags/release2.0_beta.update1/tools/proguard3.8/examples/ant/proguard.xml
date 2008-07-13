@@ -1,0 +1,62 @@
+<!-- This Ant build file illustrates how to process ProGuard (including its
+     main application, its GUI, its Ant task, and its WTK plugin), and the
+     ReTrace tool, all in one go.
+     Usage: ant -f proguard.xml -->
+
+<project name="ProGuard" default="obfuscate" basedir="../..">
+
+<target name="obfuscate">
+  <taskdef resource="proguard/ant/task.properties"
+           classpath="lib/proguard.jar" />
+
+  <proguard printmapping="proguard.map"
+            overloadaggressively="on"
+            defaultpackage=""
+            allowaccessmodification="on">
+
+    <!-- Specify the input jars, output jars, and library jars. -->
+
+    <injar  file="lib/proguard.jar" />
+    <outjar file="examples/ant/proguard_out.jar" />
+
+    <libraryjar file="${java.home}/lib/rt.jar" />
+    <libraryjar file="/usr/local/java/ant1.6.2/lib/ant.jar" />
+    <libraryjar file="/usr/local/java/wtk2.1/wtklib/kenv.zip" />
+
+    <!-- The main seeds: ProGuard and its companion tool ReTrace. -->
+
+    <keep access="public" name="proguard.ProGuard">
+      <method access    ="public static"
+              type      ="void"
+              name      ="main"
+              parameters="java.lang.String[]" />
+    </keep>
+    <keep access="public" name="proguard.gui.ProGuardGUI">
+      <method access    ="public static"
+              type      ="void"
+              name      ="main"
+              parameters="java.lang.String[]" />
+    </keep>
+    <keep access="public" name="proguard.retrace.ReTrace">
+      <method access    ="public static"
+              type      ="void"
+              name      ="main"
+              parameters="java.lang.String[]" />
+    </keep>
+
+    <!-- If we have ant.jar, we can properly process the Ant task. -->
+
+    <keep access="public" name="proguard.ant.*">
+      <method access="public" type="void" name="set*" parameters="%"  />
+      <method access="public" type="void" name="set*" parameters="**" />
+      <method access="public" type="void" name="add*" parameters="**" />
+    </keep>
+
+    <!-- If we have kenv.zip, we can process the J2ME WTK plugin. -->
+
+    <keep access="public" name="proguard.wtk.ProGuardObfuscator" />
+
+  </proguard>
+</target>
+
+</project>
