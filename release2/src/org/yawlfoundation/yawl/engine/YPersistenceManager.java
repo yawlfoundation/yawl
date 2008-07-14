@@ -10,19 +10,19 @@
 package org.yawlfoundation.yawl.engine;
 
 
-import org.yawlfoundation.yawl.authentication.User;
-import org.yawlfoundation.yawl.elements.YAWLServiceReference;
-import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.yawlfoundation.yawl.logging.YChildWorkItemEvent;
-import org.yawlfoundation.yawl.logging.YCaseEvent;
-import org.yawlfoundation.yawl.logging.YWorkItemDataEvent;
-import org.yawlfoundation.yawl.logging.YParentWorkItemEvent;
-import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
+import org.apache.log4j.Logger;
 import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
-import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.elements.state.YIdentifier;
+import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
+import org.yawlfoundation.yawl.exceptions.Problem;
+import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.yawlfoundation.yawl.logging.YCaseEvent;
+import org.yawlfoundation.yawl.logging.YChildWorkItemEvent;
+import org.yawlfoundation.yawl.logging.YParentWorkItemEvent;
+import org.yawlfoundation.yawl.logging.YWorkItemDataEvent;
 
 import java.sql.Connection;
 import java.util.*;
@@ -65,7 +65,10 @@ public class YPersistenceManager {
     private static int PT_WORK_ITEM = 7;
     private static int PT_WORK_ITEM_EVENT = 8;
     private static int PT_SERVICE_REF = 9;
-    private static int PT_USER = 10;
+    private static int PT_PARENT_WORK_ITEM_EVENT = 10;
+    private static int PT_CASE_NUMBER_STORE = 11;
+    private static int PT_WORK_ITEM_TIMER = 12;
+    private static int PT_PROBLEM = 13;
 
 
     // Note: We use Hashtables rather than Hashmaps or anything from collections framework as ideally all of
@@ -646,49 +649,35 @@ public class YPersistenceManager {
      */
     private String getHibernateIdentifier(Object obj) throws YPersistenceException {
         String key;
-        int objectType = 0;
 
         if (obj instanceof P_YIdentifier) {
-            objectType = PT_IDENT;
-            P_YIdentifier obj2 = (P_YIdentifier) obj;
-            key = objectType + "/" + obj2.get_idString();
+            key = PT_IDENT + "/" + ((P_YIdentifier) obj).get_idString();
         } else if (obj instanceof YCaseData) {
-            objectType = PT_CASE_DATA;
-            YCaseData obj2 = (YCaseData) obj;
-            key = obj2.getId();
+            key = ((YCaseData) obj).getId();
         } else if (obj instanceof YWorkItemDataEvent) {
-            objectType = PT_LOG_DATA;
-            key = objectType + "/" + new Date().getTime();
+            key = PT_LOG_DATA + "/" + new Date().getTime();
         } else if (obj instanceof YCaseEvent) {
-            objectType = PT_LOG_IDENT;
-            YCaseEvent obj2 = (YCaseEvent) obj;
-            key = obj2.get_caseID();
+            key = ((YCaseEvent) obj).get_caseID();
         } else if (obj instanceof YNetRunner) {
-            objectType = PT_NET_RUNNER;
-            YNetRunner obj2 = (YNetRunner) obj;
-            key = objectType + "/" + obj2.get_caseID();
+            key = PT_NET_RUNNER + "/" + ((YNetRunner) obj).get_caseID();
         } else if (obj instanceof YSpecFile) {
-            objectType = PT_SPEC_FILE;
-            YSpecFile obj2 = (YSpecFile) obj;
-            key = objectType + "/" + obj2.getSpecid();
+            key = PT_SPEC_FILE + "/" + ((YSpecFile) obj).getSpecid();
         } else if (obj instanceof YWorkItem) {
-            objectType = PT_WORK_ITEM;
-            YWorkItem obj2 = (YWorkItem) obj;
-            //todo (by LJA) shouldn't the workitem use getUniqueID() ??
-            key = objectType + "/" + obj2.get_thisID();
+            key = PT_WORK_ITEM + "/" + ((YWorkItem) obj).get_thisID();
         } else if (obj instanceof YChildWorkItemEvent) {
-            objectType = PT_WORK_ITEM_EVENT;
-            YChildWorkItemEvent obj2 = (YChildWorkItemEvent) obj;
-            key = obj2.get_childWorkItemEventID();
+            key = ((YChildWorkItemEvent) obj).get_childWorkItemEventID();
         } else if (obj instanceof YAWLServiceReference) {
-            objectType = PT_SERVICE_REF;
-            YAWLServiceReference obj2 = (YAWLServiceReference) obj;
-            key = objectType + "/" + obj2.get_yawlServiceID();
-        } else if (obj instanceof User) {
-            objectType = PT_USER;
-            User obj2 = (User) obj;
-            key = obj2.getUserID();
-        } else {
+            key = PT_SERVICE_REF + "/" + ((YAWLServiceReference) obj).get_yawlServiceID();
+        } else if (obj instanceof YParentWorkItemEvent) {
+            key = ((YParentWorkItemEvent) obj).get_parentWorkItemEventID();
+        } else if (obj instanceof YWorkItemTimer) {
+            key = ((YWorkItemTimer) obj).getOwnerID();
+        } else if (obj instanceof YCaseNbrStore) {
+            key = PT_CASE_NUMBER_STORE + "/" + ((YCaseNbrStore) obj).getCaseNbr();
+        } else if (obj instanceof Problem) {
+            key = PT_PROBLEM + "/" + new Date().getTime();
+        }
+        else {
             logger.error("Unknown object type [" + obj.getClass().getName() + "]");
             throw new YPersistenceException("Unknown object type [" + obj.getClass().getName() + "]");
         }
