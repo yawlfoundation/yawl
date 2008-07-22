@@ -802,6 +802,17 @@ public class SessionBean extends AbstractSessionBean {
         this.navigateTo = navigateTo;
     }
 
+
+    boolean redirectToMe = false;
+
+    public boolean isRedirectToMe() {
+        return redirectToMe;
+    }
+
+    public void setRedirectToMe(boolean redirectToMe) {
+        this.redirectToMe = redirectToMe;
+    }
+
     /****** This section used by the 'Org Data Mgt' Page ***************************/
 
     private Option[] orgDataParticipantList ;
@@ -1187,6 +1198,16 @@ public class SessionBean extends AbstractSessionBean {
 
     public void setWirEdit(boolean wirEdit) {
         this.wirEdit = wirEdit;
+    }
+
+    private boolean completeAfterEdit ;
+
+    public boolean isCompleteAfterEdit() {
+        return completeAfterEdit;
+    }
+
+    public void setCompleteAfterEdit(boolean completeAfterEdit) {
+        this.completeAfterEdit = completeAfterEdit;
     }
 
     private Set<String> warnedWIRSet = new HashSet<String>();
