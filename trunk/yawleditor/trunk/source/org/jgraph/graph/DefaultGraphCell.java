@@ -115,9 +115,10 @@ public class DefaultGraphCell extends DefaultMutableTreeNode implements
 	/**
 	 * Utility method to create a port for this cell. This method adds
 	 * a floating port.
+	 * @return the port created
 	 */
-	public void addPort() {
-		addPort(null);
+	public Object addPort() {
+		return addPort(null);
 	}
 
 	/**
@@ -125,9 +126,10 @@ public class DefaultGraphCell extends DefaultMutableTreeNode implements
 	 * at a fixed relative offset within the cell. If the offset is null
 	 * then a floating port is added.
 	 * @param offset the offset of the port within the cell
+	 * @return the port created
 	 */
-	public void addPort(Point2D offset) {
-		addPort(offset, null);
+	public Object addPort(Point2D offset) {
+		return addPort(offset, null);
 	}
 
 	/**
@@ -136,8 +138,9 @@ public class DefaultGraphCell extends DefaultMutableTreeNode implements
 	 * then a floating port is added.
 	 * @param offset the offset of the port within the cell
 	 * @param userObject the user object of the port cell
+	 * @return the port created
 	 */
-	public void addPort(Point2D offset, Object userObject) {
+	public Object addPort(Point2D offset, Object userObject) {
 		DefaultPort port = new DefaultPort(userObject);
 		if (offset == null) {
 			add(port);
@@ -145,6 +148,7 @@ public class DefaultGraphCell extends DefaultMutableTreeNode implements
 			GraphConstants.setOffset(port.getAttributes(), offset);
 			add(port);
 		}
+		return port;
 	}
 
 	/**

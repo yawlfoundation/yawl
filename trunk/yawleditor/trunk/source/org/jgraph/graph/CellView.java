@@ -36,14 +36,15 @@ public interface CellView {
 	 * Refresh this view based on the model cell. This is
 	 * messaged when the model cell has changed.
 	 */
-	void refresh(GraphModel model, CellMapper mapper, boolean createDependentViews);
+	void refresh(GraphLayoutCache cache, CellMapper mapper, boolean createDependentViews);
 
 	/**
 	 * Update this view's attributes. This is messaged whenever refresh is
 	 * messaged, and additionally when the context of the cell has changed,
 	 * and during live-preview changes to the view.
+	 * @param cache TODO
 	 */
-	void update();
+	void update(GraphLayoutCache cache);
 
 	void childUpdated();
 
@@ -98,7 +99,7 @@ public interface CellView {
 	/**
 	 * Apply the specified map of attributes on the view.
 	 */
-	Map changeAttributes(Map map);
+	Map changeAttributes(GraphLayoutCache cache, Map map);
 
 	/**
 	 * Returns all attributes of the view as a map.

@@ -1,7 +1,6 @@
 /*
- * @(#)EdgeRenderer.java	1.0 03-JUL-04
- * 
- * Copyright (c) 2001-2005 Gaudenz Alder
+ * $Id: EdgeRenderer.java,v 1.19 2008/05/20 18:21:48 david Exp $ * 
+ * Copyright (c) 2001-2007 Gaudenz Alder
  *  
  * See LICENSE file in distribution for licensing details of this source file
  */
@@ -60,6 +59,12 @@ public class EdgeRenderer extends JComponent implements CellViewRenderer,
 		}
 	}
 
+	/** When zooming a graph the font size jumps at certain zoom levels rather than
+	 *  scaling smoothly. Sometimes the zoom on the font is more than the component zoom
+	 *  and cropping occurs. This buffer allows for the maximum occurance of this
+	 */
+	public static double LABELWIDTHBUFFER = 1.1;
+	
 	/** A switch for painting the extra labels */
 	public boolean simpleExtraLabels = true;
 
@@ -117,13 +122,11 @@ public class EdgeRenderer extends JComponent implements CellViewRenderer,
 	/** The color of highlighted cells */
 	protected transient Color highlightColor = null;
 
-	/* THIS CODE WAS ADDED BY MARTIN KRUEGER 10/20/2003 */
+	/** Cached bezier curve */
+	protected transient Bezier bezier;
 
-	protected Bezier bezier;
-
-	protected Spline2D spline;
-
-	/* END */
+	/** Cached spline curve */
+	protected transient Spline2D spline;
 
 	/**
 	 * Constructs a renderer that may be used to render edges.
@@ -436,20 +439,24 @@ public class EdgeRenderer extends JComponent implements CellViewRenderer,
 		Rectangle2D tmp = getPaintBounds(view);
 		int unit = GraphConstants.PERMILLE;
 		Point2D p0 = view.getPoint(0);
-		if (pos != null && tmp != null) {
-			Point2D vector = view.getLabelVector();
-			double dx = vector.getX();
-			double dy = vector.getY();
-			double len = Math.sqrt(dx * dx + dy * dy);
-			if (len > 0) {
-				double x = p0.getX() + (dx * pos.getX() / unit);
-				double y = p0.getY() + (dy * pos.getX() / unit);
-				x += (-dy * pos.getY() / len);
-				y += (dx * pos.getY() / len);
-				return new Point2D.Double(x, y);
+		if (pos != null && tmp != null && p0 != null) {
+			if (!isLabelTransformEnabled()) {
+				return view.getAbsoluteLabelPositionFromRelative(pos);
 			} else {
-				return new Point2D.Double(p0.getX() + pos.getX(), p0.getY()
-						+ pos.getY());
+				Point2D vector = view.getLabelVector();
+				double dx = vector.getX();
+				double dy = vector.getY();
+				double len = Math.sqrt(dx * dx + dy * dy);
+				if (len > 0) {
+					double x = p0.getX() + (dx * pos.getX() / unit);
+					double y = p0.getY() + (dy * pos.getX() / unit);
+					x += (-dy * pos.getY() / len);
+					y += (dx * pos.getY() / len);
+					return new Point2D.Double(x, y);
+				} else {
+					return new Point2D.Double(p0.getX() + pos.getX(), p0.getY()
+							+ pos.getY());
+				}
 			}
 		}
 		return null;
@@ -479,7 +486,7 @@ public class EdgeRenderer extends JComponent implements CellViewRenderer,
 			fontGraphics.setFont(GraphConstants
 					.getFont(view.getAllAttributes()));
 			metrics = fontGraphics.getFontMetrics();
-			int sw = metrics.stringWidth(label);
+			int sw = (int)(metrics.stringWidth(label) * LABELWIDTHBUFFER);
 			int sh = metrics.getHeight();
 			return new Dimension(sw, sh);
 		}

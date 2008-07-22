@@ -1132,9 +1132,10 @@ public class GraphConstants {
 	}
 
 	/**
-	 * Returns the value attribute from the specified map.
+	 * Returns the value attribute from the specified map. Only
+	 * use for transport maps, not storage map since the value
+	 * is removed from the final storage map
 	 * 
-	 * @deprecated value no longer stored in attribute map.
 	 * @see GraphModel#getValue(Object)
 	 */
 	public static final Object getValue(Map map) {
@@ -1483,13 +1484,15 @@ public class GraphConstants {
 
 	/**
 	 * Sets the size attribute in the specified map to the specified value.
+	 * Not currently used in JGraph. Use setBounds to set vertex bounds instead.
 	 */
 	public static final void setSize(Map map, Dimension size) {
 		map.put(SIZE, size);
 	}
 
 	/**
-	 * Returns the size attribute from the specified map.
+	 * Returns the size attribute from the specified map. Not currently used 
+	 * in JGraph. Use getBounds to set vertex bounds instead.
 	 */
 	public static final Dimension getSize(Map map) {
 		return (Dimension) map.get(SIZE);

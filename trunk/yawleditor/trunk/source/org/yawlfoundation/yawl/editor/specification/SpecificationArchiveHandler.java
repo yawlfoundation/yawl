@@ -436,36 +436,35 @@ public class SpecificationArchiveHandler {
   }
   
   private void readSpecification(XMLDecoder encoder) {
+    SpecificationModel specModel = SpecificationModel.getInstance();
     ArchivableSpecificationState state = 
       (ArchivableSpecificationState) encoder.readObject();
     if (state.getSize() != null) {
 			YAWLEditorDesktop.getInstance().setPreferredSize(state.getSize());
     }
     if (state.getDataTypeDefinition() != null) {
-      SpecificationModel.getInstance().setDataTypeDefinition(
-        XMLUtilities.unquoteXML(state.getDataTypeDefinition())
+      specModel.setDataTypeDefinition(XMLUtilities.unquoteXML(
+              state.getDataTypeDefinition())
       );
     }
-    SpecificationModel.getInstance().setWebServiceDecompositions(state.getDecompositions());
-    SpecificationModel.getInstance().setFontSize(state.getFontSize());
+    specModel.setWebServiceDecompositions(state.getDecompositions());
+    specModel.setFontSize(state.getFontSize());
 
     readNets(state.getNets());
     
     try {
-      SpecificationModel.getInstance().setDefaultNetBackgroundColor(
-          state.getDefaultNetBackgroundColor()
-      );
+      specModel.setDefaultNetBackgroundColor(state.getDefaultNetBackgroundColor());
     } catch(Exception e) {}
     
-    SpecificationModel.getInstance().setName(state.getName());
-    SpecificationModel.getInstance().setDescription(state.getDescription());
-    SpecificationModel.getInstance().setId(state.getId());
-    SpecificationModel.getInstance().setAuthor(state.getAuthor());
-    SpecificationModel.getInstance().setVersionNumber(new YSpecVersion(String.valueOf(state.getVersionNumber())));
-    SpecificationModel.getInstance().setValidFromTimestamp(state.getValidFromTimestamp());
-    SpecificationModel.getInstance().setValidUntilTimestamp(state.getValidUntilTimestamp());
+    specModel.setName(state.getName());
+    specModel.setDescription(state.getDescription());
+    specModel.setId(state.getId());
+    specModel.setAuthor(state.getAuthor());
+    specModel.setVersionNumber(new YSpecVersion(String.valueOf(state.getVersionNumber())));
+    specModel.setValidFromTimestamp(state.getValidFromTimestamp());
+    specModel.setValidUntilTimestamp(state.getValidUntilTimestamp());
     
-    Iterator netIterator = SpecificationModel.getInstance().getNets().iterator();
+    Iterator netIterator = specModel.getNets().iterator();
     
     long largestIdSoFar = 0;
     while(netIterator.hasNext()) {
@@ -475,7 +474,9 @@ public class SpecificationArchiveHandler {
         largestIdSoFar = largestNetId;
       }
     }
-    SpecificationModel.getInstance().setUniqueElementNumber(largestIdSoFar);
+    specModel.setUniqueElementNumber(largestIdSoFar);
+
+    specModel.checkResourcingObjects();  
     
     if (state.getBounds() != null) {
       YAWLEditor.getInstance().setBounds(state.getBounds());

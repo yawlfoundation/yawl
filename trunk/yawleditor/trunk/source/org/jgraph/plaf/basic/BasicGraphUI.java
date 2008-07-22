@@ -12,6 +12,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
@@ -37,6 +38,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.VolatileImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.Serializable;
@@ -93,6 +95,7 @@ import org.jgraph.graph.GraphTransferHandler;
 import org.jgraph.graph.ParentMap;
 import org.jgraph.graph.PortView;
 import org.jgraph.plaf.GraphUI;
+import org.jgraph.util.RectUtils;
 
 /**
  * The basic L&F for a graph data structure.
@@ -358,8 +361,15 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 					return d;
 				}
 			}
-			if (view.getBounds() == null)
-				view.update();
+			if (view.getBounds() == null) {
+				if (graphLayoutCache != null) {
+					view.update(null);
+				} else if (graph.getGraphLayoutCache() != null) {
+					view.update(graph.getGraphLayoutCache());
+				} else {
+					view.update(null);
+				}
+			}
 			Rectangle2D bounds = view.getBounds();
 			return new Dimension((int) bounds.getWidth(), (int) bounds
 					.getHeight());
@@ -607,7 +617,12 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 			}
 		}
 		// Set JGraph's laf-specific colors
-		graph.setMarqueeColor(UIManager.getColor("Table.gridColor"));
+		if (JGraph.IS_MAC) {
+			graph.setMarqueeColor(UIManager
+					.getColor("MenuItem.selectionBackground"));
+		} else {
+			graph.setMarqueeColor(UIManager.getColor("Table.gridColor"));
+		}
 		graph
 				.setHandleColor(UIManager
 						.getColor("MenuItem.selectionBackground"));
@@ -897,17 +912,82 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 			throw new InternalError("BasicGraphUI cannot paint " + c.toString()
 					+ "; " + graph + " was expected.");
 
-		Graphics2D g2 = (Graphics2D) g;
-		Rectangle2D tmp = g.getClipBounds();
-		Rectangle2D paintBounds = new Rectangle2D.Double(tmp.getX(),
-				tmp.getY(), tmp.getWidth(), tmp.getHeight());
-		Rectangle2D real = graph.fromScreen(new Rectangle2D.Double(paintBounds
-				.getX(), paintBounds.getY(), paintBounds.getWidth(),
-				paintBounds.getHeight()));
+		Rectangle2D clipBounds = g.getClipBounds();
+		if (clipBounds != null) {
+			clipBounds = (Rectangle2D) clipBounds.clone();
+		}
+		if (graph.isDoubleBuffered()) {
+			Graphics offGraphics = graph.getOffgraphics();
+			Image offscreen = graph.getOffscreen();
+			if (offGraphics == null || offscreen == null) {
+				drawGraph(g, clipBounds);
+				paintOverlay(g);
+				return;
+			}
+			if (offscreen instanceof VolatileImage) {
+				int volatileContentsLostCount = 0;
+				do {
+					offGraphics = graph.getOffgraphics();
+					volatileContentsLostCount++;
+					if (volatileContentsLostCount > 10) {
+						// Assume a problem with the volatile buffering
+						// and move to standard buffered images
+						graph.setVolatileOffscreen(false);
+					}
+				} while (((VolatileImage) offscreen).contentsLost());
+			}
+			g.drawImage(graph.getOffscreen(), 0, 0, graph);
+			if (!graph.isXorEnabled()) {
+				// Paint Handle
+				if (handle != null) {
+					handle.paint(g);
+				}
 
+				// Paint Marquee
+				if (marquee != null) {
+					marquee.paint(graph, g);
+				}
+			}
+			paintOverlay(g);
+			offGraphics.setClip(null);
+		} else {
+			// Not double buffered
+			drawGraph(g, clipBounds);
+		}
+	}
+
+	/**
+	 * Hook method to paints the overlay
+	 * 
+	 * @param g
+	 *            the graphics object to paint the overlay to
+	 */
+	protected void paintOverlay(Graphics g) {
+	}
+
+	/**
+	 * Draws the graph to the specified graphics object within the specified
+	 * clip bounds, if any
+	 * 
+	 * @param g
+	 *            the graphics object to draw the graph to
+	 * @param clipBounds
+	 *            the bounds within graph cells must intersect to be redrawn
+	 */
+	public void drawGraph(Graphics g, Rectangle2D clipBounds) {
+//		if (g.getClip() != null && clipBounds != null && !(g.getClip().equals(clipBounds))) {
+			g.setClip(clipBounds);
+//		}
+		Rectangle2D realClipBounds = null;
+		if (clipBounds != null) {
+			realClipBounds = graph.fromScreen(new Rectangle2D.Double(
+					clipBounds.getX(), clipBounds.getY(), clipBounds
+							.getWidth(), clipBounds.getHeight()));
+		}
 		// Paint Background (Typically Grid)
 		paintBackground(g);
 
+		Graphics2D g2 = (Graphics2D) g;
 		// Remember current affine transform
 		AffineTransform at = g2.getTransform();
 
@@ -921,12 +1001,7 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 		g2.scale(scale, scale);
 
 		// Paint cells
-		CellView[] views = graphLayoutCache.getRoots();
-		for (int i = 0; i < views.length; i++) {
-			Rectangle2D bounds = views[i].getBounds();
-			if (bounds != null && real != null && bounds.intersects(real))
-				paintCell(g, views[i], bounds, false);
-		}
+		paintCells(g, realClipBounds);
 
 		// Reset affine transform and antialias
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
@@ -939,16 +1014,39 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 		g2.setTransform(at);
 
 		// Paint Handle
-		if (handle != null)
+		if (handle != null) {
 			handle.paint(g);
+		}
 
 		// Paint Marquee
-		if (marquee != null)
+		if (marquee != null) {
 			marquee.paint(graph, g);
+		}
 
 		// Empty out the renderer pane, allowing renderers to be gc'ed.
-		if (rendererPane != null)
+		if (rendererPane != null) {
 			rendererPane.removeAll();
+		}
+	}
+
+	/**
+	 * Hook method to allow subclassers to alter just the cell painting
+	 * functionality
+	 * @param g the graphics object to paint to
+	 * @param realClipBounds the bounds of the region being repainted
+	 */
+	protected void paintCells(Graphics g, Rectangle2D realClipBounds) {
+		CellView[] views = graphLayoutCache.getRoots();
+		for (int i = 0; i < views.length; i++) {
+			Rectangle2D bounds = views[i].getBounds();
+			if (bounds != null) {
+				if (realClipBounds == null) {
+					paintCell(g, views[i], bounds, false);
+				} else if (bounds.intersects(realClipBounds)) {
+					paintCell(g, views[i], bounds, false);
+				}
+			}
+		}
 	}
 
 	/**
@@ -988,22 +1086,25 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 	 * Paint the background of this graph. Calls paintGrid.
 	 */
 	protected void paintBackground(Graphics g) {
-		paintBackgroundImage(g);
+		Rectangle clip = g.getClipBounds();
+		paintBackgroundImage(g, clip);
 		if (graph.isGridVisible()) {
-			paintGrid(graph.getGridSize(), g, g.getClipBounds());
+			paintGrid(graph.getGridSize(), g, clip);
 		}
 	}
 
 	/**
 	 * Hook for subclassers to paint the background image.
 	 * 
-	 * @param g2
+	 * @param g
 	 *            The graphics object to paint the image on.
+	 * @param clip
+	 *            The clipping region to draw into
 	 */
-	protected void paintBackgroundImage(Graphics g) {
+	protected void paintBackgroundImage(Graphics g, Rectangle clip) {
 		Component component = graph.getBackgroundComponent();
 		if (component != null) {
-			paintBackgroundComponent(g, component);
+			paintBackgroundComponent(g, component, clip);
 		}
 		ImageIcon icon = graph.getBackgroundImage();
 		if (icon == null) {
@@ -1026,34 +1127,40 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 	}
 
 	/**
-	 * Requests that the component responsible for painting the background
-	 * paint itself
+	 * Requests that the component responsible for painting the background paint
+	 * itself
 	 * 
-	 * @param the component to be painted onto the background image
+	 * @param g
+	 *            The graphics object to paint the image on.
+	 * @param component
+	 *            the component to be painted onto the background image
+	 * @param clip
+	 *            The clipping region to draw into
 	 */
-	protected void paintBackgroundComponent(Graphics g, Component component) {
+	protected void paintBackgroundComponent(Graphics g, Component component,
+			Rectangle clip) {
 		try {
 			g.setPaintMode();
 			Dimension dim = component.getPreferredSize();
-			rendererPane.paintComponent(g, component, graph, 0, 0, (int) dim.getWidth(),
-					(int) dim.getHeight(), true);
+			rendererPane.paintComponent(g, component, graph, 0, 0, (int) dim
+					.getWidth(), (int) dim.getHeight(), true);
 		} catch (Exception e) {
 		} catch (Error e) {
 		}
 	}
-	
+
 	/**
 	 * Paint the grid.
 	 */
-	protected void paintGrid(double gs, Graphics g, Rectangle2D r) {
-
-		// Parameter "r" is never used: remove it.
-
-		Rectangle rr = g.getClipBounds();
-		double xl = rr.x;
-		double yt = rr.y;
-		double xr = xl + rr.width;
-		double yb = yt + rr.height;
+	protected void paintGrid(double gs, Graphics g, Rectangle2D clipBounds) {
+		if (clipBounds == null) {
+			Rectangle2D graphBounds = graph.getBounds();
+			clipBounds = new Rectangle2D.Double(0, 0, graphBounds.getWidth(), graphBounds.getHeight());
+		}
+		double xl = clipBounds.getX();
+		double yt = clipBounds.getY();
+		double xr = xl + clipBounds.getWidth();
+		double yb = yt + clipBounds.getHeight();
 		double sgs = Math.max(2, gs * graph.getScale());
 
 		int xs = (int) (Math.floor(xl / sgs) * sgs);
@@ -1133,7 +1240,7 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 	 * Paint the foreground of this graph. Calls paintPorts.
 	 */
 	protected void paintForeground(Graphics g) {
-		if (graph.isPortsVisible())
+		if (graph.isPortsVisible() && graph.isPortsOnTop())
 			paintPorts(g, graphLayoutCache.getPorts());
 	}
 
@@ -1194,8 +1301,10 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 		if (context != null && !context.isEmpty() && graph.isEnabled()) {
 			try {
 				return new RootHandle(context);
-			} catch (NullPointerException e) {
-				// ignore for now...
+			} catch (HeadlessException e) {
+				// Assume because of running on a server
+			} catch (RuntimeException e) {
+				throw e;
 			}
 		}
 		return null;
@@ -1232,13 +1341,13 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 						.getY(), scaled.getY()));
 		// Allow for background image
 		ImageIcon image = graph.getBackgroundImage();
-		if (image != null ) {
+		if (image != null) {
 			int height = image.getIconHeight();
 			int width = image.getIconWidth();
 			Point2D imageSize = graph.toScreen(new Point(width, height));
-			preferredSize = new Dimension((int) Math.max(preferredSize.getWidth(),
-					imageSize.getX()), (int) Math.max(preferredSize.getHeight(),
-					imageSize.getY()));
+			preferredSize = new Dimension((int) Math.max(preferredSize
+					.getWidth(), imageSize.getX()), (int) Math.max(
+					preferredSize.getHeight(), imageSize.getY()));
 		}
 		Insets in = graph.getInsets();
 		if (in != null) {
@@ -1592,8 +1701,15 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 				// Remove from selection
 				graph.getSelectionModel().removeSelectionCells(removed);
 			}
-			if (graphLayoutCache != null)
+			Rectangle2D oldDirty = null;
+			Rectangle2D dirtyRegion = e.getChange().getDirtyRegion();
+			if (dirtyRegion == null) {
+				oldDirty = graph.getClipRectangle(e.getChange());
+			}
+			
+			if (graphLayoutCache != null) {
 				graphLayoutCache.graphChanged(e.getChange());
+			}
 			// Get arrays
 			Object[] inserted = e.getChange().getInserted();
 			Object[] changed = e.getChange().getChanged();
@@ -1610,6 +1726,15 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 					graph.updateAutoSize(graphLayoutCache.getMapping(
 							changed[i], false));
 			}
+			if (dirtyRegion == null) {
+				Rectangle2D newDirtyRegion = graph.getClipRectangle(e.getChange());
+				dirtyRegion = RectUtils.union(oldDirty, newDirtyRegion);
+				e.getChange().setDirtyRegion(dirtyRegion);
+			}
+			
+			if (dirtyRegion != null) {
+				graph.addOffscreenDirty(dirtyRegion);
+			}
 			// Select if not partial
 			if (!graphLayoutCache.isPartial()
 					&& graphLayoutCache.isSelectsAllInsertedCells()
@@ -1624,7 +1749,7 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 			}
 			updateSize();
 		}
-
+		
 	} // End of BasicGraphUI.GraphModelHandler
 
 	/**
@@ -1646,6 +1771,10 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 							changed[i], false));
 				}
 			}
+			Rectangle2D oldDirtyRegion = e.getChange().getDirtyRegion();
+			graph.addOffscreenDirty(oldDirtyRegion);
+			Rectangle2D newDirtyRegion = graph.getClipRectangle(e.getChange());
+			graph.addOffscreenDirty(newDirtyRegion);
 			Object[] inserted = e.getChange().getInserted();
 			if (inserted != null
 					&& inserted.length > 0
@@ -1698,15 +1827,20 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 						r = lastFocus.getBounds();
 				}
 				if (r != null) {
-					int hsize = (int) (graph.getHandleSize() * graph.getScale()) + 1;
+					Rectangle2D unscaledDirty = graph.fromScreen((Rectangle2D)r.clone());
+					graph.addOffscreenDirty(unscaledDirty);
+					int hsize = (int) graph.getHandleSize() + 1;
 					updateHandle();
-					graph.repaint((int) r.getX() - hsize, (int) r.getY()
-							- hsize, (int) r.getWidth() + 2 * hsize, (int) r
-							.getHeight()
-							+ 2 * hsize);
+					Rectangle dirtyRegion = new Rectangle((int)(r.getX()
+							- hsize), (int)(r.getY() - hsize),
+							(int)(r.getWidth() + 2 * hsize), (int)(r.getHeight() + 2 * hsize));
+					graph.repaint(dirtyRegion);
 				}
-			} else
+			} else {
+				Rectangle dirtyRegion = (Rectangle)graph.getBounds().clone();
+				graph.addOffscreenDirty(dirtyRegion);
 				graph.repaint();
+			}
 		}
 	}
 
@@ -1811,9 +1945,11 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 					focus = cell;
 				completeEditing();
 				boolean isForceMarquee = isForceMarqueeEvent(e);
+				boolean isEditable = graph.isGroupsEditable()
+						|| (focus != null && focus.isLeaf());
 				if (!isForceMarquee) {
 					if (e.getClickCount() == graph.getEditClickCount()
-							&& focus != null && focus.isLeaf()
+							&& focus != null && isEditable
 							&& focus.getParentView() == null
 							&& graph.isCellEditable(focus.getCell())
 							&& handleEditTrigger(cell.getCell(), e)) {
@@ -1923,10 +2059,11 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 					if (!e.isConsumed() && cell != null) {
 						Object tmp = cell.getCell();
 						boolean wasSelected = graph.isCellSelected(tmp);
-						// if (!wasSelected || e.getModifiers() != 0)
-						selectCellForEvent(tmp, e);
-						focus = cell;
-						postProcessSelection(e, tmp, wasSelected);
+						if (!e.isPopupTrigger() || !wasSelected) {
+							selectCellForEvent(tmp, e);
+							focus = cell;
+							postProcessSelection(e, tmp, wasSelected);
+						}
 					}
 				}
 			} finally {
@@ -2341,11 +2478,6 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 			}
 			try {
 				offgraphics = graph.getOffgraphics();
-				offgraphics.setColor(graph.getBackground());
-				offgraphics.setPaintMode();
-				Rectangle rect = graph.getBounds();
-				offgraphics.fillRect(0, 0, rect.width, rect.height);
-				graph.getUI().paint(offgraphics, graph);
 			} catch (Exception e) {
 				offgraphics = null;
 			} catch (Error e) {
@@ -2390,33 +2522,15 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 						double totDy = current.getY() - start.getY();
 						dx = current.getX() - last.getX();
 						dy = current.getY() - last.getY();
-						if (constrained && cachedBounds == null) {
-							if (Math.abs(totDx) < Math.abs(totDy)) {
-								dx = 0;
-								dy = totDy;
-							} else {
-								dx = totDx;
-								dy = 0;
-							}
-						} else if (!graph.isMoveBelowZero() && last != null
-								&& initialLocation != null && start != null) {
-							// TODO: remove?
-							if (initialLocation.getX() + totDx < 0)
-								dx = start.getX() - last.getX()
-										- initialLocation.getX();
-							if (initialLocation.getY() + totDy < 0)
-								dy = start.getY() - last.getY()
-										- initialLocation.getY();
+						Point2D constrainedPosition = constrainDrag(event,
+								totDx, totDy, dx, dy);
+						if (constrainedPosition != null) {
+							dx = constrainedPosition.getX();
+							dy = constrainedPosition.getY();
 						}
 						double scale = graph.getScale();
-						dx = (int) (dx / scale);
-						// we don't want to round. The best thing is to get just
-						// the integer part.
-						// That way, the view won't "run away" from the mouse.
-						// It may lag behind
-						// a mouse pointer occasionally, but will be catching
-						// up.
-						dy = (int) (dy / scale);
+						dx = dx / scale;
+						dy = dy / scale;
 						// Start Drag and Drop
 						if (graph.isDragEnabled() && !isDragging)
 							startDragging(event);
@@ -2436,9 +2550,7 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 								// between
 								// existing background elements during drag
 								// http://sourceforge.net/tracker/index.php?func=detail&aid=677743&group_id=43118&atid=435210
-								g
-										.setXORMode(graph.getBackground()
-												.darker());
+								g.setXORMode(graph.getBackground().darker());
 							}
 							if (!snapLast.equals(snapStart)
 									&& (offgraphics != null || !blockPaint)) {
@@ -2460,10 +2572,11 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 									CellView orig = graphLayoutCache
 											.getMapping(all[i].getCell(), false);
 									AttributeMap attr = orig.getAllAttributes();
-									all[i].changeAttributes((AttributeMap) attr
-											.clone());
-									all[i].refresh(graph.getModel(), context,
-											false);
+									all[i].changeAttributes(graph
+											.getGraphLayoutCache(),
+											(AttributeMap) attr.clone());
+									all[i].refresh(graph.getGraphLayoutCache(),
+											context, false);
 								}
 							}
 							if (cachedBounds != null) {
@@ -2573,6 +2686,9 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 							if (overlayed
 									&& (offgraphics != null || !graph
 											.isXorEnabled())) {
+								if (dirty == null) {
+									dirty = new Rectangle2D.Double();
+								}
 								dirty.add(graph.toScreen(AbstractCellView
 										.getBounds(views)));
 								Rectangle2D t = graph.toScreen(AbstractCellView
@@ -2597,9 +2713,9 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 									// (FREEZE)
 									return;
 								if (offgraphics != null) {
-									graph.drawImage((int) sx1, (int) sy1, (int) sx2,
-											(int) sy2, (int) sx1, (int) sy1,
-											(int) sx2, (int) sy2);
+									graph.drawImage((int) sx1, (int) sy1,
+											(int) sx2, (int) sy2, (int) sx1,
+											(int) sy1, (int) sx2, (int) sy2);
 								} else {
 									graph.repaint((int) dirty.getX(),
 											(int) dirty.getY(), (int) dirty
@@ -2614,6 +2730,58 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 				graph.repaint();
 		}
 
+		/**
+		 * Hook method to constrain a mouse drag
+		 * 
+		 * @param event
+		 * @param totDx
+		 * @param totDy
+		 * @param dx
+		 * @param dy
+		 * @return a point describing any position constraining applied
+		 */
+		protected Point2D constrainDrag(MouseEvent event, double totDx,
+				double totDy, double dx, double dy) {
+			boolean constrained = isConstrainedMoveEvent(event);
+
+			if (constrained && cachedBounds == null) {
+				if (Math.abs(totDx) < Math.abs(totDy)) {
+					dx = 0;
+					dy = totDy;
+				} else {
+					dx = totDx;
+					dy = 0;
+				}
+			} else {
+				if (!graph.isMoveBelowZero() && last != null
+						&& initialLocation != null && start != null) {
+					if (initialLocation.getX() + totDx < 0) {
+						// TODO isn't dx always just 0?
+						dx = start.getX() - last.getX()
+								- initialLocation.getX();
+					}
+					if (initialLocation.getY() + totDy < 0) {
+						// TODO isn't dy always just 0?
+						dy = start.getY() - last.getY()
+								- initialLocation.getY();
+					}
+				}
+				if (!graph.isMoveBeyondGraphBounds() && last != null
+						&& initialLocation != null && start != null) {
+					Rectangle2D graphBounds = graph.getBounds();
+					Rectangle2D viewBounds = AbstractCellView.getBounds(views);
+					if (initialLocation.getX() + totDx + viewBounds.getWidth() > graphBounds
+							.getWidth())
+						dx = 0;
+					if (initialLocation.getY() + totDy + viewBounds.getHeight() > graphBounds
+							.getHeight())
+						dy = 0;
+				}
+			}
+
+			return new Point2D.Double(dx, dy);
+		}
+
 		public void mouseReleased(MouseEvent event) {
 			try {
 				if (event != null && !event.isConsumed()) {
@@ -2622,8 +2790,21 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 						activeHandle = null;
 					} else if (isMoving && !event.getPoint().equals(start)) {
 						if (cachedBounds != null) {
-							double dx = event.getX() - start.getX();
-							double dy = event.getY() - start.getY();
+							
+							Point ep = event.getPoint();
+							Point2D point = new Point2D.Double(ep.getX()
+									- _mouseToViewDelta_x, ep.getY()
+									- _mouseToViewDelta_y);
+							Point2D snapCurrent = graph.snap(point);
+							
+							double dx = snapCurrent.getX() - start.getX();
+							double dy = snapCurrent.getY() - start.getY();
+							
+							if (!graph.isMoveBelowZero() && initialLocation.getX() + dx < 0)
+							    dx = -1 * initialLocation.getX();
+							if (!graph.isMoveBelowZero() && initialLocation.getY() + dy < 0)
+							    dy = -1 * initialLocation.getY();
+							
 							Point2D tmp = graph.fromScreen(new Point2D.Double(
 									dx, dy));
 							GraphLayoutCache.translateViews(views, tmp.getX(),
@@ -2690,7 +2871,6 @@ public class BasicGraphUI extends GraphUI implements Serializable {
 			} finally {
 				ignoreTargetGroup = null;
 				targetGroup = null;
-				initialLocation = null;
 				isDragging = false;
 				disconnect = null;
 				firstDrag = true;

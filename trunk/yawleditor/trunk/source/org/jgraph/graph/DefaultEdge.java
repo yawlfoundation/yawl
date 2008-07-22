@@ -99,14 +99,14 @@ public class DefaultEdge extends DefaultGraphCell implements Edge {
 
 	public static class LoopRouting implements Edge.Routing {
 
-		public List route(EdgeView edge) {
+		public List route(GraphLayoutCache cache, EdgeView edge) {
 			if (edge.isLoop()) {
-				return routeLoop(edge);
+				return routeLoop(cache, edge);
 			}
-			return routeEdge(edge);
+			return routeEdge(cache, edge);
 		}
 
-		protected List routeLoop(EdgeView edge) {
+		protected List routeLoop(GraphLayoutCache cache, EdgeView edge) {
 			List newPoints = new ArrayList();
 			newPoints.add(edge.getSource());
 			CellView sourceParent = (edge.getSource() != null) ? edge
@@ -133,7 +133,7 @@ public class DefaultEdge extends DefaultGraphCell implements Edge {
 			return null;
 		}
 
-		protected List routeEdge(EdgeView edge) {
+		protected List routeEdge(GraphLayoutCache cache, EdgeView edge) {
 			return null;
 		}
 
@@ -156,7 +156,7 @@ public class DefaultEdge extends DefaultGraphCell implements Edge {
 
 	public static class DefaultRouting extends LoopRouting {
 
-		protected List routeEdge(EdgeView edge) {
+		protected List routeEdge(GraphLayoutCache cache, EdgeView edge) {
 			List newPoints = new ArrayList();
 			int n = edge.getPointCount();
 			Point2D from = edge.getPoint(0);
@@ -185,27 +185,51 @@ public class DefaultEdge extends DefaultGraphCell implements Edge {
 				double x2 = from.getX() + ((to.getX() - from.getX()) / 2);
 				double y2 = from.getY() + ((to.getY() - from.getY()) / 2);
 				routed = new Point2D[2];
-				if (dx > dy) {
-					routed[0] = edge.getAttributes().createPoint(x2,
-							from.getY());
-					routed[1] = edge.getAttributes().createPoint(x2, to.getY());
-				} else {
-					routed[0] = edge.getAttributes().createPoint(from.getX(),
-							y2);
-					routed[1] = edge.getAttributes().createPoint(to.getX(), y2);
+				Rectangle2D targetBounds = null;
+				Rectangle2D sourceBounds = null;
+				if ((edge.getTarget() != null && edge.getTarget()
+						.getParentView() != null)
+						&& (edge.getSource() != null && edge.getSource()
+								.getParentView() != null)) {
+					targetBounds = edge.getTarget().getParentView().getBounds();
+					sourceBounds = edge.getSource().getParentView().getBounds();
 				}
-				// Set/Add Points
-				for (int i = 0; i < routed.length; i++) {
-					if ((edge.getTarget() == null
-							|| edge.getTarget().getParentView() == null || !edge
-							.getTarget().getParentView().getBounds().contains(
-									routed[i]))
-							&& (edge.getSource() == null
-									|| edge.getSource().getParentView() == null || !edge
-									.getSource().getParentView().getBounds()
-									.contains(routed[i])))
-					{
-					newPoints.add(routed[i]);
+				if (targetBounds != null && sourceBounds != null) {
+					if (dx > dy) {
+						routed[0] = edge.getAttributes().createPoint(x2,
+								from.getY());
+						routed[1] = edge.getAttributes().createPoint(x2,
+								to.getY());
+						if (targetBounds.contains(routed[0])
+								|| (sourceBounds.contains(routed[0]))
+								|| targetBounds.contains(routed[1])
+								|| (sourceBounds.contains(routed[1]))) {
+							routed[0] = edge.getAttributes().createPoint(
+									from.getX(), y2);
+							routed[1] = edge.getAttributes().createPoint(
+									to.getX(), y2);
+						}
+					} else {
+						routed[0] = edge.getAttributes().createPoint(
+								from.getX(), y2);
+						routed[1] = edge.getAttributes().createPoint(to.getX(),
+								y2);
+						if (targetBounds.contains(routed[0])
+								|| (sourceBounds.contains(routed[0]))
+								|| targetBounds.contains(routed[1])
+								|| (sourceBounds.contains(routed[1]))) {
+							routed[0] = edge.getAttributes().createPoint(x2,
+									from.getY());
+							routed[1] = edge.getAttributes().createPoint(x2,
+									to.getY());
+						}
+					}
+					// Set/Add Points
+					for (int i = 0; i < routed.length; i++) {
+						if (!targetBounds.contains(routed[i])
+								&& (!sourceBounds.contains(routed[i]))) {
+							newPoints.add(routed[i]);
+						}
 					}
 				}
 
@@ -218,7 +242,6 @@ public class DefaultEdge extends DefaultGraphCell implements Edge {
 			}
 			return null;
 		}
-
 	}
 
 }

@@ -24,25 +24,17 @@
 
 package org.yawlfoundation.yawl.editor.elements.model;
 
-import java.awt.Color;
-import java.awt.Point;
-import java.awt.Dimension;
-
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Iterator;
-
 import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.Edge;
 import org.jgraph.graph.GraphConstants;
-
 import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+
+import java.awt.*;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.util.*;
+import java.util.List;
 
 public abstract class YAWLVertex extends DefaultGraphCell 
                                  implements YAWLCell {
@@ -131,7 +123,10 @@ public abstract class YAWLVertex extends DefaultGraphCell
   
   public String getEngineId() {
     StringBuffer engineId = new StringBuffer();
-    engineId.append(getEngineLabel());
+    if (getActualEngineID() != null)
+       engineId.append(getActualEngineID());
+    else
+       engineId.append(getEngineLabel());
     if (getEngineIdNumber() != null && !getEngineIdNumber().equals("")) {
       engineId.append("_" + getEngineIdNumber());
     }
@@ -149,6 +144,30 @@ public abstract class YAWLVertex extends DefaultGraphCell
   
   public void setEngineIdNumber(String engineIdNumber) {
     serializationProofAttributeMap.put("engineIdNumber",engineIdNumber);
+  }
+
+
+  public void setActualEngineID(String id) {
+      int suffixPos = id.lastIndexOf("_");
+      if (suffixPos > -1) {
+          String suffix = id.substring(suffixPos + 1);
+          if (isValidInt(suffix)) id = id.substring(0, suffixPos);
+      }
+      serializationProofAttributeMap.put("actualEngineid", id);
+  }
+
+  public String getActualEngineID() {
+      return (String) serializationProofAttributeMap.get("actualEngineid");
+  }
+
+  private boolean isValidInt(String nStr) {
+      try {
+         new Integer(nStr);
+         return true;
+      }
+      catch (Exception e) {
+          return false;
+      }
   }
   
   public void setIconPath(String iconPath) {

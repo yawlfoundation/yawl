@@ -182,7 +182,7 @@ public class GraphContext implements CellMapper {
 						children[i] = createMapping(children[i].getCell());
 					}
 					// Adopts the children
-					preview.refresh(graph.getModel(), this, false);
+					preview.refresh(graph.getGraphLayoutCache(), this, false);
 				}
 			}
 			delta = DefaultGraphModel.getEdges(graph.getModel(), delta
@@ -218,13 +218,13 @@ public class GraphContext implements CellMapper {
 		CellView view = graphLayoutCache.getFactory().createView(
 				graph.getModel(), cell);
 		putMapping(cell, view);
-		view.refresh(graph.getModel(), this, true); // Create Dependent Views
+		view.refresh(graph.getGraphLayoutCache(), this, true); // Create Dependent Views
 		// Fetch Attributes From Original View
 		CellView src = graphLayoutCache.getMapping(cell, false);
 		if (src != null) {
-			view.changeAttributes((AttributeMap) src.getAttributes().clone());
+			view.changeAttributes(graphLayoutCache, (AttributeMap) src.getAttributes().clone());
 			// Inserts portviews into points list
-			view.refresh(graph.getModel(), this, false);
+			view.refresh(graph.getGraphLayoutCache(), this, false);
 		}
 		return view;
 	}

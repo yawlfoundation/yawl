@@ -52,6 +52,15 @@ public class UnavailableResourcingServiceProxyImplementation implements Resourci
   public List<ResourcingRole> getAllRoles() {
    return new LinkedList<ResourcingRole>();
   }
+
+  public List<String> getAllParticipantIDs() {
+    return new LinkedList<String>();
+  }
+
+  public List<String> getAllRoleIDs() {
+   return new LinkedList<String>();
+  }
+    
   
   public boolean testConnection() {
     return false;

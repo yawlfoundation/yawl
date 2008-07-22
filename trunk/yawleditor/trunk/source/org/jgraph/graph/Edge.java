@@ -49,11 +49,11 @@ public interface Edge extends GraphCell {
 
 		/**
 		 * Returns the points to be used for the edge.
-		 * 
+		 * @param cache TODO
 		 * @param edge
 		 *            The edge view to route the points for.
 		 */
-		public List route(EdgeView edge);
+		public List route(GraphLayoutCache cache, EdgeView edge);
 
 		/**
 		 * Returns the preferred line style for this routing. A return value of

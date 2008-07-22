@@ -35,12 +35,19 @@ import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
+import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
+import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
+import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
+import org.yawlfoundation.yawl.editor.resourcing.InvalidResourceReference;
 import org.yawlfoundation.yawl.editor.swing.undo.*;
+import org.yawlfoundation.yawl.editor.swing.specification.ProblemMessagePanel;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class SpecificationModel {
   
@@ -573,6 +580,55 @@ public class SpecificationModel {
         if (!task.getDecomposition().invokesWorklist()) {
           task.setResourceMapping(null);
         }
+      }
+    }
+  }
+
+
+  public void checkResourcingObjects() {
+    if (ResourcingServiceProxy.getInstance().isLiveService()) { 
+
+      // get live object id lists from resource service
+      List<String> pidList = ResourcingServiceProxy.getInstance().getAllParticipantIDs();
+      List<String> ridList = ResourcingServiceProxy.getInstance().getAllRoleIDs();
+      List<InvalidResourceReference> badRefs = new ArrayList<InvalidResourceReference>();
+
+      Iterator netIterator = nets.iterator();
+      while (netIterator.hasNext()) {
+        NetGraphModel netModel = (NetGraphModel) netIterator.next();
+        Iterator taskIterator = NetUtilities.getAllTasks(netModel).iterator();
+        while (taskIterator.hasNext()) {
+          YAWLTask task = (YAWLTask) taskIterator.next();
+          ResourceMapping map = task.getResourceMapping();
+          if (map != null) {
+            List<ResourcingParticipant> pList = map.getBaseUserDistributionList();
+            if (pList != null) {
+              for (ResourcingParticipant p : pList) {
+                if (! pidList.contains(p.getId())) {
+                  badRefs.add(new InvalidResourceReference(netModel, task, p));
+                }
+              }
+            }
+
+            List<ResourcingRole> rList = map.getBaseRoleDistributionList();
+            if (rList != null) {
+              for (ResourcingRole r : rList) {
+                if (! ridList.contains(r.getId())) {
+                  badRefs.add(new InvalidResourceReference(netModel, task, r));
+                }
+              }
+            }    
+          }
+        }
+      }
+      if (! badRefs.isEmpty()) {
+          List<String> msgList = new ArrayList<String>();
+          for (InvalidResourceReference ref : badRefs) {
+              msgList.add(ref.getMessage());
+              ref.removeFromDistributionList();
+          }
+          ProblemMessagePanel.getInstance()
+                .setProblemList("Invalid Resource References Found", msgList);
       }
     }
   }

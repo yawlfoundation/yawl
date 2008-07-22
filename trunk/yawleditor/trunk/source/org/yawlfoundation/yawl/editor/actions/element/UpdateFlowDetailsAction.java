@@ -295,7 +295,9 @@ class FlowDetailTablePanel extends AbstractOrderedTablePanel {
       flowColours = new HashMap<YAWLFlowRelation, Color>();
       for (Object obj: flows) {
           YAWLFlowRelation flow = (YAWLFlowRelation) obj;
-          flowColours.put(flow, netOfTask.getCellForeground(flow));
+          Color origColor = netOfTask.getCellForeground(flow);
+          if (origColor == null) origColor = Color.BLACK;
+          flowColours.put(flow, origColor);
       }
   }
     
