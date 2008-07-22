@@ -203,13 +203,13 @@ public class ArchivableSpecificationState implements Serializable {
     Object versionNumber = serializationProofAttributeMap.get("versionNumber");
     if (versionNumber instanceof String) {
       try {
-        return Double.valueOf((String) versionNumber).doubleValue();
+        return new Double((String) versionNumber);
       } catch (NumberFormatException nfe) {
         return 0.1;
       }
     }
     if (versionNumber instanceof Double) {
-      return ((Double) versionNumber).doubleValue();
+      return (Double) versionNumber;
     }
     return 0.1;
   }

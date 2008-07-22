@@ -232,7 +232,6 @@ public abstract class YAWLTask extends YAWLVertex {
   public void resetParameterLists() {
     setParameterLists(new ParameterLists());
   }
-  
   public void setDecomposition(Decomposition decomposition) {
     serializationProofAttributeMap.put("decomposition",decomposition);
   }

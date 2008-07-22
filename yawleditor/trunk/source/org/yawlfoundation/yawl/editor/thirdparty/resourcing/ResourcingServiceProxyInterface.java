@@ -50,6 +50,9 @@ public interface ResourcingServiceProxyInterface {
   
   public List<ResourcingParticipant> getAllParticipants();
   public List<ResourcingRole> getAllRoles();
+  public List<String> getAllParticipantIDs();
+  public List<String> getAllRoleIDs();
+
   
   public List<ResourcingFilter> getRegisteredResourcingFilters();
   

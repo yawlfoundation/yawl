@@ -118,8 +118,8 @@ public class BasicMarqueeHandler {
 				overlay(graph, g, false);
 			} else {
 				dirty.add(marqueeBounds);
-				graph.repaint((int) dirty.getX(), (int) dirty.getY(),
-						(int) dirty.getWidth()+1, (int) dirty.getHeight()+1);
+				graph.repaint((int) dirty.getX()-1, (int) dirty.getY()-1,
+						(int) dirty.getWidth()+2, (int) dirty.getHeight()+2);
 			}
 		}
 	}
@@ -183,16 +183,14 @@ public class BasicMarqueeHandler {
 		startPoint = e.getPoint();
 		marqueeBounds = new Rectangle2D.Double(startPoint.getX(), startPoint
 				.getY(), 0, 0);
-		if (e != null) {
-			if (!(e.getSource() instanceof JGraph))
-				throw new IllegalArgumentException(
-						"MarqueeHandler cannot handle event from unknown source: "
-								+ e);
-			JGraph graph = (JGraph) e.getSource();
-			if (isMarqueeTriggerEvent(e, graph)) {
-				previousCursor = graph.getCursor();
-				graph.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-			}
+		if (!(e.getSource() instanceof JGraph))
+			throw new IllegalArgumentException(
+					"MarqueeHandler cannot handle event from unknown source: "
+							+ e);
+		JGraph graph = (JGraph) e.getSource();
+		if (isMarqueeTriggerEvent(e, graph)) {
+			previousCursor = graph.getCursor();
+			graph.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
 		}
 	}
 

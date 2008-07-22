@@ -1,16 +1,15 @@
 package org.yawlfoundation.yawl.editor.swing.specification;
 
-import javax.swing.JTabbedPane;
-import javax.swing.border.EmptyBorder;
-
 import org.jgraph.event.GraphSelectionEvent;
-
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionSubscriber;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 public class SpecificationBottomPanel extends JTabbedPane implements SpecificationSelectionSubscriber {
 
@@ -70,7 +69,7 @@ public class SpecificationBottomPanel extends JTabbedPane implements Specificati
           setEnabledAt(DESIGN_NOTES_PANEL_INDEX, true);
           setTitleAt(
               DESIGN_NOTES_PANEL_INDEX, 
-              "Notes (" + vertex.getEngineId()  + ")"
+              "Notes (" + vertex.getEngineLabel()  + ")"
           );
 
           designNotesPanel.setVertex(vertex);

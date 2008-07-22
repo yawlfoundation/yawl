@@ -118,16 +118,17 @@ public abstract class AbstractCellView implements CellView, Serializable {
 	 * Create child views and reload properties for this view. Invokes update
 	 * first.
 	 * 
-	 * @param model
+	 * @param cache
 	 *            the graph model to be used
 	 * @param mapper
 	 *            the cell mapper to be used
 	 * @param createDependentViews
 	 *            whether or not to create a view if one does not already exist
 	 */
-	public void refresh(GraphModel model, CellMapper mapper,
+	public void refresh(GraphLayoutCache cache, CellMapper mapper,
 			boolean createDependentViews) {
 		// Re-read global attributes
+		GraphModel model = cache.getModel();
 		allAttributes = getCellAttributes(model);
 		// Cache Parent View
 		if (mapper != null && model != null) {
@@ -139,7 +140,7 @@ public abstract class AbstractCellView implements CellView, Serializable {
 			parent = tmp;
 		}
 		// Cache Cell Attributes in View
-		update();
+		update(cache);
 		// Re-load Child Views
 		childViews.clear();
 		for (int i = 0; i < model.getChildCount(cell); i++) {
@@ -162,7 +163,7 @@ public abstract class AbstractCellView implements CellView, Serializable {
 	 * Update attributes for this view and indicate to the parent this child has
 	 * been updated
 	 */
-	public void update() {
+	public void update(GraphLayoutCache cache) {
 		mergeAttributes();
 		// Notify Parent
 		groupBounds = null;
@@ -299,10 +300,10 @@ public abstract class AbstractCellView implements CellView, Serializable {
 	 *            a map of attribute changes to apply
 	 * @return the undo map that reverses this change
 	 */
-	public Map changeAttributes(Map change) {
+	public Map changeAttributes(GraphLayoutCache cache, Map change) {
 		if (change != null) {
 			Map undo = attributes.applyMap(change);
-			update();
+			update(cache);
 			return undo;
 		}
 		return null;

@@ -23,10 +23,14 @@
 
 package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
+import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.Expression;
+import net.sf.saxon.expr.Token;
+import net.sf.saxon.query.QueryModule;
 import net.sf.saxon.query.QueryParser;
 import net.sf.saxon.query.StaticQueryContext;
-import net.sf.saxon.xpath.XPathException;
+import net.sf.saxon.s9api.SaxonApiException;
+import net.sf.saxon.trans.XPathException;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
@@ -40,6 +44,7 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBased
 import org.yawlfoundation.yawl.schema.ElementCreationInstruction;
 import org.yawlfoundation.yawl.schema.XMLToolsForYAWL;
 import org.yawlfoundation.yawl.unmarshal.SchemaForSchemaValidator;
+import org.yawlfoundation.yawl.util.SaxonUtil;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -432,11 +437,12 @@ class XQueryStyledDocument extends AbstractXMLStyledDocument{
     }
     
     try {
-      parser.parse(preEditorText + getEditor().getText() + postEditorText);
+      SaxonUtil.compileXQuery(preEditorText + getEditor().getText() + postEditorText);
       setContentValid(AbstractXMLStyledDocument.Validity.VALID);
       parseError = null;
-    } catch (XPathException e) {
-      parseError = e.getMessageAndLocation();
+    }
+    catch (SaxonApiException e) {
+      parseError = e.getMessage().split("\n")[1].trim();
       setContentValid(AbstractXMLStyledDocument.Validity.INVALID);
     } 
   }
@@ -450,10 +456,10 @@ class XQueryStyledDocument extends AbstractXMLStyledDocument{
 
 class SimpleXQueryParser extends QueryParser {
   private static final StaticQueryContext context =
-     new StaticQueryContext();
+     new StaticQueryContext(new Configuration());
   
   public Expression parse(String query) throws XPathException {
-    return super.parse(query,context);
+    return super.parse(query, 0, Token.EOF, -1, new QueryModule(context));
   }
   
   public Expression parseForExpression(String query) throws XPathException {

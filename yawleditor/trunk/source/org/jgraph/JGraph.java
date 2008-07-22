@@ -1,61 +1,33 @@
 /*
- * @(#)JGraph.java
+ * $Id: JGraph.java,v 1.81 2008/04/28 11:49:52 david Exp $
  *
- * Copyright (c) 2001-2006 Gaudenz Alder
+ * Copyright (c) 2001-2008 Gaudenz Alder
  *
  */
 package org.jgraph;
 
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Rectangle;
+import org.jgraph.event.GraphLayoutCacheEvent.GraphLayoutCacheChange;
+import org.jgraph.event.GraphSelectionEvent;
+import org.jgraph.event.GraphSelectionListener;
+import org.jgraph.graph.*;
+import org.jgraph.plaf.GraphUI;
+import org.jgraph.plaf.basic.BasicGraphUI;
+
+import javax.accessibility.Accessible;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
-import javax.accessibility.Accessible;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.JViewport;
-import javax.swing.Scrollable;
-import javax.swing.SwingConstants;
-
-import org.jgraph.event.GraphSelectionEvent;
-import org.jgraph.event.GraphSelectionListener;
-import org.jgraph.graph.AbstractCellView;
-import org.jgraph.graph.AttributeMap;
-import org.jgraph.graph.BasicMarqueeHandler;
-import org.jgraph.graph.CellView;
-import org.jgraph.graph.ConnectionSet;
-import org.jgraph.graph.DefaultCellViewFactory;
-import org.jgraph.graph.DefaultEdge;
-import org.jgraph.graph.DefaultGraphCell;
-import org.jgraph.graph.DefaultGraphModel;
-import org.jgraph.graph.DefaultGraphSelectionModel;
-import org.jgraph.graph.GraphConstants;
-import org.jgraph.graph.GraphLayoutCache;
-import org.jgraph.graph.GraphModel;
-import org.jgraph.graph.GraphSelectionModel;
-import org.jgraph.graph.PortView;
-import org.jgraph.plaf.GraphUI;
 
 /**
  * A control that displays a network of related objects using the well-known
@@ -174,31 +146,37 @@ import org.jgraph.plaf.GraphUI;
  * 
  */
 public class JGraph
-// DO NOT REMOVE OR MODIFY THIS LINE!
+//DO NOT REMOVE OR MODIFY THIS LINE!
 		extends JComponent // JAVA13:
 		// org.jgraph.plaf.basic.TransferHandler.JAdapterComponent
 		implements Scrollable, Accessible, Serializable {
 
-	public static final String VERSION = "JGraph (v5.9.2.2)";
+	public static final String VERSION = "JGraph (v5.12.1.1)";
 
 	public static final int DOT_GRID_MODE = 0;
 
 	public static final int CROSS_GRID_MODE = 1;
 
 	public static final int LINE_GRID_MODE = 2;
-	
-	public static boolean IS_MAC = false; 
-	
+
+	// Turn off XOR painting on MACs since it doesn't work
+	public static boolean IS_MAC = false;
+
 	static {
 		try {
 			String osName = System.getProperty("os.name");
 			if (osName != null) {
 				IS_MAC = osName.toLowerCase().startsWith("mac os x");
 			}
+			String javaVersion = System.getProperty("java.version");
+			if (javaVersion.startsWith("1.4") || javaVersion.startsWith("1.5")) {
+				// TODO different double buffering for 1.6 JVM?
+			}
 		} catch (Exception e) {
 			// ignore
 		}
 	}
+
 	/**
 	 * @see #getUIClassID
 	 * @see #readObject
@@ -232,15 +210,40 @@ public class JGraph
 	/** Off screen image for double buffering */
 	protected transient Image offscreen;
 
+	/** The bounds of the offscreen buffer */
+	protected transient Rectangle2D offscreenBounds;
+	
+	/** The offset of the offscreen buffer */
+	protected transient Point2D offscreenOffset;
+
 	/** Graphics object of off screen image */
 	protected transient Graphics offgraphics;
+	
+	/** Whether or not the current background image is correct */
+	protected transient Rectangle2D offscreenDirty = null;
+
+	/**
+	 * The buffer around the offscreen graphics object that provides the
+	 * specified distance of scrolling before the buffer has to be redrawn.
+	 * Increasing the value means fewer redraws but more memory is required.
+	 */
+	protected transient int offscreenBuffer = 0;
+	
+	/**
+	 * Whether or not to try to use a volatile offscreen buffer for double
+	 * buffering. Volatile 
+	 */
+	protected boolean volatileOffscreen = false;
+	
+	/** Stores whether the last double buffer allocation worked or not */
+	protected boolean lastBufferAllocated = true;
 
 	/** Holds the background image. */
 	protected ImageIcon backgroundImage;
-	
+
 	/** A Component responsible for drawing the background image, if any */
 	protected Component backgroundComponent;
-	
+
 	/** Whether or not the background image is scaled on zooming */
 	protected boolean backgroundScaled = true;
 
@@ -253,6 +256,9 @@ public class JGraph
 	/** True if the graph allows editing the value of a cell. Bound property. */
 	protected boolean editable = true;
 
+	/** True if the graph allows editing of non-leaf cells. Bound property. */
+	protected boolean groupsEditable = false;
+	
 	/**
 	 * True if the graph allows selection of cells. Note: You must also disable
 	 * selectNewCells if you disable this. Bound property.
@@ -280,12 +286,18 @@ public class JGraph
 	/** True if the ports are scaled. Bound property. */
 	protected boolean portsScaled = true;
 
+	/** True if port are painted above all other cells. */
+	protected boolean portsOnTop = true;
+	
 	/** True if the graph allows to move cells below zero. */
 	protected boolean moveBelowZero = false;
+	
+	/** True if the graph allows to move cells beyond the graph bounds */
+	protected boolean moveBeyondGraphBounds  = true;
 
 	/** True if the labels on edges may be moved. */
 	protected boolean edgeLabelsMovable = true;
-	
+
 	/**
 	 * True if the graph should be auto resized when cells are moved below the
 	 * bottom right corner. Default is true.
@@ -498,12 +510,11 @@ public class JGraph
 	 * Bound property name for <code>messagesStopCellEditing</code>.
 	 */
 	public final static String INVOKES_STOP_CELL_EDITING_PROPERTY = "invokesStopCellEditing";
-	
+
 	/**
 	 * Bound property name for <code>backgroundImage</code>.
 	 */
 	public final static String PROPERTY_BACKGROUNDIMAGE = "backgroundImage";
-
 
 	/**
 	 * Creates and returns a sample <code>GraphModel</code>. Used primarily
@@ -551,7 +562,7 @@ public class JGraph
 		DefaultGraphCell gm = new DefaultGraphCell("GraphModel");
 		attributes.put(gm,
 				createBounds(new AttributeMap(), 20, 100, Color.blue));
-		gm.addPort(null,"GraphModel/Center");
+		gm.addPort(null, "GraphModel/Center");
 		DefaultGraphCell dgm = new DefaultGraphCell("DefaultGraphModel");
 		attributes.put(dgm, createBounds(new AttributeMap(), 20, 180,
 				Color.blue));
@@ -774,7 +785,8 @@ public class JGraph
 	// Content
 	//
 	/**
-	 * Returns all cells that the model contains.
+	 * Returns all root cells (cells that have no parent) that the model
+	 * contains.
 	 */
 	public Object[] getRoots() {
 		return DefaultGraphModel.getRoots(graphModel);
@@ -1216,7 +1228,7 @@ public class JGraph
 							view.getAttributes().remove(GraphConstants.RESIZE);
 						attrs.remove(GraphConstants.RESIZE);
 					}
-					view.refresh(getModel(), getGraphLayoutCache(), false);
+					view.refresh(getGraphLayoutCache(), getGraphLayoutCache(), false);
 				}
 			}
 		}
@@ -1273,7 +1285,7 @@ public class JGraph
 	 * Returns true if the graph accepts drops/pastes from external sources.
 	 */
 	public boolean isXorEnabled() {
-		return xorEnabled;
+		return (xorEnabled && isOpaque());
 	}
 
 	/**
@@ -1481,6 +1493,20 @@ public class JGraph
 	}
 
 	/**
+	 * @return the moveBeyondGraphBounds
+	 */
+	public boolean isMoveBeyondGraphBounds() {
+		return moveBeyondGraphBounds;
+	}
+
+	/**
+	 * @param moveBeyondGraphBounds the moveBeyondGraphBounds to set
+	 */
+	public void setMoveBeyondGraphBounds(boolean moveBeyondGraphBounds) {
+		this.moveBeyondGraphBounds = moveBeyondGraphBounds;
+	}
+
+	/**
 	 * Returns true if edge labels may be dragged and dropped.
 	 * 
 	 * @return whether edge labels may be dragged and dropped
@@ -1488,7 +1514,7 @@ public class JGraph
 	public boolean getEdgeLabelsMovable() {
 		return edgeLabelsMovable;
 	}
-	
+
 	/**
 	 * Set if edge labels may be moved with the mouse or not.
 	 * 
@@ -1498,17 +1524,23 @@ public class JGraph
 	public void setEdgeLabelsMovable(boolean edgeLabelsMovable) {
 		this.edgeLabelsMovable = edgeLabelsMovable;
 	}
-	
+
 	/**
 	 * Returns true if the graph should be automatically resized when cells are
-	 * being move below the bottom right corner.
+	 * being moved below the bottom right corner. Note if the value of
+	 * <code>moveBeyondGraphBounds</code> if <code>false</code> auto resizing
+	 * is automatically disabled
 	 */
 	public boolean isAutoResizeGraph() {
+		if (!moveBeyondGraphBounds) {
+			return false;
+		}
 		return autoResizeGraph;
 	}
 
 	/**
-	 * Sets if the graph allows to move cells below zero.
+	 * Sets whether or not the graph should be automatically resize when cells 
+	 * are being moved below the bottom right corner
 	 */
 	public void setAutoResizeGraph(boolean autoResizeGraph) {
 		this.autoResizeGraph = autoResizeGraph;
@@ -1670,29 +1702,28 @@ public class JGraph
 
 	/**
 	 * Sets the current scale and centers the graph to the specified point
-	 * @param newValue the new scale
-	 * @param center the center of the graph
+	 * 
+	 * @param newValue
+	 *            the new scale
+	 * @param center
+	 *            the center of the graph
 	 */
 	public void setScale(double newValue, Point2D center) {
 		if (newValue > 0 && newValue != this.scale) {
-			boolean isViewport = (getParent() instanceof JViewport);
-			Rectangle view = null;
-			// Scrolling to the correct position only possible with a viewport
-			if (isViewport) {
-				view = ((JViewport) getParent()).getViewRect();
-			}
+			Rectangle2D view = getViewPortBounds();
 			double oldValue = this.scale;
 			scale = newValue;
 			boolean zoomIn = true;
 			Rectangle newView = null;
-			if (isViewport && view != null) {
+			clearOffscreen();
+			if (view != null) {
 				double scaleRatio = newValue / oldValue;
 				int newCenterX = (int) (center.getX() * scaleRatio);
 				int newCenterY = (int) (center.getY() * scaleRatio);
 				int newX = (int) (newCenterX - view.getWidth() / 2.0);
 				int newY = (int) (newCenterY - view.getHeight() / 2.0);
-				newView = new Rectangle(newX, newY, (int) view
-						.getWidth(), (int) view.getHeight());
+				newView = new Rectangle(newX, newY, (int) view.getWidth(),
+						(int) view.getHeight());
 				// When zooming out scroll before revalidation otherwise
 				// revalidation causes one scroll and scrollRectToVisible
 				// another
@@ -1709,18 +1740,48 @@ public class JGraph
 			}
 		}
 	}
-	
+
+	/**
+	 * Invalidate the offscreen region, do not just delete it, since if the new
+	 * region is smaller than the old you may not wish to re-create the buffer
+	 */
+	public void clearOffscreen() {
+
+		if (offscreen != null) {
+			int h = offscreen.getHeight(this);
+			int w = offscreen.getWidth(this);
+			Rectangle2D dirtyRegion = new Rectangle2D.Double(0, 0, w, h);
+			fromScreen(dirtyRegion);
+			addOffscreenDirty(dirtyRegion);
+		}
+	}
+
 	/**
 	 * Returns the center of the component relative to the parent viewport's
 	 * position.
 	 */
 	public Point2D getCenterPoint() {
-		if (getParent() instanceof JViewport) {
-			Rectangle view = ((JViewport) getParent()).getViewRect();
-			return new Point2D.Double(view.getCenterX(), view.getCenterY());
+		Rectangle2D viewBounds = getViewPortBounds();
+		if (viewBounds != null) {
+			return new Point2D.Double(viewBounds.getCenterX(), viewBounds
+					.getCenterY());
 		}
-		Rectangle view = getBounds();
-		return new Point2D.Double(view.getCenterX(), view.getCenterY());
+		viewBounds = getBounds();
+		return new Point2D.Double(viewBounds.getCenterX(), viewBounds
+				.getCenterY());
+	}
+
+	/**
+	 * Return the bounds of the parent viewport, if one exists. If one does not
+	 * exist, null is returned
+	 * 
+	 * @return the bounds of the parent viewport
+	 */
+	public Rectangle2D getViewPortBounds() {
+		if (getParent() instanceof JViewport) {
+			return ((JViewport) getParent()).getViewRect();
+		}
+		return null;
 	}
 
 	/**
@@ -1786,6 +1847,10 @@ public class JGraph
 	public void setGridVisible(boolean flag) {
 		boolean oldValue = gridVisible;
 		gridVisible = flag;
+		// Clear the double buffer if the grid has been enabled
+		if (flag && !oldValue) {
+			clearOffscreen();
+		}
 		firePropertyChange(GRID_VISIBLE_PROPERTY, oldValue, flag);
 	}
 
@@ -1827,6 +1892,14 @@ public class JGraph
 		boolean oldValue = portsScaled;
 		portsScaled = flag;
 		firePropertyChange(PORTS_SCALED_PROPERTY, oldValue, flag);
+	}
+
+	public boolean isPortsOnTop() {
+		return portsOnTop;
+	}
+
+	public void setPortsOnTop(boolean portsOnTop) {
+		this.portsOnTop = portsOnTop;
 	}
 
 	/**
@@ -1879,6 +1952,20 @@ public class JGraph
 	}
 
 	/**
+	 * @return the groupsEditable
+	 */
+	public boolean isGroupsEditable() {
+		return groupsEditable;
+	}
+
+	/**
+	 * @param groupsEditable the groupsEditable to set
+	 */
+	public void setGroupsEditable(boolean groupsEditable) {
+		this.groupsEditable = groupsEditable;
+	}
+
+	/**
 	 * Returns true if the cell selection is enabled
 	 * 
 	 * @return true if the cell selection is enabled
@@ -1921,25 +2008,219 @@ public class JGraph
 	}
 
 	/**
-	 * Returns the current double buffering graphics object. Checks to see
-	 * if the graph bounds has changed since the last time the off screen
-	 * image was created and if so, creates a new image.
+	 * Returns the current double buffering graphics object. Checks to see if
+	 * the graph bounds has changed since the last time the off screen image was
+	 * created and if so, creates a new image.
+	 * 
 	 * @return the off screen graphics
 	 */
 	public Graphics getOffgraphics() {
-		Rectangle rect = getBounds();
-
-		if ((offscreen == null || offgraphics == null)
-				|| (offscreen instanceof BufferedImage && ((((BufferedImage) offscreen)
-						.getWidth() != rect.width) || ((BufferedImage) offscreen)
-						.getHeight() != rect.height))) {
-			offscreen = new BufferedImage(rect.width, rect.height,
-					BufferedImage.TYPE_INT_RGB);
-			offgraphics = offscreen.getGraphics();
-			offgraphics.setClip(0, 0, rect.width, rect.height);
+		if (!isDoubleBuffered()) {
+			// If double buffering is not enabled
+			return null;
 		}
-		
+		// Get the bounds of the entire graph
+		Rectangle2D graphBounds = getBounds();
+		// Get the visible area if in a scroll pane
+		Rectangle2D viewPortBounds = null;//getViewPortBounds();
+		// The result can be null if not a view port.
+		if (viewPortBounds == null) {
+			viewPortBounds = graphBounds;
+		}
+		// Find the size of the double buffer in the JVM
+		int x = Math
+				.max(0, (int) viewPortBounds.getX() - (int) offscreenBuffer);
+		int y = Math
+				.max(0, (int) viewPortBounds.getY() - (int) offscreenBuffer);
+		int width = (int) viewPortBounds.getWidth() + (int) offscreenBuffer * 2;
+		int height = (int) viewPortBounds.getHeight() + (int) offscreenBuffer
+				* 2;
+		// Code below used to work out max possible screen size, might not
+		// be needed in JVM 1.6?
+		//		try {
+		//		Rectangle virtualBounds = new Rectangle();
+		//		GraphicsEnvironment ge = GraphicsEnvironment
+		//		.getLocalGraphicsEnvironment();
+		//		GraphicsDevice[] devices = ge.getScreenDevices();
+		//		for (int i = 0; i < devices.length; i++) {
+		//		GraphicsConfiguration gc = devices[i].getDefaultConfiguration();
+		//		virtualBounds = virtualBounds.union(gc.getBounds());
+		//		}
+		//		doubleBufferSize = new Dimension(virtualBounds.width,
+		//		virtualBounds.height);
+		//		} catch (HeadlessException e) {
+		//		doubleBufferSize = new Dimension((int) graphBounds.getWidth(), (int)
+		//		graphBounds
+		//		.getHeight());
+		//		}
+		// If the screen size exceed either of the graph dimensions, limit them
+		// to the graph's
+		if (width > graphBounds.getWidth()) {
+			width = (int) graphBounds.getWidth();
+		}
+		if (height > graphBounds.getHeight()) {
+			height = (int) graphBounds.getHeight();
+		}
+
+		Rectangle2D newOffscreenBuffer = new Rectangle2D.Double(0, 0, width,
+				height);
+		// Check whether the visible area is completely contained within the
+		// buffer. If not, the buffer need to be re-generated
+		if ((offscreen == null || offgraphics == null || offscreenBounds == null)
+				|| !(offscreenBounds.contains(newOffscreenBuffer))) {
+			if (offscreen != null) {
+				offscreen.flush();
+			}
+			if (offgraphics != null) {
+				offgraphics.dispose();
+			}
+			offscreen = null;
+			offgraphics = null;
+			Runtime runtime = Runtime.getRuntime();
+			long maxMemory = runtime.maxMemory();
+			long allocatedMemory = runtime.totalMemory();
+			long freeMemory = runtime.freeMemory();
+			long totalFreeMemory = (freeMemory + (maxMemory - allocatedMemory)) / 1024;
+			// Calculate size of buffer required (assuming TYPE_INT_RGB which
+			// stores each pixel in a 32-bit int )
+			long memoryRequired = width*height*4/1024;
+			if (memoryRequired > totalFreeMemory) {
+				if (lastBufferAllocated) {
+					// If the last attempt to allocate a buffer worked it might
+					// be we need to reclaim the memory before the next one
+					// will work
+					System.gc();
+				}
+				lastBufferAllocated = false;
+				return null;
+			}
+			if (offscreen == null && volatileOffscreen) {
+				try {
+					offscreen = createVolatileImage(width, height);
+				} catch (OutOfMemoryError e) {
+					offscreen = null;
+					offgraphics = null;
+				}
+			}
+			if (offscreen == null) {
+				// Probably running in headless mode, try to create a buffered
+				// image.
+				createBufferedImage(width, height);
+			}
+			if (offscreen == null) {
+				// TODO assume the graph is too large and only buffer part
+				// of it, might also be faster to calculate in
+				// advance whether they is enough memory to create image
+				// rather than let it try and throw error.
+				lastBufferAllocated = false;
+				return null;
+			}
+			lastBufferAllocated = true;
+			setupOffScreen(x, y, width, height, newOffscreenBuffer);
+		} else if (offscreen instanceof VolatileImage) {
+			int valCode = ((VolatileImage) offscreen)
+					.validate(getGraphicsConfiguration());
+			if (!volatileOffscreen) {
+				offscreen.flush();
+				offgraphics.dispose();
+				offscreen = null;
+				offgraphics = null;
+				createBufferedImage(width,height);
+				setupOffScreen(x, y, width, height, newOffscreenBuffer);
+			} else if (valCode == VolatileImage.IMAGE_INCOMPATIBLE) {
+				offscreen.flush();
+				offgraphics.dispose();
+				try {
+					offscreen = createVolatileImage(width, height);
+				} catch (OutOfMemoryError e) {
+					offscreen = null;
+					offgraphics = null;
+					return null;
+				}
+				setupOffScreen(x, y, width, height, newOffscreenBuffer);
+			} else if (valCode == VolatileImage.IMAGE_RESTORED) {
+				addOffscreenDirty(new Rectangle2D.Double(0, 0, getWidth(), getHeight()));
+			}
+		}
+		Rectangle2D offscreenDirty = getOffscreenDirty();
+		if (offscreenDirty != null) {
+			if (isOpaque()) {
+				offgraphics.setColor(getBackground());
+				offgraphics.setPaintMode();
+			} else {
+				((Graphics2D) offgraphics).setComposite(AlphaComposite.getInstance(
+					      AlphaComposite.CLEAR, 0.0f));
+			}
+			toScreen(offscreenDirty);
+			offscreenDirty.setRect(offscreenDirty.getX()
+					- (getHandleSize() + 1), offscreenDirty.getY()
+					- (getHandleSize() + 1), offscreenDirty.getWidth()
+					+ (getHandleSize() + 1) * 2, offscreenDirty.getHeight()
+					+ (getHandleSize() + 1) * 2);
+			offgraphics.fillRect((int) offscreenDirty.getX(),
+					(int) offscreenDirty.getY(), (int) offscreenDirty
+							.getWidth(), (int) offscreenDirty.getHeight());
+			if (!isOpaque()) {
+				((Graphics2D) offgraphics).setComposite(AlphaComposite.SrcOver);
+			}
+			((BasicGraphUI) getUI()).drawGraph(offgraphics, offscreenDirty);
+			clearOffscreenDirty();
+		}
 		return offgraphics;
+	}
+
+	/**
+	 * Utility method to create a standard buffered image
+	 * @param width
+	 * @param height
+	 */
+	protected void createBufferedImage(int width, int height) {
+		GraphicsConfiguration graphicsConfig = getGraphicsConfiguration();
+		if (graphicsConfig != null) {
+			try {
+				offscreen = graphicsConfig.createCompatibleImage(width, height,
+					      (isOpaque()) ? Transparency.OPAQUE : Transparency.TRANSLUCENT);
+			} catch (OutOfMemoryError e) {
+				offscreen = null;
+				offgraphics = null;
+			}
+		} else {
+			try {
+				offscreen = graphicsConfig.createCompatibleImage(width, height,
+					      (isOpaque()) ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB);
+			} catch (OutOfMemoryError e) {
+				offscreen = null;
+				offgraphics = null;
+			}
+		}
+	}
+
+	/**
+	 * Utility method that initialises the offscreen graphics area
+	 * @param x
+	 * @param y
+	 * @param width
+	 * @param height
+	 * @param newOffscreenBuffer
+	 */
+	protected void setupOffScreen(int x, int y, int width, int height, Rectangle2D newOffscreenBuffer) {
+		offgraphics = offscreen.getGraphics();
+		if (isOpaque()) {
+			offgraphics.setColor(getBackground());
+			offgraphics.setPaintMode();
+		} else {
+			((Graphics2D) offgraphics).setComposite(AlphaComposite.getInstance(
+					AlphaComposite.CLEAR, 0.0f));
+		}
+		offgraphics.fillRect(0, 0, width, height);
+		if (!isOpaque()) {
+			 ((Graphics2D) offgraphics).setComposite(AlphaComposite.SrcOver);
+		}
+		((BasicGraphUI)getUI()).drawGraph(offgraphics, null);
+		offscreenBounds = newOffscreenBuffer;
+		offscreenOffset = new Point2D.Double(x, y);
+		// Clear the offscreen, we've just drawn the whole thing
+		clearOffscreenDirty();
 	}
 
 	/**
@@ -1949,6 +2230,23 @@ public class JGraph
 		return offscreen;
 	}
 
+	public Rectangle2D getOffscreenDirty() {
+		return offscreenDirty;
+	}
+
+	public void addOffscreenDirty(Rectangle2D offscreenDirty) {
+		if (this.offscreenDirty == null && offscreenDirty != null){
+			this.offscreenDirty = (Rectangle2D)offscreenDirty.clone();
+		} else if (offscreenDirty != null){
+			this.offscreenDirty.add(offscreenDirty);
+		}
+		
+	}
+
+	public void clearOffscreenDirty() {
+		offscreenDirty = null;
+	}
+	
 	/**
 	 * Utility method to draw the off screen buffer
 	 * 
@@ -1981,32 +2279,18 @@ public class JGraph
 	 */
 	public boolean drawImage(int dx1, int dy1, int dx2, int dy2, int sx1,
 			int sy1, int sx2, int sy2) {
-		Rectangle rect = getBounds();
-		if ((offscreen == null)
-				|| (offscreen instanceof BufferedImage && ((((BufferedImage) offscreen)
-						.getWidth() != rect.width) || ((BufferedImage) offscreen)
-						.getHeight() != rect.height))) {
-			offscreen = new BufferedImage(rect.width, rect.height,
-					BufferedImage.TYPE_INT_RGB);
-			offgraphics = offscreen.getGraphics();
-			offgraphics.setClip(0, 0, rect.width, rect.height);
-			return false;
-		}
+		getOffgraphics();
 		return getGraphics().drawImage(offscreen, (int) sx1, (int) sy1,
 				(int) sx2, (int) sy2, (int) sx1, (int) sy1, (int) sx2,
 				(int) sy2, this);
 	}
 
 	public boolean drawImage(Graphics g) {
-		// If the graphics object passed in is the offscreen graphics
-		// object do nothing
-		if (g == offgraphics) {
-			return true;
-		}
 		Rectangle rect = getBounds();
-		return drawImage(rect.x, rect.y, rect.x + rect.width, rect.y
-				+ rect.height, rect.x, rect.y, rect.x + rect.width, rect.y
-				+ rect.height);
+		return getGraphics().drawImage(offscreen, rect.x, rect.y,
+				rect.x + rect.width, rect.y + rect.height, rect.x, rect.y,
+				rect.x + rect.width, rect.y + rect.height, this);
+
 	}
 
 	/**
@@ -2028,7 +2312,16 @@ public class JGraph
 	public void setBackgroundImage(ImageIcon backgroundImage) {
 		ImageIcon oldValue = this.backgroundImage;
 		this.backgroundImage = backgroundImage;
+		clearOffscreen();
 		firePropertyChange(PROPERTY_BACKGROUNDIMAGE, oldValue, backgroundImage);
+	}
+
+	/**
+	 * Override parent to clear offscreen double buffer
+	 */
+	public void setBackground(Color bg) {
+		clearOffscreen();
+		super.setBackground(bg);
 	}
 
 	/**
@@ -2039,7 +2332,36 @@ public class JGraph
 	}
 
 	/**
-	 * @param backgroundScaled the backgroundScaled to set
+	 * @return the offscreenOffset
+	 */
+	public Point2D getOffscreenOffset() {
+		return offscreenOffset;
+	}
+
+	/**
+	 * @param offscreenOffset the offscreenOffset to set
+	 */
+	public void setOffscreenOffset(Point2D offscreenOffset) {
+		this.offscreenOffset = offscreenOffset;
+	}
+
+	/**
+	 * @return the volatileOffscreen
+	 */
+	public boolean isVolatileOffscreen() {
+		return volatileOffscreen;
+	}
+
+	/**
+	 * @param volatileOffscreen the volatileOffscreen to set
+	 */
+	public void setVolatileOffscreen(boolean volatileOffscreen) {
+		this.volatileOffscreen = volatileOffscreen;
+	}
+
+	/**
+	 * @param backgroundScaled
+	 *            the backgroundScaled to set
 	 */
 	public void setBackgroundScaled(boolean backgroundScaled) {
 		this.backgroundScaled = backgroundScaled;
@@ -2053,10 +2375,25 @@ public class JGraph
 	}
 
 	/**
-	 * @param backgroundComponent the backgroundComponent to set
+	 * @param backgroundComponent
+	 *            the backgroundComponent to set
 	 */
 	public void setBackgroundComponent(Component backgroundComponent) {
+		clearOffscreen();
 		this.backgroundComponent = backgroundComponent;
+	}
+
+	/*
+	 * Overriden to change painting style for opaque components
+	 * @see javax.swing.JComponent#setOpaque(boolean)
+	 */
+	public void setOpaque(boolean opaque) {
+		// Due to problems with XOR painting on transparent backgrounds
+		// switch off XOR for non-opaque components
+		if (!opaque) {
+			setXorEnabled(false);
+		}
+		super.setOpaque(opaque);
 	}
 
 	/**
@@ -2081,6 +2418,7 @@ public class JGraph
 	public void setModel(GraphModel newModel) {
 		GraphModel oldModel = graphModel;
 		graphModel = newModel;
+		clearOffscreen();
 		firePropertyChange(GRAPH_MODEL_PROPERTY, oldModel, graphModel);
 		// FIX: Use Listener
 		if (graphLayoutCache != null
@@ -2115,6 +2453,7 @@ public class JGraph
 	public void setGraphLayoutCache(GraphLayoutCache newLayoutCache) {
 		GraphLayoutCache oldLayoutCache = graphLayoutCache;
 		graphLayoutCache = newLayoutCache;
+		clearOffscreen();
 		firePropertyChange(GRAPH_LAYOUT_CACHE_PROPERTY, oldLayoutCache,
 				graphLayoutCache);
 		if (graphLayoutCache != null
@@ -2588,6 +2927,14 @@ public class JGraph
 		repaint();
 	}
 
+	// /* (non-Javadoc)
+	// * @see javax.swing.JComponent#isOptimizedDrawingEnabled()
+	// */
+	// @Override
+	// public boolean isOptimizedDrawingEnabled() {
+	// return true;
+	// }
+
 	/**
 	 * Returns a {@link BufferedImage} for the graph using inset as an empty
 	 * border around the cells of the graph. If bg is null then a transparent
@@ -2599,14 +2946,26 @@ public class JGraph
 	 * @return Returns an image of the graph.
 	 */
 	public BufferedImage getImage(Color bg, int inset) {
+		// TODO, this method could just use the offscreen if available
 		Object[] cells = getRoots();
 		Rectangle2D bounds = getCellBounds(cells);
 		if (bounds != null) {
 			toScreen(bounds);
-			BufferedImage img = new BufferedImage((int) bounds.getWidth() + 2
-					* inset, (int) bounds.getHeight() + 2 * inset,
-					(bg != null) ? BufferedImage.TYPE_INT_RGB
-							: BufferedImage.TYPE_INT_ARGB);
+			GraphicsConfiguration graphicsConfig = getGraphicsConfiguration();
+			BufferedImage img = null;
+			if (graphicsConfig != null) {
+				img = getGraphicsConfiguration().createCompatibleImage(
+						(int) bounds.getWidth() + 2 * inset,
+						(int) bounds.getHeight() + 2 * inset,
+						(bg != null) ? Transparency.OPAQUE
+								: Transparency.BITMASK);
+			} else {
+				img = new BufferedImage((int) bounds.getWidth() + 2 * inset,
+						(int) bounds.getHeight() + 2 * inset,
+						(bg != null) ? BufferedImage.TYPE_INT_RGB
+								: BufferedImage.TYPE_INT_ARGB);
+			}
+
 			Graphics2D graphics = img.createGraphics();
 			if (bg != null) {
 				graphics.setColor(bg);
@@ -2627,6 +2986,44 @@ public class JGraph
 	}
 
 	/**
+	 * Calculates the clip 
+	 * @param change
+	 * @return the total region dirty as a result of this change
+	 */
+	public Rectangle2D getClipRectangle(GraphLayoutCacheChange change) {
+		List removed = DefaultGraphModel.getDescendants(getModel(), change.getRemoved());
+		Rectangle2D removedBounds = (removed != null && !removed.isEmpty()) ? getCellBounds(removed.toArray()) : null;
+		List inserted = DefaultGraphModel.getDescendants(getModel(), change.getInserted());
+		Rectangle2D insertedBounds = (inserted != null && !inserted.isEmpty()) ? getCellBounds(inserted.toArray()) : null;
+		List changed = DefaultGraphModel.getDescendants(getModel(), change.getChanged());
+		Rectangle2D changedBounds = (changed != null && !changed.isEmpty()) ? getCellBounds(changed.toArray()) : null;
+		List context = DefaultGraphModel.getDescendants(getModel(), change.getContext());
+		Rectangle2D contextBounds = (context != null && !context.isEmpty()) ? getCellBounds(context.toArray()) : null;
+
+		Rectangle2D clip = removedBounds;
+
+		if (clip == null) {
+			clip = insertedBounds;
+		} else if (insertedBounds != null) {
+			clip.add(insertedBounds);
+		}
+
+		if (clip == null) {
+			clip = changedBounds;
+		} else if (changedBounds != null) {
+			clip.add(changedBounds);
+		}
+
+		if (clip == null) {
+			clip = contextBounds;
+		} else if (contextBounds != null) {
+			clip.add(contextBounds);
+		}
+
+		return clip;
+	}
+
+	/**
 	 * Serialization support.
 	 */
 	private void writeObject(ObjectOutputStream s) throws IOException {
@@ -2640,7 +3037,7 @@ public class JGraph
 		// Save the graphModel, if its Serializable.
 		values.addElement("graphLayoutCache");
 		values.addElement(graphLayoutCache);
-		
+
 		// Save the selectionModel, if its Serializable.
 		if (selectionModel instanceof Serializable) {
 			values.addElement("selectionModel");
@@ -2884,5 +3281,4 @@ public class JGraph
 	public static void main(String[] args) {
 		System.out.println(VERSION);
 	}
-
 }

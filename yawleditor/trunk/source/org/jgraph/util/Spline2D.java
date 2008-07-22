@@ -106,12 +106,27 @@ public class Spline2D {
 		return result;
 	}
 	
+	/**
+	 * Used to check the correctness of this spline
+	 */
+	public boolean checkValues() {
+		return (splineX.checkValues() && splineY.checkValues());
+	}
+
 	public double getDx(double t) {
 		return splineX.getDx(t);
 	}
 	
 	public double getDy(double t) {
 		return splineY.getDx(t);
+	}
+	
+	public Spline getSplineX() {
+		return splineX;
+	}
+	
+	public Spline getSplineY() {
+		return splineY;
 	}
 	
 	public double getLength() {

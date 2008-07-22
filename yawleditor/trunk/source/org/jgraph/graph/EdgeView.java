@@ -94,14 +94,15 @@ public class EdgeView extends AbstractCellView {
 	 * target port. If the source or target is removed, a point is inserted into
 	 * the array of points.
 	 */
-	public void refresh(GraphModel model, CellMapper mapper,
+	public void refresh(GraphLayoutCache cache, CellMapper mapper,
 			boolean createDependentViews) {
 		// Makes sure the manual control points are passed to
 		// the router instead of the cached control points after
 		// changes to the edge (normally manual point changes).
 		points = null;
-		super.refresh(model, mapper, createDependentViews);
+		super.refresh(cache, mapper, createDependentViews);
 		// Re-sync source- and targetportviews
+		GraphModel model = cache.getModel();
 		Object modelSource = model.getSource(cell);
 		Object modelTarget = model.getTarget(cell);
 		setSource(mapper.getMapping(modelSource, createDependentViews));
@@ -129,8 +130,8 @@ public class EdgeView extends AbstractCellView {
 	/**
 	 * Update attributes and recurse children.
 	 */
-	public void update() {
-		super.update();
+	public void update(GraphLayoutCache cache) {
+		super.update(cache);
 		// Save the reference to the points so they can be changed
 		// in-place by use of setPoint, setSource, setTarget methods.
 		List controlPoints = GraphConstants.getPoints(allAttributes);
@@ -150,7 +151,7 @@ public class EdgeView extends AbstractCellView {
 		List routedPoints = null;
 		// Passes the current cached points to the router
 		if (routing != null)
-			routedPoints = routing.route(this);
+			routedPoints = routing.route(cache, this);
 
 		// Shadows the manual control points with the
 		// routed control points
@@ -581,6 +582,148 @@ public class EdgeView extends AbstractCellView {
 		return labelVector;
 	}
 
+	/**
+	 * Returns the absolute position of the main label
+	 * @return the absolute position of the main label
+	 */
+	protected Point2D getAbsoluteLabelPosition() {
+		Point2D result = getAbsoluteLabelPositionFromRelative(GraphConstants.getLabelPosition(getAllAttributes()));
+		return result;
+	}
+	
+	/**
+	 * Returns the absolute position of the specified extra label
+	 * @param index the index of the extra label
+	 * @return the absolute position of the specified extra label
+	 */
+	protected Point2D getAbsoluteExtraLabelPosition(int index) {
+		Point2D[] positions = GraphConstants
+				.getExtraLabelPositions(getAllAttributes());
+		if (positions != null && positions.length > index) {
+			Point2D result = getAbsoluteLabelPositionFromRelative(positions[index]);
+			return result;
+		}
+		return null;
+	}
+	
+	/**
+	 * Converts relative label position to absolute and allows for
+	 * any label offset.
+	 * @param geometry the relative label position
+	 * @return the absolute label position including any offset
+	 */
+	protected Point2D getAbsoluteLabelPositionFromRelative(Point2D geometry) {
+		Point2D result = convertRelativeLabelPositionToAbsolute(geometry);
+		
+		if (result != null)
+		{
+			double offsetX = 0;
+			double offsetY = 0;
+
+			Point2D offset = GraphConstants.getOffset(getAllAttributes());
+
+			if (offset != null) {
+				offsetX = offset.getX();
+				offsetY = offset.getY();
+			}
+
+			double x = result.getX() + offsetX;
+			double y = result.getY() + offsetY;
+			return new Point2D.Double(x, y);
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Converts an relative label position (x is distance along edge and y is
+	 * distance above/below edge vector) into an absolute co-ordination point
+	 * @param geometry the relative label position
+	 * @return the absolute label position
+	 */
+	protected Point2D convertRelativeLabelPositionToAbsolute(Point2D geometry) {
+		int pointCount = getPointCount();
+		
+		double length = 0;
+		double[] segments = new double[pointCount];
+		Point2D pt = getPoint(0);
+		
+		if (pt != null)
+		{
+			// Find the total length of the segments and also store the length
+			// of each segment
+			for (int i = 1; i < pointCount; i++)
+			{
+				Point2D tmp = getPoint(i);
+				
+				if (tmp != null)
+				{
+					double dx = pt.getX() - tmp.getX();
+					double dy = pt.getY() - tmp.getY();
+
+					double segment = Math.sqrt(dx * dx + dy * dy);
+					
+					segments[i - 1] = segment;
+					length += segment;
+					pt = tmp;
+				}
+			}
+
+			// Change x to be a value between 0 and 1 indicating how far
+			// along the edge the label is
+			double x = geometry.getX()/GraphConstants.PERMILLE;
+			double y = geometry.getY();
+			
+			// dist is the distance along the edge the label is
+			double dist = x * length;
+			length = 0;
+			
+			int index = 1;
+			double segment = segments[0];
+
+			// Find the length up to the start of the segment the label is
+			// on (length) and retrieve the length of that segment (segment)
+			while (dist > length + segment && index < pointCount - 1)
+			{
+				length += segment;
+				segment = segments[index++];
+			}
+
+			// factor is the proportion along this segment the label lies at
+			double factor = (dist - length) / segment;
+			
+			Point2D p0 = getPoint(index - 1);
+			Point2D pe = getPoint(index);
+
+			if (p0 != null && pe != null)
+			{
+				// The x and y offsets of the label from the start point
+				// of the segment
+				double dx = pe.getX() - p0.getX();
+				double dy = pe.getY() - p0.getY();
+				
+				// The normal vectors of
+				double nx = dy / segment;
+				double ny = dx / segment;
+				
+				// The x position is the start x of the segment + the factor of
+				// the x offset between the start and end of the segment + the
+				// x component of the y (height) offset contributed along the
+				// normal vector.
+				x = p0.getX() + dx * factor - nx * y;
+
+				// The x position is the start y of the segment + the factor of
+				// the y offset between the start and end of the segment + the
+				// y component of the y (height) offset contributed along the
+				// normal vector.
+				y = p0.getY() + dy * factor + ny * y;
+				return new Point2D.Double(x, y);
+			}
+		}
+		
+		return null;
+	}
+
 	//
 	// Routing
 	//
@@ -784,7 +927,7 @@ public class EdgeView extends AbstractCellView {
 								overlay(graph.getGraphics());
 							}
 							edge.setSource(portView);
-							edge.update();
+							edge.update(graph.getGraphLayoutCache());
 							if (graph.isXorEnabled()) {
 								overlay(graph.getGraphics());
 							} else {
@@ -803,7 +946,7 @@ public class EdgeView extends AbstractCellView {
 								overlay(graph.getGraphics());
 							}
 							edge.setTarget(portView);
-							edge.update();
+							edge.update(graph.getGraphLayoutCache());
 							if (graph.isXorEnabled()) {
 								overlay(graph.getGraphics());
 							} else {
@@ -984,43 +1127,57 @@ public class EdgeView extends AbstractCellView {
 				Rectangle2D r = edge.getBounds();
 				if (r != null) {
 					edgeModified = true;
-					double x = p.getX();
-					double y = p.getY();
-
-					Point2D p0 = edge.getPoint(0);
-
-					double p0x = p0.getX();
-					double p0y = p0.getY();
-
-					Point2D vector = edge.getLabelVector();
-					double dx = vector.getX();
-					double dy = vector.getY();
-
-					double pex = p0.getX() + dx;
-					double pey = p0.getY() + dy;
-
-					double len = Math.sqrt(dx * dx + dy * dy);
-					if (len > 0) {
-						double u = GraphConstants.PERMILLE;
-						double posy = len
-								* (-y * dx + p0y * dx + x * dy - p0x * dy)
-								/ (-pey * dy + p0y * dy - dx * pex + dx * p0x);
-						double posx = u
-								* (-y * pey + y * p0y + p0y * pey - p0y * p0y
-										- pex * x + pex * p0x + p0x * x - p0x
-										* p0x)
-								/ (-pey * dy + p0y * dy - dx * pex + dx * p0x);
-						p = new Point2D.Double(posx, posy);
-					} else {
-						p = new Point2D.Double(x - p0.getX(), y - p0.getY());
+					if (graph.isXorEnabled()) {
+						overlay(graph.getGraphics());
 					}
-					overlay(graph.getGraphics());
-					if (label)
+					if (!GraphConstants.isLabelAlongEdge(edge.getAllAttributes())) {
+						p = getRelativeLabelPosition(edge, p);
+					} else {
+						double x = p.getX();
+						double y = p.getY();
+
+						Point2D p0 = edge.getPoint(0);
+
+						double p0x = p0.getX();
+						double p0y = p0.getY();
+
+						Point2D vector = edge.getLabelVector();
+						double dx = vector.getX();
+						double dy = vector.getY();
+
+						double pex = p0.getX() + dx;
+						double pey = p0.getY() + dy;
+
+						double len = Math.sqrt(dx * dx + dy * dy);
+						if (len > 0) {
+							double u = GraphConstants.PERMILLE;
+							double posy = len
+									* (-y * dx + p0y * dx + x * dy - p0x * dy)
+									/ (-pey * dy + p0y * dy - dx * pex + dx * p0x);
+							double posx = u
+									* (-y * pey + y * p0y + p0y * pey - p0y * p0y
+											- pex * x + pex * p0x + p0x * x - p0x
+											* p0x)
+									/ (-pey * dy + p0y * dy - dx * pex + dx * p0x);
+							p = new Point2D.Double(posx, posy);
+						} else {
+							p = new Point2D.Double(x - p0.getX(), y - p0.getY());
+						}
+					}
+					Rectangle2D dirty = edge.getBounds();
+					if (label) {
 						edge.setLabelPosition(p);
-					else
+					} else {
 						edge.setExtraLabelPosition(currentLabel, p);
-					edge.update();
-					overlay(graph.getGraphics());
+					}
+					edge.update(graph.getGraphLayoutCache());
+					if (graph.isXorEnabled()) {
+						overlay(graph.getGraphics());
+					} else {
+						graph.repaint((int) dirty.getX(), (int) dirty
+								.getY(), (int) dirty.getWidth(),
+								(int) dirty.getHeight());
+					}
 				}
 			} else if (isEditing() && currentPoint != null) {
 				boolean disconnectable = (!source && !target)
@@ -1102,7 +1259,7 @@ public class EdgeView extends AbstractCellView {
 							edge.setPoint(edge.getPointCount() - 1, p);
 							edge.setTarget(null);
 						}
-						edge.update();
+						edge.update(graph.getGraphLayoutCache());
 						dirty.add(edge.getBounds());
 						if (graph.isXorEnabled()) {
 							overlay(graph.getGraphics());
@@ -1122,6 +1279,122 @@ public class EdgeView extends AbstractCellView {
 					}
 				}
 			}
+		}
+		
+		protected Point2D getRelativeLabelPosition(EdgeView edge, Point2D p) {
+			int pointCount = edge.getPointCount();
+			
+			double totalLength = 0;
+			double[] segments = new double[pointCount];
+			
+			Point2D p0 = edge.getPoint(0);
+			Point2D pt = p0;
+			
+			// Calculate the total length of the edge
+			for (int i = 1; i < pointCount; i++)
+			{
+				Point2D tmp = edge.getPoint(i);
+				
+				if (tmp != null)
+				{
+					double dx = pt.getX() - tmp.getX();
+					double dy = pt.getY() - tmp.getY();
+
+					double segment = Math.sqrt(dx * dx + dy * dy);
+					
+					segments[i - 1] = segment;
+					totalLength += segment;
+					pt = tmp;
+				}
+			}
+			
+			// Work which line segment the point of the label is closest to
+			Point2D last = edge.getPoint(1);
+			Line2D line = new Line2D.Double(p0, last);
+			double minDist = line.ptSegDistSq(p);
+			
+			int index = 0;
+			double tmp = 0;
+			double length = 0;
+			
+			for (int i = 2; i < pointCount; i++)
+			{
+				tmp += segments[i-2];
+				
+				line = new Line2D.Double(edge.getPoint(i), last);
+				double dist = line.ptSegDistSq(p);
+				
+				if (dist < minDist) {
+					minDist = dist;
+					index = i-1;
+					length = tmp;
+				}
+				
+				last = edge.getPoint(i);
+			}
+			
+			double seg = segments[index];
+			
+			pt = edge.getPoint(index);
+			
+			double x2 = pt.getX();
+			double y2 = pt.getY();
+			
+			Point2D pt2 = edge.getPoint(index+1);
+			
+			double x1 = pt2.getX();
+			double y1 = pt2.getY();
+			
+			double px = p.getX();
+			double py = p.getY();
+			
+			double xSegment = x2 - x1;
+			double ySegment = y2 - y1;
+	
+			px -= x1;
+			py -= y1;
+	
+			double projlenSq = 0;
+	
+		    px = xSegment - px;
+		    py = ySegment - py;
+		    double dotprod = px * xSegment + py * ySegment;
+
+		    if (dotprod <= 0.0)
+		    {
+				projlenSq = 0;
+		    }
+		    else
+		    {
+				projlenSq = dotprod * dotprod / (xSegment * xSegment + ySegment * ySegment);
+		    }
+
+		    double projlen = Math.sqrt(projlenSq);
+			if (projlen > seg)
+			{
+				projlen = seg;						
+			}
+
+			double yDistance = Line2D.ptLineDist(pt2.getX(), pt2.getY(), pt.getX(), pt.getY(), p.getX(), p.getY());
+			int direction = Line2D.relativeCCW(pt2.getX(), pt2.getY(), pt.getX(), pt.getY(), p.getX(), p.getY());
+			
+			if (direction == -1) {
+				yDistance = -yDistance;
+			}
+			
+			// Constructs the relative point for the label
+			Point2D result = new Point2D.Double(((((totalLength/2 - length - projlen)/
+					totalLength)*-2)+1)*GraphConstants.PERMILLE / 2, yDistance);
+			
+			// Use the utility method to find 
+			Point2D storedRelativePosition = edge.convertRelativeLabelPositionToAbsolute(result);
+			if (p.equals(storedRelativePosition)) {
+				GraphConstants.setRemoveAttributes(edge.getAllAttributes(), new Object[] {GraphConstants.OFFSET});
+			} else {
+				Point2D off = new Point2D.Double(p.getX() - storedRelativePosition.getX(), p.getY() - storedRelativePosition.getY());
+				GraphConstants.setOffset(edge.getAllAttributes(), off);
+			}
+			return result;
 		}
 
 		// Handle mouse released event
@@ -1157,7 +1430,7 @@ public class EdgeView extends AbstractCellView {
 								initialLabelLocation);
 					}
 					edge.addExtraLabel(location, value);
-					edge.update();
+					edge.update(graph.getGraphLayoutCache());
 					clone = false;
 				}
 
@@ -1202,7 +1475,7 @@ public class EdgeView extends AbstractCellView {
 					graph.repaint((int) dirty.getX(), (int) dirty.getY(),
 							(int) dirty.getWidth(), (int) dirty.getHeight());
 				}
-				edge.refresh(graph.getModel(), graph.getGraphLayoutCache(),
+				edge.refresh(graph.getGraphLayoutCache(), graph.getGraphLayoutCache(),
 						false);
 			}
 			initialLabelLocation = null;
@@ -1249,26 +1522,32 @@ public class EdgeView extends AbstractCellView {
 			EdgeView e = relevantEdge;
 			int handlesize = graph.getHandleSize();
 			EdgeRenderer er = (EdgeRenderer) edge.getRenderer();
+			Point2D labelPosition = er.getLabelPosition(e);
+			Point2D p = null;
+			if (labelPosition != null) {
+				p = (Point2D)labelPosition.clone();
+				graph.toScreen(p);
+			}
+			Dimension d = er.getLabelSize(e, graph.convertValueToString(e));
+			if (p != null && d != null) {
+				Point2D s = graph.toScreen(new Point2D.Double(d.width,
+						d.height));
+				loc.setFrame(p.getX() - s.getX() / 2, p.getY() - s.getY()
+						/ 2, s.getX(), s.getY());
+			}
 			for (int i = 0; i < r.length; i++) {
-				Point2D p = e.getPoint(i);
+				p = e.getPoint(i);
 				p = graph.toScreen(new Point2D.Double(p.getX(), p.getY()));
 				r[i].setFrame(p.getX() - handlesize, p.getY() - handlesize,
 						2 * handlesize, 2 * handlesize);
-				p = graph.toScreen(er.getLabelPosition(e));
-				Dimension d = er.getLabelSize(e, graph.convertValueToString(e));
-				if (p != null && d != null) {
-					Point2D s = graph.toScreen(new Point2D.Double(d.width,
-							d.height));
-					loc.setFrame(p.getX() - s.getX() / 2, p.getY() - s.getY()
-							/ 2, s.getX(), s.getY());
-				}
+
 			}
 			if (extraLabelLocations != null) {
 				for (int i = 0; i < extraLabelLocations.length; i++) {
-					Point2D p = er.getExtraLabelPosition(e, i);
+					p = er.getExtraLabelPosition(e, i);
 					if (p != null) {
 						p = graph.toScreen((Point2D) p.clone());
-						Dimension d = er.getExtraLabelSize(graph, e, i);
+						d = er.getExtraLabelSize(graph, e, i);
 						if (d != null) {
 							Point2D s = graph.toScreen(new Point2D.Double(
 									d.width, d.height));

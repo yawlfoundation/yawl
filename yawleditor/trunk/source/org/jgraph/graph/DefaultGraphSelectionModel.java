@@ -12,8 +12,10 @@ import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -64,9 +66,7 @@ public class DefaultGraphSelectionModel implements GraphSelectionModel,
 	protected Map cellStates = new Hashtable();
 
 	/** List that contains the selected items. */
-	protected List selection = new ArrayList();
-	// TODO make selection a LinkedHashSet when minimum JVM moves to 1.4
-	// because of the number of remove calls in this class
+	protected Set selection = new LinkedHashSet();
 
 	/** Constructs a DefaultGraphSelectionModel for the specified graph. */
 	public DefaultGraphSelectionModel(JGraph graph) {
@@ -152,7 +152,7 @@ public class DefaultGraphSelectionModel implements GraphSelectionModel,
 				cells = new Object[] { cells[cells.length - 1] };
 			cellStates.clear();
 			Vector change = new Vector();
-			List newSelection = new ArrayList();
+			Set newSelection = new LinkedHashSet();
 			for (int i = 0; i < cells.length; i++) {
 				if (cells[i] != null) {
 					selection.remove(cells[i]);
@@ -394,7 +394,7 @@ public class DefaultGraphSelectionModel implements GraphSelectionModel,
 	 * Selects a single cell and updates all datastructures. No listeners are
 	 * notified. Override this method to control individual cell selection.
 	 */
-	protected boolean select(List list, Object cell) {
+	protected boolean select(Set set, Object cell) {
 		AttributeMap attrs = graph.getAttributes(cell);
 		if (!isCellSelected(cell)
 				&& graph.getGraphLayoutCache().isVisible(cell)
@@ -434,7 +434,7 @@ public class DefaultGraphSelectionModel implements GraphSelectionModel,
 			// Set Selected State for Current
 			setSelectedChildCount(cell, SELECTED);
 			// Add Current To HashSet and Return
-			return list.add(cell);
+			return set.add(cell);
 		}
 		return false;
 	}
@@ -601,7 +601,7 @@ public class DefaultGraphSelectionModel implements GraphSelectionModel,
 				.clone();
 		clone.changeSupport = null;
 		if (selection != null)
-			clone.selection = new ArrayList(selection);
+			clone.selection = new LinkedHashSet(selection);
 		clone.listenerList = new EventListenerList();
 		return clone;
 	}

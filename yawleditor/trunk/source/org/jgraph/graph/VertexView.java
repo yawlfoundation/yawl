@@ -76,8 +76,8 @@ public class VertexView extends AbstractCellView {
 	/**
 	 * Overrides the parent method to udpate the cached points.
 	 */
-	public void update() {
-		super.update();
+	public void update(GraphLayoutCache cache) {
+		super.update(cache);
 		bounds = GraphConstants.getBounds(allAttributes);
 		if (bounds == null) {
 			bounds = allAttributes.createRect(defaultBounds);
@@ -267,12 +267,7 @@ public class VertexView extends AbstractCellView {
 				return;
 			}
 			try {
-				Graphics offgraphics = graph.getOffgraphics();
-				offgraphics.setColor(graph.getBackground());
-				offgraphics.setPaintMode();
-				Rectangle rect = graph.getBounds();
-				offgraphics.fillRect(0, 0, rect.width, rect.height);
-				graph.getUI().paint(offgraphics, graph);
+				offgraphics = graph.getOffgraphics();
 			} catch (Exception e) {
 				offgraphics = null;
 			} catch (Error e) {
@@ -385,8 +380,8 @@ public class VertexView extends AbstractCellView {
 					if (orig != null) {
 						AttributeMap origAttr = (AttributeMap) orig
 								.getAllAttributes().clone();
-						all[i].changeAttributes(origAttr);
-						all[i].refresh(graph.getModel(), context, false);
+						all[i].changeAttributes(graph.getGraphLayoutCache(), origAttr);
+						all[i].refresh(graph.getGraphLayoutCache(), context, false);
 					}
 				}
 				vertex.setBounds(newBounds);
@@ -485,10 +480,6 @@ public class VertexView extends AbstractCellView {
 			cachedBounds = null;
 			initialBounds = null;
 			firstDrag = true;
-			if (offgraphics != null) {
-				offgraphics.dispose();
-			}
-
 		}
 
 		protected void invalidate() {

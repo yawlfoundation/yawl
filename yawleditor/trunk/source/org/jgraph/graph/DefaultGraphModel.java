@@ -1,11 +1,12 @@
 /*
- * @(#)DefaultGraphModel.java	1.0 03-JUL-04
+ * $Id: DefaultGraphModel.java,v 1.23 2008/02/25 15:03:36 david Exp $
  * 
- * Copyright (c) 2001-2004 Gaudenz Alder
+ * Copyright (c) 2001-2008 Gaudenz Alder
  *  
  */
 package org.jgraph.graph;
 
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -36,7 +37,7 @@ import org.jgraph.event.GraphModelEvent;
 import org.jgraph.event.GraphModelListener;
 
 /**
- * A simple implementation of a graph model.
+ * The default implementation of a graph model.
  * 
  * @version 1.0 1/1/02
  * @author Gaudenz Alder
@@ -64,7 +65,7 @@ public class DefaultGraphModel extends UndoableEditSupport implements
 	 * Indicates whether isLeaf is based on a node's allowsChildren value.
 	 */
 	protected boolean asksAllowsChildren = false;
-	
+
 	/**
 	 * Whether or not to remove group cells from the model when all of their
 	 * children are removed
@@ -75,6 +76,16 @@ public class DefaultGraphModel extends UndoableEditSupport implements
 	 * The model's own attributes as a map. Defaults to an empty Hashtable.
 	 */
 	protected AttributeMap attributes = null;
+
+	/**
+	 * A collection of unexecuted updates on this model
+	 */
+//	protected Collection currentUpdate = new ArrayList();
+
+	/**
+	 * Whether or not an update is in the process of being dispatched
+	 */
+//	private transient boolean isDispatching = false;
 
 	/**
 	 * Constructs a model that is not an attribute store.
@@ -540,6 +551,67 @@ public class DefaultGraphModel extends UndoableEditSupport implements
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.jgraph.model.GraphModel#execute(com.jgraph.model.DefaultGraphModel.Change)
+	 */
+	public synchronized void execute(ExecutableChange change) {
+//		change.execute();
+//		beginUpdate();
+//		currentUpdate.add(change);
+//		endUpdate();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.jgraph.model.GraphModel#getUpdateLevel()
+	 */
+	public int getUpdateLevel() {
+		return super.getUpdateLevel();
+		//return updateLevel;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.swing.undo.UndoableEditSupport#beginUpdate()
+	 */
+	public void beginUpdate() {
+		super.beginUpdate();
+		//updateLevel++;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.jgraph.model.GraphModel#endUpdate()
+	 */
+	public void endUpdate() {
+		super.endUpdate();
+//		boolean dispatch = false;
+//		synchronized (this) {
+//			updateLevel--;
+//			if (!isDispatching && updateLevel == 0) {
+//				dispatch = true;
+//				isDispatching = true;
+//			}
+//		}
+//		if (dispatch) {
+//			try {
+//				if (!currentUpdate.isEmpty()) {
+//					Collection changes = new ArrayList(currentUpdate);
+//					currentUpdate.clear();
+//					undoSupport
+//							.postEdit(createEdit(processGraphChanges(changes)));
+//				}
+//			} finally {
+//				isDispatching = false;
+//			}
+//		}
+	}
+
 	/**
 	 * Sends <code>cells</code> to back.
 	 */
@@ -648,14 +720,14 @@ public class DefaultGraphModel extends UndoableEditSupport implements
 				int newRootsSize = roots.size() - removedRoots.size();
 				if (newRootsSize < 8) {
 					newRootsSize = 8;
-				}
+			}
 				List newRoots = new ArrayList(newRootsSize);
 				Iterator iter = roots.iterator();
 				while (iter.hasNext()) {
 					Object cell = iter.next();
 					if (!removedRoots.contains(cell)) {
 						newRoots.add(cell);
-					}
+		}
 				}
 				roots = newRoots;
 			}
@@ -964,6 +1036,13 @@ public class DefaultGraphModel extends UndoableEditSupport implements
 					return null;
 				}
 
+				public Rectangle2D getDirtyRegion() {
+					return null;
+				}
+
+				public void setDirtyRegion(Rectangle2D dirty) {
+				}
+
 			});
 		}
 	}
@@ -1025,6 +1104,9 @@ public class DefaultGraphModel extends UndoableEditSupport implements
 
 		/* Parent map for the next execution. */
 		protected ParentMap parentMap, previousParentMap;
+		
+		/** The dirty region of the change prior to it happening */
+		protected Rectangle2D dirtyRegion = null;
 
 		/* ConnectionSet for the next execution. */
 		protected ConnectionSet connectionSet, previousConnectionSet;
@@ -1110,16 +1192,16 @@ public class DefaultGraphModel extends UndoableEditSupport implements
 		 */
 		protected void handleEmptyGroups(Object[] groups) {
 			if (removeEmptyGroups) {
-				if (groups != null && groups.length > 0) {
-					if (remove == null)
-						remove = new Object[] {};
-					Object[] tmp = new Object[remove.length + groups.length];
-					System.arraycopy(remove, 0, tmp, 0, remove.length);
+			if (groups != null && groups.length > 0) {
+				if (remove == null)
+					remove = new Object[] {};
+				Object[] tmp = new Object[remove.length + groups.length];
+				System.arraycopy(remove, 0, tmp, 0, remove.length);
 					System.arraycopy(groups, 0, tmp, remove.length,
 							groups.length);
-					remove = tmp;
-				}
+				remove = tmp;
 			}
+		}
 		}
 
 		public boolean isSignificant() {
@@ -1207,6 +1289,14 @@ public class DefaultGraphModel extends UndoableEditSupport implements
 			return previousParentMap;
 		}
 
+		public Rectangle2D getDirtyRegion() {
+			return dirtyRegion;
+		}
+
+		public void setDirtyRegion(Rectangle2D dirty) {
+			this.dirtyRegion = dirty;
+		}
+		
 		/**
 		 * Redoes a change.
 		 * 
@@ -1234,6 +1324,7 @@ public class DefaultGraphModel extends UndoableEditSupport implements
 		 * invert the last execution.
 		 */
 		public void execute() {
+//			dirtyRegion = null;
 			// Compute Changed Cells
 			Set tmp = new HashSet();
 			if (attributes != null)
@@ -1305,7 +1396,6 @@ public class DefaultGraphModel extends UndoableEditSupport implements
 				s += "No parent map\n";
 			return s;
 		}
-
 	}
 
 	/**
@@ -1421,6 +1511,13 @@ public class DefaultGraphModel extends UndoableEditSupport implements
 
 		public ParentMap getPreviousParentMap() {
 			return null;
+		}
+
+		public Rectangle2D getDirtyRegion() {
+			return null;
+		}
+
+		public void setDirtyRegion(Rectangle2D dirty) {
 		}
 
 		/**
@@ -1889,7 +1986,7 @@ public class DefaultGraphModel extends UndoableEditSupport implements
 	 * @return <code>true</code> if <code>vertex</code> is a valid vertex.
 	 */
 	public static boolean isVertex(GraphModel model, Object vertex) {
-		return (!model.isEdge(vertex) && !model.isPort(vertex));
+		return (vertex != null && !model.isEdge(vertex) && !model.isPort(vertex));
 	}
 
 	// Serialization support
@@ -1921,7 +2018,7 @@ public class DefaultGraphModel extends UndoableEditSupport implements
 	public boolean isRemoveEmptyGroups() {
 		return removeEmptyGroups;
 	}
-
+	
 	/**
 	 * @param removeEmptyGroups the removeEmptyGroups to set
 	 */

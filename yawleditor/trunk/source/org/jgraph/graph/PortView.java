@@ -82,8 +82,8 @@ public class PortView extends AbstractCellView {
 			y = loc.getY();
 		}
 		Rectangle2D bounds = new Rectangle2D.Double(x, y, 0, 0);
-		bounds.setFrame(bounds.getX() - SIZE / 2, bounds.getY() - SIZE / 2,
-				SIZE, SIZE);
+		bounds.setFrame(bounds.getX() - getPortSize() / 2, bounds.getY() - getPortSize() / 2,
+				getPortSize(), getPortSize());
 		return bounds;
 	}
 
@@ -199,6 +199,20 @@ public class PortView extends AbstractCellView {
 				&& !(getParentView() instanceof EdgeView)
 				&& edge.getPointCount() > 2
 				&& GraphConstants.getLineStyle(edge.getAllAttributes()) == GraphConstants.STYLE_ORTHOGONAL;
+	}
+
+	/**
+	 * @return the port size
+	 */
+	public int getPortSize() {
+		return PortView.SIZE;
+	}
+
+	/**
+	 * @param size the port size to set
+	 */
+	public void setPortSize(int size) {
+		PortView.SIZE = size;
 	}
 
 }

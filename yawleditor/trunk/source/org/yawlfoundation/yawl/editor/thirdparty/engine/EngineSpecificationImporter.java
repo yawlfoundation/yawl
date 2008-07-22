@@ -482,7 +482,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
 
   private static AtomicTask generateEditorAtomicTask(YAtomicTask engineAtomicTask, NetGraphModel editorNet) {
     AtomicTask editorAtomicTask = new AtomicTask(DEFAULT_LOCATION);
-    
+    editorAtomicTask.setActualEngineID(engineAtomicTask.getID());
     if (engineAtomicTask.getDecompositionPrototype() == null) {
       return editorAtomicTask;
     }
@@ -492,7 +492,6 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     );
     
     editorAtomicTask.setDecomposition(editorDecomposition);
-
     convertTaskParameterQueries(engineAtomicTask, editorAtomicTask, editorNet);
     
     return editorAtomicTask;
@@ -500,6 +499,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
 
   private static MultipleAtomicTask generateEditorMultipleAtomicTask(YAtomicTask engineAtomicTask, NetGraphModel editorNet) {
     MultipleAtomicTask editorMultipleAtomicTask = new MultipleAtomicTask(DEFAULT_LOCATION);
+    editorMultipleAtomicTask.setActualEngineID(engineAtomicTask.getID());
 
     if (engineAtomicTask.getDecompositionPrototype() == null) {
       return editorMultipleAtomicTask;
@@ -671,22 +671,28 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   }
   
   private static void populateFlows(Set engineFlows, NetGraphModel editorNet) {
-    
+
     Iterator flowIterator = engineFlows.iterator();
     while(flowIterator.hasNext()) {
       YFlow engineFlow = (YFlow) flowIterator.next();
-
-      YExternalNetElement sourceEngineElement = engineFlow.getPriorElement();
-      YExternalNetElement targetEngineElement = engineFlow.getNextElement();
-      
-      YAWLVertex sourceEditorElement = (YAWLVertex) editorToEngineElementMap.get(sourceEngineElement);
-      YAWLVertex targetEditorElement = (YAWLVertex) editorToEngineElementMap.get(targetEngineElement);
-
-      YAWLFlowRelation editorFlow = editorNet.getGraph().connect(sourceEditorElement, targetEditorElement);
+      YAWLVertex sourceEditorElement = (YAWLVertex) editorToEngineElementMap.get(
+              engineFlow.getPriorElement());
+      YAWLVertex targetEditorElement = (YAWLVertex) editorToEngineElementMap.get(
+              engineFlow.getNextElement());
+      YAWLFlowRelation editorFlow = editorNet.getGraph().connect(sourceEditorElement,
+              targetEditorElement);
       
       editorFlow.setPredicate(engineFlow.getXpathPredicate());
       if (engineFlow.getEvalOrdering() != null) {
         editorFlow.setPriority(engineFlow.getEvalOrdering());
+      }
+
+      // when a default flow is exported, it has no predicate or ordering recorded
+      // (because it is the _default_ flow) - so when importing from that xml,
+      // a default predicate and ordering need to be reinstated.
+      if (engineFlow.isDefaultFlow()) {
+          editorFlow.setPredicate("true()");
+          editorFlow.setPriority(10000);        // ensure it's ordered last
       }
     }
   }
@@ -694,7 +700,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   private static void populateCancellationSetDetail(Set engineTasksWithCancellationSets, 
                                                     NetGraphModel editorNet) {
     Iterator engineTaskIterator = engineTasksWithCancellationSets.iterator();
-    while(engineTaskIterator.hasNext()) {
+    while (engineTaskIterator.hasNext()) {
        YTask engineTask = (YTask) engineTaskIterator.next();
        YAWLTask editorTask = (YAWLTask) editorToEngineElementMap.get(engineTask);
 

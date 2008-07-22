@@ -21,6 +21,9 @@ public interface GraphModelListener extends EventListener {
 	 * Invoked after a cell has changed in some way. The vertex/vertices may
 	 * have changed bounds or altered adjacency, or other attributes have
 	 * changed that may affect presentation.
+	 * Note : Read the notes on the GraphModelEvent class carefully.
+	 * A GraphModelEvent is the undo of the event that has just occurred,
+	 * i.e. if you undo this event is executed. 
 	 */
 	void graphChanged(GraphModelEvent e);
 

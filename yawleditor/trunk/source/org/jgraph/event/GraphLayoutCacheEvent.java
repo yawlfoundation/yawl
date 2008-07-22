@@ -1,12 +1,13 @@
 /*
- * @(#)GraphModelEvent.java	1.0 03-JUL-04
+ * $Id: GraphLayoutCacheEvent.java,v 1.2 2008/02/15 11:09:17 david Exp $
  *
- * Copyright (c) 2001-2005 Gaudenz Alder
+ * Copyright (c) 2001-2008 Gaudenz Alder
  *
  * See LICENSE file in distribution for licensing details of this source file
  */
 package org.jgraph.event;
 
+import java.awt.geom.Rectangle2D;
 import java.util.EventObject;
 import java.util.Map;
 
@@ -104,6 +105,21 @@ public class GraphLayoutCacheEvent extends EventObject {
 		 */
 		public Map getPreviousAttributes();
 
+		/**
+		 * Returns the dirty region for the original position of the
+		 * changed cells before the change happened.
+		 * @return the dirty region prior to the event
+		 */
+		public Rectangle2D getDirtyRegion();
+		
+		/**
+		 * In some cases the class firing this event will not have access
+		 * to the dirty region prior to the change. It is then up to the
+		 * receiving class to set it once.
+		 * @param dirty
+		 */
+		public void setDirtyRegion(Rectangle2D dirty);
+		
 		/**
 		 * Returns the objects that have not changed explicitly, but implicitly
 		 * because one of their dependent cells has changed. This is typically

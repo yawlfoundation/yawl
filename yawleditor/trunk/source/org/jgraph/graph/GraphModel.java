@@ -236,6 +236,23 @@ public interface GraphModel {
 	void edit(Map attributes, ConnectionSet cs, ParentMap pm, UndoableEdit[] e);
 
 	/**
+	 * Indicates the start of one level of an executable change
+	 */
+	public void beginUpdate();
+
+	/**
+	 * Indicates the end of the current level of an executable change
+	 */
+	public void endUpdate();
+
+	/**
+	 * Executes the specified executable change on this graph model
+	 * @param change the change to be executed
+	 */
+	public void execute(ExecutableChange change);
+
+
+	/**
 	 * Returns a map of (cell, clone)-pairs for all <code>cells</code> and
 	 * their children. Special care should be taken to replace references
 	 * between cells.
