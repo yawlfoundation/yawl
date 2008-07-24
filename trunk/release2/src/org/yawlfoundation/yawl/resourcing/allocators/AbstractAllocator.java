@@ -8,13 +8,13 @@
 
 package org.yawlfoundation.yawl.resourcing.allocators;
 
+import org.jdom.Element;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.AbstractSelector;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
 import java.util.HashMap;
 import java.util.Set;
-
-import org.jdom.Element;
 
 /**
  * The base class for all allocators.
@@ -88,9 +88,11 @@ public abstract class AbstractAllocator extends AbstractSelector {
     /**
      * Performs an allocation using some strategy
      * @param resources the distribution set of participants
+     * @param wir the work item to allocate
      * @return the Participant chosen by the allocation strategy
      */
-    public abstract Participant performAllocation(Set<Participant> resources) ;
+    public abstract Participant performAllocation(Set<Participant> resources,
+                                                  WorkItemRecord wir) ;
 
     /*******************************************************************************/
 

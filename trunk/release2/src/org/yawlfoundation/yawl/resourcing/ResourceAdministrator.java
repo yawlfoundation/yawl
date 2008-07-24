@@ -54,15 +54,15 @@ public class ResourceAdministrator {
 
     public void assignUnofferedItem(WorkItemRecord wir, Participant p, String action) {
         WorkQueue unoffered = _qSet.getQueue(WorkQueue.UNOFFERED) ;
+        ResourceManager rm = ResourceManager.getInstance();
         if (unoffered != null) {
             if (action.equals("Offer")) {
                 wir.setResourceStatus(WorkItemRecord.statusResourceOffered);
                 p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
-                ResourceManager.getInstance().addToOfferedSet(wir, p);
+                rm.addToOfferedSet(wir, p);
             }
             else if (action.equals("Allocate")) {
-                wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
-                p.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
+                rm.acceptOffer(p, wir);
             }
 
             // 'Start' actions are handled by the resMgr.start() method

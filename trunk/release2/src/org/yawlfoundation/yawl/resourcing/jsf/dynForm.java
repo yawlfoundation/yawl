@@ -10,6 +10,8 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
+import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
+import org.yawlfoundation.yawl.resourcing.jsf.dynform.SubPanel;
 
 import javax.faces.FacesException;
 import javax.faces.component.UIComponent;
@@ -17,9 +19,6 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.yawlfoundation.yawl.resourcing.jsf.dynform.SubPanel;
-import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 
 /**
  *  Backing bean for the dynamic forms.
@@ -78,7 +77,7 @@ public class dynForm extends AbstractPageBean {
         getSessionBean().checkLogon();
         getSessionBean().getMessagePanel().show(140, 500, "absolute");
         getSessionBean().setActivePage(ApplicationBean.PageRef.dynForm);
-        setOKText();
+        setupButtons();
     }
 
     public void destroy() { }
@@ -149,6 +148,13 @@ public class dynForm extends AbstractPageBean {
     public void setBtnCancel(Button b) { btnCancel = b; }
 
 
+    private Button btnComplete = new Button();
+
+    public Button getBtnComplete() { return btnComplete; }
+
+    public void setBtnComplete(Button b) { btnComplete = b; }
+
+
     /****** Custom Methods ******************************************************/
 
     /**
@@ -156,20 +162,24 @@ public class dynForm extends AbstractPageBean {
      * @return a reference to the referring page
      */
     public String btnOK_action() {
-        String referringPage;
-        SessionBean sb = getSessionBean();
         if (! getDynFormFactory().validateInputs())
             return null;
 
-        if (sb.getDynFormType() == ApplicationBean.DynFormType.netlevel) {
-            sb.setCaseLaunch(true);                        // temp flag for post action
-            referringPage = "showCaseMgt";
-        }
-        else {
-            sb.setWirEdit(true) ;
-            referringPage = "showUserQueues";
-        }
-        return referringPage;
+        return saveForm();
+    }
+
+
+    /**
+     * Same as btnOK, but also sets a flag to complete the item directly.
+     * Note: this button is only visible for item edits, and not for case starts
+     * @return a reference to the referring page
+     */
+    public String btnComplete_action() {
+        if (! getDynFormFactory().validateInputs())
+            return null;
+
+        getSessionBean().setCompleteAfterEdit(true);
+        return saveForm();
     }
 
 
@@ -184,10 +194,30 @@ public class dynForm extends AbstractPageBean {
            return "showUserQueues";
     }
 
+
+    /**
+     * Sets flags in sessionBean to action the form save
+     * @return the name of the page that called this dynform
+     */
+    private String saveForm() {
+        String referringPage ;
+        SessionBean sb = getSessionBean();
+
+        if (sb.getDynFormType() == ApplicationBean.DynFormType.netlevel) {
+            sb.setCaseLaunch(true);                        // temp flag for post action
+            referringPage = "showCaseMgt";
+        }
+        else {
+            sb.setWirEdit(true) ;
+            referringPage = "showUserQueues";
+        }
+        return referringPage ;
+    }
+
     /******************************************************************************/
 
     // This member and method are used as value change listeners for dynamic
-    // components. They aren't currently used but have been left in case of
+    // components. They aren't currently called but have been left in case of
     // future need.
             
     private Map<String, String> updateMap = new HashMap<String, String>();
@@ -205,12 +235,15 @@ public class dynForm extends AbstractPageBean {
     }
 
 
-    private void setOKText() {
+    private void setupButtons() {
         SessionBean sb = getSessionBean() ;
-        if (sb.getDynFormType() == ApplicationBean.DynFormType.netlevel)
+        if (sb.getDynFormType() == ApplicationBean.DynFormType.netlevel) {
             btnOK.setText("Start");                        // start new case
-        else
+            btnComplete.setVisible(false);                 // hide for case starts
+        }
+        else {
             btnOK.setText("Save");                         // save workitem edits
+        }
     }
 
 

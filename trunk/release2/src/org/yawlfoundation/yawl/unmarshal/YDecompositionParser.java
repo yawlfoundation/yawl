@@ -60,13 +60,13 @@ public class YDecompositionParser {
     /**
      * Parses the decomposition from the appropriate XML doclet.
      * @param decompElem the XML doclet containing the decomp configuration.
-     * @param specifcationParser a reference to parent spec parser.
+     * @param specificationParser a reference to parent spec parser.
      * @param version the version of XML structure
      */
-    YDecompositionParser(Element decompElem, YSpecificationParser specifcationParser, String version) {
+    YDecompositionParser(Element decompElem, YSpecificationParser specificationParser, String version) {
         _decompElem = decompElem;
         _yawlNS = decompElem.getNamespace();
-        _specificationParser = specifcationParser;
+        _specificationParser = specificationParser;
         _version = version;
         _postsetIDs = new Postset();
         _removeSetIDs = new HashMap();

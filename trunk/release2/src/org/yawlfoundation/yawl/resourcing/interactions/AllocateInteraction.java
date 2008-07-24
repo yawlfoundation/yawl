@@ -8,14 +8,14 @@
 
 package org.yawlfoundation.yawl.resourcing.interactions;
 
+import org.jdom.Element;
+import org.jdom.Namespace;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.allocators.AbstractAllocator;
 import org.yawlfoundation.yawl.resourcing.allocators.AllocatorFactory;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
 import java.util.Set;
-
-import org.jdom.Element;
-import org.jdom.Namespace;
 
 /**
  *  This class describes the requirements of a task at the allocate phase of
@@ -42,8 +42,11 @@ public class AllocateInteraction extends AbstractInteraction {
         _allocator = allocator ;
     }
 
-    public Participant performAllocation(Set offerSet) {
-        return _allocator.performAllocation(offerSet) ;
+    public AbstractAllocator getAllocator() { return _allocator; }
+    
+
+    public Participant performAllocation(Set offerSet, WorkItemRecord wir) {
+        return _allocator.performAllocation(offerSet, wir) ;
     }
 
     public void parse(Element e, Namespace nsYawl) throws ResourceParseException {
@@ -63,7 +66,6 @@ public class AllocateInteraction extends AbstractInteraction {
             else throw new ResourceParseException("Missing allocator element: name") ;
         }
     }
-
 
 
     public String toXML() {

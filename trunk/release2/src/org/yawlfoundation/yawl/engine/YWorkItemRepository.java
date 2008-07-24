@@ -10,6 +10,7 @@
 package org.yawlfoundation.yawl.engine;
 
 import org.yawlfoundation.yawl.elements.YTask;
+import org.yawlfoundation.yawl.elements.YExternalNetElement;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
 
@@ -25,14 +26,14 @@ import java.util.*;
  * 
  */
 public class YWorkItemRepository {
-    private static Map _idStringToWorkItemsMap;//[case&taskIDStr=YWorkItem]
+    private static Map<String, YWorkItem> _idStringToWorkItemsMap;//[case&taskIDStr=YWorkItem]
     protected static Map _caseToNetRunnerMap;
     private static YWorkItemRepository _myInstance;
     private static final Logger logger = Logger.getLogger(YWorkItemRepository.class);
 
 
     private YWorkItemRepository() {
-        _idStringToWorkItemsMap = new HashMap();
+        _idStringToWorkItemsMap = new HashMap<String, YWorkItem>();
         _caseToNetRunnerMap = new HashMap();
     }
 
@@ -317,15 +318,12 @@ public class YWorkItemRepository {
     }
 
 
-    public Set getWorkItems() {
-        Set aSet = new HashSet();
-        Set itemsToRemove = new HashSet();
+    public Set<YWorkItem> getWorkItems() {
+        Set<YWorkItem> aSet = new HashSet<YWorkItem>();
+        Set<String> itemsToRemove = new HashSet<String>();
         //rather than just return the work items we have to chek that the items in the
         //repository are in synch with the engine
-        Iterator iter = _idStringToWorkItemsMap.values().iterator();
-        while (iter.hasNext()) {
-            YWorkItem workitem = (YWorkItem) iter.next();
-
+        for (YWorkItem workitem : _idStringToWorkItemsMap.values()) {
             YIdentifier caseID = workitem.getWorkItemID().getCaseID();
             YNetRunner runner;
             if (workitem.getStatus().equals(statusEnabled) ||
@@ -342,14 +340,14 @@ public class YWorkItemRepository {
             }
             if (runner != null) {                                      //MLF can be null
                 boolean foundOne = false;
-                Set busyTasks = runner.getBusyTasks();
-                Set enableTasks = runner.getEnabledTasks();
-                Set workItemTasks = new HashSet();
+                Set<YExternalNetElement> busyTasks = runner.getBusyTasks();
+                Set<YExternalNetElement> enableTasks = runner.getEnabledTasks();
+                Set<YExternalNetElement> workItemTasks = new HashSet<YExternalNetElement>();
                 workItemTasks.addAll(busyTasks);
                 workItemTasks.addAll(enableTasks);
 
-                for (Iterator iterator = workItemTasks.iterator(); iterator.hasNext();) {
-                    YTask task = (YTask) iterator.next();
+                for (YExternalNetElement element : workItemTasks) {
+                    YTask task = (YTask) element;
                     if (task.getID().equals(workitem.getTaskID())) {
                         foundOne = true;
                         aSet.add(workitem);
@@ -396,13 +394,13 @@ public class YWorkItemRepository {
         }
     }
 
-    public List getWorkItemsForCase(YIdentifier caseID) {
+    public List<YWorkItem> getWorkItemsForCase(YIdentifier caseID) {
         if (caseID == null || caseID.getParent() != null) {
             throw new IllegalArgumentException("the argument <caseID> is not valid.");
         }
         
         Set workItems = getWorkItems();
-        ArrayList caseItems = new ArrayList();
+        ArrayList<YWorkItem> caseItems = new ArrayList<YWorkItem>();
 
         for (Iterator iterator = workItems.iterator(); iterator.hasNext();) {
             YWorkItem item = (YWorkItem) iterator.next();

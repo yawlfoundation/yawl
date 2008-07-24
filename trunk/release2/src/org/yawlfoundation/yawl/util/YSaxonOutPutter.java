@@ -14,8 +14,7 @@ import net.sf.saxon.om.AxisIterator;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.pattern.AnyNodeTest;
-import net.sf.saxon.value.Type;
-import net.sf.saxon.xpath.XPathException;
+import net.sf.saxon.type.Type;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
@@ -36,26 +35,26 @@ public class YSaxonOutPutter {
     }
 
     private Element createElement(NodeInfo nodeInfo) {
-        Element el = new Element(nodeInfo.getLocalName());
+        Element el = new Element(nodeInfo.getLocalPart());
         AxisIterator iter = nodeInfo.iterateAxis(Axis.CHILD, AnyNodeTest.getInstance());
-        while (iter.hasNext()) {
+        while (iter.moveNext()) {
             Item item = iter.next();
-            switch (item.getItemType()) {
+            switch (((NodeInfo) item).getNodeKind()) {
                 case Type.ELEMENT:
                     el.addContent(createElement((NodeInfo) item));
                     break;
                 default:
-                    try {
+//                    try {
                         el.setText(item.getStringValue());
-                    } catch (XPathException e) {
-                        e.printStackTrace();
-                    }
+//                    } catch (XPathException e) {
+//                        e.printStackTrace();
+//                    }
             }
         }
         iter = nodeInfo.iterateAxis(Axis.ATTRIBUTE, AnyNodeTest.getInstance());
-        while (iter.hasNext()) {
+        while (iter.moveNext()) {
             Item item = iter.next();
-            el.setAttribute(((NodeInfo) item).getLocalName(), ((NodeInfo) item).getStringValue());
+            el.setAttribute(((NodeInfo) item).getLocalPart(), ((NodeInfo) item).getStringValue());
         }
         return el;
     }

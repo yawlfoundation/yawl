@@ -137,6 +137,11 @@
                                    toolTip="Refresh Queues"
                                    text=""/>
 
+                        <ui:checkbox binding="#{adminQueues.cbxDirectToMe}"
+                                     id="cbxDirectToMe"
+                                     label="Directly to me"
+                                     styleClass="queuesCheckbox"
+                                     selected="#{SessionBean.redirectToMe}"/>
 
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"

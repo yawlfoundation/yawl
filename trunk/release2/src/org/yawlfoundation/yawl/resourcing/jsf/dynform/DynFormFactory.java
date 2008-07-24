@@ -21,6 +21,7 @@ import com.sun.rave.web.ui.component.Calendar;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
+import org.jdom.filter.ElementFilter;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
@@ -79,6 +80,13 @@ public class DynFormFactory extends AbstractSessionBean {
     public void setBtnCancelStyle(String style) { btnCancelStyle = style; }
 
 
+    private String btnCompleteStyle ;
+
+    public String getBtnCompleteStyle() { return btnCompleteStyle; }
+
+    public void setBtnCompleteStyle(String style) { btnCompleteStyle = style; }
+
+
     private String title ;
 
     public String getTitle() { return title; }
@@ -124,8 +132,8 @@ public class DynFormFactory extends AbstractSessionBean {
     static final int OUTER_PANEL_TO_BUTTONS = 15;   // gap from panel bottom to buttons
     static final int OUTER_PANEL_TOP = 130;      // top (y) coord of outer panel
     static final int OUTER_PANEL_LEFT = 50;      // left (x) coord of outer panel
-    static final int FORM_BUTTON_WIDTH = 66;     // buttons under outer panel
-    static final int FORM_BUTTON_GAP = 30;       // ... and the gap between them
+    static final int FORM_BUTTON_WIDTH = 76;     // buttons under outer panel
+    static final int FORM_BUTTON_GAP = 15;       // ... and the gap between them
 
     // for setting focus on first available component
     private boolean focusSet = false ;
@@ -163,7 +171,7 @@ public class DynFormFactory extends AbstractSessionBean {
             String data = getInstanceData(schema) ;
             Map<String, FormParameter> params = getParamInfo();
             buildForm(schema, data, params);
-            DataInputMapper dim = new DataInputMapper(schema, data);
+            DataInputMapper dim = new DataInputMapper(schema, data, params);
             return true ;
         }
         else {
@@ -263,11 +271,23 @@ public class DynFormFactory extends AbstractSessionBean {
 
         // reposition buttons to go directly under resized panel, centered
         int btnTop = OUTER_PANEL_TOP + height + OUTER_PANEL_TO_BUTTONS;
+        int btnCount = getNumberOfVisibleButtons();
         int btnCancelLeft = OUTER_PANEL_LEFT +
-                ( (width - (2 * FORM_BUTTON_WIDTH) - FORM_BUTTON_GAP) / 2 ) ;
+                ( (width - (btnCount * FORM_BUTTON_WIDTH) - FORM_BUTTON_GAP) / btnCount ) ;
         int btnOKLeft = btnCancelLeft + FORM_BUTTON_WIDTH + FORM_BUTTON_GAP;
         btnOKStyle = String.format("left: %dpx; top: %dpx", btnOKLeft, btnTop);
         btnCancelStyle = String.format("left: %dpx; top: %dpx", btnCancelLeft, btnTop);
+        if (btnCount == 3) {
+            int btnCompleteLeft = btnOKLeft + FORM_BUTTON_WIDTH + FORM_BUTTON_GAP;
+            btnCompleteStyle = String.format("left: %dpx; top: %dpx", btnCompleteLeft, btnTop);
+        }
+    }
+
+    private int getNumberOfVisibleButtons() {
+        if (getSessionBean().getDynFormType() == ApplicationBean.DynFormType.netlevel)
+            return 2;
+        else
+            return 3;
     }
 
     
@@ -809,6 +829,7 @@ public class DynFormFactory extends AbstractSessionBean {
         newField.setDisabled(oldField.isDisabled());
         newField.setStyleClass(oldField.getStyleClass());
         newField.setStyle(oldField.getStyle());
+        newField.setToolTip(oldField.getToolTip());
         return newField;
     }
 
@@ -877,7 +898,7 @@ public class DynFormFactory extends AbstractSessionBean {
 
 
     public String getDataList() {
-        return getPanelDataList(compPanel) ;
+        return normaliseDataList(getPanelDataList(compPanel)) ;
     }
 
 
@@ -921,6 +942,51 @@ public class DynFormFactory extends AbstractSessionBean {
         // close the xml and return
         result.append("</").append(parentTag).append(">") ;
         return result.toString();
+    }
+
+
+    private String normaliseDataList(String dataStr) {
+        if ((dataStr == null) || (dataStr.length() == 0)) return dataStr ;
+
+        Element data = JDOMUtil.stringToElement(dataStr);
+        return JDOMUtil.elementToStringDump(normaliseDataElement(data));
+    }
+
+
+    /**
+     * Collects child elements of the same name at the same heirachy and consolidates
+     * their contents into a single child element
+     * @param data the data element to normalise
+     * @return the normalised data element
+     */
+    private Element normaliseDataElement(Element data) {
+        List<String> processedNames = new ArrayList<String>(); 
+        Element result = new Element(data.getName());
+        List children = data.getChildren();
+
+        // get the child elements (if any)
+        if (children.size() > 0) {
+            for (Object objChild : children) {
+                String name = ((Element) objChild).getName();
+                if (! processedNames.contains(name)) {            // each name once only
+
+                    // get all child elements with matching name
+                    List matches = data.getContent(new ElementFilter(name));
+                    Element subResult = new Element(name);
+                    for (Object match : matches) {
+
+                        // recurse for lower level content
+                        Element recursedElem = normaliseDataElement((Element) match);
+                        subResult.addContent(recursedElem.cloneContent()) ;
+                    }
+                    processedNames.add(name);
+                    result.addContent(subResult);
+                }
+            }
+        }
+        else result.setText(data.getText());                         // recursion end
+
+        return result;
     }
 
 

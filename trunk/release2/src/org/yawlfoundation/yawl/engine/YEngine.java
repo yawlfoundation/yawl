@@ -32,6 +32,7 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBClientObserv
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBInterop;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
+import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.logging.YEventLogger;
 import org.yawlfoundation.yawl.schema.YDataValidator;
@@ -87,7 +88,7 @@ public class YEngine implements InterfaceADesign,
     private static boolean _generateUIMetaData = true;           // extended attributes
     private static InterfaceX_EngineSideClient _exceptionObserver = null ;
     private static Logger _logger;
-
+    private static Set<YWorkItemTimer> _expiredTimers ;
 
     // NON-STATIC MEMBERS //
 
@@ -161,9 +162,15 @@ public class YEngine implements InterfaceADesign,
                 // User already exists ??? Do nothing
             }
 
-            // Finally set engine status to up and running
+            // Init completed - set engine status to up and running
             _logger.info("Marking engine status = RUNNING");
             _thisInstance.setEngineStatus(YEngine.ENGINE_STATUS_RUNNING);
+
+            // Now the engine's running, process any expired timers
+            if (_expiredTimers != null) {
+                for (YWorkItemTimer timer : _expiredTimers)
+                    timer.handleTimerExpiry();
+            }
         }
         return _thisInstance;
     }
@@ -207,7 +214,7 @@ public class YEngine implements InterfaceADesign,
             _caseNbrStore = restorer.restoreNextAvailableCaseNumber();
             restorer.restoreProcessInstances();
             restorer.restoreWorkItems();
-            restorer.restoreWorkItemTimers();
+            _expiredTimers = restorer.restoreWorkItemTimers();
             restorer.restartRestoredProcessInstances();
 
             // complete session
@@ -398,20 +405,21 @@ public class YEngine implements InterfaceADesign,
     }
 
 
+    /**
+     * Loads a specification
+     * @param spec the specification to load
+     * @return true if spec is loaded, false if it was already loaded
+     */
     public boolean loadSpecification(YSpecification spec) {
-
-        /**
-         * SYNC'D External interface
-         */
         synchronized (mutex) {
-
-            if (!_specifications.contains(spec)) {
+            if (! _specifications.contains(spec)) {
                 _specifications.loadSpecification(spec);
                 return true;
             }
             return false;
         }
      }
+
 
     protected YIdentifier startCase(String username, YPersistenceManager pmgr,
                                     String specID, String caseParams,
@@ -494,76 +502,67 @@ public class YEngine implements InterfaceADesign,
     }
 
 
-    protected void finishCase(YPersistenceManager pmgr, YIdentifier caseIDForNet) throws YPersistenceException {
-        _logger.debug("--> finishCase: Case=" + caseIDForNet.get_idString());
+    /**
+     * Finalises a case completion.
+     * @param pmgr an initialised persistence manager object
+     * @param caseID the id of the completing case
+     * @throws YPersistenceException if theres a persistence problem
+     */
+    protected void finishCase(YPersistenceManager pmgr, YIdentifier caseID)
+            throws YPersistenceException {
+        _logger.debug("--> finishCase: Case=" + caseID.get_idString());
 
-        _caseIDToNetRunnerMap.remove(caseIDForNet);
-        _runningCaseIDToSpecMap.remove(caseIDForNet);
-        _workItemRepository.cancelNet(caseIDForNet);
-
-        _yawllog.logCaseCompleted(pmgr, caseIDForNet.toString());
+        _caseIDToNetRunnerMap.remove(caseID);
+        _runningCaseIDToSpecMap.remove(caseID);
+        _workItemRepository.cancelNet(caseID);
+        _yawllog.logCaseCompleted(pmgr, caseID.toString());
         
-        if (_interfaceBClient != null) {
-            _interfaceBClient.removeCase(caseIDForNet.toString());
-        }
+        if (_interfaceBClient != null)
+            _interfaceBClient.removeCase(caseID.toString());
 
         _logger.debug("<-- finishCase");
     }
 
 
     /**
-     *
-     *
-     * AJH - MODIFIED FOR TRANSACTIONAL PERSISTENCE
-     *
-     * @param specID
-     * @throws YStateException
-     * @throws YPersistenceException
+     * Removes a previously loaded specification from the engine
+     * @param specID the identifier of the specification to unload
+     * @throws YStateException if the spec is still in use (with a live case)
+     * @throws YPersistenceException if there's some persistence problem
      */
-    public void unloadSpecification(YSpecificationID specID) throws YStateException, YPersistenceException {
-        /**
-         * SYNC'D External interface
-         */
+    public void unloadSpecification(YSpecificationID specID)
+            throws YStateException, YPersistenceException {
+
         synchronized (mutex) {
-
-            YPersistenceManager pmgr = getPersistenceSession();
-            YSpecification spec = _specifications.getSpecification(specID);
-
             _logger.debug("--> unloadSpecification: ID=" + specID.getSpecName() +
                          " Version=" + specID.getVersion().toString());
 
-            /**
-             * AJH: Reject unload request if we have active cases using it
-             */
-            Iterator caseIDs = _runningCaseIDToSpecMap.keySet().iterator();
-            while(caseIDs.hasNext())
-            {
-                YIdentifier caseID = (YIdentifier)caseIDs.next();
-                YSpecification specForCase = _runningCaseIDToSpecMap.get(caseID);
-
-                if (specForCase.equals(spec))
-                {
-                    if (pmgr != null) pmgr.rollbackTransaction();
-                    throw new YStateException("Cannot unload specification with id [" + specID + "] as one or more cases are currently active against it.");
-                }
-            }
-
+            YPersistenceManager pmgr = getPersistenceSession();
             if (_specifications.contains(specID)) {
-                /* REMOVE FROM PERSISTANT STORAGE*/
+                YSpecification specToUnload = _specifications.getSpecification(specID);
+
+                // AJH: Reject unload request if we have active cases using it
+                for (YSpecification specInUse : _runningCaseIDToSpecMap.values()) {
+                    if (specInUse.equals(specToUnload)) {
+                        if (pmgr != null) pmgr.rollbackTransaction();
+                        throw new YStateException("Cannot unload specification '" + specID +
+                                "' as one or more cases are currently active against it.");
+                    }
+                }
+
                 _logger.info("Removing process specification " + specID);
                 YSpecFile yspec = new YSpecFile();
                 yspec.getSpecid().setId(specID.getSpecName());
                 yspec.getSpecid().setVersion(specID.getVersion());
-
                 if (pmgr != null) pmgr.deleteObject(yspec);
 
-                _specifications.unloadSpecification(spec);
-            } else {
-
+                _specifications.unloadSpecification(specToUnload);
+            }
+            else {
+                // the specs not in the engine
                 if (pmgr != null) pmgr.rollbackTransaction();
-                throw new YStateException(
-                        "Engine contains no such specification with id [" +
-                        specID + "].");
+                throw new YStateException("Engine contains no such specification with id '"
+                                           + specID + "'.");
             }
 
             if (pmgr != null) pmgr.commit();
@@ -573,39 +572,42 @@ public class YEngine implements InterfaceADesign,
 
 
     /**
-     * Cancels a running case - Internal interface that requires reference to current transaction's persistence
-     * manager object.<P>
-     *
-     * @param pmgr
-     * @param id
-     * @throws YPersistenceException
+     * Cancels a running case.
+     * @param pmgr an initialised persistence manager object
+     * @param caseID the identifier of the cancelling case
+     * @throws YPersistenceException if there's some persistence problem
      */
-    protected void cancelCase(YPersistenceManager pmgr, YIdentifier id) throws YPersistenceException {
+    protected void cancelCase(YPersistenceManager pmgr, YIdentifier caseID)
+            throws YPersistenceException {
         _logger.debug("--> cancelCase");
 
-        if (id == null) {
-            throw new IllegalArgumentException("should not cancel case with a null id");
+        if (caseID != null) {
+
+            _logger.info("Deleting persisted process instance " + caseID);
+
+            try {
+                clearCase(pmgr, caseID);
+                YNetRunner runner = _caseIDToNetRunnerMap.get(caseID);
+                _yawllog.logCaseCancelled(pmgr, caseID.toString());
+                if (_persisting) clearWorkItemsFromPersistence(pmgr, caseID);
+                runner.cancel(pmgr);
+                _workItemRepository.removeWorkItemsForCase(caseID);
+                finishCase(pmgr, caseID);
+
+                // announce cancellation to exception service (if required)
+                if (_exceptionObserver != null)
+                    announceCancellationToExceptionService(_exceptionObserver, caseID) ;
+
+            } catch (YPersistenceException e) {
+                throw new YPersistenceException(
+                                       "Failure whilst persisting case cancellation", e);
+            }
+        }
+        else {
+            throw new IllegalArgumentException(
+                                       "Attempt to cancel a case using a null caseID");
         }
 
-        //todo AJH - Suspect NetRunner is also clearing from database ????
-        _logger.info("Deleting persisted process instance " + id);
-
-        try {
-            clearCase(pmgr, id);
-            YNetRunner runner = (YNetRunner) _caseIDToNetRunnerMap.get(id);
-            _yawllog.logCaseCancelled(pmgr, id.toString());
-            if (_persisting) clearWorkItemsFromPersistence(pmgr, id);
-            runner.cancel(pmgr);
-            _workItemRepository.removeWorkItemsForCase(id);
-            finishCase(pmgr, id);
-
-            // announce cancellation to exception service (if required)
-            if (_exceptionObserver != null)
-                announceCancellationToExceptionService(_exceptionObserver, id) ;
-
-        } catch (YPersistenceException e) {
-            throw new YPersistenceException("Failure whilst persisting case cancellation", e);
-        }
     }
 
 
@@ -616,8 +618,11 @@ public class YEngine implements InterfaceADesign,
      * accepts an instance of the current persistence manager object.
      *
      * @param id the case ID.
+     * @throws YEngineStateException if engine is not in 'running' state
+     * @throws YPersistenceException if there's some persistence problem
      */
-    public void cancelCase(YIdentifier id) throws YPersistenceException, YEngineStateException {
+    public void cancelCase(YIdentifier id)
+            throws YPersistenceException, YEngineStateException {
         synchronized (mutex) {
             if (getEngineStatus() == ENGINE_STATUS_RUNNING) {
                 YPersistenceManager pmgr = getPersistenceSession();
@@ -633,31 +638,25 @@ public class YEngine implements InterfaceADesign,
      * Removes the workitems of the runner from persistence (after a case cancellation).
      *
      * @param pmgr - a (non-null) YPersistence object
-     * @param id - the caseID for this case
-     * @throws YPersistenceException
+     * @param caseID - the caseID for this case
+     * @throws YPersistenceException if there's some persistence problem
      */
     private void clearWorkItemsFromPersistence(YPersistenceManager pmgr,
-                                               YIdentifier id)
+                                               YIdentifier caseID)
                                                throws YPersistenceException{
-        YWorkItem item ;
-        List items = _workItemRepository.getWorkItemsForCase(id);
+
+        List<YWorkItem> items = _workItemRepository.getWorkItemsForCase(caseID);
 
         // clear child items first (to avoid foreign key constraint exceptions)
-        Iterator itrChild = items.iterator();
-        while (itrChild.hasNext()) {
-            item = (YWorkItem) itrChild.next() ;
-            if (! item.getStatus().equals(YWorkItemStatus.statusIsParent)) {
+        for (YWorkItem item : items) {
+            if (! item.getStatus().equals(YWorkItemStatus.statusIsParent))
                 pmgr.deleteObject(item);
-            }
         }
 
         // now clear any parents
-        Iterator itrParent = items.iterator();
-        while (itrParent.hasNext()) {
-            item = (YWorkItem) itrParent.next() ;
-            if (item.getStatus().equals(YWorkItemStatus.statusIsParent)) {
+        for (YWorkItem item : items) {
+            if (item.getStatus().equals(YWorkItemStatus.statusIsParent))
                 pmgr.deleteObject(item);
-            }
         }
     }
 
@@ -672,12 +671,9 @@ public class YEngine implements InterfaceADesign,
      * @return a set of spec id strings.
      */
     public Set<YSpecificationID> getSpecIDs() {
-        /**
-         * SYNC'D External interface
-         */
         synchronized (mutex) {
-
-            return _specifications.getSpecIDs();        }
+            return _specifications.getSpecIDs();
+        }
     }
 
 
@@ -686,24 +682,15 @@ public class YEngine implements InterfaceADesign,
      *
      * @return  A set of specification ids
      */
-
     public Set getLoadedSpecifications() {
-        /**
-         * SYNC'D External interface
-         */
         synchronized (mutex) {
-
             return _specifications.getSpecIDs();
         }
     }
 
 
     public YSpecification getSpecification(String specID) {
-        /**
-         * SYNC'D External interface
-         */
         synchronized (mutex) {
-
             _logger.debug("--> getSpecification: ID=" + specID);
 
             if (_specifications.contains(specID)) {
@@ -788,9 +775,6 @@ public class YEngine implements InterfaceADesign,
 
 
     public String getStateTextForCase(YIdentifier caseID) {
-        /**
-         * SYNC'D External interface
-         */
         synchronized (mutex) {
 
             _logger.debug("--> getStateTextForCase: ID=" + caseID.get_idString());
@@ -992,11 +976,7 @@ public class YEngine implements InterfaceADesign,
     }
 
     public void registerInterfaceBObserver(InterfaceBClientObserver observer) {
-        /**
-         * SYNC'D External interface
-         */
         synchronized (mutex) {
-
             _interfaceBClient = observer;
         }
     }
@@ -1063,13 +1043,10 @@ public class YEngine implements InterfaceADesign,
     //   BEGIN REST-FUL SERVICE METHODS
     //################################################################################
     public Set getAvailableWorkItems() {
-
-        /**
-         * SYNC'D External interface
-         */
         synchronized (mutex) {
             if (_logger.isDebugEnabled()) {
-                _logger.debug("--> getAvailableWorkItems: Enabled=" + _workItemRepository.getEnabledWorkItems().size() +
+                _logger.debug("--> getAvailableWorkItems: Enabled=" +
+                        _workItemRepository.getEnabledWorkItems().size() +
                         " Fired=" + _workItemRepository.getFiredWorkItems().size());
             }
 
@@ -1083,14 +1060,8 @@ public class YEngine implements InterfaceADesign,
     }
 
 
-    public YSpecification getProcessDefinition(YSpecificationID specID) {
-        /**
-         * SYNC'D External interface
-         */
-        synchronized (mutex) {
-
-            return _specifications.getSpecification(specID);
-        }
+    public synchronized YSpecification getProcessDefinition(YSpecificationID specID) {
+        return _specifications.getSpecification(specID);
     }
 
 
@@ -1110,41 +1081,24 @@ public class YEngine implements InterfaceADesign,
     }
 
 
-    public YWorkItem getWorkItem(String workItemID) {
-        /**
-         * SYNC'D External interface
-         */
-        synchronized (mutex) {
-            return _workItemRepository.getWorkItem(workItemID);
-        }
-    }
-
-    public String getCaseData(String caseID) throws YStateException
-    {
-        /**
-         * SYNC'D External interface
-         */
-        synchronized (mutex)
-        {
-            YIdentifier id = getCaseID(caseID);
-
-            if(id == null)
-            {
-                throw new YStateException("Received invalid case id '" + caseID + "'.");
-            }
-            YNetRunner runner = _caseIDToNetRunnerMap.get(id);
-            return runner.getCasedata().getData();
-        }
+    public synchronized YWorkItem getWorkItem(String workItemID) {
+        return _workItemRepository.getWorkItem(workItemID);
     }
 
 
-    public Set getAllWorkItems() {
-        /**
-         * SYNC'D External interface
-         */
-        synchronized (mutex) {
-            return _workItemRepository.getWorkItems();
+    public synchronized String getCaseData(String caseID) throws YStateException {
+        YIdentifier id = getCaseID(caseID);
+        if (id == null) {
+            throw new YStateException("Received invalid case id '" + caseID + "'.");
         }
+
+        YNetRunner runner = _caseIDToNetRunnerMap.get(id);
+        return runner.getCasedata().getData();
+    }
+
+
+    public synchronized Set getAllWorkItems() {
+        return _workItemRepository.getWorkItems();
     }
 
 
@@ -1264,33 +1218,26 @@ public class YEngine implements InterfaceADesign,
     /**
      * Returns the task definition, not the task instance.
      *
-     * @param specificationID the specification id
+     * @param specID the specification id
      * @param taskID          the task id
      * @return the task definition object.
      */
-    public YTask getTaskDefinition(YSpecificationID specificationID, String taskID) {
-        /**
-         * SYNC'D External interface
-         */
-        synchronized (mutex) {
-
-            YSpecification specification = _specifications.getSpecification(specificationID);
-            if (specification != null) {
-                Set decompositions = specification.getDecompositions();
-                for (Iterator iterator2 = decompositions.iterator(); iterator2.hasNext();) {
-                    YDecomposition decomposition = (YDecomposition) iterator2.next();
-                    if (decomposition instanceof YNet) {
-                        if (((YNet) decomposition).getNetElements().containsKey(taskID)) {
-                            YExternalNetElement el = ((YNet) decomposition).getNetElement(taskID);
-                            if (el instanceof YTask) {
-                                return (YTask) ((YNet) decomposition).getNetElement(taskID);
-                            }
-                        }
+    public synchronized YTask getTaskDefinition(YSpecificationID specID, String taskID) {
+        YTask result = null;
+        YSpecification spec = _specifications.getSpecification(specID);
+        if (spec != null) {
+            Set<YDecomposition> decompositions = spec.getDecompositions();
+            for(YDecomposition decomposition : decompositions) {
+                if (decomposition instanceof YNet) {
+                    YNet net = (YNet) decomposition;
+                    YExternalNetElement element = net.getNetElement(taskID);
+                    if ((element != null) && (element instanceof YTask)) {
+                        result = (YTask) element;
                     }
                 }
             }
-            return null;
         }
+        return result;
     }
 
     public void setEngineStatus(int engineStatus)
@@ -1790,7 +1737,7 @@ public class YEngine implements InterfaceADesign,
             }
             else
             {
-                throw new YStateException("Unexpected failure from launchCase (see log for details");
+                throw new YStateException("Unexpected failure from launchCase (see log for details)");
             }
         }
 

@@ -204,11 +204,88 @@
 	<xs:complexType name="SpecificationSetType">
 		<!--xs:attribute name="uri" type="yawl:URIType" use="required"/-->
 	</xs:complexType>
-	<!--
-	################################################################################################
-	COMPLEX TYPES FROM FACT TYPE GROUPINGS
-	################################################################################################
-	-->
+
+  <!--
+  #######################################################################################
+    TYPES FROM CONFIGURATION
+  #######################################################################################
+  -->
+  <xs:simpleType name="InputPortValueType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="activated"/>
+      <xs:enumeration value="blocked" />
+      <xs:enumeration value="hidden" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="OutputPortValueType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="activated"/>
+      <xs:enumeration value="blocked" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="CreationModeConfigType">
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="restict"/>
+        <xs:enumeration value="keep"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="InputPortConfigType">
+    <xs:sequence>
+      <xs:element name="flowSource" type="yawl:ExternalNetElementType"
+                  minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="value" type="yawl:InputPortValueType"/>
+  </xs:complexType>
+  <xs:complexType name="OutputPortConfigType">
+    <xs:sequence>
+      <xs:element name="flowDestination" type="yawl:ExternalNetElementType"
+                  minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="value" type="yawl:OutputPortValueType"/>
+  </xs:complexType>
+
+  <xs:complexType name="joinConfigType">
+    <xs:sequence>
+      <xs:element name="port" type="yawl:InputPortConfigType"
+                  minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="value" type="yawl:InputPortValueType"/>
+  </xs:complexType>
+  <xs:complexType name="remConfigType">
+    <xs:attribute name="value" type="yawl:OutputPortValueType"/>
+  </xs:complexType>
+  <xs:complexType name="splitConfigType">
+    <xs:sequence>
+      <xs:element name="port" type="yawl:OutputPortConfigType"
+                  minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="value" type="yawl:OutputPortValueType"/>
+  </xs:complexType>
+
+  <xs:complexType name="nofiConfigType">
+    <xs:sequence>
+      <xs:element name="minIncrease" type="xs:positiveInteger"/>
+      <xs:element name="maxDecrease" type="xs:positiveInteger"/>
+      <xs:element name="thresIncrease" type="xs:positiveInteger"/>
+      <xs:element name="creationMode" type="yawl:CreationModeConfigType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ConfigurationType">
+    <xs:sequence>
+      <xs:element name="join" type="yawl:joinConfigType" minOccurs="0"/>
+      <xs:element name="nofi" type="yawl:nofiConfigType" minOccurs="0"/>
+      <xs:element name="rem" type="yawl:remConfigType" minOccurs="0"/>
+      <xs:element name="split" type="yawl:splitConfigType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+    <!--
+    ################################################################################################
+    COMPLEX TYPES FROM FACT TYPE GROUPINGS
+    ################################################################################################
+    -->
 	<!--
 	#### TYPE #### CustomSchemaNamespaceMappingFactsType
 	-->
@@ -268,6 +345,8 @@
 				<xs:sequence>
 					<xs:element name="join" type="yawl:ControlTypeType"/>
 					<xs:element name="split" type="yawl:ControlTypeType"/>
+          <xs:element name="defaultConfiguration" type="yawl:ConfigurationType" minOccurs="0"/>
+          <xs:element name="configuration" type="yawl:ConfigurationType" minOccurs="0"/>
 					<xs:element name="removesTokens" type="yawl:ExternalNetElementType" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element name="removesTokensFromFlow" type="yawl:RemovesTokensFromFlowType" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element name="startingMappings" type="yawl:VarMappingSetType" minOccurs="0">
@@ -803,7 +882,10 @@
 	-->
 	<xs:complexType name="MetaDataType">
 		<xs:annotation>
-			<xs:documentation>Uses meta data specification of the dublin core: http://dublincore.org/usage/terms/dc/current-elements/</xs:documentation>
+			<xs:documentation>
+          Uses meta data specification of the dublin core:
+          http://dublincore.org/usage/terms/dc/current-elements/
+      </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="title" type="xs:normalizedString" minOccurs="0"/>

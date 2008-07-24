@@ -37,7 +37,7 @@ public class YEngineRestorer {
     private YEngine _engine ;
     private YPersistenceManager _pmgr ;
     private Hashtable<String, YIdentifier> _idLookupTable;
-    private Vector<YNetRunner> runners;
+    private Vector<YNetRunner> _runners;
     private Logger _log;
 
 
@@ -143,28 +143,37 @@ public class YEngineRestorer {
         _log.info("Restoring process instances - Starts");
         Query query = _pmgr.createQuery("from YNetRunner order by case_id");
 
-        runners = new Vector<YNetRunner>();
+        _runners = new Vector<YNetRunner>();
         for (Iterator it = query.iterate(); it.hasNext();) {
-            runners.add((YNetRunner) it.next());
+            _runners.add((YNetRunner) it.next());
         }
 
-        restoreRunners(removeDeadRunners(runners)) ;
+        _runners = removeDeadRunners(_runners);
+        restoreRunners(_runners) ;
         _log.info("Restoring process instances - Ends");
     }
 
 
     public void restoreWorkItems() throws YPersistenceException {
         _log.info("Restoring work items - Starts");
-        List<YWorkItem> toBeDeleted = new ArrayList<YWorkItem>();
+        List<YWorkItem> toBeRestored = new ArrayList<YWorkItem>();
+        List<YWorkItem> toBeRemoved = new ArrayList<YWorkItem>();
+
+        // get workitems from persistence
         Query query = _pmgr.createQuery("from YWorkItem");
         for (Iterator it = query.iterate(); it.hasNext();) {
             YWorkItem witem = (YWorkItem) it.next();
+            if (hasRestoredIdentifier(witem)) 
+               toBeRestored.add(witem);
+            else
+               toBeRemoved.add(witem);
+        }
 
-            // MJF: if parent is to be deleted, must delete for constraints
-            if (toBeDeleted.contains(witem.get_parent())) {
-                toBeDeleted.add(witem);
-                continue;
-            }
+        List<YWorkItem> orphans = checkWorkItemFamiliesIntact(toBeRestored);
+        toBeRestored.removeAll(orphans);
+        toBeRemoved.addAll(orphans);
+
+        for (YWorkItem witem : toBeRestored) {
 
             // persisted data stored as string - restore to Element
             String data = witem.get_dataString();
@@ -178,37 +187,33 @@ public class YEngineRestorer {
             String uniqueID = taskUniqueSplit[1];
 
             YIdentifier yCaseID = _idLookupTable.get(caseID);
-            if (yCaseID != null) {
 
-                // MJF: use the unique id if we have one - stays in synch
-                if (uniqueID != null) {
-                    witem.setWorkItemID(new YWorkItemID(yCaseID, taskID, uniqueID));
-                } else {
-                    witem.setWorkItemID(new YWorkItemID(yCaseID, taskID));
-                }
-                witem.addToRepository();
+            // MJF: use the unique id if we have one - stays in synch
+            if (uniqueID != null) {
+                witem.setWorkItemID(new YWorkItemID(yCaseID, taskID, uniqueID));
+            } else {
+                witem.setWorkItemID(new YWorkItemID(yCaseID, taskID));
+            }
+            witem.addToRepository();
 
-                // MJF: for any work items with data, restore to netrunner instance
-                witem.restoreDataToNet();
-            }
-            else {
-                _pmgr.deleteObject(witem);
-                toBeDeleted.add(witem);
-            }
+            // MJF: for any work items with data, restore to netrunner instance
+            witem.restoreDataToNet();
         }
 
-        for (YWorkItem item : toBeDeleted) _pmgr.getSession().delete(item);
-        _pmgr.getSession().flush();
+        removeWorkItems(toBeRemoved);
+
         _log.info("Restoring work items - Ends");
     }
 
 
-    public void restoreWorkItemTimers() throws YPersistenceException {
+    public Set<YWorkItemTimer> restoreWorkItemTimers() throws YPersistenceException {
         _log.info("Restoring work item timers - Starts");
+        Set<YWorkItemTimer> expiredTimers = new HashSet<YWorkItemTimer>();
         Query query = _pmgr.createQuery("from YWorkItemTimer");
         for (Iterator it = query.iterate(); it.hasNext();) {
             YWorkItemTimer witemTimer = (YWorkItemTimer) it.next();
-
+            witemTimer.setPersisting(true);
+            
             // check to see if workitem still exists
             YWorkItem witem = _engine.getWorkItem(witemTimer.getOwnerID()) ;
             if (witem == null)
@@ -218,7 +223,7 @@ public class YEngineRestorer {
 
                 // if the deadline has passed, time the workitem out
                 if (endTime < System.currentTimeMillis())
-                    witemTimer.handleTimerExpiry();
+                    expiredTimers.add(witemTimer);
                 else {
                     // reschedule the workitem's timer
                     YTimer.getInstance().schedule(witemTimer, new Date(endTime));
@@ -227,6 +232,7 @@ public class YEngineRestorer {
             }
         }
         _log.info("Restoring work item timers - Ends");
+        return expiredTimers;
     }
 
     
@@ -238,8 +244,8 @@ public class YEngineRestorer {
          */
         _log.info("Restarting restored process instances - Starts");
 
-        for (int i = 0; i < runners.size(); i++) {
-            YNetRunner runner = runners.get(i);
+        for (int i = 0; i < _runners.size(); i++) {
+            YNetRunner runner = _runners.get(i);
             _log.debug("Restarting " + runner.get_caseID());
             try {
                 runner.start(_pmgr);
@@ -290,6 +296,7 @@ public class YEngineRestorer {
                 _pmgr.deleteObject(runner);
             }
         }
+
         return result ;
     }
 
@@ -319,7 +326,7 @@ public class YEngineRestorer {
                     YNet parentnet = parentrunner.getNet();
                     YCompositeTask task = (YCompositeTask) parentnet.getNetElement(
                                                            runner.getContainingTaskID());
-                    runner.setTask(task);
+                    runner.setContainingTask(task);
                     try {
                         YNet net = (YNet) task.getDecompositionPrototype().clone();
                         runner.setNet(net);
@@ -484,6 +491,72 @@ public class YEngineRestorer {
                 net.getOutputCondition().add(_pmgr, id);
             }
         }
+    }
+
+
+    /**
+     * Checks if a workitem restored from persistence has had its YIdentifier
+     * previously restored.
+     * @param item the workitem to check
+     * @return true if there has been a YIdentifier restored for the workitem
+     */
+    private boolean hasRestoredIdentifier(YWorkItem item) {
+        String[] caseTaskSplit = item.get_thisID().split(":");
+        return _idLookupTable.get(caseTaskSplit[0]) != null;        
+    }
+
+
+    /**
+     * When restoring workitems, this method checks (1) if a parent workitem is in the
+     * list of items to restore, all of its children are in the list also; and (2) each
+     * child workitem in the list has a parent. If either is false, the workitem is
+     * put in a list of items to not be restored and to be removed from persistence
+     * @param itemList the list of workitems to potentially restore
+     * @return the sublist of items not to restore (if any)
+     */
+    private List<YWorkItem> checkWorkItemFamiliesIntact(List<YWorkItem> itemList) {
+        List<YWorkItem> orphans = new ArrayList<YWorkItem>();
+        for (YWorkItem witem : itemList) {
+            if (witem.getStatus().equals(YWorkItemStatus.statusIsParent)) {
+                Set<YWorkItem> children = witem.getChildren();
+                if ((children != null) && (! itemList.containsAll(children))) {
+                    orphans.add(witem);
+                }
+            }
+            else {
+                YWorkItem parent = witem.getParent();
+                if ((parent != null) && (! itemList.contains(parent))) {
+                    orphans.add(witem);
+                }
+            }
+        }
+        return orphans ;
+    }
+
+
+    /**
+     * Removes the workitems in the list from persistence
+     * @param items the workitems to remove
+     */
+    private void removeWorkItems(List<YWorkItem> items) {
+        try {
+
+            // clear child items first (to avoid foreign key constraint exceptions)
+            for (YWorkItem item : items) {
+                if (! item.getStatus().equals(YWorkItemStatus.statusIsParent))
+                    _pmgr.deleteObject(item);
+            }
+
+            // now clear any parents
+            for (YWorkItem item : items) {
+                if (item.getStatus().equals(YWorkItemStatus.statusIsParent))
+                    _pmgr.deleteObject(item);
+            }
+        }
+        catch (YPersistenceException ype) {
+            _log.error("Exception removing orphaned workitems from persistence.", ype);
+        }
+
     }
 
 }

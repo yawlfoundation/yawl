@@ -187,9 +187,20 @@ public class SessionBean extends AbstractSessionBean {
 
     /** @return the set of wir's for the queue passed */
     public Set<WorkItemRecord> getQueue(int qType) {
+        System.out.println("METHOD: SessionBean.getQueue, qType = " + qType);
         Set<WorkItemRecord> result = null ;
         QueueSet qSet = (qType < WorkQueue.UNOFFERED) ? queueSet : adminQueueSet ;
         if (qSet != null) result = qSet.getQueuedWorkItems(qType) ;
+
+        if (result != null) {
+            System.out.println("METHOD: SessionBean.getQueue, dump of queued workitems");
+
+            for (WorkItemRecord wir : result) {
+                System.out.println(wir.toXML());
+            }
+        }
+        else System.out.println("METHOD: SessionBean.getQueue, empty queue");
+
         return result ;
     }
 
@@ -203,6 +214,8 @@ public class SessionBean extends AbstractSessionBean {
 
     /** Updates the queue data members (ie participant or admin queues) */
     public Set<WorkItemRecord> refreshQueue(int qType) {
+        System.out.println("METHOD: SessionBean.refreshQueue, qType = " + qType);
+
         if (qType < WorkQueue.UNOFFERED) {
             if (participant != null)
                 queueSet = participant.getWorkQueues() ;
@@ -744,6 +757,8 @@ public class SessionBean extends AbstractSessionBean {
         adminQueueAssignedList = null ;
         Set<Participant> pSet = _rm.getParticipantsAssignedWorkItem(wir) ;
 
+        System.out.println("METHOD: populateAdminQueueAssignedList, pSet size = " + pSet.size());
+
         if (pSet != null) {
             adminQueueAssignedList = new Option[pSet.size()];
             ArrayList<Participant> pList = new ArrayList<Participant>(pSet);
@@ -1052,15 +1067,19 @@ public class SessionBean extends AbstractSessionBean {
     }
 
     public void unselectResourceAttribute(String id) {
+        unselectResourceAttribute(id, getParticipantForCurrentMode());
+    }
+
+    public void unselectResourceAttribute(String id, Participant p) {   
         if (activeResourceAttributeTab.equals("tabRoles"))
-            editedParticipant.removeRole(id);
+            p.removeRole(id);
         else if (activeResourceAttributeTab.equals("tabPosition"))
-            editedParticipant.removePosition(id);
+            p.removePosition(id);
         else if (activeResourceAttributeTab.equals("tabCapability"))
-            editedParticipant.removeCapability(id);
+            p.removeCapability(id);
 
         // refresh the 'owned' list
-        getParticipantAttributeList(activeResourceAttributeTab, editedParticipant) ;
+        getParticipantAttributeList(activeResourceAttributeTab, p) ;
     }
 
     public void selectResourceAttribute(String id) {

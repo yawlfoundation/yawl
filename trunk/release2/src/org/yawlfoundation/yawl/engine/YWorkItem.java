@@ -64,7 +64,7 @@ public class YWorkItem {
     private boolean _allowsDynamicCreation;
     private boolean _requiresManualResourcing;
     private YWorkItem _parent;                             // this item's parent (if any)
-    private Set _children;                                 // this item's kids (if any)
+    private Set<YWorkItem> _children;                      // this item's kids (if any)
     private Element _dataList;
     private String _dataString = null;                  // persisted version of datalist
 
@@ -99,7 +99,7 @@ public class YWorkItem {
 
         _enablementTime = new Date();
         _eventLog.logParentWorkItemEvent(pmgr, this, _status, _whoStartedMe);
-        if (pmgr != null) pmgr.storeObject(this);
+        if ((pmgr != null) && (! isDeadlocked)) pmgr.storeObject(this);
     }
 
 
@@ -376,9 +376,8 @@ public class YWorkItem {
                                 (_status.equals(statusExecuting)))) {
 
                 // try expiry type first
-                String expiry = (String) _timerParameters.get("expiry");
-                if (expiry != null) {
-                    Date expiryTime = new Date(new Long(expiry)) ;
+                Date expiryTime = (Date) _timerParameters.get("expiry");
+                if (expiryTime != null) {
                     timer = new YWorkItemTimer(_workItemID.toString(), expiryTime, (pmgr != null)) ;
                     _timerStarted = true ;
                 }
@@ -644,7 +643,7 @@ public class YWorkItem {
 
     public YWorkItem getParent() { return _parent; }
 
-    public Set getChildren() { return _children; }
+    public Set<YWorkItem> getChildren() { return _children; }
 
     public YIdentifier getCaseID() { return _workItemID.getCaseID(); }
 

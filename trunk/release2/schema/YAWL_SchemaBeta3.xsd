@@ -305,13 +305,13 @@
 	-->
 	<xs:complexType name="OutputConditionFactsType">
 		<xs:complexContent>
-			<xs:restriction base="yawl:ExternalNetElementType">
+			<xs:extension base="yawl:ExternalNetElementType">
 				<xs:sequence>
 					<xs:element name="name" minOccurs="0"/>
 					<xs:element name="documentation" minOccurs="0"/>
 				</xs:sequence>
-				<xs:attribute name="id" type="yawl:NetElementIDType" use="required"/>
-			</xs:restriction>
+				<!--<xs:attribute name="id" type="yawl:NetElementIDType" use="required"/>-->
+			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 	<!--

@@ -226,6 +226,13 @@ public class adminQueues extends AbstractPageBean {
     public void setCbbAssignedTo(DropDown dd) { cbbAssignedTo = dd; }
 
 
+    private Checkbox cbxDirectToMe = new Checkbox();
+
+    public Checkbox getCbxDirectToMe() { return cbxDirectToMe; }
+
+    public void setCbxDirectToMe(Checkbox c) { cbxDirectToMe = c; }
+
+
     private Meta metaRefresh = new Meta();
 
     public Meta getMetaRefresh() { return metaRefresh; }
@@ -245,6 +252,9 @@ public class adminQueues extends AbstractPageBean {
     public void prerender() {
         _sb.checkLogon();
         _sb.getMessagePanel().show(410, 150, "absolute");
+
+        // hide 'direct to me' checkbox if logged on with 'admin' userid
+        cbxDirectToMe.setVisible(_sb.getParticipant() != null);
 
         // take appropriate postback action if required
         _sb.performAdminQueueAction();
@@ -292,28 +302,28 @@ public class adminQueues extends AbstractPageBean {
     }
 
     public String btnOffer_action() {
-        return showUserList("Offer") ;
+        return selectParticipant("Offer") ;
     }
 
     public String btnAllocate_action() {
-        return showUserList("Allocate") ;
+        return selectParticipant("Allocate") ;
     }
 
     public String btnStart_action() {
-        return showUserList("Start") ;
+        return selectParticipant("Start") ;
     }
 
 
     public String btnReoffer_action() {
-        return showUserList("Reoffer") ;
+        return selectParticipant("Reoffer") ;
     }
 
     public String btnReallocate_action() {
-        return showUserList("Reallocate") ;
+        return selectParticipant("Reallocate") ;
     }
 
     public String btnRestart_action() {
-        return showUserList("Restart") ;
+        return selectParticipant("Restart") ;
     }
 
     public String tabUnOffered_action() {
@@ -329,13 +339,19 @@ public class adminQueues extends AbstractPageBean {
 
 
     // initialise and show the user select form //
-    public String showUserList(String action) {
+    public String selectParticipant(String action) {
         _sb.setAdminQueueAction(action) ;
-        _sb.setBlankStartOfParticipantList(false);
-        _sb.setSelectUserListOptions(_sb.getOrgDataParticipantList());
-        _sb.setUserListFormHeaderText(action + " selected workitem(s) to:") ;
-        _sb.setNavigateTo("showAdminQueues");
-        return "userSelect" ;
+        if (cbxDirectToMe.isChecked()) {
+            _sb.setSelectUserListChoice(_sb.getParticipant().getID());
+            return null;
+        }
+        else {
+            _sb.setBlankStartOfParticipantList(false);
+            _sb.setSelectUserListOptions(_sb.getOrgDataParticipantList());
+            _sb.setUserListFormHeaderText(action + " selected workitem(s) to:") ;
+            _sb.setNavigateTo("showAdminQueues");
+            return "userSelect" ;
+        }    
     }
 
 
@@ -383,6 +399,9 @@ public class adminQueues extends AbstractPageBean {
 
     private int populateQueue(int queueType) {
         int result = -1;                                    // default for empty queue
+
+        System.out.println("METHOD: adminQueues.populateQueue, calling refreshQueue");
+
         Set<WorkItemRecord> queue = _sb.refreshQueue(queueType);
         ((pfQueueUI) getBean("pfQueueUI")).clearQueueGUI();
 

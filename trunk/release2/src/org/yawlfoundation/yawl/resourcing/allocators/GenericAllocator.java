@@ -8,6 +8,7 @@
 
 package org.yawlfoundation.yawl.resourcing.allocators;
 
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
 import java.util.Set;
@@ -28,5 +29,7 @@ public class GenericAllocator extends AbstractAllocator {
 
     public GenericAllocator() { super() ; }
 
-    public Participant performAllocation(Set<Participant> resources) { return null; }
+    public Participant performAllocation(Set<Participant> resources, WorkItemRecord wir) {
+        return null;
+    }
 }

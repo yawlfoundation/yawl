@@ -95,20 +95,25 @@ public class YFlow implements Comparable {
         this._documentation = _documentation;
     }
 
-    public List verify(YExternalNetElement caller) {
-        List messages = new Vector();
+    public List<YVerificationMessage> verify(YExternalNetElement caller) {
+        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
         if (_priorElement == null || _nextElement == null) {
             if (_priorElement == null) {
-                messages.add(new YVerificationMessage(caller, caller + " [error] null prior element", YVerificationMessage.ERROR_STATUS));
+                messages.add(new YVerificationMessage(caller,
+                        caller + " [error] null prior element",
+                        YVerificationMessage.ERROR_STATUS));
             }
             if (_nextElement == null) {
-                messages.add(new YVerificationMessage(caller, caller + " [error] null next element", YVerificationMessage.ERROR_STATUS));
+                messages.add(new YVerificationMessage(caller,
+                        caller + " [error] null next element",
+                        YVerificationMessage.ERROR_STATUS));
             }
         } else if (_priorElement._net != _nextElement._net) {
             messages.add(new YVerificationMessage(caller, caller
                     + " any flow from any Element (" + _priorElement +
                     ") to any Element (" + _nextElement + ") " +
-                    "must occur with the bounds of the same net.", YVerificationMessage.ERROR_STATUS));
+                    "must occur with the bounds of the same net.",
+                    YVerificationMessage.ERROR_STATUS));
         }
         if (_priorElement instanceof YTask) {
             YTask priorElement = (YTask) _priorElement;
@@ -117,12 +122,14 @@ public class YFlow implements Comparable {
                 if (_xpathPredicate != null) {
                     messages.add(new YVerificationMessage(caller, caller
                             + " any flow from any AND-split (" + _priorElement
-                            + ") may not have an xpath predicate.", YVerificationMessage.ERROR_STATUS));
+                            + ") may not have an xpath predicate.",
+                            YVerificationMessage.ERROR_STATUS));
                 }
                 if (_isDefaultFlow) {
                     messages.add(new YVerificationMessage(caller, caller
                             + " any flow from any AND-split (" + _priorElement
-                            + ") may not have a default flow.", YVerificationMessage.ERROR_STATUS));
+                            + ") may not have a default flow.",
+                            YVerificationMessage.ERROR_STATUS));
                 }
             }
             //AND-split or OR-split
@@ -130,7 +137,8 @@ public class YFlow implements Comparable {
                 if (_evalOrdering != null) {
                     messages.add(new YVerificationMessage(caller, caller
                             + " any flow from any non XOR-split (" + _priorElement
-                            + ") may not have an eval ordering.", YVerificationMessage.ERROR_STATUS));
+                            + ") may not have an eval ordering.",
+                            YVerificationMessage.ERROR_STATUS));
                 }
             }
             //OR-split or XOR-split
@@ -139,7 +147,8 @@ public class YFlow implements Comparable {
                 if (_xpathPredicate == null && !_isDefaultFlow) {
                     messages.add(new YVerificationMessage(caller, caller
                             + " any flow from any XOR/OR-split (" + _priorElement
-                            + ") must have either a predicate or be a default flow.", YVerificationMessage.ERROR_STATUS));
+                            + ") must have either a predicate or be a default flow.",
+                            YVerificationMessage.ERROR_STATUS));
                 }
                 //check XOR-split
                 if (priorElementSplitType == YTask._XOR) {
@@ -148,13 +157,15 @@ public class YFlow implements Comparable {
                         messages.add(new YVerificationMessage(caller, caller
                                 + " any flow from any XOR-split (" + _priorElement
                                 + ") must have either a predicate or " +
-                                "be a default flow (cannot be both).", YVerificationMessage.ERROR_STATUS));
+                                "be a default flow (cannot be both).",
+                                YVerificationMessage.ERROR_STATUS));
                     }
                     //has predicate implies has ordering
                     if (_xpathPredicate != null && _evalOrdering == null) {
                         messages.add(new YVerificationMessage(caller, caller
                                 + " any flow from any XOR-split (" + _priorElement
-                                + ") that has a predicate, must have an eval ordering.", YVerificationMessage.ERROR_STATUS));
+                                + ") that has a predicate, must have an eval ordering.",
+                                YVerificationMessage.ERROR_STATUS));
                     }
                 }
                 //check OR-split
@@ -163,13 +174,15 @@ public class YFlow implements Comparable {
                     if (_xpathPredicate == null) {
                         messages.add(new YVerificationMessage(caller, caller
                                 + " any flow from any OR-split (" + _priorElement
-                                + ") must have a predicate.", YVerificationMessage.ERROR_STATUS));
+                                + ") must have a predicate.",
+                                YVerificationMessage.ERROR_STATUS));
                     }
                     //must not have ordering
                     else if (_evalOrdering != null) {
                         messages.add(new YVerificationMessage(caller, caller
                                 + " any flow from any OR-split (" + _priorElement
-                                + ") must not have an ordering.", YVerificationMessage.ERROR_STATUS));
+                                + ") must not have an ordering.",
+                                YVerificationMessage.ERROR_STATUS));
                     }
                 }
             }
@@ -177,22 +190,26 @@ public class YFlow implements Comparable {
             if (_xpathPredicate != null) {
                 messages.add(new YVerificationMessage(caller, caller
                         + " [error] any flow from any condition (" + _priorElement
-                        + ") may not contain a predicate.", YVerificationMessage.ERROR_STATUS));
+                        + ") may not contain a predicate.",
+                        YVerificationMessage.ERROR_STATUS));
             }
             if (_evalOrdering != null) {
                 messages.add(new YVerificationMessage(caller, caller
                         + " [error] any flow from any condition (" + _priorElement
-                        + ") may not contain an eval ordering.", YVerificationMessage.ERROR_STATUS));
+                        + ") may not contain an eval ordering.",
+                        YVerificationMessage.ERROR_STATUS));
             }
             if (_isDefaultFlow) {
                 messages.add(new YVerificationMessage(caller, caller
                         + " [error] any flow from any condition (" + _priorElement
-                        + ") may not be a default flow.", YVerificationMessage.ERROR_STATUS));
+                        + ") may not be a default flow.",
+                        YVerificationMessage.ERROR_STATUS));
             }
             if (_nextElement instanceof YCondition) {
                 messages.add(new YVerificationMessage(caller, caller
                         + " [error] any flow from any condition (" + _priorElement
-                        + ") to any other YConditionInterface (" + _nextElement + ") is not allowed.", YVerificationMessage.ERROR_STATUS));
+                        + ") to any other YConditionInterface (" + _nextElement +
+                        ") is not allowed.", YVerificationMessage.ERROR_STATUS));
             }
         }
         if (_priorElement instanceof YOutputCondition) {

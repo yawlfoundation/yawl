@@ -332,7 +332,7 @@
 					<xs:element name="name" minOccurs="0"/>
 					<xs:element name="documentation" minOccurs="0"/>
 				</xs:sequence>
-				<xs:attribute name="id" type="yawl:NetElementIDType" use="required"/>
+				<!--<xs:attribute name="id" type="yawl:NetElementIDType" use="required"/>-->
 			</xs:restriction>
 		</xs:complexContent>
 	</xs:complexType>

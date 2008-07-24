@@ -21,6 +21,7 @@ import org.yawlfoundation.yawl.resourcing.filters.FilterFactory;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.Role;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -551,29 +552,49 @@ public class OfferInteraction extends AbstractInteraction {
 
         public Set<Participant> evaluate(WorkItemRecord wir) {
             HashSet<Participant> result = new HashSet<Participant>() ;
-            String varID = wir.getWorkItemData().getChildText(_name) ;
+            String varID = getNetParamValue(wir, _name) ;
 
-            if (_refers == USER_PARAM) {
-                Participant p = _rm.getParticipantFromUserID(varID);
-                if (p != null)
-                    result.add(p) ;
-                else
-                    _log.error("Unknown participant userID '" + varID +
-                               "' in dynamic parameter: " + _name );
-            }
-            else {
-                Role r = _rm.getRoleByName(varID) ;
-                if (r != null) {
-                    Set<Participant> rpSet = _rm.getRoleParticipants(r.getID()) ;
-                    if (rpSet != null)
-                        result.addAll(rpSet) ;
-                }    
-                else
-                    _log.error("Unknown role '" + varID + "' in dynamic parameter: " +
-                                _name );
+            if (varID != null) {
+                if (_refers == USER_PARAM) {
+                    Participant p = _rm.getParticipantFromUserID(varID);
+                    if (p != null)
+                        result.add(p) ;
+                    else
+                        _log.error("Unknown participant userID '" + varID +
+                                "' in dynamic parameter: " + _name );
+                }
+                else {
+                    Role r = _rm.getRoleByName(varID) ;
+                    if (r != null) {
+                        Set<Participant> rpSet = _rm.getRoleParticipants(r.getID()) ;
+                        if (rpSet != null)
+                            result.addAll(rpSet) ;
+                    }
+                    else
+                        _log.error("Unknown role '" + varID +
+                                "' in dynamic parameter: " + _name );
+                }
             }
             if (result.isEmpty()) result = null ;
             return result ;
+        }
+
+
+        private String getNetParamValue (WorkItemRecord wir, String name) {
+            String result = null ;
+            try {
+                result = _rm.getNetParamValue(wir.getCaseID(), _name);
+                if (result == null)
+                    _log.error("Unable to retrieve value from net parameter '" +
+                               name + "' for deferred allocation of workitem '" +
+                               wir.getID() + "'.");
+            }
+            catch (IOException ioe) {
+                _log.error("Caught exception attempting to retrieve value from net parameter '" +
+                           name + "' for deferred allocation of workitem '" +
+                           wir.getID() + "'.");                
+            }
+            return result;
         }
 
     /*******************************************************************************/
@@ -586,9 +607,9 @@ public class OfferInteraction extends AbstractInteraction {
             xml.append("</param>");
             return xml.toString();
         }
-    }
+
+    }  // end of private class DynParam
 
     /*******************************************************************************/
-
 
 }

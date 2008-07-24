@@ -287,40 +287,62 @@ public class ResourceMap {
     private Participant doAllocate(HashSet<Participant> pSet, WorkItemRecord wir) {
         Participant chosenOne = null;
         if (_allocate.getInitiator() == AbstractInteraction.USER_INITIATED) {
+            System.out.println("METHOD: doAllocate, pSet size = " + pSet.size());
 
             // for each participant in set, place workitem on their offered queue
             for (Participant p : pSet) {
                 QueueSet qs = p.getWorkQueues() ;
                 if (qs == null) qs = p.createQueueSet(rm.getPersisting());
                 qs.addToQueue(wir, WorkQueue.OFFERED);
+                System.out.println("METHOD: doAllocate, added item to offered queue: " + p.getFullName());
                 rm.announceModifiedQueue(p.getID()) ;
             }
             _offered.put(wir.getID(), pSet) ;
             wir.setResourceStatus(WorkItemRecord.statusResourceOffered);
         }
         else {
-            chosenOne = _allocate.performAllocation(pSet);
+            chosenOne = _allocate.performAllocation(pSet, wir);
+            if (chosenOne == null) {
+                _log.warn("The system allocator '" + _allocate.getAllocator().getName() +
+                          "' has been unable to allocate workitem '" + wir.getID() +
+                          "' to a participant. The workitem has been passed to the " +
+                          "administrator's unoffered queue for manual allocation.");
+                addToAdminUnofferedQueue(wir);                
+            }
         }
         return chosenOne ;
     }
 
     private void doStart(Participant p, WorkItemRecord wir) {
+        boolean started = false ;
         QueueSet qs = p.getWorkQueues() ;
         if (qs == null) qs = p.createQueueSet(rm.getPersisting());
 
-        if (_start.getInitiator() == AbstractInteraction.USER_INITIATED) {
+        if (_start.getInitiator() == AbstractInteraction.SYSTEM_INITIATED) {
+            started = rm.startImmediate(p, wir) ;
+            if (! started) {
+                _log.warn("The workitem '" + wir.getID() + "' could not be " +
+                          "automatically started. The workitem has been placed on " +
+                          "the participant's allocated queue.");
+            }
+        }
+
+        // either initiator is 'user' or start was unsuccessful
+        if (! started) {
             qs.addToQueue(wir, WorkQueue.ALLOCATED);
             wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
         }
-        else
-            rm.startImmediate(p, wir) ;
     }
 
 
     private void removeIgnoredParticipants(HashSet<Participant> distributionSet) {
-        for (Participant p : distributionSet) {
-            if (_ignoreSet.contains(p.getID()))
-                distributionSet.remove(p) ;
+        if (! _ignoreSet.isEmpty()) {
+            Set<Participant> ignored = new HashSet<Participant>();
+            for (Participant p : distributionSet) {
+                if (_ignoreSet.contains(p.getID()))
+                    ignored.add(p) ;
+            }
+            distributionSet.removeAll(ignored);
         }
     }
 

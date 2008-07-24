@@ -38,9 +38,11 @@ import org.yawlfoundation.yawl.resourcing.datastore.orgdata.EmptyDataSource;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.HibernateImpl;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.filters.FilterFactory;
+import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
+import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
 import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
-import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
+import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ConnectionCache;
 import org.yawlfoundation.yawl.resourcing.util.DataSchemaProcessor;
@@ -246,6 +248,12 @@ public class ResourceManager extends InterfaceBWebsideController {
 
             // store all manually-resourced workitems in the local cache
             if (! isAutoTask(wir)) _workItemCache.add(wir);
+
+            System.out.println("**** Dump of all participant queues *****");
+            for (Participant p : _ds.participantMap.values()) {
+                System.out.println("\n" + p.getFullName());
+                System.out.println(p.getWorkQueues().toXML());
+            }
         }
     }
 
@@ -863,9 +871,16 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public Set<Participant> getParticipantsAssignedWorkItem(WorkItemRecord wir) {
+
+        System.out.println("METHOD: rm.getParticipantsAssignedWorkItem");
+
         Set<Participant> result = new HashSet<Participant>();
         for (Participant p : _ds.participantMap.values()) {
             QueueSet qSet = p.getWorkQueues();
+
+            System.out.println("\nfor " + p.getFullName() + ", qset is null = " + (qSet == null));
+            System.out.println("; and hasWorkIteminAnyQueue = " + qSet.hasWorkItemInAnyQueue(wir));
+            
             if ((qSet != null) && (qSet.hasWorkItemInAnyQueue(wir)))
                  result.add(p);
         }
@@ -1105,15 +1120,15 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public WorkItemRecord offerToAll(WorkItemRecord wir) {
         if (getParticipantCount() > 0) {
+            wir.setResourceStatus(WorkItemRecord.statusResourceOffered);
             for (Participant p : _ds.participantMap.values()) {
                 p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
                 announceModifiedQueue(p.getID()) ;
             }
-            wir.setResourceStatus(WorkItemRecord.statusResourceOffered);
         }
         else {
-            _resAdmin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
             wir.setResourceStatus(WorkItemRecord.statusResourceUnoffered);
+            _resAdmin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
         }
         return wir ;
     }
@@ -1139,15 +1154,28 @@ public class ResourceManager extends InterfaceBWebsideController {
         return _resAdmin.getWorkQueues();
     }
 
+
     public void acceptOffer(Participant p, WorkItemRecord wir) {
+        StartInteraction starter = null;
         ResourceMap rMap = getResourceMap(wir);
-        if (rMap != null)
+        if (rMap != null) {
             rMap.withdrawOffer(wir);
+            starter = rMap.getStartInteraction();
+        }
         else
             withdrawOfferFromAll(wir);        // beta version spec
 
-        wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
-        p.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
+        // take the appropriate start action
+        if ((starter != null) &&
+            (starter.getInitiator() == AbstractInteraction.SYSTEM_INITIATED)) {
+            startImmediate(p, wir);
+        }
+        else {
+
+            // either start is user-initiated or there's no resource map (beta spec) 
+            wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
+            p.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
+         }
 
         // remove other wirs if this was a member of a deferred choice group
         if (wir.isDeferredChoiceGroupMember()) {
@@ -1490,7 +1518,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     //        it to log p as the starter). If p is not logged on, the service's handle
     //        has to be used, and thus the service will be logged as the starter. There is
     //        no way around this currently, but will be handled when the engine is
-    //        made completely agnostic to resources. Issue only applies to piling.
+    //        made completely agnostic to resources. 
     public boolean routePiledWorkItem(Participant p, WorkItemRecord wir) {
         String handle = getSessionHandle(p);
         if ((handle == null)  && this.isPersistPiling()) {
@@ -1499,9 +1527,13 @@ public class ResourceManager extends InterfaceBWebsideController {
         return routeWorkItem(p, wir, handle) ;
     }
 
-
+    // ISSUE: same as that in the method above. Called by this.acceptOffer and
+    // ResourceMap.doStart
     public boolean startImmediate(Participant p, WorkItemRecord wir) {
-        return routeWorkItem(p, wir, getSessionHandle(p)) ;
+        String handle = getSessionHandle(p);
+        if (handle == null) handle = _engineSessionHandle;
+
+        return routeWorkItem(p, wir, handle) ;
     }
 
 
@@ -2378,6 +2410,16 @@ public class ResourceManager extends InterfaceBWebsideController {
         return _interfaceBClient.getCaseData(caseID, handle) ;
     }
 
+
+    public String getNetParamValue(String caseID, String paramName) throws IOException {
+        String result = null;
+        String caseData = getCaseData(caseID, _engineSessionHandle) ;
+        Element eData = JDOMUtil.stringToElement(caseData);
+        if (eData != null)
+            result = eData.getChildText(paramName) ;
+        return result;
+    }
+
     public String getSchemaLibrary(String specID, String handle) throws IOException {
         return _interfaceBClient.getSpecificationDataSchema(specID, handle) ;
     }
@@ -2530,7 +2572,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         synchronized(_mutex) {
 
             // check out the auto workitem
-            if (checkOutWorkItem(wir, _engineSessionHandle)) {
+            if (connected() && checkOutWorkItem(wir, _engineSessionHandle)) {
                 List children = getChildren(wir.getID());
 
                 if ((children != null) && (! children.isEmpty())) {
@@ -2539,8 +2581,9 @@ public class ResourceManager extends InterfaceBWebsideController {
 
                         Element codeletResult = null ;
                         String codelet = wir.getCodelet();
-                        if (codelet != null)
+                        if ((codelet != null) && (codelet.length() > 0)) {
                             codeletResult = execCodelet(codelet, wir) ; 
+                        }
 
                         Element outData = (codeletResult != null) ? codeletResult
                                                                   : wir.getDataList();
@@ -2562,6 +2605,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                     }
                 }
             }
+            else _log.error("Could not connect to YAWL Engine.");
         }
     }
 

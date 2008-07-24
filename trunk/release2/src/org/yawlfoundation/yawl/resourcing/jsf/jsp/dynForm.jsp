@@ -43,6 +43,13 @@
                                    styleClass="dynformButton"
                                    style="#{DynFormFactory.btnOKStyle}"/>
 
+                        <ui:button action="#{dynForm.btnComplete_action}"
+                                   binding="#{dynForm.btnComplete}"
+                                   id="btnComplete"
+                                   text="Complete"
+                                   styleClass="dynformButton"
+                                   style="#{DynFormFactory.btnCompleteStyle}"/>
+
                         <ui:button action="#{dynForm.btnCancel_action}"
                                    binding="#{dynForm.btnCancel}"
                                    id="btnCancel"
