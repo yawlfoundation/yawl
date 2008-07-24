@@ -12,9 +12,8 @@ package org.yawlfoundation.yawl.miscellaneousPrograms;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.om.DocumentInfo;
 import net.sf.saxon.query.DynamicQueryContext;
-import net.sf.saxon.query.QueryProcessor;
 import net.sf.saxon.query.XQueryExpression;
-import net.sf.saxon.xpath.XPathException;
+import net.sf.saxon.trans.XPathException;
 
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
@@ -31,14 +30,14 @@ public class XPathSaxonUser {
     public static void main(String[] args) {
 
         net.sf.saxon.Configuration config = new Configuration();
-        net.sf.saxon.query.StaticQueryContext context = new net.sf.saxon.query.StaticQueryContext();
-        QueryProcessor qp = new QueryProcessor(config, context);
+        net.sf.saxon.query.StaticQueryContext context = new net.sf.saxon.query.StaticQueryContext(config);
+    //    QueryProcessor qp = new QueryProcessor(config, context);
         try {
-            XQueryExpression exp = qp.compileQuery("generate-id(/bye_mum/hi_there)");
+            XQueryExpression exp = context.compileQuery("generate-id(/bye_mum/hi_there)");
 
-            DocumentInfo doc = qp.buildDocument(new StreamSource(new StringReader(
+            DocumentInfo doc = context.buildDocument(new StreamSource(new StringReader(
                     "<bye_mum inf='h'><hi_there/></bye_mum>")));
-            DynamicQueryContext dynamicQueryContext = new DynamicQueryContext();
+            DynamicQueryContext dynamicQueryContext = new DynamicQueryContext(config);
             dynamicQueryContext.setContextNode(doc);
             Object o = exp.evaluateSingle(dynamicQueryContext);
 System.out.println("o = " + o);

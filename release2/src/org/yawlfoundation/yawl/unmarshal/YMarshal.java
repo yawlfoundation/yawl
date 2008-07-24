@@ -115,7 +115,7 @@ public class YMarshal {
                 "xmlns=\"http://www.yawlfoundation.org/yawlschema\" " +
                 "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
                 "xsi:schemaLocation=\"http://www.yawlfoundation.org/yawlschema " +
-                "c:/temp/YAWL_Schema2.0.xsd\">");
+                "http://www.yawlfoundation.org/yawlschema/YAWL_Schema2.0.xsd\">");
         }
         for (int i = 0; i < specificationList.size(); i++) {
             YSpecification specification = (YSpecification) specificationList.get(i);

@@ -8,8 +8,9 @@
 
 package org.yawlfoundation.yawl.resourcing.allocators;
 
-import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
 import java.util.Set;
 
@@ -39,10 +40,14 @@ public class ShortestQueue extends AbstractAllocator {
      * selects the Participant with the least number of workitems in the 'allocated'
      * workqueue, or the first participant with an empty queue 
      * @param resSet the set of Participants to compare
+     * @param wir the work item to allocate
      * @return the Participant with the shortest queue
      */
-    public Participant performAllocation(Set<Participant> resSet) {
-        int shortest = 10000 ;
+    public Participant performAllocation(Set<Participant> resSet,
+                                         WorkItemRecord wir) {
+        if (resSet == null) return null;
+        
+        int shortest = Integer.MAX_VALUE ;
         int qSize ;
         Participant result = null ;
         for (Participant p : resSet) {

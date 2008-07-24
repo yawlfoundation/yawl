@@ -9,10 +9,7 @@
 
 package org.yawlfoundation.yawl.elements.state;
 
-import org.yawlfoundation.yawl.elements.YCondition;
-import org.yawlfoundation.yawl.elements.YConditionInterface;
-import org.yawlfoundation.yawl.elements.YInputCondition;
-import org.yawlfoundation.yawl.elements.YTask;
+import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
@@ -33,8 +30,10 @@ import java.util.Vector;
  */
 public class YIdentifier {
 
-    private List<String> locationNames = new Vector<String>();
+    // a location may be a condition or a task
     private List _locations = new Vector();
+
+    private List<String> locationNames = new Vector<String>();
     private List<YIdentifier> _children = new Vector<YIdentifier>();
     private YIdentifier _parent;
     private String id = null;

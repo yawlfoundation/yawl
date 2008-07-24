@@ -21,6 +21,7 @@ public class YWorkItemTimer implements YTimedObject {
     private long _endTime ;
     private boolean _persisting ;
 
+    public YWorkItemTimer() {}                                   // for hibernate
 
     public YWorkItemTimer(String workItemID, long msec, boolean persisting) {
         _ownerID = workItemID ;
@@ -62,6 +63,8 @@ public class YWorkItemTimer implements YTimedObject {
     public long getEndTime() { return _endTime; }
 
     public void setEndTime(long time) { _endTime = time; }
+
+    public void setPersisting(boolean persist) { _persisting = persist; }
     
 
     public void persistThis(boolean insert) {

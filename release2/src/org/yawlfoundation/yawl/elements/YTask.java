@@ -9,20 +9,10 @@
 
 package org.yawlfoundation.yawl.elements;
 
-import net.sf.saxon.Configuration;
-import net.sf.saxon.om.DocumentInfo;
-import net.sf.saxon.om.NodeInfo;
-import net.sf.saxon.query.DynamicQueryContext;
-import net.sf.saxon.query.QueryProcessor;
-import net.sf.saxon.query.StaticQueryContext;
-import net.sf.saxon.query.XQueryExpression;
-import net.sf.saxon.xpath.XPathException;
+import net.sf.saxon.s9api.SaxonApiException;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.DOMOutputter;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.yawlfoundation.yawl.elements.data.YParameter;
@@ -38,15 +28,12 @@ import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.schema.YDataValidator;
+import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.SaxonUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.util.YSaxonOutPutter;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import javax.xml.datatype.Duration;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamSource;
-import java.io.StringReader;
 import java.net.URL;
 import java.util.*;
 
@@ -78,9 +65,12 @@ public abstract class YTask extends YExternalNetElement {
     private int _joinType;
     protected YMultiInstanceAttributes _multiInstAttr;
     private Set _removeSet = new HashSet();
-    protected Map _dataMappingsForTaskStarting = new HashMap();//[key=ParamName, value=query]
-    private Map _dataMappingsForTaskCompletion = new HashMap();//[key=query, value=NetVarName]
-    protected Map _dataMappingsForTaskEnablement = new HashMap();//[key=ParamName, value=query]
+    protected Map<String, String> _dataMappingsForTaskStarting =
+            new HashMap<String, String>();//[key=ParamName, value=query]
+    private Map<String, String> _dataMappingsForTaskCompletion =
+            new HashMap<String, String>();//[key=query, value=NetVarName]
+    protected Map<String, String> _dataMappingsForTaskEnablement =
+            new HashMap<String, String>();//[key=ParamName, value=query]
     protected YDecomposition _decompositionPrototype;
 
     //input data storage
@@ -208,46 +198,46 @@ public abstract class YTask extends YExternalNetElement {
     }
 
 
-    public Collection getParamNamesForTaskCompletion() {
+    public Collection<String> getParamNamesForTaskCompletion() {
         return _dataMappingsForTaskCompletion.values();
     }
 
-    protected List checkXQuery(String xQuery, String param) {
-        List messages = new ArrayList();
 
-        if (null == xQuery || xQuery.length() == 0) {
-            messages.add(new YVerificationMessage(this, this +
+    protected List<YVerificationMessage> checkXQuery(String xQuery, String param) {
+        List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
+
+        if ((xQuery != null) && (xQuery.length() > 0)) {
+            try {
+                SaxonUtil.compileXQuery(xQuery);
+            }
+            catch (SaxonApiException e) {
+                messages.add(new YVerificationMessage(this, this +
+                    "(id= " + this.getID() + ") the XQuery could not be successfully" +
+                    " parsed. [" + e.getMessage() + "]",
+                    YVerificationMessage.ERROR_STATUS));
+            }
+        }
+        else messages.add(new YVerificationMessage(this, this +
                     "(id= " + this.getID() + ") the XQuery for param [" +
                     param + "] cannot be equal to null" +
                     " or the empty string.",
                     YVerificationMessage.ERROR_STATUS));
-        } else {
-            Configuration configuration = new Configuration();
-            StaticQueryContext staticQueryContext = new StaticQueryContext();
-            QueryProcessor qp = new QueryProcessor(configuration, staticQueryContext);
-            try {
-                qp.compileQuery(xQuery);
-            } catch (XPathException e) {
-                messages.add(new YVerificationMessage(this, this +
-                        "(id= " + this.getID() + ") the XQuery could not be successfully" +
-                        " parsed. [" + e.getMessage() + "]",
-                        YVerificationMessage.ERROR_STATUS));
-            }
-        }
+
         return messages;
     }
 
-    protected Set getParamNamesForTaskEnablement() {
-        return new HashSet(_dataMappingsForTaskEnablement.keySet());
+
+    protected Set<String> getParamNamesForTaskEnablement() {
+        return new HashSet<String>(_dataMappingsForTaskEnablement.keySet());
     }
 
     
-    protected Set getParamNamesForTaskStarting() {
-        return new HashSet(_dataMappingsForTaskStarting.keySet());
+    protected Set<String> getParamNamesForTaskStarting() {
+        return new HashSet<String>(_dataMappingsForTaskStarting.keySet());
     }
 
 
-    private Set getQueriesForTaskCompletion() {
+    private Set<String> getQueriesForTaskCompletion() {
         return _dataMappingsForTaskCompletion.keySet();
     }
 
@@ -421,11 +411,9 @@ public abstract class YTask extends YExternalNetElement {
 
     public String getPreSplittingMIQuery() {
         String miVarNameInDecomposition = _multiInstAttr.getMIFormalInputParam();
-        for (Iterator iterator = _dataMappingsForTaskStarting.keySet().iterator();
-             iterator.hasNext();) {
-            String name = (String) iterator.next();
+        for (String name : _dataMappingsForTaskStarting.keySet()) {
             if (miVarNameInDecomposition.equals(name)) {
-                return (String) _dataMappingsForTaskStarting.get(name);
+                return _dataMappingsForTaskStarting.get(name);
             }
         }
         return null;
@@ -559,7 +547,7 @@ public abstract class YTask extends YExternalNetElement {
 
 
     public String getMIOutputAssignmentVar(String query) {
-        return (String) _dataMappingsForTaskCompletion.get(query);
+        return _dataMappingsForTaskCompletion.get(query);
     }
 
 
@@ -653,7 +641,7 @@ public abstract class YTask extends YExternalNetElement {
                 //if betaversion > beta3 then validate the results of the aggregation query
                 String uniqueInstanceOutputQuery = _multiInstAttr.getMIFormalOutputQuery();
                 String localVarThatQueryResultGetsAppliedTo =
-                        (String) _dataMappingsForTaskCompletion.get(uniqueInstanceOutputQuery);
+                        _dataMappingsForTaskCompletion.get(uniqueInstanceOutputQuery);
 
                 YVariable var = _net.getLocalVariables().containsKey(
                         localVarThatQueryResultGetsAppliedTo) ?
@@ -719,145 +707,100 @@ public abstract class YTask extends YExternalNetElement {
     }
 
 
-    private Set getLocalVariablesForTaskCompletion() {
-        return new HashSet(_dataMappingsForTaskCompletion.values());
+    private Set<String> getLocalVariablesForTaskCompletion() {
+        return new HashSet<String>(_dataMappingsForTaskCompletion.values());
     }
 
 
-    private void doXORSplit(YPersistenceManager pmgr, YIdentifier tokenToSend) throws YQueryException, YPersistenceException {
-        List flows = new ArrayList(getPostsetFlows());
-        //sort the flows according to their evaluation ordering,
-        //and with the default flow occurring last.
+    private void doXORSplit(YPersistenceManager pmgr, YIdentifier tokenToSend)
+            throws YQueryException, YPersistenceException {
+        logger.debug("Evaluating XQueries against Net: " +
+                     JDOMUtil.documentToString(_net.getInternalDataDocument()));
+
+        // get & sort the flows according to their evaluation ordering,
+        // and with the default flow occurring last.
+        List<YFlow> flows = new ArrayList<YFlow>(getPostsetFlows());
         Collections.sort(flows);
-        logger.debug("Evaluating XQueries against Net: " + new XMLOutputter(Format.getPrettyFormat()).outputString(_net.getInternalDataDocument()));
-        for (int i = 0; i < flows.size(); i++) {
-            YFlow flow = (YFlow) flows.get(i);
-            if (flow.isDefaultFlow()) {
+
+        for (YFlow flow : flows) {
+            if (flow.isDefaultFlow()) {                 // last flow reached - default
                 logger.debug("Following default path.");
                 ((YCondition) flow.getNextElement()).add(pmgr, tokenToSend);
                 return;
             }
-            /* MLF: Removed
-            try {
-                XPath xpath = XPath.newInstance("boolean(" + flow.getXpathPredicate() + ")");
-                Boolean result = (Boolean) xpath.selectSingleNode(_net.getInternalDataDocument());
-                if (result.booleanValue()) {
-                    ((YCondition) flow.getNextElement()).add(pmgr, tokenToSend);
-                    return;
-                }
-            } catch (JDOMException e) {
-                e.printStackTrace();
-            }
-            */
+
+            // check if this query evaluates to true
             String xquery = "boolean(" + flow.getXpathPredicate() + ")";
             try
             {
                 logger.debug("Evaluating XQuery: " + xquery);
+                String result = SaxonUtil.evaluateQuery(xquery, _net.getInternalDataDocument());
 
-                QueryProcessor qp = new QueryProcessor(new Configuration(), new StaticQueryContext());
-                DocumentInfo docInfo = qp.buildDocument(new DOMSource(new DOMOutputter().output(_net.getInternalDataDocument())));
-                XQueryExpression query = qp.compileQuery(xquery);
-                DynamicQueryContext context = new DynamicQueryContext();
-                context.setContextNode(docInfo);
-                Object object = query.evaluateSingle(context);
-
-                if(object instanceof Boolean || object == null)
-                {
-                    if(object != null && (Boolean) object)
-                    {
+                if (result != null) {
+                    if (result.equalsIgnoreCase("true")) {
                         logger.debug("XQuery evaluated TRUE.");
                         ((YCondition) flow.getNextElement()).add(pmgr, tokenToSend);
                         return;
                     }
-                    else logger.debug("XQuery evaluated FALSE.");
+                    else if (result.equalsIgnoreCase("false")) {
+                        logger.debug("XQuery evaluated FALSE.");
+                    }
+                    else {
+                        logger.error(
+                            "Evaluated XQuery did not return a singular boolean result.");
+                        throw new YQueryException(
+                            "Evaluated XQuery did not return a singular boolean result." +
+                            " Evaluated: '" + xquery + "'");
+                    }    
                 }
-                else
-                {
-                    logger.error("Evaluated XQuery did not return a singular boolean result.");
-                    throw new YQueryException("Evaluated XQuery did not return a singular boolean result. Evaluated: '" + xquery);
-                }
             }
-            catch (XPathException e)
-            {
-                logger.error("Invalid XPath expression (" + xquery + ").", e);
-                throw new YQueryException("Invalid XPath expression (" + xquery + ").");
-            }
-            catch (TransformerException e)
-            {
-                logger.error("Failed to evaluate XQuery (" + xquery + ").", e);
-                throw new YQueryException("Failed to evaluate XQuery  (" + xquery + ").");
-            }
-            catch (JDOMException e)
-            {
-                logger.error("Failed to evaluate XQuery  (" + xquery + ").", e);
-                throw new YQueryException("Failed to evaluate XQuery  (" + xquery + ").");
+            catch (SaxonApiException e) {
+                logger.error("Invalid XQuery expression (" + xquery + ").", e);
+                throw new YQueryException("Invalid XQuery expression (" + xquery + ").");
             }
         }
     }
 
 
-    private void doOrSplit(YPersistenceManager pmgr, YIdentifier tokenToSend) throws YQueryException, YPersistenceException {
+    private void doOrSplit(YPersistenceManager pmgr, YIdentifier tokenToSend)
+            throws YQueryException, YPersistenceException {
         boolean noTokensOutputted = true;
-        List flows = new ArrayList(getPostsetFlows());
-        Collections.sort(flows);
-        logger.debug("Evaluating XQueries against Net: " + new XMLOutputter(Format.getPrettyFormat()).outputString(_net.getInternalDataDocument()));
-        for (int i = 0; i < flows.size(); i++) {
-            YFlow flow = (YFlow) flows.get(i);
-            /* MLF: removed
 
-            try {
-                XPath xpath = XPath.newInstance("boolean(" + flow.getXpathPredicate() + ")");
-                Boolean result = (Boolean) xpath.selectSingleNode(_net.getInternalDataDocument());
-                if (result.booleanValue()) {
-                    ((YCondition) flow.getNextElement()).add(pmgr, tokenToSend);
-                    noTokensOutputted = false;
-                }
-            } catch (JDOMException e) {
-                e.printStackTrace();
-            }
-            */
+        logger.debug("Evaluating XQueries against Net: " +
+                     JDOMUtil.documentToString(_net.getInternalDataDocument()));
+        List<YFlow> flows = new ArrayList<YFlow>(getPostsetFlows());
+        Collections.sort(flows);
+        for (YFlow flow : flows) {
+
+            // check if this query evaluates to true
             String xquery = "boolean(" + flow.getXpathPredicate() + ")";
             try
             {
                 logger.debug("Evaluating XQuery: " + xquery);
+                String result = SaxonUtil.evaluateQuery(xquery, _net.getInternalDataDocument());
 
-                QueryProcessor qp = new QueryProcessor(new Configuration(), new StaticQueryContext());
-                DocumentInfo docInfo = qp.buildDocument(new DOMSource(new DOMOutputter().output(_net.getInternalDataDocument())));
-                XQueryExpression query = qp.compileQuery(xquery);
-                DynamicQueryContext context = new DynamicQueryContext();
-                context.setContextNode(docInfo);
-                Object object = query.evaluateSingle(context);
-
-                if(object instanceof Boolean || object == null)
-                {
-                    if(object != null && (Boolean) object)
-                    {
+                if (result != null) {
+                    if (result.equalsIgnoreCase("true")) {
                         logger.debug("XQuery evaluated TRUE.");
                         ((YCondition) flow.getNextElement()).add(pmgr, tokenToSend);
                         noTokensOutputted = false;
                     }
-                    else logger.debug("XQuery evaluated FALSE.");
-                }
-                else
-                {
-                    logger.error("Evaluated XQuery did not return a singular boolean result.");
-                    throw new YQueryException("Evaluated XQuery did not return a singular boolean result. Evaluated: '" + xquery);
+                    else if (result.equalsIgnoreCase("false")) {
+                        logger.debug("XQuery evaluated FALSE.");
+                    }
+                    else {
+                        logger.error(
+                            "Evaluated XQuery did not return a singular boolean result.");
+                        throw new YQueryException(
+                            "Evaluated XQuery did not return a singular boolean result." +
+                            " Evaluated: '" + xquery + "'");
+                    }
                 }
             }
-            catch (XPathException e)
+            catch (SaxonApiException e)
             {
                 logger.error("Invalid XPath expression (" + xquery + ").", e);
                 throw new YQueryException("Invalid XPath expression (" + xquery + ").");
-            }
-            catch (TransformerException e)
-            {
-                logger.error("Failed to evaluate XQuery (" + xquery + ").", e);
-                throw new YQueryException("Failed to evaluate XQuery  (" + xquery + ").");
-            }
-            catch (JDOMException e)
-            {
-                logger.error("Failed to evaluate XQuery  (" + xquery + ").", e);
-                throw new YQueryException("Failed to evaluate XQuery  (" + xquery + ").");
             }
             if (flow.isDefaultFlow() && noTokensOutputted) {
                 ((YCondition) flow.getNextElement()).add(pmgr, tokenToSend);
@@ -866,10 +809,11 @@ public abstract class YTask extends YExternalNetElement {
     }
 
 
-    private void doAndSplit(YPersistenceManager pmgr, YIdentifier tokenToSend) throws YPersistenceException {
-        Set postset = getPostsetElements();
-        for (Iterator iterator = postset.iterator(); iterator.hasNext();) {
-            YCondition condition = (YCondition) iterator.next();
+    private void doAndSplit(YPersistenceManager pmgr, YIdentifier tokenToSend)
+            throws YPersistenceException {
+        Set<YExternalNetElement> postset = getPostsetElements();
+        for (YExternalNetElement element : postset) {
+            YCondition condition = (YCondition) element;
             if (tokenToSend == null) {
                 throw new RuntimeException("token is equal to null = " + tokenToSend);
             }
@@ -937,7 +881,9 @@ public abstract class YTask extends YExternalNetElement {
     }
 
 
-    protected abstract void startOne(YPersistenceManager pmgr, YIdentifier id) throws YDataStateException, YSchemaBuildingException, YPersistenceException, YQueryException, YStateException;
+    protected abstract void startOne(YPersistenceManager pmgr, YIdentifier id)
+            throws YDataStateException, YSchemaBuildingException, YPersistenceException,
+                   YQueryException, YStateException;
 
 
     protected YIdentifier createFiredIdentifier(YPersistenceManager pmgr) throws YPersistenceException {
@@ -963,7 +909,7 @@ public abstract class YTask extends YExternalNetElement {
 
             String inputParamName = parameter.getName() != null ?
                     parameter.getName() : parameter.getElementName();
-            String expression = (String) _dataMappingsForTaskStarting.get(inputParamName);
+            String expression = _dataMappingsForTaskStarting.get(inputParamName);
             if (this.isMultiInstance() && inputParamName.equals(
                     _multiInstAttr.getMIFormalInputParam())) {
                 Element specificMIData = (Element)
@@ -1103,120 +1049,40 @@ public abstract class YTask extends YExternalNetElement {
         return new Element(getDecompositionPrototype().getRootDataElementName());
     }
 
+    
     private Element evaluateTreeQuery(String query, Document document)
-            throws YStateException, YDataStateException, YQueryException {
-        Element resultingData;
-        Object resultObj = null;
+            throws YQueryException {
+
         try {
             logger.debug("Evaluating XQuery: " + query);
-            //JDOM code for produce string for reading by SAXON
-            XMLOutputter outputter = new XMLOutputter();
-            //SAXON XQuery code
-            Configuration configuration = new Configuration();
-            StaticQueryContext staticQueryContext = new StaticQueryContext();
-            QueryProcessor qp = new QueryProcessor(configuration, staticQueryContext);
-            XQueryExpression xQueryExpression = qp.compileQuery(query);
-            //if SAXON worked with JDOM directly we could replace the next with:
-            ///DocumentInfo saxonDocInfo = qp.buildDocument(new DocumentWrapper(_parentDecomposition.getInternalDataDocument(), null));
-            DocumentInfo saxonDocInfo = qp.buildDocument(new StreamSource(
-                    new StringReader(outputter.outputString(document))));
-            DynamicQueryContext dynamicQueryContext = new DynamicQueryContext();
-            dynamicQueryContext.setContextNode(saxonDocInfo);
-            resultObj = xQueryExpression.evaluateSingle(dynamicQueryContext);
-            NodeInfo nodeInfo = (NodeInfo) resultObj;
-            //my code to parse SAXON resulting XML tree and produce a string
-            //because saxons QueryResult class isn't yet able to produce the desired string from anything
-            //but the root node
-            if (nodeInfo != null) {
-                YSaxonOutPutter saxonOutputter = new YSaxonOutPutter(nodeInfo);
-                String result = saxonOutputter.getString();
-                SAXBuilder builder = new SAXBuilder();
-                Document doclet = builder.build(new StringReader(result));
-                resultingData = doclet.detachRootElement();
-            } else {
-                throw new YDataQueryException(
-                        query,
-                        document.getRootElement(),
-                        getID(),
-                        "No data produced.");
-            }
-        } catch (ClassCastException e) {
-            if(resultObj != null)
-            {
-            RuntimeException f = new RuntimeException("The result of the query yielded an object of type "
-                    + resultObj.getClass()
-                    + ", but this engine insists on queries that produce elements only.");
-            f.setStackTrace(e.getStackTrace());
-            throw f;
-            }
-            else throw e;
-        } catch (XPathException e) {
-            YQueryException de = new YQueryException(
+            return SaxonUtil.evaluateTreeQuery(query, document);
+        }
+        catch (SaxonApiException e) {
+            YQueryException qe = new YQueryException(
                     "Something Wrong with Process Specification:\n" +
                     "The engine failed to parse an invalid query.\n" +
                     "Please check task:\n\t" +
                     "id[ " + getID() + " ]\n\t" +
                     "query: \n\t" + query + ".\n" +
                     "Message from parser: [" + e.getMessage() + "]");
-            de.setStackTrace(e.getStackTrace());
-            throw de;
-        } catch (Exception e) {
-            if (e instanceof YDataStateException) {
-                throw (YDataStateException) e;
-            }
-            YStateException se = new YStateException(e.getMessage());
-            se.setStackTrace(e.getStackTrace());
-            throw se;
-        }
-        return resultingData;
+            qe.setStackTrace(e.getStackTrace());
+            throw qe;
+        } 
     }
 
 
-    private List evaluateListQuery(String query, Element element) throws YQueryException, YStateException {
-        List resultingData = new Vector();
+    private List evaluateListQuery(String query, Element element)
+            throws YQueryException {
+
         try {
             logger.debug("Evaluating XQuery: " + query);
-            //JDOM code for produce string for reading by SAXON
-            XMLOutputter outputter = new XMLOutputter();
-            //SAXON XQuery code
-            Configuration configuration = new Configuration();
-            StaticQueryContext staticQueryContext = new StaticQueryContext();
-            QueryProcessor qp = new QueryProcessor(configuration, staticQueryContext);
-            XQueryExpression xQueryExpression = qp.compileQuery(query);
-            //if SAXON worked with JDOM directly (like it claims to) we could replace the next with:
-            ///DocumentInfo saxonDocInfo = qp.buildDocument(new DocumentWrapper(_parentDecomposition.getInternalDataDocument(), null));
-            DocumentInfo saxonDocInfo = qp.buildDocument(new StreamSource(
-                    new StringReader(outputter.outputString(element))));
-            DynamicQueryContext dynamicQueryContext = new DynamicQueryContext();
-            dynamicQueryContext.setContextNode(saxonDocInfo);
-            List nodeList = xQueryExpression.evaluate(dynamicQueryContext);
-            //my code to parse SAXON resulting XML tree and produce a string
-            //because saxons QueryResult class isn't yet able to produce the desired string from anything
-            //but the root node
-            for (int i = 0; i < nodeList.size(); i++) {
-                NodeInfo nodeInfo = (NodeInfo) nodeList.get(i);
-                YSaxonOutPutter saxonOutputter = new YSaxonOutPutter(nodeInfo);
-                String result = saxonOutputter.getString();
-                if (result != null) {
-                    SAXBuilder builder = new SAXBuilder();
-                    Document doclet = builder.build(new StringReader(result));
-                    resultingData.add(doclet.detachRootElement());
-                }
-            }
-        } catch (XPathException e) {
-            YQueryException de = new YQueryException(e.getMessage());
-            de.setStackTrace(e.getStackTrace());
-            throw de;
-        } catch (TransformerException e) {
-            YQueryException de = new YQueryException(e.getMessage());
-            de.setStackTrace(e.getStackTrace());
-            throw de;
-        } catch (Exception e) {
-            YStateException se = new YStateException(e.getMessage());
-            se.setStackTrace(e.getStackTrace());
-            throw se;
+            return SaxonUtil.evaluateListQuery(query, element);
         }
-        return resultingData;
+        catch (SaxonApiException e) {
+            YQueryException de = new YQueryException(e.getMessage());
+            de.setStackTrace(e.getStackTrace());
+            throw de;
+        }
     }
 
 
@@ -1229,9 +1095,7 @@ public abstract class YTask extends YExternalNetElement {
         return _i != null;
     }
 
-//	MLR (02/11/07): param YIdentifier caseID is NEVER used locally, as the method relies straight on the var "_i".
-//	This param has been added after the merge with M2 as YAtomicTask.cancel(...) overrides this method.
-//	Alternatively the @Override can be removed from YAtomicTask.cancel(...) so that to get rid of caseID in YTask.cancel(...)
+
     public synchronized void cancel(YPersistenceManager pmgr) throws YPersistenceException {
         _mi_active.removeAll(pmgr);
         _mi_complete.removeAll(pmgr);
@@ -1263,7 +1127,7 @@ public abstract class YTask extends YExternalNetElement {
      * The input must be map of [key="variableName", value="expression"]
      * @param map
      */
-    public void setDataMappingsForTaskStarting(Map map) {
+    public void setDataMappingsForTaskStarting(Map<String, String> map) {
         _dataMappingsForTaskStarting.putAll(map);
     }
 
@@ -1272,7 +1136,7 @@ public abstract class YTask extends YExternalNetElement {
      * The input must be map of [key="expression", value="variableName"]
      * @param map
      */
-    public void setDataMappingsForTaskCompletion(Map map) {
+    public void setDataMappingsForTaskCompletion(Map<String, String> map) {
         _dataMappingsForTaskCompletion.putAll(map);
     }
     
@@ -1343,9 +1207,8 @@ public abstract class YTask extends YExternalNetElement {
         if (_dataMappingsForTaskStarting.size() > 0) {
             if (!(this.isMultiInstance() && _dataMappingsForTaskStarting.size() == 1)) {
                 xml.append("<startingMappings>");
-                for (Iterator iterator = _dataMappingsForTaskStarting.keySet().iterator(); iterator.hasNext();) {
-                    String mapsTo = (String) iterator.next();
-                    String expression = (String) _dataMappingsForTaskStarting.get(mapsTo);
+                for (String mapsTo : _dataMappingsForTaskStarting.keySet()) {
+                    String expression = _dataMappingsForTaskStarting.get(mapsTo);
                     if (!isMultiInstance() || !getPreSplittingMIQuery().equals(expression)) {
                         xml.append("<mapping>");
                         xml.append("<expression query=\"").
@@ -1363,9 +1226,8 @@ public abstract class YTask extends YExternalNetElement {
         if (_dataMappingsForTaskCompletion.size() > 0) {
             if (!(this.isMultiInstance() && _dataMappingsForTaskCompletion.size() == 1)) {
                 xml.append("<completedMappings>");
-                for (Iterator iterator = _dataMappingsForTaskCompletion.keySet().iterator(); iterator.hasNext();) {
-                    String expression = (String) iterator.next();
-                    String mapsTo = (String) _dataMappingsForTaskCompletion.get(expression);
+                for (String expression : _dataMappingsForTaskCompletion.keySet()) {
+                    String mapsTo = _dataMappingsForTaskCompletion.get(expression);
                     if (!isMultiInstance() || !_multiInstAttr.getMIFormalOutputQuery().equals(expression)) {
                         xml.append("<mapping><expression query=\"").
                                 append(marshal(expression)).
@@ -1380,9 +1242,8 @@ public abstract class YTask extends YExternalNetElement {
         }
         if (_dataMappingsForTaskEnablement.size() > 0) {
             xml.append("<enablementMappings>");
-            for (Iterator iterator = _dataMappingsForTaskEnablement.keySet().iterator(); iterator.hasNext();) {
-                String mapsTo = (String) iterator.next();
-                String expression = (String) _dataMappingsForTaskEnablement.get(mapsTo);
+            for (String mapsTo : _dataMappingsForTaskEnablement.keySet()) {
+                String expression = _dataMappingsForTaskEnablement.get(mapsTo);
                 xml.append("<mapping><expression query=\"").
                         append(marshal(expression)).
                         append("\"/>");
@@ -1463,7 +1324,7 @@ public abstract class YTask extends YExternalNetElement {
      */
     
     public String getDataBindingForEnablementParam(String paramName) {
-      return (String) _dataMappingsForTaskEnablement.get(paramName);
+      return _dataMappingsForTaskEnablement.get(paramName);
     }
     
     /**
@@ -1483,7 +1344,7 @@ public abstract class YTask extends YExternalNetElement {
      */
     
     public String getDataBindingForInputParam(String paramName) {
-      return (String) _dataMappingsForTaskStarting.get(paramName);
+      return _dataMappingsForTaskStarting.get(paramName);
     }
 
     /**
@@ -1501,10 +1362,8 @@ public abstract class YTask extends YExternalNetElement {
      * @return the data binding query for that parameter.
      */
     public String getDataBindingForOutputParam(String paramName) {
-      Iterator taskCompletionMappingIterator = _dataMappingsForTaskCompletion.keySet().iterator();
-      while (taskCompletionMappingIterator.hasNext()) {
-        String outputParameterQuery =  (String) taskCompletionMappingIterator.next();
-        String outputParameter = (String) _dataMappingsForTaskCompletion.get(outputParameterQuery);
+      for (String outputParameterQuery : _dataMappingsForTaskCompletion.keySet()) {
+        String outputParameter = _dataMappingsForTaskCompletion.get(outputParameterQuery);
         if (paramName.equals(outputParameter)) {
           return outputParameterQuery;
         }
@@ -1694,10 +1553,8 @@ public abstract class YTask extends YExternalNetElement {
             messages.addAll(checkOutputParamsPreBeta4());
         }
         //check that each output query has valid syntax
-        Iterator iter = _dataMappingsForTaskCompletion.keySet().iterator();
-        while (iter.hasNext()) {
-            String nextQuery = (String) iter.next();
-            String netVarNam = (String) _dataMappingsForTaskCompletion.get(nextQuery);
+        for (String nextQuery : _dataMappingsForTaskCompletion.keySet()) {
+            String netVarNam = _dataMappingsForTaskCompletion.get(nextQuery);
             messages.addAll(checkXQuery(nextQuery, netVarNam));
         }
         //check that non existant local variables are not assigned output.
@@ -1737,7 +1594,7 @@ public abstract class YTask extends YExternalNetElement {
         //already mapped to by the said task.
         //The only case where the schema misses this is where the muilti-instance output
         //is applied to the same net variable as one of regular outputs.
-        int numOfUniqueNetVarsMappedTo = new HashSet(_dataMappingsForTaskCompletion.values()).size();
+        int numOfUniqueNetVarsMappedTo = new HashSet<String>(_dataMappingsForTaskCompletion.values()).size();
         numParams = _dataMappingsForTaskCompletion.size();
         if (numOfUniqueNetVarsMappedTo != numParams) {
             messages.add(new YVerificationMessage(this,
@@ -1791,7 +1648,7 @@ public abstract class YTask extends YExternalNetElement {
         for (Iterator iterator = inputParamNamesAtDecomposition.iterator(); iterator.hasNext();) {
             String paramName = (String) iterator.next();
 
-            String query = (String) _dataMappingsForTaskStarting.get(paramName);
+            String query = _dataMappingsForTaskStarting.get(paramName);
             messages.addAll(checkXQuery(query, paramName));
 
             if (!inputParamNamesAtTask.contains(paramName)) {

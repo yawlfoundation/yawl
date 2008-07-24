@@ -3,7 +3,7 @@
 
     <!-- ========================== Properties ================================= -->
 
-    <property name="app.version" value="_Release_2.0_beta(update1)"/>
+    <property name="app.version" value="_Release_2.0_beta_update1"/>
     <property name="developer.name" value="Lachlan_Aldred, Michael Adams, Andrew Hastie,
                                            Mike Fowler, Matt Flaherty et al."/>
 
@@ -18,6 +18,19 @@
     <!-- Access the environment -->
     <property environment="env"/>
 
+    <!-- Tomcat Root -->
+    <condition property="CATALINA_HOME" value="${env.CATALINA_HOME}">
+        <isset property="env.CATALINA_HOME"/>
+    </condition>
+    <condition property="CATALINA_HOME" value="${catalina.home}">
+        <and>
+            <not>
+                <isset property="env.CATALINA_HOME"/>
+            </not>
+            <isset property="catalina.home"/>
+        </and>
+    </condition>
+
     <!-- Source and resource directories -->
     <property name="build.dir" value="build"/>
     <property name="classes.dir" value="classes"/>
@@ -29,7 +42,7 @@
     <property name="lib.dir" value="${build.dir}/3rdParty/lib"/>
     <property name="properties.dir" value="${build.dir}/properties"/>     <!-- AJH -->
     <property name="javadoc.dir" value="${output.dir}/javadoc"/>
-    <property name="webapps.dir" value="${env.CATALINA_HOME}/webapps"/>
+    <property name="webapps.dir" value="${CATALINA_HOME}/webapps"/>
     <property name="xforms.dist" value="${build.dir}/yawlXForms/dist"/>
     <property name="enumeratedClasses" value="${build.dir}/3rdParty/enumerated3rdPartyClasses"/>
     <property name="packageRoot" value="/org/yawlfoundation/yawl"/>
@@ -46,13 +59,29 @@
     <property name="yawl.resource.app.name" value="resourceService"/>
 
 
-    <!-- The various Hibernate database types. Set one of these to 'true' -->
-    <property name="use_postgres7" value="false"/>
-    <property name="use_postgres8" value="true"/>
-    <property name="use_hypersonic" value="false"/>
+    <!-- The various Hibernate database types. Set the property database.type to the
+         required database type in build.properties -->
+    <condition property="use_mysql" value="true">
+        <equals arg1="${database.type}" arg2="mysql" />
+    </condition>
+    <condition property="use_hypersonic" value="true">
+        <equals arg1="${database.type}" arg2="hypersonic" />
+    </condition>
+    <condition property="use_postgres7" value="true">
+        <equals arg1="${database.type}" arg2="postgres7" />
+    </condition>
+    <condition property="use_postgres8" value="true">
+        <or>
+            <equals arg1="${database.type}" arg2="postgres8" />
+            <equals arg1="${database.type}" arg2="postgres" />
+            <not>
+                <isset property="database.type"/>
+            </not>
+        </or>
+    </condition>
 
 
-    <!-- references to third party jars. NOTE: All updated or added jars should
+    <!-- References to third party jars. NOTE: All updated or added jars should
          be listed here and referenced from here -->
     <property name="antlr"                 value="antlr-2.7.6.jar"/>
     <property name="apacheSoap"            value="apache_soap-2_3_1.jar"/>
@@ -101,12 +130,14 @@
     <property name="optional"              value="optional-1_5_1.jar"/>
     <property name="postgres7"             value="postgresql-7.4.5.jdbc.jar"/>
     <property name="postgres8"             value="postgresql-8.3-603.jdbc3.jar"/>
+    <property name="mysql"                 value="mysql-connector-java-5.1.6-bin.jar"/>
     <property name="qname"                 value="qname-from-wsdl4j-20030807.jar"/>
     <property name="saaj"                  value="saaj.jar"/>
     <property name="sax"                   value="sax.jar"/>
-    <property name="saxon"                 value="saxon7.jar"/>
+    <property name="saxon"                 value="saxon9.jar"/>
+    <property name="saxonapi"              value="saxon9-s9api.jar"/>
     <property name="saxondom"              value="saxon9-dom.jar"/>
-    <property name="saxonapis"             value="saxon9-s9api.jar"/>
+    <property name="saxonjdom"             value="saxon9-jdom.jar"/>
     <property name="saxpath"               value="saxpath.jar"/>
     <property name="servlet"               value="servlet-api.jar"/>
     <property name="soaprmi"               value="soaprmi-1_1.jar"/>
@@ -143,7 +174,7 @@
               value="${junit} ${xerces} ${saxon} ${jdom} ${servlet} ${log4j}"/>
 
     <property name="saxon.libs"
-              value="${saxon} ${saxondom} ${saxonapis}"/>
+              value="${saxon} ${saxondom} ${saxonapi} ${saxonjdom}"/>
 
 
     <!-- ==================== Compilation Classpath =========================== -->
@@ -154,20 +185,23 @@
         <pathelement location="${lib.dir}/${junit}"/>
         <pathelement location="${lib.dir}/${xerces}"/>
         <pathelement location="${lib.dir}/${saxon}"/>
+        <pathelement location="${lib.dir}/${saxonapi}"/>
+        <pathelement location="${lib.dir}/${saxondom}"/>
+        <pathelement location="${lib.dir}/${saxonjdom}"/>
         <pathelement location="${lib.dir}/${jdom}"/>
         <pathelement location="${lib.dir}/${servlet}"/>
         <pathelement location="${lib.dir}/${log4j}"/>
 
         <!-- Include all elements that Tomcat exposes to applications -->
-        <pathelement location="${env.CATALINA_HOME}/common/classes"/>
-        <fileset dir="${env.CATALINA_HOME}/common/endorsed">
+        <pathelement location="${CATALINA_HOME}/common/classes"/>
+        <fileset dir="${CATALINA_HOME}/common/endorsed">
             <include name="*.jar"/>
         </fileset>
-        <fileset dir="${env.CATALINA_HOME}/common/lib">
+        <fileset dir="${CATALINA_HOME}/common/lib">
             <include name="*.jar"/>
         </fileset>
-        <pathelement location="${env.CATALINA_HOME}/shared/classes"/>
-        <fileset dir="${env.CATALINA_HOME}/shared/lib">
+        <pathelement location="${CATALINA_HOME}/shared/classes"/>
+        <fileset dir="${CATALINA_HOME}/shared/lib">
             <include name="*.jar"/>
         </fileset>
     </path>
@@ -207,6 +241,7 @@
         <pathelement location="${lib.dir}/${hsql}"/>
         <pathelement location="${lib.dir}/${postgres7}"/>
         <pathelement location="${lib.dir}/${postgres8}"/>
+        <pathelement location="${lib.dir}/${mysql}"/>
     </path>
 
     <path id="cp.apacheCommons">
@@ -299,7 +334,7 @@
 
 
     <!-- Ascertain which Hibernate properties file to deploy for persistence -->
-    <target name="decidePostgresVersion">
+    <target name="decideDatabaseType">
         <condition property="using_postgres7" value="true">
             <and>
                 <contains string="${use_postgres7}" substring="true"/>
@@ -310,6 +345,11 @@
                 <contains string="${use_postgres8}" substring="true"/>
             </and>
         </condition>
+        <condition property="using_mysql" value="true">
+            <and>
+                <contains string="${use_mysql}" substring="true"/>
+            </and>
+        </condition>
         <condition property="using_hypersonic" value="true">
             <and>
                 <contains string="${use_hypersonic}" substring="true"/>
@@ -318,6 +358,7 @@
 
         <antcall target="hibernate_postgres7"/>
         <antcall target="hibernate_postgres8"/>
+        <antcall target="hibernate_mysql"/>
     </target>
 
 
@@ -331,12 +372,12 @@
             <fileset dir="${lib.dir}"
                      includes="${persistence.libs} ${xsd.libs} ${common.libs} ${jcommon}
                                ${jfreechart} ${jaxenFull} ${postgres8} ${saxpath}
-                               ${xml-apis}"
+                               ${xml-apis} ${saxonapi}"
                      excludes="hibernate.cfg.xml"/>
         </unzip>	
     	
         <!-- Create a self contained jar of the YAWL library -->
-        <antcall target="decidePostgresVersion"/>
+        <antcall target="decideDatabaseType"/>
         <jar destfile="${output.dir}/YAWL${app.version}_Standalone.jar">
             <fileset dir="${classes.dir}"  excludes="junit junit3.8.1"/>
             <fileset dir="${enumeratedClasses}"/>
@@ -379,7 +420,7 @@
         <copy todir="${output.dir}/engine/test">
             <fileset dir="${test.dir}"/>
         </copy>
-        <jar destfile="${output.dir}/YAWL${app.version}-SourceAndTestCode.zip">
+        <jar destfile="${output.dir}/YAWL${app.version}_SourceAndTestCode.zip">
             <fileset dir="${output.dir}/engine"/>
         </jar>
         <delete dir="${output.dir}/engine"/>
@@ -450,10 +491,10 @@
         <copy todir="${yawl.eng.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}"
                      includes="${persistence.libs} ${xsd.libs} ${common.libs}
-                     ${jaxenFull} ${jcommon} ${postgres8} ${saxpath} ${saxon}"
+                     ${jaxenFull} ${jcommon} ${postgres8} ${saxpath} ${saxon.libs}"
                      excludes="${servlet}"/>
         </copy>
-        <antcall target="decidePostgresVersion"/>
+        <antcall target="decideDatabaseType"/>
         <jar destfile="${output.dir}/yawl.war">
             <fileset dir="${yawl.eng.app.name}"/>
         </jar>
@@ -487,6 +528,18 @@
               tofile="${yawl.worklist.app.name}/WEB-INF/classes/hibernate.properties"/>
     </target>
 
+    <target name="hibernate_mysql" if="using_mysql">
+        <echo message="Copying Hibernate properties for MySQL"/>
+        <copy file="${lib.dir}/${mysql}" todir="${yawl.eng.app.name}/WEB-INF/lib"/>
+        <copy file="${properties.dir}/hibernate.properties.mysql"
+              tofile="${yawl.eng.app.name}/WEB-INF/classes/hibernate.properties"/>
+        <copy file="${properties.dir}/hibernate.properties.mysql"
+              tofile="${classes.dir}/hibernate.properties"/>
+        <copy file="${lib.dir}/${mysql}"
+              todir="${yawl.worklist.app.name}/WEB-INF/lib"/>
+        <copy file="${properties.dir}/hibernate.properties.mysql"
+              tofile="${yawl.worklist.app.name}/WEB-INF/classes/hibernate.properties"/>
+    </target>
 
     <!-- Build old YAWL Worklist WebApplication -->
     <target name="build_worklist.war" depends="compile">
@@ -500,7 +553,7 @@
                      excludes="${servlet}"/>                
         </copy>  	
     	
-        <antcall target="decidePostgresVersion"/>
+        <antcall target="decideDatabaseType"/>
         <copy todir="${yawl.worklist.app.name}${webinf.dir}/exceptions">
             <fileset dir="${classes.dir}${packageRoot}/exceptions"
                      includes="*.class *.hbm.xml"/>
@@ -965,7 +1018,7 @@
            <fileset dir="${lib.dir}"
                     includes="${persistence.libs} ${xsd.libs} ${jdom} ${log4j}
                     ${postgres8} ${jsf.libs} ${commonsLang} ${xerces}
-                    ${saxon}"/>
+                    ${saxon.libs}"/>
         </copy>
 
         <copy todir="${yawl.resource.app.name}/WEB-INF">

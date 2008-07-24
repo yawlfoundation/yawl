@@ -50,11 +50,18 @@
                                                style="top: 15px"
                                                text="Accept Offer"/>
 
+                                    <ui:button action="#{userWorkQueues.btnAcceptStart_action}"
+                                               binding="#{userWorkQueues.btnAcceptStart}"
+                                               id="btnAcceptStart"
+                                               styleClass="queuesButton"
+                                               style="top: 50px"
+                                               text="Accept &amp; Start"/>
+
                                     <ui:button action="#{userWorkQueues.btnChain_action}"
                                                binding="#{userWorkQueues.btnChain}"
                                                id="btnChain"
                                                styleClass="queuesButton"
-                                               style="top: 50px"
+                                               style="top: 85px"
                                                text="Chain"/>
 
                                 </ui:panelLayout>

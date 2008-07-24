@@ -8,22 +8,12 @@
 
 package org.yawlfoundation.yawl.resourcing.codelets;
 
-import net.sf.saxon.Configuration;
-import net.sf.saxon.om.DocumentInfo;
-import net.sf.saxon.om.NodeInfo;
-import net.sf.saxon.query.DynamicQueryContext;
-import net.sf.saxon.query.QueryProcessor;
-import net.sf.saxon.query.StaticQueryContext;
-import net.sf.saxon.query.XQueryExpression;
-import net.sf.saxon.xpath.XPathException;
+import net.sf.saxon.s9api.SaxonApiException;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
 import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.util.YSaxonOutPutter;
+import org.yawlfoundation.yawl.util.SaxonUtil;
 
-import javax.xml.transform.stream.StreamSource;
-import java.io.StringReader;
 import java.util.List;
 
 /**
@@ -61,51 +51,26 @@ public class XQueryEvaluator extends AbstractCodelet {
         return getOutputData() ;
     }
 
-    
-    // based on YTask.evaluateTreeQuery //
+
     private String evaluateQuery(String query, Document dataDoc)
                throws CodeletExecutionException {
 
-        String resultingData;
-
         try {
-
-            // create a processor and compile the query
-            Configuration config = new Configuration();
-            StaticQueryContext context = new StaticQueryContext();
-            QueryProcessor qp = new QueryProcessor(config, context);
-            XQueryExpression expression = qp.compileQuery(query);
-
-            // format the data Document
-            XMLOutputter outputter = new XMLOutputter();
-            DocumentInfo docInfo = qp.buildDocument(new StreamSource(
-                                   new StringReader(outputter.outputString(dataDoc))));
-            DynamicQueryContext dynamicQueryContext = new DynamicQueryContext();
-            dynamicQueryContext.setContextNode(docInfo);
-
-            // evaluate the query
-            Object resultObj = expression.evaluateSingle(dynamicQueryContext);
-            NodeInfo nodeInfo = (NodeInfo) resultObj;
-
-            // output the result 
-            if (nodeInfo != null) {
-                YSaxonOutPutter saxonOutputter = new YSaxonOutPutter(nodeInfo);
-                resultingData = saxonOutputter.getString();
-            }
-            else {
-                throw new CodeletExecutionException("No data produced for query:" +
-                                                     query + ".");
-            }
+            String result = SaxonUtil.evaluateQuery(query, dataDoc);
+            if (result != null)
+                return result;
+            else
+                throw new CodeletExecutionException("No data produced for query: '" +
+                                                     query + "'.");
         }
-        catch (XPathException e) {
+        catch (SaxonApiException sapie) {
             throw new CodeletExecutionException(
-                    "Invalid query: " + query + ".\n" +
-                    "Message from parser: [" + e.getMessage() + "]");
+                    "Invalid query: '" + query + "'.\n" +
+                    "Message from parser: [" + sapie.getMessage() + "]");
         }
         catch (Exception e) {
             throw new CodeletExecutionException(
-                    "Exception in query evaluation: " + query + ".");
+                    "Exception in query evaluation: '" + query + "'.");
         }
-        return resultingData;
     }
 }

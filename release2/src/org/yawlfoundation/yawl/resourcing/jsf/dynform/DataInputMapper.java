@@ -8,6 +8,7 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Author: Michael Adams
@@ -16,10 +17,13 @@ import java.util.Iterator;
 public class DataInputMapper extends ArrayList<DataInputElement> {
 
     private String _formName = "";
+    private Map<String, FormParameter> _params ;                // top level I/O params
 
     public DataInputMapper() { }
 
-    public DataInputMapper(String schemaStr, String dataStr) {
+    public DataInputMapper(String schemaStr, String dataStr,
+                           Map<String, FormParameter> params) {
+        _params = params;
         buildMap(schemaStr, dataStr);
     }
 

@@ -9,7 +9,6 @@
 
 package org.yawlfoundation.yawl.elements;
 
-
 /**
  * 
  * Abstract class. A super class of YExternalNetElement.   Has little relation to the

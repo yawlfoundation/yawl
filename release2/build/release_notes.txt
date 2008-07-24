@@ -1,4 +1,4 @@
-                      YAWL Release 2.0 beta (Update 1) 07/07/2008
+                      YAWL Release 2.0 beta (Update 1) 09/07/2008
                       ===========================================
 
 This beta update is an interim release of the YAWL Environment, which fixes several
@@ -77,7 +77,7 @@ QUICK START: After installation, start Tomcat and point a browser to
     checkboxes so they can be deselected after being selected (i.e. can now undo
     a previous choice).
   - In Resource Wizard, added buttons to unselect all previous selections of roles
-    and/or paticipants in the distribution set selection screen.
+    and/or participants in the distribution set selection screen.
   - Added the ability to mark/unmark a decomposition as 'automated' in the decomposition
     dialog.
   - Set 'Manage Resourcing' menu to only be available when the decomposition is not

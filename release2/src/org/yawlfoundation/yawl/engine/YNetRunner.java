@@ -32,37 +32,29 @@ import java.util.*;
  *         Time: 16:08:01
  *
  */
-public class YNetRunner // extends Thread
-{
-    private static final Logger logger = Logger.getLogger(YNetRunner.class);
-	
-	static final String INITIAL_VERSION = "0.1";     //MLR (31/10/07): added after merge
+public class YNetRunner {
+
+	  private static final String INITIAL_VERSION = "0.1";
+    private static YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
+    private static final Logger _logger = Logger.getLogger(YNetRunner.class);
 
     protected YNet _net;
+    protected String _yNetID = null;       // name of the spec
+    protected YSpecVersion _yNetVersion = new YSpecVersion(INITIAL_VERSION);
+
     private Set<YExternalNetElement> _enabledTasks = new HashSet<YExternalNetElement>();
     private Set<YExternalNetElement> _busyTasks = new HashSet<YExternalNetElement>();
-    private Set _suspTasks = new HashSet();   // added
-
-    private static YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
+    private Set<YExternalNetElement> _deadlockedTasks = new HashSet<YExternalNetElement>();
     private YIdentifier _caseIDForNet;
     private YCompositeTask _containingCompositeTask;
     private YEngine _engine;
     private boolean _cancelling;
-                                                                 
-
-    /**
-     * **************************
-     * INSERTED FOR PERSISTANCE
-     * ***************************
-     */
-    protected String yNetID = null;       // name of the spec
-    protected YSpecVersion _yNetVersion = new YSpecVersion(INITIAL_VERSION);  //MLF - version of the spec
-    private Set<String> enabledTaskNames = new HashSet<String>();
-    private Set<String> busyTaskNames = new HashSet<String>();
+    private Set<String> _enabledTaskNames = new HashSet<String>();
+    private Set<String> _busyTaskNames = new HashSet<String>();
     private P_YIdentifier _standin_caseIDForNet;
     private String _caseID = null;
-    private String containingTaskID = null;
-    private YCaseData casedata = null;
+    private String _containingTaskID = null;
+    private YCaseData _casedata = null;
     private YAWLServiceReference _caseObserver;
     private InterfaceX_EngineSideClient _exceptionObserver;
 
@@ -71,26 +63,104 @@ public class YNetRunner // extends Thread
     private String _exceptionObserverStr = null ;
 
 
+    // Constructors //
+
+    protected YNetRunner() {
+        _logger.debug("YNetRunner: <init>");
+
+        try {
+       	    _engine = YEngine.getInstance(YEngine.isPersisting());
+        } catch (YPersistenceException e) {
+        	  _logger.error("Exception getting reference to running engine", e);
+        }
+    }
+
+
+    public YNetRunner(YPersistenceManager pmgr, YNet netPrototype, Element paramsData,
+                      String caseID) throws YDataStateException, YSchemaBuildingException,
+                                            YPersistenceException {
+
+        // initialise and persist case identifier
+        _caseIDForNet = (caseID == null) ? new YIdentifier() : new YIdentifier(caseID);
+        if (pmgr != null) pmgr.storeObject(_caseIDForNet);
+
+        initialise(pmgr, netPrototype, _caseIDForNet, paramsData) ;
+        _yNetVersion = netPrototype.getSpecification().getMetaData().getVersion();
+    }
+
+    /**
+     * Constructor called by a composite tasks (creating a sub-net runner)
+     * @param pmgr
+     * @param netPrototype
+     * @param container
+     * @param caseIDForNet
+     * @param incomingData
+     * @throws YDataStateException
+     * @throws YSchemaBuildingException
+     * @throws YPersistenceException
+     */
+    public YNetRunner(YPersistenceManager pmgr, YNet netPrototype,
+                      YCompositeTask container, YIdentifier caseIDForNet,
+                      Element incomingData)
+            throws YDataStateException, YSchemaBuildingException, YPersistenceException {
+
+        initialise(pmgr, netPrototype, caseIDForNet, incomingData) ;
+
+        _containingCompositeTask = container;
+        setContainingTaskID(container.getID());
+
+        if (pmgr != null) pmgr.storeObject(this);
+    }
+
+
+    private void initialise(YPersistenceManager pmgr, YNet netPrototype,
+                      YIdentifier caseIDForNet, Element incomingData)
+            throws YDataStateException, YSchemaBuildingException, YPersistenceException {
+
+        _caseIDForNet = caseIDForNet;
+        _caseID = _caseIDForNet.toString();
+        _casedata = new YCaseData(_caseID);
+        _net = (YNet) netPrototype.clone();
+        _net.initializeDataStore(pmgr, _casedata);
+        _engine = YEngine.getInstance();
+        _yNetID = netPrototype.getSpecification().getID();
+        _yNetVersion = netPrototype.getSpecification().getMetaData().getVersion();
+        prepare(pmgr);
+        if (incomingData != null) _net.setIncomingData(pmgr, incomingData);
+    }
+
+
     public void restoreprepare() {
         _workItemRepository.setNetRunnerToCaseIDBinding(this, _caseIDForNet);
     }
+    
 
-    public void setTask(YCompositeTask task) {
+    private void prepare(YPersistenceManager pmgr) throws YPersistenceException {
+        restoreprepare();
+        YInputCondition inputCondition = _net.getInputCondition();
+        inputCondition.add(pmgr, _caseIDForNet);
+        _net.initialise(pmgr);
+    }
+
+
+    /******************************************************************************/
+
+    public void setContainingTask(YCompositeTask task) {
         _containingCompositeTask = task;
     }
 
     public String getContainingTaskID() {
-        return containingTaskID;
+        return _containingTaskID;
     }
 
     public void setContainingTaskID(String taskid) {
-        containingTaskID = taskid;
+        _containingTaskID = taskid;
     }
 
     public void setNet(YNet net) {
         _net = net;
-        yNetID = net.getSpecification().getID();
-        _net.restoreData(casedata);
+        _yNetID = net.getSpecification().getID();
+        _net.restoreData(_casedata);
     }
 
     public YNet getNet() {
@@ -102,31 +172,29 @@ public class YNetRunner // extends Thread
     }
 
     public void setYNetID(String id) {
-        this.yNetID = id;
+        this._yNetID = id;
     }
 
     public String getYNetID() {
-        return yNetID;
+        return _yNetID;
     }
 
     //BEGIN: MLF - Accessors for the version number of the spec this is running against
-    public YSpecVersion getYNetVersion()
-    {
+    public YSpecVersion getYNetVersion() {
         return _yNetVersion;
     }
 
-    public void setYNetVersion(YSpecVersion yNetVersion)
-    {
+    public void setYNetVersion(YSpecVersion yNetVersion) {
         this._yNetVersion = yNetVersion;
     }
     //END: MLF
 
     public YCaseData getCasedata() {
-        return casedata;
+        return _casedata;
     }
 
     public void setCasedata(YCaseData data) {
-        casedata = data;
+        _casedata = data;
     }
 
     //todo Refactor this to use getCaseID()?  signed Lach
@@ -166,81 +234,21 @@ public class YNetRunner // extends Thread
     }
 
     public Set<String> getEnabledTaskNames() {
-        return enabledTaskNames;
+        return _enabledTaskNames;
     }
 
     public Set<String> getBusyTaskNames() {
-        return busyTaskNames;
+        return _busyTaskNames;
     }
     /************************************************/
 
 
-    /**
-     * Needed for hibernate to work.
-     */
-    protected YNetRunner() {
-        logger.debug("YNetRunner: <init>");
-
-        // MJF: also needed for persistence
-        try {
-       	    _engine = YEngine.getInstance(YEngine.isPersisting());
-        } catch (YPersistenceException e) {
-        	  logger.error(getClass().getCanonicalName(), e);
-        }
-    }
-
-    public YNetRunner(YPersistenceManager pmgr, YNet netPrototype, Element paramsData,
-                      String caseID) throws YDataStateException, YSchemaBuildingException,
-                                            YPersistenceException {
-
-        _caseIDForNet = caseID == null ? new YIdentifier() : new YIdentifier(caseID);
-        _caseID = _caseIDForNet.toString();
-
-        if (pmgr != null) pmgr.storeObject(_caseIDForNet);         // persist case id
-
-        _net = (YNet) netPrototype.clone();
-        casedata = new YCaseData(_caseID);
-        _net.initializeDataStore(pmgr, casedata);
-        _engine = YEngine.getInstance();
-        yNetID = netPrototype.getSpecification().getID();
-        _yNetVersion = netPrototype.getSpecification().getMetaData().getVersion();
-
-        prepare(pmgr);
-        if (paramsData != null) _net.setIncomingData(pmgr, paramsData);
-
-    }
 
 
-    public YNetRunner(YPersistenceManager pmgr, YNet netPrototype,
-                      YCompositeTask container, YIdentifier caseIDForNet,
-                      Element incomingData)
-            throws YDataStateException, YSchemaBuildingException, YPersistenceException {
 
-        _caseIDForNet = caseIDForNet;
-        _caseID = _caseIDForNet.toString();
-        _net = (YNet) netPrototype.clone();
-        casedata = new YCaseData(_caseID);
-        _net.initializeDataStore(pmgr, casedata);
-        _containingCompositeTask = container;
-        _engine = YEngine.getInstance();
-        yNetID = netPrototype.getSpecification().getID();
-        setContainingTaskID(container.getID());
-        prepare(pmgr);
-        _net.setIncomingData(pmgr, incomingData);
-
-        if (pmgr != null) pmgr.storeObject(this);
-    }
-
-
-    private void prepare(YPersistenceManager pmgr) throws YPersistenceException {
-        _workItemRepository.setNetRunnerToCaseIDBinding(this, _caseIDForNet);
-        YInputCondition inputCondition = _net.getInputCondition();
-        inputCondition.add(pmgr, _caseIDForNet);
-        _net.initialise(pmgr);
-    }
-
-
-    public void start(YPersistenceManager pmgr) throws YPersistenceException, YDataStateException, YSchemaBuildingException, YQueryException, YStateException {
+    public void start(YPersistenceManager pmgr)
+            throws YPersistenceException, YDataStateException, YSchemaBuildingException,
+                   YQueryException, YStateException {
         kick(pmgr);
     }
 
@@ -255,47 +263,46 @@ public class YNetRunner // extends Thread
      * @param pmgr
      * @throws YPersistenceException
      */
-    public void kick(YPersistenceManager pmgr) throws YPersistenceException, YDataStateException, YSchemaBuildingException, YQueryException, YStateException {
-        logger.debug("--> YNetRunner.kick");
+    public void kick(YPersistenceManager pmgr)
+            throws YPersistenceException, YDataStateException, YSchemaBuildingException,
+                   YQueryException, YStateException {
+        _logger.debug("--> YNetRunner.kick");
 
-        boolean progressed = continueIfPossible(pmgr);
+        if (! continueIfPossible(pmgr)) {
+            _logger.debug("YNetRunner not able to continue");
 
-        if (!progressed) {
-            logger.debug("YNetRunner not able to continue");
+            // if net can't continue it means a case completion
             if (_engine != null) {
-                //case completion
-                if (_caseObserver != null)
-                    _engine.announceCaseCompletionToEnvironment(_caseObserver,
-                                      _caseIDForNet, _net.getOutputData());
-                else
-                    _engine.announceCaseCompletionToEnvironment(_caseIDForNet,
-                                                                _net.getOutputData());
+                announceCaseCompletion();
 
-                // notify exception checkpoint to service if available (post's for case end)
-                if (_exceptionObserver != null) {
-                    Document data = _net.getInternalDataDocument();
-                    _engine.announceCheckCaseConstraints(_exceptionObserver, null, _caseID,
-                                       JDOMUtil.documentToString(data), false);
-                }
-
-                logger.debug("Asking engine to finish case");
+                _logger.debug("Asking engine to finish case");
                 _engine.finishCase(pmgr, _caseIDForNet);
-
-                if (isRootNet()) {
-                    try {
-                        _engine.clearCase(pmgr, _caseIDForNet);
-                    } catch (Exception e) {
-                        //todo So, what shall we do now ????
-                    }
-                }
+                if (isRootNet()) _engine.clearCase(pmgr, _caseIDForNet);
             }
-            if (!_cancelling && deadLocked()) {
-                notifyDeadLock(pmgr);
-            }
+            if (! _cancelling && deadLocked()) notifyDeadLock(pmgr);
             cancel(pmgr);
         }
-        logger.debug("<-- YNetRunner.kick");
+
+        _logger.debug("<-- YNetRunner.kick");
     }
+
+
+    private void announceCaseCompletion() {
+        if (_caseObserver != null)
+            _engine.announceCaseCompletionToEnvironment(_caseObserver,
+                    _caseIDForNet, _net.getOutputData());
+        else
+            _engine.announceCaseCompletionToEnvironment(_caseIDForNet,
+                    _net.getOutputData());
+
+        // notify exception checkpoint to service if available (post's for case end)
+        if (_exceptionObserver != null) {
+            Document data = _net.getInternalDataDocument();
+            _engine.announceCheckCaseConstraints(_exceptionObserver, null, _caseID,
+                    JDOMUtil.documentToString(data), false);
+        }
+    }
+
 
     private boolean isRootNet() {
         return _caseIDForNet.getParent() == null;
@@ -310,31 +317,36 @@ public class YNetRunner // extends Thread
                 if (element instanceof YTask) {
                     createDeadlockItem(pmgr, (YTask) element);
                 }
-                Set postset = ((YExternalNetElement) element).getPostsetElements();
-                if (postset.size() > 0) {
-                    for (Iterator iterator = postset.iterator(); iterator.hasNext();) {
-                        YExternalNetElement postsetElement = (YExternalNetElement) iterator.next();
-                        createDeadlockItem(pmgr, postsetElement);
-                    }
+                Set<YExternalNetElement> postset = ((YExternalNetElement) element)
+                        .getPostsetElements();
+                for (YExternalNetElement postsetElement : postset) {
+                    createDeadlockItem(pmgr, postsetElement);
                 }
             }
         }
     }
 
 
-    private void createDeadlockItem(YPersistenceManager pmgr, YExternalNetElement netElement) throws YPersistenceException {
-        YSpecificationID specificationID = _net.getSpecification().getSpecificationID();
-        boolean allowsNewInstances = false;
-        boolean isDeadlocked = true;
-        YWorkItemID deadlockWorkItemID = new YWorkItemID(_caseIDForNet,
-                netElement.getID());
-        new YWorkItem(pmgr, specificationID,
-                deadlockWorkItemID,
-                allowsNewInstances,
-                isDeadlocked);
-        //Log to Problems table of database.
-        YProblemEvent event  = new YProblemEvent(_net, "Deadlocked", YProblemEvent.RuntimeError);
-        event.logProblem(pmgr);
+    private void createDeadlockItem(YPersistenceManager pmgr, YExternalNetElement netElement)
+            throws YPersistenceException {
+        if (! _deadlockedTasks.contains(netElement)) {
+            YSpecificationID specificationID = _net.getSpecification().getSpecificationID();
+            boolean allowsNewInstances = false;
+            boolean isDeadlocked = true;
+            YWorkItemID deadlockWorkItemID = new YWorkItemID(_caseIDForNet,
+                    netElement.getID());
+            new YWorkItem(pmgr, specificationID,
+                    deadlockWorkItemID,
+                    allowsNewInstances,
+                    isDeadlocked);
+
+            //Log to Problems table of database.
+            YProblemEvent event  = new YProblemEvent(_net, "Deadlocked",
+                                                     YProblemEvent.RuntimeError);
+            event.logProblem(pmgr);
+
+            _deadlockedTasks.add(netElement);
+        }
     }
 
 
@@ -363,7 +375,7 @@ public class YNetRunner // extends Thread
             throws YDataStateException, YStateException, YQueryException,
                    YSchemaBuildingException, YPersistenceException {
 
-        logger.debug("--> processCompletedSubnet");
+        _logger.debug("--> processCompletedSubnet");
 
         if (caseIDForSubnet == null) throw new RuntimeException();
         
@@ -395,55 +407,38 @@ public class YNetRunner // extends Thread
                             }
                         }
                     }
-                // todo: this is always false - remove after testing
                 }
-//                else if (_engine != null && _containingCompositeTask != null) {
-//                    _engine.finishCase(pmgr, _caseIDForNet);
-//                }
             }
-
 
             if (pmgr != null) pmgr.updateObject(this);
 
             kick(pmgr);
         }
 
-        logger.debug("<-- processCompletedSubnet");
+        _logger.debug("<-- processCompletedSubnet");
     }
 
 
     public List attemptToFireAtomicTask(YPersistenceManager pmgr, String taskID)
-            throws YDataStateException, YStateException, YQueryException, YPersistenceException, YSchemaBuildingException {
+            throws YDataStateException, YStateException, YQueryException,
+                   YPersistenceException, YSchemaBuildingException {
         YAtomicTask task = (YAtomicTask) _net.getNetElement(taskID);
         if (task.t_enabled(_caseIDForNet)) {
             List newChildIdentifiers = task.t_fire(pmgr);
             _enabledTasks.remove(task);
+            _enabledTaskNames.remove(task.getID());
 
-            //todo AJH - Why persist twice here ??????
-            /*
-             INSERTED FOR PERSISTANCE
-            */
-            enabledTaskNames.remove(task.getID());
-//            YPersistance.getInstance().updateData(this);
-            if (pmgr != null) {
-                pmgr.updateObject(this);
-            }
-
-            /**********************/
+// todo: remove this second persist if not required as suspected
+//            if (pmgr != null) {
+//                pmgr.updateObject(this);
+//            }
             _busyTasks.add(task);
-            /*
-  INSERTED FOR PERSISTANCE
- */
-            busyTaskNames.add(task.getID());
-//            YPersistance.getInstance().updateData(this);
+            _busyTaskNames.add(task.getID());
             if (pmgr != null) {
                 pmgr.updateObject(this);
             }
-
-            /******************************/
             synchronized (this) {
-                logger.debug("NOTIFYING RUNNER");
-//                notify();
+                _logger.debug("NOTIFYING RUNNER");
                 kick(pmgr);
             }
             return newChildIdentifiers;
@@ -470,7 +465,7 @@ public class YNetRunner // extends Thread
 
     public synchronized boolean completeWorkItemInTask(YPersistenceManager pmgr, YWorkItem workItem, YIdentifier caseID, String taskID, Document outputData)
             throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
-        logger.debug("--> completeWorkItemInTask");
+        _logger.debug("--> completeWorkItemInTask");
         YAtomicTask task = (YAtomicTask) _net.getNetElement(taskID);
             boolean success = completeTask(pmgr, workItem, task, caseID, outputData);
 
@@ -478,7 +473,7 @@ public class YNetRunner // extends Thread
             if (_exceptionObserver != null)
                 _engine.announceCheckWorkItemConstraints(_exceptionObserver, workItem, outputData, false);
 
-            logger.debug("<-- completeWorkItemInTask");
+            _logger.debug("<-- completeWorkItemInTask");
             return success;
     }
 
@@ -486,13 +481,13 @@ public class YNetRunner // extends Thread
     public synchronized boolean continueIfPossible(YPersistenceManager pmgr)
                            throws YDataStateException, YStateException, YQueryException,
                                   YSchemaBuildingException, YPersistenceException {
-        logger.debug("--> continueIfPossible");
+        _logger.debug("--> continueIfPossible");
 
         // AJH: Check if we are suspending (or suspended?) and if so exit out as we
         // shouldn't post new workitems
         if ((getCasedata().getExecutionState() == YCaseData.SUSPEND_STATUS_SUSPENDING) ||
             (getCasedata().getExecutionState() == YCaseData.SUSPEND_STATUS_SUSPENDED)) {
-            logger.debug("Aborting runner continuation as case is currently suspending/suspended");
+            _logger.debug("Aborting runner continuation as case is currently suspending/suspended");
             return true;
         }
 
@@ -525,7 +520,7 @@ public class YNetRunner // extends Thread
             }
 
             if (task.t_isBusy() && !_busyTasks.contains(task)) {
-                logger.error("Throwing RTE for lists out of sync");
+                _logger.error("Throwing RTE for lists out of sync");
                 throw new RuntimeException("busy task list out of synch with a busy task: "
                         + task.getID() + " busy tasks: " + _busyTasks);
             }
@@ -540,7 +535,7 @@ public class YNetRunner // extends Thread
 
         _busyTasks = _net.getBusyTasks();
 
-        logger.debug("<-- continueIfPossible");
+        _logger.debug("<-- continueIfPossible");
         return _enabledTasks.size() > 0 || _busyTasks.size() > 0;
     }
 
@@ -604,7 +599,7 @@ public class YNetRunner // extends Thread
                                                  _net.getInternalDataDocument(), true);
 
             _enabledTasks.add(task);
-            enabledTaskNames.add(task.getID());
+            _enabledTaskNames.add(task.getID());
             if (pmgr != null)  pmgr.updateObject(this);
         }
         else {                                             //fire the empty atomic task
@@ -620,7 +615,7 @@ public class YNetRunner // extends Thread
                       throws YDataStateException, YStateException, YQueryException,
                              YSchemaBuildingException, YPersistenceException {
         _busyTasks.add(task);
-        busyTaskNames.add(task.getID());
+        _busyTaskNames.add(task.getID());
         if (pmgr != null) pmgr.updateObject(this);
 
         Iterator caseIDs = task.t_fire(pmgr).iterator();
@@ -636,7 +631,7 @@ public class YNetRunner // extends Thread
 
         CancelWorkItemAnnouncement result = null;
         _enabledTasks.remove(task);
-        enabledTaskNames.remove(task.getID());
+        _enabledTaskNames.remove(task.getID());
 
         //  remove the cancelled task from persistence
         YWorkItem wItem = _workItemRepository.getWorkItem(_caseID, task.getID());
@@ -670,7 +665,7 @@ public class YNetRunner // extends Thread
      * @param atomicTask   the atomic task that contains it.
      */
     private YWorkItem createEnabledWorkItem(YPersistenceManager pmgr, YIdentifier caseIDForNet, YAtomicTask atomicTask) throws YPersistenceException, YDataStateException, YSchemaBuildingException, YQueryException, YStateException {
-        logger.debug("--> createEnabledWorkItem: Case=" + caseIDForNet.get_idString() + " Task=" + atomicTask.getID());
+        _logger.debug("--> createEnabledWorkItem: Case=" + caseIDForNet.get_idString() + " Task=" + atomicTask.getID());
 
         boolean allowDynamicCreation =
                 atomicTask.getMultiInstanceAttributes() == null ? false :
@@ -685,7 +680,7 @@ public class YNetRunner // extends Thread
 
         if (atomicTask.getDataMappingsForEnablement().size() > 0) {
             Element data = atomicTask.prepareEnablementData();            
-			workItem.setData(pmgr, data);
+			      workItem.setData(pmgr, data);
         }
 
         // copy in relevant data from the task's decomposition
@@ -700,13 +695,16 @@ public class YNetRunner // extends Thread
         Map timerParams = atomicTask.getTimeParameters();
         if (timerParams != null) {
             workItem.setTimerParameters(timerParams);
-            workItem.checkStartTimer(pmgr, casedata);
+            workItem.checkStartTimer(pmgr, _casedata);
         }
 
         // set custom form for workitem if specified
         URL customFormURL = atomicTask.getCustomFormURL();
         if (customFormURL != null)
             workItem.setCustomFormURL(customFormURL) ;
+
+        // persist the changes
+        if (pmgr != null) pmgr.updateObject(workItem);
         
         return workItem;
     }
@@ -735,7 +733,7 @@ public class YNetRunner // extends Thread
                 _engine.getWorkItemRepository().removeWorkItemFamily(workItem);
             }
 
-            //here are check to see if completing this task resulted in completing the net.
+            //here are checks to see if completing this task resulted in completing the net.
             if (this.isCompleted() && _net.getOutputCondition().getIdentifiers().size() == 1) {
                 //so now we know the net is complete we check if this net is a subnet.
                 if (_containingCompositeTask != null) {
@@ -754,7 +752,7 @@ public class YNetRunner // extends Thread
                                             dataDoc);
 
                                 if (_caseIDForNet == null) {
-                                    logger.debug("YNetRunner::completeTask() finished local task: " +
+                                    _logger.debug("YNetRunner::completeTask() finished local task: " +
                                             atomicTask + " composite task: " +
                                             _containingCompositeTask +
                                             " caseid for decomposed net: " +
@@ -768,11 +766,7 @@ public class YNetRunner // extends Thread
 
             continueIfPossible(pmgr);
             _busyTasks.remove(atomicTask);
-            /*
-              INSERTED FOR PERSISTANCE
-             */
-            busyTaskNames.remove(atomicTask.getID());
-//            YPersistance.getInstance().updateData(this);
+            _busyTaskNames.remove(atomicTask.getID());
 
             if (pmgr != null) {
                 ArrayList liveCases = (ArrayList) _engine.getRunningCaseIDs();
@@ -780,19 +774,17 @@ public class YNetRunner // extends Thread
                     pmgr.updateObject(this);
                 }
             }
-
-            /**************************/
-            logger.debug("NOTIFYING RUNNER");
+            _logger.debug("NOTIFYING RUNNER");
             //todo Removing this causes sequence problems when going cyclic
             kick(pmgr);
         }
-        logger.debug("<-- completeTask: Exited=" + taskExited);
+        _logger.debug("<-- completeTask: Exited=" + taskExited);
         return taskExited;
     }
 
 
     public synchronized void cancel(YPersistenceManager pmgr) throws YPersistenceException {
-        logger.debug("--> NetRunner cancel " + this.getCaseID().get_idString());
+        _logger.debug("--> NetRunner cancel " + this.getCaseID().get_idString());
 
         _cancelling = true;
         Collection netElements = _net.getNetElements().values();
@@ -862,12 +854,12 @@ public class YNetRunner // extends Thread
     }
 
 
-    protected Set getBusyTasks() {
+    protected Set<YExternalNetElement> getBusyTasks() {
         return _busyTasks;
     }
 
 
-    protected Set getEnabledTasks() {
+    protected Set<YExternalNetElement> getEnabledTasks() {
         return _enabledTasks;
     }
 
@@ -884,7 +876,7 @@ public class YNetRunner // extends Thread
 
     public void announceToEnvironment(YWorkItem workitem)
     {
-        logger.debug("--> announceToEnvironment");
+        _logger.debug("--> announceToEnvironment");
 
         YTask task = _engine.getTaskDefinition(workitem.getSpecificationID(), workitem.getTaskID());
         YAtomicTask atomicTask = (YAtomicTask)task;
@@ -904,19 +896,19 @@ public class YNetRunner // extends Thread
                 }
                 catch (YStateException e)
                 {
-                    logger.error("Failed to announce task '" + atomicTask.getID() + "' of case '" + _caseIDForNet + "': ", e);
+                    _logger.error("Failed to announce task '" + atomicTask.getID() + "' of case '" + _caseIDForNet + "': ", e);
                 }
             }
-            else logger.warn("No YawlService defined, unable to announce task '" + atomicTask.getID() + "' of case '" + _caseIDForNet + "'."); //MLF added task info
+            else _logger.warn("No YawlService defined, unable to announce task '" + atomicTask.getID() + "' of case '" + _caseIDForNet + "'."); //MLF added task info
         }
-        else logger.warn("No YAWLServiceGateway defined, unable to announce tasl '" + atomicTask.getID() + "' of case '" + _caseIDForNet + "'."); //MLF added task info
+        else _logger.warn("No YAWLServiceGateway defined, unable to announce tasl '" + atomicTask.getID() + "' of case '" + _caseIDForNet + "'."); //MLF added task info
 
-        logger.debug("<-- announceToEnvironment");
+        _logger.debug("<-- announceToEnvironment");
     }
 
     public void dump()
     {
-        dump(logger);
+        dump(_logger);
     }
 
     public void dump(Logger logger)
@@ -987,10 +979,10 @@ public class YNetRunner // extends Thread
         try {
             task.cancel(pmgr, this.getCaseID());
             _busyTasks.remove(task);
-            busyTaskNames.remove(task.getID());
+            _busyTaskNames.remove(task.getID());
         }
         catch (YPersistenceException ype) {
-            logger.fatal("Failure whilst cancelling task: " + taskID, ype);
+            _logger.fatal("Failure whilst cancelling task: " + taskID, ype);
 
         }
     }

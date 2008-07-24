@@ -224,7 +224,7 @@
    font-size: 14px; 
    height: 30px; 
    position: absolute; 
-   width: 66px;
+   width: 76px;
 }
 
 .dynformOccursButton {
@@ -376,6 +376,12 @@
     left: 565px;
     height: 25px;
     width: 95px;
+}
+
+.queuesCheckbox {
+    position: absolute;
+    left: 689px;
+    top: 258px;
 }
 
 .queuesListbox {

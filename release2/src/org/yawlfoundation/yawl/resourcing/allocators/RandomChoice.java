@@ -8,6 +8,7 @@
 
 package org.yawlfoundation.yawl.resourcing.allocators;
 
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
 import java.util.Random;
@@ -37,9 +38,11 @@ public class RandomChoice extends AbstractAllocator {
     /**
      * randomly selects a single participant from the list provided
      * @param participants a distribution set of participants
+     * @param wir the work item to allocate
      * @return a single participant, or null if participants is null or empty
      */
-    public Participant performAllocation(Set<Participant> participants) {
+    public Participant performAllocation(Set<Participant> participants,
+                                         WorkItemRecord wir) {
 
         if (participants == null) return null ;            // case: null set
 

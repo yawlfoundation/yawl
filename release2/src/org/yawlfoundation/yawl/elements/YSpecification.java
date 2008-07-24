@@ -35,7 +35,8 @@ import java.util.Set;
 public final class YSpecification implements Cloneable, YVerifiable {
     private String _specURI;
     private YNet _rootNet;
-    private Map _decompositions = new HashMap();
+    private Map<String, YDecomposition> _decompositions =
+                                        new HashMap<String, YDecomposition>();
     private String _name;
     private String _documentation;
     private String _version;
@@ -446,8 +447,8 @@ public final class YSpecification implements Cloneable, YVerifiable {
     }
 
 
-    public Set getDecompositions() {
-        return new HashSet(_decompositions.values());
+    public Set<YDecomposition> getDecompositions() {
+        return new HashSet<YDecomposition>(_decompositions.values());
     }
 
     public String getID() {

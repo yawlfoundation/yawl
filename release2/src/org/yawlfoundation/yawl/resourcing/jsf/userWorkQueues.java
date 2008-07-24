@@ -288,6 +288,13 @@ public class userWorkQueues extends AbstractPageBean {
     public void setBtnNewInstance(Button b) { btnNewInstance = b; }
 
 
+    private Button btnAcceptStart = new Button();
+
+    public Button getBtnAcceptStart() { return btnAcceptStart; }
+
+    public void setBtnAcceptStart(Button b) { btnAcceptStart = b; }
+
+
     private Meta metaRefresh = new Meta();
 
     public Meta getMetaRefresh() { return metaRefresh; }
@@ -436,6 +443,10 @@ public class userWorkQueues extends AbstractPageBean {
         return doAction(WorkQueue.OFFERED, "acceptOffer") ;
     }
 
+    public String btnAcceptStart_action() {
+        return doAction(WorkQueue.OFFERED, "acceptStart") ;
+    }
+
     public String btnUnsuspend_action() {
         return doAction(WorkQueue.SUSPENDED, "unsuspend") ;
     }
@@ -534,6 +545,14 @@ public class userWorkQueues extends AbstractPageBean {
                 else
                     msgPanel.info("Another participant has already accepted this offer.");
             }
+            else if (action.equals("acceptStart")) {
+                if (wir != null) {
+                    _rm.acceptOffer(p, wir);
+                    _rm.start(p, wir, handle);
+                }    
+                else
+                    msgPanel.info("Another participant has already accepted this offer.");
+            }
             else if (action.equals("pile")) {
                 String result = _rm.pileWorkItem(p, wir);
                 if (result.startsWith("Cannot"))
@@ -560,11 +579,7 @@ public class userWorkQueues extends AbstractPageBean {
                     return null ;
                 }
                 
-                String result = _rm.checkinItem(p, wir, handle);
-                if (_rm.successful(result))
-                    _sb.removeWarnedForNonEdit(wir.getID());
-                else
-                    msgPanel.error(msgPanel.format(result)) ;                
+                completeWorkItem(wir, p);
             }
         }
         catch (Exception e) {
@@ -688,6 +703,11 @@ public class userWorkQueues extends AbstractPageBean {
             wir.setUpdatedData(data);
             _rm.getWorkItemCache().update(wir) ;
             _sb.setWirEdit(false);
+
+            if (_sb.isCompleteAfterEdit()) {
+               completeWorkItem(wir, _sb.getParticipant());
+                _sb.setCompleteAfterEdit(false);
+            }
         }
     }
 
@@ -709,6 +729,15 @@ public class userWorkQueues extends AbstractPageBean {
         }
 
         _sb.setCustomFormPost(false);                                  // reset flag
+    }
+
+
+    private void completeWorkItem(WorkItemRecord wir, Participant p) {
+        String result = _rm.checkinItem(p, wir, _sb.getSessionhandle());
+        if (_rm.successful(result))
+            _sb.removeWarnedForNonEdit(wir.getID());
+        else
+            msgPanel.error(msgPanel.format(result)) ;
     }
 
 
@@ -773,6 +802,9 @@ public class userWorkQueues extends AbstractPageBean {
      */
     private int populateQueue(int queueType) {
         int result = -1;                                    // default for empty queue
+
+        System.out.println("METHOD: userWorkQueues.populateQueue, calling refreshQueue");
+
         Set<WorkItemRecord> queue = _sb.refreshQueue(queueType);
         processButtonEnablement(queueType) ;                // disable btns if queue empty
         ((pfQueueUI) getBean("pfQueueUI")).clearQueueGUI();
@@ -850,7 +882,7 @@ public class userWorkQueues extends AbstractPageBean {
 
             // set view & complete buttons
             boolean emptyItem = getApplicationBean().isEmptyWorkItem(wir);
-            btnView.setDisabled(emptyItem);
+            btnView.setDisabled(emptyItem && (wir.getCustomFormURL() == null));
             btnComplete.setDisabled(! (emptyItem || (wir.getUpdatedData() != null)));
 
             // set 'New Instance' button (not a task priv but convenient to do it here)
@@ -887,6 +919,7 @@ public class userWorkQueues extends AbstractPageBean {
         boolean isEmptyQueue = (_sb.getQueueSize(queueType) == 0) ;
         switch (queueType) {
             case WorkQueue.OFFERED   : btnAccept.setDisabled(isEmptyQueue);
+                                       btnAcceptStart.setDisabled(isEmptyQueue);
                                        btnChain.setDisabled(isEmptyQueue);
                                        break;
             case WorkQueue.ALLOCATED : btnStart.setDisabled(isEmptyQueue);
