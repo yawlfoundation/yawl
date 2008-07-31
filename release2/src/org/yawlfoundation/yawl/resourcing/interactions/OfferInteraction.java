@@ -230,6 +230,7 @@ public class OfferInteraction extends AbstractInteraction {
             // add roles
             for (Role role : _roles) {
                 Set<Participant> pSet = _rm.castToParticipantSet(role.getResources());
+                pSet.addAll(_rm.getParticipantsInDescendantRoles(role));
                 for (Participant p : pSet) {
                     addParticipantToDistributionSet(distributionSet, uniqueIDs, p) ;
                 }

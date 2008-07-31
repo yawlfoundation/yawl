@@ -217,39 +217,31 @@ public class pfOrgData extends AbstractFragmentBean {
 
     }
 
-    /**
-     * <p>Callback method that is called after rendering is completed for
-     * this request, if <code>init()</code> was called.  Override this
-     * method to release resources acquired in the <code>init()</code>
-     * resources that will be needed for event handlers and lifecycle methods.</p>
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    public void destroy() {
-    }
+    public void destroy() { }
 
-    private MessagePanel msgPanel = getSessionBean().getMessagePanel();
+    private SessionBean _sb = getSessionBean();
+    private MessagePanel msgPanel = _sb.getMessagePanel();
+    private ResourceManager _rm = getApplicationBean().getResourceManager() ;
+
 
     public void lbxItems_processValueChange(ValueChangeEvent event) {
-        getSessionBean().setSourceTabAfterListboxSelection();
+        _sb.setSourceTabAfterListboxSelection();
     }
 
 
     protected void populateGUI(String id, orgDataMgt.AttribType type) {
-        ResourceManager rm = getApplicationBean().getResourceManager() ;
-        SessionBean sb = getSessionBean();
         AbstractResourceAttribute attrib = null;
         switch (type) {
-            case role       : attrib = rm.getRole(id) ; break ;
-            case capability : attrib = rm.getCapability(id); break;
-            case position   : attrib = rm.getPosition(id); break ;
-            case orggroup   : attrib = rm.getOrgGroup(id);
+            case role       : attrib = _rm.getRole(id) ; break ;
+            case capability : attrib = _rm.getCapability(id); break;
+            case position   : attrib = _rm.getPosition(id); break ;
+            case orggroup   : attrib = _rm.getOrgGroup(id);
         }
         if (attrib != null) {
             txtDesc.setText(attrib.getDescription());
             txtNotes.setText(attrib.getNotes());
             if (attrib instanceof Role) {
-                sb.setOrgDataBelongsItems(sb.getFullResourceAttributeListPlusNil("tabRoles"));
+                _sb.setOrgDataBelongsItems(_sb.getFullResourceAttributeListPlusNil("tabRoles"));
                 Role owner = ((Role) attrib).getOwnerRole();
                 if (owner != null)
                     cbbBelongs.setSelected(owner.getID());
@@ -257,14 +249,14 @@ public class pfOrgData extends AbstractFragmentBean {
                     cbbBelongs.setSelected("nil");
             }
             else if (attrib instanceof Position) {
-                sb.setOrgDataBelongsItems(sb.getFullResourceAttributeListPlusNil("tabPosition"));
+                _sb.setOrgDataBelongsItems(_sb.getFullResourceAttributeListPlusNil("tabPosition"));
                 Position boss = ((Position) attrib).getReportsTo();
                 if (boss != null)
                     cbbBelongs.setSelected(boss.getID());
                 else
                     cbbBelongs.setSelected("nil");
 
-                sb.setOrgDataGroupItems(sb.getFullResourceAttributeListPlusNil("tabOrgGroup"));
+                _sb.setOrgDataGroupItems(_sb.getFullResourceAttributeListPlusNil("tabOrgGroup"));
                 OrgGroup group = ((Position) attrib).getOrgGroup();
                 if (group != null)
                     cbbGroup.setSelected(group.getID());
@@ -272,7 +264,7 @@ public class pfOrgData extends AbstractFragmentBean {
                     cbbGroup.setSelected("nil");
             }
             else if (attrib instanceof OrgGroup) {
-                sb.setOrgDataBelongsItems(sb.getFullResourceAttributeListPlusNil("tabOrgGroup"));
+                _sb.setOrgDataBelongsItems(_sb.getFullResourceAttributeListPlusNil("tabOrgGroup"));
                 OrgGroup group = ((OrgGroup) attrib).getBelongsTo();
                 if (group != null)
                     cbbBelongs.setSelected(group.getID());
@@ -299,7 +291,7 @@ public class pfOrgData extends AbstractFragmentBean {
             cbbGroup.setItems(null);
             cbbBelongs.setVisible(true);
             lblBelongs.setVisible(true);
-            getSessionBean().setOrgDataBelongsLabelText("Belongs To");
+            _sb.setOrgDataBelongsLabelText("Belongs To");
         }
         else if (tabName.equals("tabCapability")) {
             cbbGroup.setVisible(false);
@@ -314,7 +306,7 @@ public class pfOrgData extends AbstractFragmentBean {
             lblBelongs.setVisible(true);
             cbbGroup.setVisible(true);
             lblGroup.setVisible(true);
-            getSessionBean().setOrgDataBelongsLabelText("Reports To");
+            _sb.setOrgDataBelongsLabelText("Reports To");
         }
         else if (tabName.equals("tabOrgGroup")) {
             cbbGroup.setVisible(false);
@@ -322,7 +314,7 @@ public class pfOrgData extends AbstractFragmentBean {
             cbbGroup.setItems(null);
             cbbBelongs.setVisible(true);
             lblBelongs.setVisible(true);
-            getSessionBean().setOrgDataBelongsLabelText("Belongs To");
+            _sb.setOrgDataBelongsLabelText("Belongs To");
         }
     }
 
@@ -339,59 +331,72 @@ public class pfOrgData extends AbstractFragmentBean {
     }
 
     public boolean saveChanges(String id) {
-        ResourceManager rm = getApplicationBean().getResourceManager() ;
         AbstractResourceAttribute attrib = null;
-        String activeTab = getSessionBean().getActiveTab();
+        String activeTab = _sb.getActiveTab();
         if (activeTab.equals("tabRoles"))
-            attrib = rm.getRole(id) ;
+            attrib = _rm.getRole(id) ;
         else if (activeTab.equals("tabCapability"))
-            attrib = rm.getCapability(id);
+            attrib = _rm.getCapability(id);
         else if (activeTab.equals("tabPosition"))
-            attrib = rm.getPosition(id);
+            attrib = _rm.getPosition(id);
         else if (activeTab.equals("tabOrgGroup"))
-            attrib = rm.getOrgGroup(id);
+            attrib = _rm.getOrgGroup(id);
 
         if (attrib != null) {
             String belongsToID = (String) cbbBelongs.getSelected();
-            if (! validateUpdates(attrib, belongsToID)) return false;
+            if (hasCyclicReferences(attrib, belongsToID)) return false;
 
             setCommonFields(attrib);
 
             if (attrib instanceof Role) {
-                Role owner = rm.getRole(belongsToID) ;
+                Role owner = _rm.getRole(belongsToID) ;
                 ((Role) attrib).setOwnerRole(owner);
             }
             else if (attrib instanceof Position) {
-                Position boss = rm.getPosition(belongsToID);
+                Position boss = _rm.getPosition(belongsToID);
                 ((Position) attrib).setReportsTo(boss);
 
                 String groupID = (String) cbbGroup.getSelected();
-                OrgGroup group = rm.getOrgGroup(groupID);
+                OrgGroup group = _rm.getOrgGroup(groupID);
                 ((Position) attrib).setOrgGroup(group);
             }
             else if (attrib instanceof OrgGroup) {
-                OrgGroup group = rm.getOrgGroup(belongsToID);
+                OrgGroup group = _rm.getOrgGroup(belongsToID);
                 ((OrgGroup) attrib).setBelongsTo(group);
-                rm.updateOrgGroup((OrgGroup) attrib);
+                _rm.updateOrgGroup((OrgGroup) attrib);
             }
 
-            rm.updateResourceAttribute(attrib);
+            _rm.updateResourceAttribute(attrib);
         }
         return true;
     }
 
-    private boolean validateUpdates(AbstractResourceAttribute attrib, String belongsID) {
-        String attribID = attrib.getID();
-        if (attribID.equals(belongsID)) {
+    private boolean hasCyclicReferences(AbstractResourceAttribute attrib, String belongsID) {
+
+        // if belongsID == 'nil', there are no references, cyclic or otherwise
+        if (belongsID.equals("nil")) return false;
+
+        // first check for self references
+        if (attrib.getID().equals(belongsID)) {
+           String errSelfReference = "A %s cannot %s to itself.";
            if (attrib instanceof Role)
-               msgPanel.error("A Role cannot belong to itself");
+               msgPanel.error(String.format(errSelfReference, "Role", "belong"));
            else if (attrib instanceof OrgGroup)
-               msgPanel.error("An Org Group cannot belong to itself");
+               msgPanel.error(String.format(errSelfReference, "Org Group", "belong"));
            else if (attrib instanceof Position)
-               msgPanel.error("A Position cannot report to itself");
-           return false;
+               msgPanel.error(String.format(errSelfReference, "Position", "report"));
+           return true;
         }
-        return true;
+
+        // now check for cyclics
+        String cyclicErrMsg = _rm.checkCyclicAttributeReference(attrib, belongsID);
+        if (cyclicErrMsg != null) {
+            msgPanel.error(cyclicErrMsg);
+            return true;
+        }
+
+        // ok - no cyclic references
+        return false;
     }
 
 
@@ -401,37 +406,36 @@ public class pfOrgData extends AbstractFragmentBean {
             return false;
         }
 
-        ResourceManager rm = getApplicationBean().getResourceManager() ;
         String belongsToID = (String) cbbBelongs.getSelected();
 
         if (activeTab.equals("tabRoles")) {
             Role role = new Role((String) txtAdd.getText()) ;
-            role.setOwnerRole(rm.getRole(belongsToID));
+            role.setOwnerRole(_rm.getRole(belongsToID));
             setCommonFields(role);
-            rm.addRole(role);
+            _rm.addRole(role);
             lbxItems.setSelected(role.getID());
         }
         else if (activeTab.equals("tabCapability")) {
             Capability capability = new Capability((String) txtAdd.getText(), null);
             setCommonFields(capability);
-            rm.addCapability(capability);
+            _rm.addCapability(capability);
             lbxItems.setSelected(capability.getID());
         }
         else if (activeTab.equals("tabPosition")) {
             Position position = new Position((String) txtAdd.getText());
-            position.setReportsTo(rm.getPosition(belongsToID));
-            position.setOrgGroup(rm.getOrgGroup((String) cbbGroup.getSelected()));
+            position.setReportsTo(_rm.getPosition(belongsToID));
+            position.setOrgGroup(_rm.getOrgGroup((String) cbbGroup.getSelected()));
             setCommonFields(position);
-            rm.addPosition(position);
+            _rm.addPosition(position);
             lbxItems.setSelected(position.getID());
         }
         else if (activeTab.equals("tabOrgGroup")) {
             OrgGroup orgGroup = new OrgGroup();
             orgGroup.setGroupName((String) txtAdd.getText());
-            orgGroup.setBelongsTo(rm.getOrgGroup(belongsToID));
+            orgGroup.setBelongsTo(_rm.getOrgGroup(belongsToID));
             orgGroup.setGroupType(OrgGroup.GroupType.GROUP);           // default type
             setCommonFields(orgGroup);
-            rm.addOrgGroup(orgGroup);
+            _rm.addOrgGroup(orgGroup);
             lbxItems.setSelected(orgGroup.getID());
         }
 
@@ -457,8 +461,8 @@ public class pfOrgData extends AbstractFragmentBean {
         txtNotes.setText("");
         cbbBelongs.setItems(null);
         cbbGroup.setItems(null);
-        getSessionBean().setOrgDataBelongsItems(null);
-        getSessionBean().setOrgDataGroupItems(null);
+        _sb.setOrgDataBelongsItems(null);
+        _sb.setOrgDataGroupItems(null);
     }
 
     private String getFirstListboxItem() {

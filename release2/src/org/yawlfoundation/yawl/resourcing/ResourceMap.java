@@ -16,6 +16,7 @@ import org.yawlfoundation.yawl.resourcing.allocators.ShortestQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.interactions.*;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.resourcing.util.TaggedStringList;
 
 import java.util.*;
 
@@ -48,7 +49,7 @@ public class ResourceMap {
     private String _piledResourceID ;                              // for persistence
     private Persister _persister ;
 
-    private HashSet<String> _ignoreSet = new HashSet<String>();
+    private Set<TaggedStringList> _ignoreSet = new HashSet<TaggedStringList>();
 
     // workitem id - offered-to-participants mapping
     private HashMap<String, HashSet<Participant>> _offered = new
@@ -198,8 +199,24 @@ public class ResourceMap {
     public boolean getPersisting() { return (_persister != null); }
 
 
-    public void ignore(Participant p) { _ignoreSet.add(p.getID()) ; }
-    
+    public void ignore(WorkItemRecord wir, Participant p) {
+        TaggedStringList ignoredForWorkItem = getIgnoredList(wir.getID());
+        if (ignoredForWorkItem != null)
+            ignoredForWorkItem.add(p.getID());
+        else
+            _ignoreSet.add(new TaggedStringList(wir.getID(), p.getID())) ;
+    }
+
+
+    private TaggedStringList getIgnoredList(String key) {
+        TaggedStringList result = null;
+        for (TaggedStringList list : _ignoreSet) {
+            if (list.getTag().equals(key)) result = list;
+        }
+        return result;
+    }
+
+
     public HashSet<Participant> getOfferedParticipants(String itemID) {
         return _offered.get(itemID) ;
     }
@@ -230,7 +247,7 @@ public class ResourceMap {
                 if (! routed) {
 
                     // not piled or chained, distribute in normal manner
-                    removeIgnoredParticipants(distributionSet);
+                    removeIgnoredParticipants(wir, distributionSet);
                     if (! distributionSet.isEmpty()) {
                         Participant chosen = doAllocate(distributionSet, wir) ;
                         if (chosen != null) doStart(chosen, wir) ;
@@ -287,14 +304,12 @@ public class ResourceMap {
     private Participant doAllocate(HashSet<Participant> pSet, WorkItemRecord wir) {
         Participant chosenOne = null;
         if (_allocate.getInitiator() == AbstractInteraction.USER_INITIATED) {
-            System.out.println("METHOD: doAllocate, pSet size = " + pSet.size());
 
             // for each participant in set, place workitem on their offered queue
             for (Participant p : pSet) {
                 QueueSet qs = p.getWorkQueues() ;
                 if (qs == null) qs = p.createQueueSet(rm.getPersisting());
                 qs.addToQueue(wir, WorkQueue.OFFERED);
-                System.out.println("METHOD: doAllocate, added item to offered queue: " + p.getFullName());
                 rm.announceModifiedQueue(p.getID()) ;
             }
             _offered.put(wir.getID(), pSet) ;
@@ -335,14 +350,24 @@ public class ResourceMap {
     }
 
 
-    private void removeIgnoredParticipants(HashSet<Participant> distributionSet) {
-        if (! _ignoreSet.isEmpty()) {
+    private void removeIgnoredParticipants(WorkItemRecord wir,
+                                           HashSet<Participant> distributionSet) {
+        TaggedStringList ignoredForWorkItem = getIgnoredList(wir.getID());
+        if (ignoredForWorkItem != null) {
             Set<Participant> ignored = new HashSet<Participant>();
             for (Participant p : distributionSet) {
-                if (_ignoreSet.contains(p.getID()))
+                if (ignoredForWorkItem.contains(p.getID()))
                     ignored.add(p) ;
             }
             distributionSet.removeAll(ignored);
+        }
+    }
+
+
+    public void removeIgnoreList(WorkItemRecord wir) {
+        TaggedStringList ignoredForWorkItem = getIgnoredList(wir.getID());
+        if (ignoredForWorkItem != null) {
+            _ignoreSet.remove(ignoredForWorkItem) ;
         }
     }
 

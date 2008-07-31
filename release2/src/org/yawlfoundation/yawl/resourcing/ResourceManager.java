@@ -47,7 +47,7 @@ import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ConnectionCache;
 import org.yawlfoundation.yawl.resourcing.util.DataSchemaProcessor;
 import org.yawlfoundation.yawl.resourcing.util.Docket;
-import org.yawlfoundation.yawl.resourcing.util.OneToManyStringList;
+import org.yawlfoundation.yawl.resourcing.util.TaggedStringList;
 import org.yawlfoundation.yawl.resourcing.util.RandomOrgDataGenerator;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
@@ -95,8 +95,8 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     // groups of items that are members of a deferred choice offering
-    private HashSet<OneToManyStringList> _deferredItemGroups =
-            new HashSet<OneToManyStringList>();
+    private HashSet<TaggedStringList> _deferredItemGroups =
+            new HashSet<TaggedStringList>();
 
     // cases that have workitems chained to a participant: <caseid, Participant>
     private Hashtable<String, Participant> _chainedCases =
@@ -120,6 +120,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public boolean _logOffers ;
     private boolean _persistPiling ;
+    private boolean _hasAcceptedLogons = false;      // flag for 1st logon after restart
 
     // authority for write access to org data entities
     private enum ResUnit {Participant, Role, Capability, OrgGroup, Position}
@@ -212,6 +213,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public WorkItemCache getWorkItemCache() { return _workItemCache ; }
 
+
     public void registerJSFApplicationReference(ApplicationBean app) {
         _jsfApplicationReference = app;
     }
@@ -226,53 +228,45 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     // Interface B implemented methods //
 
-    public void handleEnabledWorkItemEvent(WorkItemRecord wir) {
-        synchronized(_mutex) {
-            if (_serviceEnabled) {
-                if (isAutoTask(wir)) {
-                    handleAutoTask(wir, false);
-                }
-                else {
-                    ResourceMap rMap = getResourceMap(wir) ;
-                    if (rMap != null)
-                        wir = rMap.distribute(wir) ;
-                    else
-                        wir = offerToAll(wir) ;   // only when no resourcing spec for item
-                }
+    public synchronized void handleEnabledWorkItemEvent(WorkItemRecord wir) {
+        if (_serviceEnabled) {
+            if (isAutoTask(wir)) {
+                handleAutoTask(wir, false);
             }
-
-            // service disabled, so route directly to admin's unoffered
-            else _resAdmin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
-
-            if (wir.isDeferredChoiceGroupMember()) mapDeferredChoice(wir);
-
-            // store all manually-resourced workitems in the local cache
-            if (! isAutoTask(wir)) _workItemCache.add(wir);
-
-            System.out.println("**** Dump of all participant queues *****");
-            for (Participant p : _ds.participantMap.values()) {
-                System.out.println("\n" + p.getFullName());
-                System.out.println(p.getWorkQueues().toXML());
+            else {
+                ResourceMap rMap = getResourceMap(wir) ;
+                if (rMap != null)
+                    wir = rMap.distribute(wir) ;
+                else
+                    wir = offerToAll(wir) ;   // only when no resourcing spec for item
             }
         }
+
+        // service disabled, so route directly to admin's unoffered
+        else _resAdmin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
+
+        if (wir.isDeferredChoiceGroupMember()) mapDeferredChoice(wir);
+
+        // store all manually-resourced workitems in the local cache
+        if (! isAutoTask(wir)) _workItemCache.add(wir);
     }
 
 
-    public void handleCancelledWorkItemEvent(WorkItemRecord wir) {
-        synchronized(_mutex) {
-            if (_serviceEnabled) {
-                List<WorkItemRecord> itemsToRemove = new ArrayList<WorkItemRecord>() ;
-                itemsToRemove.add(wir) ;
+    public synchronized void handleCancelledWorkItemEvent(WorkItemRecord wir) {
+        if (_serviceEnabled) {
+            List<WorkItemRecord> itemsToRemove = new ArrayList<WorkItemRecord>() ;
+            itemsToRemove.add(wir) ;
+            ResourceMap rMap = getResourceMap(wir);
 
-                // add list of child items (if any) to parent (if necessary)
-                if (wir.getStatus().equals(WorkItemRecord.statusIsParent))
-                    itemsToRemove.addAll(getChildren(wir.getID())) ;
+            // add list of child items (if any) to parent (if necessary)
+            if (wir.getStatus().equals(WorkItemRecord.statusIsParent))
+                itemsToRemove.addAll(getChildren(wir.getID())) ;
 
-                // remove items from all queues and cache
-                for (WorkItemRecord item : itemsToRemove) {
-                    removeFromAll(item) ;
-                    _workItemCache.remove(item);
-                }
+            // remove items from all queues and cache
+            for (WorkItemRecord item : itemsToRemove) {
+                removeFromAll(item) ;
+                _workItemCache.remove(item);
+                if (rMap != null) rMap.removeIgnoreList(wir);
             }
         }
     }
@@ -322,6 +316,8 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public void handleCompletedWorkItemEvent(WorkItemRecord wir) {
         _workItemCache.remove(wir);
+        ResourceMap rMap = getResourceMap(wir);
+        if (rMap != null) rMap.removeIgnoreList(wir);
     }
 
     /*********************************************************************************/
@@ -438,12 +434,63 @@ public class ResourceManager extends InterfaceBWebsideController {
             }
 
             _resAdmin.createWorkQueues(_persisting);   // ... and the administrator
-
-   //         setPersistenceFlagForAllResources();
         }
         else {
             _ds = new EmptyDataSource().getDataSource();
         }
+    }
+
+    /**
+     * This does final initialisation tasks involved in ensuring the caches match
+     * the engine's known work. It is called with the first logon after startup, because
+     * it needs the engine to be completely initialised.
+     */
+    private void sanitiseCaches() {
+
+        // check local cache = engine records
+        try {
+            List<WorkItemRecord> engineItems =
+                  _interfaceBClient.getCompleteListOfLiveWorkItems(_engineSessionHandle);
+            List<String> engineIDs = new ArrayList<String>();
+
+            // check copy of each engine item is stored locally
+            for (WorkItemRecord wir : engineItems) {
+                if (! _workItemCache.containsKey(wir.getID())) {
+                    _workItemCache.add(wir);
+                    _log.warn("Engine workItem '" + wir.getID() +
+                              "' was missing from local cache.");
+                }
+                engineIDs.add(wir.getID());
+            }
+
+            // check each item stored locally is also in engine
+            Set<String> cachedIDs = _workItemCache.keySet();
+            for (String cachedID : cachedIDs) {
+                if (! engineIDs.contains(cachedID)) {
+                    WorkItemRecord deadWir = _workItemCache.remove(cachedID);
+                    removeFromAll(deadWir);                      // workqueues, that is
+                    _log.warn("Cached workitem '" + cachedID +
+                              "' did not exist in Engine and was removed.");
+                }
+            }
+        }
+        catch (IOException ioe) {
+            _log.warn("Sanitise caches could not get workitem list from engine.") ;
+        }
+
+        // finally, rebuild all 'offered' datasets
+       for (Participant p : _ds.participantMap.values()) {
+           QueueSet qSet = p.getWorkQueues();
+           if (qSet != null) {
+               WorkQueue wq = qSet.getQueue(WorkQueue.OFFERED);
+               if (wq != null) {
+                   Set<WorkItemRecord> wirSet = wq.getAll();
+                   for (WorkItemRecord wir : wirSet) addToOfferedSet(wir, p);
+               }
+           }
+       }
+
+       _hasAcceptedLogons = true;                                 // turn off the flag
     }
 
 
@@ -508,7 +555,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                     if (_ds != null) {
                         Participant p = _ds.participantMap.get(wq.getOwnerID()) ;
                         p.restoreWorkQueue(wq, _workItemCache, _persisting);
-                    }    
+                    }
                 }
             }
         }
@@ -541,7 +588,6 @@ public class ResourceManager extends InterfaceBWebsideController {
 
         // persist it to the data store
         String newID = _orgdb.insert(p) ;
- //       p.setPersisting(_persisting);
         p.createQueueSet(_persisting) ;
 
         // cleanup for non-default db
@@ -562,7 +608,6 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public void addRole(Role r) {
-//        r.setPersisting(_persisting);
         String newID = _orgdb.insert(r) ;             // persist it
         if (_isNonDefaultOrgDB) r.setID(newID);       // cleanup for non-default db
         _ds.roleMap.put(newID, r) ;                   // ...and add it to the data set
@@ -570,7 +615,6 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public void addCapability(Capability c) {
- //       c.setPersisting(_persisting);
         String newID = _orgdb.insert(c) ;             // persist it
         if (_isNonDefaultOrgDB) c.setID(newID);       // cleanup for non-default db
         _ds.capabilityMap.put(newID, c) ;             // ...and add it to the data set
@@ -578,7 +622,6 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public void addPosition(Position p) {
- //       p.setPersisting(_persisting);
         String newID = _orgdb.insert(p) ;             // persist it
         if (_isNonDefaultOrgDB) p.setID(newID);       // cleanup for non-default db
         _ds.positionMap.put(newID, p) ;               // ...and add it to the data set
@@ -586,7 +629,6 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public void addOrgGroup(OrgGroup o) {
- //       o.setPersisting(_persisting);
         String newID = _orgdb.insert(o) ;             // persist it
         if (_isNonDefaultOrgDB) o.setID(newID);       // cleanup for non-default db
         _ds.orgGroupMap.put(newID, o) ;               // ...and add it to the data set
@@ -871,16 +913,9 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public Set<Participant> getParticipantsAssignedWorkItem(WorkItemRecord wir) {
-
-        System.out.println("METHOD: rm.getParticipantsAssignedWorkItem");
-
         Set<Participant> result = new HashSet<Participant>();
         for (Participant p : _ds.participantMap.values()) {
             QueueSet qSet = p.getWorkQueues();
-
-            System.out.println("\nfor " + p.getFullName() + ", qset is null = " + (qSet == null));
-            System.out.println("; and hasWorkIteminAnyQueue = " + qSet.hasWorkItemInAnyQueue(wir));
-            
             if ((qSet != null) && (qSet.hasWorkItemInAnyQueue(wir)))
                  result.add(p);
         }
@@ -1065,13 +1100,105 @@ public class ResourceManager extends InterfaceBWebsideController {
         Set<Position> posSet = getPositions();
         for (Position pos : posSet) {
             if (pos.ultimatelyReportsTo(manager)) {
-                Set temp = pos.getResources() ;
-                for (Object o : temp)
-                    result.add((Participant) o) ;
+                result.addAll(castToParticipantSet(pos.getResources()));
             }
         }
         return result ;
     }
+
+
+    public Set<Participant> getParticipantsInDescendantRoles(Role owner) {
+        Set<Participant> result = new HashSet<Participant>();
+        Set<Role> roleSet = getRoles();
+        for (Role role : roleSet) {
+            if (role.ultimatelyBelongsTo(owner)) {
+                result.addAll(castToParticipantSet(role.getResources()));
+            }
+        }
+        return result;
+    }
+
+    
+    public String checkCyclicAttributeReference(AbstractResourceAttribute resource,
+                                                String parentID) {
+        if (resource instanceof Role)
+            return checkCyclicRoleReference((Role) resource, parentID);
+        else if (resource instanceof Position)
+            return checkCyclicPositionReference((Position) resource, parentID);
+        else if (resource instanceof OrgGroup)
+            return checkCyclicOrgGroupReference((OrgGroup) resource, parentID);
+
+        return null;       // should be unreachable
+    }
+
+
+    public String checkCyclicRoleReference(Role role, String refID) {
+        String result = null;
+        List<String> hierarchy = new ArrayList<String>();
+        hierarchy.add(role.getName());
+        Role owner = getRole(refID);
+        String refName = owner.getName();            // name of role attempting to add to
+        while (owner != null) {
+            hierarchy.add(owner.getName());
+            if (owner.equals(role)) {
+                result = constructCyclicAttributeErrorMessage(hierarchy, "role", refName);
+                break;
+            }
+            owner = owner.getOwnerRole();
+        }
+        return result;
+    }
+
+
+    public String checkCyclicPositionReference(Position position, String refID) {
+        String result = null;
+        List<String> hierarchy = new ArrayList<String>();
+        hierarchy.add(position.getTitle());
+        Position owner = getPosition(refID);
+        String refName = owner.getTitle();          // title of posn attempting to add to
+        while (owner != null) {
+            hierarchy.add(owner.getTitle());
+            if (owner.equals(position)) {
+                result = constructCyclicAttributeErrorMessage(hierarchy, "position", refName);
+                break;
+            }
+            owner = owner.getReportsTo();
+        }
+        return result;
+    }
+
+
+    public String checkCyclicOrgGroupReference(OrgGroup orgGroup, String refID) {
+        String result = null;
+        List<String> hierarchy = new ArrayList<String>();
+        hierarchy.add(orgGroup.getGroupName());
+        OrgGroup owner = getOrgGroup(refID);
+        String refName = owner.getGroupName();     // name of group attempting to add to
+        while (owner != null) {
+            hierarchy.add(owner.getGroupName());
+            if (owner.equals(orgGroup)) {
+                result = constructCyclicAttributeErrorMessage(hierarchy, "org group", refName);
+                break;
+            }
+            owner = owner.getBelongsTo();
+        }
+        return result;
+    }
+
+    
+    private String constructCyclicAttributeErrorMessage(List<String> chain, String type,
+                                                        String refName) {
+        String templateMsg = "Cyclic Reference Error: The selected %s cannot %s to %s " +
+                             "'%s' because it references itself in the hierarchy '%s'." ;
+        String refType = (type.equals("position")) ? "report" : "belong";
+
+        StringBuilder chainStr = new StringBuilder(chain.get(0));
+        for (int i=1; i<chain.size(); i++) {
+            chainStr.append(" --> ").append(chain.get(i));
+        }
+        return String.format(templateMsg, type, refType, type, refName, chainStr.toString());
+    }
+
 
     public Participant getParticpant(String pid) {
         return _ds.participantMap.get(pid);
@@ -1181,6 +1308,8 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (wir.isDeferredChoiceGroupMember()) {
             withdrawDeferredChoiceGroup(wir, rMap) ;
         }
+
+        _workItemCache.update(wir);
     }
 
 
@@ -1188,19 +1317,19 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     private void mapDeferredChoice(WorkItemRecord wir) {
         String defID = wir.getDeferredChoiceGroupID() ;
-        OneToManyStringList itemGroup = getDeferredChoiceGroup(defID);
+        TaggedStringList itemGroup = getDeferredChoiceGroup(defID);
         if (itemGroup != null) {
             itemGroup.add(wir.getID());
         }
         else
-            _deferredItemGroups.add(new OneToManyStringList(defID, wir.getID())) ;
+            _deferredItemGroups.add(new TaggedStringList(defID, wir.getID())) ;
     }
 
 
     private void withdrawDeferredChoiceGroup(WorkItemRecord wir, ResourceMap rMap) {
         String chosenWIR = wir.getID();
         String groupID = wir.getDeferredChoiceGroupID();
-        OneToManyStringList itemGroup = getDeferredChoiceGroup(groupID);
+        TaggedStringList itemGroup = getDeferredChoiceGroup(groupID);
         if (itemGroup != null) {
             for (String wirID : itemGroup) {
                 if (! wirID.equals(chosenWIR)) {
@@ -1217,9 +1346,9 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    private OneToManyStringList getDeferredChoiceGroup(String groupID) {
-        OneToManyStringList result = null ;
-        for (OneToManyStringList itemGroup : _deferredItemGroups) {
+    private TaggedStringList getDeferredChoiceGroup(String groupID) {
+        TaggedStringList result = null ;
+        for (TaggedStringList itemGroup : _deferredItemGroups) {
             if (groupID.equals(itemGroup.getTag())) {
                 result = itemGroup;
                 break;
@@ -1296,6 +1425,7 @@ public class ResourceManager extends InterfaceBWebsideController {
      * @param p the participant starting the workitem
      * @param wir the item to start
      * @param handle the user's current sessionhandle
+     * @return true for a successful workitem start
      */
     public boolean start(Participant p, WorkItemRecord wir, String handle) {
         WorkItemRecord oneToStart ;
@@ -1333,6 +1463,11 @@ public class ResourceManager extends InterfaceBWebsideController {
             _workItemCache.add(oneToStart);
 
             p.getWorkQueues().movetoStarted(wir, oneToStart);
+
+            // cleanup deallocation list for started item (if any)
+            ResourceMap rMap = getResourceMap(wir);
+            if (rMap != null) rMap.removeIgnoreList(wir);       
+            
             return true ;
         }
         else {
@@ -1437,7 +1572,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
             ResourceMap rMap = getResourceMap(wir) ;
             if (rMap != null) {
-                rMap.ignore(p);                       // add Participant to ignore list
+                rMap.ignore(wir, p);                  // add Participant to ignore list
                 rMap.distribute(wir);                 // redistribute workitem
             }
             else {                                    // pre version 2.0
@@ -1618,6 +1753,16 @@ public class ResourceManager extends InterfaceBWebsideController {
              if (chainer.getID().equals(p.getID()))
                  return true;
         return false;
+    }
+
+    public void removeChainedCasesForParticpant(Participant p) {
+        List<String> caseList = new ArrayList<String>();
+        for (String caseID : _chainedCases.keySet()) {
+            Participant chainer = _chainedCases.get(caseID);
+            if (chainer.getID().equals(p.getID()))
+                caseList.add(caseID) ;
+        }
+        for (String caseID : caseList) removeChain(caseID);
     }
 
     public boolean isChainedCase(String caseID) {
@@ -1910,7 +2055,7 @@ public class ResourceManager extends InterfaceBWebsideController {
      *
      *  @param p - the participant checking in the item
      *  @param wir - workitem to check into the engine
-     *  @param handle - the sessionHndle of the current user
+     *  @param handle - the sessionHandle of the current user
      *  @return true id checkin is successful
      */
     public String checkinItem(Participant p, WorkItemRecord wir, String handle) {
@@ -1984,6 +2129,10 @@ public class ResourceManager extends InterfaceBWebsideController {
     public String login(String userid, String password) {
         String result ;
         if (connected()) {
+
+            // if 1st logon since startup, use it as a trigger to ensure clean caches
+            if (! _hasAcceptedLogons) sanitiseCaches();
+
             if (userid.equals("admin")) return loginAdmin(password) ;
             
             Participant p = getParticipantFromUserID(userid) ;
@@ -2004,6 +2153,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         return result ;
     }
 
+    
     private String loginAdmin(String password) {
         String handle ;
         try {
@@ -2019,7 +2169,10 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     // pseudo-logout by removing session handle from map of live users
     public void logout(String handle) {
-        _liveSessions.remove(handle);
+        Participant p = _liveSessions.remove(handle);
+        if (p != null) {
+           removeChainedCasesForParticpant(p);
+        }
         _liveAdmins.remove(handle);
     }
 

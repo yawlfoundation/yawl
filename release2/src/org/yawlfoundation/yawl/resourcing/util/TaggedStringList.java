@@ -11,18 +11,18 @@ import java.util.ArrayList;
  * Date: 05/03/2008
  */
 
-public class OneToManyStringList extends ArrayList<String> {
+public class TaggedStringList extends ArrayList<String> {
 
     private String _tag ;
 
     // Constructors //
-    public OneToManyStringList(String tag) {
+    public TaggedStringList(String tag) {
         super() ;
         _tag = tag ;
 
     }
 
-    public OneToManyStringList(String tag, String value) {
+    public TaggedStringList(String tag, String value) {
         this(tag);
         add(value);
     }
