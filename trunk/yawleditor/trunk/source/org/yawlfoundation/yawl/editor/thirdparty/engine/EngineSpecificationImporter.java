@@ -22,6 +22,7 @@
 
 package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
+import org.jdom.Element;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
@@ -32,6 +33,7 @@ import org.yawlfoundation.yawl.editor.net.CancellationSet;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
+import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
 import org.yawlfoundation.yawl.editor.specification.SpecificationFileModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
@@ -41,16 +43,17 @@ import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
+import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.unmarshal.YMetaData;
 
 import javax.swing.*;
+import javax.xml.datatype.Duration;
 import java.awt.*;
 import java.io.File;
-import java.util.Hashtable;
-import java.util.Iterator;
+import java.net.URL;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 public class EngineSpecificationImporter extends EngineEditorInterpretor {
   
@@ -414,7 +417,10 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
       setEditorTaskLabel(editorNet.getGraph(), (YAWLTask) editorAtomicTask, engineAtomicTask);
       
       setTaskDecorators(engineAtomicTask, (YAWLTask) editorAtomicTask, editorNet);
-      
+      setTaskResources(engineAtomicTask, editorAtomicTask, editorNet) ;
+      setTaskTimers(engineAtomicTask, editorAtomicTask, editorNet);
+      setTaskCustomForm(engineAtomicTask, editorAtomicTask);
+     
       editorToEngineElementMap.put(
           engineAtomicTask,        
           editorAtomicTask
@@ -645,6 +651,58 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   }
 
 
+  private static void setTaskTimers(YAtomicTask engineTask, YAWLAtomicTask editorTask,
+                                    NetGraphModel containingNet) {
+      Map timeParams = engineTask.getTimeParameters();
+      if (timeParams != null) {
+          TaskTimeoutDetail timeoutDetail = new TaskTimeoutDetail();
+          String netParam = (String) timeParams.get("netparam");
+          if (netParam != null) {
+              DataVariable netVar = containingNet.getVariableSet().getVariableWithName(netParam);
+              timeoutDetail.setTimeoutVariable(netVar);
+          }
+          else {
+              YWorkItemTimer.Trigger trigger = (YWorkItemTimer.Trigger) timeParams.get("trigger");
+              if (trigger == YWorkItemTimer.Trigger.OnEnabled) {
+                  timeoutDetail.setTrigger(TaskTimeoutDetail.TRIGGER_ON_ENABLEMENT);
+              }
+              else {
+                  timeoutDetail.setTrigger(TaskTimeoutDetail.TRIGGER_ON_STARTING);
+              }
+              Date expiry = (Date) timeParams.get("expiry");
+              if (expiry != null) {
+                  timeoutDetail.setTimeoutDate(expiry);
+              }
+              else {
+                  Duration duration = (Duration) timeParams.get("duration");
+                  if (duration != null) {
+                      timeoutDetail.setTimeoutValue(duration.toString());
+                  }
+              }
+          }
+
+          ((AtomicTask) editorTask).setTimeoutDetail(timeoutDetail);
+      }
+  }
+
+
+  private static void setTaskResources(YAtomicTask engineTask, YAWLAtomicTask editorTask,
+                                       NetGraphModel editorNet) {
+      Element rawResourceElement = engineTask.getResourcingSpecs();
+      if (rawResourceElement != null) {
+          ResourceMapping resourceMap = new ResourceMapping(editorTask, false);
+          resourceMap.parse(rawResourceElement, editorNet);
+          editorTask.setResourceMapping(resourceMap);
+      }
+  }
+
+
+  private static void setTaskCustomForm(YAtomicTask engineTask, YAWLAtomicTask editorTask) {
+      URL formURL = engineTask.getCustomFormURL();
+      if (formURL != null) ((YAWLTask) editorTask).setCustomFormURL(formURL);
+  }
+
+
   private static void populateConditions(Set engineConditions, NetGraphModel editorNet) {
     Iterator conditionIterator = engineConditions.iterator();
     while(conditionIterator.hasNext()) {
@@ -824,4 +882,5 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     }
     return MultipleAtomicTask.STATIC_INSTANCE_CREATION;
   }
+
 }

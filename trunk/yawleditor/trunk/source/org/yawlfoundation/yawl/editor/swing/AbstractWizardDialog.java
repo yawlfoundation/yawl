@@ -1,24 +1,14 @@
 package org.yawlfoundation.yawl.editor.swing;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Insets;
+import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.LinkedList;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
 
 public abstract class AbstractWizardDialog extends JDialog {
   
@@ -184,12 +174,13 @@ public abstract class AbstractWizardDialog extends JDialog {
   }
   
   public void doNext() {
-    getCurrentPanel().doNext();
-    currentStep++;
-    while(currentStep < (panels.length - 1) && !shouldDoCurrentStep()) {
+    if (getCurrentPanel().doNext()) {
       currentStep++;
-    }
-    moveToCurrentStep();
+      while(currentStep < (panels.length - 1) && !shouldDoCurrentStep()) {
+        currentStep++;
+      }
+      moveToCurrentStep();
+    }    
   }
   
   

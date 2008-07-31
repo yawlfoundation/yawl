@@ -1,13 +1,11 @@
 package org.yawlfoundation.yawl.editor.swing.resourcing;
 
-import java.util.Set;
-
-import javax.swing.JComboBox;
-
 import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
+
+import javax.swing.*;
+import java.util.Set;
 
 public class FamiliarTaskComboBox extends JComboBox {
   private static final long serialVersionUID = 1L;
@@ -29,7 +27,7 @@ public class FamiliarTaskComboBox extends JComboBox {
     removeAllItems();
     
     for(YAWLAtomicTask task : familiarTasks) {
-      addItem(((YAWLTask) task).getEngineId());      
+      addItem(((YAWLTask) task).getLabel());      
     }
   }
   
@@ -39,7 +37,7 @@ public class FamiliarTaskComboBox extends JComboBox {
   
   public YAWLAtomicTask getSelectedFamiliarTask() {
     for(YAWLAtomicTask task : familiarTasks) {
-      if(((YAWLTask) task).getEngineId().equals(getSelectedItem())) {
+      if(((YAWLTask) task).getLabel().equals(getSelectedItem())) {
         return task;
       }
     }
@@ -48,7 +46,7 @@ public class FamiliarTaskComboBox extends JComboBox {
   
   public void setSelectedFamiliarTask(YAWLAtomicTask task) {
     for(int i = 0; i < getItemCount(); i++) {
-      if (getItemAt(i).equals(((YAWLTask) task).getEngineId())) {
+      if (getItemAt(i).equals(((YAWLTask) task).getLabel())) {
         setSelectedIndex(i);
       }
     }

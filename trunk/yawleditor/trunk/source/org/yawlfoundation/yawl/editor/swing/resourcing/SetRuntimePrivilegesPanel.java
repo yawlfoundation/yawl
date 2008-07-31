@@ -121,7 +121,7 @@ public class SetRuntimePrivilegesPanel extends ResourcingWizardPanel {
   
   public void doBack() {}
 
-  public void doNext() {}     
+  public boolean doNext() { return true; }     
 
   public void refresh() {
     suspendWorkItemPanel.refresh();

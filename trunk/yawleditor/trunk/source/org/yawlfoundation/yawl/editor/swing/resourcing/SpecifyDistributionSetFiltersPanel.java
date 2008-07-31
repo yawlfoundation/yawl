@@ -77,7 +77,7 @@ public class SpecifyDistributionSetFiltersPanel extends ResourcingWizardPanel {
   
   public void doBack() {}
 
-  public void doNext() {}     
+  public boolean doNext() { return runtimeConstraintsPanel.hasMutexFamTasks(); }
 
   void refresh() {
     
@@ -85,6 +85,12 @@ public class SpecifyDistributionSetFiltersPanel extends ResourcingWizardPanel {
     // filters, use these cached filters in leu of ones from an engine connection.
     
     List<ResourcingFilter> filters = ResourcingServiceProxy.getInstance().getRegisteredResourcingFilters();
+
+    if (filters.size() > 0) {
+        List capabilities = ResourcingServiceProxy.getInstance().getCapabilities();
+        List positions = ResourcingServiceProxy.getInstance().getPositions();
+        List orgGroups = ResourcingServiceProxy.getInstance().getOrgGroups();
+    }
 
     if (filters.size() == 0) {
        List<ResourcingFilter> cachedFilters =
@@ -160,7 +166,7 @@ class RuntimeFiltersPanel extends JPanel implements ListSelectionListener {
     gbc.fill = GridBagConstraints.HORIZONTAL;
 
     add(new JLabel(
-            "<html><body>Tick those filters to be applied to the specified "+
+            "<html><body>Select the filters to be applied to the "+
             "distribution set. Set parameter values for the selected "+
             "filter as required.</body></html>"
         ),gbc
@@ -213,7 +219,7 @@ class SelectableFilterTable extends JSingleSelectTable {
   public SelectableFilterTable() {
     super();
     setModel(new SelectableFilterTableModel());
-    this.setPreferredSize(new Dimension(25,10));
+    this.setPreferredSize(new Dimension(300,80));
     getColumn("").setPreferredWidth(24);
     getColumn("").setMaxWidth(24);
     getColumn("").setResizable(false);
@@ -427,7 +433,7 @@ class FilterParameterTable extends JSingleSelectTable {
   
   public FilterParameterTable() {
     super();
-      this.setPreferredSize(new Dimension(25,10));
+      this.setPreferredSize(new Dimension(300,80));
       
     setModel(new FilterParameterTableModel());
   }
@@ -798,4 +804,26 @@ class RuntimeConstraintsPanel extends JPanel {
       retainFamiliarCheckBox.setEnabled(true);
     }
   }
+
+
+    public boolean hasMutexFamTasks() {
+        boolean mutex = ! (
+            separationOfDutiesCheckBox.isSelected() &&
+            retainFamiliarCheckBox.isSelected() &&
+            (
+              separationOfDutiesFamiliarTaskBox.getSelectedFamiliarTask() ==
+              familiarTaskComboBox.getSelectedFamiliarTask()
+            )
+        );
+
+        if (! mutex) {
+            JOptionPane.showMessageDialog(this,
+                "The same task has been selected for both previous task constraint options.\n" +
+                "Please deselect one, or ensure they each refer to a different task.",
+                "Ambiguous Task Selection", JOptionPane.ERROR_MESSAGE);
+
+        }
+        return mutex;
+    }    
+
 }

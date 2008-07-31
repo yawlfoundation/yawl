@@ -22,21 +22,24 @@
 
 package org.yawlfoundation.yawl.editor.analyser;
 
-import org.yawlfoundation.yawl.elements.YSpecification;
-import org.yawlfoundation.yawl.elements.*;
-import org.yawlfoundation.yawl.unmarshal.YMarshal;
-import org.yawlfoundation.yawl.elements.YDecomposition;
-import org.yawlfoundation.yawl.exceptions.*;
-
-import java.io.IOException;
-import java.util.*;
 import org.jdom.JDOMException;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.reductionrules.*;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.elements.YNet;
+import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
+import org.yawlfoundation.yawl.exceptions.YSyntaxException;
+import org.yawlfoundation.yawl.unmarshal.YMarshal;
 
+import javax.swing.*;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
-
-import org.yawlfoundation.yawl.editor.reductionrules.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 public class YAWLResetAnalyser{
 
@@ -57,9 +60,18 @@ public class YAWLResetAnalyser{
      * returns a xml formatted string with warnings and observations.
      */
      public String analyse(String fileURL,String options,boolean useYAWLReductionRules,boolean useResetReductionRules) throws IOException, YSchemaBuildingException, YSyntaxException, JDOMException {
-
-       YSpecification specs = (YSpecification) YMarshal.unmarshalSpecifications(fileURL).get(0);
-       StringBuffer msgBuffer = new StringBuffer(200);
+       YSpecification specs;
+       StringBuffer msgBuffer = new StringBuffer(400);
+       try {
+          specs = YMarshal.unmarshalSpecifications(fileURL).get(0);
+       }
+       catch (YSyntaxException yse) {
+           JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
+               yse.getMessage() + "\nAnalysis cannot proceed until these issues are fixed.",
+               "Error validating specification",
+               JOptionPane.ERROR_MESSAGE);
+           return "";
+       }
 
     //   boolean useYAWLReductionRules = true;
     //   boolean useResetReductionRules = false;

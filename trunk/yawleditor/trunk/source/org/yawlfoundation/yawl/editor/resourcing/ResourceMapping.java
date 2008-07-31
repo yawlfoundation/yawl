@@ -1,12 +1,18 @@
 package org.yawlfoundation.yawl.editor.resourcing;
 
+import org.jdom.Element;
+import org.jdom.Namespace;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.data.DataVariableSet;
 import org.yawlfoundation.yawl.editor.data.DataVariableUtilities;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 
 import java.io.Serializable;
 import java.util.*;
@@ -54,15 +60,12 @@ public class ResourceMapping implements Serializable, Cloneable  {
     return this.serializationProofAttributeMap;
   }
   
-  public ResourceMapping(YAWLAtomicTask resourceRequiringTask) {
+  public ResourceMapping(YAWLAtomicTask resourceRequiringTask, boolean setVariableList) {
     super();
     initialise();
-    setResourceRequiringTask(
-        resourceRequiringTask
-    );
-    setBaseVariableContentList(
-        buildDefaultBaseVariableContentList()
-    );
+    setResourceRequiringTask(resourceRequiringTask);
+    if (setVariableList)
+        setBaseVariableContentList(buildDefaultBaseVariableContentList());
   }
   
   public YAWLAtomicTask getResourceRequiringTask() {
@@ -259,6 +262,292 @@ public class ResourceMapping implements Serializable, Cloneable  {
     }
     return false;
   }
+
+  /*********************************************************************************/
+
+  // These parse methods are called from EngineSpecificationImporter when importing //
+  // a specification from its xml representation                                    //
+  
+  public void parse(Element resourceSpec, NetGraphModel containingNet) {
+      if (resourceSpec != null) {
+          Namespace nsYawl = resourceSpec.getNamespace() ;
+          parseOffer(resourceSpec.getChild("offer", nsYawl), nsYawl, containingNet) ;
+          parseAllocate(resourceSpec.getChild("allocate", nsYawl), nsYawl) ;
+          parseStart(resourceSpec.getChild("start", nsYawl), nsYawl) ;
+          parsePrivileges(resourceSpec.getChild("privileges", nsYawl), nsYawl) ;
+      }
+  }
+
+    
+  public void parseOffer(Element offerElement, Namespace nsYawl, NetGraphModel containingNet) {
+      setOfferInteractionPoint(parseInitiator(offerElement));
+
+      // if offer is not system-initiated, there's no more to do
+      if (getOfferInteractionPoint() == SYSTEM_INTERACTION_POINT) {
+          parseDistributionSet(offerElement, nsYawl, containingNet) ;
+          parseFamiliarTask(offerElement, nsYawl, containingNet) ;
+      }
+  }
+
+
+  private void parseDistributionSet(Element e, Namespace nsYawl, NetGraphModel containingNet) {
+      Element eDistSet = e.getChild("distributionSet", nsYawl);
+      if (eDistSet != null) {
+          parseInitialSet(eDistSet, nsYawl, containingNet) ;
+          parseFilters(eDistSet, nsYawl) ;
+          parseConstraints(eDistSet, nsYawl, containingNet) ;
+      }
+  }
+
+
+  private void parseInitialSet(Element e, Namespace nsYawl, NetGraphModel containingNet) {
+      Element eInitialSet = e.getChild("initialSet", nsYawl);
+      if (eInitialSet != null) {
+          parseParticipants(eInitialSet, nsYawl);
+          parseRoles(eInitialSet, nsYawl);
+          parseDynParams(eInitialSet, nsYawl, containingNet);
+      }
+  }
+
+
+  private void parseParticipants(Element e, Namespace nsYawl) {
+
+      List<ResourcingParticipant> liveList =
+              ResourcingServiceProxy.getInstance().getAllParticipants();
+      Map<String, ResourcingParticipant> liveMap =
+              new HashMap<String, ResourcingParticipant>();
+      if (liveList != null) {
+          for (ResourcingParticipant resp : liveList) {
+              liveMap.put(resp.getId(), resp);
+          }
+      }
+      List<ResourcingParticipant> result = new LinkedList<ResourcingParticipant>();
+
+      List participants = e.getChildren("participant", nsYawl);
+      Iterator itr = participants.iterator();
+      while (itr.hasNext()) {
+          Element eParticipant = (Element) itr.next();
+          String pid = eParticipant.getText();
+          if (pid != null) {
+              result.add(liveMap.get(pid));
+          }
+      }
+      setBaseUserDistributionList(result);
+  }
+
+
+  private void parseRoles(Element e, Namespace nsYawl) {
+      List<ResourcingRole> liveList =
+              ResourcingServiceProxy.getInstance().getAllRoles();
+      Map<String, ResourcingRole> liveMap =
+              new HashMap<String, ResourcingRole>();
+      if (liveList != null) {
+          for (ResourcingRole role : liveList) {
+              liveMap.put(role.getId(), role);
+          }
+      }
+      List<ResourcingRole> result = new LinkedList<ResourcingRole>();
+
+      List roles = e.getChildren("role", nsYawl);
+      Iterator itr = roles.iterator();
+      while (itr.hasNext()) {
+          Element eRole = (Element) itr.next();
+          String rid = eRole.getText();
+          if (rid != null) {
+              result.add(liveMap.get(rid));
+          }
+      }
+      setBaseRoleDistributionList(result);
+  }
+
+
+  private void parseDynParams(Element e, Namespace nsYawl, NetGraphModel containingNet) {
+      DataVariableSet netVars = containingNet.getVariableSet();
+      List<DataVariableContent> result = new LinkedList<DataVariableContent>();
+
+      List params = e.getChildren("param", nsYawl);
+      Iterator itr = params.iterator();
+      while (itr.hasNext()) {
+          Element eParam = (Element) itr.next();
+          String name = eParam.getChildText("name", nsYawl);
+          DataVariable var = netVars.getVariableWithName(name);
+          if (var != null) {
+              String refers = eParam.getChildText("refers", nsYawl);
+              int contentType = DataVariableContent.DATA_CONTENT_TYPE;
+              if (refers != null) {
+                  if (refers.equals("participant")) {
+                      contentType = DataVariableContent.PARTICIPANT_CONTENT_TYPE;
+                  }
+                  else if (refers.equals("role")) {
+                      contentType = DataVariableContent.ROLE_CONTENT_TYPE;
+                  }
+              }
+              result.add(new DataVariableContent(var, contentType));
+          }
+      }
+      setBaseVariableContentList(result);
+  }
+
+
+  private void parseFilters(Element e, Namespace nsYawl) {
+      List<ResourcingFilter> result = new LinkedList<ResourcingFilter>();
+      Element eFilters = e.getChild("filters", nsYawl);
+      if (eFilters != null) {
+          List filters = eFilters.getChildren("filter", nsYawl);
+          if (filters != null) {
+              Iterator itr = filters.iterator();
+              while (itr.hasNext()) {
+                  Element eFilter = (Element) itr.next();
+                  String filterName = eFilter.getChildText("name", nsYawl);
+                  if (filterName != null) {
+                      result.add(new ResourcingFilter(filterName, null,
+                              (HashMap<String, String>) parseParams(eFilter, nsYawl)));
+                  }
+              }
+          }
+      }
+      setResourcingFilters(result);
+  }
+
+
+  private void parseConstraints(Element e, Namespace nsYawl, NetGraphModel containingNet) {
+      Element eConstraints = e.getChild("constraints", nsYawl);
+      if (eConstraints != null) {
+          List constraints = eConstraints.getChildren("constraint", nsYawl);
+          if (constraints != null) {
+              Iterator itr = constraints.iterator();
+              while (itr.hasNext()) {
+                  Element eConstraint = (Element) itr.next();
+                  String constraintName = eConstraint.getChildText("name", nsYawl);
+                  if ((constraintName != null) &&
+                          (constraintName.equals("SeparationOfDuties"))) {
+                      Map<String, String> params = parseParams(eConstraint, nsYawl);
+                      String famTaskName = params.get("familiarTask");
+                        if (famTaskName != null) {
+                          YAWLAtomicTask famTask = getTaskWithName(famTaskName,
+                                  containingNet);
+                          if (famTask != null) {
+                              setSeparationOfDutiesTask(famTask);
+                          }
+                      }
+                  }
+              }
+          }
+      }
+  }
+
+
+  private void parseFamiliarTask(Element e, Namespace nsYawl, NetGraphModel containingNet) {
+      Element eFamTask = e.getChild("familiarParticipant", nsYawl);
+      if (eFamTask != null) {
+          String famTaskName = eFamTask.getAttributeValue("taskID");
+          if (famTaskName != null) {
+              YAWLAtomicTask famTask = getTaskWithName(famTaskName, containingNet);
+              if (famTask != null) {
+                  this.setRetainFamiliarTask(famTask);
+              }
+          }
+      }
+  }
+
+
+  public void parseAllocate(Element allocateElement, Namespace nsYawl) {
+      setAllocateInteractionPoint(parseInitiator(allocateElement));
+      if (allocateElement != null) {
+          Element allocator = allocateElement.getChild("allocator", nsYawl) ;
+          if (allocator != null) {
+              String name = allocator.getChildText("name", nsYawl);
+              if (name != null) {
+                  setAllocationMechanism(new AllocationMechanism(name, "", ""));
+                  // allocationmechanism.setParams(parseParams(allocator, nsYawl));
+              }
+          }
+      }
+  }
+
+
+  public void parseStart(Element startElement, Namespace nsYawl) {
+      setStartInteractionPoint(parseInitiator(startElement));
+  }
+
+
+  public void parsePrivileges(Element privilegesElement, Namespace nsYawl) {
+      if (privilegesElement != null) {
+          List ePrivileges = privilegesElement.getChildren("privilege", nsYawl);
+
+          // if no privileges element to deal with, we're done
+          if (ePrivileges == null) return;
+
+          Iterator itr = ePrivileges.iterator() ;
+          while (itr.hasNext()) {
+              Element ePrivilege = (Element) itr.next();
+
+              // get the privilege we're referring to
+              String privName = ePrivilege.getChildText("name", nsYawl) ;
+              if (privName != null) {
+                  String allowall = ePrivilege.getChildText("allowall", nsYawl);
+                  if ((allowall != null) && (allowall.equalsIgnoreCase("true"))) {
+                      enablePrivilege(getPrivilege(privName), true);
+                  }
+              }
+          }
+      }
+  }
+
+
+  public int parseInitiator(Element e) {
+      int initiator = USER_INTERACTION_POINT ;                            // default
+      if (e != null) {
+          String initiatorValue = e.getAttributeValue("initiator") ;
+          if ((initiatorValue != null) && (initiatorValue.equals("system")))
+              initiator = SYSTEM_INTERACTION_POINT;
+      }
+      return initiator;
+  }
+
+  public Map<String, String> parseParams(Element e, Namespace nsYawl) {
+      HashMap<String, String> result = new HashMap<String, String>() ;
+      Element eParams = e.getChild("params", nsYawl);
+      if (eParams != null) {
+          List params = eParams.getChildren("param", nsYawl) ;
+          for (Object o : params) {
+              Element eParam = (Element) o ;
+              result.put(eParam.getChildText("key", nsYawl),
+                         eParam.getChildText("value", nsYawl));
+           }
+      }
+      return result ;
+  }
+
+
+  private int getPrivilege(String name) {
+      if (name.equals("canSuspend")) return CAN_SUSPEND_PRIVILEGE;
+      if (name.equals("canReallocateStateless")) return CAN_REALLOCATE_STATELESS_PRIVILEGE;
+      if (name.equals("canReallocateStateful")) return CAN_REALLOCATE_STATEFUL_PRIVILEGE;
+      if (name.equals("canDeallocate")) return CAN_DEALLOCATE_PRIVILEGE;
+      if (name.equals("canDelegate")) return CAN_DELEGATE_PRIVILEGE;
+      if (name.equals("canSkip")) return CAN_SKIP_PRIVILEGE;
+      if (name.equals("canPile")) return CAN_PILE_PRIVILEGE;
+      return -1;
+  }
+
+
+  private YAWLAtomicTask getTaskWithName(String name, NetGraphModel net) {
+      YAWLAtomicTask result = null;
+      if (name != null) {
+          name = name.substring(0, name.lastIndexOf("_")) ;           // lop engine id
+          Set<YAWLAtomicTask> taskSet = NetUtilities.getAtomicTasks(net);
+          for (YAWLAtomicTask task : taskSet) {
+              if (task.getLabel().equals(name)) {
+                  result = task ;
+                  break;
+              }
+          }
+      }
+      return result;
+  }
+
+  /*********************************************************************************/
   
   public String toString() {
     

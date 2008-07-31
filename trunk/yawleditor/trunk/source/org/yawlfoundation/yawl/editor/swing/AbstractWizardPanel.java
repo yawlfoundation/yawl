@@ -28,7 +28,7 @@ public abstract class AbstractWizardPanel extends JPanel {
   protected abstract void initialise();
   
   public abstract void doBack();
-  public abstract void doNext();
+  public abstract boolean doNext();
   
   
   /**

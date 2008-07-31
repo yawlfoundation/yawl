@@ -114,6 +114,19 @@ public class ResourcingServiceProxy implements ResourcingServiceProxyInterface {
     return getImplementation().getRegisteredAllocationMechanisms();
   }
 
+  public List getCapabilities() {
+    return getImplementation().getCapabilities();
+  }
+
+  public List getPositions() {
+    return getImplementation().getPositions();
+  }
+
+  public List getOrgGroups() {
+    return getImplementation().getOrgGroups();        
+  }
+
+
   public Map<String, String> getRegisteredCodelets() {
     return getImplementation().getRegisteredCodelets();     
   }
