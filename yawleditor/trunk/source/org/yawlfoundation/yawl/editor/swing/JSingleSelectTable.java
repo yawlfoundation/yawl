@@ -23,13 +23,8 @@
 
 package org.yawlfoundation.yawl.editor.swing;
 
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Rectangle;
-
-import javax.swing.JScrollPane;
-import javax.swing.JViewport;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
+import java.awt.*;
 
 public class JSingleSelectTable extends JAlternatingRowColorTable {
   

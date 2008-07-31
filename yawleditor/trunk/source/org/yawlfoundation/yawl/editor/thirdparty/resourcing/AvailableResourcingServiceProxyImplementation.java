@@ -32,10 +32,11 @@ import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.Role;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
 public class AvailableResourcingServiceProxyImplementation implements ResourcingServiceProxyInterface {
@@ -106,7 +107,7 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
   public List<ResourcingParticipant> getAllParticipants() {
     connect();
     
-    List engineParticipants;
+    List engineParticipants = null;
     LinkedList<ResourcingParticipant> participantList = new LinkedList<ResourcingParticipant>();
 
     try {
@@ -116,17 +117,18 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
       return participantList;
     }
     
+    if (engineParticipants != null) {
+      for (Object engineParticipant: engineParticipants) {
+        Participant participant = (Participant) engineParticipant;
 
-    for (Object engineParticipant: engineParticipants) {
-      Participant participant = (Participant) engineParticipant;
-
-      participantList.add(
+        participantList.add(
           new ResourcingParticipant(
               participant.getID(),
               participant.getFullName() + " (" +
               participant.getUserID() + ")"
           )
-      );
+        );
+      }    
     }
 
     disconnect();
@@ -137,7 +139,7 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
   public List<ResourcingRole> getAllRoles() {
     connect();
    
-    List engineRoles;
+    List engineRoles = null;
     LinkedList<ResourcingRole> registeredRoles = new LinkedList<ResourcingRole>();
 
     try {
@@ -147,16 +149,17 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
       return registeredRoles;
     }
     
+    if ( engineRoles != null) {
+      for (Object engineRole: engineRoles) {
+        Role role = (Role) engineRole;
 
-    for (Object engineRole: engineRoles) {
-      Role role = (Role) engineRole;
-
-      registeredRoles.add(
+        registeredRoles.add(
           new ResourcingRole(
               role.getID(),
               role.getName()
           )
-      );
+        );
+      }
     }
 
     disconnect();
@@ -224,6 +227,52 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
 
     return resultsList;
   }
+
+
+  public List getCapabilities() {
+      List result = null;
+      connect();
+
+      try {
+          result = gateway.getCapabilities(sessionHandle);
+      }
+      catch (IOException ioe) {
+          // do nothing
+      }
+
+      disconnect();
+      return result;
+  }
+
+    public List getPositions() {
+        List result = null;
+        connect();
+
+        try {
+            result = gateway.getPositions(sessionHandle);
+        }
+        catch (IOException ioe) {
+            // do nothing
+        }
+
+        disconnect();
+        return result;
+    }
+
+    public List getOrgGroups() {
+        List result = null;
+        connect();
+
+        try {
+            result = gateway.getOrgGroups(sessionHandle); 
+        }
+        catch (IOException ioe) {
+            // do nothing
+        }
+
+        disconnect();
+        return result;
+    }
 
 
     public Map<String, String> getRegisteredCodelets() {

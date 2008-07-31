@@ -52,10 +52,7 @@ public class ManageResourcingDialog extends AbstractWizardDialog {
 
     if (task.getResourceMapping() == null) {
       task.setResourceMapping(
-          new ResourceMapping(
-              (YAWLAtomicTask) task
-          )
-      );
+          new ResourceMapping((YAWLAtomicTask) task, true));
     }
 
     for(AbstractWizardPanel panel : getPanels()) {
@@ -110,6 +107,9 @@ public class ManageResourcingDialog extends AbstractWizardDialog {
   }
   
   public ResourceMapping getResourceMapping() {
-    return getTask().getResourceMapping();
+    if (getTask() != null)
+       return getTask().getResourceMapping();
+    else
+       return null;
   }
 }

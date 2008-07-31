@@ -161,18 +161,14 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     
     generateEngineMetaData(editorSpec,engineSpec);
     
-//    generateEngineDataTypeDefinition(editorSpec,engineSpec);
-
     //important:  Engine API expects nets to be pre-generated before composite tasks reference them.
     //            We need to build the nets first, and THEN populate the nets with elements.
     
     generateRootNet(editorSpec,engineSpec);
     generateSubNets(editorSpec,engineSpec);
-
+    populateEngineNets(editorSpec,engineSpec);
     generateEngineDataTypeDefinition(editorSpec,engineSpec);
 
-    populateEngineNets(editorSpec,engineSpec);
-      
     return engineSpec;
   }
   

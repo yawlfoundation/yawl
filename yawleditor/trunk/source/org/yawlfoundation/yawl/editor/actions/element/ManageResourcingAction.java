@@ -24,12 +24,14 @@
 
 package org.yawlfoundation.yawl.editor.actions.element;
 
+import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.swing.resourcing.ManageResourcingDialog;
+import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -59,8 +61,10 @@ public class ManageResourcingAction extends YAWLSelectedNetAction
   }  
 
   public void actionPerformed(ActionEvent event) {
-    dialog.setTask(task, graph);
-    dialog.setVisible(true);
+    if (! isEmptyOrgModel()) {
+        dialog.setTask(task, graph);
+        dialog.setVisible(true);
+    }
   }
  
   public String getEnabledTooltipText() {
@@ -75,6 +79,21 @@ public class ManageResourcingAction extends YAWLSelectedNetAction
   public boolean shouldBeEnabled() {
     Decomposition decomp = task.getDecomposition();
     return ((decomp != null) && decomp.invokesWorklist() && decomp.isManualInteraction());
+  }
+
+  private boolean isEmptyOrgModel() {
+      if (ResourcingServiceProxy.getInstance().isLiveService()) {
+          if (ResourcingServiceProxy.getInstance().getAllRoles().isEmpty() &&
+              ResourcingServiceProxy.getInstance().getAllParticipants().isEmpty()) {
+              JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
+                   "The organisational model supplied by the " +
+                   "Resource Service contains no particpants or roles.\n" +
+                   "There are no resources available to assign to the selected task.",
+                   "No Available Resources", JOptionPane.WARNING_MESSAGE);
+              return true;
+          }
+      }
+      return false;
   }
     
 }

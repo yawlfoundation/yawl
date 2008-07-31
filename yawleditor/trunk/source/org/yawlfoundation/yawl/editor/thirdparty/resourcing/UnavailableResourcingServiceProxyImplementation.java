@@ -116,5 +116,9 @@ public class UnavailableResourcingServiceProxyImplementation implements Resourci
 
   public Map<String, String> getRegisteredCodelets() {
     return null ;
-  }  
+  }
+
+  public List getCapabilities() { return null; }
+  public List getPositions() { return null; }
+  public List getOrgGroups() { return null; }   
 }

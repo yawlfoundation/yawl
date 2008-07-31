@@ -326,9 +326,13 @@ public class XMLUtilities {
     
     String variableContent = null;
     
-    if (DataVariable.isBaseDataType(variable.getDataType())) {
+    if (variable.isYTimerType()) {
+      variableContent = "*";
+    }
+    else  if (DataVariable.isBaseDataType(variable.getDataType())) {
       variableContent = "text()";
-    } else {
+    }
+    else {
       switch(YAWLEngineProxy.getInstance().getDataTypeComplexity(variable.getDataType())) {
         case YAWLEngineProxy.COMPLEX_DATA_TYPE_COMPLEXITY: {
           variableContent = "*";

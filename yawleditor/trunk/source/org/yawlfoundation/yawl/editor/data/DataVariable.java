@@ -172,10 +172,14 @@ public class DataVariable implements Serializable, Cloneable {
     return getDataType().equals(XML_SCHEMA_DOUBLE_TYPE) || 
            getDataType().equals(XML_SCHEMA_LONG_TYPE);
   }
+
+  public boolean isYTimerType() {
+      return getDataType().equals(YAWL_SCHEMA_TIMER_TYPE);
+  }
   
   public static boolean isBaseDataType(String type) {
     boolean isSimpleType = false;
-    for(int i = 0; i < BASE_DATA_TYPES.length; i++) {
+    for(int i = 0; i < BASE_DATA_TYPES.length - 1; i++) {          // -1 for timer type
       if (type.equals(BASE_DATA_TYPES[i])) {
         return true;
       }

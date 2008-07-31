@@ -106,8 +106,9 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
     parameterPanel.stopEditing();
   }
 
-  public void doNext() {
+  public boolean doNext() {
     parameterPanel.stopEditing();
+    return true;
   }
 
   public void refresh() {

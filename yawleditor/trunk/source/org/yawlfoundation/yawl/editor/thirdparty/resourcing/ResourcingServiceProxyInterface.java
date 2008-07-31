@@ -58,6 +58,10 @@ public interface ResourcingServiceProxyInterface {
   
   public List<AllocationMechanism> getRegisteredAllocationMechanisms();
 
+  public List getCapabilities();
+  public List getPositions();
+  public List getOrgGroups();
+
   public Map<String, String> getRegisteredCodelets() ;
 
 }

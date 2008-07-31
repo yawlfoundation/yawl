@@ -91,14 +91,11 @@ public class AllocationMechanism implements Serializable {
 
     AllocationMechanism otherMechanism = (AllocationMechanism) otherObject;
     
-    if (!getName().equals(otherMechanism.getName())) {
-      return false;
-    }
+    return getName().equals(otherMechanism.getName());
 
-    if (!getDisplayName().equals(otherMechanism.getDisplayName())) {
-      return false;
-    }
+//    if (!getDisplayName().equals(otherMechanism.getDisplayName())) {
+//      return false;
+//    }
     
-    return true;
   }
 }

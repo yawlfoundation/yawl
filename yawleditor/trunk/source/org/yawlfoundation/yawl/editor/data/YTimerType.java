@@ -46,10 +46,10 @@ public class YTimerType {
 
     public static String adjustSchema(String specDataSchema, boolean include) {
         if (include) {
-           return addSchemaToSpecificationDataSchema(specDataSchema.trim());
+           return addSchemaToSpecificationDataSchema(specDataSchema);
         }
         else {
-            return expungeSchemaFromSpecificationDataSchema(specDataSchema.trim());             
+            return expungeSchemaFromSpecificationDataSchema(specDataSchema);             
         }
     }
 
