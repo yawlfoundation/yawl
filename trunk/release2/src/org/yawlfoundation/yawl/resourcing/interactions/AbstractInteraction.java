@@ -81,8 +81,8 @@ public abstract class AbstractInteraction {
     }
 
     
-    public Map parseParams(Element e, Namespace nsYawl) {
-        HashMap result = new HashMap() ;
+    public Map<String, String> parseParams(Element e, Namespace nsYawl) {
+        HashMap<String, String> result = new HashMap<String, String>() ;
         Element eParams = e.getChild("params", nsYawl);
         if (eParams != null) {
             List params = eParams.getChildren("param", nsYawl) ;

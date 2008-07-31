@@ -89,9 +89,7 @@ public class Position extends AbstractResourceAttribute implements Comparable {
     }
 
     public boolean reportsTo(Position boss) {
-        boolean result = false ;
-        if (_reportsTo != null) result = _reportsTo.equals(boss);
-        return result;
+        return ((_reportsTo != null) && (_reportsTo.equals(boss)));
     }
 
 

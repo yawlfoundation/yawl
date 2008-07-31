@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.SpecificationDataComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.YAWLServiceComparator;
+import org.yawlfoundation.yawl.resourcing.jsf.comparator.OptionComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -187,19 +188,9 @@ public class SessionBean extends AbstractSessionBean {
 
     /** @return the set of wir's for the queue passed */
     public Set<WorkItemRecord> getQueue(int qType) {
-        System.out.println("METHOD: SessionBean.getQueue, qType = " + qType);
         Set<WorkItemRecord> result = null ;
         QueueSet qSet = (qType < WorkQueue.UNOFFERED) ? queueSet : adminQueueSet ;
         if (qSet != null) result = qSet.getQueuedWorkItems(qType) ;
-
-        if (result != null) {
-            System.out.println("METHOD: SessionBean.getQueue, dump of queued workitems");
-
-            for (WorkItemRecord wir : result) {
-                System.out.println(wir.toXML());
-            }
-        }
-        else System.out.println("METHOD: SessionBean.getQueue, empty queue");
 
         return result ;
     }
@@ -214,8 +205,6 @@ public class SessionBean extends AbstractSessionBean {
 
     /** Updates the queue data members (ie participant or admin queues) */
     public Set<WorkItemRecord> refreshQueue(int qType) {
-        System.out.println("METHOD: SessionBean.refreshQueue, qType = " + qType);
-
         if (qType < WorkQueue.UNOFFERED) {
             if (participant != null)
                 queueSet = participant.getWorkQueues() ;
@@ -420,7 +409,8 @@ public class SessionBean extends AbstractSessionBean {
     public boolean isFirstWorkItemChosen() {
         if ((worklistOptions != null) && (worklistOptions.length > 0)) {
             String first = (String) getWorklistOptions()[0].getValue();
-            return (first.equals(worklistChoice));
+     //       return (first.equals(worklistChoice));
+            return (first.equals(chosenWIR.getID()));
         }
         else return false;
     }
@@ -756,9 +746,6 @@ public class SessionBean extends AbstractSessionBean {
     public void populateAdminQueueAssignedList(WorkItemRecord wir) {
         adminQueueAssignedList = null ;
         Set<Participant> pSet = _rm.getParticipantsAssignedWorkItem(wir) ;
-
-        System.out.println("METHOD: populateAdminQueueAssignedList, pSet size = " + pSet.size());
-
         if (pSet != null) {
             adminQueueAssignedList = new Option[pSet.size()];
             ArrayList<Participant> pList = new ArrayList<Participant>(pSet);
@@ -960,9 +947,15 @@ public class SessionBean extends AbstractSessionBean {
         else if (tab.equals("tabOrgGroup")) {
             options = getOrgGroupList(_rm.getOrgGroupMap());            
         }
-        availableResourceAttributes = options ;                    // set session member
+        sortOptions(options);
+        availableResourceAttributes = options;
         return options ;
     }
+
+    private void sortOptions(Option[] options) {
+        if (options != null) Arrays.sort(options, new OptionComparator());
+    }
+
 
     public Option[] getParticipantAttributeList(String tab, Participant p) {
         Option[] options = null;

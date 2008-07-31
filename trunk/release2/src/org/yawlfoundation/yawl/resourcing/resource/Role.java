@@ -49,6 +49,20 @@ public class Role extends AbstractResourceAttribute implements Comparable {
         updateThis();
     }
 
+
+    public boolean belongsTo(Role owner) {
+        return ((_belongsTo != null) && (_belongsTo.equals(owner)));
+    }
+
+
+    public boolean ultimatelyBelongsTo(Role owner) {
+        boolean result = belongsTo(owner);
+        if (! result)
+             result = ((_belongsTo != null) && _belongsTo.ultimatelyBelongsTo(owner)) ;
+        return result ;
+    }
+
+
     public boolean equals(Object o) {
         return (o instanceof Role) && ((Role) o).getID().equals(_id);
     }

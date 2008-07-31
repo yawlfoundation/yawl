@@ -399,9 +399,6 @@ public class adminQueues extends AbstractPageBean {
 
     private int populateQueue(int queueType) {
         int result = -1;                                    // default for empty queue
-
-        System.out.println("METHOD: adminQueues.populateQueue, calling refreshQueue");
-
         Set<WorkItemRecord> queue = _sb.refreshQueue(queueType);
         ((pfQueueUI) getBean("pfQueueUI")).clearQueueGUI();
 

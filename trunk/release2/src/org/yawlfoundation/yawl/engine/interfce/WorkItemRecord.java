@@ -324,6 +324,15 @@ public class WorkItemRecord implements Cloneable {
 
     public Element getUpdatedData() { return _dataListUpdated; }
 
+    public String getIDForDisplay() {
+        return _caseID + ":" + getTaskIDForDisplay() ;
+    }
+
+    public String getTaskIDForDisplay() {
+        String exSuffix = _taskID.substring(0, _taskID.lastIndexOf("_"));
+        return exSuffix.replaceAll("_", " ");
+    }
+
     public boolean isEdited() { return _edited; }
 
     public boolean isDeferredChoiceGroupMember() {

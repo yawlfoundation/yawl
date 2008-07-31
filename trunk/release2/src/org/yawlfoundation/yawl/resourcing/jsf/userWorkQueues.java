@@ -390,13 +390,13 @@ public class userWorkQueues extends AbstractPageBean {
 
     public String tabAllocated_action() {
         populateQueue(WorkQueue.ALLOCATED);
+        processUserPrivileges(WorkQueue.ALLOCATED) ;
         return null;
     }
 
 
     public String tabStarted_action() {
         populateQueue(WorkQueue.STARTED);
-        processUserPrivileges(WorkQueue.STARTED) ;
         return null;
     }
 
@@ -482,7 +482,7 @@ public class userWorkQueues extends AbstractPageBean {
         else {
             _sb.setDynFormType(ApplicationBean.DynFormType.tasklevel);
             DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");
-            df.setHeaderText("Edit Work Item: " + wir.getID());
+            df.setHeaderText("Edit Work Item: " + wir.getIDForDisplay());
             df.setDisplayedWIR(wir);
             if (df.initDynForm("YAWL 2.0 - Edit Work Item")) {
                 return "showDynForm" ;
@@ -498,9 +498,33 @@ public class userWorkQueues extends AbstractPageBean {
 
 
     public String btnDelegate_action() {
+        String redirect = buildSubordinatesList("delegate") ;
+        if (redirect != null)
+            _sb.setUserListFormHeaderText("Delegate workitem to:") ;
+        return redirect;
+    }
+
+
+    /**
+     * Reallocate a workitem to the chosen participant
+     * @param stateful - if true, reallocate with state preserved
+     * @return which form to navigate to
+     */
+    private String reallocateItem(boolean stateful) {
+        String redirect = buildSubordinatesList("reallocate") ;
+        if (redirect != null) {
+            _sb.setReallocatingStateful(stateful);
+            _sb.setUserListFormHeaderText("Reallocate workitem to:") ;
+        }
+        return redirect;
+    }
+
+
+    private String buildSubordinatesList(String action) {
+        String result = null;
         String pid = _sb.getParticipant().getID();
 
-        // participant can only delegate to those reporting to he or she
+        // participant can only delegate/reallocate to those reporting to he or she
         Set<Participant> underlings = _rm.getParticipantsReportingTo(pid);
         if (underlings != null) {
 
@@ -511,17 +535,16 @@ public class userWorkQueues extends AbstractPageBean {
                 options[i++] = new Option(p.getID(), p.getFullName());
             }
             _sb.setSelectUserListOptions(options);
-
-            // setup and show the user select form
-            _sb.setUserListFormHeaderText("Delegate workitem to:") ;
             _sb.setNavigateTo("showUserQueues");
-            return "userSelect" ;
+            result = "userSelect";
         }
         else {
-            msgPanel.warn("There are no participants that you are authorised to delegate to.") ;
-            return null ;
+             msgPanel.warn(String.format(
+                "There are no participants that you are authorised to %s to.", action));
         }
+        return result;
     }
+
 
     /** Performs the appropriate user action with the specified queue */
     private String doAction(int queueType, String action) {
@@ -590,32 +613,6 @@ public class userWorkQueues extends AbstractPageBean {
         return null ;                                         // stay on same form
     }
 
-
-    /**
-     * Reallocate a workitem to the chosen participant
-     * @param stateful - if true, reallocate with state preserved
-     * @return which form to navigate to
-     */
-    private String reallocateItem(boolean stateful) {
-        Set<Participant> pSet = _rm.getParticipants();
-        if (pSet != null) {
-
-            // build the option list
-            Option[] options = new Option[pSet.size()];
-            int i = 0 ;
-            for (Participant p : pSet) {
-                options[i++] = new Option(p.getID(), p.getFullName());
-            }
-
-            // init and show the user select form
-            _sb.setReallocatingStateful(stateful);
-            _sb.setSelectUserListOptions(options);
-            _sb.setUserListFormHeaderText("Reallocate workitem to:") ;
-            _sb.setNavigateTo("showUserQueues");
-            return "userSelect" ;
-        }
-        else return null ;
-    }
 
 
     /** prepare workitem data, pass to and show custom form */
@@ -707,6 +704,7 @@ public class userWorkQueues extends AbstractPageBean {
             if (_sb.isCompleteAfterEdit()) {
                completeWorkItem(wir, _sb.getParticipant());
                 _sb.setCompleteAfterEdit(false);
+                if (msgPanel.hasMessage()) forceRefresh();
             }
         }
     }
@@ -802,9 +800,6 @@ public class userWorkQueues extends AbstractPageBean {
      */
     private int populateQueue(int queueType) {
         int result = -1;                                    // default for empty queue
-
-        System.out.println("METHOD: userWorkQueues.populateQueue, calling refreshQueue");
-
         Set<WorkItemRecord> queue = _sb.refreshQueue(queueType);
         processButtonEnablement(queueType) ;                // disable btns if queue empty
         ((pfQueueUI) getBean("pfQueueUI")).clearQueueGUI();
@@ -895,25 +890,38 @@ public class userWorkQueues extends AbstractPageBean {
     }
 
 
-    /** Enable/disable buttons using user  privileges */
+    /** Enable/disable buttons using user privileges */
     private void processUserPrivileges(int queue) {
         Participant p = _sb.getParticipant();
         if (! p.isAdministrator()) {
-            if ((queue == WorkQueue.OFFERED) && (_sb.getQueueSize(WorkQueue.OFFERED) > 0))
+            if ((queue == WorkQueue.OFFERED) && (_sb.getQueueSize(WorkQueue.OFFERED) > 0)) {
                 btnChain.setDisabled(! p.getUserPrivileges().canChainExecution());
+                btnAcceptStart.setDisabled(isStartDisabled(p));
 
-            if ((queue == WorkQueue.STARTED) && (_sb.getQueueSize(WorkQueue.STARTED) > 0)){
-                btnStart.setDisabled(! p.getUserPrivileges().canStartConcurrent());
+            }
+            if ((queue == WorkQueue.ALLOCATED) && (_sb.getQueueSize(WorkQueue.ALLOCATED) > 0)) {
 
-                if (! (p.getUserPrivileges().canChooseItemToStart() ||
-                       p.getUserPrivileges().canReorder())) {
+                btnStart.setDisabled(isStartDisabled(p));
+
+                if (! btnStart.isDisabled() &&
+                   (! (p.getUserPrivileges().canChooseItemToStart() ||
+                       p.getUserPrivileges().canReorder()))) {
                     btnStart.setDisabled(! _sb.isFirstWorkItemChosen());
                 }
             }
         }
     }
 
-    
+
+    // returns true if the participant does not have start-concurrent privileges
+    // and there is already a started workitem on their workqueues
+    private boolean isStartDisabled(Participant p) {
+        return (! p.getUserPrivileges().canStartConcurrent()) &&
+               ((_sb.getQueueSize(WorkQueue.STARTED) > 0) ||
+               (_sb.getQueueSize(WorkQueue.SUSPENDED) > 0));
+    }
+
+
     /** Disables buttons if queue is empty, enables them if not */
     private void processButtonEnablement(int queueType) {
         boolean isEmptyQueue = (_sb.getQueueSize(queueType) == 0) ;

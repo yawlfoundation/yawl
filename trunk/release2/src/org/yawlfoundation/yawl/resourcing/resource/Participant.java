@@ -56,7 +56,6 @@ public class Participant extends AbstractResource implements Serializable {
         super() ;
         if (newParticipant) {
             _privileges = new UserPrivileges(_resourceID) ;
- //           _qSet = new QueueSet(_resourceID, QueueSet.setType.participantSet) ;
         }
     }
 
@@ -66,7 +65,6 @@ public class Participant extends AbstractResource implements Serializable {
     }
 
     public Participant(String lastName, String firstName, String userID) {
-//        this(true);
         super();
         setUserID(userID) ;
         _lastname = lastName ;
