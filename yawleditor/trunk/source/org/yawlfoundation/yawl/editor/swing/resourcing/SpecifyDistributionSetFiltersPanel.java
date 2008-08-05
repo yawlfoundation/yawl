@@ -13,9 +13,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -77,20 +75,18 @@ public class SpecifyDistributionSetFiltersPanel extends ResourcingWizardPanel {
   
   public void doBack() {}
 
-  public boolean doNext() { return runtimeConstraintsPanel.hasMutexFamTasks(); }
+  public boolean doNext() {
+      return runtimeFiltersPanel.hasCompletedFilterParameters() &&
+             runtimeConstraintsPanel.hasMutexFamTasks();
+  }
 
   void refresh() {
     
     // If we get no registered filters returned, but the editor has previously allowed
     // filters, use these cached filters in leu of ones from an engine connection.
     
-    List<ResourcingFilter> filters = ResourcingServiceProxy.getInstance().getRegisteredResourcingFilters();
-
-    if (filters.size() > 0) {
-        List capabilities = ResourcingServiceProxy.getInstance().getCapabilities();
-        List positions = ResourcingServiceProxy.getInstance().getPositions();
-        List orgGroups = ResourcingServiceProxy.getInstance().getOrgGroups();
-    }
+    List<ResourcingFilter> filters =
+            ResourcingServiceProxy.getInstance().getRegisteredResourcingFilters();
 
     if (filters.size() == 0) {
        List<ResourcingFilter> cachedFilters =
@@ -202,6 +198,11 @@ class RuntimeFiltersPanel extends JPanel implements ListSelectionListener {
     filterTable.setFilters(filters);
   }
 
+  public List<ResourcingFilter> getFlaggedFilters() {
+      return filterTable.getFlaggedFilters();
+  }
+
+
   public void valueChanged(ListSelectionEvent e) {
     if (filterTable.getSelectedRow() == -1) {
       filterParamTable.reset();
@@ -211,6 +212,34 @@ class RuntimeFiltersPanel extends JPanel implements ListSelectionListener {
       );
     }
   }
+
+
+  public boolean hasCompletedFilterParameters() {
+      String errTemplate = "Parameter '%s' for Filter '%s' has no value selected.\n";
+      String errMsg = "";
+      List<ResourcingFilter> flaggedFilters = getFlaggedFilters();
+      for (ResourcingFilter filter : flaggedFilters) {
+          Map<String, String> params = filter.getParameters() ;
+          for (String paramName : params.keySet()) {
+              String paramValue = params.get(paramName);
+              if ((paramValue == null) || (paramValue.length() == 0)) {
+                 errMsg += String.format(errTemplate, paramName,
+                             filter.getDisplayName().replaceFirst("Filter by ", ""));
+              }
+          }
+      }
+
+      if (errMsg.length() == 0) {
+          getResourceMapping().setResourcingFilters(flaggedFilters);
+      }
+      else {
+            JOptionPane.showMessageDialog(this, errMsg +
+                "Please select a value for the parameter(s).",
+                "Missing Filter Parameter Value", JOptionPane.ERROR_MESSAGE);
+      }
+      return (errMsg.length() == 0);
+ }
+
 }
 
 class SelectableFilterTable extends JSingleSelectTable {
@@ -220,12 +249,13 @@ class SelectableFilterTable extends JSingleSelectTable {
     super();
     setModel(new SelectableFilterTableModel());
     this.setPreferredSize(new Dimension(300,80));
+    this.setRowHeight(25);     
     getColumn("").setPreferredWidth(24);
     getColumn("").setMaxWidth(24);
     getColumn("").setResizable(false);
   }
   
-  public SelectableFilterTableModel  getSelectableFilterTableModel() {
+  public SelectableFilterTableModel getSelectableFilterTableModel() {
     return (SelectableFilterTableModel) getModel();
   }
 
@@ -241,7 +271,7 @@ class SelectableFilterTable extends JSingleSelectTable {
         getPreferredSize()
     );
   }
-  
+
   
   public ResourcingFilter getSelectedFilter() {
     if (getSelectedRow() == -1) {
@@ -327,36 +357,38 @@ class SelectableFilterTableModel extends AbstractTableModel {
 
   public void setFilterSelectionAtRow(int row, Boolean value) {
     filterListSelection.set(row, value);
-    if (value.booleanValue()) { // true == filter selected
+    ResourcingFilter filterAtRow = getFilterAtRow(row);
+    List<ResourcingFilter> mappedFilters = getResourceMapping().getResourcingFilters();
+
+    if (value) { // true == filter selected
       boolean filterAlreadySelected = false;
-      for(ResourcingFilter alreadySelectedFilter : getResourceMapping().getResourcingFilters()) {
-        if (getFilterAtRow(row).equals(alreadySelectedFilter)) {
+
+      for(ResourcingFilter selectedFilter : mappedFilters) {
+        if (filterAtRow.equals(selectedFilter)) {
           filterAlreadySelected = true;
         }
-        if (!filterAlreadySelected) {
-          getResourceMapping().getResourcingFilters().add(
-              getFilterAtRow(row)    
-            ); 
-        }
       }
-    } else { // false == filter removed.
-      for(ResourcingFilter alreadySelectedFilter : getResourceMapping().getResourcingFilters()) {
-        if (getFilterAtRow(row).equals(alreadySelectedFilter)) {
-          getResourceMapping().getResourcingFilters().remove(
-              alreadySelectedFilter    
-          ); 
-        }
+      if (!filterAlreadySelected) {
+        mappedFilters.add(getFilterAtRow(row));
       }
     }
+    else { // false == filter removed.
+      ResourcingFilter filterToRemove = null;
+      for(ResourcingFilter selectedFilter : mappedFilters) {
+        if (filterAtRow.equals(selectedFilter)) {
+            filterToRemove = selectedFilter;
+            break;
+        }
+      }
+      if (filterToRemove != null) mappedFilters.remove(filterToRemove);
+    }    
   }
 
   public List<ResourcingFilter> getFlaggedFilters() {
     LinkedList<ResourcingFilter> selectedFilters = new LinkedList<ResourcingFilter>();
     for(int row = 0; row < getFilters().size(); row++) {
-      if (getFilterSelectionAtRow(row).booleanValue() == true) {
-        selectedFilters.add(
-            getFilterAtRow(row)
-        );
+      if (getFilterSelectionAtRow(row)) {
+        selectedFilters.add(getFilterAtRow(row));
       }
     }
     return selectedFilters;
@@ -430,16 +462,20 @@ class SelectableFilterTableModel extends AbstractTableModel {
 
 class FilterParameterTable extends JSingleSelectTable {
   private static final long serialVersionUID = 1L;
-  
+
+  private FilterParameterValueComboBoxEditor cbxEditor ;
+  private boolean _changePending = false ;
+
   public FilterParameterTable() {
     super();
-      this.setPreferredSize(new Dimension(300,80));
-      
-    setModel(new FilterParameterTableModel());
+    this.setPreferredSize(new Dimension(300,80));
+    this.setRowHeight(25);
+    setModel(new FilterParameterTableModel(this));
+    cbxEditor = new FilterParameterValueComboBoxEditor(this);
   }
   
   public void reset() {
-    setModel(new FilterParameterTableModel());
+    setModel(new FilterParameterTableModel(this));
   }
   
   public FilterParameterTableModel getFilterParameterTableModel() {
@@ -447,7 +483,9 @@ class FilterParameterTable extends JSingleSelectTable {
   }
   
   public void setParameters(Map<String, String> parameters){
+    _changePending = true;
     getFilterParameterTableModel().setParameters(parameters);
+    _changePending = false;  
     resetFormat();
   }
   
@@ -469,7 +507,19 @@ class FilterParameterTable extends JSingleSelectTable {
     setPreferredScrollableViewportSize(
         getPreferredSize()
     );
+
+    getColumnModel().getColumn(
+        FilterParameterTableModel.PARAM_VALUE_COLUMN
+    ).setCellEditor(cbxEditor);
   }
+
+  public FilterParameterValueComboBoxEditor getValueEditor() {
+      return cbxEditor;
+  }
+
+  public void setValueAt(int row, String variableContent) {
+      getFilterParameterTableModel().setValueAt(variableContent, row, 1);
+  }  
 
   private int getMaximumParameterWidth() {
     int maxWidth = getMessageWidth(
@@ -495,6 +545,17 @@ class FilterParameterTable extends JSingleSelectTable {
   public String getParamNameAt(int row) {
     return getFilterParameterTableModel().getParamNameAt(row);
   }
+
+//  public void valueChanged(ListSelectionEvent lse) {
+//    if (! lse.getValueIsAdjusting()) {
+//      int row = getSelectionModel().getLeadSelectionIndex();
+//      if ((! _changePending) && (row > -1)) {
+//        setValueAt(row, (String) getValueEditor().getCellEditorValue());
+//      }
+//    }
+//    super.valueChanged(lse);
+//  }
+
 }
 
 class FilterParameterTableModel extends AbstractTableModel {
@@ -503,6 +564,9 @@ class FilterParameterTableModel extends AbstractTableModel {
 
   private Map<String, String> parameters;
   private String[][] parameterArray;
+
+  private FilterParameterTable _table;  
+
 
   private static final int KEY_INDEX = 0;
   private static final int VALUE_INDEX = 1;
@@ -515,8 +579,9 @@ class FilterParameterTableModel extends AbstractTableModel {
   public static final int PARAM_NAME_COLUMN    = 0;
   public static final int PARAM_VALUE_COLUMN   = 1;
   
-  public FilterParameterTableModel() {
+  public FilterParameterTableModel(FilterParameterTable table) {
     super();
+    _table = table;
   }
   
   public Map<String, String> getParameters() {
@@ -744,7 +809,8 @@ class RuntimeConstraintsPanel extends JPanel {
     
     return separationOfDutiesFamiliarTaskBox;
   }
-  
+
+
   public void setTask(YAWLAtomicTask task) {
 
     piledExecutionCheckBox.setSelected(
@@ -752,56 +818,33 @@ class RuntimeConstraintsPanel extends JPanel {
             ResourceMapping.CAN_PILE_PRIVILEGE    
         )    
       );
-    
-    separationOfDutiesFamiliarTaskBox.setTask(
-        task
-    );
 
-    familiarTaskComboBox.setTask(
-        task
-    );
+    // remember familiar tasks because setTask loses them  
+    YAWLAtomicTask separationTask = getResourceMapping().getSeparationOfDutiesTask();
+    YAWLAtomicTask retainTask = getResourceMapping().getRetainFamiliarTask();
 
+    separationOfDutiesFamiliarTaskBox.setTask(task);
+    familiarTaskComboBox.setTask(task);
 
-    separationOfDutiesCheckBox.setEnabled(true);
-    separationOfDutiesFamiliarTaskBox.setEnabled(true);
+    boolean hasPrecedingTasks =
+            (separationOfDutiesFamiliarTaskBox.getFamiliarTaskNumber() > 0);
 
-    retainFamiliarCheckBox.setEnabled(true);
-    familiarTaskComboBox.setEnabled(true);
+    separationOfDutiesCheckBox.setEnabled(hasPrecedingTasks);
+    separationOfDutiesFamiliarTaskBox.setEnabled(hasPrecedingTasks);
 
-    
-    // if there are no familiar tasks possible, shut both widget sets down.
-    // Either task box will tell us how many tasks can be used as a familiar task.
-    
-    if (separationOfDutiesFamiliarTaskBox.getFamiliarTaskNumber() == 0) {
-      separationOfDutiesCheckBox.setEnabled(false);
-      separationOfDutiesFamiliarTaskBox.setEnabled(false);
+    retainFamiliarCheckBox.setEnabled(hasPrecedingTasks);
+    familiarTaskComboBox.setEnabled(hasPrecedingTasks);
 
-      retainFamiliarCheckBox.setEnabled(false);
-      familiarTaskComboBox.setEnabled(false);
-      
-      return;
-    } 
+    if (hasPrecedingTasks) {
+        if (separationTask != null) {
+            separationOfDutiesFamiliarTaskBox.setSelectedFamiliarTask(separationTask);
+        }
+        if (retainTask != null) {
+            familiarTaskComboBox.setSelectedFamiliarTask(retainTask);
 
-    YAWLAtomicTask famTask = getResourceMapping().getSeparationOfDutiesTask();
-    if (famTask == null) {
-      separationOfDutiesCheckBox.setSelected(false);
-      separationOfDutiesFamiliarTaskBox.setEnabled(false);
-    } else {
-      separationOfDutiesFamiliarTaskBox.setEnabled(true);
-      separationOfDutiesFamiliarTaskBox.setSelectedFamiliarTask(famTask);
-      separationOfDutiesCheckBox.setSelected(true);
-      separationOfDutiesCheckBox.setEnabled(true);
-    } 
-
-    famTask = getResourceMapping().getRetainFamiliarTask();
-    if (famTask == null) {
-      retainFamiliarCheckBox.setSelected(false);
-      familiarTaskComboBox.setEnabled(false);
-    } else {
-      familiarTaskComboBox.setEnabled(true);
-      familiarTaskComboBox.setSelectedFamiliarTask(famTask);
-      retainFamiliarCheckBox.setSelected(true);
-      retainFamiliarCheckBox.setEnabled(true);
+        }
+        separationOfDutiesCheckBox.setSelected(separationTask != null);
+        retainFamiliarCheckBox.setSelected(retainTask != null);
     }
   }
 
