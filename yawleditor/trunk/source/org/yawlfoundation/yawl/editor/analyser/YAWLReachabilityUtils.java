@@ -438,15 +438,15 @@ public class YAWLReachabilityUtils{
 	   	
 	   	RS = getReachableMarkings(Mi);
 	    
-/**	   	System.out.println("RS"+RS.size());
+	/*    System.out.println("RS"+RS.size());
 	   	System.out.println("endMarkings"+endMarkings.size());
 	   	
 	   	for (Iterator i = RS.getMarkings().iterator(); i.hasNext();)
 	    {   YMarking m = (YMarking) i.next();
 	      	System.out.println(printMarking(m));
 	   	}
-		
-*/	     String omsg;
+	*/
+	     String omsg;
         //To check whether exact marking Mo=o is reachable.
    	   	if (RS.contains(Mo))
    	   	{ omsg = "The net "+_yNet.getID()+" has an option to complete.";
@@ -455,32 +455,37 @@ public class YAWLReachabilityUtils{
    	    { omsg = "The net "+_yNet.getID()+" does not have an option to complete. The final marking is not reachable.";
    	      optionToComplete = false;
    	    }
-   	 
+
+     for (Iterator i = endMarkings.getMarkings().iterator(); i.hasNext();)
+  	  { YMarking currentM = (YMarking) i.next();
+  	  	if (!currentM.equivalentTo(Mo))
+  	    { omsg +="The net "+_yNet.getID()+" can deadlock at marking:"+ printMarking(currentM);
+  	         optionToComplete = false;
+  	    }
+  	  }
    	  msg += formatXMLMessage(omsg,optionToComplete);
    	  
    	  
-   	  //Check the end markings for other end markings. 
-   	  String pmsg = "";
-   	  for (Iterator i = endMarkings.getMarkings().iterator(); i.hasNext();)
-	     {
-	       YMarking currentM = (YMarking) i.next();	
-	       if (currentM.isBiggerThan(Mo))
-	       { pmsg +="The net "+_yNet.getID()+" does not have proper completion. A marking "+printMarking(currentM)+"larger than the final marking is reachable." ;
-	         properCompletion = false;
-	       }
-	       else if (!currentM.equivalentTo(Mo))
-	       { pmsg +="The net "+_yNet.getID()+" can deadlock at marking:"+ printMarking(currentM);
-	         optionToComplete = false;
-	       }
-	     }
-	  
+     // Check for larger end markings than o.
+ 	  String pmsg = "";
+
+   	  for (Iterator i = RS.getMarkings().iterator(); i.hasNext();)
+   	  {
+   		YMarking currentM = (YMarking) i.next();
+   		if (currentM.isBiggerThan(Mo))
+   		{ pmsg +="A marking "+printMarking(currentM)+" larger than the final marking is reachable." ;
+   		  properCompletion = false;
+   		}
+   	  }
 	   if (pmsg.equals(""))
 	   {
 	   	pmsg = "The net has proper completion.";
 	   }
 	   else
-       { msg += formatXMLMessage(pmsg,properCompletion);     }
-	   
+       {   pmsg = "The net "+_yNet.getID()+" does not have proper completion. " + pmsg;
+		   msg += formatXMLMessage(pmsg,properCompletion);
+	   }
+
 	   
 	   String dmsg = "";
 	    for (Iterator i = _yNet.getNetElements().values().iterator(); i.hasNext();)
@@ -588,7 +593,15 @@ public class YAWLReachabilityUtils{
       if (ele instanceof YTask)  
       {  YTask t = (YTask) ele;
       	if (isForwardEnabled(currentM,t))
-	     {  successors.addAll(getNextMarkings(currentM,t));
+	     {  YSetOfMarkings nextMs = getNextMarkings(currentM,t);
+
+	     /*   System.out.println("Reachable markings for M " + printMarking(currentM) + " for transition " + t.getID());
+	     	for (Iterator it = nextMs.getMarkings().iterator(); it.hasNext();)
+		    {   YMarking m = (YMarking) it.next();
+		      	System.out.println(printMarking(m));
+		   	}
+		 */
+			successors.addAll(nextMs);
 	        firedTasks.add(t);
 	     }
       }
@@ -655,8 +668,10 @@ public class YAWLReachabilityUtils{
        		YMarking M = (YMarking) c.next();
        		List slocations = new LinkedList(M.getLocations());
        		for(Iterator i= cancelset.iterator();i.hasNext();)
-       	    { YExternalNetElement ele = (YExternalNetElement)i.next();
-       	      slocations.remove(ele);
+       	    {
+       		  YExternalNetElement ele = (YExternalNetElement)i.next();
+       		  slocations.remove(ele);
+
        	  	}
        	  	YMarking Mt = new YMarking(slocations);
        	  	temp.addMarking(Mt);	
@@ -884,26 +899,39 @@ public class YAWLReachabilityUtils{
      */
     private YNet transformNet(YNet net)
     {
-    	//for all tasks - split into two
+
+    //Bug fix: It is necessary to first populate the cancelledByTask sets
+    // to enable the tasks that are in the cancellation sets to be removed
+    // properly during the reachability analysis.
+    // An alternative fix will be changing the setRemoveTokensFrom method
+    //	in the YTask to call populate the cancelledBy list.
+    for (Iterator i= net.getNetElements().values().iterator();i.hasNext();)
+	{ YExternalNetElement e = (YExternalNetElement) i.next();
+	  if (e instanceof YTask)
+	  {
+	    YTask t = (YTask) e;
+	    Set removeSet = t.getRemoveSet();
+	    if (!removeSet.isEmpty())
+	    {	 for (Iterator ir = removeSet.iterator();ir.hasNext();)
+	  	 {
+	  		 YExternalNetElement ele = (YExternalNetElement) ir.next();
+	  		 ele.addToCancelledBySet(t);
+	  	 }
+	    }
+	  }
+	}
+      //for all tasks - split into two
     	for (Iterator i= net.getNetElements().values().iterator();i.hasNext();)
     	{ YExternalNetElement e = (YExternalNetElement) i.next();
     	  if (e instanceof YTask)
     	  { //shortcut
     	    YTask t = (YTask) e;
-    	 /*   Set removeSet = t.getRemoveSet();
-    	    //cancellation region with its own task
-    	  	
-    	  	cancelledBySet.removeAll(removeSet);
-    	  	
-    	    //task with cancellation regions
-    	    if (!removeSet.isEmpty() || !cancelledBySet.isEmpty()) 
-    	  	{
-    	*/  
-    	  	  YTask t_start = new YAtomicTask(t.getID() +"_start",t.getJoinType(),YTask._AND,net);
-    	  	  YCondition condition = new YCondition("c_"+t.getID(),"c"+t.getID(),net);
-    	  	  //introduce a condition in between
-    	      //change join behaviour and preset of t_start
-    	  	  t.setJoinType(YTask._XOR);
+
+    	  	YTask t_start = new YAtomicTask(t.getID() +"_start",t.getJoinType(),YTask._AND,net);
+    	  	YCondition condition = new YCondition("c_"+t.getID(),"c"+t.getID(),net);
+    	  	//introduce a condition in between
+    	    //change join behaviour and preset of t_start
+    	  	t.setJoinType(YTask._XOR);
     	  	  
     	  	  Set preSet = t.getPresetElements();
     	  	  Iterator preFlowIter = preSet.iterator();
@@ -919,7 +947,6 @@ public class YAWLReachabilityUtils{
               
               Set cancelledBySet = new HashSet(t.getCancelledBySet());
               if (!cancelledBySet.isEmpty()){
-              	//System.out.println("cancelledbySet:"+t.getID()+cancelledBySet.size());
               	for (Iterator ic= cancelledBySet.iterator();ic.hasNext();)
               	{ YTask cancelTask = (YTask) ic.next();
               	  cancelTask.removeFromRemoveSet(t);
@@ -927,15 +954,16 @@ public class YAWLReachabilityUtils{
               	  newVector.add(condition);
               	  cancelTask.setRemovesTokensFrom(newVector); 
               	}
-              
+
+
               }
               	
     	  	} //task
     	  	
     	  } //endfor
-    		
+
     	return net;	
-    	}
+   }
     	
    public static String convertToYawlMappings(YExternalNetElement e){
    String msg = e.getID();
