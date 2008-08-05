@@ -536,7 +536,7 @@ public class SpecificationModel {
     while(netIterator.hasNext()) {
       netModel = (NetGraphModel) netIterator.next();
       Iterator taskIterator = NetUtilities.getAllTasks(netModel).iterator();
-      while(taskIterator.hasNext()) {
+      while (taskIterator.hasNext()) {
         YAWLTask task = (YAWLTask) taskIterator.next();
         task.getParameterLists().remove(variable);
         if (task instanceof YAWLMultipleInstanceTask) {

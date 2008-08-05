@@ -23,11 +23,11 @@
 
 package org.yawlfoundation.yawl.editor.data;
 
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
+
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
-
-import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 
 public class ParameterList implements Serializable, Cloneable {
   /**
@@ -73,7 +73,8 @@ public class ParameterList implements Serializable, Cloneable {
     Iterator i = parameters.iterator();
     while (i.hasNext()) {
       Parameter parameter = (Parameter) i.next();
-      if (parameter.getVariable() == variable) {
+      if (parameter.getVariable().equals(variable) ||
+         (parameter.getQuery().indexOf("/" + variable.getName() + "/") > -1)) {
         i.remove();
       }
     }

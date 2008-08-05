@@ -89,8 +89,12 @@ public class ManageResourcingDialog extends AbstractWizardDialog {
   }
   */
 
-  public void doFinish() {
-      SpecificationUndoManager.getInstance().setDirty(true);       // 'save' needed flag     
+  public boolean doFinish() {
+      if (getCurrentPanel().doNext()) {
+          SpecificationUndoManager.getInstance().setDirty(true);    // 'save' needed flag
+          return true;
+      }
+      return false;
   /*
     System.out.println("----Finish resource mapping----");
     System.out.println(

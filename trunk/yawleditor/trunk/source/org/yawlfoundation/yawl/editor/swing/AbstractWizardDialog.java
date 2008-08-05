@@ -165,8 +165,8 @@ public abstract class AbstractWizardDialog extends JDialog {
     final JDialog dialog = this;
     button.addActionListener(new ActionListener(){
         public void actionPerformed(ActionEvent e) {
-          doFinish();
-          dialog.setVisible(false);
+          if (doFinish())
+              dialog.setVisible(false);
         }
       }
     );
@@ -267,5 +267,5 @@ public abstract class AbstractWizardDialog extends JDialog {
   
   protected abstract void initialise();
   protected abstract void makeLastAdjustments();
-  public abstract void doFinish();
+  public abstract boolean doFinish();
 }

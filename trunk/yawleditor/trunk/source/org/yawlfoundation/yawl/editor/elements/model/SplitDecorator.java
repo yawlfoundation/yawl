@@ -22,11 +22,9 @@
 
 package org.yawlfoundation.yawl.editor.elements.model;
 
-import java.util.Iterator;
-import java.util.TreeSet;
-import java.util.SortedSet;
-
 import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
+
+import java.util.*;
 
 public class SplitDecorator extends Decorator {
   /**
@@ -66,8 +64,12 @@ public class SplitDecorator extends Decorator {
     return Decorator.RIGHT;
   }
   
-  public void compressFlowPriorities() {
-    Object[] flowsAsArray = getFlowsInPriorityOrder().toArray();
+    public void compressFlowPriorities() {
+        compressFlowPriorities(getFlowsInPriorityOrder());
+    }
+
+    public void compressFlowPriorities(Set flows) {
+    Object[] flowsAsArray = flows.toArray();
 
     // Convert to array (also sorted) and compress the priority range
     // to no longer have gaps.
@@ -76,14 +78,16 @@ public class SplitDecorator extends Decorator {
       ((YAWLFlowRelation) flowsAsArray[j]).setPriority(j);
     }
   }
-  
+
+
   public SortedSet getFlowsInPriorityOrder() {
-    TreeSet flows = new TreeSet();
+    TreeSet flows = new TreeSet(new FlowPriorityComparator());
     for(DecoratorPort port: getPorts()) {
       for (Object flow: port.getEdges()) {
         flows.add(flow);
       }
     }
+    compressFlowPriorities(flows);
     return flows;
   }
   
@@ -135,6 +139,24 @@ public class SplitDecorator extends Decorator {
       case Decorator.XOR_TYPE: {
         return "XOR split";
       }
+    }
+  }
+
+  class FlowPriorityComparator implements Comparator {
+
+    /*
+	   * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+	   */
+	  public int compare(Object obj1, Object obj2)	{
+        YAWLFlowRelation flow1 = (YAWLFlowRelation) obj1;
+        YAWLFlowRelation flow2 = (YAWLFlowRelation) obj2;
+
+        if (flow1.getPriority() < flow2.getPriority()) {
+            return -1;                                   // 1 comes before 2
+        }
+        else {
+            return 1;                                   // 1 comes after or is same as 2
+        }
     }
   }
 }

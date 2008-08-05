@@ -23,15 +23,14 @@
 
 package org.yawlfoundation.yawl.editor.swing.data;
 
-import javax.swing.JOptionPane;
-import javax.swing.JTable;
-
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.DataVariableSet;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.AbstractTableUpdatePanel;
 import org.yawlfoundation.yawl.editor.swing.JOrderedSingleSelectTable;
+
+import javax.swing.*;
 
 public class DataVariableTablePanel extends AbstractTableUpdatePanel {
   /**
@@ -96,13 +95,12 @@ public class DataVariableTablePanel extends AbstractTableUpdatePanel {
     
     int selectedValue = 
       JOptionPane.showConfirmDialog(this,
-         "You are about to permanently delete variable \"" + 
-         variableName + "\".\n\n" + 
-         "Are you sure you want to delete it?\n", 
+         "This will permanently delete variable '" +
+         variableName + "' and all its associated mappings.\n",
          "Deleting Task Variable",
          JOptionPane.WARNING_MESSAGE, 
          JOptionPane.YES_NO_OPTION);
-    if(selectedValue != JOptionPane.YES_OPTION) {
+    if (selectedValue != JOptionPane.YES_OPTION) {
       return;
     }
 
