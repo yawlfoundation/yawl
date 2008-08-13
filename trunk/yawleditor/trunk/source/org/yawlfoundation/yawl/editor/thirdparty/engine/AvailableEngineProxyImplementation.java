@@ -314,6 +314,7 @@ public class AvailableEngineProxyImplementation implements
         
         if (serviceReference.getURI().equals(registeredYAWLServiceURI)) {
           registeredService = serviceReference;
+          break;
         }
       }
       if (registeredService == null) {
