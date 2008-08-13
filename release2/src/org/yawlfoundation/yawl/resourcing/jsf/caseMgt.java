@@ -465,9 +465,9 @@ public class caseMgt extends AbstractPageBean {
                 }
                 else {
                     msgPanel.error("Could not successfully start case - problem " +
-                                   "initialising form from specification. Please " +
-                                   "see the log files for details.");
-                }                    
+                                   "initialising dynamic form from specification. " +
+                                   "Please see the log files for details.");
+                }
             }
             else {
 

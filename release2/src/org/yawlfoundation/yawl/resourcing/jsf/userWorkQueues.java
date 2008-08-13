@@ -11,6 +11,7 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
+import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
@@ -469,6 +470,7 @@ public class userWorkQueues extends AbstractPageBean {
 
 
     public String btnView_action() {
+        Logger.getLogger(this.getClass()).warn("View render start.");
         _sb.setSourceTab("tabStarted");                      // come back to started tab
         WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
 
@@ -485,10 +487,12 @@ public class userWorkQueues extends AbstractPageBean {
             df.setHeaderText("Edit Work Item: " + wir.getIDForDisplay());
             df.setDisplayedWIR(wir);
             if (df.initDynForm("YAWL 2.0 - Edit Work Item")) {
+                Logger.getLogger(this.getClass()).warn("View render end.");
                 return "showDynForm" ;
             }
             else {
-                msgPanel.error("Problem initialising form from task specification. " +
+                msgPanel.error("Cannot view task contents - problem initialising " +
+                               "dynamic form from task specification. " +
                                "Please see the log files for details.");
                 return null;
             }

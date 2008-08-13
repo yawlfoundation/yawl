@@ -19,9 +19,9 @@ import java.util.Set;
 /**
  * Filters a distribution set based on organisational data
  *
- *  Create Date: 23/08/2007. Last Date: 12/11/2007
+ *  Create Date: 23/08/2007. Last Date: 08/08/2008
  *
- *  @author Michael Adams (BPM Group, QUT Australia)
+ *  @author Michael Adams
  *  @version 2.0
  */
 
@@ -39,36 +39,44 @@ public class OrgFilter extends AbstractFilter {
         addKey("Position") ;
     }
 
+    
     /**
      * Filters the distribution set passed based on position and/or org group
      * values specified
-     * @param pSet the distribution set to filter
+     * @param distSet the distribution set to filter
      * @return the filtered distribution set
      */
-    public Set<Participant> performFilter(Set<Participant> pSet) {
-        String positionID = getParamValue("Position") ;
-        String orgGroupID = getParamValue("OrgGroup") ;
+    public Set<Participant> performFilter(Set<Participant> distSet) {
+
+        if ((distSet == null) || distSet.isEmpty()) return distSet;
+
+        String positionTitle = getParamValue("Position") ;
+        String orgGroupName = getParamValue("OrgGroup") ;
         ResourceManager rm = ResourceManager.getInstance() ;
-        Set<Participant> result = new HashSet<Participant>() ;
+        Set<Participant> result = new HashSet<Participant>();
 
         // do posn first as it will usually result in a smaller set
-        if (positionID != null ) {
-            Position pos = rm.getPosition(positionID) ;
-            for (Participant p : pSet)
-                if (pos.hasResource(p)) result.add(p) ;
-            pSet = result ;
+        if (positionTitle != null ) {
+            Position pos = rm.getPositionByLabel(positionTitle) ;
+            if (pos != null) {
+               for (Participant p : distSet) {
+                   if (pos.hasResource(p)) result.add(p) ;
+               }
+               distSet = result ;
+            }    
         }
 
-        if (orgGroupID != null) {
-            OrgGroup og = rm.getOrgGroup(orgGroupID) ;
-            result = new HashSet<Participant>() ;
-            for (Participant p : pSet) {
-                if (og.hasResourceInHierarchy(p)) result.add(p) ;
+        if (orgGroupName != null) {
+            OrgGroup og = rm.getOrgGroupByLabel(orgGroupName) ;
+            if (og != null) {
+                result = new HashSet<Participant>() ;
+                for (Participant p : distSet) {
+                    if (og.hasResourceInHierarchy(p)) result.add(p) ;
+                }
             }
         }
         
-        if (result.isEmpty()) return null ;
-        else return result ;
+        return result ;
     }
 
 }

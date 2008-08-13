@@ -218,7 +218,6 @@ public class orgDataMgt extends AbstractPageBean {
     /********************************************************************************/
 
 
-    private enum Mode {add, edit}
     public enum AttribType { role, position, capability, orggroup }
 
     private SessionBean _sb = getSessionBean();
@@ -248,7 +247,7 @@ public class orgDataMgt extends AbstractPageBean {
             _sb.getOrgDataOptions();
             tabRoles_action() ;           // default
             setVisibleComponents("tabRoles");
-            setMode(Mode.edit);
+            setMode(SessionBean.Mode.edit);
         }
         else {
             if (btnAdd.getText().equals("Add"))
@@ -256,7 +255,7 @@ public class orgDataMgt extends AbstractPageBean {
             
             if (! _sb.getActiveTab().equals(selTabName)) {
                 _sb.setOrgDataChoice(null);
-                setMode(Mode.edit);
+                setMode(SessionBean.Mode.edit);
                 setVisibleComponents(selTabName);
             }
 
@@ -306,11 +305,11 @@ public class orgDataMgt extends AbstractPageBean {
     public String btnAdd_action() {
         // if 'new', we're in edit mode - move to add mode
         if (btnAdd.getText().equals("New")) {
-            setMode(Mode.add);
+            setMode(SessionBean.Mode.add);
         }
         else {
             if (innerForm.addNewItem(_sb.getActiveTab())) {
-                setMode(Mode.edit);
+                setMode(SessionBean.Mode.edit);
                 msgPanel.success("New item added successfully.");
             }
         }
@@ -322,7 +321,7 @@ public class orgDataMgt extends AbstractPageBean {
 
         // if in 'add new' mode, discard inputs and go back to edit mode
         if (btnAdd.getText().equals("Add")) {
-            setMode(Mode.edit);
+            setMode(SessionBean.Mode.edit);
         }
         return null ;
     }
@@ -348,36 +347,40 @@ public class orgDataMgt extends AbstractPageBean {
 
     
     public String tabRoles_action() {
-        populateForm(AttribType.role);
+        if (getMode() == SessionBean.Mode.edit) populateForm(AttribType.role);
         _sb.setOrgDataListLabelText("Role Names");
         return null;
     }
 
 
     public String tabCapabilities_action() {
-        populateForm(AttribType.capability);
+        if (getMode() == SessionBean.Mode.edit) populateForm(AttribType.capability);
         _sb.setOrgDataListLabelText("Capability Names");
         return null;
     }
 
 
     public String tabPositions_action() {
-        populateForm(AttribType.position);
+        if (getMode() == SessionBean.Mode.edit) populateForm(AttribType.position);
         _sb.setOrgDataListLabelText("Position Titles");
         return null;
     }
 
 
     public String tabOrgGroups_action() {
-        populateForm(AttribType.orggroup);
+        if (getMode() == SessionBean.Mode.edit) populateForm(AttribType.orggroup);
         _sb.setOrgDataListLabelText("Org Group Titles");
         return null;
     }
 
 
-    private void setMode(Mode mode) {
+    private SessionBean.Mode getMode() {
+        return _sb.getOrgMgtMode();
+    }
+
+    private void setMode(SessionBean.Mode mode) {
         pfOrgData innerForm = (pfOrgData) getBean("pfOrgData");
-        if (mode == Mode.edit) {
+        if (mode == SessionBean.Mode.edit) {
             innerForm.setAddMode(false);
             btnAdd.setText("New");
             btnAdd.setToolTip("Add a new item");
@@ -394,6 +397,7 @@ public class orgDataMgt extends AbstractPageBean {
             btnSave.setDisabled(true);
             btnRemove.setDisabled(true);
         }
+        _sb.setOrgMgtMode(mode);
     }
 
 

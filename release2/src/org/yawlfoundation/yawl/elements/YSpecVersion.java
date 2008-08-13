@@ -45,17 +45,24 @@ public class YSpecVersion implements Comparable {
     }
 
     public String setVersion(String version) {
-        String[] part = version.split("\\.");
         try {
-            _major = Integer.parseInt(part[0]);
-            _minor = Integer.parseInt(part[1]);
+            if (version.indexOf('.') > -1) {
+                String[] part = version.split("\\.");
+                _major = Integer.parseInt(part[0]);
+                _minor = Integer.parseInt(part[1]);
+            }
+            else {                        // handle versions numbers without a decimal
+                _major = Integer.parseInt(version);
+                _minor = 1;
+            }
         }
         catch (NumberFormatException nfe) {
-            throw new NumberFormatException("'" + version +
-                                            "' is not a valid version number.");
+            setVersion(0, 1);             // default
         }
+
         return toString();
     }
+
 
     public String getVersion() { return toString();}
 

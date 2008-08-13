@@ -114,6 +114,7 @@ public class Position extends AbstractResourceAttribute implements Comparable {
     public String toXML() {
         StringBuilder xml = new StringBuilder() ;
         xml.append(String.format("<position id=\"%s\">", _id)) ;
+        xml.append(StringUtil.wrapEscaped(_title, "title"));
         xml.append(StringUtil.wrapEscaped(_positionID, "positionid"));
         xml.append(StringUtil.wrapEscaped(_description, "description"));
         xml.append(StringUtil.wrapEscaped(_notes, "notes"));
@@ -130,6 +131,7 @@ public class Position extends AbstractResourceAttribute implements Comparable {
     public void reconstitute(Element e) {
         super.reconstitute(e);
         setPositionID(JDOMUtil.decodeEscapes(e.getChildText("positionid")));
+        setTitle(JDOMUtil.decodeEscapes(e.getChildText("title")));
         set_reportsToID(JDOMUtil.decodeEscapes(e.getChildText("reportstoid")));
         set_orgGroupID(e.getChildText("orggroupid"));
     }
