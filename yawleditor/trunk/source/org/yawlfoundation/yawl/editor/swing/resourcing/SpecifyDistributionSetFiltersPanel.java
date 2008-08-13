@@ -215,30 +215,41 @@ class RuntimeFiltersPanel extends JPanel implements ListSelectionListener {
 
 
   public boolean hasCompletedFilterParameters() {
-      String errTemplate = "Parameter '%s' for Filter '%s' has no value selected.\n";
+      String errTemplate = "Filter '%s' has no parameter values specified.\n";
       String errMsg = "";
       List<ResourcingFilter> flaggedFilters = getFlaggedFilters();
       for (ResourcingFilter filter : flaggedFilters) {
+
+          // at least one param needs a value
+          boolean valid = false;
           Map<String, String> params = filter.getParameters() ;
           for (String paramName : params.keySet()) {
               String paramValue = params.get(paramName);
-              if ((paramValue == null) || (paramValue.length() == 0)) {
-                 errMsg += String.format(errTemplate, paramName,
+              if ((paramValue != null) && (paramValue.length() > 0)) {
+                  valid = true;
+                  break;
+              }
+          }    
+
+          if (! valid) {
+             errMsg += String.format(errTemplate,
                              filter.getDisplayName().replaceFirst("Filter by ", ""));
               }
           }
-      }
+
 
       if (errMsg.length() == 0) {
           getResourceMapping().setResourcingFilters(flaggedFilters);
       }
       else {
             JOptionPane.showMessageDialog(this, errMsg +
-                "Please select a value for the parameter(s).",
-                "Missing Filter Parameter Value", JOptionPane.ERROR_MESSAGE);
+                    "\nEach selected filter must have at least one\n" +
+                    "parameter with a specified value.",
+                    "Missing Filter Parameter Value",
+                    JOptionPane.ERROR_MESSAGE);
       }
       return (errMsg.length() == 0);
- }
+  }
 
 }
 

@@ -314,7 +314,9 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       );
 
       engineNetVariable.setInitialValue(
-        editorNetVariable.getInitialValue()
+        XMLUtilities.quoteSpecialCharacters(
+           editorNetVariable.getInitialValue()
+        )        
       );
       
       engineNet.setLocalVariable(engineNetVariable);
@@ -1005,9 +1007,15 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   private static void populateOfferFilters(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
     for(ResourcingFilter editorFilter : editorResourceMapping.getResourcingFilters()) {
       GenericFilter engineFilter = new GenericFilter(editorFilter.getName());
-      engineFilter.setParams(
-          editorFilter.getParameters()
-      );
+
+      // only want params with non-null values  
+      Map<String, String> paramMap = editorFilter.getParameters();
+      for (String name : paramMap.keySet()) {
+          String value = paramMap.get(name);
+          if ((value != null) && (value.length() > 0)) {
+              engineFilter.addParam(name, value);
+          }
+      }
       engineResourceMapping.getOfferInteraction().addFilter(
           engineFilter
       );

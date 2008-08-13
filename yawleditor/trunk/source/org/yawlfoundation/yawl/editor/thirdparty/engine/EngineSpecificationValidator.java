@@ -1,11 +1,11 @@
 package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A class whose sole responsibility is to provide engine validation results of the current specification.
@@ -30,12 +30,12 @@ public class EngineSpecificationValidator {
     );
   }
   
-  public static List getValidationResults(YSpecification specification) {
+  public static List<String> getValidationResults(YSpecification specification) {
     return createProblemListFrom(specification.verify());
   }
   
-  private static List createProblemListFrom(List verificationList) {
-    LinkedList problemList = new LinkedList();
+  private static List<String> createProblemListFrom(List verificationList) {
+    LinkedList<String> problemList = new LinkedList<String>();
     
     for(int i = 0; i < verificationList.size(); i++) {
       YVerificationMessage message = (YVerificationMessage) verificationList.get(i);

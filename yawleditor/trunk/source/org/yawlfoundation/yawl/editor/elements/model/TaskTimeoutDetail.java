@@ -1,10 +1,10 @@
 package org.yawlfoundation.yawl.editor.elements.model;
 
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
-
-import org.yawlfoundation.yawl.editor.data.DataVariable;
 
 public class TaskTimeoutDetail  implements Serializable {
 
@@ -65,7 +65,7 @@ public class TaskTimeoutDetail  implements Serializable {
   }
   
   public int getTrigger() {
-    return ((Integer) serializationProofAttributeMap.get("trigger")).intValue();
+    return (Integer) serializationProofAttributeMap.get("trigger");
   }
 
 }
