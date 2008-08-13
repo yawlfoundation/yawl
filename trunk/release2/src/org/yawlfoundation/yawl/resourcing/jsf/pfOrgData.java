@@ -322,6 +322,7 @@ public class pfOrgData extends AbstractFragmentBean {
         lblAdd.setVisible(addFlag);
         txtAdd.setVisible(addFlag);
         lbxItems.setDisabled(addFlag);
+        if (addFlag) clearTextFields();
     }
 
 
@@ -449,16 +450,19 @@ public class pfOrgData extends AbstractFragmentBean {
         attrib.setNotes((String) txtNotes.getText());
     }
 
-
-    public void clearFieldsAfterRemove() {
+    public void clearTextFields() {
         txtDesc.setText("");
         txtNotes.setText("");
+
+    }
+
+    public void clearFieldsAfterRemove() {
+        clearTextFields();
         lbxItems.setSelected(getFirstListboxItem());
     }
 
     public void clearFields() {
-        txtDesc.setText("");
-        txtNotes.setText("");
+        clearTextFields();
         cbbBelongs.setItems(null);
         cbbGroup.setItems(null);
         _sb.setOrgDataBelongsItems(null);

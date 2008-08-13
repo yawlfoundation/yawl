@@ -27,25 +27,25 @@ import java.util.List;
 
 public class SubPanelController {
 
-    private int _minOccurs ;
-    private int _maxOccurs ;
-    private int _currOccurs ;            // current display count (min <= curr <= max)
+    private long _minOccurs ;
+    private long _maxOccurs ;
+    private long _currOccurs ;            // current display count (min <= curr <= max)
     private int _depthlevel ;            // the nested level of this panel set 
     private String _name;
 
     // mapping of the tops (y-coords) of the non-panel component members of the subpanels
-    // controlled by ths controller
+    // controlled by this controller
     private Hashtable<UIComponent, Integer> _contentTops = new Hashtable<UIComponent, Integer>() ;
 
-    // the list of subpanel instances (all instance of the same subpanel)
+    // the list of subpanel instances (i.e. all instances of the same subpanel)
     private List<SubPanel> _panelList = new ArrayList<SubPanel>();
 
     public SubPanelController() {}
 
-    public SubPanelController(SubPanel panel, String minOccurs, String maxOccurs, int level) {
+    public SubPanelController(SubPanel panel, long minOccurs, long maxOccurs, int level) {
         _panelList.add(panel);
-        _minOccurs = convertOccurs(minOccurs);
-        _maxOccurs = convertOccurs(maxOccurs);
+        _minOccurs = minOccurs;
+        _maxOccurs = maxOccurs;
         _depthlevel = level;
         _currOccurs = 1;
         _name = panel.getName();
@@ -56,23 +56,23 @@ public class SubPanelController {
 
     // Getters & Setters //
 
-    public int getMinOccurs() { return _minOccurs; }
+    public long getMinOccurs() { return _minOccurs; }
 
-    public void setMinOccurs(int minOccurs) { _minOccurs = minOccurs; }
+    public void setMinOccurs(long minOccurs) { _minOccurs = minOccurs; }
 
     public void setMinOccurs(String minOccurs) { _minOccurs = convertOccurs(minOccurs); }
 
 
-    public int getMaxOccurs() { return _maxOccurs; }
+    public long getMaxOccurs() { return _maxOccurs; }
 
-    public void setMaxOccurs(int maxOccurs) { _maxOccurs = maxOccurs; }
+    public void setMaxOccurs(long maxOccurs) { _maxOccurs = maxOccurs; }
 
     public void setMaxOccurs(String maxOccurs) { _maxOccurs = convertOccurs(maxOccurs); }    
 
 
-    public int getCurrOccurs() { return _currOccurs; }
+    public long getCurrOccurs() { return _currOccurs; }
 
-    public void setCurrOccurs(int currOccurs) { _currOccurs = currOccurs; }
+    public void setCurrOccurs(long currOccurs) { _currOccurs = currOccurs; }
 
 
     public int getDepthlevel() { return _depthlevel; }
@@ -206,7 +206,7 @@ public class SubPanelController {
     }
 
 
-    public void addSimpleContent(DynFormContentList content, int top) {
+    public void addSimpleContent(DynFormComponentList content, int top) {
         for (UIComponent component : content) {
             _contentTops.put(component, top);
         }        

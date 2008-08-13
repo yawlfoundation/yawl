@@ -256,6 +256,12 @@
     left: 125px;
 }
 
+.dynformInputRequired {
+    position: absolute;
+    left: 125px;
+    background-color: #ffffcc;                     /* pale yellow */
+}
+
 .dynformReadOnlyPanel {
     border: 2px inset rgb(204, 204, 255);
     background-color: #e0e0e0;
@@ -264,6 +270,13 @@
     position: absolute;
     width: 128px;
 }
+
+.dynformRadioButton {
+    position: absolute;
+    left: 12px;
+}
+
+
 
 .dynformReadOnlyText {
     font-style: italic;

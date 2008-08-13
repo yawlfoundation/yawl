@@ -817,6 +817,12 @@ public class SessionBean extends AbstractSessionBean {
 
     /****** This section used by the 'Org Data Mgt' Page ***************************/
 
+    public enum Mode {add, edit}
+    private Mode _orgMgtMode = Mode.edit;
+
+    public Mode getOrgMgtMode() { return _orgMgtMode; }
+    public void setOrgMgtMode(Mode mode) { _orgMgtMode = mode; }
+
     private Option[] orgDataParticipantList ;
     private HashMap<String, Participant> participantMap ;
 
@@ -893,7 +899,7 @@ public class SessionBean extends AbstractSessionBean {
 
     public void setAddedParticipant(Participant p) {
 
-        // if done with temp partiicipant (add mode is over) cleanup references
+        // if done with temp participant (add mode is over) cleanup references
         if ((p == null) && (addedParticipant != null))
             addedParticipant.removeAttributeReferences();
 

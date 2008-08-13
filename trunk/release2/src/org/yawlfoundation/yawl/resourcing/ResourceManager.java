@@ -443,7 +443,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     /**
      * This does final initialisation tasks involved in ensuring the caches match
      * the engine's known work. It is called with the first logon after startup, because
-     * it needs the engine to be completely initialised.
+     * it needs the engine to be completely initialised first.
      */
     private void sanitiseCaches() {
 
@@ -458,20 +458,22 @@ public class ResourceManager extends InterfaceBWebsideController {
                 if (! _workItemCache.containsKey(wir.getID())) {
                     _workItemCache.add(wir);
                     _log.warn("Engine workItem '" + wir.getID() +
-                              "' was missing from local cache.");
+                              "' was missing from local cache and has been added.");
                 }
                 engineIDs.add(wir.getID());
             }
 
             // check each item stored locally is also in engine
-            Set<String> cachedIDs = _workItemCache.keySet();
-            for (String cachedID : cachedIDs) {
-                if (! engineIDs.contains(cachedID)) {
-                    WorkItemRecord deadWir = _workItemCache.remove(cachedID);
-                    removeFromAll(deadWir);                      // workqueues, that is
-                    _log.warn("Cached workitem '" + cachedID +
-                              "' did not exist in Engine and was removed.");
-                }
+            Set<String> missingIDs = new HashSet<String>();
+            for (String cachedID : _workItemCache.keySet()) {
+                if (! engineIDs.contains(cachedID))
+                    missingIDs.add(cachedID);
+            }
+            for (String missingID : missingIDs) {
+                WorkItemRecord deadWir = _workItemCache.remove(missingID);
+                removeFromAll(deadWir);                          // workqueues, that is
+                _log.warn("Cached workitem '" + missingID +
+                          "' did not exist in the Engine and was removed.");
             }
         }
         catch (IOException ioe) {
@@ -1218,6 +1220,33 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public OrgGroup getOrgGroup(String oid) {
         return _ds.orgGroupMap.get(oid);
+    }
+
+    public Position getPositionByLabel(String label) {
+        for (Position p : _ds.positionMap.values()) {
+            if (p.getTitle().equals(label)) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    public OrgGroup getOrgGroupByLabel(String label) {
+        for (OrgGroup o : _ds.orgGroupMap.values()) {
+            if (o.getGroupName().equals(label)) {
+                return o;
+            }
+        }
+        return null;
+    }
+
+    public Capability getCapabilityByLabel(String label) {
+        for (Capability c : _ds.capabilityMap.values()) {
+            if (c.getCapability().equals(label)) {
+                return c;
+            }
+        }
+        return null;
     }
 
 
@@ -2519,7 +2548,6 @@ public class ResourceManager extends InterfaceBWebsideController {
             FormParameter fp = new FormParameter(param);
             result.put(param.getName(), fp) ;
         }
-       // if (result.isEmpty()) result = null ;
         return result ;
     }
 
@@ -2598,7 +2626,9 @@ public class ResourceManager extends InterfaceBWebsideController {
             TaskInformation taskInfo = getTaskInformation(wir.getSpecificationID(),
                                                           wir.getTaskID(),
                                                           _engineSessionHandle);
+            _log.warn("Create schema start.");
             result = new DataSchemaProcessor().createSchema(specData, taskInfo, wir);
+            _log.warn("Create schema end.");
         }
         catch (Exception e) {
             _log.error("Could not retrieve schema for workitem parameters", e)  ;

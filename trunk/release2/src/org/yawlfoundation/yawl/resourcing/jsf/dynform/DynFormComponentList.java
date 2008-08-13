@@ -18,13 +18,13 @@ import java.util.ArrayList;
  * Creation Date: 25/02/2008
  */
 
-public class DynFormContentList extends ArrayList<UIComponent> {
+public class DynFormComponentList extends ArrayList<UIComponent> {
 
     private boolean external;
 
     private int height;
 
-    public DynFormContentList() { super(); }
+    public DynFormComponentList() { super(); }
 
     public void setExternal(boolean bool) { external = bool; }
 

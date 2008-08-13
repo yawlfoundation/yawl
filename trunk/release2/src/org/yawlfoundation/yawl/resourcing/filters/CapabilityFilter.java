@@ -38,19 +38,21 @@ public class CapabilityFilter extends AbstractFilter {
     }
 
 
-    public Set<Participant> performFilter(Set<Participant> pSet) {
-        String capabilityID = getParamValue("Capability") ;
+    public Set<Participant> performFilter(Set<Participant> distSet) {
+
+        if ((distSet == null) || distSet.isEmpty()) return distSet;
+
+        String capability = getParamValue("Capability") ;
         ResourceManager rm = ResourceManager.getInstance() ;
         Set<Participant> result = new HashSet<Participant>() ;
 
-        if (capabilityID != null ) {
-            Capability cap = rm.getCapability(capabilityID) ;
-            for (Participant p : pSet)
+        if (capability != null ) {
+            Capability cap = rm.getCapabilityByLabel(capability) ;
+            for (Participant p : distSet)
                 if (cap.hasResource(p)) result.add(p) ;
         }
 
-        if (result.isEmpty()) return null ;
-        else return result ;
+        return result ;
     }
 
 }
