@@ -111,7 +111,10 @@ public class YAWLEditorDesktop extends JDesktopPane
       frame.setMaximum(maximised);
     } catch (Exception e) {};
 
-    if (graph.getNetModel().isStartingNet()) frame.moveToFront();  
+    if (graph.getNetModel().isStartingNet()) {
+        frame.moveToFront();
+ //       YAWLEditorDesktop.getInstance().getDesktopManager().activateFrame(frame);
+    }
   }
   
   private void bindFrame(final YAWLEditorNetFrame frame) {

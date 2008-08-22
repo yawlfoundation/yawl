@@ -601,6 +601,8 @@ public class SpecificationModel {
           YAWLTask task = (YAWLTask) taskIterator.next();
           ResourceMapping map = task.getResourceMapping();
           if (map != null) {
+            map.cleanDistributionLists();  
+
             List<ResourcingParticipant> pList = map.getBaseUserDistributionList();
             if (pList != null) {
               for (ResourcingParticipant p : pList) {
@@ -628,7 +630,7 @@ public class SpecificationModel {
               ref.removeFromDistributionList();
           }
           ProblemMessagePanel.getInstance()
-                .setProblemList("Invalid Resource References Found", msgList);
+                .setProblemList("Invalid Resource References", msgList);
       }
     }
   }

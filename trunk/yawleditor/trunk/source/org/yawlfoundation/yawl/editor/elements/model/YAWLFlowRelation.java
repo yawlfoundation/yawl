@@ -24,15 +24,11 @@
 
 package org.yawlfoundation.yawl.editor.elements.model;
 
-import java.lang.Comparable;
-import java.lang.ClassCastException;
+import org.jgraph.graph.DefaultEdge;
+import org.jgraph.graph.GraphConstants;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.jgraph.graph.DefaultEdge;
-import org.jgraph.graph.GraphConstants;
-import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparable, Cloneable { 
   
@@ -148,7 +144,7 @@ public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparabl
   }
 
   public void setPredicate(String predicate) {
-    serializationProofAttributeMap.put("predicate",predicate);
+    serializationProofAttributeMap.put("predicate", predicate);
   }
   
   public void incrementPriority() {

@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.ActionAndFocusListener;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -101,7 +102,7 @@ abstract public class DataVariableUpdateDialog extends AbstractDoneDialog {
 
   protected void makeLastAdjustments() {
     pack();
-    setResizable(false);
+ //   setResizable(false);
   }
   
   protected void addExtraEventListeners() {
@@ -409,9 +410,32 @@ abstract public class DataVariableUpdateDialog extends AbstractDoneDialog {
     
     variableValueEditorLabel.setVisible(true);
     variableValueEditor.setVisible(true);
+    variableValueEditor.setVariableName(variable.getName());
+
+    // if variable has an invalid datatype
+    if (! variable.getDataType().equals(typeComboBox.getSelectedItem())) {
+        JOptionPane.showMessageDialog(
+             YAWLEditor.getInstance(),
+             "The datatype '" + variable.getDataType() + "' for variable '" +
+             variable.getName() + "' is missing or invalid.\nBy default, the variable " +
+             "has been set to 'boolean' type in the update dialog, but\nno changes are " +
+             "saved until the 'Done' button has been clicked.",
+             "Invalid Data Type",
+             JOptionPane.INFORMATION_MESSAGE
+        );
+        if (variable.isLocalVariable()) {
+            variable.setInitialValue("");
+        }
+        else if (variable.isOutputVariable()) {
+            variable.setDefaultValue("");
+        }
+        variableValueEditor.setVariableType((String) typeComboBox.getSelectedItem());
+    }
+    else {
+        variableValueEditor.setVariableType(variable.getDataType());
+    }
+
     setEditorValueFromVariable();
-    variableValueEditor.setVariableName(variable.getName());  
-    variableValueEditor.setVariableType(variable.getDataType());  
     enableVariableValueEditorIfAppropriate();
   }
   
