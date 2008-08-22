@@ -13,34 +13,38 @@ import java.util.Set;
  */
 public class YSpecificationMap
 {
-    private Hashtable<String, Hashtable<Double, YSpecification>> specid2versions;
+    // [specid, [version, specification]
+    
+    private Hashtable<String, Hashtable<String, YSpecification>> _specid2versions;
 
     public YSpecificationMap()
     {
-        this.specid2versions = new Hashtable<String, Hashtable<Double, YSpecification>>();
+        _specid2versions = new Hashtable<String, Hashtable<String, YSpecification>>();
     }
 
     public boolean loadSpecification(YSpecification spec)
     {
-        if(specid2versions.containsKey(spec.getID()))
+        // if a version of this spec is loaded
+        if(_specid2versions.containsKey(spec.getID()))
         {
-            Hashtable<Double, YSpecification> versions2Spec = specid2versions.get(spec.getID());
+            Hashtable<String, YSpecification> versions2Spec = _specid2versions.get(spec.getID());
 
-            if(versions2Spec.containsKey(spec.getMetaData().getVersion().getVersionAsDouble()))
+            // don't load if this version is already loaded
+            if(versions2Spec.containsKey(spec.getMetaData().getVersion().toString()))
             {
                 return false;
             }
             else
             {
-                versions2Spec.put(spec.getMetaData().getVersion().getVersionAsDouble(), spec);
+                versions2Spec.put(spec.getMetaData().getVersion().toString(), spec);
                 return true;
             }
         }
-        else
+        else  // no versions of this spec loaded
         {
-            Hashtable<Double, YSpecification> versions2Spec = new Hashtable<Double, YSpecification>();
-            versions2Spec.put(spec.getMetaData().getVersion().getVersionAsDouble(), spec);
-            specid2versions.put(spec.getID(), versions2Spec);
+            Hashtable<String, YSpecification> versions2Spec = new Hashtable<String, YSpecification>();
+            versions2Spec.put(spec.getMetaData().getVersion().toString(), spec);
+            _specid2versions.put(spec.getID(), versions2Spec);
             return true;
         }
     }
@@ -52,44 +56,51 @@ public class YSpecificationMap
 
     public void unloadSpecification(String specid, YSpecVersion version)
     {
-        if(specid2versions.containsKey(specid))
+        if(_specid2versions.containsKey(specid))
         {
-            Hashtable<Double, YSpecification> versions2Spec = specid2versions.get(specid);
-            if(versions2Spec.containsKey(version.getVersionAsDouble()))
+            Hashtable<String, YSpecification> versions2Spec = _specid2versions.get(specid);
+            if(versions2Spec != null)
             {
-                versions2Spec.remove(version.getVersionAsDouble());
-            }
+                versions2Spec.remove(version.toString());
 
-            if(versions2Spec.size() == 0) //just unloaded the only version
-            {
-                specid2versions.remove(specid);
+                if(versions2Spec.size() == 0)         //just unloaded the only version
+                {
+                    _specid2versions.remove(specid);
+                }
             }
         }
     }
 
     public YSpecification getSpecification(String specid)
     {
-        if(specid2versions.containsKey(specid))
+        YSpecification result = null;
+
+        if(_specid2versions.containsKey(specid))
         {
-            Hashtable<Double, YSpecification> versions2Spec = specid2versions.get(specid);
+            Hashtable<String, YSpecification> versions2Spec = _specid2versions.get(specid);
 
-            Double highestKey = Double.MIN_VALUE;
-            for(Double value : versions2Spec.keySet())
+            // get spec with highest version number
+            for(YSpecification spec : versions2Spec.values())
             {
-                if(value > highestKey) highestKey = value;
+                if (result == null) {
+                    result = spec;
+                }
+                else {
+                    YSpecVersion resultVer = result.getMetaData().getVersion();
+                    YSpecVersion currentVer = spec.getMetaData().getVersion();
+                    if (currentVer.compareTo(resultVer) > 0) result = spec;
+                }
             }
-
-            return versions2Spec.get(highestKey);
         }
-        else return null;
+        return result;
     }
 
     public YSpecification getSpecification(String specid, YSpecVersion version)
     {
-        if(specid2versions.containsKey(specid))
+        if(_specid2versions.containsKey(specid))
         {
-            Hashtable<Double, YSpecification> versions2Spec = specid2versions.get(specid);
-            return versions2Spec.get(version.getVersionAsDouble());
+            Hashtable<String, YSpecification> versions2Spec = _specid2versions.get(specid);
+            return versions2Spec.get(version.toString());
         }
         else return null;
     }
@@ -101,7 +112,7 @@ public class YSpecificationMap
 
     public boolean contains(String spec)
     {
-        return specid2versions.containsKey(spec);
+        return _specid2versions.containsKey(spec);
     }
 
     public boolean contains(YSpecification spec)
@@ -116,10 +127,10 @@ public class YSpecificationMap
 
     public boolean contains(String specid, YSpecVersion version)
     {
-        if(specid2versions.containsKey(specid))
+        if(_specid2versions.containsKey(specid))
         {
-            Hashtable<Double, YSpecification> versions2Spec = specid2versions.get(specid);
-            return versions2Spec.containsKey(version.getVersionAsDouble());
+            Hashtable<String, YSpecification> versions2Spec = _specid2versions.get(specid);
+            return versions2Spec.containsKey(version.toString());
         }
         else return false;
     }
@@ -127,12 +138,11 @@ public class YSpecificationMap
     public Set<YSpecificationID> getSpecIDs()
     {
         Set<YSpecificationID> set = new HashSet<YSpecificationID>();
-        for(String specid : specid2versions.keySet())
+        for(String specid : _specid2versions.keySet())
         {
-            for(Double version : specid2versions.get(specid).keySet())
+            for(YSpecification spec : _specid2versions.get(specid).values())
             {
-                YSpecVersion specVersion = new YSpecVersion(String.valueOf(version));
-                set.add(new YSpecificationID(specid, specVersion));
+                set.add(new YSpecificationID(specid, spec.getMetaData().getVersion()));
             }
         }
 

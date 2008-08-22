@@ -245,9 +245,10 @@ public class orgDataMgt extends AbstractPageBean {
             tabSet.setSelected("tabRoles");
             selTab = tabRoles;
             _sb.getOrgDataOptions();
+            setMode(SessionBean.Mode.edit);
+            _sb.setOrgDataChoice(null);
             tabRoles_action() ;           // default
             setVisibleComponents("tabRoles");
-            setMode(SessionBean.Mode.edit);
         }
         else {
             if (btnAdd.getText().equals("Add"))

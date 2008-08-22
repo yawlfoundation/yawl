@@ -1,3 +1,11 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
+ */
+
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
 import org.jdom.Element;
@@ -44,10 +52,10 @@ public class DynFormFieldAssembler {
 
     private List<DynFormField> createFieldList(Element schema, Element data,
                                                Namespace ns, int level) {
-        List<DynFormField> fieldList;
-        Element sequence;
+        List<DynFormField> fieldList = null;
+        Element next;
 
-        // increment nested depth level & get sequence contents
+        // increment nested depth level & get next contents
         ++level ;
 
         if (schema.getName().equals("choice")) {
@@ -55,8 +63,17 @@ public class DynFormFieldAssembler {
         }
         else {
             Element complex = schema.getChild("complexType", ns);
-            sequence = complex.getChild("sequence", ns);
-            fieldList = createSequence(sequence, data, ns, level);
+            next = complex.getChild("sequence", ns);
+            if (next == null) next = complex.getChild("all", ns);
+            if (next != null) {
+                fieldList = createSequence(next, data, ns, level);
+            }
+            else {
+                next = complex.getChild("choice", ns);
+                if (next != null) {
+                    fieldList = createChoice(next, data, ns, level);
+                }
+            }
         }
 
         return fieldList;
@@ -91,7 +108,8 @@ public class DynFormFieldAssembler {
         Iterator itr = content.iterator();
         while (itr.hasNext()) {
             Element eField = (Element) itr.next();
-            if (eField.getName().equals("sequence")) {
+            String eName = eField.getName();
+            if (eName.equals("sequence") || eName.equals("all")) {
                 List<DynFormField> subList = createSequence(eField, data, ns, level + 1);
                 DynFormField field = addField("choicePanel", subList, null, null, level);
                 field.setGroupID(getNextGroupID());
@@ -138,14 +156,15 @@ public class DynFormFieldAssembler {
             if (simple != null) {
                 Element restriction = simple.getChild("restriction", ns);
                 if (restriction != null) {
-                    String baseType = restriction.getAttributeValue("base");
-                    List<String> enumMembers = getEnumeratedValues(restriction, ns);
+                    DynFormFieldRestriction restrict =
+                            new DynFormFieldRestriction(restriction, ns);
+                    String baseType = restrict.getBaseType();
                     field = addField(name, baseType, data, minOccurs, maxOccurs, level);
-                    field.setEnumeratedValues(enumMembers);
+                    field.setRestriction(restrict);
                 }
                 Element union = simple.getChild("union", ns);
                 if (union != null) {
-                    field = addField("union", "xsd:string", null, "1", "1", level);
+                    field = addField(name, "xsd:string", null, "1", "1", level);
                 }
             }
             else {
@@ -172,21 +191,6 @@ public class DynFormFieldAssembler {
         if (result.isEmpty()) result.add(field);
 
         return result;
-    }
-
-
-    private List<String> getEnumeratedValues(Element restriction, Namespace ns) {
-        List<String> enumMembers = new ArrayList<String>();
-        if (restriction != null) {
-            List enumChildren = restriction.getChildren("enumeration", ns);
-            if (enumChildren != null) {
-                for (int i = 0; i < enumChildren.size(); i++) {
-                    Element enumChild = (Element) enumChildren.get(i);
-                    enumMembers.add(enumChild.getAttributeValue("value"));
-                }
-            }
-        }
-        return enumMembers;
     }
 
 

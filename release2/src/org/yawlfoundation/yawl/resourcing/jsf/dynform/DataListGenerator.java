@@ -1,3 +1,11 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
+ */
+
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
 import com.sun.rave.web.ui.component.*;
@@ -33,45 +41,71 @@ public class DataListGenerator {
     private String generateDataList(PanelLayout panel) {
         StringBuilder result = new StringBuilder() ;
         List children = panel.getChildren();
+        String parentTag = "";
+        int start = 1;              // by default ignore first child (static text header)
+        int stop = children.size();               // by default process all components
 
-        // first child is always the panel heading (and thus the element name)
-        String parentTag = (String) ((StaticText) children.get(0)).getValue() ;
-        result.append("<").append(_factory.despace(parentTag)).append(">") ;
+        // a simpletype choice outer container has a radio button as first child
+        Object o = children.get(0);
+        if (o instanceof RadioButton) {
+            SelectedChoiceBounds.calcBounds(children);
+            start = SelectedChoiceBounds.start;
+            stop = SelectedChoiceBounds.stop;
+        }
+        else {
+            if ((panel instanceof SubPanel) && ((SubPanel) panel).isChoicePanel()) {
+                start = 0;
+            }
+            else {
+                // otherwise the first child is the panel heading (and thus the element name)
+                parentTag = _factory.despace((String) ((StaticText) children.get(0)).getValue()) ;
+                result.append("<").append(parentTag).append(">") ;
+            }    
+        }
 
-        for (int i = 1; i < children.size(); i++) {
+        for (int i = start; i < stop; i++) {
             UIComponent child = (UIComponent) children.get(i) ;
 
             // if subpanel, build inner output recursively
             if (child instanceof SubPanel)
-                result.append(generate((PanelLayout) child)) ;
+                result.append(generateDataList((PanelLayout) child)) ;
 
-            // ordinary fields - all have an associated label
-            else if (child instanceof Label) {
-                Label label = (Label) child ;
-                String tag = (String) label.getText();
-                tag = tag.trim().replaceFirst(":", "");               // remove prompt
-
-                // get the component this label is 'for', then get its value
-                String forID = label.getFor();
-                String value = "";
-                UIComponent field = panel.findComponent(forID);
-                if (field instanceof TextField)
-                    value = JDOMUtil.encodeEscapes((String) ((TextField) field).getValue());
-                else if (field instanceof Checkbox)
-                   value =  ((Checkbox) field).getValue().toString();
-                else if (field instanceof Calendar)
-                    value = new SimpleDateFormat("yyyy-MM-dd")
-                                         .format(((Calendar) field).getSelectedDate());
-                else if (field instanceof DropDown)
-                    value = (String) ((DropDown) field).getSelected();
-
-                result.append(StringUtil.wrap(value, tag));
+            // if a complextype choice, then deal with it
+            else if (child instanceof RadioButton) {
+                System.out.println("complex choice");
             }
+
+            // each label is a reference to an input field
+            else if (child instanceof Label)
+                result.append(getFieldValue(panel, (Label) child)) ;
         }
 
         // close the xml and return
-        result.append("</").append(parentTag).append(">") ;
+        if (parentTag.length() > 0) result.append("</").append(parentTag).append(">") ;
         return result.toString();
+    }
+
+
+    private String getFieldValue(PanelLayout panel, Label label) {
+        String tag = (String) label.getText();
+        tag = tag.trim().replaceFirst(":", "");               // remove prompt
+
+        // get the component this label is 'for', then get its value
+        String forID = label.getFor();
+        String value = "";
+        UIComponent field = panel.findComponent(forID);
+        if (field instanceof TextField)
+            value = JDOMUtil.encodeEscapes((String) ((TextField) field).getValue());
+        else if (field instanceof Checkbox)
+           value =  ((Checkbox) field).getValue().toString();
+        else if (field instanceof Calendar)
+            value = new SimpleDateFormat("yyyy-MM-dd")
+                                 .format(((Calendar) field).getSelectedDate());
+        else if (field instanceof DropDown)
+            value = (String) ((DropDown) field).getSelected();
+
+        return StringUtil.wrap(value, tag);
+
     }
 
 
@@ -117,6 +151,48 @@ public class DataListGenerator {
         else result.setText(data.getText());                         // recursion end
 
         return result;
+    }
+
+
+    /******************************************************************************/
+
+    /**
+     * Calculates and holds the bounds of the selected field(s) within a choice panel 
+     */
+    static class SelectedChoiceBounds {
+        static int start = -1;
+        static int stop = -1;
+
+        /**
+         * Works through a choice panel's components, finding the selected radio button
+         * then marking the bounds of it and the last component of the selection.
+         * @param children the panel's child components
+         */
+        static void calcBounds(List children) {
+            start = -1;
+            stop = -1;
+            int i = 0;
+            do {
+                Object o = children.get(i);
+                if (o instanceof RadioButton) {
+                    RadioButton rb = (RadioButton) o;
+                    if (rb.isChecked()) {           // found the selected radio
+                        start = i + 1;              // so start at next component
+                    }
+                    else {                          // else if radio unselected
+                        if (start > -1) {           // and selected one previously found
+                            stop = i ;              // then end one before next radio
+                        }
+                    }
+                }
+                i++;
+
+            } while ((stop == -1) && (i < children.size()));
+
+            // if no later radio found, upper bound is last component in the list
+            if (stop == -1) stop = children.size();
+        }
+
     }
 
 }

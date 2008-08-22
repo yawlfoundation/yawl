@@ -1,3 +1,11 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
+ */
+
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
 import com.sun.rave.web.ui.component.*;
@@ -41,7 +49,6 @@ public class SubPanelCloner {
     }
 
     private List cloneContent(SubPanel panel) {
-//        Map<Object, Integer> tops = new HashMap<Object, Integer>();
         List content = panel.getChildren();
         List result = new ArrayList() ;
         for (Object obj : content) {
@@ -49,24 +56,9 @@ public class SubPanelCloner {
                 result.add(cloneSubPanel((SubPanel) obj)) ;               // recurse
             else if (! (obj instanceof Button))  {
                 List<UIComponent> newContent = cloneSimpleComponent((UIComponent) obj, panel) ;
-//                int top = panel.getController().getHeight((UIComponent) obj);
-//                tops.put(newComponent, top);
                 if (newContent != null) result.addAll(newContent) ;
             }
         }
-
-        // clone the controller for contents
-//        if (! result.isEmpty()) {
-//            SubPanelController newController = panel.getController().clone();
-//            for (Object obj : result) {
-//                if (obj instanceof SubPanel) {
-//                   newController.storeSubPanel(((SubPanel) obj)) ;
-//                }
-//                else
-//                   newController.addSimpleContent((UIComponent) obj, tops.get(obj));
-//            }
-//            subPanelSet.add(newController);
-//        }
         return result ;
     }
 
@@ -87,8 +79,10 @@ public class SubPanelCloner {
                 newComponent = cloneCalendar(compFor);
             else if (compFor instanceof Checkbox)
                 newComponent = cloneCheckbox(compFor);
-//            else
-//                result = cloneReadOnlyField(component);
+            else if (compFor instanceof DropDown)
+                newComponent = cloneDropDown(compFor);
+            else if (compFor instanceof RadioButton)
+                newComponent = cloneRadioButton(compFor);
 
             if (newComponent != null) {
                 newLabel.setFor(newComponent.getId());
@@ -153,6 +147,29 @@ public class SubPanelCloner {
         newCbox.setStyleClass(oldCbox.getStyleClass());
         newCbox.setStyle(oldCbox.getStyle()) ;
         return newCbox ;
+    }
+
+    
+    public UIComponent cloneDropDown(UIComponent field) {
+        DropDown oldDrop = (DropDown) field ;
+        DropDown newDrop = new DropDown() ;
+        newDrop.setId(_factory.createUniqueID(oldDrop.getId()));
+        newDrop.setStyleClass(oldDrop.getStyleClass());
+        newDrop.setStyle(oldDrop.getStyle()) ;
+        newDrop.setItems(oldDrop.getItems());
+        newDrop.setSelected(oldDrop.getSelected());
+        return newDrop ;
+    }
+
+
+    public RadioButton cloneRadioButton(UIComponent field) {
+        RadioButton oldRadio = (RadioButton) field;
+        RadioButton newRadio = new RadioButton();
+        newRadio.setId(_factory.createUniqueID(oldRadio.getId()));
+        newRadio.setName(oldRadio.getName());
+        newRadio.setStyle(oldRadio.getStyle());
+        newRadio.setStyleClass(oldRadio.getStyleClass());
+        return newRadio;
     }
 
 

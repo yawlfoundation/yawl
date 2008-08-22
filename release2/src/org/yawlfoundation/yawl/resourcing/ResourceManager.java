@@ -1730,8 +1730,12 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public String chainCase(Participant p, WorkItemRecord wir) {
         String result ;
-        if (getResourceMap(wir) != null)
+        ResourceMap rMap = getResourceMap(wir);
+        if (rMap != null) {
             result = addChain(p, wir);
+            if (result.indexOf("success") > -1)
+                rMap.withdrawOffer(wir);        
+        }
         else
             result = "Cannot chain tasks: no resourcing parameters defined for specification." ;
 
@@ -2626,9 +2630,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             TaskInformation taskInfo = getTaskInformation(wir.getSpecificationID(),
                                                           wir.getTaskID(),
                                                           _engineSessionHandle);
-            _log.warn("Create schema start.");
-            result = new DataSchemaProcessor().createSchema(specData, taskInfo, wir);
-            _log.warn("Create schema end.");
+            result = new DataSchemaProcessor().createSchema(specData, taskInfo);
         }
         catch (Exception e) {
             _log.error("Could not retrieve schema for workitem parameters", e)  ;

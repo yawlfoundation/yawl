@@ -63,8 +63,7 @@ public class DBManager {
                 _factory = _cfg.buildSessionFactory();
 
                 // build tables if necessary
-                if (! allTablesExist())
-                    new SchemaUpdate(_cfg).execute(false, true);
+                new SchemaUpdate(_cfg).execute(false, true);
             }
             catch (MappingException me) {
                 _log.error("Could not initialise database connection.", me);

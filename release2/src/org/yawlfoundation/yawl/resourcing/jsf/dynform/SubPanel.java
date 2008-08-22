@@ -62,6 +62,14 @@ public class SubPanel extends PanelLayout implements Cloneable {
         this.controller = controller;
     }
 
+    public boolean isChoicePanel() {
+        return getName().equals("choicePanel");
+    }
+
+    public boolean isEmpty() {
+        return getChildren().isEmpty();
+    }
+
 
     /***************************************************************************/
 

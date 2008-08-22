@@ -65,11 +65,6 @@ public class XMLToolsForYAWL {
         }
     }
 
-    public void setPrimarySchema(InputSource schemaSource) {
-
-
-    }
-
 
     /**
      * Returns a Set of the global type names as strings.

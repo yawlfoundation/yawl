@@ -345,6 +345,18 @@ public class Participant extends AbstractResource implements Serializable {
         removeCapabilities();
     }
 
+
+    public boolean isOrgGroupMember(OrgGroup og) {
+        for (Position p : _positions) {
+            OrgGroup group = p.getOrgGroup();
+            while (group != null) {
+                if (group.equals(og)) return true;
+                group = group.getBelongsTo(); 
+            }
+        }
+        return false;
+    }
+
     public QueueSet getWorkQueues() { return _qSet ; }
 
     public void setWorkQueues(QueueSet q) {

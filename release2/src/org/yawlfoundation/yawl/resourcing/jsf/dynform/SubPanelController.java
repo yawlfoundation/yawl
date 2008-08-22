@@ -216,6 +216,13 @@ public class SubPanelController {
         _contentTops.put(component, top);
     }
 
+    public int adjustTopForChoiceContainer(int top) {
+        if (_contentTops.isEmpty())
+            return top - DynFormFactory.Y_CHOICE_DECREMENT;
+        else
+            return top;
+    }
+
     /**
      * Adds a new, cloned subpanel to this controller
      * 

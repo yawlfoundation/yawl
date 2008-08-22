@@ -1,3 +1,11 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
+ */
+
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
 import java.util.List;
@@ -20,7 +28,8 @@ public class DynFormField {
     private int _level;
     private int _order;
     private boolean _required ;
-    private List<String> _enumMembers;
+    private DynFormFieldRestriction _restriction;
+    private String _schema;
 
     private List<DynFormField> _subFieldList;
     private String _groupID;
@@ -186,15 +195,18 @@ public class DynFormField {
     }
 
     public void setEnumeratedValues(List<String> enumValues) {
-        _enumMembers = enumValues;
+        if (_restriction != null)
+            _restriction.setEnumeration(enumValues);
     }
 
     public List<String> getEnumeratedValues() {
-        return _enumMembers;
+        if (_restriction != null)
+            return _restriction.getEnumeration();
+        else return null;
     }
 
     public boolean hasEnumeratedValues() {
-        return _enumMembers != null;
+        return ((_restriction != null) && (_restriction.getEnumeration() != null));
     }
 
     public void setSubFieldList(List<DynFormField> subList) {
@@ -231,6 +243,20 @@ public class DynFormField {
         return _subFieldList == null ;
     }
 
+    public DynFormFieldRestriction getRestriction() {
+        return _restriction;
+    }
+
+    public void setRestriction(DynFormFieldRestriction restriction) {
+        this._restriction = restriction;
+        _restriction.setOwner(this);
+    }
+
+    public boolean hasRestriction() {
+        return _restriction != null;
+    }
+
+   
     private long convertOccurs(String occurs) {
         long result = 1 ;
 
@@ -262,7 +288,12 @@ public class DynFormField {
 
 
     public String getToolTip() {
-        return String.format("Please enter a value of %s type", getDataTypeUnprefixed());
+        String tip = String.format(" Please enter a value of %s type",
+                                    getDataTypeUnprefixed());
+        if (hasRestriction())
+            tip += _restriction.getToolTipExtn();
+
+        return tip + " ";
     }
 
 

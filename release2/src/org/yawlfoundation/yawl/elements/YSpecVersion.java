@@ -67,7 +67,7 @@ public class YSpecVersion implements Comparable {
     public String getVersion() { return toString();}
 
 
-    public double getVersionAsDouble() {
+    public double toDouble() {                                         // legacy method
         try {
             return new Double(toString());
         }
@@ -92,6 +92,16 @@ public class YSpecVersion implements Comparable {
 
     public String majorIncrement() {
         _major++ ;
+        return toString();
+    }
+
+    public String minorRollback() {
+        _minor-- ;
+        return toString();
+    }
+
+    public String majorRollback() {
+        _major-- ;
         return toString();
     }
 
