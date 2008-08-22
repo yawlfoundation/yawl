@@ -71,7 +71,7 @@ public class OrgFilter extends AbstractFilter {
             if (og != null) {
                 result = new HashSet<Participant>() ;
                 for (Participant p : distSet) {
-                    if (og.hasResourceInHierarchy(p)) result.add(p) ;
+                    if (p.isOrgGroupMember(og)) result.add(p) ;
                 }
             }
         }

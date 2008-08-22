@@ -1,3 +1,11 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
+ */
+
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
 import com.sun.rave.web.ui.component.*;
@@ -9,6 +17,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Hashtable;
 import java.util.List;
 
 /**
@@ -20,13 +29,21 @@ public class DynFormComponentBuilder {
     // for setting focus on first available component
     private boolean focusSet = false ;
     private DynFormFactory _factory ;
+    private Hashtable<TextField, DynFormField> _componentFieldTable;
+
     private int _maxDropDownChars = 0;
+    private int _maxLabelChars = 0;
+    private int _maxTextValueChars = 0;
+
+    private final int FONT_WIDTH = 6;
+
 
 
     public DynFormComponentBuilder() { }
 
     public DynFormComponentBuilder(DynFormFactory factory) {
         _factory = factory;
+        _componentFieldTable = new Hashtable<TextField, DynFormField>();
     }
 
 
@@ -61,10 +78,6 @@ public class DynFormComponentBuilder {
     }
 
 
-    public int getMaxDropDownWidth() {
-        return (_maxDropDownChars * 10) + 30;
-    }
-
     public DynFormComponentList makeInputField(int top, DynFormField input) {
         UIComponent field;
         DynFormComponentList result = new DynFormComponentList();
@@ -72,7 +85,7 @@ public class DynFormComponentBuilder {
         String type = input.getDataTypeUnprefixed();
 
         // create and add a label for the parameter
-        Label label = makeLabel(input, makeTopStyle(top));
+        Label label = makeLabel(input, top);
 
         if (type.equals("boolean"))
             field = makeCheckbox(input, top);
@@ -102,12 +115,12 @@ public class DynFormComponentBuilder {
     }
 
 
-    public Label makeLabel(DynFormField input, String topStyle) {
+    public Label makeLabel(DynFormField input, int top) {
         Label label = makeSimpleLabel(input.getName()) ;
         label.setStyleClass("dynformLabel");
-//        label.setRequiredIndicator(input.isRequired());
         label.setRequiredIndicator(false);
-        label.setStyle(topStyle) ;
+        label.setStyle(makeTopStyle(top + 5)) ;
+        setMaxLabelChars(label);
         return label;
     }
 
@@ -151,7 +164,7 @@ public class DynFormComponentBuilder {
         cal.setMinDate(new Date(1));
         cal.setMaxDate(getDate(25));
         cal.setColumns(15);
-        cal.setStyleClass("dynformInput");
+        cal.setStyleClass(getInputStyleClass(input));
         cal.setStyle(makeTopStyle(top)) ;
         return cal;
     }
@@ -166,7 +179,7 @@ public class DynFormComponentBuilder {
     public DropDown makeEnumeratedList(DynFormField input, int top) {
         DropDown dropdown = new DropDown();
         dropdown.setId(_factory.createUniqueID("cal" + input.getName()));
-        dropdown.setStyleClass("dynformInput");
+        dropdown.setStyleClass(getInputStyleClass(input));
         dropdown.setStyle(makeTopStyle(top)) ;
         dropdown.setItems(getEnumeratedList(input));
         dropdown.setSelected(input.getValue());
@@ -178,7 +191,7 @@ public class DynFormComponentBuilder {
         Option[] result = new Option[values.size()];
         for (int i=0; i < values.size(); i++) {
             result[i] = new Option(values.get(i));
-            _maxDropDownChars = Math.max(_maxDropDownChars, values.get(i).length());
+            setMaxDropDownChars(values.get(i));
         }
         return result;
     }
@@ -206,48 +219,23 @@ public class DynFormComponentBuilder {
     }
 
 
-
     public TextField makeTextField(DynFormField input, int top) {
         TextField textField = new TextField() ;
         textField.setId(_factory.createUniqueID("txt" + input.getName()));
         textField.setText(JDOMUtil.decodeEscapes(input.getValue()));
-        if (input.isRequired())
-            textField.setStyleClass("dynformInputRequired");
-        else
-            textField.setStyleClass("dynformInput");
+        setMaxTextValueChars(input.getValue());
+        textField.setStyleClass(getInputStyleClass(input));
         textField.setStyle(makeTopStyle(top));
         textField.setDisabled(input.isInputOnly());
         textField.setToolTip(input.getToolTip());
+        _componentFieldTable.put(textField, input);        // store for validation later
         return textField ;
-    }
-
-
-    public PanelLayout makeChoiceGroup(DynFormField input, int top) {
-        RadioButton rb = new RadioButton();
-        rb.setId(_factory.createUniqueID("rb" + input.getName()));
-        rb.setName(rb.getId());
-        RadioButton rb2 = new RadioButton();
-        rb2.setId(_factory.createUniqueID("rb" + input.getName()));
-        rb2.setName(rb.getName());
-        rb.setLabel("First Button");
-        rb2.setLabel("Second Button");
-        rb.setStyle(makeTopStyle(10));
-        rb2.setStyle(makeTopStyle(30));
-        rb.setStyleClass("dynformInput");
-        rb2.setStyleClass("dynformInput");
-        PanelLayout parent = new PanelLayout();
-        parent.setId(_factory.createUniqueID("pl" + input.getName()));
-        parent.getChildren().add(rb);
-        parent.getChildren().add(rb2);
-        parent.setStyle(makeTopStyle(top));
-        return parent;
     }
 
 
     public RadioButton makeRadioButton(DynFormField input, int top) {
         RadioButton rb = new RadioButton();
         rb.setId(_factory.createUniqueID("rb" + input.getName()));
-        rb.setName(rb.getId());
         rb.setLabel("");
         rb.setName(input.getChoiceID());
         rb.setStyle(makeTopStyle(top));
@@ -278,6 +266,44 @@ public class DynFormComponentBuilder {
         return result ;
     }
 
+
+    private String getInputStyleClass(DynFormField input) {
+        if (input.isRequired())
+            return "dynformInputRequired";
+        else
+             return "dynformInput";
+    }
+
+    private void setMaxLabelChars(Label label) {
+        _maxLabelChars = Math.max(_maxLabelChars, ((String) label.getText()).length());
+    }
+
+    public int getMaxLabelWidth() {
+        return _maxLabelChars * FONT_WIDTH ;
+    }
+
+
+    private void setMaxDropDownChars(String text) {
+        _maxDropDownChars = Math.max(_maxDropDownChars, text.length());        
+    }
+
+    public int getMaxDropDownWidth() {
+        return (_maxDropDownChars * FONT_WIDTH) + 15;
+    }
+
+
+    private void setMaxTextValueChars(String text) {
+        if (text != null)
+            _maxTextValueChars = Math.max(_maxTextValueChars, text.length());
+    }
+
+    public int getMaxTextValueWidth() {
+        return _maxTextValueChars * FONT_WIDTH;
+    }
+
+    public Hashtable<TextField, DynFormField> getTextFieldMap() {
+        return _componentFieldTable;
+    }
     
 
 }

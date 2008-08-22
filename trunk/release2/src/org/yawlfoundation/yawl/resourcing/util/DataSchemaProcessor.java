@@ -1,18 +1,18 @@
 package org.yawlfoundation.yawl.resourcing.util;
 
+import org.apache.log4j.Logger;
 import org.jdom.JDOMException;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.YParametersSchema;
 import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
+import org.yawlfoundation.yawl.forms.InstanceBuilder;
 import org.yawlfoundation.yawl.schema.ElementCreationInstruction;
 import org.yawlfoundation.yawl.schema.ElementReuseInstruction;
 import org.yawlfoundation.yawl.schema.Instruction;
 import org.yawlfoundation.yawl.schema.XMLToolsForYAWL;
-import org.yawlfoundation.yawl.forms.InstanceBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,9 +43,8 @@ public class DataSchemaProcessor {
     }
 
 
-    public String createSchema(SpecificationData specData, TaskInformation taskInfo,
-                               WorkItemRecord wir) throws IOException, JDOMException,
-                                          YSchemaBuildingException, YSyntaxException {
+    public String createSchema(SpecificationData specData, TaskInformation taskInfo)
+            throws IOException, JDOMException, YSchemaBuildingException, YSyntaxException {
 
         // get the parameters signature for the task
         YParametersSchema paramsSignature = taskInfo.getParamSchema();
@@ -77,9 +76,22 @@ public class DataSchemaProcessor {
                                String rootElementName)
              throws IOException, JDOMException, YSchemaBuildingException, YSyntaxException{
  //       Collections.sort(instructions);
+
+        Logger.getLogger(this.getClass()).warn("buildSchema: creating tools object.");
+
         XMLToolsForYAWL xmlToolsForYawl = new XMLToolsForYAWL();
+
+        Logger.getLogger(this.getClass()).warn("buildSchema: tool created; setPrimarySchema.");
+
         xmlToolsForYawl.setPrimarySchema(specData.getSchemaLibrary());
-        return xmlToolsForYawl.createYAWLSchema(instructions, rootElementName);
+
+        Logger.getLogger(this.getClass()).warn("buildSchema: schema set; createYAWLschema.");
+
+        String result = xmlToolsForYawl.createYAWLSchema(instructions, rootElementName);
+
+        Logger.getLogger(this.getClass()).warn("buildSchema: YAWL schema created.");
+
+        return result;
     }
 
     

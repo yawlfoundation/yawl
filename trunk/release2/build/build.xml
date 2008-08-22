@@ -494,6 +494,20 @@
                      ${jaxenFull} ${jcommon} ${postgres8} ${saxpath} ${saxon.libs}"
                      excludes="${servlet}"/>
         </copy>
+
+        <propertyfile file="${build.dir}/engine/version.properties">
+            <entry key="Version" value="${app.version}"/>
+            <entry key="BuiltBy" value="${user.name}"/>
+            <entry key="BuildDate" type="date" value="now"/>
+            <entry key="BuildNumber" default="0" type="int" operation="+" value="1"/>
+            <entry key="JavaVersion" value="${java.version}"/>
+            <entry key="OS" value="${os.name}"/>
+            <entry key="OSVersion" value="${os.version}"/>
+        </propertyfile>
+
+        <copy file="${build.dir}/engine/version.properties"
+            tofile="${yawl.eng.app.name}/WEB-INF/classes/version.properties"/>
+
         <antcall target="decideDatabaseType"/>
         <jar destfile="${output.dir}/yawl.war">
             <fileset dir="${yawl.eng.app.name}"/>
@@ -905,6 +919,21 @@
         <copy file="${properties.dir}/log4j.properties"
               todir="${yawl.worklet.app.name}/WEB-INF/classes"/>
 
+        <!-- 2f. Increment the build number -->
+        <propertyfile file="${build.dir}/workletService/version.properties">
+            <entry key="Version" value="${app.version}"/>
+            <entry key="BuiltBy" value="${user.name}"/>
+            <entry key="BuildDate" type="date" value="now"/>
+            <entry key="BuildNumber" default="0" type="int" operation="+" value="1"/>
+            <entry key="JavaVersion" value="${java.version}"/>
+            <entry key="OS" value="${os.name}"/>
+            <entry key="OSVersion" value="${os.version}"/>
+        </propertyfile>
+
+        <copy file="${build.dir}/workletService/version.properties"
+            tofile="${yawl.worklet.app.name}/WEB-INF/classes/version.properties"/>
+
+
         <!-- 3. Copy required 3rd party libraries into dir structure -->
       	<copy todir="${yawl.worklet.app.name}/WEB-INF/lib">
     	    <fileset dir="${lib.dir}"
@@ -927,6 +956,7 @@
 
         <!-- 7. Remove temp build area -->
         <delete dir="${yawl.worklet.app.name}"/>
+
     </target>
 
 
@@ -977,7 +1007,7 @@
 
         <copy todir="${yawl.resource.app.name}${webinf.dir}/util">
               <fileset dir="${classes.dir}${packageRoot}/util"
-                       includes="JDOMUtil.class StringUtil.class"/>
+                       includes="JDOMUtil.class StringUtil.class DOMUtil.class"/>
         </copy>
 
         <!-- 2. copy resourcing classes to relevant dirs -->
@@ -1029,6 +1059,20 @@
         <copy file="${properties.dir}/hibernate.properties.postgres8"
             tofile="${yawl.resource.app.name}/WEB-INF/classes/hibernate.properties"/>
 
+        <!-- 4.5. Increment the build number -->
+        <propertyfile file="${build.dir}/resourceService/version.properties">
+            <entry key="Version" value="${app.version}"/>
+            <entry key="BuiltBy" value="${user.name}"/>
+            <entry key="BuildDate" type="date" value="now"/>
+            <entry key="BuildNumber" default="0" type="int" operation="+" value="1"/>
+            <entry key="JavaVersion" value="${java.version}"/>
+            <entry key="OS" value="${os.name}"/>
+            <entry key="OSVersion" value="${os.version}"/>
+        </propertyfile>
+
+        <copy file="${build.dir}/resourceService/version.properties"
+            tofile="${yawl.resource.app.name}/WEB-INF/classes/version.properties"/>
+
         <!-- 5. Copy web.xml file into dir structure -->
         <copy todir="${yawl.resource.app.name}/WEB-INF"
               file="${build.dir}/resourceService/web.xml"/>
@@ -1040,7 +1084,9 @@
 
         <!-- 7. Remove temp build area -->
         <delete dir="${yawl.resource.app.name}"/>
+        
     </target>
+
 
 
     <!-- Build the test service -->

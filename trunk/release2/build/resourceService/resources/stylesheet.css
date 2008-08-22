@@ -253,13 +253,19 @@
 
 .dynformInput {
     position: absolute;
-    left: 125px;
+    /*left: 125px;*/
 }
 
 .dynformInputRequired {
     position: absolute;
-    left: 125px;
+    /*left: 125px;*/
     background-color: #ffffcc;                     /* pale yellow */
+}
+
+.dynformInputError {
+    position: absolute;
+    /*left: 125px;*/
+    background-color: #ffcccc;                     /* pale red */
 }
 
 .dynformReadOnlyPanel {
@@ -273,7 +279,7 @@
 
 .dynformRadioButton {
     position: absolute;
-    left: 12px;
+    left: 5px;
 }
 
 

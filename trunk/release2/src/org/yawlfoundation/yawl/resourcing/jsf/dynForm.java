@@ -75,7 +75,8 @@ public class dynForm extends AbstractPageBean {
 
     public void prerender() {
         getSessionBean().checkLogon();
-        getSessionBean().getMessagePanel().show(140, 500, "absolute");
+        int left = getDynFormFactory().getFormWidth() + 100;
+        getSessionBean().getMessagePanel().show(135, left, "absolute");
         getSessionBean().setActivePage(ApplicationBean.PageRef.dynForm);
         setupButtons();
     }

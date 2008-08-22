@@ -227,7 +227,12 @@ public class SessionBean extends AbstractSessionBean {
 
     public ApplicationBean.PageRef getActivePage() { return activePage; }
 
-    public void setActivePage(ApplicationBean.PageRef page) { activePage = page; }
+    public void setActivePage(ApplicationBean.PageRef page) {
+        activePage = page;
+        if (page != ApplicationBean.PageRef.participantData) {
+            setEditedParticipant((Participant) null);
+        }
+    }
 
 
     public ApplicationBean.DynFormType getDynFormType() { return dynFormType; }
@@ -911,9 +916,13 @@ public class SessionBean extends AbstractSessionBean {
 
     public Participant getEditedParticipant() { return editedParticipant; }
 
-    public void setEditedParticipant(Participant p) { editedParticipant = p; }
+    public void setEditedParticipant(Participant p) {
+        if (editedParticipant != null) editedParticipant.removeAttributeReferences();
+        editedParticipant = p;
+    }
 
     public Participant setEditedParticipant(String pid) {
+        if (editedParticipant != null) editedParticipant.removeAttributeReferences();
         editedParticipant = getParticipantMap().get(pid).clone();
         return editedParticipant;
     }
