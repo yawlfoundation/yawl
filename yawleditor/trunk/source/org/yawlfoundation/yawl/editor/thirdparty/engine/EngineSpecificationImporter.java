@@ -25,6 +25,7 @@ package org.yawlfoundation.yawl.editor.thirdparty.engine;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.data.DataVariableSet;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.elements.model.*;
@@ -40,6 +41,7 @@ import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
 import org.yawlfoundation.yawl.editor.swing.LayoutManager;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.swing.specification.ProblemMessagePanel;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
@@ -59,12 +61,17 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   
   private static final Point DEFAULT_LOCATION = new Point(100,100);
   private static Point OPEN_NET_LOCATION = new Point(0,0);
+  private static List<String> _invalidResourceReferences;
 
   
-  public static void importEngineSpecificationFromFile(SpecificationModel editorSpec, String fullFileName) {
+  public static void importEngineSpecificationFromFile(SpecificationModel editorSpec,
+                                                       String fullFileName) {
     if (fullFileName == null) {
       return;
     }
+
+    _invalidResourceReferences = new ArrayList<String>();
+
     YSpecification engineSpec = importEngineSpecificationAsEngineObjects(fullFileName);
     
     if (engineSpec == null) {
@@ -84,6 +91,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     
     SpecificationFileModel.getInstance().incrementFileCount();
     SpecificationUndoManager.getInstance().discardAllEdits();
+    if (! _invalidResourceReferences.isEmpty()) showInvalidResourceReferences();
   }
 
   public static YSpecification importEngineSpecificationAsEngineObjects(String fullFileName) {
@@ -112,8 +120,6 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     convertSubNetsAndOtherDecompositions(engineSpec);
     
     populateEditorNets(engineSpec);
-    
-    //TODO: DO Resource Perspective
     
   }
   
@@ -215,8 +221,10 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     while(localVariableKeyIterator.hasNext()) {
       String variableKey = (String) localVariableKeyIterator.next();
       YVariable engineVariable = (YVariable) engineNet.getLocalVariables().get(variableKey);
+      DataVariableSet varSet = editorNet.getNetModel().getDecomposition().getVariables();
 
-      createEditorVariable(
+      if (! localVarForOutputOnlyVar(varSet, engineVariable)) {
+        createEditorVariable(
           editorNet.getNetModel().getDecomposition(),
           DataVariable.USAGE_LOCAL, 
           engineVariable.getDataTypeName(),
@@ -224,10 +232,26 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
           engineVariable.getInitialValue(),
           engineVariable.getDefaultValue(),
           new Hashtable()  // LWB: engine local variables do not have extended attributes, apparently.
-      );
+        );
+      }
     }
   }
 
+
+  /** output-only net level vars are required to have a local var of the same name to be
+   * exported as well (see EngineSpecificationExporter.establishEngineLocalVariables()
+   * for more info). When importing form xml, we want to prevent a duplicate netvar
+   * from being created in this case.
+   *
+   * @return true if localVar has the same name and datatype as an output-only
+   *          editor var
+   */
+  private static boolean localVarForOutputOnlyVar(DataVariableSet varSet, YVariable localVar) {
+      DataVariable editorVar = varSet.getVariableWithName(localVar.getName()) ;
+      return (editorVar != null) &&
+              editorVar.getDataType().equals(localVar.getDataTypeName()) &&
+              (editorVar.getUsage() == DataVariable.USAGE_OUTPUT_ONLY);
+  }
   
   private static void convertDecompositionParameters(YDecomposition engineDecomposition, 
                                                      Decomposition editorDecomposition) {
@@ -691,7 +715,10 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
       Element rawResourceElement = engineTask.getResourcingSpecs();
       if (rawResourceElement != null) {
           ResourceMapping resourceMap = new ResourceMapping(editorTask, false);
-          resourceMap.parse(rawResourceElement, editorNet);
+          boolean badRef = resourceMap.parse(rawResourceElement, editorNet);
+          if (badRef) {
+              _invalidResourceReferences.add(editorNet.getName() + "::" + editorTask.getLabel());
+          }
           editorTask.setResourceMapping(resourceMap);
       }
   }
@@ -700,6 +727,17 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   private static void setTaskCustomForm(YAtomicTask engineTask, YAWLAtomicTask editorTask) {
       URL formURL = engineTask.getCustomFormURL();
       if (formURL != null) ((YAWLTask) editorTask).setCustomFormURL(formURL);
+  }
+
+
+  private static void showInvalidResourceReferences() {
+      List<String> msgList = new ArrayList<String>();
+      String template = "An invalid resource reference in Task '%s' of Net '%s' has been removed.";
+      for (String ref : _invalidResourceReferences) {
+          String[] split = ref.split("::");
+          msgList.add(String.format(template, split[1], split[0]));
+      }
+      ProblemMessagePanel.getInstance().setProblemList("Invalid Resource References", msgList);
   }
 
 

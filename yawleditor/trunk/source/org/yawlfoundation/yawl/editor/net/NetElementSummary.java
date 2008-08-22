@@ -51,7 +51,7 @@ public class NetElementSummary {
   private HashSet tasksWithCancellationSets = new HashSet();
   
   public NetElementSummary(NetGraphModel model) {
-    assert model != null : "No NetGraphModel specificed in constructor";
+    assert model != null : "No NetGraphModel specified in constructor";
     this.model = model;
     parseModel();
   }

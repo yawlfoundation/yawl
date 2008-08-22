@@ -23,16 +23,14 @@
 
 package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
+import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.FileChooserFactory;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 
+import javax.swing.*;
 import java.io.File;
-
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import java.util.prefs.Preferences;
 
 public class EngineSpecificationHandler {
   
@@ -104,6 +102,7 @@ public class EngineSpecificationHandler {
 
     YAWLEditorDesktop.getInstance().setVisible(true);
     YAWLEditor.resetStatusBarProgress();
+
   }
   
   private String promptForLoadFileName() {
@@ -145,7 +144,16 @@ public class EngineSpecificationHandler {
 
   public void saveSpecificationToFile(SpecificationModel editorSpec, String fullFileName) {
     if (fullFileName == null || fullFileName.equals("")) {
-      return;
+
+      // rollback version number if auto-incrementing
+      boolean autoinc = Preferences.userNodeForPackage(YAWLEditor.class).getBoolean(
+              EngineSpecificationExporter.AUTO_INCREMENT_VERSION_WITH_EXPORT_PREFERENCE,
+              false);
+      if (autoinc) {
+          editorSpec.getVersionNumber().minorRollback();
+      }
+
+      return;     // user-cancelled save or no file name selected
     }
 
     YAWLEditor.setStatusBarText("Exporting Engine Specification...");

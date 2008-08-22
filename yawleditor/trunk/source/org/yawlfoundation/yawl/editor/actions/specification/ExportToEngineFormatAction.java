@@ -27,10 +27,7 @@ package org.yawlfoundation.yawl.editor.actions.specification;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
-import org.yawlfoundation.yawl.editor.swing.JFormattedNumberField;
-import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
-import org.yawlfoundation.yawl.editor.swing.JFormattedAlphaNumericField;
+import org.yawlfoundation.yawl.editor.swing.*;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.EngineSpecificationExporter;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 
@@ -101,7 +98,7 @@ class ExportConfigDialog extends AbstractDoneDialog {
   private static final long serialVersionUID = 1L;
 
   private JFormattedAlphaNumericField specificationIDField;
-  private JFormattedNumberField versionNumberField;  
+  private JFormattedSelectField versionNumberField;
   private JCheckBox verificationCheckBox;
   private JCheckBox analysisCheckBox;
   private JCheckBox autoIncVersionCheckBox;
@@ -132,7 +129,8 @@ class ExportConfigDialog extends AbstractDoneDialog {
 //                showDialogCheckBox.isSelected()
 //            );
 
-            setSpecVersionNumber() ;
+            SpecificationModel.getInstance().setVersionNumber(
+                    new YSpecVersion(versionNumberField.getText()));
 
             if (showSpecIDField()) {
                 SpecificationModel.getInstance().setId(specificationIDField.getText());
@@ -230,8 +228,12 @@ class ExportConfigDialog extends AbstractDoneDialog {
     }
 
 
-  private JFormattedNumberField getVersionNumberField() {
-    versionNumberField = new JFormattedNumberField("###,###,##0.0###",0.1,10);
+    private JFormattedSelectField getVersionNumberField() {
+    versionNumberField = new JFormattedSelectField(10);
+    versionNumberField.setInputVerifier(
+            new SpecificationVersionVerifier(
+                    SpecificationModel.getInstance().getVersionNumber()));
+    versionNumberField.addKeyListener(new SpecificationVersionFieldDocumentListener());
     versionNumberField.setToolTipText(" Enter a version number for this specification ");
     return versionNumberField;
   }
@@ -271,14 +273,6 @@ class ExportConfigDialog extends AbstractDoneDialog {
 //
 //    return showDialogCheckBox;
 //  }
-
-  private void setSpecVersionNumber() {
-
-      String version = String.valueOf(
-            Math.max(versionNumberField.getDouble(), versionNumberField.getLowerBound()));
-      SpecificationModel.getInstance().setVersionNumber(new YSpecVersion(version));
-  }
-
 
   private boolean showSpecIDField() {
       String id = SpecificationModel.getInstance().getId();
@@ -321,14 +315,17 @@ class ExportConfigDialog extends AbstractDoneDialog {
 //          )
 //      );
 
-      String verStr = SpecificationModel.getInstance().getVersionNumber().getVersion();
+      String verStr = SpecificationModel.getInstance().getVersionNumber().toString();
       YSpecVersion version = new YSpecVersion(verStr);
 
       if (autoIncVersionCheckBox.isSelected() || verStr.equals("0.0")) {
           version.minorIncrement();
       }
-      versionNumberField.setDouble(version.getVersionAsDouble());
-      versionNumberField.setLowerBound(version.getVersionAsDouble());       
+      versionNumberField.setText(version.toString());
+      SpecificationVersionVerifier svv =
+              (SpecificationVersionVerifier) versionNumberField.getInputVerifier();
+      svv.setStartingVersion(version);
+    
     }
     super.setVisible(visible);
   }
@@ -353,5 +350,25 @@ class ExportConfigDialog extends AbstractDoneDialog {
              ! specificationIDField.getText().equals("unnamed.ywl") ;
     }
   }
+
+  class SpecificationVersionFieldDocumentListener implements KeyListener {
+
+     public void keyPressed(KeyEvent e) {
+       // deliberately does nothing
+     }
+
+     public void keyTyped(KeyEvent e) {
+       // deliberately does nothing
+     }
+
+     public void keyReleased(KeyEvent e) {
+       getDoneButton().setEnabled(versionFieldValid());
+     }
+
+     private boolean versionFieldValid() {
+       return versionNumberField.getInputVerifier().verify(versionNumberField);
+     }
+   }
+
   
 }

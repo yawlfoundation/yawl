@@ -137,14 +137,19 @@ public class InstanceSchemaValidator extends DefaultHandler {
 
     
     public String validateUserSuppliedDataTypeInstance(String variableName, String userSuppliedType, String complexTypeInstance) {
-
+      String result ;
       String schema = YAWLEngineProxy.getInstance().createSchemaForVariable(
           variableName, userSuppliedType
       );
-      
-      String result = validateWrappedInstance(schema, "<" + variableName +">" + complexTypeInstance + "</" + variableName + ">");
-      result = groomLineNumbers(result);
 
+      if (schema != null) {
+          result = validateWrappedInstance(schema, "<" + variableName +">" +
+                                   complexTypeInstance + "</" + variableName + ">");
+          result = groomLineNumbers(result);
+      }
+      else {
+          result = "Missing or invalid data type: defaulting to boolean.";
+      }
       return result;
     }
 

@@ -95,10 +95,10 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
 
   // Administration property widgets
   
-  private JFormattedNumberField versionNumberField;
+  private JFormattedSelectField versionNumberField;
   private TimeStampPanel validFromPanel;
   private TimeStampPanel validUntilPanel;
-  
+
   public UpdateSpecificationPropertiesDialog() {
     super("Update Specification Properties", true);
     
@@ -111,7 +111,7 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
           SpecificationModel.getInstance().setDescription(specificationDescriptionField.getText());
           SpecificationModel.getInstance().setId(specificationIDField.getText());
           SpecificationModel.getInstance().setAuthor(specificationAuthorField.getText());
-          SpecificationModel.getInstance().setVersionNumber(new YSpecVersion(String.valueOf(versionNumberField.getDouble())));
+          SpecificationModel.getInstance().setVersionNumber(new YSpecVersion(versionNumberField.getText()));
           SpecificationModel.getInstance().setValidFromTimestamp(validFromPanel.getTimestamp());
           SpecificationModel.getInstance().setValidUntilTimestamp(validUntilPanel.getTimestamp());           
           SpecificationUndoManager.getInstance().setDirty(true);
@@ -265,12 +265,13 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
       specificationAuthorField.setText(
           SpecificationModel.getInstance().getAuthor()    
       );
-      versionNumberField.setDouble(
-          SpecificationModel.getInstance().getVersionNumber().getVersionAsDouble()
+      versionNumberField.setText(
+          SpecificationModel.getInstance().getVersionNumber().toString()
       );
-      versionNumberField.setLowerBound(
-          SpecificationModel.getInstance().getVersionNumber().getVersionAsDouble()    
-      );
+      SpecificationVersionVerifier svv =
+              (SpecificationVersionVerifier) versionNumberField.getInputVerifier();
+      svv.setStartingVersion(SpecificationModel.getInstance().getVersionNumber());
+
       validFromPanel.setTimestamp(SpecificationModel.getInstance().getValidFromTimestamp());
       validUntilPanel.setTimestamp(SpecificationModel.getInstance().getValidUntilTimestamp());
     } 
@@ -307,8 +308,12 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
     return specificationAuthorField;
   }
   
-  private JFormattedNumberField getVersionNumberField() {
-    versionNumberField = new JFormattedNumberField("###,###,##0.0###",0.1,10);
+  private JFormattedSelectField getVersionNumberField() {
+    versionNumberField = new JFormattedSelectField(10);
+    versionNumberField.setInputVerifier(
+            new SpecificationVersionVerifier(
+                    SpecificationModel.getInstance().getVersionNumber()));
+    versionNumberField.addKeyListener(new SpecificationVersionFieldDocumentListener());
     versionNumberField.setToolTipText(" Enter a version number for this specification ");
     return versionNumberField;
   }
@@ -331,7 +336,30 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
       return specificationIDField.getInputVerifier().verify(specificationIDField);
     }
   }
+
+    class SpecificationVersionFieldDocumentListener implements KeyListener {
+
+    public void keyPressed(KeyEvent e) {
+      // deliberately does nothing
+    }
+
+    public void keyTyped(KeyEvent e) {
+      // deliberately does nothing
+    }
+
+    public void keyReleased(KeyEvent e) {
+      getDoneButton().setEnabled(versionFieldValid());
+    }
+
+    private boolean versionFieldValid() {
+      return versionNumberField.getInputVerifier().verify(versionNumberField);
+    }
+  }
+
 }
+
+
+
 
 class TimeStampPanel extends JPanel {
   /**

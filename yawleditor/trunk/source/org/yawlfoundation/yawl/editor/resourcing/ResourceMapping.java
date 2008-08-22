@@ -149,6 +149,32 @@ public class ResourceMapping implements Serializable, Cloneable  {
     return (List<DataVariableContent>) serializationProofAttributeMap.get("baseVariableContentList");
   }
 
+  // remove null members
+  public void cleanBaseUserDistributionList() {
+      List<ResourcingParticipant> pList = getBaseUserDistributionList();
+      if (pList.contains(null)) {
+          List<ResourcingParticipant> cleanList = new LinkedList<ResourcingParticipant>();
+          for (ResourcingParticipant p : pList) if (p != null) cleanList.add(p);
+          setBaseUserDistributionList(cleanList);
+      }
+  }
+
+  public void cleanBaseRoleDistributionList() {    
+      List<ResourcingRole> rList = getBaseRoleDistributionList();
+      if (rList.contains(null)) {
+          List<ResourcingRole> cleanRoleList = new LinkedList<ResourcingRole>();
+          for (ResourcingRole p : rList) if (p != null) cleanRoleList.add(p);
+          setBaseRoleDistributionList(cleanRoleList);
+      }
+  }
+
+  public void cleanDistributionLists() {
+      cleanBaseUserDistributionList();
+      cleanBaseRoleDistributionList();
+  }
+
+
+
   /**
    * Resynchronises the variable content map with changes that may have been
    * applied to the task's data perspective definitions. All new variables that
@@ -268,49 +294,61 @@ public class ResourceMapping implements Serializable, Cloneable  {
   // These parse methods are called from EngineSpecificationImporter when importing //
   // a specification from its xml representation                                    //
   
-  public void parse(Element resourceSpec, NetGraphModel containingNet) {
+  public boolean parse(Element resourceSpec, NetGraphModel containingNet) {
+      boolean badRef = false;
       if (resourceSpec != null) {
           Namespace nsYawl = resourceSpec.getNamespace() ;
-          parseOffer(resourceSpec.getChild("offer", nsYawl), nsYawl, containingNet) ;
+          badRef = parseOffer(resourceSpec.getChild("offer", nsYawl), nsYawl, containingNet) ;
           parseAllocate(resourceSpec.getChild("allocate", nsYawl), nsYawl) ;
           parseStart(resourceSpec.getChild("start", nsYawl), nsYawl) ;
           parsePrivileges(resourceSpec.getChild("privileges", nsYawl), nsYawl) ;
       }
+      return badRef;
   }
 
     
-  public void parseOffer(Element offerElement, Namespace nsYawl, NetGraphModel containingNet) {
+  public boolean parseOffer(Element offerElement, Namespace nsYawl, NetGraphModel containingNet) {
+      boolean badRef = false;
       setOfferInteractionPoint(parseInitiator(offerElement));
 
       // if offer is not system-initiated, there's no more to do
       if (getOfferInteractionPoint() == SYSTEM_INTERACTION_POINT) {
-          parseDistributionSet(offerElement, nsYawl, containingNet) ;
+          badRef = parseDistributionSet(offerElement, nsYawl, containingNet) ;
           parseFamiliarTask(offerElement, nsYawl, containingNet) ;
       }
+      return badRef;
   }
 
 
-  private void parseDistributionSet(Element e, Namespace nsYawl, NetGraphModel containingNet) {
+  private boolean parseDistributionSet(Element e,
+                                   Namespace nsYawl, NetGraphModel containingNet) {
+      boolean badRef = false;
+
       Element eDistSet = e.getChild("distributionSet", nsYawl);
       if (eDistSet != null) {
-          parseInitialSet(eDistSet, nsYawl, containingNet) ;
+          badRef = parseInitialSet(eDistSet, nsYawl, containingNet) ;
           parseFilters(eDistSet, nsYawl) ;
           parseConstraints(eDistSet, nsYawl, containingNet) ;
       }
+      return badRef;
   }
 
 
-  private void parseInitialSet(Element e, Namespace nsYawl, NetGraphModel containingNet) {
+  private boolean parseInitialSet(Element e, Namespace nsYawl, NetGraphModel containingNet) {
+      boolean badRef = false;
+
       Element eInitialSet = e.getChild("initialSet", nsYawl);
       if (eInitialSet != null) {
-          parseParticipants(eInitialSet, nsYawl);
-          parseRoles(eInitialSet, nsYawl);
+          badRef = parseParticipants(eInitialSet, nsYawl);
+          badRef = badRef || parseRoles(eInitialSet, nsYawl);
           parseDynParams(eInitialSet, nsYawl, containingNet);
       }
+      return badRef;
   }
 
 
-  private void parseParticipants(Element e, Namespace nsYawl) {
+  private boolean parseParticipants(Element e, Namespace nsYawl) {
+      boolean badRef = false;
 
       List<ResourcingParticipant> liveList =
               ResourcingServiceProxy.getInstance().getAllParticipants();
@@ -329,14 +367,22 @@ public class ResourceMapping implements Serializable, Cloneable  {
           Element eParticipant = (Element) itr.next();
           String pid = eParticipant.getText();
           if (pid != null) {
-              result.add(liveMap.get(pid));
+              ResourcingParticipant p = liveMap.get(pid);
+              if (p != null) {
+                  result.add(p);
+              }
+              else {
+                  badRef = true;
+              }
           }
       }
       setBaseUserDistributionList(result);
+      return badRef;
   }
 
 
-  private void parseRoles(Element e, Namespace nsYawl) {
+  private boolean parseRoles(Element e, Namespace nsYawl) {
+      boolean badRef = false;
       List<ResourcingRole> liveList =
               ResourcingServiceProxy.getInstance().getAllRoles();
       Map<String, ResourcingRole> liveMap =
@@ -354,10 +400,17 @@ public class ResourceMapping implements Serializable, Cloneable  {
           Element eRole = (Element) itr.next();
           String rid = eRole.getText();
           if (rid != null) {
-              result.add(liveMap.get(rid));
+              ResourcingRole r = liveMap.get(rid);
+              if (r != null) {
+                  result.add(r);
+              }
+              else {
+                  badRef = true;
+              }
           }
       }
       setBaseRoleDistributionList(result);
+      return badRef;
   }
 
 
@@ -546,6 +599,7 @@ public class ResourceMapping implements Serializable, Cloneable  {
       }
       return result;
   }
+
 
   /*********************************************************************************/
   

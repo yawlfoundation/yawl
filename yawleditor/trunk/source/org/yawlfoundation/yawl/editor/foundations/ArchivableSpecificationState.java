@@ -73,7 +73,7 @@ public class ArchivableSpecificationState implements Serializable {
     setDescription(specificationModel.getDescription());
     setAuthor(specificationModel.getAuthor());
     
-    setVersionNumber(specificationModel.getVersionNumber().getVersionAsDouble());
+    setVersionNumber(specificationModel.getVersionNumber().toString());
     setValidFromTimestamp(specificationModel.getValidFromTimestamp());
     setValidUntilTimestamp(specificationModel.getValidUntilTimestamp());
     
@@ -189,29 +189,26 @@ public class ArchivableSpecificationState implements Serializable {
     return (String) serializationProofAttributeMap.get("author");
   }
 
-  public void setVersionNumber(double versionNumber) {
-    serializationProofAttributeMap.put("versionNumber", new Double(versionNumber));
+  public void setVersionNumber(String versionNumber) {
+    serializationProofAttributeMap.put("versionNumber", versionNumber);
   }
   
-  public double getVersionNumber() {
+  public String getVersionNumber() {
     /*
      * We deal with legacy here. For a long time, version number was just
-     * a freeform string. We now store it as double.  The load makes best
-     * efforts to get a number out of previous specifications that 
-     * used to use strings.
+     * a freeform string. Then it was stored as double. Now its a string that represents
+     * a double. The load makes best efforts to get a number out of previous
+     * specifications.
      */
     Object versionNumber = serializationProofAttributeMap.get("versionNumber");
     if (versionNumber instanceof String) {
-      try {
-        return new Double((String) versionNumber);
-      } catch (NumberFormatException nfe) {
-        return 0.1;
-      }
+        return (String) versionNumber;
     }
-    if (versionNumber instanceof Double) {
-      return (Double) versionNumber;
+    else if (versionNumber instanceof Double) {
+
+      return String.valueOf(versionNumber);
     }
-    return 0.1;
+    else return "0.1";
   }
   
   public void setValidFromTimestamp(String timestamp) {

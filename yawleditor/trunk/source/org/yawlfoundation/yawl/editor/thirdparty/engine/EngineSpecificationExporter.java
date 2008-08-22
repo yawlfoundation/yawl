@@ -68,12 +68,15 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   public static String AUTO_INCREMENT_VERSION_WITH_EXPORT_PREFERENCE = "autoIncVersionExportCheck";
 
   public static void exportEngineSpecToFile(SpecificationModel editorSpec, String fullFileName) {
-      exportIfSucessful(getEngineSpecificationXML(editorSpec), fullFileName);
+      if (checkUserDefinedDataTypes(editorSpec))
+          exportIfSucessful(getEngineSpecificationXML(editorSpec), fullFileName);
   }
   
   public static void checkAndExportEngineSpecToFile(SpecificationModel editorSpec, String fullFileName) {
-      exportIfSucessful(getAndCheckEngineSpecificationXML(editorSpec), fullFileName);
+      if (checkUserDefinedDataTypes(editorSpec))
+          exportIfSucessful(getAndCheckEngineSpecificationXML(editorSpec), fullFileName);
   }
+
 
   private static void exportIfSucessful(String xml, String fullFileName) {
     if ((xml == null) || (xml.equals("null")) || (xml.startsWith("<fail"))) {
@@ -106,7 +109,20 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
   }
 
-  
+
+  private static boolean checkUserDefinedDataTypes(SpecificationModel editorSpec) {
+      List<String> results = new ArrayList<String>();
+      results.addAll(EngineSpecificationValidator.checkUserDefinedDataTypes(editorSpec));
+      if (! results.isEmpty()) {
+          YAWLEditor.getInstance().showProblemList(null, "Export Errors", null, results);
+          JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
+               "Could not export Specification due to missing or invalid user-defined " +
+               "datatypes.\nPlease see the problem list below for details.",
+               "Export Datatype Error", JOptionPane.ERROR_MESSAGE);
+      }
+      return results.isEmpty();
+  }
+
   public static String getAndCheckEngineSpecificationXML(SpecificationModel editorSpec) {
     boolean verificationNeeded = prefs.getBoolean(VERIFICATION_WITH_EXPORT_PREFERENCE, true);
     boolean analysisNeeded = prefs.getBoolean(ANALYSIS_WITH_EXPORT_PREFERENCE, true);
@@ -126,7 +142,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
     YAWLEditor.getInstance().showProblemList(
         editorSpec, 
-        "Export problems", 
+        "Export Analysis Results", 
         "Checking exported file...", 
         results
     );
@@ -313,12 +329,12 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
           XML_SCHEMA_URI
       );
 
-      engineNetVariable.setInitialValue(
-        XMLUtilities.quoteSpecialCharacters(
-           editorNetVariable.getInitialValue()
-        )        
-      );
-      
+      String initialValue = editorNetVariable.getInitialValue();
+      if (editorNetVariable.getDataType().equals("string")) {
+          initialValue = XMLUtilities.quoteSpecialCharacters(initialValue);
+      }
+      engineNetVariable.setInitialValue(initialValue);
+     
       engineNet.setLocalVariable(engineNetVariable);
     }
     
