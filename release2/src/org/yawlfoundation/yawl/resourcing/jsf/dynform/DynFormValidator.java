@@ -123,7 +123,10 @@ public class DynFormValidator {
 
 
     private boolean validateField(DynFormField input, String value) {
-        return validateRequired(input, value) && validateAgainstSchema(input, value);
+        boolean isValid = validateRequired(input, value);
+        if (isValid && (! isEmptyValue(value)))
+            isValid = validateAgainstSchema(input, value);
+        return isValid;
     }
 
 
@@ -154,7 +157,7 @@ public class DynFormValidator {
 
     private boolean validateRequired(DynFormField input, String value) {
         boolean result = true;
-        if (input.isRequired() && ((value == null) || (value.length() < 1))) {
+        if (input.isRequired() && isEmptyValue(value)) {
             _msgPanel.error("Field '" + input.getName() + "' requires a value.\n");
             result = false;
         }
@@ -293,7 +296,7 @@ public class DynFormValidator {
         if (input.hasRestriction())
             msg += input.getRestriction().getToolTipExtn();
 
-        _msgPanel.error(msg + ".");
+        _msgPanel.error(msg + ".\n");
     }
 
     
@@ -331,6 +334,11 @@ public class DynFormValidator {
         else result = "dynformInputError" ;
 
         return result;
+    }
+
+
+    private boolean isEmptyValue(String value) {
+        return ((value == null) || (value.length() < 1));
     }
 
 
@@ -389,7 +397,12 @@ public class DynFormValidator {
               .append(input.getName())
               .append("\"");
 
-        if (input.hasRestriction()) {
+        if (input.hasUnion()) {
+            schema.append(">")
+                  .append(input.getUnion().getBaseElement())
+                  .append("</xsd:element>");
+        }
+        else if (input.hasRestriction()) {
             schema.append(">")
                   .append(input.getRestriction().getBaseElement())
                   .append("</xsd:element>");

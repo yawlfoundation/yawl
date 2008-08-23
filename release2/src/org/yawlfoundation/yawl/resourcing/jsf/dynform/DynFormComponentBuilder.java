@@ -36,8 +36,8 @@ public class DynFormComponentBuilder {
     private int _maxTextValueChars = 0;
 
     private final int FONT_WIDTH = 6;
-
-
+    private final SimpleDateFormat _sdf = new SimpleDateFormat("yyyy-MM-dd");
+    
 
     public DynFormComponentBuilder() { }
 
@@ -160,7 +160,6 @@ public class DynFormComponentBuilder {
         cal.setSelectedDate(createDate(input.getValue()));
         cal.setDateFormatPatternHelp("");
         cal.setDisabled(input.isInputOnly());
-        cal.setRequired(input.isRequired());
         cal.setMinDate(new Date(1));
         cal.setMaxDate(getDate(25));
         cal.setColumns(15);
@@ -256,8 +255,7 @@ public class DynFormComponentBuilder {
 
         if (dateStr != null) {
             try {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                result = sdf.parse(dateStr) ;
+                result = _sdf.parse(dateStr) ;
             }
             catch (ParseException pe) {
                 result = new Date();
