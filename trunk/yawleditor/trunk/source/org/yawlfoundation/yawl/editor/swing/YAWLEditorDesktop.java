@@ -113,7 +113,6 @@ public class YAWLEditorDesktop extends JDesktopPane
 
     if (graph.getNetModel().isStartingNet()) {
         frame.moveToFront();
- //       YAWLEditorDesktop.getInstance().getDesktopManager().activateFrame(frame);
     }
   }
   
@@ -123,6 +122,7 @@ public class YAWLEditorDesktop extends JDesktopPane
     frame.setVisible(true); //necessary as of 1.3
     try {
       frame.setSelected(true);
+      getDesktopManager().activateFrame(frame);
     } catch (java.beans.PropertyVetoException e) {}
     
     frame.addComponentListener(

@@ -152,7 +152,7 @@ public class ResourceMapping implements Serializable, Cloneable  {
   // remove null members
   public void cleanBaseUserDistributionList() {
       List<ResourcingParticipant> pList = getBaseUserDistributionList();
-      if (pList.contains(null)) {
+      if ((pList != null) && pList.contains(null)) {
           List<ResourcingParticipant> cleanList = new LinkedList<ResourcingParticipant>();
           for (ResourcingParticipant p : pList) if (p != null) cleanList.add(p);
           setBaseUserDistributionList(cleanList);
@@ -161,7 +161,7 @@ public class ResourceMapping implements Serializable, Cloneable  {
 
   public void cleanBaseRoleDistributionList() {    
       List<ResourcingRole> rList = getBaseRoleDistributionList();
-      if (rList.contains(null)) {
+      if ((rList != null) && rList.contains(null)) {
           List<ResourcingRole> cleanRoleList = new LinkedList<ResourcingRole>();
           for (ResourcingRole p : rList) if (p != null) cleanRoleList.add(p);
           setBaseRoleDistributionList(cleanRoleList);
