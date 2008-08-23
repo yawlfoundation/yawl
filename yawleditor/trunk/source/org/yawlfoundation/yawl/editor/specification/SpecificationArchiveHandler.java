@@ -294,7 +294,7 @@ public class SpecificationArchiveHandler {
     return true;
   }
   
-  private void closeWithoutSaving() {
+  public void closeWithoutSaving() {
     doPreSaveClosingWork();
     doPostSaveClosingWork();
   }
@@ -392,6 +392,7 @@ public class SpecificationArchiveHandler {
           "Error discovered reading YAWL Editor save file.\nDiscarding this load file.\n",
           "Editor File Loading Error",
           JOptionPane.ERROR_MESSAGE);
+      SpecificationArchiveHandler.getInstance().closeWithoutSaving();
       e.printStackTrace();
     }
 
@@ -476,7 +477,7 @@ public class SpecificationArchiveHandler {
     }
     specModel.setUniqueElementNumber(largestIdSoFar);
 
-    specModel.checkResourcingObjects();  
+    specModel.checkResourcingObjects();
     
     if (state.getBounds() != null) {
       YAWLEditor.getInstance().setBounds(state.getBounds());
