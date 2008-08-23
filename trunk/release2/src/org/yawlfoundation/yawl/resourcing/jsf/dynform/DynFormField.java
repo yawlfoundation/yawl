@@ -29,7 +29,7 @@ public class DynFormField {
     private int _order;
     private boolean _required ;
     private DynFormFieldRestriction _restriction;
-    private String _schema;
+    private DynFormFieldUnion _union;
 
     private List<DynFormField> _subFieldList;
     private String _groupID;
@@ -190,8 +190,10 @@ public class DynFormField {
         this._required = required;
     }
 
+    // treat all non-strings as required pending handling of optional params
     public void setRequired() {
-        _required = (_minoccurs > 0);
+        _required = (! isInputOnly()) &&
+                    ((_minoccurs > 0) || (! getDataTypeUnprefixed().equals("string")));
     }
 
     public void setEnumeratedValues(List<String> enumValues) {
@@ -200,13 +202,18 @@ public class DynFormField {
     }
 
     public List<String> getEnumeratedValues() {
-        if (_restriction != null)
+        if ((_union != null) && _union.hasEnumeration()) {
+            return _union.getEnumeration();
+        }
+        else if ((_restriction != null) && _restriction.hasEnumeration()) {
             return _restriction.getEnumeration();
+        }
         else return null;
     }
 
     public boolean hasEnumeratedValues() {
-        return ((_restriction != null) && (_restriction.getEnumeration() != null));
+        return  ((_union != null) && _union.hasEnumeration()) ||
+                ((_restriction != null) && _restriction.hasEnumeration()) ;
     }
 
     public void setSubFieldList(List<DynFormField> subList) {
@@ -255,6 +262,21 @@ public class DynFormField {
     public boolean hasRestriction() {
         return _restriction != null;
     }
+
+    public void setUnion(DynFormFieldUnion union) {
+        _union = union;
+        _union.setOwner(this);
+    }
+
+    public DynFormFieldUnion getUnion() {
+        return _union;
+    }
+
+    public boolean hasUnion() {
+        return _union != null;
+    }
+
+
 
    
     private long convertOccurs(String occurs) {

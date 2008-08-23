@@ -111,6 +111,10 @@ public class DynFormFactory extends AbstractSessionBean {
     // a map of inputs to the textfields they generated (required for validation)
     private Hashtable<TextField, DynFormField> _componentFieldTable;
 
+    // a map of the non-panel components of the outermost panel and their y-coords
+    private Hashtable<UIComponent, Integer> _outermostTops =
+            new Hashtable<UIComponent, Integer>(); 
+
     // the 'status' of the component add process
     private enum ComponentType { nil, panel, field, radio }
 
@@ -162,6 +166,7 @@ public class DynFormFactory extends AbstractSessionBean {
         compPanel.getChildren().clear();
         _usedIDs.clear();
         _subPanelTable.clear();
+        _outermostTops.clear();
 
         X_FIELD_OFFSET = DEFAULT_FIELD_OFFSET;
         PANEL_BASE_WIDTH = DEFAULT_PANEL_BASE_WIDTH;
@@ -345,10 +350,17 @@ public class DynFormFactory extends AbstractSessionBean {
         
         for (DynFormField field : fieldList) {
             if (field.isChoiceField()) {
-                top += getNextInc(prevComponent, ComponentType.radio);
+
+                // complexType choice has a header, simpletype choice does not
+                if ((container != null) && (container.getChildCount() == 1))
+                    top += getNextInc(prevComponent, ComponentType.field);
+                else
+                    top += getNextInc(prevComponent, ComponentType.radio);
+
                 RadioButton rButton = builder.makeRadioButton(field, top);
                 if (prevComponent == ComponentType.nil) rButton.setSelected(true);
                 result.add(rButton);
+                if (container == null) _outermostTops.put(rButton, top);
                 prevComponent = ComponentType.radio ;  
             }
 
@@ -381,6 +393,10 @@ public class DynFormFactory extends AbstractSessionBean {
                 innerContent = builder.makeInputField(top, field);
                 if (container != null) {
                     container.getController().addSimpleContent(innerContent, top);
+                }
+                else {
+                    for (UIComponent component : innerContent)
+                        _outermostTops.put(component, top);
                 }
                 result.addAll(innerContent);
                 prevComponent = ComponentType.field ;
@@ -509,6 +525,7 @@ public class DynFormFactory extends AbstractSessionBean {
         SubPanel level0Container = panel.getController().addSubPanel(newPanel);
         int adjustment = newPanel.getHeight() + DynFormFactory.Y_PP_INCREMENT;
         repositionLevel0Panels(level0Container, adjustment, panel.getTop()) ;
+        repositionOutermostFields(adjustment);
     }
 
 
@@ -516,6 +533,7 @@ public class DynFormFactory extends AbstractSessionBean {
         SubPanel level0Container = panel.getController().removeSubPanel(panel);
         int adjustment = - (panel.getHeight() + DynFormFactory.Y_PP_INCREMENT);
         repositionLevel0Panels(level0Container, adjustment, panel.getTop()) ;
+        repositionOutermostFields(adjustment);
 
         UIComponent parent = panel.getParent();
         parent.getChildren().remove(panel);
@@ -529,6 +547,23 @@ public class DynFormFactory extends AbstractSessionBean {
                     controller.incSubPanelTops(top, adjustment);
             }
         }
+    }
+
+
+    private void repositionOutermostFields(int adjustment) {
+        String style = "top:%dpx";
+        for (UIComponent component : _outermostTops.keySet()) {
+            int newTop = _outermostTops.get(component) + adjustment;
+            if ((component instanceof Label))
+                ((Label) component).setStyle(String.format(style, newTop));
+            else if ((component instanceof SelectorBase))
+                ((SelectorBase) component).setStyle(String.format(style, newTop));
+            else if ((component instanceof FieldBase))
+                ((FieldBase) component).setStyle(String.format(style, newTop));
+                
+            _outermostTops.put(component, newTop);
+        }
+
     }
 
 
@@ -566,7 +601,7 @@ public class DynFormFactory extends AbstractSessionBean {
         return replaceInternalChars(text, ' ', '_');
     }
 
-    // replaces internal
+    // replaces each internally occurring 'pre' char with a 'post' char
     private String replaceInternalChars(String text, char pre, char post) {
         if ((text == null) || (text.length() < 3)) return text;
 

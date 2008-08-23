@@ -164,7 +164,10 @@ public class DynFormFieldAssembler {
                 }
                 Element union = simple.getChild("union", ns);
                 if (union != null) {
-                    field = addField(name, "xsd:string", null, "1", "1", level);
+                    DynFormFieldUnion fieldUnion = new DynFormFieldUnion(union, ns);
+                    String baseType = fieldUnion.getBaseType();
+                    field = addField(name, baseType, data, minOccurs, maxOccurs, level);
+                    field.setUnion(fieldUnion);
                 }
             }
             else {

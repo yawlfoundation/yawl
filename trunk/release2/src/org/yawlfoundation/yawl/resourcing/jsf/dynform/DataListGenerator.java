@@ -17,6 +17,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import javax.faces.component.UIComponent;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -53,6 +54,8 @@ public class DataListGenerator {
             stop = SelectedChoiceBounds.stop;
         }
         else {
+
+            // a subpanel child of a choice also has no header
             if ((panel instanceof SubPanel) && ((SubPanel) panel).isChoicePanel()) {
                 start = 0;
             }
@@ -72,7 +75,8 @@ public class DataListGenerator {
 
             // if a complextype choice, then deal with it
             else if (child instanceof RadioButton) {
-                System.out.println("complex choice");
+                SelectedChoiceBounds.calcBounds(children);
+                stop = SelectedChoiceBounds.stop;
             }
 
             // each label is a reference to an input field
@@ -98,9 +102,13 @@ public class DataListGenerator {
             value = JDOMUtil.encodeEscapes((String) ((TextField) field).getValue());
         else if (field instanceof Checkbox)
            value =  ((Checkbox) field).getValue().toString();
-        else if (field instanceof Calendar)
-            value = new SimpleDateFormat("yyyy-MM-dd")
-                                 .format(((Calendar) field).getSelectedDate());
+        else if (field instanceof Calendar) {
+            Date date = ((Calendar) field).getSelectedDate();
+            if (date != null)
+                value = new SimpleDateFormat("yyyy-MM-dd").format(date);
+            else
+                value = null;
+        }
         else if (field instanceof DropDown)
             value = (String) ((DropDown) field).getSelected();
 

@@ -470,7 +470,6 @@ public class userWorkQueues extends AbstractPageBean {
 
 
     public String btnView_action() {
-        Logger.getLogger(this.getClass()).warn("View render start.");
         _sb.setSourceTab("tabStarted");                      // come back to started tab
         WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
 

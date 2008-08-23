@@ -321,8 +321,12 @@ public class DynFormFieldRestriction {
         }
         
         if (hasMinLength() && hasMaxLength()) {
-            msgList.add(String.format(" with a length between %s and %s characters",
-                                       _minLength, _maxLength));
+            if (getMinLengthValue() == getMaxLengthValue())
+                msgList.add(String.format(" with a length of exactly %s characters",
+                                           _minLength));
+            else
+                msgList.add(String.format(" with a length between %s and %s characters",
+                                           _minLength, _maxLength));
         }
         else if (hasMinLength()) {
             msgList.add(String.format(" with a minimum length of %s characters", _minLength));
@@ -334,8 +338,6 @@ public class DynFormFieldRestriction {
         if (hasPattern()) {
             msgList.add(String.format(" matching the pattern '%s'", _pattern));
         }
-
-        if (hasWhitespace()) {}
 
         if (hasMinInclusive()) {
             msgList.add(String.format(" with a value >= %s", _minInclusive));
