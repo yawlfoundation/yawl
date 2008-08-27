@@ -27,6 +27,8 @@ import java.util.List;
 public class DataListGenerator {
 
     private DynFormFactory _factory;
+    private SimpleDateFormat _sdf = new SimpleDateFormat("yyyy-MM-dd");
+
 
     public DataListGenerator() { }
 
@@ -35,7 +37,8 @@ public class DataListGenerator {
     }
 
     public String generate(PanelLayout panel) {
-        return normaliseDataList(generateDataList(panel)) ;
+ //       return normaliseDataList(generateDataList(panel)) ;
+        return generateDataList(panel) ;
     }
 
     
@@ -56,7 +59,7 @@ public class DataListGenerator {
         else {
 
             // a subpanel child of a choice also has no header
-            if ((panel instanceof SubPanel) && ((SubPanel) panel).isChoicePanel()) {
+            if (! headedPanel(panel)) {
                 start = 0;
             }
             else {
@@ -105,7 +108,7 @@ public class DataListGenerator {
         else if (field instanceof Calendar) {
             Date date = ((Calendar) field).getSelectedDate();
             if (date != null)
-                value = new SimpleDateFormat("yyyy-MM-dd").format(date);
+                value = _sdf.format(date);
             else
                 value = null;
         }
@@ -126,8 +129,8 @@ public class DataListGenerator {
 
 
     /**
-     * Collects child elements of the same name at the same heirachy and consolidates
-     * their contents into a single child element
+     * Collects child elements of the same name at the outermost hierarchy and consolidates
+     * consolidates their contents into a single child element
      * @param data the data element to normalise
      * @return the normalised data element
      */
@@ -148,7 +151,9 @@ public class DataListGenerator {
                     for (Object match : matches) {
 
                         // recurse for lower level content
-                        Element recursedElem = normaliseDataElement((Element) match);
+                 //       Element recursedElem = normaliseDataElement((Element) match);
+                 //       subResult.addContent(recursedElem.cloneContent()) ;
+                        Element recursedElem = (Element) match;
                         subResult.addContent(recursedElem.cloneContent()) ;
                     }
                     processedNames.add(name);
@@ -159,6 +164,15 @@ public class DataListGenerator {
         else result.setText(data.getText());                         // recursion end
 
         return result;
+    }
+
+
+    private boolean headedPanel(PanelLayout panel) {
+        List children = panel.getChildren();
+        if ((children != null) && (! children.isEmpty()))
+            return (children.get(0) instanceof StaticText);
+        else
+            return false;                              // empty subpanel
     }
 
 

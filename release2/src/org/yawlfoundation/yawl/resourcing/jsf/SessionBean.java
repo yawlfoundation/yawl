@@ -675,7 +675,10 @@ public class SessionBean extends AbstractSessionBean {
 
 
     public SpecificationData getLoadedSpec(int listIndex) {
-        return loadedSpecs.get(listIndex);
+        if (! loadedSpecs.isEmpty())
+            return loadedSpecs.get(listIndex);
+        else
+            return null;
     }
 
 

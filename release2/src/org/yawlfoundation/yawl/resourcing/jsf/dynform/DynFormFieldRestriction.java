@@ -360,7 +360,9 @@ public class DynFormFieldRestriction {
                 " having no more than %s digits to the right of the decimal point", _fractionDigits));
         }
 
-        if (msgList.size() == 1)
+        if (msgList.isEmpty())
+            result = "";
+        else if (msgList.size() == 1)
             result = msgList.get(0) ;
         else {
             int i;

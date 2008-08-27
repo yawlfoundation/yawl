@@ -154,45 +154,72 @@ public class DynFormFieldAssembler {
             // check for a simpleType definition
             Element simple = eField.getChild("simpleType", ns);
             if (simple != null) {
-                Element restriction = simple.getChild("restriction", ns);
-                if (restriction != null) {
-                    DynFormFieldRestriction restrict =
-                            new DynFormFieldRestriction(restriction, ns);
-                    String baseType = restrict.getBaseType();
-                    field = addField(name, baseType, data, minOccurs, maxOccurs, level);
-                    field.setRestriction(restrict);
-                }
-                Element union = simple.getChild("union", ns);
-                if (union != null) {
-                    DynFormFieldUnion fieldUnion = new DynFormFieldUnion(union, ns);
-                    String baseType = fieldUnion.getBaseType();
-                    field = addField(name, baseType, data, minOccurs, maxOccurs, level);
-                    field.setUnion(fieldUnion);
-                }
+                field = addField(name, null, data, minOccurs, maxOccurs, level);
+                applySimpleTypeFacets(simple, ns, field);
             }
             else {
                 // new complex type - recurse in a new field list
-                Element subData = (data != null) ? data.getChild(name) : null;
-                String groupID = getNextGroupID();
-                int instances = getInitialInstanceCount(minOccurs, subData) ;
-                for (int i = 0; i < instances; i++) {
-                    Element data4Inst = (instances > 1) ?
-                                         getIteratedContent(subData, i) : subData ;
-                    field = addField(name, createFieldList(eField, data4Inst, ns, level),
-                                     minOccurs, maxOccurs, level);
-                    field.setOccursCount(instances);
-                    field.setGroupID(groupID);
-                    result.add(field);
-                }
+                field = addGroupField(name, eField, ns, data, minOccurs, maxOccurs, level);
             }
+            result.add(field);
         }
         else  {
             // a plain element
-            field = addField(name, type, data, minOccurs, maxOccurs, level);
+            result.addAll(addElementField(name, type, data, minOccurs, maxOccurs, level));
         }
 
-        if (result.isEmpty()) result.add(field);
+        return result;
+    }
 
+
+    private DynFormField addGroupField(String name, Element eField, Namespace ns,
+                                       Element data, String minOccurs, String maxOccurs,
+                                       int level) {
+        DynFormField field ;
+        Element subData = (data != null) ? data.getChild(name) : null;
+        String groupID = getNextGroupID();
+        int instances = getInitialInstanceCount(minOccurs, subData) ;
+
+        if (instances == 1) {
+            field = addField(name, createFieldList(eField, subData, ns, level),
+                             minOccurs, maxOccurs, level);
+        }
+        else {
+            field = addContainingField(name, minOccurs, maxOccurs, level);
+            String subGroupID = getNextGroupID();
+            for (int i = 0; i < instances; i++) {
+                Element data4Inst = getIteratedContent(subData, i) ;
+                List<DynFormField> subFieldList =
+                        createFieldList(eField, data4Inst, ns, level);
+                DynFormField subField = subFieldList.get(0);
+                subField.setGroupID(subGroupID);
+                field.addSubField(subField);
+            }
+        }
+        field.setGroupID(groupID);
+        field.setOccursCount(instances);
+
+        return field;
+    }
+
+    
+    private List<DynFormField> addElementField(String name, String type,
+                                               Element data, String minOccurs,
+                                               String maxOccurs, int level) {
+        List<DynFormField> result = new ArrayList<DynFormField>();
+        DynFormField field ;
+        String groupID = null;
+        boolean cloneable = isCloneableField(minOccurs, maxOccurs);
+        if (cloneable) groupID = getNextGroupID();
+        int instances = getInitialInstanceCount(minOccurs, data) ;
+        
+        for (int i = 0; i < instances; i++) {
+            Element data4Inst = (instances > 1) ? getIteratedContent(data, i) : data ;
+            field = addField(name, type, data4Inst, minOccurs, maxOccurs, level);
+            field.setGroupID(groupID);
+            field.setOccursCount(instances);
+            result.add(field);
+        }
         return result;
     }
 
@@ -204,8 +231,8 @@ public class DynFormFieldAssembler {
         input.setMinoccurs(minOccurs);
         input.setMaxoccurs(maxOccurs);
         input.setLevel(level);
-        input.setRequired();
         input.setParam(_currentParam);
+        if (type != null) input.setRequired();
         return input;
     }
 
@@ -219,6 +246,46 @@ public class DynFormFieldAssembler {
         input.setParam(_currentParam);
         input.setLevel(level);
         return input;
+    }
+
+
+    private DynFormField addContainingField(String name, String minOccurs,
+                                            String maxOccurs,int level) {
+        if (name == null) name = "choice";
+        DynFormField input = new DynFormField(name, null);
+        input.setMinoccurs(minOccurs);
+        input.setMaxoccurs(maxOccurs);
+        input.setParam(_currentParam);
+        input.setLevel(level);
+        return input;
+    }
+
+
+    private void applySimpleTypeFacets(Element simple, Namespace ns,
+                                                 DynFormField field) {
+        Element restriction = simple.getChild("restriction", ns);
+        if (restriction != null) {
+            DynFormFieldRestriction restrict =
+                    new DynFormFieldRestriction(restriction, ns);
+            field.setDatatype(restrict.getBaseType());
+            field.setRestriction(restrict);
+        }
+
+        Element union = simple.getChild("union", ns);
+        if (union != null) {
+            DynFormFieldUnion fieldUnion = new DynFormFieldUnion(union, ns);
+            field.setDatatype(fieldUnion.getBaseType());
+            field.setUnion(fieldUnion);
+        }
+
+        Element list = simple.getChild("list", ns);
+        if (list != null) {
+            DynFormFieldListType fieldList = new DynFormFieldListType(list);
+            field.setDatatype(fieldList.getItemType());
+            field.setListType(fieldList);
+        }
+        if (field.getDatatype() != null) field.setRequired();
+
     }
 
 
@@ -251,6 +318,13 @@ public class DynFormFieldAssembler {
     }
 
 
+    private boolean isCloneableField(String minoccurs, String maxoccurs) {
+        int min = SubPanelController.convertOccurs(minoccurs);
+        int max = SubPanelController.convertOccurs(maxoccurs);
+        return (max > 1) && (max > min);
+    }
+
+
     private String getNextGroupID() {
         return "group" + String.valueOf(_uniqueSuffix++);
     }
@@ -258,6 +332,7 @@ public class DynFormFieldAssembler {
     private String getNextChoiceID() {
         return "choice" + String.valueOf(_uniqueSuffix++);
     }
+
 
 
 

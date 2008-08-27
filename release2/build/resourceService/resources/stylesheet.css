@@ -185,6 +185,15 @@
     position: absolute;    
 }
 
+.refreshCasesButton {
+  /*  border: 1px solid; */
+    left: 577px;
+    top: 2px;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+}
+
 /* Rules for Org Data Page */
 
 .orgDataPrivCheckBox {

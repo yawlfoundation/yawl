@@ -132,6 +132,7 @@ public class DynFormFactory extends AbstractSessionBean {
     static final int Y_PR_INCREMENT = 20 ;      // inc of y cood between field -> panel
     static final int Y_NR_INCREMENT = 10 ;      // inc of y cood between start -> radio
     static final int Y_CHOICE_DECREMENT = 20;   // dec of y coord for choice container top
+    static final int Y_SINGLE_ELEM_INCREMENT = 25;  // inc of y coord for single content box
     static final int SUBPANEL_INSET = 10 ;      // gap between panel side walls
     static final int OUTER_PANEL_TO_BUTTONS = 15;   // gap from panel bottom to buttons
     static final int OUTER_PANEL_TOP = 130;      // top (y) coord of outer panel
@@ -168,6 +169,7 @@ public class DynFormFactory extends AbstractSessionBean {
         _subPanelTable.clear();
         _outermostTops.clear();
 
+        // reset default widths 
         X_FIELD_OFFSET = DEFAULT_FIELD_OFFSET;
         PANEL_BASE_WIDTH = DEFAULT_PANEL_BASE_WIDTH;
         FIELD_WIDTH = DEFAULT_FIELD_WIDTH;
@@ -228,7 +230,7 @@ public class DynFormFactory extends AbstractSessionBean {
         compPanel.getChildren().addAll(content) ;
         setBaseWidths(builder);
         _componentFieldTable = builder.getTextFieldMap();
-        sizeAndPositionContent(content) ;
+        sizeAndPositionContent(compPanel.getChildren()) ;
     }
 
 
@@ -243,7 +245,8 @@ public class DynFormFactory extends AbstractSessionBean {
 
     
     private int calcHeight(List content) {
-        int height = Y_NF_INCREMENT ;
+        int height = 0 ;                      
+        int lastInc = 0;
         ComponentType prevComponent = ComponentType.nil;
         ComponentType currComponent ;
 
@@ -258,10 +261,14 @@ public class DynFormFactory extends AbstractSessionBean {
                 else
                     currComponent = ComponentType.field;
 
-                height += getNextInc(prevComponent, currComponent);
+                // add gap between components
+                lastInc = getNextInc(prevComponent, currComponent);
+                height += lastInc;
                 prevComponent = currComponent;
             }
         }
+
+        height -= (lastInc - getNextInc(prevComponent, ComponentType.nil));                                          // remove final gap
 
         return height ;
     }
@@ -379,27 +386,44 @@ public class DynFormFactory extends AbstractSessionBean {
             }
             else  {
 
-                // if min and/or max defined at the field level, add buttons to container
-                if (container != null) {
-                    addOccursButtons(container, field);
-                }
+
+//                if (container != null) {
+//                    addOccursButtons(container, field);
+//                }
 
                 // create the field (inside a panel)
                 if ((container != null) && container.isChoicePanel() && result.isEmpty())
                     top += Y_NR_INCREMENT;
+                else if (field.getGroupID() != null)
+                    top += getNextInc(prevComponent, ComponentType.panel);
                 else
                     top += getNextInc(prevComponent, ComponentType.field);
 
-                innerContent = builder.makeInputField(top, field);
-                if (container != null) {
-                    container.getController().addSimpleContent(innerContent, top);
+                // if min and/or max defined at the field level, enclose it in a subpanel
+                if (field.getGroupID() != null) {
+                    SubPanelController spc = _subPanelTable.get(field.getGroupID());
+                    SubPanel subPanel = builder.makeSubPanel(top, field, spc);
+                    _subPanelTable.put(field.getGroupID(), subPanel.getController());
+                    innerContent = builder.makeInputField(Y_SINGLE_ELEM_INCREMENT, field);
+                    subPanel.getChildren().addAll(innerContent);
+                    result.add(subPanel);
+                    subPanel.setHeight(Y_SINGLE_ELEM_INCREMENT +
+                                       getNextInc(ComponentType.field, ComponentType.nil)) ;
+                    top += subPanel.getHeight() ;
+                    prevComponent = ComponentType.panel ;
                 }
                 else {
-                    for (UIComponent component : innerContent)
-                        _outermostTops.put(component, top);
-                }
-                result.addAll(innerContent);
-                prevComponent = ComponentType.field ;
+                    innerContent = builder.makeInputField(top, field);
+                    if (container != null) {
+                        container.getController().addSimpleContent(innerContent, top);
+                    }
+                    else {
+                        for (UIComponent component : innerContent)
+                            _outermostTops.put(component, top);
+                    }
+                    result.addAll(innerContent);
+                    prevComponent = ComponentType.field ;
+                }    
             }
         }
         if (container != null)
@@ -516,7 +540,7 @@ public class DynFormFactory extends AbstractSessionBean {
     }
 
     private void addSubPanel(SubPanel panel) {
-        SubPanel newPanel = new SubPanelCloner().clone(panel, this) ;
+        SubPanel newPanel = new SubPanelCloner().clone(panel, this, createUniqueID("clone")) ;
 
         // get container of this panel
         UIComponent parent = panel.getParent();
@@ -546,6 +570,14 @@ public class DynFormFactory extends AbstractSessionBean {
                 if (controller != container.getController())
                     controller.incSubPanelTops(top, adjustment);
             }
+        }
+    }
+    
+
+    public void addClonedFieldToTable(TextField orig, TextField clone) {
+        DynFormField field = _componentFieldTable.get(orig);
+        if (field != null) {
+            _componentFieldTable.put(clone, field);
         }
     }
 

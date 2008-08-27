@@ -8,6 +8,7 @@
 
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,8 +29,10 @@ public class DynFormField {
     private int _level;
     private int _order;
     private boolean _required ;
+
     private DynFormFieldRestriction _restriction;
     private DynFormFieldUnion _union;
+    private DynFormFieldListType _list;
 
     private List<DynFormField> _subFieldList;
     private String _groupID;
@@ -72,7 +75,7 @@ public class DynFormField {
     }
 
     public String getDataTypeUnprefixed() {
-        if (_datatype.indexOf(':') > -1)
+        if ((_datatype != null) && (_datatype.indexOf(':') > -1))
             return _datatype.split(":")[1] ;
         else
             return _datatype ;
@@ -192,10 +195,12 @@ public class DynFormField {
 
     // treat all non-strings as required pending handling of optional params
     public void setRequired() {
-        _required = (! isInputOnly()) &&
-                    ((_minoccurs > 0) || (! getDataTypeUnprefixed().equals("string")));
+        String simpleTypeName = getDataTypeUnprefixed();
+        boolean nonString = (simpleTypeName != null) && (! simpleTypeName.equals("string"));
+        _required = (! isInputOnly()) && ((_minoccurs > 0) || nonString);
     }
 
+    
     public void setEnumeratedValues(List<String> enumValues) {
         if (_restriction != null)
             _restriction.setEnumeration(enumValues);
@@ -227,6 +232,20 @@ public class DynFormField {
     public boolean isFieldContainer() {
         return _subFieldList != null ;
     }
+
+    public void addSubField(DynFormField field) {
+        if (_subFieldList == null)
+            _subFieldList = new ArrayList<DynFormField>();
+        _subFieldList.add(field);
+    }
+
+    public boolean removeSubField(DynFormField field) {
+        if (_subFieldList != null)
+            return _subFieldList.remove(field);
+        else
+            return true;
+    }
+    
 
     public String getGroupID() {
         return _groupID;
@@ -277,6 +296,20 @@ public class DynFormField {
     }
 
 
+    public void setListType(DynFormFieldListType list) {
+        _list = list;
+        _list.setOwner(this);
+    }
+
+    public DynFormFieldListType getListType() {
+        return _list;
+    }
+
+    public boolean hasListType() {
+        return _list != null;
+    }
+
+
 
    
     private long convertOccurs(String occurs) {
@@ -314,6 +347,8 @@ public class DynFormField {
                                     getDataTypeUnprefixed());
         if (hasRestriction())
             tip += _restriction.getToolTipExtn();
+        else if (hasListType())
+            tip = " Please enter " + _list.getToolTipExtn();
 
         return tip + " ";
     }

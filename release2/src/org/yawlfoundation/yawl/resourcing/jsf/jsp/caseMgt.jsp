@@ -134,6 +134,14 @@
                                         styleClass="caseMgtPanel"
                                         style="height: 194px; top: 451px">
                             
+                            <ui:button binding="#{SessionBean.btnRefresh}"
+                                       action="#{caseMgt.btnRefresh_action}"
+                                       id="btnRefresh"
+                                       imageURL="/resources/refresh.png"
+                                       styleClass="refreshCasesButton"
+                                       toolTip="Refresh Running Cases"
+                                       text=""/>
+
                             <ui:button action="#{caseMgt.btnCancelCase_action}"
                                        binding="#{caseMgt.btnCancelCase}"
                                        id="btnCancelCase"

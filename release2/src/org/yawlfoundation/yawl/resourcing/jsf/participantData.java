@@ -642,7 +642,7 @@ public class participantData extends AbstractPageBean {
                 p.setPassword(PasswordEncryptor.getInstance().encrypt(password));
             }
             catch (Exception e) {
-                msgPanel.warn("Could not change password - encryption service unavailable");
+                msgPanel.warn("Could not change password - encryption service unavailable.");
             }
         }
         txtNewPassword.setPassword("");
@@ -674,22 +674,22 @@ public class participantData extends AbstractPageBean {
             return result ;
 
         if (password.length() == 0) {
-            msgPanel.error("ERROR: No password entered");
+            msgPanel.error("ERROR: No password entered.");
             result = false ;
         }
         else {
             if (password.length() < 4) {
-                msgPanel.error("ERROR: Password must contain at least 4 characters");
+                msgPanel.error("ERROR: Password must contain at least 4 characters.");
                 result = false ;
             }
 
             if (password.indexOf(" ") > -1) {
-                msgPanel.error("ERROR: Password cannot contain spaces");
+                msgPanel.error("ERROR: Password cannot contain spaces.");
                 result = false;
             }
 
             if (! password.equals(confirm)) {
-                msgPanel.error("ERROR: Password and confirmation are different");
+                msgPanel.error("ERROR: Password and confirmation are different.");
                 result = false;
             }
         }
@@ -715,7 +715,7 @@ public class participantData extends AbstractPageBean {
         // unique id?
         if (hasText(txtUserID)) {
             if (! getApplicationBean().isUniqueUserID((String) txtUserID.getText())) {
-                msgPanel.error("ERROR: That User ID is already in use - please try another");
+                msgPanel.error("ERROR: That User ID is already in use - please try another.");
                 result = false;
             }    
         }
@@ -727,11 +727,11 @@ public class participantData extends AbstractPageBean {
         // warn if no attributes
         Participant p = sb.getAddedParticipant();
         if (p.getRoles().isEmpty())
-            msgPanel.warn("WARNING: No role specified for participant") ;
+            msgPanel.warn("WARNING: No role specified for participant.") ;
         if (p.getPositions().isEmpty())
-            msgPanel.warn("WARNING: No position specified for participant") ;
+            msgPanel.warn("WARNING: No position specified for participant.") ;
         if (p.getCapabilities().isEmpty())
-            msgPanel.warn("WARNING: No capability specified for participant") ;
+            msgPanel.warn("WARNING: No capability specified for participant.") ;
 
         return result ;
     }
@@ -740,23 +740,23 @@ public class participantData extends AbstractPageBean {
     private boolean checkForRequiredValues() {
         boolean result = true;
         if (! hasText(txtLastName)) {
-            msgPanel.error("ERROR: A last name is required");
+            msgPanel.error("ERROR: A last name is required.");
             result = false;
         }
         if (! hasText(txtFirstName)) {
-            msgPanel.error("ERROR: A first name is required");
+            msgPanel.error("ERROR: A first name is required.");
             result = false;
         }
         if (! hasText(txtUserID)) {
-            msgPanel.error("ERROR: A userid is required");
+            msgPanel.error("ERROR: A userid is required.");
             result = false;
         }
         if (! hasText(txtNewPassword)) {
-            msgPanel.error("ERROR: A password is required");
+            msgPanel.error("ERROR: A password is required.");
             result = false;
         }
         if (! hasText(txtConfirmPassword)) {
-            msgPanel.error("ERROR: A 'confirm' password is required");
+            msgPanel.error("ERROR: A 'confirm' password is required.");
             result = false;
         }
         return result ;
