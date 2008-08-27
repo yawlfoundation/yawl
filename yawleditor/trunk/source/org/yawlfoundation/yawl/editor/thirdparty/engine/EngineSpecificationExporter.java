@@ -70,11 +70,19 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   public static void exportEngineSpecToFile(SpecificationModel editorSpec, String fullFileName) {
       if (checkUserDefinedDataTypes(editorSpec))
           exportIfSucessful(getEngineSpecificationXML(editorSpec), fullFileName);
+//      exportIfSucessful(getEngineSpecificationXML(editorSpec)
+//              + getLayout(editorSpec), fullFileName);
   }
   
   public static void checkAndExportEngineSpecToFile(SpecificationModel editorSpec, String fullFileName) {
       if (checkUserDefinedDataTypes(editorSpec))
           exportIfSucessful(getAndCheckEngineSpecificationXML(editorSpec), fullFileName);
+//      exportIfSucessful(getAndCheckEngineSpecificationXML(editorSpec)
+//              + getLayout(editorSpec), fullFileName);
+  }
+
+  private static String getLayout(SpecificationModel editorSpec) {
+      return new LayoutExporter().export(editorSpec);
   }
 
 
@@ -154,8 +162,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     return getEngineSpecificationXML(
        getEngineSpecAsEngineObjects(
            editorSpec
-       )    
-    ); 
+       )
+    );
   }
   
   public static String getEngineSpecificationXML(YSpecification engineSpec) {
