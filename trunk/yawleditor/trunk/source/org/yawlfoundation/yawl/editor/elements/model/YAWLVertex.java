@@ -137,6 +137,8 @@ public abstract class YAWLVertex extends DefaultGraphCell
   public String getEngineLabel() {
     return getLabel();
   }
+
+  public Point2D getStartPoint() { return startPoint;}  
   
   public String getEngineIdNumber() {
     return (String) serializationProofAttributeMap.get("engineIdNumber");
