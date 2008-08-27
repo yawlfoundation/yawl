@@ -313,6 +313,7 @@ public class caseMgt extends AbstractPageBean {
                 beginCase(specID, _sb.getSessionhandle());
         }
         updateRunningCaseList();
+        activateButtons();
         _sb.setActivePage(ApplicationBean.PageRef.caseMgt);
     }
 
@@ -329,6 +330,10 @@ public class caseMgt extends AbstractPageBean {
         return fileName ;
     }
 
+
+    public String btnRefresh_action() {
+        return null ;
+    }
 
     // upload the chosen spec file
     public String btnUpload_action() {
@@ -403,6 +408,7 @@ public class caseMgt extends AbstractPageBean {
     // cancels the case with the id passed
     private String cancelCase(String caseID) {
         try {
+            _sb.setRunningCaseListChoice(null) ;
             String handle = _sb.getSessionhandle() ;
             return _rm.cancelCase(caseID, handle);
         }
@@ -433,13 +439,16 @@ public class caseMgt extends AbstractPageBean {
         try {
             Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
             SpecificationData spec = _sb.getLoadedSpec(selectedRowIndex - 1);
-            String result = unloadSpec(spec.getID()) ;
-            if (result.indexOf("success") == -1) {
-                result = JDOMUtil.formatXMLString(result);
-                msgPanel.error("Could not unload specification.\n\n" + result);
-            }
-            else {
-                _sb.refreshLoadedSpecs();
+            if (spec != null) {
+                String result = unloadSpec(spec.getID()) ;
+                if (result.indexOf("success") == -1) {
+                    result = JDOMUtil.formatXMLString(result);
+                    msgPanel.error("Could not unload specification.\n\n" + result);
+                }
+                else {
+                    hdnRowIndex.setValue(null);
+                    _sb.refreshLoadedSpecs();
+                }
             }
         }
         catch (NumberFormatException nfe) {
@@ -505,22 +514,29 @@ public class caseMgt extends AbstractPageBean {
         String handle = _sb.getSessionhandle() ;
         Set<SpecificationData> specDataSet = _rm.getSpecList(handle) ;
         if (specDataSet != null) {
-            ArrayList<Option> caseList = new ArrayList<Option>();
+            ArrayList<String> caseList = new ArrayList<String>();
             for (SpecificationData specData : specDataSet) {
                 List<String> caseIDs = _rm.getRunningCasesAsList(specData.getID(), handle);
-
-                // srt the list using a treeset
-                TreeSet<String> caseTree = new TreeSet<String>(caseIDs) ;
-                for (String caseID : caseTree)
-                    caseList.add(new Option(caseID + ": " + specData.getID())) ;
+                for (String caseID : caseIDs)
+                    caseList.add(caseID + ": " + specData.getID()) ;
             }
 
+            // sort the list using a treeset
+            TreeSet<String> caseTree = new TreeSet<String>(caseList) ;
+
             // convert to options array
-            Option[] options = new Option[caseList.size()] ;
+            Option[] options = new Option[caseTree.size()] ;
             int i = 0 ;
-            for (Option option : caseList) options[i++] = option ;          
+            for (String caseStr : caseTree) options[i++] = new Option(caseStr) ;
             _sb.setRunningCaseListOptions(options);
         }
+    }
+
+
+    private void activateButtons() {
+        boolean noSpecsSelected = _sb.getLoadedSpecs().isEmpty() ;
+        btnUnload.setDisabled(noSpecsSelected);
+        btnLaunch.setDisabled(noSpecsSelected);
     }
 
 }

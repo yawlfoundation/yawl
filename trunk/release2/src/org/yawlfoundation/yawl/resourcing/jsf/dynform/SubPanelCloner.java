@@ -11,8 +11,8 @@ package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 import com.sun.rave.web.ui.component.*;
 
 import javax.faces.component.UIComponent;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Author: Michael Adams
@@ -21,11 +21,13 @@ import java.util.ArrayList;
 public class SubPanelCloner {
 
     private DynFormFactory _factory ;
+    private String _rbGroupID;
 
     public SubPanelCloner() { }
 
-    public SubPanel clone(SubPanel panel, DynFormFactory factory) {
+    public SubPanel clone(SubPanel panel, DynFormFactory factory, String id) {
         _factory = factory;
+        _rbGroupID = id;
         return cloneSubPanel(panel);
     }
 
@@ -69,6 +71,8 @@ public class SubPanelCloner {
 
         if (component instanceof StaticText)
             newComponent = cloneStaticText(component) ;
+        else if (component instanceof RadioButton)
+            newComponent = cloneRadioButton(component);
         else if (component instanceof Label) {
             Label newLabel = (Label) cloneLabel(component);
             String labelFor = ((Label) component).getFor();
@@ -81,8 +85,6 @@ public class SubPanelCloner {
                 newComponent = cloneCheckbox(compFor);
             else if (compFor instanceof DropDown)
                 newComponent = cloneDropDown(compFor);
-            else if (compFor instanceof RadioButton)
-                newComponent = cloneRadioButton(compFor);
 
             if (newComponent != null) {
                 newLabel.setFor(newComponent.getId());
@@ -120,17 +122,22 @@ public class SubPanelCloner {
         newField.setStyleClass(oldField.getStyleClass());
         newField.setStyle(oldField.getStyle());
         newField.setToolTip(oldField.getToolTip());
+        _factory.addClonedFieldToTable(oldField, newField);      // for later validation
         return newField;
     }
+
 
     public UIComponent cloneCalendar(UIComponent field) {
         Calendar oldField = (Calendar) field ;
         Calendar newField = new Calendar() ;
-        newField.setId(_factory.createUniqueID(oldField.getId()));
         newField.setDateFormatPatternHelp("");
+        newField.setId(_factory.createUniqueID(oldField.getId()));
+        newField.setSelectedDate(oldField.getSelectedDate());
         newField.setDisabled(oldField.isDisabled());
         newField.setRequired(oldField.isRequired());
         newField.setColumns(oldField.getColumns());
+        newField.setMinDate(oldField.getMinDate());
+        newField.setMaxDate(oldField.getMaxDate());       
         newField.setStyleClass(oldField.getStyleClass());
         newField.setStyle(oldField.getStyle()) ;
         return newField ;
@@ -166,7 +173,8 @@ public class SubPanelCloner {
         RadioButton oldRadio = (RadioButton) field;
         RadioButton newRadio = new RadioButton();
         newRadio.setId(_factory.createUniqueID(oldRadio.getId()));
-        newRadio.setName(oldRadio.getName());
+        newRadio.setName(oldRadio.getName() + _rbGroupID);                // new rb group
+        newRadio.setSelected(oldRadio.getSelected());
         newRadio.setStyle(oldRadio.getStyle());
         newRadio.setStyleClass(oldRadio.getStyleClass());
         return newRadio;

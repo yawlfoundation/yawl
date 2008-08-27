@@ -16,6 +16,7 @@ import org.yawlfoundation.yawl.resourcing.interactions.OfferInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
+import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGatewayClient;
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGatewayClientAdapter;
 
 import javax.servlet.ServletException;
@@ -65,8 +66,8 @@ public class TestService extends InterfaceBWebsideController {
    //    output.append(doWorkQueueGatewayTest()) ;
    //     output.append(ibTest());
    //     output.append(doRandomTest()) ;
-        output.append(doGetParticipantsTest()) ;
-
+   //     output.append(doGetParticipantsTest()) ;
+          output.append(controllerTest());
 
          output.append("</p></body></html>");
          outputWriter.write(output.toString());
@@ -420,5 +421,50 @@ private static String getReply(InputStream is) throws IOException {
         catch (Exception e) {}
             return "";
     }
+
+    private String controllerTest() {
+        Controller c = new Controller();
+        c.getAllResources();
+        return "";
+    }
+
+    class Controller extends WorkQueueGatewayClientAdapter{
+
+ //       private static Controller instance;
+
+private Controller() {
+    super("http://localhost:8080/resourceService/workqueuegateway");
+}
+
+//public static Controller getInstance() {
+//    if (instance == null)
+//      instance = new Controller();
+//    return (instance);
+//  }
+public String[] getAllResources()
+  {
+    try {
+        String sessionHandler = connect("admin","YAWL");
+        if(WorkQueueGatewayClient.successful(sessionHandler)){
+            System.out.println("OK - Session:"+sessionHandler);
+        }
+        Set<Participant> participantSet = getAllParticipants(sessionHandler);
+        Iterator iter = participantSet.iterator();
+        String[] retValue = new String[participantSet.size()];
+        int i = 0;
+        while (iter.hasNext()) {
+            Object obj = iter.next();
+            Participant p = (Participant) obj;
+            retValue[i] = p.getFullName();
+            i++;
+        }
+        disconnect(sessionHandler);
+        return retValue;
+    } catch (IOException e) {
+        e.printStackTrace();
+        return null;
+    }
+  }
+}
 
 }

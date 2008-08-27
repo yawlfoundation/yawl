@@ -20,6 +20,7 @@ import java.util.List;
  *
  * Author: Michael Adams
  * Creation Date: 28/02/2008
+ * Last Date: 26/08/2008
  */
 
 public class MessagePanel extends PanelLayout {
@@ -32,6 +33,10 @@ public class MessagePanel extends PanelLayout {
     private static final String infoIconURL = "/resources/info.png" ;
     private static final String warnIconURL = "/resources/warn.png" ;
     private static final String successIconURL = "/resources/success.png" ;
+
+    // panel width / font width: 268 / 6
+    private static final int CHARS_PER_LINE = 45;
+
 
     // list of messages for each type
     private List<String> _errorMessage;
@@ -132,7 +137,7 @@ public class MessagePanel extends PanelLayout {
     /* adds a message to a particular list */
     private List<String> addMessage(List<String> list, String message) {
         if (list == null)  list = new ArrayList<String>();
-        list.add(message + System.getProperty("line.separator"));
+        list.add(message);
         return list ;
     }
 
@@ -199,6 +204,16 @@ public class MessagePanel extends PanelLayout {
     }
 
 
+    private PanelLayout constructInnerPanel() {
+        PanelLayout inner = new PanelLayout() ;
+        inner.setId("pnlInner" + getNextIDSuffix());
+        inner.setStyle("background-color: #f0f0f0; width: 268px") ;
+        inner.setPanelLayout("flow");
+        return inner ;
+    }
+
+
+
     private MsgType getDominantType() {
         if (_errorMessage != null) return MsgType.error ;
         else if (_warnMessage != null) return MsgType.warn ;
@@ -220,21 +235,22 @@ public class MessagePanel extends PanelLayout {
     private int listMessages(List<String> list, MsgType msgType, int lineCount) {
         if (list != null) {
             for (String message : list) {
-                lineCount += (message.length() / 45) + 1;     // approx. 45chrs per line
-                listMessage(message, msgType, lineCount) ;
+                lineCount += (message.length() / CHARS_PER_LINE) + 1;
+                listMessage(message, msgType) ;
             }
             return lineCount;
         }
         return 0;
     }
 
-    private void listMessage(String message, MsgType msgType, int lineCount) {
+    private void listMessage(String message, MsgType msgType) {
+        PanelLayout innerPanel = constructInnerPanel();
         StaticText sttMessage = new StaticText();
         sttMessage.setId("stt" + getNextIDSuffix()) ;
         sttMessage.setText(message);
-        sttMessage.setStyle(getFontStyle(0, msgType)); // +
-            //    "width: 270px; top: " + (lineCount * 15) + "px; position: absolute;");
-        _pnlMessages.getChildren().add(sttMessage) ;
+        sttMessage.setStyle(getFontStyle(0, msgType));
+        innerPanel.getChildren().add(sttMessage) ;
+        _pnlMessages.getChildren().add(innerPanel);
     }
 
     private int getNextIDSuffix() {
@@ -243,8 +259,11 @@ public class MessagePanel extends PanelLayout {
 
     private void setHeight(int lineCount) {
 
-        // rough est. - assume 45 chars/line, 15px per line height, min height 70 (for icon)
-        long height = Math.round(Math.max(70, lineCount * 15));
+        // estimated constants
+        double minHeight = 70.0;
+        double lineHeight = 15;
+
+        long height = Math.round(Math.max(minHeight, lineCount * lineHeight));
         this.setStyle(String.format("%s height: %dpx", _style, height));
     }
 }

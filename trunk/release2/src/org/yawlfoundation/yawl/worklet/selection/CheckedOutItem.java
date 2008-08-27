@@ -101,18 +101,18 @@ public class CheckedOutItem {
 
 
     // SETTERS //
-	
-	public void setItem(WorkItemRecord w) {
-		_wir = w ;
+
+    public void setItem(WorkItemRecord w) {
+        _wir = w ;
         _persistID = _wir.getID();
         initNonPersistedItems();
         persistThis();
     }
-	
-	
-	public void setChildren(List c) {
-		_myChildren = (ArrayList) c ;
-	}
+
+
+    public void setChildren(List c) {
+        _myChildren = (ArrayList) c ;
+    }
 
 
     public void setSpawnCount(int count) {

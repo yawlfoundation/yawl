@@ -316,8 +316,9 @@ public class SubPanelController {
     }
 
 
-    /** enble/disable the occurs buttons as required */
+    /** enable/disable the occurs buttons as required */
     public void setOccursButtonsEnablement() {
+        _currOccurs = _panelList.size();
         boolean disableMinus = ((_currOccurs == 1) || (_currOccurs == _minOccurs)) ;
         boolean disablePlus = (_currOccurs == _maxOccurs);
 

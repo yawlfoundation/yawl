@@ -53,7 +53,7 @@ public class DynFormComponentBuilder {
         subPanel.setTop(top);
         subPanel.setName(name);
         subPanel.setId(_factory.createUniqueID("sub" + name));
-        if (! name.startsWith("choice"))
+        if ((! name.startsWith("choice")) && field.isFieldContainer())
             subPanel.getChildren().add(makeHeaderText(name)) ;
 
         if (spc != null) {
@@ -67,14 +67,9 @@ public class DynFormComponentBuilder {
         if (spc.canVaryOccurs()) {
             subPanel.addOccursButton(_factory.makeOccursButton(name, "+"));
             subPanel.addOccursButton(_factory.makeOccursButton(name, "-"));
+            spc.setOccursButtonsEnablement();
         }
         return subPanel ;
-    }
-
-
-    private boolean isRequired(FormParameter param) {
- //       return (param.isRequired() || param.isMandatory());
-        return false;
     }
 
 
@@ -236,7 +231,7 @@ public class DynFormComponentBuilder {
         RadioButton rb = new RadioButton();
         rb.setId(_factory.createUniqueID("rb" + input.getName()));
         rb.setLabel("");
-        rb.setName(input.getChoiceID());
+        rb.setName(input.getChoiceID());               // same name means same rb group
         rb.setStyle(makeTopStyle(top));
         rb.setStyleClass("dynformRadioButton");        
         return rb;
