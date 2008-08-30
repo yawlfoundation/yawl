@@ -32,7 +32,7 @@ public class DynFormField {
 
     private DynFormFieldRestriction _restriction;
     private DynFormFieldUnion _union;
-    private DynFormFieldListType _list;
+    private DynFormFieldListFacet _list;
 
     private List<DynFormField> _subFieldList;
     private String _groupID;
@@ -296,12 +296,12 @@ public class DynFormField {
     }
 
 
-    public void setListType(DynFormFieldListType list) {
+    public void setListType(DynFormFieldListFacet list) {
         _list = list;
         _list.setOwner(this);
     }
 
-    public DynFormFieldListType getListType() {
+    public DynFormFieldListFacet getListType() {
         return _list;
     }
 

@@ -1,5 +1,7 @@
 package org.yawlfoundation.yawl.testService;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
 import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
@@ -36,6 +38,8 @@ import java.util.Set;
  */
 public class TestService extends InterfaceBWebsideController {
 
+    Logger _log = Logger.getLogger(this.getClass());
+
     public TestService() { super(); }
 
     public void handleEnabledWorkItemEvent(WorkItemRecord enabledWorkItem) {
@@ -67,7 +71,8 @@ public class TestService extends InterfaceBWebsideController {
    //     output.append(ibTest());
    //     output.append(doRandomTest()) ;
    //     output.append(doGetParticipantsTest()) ;
-          output.append(controllerTest());
+   //       output.append(controllerTest());
+        output.append(stressTest());
 
          output.append("</p></body></html>");
          outputWriter.write(output.toString());
@@ -421,6 +426,44 @@ private static String getReply(InputStream is) throws IOException {
         catch (Exception e) {}
             return "";
     }
+
+    /********************************************************************************/
+
+    private String stressTest() {
+        // note: make sure "_stressTest.xml" is loaded in engine
+
+        int numberOfCasesToStart = 40, i = 0;
+        String obs = "http://localhost:8080/testService/ib";
+        String result;
+
+        _log.setLevel(Level.TRACE);
+
+        try {
+            String handle = _interfaceBClient.connect("admin", "YAWL");
+
+            for (i=0; i<numberOfCasesToStart; i++) {
+                result = _interfaceBClient.launchCase("StressTest", null, handle, obs);
+                _log.trace("Case Started: " + result + ", case count: " + (i+1));
+            }
+        }
+        catch (IOException ioe) {
+            _log.error("IOException connecting to Engine.");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "Completed " + i + " case starts.";
+    }
+
+
+    public void handleCompleteCaseEvent(String caseID, String casedata) {
+        _log.trace("Case Completed: " + caseID);
+    }
+
+    /*****************************************************************************/
+
+
 
     private String controllerTest() {
         Controller c = new Controller();

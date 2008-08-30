@@ -15,12 +15,30 @@ public class YTimer extends Timer {
     
     private static YTimer _me;
 
-    private YTimer() { super(true) ; }
+    private Hashtable<String, TimeKeeper> _runners;
+
+    private YTimer() {
+        super(true) ;
+        _runners = new Hashtable<String, TimeKeeper>();
+    }
 
 
     public static YTimer getInstance() {
         if (_me == null) _me = new YTimer() ;
         return _me ;
+    }
+
+
+    public YTimedObject cancelTimerTask(String itemID) {
+        YTimedObject result = null;
+        TimeKeeper timer = _runners.get(itemID);
+        if (timer != null) {
+            result = timer.getOwner();
+            timer.cancel();                           // cancel the scheduled timertask
+            result.cancel();                          // cancel the YWorkItemTimer
+            _runners.remove(itemID);
+        }
+        return result;
     }
 
     // both methods return a long value of the date/time stamp representing
@@ -74,11 +92,19 @@ public class YTimer extends Timer {
 
         protected TimeKeeper(YTimedObject owner) {
             _owner = owner ;
+
+            if (owner instanceof YWorkItemTimer) {
+                String id = ((YWorkItemTimer) owner).getOwnerID();
+                _runners.put(id, this);
+            }
         }
+
+
+        public YTimedObject getOwner() { return _owner; }
+
 
         public void run() {
             _owner.handleTimerExpiry();
-    //        cancel();                                   // remove this timekeeper
         }
     }
 }

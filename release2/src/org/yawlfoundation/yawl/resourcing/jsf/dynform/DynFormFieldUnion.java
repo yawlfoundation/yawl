@@ -17,6 +17,7 @@ public class DynFormFieldUnion {
     private List<DynFormFieldRestriction> _restrictionList;
     private List<String> _enumeration;
     private DynFormField _owner;
+    private List<String> _memberTypes;
 
 
     public DynFormFieldUnion(Element union, Namespace ns) {
@@ -28,6 +29,7 @@ public class DynFormFieldUnion {
 
     
     private void parse(Element union, Namespace ns) {
+        _memberTypes = parseMemberList(union.getAttributeValue("memberTypes"));
         List children = union.getChildren("simpleType", ns);
         for (int i=0; i<children.size(); i++) {
             Element child = (Element) children.get(i);
@@ -39,6 +41,15 @@ public class DynFormFieldUnion {
         combineEnumeratedValues();
     }
 
+
+    private List<String> parseMemberList(String memberList) {
+        List<String> result = new ArrayList<String>();
+        String[] list = memberList.split(" ");
+        for (String member : list) {
+            result.add(member.trim());
+        }
+       return result;
+    }
 
     private void combineEnumeratedValues() {
         for (DynFormFieldRestriction restriction : _restrictionList) {

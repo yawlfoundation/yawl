@@ -280,7 +280,7 @@ public class DynFormFieldAssembler {
 
         Element list = simple.getChild("list", ns);
         if (list != null) {
-            DynFormFieldListType fieldList = new DynFormFieldListType(list);
+            DynFormFieldListFacet fieldList = new DynFormFieldListFacet(list);
             field.setDatatype(fieldList.getItemType());
             field.setListType(fieldList);
         }
