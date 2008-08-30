@@ -7,14 +7,14 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
  * Author: Michael Adams
  * Creation Date: 23/08/2008
  */
-public class DynFormFieldListType {
+public class DynFormFieldListFacet {
 
     private Element _baseElement;
     private String _itemType;
     private DynFormField _owner;
 
 
-    public DynFormFieldListType(Element list) {
+    public DynFormFieldListFacet(Element list) {
         _baseElement = list;
         _itemType = list.getAttributeValue("itemType");
     }

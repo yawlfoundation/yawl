@@ -11,7 +11,6 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
-import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
@@ -486,7 +485,6 @@ public class userWorkQueues extends AbstractPageBean {
             df.setHeaderText("Edit Work Item: " + wir.getIDForDisplay());
             df.setDisplayedWIR(wir);
             if (df.initDynForm("YAWL 2.0 - Edit Work Item")) {
-                Logger.getLogger(this.getClass()).warn("View render end.");
                 return "showDynForm" ;
             }
             else {
@@ -495,7 +493,6 @@ public class userWorkQueues extends AbstractPageBean {
                                "Please see the log files for details.");
                 return null;
             }
-
         }
     }
 
@@ -574,7 +571,11 @@ public class userWorkQueues extends AbstractPageBean {
             else if (action.equals("acceptStart")) {
                 if (wir != null) {
                     _rm.acceptOffer(p, wir);
-                    _rm.start(p, wir, handle);
+
+                    // if the accepted offer has a system-initiated start, it's
+                    // already started, so don't do it again
+                    if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceAllocated))
+                        _rm.start(p, wir, handle);                   
                 }    
                 else
                     msgPanel.info("Another participant has already accepted this offer.");

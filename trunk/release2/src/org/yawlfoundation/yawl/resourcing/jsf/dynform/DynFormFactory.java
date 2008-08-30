@@ -19,7 +19,6 @@ package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 import com.sun.rave.web.ui.appbase.AbstractSessionBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.component.Calendar;
-import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
 import org.yawlfoundation.yawl.resourcing.jsf.SessionBean;
@@ -160,7 +159,6 @@ public class DynFormFactory extends AbstractSessionBean {
      * @return true if form is successfully initialised
      */
     public boolean initDynForm(String title) {
-        Logger.getLogger(this.getClass()).warn("Dynform init start.");
         setTitle(title);
 
         // start with a clean form

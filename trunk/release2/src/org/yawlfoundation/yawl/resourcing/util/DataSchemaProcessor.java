@@ -1,6 +1,5 @@
 package org.yawlfoundation.yawl.resourcing.util;
 
-import org.apache.log4j.Logger;
 import org.jdom.JDOMException;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
@@ -77,21 +76,9 @@ public class DataSchemaProcessor {
              throws IOException, JDOMException, YSchemaBuildingException, YSyntaxException{
  //       Collections.sort(instructions);
 
-        Logger.getLogger(this.getClass()).warn("buildSchema: creating tools object.");
-
         XMLToolsForYAWL xmlToolsForYawl = new XMLToolsForYAWL();
-
-        Logger.getLogger(this.getClass()).warn("buildSchema: tool created; setPrimarySchema.");
-
         xmlToolsForYawl.setPrimarySchema(specData.getSchemaLibrary());
-
-        Logger.getLogger(this.getClass()).warn("buildSchema: schema set; createYAWLschema.");
-
-        String result = xmlToolsForYawl.createYAWLSchema(instructions, rootElementName);
-
-        Logger.getLogger(this.getClass()).warn("buildSchema: YAWL schema created.");
-
-        return result;
+        return xmlToolsForYawl.createYAWLSchema(instructions, rootElementName);
     }
 
     

@@ -18,6 +18,7 @@ import org.yawlfoundation.yawl.engine.announcement.Announcements;
 import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
 import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
+import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
@@ -649,9 +650,15 @@ public class YNetRunner {
 
                 }
             }
+
+            // cancel any live timer
+            if (wItem.hasTimerStarted()) {
+                YTimer.getInstance().cancelTimerTask(wItem.getIDString());
+            }
+
             if (pmgr != null) {
-               pmgr.deleteObject(wItem);
-               pmgr.updateObject(this);
+                pmgr.deleteObject(wItem);
+                pmgr.updateObject(this);
             }
         }
         return result;

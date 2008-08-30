@@ -3,8 +3,8 @@
 
     <!-- ========================== Properties ================================= -->
 
-    <property name="app.version" value="_Release_2.0_beta_update1"/>
-    <property name="developer.name" value="Lachlan_Aldred, Michael Adams, Andrew Hastie,
+    <property name="app.version" value="_Release_2.0_beta_update2"/>
+    <property name="developer.name" value="Lachlan Aldred, Michael Adams, Andrew Hastie,
                                            Mike Fowler, Matt Flaherty et al."/>
 
     <!-- Tomcat properties -->

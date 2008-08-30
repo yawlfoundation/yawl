@@ -109,5 +109,10 @@ public class YWorkItemTimer implements YTimedObject {
 
     }
 
-    
+    // do whatever necessary when a timer is cancelled before expiry
+    public void cancel() {
+        persistThis(false) ;                                
+    }
+
+
 }

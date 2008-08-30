@@ -667,7 +667,7 @@ public class YWorkItem {
         _timerParameters = params;
     }
 
-    public boolean isTimerStarted() { return _timerStarted; }
+    public boolean hasTimerStarted() { return _timerStarted; }
 
     public void setTimerStarted(boolean started) { _timerStarted = started; }
 
