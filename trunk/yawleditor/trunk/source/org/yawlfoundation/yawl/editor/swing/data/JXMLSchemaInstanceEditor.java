@@ -23,11 +23,12 @@
  
 package org.yawlfoundation.yawl.editor.swing.data;
 
-import java.util.List;
-import java.util.LinkedList;
-
 import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.data.YTimerType;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class JXMLSchemaInstanceEditor extends ValidityEditorPane {
 
@@ -78,7 +79,7 @@ public class JXMLSchemaInstanceEditor extends ValidityEditorPane {
   }
   
   public String getSchemaInstance() {
-    if (DataVariable.isBaseDataType(variableType)) {
+    if (DataVariable.isBaseDataType(variableType) || variableType.equals("YTimerType")) {
       return "<" + this.variableName + ">\n" +
              this.getText().trim() + 
              "\n</" + this.variableName + ">";
@@ -108,26 +109,40 @@ class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
       );
       return;
     }
-
-    if (DataVariable.isBaseDataType(getInstanceEditor().getVariableType())) {
+    String dataType = getInstanceEditor().getVariableType();
+    if (dataType.equals("YTimerType")) {
+        validateYTimerTypeInstance();
+    }
+    else if (DataVariable.isBaseDataType(dataType)) {
       validateBaseDataTypeInstance();        
-    } else {
+    }
+    else {
       validateUserSuppliedDataTypeInstance();
     }
   }
   
   private void validateBaseDataTypeInstance() {
     setProblemList(getBaseDataTypeInstanceProblems());
-    if (getProblemList().size() == 0) {
-      setContentValid(
-          AbstractXMLStyledDocument.Validity.VALID
-      );
-    } else {
-      setContentValid(
-          AbstractXMLStyledDocument.Validity.INVALID
-      );
-    }
+    setValidity();
   }
+
+    private void validateYTimerTypeInstance() {
+      setProblemList(getYTimerTypeInstanceProblems());
+      setValidity();
+    }
+
+
+    private void setValidity() {
+        if (getProblemList().size() == 0) {
+          setContentValid(
+              AbstractXMLStyledDocument.Validity.VALID
+          );
+        } else {
+          setContentValid(
+              AbstractXMLStyledDocument.Validity.INVALID
+          );
+        }
+    }
 
   public List getProblemList() {
     return problemList;
@@ -148,21 +163,28 @@ class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
     return problemList;
   }
   
+    private LinkedList getYTimerTypeInstanceProblems() {
+      LinkedList problemList = new LinkedList();
+
+      String errors = YAWLEngineProxy.getInstance().validateBaseDataTypeInstance(
+          YTimerType.getValidationSchema(getInstanceEditor().getVariableName()),
+          getInstanceEditor().getSchemaInstance()
+      );
+
+      if (errors != null && errors.trim().length() > 0) {
+        problemList.add(errors);
+      }
+
+      return problemList;
+    }
+
   private void setProblemList(LinkedList problemList) {
     this.problemList = problemList;
   }
 
   private void validateUserSuppliedDataTypeInstance() {
     setProblemList(getUserSuppliedDataTypeInstanceProblems());
-    if (getProblemList().size() == 0) {
-      setContentValid(
-          AbstractXMLStyledDocument.Validity.VALID
-      );
-    } else {
-      setContentValid(
-          AbstractXMLStyledDocument.Validity.INVALID
-      );
-    }
+    setValidity();
   }
   
   private LinkedList getUserSuppliedDataTypeInstanceProblems() {

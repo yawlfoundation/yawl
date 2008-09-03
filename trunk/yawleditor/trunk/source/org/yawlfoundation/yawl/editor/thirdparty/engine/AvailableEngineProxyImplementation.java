@@ -45,6 +45,10 @@ import org.yawlfoundation.yawl.schema.ElementCreationInstruction;
 import org.yawlfoundation.yawl.schema.XMLToolsForYAWL;
 import org.yawlfoundation.yawl.unmarshal.SchemaForSchemaValidator;
 import org.yawlfoundation.yawl.util.SaxonUtil;
+import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.jdom.Element;
+import org.jdom.Document;
+import org.jdom.Namespace;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -269,17 +273,32 @@ public class AvailableEngineProxyImplementation implements
       if (knownTypeName.equals(dataType)) {
         String dataTypeSchema = createSchemaForVariable("testVar", knownTypeName);
         if (dataTypeSchema != null) {
-          if (dataTypeSchema.indexOf("simpleType") != -1) {
-            complexity = SIMPLE_DATA_TYPE_COMPLEXITY;
-          } else {
-            complexity = COMPLEX_DATA_TYPE_COMPLEXITY;
-          }
+            complexity = getDataSchemaComplexity(dataTypeSchema);
+            break;
         }
       }
     }
     return complexity;
   }
-  
+
+
+  private int getDataSchemaComplexity(String schema) {
+      Document doc = JDOMUtil.stringToDocument(schema);
+      Element root = doc.getRootElement();                        // schema
+      Namespace ns = root.getNamespace();
+
+      // schemas for complex and simple types have the same prolog - read & discard
+      Element element = root.getChild("element", ns) ;
+      element = element.getChild("complexType", ns);
+      element = element.getChild("sequence", ns);
+      element = element.getChild("element", ns);
+
+      // the next child is either simpleType or complexType
+      element = element.getChild("complexType", ns);
+      return (element != null) ? COMPLEX_DATA_TYPE_COMPLEXITY : SIMPLE_DATA_TYPE_COMPLEXITY;
+  }
+
+
   public String validateBaseDataTypeInstance(String typeDefinition, String schemeInstance) {
     return instanceValidator.validateBaseDataTypeInstance(typeDefinition, schemeInstance);
   }

@@ -60,11 +60,12 @@ class AboutEditorDialog extends AbstractDoneDialog {
   private static final long serialVersionUID = 1L;
 
   public AboutEditorDialog() {
-    super("About the editor", false, getAboutPanel(), false);
+    super("About the YAWL Editor", false, getAboutPanel(), false);
   }
   
   protected void makeLastAdjustments() {
     setSize(600,500);
+    setResizable(false);  
     JUtilities.centerWindow(this);
   }
   
@@ -82,22 +83,21 @@ class AboutEditorDialog extends AbstractDoneDialog {
     );
 
     JLabel message = new JLabel("<html><body>" +
-        "This is version @EditorReleaseNumber@ of the YAWLEditor.<br><br>" + 
+        "This is version @EditorReleaseNumber@ of the YAWLEditor.<br><br>" +
         "The editor incorporates and/or uses components of the following tools:" +
         "<ul>" +
             "<li>YAWL Engine @CompatibleEngineReleaseNumber@"+
             "<li>JGraph @JGraphReleaseNumber@"+
             "<li>Proguard @ProguardReleaseNumber@"+
-            "<li>WofYAWL @WofYawlReleaseNumber@" + 
-            "<li>Postgres 8.0</ul>" +
-        "This version of the editor is compatible only with:" +
+            "<li>WofYAWL @WofYawlReleaseNumber@</ul>" +
+        "This version of the editor requires:" +
         "<ul>" +
-          "<li>Java @CompatibleJavaReleaseNumber@"+
-          "<li>YAWL Engine @CompatibleEngineReleaseNumber@" +
-          "<li>WofYAWL @WofYawlReleaseNumber@</ul>" +
-        "Save-file formats of previous YAWLEditor versions are not guaranteed to be compatible with this version.<br><br>" +
+          "<li>Java @CompatibleJavaReleaseNumber@ or later"+
+          "<li>YAWL Engine @CompatibleEngineReleaseNumber@</ul>" +
+        "Saved 'ywl' file formats of previous YAWLEditor versions are not compatible with this version.<br><br>" +
         "Contributors to the editor source code:" +
         "<ul><li>@EditorContributors@</ul>" +
+         "<br><center>Build Date: @BuildDate@</center>" +   
         "</body></html>"
     );
 
