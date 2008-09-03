@@ -56,8 +56,8 @@ public class ResourceAdministrator {
         WorkQueue unoffered = _qSet.getQueue(WorkQueue.UNOFFERED) ;
         ResourceManager rm = ResourceManager.getInstance();
         if (unoffered != null) {
+            wir.setResourceStatus(WorkItemRecord.statusResourceOffered);
             if (action.equals("Offer")) {
-                wir.setResourceStatus(WorkItemRecord.statusResourceOffered);
                 p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
                 rm.addToOfferedSet(wir, p);
             }

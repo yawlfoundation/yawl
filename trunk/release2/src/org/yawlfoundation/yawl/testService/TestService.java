@@ -432,7 +432,7 @@ private static String getReply(InputStream is) throws IOException {
     private String stressTest() {
         // note: make sure "_stressTest.xml" is loaded in engine
 
-        int numberOfCasesToStart = 40, i = 0;
+        int numberOfCasesToStart = 10, i = 0;
         String obs = "http://localhost:8080/testService/ib";
         String result;
 

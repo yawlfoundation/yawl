@@ -1,5 +1,5 @@
 
-                      YAWL Release 2.0 beta (Update 2) 29/08/2008
+                      YAWL Release 2.0 beta (Update 2) 03/09/2008
                       ===========================================
 
 This beta update is an interim release of the YAWL Environment, and includes a large
@@ -11,10 +11,8 @@ below and the previous 2.0 beta release notes further down the page.
 !!   please note that a small change needs to be applied to one of the persisted    !!
 !!   data tables.                                                                   !!
 !!                                                                                  !!
-!!   Please apply the sql script 'update2.sql' using the Postgres admin tool. The   !!
-!!   script can be downloaded as 'update2sql.zip' from the YAWL Engine download     !!
-!!   page on sourceForge. The zip file also contains a document with step by step   !!
-!!   instructions.                                                                  !!
+!!   Please follow the instructions in the document "Update2TableFix.pdf", which    !!
+!!   can be found inside 'YAWL_Release_2.0_beta_update2_ExecutableWebServices.zip'. !!
 
 
 QUICK START: After installation, start Tomcat and point a browser to
@@ -30,14 +28,15 @@ QUICK START: After installation, start Tomcat and point a browser to
 2. CHANGES IN THIS UPDATE
 -------------------------
 (a) ENGINE:
-  - The Saxon package has been upgraded from version 7.0 to 9.1.0.1 (affects all services).
-  - The XercesImpl package has been upgraded from verion 2.4 to 2.9, to correct a parse
+  - The Saxon package has been upgraded from version 7.0 to 9.1.0.1 (also affects all
+    services).
+  - The XercesImpl package has been upgraded from version 2.4 to 2.9, to correct a parse
     bug in the old version that was causing a specification load to lock the engine in
     certain circumstances.
   - Cleaned and improved the use of saxon classes when handling multi-instanced data.
-  - Fixed persistence exception caused when log4j was placed in debug mode.
-  - Fixed bug that caused an exception when restoring workitems from persistence and
-    the whole workitem family was not available in restored list of workitems.
+  - Fixed a persistence exception caused when log4j was placed in debug mode.
+  - Fixed a bug that caused an exception when restoring workitems from persistence and
+    the whole workitem family was not available in the restored list of workitems.
   - Finalised the YAWL schema location in generated specification xml files.
   - Fixed a bug that caused deadlocked workitems to be persisted, so that they remained
     in the persisted table after the case was closed.
@@ -50,7 +49,7 @@ QUICK START: After installation, start Tomcat and point a browser to
     YWorkItemTimers immediately on server startup.
   - Fixed missing persisted values for several members of YWorkItem that had changed
     since the workitem was first constructed.
-  - Fixed an exception caused by double cast of timer expiry value.
+  - Fixed an exception caused by a double cast of a timer expiry value.
   - Fixed an exception when restoring persisted case instances on startup, where the
     instance has an active sub-net and its specification version number is greater than
     "0.1".
@@ -58,6 +57,9 @@ QUICK START: After installation, start Tomcat and point a browser to
     types.
   - Fixed a bug where a timer associated with a cancelled workitem was not removed
     from persistence.
+  - Refactored support for multiple concurrent specification versions.
+  - Added a 'engine initialisation completion' event so that custom services can run
+    initialisation tasks that require a running engine to be available.
 
 
 (b) RESOURCE SERVICE:
@@ -71,22 +73,22 @@ QUICK START: After installation, start Tomcat and point a browser to
   - Added a 'Complete' button to dynamic forms so that workitem data can be saved and
     the workitem be completed in one action.
   - Added a checkbox to the Admin workqueues called 'Directly to me' that appears when
-    the logged in participant has admin privileges, allowing unoffered workitems to be
-    directly offered, allocated or started to the particpant, by-passing the user
-    selection screen.
-  - Fixed bug in round robin allocators which was resulting in the workitem not
+    the logged in participant has admin privileges, allowing unoffered and worklisted
+    workitems to be directly (re)offered, (re)allocated or (re)started to the
+    participant, by-passing the user selection screen.
+  - Fixed a bug in round robin allocators which was resulting in the workitem not
     appearing on any workqueue.
-  - Fixed bug in deferred allocation where net-level variable values were incorrectly
+  - Fixed a bug in deferred allocation where net-level variable values were incorrectly
     retrieved resulting in the workitem not appearing on any workqueue.
-  - The 'View' button is enabled on the 'Started' workqueue whenever the selected
+  - The 'View' button is now enabled on the 'Started' workqueue whenever the selected
     workitem is associated with a custom form (for workitems not using custom forms, the
     'View' button is enabled only when the workitem has data for viewing/editing).
   - Fixed several small bug(s) so that all possible interaction strategy combinations
     work as expected.
   - Fixed a bug that caused an exception when a workitem had an 'SSS' allocation
-    strategy combination and the particpant the workitem was directed to was not
+    strategy combination and the participant the workitem was directed to was not
     currently logged on.
-  - Fixed a bug that caused and exception when creating a new particpant, and a role,
+  - Fixed a bug that caused an exception when creating a new participant, and a role,
     capability or position was added and then removed before the new participant was
     saved the first time.
   - Updated the schemas of previous YAWL versions, required after the Xerces upgrade.
@@ -94,7 +96,7 @@ QUICK START: After installation, start Tomcat and point a browser to
     a position could not report to itself either directly or within the reporting
     hierarchy.
   - Fixed an exception caused when a participant deallocated a workitem.
-  - Sorted listbox contents on all 'Org Data Mgt' tabs
+  - Sorted listbox contents on all 'Org Data Mgt' tabs.
   - Assigning a role to a task now includes the set of all the member participants of
     that role and all the member participants of all the descendant sub-roles that
     'belong to' that role in the hierarchy.
@@ -105,28 +107,29 @@ QUICK START: After installation, start Tomcat and point a browser to
   - Added an appropriate message when a workitem completion is attempted directly from
     a dynamic form and does not succeed.
   - Fixed a bug that caused offered workitems to remain on the 'Offered' queue and also
-    moved to the 'Allocated' queue after an 'Accept Offer', that occurred when there were
-    items on the 'Offered' queue when the server was shutdown and restarted.
+    moved to the 'Allocated' queue after an 'Accept Offer', which occurred when there 
+    were items on the 'Offered' queue when the server was shutdown and restarted.
   - Added cache checking code after each startup to ensure the service's known workitems
     match the engine's.
   - Fixed a bug where deallocating a workitem prevented the deallocating participant
-    from being offered the same task in all new cases (as opposed for just the current
-    case).
+    from being offered the same task in subsequent cases of the same specification (as
+    opposed to just the current case).
   - Fixed a bug where allocated workitems were staying on the 'Allocated' workqueue when
-    the workitem was started after an server restart.
+    the workitem was started after a server restart.
   - Removed the engine id suffix from the task names displayed in worklists.
   - Fixed a bug which was causing the random creation of phantom participant objects.
   - Deallocation of a workitem is now restricted to participants who are subordinate
     (via position) to the participant performing the deallocation (as per delegation).
-  - In the 'Edit Profile' screen, the'Unchain' and 'Unpile' buttons are now disabled if
+  - In the 'Edit Profile' screen, the 'Unchain' and 'Unpile' buttons are now disabled if
     there are no piled/chained workitems in the respective lists.
   - Fixed bug on the 'Org Data Mgt' screen where description & notes info would remain
     from the previous role/position/capability/orgGroup when the 'New' button is pressed.
   - Fixed bug when viewing a tab other than 'Roles' on the 'Org Data Mgt' screen, then
     navigating to another page and back again, the 'Roles' tab would show with the
     contents of the previously viewed tab.
-  - Fixed a bug when filtering by Org Group would result in an empty distribution set.
-  - Fixed issue where chaining left unwithdrawn offers on other worklists.
+  - Fixed a bug when filtering by Org Group that would result in an empty distribution
+    set.
+  - Fixed an issue where chaining left unwithdrawn offers on other worklists.
   - Fixed a bug that threw an exception in the 'Case Mgt' screen when a specification
     was loaded into an empty specification list, then immediately unloaded, then the
     'Unload' button was clicked again.
@@ -136,22 +139,30 @@ QUICK START: After installation, start Tomcat and point a browser to
     list with the same case number.
   - Fixed a bug where if the 'Accept & Start' button was clicked for a workitem that had
     a system-initiated start, an attempt was made to start the workitem twice.
+  - Added a 'Version' number column to the 'Loaded Specifications' table of the 'Case
+    Mgt' screen.
+  - Added the version number of the specification to each running process listed in
+    the 'Case Mgt' screen. 
+  - Fixed a bug that allowed a blank service to be added in the 'Service Mgt' screen if
+    the 'Clear' button was clicked first.
+  - Disabled all superfluous JSF log messages from the standard output logs.
+  - Automated tasks are now persisted while checked out of Engine.  
 
 
 (c) EDITOR:
   - Upgraded to latest jgraph version - v5.12.1.1
   - Upgraded to saxon 9.1.0.1
-  - Fixed bug when importing a specification from XML that resulting in a missing default
-    predicate for splits.
-  - Fixed bug that messed up arc colours when using the Updating Predicate Detail dialog
-    after importing a specification from XML.
-  - Removed engine id from task name in notes tab at screen bottom.
+  - Fixed a bug when importing a specification from XML that resulted in a missing
+    default predicate for splits.
+  - Fixed a bug that messed up arc colours when using the 'Updating Predicate Detail'
+    dialog after importing a specification from XML.
+  - Removed the engine id suffix from the task name in the Notes tab at screen bottom.
   - Updated ywl file loading to check, remove & report invalid resource references.
-  - Fixed an exception thrown on analysis when a specification failed validatation.
-    Validation errors are shown in a dialog and the analysis won’t continue.
+  - Fixed an exception thrown on analysis when a specification failed validation.
+    Validation errors are now shown in a dialog and the analysis won't continue.
   - The data schema for YTimerType complex type is now exported correctly to the
     specification xml whenever that type is used.
-  - Fixed the viewport of the Filters section of the resource wizard – its contents can
+  - Fixed the viewport of the Filters section of the resource wizard - its contents can
     now be clearly seen.
   - Fixed the auto-generation of XQuerys in the 'Update Parameters' dialog when mapping
     parameters of type YTimerType.
@@ -162,18 +173,18 @@ QUICK START: After installation, start Tomcat and point a browser to
   - Added check to ensure that tasks selected for 'Separation of Duties' and
     'Familiar Task' in Resourcing Wizard step 3 are mutually exclusive.
   - Fixed bug in 'Update Flow Detail' dialog which caused the predicates list to resize
-    to an unreadable proportion when there was more than 5 outgoing flows from a split.
+    to an unreadable proportion when there were more than 5 outgoing flows from a split.
   - Fixed bug where sometimes not all flow predicates were displayed in the 'Update Flow
     Detail' dialog.
-  - Fixed bug with the recreation of resourcing allocation strategy when importing a
+  - Fixed a bug with the recreation of resourcing allocation strategy when importing a
     specification from xml.
   - An appropriate message is now displayed when 'Manage Resourcing' is selected, and
     there's a live resource service connection, and the org model associated with the
     resource service has no data.
   - Fixed a bug when dealing with xml 'special' characters in the initial values of
     net-level local string type variables.
-  - Resolved issue where both parameters of the 'org data' filter required values to be
-    specified, rather than one or the other or both.
+  - Resolved an issue where both parameters of the 'org data' filter required values to 
+    be specified, rather than one or the other or both.
   - Fixed a bug where importing a net-level output-only variable was creating a duplicate
     variable of usage 'Local'.
   - Fixed a bug where the 'Update' button would no longer respond when attempting to
@@ -183,9 +194,9 @@ QUICK START: After installation, start Tomcat and point a browser to
     if there are any problems, they are reported and export doesn't proceed (until they
     are fixed).
   - Fixed a bug when importing a specification from xml that contains a resource
-    (participant or role) reference that no longer exists in the db, which was causing a 
-    null resource reference to be stored, which in turn caused an exception when the
-    specification was next exported.
+    (participant or role) reference that no longer exists in the org data sourced from
+    the resource service, which was causing a null resource reference to be stored, which
+    in turn caused an exception when the specification was next exported.
   - Fixed a bug which was leaving the editor in an inconsistent state after loading a
     specification with a null value stored as a resource.
   - Fixed a bug which prevented the export of a specification that contained a YTimerType.
@@ -199,13 +210,14 @@ QUICK START: After installation, start Tomcat and point a browser to
     instead of a complexType XQuery for certain complexType constructs.
   - Fixed a bug that was leaving remnants of removed parameters in internal task mappings
     resulting in half-completed xml mappings in exported specifications, leading to a
-    runtime exception when the specification was executed.
+    runtime exception when a specification instance was executed.
   - Fixed a bug that was leaving removed net-level parameters in task mappings in certain
-     circumstances.
-  - Fixed a bug that showed a valid YTimerType value as invalid in the ‘Initial Value’
+    circumstances.
+  - Fixed a bug that showed a valid YTimerType value as invalid in the 'Initial Value'
     field of the 'Update Parameters' dialog.
   - Added the filename of specifications loaded from xml to the titlebar (previously only
     ywl filenames were shown).
+  - Added the build date and time to the 'Help...About' dialog.
     
 
 (d) WORKLET SERVICE:
@@ -232,6 +244,13 @@ QUICK START: After installation, start Tomcat and point a browser to
      task completes (so that multiple task instances are available concurrently -
      the expected behaviour), rather the latter tasks are enabled sequentially (so
      that only one can be 'live' at any one time).
+
+   - Some of the more complex data schema constructs are not currently handled
+     correctly for dynamic form generation. For example, dynamic forms won't render a
+     choice element in a data schema that is a direct child of a complexType element
+     (choice can be rendered correctly as a direct child of a simpleType element).
+     Choice expressed as a combination of simpleType elements and 'memberType'
+     attributes are also not currently supported.
 
 
    Please report any bugs or problems via the YAWL sourceforge page:

@@ -51,7 +51,7 @@ public class WorkItemRecord implements Cloneable {
     // item identifiers
     private long _id;                                    // hibernate primary key
     private String _specificationID;
-    private String _specVersion ;
+    private String _specVersion = "0.1" ;
     private String _caseID;
     private String _taskID;
     private String _uniqueID;                            // used by PDF Forms service

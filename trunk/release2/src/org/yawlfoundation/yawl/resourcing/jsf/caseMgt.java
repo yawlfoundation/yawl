@@ -12,6 +12,7 @@ import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
 import com.sun.rave.web.ui.model.UploadedFile;
+import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
@@ -24,7 +25,10 @@ import javax.faces.component.html.HtmlDataTable;
 import javax.faces.component.html.HtmlOutputText;
 import javax.faces.event.ValueChangeEvent;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  *  Backing bean for the case mgt page.
@@ -263,6 +267,28 @@ public class caseMgt extends AbstractPageBean {
     public void setColDescriptionHeader(HtmlOutputText hot) { colDescriptionHeader = hot; }
 
 
+
+    private UIColumn colVersion = new UIColumn();
+
+    public UIColumn getColVersion() { return colVersion; }
+
+    public void setColVersion(UIColumn uic) { colVersion = uic; }
+
+
+    private HtmlOutputText colVersionRows = new HtmlOutputText();
+
+    public HtmlOutputText getColVersionRows() { return colVersionRows; }
+
+    public void setColVersionRows(HtmlOutputText hot) { colVersionRows = hot; }
+
+
+    private HtmlOutputText colVersionHeader = new HtmlOutputText();
+
+    public HtmlOutputText getColVersionHeader() { return colVersionHeader; }
+
+    public void setColVersionHeader(HtmlOutputText hot) { colVersionHeader = hot; }
+
+
     private UIColumn colSBar = new UIColumn();
 
     public UIColumn getColSBar() { return colSBar; }
@@ -308,7 +334,7 @@ public class caseMgt extends AbstractPageBean {
 
         // take postback action on case launch
         if (_sb.isCaseLaunch()) {
-            String specID = _sb.getLoadedSpecListChoice() ;
+            String specID = _sb.getLoadedSpecListChoice().getSpecName() ;
             if (specID != null)
                 beginCase(specID, _sb.getSessionhandle());
         }
@@ -378,7 +404,20 @@ public class caseMgt extends AbstractPageBean {
         try {
             Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
             SpecificationData spec = _sb.getLoadedSpec(selectedRowIndex - 1);
-            refPage = startCase(spec) ;
+
+            // make sure the latest spec version is selected
+            YSpecVersion latestVersion = _sb.getLatestLoadedSpecVersion(spec);
+            YSpecVersion selectedVersion = new YSpecVersion(spec.getSpecVersion());
+            if (selectedVersion.compareTo(latestVersion) >= 0) {
+                refPage = startCase(spec) ;
+            }
+            else {
+                msgPanel.error("Unable to start case. Only the latest version of a " +
+                               "specification may be launched. The latest loaded version " +
+                               "of this specification is '" + latestVersion +
+                               "', the selected version is '" + selectedVersion +
+                               "'. Please select the latest version.");
+            }
         }
         catch (NumberFormatException nfe) {
             msgPanel.error("No specification selected to launch.") ;
@@ -420,10 +459,10 @@ public class caseMgt extends AbstractPageBean {
 
 
     // unloads the chosen spec from the engine
-    private String unloadSpec(String specID) {
+    private String unloadSpec(SpecificationData spec) {
         try {
             String handle = _sb.getSessionhandle() ;
-            return _rm.unloadSpecification(specID, handle);
+            return _rm.unloadSpecification(spec.getID(), spec.getSpecVersion(), handle);
         }
         catch (IOException ioe) {
             msgPanel.error("IOException when attempting to unload specification") ;
@@ -440,7 +479,7 @@ public class caseMgt extends AbstractPageBean {
             Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
             SpecificationData spec = _sb.getLoadedSpec(selectedRowIndex - 1);
             if (spec != null) {
-                String result = unloadSpec(spec.getID()) ;
+                String result = unloadSpec(spec) ;
                 if (result.indexOf("success") == -1) {
                     result = JDOMUtil.formatXMLString(result);
                     msgPanel.error("Could not unload specification.\n\n" + result);
@@ -465,7 +504,7 @@ public class caseMgt extends AbstractPageBean {
             List inputParams = specData.getInputParams();
             if (! inputParams.isEmpty()) {
                 _sb.setDynFormType(ApplicationBean.DynFormType.netlevel);
-                _sb.setLoadedSpecListChoice(specData.getID());
+                _sb.setLoadedSpecListChoice(specData);
 
                 DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");
                 df.setHeaderText("Starting an Instance of: " + specData.getID());
@@ -516,9 +555,12 @@ public class caseMgt extends AbstractPageBean {
         if (specDataSet != null) {
             ArrayList<String> caseList = new ArrayList<String>();
             for (SpecificationData specData : specDataSet) {
-                List<String> caseIDs = _rm.getRunningCasesAsList(specData.getID(), handle);
-                for (String caseID : caseIDs)
-                    caseList.add(caseID + ": " + specData.getID()) ;
+                List<String> caseIDs = _rm.getRunningCasesAsList(specData.getSpecID(), handle);
+                for (String caseID : caseIDs) {
+                    String line = String.format("%s: %s (%s)", caseID, specData.getID(),
+                                                specData.getSpecVersion());
+                    caseList.add(line) ;
+                }
             }
 
             // sort the list using a treeset

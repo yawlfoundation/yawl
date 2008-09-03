@@ -14,8 +14,10 @@ import org.jdom.JDOMException;
 import org.jdom.Namespace;
 import org.yawlfoundation.yawl.authentication.User;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
@@ -30,6 +32,7 @@ import org.yawlfoundation.yawl.resourcing.codelets.CodeletExecutionException;
 import org.yawlfoundation.yawl.resourcing.codelets.CodeletFactory;
 import org.yawlfoundation.yawl.resourcing.constraints.ConstraintFactory;
 import org.yawlfoundation.yawl.resourcing.datastore.HibernateEngine;
+import org.yawlfoundation.yawl.resourcing.datastore.PersistedAutoTask;
 import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataSource;
@@ -45,10 +48,7 @@ import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparat
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ConnectionCache;
-import org.yawlfoundation.yawl.resourcing.util.DataSchemaProcessor;
-import org.yawlfoundation.yawl.resourcing.util.Docket;
-import org.yawlfoundation.yawl.resourcing.util.TaggedStringList;
-import org.yawlfoundation.yawl.resourcing.util.RandomOrgDataGenerator;
+import org.yawlfoundation.yawl.resourcing.util.*;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.servlet.ServletException;
@@ -83,8 +83,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private ConnectionCache _connections = ConnectionCache.getInstance();
 
     // local cache of specificiations: id -> SpecificationData
-    private HashMap<String, SpecificationData> _specCache =
-            new HashMap<String, SpecificationData>();
+    private SpecDataCache _specCache = new SpecDataCache();
 
     // currently logged on participants: <sessionHandle, Participant>
     private HashMap<String,Participant> _liveSessions =
@@ -120,15 +119,13 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public boolean _logOffers ;
     private boolean _persistPiling ;
-    private boolean _hasAcceptedLogons = false;      // flag for 1st logon after restart
 
     // authority for write access to org data entities
     private enum ResUnit {Participant, Role, Capability, OrgGroup, Position}
     private boolean[] _dsEditable = {true, true, true, true, true} ;
 
-    // Mappings for specid -> taskid <-> resourceMap
-    private HashMap<String,HashMap<String,ResourceMap>> _specTaskResMap = 
-        new HashMap<String,HashMap<String,ResourceMap>>() ;
+    // Mappings for specid -> version -> taskid <-> resourceMap
+    private ResourceMapCache _resMapCache = new ResourceMapCache() ;
 
     // required data members for interfacing with the engine
     private String _user = "resourceService" ;
@@ -199,7 +196,9 @@ public class ResourceManager extends InterfaceBWebsideController {
         EventLogger.setLogging(
             HibernateEngine.getInstance(false).isAvailable(HibernateEngine.tblEventLog));
         _workItemCache.setPersist(_persisting) ;
-        if (_persisting) restoreWorkQueues() ;
+        if (_persisting) {
+            restoreWorkQueues() ;
+        }
     }
 
     
@@ -254,20 +253,10 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public synchronized void handleCancelledWorkItemEvent(WorkItemRecord wir) {
         if (_serviceEnabled) {
-            List<WorkItemRecord> itemsToRemove = new ArrayList<WorkItemRecord>() ;
-            itemsToRemove.add(wir) ;
+            removeFromAll(wir) ;                                      // workqueues
+            _workItemCache.remove(wir);
             ResourceMap rMap = getResourceMap(wir);
-
-            // add list of child items (if any) to parent (if necessary)
-            if (wir.getStatus().equals(WorkItemRecord.statusIsParent))
-                itemsToRemove.addAll(getChildren(wir.getID())) ;
-
-            // remove items from all queues and cache
-            for (WorkItemRecord item : itemsToRemove) {
-                removeFromAll(item) ;
-                _workItemCache.remove(item);
-                if (rMap != null) rMap.removeIgnoreList(wir);
-            }
+            if (rMap != null) rMap.removeIgnoreList(wir);
         }
     }
 
@@ -278,6 +267,15 @@ public class ResourceManager extends InterfaceBWebsideController {
         else
             handleCancelledWorkItemEvent(wir);                 // remove from worklists   
     }
+
+
+    public void handleEngineInitialisationCompletedEvent() {
+        if (connected()) {
+            restoreAutoTasks();
+            sanitiseCaches();
+        }    
+    }
+
 
 
     /**
@@ -452,18 +450,35 @@ public class ResourceManager extends InterfaceBWebsideController {
             List<WorkItemRecord> engineItems =
                   _interfaceBClient.getCompleteListOfLiveWorkItems(_engineSessionHandle);
             List<String> engineIDs = new ArrayList<String>();
+            List<WorkItemRecord> missingParents = new ArrayList<WorkItemRecord>();
 
-            // check copy of each engine item is stored locally
+            // check that a copy of each engine child item is stored locally
             for (WorkItemRecord wir : engineItems) {
                 if (! _workItemCache.containsKey(wir.getID())) {
-                    _workItemCache.add(wir);
-                    _log.warn("Engine workItem '" + wir.getID() +
-                              "' was missing from local cache and has been added.");
+                    if (! wir.getStatus().equals(WorkItemRecord.statusIsParent)) {
+                        _workItemCache.add(wir);
+                        _log.warn("Engine workItem '" + wir.getID() +
+                                  "' was missing from local cache and has been added.");
+                    }
+                    else {
+                        missingParents.add(wir);
+                    }
                 }
                 engineIDs.add(wir.getID());
             }
 
-            // check each item stored locally is also in engine
+            // Parent items are treated differently. If they have never been started
+            // they should be in the cache, otherwise at least one child will be cached
+            for (WorkItemRecord wir : missingParents) {
+                List children = getChildren(wir.getID());
+                if ((children == null) || (children.isEmpty())) {            // no kids
+                    _workItemCache.add(wir);
+                    _log.warn("Engine workItem '" + wir.getID() +
+                              "' was missing from local cache and has been added.");                   
+                }
+            }
+
+            // now check each item stored locally is also in engine
             Set<String> missingIDs = new HashSet<String>();
             for (String cachedID : _workItemCache.keySet()) {
                 if (! engineIDs.contains(cachedID))
@@ -477,7 +492,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             }
         }
         catch (IOException ioe) {
-            _log.warn("Sanitise caches could not get workitem list from engine.") ;
+            _log.warn("Sanitise caches method could not get workitem list from engine.") ;
         }
 
         // finally, rebuild all 'offered' datasets
@@ -491,8 +506,6 @@ public class ResourceManager extends InterfaceBWebsideController {
                }
            }
        }
-
-       _hasAcceptedLogons = true;                                 // turn off the flag
     }
 
 
@@ -1668,13 +1681,17 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public String unpileTask(String specID, String taskID) {
-        ResourceMap resMap = getResourceMap(specID, taskID);
-        if (resMap != null) {
-            resMap.removePiledResource();
-            return "Task successfully unpiled" ;
+    public String unpileTask(String specID, String taskID, Participant p) {
+        Set<ResourceMap> mapSet = _resMapCache.getAll(specID, taskID);
+        if (mapSet != null) {
+            for (ResourceMap resMap : mapSet) {
+                if (resMap.getPiledResourceID().equals(p.getID())) {
+                    resMap.removePiledResource();
+                    return "Task successfully unpiled" ;
+                 }
+            }
         }
-        else return "Cannot unpile task - resource settings unavailable";
+        return "Cannot unpile task - resource settings unavailable";
     }
 
 
@@ -1852,7 +1869,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         for (ResourceMap map : mapSet) {
             Participant piler = map.getPiledResource();
             if ((piler != null) && (piler.getID().equals(p.getID())))
-                result.add(map.getSpecID() + "::" + map.getTaskID());            
+                result.add(map.getSpecName() + "::" + map.getTaskID());
         }
         return result;
     }
@@ -1866,7 +1883,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                 ResourceMap map = (ResourceMap) itr.next();
                 String pid = map.getPiledResourceID();
                 if ((pid != null) && (pid.equals(p.getID())))
-                    result.add(map.getSpecID() + "::" + map.getTaskID());
+                    result.add(map.getSpecName() + "::" + map.getTaskID());
             }
         }
         return result ;
@@ -1874,10 +1891,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public Set<ResourceMap> getAllResourceMaps() {
-        Set<ResourceMap> result = new HashSet<ResourceMap>();
-        for (Map<String, ResourceMap> map : _specTaskResMap.values())
-            result.addAll(map.values());
-        return result;
+        return _resMapCache.getAll();
     }
 
     /***************************************************************************/
@@ -1915,52 +1929,28 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
     public boolean isPersistPiling() { return _persistPiling; }
-    
 
-    public void addResourceMap(String specID, String taskID, ResourceMap rMap) {
-        HashMap<String,ResourceMap> taskMap = _specTaskResMap.get(specID) ;
-
-        // if this is the first task added for this spec, create a new map
-        if (taskMap == null)
-            taskMap = new HashMap<String,ResourceMap>() ;
-
-        taskMap.put(taskID, rMap) ;
-        _specTaskResMap.put(specID, taskMap) ;
-    }
-
-    // removes a resource map for a particular task of a specification
-    public void removeResourceMap(ResourceMap rMap) {
-        String specID = rMap.getSpecID() ;
-        HashMap<String,ResourceMap> taskMap = _specTaskResMap.get(specID) ;
-        taskMap.remove(rMap.getTaskID()) ;
-        _specTaskResMap.put(specID, taskMap) ;
-    }
-
-    // removes all resource maps for a specification
-    public void removeResourceMapsForSpec(String specID) {
-        _specTaskResMap.remove(specID) ;
-    }
 
     public ResourceMap getResourceMap(WorkItemRecord wir) {
-        return getResourceMap(wir.getSpecificationID(), wir.getTaskID()) ;
+        return getResourceMap(wir.getSpecificationID(), wir.getSpecVersion(), wir.getTaskID()) ;
     }
 
-    public ResourceMap getResourceMap(String specID, String taskID) {
-        ResourceMap result = null;
-        HashMap<String,ResourceMap> taskMap = _specTaskResMap.get(specID) ;
-        if (taskMap != null) result = taskMap.get(taskID) ;
+    public ResourceMap getResourceMap(String specName, String version, String taskID) {
+        YSpecificationID specID = new YSpecificationID(specName, version);
+        ResourceMap result = _resMapCache.get(specID, taskID);
 
         // if we don't have a resource map for the task stored yet, let's make one
         if (result == null) {
             if (connected()) {
                 try {
-                    Element resElem = getResourcingSpecs(specID, taskID, _engineSessionHandle) ;
+                    Element resElem = getResourcingSpecs(specID, taskID,
+                            _engineSessionHandle) ;
 
                     if ((resElem != null) &&
                          successful(JDOMUtil.elementToString(resElem))) {
 
                         result = new ResourceMap(specID, taskID, resElem, _persisting) ;
-                        addResourceMap(specID, taskID, result) ;
+                        _resMapCache.add(specID, taskID, result) ;
                     }
                 }
                 catch (IOException ioe) {
@@ -2012,18 +2002,18 @@ public class ResourceManager extends InterfaceBWebsideController {
      * @param wir - the workitem to get the decomp id for
      */
      public String getDecompID(WorkItemRecord wir) {
-         return getDecompID(wir.getSpecificationID(), wir.getTaskID());
+         return getDecompID(wir.getSpecificationID(), wir.getSpecVersion(), wir.getTaskID());
      }
 
   //***************************************************************************//
 
     /**
      *  gets a task's decomposition id
-     *  @param specID - the specification's id
+     *  @param specName - the specification's name
      *  @param taskID - the task's id
      */
-    public String getDecompID(String specID, String taskID) {
-
+    public String getDecompID(String specName, String version, String taskID) {
+       YSpecificationID specID = new YSpecificationID(specName, version);
        try {
            TaskInformation taskinfo = getTaskInformation(specID, taskID, _engineSessionHandle);
            return taskinfo.getDecompositionID() ;
@@ -2163,9 +2153,6 @@ public class ResourceManager extends InterfaceBWebsideController {
         String result ;
         if (connected()) {
 
-            // if 1st logon since startup, use it as a trigger to ensure clean caches
-            if (! _hasAcceptedLogons) sanitiseCaches();
-
             if (userid.equals("admin")) return loginAdmin(password) ;
             
             Participant p = getParticipantFromUserID(userid) ;
@@ -2301,34 +2288,6 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-
-    /**
-     * Builds a WorkItemRecord from its representation as an XML String
-     * @param xmlStr
-     * @return the reconstructed WorkItemRecord
-     */
-    public WorkItemRecord xmlStringtoWIR(String xmlStr) {
-        Element eWIR = JDOMUtil.stringToElement(xmlStr) ; // reform as Element
-
-        String status = eWIR.getChildText("status");
-        String specID = eWIR.getChildText("specid");
-        String id = eWIR.getChildText("id");
-        String[] idSplit = id.split(":");                      // id = taskid:caseid
-        String taskName = getDecompID(specID, idSplit[0]);
-
-        // call the wir constructor
-        WorkItemRecord wir = new WorkItemRecord( idSplit[1], idSplit[0], specID,
-                              null, status);
-
-        // add data list if non-parent item
-        Element data = eWIR.getChild("data").getChild(taskName) ;
-        if (data != null) {
-            data = (Element) data.detach() ;
-            wir.setDataList(data);
-        }
-        return wir;
-    }
-
     private class OrgDataRefresh extends TimerTask {
         public void run() { loadResources() ; }
     }
@@ -2372,12 +2331,12 @@ public class ResourceManager extends InterfaceBWebsideController {
         return result ;
     }
 
-    public SpecificationData getSpecData(String specID, String handle) {
-        SpecificationData result = _specCache.get(specID);
+    public SpecificationData getSpecData(YSpecificationID spec, String handle) {
+        SpecificationData result = _specCache.get(spec);   
         if (result == null) {
             try {
-                result = getSpecificationData(specID, handle) ;
-                if (result != null) _specCache.put(result.getID(), result) ;
+                result = getSpecificationData(spec, handle) ;
+                if (result != null) _specCache.add(result) ;
             }
             catch (IOException ioe) {
                 _log.error("IO Exception retrieving specification data", ioe) ;
@@ -2387,7 +2346,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         return result;
     }
 
-    public SpecificationData getSpecData(String specID) {
+    public SpecificationData getSpecData(YSpecificationID specID) {
         return this.getSpecData(specID, _engineSessionHandle);
     }
 
@@ -2396,7 +2355,8 @@ public class ResourceManager extends InterfaceBWebsideController {
         Set<SpecificationData> specDataSet = getSpecList(_engineSessionHandle) ;
         if (specDataSet != null) {
             for (SpecificationData specData : specDataSet) {
-                List<String> caseIDs = getRunningCasesAsList(specData.getID(), _engineSessionHandle);
+                List<String> caseIDs = getRunningCasesAsList(specData.getSpecID(),
+                        _engineSessionHandle);
                 if (caseIDs != null)
                     result.addAll(caseIDs) ;
             }
@@ -2405,7 +2365,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public List<String> getRunningCasesAsList(String specID, String handle) {
+    public List<String> getRunningCasesAsList(YSpecificationID specID, String handle) {
         try {
             String casesAsXML = _interfaceBClient.getCases(specID, handle);
             if (_interfaceBClient.successful(casesAsXML))
@@ -2417,7 +2377,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         return null;
     }
 
-    public String getRunningCases(String specID, String handle) throws IOException {
+    public String getRunningCases(YSpecificationID specID, String handle) throws IOException {
         return _interfaceBClient.getCases(specID, handle);
     }
 
@@ -2483,9 +2443,13 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
     }
 
-    public String unloadSpecification(String specID, String handle) throws IOException {
-        String result = _interfaceAClient.unloadSpecification(specID, handle);
-        if (successful(result)) removeResourceMapsForSpec(specID) ;
+    public String unloadSpecification(String specID, String version, String handle) throws IOException {
+        YSpecificationID ySpecID = new YSpecificationID(specID, new YSpecVersion(version));
+        String result = _interfaceAClient.unloadSpecification(ySpecID, handle);
+        if (successful(result)) {
+            _resMapCache.remove(ySpecID);
+            _specCache.remove(ySpecID);
+        }
         return result ;
     }
     
@@ -2504,7 +2468,8 @@ public class ResourceManager extends InterfaceBWebsideController {
            throws IOException, JDOMException {
         Map<String, FormParameter> inputs, outputs;
         TaskInformation taskInfo = getTaskInformation(
-                                   wir.getSpecificationID(), wir.getTaskID(), handle);
+                new YSpecificationID(wir.getSpecificationID(), wir.getSpecVersion()),
+                wir.getTaskID(), handle);
 
         // map the params
         inputs  = mapParamList(taskInfo.getParamSchema().getInputParams()) ;
@@ -2605,11 +2570,11 @@ public class ResourceManager extends InterfaceBWebsideController {
         return result;
     }
 
-    public String getSchemaLibrary(String specID, String handle) throws IOException {
+    public String getSchemaLibrary(YSpecificationID specID, String handle) throws IOException {
         return _interfaceBClient.getSpecificationDataSchema(specID, handle) ;
     }
 
-    public String getDataSchema(String specID) {
+    public String getDataSchema(YSpecificationID specID) {
         String result = null ;
         try {
             SpecificationData specData = getSpecData(specID, _engineSessionHandle);
@@ -2622,13 +2587,11 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public String getDataSchema(WorkItemRecord wir) {
+    public String getDataSchema(WorkItemRecord wir, YSpecificationID specID) {
         String result = null ;
         try {
-            SpecificationData specData = getSpecData(wir.getSpecificationID(),
-                                                        _engineSessionHandle);
-            TaskInformation taskInfo = getTaskInformation(wir.getSpecificationID(),
-                                                          wir.getTaskID(),
+            SpecificationData specData = getSpecData(specID, _engineSessionHandle);
+            TaskInformation taskInfo = getTaskInformation(specID, wir.getTaskID(),
                                                           _engineSessionHandle);
             result = new DataSchemaProcessor().createSchema(specData, taskInfo);
         }
@@ -2639,9 +2602,9 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public Map<String, FormParameter> getCaseInputParams(String specID) {
+    public Map<String, FormParameter> getCaseInputParams(YSpecificationID spec) {
         Map<String, FormParameter> result = new HashMap<String, FormParameter>();
-        SpecificationData specData = getSpecData(specID);
+        SpecificationData specData = getSpecData(spec);
         if (specData != null) {
             List<YParameter> inputs = specData.getInputParams();
             for (YParameter input : inputs) {
@@ -2653,7 +2616,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public String getInstanceData(String schema, String specID) {
+    public String getInstanceData(String schema, YSpecificationID specID) {
         String result = null;
         SpecificationData specData = getSpecData(specID);
         if (specData != null) {
@@ -2667,7 +2630,9 @@ public class ResourceManager extends InterfaceBWebsideController {
     public String getInstanceData(String schema, WorkItemRecord wir) {
         String result = null;
         try {
-            TaskInformation taskInfo = getTaskInformation(wir.getSpecificationID(),
+            YSpecificationID specID = new YSpecificationID(wir.getSpecificationID(),
+                                                           wir.getSpecVersion());
+            TaskInformation taskInfo = getTaskInformation(specID,
                                                           wir.getTaskID(),
                                                           _engineSessionHandle);
             if (taskInfo != null)
@@ -2710,7 +2675,8 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (action.equals("Reoffer")) {            
             ResourceMap rMap = getResourceMap(wir);
             if (rMap != null) {
-                rMap.withdrawOffer(wir);
+                if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceOffered))
+                    rMap.withdrawOffer(wir);
                 rMap.addToOfferedSet(wir, p);
             }
             wir.resetDataState();
@@ -2761,39 +2727,74 @@ public class ResourceManager extends InterfaceBWebsideController {
                 List children = getChildren(wir.getID());
 
                 if ((children != null) && (! children.isEmpty())) {
-                    try {
-                        wir = (WorkItemRecord) children.get(0) ;  // get executing child
-
-                        Element codeletResult = null ;
-                        String codelet = wir.getCodelet();
-                        if ((codelet != null) && (codelet.length() > 0)) {
-                            codeletResult = execCodelet(codelet, wir) ; 
-                        }
-
-                        Element outData = (codeletResult != null) ? codeletResult
-                                                                  : wir.getDataList();
-
-                        // check item back in
-                        String msg = checkInWorkItem(wir.getID(), wir.getDataList(),
-                                        outData, _engineSessionHandle) ;
-                        if (successful(msg))
-                            _log.info("Automated task '" + wir.getID() +
-                            "' successfully processed and checked back into the engine.");
-                        else
-                            _log.error("Automated task '" + wir.getID() +
-                                       " could not be successfully completed. Result " +
-                                       " message: " + msg) ;
-                    }
-                    catch (Exception e) {
-                        _log.error("Exception attempting to execute automatic task: " +
-                                wir.getID(), e);
-                    }
+                    wir = (WorkItemRecord) children.get(0) ;  // get executing child
+                    processAutoTask(wir);
                 }
             }
             else _log.error("Could not connect to YAWL Engine.");
         }
     }
 
+
+    private void processAutoTask(WorkItemRecord wir) {
+        Element codeletResult = null ;
+        try {
+            if (_persisting) persistAutoTask(wir, true);
+            String codelet = wir.getCodelet();
+            if ((codelet != null) && (codelet.length() > 0)) {
+                codeletResult = execCodelet(codelet, wir) ;
+            }
+
+            Element outData = (codeletResult != null) ? codeletResult
+                    : wir.getDataList();
+
+            // check item back in
+            checkCacheForWorkItem(wir);     // won't be cached if this is a restored item
+            String msg = checkInWorkItem(wir.getID(), wir.getDataList(),
+                    outData, _engineSessionHandle) ;
+            if (successful(msg)) {
+                if (_persisting) persistAutoTask(wir, false);
+                _log.info("Automated task '" + wir.getID() +
+                        "' successfully processed and checked back into the engine.");
+            }
+            else
+                _log.error("Automated task '" + wir.getID() +
+                        " could not be successfully completed. Result " +
+                        " message: " + msg) ;
+        }
+        catch (Exception e) {
+            _log.error("Exception attempting to execute automatic task: " +
+                    wir.getID(), e);
+        }
+
+    }
+
+
+    private void persistAutoTask(WorkItemRecord wir, boolean isSaving) {
+        if (isSaving) {
+            new PersistedAutoTask(wir);
+        }
+        else {
+            PersistedAutoTask task = (PersistedAutoTask) _persister.selectScalar(
+                                                 "PersistedAutoTask", wir.getID());
+            if (task != null) task.unpersist();
+        }
+    }
+
+
+    private void restoreAutoTasks() {
+        if (_persisting) {
+            List tasks = _persister.select("PersistedAutoTask");
+            for (Object o : tasks) {
+                PersistedAutoTask task = (PersistedAutoTask) o;
+                WorkItemRecord wir = task.getWIR();
+                if (wir != null) {
+                    persistAutoTask(wir, false);             // remove persisted
+                    processAutoTask(wir);                    // reprocess task
+                }
+            }
+        }
+    }
 
     private Element execCodelet(String clName, WorkItemRecord wir) {
         Element result = null;
@@ -2802,8 +2803,8 @@ public class ResourceManager extends InterfaceBWebsideController {
         try {
              // get params
              TaskInformation taskInfo = getTaskInformation(
-                                        wir.getSpecificationID(), wir.getTaskID(),
-                                        _engineSessionHandle);
+                     new YSpecificationID(wir.getSpecificationID(), wir.getSpecVersion()),
+                                          wir.getTaskID(), _engineSessionHandle);
              List<YParameter> inputs = taskInfo.getParamSchema().getInputParams() ;
              List<YParameter> outputs = taskInfo.getParamSchema().getOutputParams() ;
 

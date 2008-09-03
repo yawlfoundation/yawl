@@ -17,6 +17,7 @@ import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
 import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
 
 import java.util.Vector;
+import java.util.Set;
 
 /**
  * Class which encapsulates the management and processing of InterfaceBClients.<P>
@@ -263,4 +264,24 @@ public class ObserverGatewayController
             }
         }).start();
     }
+
+
+    /**
+     * Notify the engine has completed initialisation and is running
+     * @param services - all services registered with the engine
+     */
+    public void notifyEngineInitialised(final Set<YAWLServiceReference> services)
+    {
+        new Thread(new Runnable()
+        {
+            public void run()
+            {
+                for(ObserverGateway observerGateway : gateways)
+                {
+                    observerGateway.announceNotifyEngineInitialised(services);
+                }
+            }
+        }).start();
+    }
+
 }

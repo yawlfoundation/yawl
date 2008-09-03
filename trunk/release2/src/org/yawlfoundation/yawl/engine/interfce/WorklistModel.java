@@ -8,6 +8,8 @@
 
 package org.yawlfoundation.yawl.engine.interfce;
 
+import org.yawlfoundation.yawl.engine.YSpecificationID;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -48,14 +50,14 @@ public class WorklistModel {
     }
 
 
-    public TaskInformation getTaskInformation(String specificationID, String taskID) {
-        return _taskInfoCache.get(specificationID + taskID);
+    public TaskInformation getTaskInformation(YSpecificationID specID, String taskID) {
+        return _taskInfoCache.get(specID.getSpecName() + specID.getVersionAsString() + taskID);
     }
 
 
-    public void setTaskInformation(String specificationID, String taskID,
+    public void setTaskInformation(YSpecificationID specID, String taskID,
                                    TaskInformation taskInfo) {
-        _taskInfoCache.put(specificationID + taskID, taskInfo);
+        _taskInfoCache.put(specID.getSpecName() + specID.getVersionAsString() + taskID, taskInfo);
     }
 
 
@@ -75,8 +77,8 @@ public class WorklistModel {
 
 
     public void setSpecificationData(SpecificationData specData) {
-        if (! _specDataCache.containsKey(specData.getID())) {
-            _specDataCache.put(specData.getID(), specData);
+        if (! _specDataCache.containsKey(specData.getName() + specData.getSpecVersion())) {
+            _specDataCache.put(specData.getName() + specData.getSpecVersion(), specData);
         }
     }
 
@@ -88,12 +90,12 @@ public class WorklistModel {
      * @param specID
      * @return the specification data
      */
-    public SpecificationData getSpecificationData(String specID) throws IOException {
-        return _specDataCache.get(specID);
+    public SpecificationData getSpecificationData(YSpecificationID specID) throws IOException {
+        return _specDataCache.get(specID.getSpecName() + specID.getVersionAsString());
     }
 
-    public void unloadSpecification(String specID) throws IOException {
-	      _specDataCache.remove(specID);
+    public void unloadSpecification(YSpecificationID specID) throws IOException {
+	      _specDataCache.remove(specID.getSpecName() + specID.getVersionAsString());
     }	
 
 
@@ -110,12 +112,12 @@ public class WorklistModel {
         _workItemCache.remove(workItemID);
     }
 
-    public String getDataRootElementName(String specificationID, String taskID) {
-        SpecificationData sdata = _specDataCache.get(specificationID);
+    public String getDataRootElementName(String specID, String taskID) {
+        SpecificationData sdata = _specDataCache.get(specID + "0.1");
         if (sdata.usesSimpleRootData()) {
             return "data";
         } else {
-            TaskInformation taskInf = getTaskInformation(specificationID, taskID);
+            TaskInformation taskInf = getTaskInformation(new YSpecificationID(specID), taskID);
             return taskInf.getDecompositionID();
         }
     }

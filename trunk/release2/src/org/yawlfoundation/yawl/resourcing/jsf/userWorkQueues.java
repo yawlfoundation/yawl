@@ -818,6 +818,11 @@ public class userWorkQueues extends AbstractPageBean {
             processTaskPrivileges(choice, queueType) ;
             result = queue.size() ;
         }
+        else {
+            if (! (_sb.isDelegating() || _sb.isReallocating() ||
+                   _sb.isCustomFormPost() || _sb.isWirEdit()))
+                _sb.setWorklistChoice(null);
+        }
         return result ;
     }
 

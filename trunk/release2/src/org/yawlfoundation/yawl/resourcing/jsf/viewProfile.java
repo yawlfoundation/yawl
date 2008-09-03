@@ -499,7 +499,7 @@ public class viewProfile extends AbstractPageBean {
 
             // split into specid, taskid
             String[] parts = piled.split("::");
-            String result = rm.unpileTask(parts[0], parts[1]) ;
+            String result = rm.unpileTask(parts[0], parts[1], participant) ;
             showResult(result);
         }
         else msgPanel.warn("No task selected to unpile");

@@ -10,7 +10,6 @@
 package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
 import org.apache.log4j.Logger;
-import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
@@ -24,9 +23,7 @@ import javax.servlet.UnavailableException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.rmi.RemoteException;
@@ -53,23 +50,19 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
             ServletContext context = getServletContext();
 
             // load yawl.properties (if any)
-            String props = "";
+            StringWriter out = new StringWriter(8192);
             InputStream in = context.getResourceAsStream(
                                "/WEB-INF/classes/yawl.properties");
             if (in != null) {
-                int data;
-                do {
-                    byte[] buf = new byte[1024];
-                    data = in.read(buf);
-                    props += new String(buf);
-                } while (data != -1);
+                InputStreamReader isr = new InputStreamReader(in);
+                char[] buffer = new char[8192];
+                int count;
 
-                in.close();
+                while ((count = isr.read(buffer)) > 0)
+                   out.write(buffer, 0, count);
 
-                if (props != null) {
-                    YProperties yProp = YProperties.getInstance();
-                    yProp.setProperties(props);
-                }
+                isr.close();
+                YProperties.getInstance().setProperties(out.toString());
             }
 
             _engine = (EngineGateway) context.getAttribute("engine");
@@ -155,6 +148,8 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
         String sessionHandle = request.getParameter("sessionHandle");
         String action = request.getParameter("action");
         String workItemID = request.getParameter("workItemID");
+        String specName = request.getParameter("specID");
+        String version = request.getParameter("version");
         String taskID = request.getParameter("taskID");
 
         try {
@@ -177,15 +172,15 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                     msg.append(_engine.checkConnection(sessionHandle));
                 }
                 else if (action.equals("taskInformation")) {
-                    YSpecificationID specID = makeYSpecificationID(request);
+                    YSpecificationID specID = new YSpecificationID(specName, version);
                     msg.append(_engine.getTaskInformation(specID, taskID, sessionHandle));
                 }
                 else if (action.equals("getMITaskAttributes")) {
-                    String specID = request.getParameter("specID");
+                    YSpecificationID specID = new YSpecificationID(specName, version);
                     msg.append(_engine.getMITaskAttributes(specID, taskID, sessionHandle));
                 }
                 else if (action.equals("getResourcingSpecs")) {
-                    String specID = request.getParameter("specID");
+                    YSpecificationID specID = new YSpecificationID(specName, version);
                     msg.append(_engine.getResourcingSpecs(specID, taskID, sessionHandle));
                 }
                 else if (action.equals("checkAddInstanceEligible")) {
@@ -196,15 +191,15 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                     msg.append(_engine.getSpecificationList(sessionHandle));
                 }
                 else if (action.equals("getSpecification")) {
-                    YSpecificationID specID = makeYSpecificationID(request);
+                    YSpecificationID specID = new YSpecificationID(specName, version);
                     msg.append(_engine.getProcessDefinition(specID, sessionHandle));
                 }
                 else if (action.equals("getSpecificationDataSchema")) {
-                    YSpecificationID specID = makeYSpecificationID(request);
+                    YSpecificationID specID = new YSpecificationID(specName, version);
                     msg.append(_engine.getSpecificationDataSchema(specID, sessionHandle));                   
                 }
                 else if (action.equals("getCasesForSpecification")) {
-                    YSpecificationID specID = makeYSpecificationID(request);
+                    YSpecificationID specID = new YSpecificationID(specName, version);
                     msg.append(_engine.getCasesForSpecification(specID, sessionHandle));
                 }
                 else if (action.equals("getCaseState")) {
@@ -319,23 +314,6 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
         return null;
     }
 
-
-    private YSpecificationID makeYSpecificationID(HttpServletRequest request) {
-        String version = "0.1" ;
-        String handle = request.getParameter("sessionHandle") ;
-        String id = request.getParameter("specID");
-        String verParam = request.getParameter("version");
-
-        try {
-            if (verParam == null) verParam = _engine.getLatestSpecVersion(id, handle);
-            if (verParam != null) version = verParam;
-        }
-        catch (Exception e) {
-            // nothing to do
-        }
-
-        return new YSpecificationID(id, new YSpecVersion(version));
-    }
 
 
     private void debug(HttpServletRequest request, String service) {

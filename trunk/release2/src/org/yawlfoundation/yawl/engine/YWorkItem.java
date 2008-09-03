@@ -132,8 +132,6 @@ public class YWorkItem {
                                 throws YPersistenceException {
         _workItemID = workItemID;
         _specID = specificationID;
- //       _specificationID = _specID.getSpecName();
- //       _version = _specID.toString();
         _allowsDynamicCreation = allowsDynamicInstanceCreation;
         _status = status ;
         set_thisID(_workItemID.toString() + "!" + _workItemID.getUniqueID());

@@ -13,6 +13,7 @@
         </id>
 
         <property name="_specID" column="specID"/>
+        <property name="_specVersion" column="specVersion"/>
         <property name="_caseID" column="caseID"/>
         <property name="_taskID" column="taskID"/>
         <property name="_itemID" column="itemID"/>

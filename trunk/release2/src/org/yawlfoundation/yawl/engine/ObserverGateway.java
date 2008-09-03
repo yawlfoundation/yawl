@@ -16,6 +16,8 @@ import org.yawlfoundation.yawl.engine.announcement.Announcements;
 import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
 import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
 
+import java.util.Set;
+
 
 /**
  * Interface to be implemented by 'shim' classes which register with the engine to receive callbacks when tasks
@@ -97,4 +99,10 @@ public interface ObserverGateway
      * @param newStatus new status
      */
     void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus oldStatus, YWorkItemStatus newStatus);
+
+    /**
+     * Notify the engine has completed initialisation and is running
+     */
+    public void announceNotifyEngineInitialised(Set<YAWLServiceReference> services) ;
+
 }

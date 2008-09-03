@@ -8,7 +8,7 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -20,8 +20,8 @@ import org.yawlfoundation.yawl.engine.ObserverGateway;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.YWorkItemStatus;
 import org.yawlfoundation.yawl.engine.announcement.Announcements;
-import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
 import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
+import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.unmarshal.YDecompositionParser;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -40,13 +40,14 @@ import java.util.*;
  * @author Michael Adams (refactored for v2.0, 06/2008)
  */
 public class InterfaceB_EngineBasedClient extends Interface_Client implements ObserverGateway {
-    protected static Category logger = Category.getInstance(InterfaceB_EngineBasedClient.class);
+    protected static Logger logger = Logger.getLogger(InterfaceB_EngineBasedClient.class);
 
     protected static final String ADDWORKITEM_CMD =             "announceWorkItem";
     protected static final String CANCELALLWORKITEMS_CMD =      "cancelAllInstancesUnderWorkItem";
     protected static final String CANCELWORKITEM_CMD =          "cancelWorkItem";
     protected static final String ANNOUNCE_COMPLETE_CASE_CMD =  "announceCompletion";
     protected static final String ANNOUNCE_TIMER_EXPIRY_CMD =   "announceTimerExpiry";
+    protected static final String ANNOUNCE_INIT_ENGINE =        "announceEngineInitialised";
 
     /**
      * Indicates which protocol this shim services.<P>
@@ -182,6 +183,17 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     }
 
     /**
+     * Called by the engine when it has completed initialisation and is running
+     */
+    public void announceNotifyEngineInitialised(Set<YAWLServiceReference> services) {
+        for (YAWLServiceReference service : services) {
+            Handler myHandler = new Handler(service, ANNOUNCE_INIT_ENGINE);
+            myHandler.start();
+        }
+    }
+
+
+    /**
      * Returns an array of YParameter objects that describe the YAWL service
      * being referenced.
      * @param yawlService the YAWL service reference.
@@ -240,6 +252,11 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
             _casedata = casedata;
         }
 
+        public Handler(YAWLServiceReference yawlService,  String command) {
+            _yawlService = yawlService;
+            _command = command;
+        }
+
         private Map<String, String> prepareParamMap(String action) {
             Map<String, String> map = new HashMap<String, String>();
             map.put("action", action);
@@ -254,7 +271,8 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                     Map<String, String> paramsMap = prepareParamMap("handleEnabledItem");
                     paramsMap.put("workItem", workItemXML);
                     executePost(urlOfYawlService, paramsMap);
-                } else if (CANCELALLWORKITEMS_CMD.equals(_command)) {
+                }
+                else if (CANCELALLWORKITEMS_CMD.equals(_command)) {
                     cancelWorkItem(_yawlService, _workItem);
                     Set children = _workItem.getChildren();
                     if (children != null) {
@@ -264,13 +282,15 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                             cancelWorkItem(_yawlService, item);
                         }    
                     }
-                } else if (CANCELWORKITEM_CMD.equals(_command)) {
+                }
+                else if (CANCELWORKITEM_CMD.equals(_command)) {
                     String urlOfYawlService = _yawlService.getURI();
                     String workItemXML = _workItem.toXML();
                     Map<String, String> paramsMap = prepareParamMap("cancelWorkItem");
                     paramsMap.put("workItem", workItemXML);
                     executePost(urlOfYawlService, paramsMap);
-                } else if (ANNOUNCE_COMPLETE_CASE_CMD.equals(_command)) {
+                }
+                else if (ANNOUNCE_COMPLETE_CASE_CMD.equals(_command)) {
                     String urlOfYawlService = _yawlService.getURI();
                     String caseID = _caseID.toString();
                     String casedataStr = JDOMUtil.documentToString(_casedata) ;
@@ -278,11 +298,17 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                     paramsMap.put("caseID", caseID);
                     paramsMap.put("casedata", casedataStr) ;
                     executePost(urlOfYawlService, paramsMap);
-                } else if (ANNOUNCE_TIMER_EXPIRY_CMD.equals(_command)) {
+                }
+                else if (ANNOUNCE_TIMER_EXPIRY_CMD.equals(_command)) {
                     String urlOfYawlService = _yawlService.getURI();
                     String workItemXML = _workItem.toXML();
                     Map<String, String> paramsMap = prepareParamMap("timerExpiry");
                     paramsMap.put("workItem", workItemXML);
+                    executePost(urlOfYawlService, paramsMap);
+                }
+                else if (ANNOUNCE_INIT_ENGINE.equals(_command)) {
+                    String urlOfYawlService = _yawlService.getURI();
+                    Map<String, String> paramsMap = prepareParamMap(_command);
                     executePost(urlOfYawlService, paramsMap);
                 }
             } catch (IOException e) {

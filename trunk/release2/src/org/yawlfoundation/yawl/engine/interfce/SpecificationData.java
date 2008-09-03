@@ -9,8 +9,6 @@
 
 package org.yawlfoundation.yawl.engine.interfce;
 
-import org.yawlfoundation.yawl.elements.YSpecification;
-import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -18,6 +16,9 @@ import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 import org.xml.sax.InputSource;
+import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 
 import java.io.*;
 import java.net.URL;
@@ -44,6 +45,7 @@ public class SpecificationData {
     private String _betaFormat;
     private String _rootNetID;
     private String _schema ;
+    private String _specVersion = "0.1";
 
 
     public SpecificationData(String specificationID, String specificationName,
@@ -64,6 +66,11 @@ public class SpecificationData {
 
     public String getID() {
         return _specificationID;
+    }
+
+
+    public YSpecificationID getSpecID() {
+        return new YSpecificationID(_specificationID, _specVersion) ;
     }
 
 
@@ -174,9 +181,19 @@ public class SpecificationData {
     }
 
 
-    public void setVersion(String version) {
+    public void setSchemaVersion(String version) {
         this._betaFormat = version;
     }
+
+
+    public String getSpecVersion() {
+         return _specVersion;
+     }
+
+
+     public void setSpecVersion(String version) {
+         this._specVersion = version;
+     }
 
     public String getRootNetID() {
         return this._rootNetID;

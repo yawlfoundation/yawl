@@ -138,10 +138,10 @@ public interface EngineGateway extends Remote {
 
     public String getLatestSpecVersion(String id, String sessionHandle) throws RemoteException ;
 
-    public String getMITaskAttributes(String specificationID, String taskID,
+    public String getMITaskAttributes(YSpecificationID specificationID, String taskID,
                                       String sessionHandle) throws RemoteException ;
 
-    public String getResourcingSpecs(String specificationID, String taskID,
+    public String getResourcingSpecs(YSpecificationID specificationID, String taskID,
                                      String sessionHandle) throws RemoteException ;
 
     public String getCaseData(String caseID, String sessionHandle) throws RemoteException;

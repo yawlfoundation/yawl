@@ -8,12 +8,12 @@
 
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
-import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 
 import java.io.IOException;
 import java.util.Set;
@@ -272,8 +272,9 @@ public class WorkQueueGatewayClientAdapter {
     }
 
 
-    public SpecificationData getSpecData(String specID, String handle) throws IOException {
-        String xml = _wqclient.getSpecData(specID, handle);
+    public SpecificationData getSpecData(String specID, String version, String handle)
+            throws IOException {
+        String xml = _wqclient.getSpecData(specID, version, handle);
         return _marshaller.unmarshallSpecificationData(xml);
     }
 
@@ -284,19 +285,20 @@ public class WorkQueueGatewayClientAdapter {
     }
 
 
-    public String unloadSpecification(String specID, String handle) throws IOException {
-        return _wqclient.unloadSpecification(specID, handle) ;
+    public String unloadSpecification(String specID, String version, String handle)
+            throws IOException {
+        return _wqclient.unloadSpecification(specID, version, handle) ;
     }
 
 
-    public String launchCase(String specID, String caseData, String handle)
+    public String launchCase(String specID, String version, String caseData, String handle)
                                                                     throws IOException {
-        return _wqclient.launchCase(specID, caseData, handle);
+        return _wqclient.launchCase(specID, version, caseData, handle);
     }
 
 
-    public String getRunningCases(String specID, String handle) throws IOException {
-        return _wqclient.getRunningCases(specID, handle) ;
+    public String getRunningCases(String specID, String version, String handle) throws IOException {
+        return _wqclient.getRunningCases(specID, version, handle) ;
     }
 
 

@@ -66,7 +66,6 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @param sessionHandle the session handle
      * @return the list of workitem objects
      * @throws IOException if engine can't be found.
-     * @throws JDOMException
      */
     public List<WorkItemRecord> getCompleteListOfLiveWorkItems(String sessionHandle)
             throws IOException {
@@ -133,7 +132,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * Creates a list of SpecificationData objects loaded into the engine.
      * These are brief meta data summary
      * information objects that describe a worklfow specification.
-     * @param sessionHandle
+     * @param sessionHandle the session handle
      * @return  the list of spec data objects
      * @throws IOException if engine can't be found.
      */
@@ -148,38 +147,54 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
     /**
      * Gets an XML representation of a workflow specification.
+     * @deprecated superceded by getSpecification(YSpecificationID, String)
      * @param specID the specid.
      * @param sessionHandle the session handle
      * @return the XML representation, or an XML diagnostic error message.
      * @throws IOException if the engine can't be found.
      */
     public String getSpecification(String specID, String sessionHandle) throws IOException {
-        Map<String, String> params = prepareParamMap("getSpecification", sessionHandle);
-        params.put("specID", specID) ;
-        return stripOuterElement(executeGet(_backEndURIStr, params));
+        return getSpecification(new YSpecificationID(specID), sessionHandle);
     }
 
     
-    /** this overload is to handle YSpecificationID objects */
+    /**
+     * Gets an XML representation of a workflow specification.
+     * @param specID the specid.
+     * @param sessionHandle the session handle
+     * @return the XML representation, or an XML diagnostic error message.
+     * @throws IOException if the engine can't be found.
+     */
     public String getSpecification(YSpecificationID specID, String sessionHandle)
                                                                  throws IOException {
         Map<String, String> params = prepareParamMap("getSpecification", sessionHandle);
         params.put("specID", specID.getSpecName()) ;
-        params.put("version", specID.getVersion().toString());
+        params.put("version", specID.getVersionAsString());
         return stripOuterElement(executeGet(_backEndURIStr, params));
     }
 
 
+    /**
+     * Gets the user-defined data schema for a specification
+     * @deprecated superceded by getSpecificationDataSchema(YSpecificationID, String)
+     * @param specID the specification id
+     * @param sessionHandle an active session handle
+     * @return an XML representation, or an XML diagnostic error message.
+     * @throws IOException if the engine can't be found.
+     */
     public String getSpecificationDataSchema(String specID, String sessionHandle)
                                                                  throws IOException {
-        Map<String, String> params = prepareParamMap("getSpecificationDataSchema",
-                                                      sessionHandle);
-        params.put("specID", specID) ;
-        return stripOuterElement(executeGet(_backEndURIStr, params));
+        return getSpecificationDataSchema(new YSpecificationID(specID), sessionHandle);
     }
 
 
-    /** this overload is to handle YSpecificationID objects */
+    /**
+     * Gets the user-defined data schema for a specification
+     * @param specID the specification id
+     * @param sessionHandle an active session handle
+     * @return an XML representation, or an XML diagnostic error message.
+     * @throws IOException if the engine can't be found.
+     */
     public String getSpecificationDataSchema(YSpecificationID specID, String sessionHandle)
                                                                  throws IOException {
         Map<String, String> params = prepareParamMap("getSpecificationDataSchema",
@@ -198,7 +213,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @param sessionHandle the sessionhandle
      * @return in case of success returns an XML representation of the created
      * workitem.  In case of failure returns a diagnostic XML message.
-     * @throws IOException
+     * @throws IOException if the engine can't be found.
      */
     public String checkOutWorkItem(String workItemID, String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("checkout", sessionHandle);
@@ -209,23 +224,29 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
     /**
      * Gets an XML representation of information the task declaration.
-     * This can be parsed into a copy of a YTask by using the
+     * This can be parsed into a copy of a YTask
+     * @deprecated superceded by getTaskInformationStr(YSpecificationID, String, String)
+     * @param specID the spec id.
+     * @param taskID the task id.
+     * @param sessionHandle the session handle
+     * @return an XML Representation of the task information
+     * @throws IOException if the engine can't be found.
+     */
+    public String getTaskInformationStr(String specID, String taskID,
+                                        String sessionHandle) throws IOException {
+        return getTaskInformationStr(new YSpecificationID(specID), taskID, sessionHandle);
+    }
+
+
+    /**
+     * Gets an XML representation of information the task declaration.
+     * This can be parsed into a copy of a YTask
      * @param specificationID the spec id.
      * @param taskID the task id.
      * @param sessionHandle the session handle
      * @return an XML Representation of the task information
-     * @throws IOException
+     * @throws IOException if the engine can't be found.
      */
-    public String getTaskInformationStr(String specificationID, String taskID,
-                                        String sessionHandle) throws IOException {
-        Map<String, String> params = prepareParamMap("taskInformation", sessionHandle);
-        params.put("specID", specificationID);
-        params.put("taskID", taskID);
-        return executeGet(_backEndURIStr, params);
-    }
-
-
-    /** this overload handles YSpecificationID objects */
     public String getTaskInformationStr(YSpecificationID specificationID, String taskID,
                                         String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("taskInformation", sessionHandle);
@@ -257,7 +278,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @param sessionHandle the session handle
      * @return in case success returns the work item as xml. In case of failure
      * returns the reason for failure.
-     * @throws IOException
+     * @throws IOException if engine cannot be found.
      */
     public String checkInWorkItem(String workItemID, String data, String sessionHandle)
             throws IOException {
@@ -368,7 +389,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
-     * Launches the case.
+     * Launches a case instance of the latest version of the specification loaded.
+     * @deprecated superceded by launchCase(YSpecificationID, String, String)
      * @param specID the specification id (see SpecificationData.getID())
      * @param caseParams the case params in XML. i.e.
      * <pre>
@@ -384,17 +406,38 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      */
     public String launchCase(String specID, String caseParams, String sessionHandle)
             throws IOException {
+        return launchCase(new YSpecificationID(specID), caseParams, sessionHandle);
+    }
+    
+    /**
+     * Launches a case instance of the latest version of the specification loaded.
+     * @param specID the specification id
+     * @param caseParams the case params in XML. i.e.
+     * <pre>
+     *    &lt;data&gt;
+     *        &lt;firstParam&gt;value&lt;/firstParam&gt;
+     *        &lt;secondParam&gt;value&lt;/secondParam&gt;
+     *    &lt;/data&gt;
+     * </pre>
+     * If there are no params then just pass in null.
+     * @param sessionHandle the session handle
+     * @return returns a diagnostic message in case of failure
+     * @throws IOException if engine can't be found
+     */
+    public String launchCase(YSpecificationID specID, String caseParams, String sessionHandle)
+            throws IOException {
         Map<String, String> params = prepareParamMap("launchCase", sessionHandle);
-        params.put("specID", specID);
+        params.put("specID", specID.getSpecName());
+        params.put("version", specID.getVersionAsString());
         if (caseParams != null) params.put("caseParams", caseParams);
         return executePost(_backEndURIStr, params);
     }
-    
+
 
     /** 
      * Override of launchCase to provide the ability to add a listener
      * for the Case-Completion event (MJA 06/12/05)
-     *
+     * @deprecated superceded by launchCase(YSpecificationID, String, String)
      * @param specID the specification id (see SpecificationData.getID())
      * @param caseParams the case params in XML. 
      * @param sessionHandle the session handle
@@ -406,39 +449,63 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     public String launchCase(String specID, String caseParams, 
                              String sessionHandle, String completionObserverURI) 
                                      throws IOException {
+        return launchCase(new YSpecificationID(specID), caseParams,
+                          sessionHandle, completionObserverURI);
+    }
+
+
+    /**
+     * Override of launchCase to provide the ability to add a listener
+     * for the Case-Completion event
+     * @param specID the specification id
+     * @param caseParams the case params in XML.
+     * @param sessionHandle the session handle
+     * @param completionObserverURI the URI of the IB service that will listen
+     *        for a case-completed event
+     * @return returns a diagnostic message in case of failure
+     * @throws IOException if engine can't be found
+     */
+    public String launchCase(YSpecificationID specID, String caseParams,
+                             String sessionHandle, String completionObserverURI)
+                                     throws IOException {
         Map<String, String> params = prepareParamMap("launchCase", sessionHandle);
-        params.put("specID", specID);
+        params.put("specID", specID.getSpecName());
+        params.put("version", specID.getVersionAsString());
         if (caseParams != null) params.put("caseParams", caseParams);
-        if (completionObserverURI != null)    
+        if (completionObserverURI != null)
             params.put("completionObserverURI", completionObserverURI);
         return executePost(_backEndURIStr, params);
     }
 
 
-
     /**
      * Gets the set of active cases in the engine.
+     * @deprecated superceded by getCases(YSpecificationID, String)
      * @param specID the specification id.
-     * @param sessionHandle
+     * @param sessionHandle the session handle
      * @return an XML list of case ids that are instances of the spec
      * with specid.
      * @throws IOException if engine cannot be found
      */
     public String getCases(String specID, String sessionHandle) throws IOException {
-        Map<String, String> params = prepareParamMap("getCasesForSpecification",
-                                                      sessionHandle);
-        params.put("specID", specID);
-        return executeGet(_backEndURIStr, params);
+        return getCases(new YSpecificationID(specID), sessionHandle);
     }
 
 
-    /** and an overload for YSpecification versions */
+    /**
+     * Gets the set of active cases in the engine.
+     * @param specID the specification id.
+     * @param sessionHandle the session handle
+     * @return an XML list of case ids that are instances of the spec
+     * with specid.
+     * @throws IOException if engine cannot be found
+     */
     public String getCases(YSpecificationID specID, String sessionHandle)
                                                                  throws IOException {
         Map<String, String> params = prepareParamMap("getCasesForSpecification",
                                                       sessionHandle);
         params.put("specID", specID.getSpecName());
-        params.put("version", specID.getVersion().toString());
+        params.put("version", specID.getVersionAsString());
         return executeGet(_backEndURIStr, params);
     }
 
@@ -522,7 +589,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * Checks if the session has administrative access
      * @param sessionHandle the session to check
      * @return true if this session has administration privileges
-     * @throws IOException
+     * @throws IOException if the engine cannot be found.
      */
     public boolean isAdministrator(String sessionHandle) throws IOException {
         String result = executeGet(_backEndURIStr, prepareParamMap("checkIsAdmin",
@@ -531,19 +598,33 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     }
 
     /**
-     * Gets an XML representation of information the task declaration.
-     * This can be parsed into a copy of a YTask by using the
+     * Gets an XML representation of the attributes of a multi-instance task.
+     * @deprecated superceded by getMITaskAttributes(YSpecificationID, String, String)
      * @param specID the spec id.
      * @param taskID the task id.
      * @param sessionHandle the session handle
      * @return an XML Representation of the task information
-     * @throws IOException
+     * @throws IOException if the engine cannot be found.
      */
     public String getMITaskAttributes(String specID, String taskID,
                                       String sessionHandle) throws IOException {
+        return getMITaskAttributes(new YSpecificationID(specID), taskID, sessionHandle);
+    }
+
+    /**
+     * Gets an XML representation of the attributes of a multi-instance task.
+     * @param specID the spec id.
+     * @param taskID the task id.
+     * @param sessionHandle the session handle
+     * @return an XML Representation of the task information
+     * @throws IOException if the engine cannot be found.
+     */
+    public String getMITaskAttributes(YSpecificationID specID, String taskID,
+                                      String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("getMITaskAttributes", sessionHandle);
         params.put("taskID", taskID);
-        params.put("specID", specID);
+        params.put("specID", specID.getSpecName());
+        params.put("version", specID.getVersionAsString());
         return executeGet(_backEndURIStr, params);
     }
 
@@ -553,13 +634,14 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @param taskID the id of the task to get the resourcing specs for
      * @param sessionHandle the session handle
      * @return an XML Representation of the resourcing information for the task
-     * @throws IOException
+     * @throws IOException if the engine cannot be found.
      */
-    public String getResourcingSpecs(String specID, String taskID,
+    public String getResourcingSpecs(YSpecificationID specID, String taskID,
                                       String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("getResourcingSpecs", sessionHandle);
         params.put("taskID", taskID);
-        params.put("specID", specID);
+        params.put("specID", specID.getSpecName());
+        params.put("version", specID.getVersionAsString());
         String result = executeGet(_backEndURIStr, params);
         return (successful(result)) ? stripOuterElement(result) : result ;
     }
@@ -575,9 +657,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
         if (xml != null && successful(xml)) {
             Document doc = JDOMUtil.stringToDocument(xml);
             if (doc != null) {
-                Iterator itr = doc.getRootElement().getChildren().iterator();
-                while (itr.hasNext()) {
-                    Element item = (Element) itr.next();
+                for (Object o : doc.getRootElement().getChildren()) {
+                    Element item = (Element) o;
                     result.add(Marshaller.unmarshalWorkItem(item));
                 }
             }

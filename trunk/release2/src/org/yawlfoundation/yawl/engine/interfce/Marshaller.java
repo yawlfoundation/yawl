@@ -177,6 +177,7 @@ public class Marshaller {
                             specStatus,
                             version);
                     specData.setRootNetID(rootNetID);
+                    specData.setSpecVersion(specElement.getChildText("specversion"));
                     specSummaryList.add(specData);
                     Element inputParams = specElement.getChild("params");
                     if (inputParams != null) {
