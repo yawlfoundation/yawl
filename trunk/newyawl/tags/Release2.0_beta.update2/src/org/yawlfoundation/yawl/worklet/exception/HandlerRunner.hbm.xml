@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+	<class name="org.yawlfoundation.yawl.worklet.exception.HandlerRunner" table="Worklet_HandlerRunner">
+
+        <id name="_id" column="hr_id" type="integer" access="field">
+            <generator class="assigned"/>
+        </id>
+
+        <property name="_actionIndex"       column="actionIndex"     type="integer"/>
+        <property name="_actionCount"       column="actionCount"     type="integer"/>
+        <property name="_reasonType"        column="reasonType"      type="integer"/>
+        <property name="_isItemSuspended"   column="isItemSuspended" type="boolean"/>
+        <property name="_isCaseSuspended"   column="isCaseSuspended" type="boolean"/>
+        <property name="_rdrConcStr"        column="rdrConcStr"      type="text"/>
+        <property name="_caseID"            column="caseID"/>
+        <property name="_suspList"          column="suspList"        type="text"/>
+        <property name="_wirStr"            column="wirStr"          type="text"/>
+        <property name="_runningCaseIdStr"  column="runningCaseIdStr"/>
+        <property name="_runningWorkletStr" column="runningWorkletStr"/>
+        <property name="_searchPairStr"     column="searchPairStr"   type="text"/>
+    </class>
+	
+</hibernate-mapping>

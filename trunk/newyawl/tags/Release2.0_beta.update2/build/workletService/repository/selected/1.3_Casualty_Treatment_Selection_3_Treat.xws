@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<searchResult>
+  <id>1.3:3_Treat</id>
+  <specid>Casualty_Treatment</specid>
+  <taskid>Treat</taskid>
+  <caseid>1.3</caseid>
+  <worklet>TreatFever</worklet>
+  <runningcaseid>2</runningcaseid>
+  <extype>10</extype>
+  <lastNode>
+    <satisfied>1</satisfied>
+    <tested>10</tested>
+  </lastNode>
+  <casedata>
+    <PatientID>897</PatientID>
+    <Sex>M</Sex>
+    <DiastolicBP>80</DiastolicBP>
+    <Notes />
+    <Height>1.8</Height>
+    <HeartRate>72</HeartRate>
+    <Pharmacy />
+    <SystolicBP>120</SystolicBP>
+    <Fracture>false</Fracture>
+    <Age>21</Age>
+    <Treatment />
+    <Weight>85</Weight>
+    <Fever>true</Fever>
+    <Rash>false</Rash>
+    <Wound>false</Wound>
+    <Name>hjk</Name>
+    <AbdominalPain>false</AbdominalPain>
+  </casedata>
+</searchResult>
+

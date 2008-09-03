@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+	<class name="org.yawlfoundation.yawl.worklet.selection.CheckedOutItem" table="Worklet_CheckedOutItem">
+
+       <id name="_persistID" column="p_id" type="string" access="field">
+   		    <generator class="assigned"/>
+       </id>
+		
+       <property name="_wirStr" column="wirStr" type="text"/>
+
+	</class>
+	
+</hibernate-mapping>

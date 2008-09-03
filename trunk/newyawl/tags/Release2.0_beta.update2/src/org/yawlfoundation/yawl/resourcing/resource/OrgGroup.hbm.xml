@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.yawlfoundation.yawl.resourcing.resource">
+
+	<class name="OrgGroup" table="rs_OrgGroup" lazy="false">
+
+        <id name="_id"
+            column="GroupID"
+            type="string"
+            access="field"/>
+
+        <property name="_groupName"
+                  column="GroupName"
+                  type="string"
+                  access="field"/>
+
+        <!-- grouptype is an enum, so access is by a getter & a setter -->
+        <property name="_groupType"
+                  column="GroupType"
+                  type="string"/>
+
+        <property name="_description"
+                  column="Description"
+                  type="text"
+                  access="field"/>
+
+        <many-to-one name="_belongsTo"
+                     column="BelongsTo"
+                     class="OrgGroup"
+                     access="field"/>
+
+     </class>
+  
+
+</hibernate-mapping>
