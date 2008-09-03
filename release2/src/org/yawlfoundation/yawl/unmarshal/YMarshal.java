@@ -134,7 +134,7 @@ public class YMarshal {
 
 
     public static String marshal(YSpecification specification) throws IOException, JDOMException {
-        String version = specification.getVersion();
+        String version = specification.getSchemaVersion();
         List spLst = new ArrayList();
         spLst.add(specification);
         return marshal(spLst, version);

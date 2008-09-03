@@ -108,6 +108,8 @@ public class HibernateEngine {
             _cfg.addClass(org.yawlfoundation.yawl.engine.interfce.WorkItemRecord.class);
             _cfg.addClass(
                     org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent.class);
+            _cfg.addClass(
+                    org.yawlfoundation.yawl.resourcing.datastore.PersistedAutoTask.class);
 
            // get a session context
             _factory = _cfg.buildSessionFactory();

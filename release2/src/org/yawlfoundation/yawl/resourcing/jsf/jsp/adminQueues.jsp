@@ -116,6 +116,7 @@
 
                                     <ui:dropDown binding="#{adminQueues.cbbAssignedTo}"
                                                  id="cbbAssignedTo"
+                                                 forgetValue="true"
                                                  style="left: 217px; top: 230px; position: absolute; width: 145px"/>
 
                                     <ui:textField binding="#{adminQueues.txtResourceState}"

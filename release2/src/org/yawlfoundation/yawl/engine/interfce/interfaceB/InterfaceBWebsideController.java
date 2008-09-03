@@ -15,6 +15,7 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.*;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -108,6 +109,15 @@ public abstract class InterfaceBWebsideController {
      * @param expiredWorkItem
      */
     public void handleTimerExpiryEvent(WorkItemRecord expiredWorkItem) { }
+
+
+    /**
+     * Override this method to handle final initialisation tasks that require a
+     * running engine
+     */
+    public void handleEngineInitialisationCompletedEvent() { }
+
+
 
 
     /**
@@ -206,7 +216,8 @@ public abstract class InterfaceBWebsideController {
      * @return the resultant checked-out workitem.
      * @throws IOException if the engine cannot be connected with.
      */
-    public WorkItemRecord checkOut(String workItemID, String sessionHandle) throws IOException, YAWLException {
+    public WorkItemRecord checkOut(String workItemID, String sessionHandle)
+            throws IOException, YAWLException {
         WorkItemRecord resultItem = null;
         String msg = _interfaceBClient.checkOutWorkItem(workItemID, sessionHandle);
         if (successful(msg)) {
@@ -282,24 +293,24 @@ public abstract class InterfaceBWebsideController {
         //Now if this is beta4 or greater then remove all those input only bits of data
         //by first preparing a list of output params to iterate over.
         WorkItemRecord workitem = this.getCachedWorkItem(workItemID);
-
-        SpecificationData specData = getSpecificationData(
-                workitem.getSpecificationID(), sessionHandle);
+        YSpecificationID specID = new YSpecificationID(workitem.getSpecificationID(),
+                                                       workitem.getSpecVersion());
+        SpecificationData specData = getSpecificationData(specID, sessionHandle);
 
         String filteredOutputData;
 
         if (!(specData.usesSimpleRootData())) {
-            TaskInformation taskInfo = getTaskInformation(
-                    workitem.getSpecificationID(),
-                    workitem.getTaskID(), sessionHandle);
+            TaskInformation taskInfo = getTaskInformation(specID, workitem.getTaskID(),
+                                                          sessionHandle);
             List outputParams = taskInfo.getParamSchema().getOutputParams();
-
             filteredOutputData = Marshaller.filterDataAgainstOutputParams(
-                    mergedlOutputData, outputParams);
-        } else {
+                                                    mergedlOutputData, outputParams);
+        }
+        else {
             filteredOutputData = mergedlOutputData;
         }
-        String result = _interfaceBClient.checkInWorkItem(workItemID, filteredOutputData, sessionHandle);
+        String result = _interfaceBClient.checkInWorkItem(workItemID, filteredOutputData,
+                                                          sessionHandle);
         _model.removeRemotelyCachedWorkItem(workItemID);
         return result;
     }
@@ -326,13 +337,28 @@ public abstract class InterfaceBWebsideController {
     }
 
 
-    public TaskInformation getTaskInformation(String specificationID, String taskID, String sessionHandle) throws IOException {
-        TaskInformation taskInfo = _model.getTaskInformation(specificationID, taskID);
+    /**
+     * @deprecated superceded by getTaskInformation(YSpecificationID, String, String)
+     * @param specID
+     * @param taskID
+     * @param sessionHandle
+     * @return
+     * @throws IOException
+     */
+    public TaskInformation getTaskInformation(String specID, String taskID,
+                                              String sessionHandle) throws IOException {
+       return getTaskInformation(new YSpecificationID(specID), taskID, sessionHandle);
+    }
+
+
+    public TaskInformation getTaskInformation(YSpecificationID specID, String taskID,
+                                              String sessionHandle) throws IOException {
+        TaskInformation taskInfo = _model.getTaskInformation(specID, taskID);
         if (taskInfo == null) {
             String taskInfoASXML = _interfaceBClient.getTaskInformationStr(
-                    specificationID, taskID, sessionHandle);
+                    specID, taskID, sessionHandle);
             taskInfo = _interfaceBClient.parseTaskInformation(taskInfoASXML);
-            _model.setTaskInformation(specificationID, taskID, taskInfo);
+            _model.setTaskInformation(specID, taskID, taskInfo);
         }
         return taskInfo;
     }
@@ -385,6 +411,17 @@ public abstract class InterfaceBWebsideController {
         return _interfaceBClient.getSpecificationList(sessionHandle);
     }
 
+    /**
+     * @deprecated superceded by getSpecificationData(YSpecificationID, String)
+     * @param specID
+     * @param sessionHandle
+     * @return
+     * @throws IOException
+     */
+    public SpecificationData getSpecificationData(String specID, String sessionHandle)
+            throws IOException {
+        return getSpecificationData(new YSpecificationID(specID), sessionHandle);
+    }
 
     /**
      * Gets the specification data object with the spec id.  If called it will return the
@@ -395,11 +432,12 @@ public abstract class InterfaceBWebsideController {
      * @return a Specification data object for spec id else null.
      * @throws java.io.IOException
      */
-    public SpecificationData getSpecificationData(String specID, String sessionHandle) throws IOException {
+    public SpecificationData getSpecificationData(YSpecificationID specID, String sessionHandle)
+            throws IOException {
         List specs = _interfaceBClient.getSpecificationList(sessionHandle);
         for (int i = 0; i < specs.size(); i++) {
             SpecificationData data = (SpecificationData) specs.get(i);
-            if (data.getID().equals(specID)) {
+            if (data.getID().equals(specID.getSpecName())) {
                 String specAsXML = data.getAsXML();
                 if (specAsXML == null) {
                     specAsXML = _interfaceBClient.getSpecification(specID, sessionHandle);
@@ -467,14 +505,14 @@ public abstract class InterfaceBWebsideController {
      */
     protected Element prepareReplyRootElement(WorkItemRecord enabledWorkItem, String sessionHandle) throws IOException {
         Element replyToEngineRootDataElement;
+        YSpecificationID specID = new YSpecificationID(enabledWorkItem.getSpecificationID(),
+                                                       enabledWorkItem.getSpecVersion());
+
 
         //prepare reply root element.
-        SpecificationData sdata = getSpecificationData(
-                enabledWorkItem.getSpecificationID(),
-                sessionHandle);
+        SpecificationData sdata = getSpecificationData(specID, sessionHandle);
 
-        TaskInformation taskInfo = getTaskInformation(
-                enabledWorkItem.getSpecificationID(),
+        TaskInformation taskInfo = getTaskInformation(specID,
                 enabledWorkItem.getTaskID(),
                 sessionHandle);
 
@@ -487,7 +525,7 @@ public abstract class InterfaceBWebsideController {
         return replyToEngineRootDataElement;
     }
 
-    protected Element getResourcingSpecs(String specID, String taskID,
+    protected Element getResourcingSpecs(YSpecificationID specID, String taskID,
                                          String sessionHandle) throws IOException {
         String result = _interfaceBClient.getResourcingSpecs(specID, taskID, sessionHandle) ;
         if ((result != null) && (! result.equals("")) && (! result.equals("null")))

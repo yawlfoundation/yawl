@@ -146,14 +146,20 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
         WorkItemRecord workItem = Marshaller.unmarshalWorkItem(workItemXML);
         if ("handleEnabledItem".equals(action)) {
             _controller.handleEnabledWorkItemEvent(workItem);
-        } else if ("cancelWorkItem".equals(action)) {
+        }
+        else if ("cancelWorkItem".equals(action)) {
             _controller.handleCancelledWorkItemEvent(workItem);
-        } else if ("timerExpiry".equals(action)) {
+        }
+        else if ("timerExpiry".equals(action)) {
             _controller.handleTimerExpiryEvent(workItem);
-        } else if (InterfaceB_EngineBasedClient.ANNOUNCE_COMPLETE_CASE_CMD.equals(action)) {
+        }
+        else if (InterfaceB_EngineBasedClient.ANNOUNCE_COMPLETE_CASE_CMD.equals(action)) {
             String caseID = request.getParameter("caseID");
             String casedata = request.getParameter("casedata");
             _controller.handleCompleteCaseEvent(caseID, casedata);
+        }
+        else if ("announceEngineInitialised".equals(action)) {
+            _controller.handleEngineInitialisationCompletedEvent();
         }
         if (_debug) {
         }

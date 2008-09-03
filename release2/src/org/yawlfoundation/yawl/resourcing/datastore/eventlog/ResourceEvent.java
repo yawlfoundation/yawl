@@ -20,6 +20,7 @@ public class ResourceEvent {
 
     private long _id ;                                           // hibernate PK
     private String _specID ;
+    private String _specVersion;
     private String _caseID ;
     private String _taskID ;
     private String _itemID ;
@@ -32,6 +33,7 @@ public class ResourceEvent {
 
     public ResourceEvent(WorkItemRecord wir, String pid, EventLogger.event eType) {
         _specID = wir.getSpecificationID();
+        _specVersion = wir.getSpecVersion();
         _caseID = wir.getCaseID();
         _taskID = wir.getTaskID();
         _itemID = wir.getID();
@@ -76,6 +78,11 @@ public class ResourceEvent {
     public long get_timeStamp() { return _timeStamp; }
 
     public void set_timeStamp(long timeStamp) { _timeStamp = timeStamp; }
+
+
+    public String get_specVersion() { return _specVersion; }
+
+    public void set_specVersion(String specVersion) { _specVersion = specVersion; }
 
 
     private long get_id() { return _id; }

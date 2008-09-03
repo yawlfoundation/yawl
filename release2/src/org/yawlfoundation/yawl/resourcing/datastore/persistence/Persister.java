@@ -80,6 +80,8 @@ public class Persister implements Serializable {
        else if ((className.endsWith("QueueSet")) ||
                 (className.endsWith("WorkQueue")))
            retObj = _db.selectScalar(className,"_ownerID", id);
+       else if (className.endsWith("AutoTask"))
+           retObj = _db.selectScalar(className,"_wirID", id);
        else
            retObj = _db.selectScalar(className,"_id", id);
 

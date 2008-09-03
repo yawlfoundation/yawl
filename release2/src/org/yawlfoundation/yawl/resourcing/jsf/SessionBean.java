@@ -14,16 +14,18 @@ import com.sun.rave.web.ui.component.PanelLayout;
 import com.sun.rave.web.ui.component.Script;
 import com.sun.rave.web.ui.model.Option;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.elements.YSpecVersion;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.jsf.comparator.OptionComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.SpecificationDataComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.YAWLServiceComparator;
-import org.yawlfoundation.yawl.resourcing.jsf.comparator.OptionComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -354,7 +356,7 @@ public class SessionBean extends AbstractSessionBean {
 
     // user selection from each listbox
     private String worklistChoice;
-    private String loadedSpecListChoice;
+    private YSpecificationID loadedSpecListChoice;
     private String runningCaseListChoice;
     private String selectUserListChoice;
     private String piledTasksChoice;
@@ -365,7 +367,7 @@ public class SessionBean extends AbstractSessionBean {
 
 
     public String getWorklistChoice() { return worklistChoice; }
-    public String getLoadedSpecListChoice() { return loadedSpecListChoice; }
+    public YSpecificationID getLoadedSpecListChoice() { return loadedSpecListChoice; }
     public String getRunningCaseListChoice() { return runningCaseListChoice; }
     public String getSelectUserListChoice() { return selectUserListChoice; }
     public String getOrgDataChoice() { return orgDataChoice; }
@@ -375,7 +377,6 @@ public class SessionBean extends AbstractSessionBean {
     public String getOrgDataGroupChoice() { return orgDataGroupChoice; }
 
     public void setWorklistChoice(String choice) { worklistChoice = choice ; }
-    public void setLoadedSpecListChoice(String choice) { loadedSpecListChoice = choice ; }
     public void setRunningCaseListChoice(String choice) { runningCaseListChoice = choice ; }
     public void setSelectUserListChoice(String choice) { selectUserListChoice = choice; }
     public void setOrgDataChoice(String choice) { orgDataChoice = choice ;}
@@ -384,6 +385,10 @@ public class SessionBean extends AbstractSessionBean {
     public void setOrgDataBelongsChoice(String choice) { orgDataBelongsChoice = choice; }
     public void setOrgDataGroupChoice(String choice) { orgDataGroupChoice = choice; }
 
+    public void setLoadedSpecListChoice(SpecificationData choice) {        
+        loadedSpecListChoice = new YSpecificationID(choice.getID(),
+                                   new YSpecVersion(choice.getSpecVersion())) ;
+    }
 
     /********************************************************************************/
 
@@ -682,6 +687,20 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
+    public YSpecVersion getLatestLoadedSpecVersion(SpecificationData spec) {
+        YSpecVersion result = new YSpecVersion("0.1");
+        for (SpecificationData sd : loadedSpecs) {
+            if (sd.getID().equals(spec.getID())) {
+                 YSpecVersion thisVersion = new YSpecVersion(sd.getSpecVersion());
+                 if (result.compareTo(thisVersion) < 0) {
+                     result = thisVersion;
+                 }
+            }
+        }
+        return result;    
+    }
+
+
     public String getCaseSchema() {
         return _rm.getDataSchema(getLoadedSpecListChoice()) ;
     }
@@ -696,7 +715,9 @@ public class SessionBean extends AbstractSessionBean {
 
 
     public String getTaskSchema(WorkItemRecord wir) {
-        return _rm.getDataSchema(wir) ;
+        YSpecificationID specID = new YSpecificationID(wir.getSpecificationID(),
+                                                       wir.getSpecVersion());
+        return _rm.getDataSchema(wir, specID) ;
     }
 
     public String getInstanceData(String schema, WorkItemRecord wir) {
@@ -724,19 +745,19 @@ public class SessionBean extends AbstractSessionBean {
 //        }
     }
 
-    public String getSchemaLibrary(String specID) {
-        String result = schemaLibraries.get(specID) ;
-
-        // not in local cache, try getting it from engine
-        if (result == null) {
-            result = _rm.getDataSchema(specID) ;
-
-            // not in engine = problem or not loaded
-            if (result != null) schemaLibraries.put(specID, result) ;
-        }
-
-        return result ;
-    }
+//    public String getSchemaLibrary(String specID) {
+//        String result = schemaLibraries.get(specID) ;
+//
+//        // not in local cache, try getting it from engine
+//        if (result == null) {
+//            result = _rm.getDataSchema(specID) ;
+//
+//            // not in engine = problem or not loaded
+//            if (result != null) schemaLibraries.put(specID, result) ;
+//        }
+//
+//        return result ;
+//    }
 
     /****** This section used by the 'Admin Queues' Page ***************************/
 
@@ -765,6 +786,14 @@ public class SessionBean extends AbstractSessionBean {
                                             p.getLastName() + ", " + p.getFirstName()) ;
             }
         }
+    }
+
+    public String getFirstAssignedToID() {
+        if ((adminQueueAssignedList != null) && (adminQueueAssignedList.length > 0)) {
+            Option option = adminQueueAssignedList[0];
+            return option.getLabel();
+        }
+        else return null;
     }
 
     public String getAssignedToText() {

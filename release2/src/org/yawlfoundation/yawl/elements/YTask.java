@@ -1454,7 +1454,7 @@ public abstract class YTask extends YExternalNetElement {
      * @return the specification version.
      */
     public String getSpecVersion() {
-        return _net.getSpecification().getVersion();
+        return _net.getSpecification().getSpecVersion();
     }
 
 

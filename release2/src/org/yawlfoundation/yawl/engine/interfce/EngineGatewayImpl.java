@@ -175,7 +175,7 @@ public class EngineGatewayImpl implements EngineGateway {
                     specID + ") not found.");
         }
         List specList = new Vector();
-        String version = spec.getVersion();
+        String version = spec.getSchemaVersion();
         specList.add(spec);
         try {
             String specString = YMarshal.marshal(specList, version);
@@ -1017,19 +1017,16 @@ public class EngineGatewayImpl implements EngineGateway {
         for (Iterator iterator = specSet.iterator(); iterator.hasNext();) {
             specs.append("<specificationData>");
             YSpecification spec = (YSpecification) iterator.next();
-            specs.append("<id>").
-                    append(spec.getID()).
-                    append("</id>");
+
+            specs.append(StringUtil.wrap(spec.getID(), "id"));
+
             if (spec.getName() != null) {
-                specs.append("<name>").
-                        append(spec.getName()).
-                        append("</name>");
+                specs.append(StringUtil.wrap(spec.getName(), "name"));
             }
             if (spec.getDocumentation() != null) {
-                specs.append("<documentation>").
-                        append(spec.getDocumentation()).
-                        append("</documentation>");
+                specs.append(StringUtil.wrap(spec.getDocumentation(), "documentation"));
             }
+            
             Iterator inputParams = spec.getRootNet().getInputParameters().values().iterator();
             if (inputParams.hasNext()) {
                 specs.append("<params>");
@@ -1039,16 +1036,12 @@ public class EngineGatewayImpl implements EngineGateway {
                 }
                 specs.append("</params>");
             }
-            specs.append("<rootNetID>").
-                    append(spec.getRootNet().getID()).
-                    append("</rootNetID>");
-            specs.append("<version>").
-                    append(spec.getVersion()).
-                    append("</version>");
+            specs.append(StringUtil.wrap(spec.getRootNet().getID(), "rootNetID"));
+            specs.append(StringUtil.wrap(spec.getSchemaVersion(),"version"));
+            specs.append(StringUtil.wrap(spec.getSpecVersion(), "specversion"));
+            specs.append(StringUtil.wrap(_engine.getLoadStatus(spec.getSpecificationID()),
+                         "status"));
 
-            specs.append("<status>").
-                    append(_engine.getLoadStatus(spec.getSpecificationID())).
-                    append("</status>");
             specs.append("</specificationData>");
         }
         return specs.toString();
@@ -1126,8 +1119,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             _userList.checkConnection(sessionHandle);
             YSpecification spec = _engine.getSpecification(id) ;
-            return spec.getSpecificationID().getVersion().toString();
-
+            return spec.getSpecificationID().getVersionAsString();
         }
         catch (YAuthenticationException e) {
             return failureMessage(e.getMessage());
@@ -1144,7 +1136,7 @@ public class EngineGatewayImpl implements EngineGateway {
      * @return
      * @throws RemoteException
      */
-    public String getMITaskAttributes(String specificationID, String taskID,
+    public String getMITaskAttributes(YSpecificationID specificationID, String taskID,
                                       String sessionHandle) throws RemoteException {
         try {
             _userList.checkConnection(sessionHandle);
@@ -1153,8 +1145,7 @@ public class EngineGatewayImpl implements EngineGateway {
             return failureMessage(e.getMessage());
         }
 
-        YSpecification spec = _engine.getSpecification(specificationID) ;
-        YTask task = _engine.getTaskDefinition(spec.getSpecificationID(), taskID);
+        YTask task = _engine.getTaskDefinition(specificationID, taskID);
 
         if (task != null) {
             if (task.isMultiInstance())
@@ -1169,7 +1160,7 @@ public class EngineGatewayImpl implements EngineGateway {
     /***************************************************************************/
 
 
-    public String getResourcingSpecs(String specificationID, String taskID,
+    public String getResourcingSpecs(YSpecificationID specificationID, String taskID,
                                      String sessionHandle) throws RemoteException {
         try {
             _userList.checkConnection(sessionHandle);
@@ -1177,8 +1168,7 @@ public class EngineGatewayImpl implements EngineGateway {
             return failureMessage(e.getMessage());
         }
 
-        YSpecification spec = _engine.getSpecification(specificationID) ;
-        YTask task = _engine.getTaskDefinition(spec.getSpecificationID(), taskID);
+        YTask task = _engine.getTaskDefinition(specificationID, taskID);
 
         if (task != null)
             return JDOMUtil.elementToStringDump(task.getResourcingSpecs());

@@ -17,6 +17,19 @@ public class YSpecificationID implements Comparable<YSpecificationID>
         this.version = version;
     }
 
+    public YSpecificationID(String specName, String version)
+    {
+        this.specName = specName;
+        this.version = new YSpecVersion(version);
+    }
+
+    // default version number constructor for non-versioned specs
+    public YSpecificationID(String specName)
+    {
+        this.specName = specName;
+        this.version = new YSpecVersion("0.1");
+    }
+
     public String getSpecName()
     {
         return specName;

@@ -11,6 +11,7 @@ package org.yawlfoundation.yawl.resourcing;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -50,7 +51,7 @@ public class TaskPrivileges {
     public static final int CAN_PILE = 6 ;
 
     // the specification & task this set of privileges applies to
-    private String _specID;
+    private YSpecificationID _specID;
     private String _taskID;
 
     // a flag to allow or disallow all for a particular privilege
@@ -67,7 +68,7 @@ public class TaskPrivileges {
 
     public TaskPrivileges(String taskID) { _taskID = taskID; }
 
-    public TaskPrivileges(String specID, String taskID) {
+    public TaskPrivileges(YSpecificationID specID, String taskID) {
         _specID = specID ;
         _taskID = taskID ;
     }
@@ -75,9 +76,9 @@ public class TaskPrivileges {
 
     // GETTER & SETTER //
 
-    public String getSpecID() { return _specID; }
+    public YSpecificationID getSpecID() { return _specID; }
 
-    public void setSpecID(String specID) { _specID = specID; }
+    public void setSpecID(YSpecificationID specID) { _specID = specID; }
 
 
     public String getTaskID() { return _taskID; }

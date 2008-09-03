@@ -44,6 +44,7 @@
                             <ui:upload binding="#{caseMgt.fileUpload1}"
                                        columns="60" id="fileUpload1"
                                        styleClass="fileUpload"
+                                       immediate="true"
                                        style="left: 10px; top: 40px"
                                        valueChangeListener="#{caseMgt.fileUpload1_processValueChange}"/>
 
@@ -80,6 +81,7 @@
                                          cellpadding="3"
                                          styleClass="dataTable"
                                          columnClasses="specsNameCol,
+                                                        specsVersCol,
                                                         specsDescCol,
                                                         dataTableScrollBarCol"                                    
                                          value="#{SessionBean.loadedSpecs}"
@@ -100,6 +102,18 @@
                                     </f:facet>
                                 </h:column>
 
+                                <h:column binding="#{caseMgt.colVersion}"
+                                          id="colVersion">
+                                    <h:outputText binding="#{caseMgt.colVersionRows}"
+                                                  id="colVersionRows"
+                                                  value="#{currentRow.specVersion}"/>
+
+                                    <f:facet name="header">
+                                        <h:outputText binding="#{caseMgt.colVersionHeader}"
+                                                      id="colVersionHeader"
+                                                      value="Version"/>
+                                    </f:facet>
+                                </h:column>
 
                                 <h:column binding="#{caseMgt.colDescription}"
                                           id="colDescription">

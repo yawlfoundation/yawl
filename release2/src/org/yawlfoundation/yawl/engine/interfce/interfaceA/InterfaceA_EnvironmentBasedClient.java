@@ -46,6 +46,12 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
     }
 
 
+    /**
+     * Checks that a seesion handle is active
+     * @param sessionHandle the handle to check
+     * @return true if the handle is active
+     * @throws IOException if there's a problem connecting to the engine
+     */
     public String checkConnection(String sessionHandle) throws IOException {
         return executeGet(_backEndURIStr,
                           prepareParamMap("checkConnection", sessionHandle));
@@ -55,10 +61,10 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
     /**
      * Change the password of a user on the engine.
      * The person's password is the one that owns the session handle.
-     * @param password
-     * @param sessionHandle
+     * @param password the new password
+     * @param sessionHandle an active handle
      * @return diagnostic string of results from engine.
-     * @throws IOException
+     * @throws IOException if there's a problem connecting to the engine
      */
     public String changeUserPassword(String password, String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("newPassword", sessionHandle);
@@ -71,9 +77,10 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
      * Delete the user
      * PREcondition: cannot delete self AND
      *               must be an Admin
-     * @param username
-     * @param sessionHandle
-     * @return
+     * @param username the user to delete
+     * @param sessionHandle an active handle
+     * @return diagnostic string of results from engine.
+     * @throws IOException if there's a problem connecting to the engine
      */
     public String deleteUser(String username, String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("deleteUser", sessionHandle);
@@ -88,6 +95,7 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
      * @param userID a valid user ID
      * @param password a valid password
      * @return the sessionHandle - expires after one hour.
+     * @throws IOException if there's a problem connecting to the engine
      */
     public String connect(String userID, String password) throws IOException {
         Map<String, String> params = prepareParamMap("connect", null);
@@ -100,7 +108,7 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
     /**
      * Returns a list of YAWL service objects registered with the engine.
      * @param sessionHandle the session handle - won't work without the correct one.
-     * @return te set of active yawl services
+     * @return the set of active yawl services
      */
     public Set<YAWLServiceReference> getRegisteredYAWLServices(String sessionHandle) {
         Set<YAWLServiceReference> result = new HashSet<YAWLServiceReference>();
@@ -108,12 +116,10 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
             String xml = getRegisteredYAWLServicesAsXML(sessionHandle);
             if (xml != null && successful(xml)) {
                 Document doc = JDOMUtil.stringToDocument(xml);
-                Iterator yawlServiceIter = doc.getRootElement().getChildren().iterator();
 
-                while (yawlServiceIter.hasNext()) {
-                    Element service = (Element) yawlServiceIter.next();
-                    result.add(
-                       YAWLServiceReference.unmarshal(JDOMUtil.elementToString(service)));
+                for (Object o : doc.getRootElement().getChildren()) {
+                    Element service = (Element) o;
+                    result.add(YAWLServiceReference.unmarshal(JDOMUtil.elementToString(service)));
                 }
             }
         } catch (IOException e) {
@@ -122,7 +128,13 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
         return result;
     }
 
-    
+
+    /**
+     * Returns an XML string list of YAWL services registered with the engine.
+     * @param sessionHandle an active handle
+     * @return XML string list of services or a diagnostic error message
+     * @throws IOException if there's a problem connecting to the engine
+     */
     public String getRegisteredYAWLServicesAsXML(String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("getYAWLServices", sessionHandle);
         return executeGet(_backEndURIStr, params);
@@ -160,10 +172,12 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
 
     /**
      * Uploads a specification into the engine.
-     * @param specification this is not file name this is the entire specification
-     * in string format.
-     * @param sessionHandle
-     * @return a result message indicting failure/success and some diagnostics
+     * @param specification this is *not* a file name, this is the entire specification
+     * xml file in string format.
+     * @param filename the file name of the specification xml file
+     * @param sessionHandle a sessionhandle.
+     * @return a diagnostic XML result message.
+     * @throws IOException if bad connection.
      */
     public String uploadSpecification(String specification, String filename,
                                       String sessionHandle) throws IOException {
@@ -171,18 +185,31 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
                              sessionHandle);
     }
 
-    
+
+    /**
+     * Unloads a loaded specification from the engine
+     * @deprecated superceded by unloadSpecification(YSpecification, String)
+     * @param specID the id of the specification to unload
+     * @param sessionHandle a sessionhandle.
+     * @return a diagnostic XML result message.
+     * @throws IOException if bad connection.
+     */
     public String unloadSpecification(String specID, String sessionHandle) throws IOException {
-        Map<String, String> params = prepareParamMap("unload", sessionHandle);
-        params.put("specID", specID);
-        return executePost(_backEndURIStr, params);
+        return unloadSpecification(new YSpecificationID(specID), sessionHandle);
     }
 
 
+    /**
+     * Unloads a loaded specification from the engine
+     * @param specID the id of the specification to unload
+     * @param sessionHandle a sessionhandle.
+     * @return a diagnostic XML result message.
+     * @throws IOException if bad connection.
+     */
     public String unloadSpecification(YSpecificationID specID, String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("unload", sessionHandle);
         params.put("specID", specID.getSpecName());
-        params.put("version", specID.getVersion().toString());
+        params.put("version", specID.getVersionAsString());
         return executePost(_backEndURIStr, params);
     }
 
@@ -194,9 +221,10 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
      * @param isAdmin true if the new user should have admin priviledges.
      * @param sessionHandle a current valid sessionhandle of an admin type user.
      * @return a diagnostic XML result message.
-     * @throws IOException
+     * @throws IOException if bad connection.
      */
-    public String createUser(String userName, String password, boolean isAdmin, String sessionHandle) throws IOException {
+    public String createUser(String userName, String password, boolean isAdmin,
+                             String sessionHandle) throws IOException {
         String action = isAdmin ? "createAdmin" :"createUser";
         Map<String, String> params = prepareParamMap(action, sessionHandle);
         params.put("userID", userName);
@@ -205,6 +233,12 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
     }
 
 
+    /**
+     * Gets all the users registered in the engine
+     * @param sessionHandle a current valid sessionhandle of an admin type user.
+     * @return a diagnostic XML result message.
+     * @throws IOException if bad connection.
+     */
     public List<User> getUsers(String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("getUsers", sessionHandle);
         ArrayList<User> users = new ArrayList<User>();
@@ -214,7 +248,8 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
             Document doc = JDOMUtil.stringToDocument(result);
             if (doc != null) {
                 List userElems = doc.getRootElement().getChildren();
-                for (int i = 0; i < userElems.size(); i++) {
+                int i = 0;
+                while (i < userElems.size()) {
                     Element element = (Element) userElems.get(i);
                     String id = element.getChildText("id");
                     User u = new User(id, null);
@@ -222,6 +257,7 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
                         u.setAdmin(true);
                     }
                     users.add(u);
+                    i++;
                 }
             }
         }

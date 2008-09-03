@@ -70,17 +70,34 @@ public final class YSpecification implements Cloneable, YVerifiable {
 
     /**
      * @deprecated since v2.0: use getVersion() instead
-     * Gets the version number of this specification.
-     * @return the version of the engine that this specification works for.
+     * Gets the version number of this specification's schema (as opposed to the
+     * version number of the specification itself).
+     * @return the version of the engine that this specification was first designed for.
      */
     public String getBetaVersion() {
-        return getVersion();
+        return getSchemaVersion();
     }
 
-    public String getVersion() {
+    public String getSchemaVersion() {
         return _version;
     }
 
+    /**
+      * Gets the version number of this specification (as opposed to the
+      * version number of the specification's schema).
+      * @return the version of this specification.
+      */
+    public String getSpecVersion() {
+        if (_metaData != null) {
+            YSpecVersion specVersion = _metaData.getVersion();
+            if (specVersion != null) {
+                return specVersion.toString();
+            }
+        }
+        return "0.1";                                  // default version number       
+    }
+
+    
     public boolean usesSimpleRootData() {
         return YSpecification._Beta2.equals(_version) ||
                YSpecification._Beta3.equals(_version);

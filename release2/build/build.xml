@@ -840,6 +840,9 @@
         <copy todir="${yawl.worklet.app.name}${webinf.dir}/engine/interfce">
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
         </copy>
+        <copy todir="${yawl.worklet.app.name}${webinf.dir}/engine"
+              file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
+
         <copy todir="${yawl.worklet.app.name}${webinf.dir}/elements">
             <fileset dir="${classes.dir}${packageRoot}/elements"
                      includes="*.class" />
@@ -971,6 +974,9 @@
         <copy todir="${yawl.resource.app.name}${webinf.dir}/engine/interfce">
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
         </copy>
+        <copy todir="${yawl.resource.app.name}${webinf.dir}/engine"
+              file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
+
         <copy todir="${yawl.resource.app.name}${webinf.dir}/elements">
             <fileset dir="${classes.dir}${packageRoot}/elements"
                      includes="*.class" />
@@ -1105,6 +1111,9 @@
                 includes="YDecompositionParser.class"/>
             <fileset dir="${schema.dir}" includes="*.xsd"/>
         </copy>
+        <copy todir="testService${webinf.dir}/engine"
+              file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
+        
 
         <copy todir="testService${webinf.dir}/resourcing/rsInterface">
             <fileset dir="${classes.dir}${packageRoot}/resourcing/rsInterface"/>

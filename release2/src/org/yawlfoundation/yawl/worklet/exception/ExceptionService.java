@@ -10,6 +10,7 @@ package org.yawlfoundation.yawl.worklet.exception;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_Service;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_ServiceSideClient;
@@ -286,7 +287,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                         monitor.addProcessInfo(wirt);
 
                         // get the exception handler for this time out for this task (if any)
-                        String taskID = getDecompID(specID, tList[i]);
+                        String taskID = getDecompID(specID, wir.getSpecVersion(), tList[i]);
                         RdrConclusion conc = getExceptionHandler(monitor, taskID, XTYPE_TIMEOUT);
 
                         // if conc is null there's no rules defined for this type of constraint
@@ -1007,10 +1008,11 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
     /**
      * Cancels all running instances of the specification passed
-     * @param specID the id of the specification to cancel
+     * @param specName the id of the specification to cancel
      */
-    private void removeAllCases(String specID) {
+    private void removeAllCases(String specName) {
         try {
+            YSpecificationID specID = new YSpecificationID(specName);
             String casesForSpec =  _interfaceBClient.getCases(specID, _sessionHandle);
             Element eCases = JDOMUtil.stringToElement(casesForSpec);
             List caseList = eCases.getChildren();
@@ -1022,7 +1024,8 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             }
          }
         catch (IOException ioe) {
-            _log.error("Exception attempting to all cases for specification: " + specID, ioe);
+            _log.error("Exception attempting to all cases for specification: " +
+                    specName, ioe);
         }
     }
 

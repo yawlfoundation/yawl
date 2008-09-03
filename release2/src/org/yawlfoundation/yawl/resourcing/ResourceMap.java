@@ -11,6 +11,7 @@ package org.yawlfoundation.yawl.resourcing;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.Namespace;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.allocators.ShortestQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
@@ -18,7 +19,10 @@ import org.yawlfoundation.yawl.resourcing.interactions.*;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.util.TaggedStringList;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -43,7 +47,7 @@ public class ResourceMap {
 
     private long _id ;                                             // hibernate pkey
     private String _taskID ;
-    private String _specID ;
+    private YSpecificationID _specID ;
 
     private Participant _piledResource = null ;
     private String _piledResourceID ;                              // for persistence
@@ -69,7 +73,7 @@ public class ResourceMap {
         _allocate.setAllocator(new ShortestQueue());               // default allocator
     }
 
-    public ResourceMap(String specID, String taskID, Element eleSpec) {
+    public ResourceMap(YSpecificationID specID, String taskID, Element eleSpec) {
         this(taskID);
         _specID = specID ;
         _privileges = new TaskPrivileges(specID, taskID);
@@ -77,7 +81,7 @@ public class ResourceMap {
         restorePiledResource() ;
     }
 
-    public ResourceMap(String specID, String taskID, Element eleSpec, boolean persisting) {
+    public ResourceMap(YSpecificationID specID, String taskID, Element eleSpec, boolean persisting) {
         this(specID, taskID, eleSpec);
         if (persisting) setPersisting(true);
         restorePiledResource() ;
@@ -120,9 +124,11 @@ public class ResourceMap {
 
     public void setTaskID(String taskID) { _taskID = taskID ; }
 
-    public String getSpecID() { return _specID; }
+    public String getSpecName() { return _specID.getSpecName(); }
 
-    public void setSpecID(String specID) { _specID = specID ; }
+    public YSpecificationID getSpecID() { return _specID; }
+
+    public void setSpecID(YSpecificationID specID) { _specID = specID ; }
 
     public String getPiledResourceID() { return _piledResourceID; }
 

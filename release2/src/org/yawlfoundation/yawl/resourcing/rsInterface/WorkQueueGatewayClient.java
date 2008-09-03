@@ -310,9 +310,10 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
 
-    public String getSpecData(String specID, String handle) throws IOException {
+    public String getSpecData(String specID, String version, String handle) throws IOException {
         params.clear();
         params.put("specid", specID);
+        params.put("version", version);
         return performGet("getSpecData", params, handle) ;
     }
 
@@ -326,25 +327,28 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
 
-    public String unloadSpecification(String specID, String handle) throws IOException {
+    public String unloadSpecification(String specID, String version, String handle) throws IOException {
         params.clear();
         params.put("specid", specID);
+        params.put("version", version);
         return performPost("unloadSpecification", params, handle);
     }
 
 
-    public String launchCase(String specID, String caseData, String handle)
+    public String launchCase(String specID, String version, String caseData, String handle)
                                                                    throws IOException {
         params.clear();
         params.put("specid", specID);
         params.put("casedata", caseData);
+        params.put("version", version);
         return performPost("launchCase", params, handle) ;
     }
 
 
-    public String getRunningCases(String specID, String handle) throws IOException {
+    public String getRunningCases(String specID, String version, String handle) throws IOException {
         params.clear();
         params.put("specid", specID);
+        params.put("version", version);
         return performGet("getRunningCases", params, handle) ;
     }
 

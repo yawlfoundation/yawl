@@ -66,7 +66,7 @@ public class adminQueues extends AbstractPageBean {
             log("userWorkQueues Initialization Failure", e);
             throw e instanceof FacesException ? (FacesException) e: new FacesException(e);
         }
-        tabUnOffered_action();
+//        tabUnOffered_action();
     }
 
 
@@ -409,7 +409,11 @@ public class adminQueues extends AbstractPageBean {
             showWorkItem(choice, queueType);
             result = queue.size() ;
         }
-        else disableAllButtons(queueType);
+        else {
+            _sb.setWorklistChoice(null);
+            disableAllButtons(queueType);
+        }
+        
         return result ;
     }
 

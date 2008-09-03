@@ -362,8 +362,12 @@
     width: 150px;
 }
 
+.specsVersCol {
+    width: 50px;
+}
+
 .specsDescCol {
-    width: 410px;
+    width: 360px;
 }
 
 

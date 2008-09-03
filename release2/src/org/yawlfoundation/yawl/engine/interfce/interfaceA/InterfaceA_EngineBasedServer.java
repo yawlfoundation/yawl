@@ -10,7 +10,6 @@
 package org.yawlfoundation.yawl.engine.interfce.interfaceA;
 
 import org.apache.log4j.Logger;
-import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
@@ -194,7 +193,9 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                     msg.append(_engine.removeYAWLService(serviceURI, sessionHandle));
                 }
                 else if ("unload".equals(action)) {
-                    YSpecificationID specID = makeYSpecificationID(request);
+                    String specName = request.getParameter("specID");
+                    String version = request.getParameter("version");
+                    YSpecificationID specID = new YSpecificationID(specName, version);
                     msg.append(_engine.unloadSpecification(specID, sessionHandle));
                 }
             }
@@ -224,24 +225,6 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
             logger.debug("return = " + msg);
         }
         return msg.toString();
-    }
-
-    
-    private YSpecificationID makeYSpecificationID(HttpServletRequest request) {
-        String version = "0.1" ;
-        String handle = request.getParameter("sessionHandle") ;
-        String id = request.getParameter("specID");
-        String verParam = request.getParameter("version");
-
-        try {
-            if (verParam == null) verParam = _engine.getLatestSpecVersion(id, handle);
-            if (verParam != null) version = verParam;
-        }
-        catch (Exception e) {
-            // nothing to do
-        }
-
-        return new YSpecificationID(id, new YSpecVersion(version));
     }
 
 

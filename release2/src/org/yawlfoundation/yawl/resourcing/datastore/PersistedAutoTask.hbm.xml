@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.yawlfoundation.yawl.resourcing.datastore">
+
+	  <class name="PersistedAutoTask"
+           table="rs_AutoTask">
+
+        <id name="_id"
+            column="wir_id"
+            type="long">
+            <generator class="native"/>
+        </id>
+
+        <property name="_wirID" column="wirID"/>
+        <property name="_wirStr" column="wir" type="text"/>
+
+    </class>
+	
+</hibernate-mapping>

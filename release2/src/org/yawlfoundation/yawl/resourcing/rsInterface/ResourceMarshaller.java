@@ -132,11 +132,11 @@ public class ResourceMarshaller {
             String status = specElement.getChildText("status");
             String version = specElement.getChildText("version");
             String rootNetID = specElement.getChildText("rootNetID");
-
+            String specVersion = specElement.getChildText("specversion");
             if (id != null && status != null) {
                 result = new SpecificationData(id, name, doco, status, version);
                 result.setRootNetID(rootNetID);
-
+                result.setSpecVersion(specVersion);
                 Element inputParams = specElement.getChild("params");
                 if (inputParams != null) {
                     List paramElements = inputParams.getChildren();

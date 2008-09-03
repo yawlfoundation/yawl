@@ -17,9 +17,12 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 import org.yawlfoundation.yawl.authentication.User;
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
+import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
-import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.worklet.admin.AdminTasksManager;
 import org.yawlfoundation.yawl.worklet.admin.AdministrationTask;
@@ -30,8 +33,6 @@ import org.yawlfoundation.yawl.worklet.rdr.RdrTree;
 import org.yawlfoundation.yawl.worklet.selection.CheckedOutChildItem;
 import org.yawlfoundation.yawl.worklet.selection.CheckedOutItem;
 import org.yawlfoundation.yawl.worklet.support.*;
-import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -142,7 +143,7 @@ public class WorkletService extends InterfaceBWebsideController {
      *       - VALUE: [String] id of the child WorkItemRecord the worklet was
      *                launched for (i.e. the key of a corresponding _handledWorkItem)
      *    _ruleSets:
-     *       - KEY: [String] spec id this set of rules appies to
+     *       - KEY: [String] spec id this set of rules applies to
      *       - VALUE: [RdrSet] set of rules for the spec
      */
     private HashMap _handledParentItems = new HashMap() ; // checked out parents
@@ -1269,19 +1270,20 @@ public class WorkletService extends InterfaceBWebsideController {
      * @param wir - the workitem to get the decomp id for
      */
      public String getDecompID(WorkItemRecord wir) {
-         return getDecompID(wir.getSpecificationID(), wir.getTaskID());
+         return getDecompID(wir.getSpecificationID(), wir.getSpecVersion(), wir.getTaskID());
      }
 
   //***************************************************************************//
 
     /**
      *  gets a task's decomposition id
-     *  @param specID - the specification's id
+     *  @param specName - the specification's id
      *  @param taskID - the task's id
      */
-    public String getDecompID(String specID, String taskID) {
+    public String getDecompID(String specName, String version, String taskID) {
 
        try {
+           YSpecificationID specID = new YSpecificationID(specName, version);
            TaskInformation taskinfo = getTaskInformation(specID, taskID, _sessionHandle);
            return taskinfo.getDecompositionID() ;
        }
@@ -1326,8 +1328,9 @@ public class WorkletService extends InterfaceBWebsideController {
 
    private String getMITaskInfo(WorkItemRecord wir) {
       try {
-         return _interfaceBClient.getMITaskAttributes(wir.getSpecificationID(),
-                                                      wir.getTaskID(), _sessionHandle);
+         return _interfaceBClient.getMITaskAttributes(
+                                  new YSpecificationID(wir.getSpecificationID()),
+                                  wir.getTaskID(), _sessionHandle);
       }
       catch (IOException ioe) {
          _log.error("IO Exception in dumpMITaskInfo", ioe) ;

@@ -10,6 +10,7 @@ package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
@@ -174,13 +175,16 @@ public class WorkQueueGateway extends HttpServlet {
         }
         else if (action.equals("getSpecData")) {
             String specID = req.getParameter("specid") ;
-            SpecificationData specData = _rm.getSpecData(specID, handle);
+            String version = req.getParameter("version");
+            SpecificationData specData = _rm.getSpecData(
+                    new YSpecificationID(specID, version), handle);
             if (specData != null)
                 result = specData.getAsXML();
         }
         else if (action.equals("getRunningCases")) {
             String specID = req.getParameter("specid") ;
-            result = _rm.getRunningCases(specID, handle) ;
+            String version = req.getParameter("version");
+            result = _rm.getRunningCases(new YSpecificationID(specID, version), handle) ;
         }
         else if (action.equals("getDecompID")) {
             WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
@@ -286,7 +290,7 @@ public class WorkQueueGateway extends HttpServlet {
         }
         else if (action.equals("unloadSpecification")) {
             String specID = req.getParameter("specid") ;
-            result = _rm.unloadSpecification(specID, handle) ;                    
+            result = _rm.unloadSpecification(specID, "0.1", handle);                   
         }
         else if (action.equals("launchCase")) {
             String specID = req.getParameter("specid") ;

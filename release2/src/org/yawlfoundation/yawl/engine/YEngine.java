@@ -165,6 +165,7 @@ public class YEngine implements InterfaceADesign,
             // Init completed - set engine status to up and running
             _logger.info("Marking engine status = RUNNING");
             _thisInstance.setEngineStatus(YEngine.ENGINE_STATUS_RUNNING);
+            _thisInstance.announceEngineInitialisationCompletion();
 
             // Now the engine's running, process any expired timers
             if (_expiredTimers != null) {
@@ -449,6 +450,7 @@ public class YEngine implements InterfaceADesign,
             }
         }
 
+        // get the latest loaded spec version
         YSpecification specification = _specifications.getSpecification(specID);
         if (specification != null) {
             YNetRunner runner = new YNetRunner(pmgr, specification.getRootNet(), data, caseID);
@@ -1783,7 +1785,7 @@ public class YEngine implements InterfaceADesign,
          */
         synchronized (mutex) {
 
-            return (YAWLServiceReference) _yawlServices.get(yawlServiceID);
+            return _yawlServices.get(yawlServiceID);
         }
     }
 
@@ -1793,12 +1795,12 @@ public class YEngine implements InterfaceADesign,
      *
      * @return Set of services
      */
-    public Set getYAWLServices() {
+    public Set<YAWLServiceReference> getYAWLServices() {
         /**
          * SYNC'D External interface
          */
         synchronized (mutex) {
-            return new HashSet(_yawlServices.values());
+            return new HashSet<YAWLServiceReference>(_yawlServices.values());
         }
     }
 
@@ -1851,6 +1853,10 @@ public class YEngine implements InterfaceADesign,
     public void announceCancellationToEnvironment(Announcements<CancelWorkItemAnnouncement> announcements) {
         _logger.debug("Announcing " + announcements.size() + " cancelled workitems.");
         observerGatewayController.notifyRemoveWorkItems(announcements);
+    }
+
+    public void announceEngineInitialisationCompletion() {
+        observerGatewayController.notifyEngineInitialised(getYAWLServices());
     }
 
 

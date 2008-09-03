@@ -16,6 +16,7 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
@@ -186,7 +187,7 @@ public class WorklistController extends InterfaceBWebsideController {
 
 
     public YParametersSchema getParamsForTask(String specID, String taskID, String sessionHandle) {
-        TaskInformation taskInfo = _model.getTaskInformation(specID, taskID);
+        TaskInformation taskInfo = _model.getTaskInformation(new YSpecificationID(specID), taskID);
         if (taskInfo != null) {
             return taskInfo.getParamSchema();
         }

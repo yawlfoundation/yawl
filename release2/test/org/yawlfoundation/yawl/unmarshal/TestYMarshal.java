@@ -52,7 +52,7 @@ public class TestYMarshal extends TestCase {
         File specificationFile = new File(YMarshal.class.getResource("MakeRecordings.xml").getFile());
         List specifications = YMarshal.unmarshalSpecifications(specificationFile.getAbsolutePath());
         _originalSpec = (YSpecification) specifications.iterator().next();
-        String marshalledSpecs = YMarshal.marshal(specifications, _originalSpec.getVersion());
+        String marshalledSpecs = YMarshal.marshal(specifications, _originalSpec.getSchemaVersion());
         File derivedSpecFile = new File(specificationFile.getParent() + File.separator + tempfileName);
         try {
             FileWriter fw = new FileWriter(derivedSpecFile);
@@ -78,7 +78,7 @@ public class TestYMarshal extends TestCase {
         specifications = YMarshal.unmarshalSpecifications(
                 specificationFile.getAbsolutePath());
         _originalSpec = (YSpecification) specifications.iterator().next();
-        String marshalledSpecsString = YMarshal.marshal(specifications, _originalSpec.getVersion());
+        String marshalledSpecsString = YMarshal.marshal(specifications, _originalSpec.getSchemaVersion());
         SAXBuilder builder = new SAXBuilder();
         StringReader marshalledSpecsStringReader = new StringReader(marshalledSpecsString);
         Document marshalledSpecsStringDoc = builder.build(marshalledSpecsStringReader);

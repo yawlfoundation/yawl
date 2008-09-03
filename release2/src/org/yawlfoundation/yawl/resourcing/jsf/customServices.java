@@ -312,7 +312,7 @@ public class customServices extends AbstractPageBean {
     public String btnAdd_action() {
         String name = (String) txtName.getText() ;
         String uri = (String) txtURL.getText();
-        if ((name != null) && (uri != null)) {
+        if (! (isNullOrEmpty(name)) || (! isNullOrEmpty(uri))) {
             String doco = (String) txtDescription.getText();
             getSessionBean().addRegisteredService(name, uri, doco);
             clearInputs();
@@ -321,6 +321,11 @@ public class customServices extends AbstractPageBean {
             msgPanel.warn("Add Service: name and URI required.");
 
         return null;
+    }
+
+
+    public boolean isNullOrEmpty(String text) {
+        return (text == null) || (text.length() == 0);
     }
 
     
