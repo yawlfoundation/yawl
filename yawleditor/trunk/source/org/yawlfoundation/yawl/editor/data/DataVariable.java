@@ -280,15 +280,18 @@ public class DataVariable implements Serializable, Cloneable {
   }
   
   public boolean equals(Object object) {
-    if (!(object instanceof DataVariable)) {
-      return false;
-    }
-    DataVariable otherVariable = (DataVariable) object;
-    if (getDataType().equals(otherVariable.getDataType()) &&
-        getName().equals(otherVariable.getName()) &&
-        getUsage() == otherVariable.getUsage()) {
-      return true;
-    }
-    return false;
+    return equalsIgnoreUsage(object)  &&
+           (getUsage() == ((DataVariable) object).getUsage());
   }
+
+    public boolean equalsIgnoreUsage(Object object) {
+      if (!(object instanceof DataVariable)) {
+        return false;
+      }
+      DataVariable otherVariable = (DataVariable) object;
+        return getDataType().equals(otherVariable.getDataType()) &&
+               getName().equals(otherVariable.getName());
+    }
+
+
 }

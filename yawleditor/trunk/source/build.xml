@@ -64,7 +64,10 @@
   <target name="initialize"
           description="Initialisation of properties and directories.">
     <!-- Create the time stamp -->
-    <tstamp />
+    <tstamp>
+        <format property="buildDate" pattern="yyyy.MM.dd HH:mm:ss"/>
+    </tstamp>
+    <filter token="BuildDate" value="${buildDate}" />
 
     <!-- Create the distribution directory -->
     <mkdir dir="${distribution.directory}" />

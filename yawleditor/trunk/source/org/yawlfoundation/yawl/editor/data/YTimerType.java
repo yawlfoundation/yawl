@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class YTimerType {
 
-    private static String schema = "\n\t<xs:complexType name=\"YTimerType\">\n" +
+    private static final String schema = "\n\t<xs:complexType name=\"YTimerType\">\n" +
                                    "\t\t<xs:sequence>\n" +
                                    "\t\t\t<xs:element name=\"trigger\">\n" +
                                    "\t\t\t\t<xs:simpleType>\n" +
@@ -25,10 +25,30 @@ public class YTimerType {
                                    "\t\t</xs:sequence>\n" +
                                    "\t</xs:complexType>\n";
 
+    private static final String valElement = "<element name=\"%s\">" +
+                                   "<complexType>" +
+                                   "<sequence>" +
+                                   "<element name=\"trigger\">" +
+                                   "<simpleType>" +
+                                   "<restriction base=\"string\">" +
+                                   "<enumeration value=\"OnEnabled\"/>" +
+                                   "<enumeration value=\"OnExecuting\"/>" +
+                                   "</restriction>" +
+                                   "</simpleType>" +
+                                   "</element>" +
+                                   "<element name=\"expiry\" type=\"string\"/>" +
+                                   "</sequence>" +
+                                   "</complexType>" +
+                                   "</element>" ;
+
+
     public YTimerType() {}
 
     public static String getSchema() { return schema; }
 
+    public static String getValidationSchema(String name) { 
+        return String.format(valElement, name);
+    }
 
     public List<DataVariable> getNetLevelTimerVariables() {
         List<DataVariable> result = null ;

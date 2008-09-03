@@ -75,7 +75,7 @@ public class ParameterList implements Serializable, Cloneable {
     Iterator i = parameters.iterator();
     while (i.hasNext()) {
       Parameter parameter = (Parameter) i.next();
-      if (parameter.getVariable().equals(variable) ||
+      if (parameter.getVariable().equalsIgnoreUsage(variable) ||
          (parameter.getQuery().indexOf("/" + variable.getName() + "/") > -1)) {
         toRemove.add(parameter);
       }

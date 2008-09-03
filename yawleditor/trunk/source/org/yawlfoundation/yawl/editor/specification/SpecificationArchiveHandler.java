@@ -88,7 +88,9 @@ public class SpecificationArchiveHandler {
    */
 
   public boolean processSaveRequest() {
-    if (SpecificationModel.getInstance().getFileName().equals("")) {
+    if (SpecificationModel.getInstance().getFileName().equals("") ||
+      ! SpecificationModel.getInstance().getFileName().endsWith(".ywl")) {
+
       if (!promptForAndSetSaveFileName()) {
         return false;
       }
@@ -277,7 +279,8 @@ public class SpecificationArchiveHandler {
   }
   
   private boolean saveWhilstClosing() {
-    if (SpecificationModel.getInstance().getFileName().equals("")) {
+    if (SpecificationModel.getInstance().getFileName().equals("") ||
+        ! SpecificationModel.getInstance().getFileName().endsWith(".ywl")) {
       if (!promptForAndSetSaveFileName()) {
         return false;
       }

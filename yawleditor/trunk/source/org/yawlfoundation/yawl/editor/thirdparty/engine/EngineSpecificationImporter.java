@@ -88,7 +88,9 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     convertEngineSpecObjectsToEditorObjects(editorSpec, engineSpec);
 
     LayoutManager.layoutSpecification();
-    
+
+    SpecificationModel.getInstance().setFileName(fullFileName);
+
     SpecificationFileModel.getInstance().incrementFileCount();
     SpecificationUndoManager.getInstance().discardAllEdits();
     if (! _invalidResourceReferences.isEmpty()) showInvalidResourceReferences();
