@@ -123,8 +123,8 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
 
-    public String isValidSession(String handle) throws IOException {
-        return performGet("isValidSession", handle) ;
+    public String isValidUserSession(String handle) throws IOException {
+        return performGet("isValidUserSession", handle) ;
     }
 
 

@@ -72,7 +72,8 @@ public class TestService extends InterfaceBWebsideController {
    //     output.append(doRandomTest()) ;
    //     output.append(doGetParticipantsTest()) ;
    //       output.append(controllerTest());
-        output.append(stressTest());
+   //     output.append(stressTest());
+        output.append(wqTest());
 
          output.append("</p></body></html>");
          outputWriter.write(output.toString());
@@ -132,12 +133,35 @@ private static String getReply(InputStream is) throws IOException {
         return "";
     }
 
+    private String wqTest() {
+        WorkQueueGatewayClientAdapter c = new
+        WorkQueueGatewayClientAdapter("http://localhost:8080/resourceService/workqueuegateway");
+        String handle = c.connect("admin", "YAWL");
+        prn("handle = " + handle);
+
+        if (c.checkConnection(handle)) {
+            try {
+                prn(c.getRunningCases("Order_Fulfilment.ywl", "0.11", handle));
+                prn(c.getSpecList(handle).toString());
+                prn(c.getSpecData("Order_Fulfilment.ywl", "0.11", handle).toString());
+                prn(c.getCaseData("70", handle));
+                prn(c.getRegisteredServices(handle).toString());
+                prn(c.cancelCase("70", handle));
+                prn(c.unloadSpecification("Order_Fulfilment.ywl", "0.11", handle));
+            }
+            catch (Exception e) {
+                return "error";
+            }
+        }
+        return "success";
+    }
+
+
     private String doLogGatewayTest() throws IOException {
         YLogGatewayClient logClient = new YLogGatewayClient(
                                          "http://localhost:8080/yawl/logGateway") ;
         String handle = logClient.connect("admin", "YAWL") ;
 
-        prn("handle = " + handle);
 
         // test all methods
         prn("getAllSpecIDs:");

@@ -445,7 +445,7 @@ public class SessionBean extends AbstractSessionBean {
 
     // if seesionhandle is invalid, logs out of session //
     public void checkLogon() {
-        if (! _rm.isValidSession(sessionhandle)) {
+        if (! _rm.isValidUserSession(sessionhandle)) {
             doLogout();
             gotoPage("Login");
         }

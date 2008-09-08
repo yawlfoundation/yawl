@@ -121,8 +121,8 @@ public class WorkQueueGateway extends HttpServlet {
         String pid = req.getParameter("participantid");
         String itemid = req.getParameter("workitemid");
 
-        if (action.equals("isValidSession")) {
-            result = String.valueOf(_rm.isValidSession(handle)) ;
+        if (action.equals("isValidUserSession")) {
+            result = String.valueOf(_rm.isValidUserSession(handle)) ;
         }
         else if (action.equals("getParticipantFromUserID")) {
             result = _rm.getParticipantFromUserID(userid).toXML();  //todo
@@ -165,6 +165,9 @@ public class WorkQueueGateway extends HttpServlet {
             Set<Participant> set = _rm.getParticipantsAssignedWorkItem(itemid, queueType);
             result = _marshaller.marshallParticipants(set) ;
         }
+
+        // the following calls are convenience pass-throughs to engine interfaces A & B
+
         else if (action.equals("getLoadedSpecs")) {
             Set<SpecificationData> set = _rm.getLoadedSpecs(handle) ;
             result = _marshaller.marshallSpecificationDataSet(set) ;
@@ -179,7 +182,7 @@ public class WorkQueueGateway extends HttpServlet {
             SpecificationData specData = _rm.getSpecData(
                     new YSpecificationID(specID, version), handle);
             if (specData != null)
-                result = specData.getAsXML();
+                result = new ResourceMarshaller().marshallSpecificationData(specData);
         }
         else if (action.equals("getRunningCases")) {
             String specID = req.getParameter("specid") ;
@@ -283,6 +286,9 @@ public class WorkQueueGateway extends HttpServlet {
             boolean success = _rm.reallocateStatelessWorkItem(pOrig, pDest, wir) ;
             result = String.valueOf(success);
         }
+
+        // the following calls are convenience pass-throughs to engine interfaces A & B
+
         else if (action.equals("uploadSpecification")) {
             String fileContents = req.getParameter("fileContents") ;
             String fileName = req.getParameter("fileName");
@@ -290,7 +296,8 @@ public class WorkQueueGateway extends HttpServlet {
         }
         else if (action.equals("unloadSpecification")) {
             String specID = req.getParameter("specid") ;
-            result = _rm.unloadSpecification(specID, "0.1", handle);                   
+            String version = req.getParameter("version");
+            result = _rm.unloadSpecification(specID, version, handle);           
         }
         else if (action.equals("launchCase")) {
             String specID = req.getParameter("specid") ;

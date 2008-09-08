@@ -1648,7 +1648,8 @@ public class ResourceManager extends InterfaceBWebsideController {
         String result ;
         if (hasUserTaskPrivilege(p, wir, TaskPrivileges.CAN_SKIP)) {
             try {
-                result = _interfaceBClient.skipWorkItem(wir.getID(), handle) ;
+                result = _interfaceBClient.skipWorkItem(wir.getID(),
+                                           getHandleForEngineCall(handle)) ;
                 if (successful(result)) {
                     p.getWorkQueues().removeFromQueue(wir, WorkQueue.ALLOCATED);
                     EventLogger.log(wir, p.getID(), EventLogger.event.skip);
@@ -2036,7 +2037,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     protected boolean checkOutWorkItem(WorkItemRecord wir, String handle) {
         if (connected()) {
             try {
-                if (null != checkOut(wir.getID(), handle)) {
+                if (null != checkOut(wir.getID(), getHandleForEngineCall(handle))) {
                      _log.info("   checkout successful: " + wir.getID());
                      return true ;
                 }
@@ -2091,7 +2092,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                 if (outData == null) outData = wir.getDataList();
                 checkCacheForWorkItem(wir);
                 result = checkInWorkItem(wir.getID(), wir.getDataList(),
-                                                outData, handle) ;
+                                                outData, getHandleForEngineCall(handle)) ;
                 if (successful(result)) {
                     p.getWorkQueues().getQueue(WorkQueue.STARTED).remove(wir);
                     _workItemCache.remove(wir) ;
@@ -2196,7 +2197,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         _liveAdmins.remove(handle);
     }
 
-    public boolean isValidSession(String handle) {
+    public boolean isValidUserSession(String handle) {
         return _liveSessions.containsKey(handle) || _liveAdmins.contains(handle);
     }
 
@@ -2306,6 +2307,14 @@ public class ResourceManager extends InterfaceBWebsideController {
         return _connections.checkConnection(handle);
     }
 
+    // An connected external service doesn't have a session with the engine, so this
+    // method swaps service session handles with this classes handle to allow
+    // authorised external services to query the engine
+    private String getHandleForEngineCall(String handle) {
+        return checkServiceConnection(handle) && connected() ?
+               _engineSessionHandle : handle;
+    }
+
     public Set<SpecificationData> getLoadedSpecs(String handle) {
         Set<SpecificationData> result = getSpecList(handle) ;
         if (result != null) {
@@ -2320,6 +2329,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public Set<SpecificationData> getSpecList(String handle) {
         Set<SpecificationData> result = new HashSet<SpecificationData>() ;
+        handle = getHandleForEngineCall(handle);
         try {
             Iterator itr = getSpecificationPrototypesList(handle).iterator() ;
             while (itr.hasNext()) result.add((SpecificationData) itr.next()) ;
@@ -2335,7 +2345,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         SpecificationData result = _specCache.get(spec);   
         if (result == null) {
             try {
-                result = getSpecificationData(spec, handle) ;
+                result = getSpecificationData(spec, getHandleForEngineCall(handle)) ;
                 if (result != null) _specCache.add(result) ;
             }
             catch (IOException ioe) {
@@ -2377,16 +2387,19 @@ public class ResourceManager extends InterfaceBWebsideController {
         return null;
     }
 
+
     public String getRunningCases(YSpecificationID specID, String handle) throws IOException {
-        return _interfaceBClient.getCases(specID, handle);
+        return _interfaceBClient.getCases(specID, getHandleForEngineCall(handle));
     }
 
 
     public String uploadSpecification(String fileContents, String fileName, String handle) {
         try {
-            return _interfaceAClient.uploadSpecification(fileContents, fileName, handle);
+            return _interfaceAClient.uploadSpecification(fileContents, fileName,
+                    getHandleForEngineCall(handle));
         }
         catch (IOException ioe) {
+            _log.error("IOException uploading specification " + fileName, ioe);
             return "<failure>IOException uploading specification " + fileName + "</failure>";
         }
     }
@@ -2396,7 +2409,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         List<WorkItemRecord> liveItems = getLiveWorkItemsForCase(caseID, handle) ;
 
         // cancel the case in the engine
-        String result =  _interfaceBClient.cancelCase(caseID, handle);
+        String result =  _interfaceBClient.cancelCase(caseID, getHandleForEngineCall(handle));
 
         // remove live items for case from workqueues and cache
         if (successful(result) && (liveItems != null)) {
@@ -2417,7 +2430,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         List<WorkItemRecord> childList = new ArrayList<WorkItemRecord>();
         try {
             result = _interfaceBClient.getLiveWorkItemsForIdentifier("case", caseID,
-                                                                         handle) ;
+                                                         getHandleForEngineCall(handle)) ;
             if (result != null) {
 
                 // the above method only gets parents, so get any child items too
@@ -2445,7 +2458,8 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public String unloadSpecification(String specID, String version, String handle) throws IOException {
         YSpecificationID ySpecID = new YSpecificationID(specID, new YSpecVersion(version));
-        String result = _interfaceAClient.unloadSpecification(ySpecID, handle);
+        String result = _interfaceAClient.unloadSpecification(ySpecID,
+                                          getHandleForEngineCall(handle));
         if (successful(result)) {
             _resMapCache.remove(ySpecID);
             _specCache.remove(ySpecID);
@@ -2454,7 +2468,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
     
     public String launchCase(String specID, String caseData, String handle) throws IOException {
-        return _interfaceBClient.launchCase(specID, caseData, handle) ;
+        return _interfaceBClient.launchCase(specID, caseData, getHandleForEngineCall(handle)) ;
     }
 
     
@@ -2542,22 +2556,22 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
     public String getRegisteredServicesAsXML(String handle) throws IOException {
-        return _interfaceAClient.getRegisteredYAWLServicesAsXML(handle);
+        return _interfaceAClient.getRegisteredYAWLServicesAsXML(getHandleForEngineCall(handle));
     }
 
 
     public String addRegisteredService(YAWLServiceReference service, String handle)
                                                                     throws IOException {
-        return _interfaceAClient.setYAWLService(service, handle);
+        return _interfaceAClient.setYAWLService(service, getHandleForEngineCall(handle));
     }
 
 
     public String removeRegisteredService(String id, String handle) throws IOException {
-        return _interfaceAClient.removeYAWLService(id, handle);
+        return _interfaceAClient.removeYAWLService(id, getHandleForEngineCall(handle));
     }
 
     public String getCaseData(String caseID, String handle) throws IOException {
-        return _interfaceBClient.getCaseData(caseID, handle) ;
+        return _interfaceBClient.getCaseData(caseID, getHandleForEngineCall(handle)) ;
     }
 
 
