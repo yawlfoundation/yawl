@@ -423,15 +423,24 @@ public class SpecificationArchiveHandler {
       });
       SpecificationModel.getInstance().reset();
 
-      readSpecification(encoder);
+      boolean ok = readSpecification(encoder);
       encoder.close();
       inputStream.close();
 
-      SpecificationModel.getInstance().setFileName(fullFileName);
-      
-      SpecificationFileModel.getInstance().incrementFileCount();
-
-      SpecificationUndoManager.getInstance().discardAllEdits();
+      if (ok) {
+          SpecificationModel.getInstance().setFileName(fullFileName);
+          SpecificationFileModel.getInstance().incrementFileCount();
+          SpecificationUndoManager.getInstance().discardAllEdits();
+      }
+      else {
+          JOptionPane.showMessageDialog(
+              YAWLEditor.getInstance(),
+              "Error discovered reading YAWL Editor save file.\n" +
+              "It appears to be a pre-2.0 file. Please convert it using\n" +
+              "the YAWLSaveFileConverter utility and try again.\n",
+              "Editor File Loading Error",
+              JOptionPane.ERROR_MESSAGE);
+      }
 
     } catch (Exception e) {
       processCloseRequest(); 
@@ -439,54 +448,58 @@ public class SpecificationArchiveHandler {
     }
   }
   
-  private void readSpecification(XMLDecoder encoder) {
+  private boolean readSpecification(XMLDecoder encoder) {
     SpecificationModel specModel = SpecificationModel.getInstance();
     ArchivableSpecificationState state = 
       (ArchivableSpecificationState) encoder.readObject();
-    if (state.getSize() != null) {
-			YAWLEditorDesktop.getInstance().setPreferredSize(state.getSize());
-    }
-    if (state.getDataTypeDefinition() != null) {
-      specModel.setDataTypeDefinition(XMLUtilities.unquoteXML(
-              state.getDataTypeDefinition())
-      );
-    }
-    specModel.setWebServiceDecompositions(state.getDecompositions());
-    specModel.setFontSize(state.getFontSize());
+    if (state != null) {
+        if (state.getSize() != null) {
+      			YAWLEditorDesktop.getInstance().setPreferredSize(state.getSize());
+        }
+        if (state.getDataTypeDefinition() != null) {
+          specModel.setDataTypeDefinition(XMLUtilities.unquoteXML(
+                  state.getDataTypeDefinition())
+          );
+        }
+        specModel.setWebServiceDecompositions(state.getDecompositions());
+        specModel.setFontSize(state.getFontSize());
 
-    readNets(state.getNets());
+        readNets(state.getNets());
     
-    try {
-      specModel.setDefaultNetBackgroundColor(state.getDefaultNetBackgroundColor());
-    } catch(Exception e) {}
+        try {
+          specModel.setDefaultNetBackgroundColor(state.getDefaultNetBackgroundColor());
+        } catch(Exception e) {}
     
-    specModel.setName(state.getName());
-    specModel.setDescription(state.getDescription());
-    specModel.setId(state.getId());
-    specModel.setAuthor(state.getAuthor());
-    specModel.setVersionNumber(new YSpecVersion(String.valueOf(state.getVersionNumber())));
-    specModel.setValidFromTimestamp(state.getValidFromTimestamp());
-    specModel.setValidUntilTimestamp(state.getValidUntilTimestamp());
+        specModel.setName(state.getName());
+        specModel.setDescription(state.getDescription());
+        specModel.setId(state.getId());
+        specModel.setAuthor(state.getAuthor());
+        specModel.setVersionNumber(new YSpecVersion(String.valueOf(state.getVersionNumber())));
+        specModel.setValidFromTimestamp(state.getValidFromTimestamp());
+        specModel.setValidUntilTimestamp(state.getValidUntilTimestamp());
     
-    Iterator netIterator = specModel.getNets().iterator();
+        Iterator netIterator = specModel.getNets().iterator();
     
-    long largestIdSoFar = 0;
-    while(netIterator.hasNext()) {
-      NetGraphModel currentNet = (NetGraphModel) netIterator.next();
-      long largestNetId = NetUtilities.getLargestEngineIdNumberWithin(currentNet);
-      if (largestIdSoFar < largestNetId) {
-        largestIdSoFar = largestNetId;
-      }
-    }
-    specModel.setUniqueElementNumber(largestIdSoFar);
+        long largestIdSoFar = 0;
+        while(netIterator.hasNext()) {
+          NetGraphModel currentNet = (NetGraphModel) netIterator.next();
+          long largestNetId = NetUtilities.getLargestEngineIdNumberWithin(currentNet);
+          if (largestIdSoFar < largestNetId) {
+            largestIdSoFar = largestNetId;
+          }
+        }
+        specModel.setUniqueElementNumber(largestIdSoFar);
 
-    specModel.checkResourcingObjects();
+        specModel.checkResourcingObjects();
     
-    if (state.getBounds() != null) {
-      YAWLEditor.getInstance().setBounds(state.getBounds());
+        if (state.getBounds() != null) {
+           YAWLEditor.getInstance().setBounds(state.getBounds());
+        }
     }
+    return (state != null);
   }
-  
+
+
   private void readNets(HashSet nets) {
     Object[] netArray = nets.toArray();
     LinkedList<NetGraph> rebuiltNets = new LinkedList<NetGraph>();
