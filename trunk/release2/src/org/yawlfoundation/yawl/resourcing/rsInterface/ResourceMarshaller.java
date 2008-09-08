@@ -9,6 +9,7 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.unmarshal.YDecompositionParser;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -103,8 +104,39 @@ public class ResourceMarshaller {
 
     public String marshallSpecificationDataSet(Set<SpecificationData> set) {
         StringBuilder xml = new StringBuilder("<specificationdataset>") ;
-        for (SpecificationData specData : set) xml.append(specData.getAsXML()) ;
+        for (SpecificationData specData : set) {
+            xml.append(marshallSpecificationData(specData));
+        }
         xml.append("</specificationdataset>");
+        return xml.toString() ;
+    }
+
+    public String marshallSpecificationData(SpecificationData specData) {
+        StringBuilder xml = new StringBuilder("<specificationData>") ;
+        xml.append(StringUtil.wrap(specData.getID(), "id"));
+
+        if (specData.getName() != null) {
+            xml.append(StringUtil.wrap(specData.getName(), "name"));
+        }
+        if (specData.getDocumentation() != null) {
+            xml.append(StringUtil.wrap(specData.getDocumentation(), "documentation"));
+        }
+
+        Iterator inputParams = specData.getInputParams().iterator();
+        if (inputParams.hasNext()) {
+            xml.append("<params>");
+            while (inputParams.hasNext()) {
+                YParameter inputParam = (YParameter) inputParams.next();
+                xml.append(inputParam.toSummaryXML());
+            }
+            xml.append("</params>");
+        }
+        xml.append(StringUtil.wrap(specData.getRootNetID(), "rootNetID"));
+        xml.append(StringUtil.wrap(specData.getSchemaVersion(),"version"));
+        xml.append(StringUtil.wrap(specData.getSpecVersion(), "specversion"));
+        xml.append(StringUtil.wrap(specData.getStatus(), "status"));
+
+        xml.append("</specificationData>");
         return xml.toString() ;
     }
 

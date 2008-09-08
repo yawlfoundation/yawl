@@ -1115,7 +1115,7 @@ public class WorkletService extends InterfaceBWebsideController {
         Element result = (Element) in.clone() ;
 
         // for each child in 'out' list, get its value and copy to 'in' list
-        for (Object o : (out.getChildren())) {
+        for (Object o : out.getChildren()) {
             Element e = (Element) o;
 
             // if there's a matching 'in' data item, update its value
@@ -1124,6 +1124,10 @@ public class WorkletService extends InterfaceBWebsideController {
                 if (resData.getContentSize() > 0) resData.setContent(e.cloneContent()) ;
                 else resData.setText(e.getText());
             }
+            else {              //TODO : this is from the forum - explore all ramifications
+                // if the item is not in the 'in' list, add it.
+                result.getChildren().add(e.clone());
+            }    
         }
 
         return result ;

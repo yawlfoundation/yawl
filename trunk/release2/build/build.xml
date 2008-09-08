@@ -650,6 +650,8 @@
         <copy todir="${yawl.webService.app.name}${webinf.dir}/elements">
             <fileset dir="${classes.dir}${packageRoot}/elements" includes="**/*.class **/*.xsd"/>
         </copy>
+        <copy todir="${yawl.webService.app.name}${webinf.dir}/engine"
+              file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
         <copy todir="${yawl.webService.app.name}${webinf.dir}/util">
             <fileset dir="${classes.dir}${packageRoot}/util"
                      includes="JDOMUtil.class StringUtil.class"/>
@@ -716,6 +718,8 @@
             <fileset dir="${classes.dir}${packageRoot}/elements"
                      includes="**/*.class **/*.xsd"/>
         </copy>
+        <copy todir="${yawl.smsService.app.name}${webinf.dir}/engine"
+              file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
         <copy todir="${yawl.smsService.app.name}${webinf.dir}/unmarshal">
             <fileset
                 dir="${classes.dir}${packageRoot}/unmarshal"
@@ -802,6 +806,8 @@
         <copy todir="${yawl.timeService.app.name}${webinf.dir}/engine/interfce/interfaceB">
              <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceB"/>
          </copy>
+        <copy todir="${yawl.timeService.app.name}${webinf.dir}/engine"
+              file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
         <copy todir="${yawl.timeService.app.name}${webinf.dir}/util">
               <fileset dir="${classes.dir}${packageRoot}/util"/>
         </copy>

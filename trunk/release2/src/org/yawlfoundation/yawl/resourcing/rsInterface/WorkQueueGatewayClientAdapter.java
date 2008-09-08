@@ -113,8 +113,8 @@ public class WorkQueueGatewayClientAdapter {
     }
 
 
-    public boolean isValidSession(String handle) throws IOException {
-        return _wqclient.isValidSession(handle).equalsIgnoreCase("true");
+    public boolean isValidUserSession(String handle) throws IOException {
+        return _wqclient.isValidUserSession(handle).equalsIgnoreCase("true");
     }
 
 
