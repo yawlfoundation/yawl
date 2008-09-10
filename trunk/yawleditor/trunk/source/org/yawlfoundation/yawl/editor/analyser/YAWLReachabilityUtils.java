@@ -42,7 +42,8 @@ import java.util.Vector;
  */
 public class YAWLReachabilityUtils{
      YSetOfMarkings endMarkings = new YSetOfMarkings();
-     int maxNumMarkings = 5000;
+     YSetOfMarkings VisitedMarkings = new YSetOfMarkings();
+     int maxNumMarkings = 10000;
      YNet _yNet;
      YSetOfMarkings RS;
      Set firedTasks = new HashSet(100); 
@@ -438,8 +439,7 @@ public class YAWLReachabilityUtils{
 	   	
 	   	RS = getReachableMarkings(Mi);
 	    
-	/*    System.out.println("RS"+RS.size());
-	   	System.out.println("endMarkings"+endMarkings.size());
+	    /*	System.out.println("endMarkings"+endMarkings.size());
 	   	
 	   	for (Iterator i = RS.getMarkings().iterator(); i.hasNext();)
 	    {   YMarking m = (YMarking) i.next();
@@ -447,6 +447,7 @@ public class YAWLReachabilityUtils{
 	   	}
 	*/
 	     String omsg;
+
         //To check whether exact marking Mo=o is reachable.
    	   	if (RS.contains(Mo))
    	   	{ omsg = "The net "+_yNet.getID()+" has an option to complete.";
@@ -466,6 +467,7 @@ public class YAWLReachabilityUtils{
    	  msg += formatXMLMessage(omsg,optionToComplete);
    	  
    	  
+
      // Check for larger end markings than o.
  	  String pmsg = "";
 
@@ -477,16 +479,18 @@ public class YAWLReachabilityUtils{
    		  properCompletion = false;
    		}
    	  }
+
 	   if (pmsg.equals(""))
 	   {
-	   	pmsg = "The net has proper completion.";
+	   	pmsg = "The net "+_yNet.getID()+" has proper completion.";
 	   }
 	   else
-       {   pmsg = "The net "+_yNet.getID()+" does not have proper completion. " + pmsg;
-		   msg += formatXMLMessage(pmsg,properCompletion);
-	   }
 
-	   
+       {   pmsg = "The net "+_yNet.getID()+" does not have proper completion. " + pmsg;
+
+	   }
+		   msg += formatXMLMessage(pmsg,properCompletion);
+
 	   String dmsg = "";
 	    for (Iterator i = _yNet.getNetElements().values().iterator(); i.hasNext();)
 	     { 
@@ -539,19 +543,28 @@ public class YAWLReachabilityUtils{
    	private YSetOfMarkings getReachableMarkings(YMarking M) throws Exception{
 	
 	YSetOfMarkings RS = new YSetOfMarkings();
+	VisitedMarkings = new YSetOfMarkings();
+
     YSetOfMarkings visitingPS = getImmediateSuccessors(M);
-    visitingPS.addMarking(M);
+    RS.addMarking(M);
+    VisitedMarkings.addMarking(M);
+
     while (!RS.containsAll(visitingPS.getMarkings()))
        { 
          RS.addAll(visitingPS);
             if(RS.size() > maxNumMarkings)
-        { throw new Exception("Reachable markings >"+maxNumMarkings+ ". Possible infinite loop in the net "+_yNet.getID());
-        
+        {
+    		throw new Exception("Reachable markings >"+maxNumMarkings+ ". Possible infinite loop in the net "+_yNet.getID());
         }
-        visitingPS = getImmediateSuccessors(visitingPS);
-       // System.out.println("visitingPS size"+ visitingPS.size());
-               
-        } 
+
+    	YSetOfMarkings successors = getImmediateSuccessors(visitingPS);
+        visitingPS.removeAll();
+        visitingPS.addAll(successors);
+        System.out.println("Immediate Successors: "+ visitingPS.size());
+
+        }
+
+     System.out.println("Reachability Set size: "+RS.size());
      return RS; 
     
     }
@@ -567,7 +580,11 @@ public class YAWLReachabilityUtils{
     for (Iterator i = markings.getMarkings().iterator(); i.hasNext();)
     {
        YMarking currentM = (YMarking) i.next();	
+
+       if (!VisitedMarkings.contains(currentM))
+       {
        YSetOfMarkings post = getImmediateSuccessors(currentM);
+       VisitedMarkings.addMarking(currentM);
        if(post.size() > 0)
        { successors.addAll(post);
        }
@@ -576,6 +593,12 @@ public class YAWLReachabilityUtils{
       	endMarkings.addMarking(currentM);
       }	
      }  
+       else
+       {
+    	  // System.out.println("In visited markings: " + currentM);
+
+       }
+     }
     return successors;
     }
     
@@ -593,6 +616,7 @@ public class YAWLReachabilityUtils{
       if (ele instanceof YTask)  
       {  YTask t = (YTask) ele;
       	if (isForwardEnabled(currentM,t))
+
 	     {  YSetOfMarkings nextMs = getNextMarkings(currentM,t);
 
 	     /*   System.out.println("Reachable markings for M " + printMarking(currentM) + " for transition " + t.getID());
@@ -668,6 +692,7 @@ public class YAWLReachabilityUtils{
        		YMarking M = (YMarking) c.next();
        		List slocations = new LinkedList(M.getLocations());
        		for(Iterator i= cancelset.iterator();i.hasNext();)
+
        	    {
        		  YExternalNetElement ele = (YExternalNetElement)i.next();
        		  slocations.remove(ele);
@@ -900,6 +925,7 @@ public class YAWLReachabilityUtils{
     private YNet transformNet(YNet net)
     {
 
+
     //Bug fix: It is necessary to first populate the cancelledByTask sets
     // to enable the tasks that are in the cancellation sets to be removed
     // properly during the reachability analysis.
@@ -921,6 +947,7 @@ public class YAWLReachabilityUtils{
 	  }
 	}
       //for all tasks - split into two
+
     	for (Iterator i= net.getNetElements().values().iterator();i.hasNext();)
     	{ YExternalNetElement e = (YExternalNetElement) i.next();
     	  if (e instanceof YTask)
@@ -932,7 +959,6 @@ public class YAWLReachabilityUtils{
     	  	//introduce a condition in between
     	    //change join behaviour and preset of t_start
     	  	t.setJoinType(YTask._XOR);
-    	  	  
     	  	  Set preSet = t.getPresetElements();
     	  	  Iterator preFlowIter = preSet.iterator();
               while (preFlowIter.hasNext())
@@ -954,7 +980,6 @@ public class YAWLReachabilityUtils{
               	  newVector.add(condition);
               	  cancelTask.setRemovesTokensFrom(newVector); 
               	}
-
 
               }
               	
