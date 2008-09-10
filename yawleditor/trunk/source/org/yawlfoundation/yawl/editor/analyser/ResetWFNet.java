@@ -62,7 +62,7 @@ public final class ResetWFNet {
     private RSetOfMarkings endMarkings = new RSetOfMarkings();
    
     
-    int maxNumMarkings = 5000;
+    int maxNumMarkings = 10000;
      /**
      * Constructor for Reset net.
      *
@@ -1140,10 +1140,11 @@ public final class ResetWFNet {
         
         }
         visitingPS = getImmediateSuccessors(visitingPS);
-       // System.out.println("visitingPS size"+ visitingPS.size());
+        System.out.println("Immediate successors: "+ visitingPS.size());
        
         }      
-     return RS; 
+     System.out.println("Reachability set size: " + RS.size());
+     return RS;
     }
     
     /**

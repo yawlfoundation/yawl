@@ -60,6 +60,8 @@ public class YAWLResetAnalyser{
      * returns a xml formatted string with warnings and observations.
      */
      public String analyse(String fileURL,String options,boolean useYAWLReductionRules,boolean useResetReductionRules) throws IOException, YSchemaBuildingException, YSyntaxException, JDOMException {
+       long startTime = System.currentTimeMillis();
+
        YSpecification specs;
        StringBuffer msgBuffer = new StringBuffer(400);
        try {
@@ -215,12 +217,15 @@ public class YAWLResetAnalyser{
     
   // String exportFileName = fileURL+"reduced"; 
   //  exportEngineSpecificationToFile(exportFileName,newSpecification);
-	return formatXMLMessageForEditor(msgBuffer.toString());
 
+	long endTime = System.currentTimeMillis();
+	long duration = endTime - startTime;
+	System.out.println("Duration: " + duration + " millisecs");
+	return formatXMLMessageForEditor(msgBuffer.toString());
     }
     
     private YNet reduceNet(YNet originalNet){
-//	System.out.println(" Original net:"+ originalNet.getNetElements().size());
+	System.out.println("# Elements in the original YAWL net: "+ originalNet.getNetElements().size());
 	YAWLReductionRule rule;
 
     YNet reducedNet_t, reducedNet;
@@ -265,6 +270,11 @@ public class YAWLResetAnalyser{
       	 reducedNet_t = rule.reduce(reducedNet);
         
         if (reducedNet_t == null)
+        {rules = "ELPY ";
+         rule = new ELPYrule();
+      	 reducedNet_t = rule.reduce(reducedNet);
+
+        if (reducedNet_t == null)
         {  rules = "FXOR";
 	      rule = new FXORrule();
 	      reducedNet_t = rule.reduce(reducedNet);
@@ -292,12 +302,14 @@ public class YAWLResetAnalyser{
   }
  }
 }
-}// 10 endif
+}
+}// 11 endif
  if (reducedNet_t == null)
  { //if (reducedNet != originalNet)
    //{  
         loop --;
-   //     System.out.println("YAWL Reduced net "+ loop + "rules "+ rulesmsg+ " size:"+ reducedNet.getNetElements().size());
+        System.out.println("YAWL Reduction rules: "+ loop + "rules "+ rulesmsg);
+        System.out.println("Reduced net size: "+ reducedNet.getNetElements().size());
         return reducedNet;
    //}
    //else 
@@ -314,7 +326,7 @@ public class YAWLResetAnalyser{
  } 
     
  private ResetWFNet reduceNet(ResetWFNet originalNet){
-// System.out.println(" Original net:"+ originalNet.getNetElements().size());
+ System.out.println("# Elements in the original reset net: "+ originalNet.getNetElements().size());
  ResetReductionRule rule;
  
  ResetWFNet reducedNet_t, reducedNet;
@@ -369,7 +381,8 @@ public class YAWLResetAnalyser{
  if (reducedNet_t == null)
  { if (reducedNet != originalNet)
    { loop --;
-   //  System.out.println("Reset Reduced net "+ loop + "rules "+ rulesmsg+ " size:"+ reducedNet.getNetElements().size());
+     System.out.println("Reset Reduced net "+ loop + "rules "+ rulesmsg);
+     System.out.println("Reduced net size:"+ reducedNet.getNetElements().size());
      return reducedNet;
    }
    else 
