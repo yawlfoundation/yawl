@@ -13,6 +13,7 @@ import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
+import org.yawlfoundation.yawl.schema.XSDType;
 
 import java.io.Serializable;
 import java.util.*;
@@ -121,7 +122,7 @@ public class ResourceMapping implements Serializable, Cloneable  {
     Decomposition decomp = selectedGraph.getNetModel().getDecomposition();
 
     return  DataVariableUtilities.getVariablesOfType(decomp.getVariables(),
-                                         DataVariable.XML_SCHEMA_STRING_TYPE);
+                    XSDType.getString(XSDType.STRING));
   }
 
 

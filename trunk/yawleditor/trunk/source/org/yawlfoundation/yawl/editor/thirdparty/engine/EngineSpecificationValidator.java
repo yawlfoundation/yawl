@@ -123,7 +123,8 @@ public class EngineSpecificationValidator {
                                                  String netName, String taskName) {
       boolean valid;
       String datatype = var.getDataType();
-      if (! (DataVariable.isBaseDataType(datatype) || datatype.equals("YTimerType"))) {
+      if (! (DataVariable.isBaseDataType(datatype) || datatype.equals("YTimerType") ||
+             isXSBuiltInSimpleType(datatype))) {
           if (_checkedDataTypes.containsKey(datatype)) {
               valid = _checkedDataTypes.get(datatype);
           }
@@ -142,6 +143,11 @@ public class EngineSpecificationValidator {
           }
      }
      return null;
+  }
+
+  private static boolean isXSBuiltInSimpleType(String datatype) {
+      if (datatype.equals("anyType")) return true;
+      return false;
   }
 
 }
