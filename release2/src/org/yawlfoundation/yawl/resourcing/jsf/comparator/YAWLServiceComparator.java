@@ -10,19 +10,19 @@ import java.util.Comparator;
  * Author: Michael Adams
  * Creation Date: 24/01/2008
  */
-public class YAWLServiceComparator implements Comparator {
+public class YAWLServiceComparator implements Comparator<YAWLServiceReference> {
 
     /*
 	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
-	public int compare(Object obj1, Object obj2)	{
+	public int compare(YAWLServiceReference service1, YAWLServiceReference service2)	{
 
         // if one object is null, ignore it and return the other as having precedence
-        if (obj1 == null) return -1;
-        if (obj2 == null) return 1;
+        if (service1 == null) return -1;
+        if (service2 == null) return 1;
 
-        String id1 = ((YAWLServiceReference) obj1).get_serviceName();
-        String id2 = ((YAWLServiceReference) obj2).get_serviceName();
+        String id1 = service1.get_serviceName();
+        String id2 = service2.get_serviceName();
 
         // compare id strings
         return id1.compareTo(id2);

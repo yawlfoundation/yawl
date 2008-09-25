@@ -25,12 +25,20 @@
                     <ui:form binding="#{adminQueues.form1}" id="form1">
 
                         <!-- include banner -->
-                        <div><jsp:directive.include file="pfHeader.jspf"/></div>
+                        
+                        <jsp:include page="pfHeader.jspf"/>
+
+                        <div style="top: 20px; position: relative">
+                            <jsp:directive.include file="pfMenubar.jspf"/>
+                        </div>
+                        <center>
+                        <ui:panelLayout binding="#{customServices.pnlContainer}"
+                                        id="pnlAQContainer"
+                                        styleClass="adminQueuesContainerPanel">
 
                         <ui:tabSet binding="#{adminQueues.tabSet}"
-                                   id="tabSet"
-                                   style="height: 328px"
-                                   styleClass="queuesTabSet">
+                                   id="tabSetAdminQueues"
+                                   styleClass="adminQueuesTabSet">
 
                             <ui:tab action="#{adminQueues.tabUnOffered_action}"
                                     binding="#{adminQueues.tabUnOffered}"
@@ -40,8 +48,7 @@
 
                                 <ui:panelLayout binding="#{adminQueues.lpUnOffered}"
                                                 id="lpUnOffered"
-                                                styleClass="queuesTabPanel"
-                                                style="height: 269px; background-color: rgb(227, 240, 252)">
+                                                styleClass="adminQueuesTabPanel">
 
                                     <ui:button action="#{adminQueues.btnOffer_action}"
                                                binding="#{adminQueues.btnOffer}"
@@ -75,8 +82,7 @@
 
                                 <ui:panelLayout binding="#{adminQueues.lpWorklisted}"
                                                 id="lpWorklisted"
-                                                styleClass="queuesTabPanel"
-                                                style="height: 269px; background-color: rgb(235, 252, 235)">
+                                                styleClass="adminQueuesTabPanel">
 
                                     <ui:button action="#{adminQueues.btnReoffer_action}"
                                                binding="#{adminQueues.btnReoffer}"
@@ -144,19 +150,18 @@
                                      styleClass="queuesCheckbox"
                                      selected="#{SessionBean.redirectToMe}"/>
 
+
+                        <div style="position: absolute">
+                            <jsp:include page="pfQueueUI.jspf"/>
+                        </div>
+
+                         </ui:panelLayout>
+                       </center>
+
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"
                                         panelLayout="flow"/>
                         
-                        
-                        <div style="height: 202px; left: 126px; top: 118px; position: absolute; width: 542px">
-                            <jsp:directive.include file="pfQueueUI.jspf"/>
-                        </div>
-
-                         <div style="left: 0px; top: 72px; position: absolute">
-                            <jsp:directive.include file="pfMenu.jspf"/>
-                        </div>
-
                         <ui:meta binding="#{adminQueues.metaRefresh}"
                                  httpEquiv="refresh"
                                  id="metaRefresh" />

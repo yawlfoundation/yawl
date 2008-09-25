@@ -300,6 +300,14 @@ public class userWorkQueues extends AbstractPageBean {
     public Meta getMetaRefresh() { return metaRefresh; }
 
     public void setMetaRefresh(Meta m) { metaRefresh = m; }
+
+
+    private PanelLayout pnlContainer ;
+
+    public PanelLayout getPnlContainer() { return pnlContainer; }
+
+    public void setPnlContainer(PanelLayout pnl) { pnlContainer = pnl; }
+    
     
 
     /********************************************************************************/
@@ -341,16 +349,7 @@ public class userWorkQueues extends AbstractPageBean {
         Tab selTab = null;
 
         // if no last selected tab, this is the first rendering of the page
-        if (selTabName == null) {
-
-            // default to offered list
-            WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.OFFERED) ;
-            if (wir != null) ((pfQueueUI) getBean("pfQueueUI")).populateTextBoxes(wir);
-            tabSet.setSelected("tabOffered");
-            selTab = tabOffered;
-            tabOffered_action() ;
-        }    
-        else {
+        if (selTabName != null) {
             if (selTabName.equals("tabOffered")) {
                 tabOffered_action() ;
                 selTab = tabOffered;
@@ -367,13 +366,30 @@ public class userWorkQueues extends AbstractPageBean {
                 tabSuspended_action() ;
                 selTab = tabSuspended;
             }
+            else {
+                selTab = initDefaultTab();
+            }
         }
+        else {
+            selTab = initDefaultTab();
+        }    
+
         updateTabHeaders(selTab) ;          // highlight selected tab and update counts
 
         _sb.setActiveTab(tabSet.getSelected());
         _sb.setActivePage(ApplicationBean.PageRef.userWorkQueues);
 
         //     setRefreshRate(0) ;               // get default refresh rate from web.xml
+    }
+
+
+    private Tab initDefaultTab() {
+        // default to offered list
+        WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.OFFERED) ;
+        if (wir != null) ((pfQueueUI) getBean("pfQueueUI")).populateTextBoxes(wir);
+        tabSet.setSelected("tabOffered");
+        tabOffered_action() ;
+        return tabOffered;
     }
 
 

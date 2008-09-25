@@ -6,7 +6,7 @@
           xmlns:ui="http://www.sun.com/web/ui">
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"/>
-    
+
     <f:view>
         <ui:page binding="#{viewProfile.page1}" id="page1">
             <ui:html binding="#{viewProfile.html1}" id="html1">
@@ -18,7 +18,7 @@
                     <ui:link binding="#{ApplicationBean.favIcon}" id="lnkFavIcon"
                              rel="shortcut icon"
                             type="image/x-icon" url="/resources/favicon.ico"/>
-                    
+
                     <ui:script binding="#{SessionBean.script}" id="script1"
                                url="/resources/script.js"/>
 
@@ -30,14 +30,19 @@
                         <!-- include banner -->
                         <div><jsp:directive.include file="pfHeader.jspf"/></div>
 
-                        <div style="left: 0px; top: 72px; position: absolute">
-                            <jsp:directive.include file="pfMenu.jspf"/>
+                        <div style="top: 20px; position: relative">
+                            <jsp:directive.include file="pfMenubar.jspf"/>
                         </div>
+                        <center>
+                        <ui:panelLayout binding="#{viewProfile.pnlContainer}"
+                                        id="pnlContainer"
+                                        styleClass="vpcontainerPanel">
+
 
                         <!-- View Profile Panel -->
                         <ui:panelLayout binding="#{viewProfile.pnlProfile}"
                                         id="pnlSelectUser"
-                                        style="top: 74px; height: 220px; left: 124px; width: 265px"
+                                        style="height: 220px; width: 265px"
                                         styleClass="orgDataPanel">
 
                             <ui:label binding="#{viewProfile.lblName}"
@@ -54,7 +59,7 @@
                                       id="lblUserID" style="left: 18px; top: 48px; position: absolute"
                                       for="txtUserID"
                                       text="UserID:"/>
-                            
+
                             <ui:textField binding="#{viewProfile.txtUserID}"
                                           id="txtUserID"
                                           disabled="true"
@@ -101,14 +106,14 @@
                         <ui:panelLayout binding="#{viewProfile.pnlNewPassword}"
                                         id="pnlNewPassword"
                                         styleClass="orgDataPanel"
-                                        style="height: 150px; top: 299px; left: 124px; width: 265px">
+                                        style="height: 150px; top: 224px; width: 265px">
 
                             <ui:staticText binding="#{viewProfile.sttPassword}"
                                            id="sttPassword"
                                            styleClass="pageSubheading"
                                            style="left: 12px; top: 12px"
                                            text="Change Password"/>
-                            
+
                             <ui:label binding="#{viewProfile.lblNewPassword}"
                                       id="lblNewPassword"
                                       style="left: 18px; top: 40px; position: absolute"
@@ -145,7 +150,7 @@
                         <ui:panelLayout binding="#{viewProfile.pnlPiled}"
                                         id="pnlPiled"
                                         styleClass="orgDataPanel"
-                                        style="height: 185px; top: 74px; left: 394px; width: 270px">
+                                        style="left: 269px; height: 185px; width: 270px">
 
                             <ui:staticText binding="#{viewProfile.sttPiled}"
                                            id="sttPiled"
@@ -174,7 +179,7 @@
                         <ui:panelLayout binding="#{viewProfile.pnlChained}"
                                         id="pnlChained"
                                         styleClass="orgDataPanel"
-                                        style="height: 185px; top: 264px; left: 394px; width: 270px">
+                                        style="left: 269px; height: 185px; top: 189px; width: 270px">
 
                             <ui:staticText binding="#{viewProfile.sttChained}"
                                            id="sttChained"
@@ -200,7 +205,8 @@
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"
                                         panelLayout="flow"/>
-
+                     </ui:panelLayout>
+                    </center>
                     </ui:form>
                 </ui:body>
             </ui:html>

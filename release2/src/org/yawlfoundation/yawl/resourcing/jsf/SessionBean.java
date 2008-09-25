@@ -1152,7 +1152,7 @@ public class SessionBean extends AbstractSessionBean {
     public String addParticipant(Participant p) {
         String newID = _rm.addParticipant(p);
         refreshOrgDataParticipantList();
-        editedParticipant = p ;
+        editedParticipant = p.clone() ;
         return newID;
     }
 

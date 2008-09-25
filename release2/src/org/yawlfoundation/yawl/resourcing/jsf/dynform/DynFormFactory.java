@@ -142,6 +142,7 @@ public class DynFormFactory extends AbstractSessionBean {
     static final int DEFAULT_FIELD_OFFSET = 125;
     static final int DEFAULT_PANEL_BASE_WIDTH = 250;         // width of innermost panel
     static final int DEFAULT_FIELD_WIDTH = 115;
+    static final int CHECKBOX_FIELD_WIDTH = 10;
     static int X_FIELD_OFFSET = DEFAULT_FIELD_OFFSET;
     static int PANEL_BASE_WIDTH = DEFAULT_PANEL_BASE_WIDTH;
     static int FIELD_WIDTH = DEFAULT_FIELD_WIDTH;
@@ -234,8 +235,11 @@ public class DynFormFactory extends AbstractSessionBean {
 
     private void setBaseWidths(DynFormComponentBuilder builder) {
         int labelWidth = builder.getMaxLabelWidth();
-        int fieldWidth = Math.max(builder.getMaxDropDownWidth(), builder.getMaxTextValueWidth());
-        FIELD_WIDTH = Math.max(FIELD_WIDTH, fieldWidth);
+        if (builder.hasOnlyCheckboxes())
+            FIELD_WIDTH = CHECKBOX_FIELD_WIDTH;
+        else
+            FIELD_WIDTH = Math.max(FIELD_WIDTH, builder.getMaxFieldWidth());
+        
         X_FIELD_OFFSET = Math.max(X_FIELD_OFFSET, labelWidth + (X_LABEL_OFFSET * 2));
         PANEL_BASE_WIDTH = Math.max(PANEL_BASE_WIDTH,
                                     labelWidth + FIELD_WIDTH + (X_LABEL_OFFSET * 3));
@@ -547,7 +551,7 @@ public class DynFormFactory extends AbstractSessionBean {
         SubPanel level0Container = panel.getController().addSubPanel(newPanel);
         int adjustment = newPanel.getHeight() + DynFormFactory.Y_PP_INCREMENT;
         repositionLevel0Panels(level0Container, adjustment, panel.getTop()) ;
-        repositionOutermostFields(adjustment);
+        repositionOutermostFields(panel.getTop(), adjustment);
     }
 
 
@@ -555,7 +559,7 @@ public class DynFormFactory extends AbstractSessionBean {
         SubPanel level0Container = panel.getController().removeSubPanel(panel);
         int adjustment = - (panel.getHeight() + DynFormFactory.Y_PP_INCREMENT);
         repositionLevel0Panels(level0Container, adjustment, panel.getTop()) ;
-        repositionOutermostFields(adjustment);
+        repositionOutermostFields(panel.getTop(), adjustment);
 
         UIComponent parent = panel.getParent();
         parent.getChildren().remove(panel);
@@ -580,18 +584,21 @@ public class DynFormFactory extends AbstractSessionBean {
     }
 
 
-    private void repositionOutermostFields(int adjustment) {
+    private void repositionOutermostFields(int startingY, int adjustment) {
         String style = "top:%dpx";
         for (UIComponent component : _outermostTops.keySet()) {
-            int newTop = _outermostTops.get(component) + adjustment;
-            if ((component instanceof Label))
-                ((Label) component).setStyle(String.format(style, newTop));
-            else if ((component instanceof SelectorBase))
-                ((SelectorBase) component).setStyle(String.format(style, newTop));
-            else if ((component instanceof FieldBase))
-                ((FieldBase) component).setStyle(String.format(style, newTop));
+            int top = _outermostTops.get(component);
+            if (top > startingY) {
+               int newTop = top + adjustment;
+                if ((component instanceof Label))
+                    ((Label) component).setStyle(String.format(style, newTop));
+                else if ((component instanceof SelectorBase))
+                    ((SelectorBase) component).setStyle(String.format(style, newTop));
+                else if ((component instanceof FieldBase))
+                    ((FieldBase) component).setStyle(String.format(style, newTop));
                 
-            _outermostTops.put(component, newTop);
+                _outermostTops.put(component, newTop);
+            }    
         }
 
     }

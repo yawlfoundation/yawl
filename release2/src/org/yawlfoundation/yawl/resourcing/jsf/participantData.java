@@ -381,6 +381,14 @@ public class participantData extends AbstractPageBean {
     public void setBtnAdd(Button b) { btnAdd = b; }
 
 
+    private PanelLayout pnlContainer ;
+
+    public PanelLayout getPnlContainer() { return pnlContainer; }
+
+    public void setPnlContainer(PanelLayout pnl) { pnlContainer = pnl; }
+
+    
+
     /********************************************************************************/
 
     // SPECIFIC DELARATIONS AND IMPLEMENTATION //

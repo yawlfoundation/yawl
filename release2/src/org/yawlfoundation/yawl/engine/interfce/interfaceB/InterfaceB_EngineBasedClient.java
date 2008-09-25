@@ -312,8 +312,12 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                     executePost(urlOfYawlService, paramsMap);
                 }
             } catch (IOException e) {
-                logger.error("failed to call YAWL service", e);
-                e.printStackTrace();
+
+                // ignore initialisation announcements execeptions for missing services 
+                if (! ANNOUNCE_INIT_ENGINE.equals(_command)) {
+                    logger.error("failed to call YAWL service", e);
+                    e.printStackTrace();
+                }
             }            
         }
     }

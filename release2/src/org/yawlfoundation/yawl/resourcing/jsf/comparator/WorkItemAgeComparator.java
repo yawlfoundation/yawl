@@ -10,19 +10,17 @@ import java.util.Comparator;
  * Author: Michael Adams
  * Creation Date: 15/01/2008
  */
-public class WorkItemAgeComparator implements Comparator {
+public class WorkItemAgeComparator implements Comparator<WorkItemRecord> {
 
     /*
 	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
-	public int compare(Object obj1, Object obj2)	{
+	public int compare(WorkItemRecord wir1, WorkItemRecord wir2)	{
 
         // if one object is null, ignore it and return the other as having precedence
-        if (obj1 == null) return -1;
-        if (obj2 == null) return 1;
+        if (wir1 == null) return -1;
+        if (wir2 == null) return 1;
 
-        WorkItemRecord wir1 = (WorkItemRecord) obj1 ;
-        WorkItemRecord wir2 = (WorkItemRecord) obj2 ;
 
         // try to compare enablement times
         try {

@@ -74,9 +74,18 @@ public class WorkQueueGateway extends HttpServlet {
             String password = req.getParameter("password");
             result = _rm.serviceConnect(userid, password);
         }
+        else if (action.equalsIgnoreCase("userlogin")) {
+            String userid = req.getParameter("userid");
+            String password = req.getParameter("password");
+            result = _rm.login(userid, password);
+        }
         else if (action.equalsIgnoreCase("checkConnection")) {
             result = String.valueOf(_rm.checkServiceConnection(handle)) ;
         }
+        else if (action.equals("isValidUserSession")) {
+            result = String.valueOf(_rm.isValidUserSession(handle)) ;
+        }
+        
         else if (_rm.checkServiceConnection(handle)) {
             result = doGetAction(action, req);
         }
@@ -121,11 +130,8 @@ public class WorkQueueGateway extends HttpServlet {
         String pid = req.getParameter("participantid");
         String itemid = req.getParameter("workitemid");
 
-        if (action.equals("isValidUserSession")) {
-            result = String.valueOf(_rm.isValidUserSession(handle)) ;
-        }
-        else if (action.equals("getParticipantFromUserID")) {
-            result = _rm.getParticipantFromUserID(userid).toXML();  //todo
+        if (action.equals("getParticipantFromUserID")) {
+            result = _rm.getParticipantFromUserID(userid).toXML();  
         }
         else if (action.equals("getFullNameForUserID")) {
             result = _rm.getFullNameForUserID(userid) ;

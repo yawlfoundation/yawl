@@ -27,10 +27,17 @@
                     <!-- include banner -->
                     <div><jsp:directive.include file="pfHeader.jspf"/></div>
 
+                        <div style="top: 20px; position: relative">
+                            <jsp:directive.include file="pfMenubar.jspf"/>
+                        </div>
+                        <center>
+                        <ui:panelLayout binding="#{orgDataMgt.pnlContainer}"
+                                        id="pnlContainer"
+                                        styleClass="orgDataMgtContainerPanel">
+
                         <ui:tabSet binding="#{orgDataMgt.tabSet}"
                                    id="tabSet"
-                                   style="height: 328px"
-                                   styleClass="queuesTabSet">
+                                   styleClass="adminQueuesTabSet">
 
                             <ui:tab action="#{orgDataMgt.tabRoles_action}"
                                     binding="#{orgDataMgt.tabRoles}"
@@ -40,8 +47,7 @@
 
                                 <ui:panelLayout binding="#{orgDataMgt.lpRoles}"
                                                 id="lpRoles"
-                                                styleClass="queuesTabPanel"
-                                                style="height: 269px; background-color: #98ccfe">
+                                                styleClass="adminQueuesTabPanel">
 
                                 </ui:panelLayout>
                             </ui:tab>
@@ -53,8 +59,7 @@
 
                                 <ui:panelLayout binding="#{orgDataMgt.lpCapabilities}"
                                                 id="lpCapabilities"
-                                                styleClass="queuesTabPanel"
-                                                style="height: 269px; background-color: #98ccfe">
+                                                styleClass="adminQueuesTabPanel">
 
                                 </ui:panelLayout>
                             </ui:tab>
@@ -66,8 +71,7 @@
 
                                 <ui:panelLayout binding="#{orgDataMgt.lpPositions}"
                                                 id="lpPositions"
-                                                styleClass="queuesTabPanel"
-                                                style="height: 269px; background-color: #98ccfe">
+                                                styleClass="adminQueuesTabPanel">
 
                                 </ui:panelLayout>
                             </ui:tab>
@@ -80,8 +84,7 @@
                                 <ui:panelLayout
                                         binding="#{orgDataMgt.lpOrgGroups}"
                                         id="lpOrgGroups"
-                                        styleClass="queuesTabPanel"
-                                        style="height: 269px; background-color: #98ccfe">
+                                        styleClass="adminQueuesTabPanel">
 
                                 </ui:panelLayout>
                             </ui:tab>
@@ -95,17 +98,16 @@
                                    toolTip="Refresh Queues"
                                    text=""/>
 
-                        <ui:panelLayout binding="#{SessionBean.messagePanel}"
-                                        id="msgPanel"
-                                        panelLayout="flow"/>
-
-                        <div style="height: 302px; left: 126px; top: 118px; position: absolute; width: 542px">
+                        <div style="position: absolute;">
                             <jsp:directive.include file="pfOrgData.jspf"/>
                         </div>
 
-                         <div style="left: 0px; top: 72px; position: absolute">
-                            <jsp:directive.include file="pfMenu.jspf"/>
-                        </div>
+                        </ui:panelLayout>
+                      </center>
+
+                        <ui:panelLayout binding="#{SessionBean.messagePanel}"
+                                        id="msgPanel"
+                                        panelLayout="flow"/>
 
                         <ui:meta binding="#{orgDataMgt.metaRefresh}"
                                  httpEquiv="refresh"

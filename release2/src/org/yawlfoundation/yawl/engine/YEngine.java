@@ -39,9 +39,7 @@ import org.yawlfoundation.yawl.schema.YDataValidator;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
+import java.io.*;
 import java.net.URI;
 import java.util.*;
 
@@ -313,86 +311,75 @@ public class YEngine implements InterfaceADesign,
 
     /**
      * Adds the specification contained in the parameter file to the engine
-     * @param specificationFile a reference to the specification file to add
      * @param ignoreErrors ignore verfication errors and load the spec anyway.
      * @param errorMessages an in/out param passing any error messages.
      * @return the specification ids of the successfully loaded specs
      */
-    public List<YSpecificationID> addSpecifications(File specificationFile,
-                                                    boolean ignoreErrors,
-                                                    List<YVerificationMessage> errorMessages)
+    public synchronized List<YSpecificationID> addSpecifications(String specStr,
+                                                                 boolean ignoreErrors,
+                                                                 List<YVerificationMessage> errorMessages)
             throws JDOMException, IOException, YPersistenceException {
 
-        synchronized (mutex) {
-            _logger.debug("--> addSpecification: File = " +
-                    specificationFile.getAbsolutePath());
+        _logger.debug("--> addSpecification");
 
-            List<YSpecificationID> result = new Vector<YSpecificationID>();
-            List<YSpecification> newSpecifications = null;
-            try {
-                newSpecifications = YMarshal.unmarshalSpecifications(
-                        specificationFile.getAbsolutePath());
+        List<YSpecificationID> result = new Vector<YSpecificationID>();
+        List<YSpecification> newSpecifications = null;
+        try {
+            newSpecifications = YMarshal.unmarshalSpecifications(specStr);
+        }
+        catch (YSyntaxException e) {
+
+            // catch the xml parsers exception, transform it into YAWL format
+            // and abort the load
+            String[] msgs = e.getMessage().split("\n");
+            for (String msg : msgs) {
+                errorMessages.add(new YVerificationMessage(null, msg,
+                        YVerificationMessage.ERROR_STATUS));
             }
-            catch (YSyntaxException e) {
-
-                // catch the xml parsers exception, transform it into YAWL format
-                // and abort the load
-                String[] msgs = e.getMessage().split("\n");
-                for (String msg : msgs) {
-                    errorMessages.add(new YVerificationMessage(null, msg,
-                            YVerificationMessage.ERROR_STATUS));
-                }
-                _logger.debug("<-- addSpecifcations: syntax exceptions found");
-                return result;
-            }
-            catch (YSchemaBuildingException e) {
-                // if there is an XML Schema problem report it and abort
-                e.printStackTrace(); //TODO: propagate
-                return result;
-            }
-
-            if (newSpecifications != null) {
-                for (YSpecification specification : newSpecifications) {
-                    List<YVerificationMessage> messages = specification.verify();
-                    if (messages.size() > 0 && ! ignoreErrors) {
-                        errorMessages.addAll(messages);
-                    }
-
-                    //if the error messages are empty or contain only warnings
-                    if (YVerificationMessage.containsNoErrors(errorMessages)) {
-                        if (loadSpecification(specification)) {
-                            if (!_restoring) {
-                                _logger.info("Persisting specification loaded from file " +
-                                        specificationFile.getAbsolutePath());
-                                YSpecFile yspec = new YSpecFile(specificationFile.getAbsolutePath());
-                                yspec.getSpecid().setVersion(specification.getMetaData().getVersion());
-
-                                if (_persisting) {
-                                    YPersistenceManager pmgr = getPersistenceSession();
-                                    try {
-                                        pmgr.storeObject(yspec);
-                                        pmgr.commit();
-                                    } catch (YPersistenceException e) {
-                                        throw new YPersistenceException(
-                                                "Failure whilst persisting new specification", e);
-                                    }
-                                }
-                            }
-
-                            result.add(specification.getSpecificationID());
-                        }
-                        else {
-                            errorMessages.add(new YVerificationMessage(this,
-                                    "There is a specification with an identical id to ["
-                                            + specification.getID() + "] already loaded into the engine.",
-                                    YVerificationMessage.ERROR_STATUS));
-                        }
-                    }
-                }
-            }
-            _logger.debug("<-- addSpecifications: " + result.size() + " IDs loaded");
+            _logger.debug("<-- addSpecifcations: syntax exceptions found");
             return result;
         }
+        catch (YSchemaBuildingException e) {
+            // if there is an XML Schema problem report it and abort
+            e.printStackTrace(); //TODO: propagate
+            return result;
+        }
+
+        if (newSpecifications != null) {
+            for (YSpecification specification : newSpecifications) {
+                List<YVerificationMessage> messages = specification.verify();
+                if (messages.size() > 0 && ! ignoreErrors) {
+                    errorMessages.addAll(messages);
+                }
+
+                //if the error messages are empty or contain only warnings
+                if (YVerificationMessage.containsNoErrors(errorMessages)) {
+                    if (loadSpecification(specification)) {
+                        if (_persisting && ! _restoring) {
+                            YSpecFile yspec = new YSpecFile(new StringReader(specStr));
+                            yspec.getSpecid().setVersion(specification.getMetaData().getVersion());
+                            try {
+                                storeObject(yspec);
+                            }
+                            catch (YPersistenceException e) {
+                                throw new YPersistenceException(
+                                        "Failure whilst persisting new specification", e);
+                            }
+                        }
+
+                        result.add(specification.getSpecificationID());
+                    }
+                    else {
+                        errorMessages.add(new YVerificationMessage(this,
+                                "There is a specification with an identical id to ["
+                                        + specification.getID() + "] already loaded into the engine.",
+                                YVerificationMessage.ERROR_STATUS));
+                    }
+                }
+            }
+        }
+        _logger.debug("<-- addSpecifications: " + result.size() + " IDs loaded");
+        return result;
     }
 
     
@@ -862,11 +849,12 @@ public class YEngine implements InterfaceADesign,
                 YIdentifier identifier = (YIdentifier) childIter.next();
                 allLocations.addAll(identifier.getLocations());
             }
+            YSpecification spec = _runningCaseIDToSpecMap.get(caseID);
             StringBuffer stateText = new StringBuffer();
             stateText.append("<caseState " + "caseID=\"")
                     .append(caseID)
                     .append("\" " + "specID=\"")
-                    .append(_runningCaseIDToSpecMap.get(caseID))
+                    .append(spec.getSpecificationID().toString())
                     .append("\">");
             for (Iterator locationsIter = allLocations.iterator(); locationsIter.hasNext();) {
                 YNetElement element = (YNetElement) locationsIter.next();

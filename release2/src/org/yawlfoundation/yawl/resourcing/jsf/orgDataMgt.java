@@ -215,6 +215,14 @@ public class orgDataMgt extends AbstractPageBean {
     public void setMetaRefresh(Meta m) { metaRefresh = m; }
 
 
+    private PanelLayout pnlContainer ;
+
+    public PanelLayout getPnlContainer() { return pnlContainer; }
+
+    public void setPnlContainer(PanelLayout pnl) { pnlContainer = pnl; }
+    
+
+
     /********************************************************************************/
 
 

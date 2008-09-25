@@ -10,22 +10,22 @@ import java.util.Comparator;
  * Author: Michael Adams
  * Creation Date: 08/02/2008
  */
-public class OptionComparator implements Comparator {
+public class OptionComparator implements Comparator<Option> {
 
     /*
 	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
-	public int compare(Object obj1, Object obj2)	{
+	public int compare(Option opt1, Option opt2)	{
 
         // if one object is null, ignore it and return the other as having precedence
-        if (obj1 == null) return -1;
-        if (obj2 == null) return 1;
+        if (opt1 == null) return -1;
+        if (opt2 == null) return 1;
 
-        String label1 = ((Option) obj1).getLabel().toUpperCase();
-        String label2 = ((Option) obj2).getLabel().toUpperCase();
+        String label1 = opt1.getLabel();
+        String label2 = opt2.getLabel();
 
         // compare label strings
-        return label1.compareTo(label2);
+        return label1.compareToIgnoreCase(label2);
     }
 
 }

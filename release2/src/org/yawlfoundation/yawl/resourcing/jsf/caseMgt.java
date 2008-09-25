@@ -310,6 +310,13 @@ public class caseMgt extends AbstractPageBean {
     public void setScript1(Script s) { script1 = s; }
 
 
+    private PanelLayout pnlContainer ;
+
+    public PanelLayout getPnlContainer() { return pnlContainer; }
+
+    public void setPnlContainer(PanelLayout pnl) { pnlContainer = pnl; }
+
+
     /*******************************************************************************/
 
     private ResourceManager _rm = getApplicationBean().getResourceManager() ;
@@ -371,7 +378,7 @@ public class caseMgt extends AbstractPageBean {
                 String fileAsString = uploadedFile.getAsString() ;
                 uploadSpec(uploadedFileName, fileAsString) ;
             }
-            else msgPanel.error("Only files with an 'xml' extension may be uploaded.");
+            else msgPanel.error("Only yawl files with an 'xml' extension may be uploaded.");
         }
         return null;
     }
@@ -576,7 +583,8 @@ public class caseMgt extends AbstractPageBean {
 
 
     private void activateButtons() {
-        boolean noSpecsSelected = _sb.getLoadedSpecs().isEmpty() ;
+        List<SpecificationData> list = _sb.getLoadedSpecs();
+        boolean noSpecsSelected = (list == null) || list.isEmpty() ;
         btnUnload.setDisabled(noSpecsSelected);
         btnLaunch.setDisabled(noSpecsSelected);
     }

@@ -13,16 +13,13 @@ import org.hibernate.Query;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.elements.state.YInternalCondition;
+import org.yawlfoundation.yawl.engine.time.YTimer;
+import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.logging.YCaseEvent;
 import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
-import org.yawlfoundation.yawl.engine.time.YTimer;
+import org.yawlfoundation.yawl.util.YVerificationMessage;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -83,23 +80,8 @@ public class YEngineRestorer {
 
         for (Iterator it = query.iterate(); it.hasNext();) {
             YSpecFile spec = (YSpecFile) it.next();
-            String xml = spec.getXML();
             _log.debug("Restoring specification " + spec.getSpecid().getId());
-            File f = null;
-            try {
-                f = File.createTempFile("yawltemp", null);
-                BufferedWriter buf = new BufferedWriter(new FileWriter(f));
-                buf.write(xml, 0, xml.length());
-                buf.close();
-                addSpecifications(spec.getSpecid().getId(), f.getAbsolutePath());
-            }
-            catch (IOException ioe) {
-                throw new YPersistenceException("IOException creating temp file when " +
-                                                "restoring specifications.");
-            }
-            finally {
-                if (f != null) f.delete();
-            }
+            addSpecifications(spec.getSpecid().getId(), spec.getXML());
         }
         _log.info("Restoring Specifications - Ends");
     }
@@ -265,10 +247,10 @@ public class YEngineRestorer {
     }
 
 
-    private List<YSpecificationID> addSpecifications(String specID, String uri)
+    private List<YSpecificationID> addSpecifications(String specID, String specXML)
             throws YPersistenceException {
         try {
-            return _engine.addSpecifications(new File(uri), true, new Vector());
+            return _engine.addSpecifications(specXML, true, new Vector<YVerificationMessage>());
         } catch (Exception e) {
             throw new YPersistenceException("Failure whilst restoring specification [" +
                     specID + "]", e);
@@ -475,7 +457,7 @@ public class YEngineRestorer {
             else if (condName.startsWith(YInternalCondition._mi_entered)) {
                 condition = task.getMIEntered();
             }
-            else if (condName.startsWith(YInternalCondition._executing)) {
+            else if (condName.startsWith(YInternalCondition._mi_executing)) {
                 condition = task.getMIExecuting();
             }
             else {

@@ -75,7 +75,7 @@ public class ResourceMarshaller {
 
     public String marshallWorkItemRecords(Set<WorkItemRecord> set) {
         StringBuilder xml = new StringBuilder("<workitemrecords>") ;
-        for (WorkItemRecord wir : set) xml.append(wir.toXML()) ;
+        if (set != null) for (WorkItemRecord wir : set) xml.append(wir.toXML()) ;
         xml.append("</workitemrecords>");
         return xml.toString() ;
     }

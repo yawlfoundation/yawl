@@ -110,8 +110,8 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
 
-    public String login(String userID, String password) throws IOException {
-        Map<String, String> params = prepareParamMap("login", null);
+    public String userlogin(String userID, String password) throws IOException {
+        Map<String, String> params = prepareParamMap("userlogin", null);
         params.put("userid", userID);
         params.put("password", password);
         return executeGet(_serviceURI, params);
@@ -377,7 +377,7 @@ public class WorkQueueGatewayClient extends Interface_Client {
     public String getCaseData(String caseID, String handle) throws IOException {
          params.clear();
          params.put("caseid", caseID) ;
-         return performPost("getCaseData", params, handle);
+         return performGet("getCaseData", params, handle);
      }
 
 

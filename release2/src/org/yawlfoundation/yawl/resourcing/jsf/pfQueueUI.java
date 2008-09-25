@@ -225,8 +225,8 @@ public class pfQueueUI extends AbstractFragmentBean {
     
     protected void populateTextBoxes(WorkItemRecord wir) {
         txtCaseID.setText(wir.getCaseID());
-        txtSpecID.setText(wir.getSpecificationID());
-        txtTaskID.setText(wir.getTaskIDForDisplay());
+        txtSpecID.setText(wordWrap(wir.getSpecificationID(), 20));
+        txtTaskID.setText(wordWrap(wir.getTaskIDForDisplay(), 20));
         txtStatus.setText(wir.getStatus());
 
         try {
@@ -251,6 +251,21 @@ public class pfQueueUI extends AbstractFragmentBean {
         txtCreated.setText(" ");
         txtAge.setText(" ");
 
+    }
+
+    
+    private String wordWrap(String s, int maxLen) {
+        String result = "";
+        s = s.replaceAll("_", " ");
+        while (s.length() > maxLen) {
+            int spacePos = s.indexOf(" ");
+            if ((spacePos == -1) || (spacePos > maxLen - 1)) {
+                result += s.substring(0, maxLen - 1) + "- ";
+                s = s.substring(maxLen - 1);
+            }
+        }
+        result += s;
+        return result;
     }
 
 }

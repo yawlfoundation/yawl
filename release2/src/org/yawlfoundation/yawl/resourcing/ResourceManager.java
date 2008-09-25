@@ -2409,17 +2409,19 @@ public class ResourceManager extends InterfaceBWebsideController {
         List<WorkItemRecord> liveItems = getLiveWorkItemsForCase(caseID, handle) ;
 
         // cancel the case in the engine
-        String result =  _interfaceBClient.cancelCase(caseID, getHandleForEngineCall(handle));
+        String result = _interfaceBClient.cancelCase(caseID, getHandleForEngineCall(handle));
 
         // remove live items for case from workqueues and cache
-        if (successful(result) && (liveItems != null)) {
-            for (WorkItemRecord wir : liveItems) {
-                removeFromAll(wir) ;
-                _workItemCache.remove(wir);
-            }
-            _chainedCases.remove(caseID);
+        if (successful(result)) {
+            if (liveItems != null) {
+                for (WorkItemRecord wir : liveItems) {
+                    removeFromAll(wir) ;
+                    _workItemCache.remove(wir);
+                }
+                _chainedCases.remove(caseID);
+            }    
         }
-        else _log.error("Unable to remove workitems for Cancelled Case") ;
+        else _log.error("Error attempting to Cancel Case.") ;
 
         return result ;
     }

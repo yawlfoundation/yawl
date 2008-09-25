@@ -76,7 +76,7 @@ public class ExampleCodelet extends AbstractCodelet {
         // set the output result. setParameterValue requires the result to be a String.
         setParameterValue("c", String.valueOf(c));
 
-        // return the Element created in the bae class and containing the result.
+        // return the Element created in the base class and containing the result.
         return getOutputData();
     }
 }

@@ -282,6 +282,13 @@ public class customServices extends AbstractPageBean {
     public void setDataList(List<YAWLServiceReference> d) { dataList = d; }
 
 
+    private PanelLayout pnlContainer ;
+
+    public PanelLayout getPnlContainer() { return pnlContainer; }
+
+    public void setPnlContainer(PanelLayout pnl) { pnlContainer = pnl; }
+
+
     /********************************************************************************/
 
     private MessagePanel msgPanel = getSessionBean().getMessagePanel();

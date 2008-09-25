@@ -10,27 +10,30 @@
 package org.yawlfoundation.yawl.engine.gui;
 
 
+import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.authentication.User;
 import org.yawlfoundation.yawl.authentication.UserList;
-import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.engine.*;
+import org.yawlfoundation.yawl.engine.YEngine;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceADesign;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceAManagement;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBClientObserver;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBInterop;
+import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.exceptions.YAuthenticationException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.exceptions.YStateException;
-import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.swingWorklist.YWorklistGUI;
 import org.yawlfoundation.yawl.swingWorklist.YWorklistModel;
 import org.yawlfoundation.yawl.swingWorklist.YWorklistTableModel;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
-import org.apache.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -535,7 +538,8 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
         List errorMessages = new ArrayList();
         List<YSpecificationID> newSpecIDs = null;
         try {
-            newSpecIDs = _engineManagement.addSpecifications(selectedFile, _ignoreErrors, errorMessages);
+            String specStr = StringUtil.fileToString(selectedFile);
+            newSpecIDs = _engineManagement.addSpecifications(specStr, _ignoreErrors, errorMessages);
         } catch (Exception e) {
             logError("Failure to load specification", e);
             return;
