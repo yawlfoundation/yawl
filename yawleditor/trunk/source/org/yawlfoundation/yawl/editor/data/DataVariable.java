@@ -25,10 +25,10 @@ package org.yawlfoundation.yawl.editor.data;
 
 import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
 import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.schema.XSDType;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Hashtable;
+import java.util.*;
 
 public class DataVariable implements Serializable, Cloneable {
   
@@ -55,13 +55,13 @@ public class DataVariable implements Serializable, Cloneable {
   public static final int SCOPE_NET = 0;
   public static final int SCOPE_TASK = 1;
   
-  public static final String XML_SCHEMA_BOOLEAN_TYPE  = "boolean";
-  public static final String XML_SCHEMA_DATE_TYPE     = "date";
-  public static final String XML_SCHEMA_DOUBLE_TYPE   = "double";
-  public static final String XML_SCHEMA_DURATION_TYPE = "duration";
-  public static final String XML_SCHEMA_LONG_TYPE     = "long";
-  public static final String XML_SCHEMA_STRING_TYPE   = "string";
-  public static final String XML_SCHEMA_TIME_TYPE     = "time";
+//  public static final String XML_SCHEMA_BOOLEAN_TYPE  = "boolean";
+//  public static final String XML_SCHEMA_DATE_TYPE     = "date";
+//  public static final String XML_SCHEMA_DOUBLE_TYPE   = "double";
+//  public static final String XML_SCHEMA_DURATION_TYPE = "duration";
+//  public static final String XML_SCHEMA_LONG_TYPE     = "long";
+//  public static final String XML_SCHEMA_STRING_TYPE   = "string";
+//  public static final String XML_SCHEMA_TIME_TYPE     = "time";
   public static final String YAWL_SCHEMA_TIMER_TYPE   = "YTimerType";
 
   /**
@@ -70,25 +70,14 @@ public class DataVariable implements Serializable, Cloneable {
    * specify their own types.
    */
   
-  private static final String[] BASE_DATA_TYPES = {
-    XML_SCHEMA_BOOLEAN_TYPE,
-    XML_SCHEMA_DATE_TYPE,
-    XML_SCHEMA_DOUBLE_TYPE,
-    XML_SCHEMA_DURATION_TYPE,
-    XML_SCHEMA_LONG_TYPE,
-    XML_SCHEMA_STRING_TYPE,
-    XML_SCHEMA_TIME_TYPE,
-    YAWL_SCHEMA_TIMER_TYPE
-  };
-  
-  
-  private static final int DEFAULT_TYPE = 5; // String
+  private static final String[] BASE_DATA_TYPES = makeBaseDataTypeArray();    
+  private static final int DEFAULT_TYPE = XSDType.STRING;
   
   public static final String PROPERTY_LOCATION = FileUtilities.getVariablePropertiesExtendedAttributePath();
   
   public DataVariable() {
     setName("");
-    setDataType(BASE_DATA_TYPES[DEFAULT_TYPE]);
+    setDataType(XSDType.getString(DEFAULT_TYPE));
     setInitialValue(""); 
     setUsage(USAGE_INPUT_AND_OUTPUT);
     setUserDefined(true);
@@ -169,8 +158,7 @@ public class DataVariable implements Serializable, Cloneable {
   }
   
   public boolean isNumberType() {
-    return getDataType().equals(XML_SCHEMA_DOUBLE_TYPE) || 
-           getDataType().equals(XML_SCHEMA_LONG_TYPE);
+      return XSDType.getInstance().isNumericType(getDataType());
   }
 
   public boolean isYTimerType() {
@@ -178,17 +166,18 @@ public class DataVariable implements Serializable, Cloneable {
   }
   
   public static boolean isBaseDataType(String type) {
-    boolean isSimpleType = false;
-    for(int i = 0; i < BASE_DATA_TYPES.length - 1; i++) {          // -1 for timer type
-      if (type.equals(BASE_DATA_TYPES[i])) {
-        return true;
-      }
-    }
-    return isSimpleType;
+    return XSDType.getInstance().isBuiltInType(type);  
   }
   
   public static String[] getBaseDataTypes() {
     return BASE_DATA_TYPES;
+  }
+
+  private static String[] makeBaseDataTypeArray() {
+      List<String> typeList = XSDType.getInstance().getBuiltInTypeList();
+      typeList.add(YAWL_SCHEMA_TIMER_TYPE);
+      Collections.sort(typeList, new StringIgnoreCaseComparator());
+      return typeList.toArray(new String[typeList.size()]);
   }
   
   public void quoteXMLcontent() {
@@ -291,6 +280,20 @@ public class DataVariable implements Serializable, Cloneable {
       DataVariable otherVariable = (DataVariable) object;
         return getDataType().equals(otherVariable.getDataType()) &&
                getName().equals(otherVariable.getName());
+    }
+
+
+    static class StringIgnoreCaseComparator implements Comparator<String> {
+
+      	public int compare(String one, String two)	{
+
+            // if one object is null, ignore it and return the other as having precedence
+            if (one == null) return -1;
+            if (two == null) return 1;
+
+            // compare strings ignoring case
+            return one.compareToIgnoreCase(two);
+        }
     }
 
 

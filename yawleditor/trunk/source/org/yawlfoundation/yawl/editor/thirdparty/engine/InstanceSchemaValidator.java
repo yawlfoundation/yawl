@@ -148,7 +148,7 @@ public class InstanceSchemaValidator extends DefaultHandler {
           result = groomLineNumbers(result);
       }
       else {
-          result = "Missing or invalid data type: defaulting to boolean.";
+          result = "Missing or invalid data type: defaulting to 'anyType'.";
       }
       return result;
     }

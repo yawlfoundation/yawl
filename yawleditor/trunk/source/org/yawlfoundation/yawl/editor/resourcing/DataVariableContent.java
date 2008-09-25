@@ -1,6 +1,7 @@
 package org.yawlfoundation.yawl.editor.resourcing;
 
 import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.schema.XSDType;
 
 import java.io.Serializable;
 
@@ -57,8 +58,8 @@ public class DataVariableContent implements Serializable, Cloneable {
   }
   
   public static boolean isValidForResourceContainment(DataVariable variable) {
-    return variable.isInputVariable() && 
-           variable.getDataType().equals(DataVariable.XML_SCHEMA_STRING_TYPE);
+    return variable.isInputVariable() &&
+           (XSDType.getInstance().getOrdinal(variable.getDataType()) == XSDType.STRING);
   }
   
   public String getContentTypeAsString() {

@@ -1,6 +1,6 @@
 package org.yawlfoundation.yawl.editor.swing.data;
 
-import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.schema.XSDType;
 
 public class JXMLSchemaDurationEditorPane extends JXMLSchemaInstanceEditorPane {
 
@@ -8,7 +8,7 @@ public class JXMLSchemaDurationEditorPane extends JXMLSchemaInstanceEditorPane {
 
   public JXMLSchemaDurationEditorPane () {
     super();
-    setVariableType(DataVariable.XML_SCHEMA_DURATION_TYPE);
+    setVariableType(XSDType.getString(XSDType.DURATION));
     setVariableName("anyOldVariableName");
     setText("");
   }

@@ -58,19 +58,19 @@ public class SetCustomFormAction extends YAWLSelectedNetAction
   }
 
   public void actionPerformed(ActionEvent event) {
-    URL url = task.getCustomFormURL();
-    String formStr = (url != null) ? url.toString() : "http://";
+    String urlStr = task.getCustomFormURL();
+    if (urlStr == null) urlStr =  "http://";
     boolean done = false ;
 
     while (! done) {
       String result = (String) JOptionPane.showInputDialog(graph, "Custom Form URI: ",
                           "Set Custom Form URI", JOptionPane.PLAIN_MESSAGE,
-                          null, null, formStr);
+                          null, null, urlStr);
 
       if ((result != null) && (! result.equals("http://"))) {
         try {
-          url = new URL(result);
-          task.setCustomFormURL(url);
+          new URL(result);                   // check for well formedness
+          task.setCustomFormURL(result);     // passed the test
           done = true ;  
         }
         catch (MalformedURLException mfue) {

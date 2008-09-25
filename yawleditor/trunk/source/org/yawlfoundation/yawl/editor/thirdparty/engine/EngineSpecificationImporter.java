@@ -48,11 +48,11 @@ import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.unmarshal.YMetaData;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
 import javax.xml.datatype.Duration;
 import java.awt.*;
-import java.io.File;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
@@ -98,7 +98,8 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
 
   public static YSpecification importEngineSpecificationAsEngineObjects(String fullFileName) {
     try {
-      List specifications = YMarshal.unmarshalSpecifications((new File(fullFileName)).getCanonicalPath());
+      String specStr = StringUtil.fileToString(fullFileName);
+      List specifications = YMarshal.unmarshalSpecifications(specStr);
       return (YSpecification) specifications.get(0); // Engine currently only supplies a single specification per file.
     } catch (Exception e) {
       e.printStackTrace();
@@ -728,7 +729,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
 
   private static void setTaskCustomForm(YAtomicTask engineTask, YAWLAtomicTask editorTask) {
       URL formURL = engineTask.getCustomFormURL();
-      if (formURL != null) ((YAWLTask) editorTask).setCustomFormURL(formURL);
+      if (formURL != null) ((YAWLTask) editorTask).setCustomFormURL(formURL.toString());
   }
 
 
