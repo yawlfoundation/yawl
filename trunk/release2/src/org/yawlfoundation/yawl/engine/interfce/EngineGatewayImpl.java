@@ -32,8 +32,6 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -756,31 +754,23 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return failureMessage(e.getMessage());
         }
-        File temp = new File(fileName + ".tmp");
-        if( temp.exists() ) {
-        	temp.delete();
-        }
-        List errorMessages = new ArrayList();
+
+        List<YVerificationMessage> errorMessages = new ArrayList<YVerificationMessage>();
         try {
-            FileWriter writer = new FileWriter(temp);
-            writer.write(specificationStr);
-            writer.flush();
-            writer.close();
-            _engine.addSpecifications(temp, false, errorMessages);
+            _engine.addSpecifications(specificationStr, false, errorMessages);
         } catch (Exception e) {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
             }
             e.printStackTrace();
             return failureMessage(e.getMessage());
-        } finally {
-            temp.delete();
         }
+
         if (errorMessages.size() > 0) {
             StringBuffer errorMsg = new StringBuffer();
             errorMsg.append(OPEN_FAILURE);
             for (int i = 0; i < errorMessages.size(); i++) {
-                YVerificationMessage message = (YVerificationMessage) errorMessages.get(i);
+                YVerificationMessage message = errorMessages.get(i);
                 errorMsg.append("<error>");
                 Object src = message.getSource();
                 if (src instanceof YTask) {

@@ -72,7 +72,7 @@ public class XMLToolsForYAWL {
      */
     public Set getPrimarySchemaTypeNames() {
         if (_xsd4YAWLBuilder != null) {
-            return _xsd4YAWLBuilder.getGlobalTypeNames();
+            return _xsd4YAWLBuilder.getGlobalTypeNames(); 
         } else {
             throwException();
         }

@@ -25,15 +25,20 @@
                         <!-- include banner -->
                         <div><jsp:directive.include file="pfHeader.jspf"/></div>
 
-                        <div style="left: 0px; top: 72px; position: absolute">
-                            <jsp:directive.include file="pfMenu.jspf"/>
+                        <div style="top: 20px; position: relative">
+                            <jsp:directive.include file="pfMenubar.jspf"/>
                         </div>
+                        <center>
+
+                        <ui:panelLayout binding="#{customServices.pnlContainer}"
+                                        id="pnlContainer"
+                                        styleClass="caseMgtContainerPanel">
 
                         <!-- Upload Panel -->
                         <ui:panelLayout binding="#{caseMgt.layoutPanel1}"
                                         id="layoutPanel1"
                                         styleClass="caseMgtPanel"
-                                        style="height: 120px; top: 77px">
+                                        style="height: 120px">
 
                             <ui:staticText binding="#{caseMgt.staticText1}"
                                            id="staticText1"
@@ -60,7 +65,7 @@
                         <ui:panelLayout binding="#{caseMgt.layoutPanel2}"
                                         id="layoutPanel2"
                                         styleClass="caseMgtPanel"
-                                        style="height: 240px; top: 204px">
+                                        style="height: 240px; top: 123px">
 
                             <ui:button action="#{caseMgt.btnLaunch_action}"
                                        binding="#{caseMgt.btnLaunch}"
@@ -146,7 +151,7 @@
                         <ui:panelLayout binding="#{caseMgt.layoutPanel3}"
                                         id="layoutPanel3"
                                         styleClass="caseMgtPanel"
-                                        style="height: 194px; top: 451px">
+                                        style="height: 194px; top: 366px">
                             
                             <ui:button binding="#{SessionBean.btnRefresh}"
                                        action="#{caseMgt.btnRefresh_action}"
@@ -177,6 +182,8 @@
                                            text="Running Cases"/>
                         </ui:panelLayout>
 
+                        </ui:panelLayout>
+                      </center>
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"
                                         panelLayout="flow"/>

@@ -25,11 +25,20 @@
                     <ui:form binding="#{userWorkQueues.form1}" id="form1">
 
                     <!-- include banner -->
-                    <div><jsp:directive.include file="pfHeader.jspf"/></div>
+                    <div><jsp:include page="pfHeader.jspf"/></div>
  
+                    <div style="top: 20px; position: relative">
+                        <jsp:directive.include file="pfMenubar.jspf"/>
+                    </div>
+                    <center>
+
+                    <ui:panelLayout binding="#{customServices.pnlContainer}"
+                                    id="pnlUQContainer"
+                                    styleClass="userQueuesContainerPanel">
+                    
                         <ui:tabSet binding="#{userWorkQueues.tabSet}"
-                                   id="tabSet"
-                                   styleClass="queuesTabSet">
+                                   id="tabSetUserQueues"
+                                   styleClass="userQueuesTabSet">
 
                             <ui:tab action="#{userWorkQueues.tabOffered_action}"
                                     binding="#{userWorkQueues.tabOffered}"
@@ -39,8 +48,7 @@
 
                                 <ui:panelLayout binding="#{userWorkQueues.lpOffered}"
                                                 id="lpOffered"
-                                                styleClass="queuesTabPanel"
-                                                style="background-color: rgb(227, 240, 252)">
+                                                styleClass="userQueuesTabPanel">
 
                                     <ui:button action="#{userWorkQueues.btnAccept_action}"
                                                binding="#{userWorkQueues.btnAccept}"
@@ -74,8 +82,7 @@
 
                                 <ui:panelLayout binding="#{userWorkQueues.lpAllocated}"
                                                 id="lpAllocated"
-                                                styleClass="queuesTabPanel"
-                                                style="background-color: rgb(251, 251, 242)">
+                                                styleClass="userQueuesTabPanel">
 
                                     <ui:button action="#{userWorkQueues.btnStart_action}"
                                                binding="#{userWorkQueues.btnStart}"
@@ -121,8 +128,7 @@
 
                                 <ui:panelLayout binding="#{userWorkQueues.lpStarted}"
                                                 id="lpStarted"
-                                                styleClass="queuesTabPanel"
-                                                style="background-color: rgb(235, 252, 235)">
+                                                styleClass="userQueuesTabPanel">
 
                                     <ui:button action="#{userWorkQueues.btnView_action}"
                                                binding="#{userWorkQueues.btnView}"
@@ -177,8 +183,7 @@
                                 <ui:panelLayout
                                         binding="#{userWorkQueues.lpSuspended}"
                                         id="lpSuspended"
-                                        styleClass="queuesTabPanel"
-                                        style="background-color: rgb(251, 240, 240)">
+                                        styleClass="userQueuesTabPanel">
 
                                     <ui:button action="#{userWorkQueues.btnUnsuspend_action}"
                                                binding="#{userWorkQueues.btnUnsuspend}"
@@ -196,23 +201,23 @@
                                    imageURL="/resources/refresh.png"
                                    styleClass="refreshButton"
                                    toolTip="Refresh Queues"
-                                   text=""/>             
+                                   text=""/>
+
+                        <div style="position: absolute">
+                            <jsp:include page="pfQueueUI.jspf"/>
+                        </div>
+
+                         </ui:panelLayout>
+                       </center>
 
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"
                                         panelLayout="flow"/>
 
-                        <div style="height: 202px; left: 126px; top: 118px; position: absolute; width: 542px">
-                            <jsp:directive.include file="pfQueueUI.jspf"/>
-                        </div>
-
-                         <div style="left: 0px; top: 72px; position: absolute">
-                            <jsp:directive.include file="pfMenu.jspf"/>
-                        </div>
-
                         <ui:meta binding="#{userWorkQueues.metaRefresh}"
                                  httpEquiv="refresh"
                                  id="metaRefresh" />
+
                     </ui:form>
                 </ui:body>
             </ui:html>

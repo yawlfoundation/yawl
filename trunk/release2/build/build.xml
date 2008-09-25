@@ -57,6 +57,8 @@
     <property name="yawl.xforms.app.name" value="yawlXForms"/>
     <property name="yawl.worklet.app.name" value="workletService"/>
     <property name="yawl.resource.app.name" value="resourceService"/>
+    <property name="yawl.digitalSignature.app.name" value="digitalSignature"/>
+    <property name="yawl.mailSender.app.name" value="mailSender"/>
 
 
     <!-- The various Hibernate database types. Set the property database.type to the
@@ -83,12 +85,14 @@
 
     <!-- References to third party jars. NOTE: All updated or added jars should
          be listed here and referenced from here -->
+    <property name="activation"            value="activation.jar"/>
     <property name="antlr"                 value="antlr-2.7.6.jar"/>
     <property name="apacheSoap"            value="apache_soap-2_3_1.jar"/>
     <property name="asm"                   value="asm.jar"/>
     <property name="axis"                  value="axis-1.1RC2.jar"/>
     <property name="axisAnt"               value="axis-1_1RC2-ant.jar"/>
-    <property name="bcprov"                value="bcprov-jdk14-130.jar"/>
+    <property name="bcmail"                value="bcmail-jdk15-139.jar"/>
+    <property name="bcprov"                value="bcprov-jdk15-139.jar"/>
     <property name="cglib"                 value="cglib-2.1_3.jar"/>
     <property name="common"                value="common.jar"/>
     <property name="commonsBeanutils"      value="commons-beanutils.jar"/>
@@ -130,6 +134,7 @@
     <property name="optional"              value="optional-1_5_1.jar"/>
     <property name="postgres7"             value="postgresql-7.4.5.jdbc.jar"/>
     <property name="postgres8"             value="postgresql-8.3-603.jdbc3.jar"/>
+    <property name="mail"                  value="mail.jar"/>
     <property name="mysql"                 value="mysql-connector-java-5.1.6-bin.jar"/>
     <property name="qname"                 value="qname-from-wsdl4j-20030807.jar"/>
     <property name="saaj"                  value="saaj.jar"/>
@@ -266,6 +271,15 @@
         <pathelement location="${lib.dir}/${jsf-defaulttheme-gray}"/>
     </path>
 
+    <path id="cp.ds">
+        <pathelement location="${lib.dir}/${bcmail}"/>
+        <pathelement location="${lib.dir}/${bcprov}"/>
+    </path>
+    
+    <path id="cp.mail">
+            <pathelement location="${lib.dir}/${mail}"/>
+            <pathelement location="${lib.dir}/${activation}"/>
+    </path>
 
     <!-- ============================ Targets =================================== -->
 
@@ -320,6 +334,8 @@
             <classpath refid="cp.persist"/>
             <classpath refid="cp.apacheCommons"/>
             <classpath refid="cp.jsf"/>
+            <classpath refid="cp.ds"/>
+            <classpath refid="cp.mail"/>
         </javac>
 
         <!-- copy in non-java files from source (ie. files that don't need compiling) -->
@@ -1119,7 +1135,9 @@
         </copy>
         <copy todir="testService${webinf.dir}/engine"
               file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
-        
+        <copy todir="testService${webinf.dir}/schema"
+              file="${classes.dir}${packageRoot}/schema/XSDType.class"/>
+
 
         <copy todir="testService${webinf.dir}/resourcing/rsInterface">
             <fileset dir="${classes.dir}${packageRoot}/resourcing/rsInterface"/>
@@ -1145,6 +1163,8 @@
         <copy todir="testService${webinf.dir}/resourcing/resource">
             <fileset dir="${classes.dir}${packageRoot}/resourcing/resource"/>
         </copy>
+        <copy todir="testService${webinf.dir}/resourcing/util"
+              file="${classes.dir}${packageRoot}/resourcing/util/PasswordEncryptor.class"/>
 
         <copy todir="testService${webinf.dir}/util">
             <fileset dir="${classes.dir}${packageRoot}/util"/>
@@ -1179,7 +1199,127 @@
         <delete dir="testService"/>
     </target>
 
+     <!-- Build the YAWL Digital Signature Service WebApplication -->
+        <target name="build_DigitalSignature.war" depends="compile">
+            <copy todir="${yawl.digitalSignature.app.name}${webinf.dir}/elements">
+                <fileset dir="${classes.dir}${packageRoot}/elements" includes="**/*.class **/*.xsd"/>
+            </copy>
+            <copy todir="${yawl.digitalSignature.app.name}${webinf.dir}/unmarshal">
+                <fileset dir="${classes.dir}${packageRoot}/unmarshal"
+                    includes="YDecompositionParser.class"/>
+                <fileset dir="${schema.dir}" includes="*.xsd"/>
+            </copy>
+            <copy todir="${yawl.digitalSignature.app.name}${webinf.dir}/worklist/model">
+                 <fileset dir="${classes.dir}${packageRoot}/worklist/model"/>
+            </copy>
+            <copy todir="${yawl.digitalSignature.app.name}${webinf.dir}/exceptions">
+                 <fileset dir="${classes.dir}${packageRoot}/exceptions"
+                     includes="YAWLException.class"/>
+            </copy>
+            <copy todir="${yawl.digitalSignature.app.name}/WEB-INF/lib">
+                <fileset dir="${lib.dir}" includes="${jdom} ${log4j} commons-io-1.1.jar commons-fileupload-1.1.jar bcmail-jdk15-139.jar bcprov-jdk15-139.jar commons-codec-1.3.jar"/>
+            </copy>
 
+            <copy file="${properties.dir}/log4j.properties"
+                  todir="${yawl.digitalSignature.app.name}/WEB-INF/classes"/>
+
+            <copy todir="${yawl.digitalSignature.app.name}${webinf.dir}/engine/interfce">
+                <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+            </copy>
+            <copy todir="${yawl.digitalSignature.app.name}${webinf.dir}/engine/interfce/interfaceB">
+                 <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceB"/>
+             </copy>
+            <copy todir="${yawl.digitalSignature.app.name}${webinf.dir}/util">
+                  <fileset dir="${classes.dir}${packageRoot}/util"/>
+            </copy>
+            <copy todir="${yawl.digitalSignature.app.name}">
+                <fileset dir="${classes.dir}${packageRoot}/DigitalSignature">
+                    <exclude name="*.class"/>
+                </fileset>
+            </copy>
+
+            <!-- 2c(i). Copy in resources for jsps -->
+            <copy todir="${yawl.digitalSignature.app.name}/resources">
+                <fileset dir="${build.dir}/DigitalSignature/resources"/>
+            </copy>
+
+            <mkdir dir="DigitalSignature/files"/>
+            <copy todir="${yawl.digitalSignature.app.name}${webinf.dir}/DigitalSignature">
+                <fileset dir="${classes.dir}${packageRoot}/DigitalSignature">
+                    <include name="*.class"/>
+                </fileset>
+            </copy>
+            <copy todir="${yawl.digitalSignature.app.name}/WEB-INF">
+                <fileset file="${build.dir}/${yawl.digitalSignature.app.name}/web.xml"/>
+            </copy>
+            <!-- prepare Web Archive file -->
+            <jar destfile="${output.dir}/${yawl.digitalSignature.app.name}.war">
+                <fileset dir="${yawl.digitalSignature.app.name}"/>
+            </jar>
+            <delete dir="${yawl.digitalSignature.app.name}"/>
+        </target>
+
+    <!-- Build the YAWL Mail Sender Service WebApplication -->
+            <target name="build_MailSender.war" depends="compile">
+                <copy todir="${yawl.mailSender.app.name}${webinf.dir}/elements">
+                    <fileset dir="${classes.dir}${packageRoot}/elements" includes="**/*.class **/*.xsd"/>
+                </copy>
+                <copy todir="${yawl.mailSender.app.name}${webinf.dir}/unmarshal">
+                    <fileset dir="${classes.dir}${packageRoot}/unmarshal"
+                        includes="YDecompositionParser.class"/>
+                    <fileset dir="${schema.dir}" includes="*.xsd"/>
+                </copy>
+                <copy todir="${yawl.mailSender.app.name}${webinf.dir}/worklist/model">
+                     <fileset dir="${classes.dir}${packageRoot}/worklist/model"/>
+                </copy>
+                <copy todir="${yawl.mailSender.app.name}${webinf.dir}/exceptions">
+                     <fileset dir="${classes.dir}${packageRoot}/exceptions"
+                         includes="YAWLException.class"/>
+                </copy>
+                <copy todir="${yawl.mailSender.app.name}/WEB-INF/lib">
+                    <fileset dir="${lib.dir}" includes="${jdom} ${log4j} mail.jar  ${activation}
+                    commons-io-1.1.jar commons-fileupload-1.1.jar commons-codec-1.3.jar"/>
+                </copy>
+
+                <copy file="${properties.dir}/log4j.properties"
+                      todir="${yawl.mailSender.app.name}/WEB-INF/classes"/>
+
+                <copy todir="${yawl.mailSender.app.name}${webinf.dir}/engine/interfce">
+                    <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+                </copy>
+                <copy todir="${yawl.mailSender.app.name}${webinf.dir}/engine/interfce/interfaceB">
+                     <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceB"/>
+                 </copy>
+                <copy todir="${yawl.mailSender.app.name}${webinf.dir}/util">
+                      <fileset dir="${classes.dir}${packageRoot}/util"/>
+                </copy>
+                <copy todir="${yawl.mailSender.app.name}">
+                    <fileset dir="${classes.dir}${packageRoot}/MailSender">
+                        <exclude name="*.class"/>
+                    </fileset>
+                </copy>
+                  <!-- 2c(i). Copy in resources for jsps -->
+                <copy todir="${yawl.mailSender.app.name}/resources">
+                    <fileset dir="${build.dir}/MailSender/resources"/>
+                </copy>
+
+                <mkdir dir="MailSender/files"/>
+                <copy todir="${yawl.mailSender.app.name}${webinf.dir}/MailSender">
+                    <fileset dir="${classes.dir}${packageRoot}/MailSender">
+                        <include name="*.class"/>
+                    </fileset>
+                </copy>
+                <copy todir="${yawl.mailSender.app.name}/WEB-INF">
+                    <fileset file="${build.dir}/${yawl.mailSender.app.name}/web.xml"/>
+                </copy>
+                <!-- prepare Web Archive file -->
+                <jar destfile="${output.dir}/${yawl.mailSender.app.name}.war">
+                    <fileset dir="${yawl.mailSender.app.name}"/>
+                </jar>
+                <delete dir="${yawl.mailSender.app.name}"/>
+            </target>
+
+    
     <!-- =========================================================================== -->
     <!--
     Build the application jar/war files
@@ -1256,7 +1396,20 @@
         <antcall target="cleanup"/>
     </target>
 
+    <target name="deployDigitalSignature" depends="build_DigitalSignature.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${yawl.digitalSignature.app.name}.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
 
+    <target name="deployMailSender" depends="build_MailSender.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${yawl.mailSender.app.name}.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
+    
     <target name="deployWebapps"
         depends=
         "deployWorklist,

@@ -31,7 +31,7 @@ public class YInternalCondition extends YNetElement implements YConditionInterfa
     public YTask _myTask;
     public static String _mi_active = "mi_active";
     public static String _mi_entered = "mi_entered";
-    public static String _executing = "executing";
+    public static String _mi_executing = "mi_executing";
     public static String _mi_complete = "mi_complete";
 
 

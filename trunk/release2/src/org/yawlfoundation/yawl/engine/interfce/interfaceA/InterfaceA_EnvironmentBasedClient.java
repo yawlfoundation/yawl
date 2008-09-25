@@ -17,6 +17,7 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.IOException;
 import java.util.*;
@@ -184,6 +185,22 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
         return executeUpload(_backEndURIStr + "/upload", specification, filename,
                              sessionHandle);
     }
+
+
+    /**
+     * Uploads a specification into the engine.
+     * @param filename the file name of the specification xml file
+     * @param sessionHandle a sessionhandle.
+     * @return a diagnostic XML result message.
+     * @throws IOException if bad connection.
+     */
+    public String uploadSpecification(String filename,
+                                      String sessionHandle) throws IOException {
+        String specification = StringUtil.fileToString(filename);
+        return executeUpload(_backEndURIStr + "/upload", specification, filename,
+                             sessionHandle);
+    }
+
 
 
     /**

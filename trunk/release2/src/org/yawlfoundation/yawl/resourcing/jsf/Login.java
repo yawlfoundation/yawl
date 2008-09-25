@@ -278,6 +278,7 @@ public class Login extends AbstractPageBean {
             if ((wirSet != null) && (! wirSet.isEmpty()))
                 sb.setChosenWIR(wirSet.iterator().next());
         }
+        ((pfMenubar) getBean("pfMenubar")).construct(userid.equals("admin"));     // make the menu bar
     }
 
 }

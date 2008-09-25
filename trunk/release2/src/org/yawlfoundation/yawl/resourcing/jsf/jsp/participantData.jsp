@@ -30,14 +30,19 @@
                         <!-- include banner -->
                         <div><jsp:directive.include file="pfHeader.jspf"/></div>
 
-                        <div style="left: 0px; top: 72px; position: absolute">
-                            <jsp:directive.include file="pfMenu.jspf"/>
+                        <div style="top: 20px; position: relative">
+                            <jsp:directive.include file="pfMenubar.jspf"/>
                         </div>
+                        <center>
+
+                        <ui:panelLayout binding="#{customServices.pnlContainer}"
+                                        id="pnlContainer"
+                                        styleClass="userMgtContainerPanel">
 
                         <!-- Select Participant Panel -->
                         <ui:panelLayout binding="#{participantData.pnlSelectUser}"
                                         id="pnlSelectUser"
-                                        style="top: 74px; height: 34px; left: 124px"
+                                        style="height: 34px;"
                                         styleClass="orgDataPanel">
 
                             <ui:dropDown binding="#{participantData.cbbParticipants}"
@@ -58,7 +63,7 @@
                         <ui:panelLayout binding="#{participantData.pnlPrivileges}"
                                         id="pnlPrivileges"
                                         styleClass="orgDataPanel"
-                                        style="height: 333px; left: 535px; top: 74px; width: 255px">
+                                        style="height: 333px; left: 411px; width: 255px">
 
                             <ui:staticText binding="#{participantData.staticText1}"
                                            id="staticText1"
@@ -141,7 +146,7 @@
                         <ui:panelLayout binding="#{participantData.pnlUserDetails}"
                                         id="pnlUserDetails"
                                         styleClass="orgDataPanel"
-                                        style="height: 293px; top: 114px; left: 124px">
+                                        style="height: 293px; top: 40px;">
 
                             <ui:textField binding="#{participantData.txtFirstName}"
                                           columns="40"
@@ -185,7 +190,7 @@
                         <ui:tabSet binding="#{participantData.tabSetAttributes}"
                                    id="tabSetAttributes"
                                    selected="tabRoles"
-                                   style="border: 2px solid gray; height: 200px; left: 124px; top: 413px; position: absolute; width: 406px">
+                                   style="border: 2px solid gray; height: 200px; top: 339px; position: absolute; width: 406px">
 
                             <ui:tab binding="#{participantData.tabRoles}"
                                     action="#{participantData.tabRoles_action}"
@@ -226,7 +231,7 @@
                         <ui:panelLayout binding="#{participantData.pnlNewPassword}"
                                         id="pnlNewPassword"
                                         styleClass="orgDataPanel"
-                                        style="height: 110px; top: 413px; left: 535px; width: 255px">
+                                        style="height: 110px; top: 339px; left: 411px; width: 255px">
 
                             <ui:staticText binding="#{participantData.sttPassword}"
                                            id="sttPassword"
@@ -248,7 +253,7 @@
                             <ui:passwordField id="ff3workaroundpw"
                                               style="display: none" />
 
-                            <!------------------------------------------------------->
+                            <!--=====================================================-->
                             
                             <ui:passwordField binding="#{participantData.txtNewPassword}"
                                               columns="20"
@@ -270,7 +275,7 @@
                                    binding="#{participantData.btnSave}"
                                    id="btnSave"
                                    styleClass="orgDataButton"
-                                   style="left: 555px; top: 540px"
+                                   style="left: 431px; top: 466px"
                                    toolTip="Save changes for the current participant"
                                    text="Save"/>
 
@@ -278,35 +283,38 @@
                                    binding="#{participantData.btnAdd}"
                                    id="btnAdd"
                                    styleClass="orgDataButton"
-                                   style="left: 675px; top: 540px"
+                                   style="left: 551px; top: 466px"
                                    text="New"/>
 
                         <ui:button action="#{participantData.btnReset_action}"
                                    binding="#{participantData.btnReset}"
                                    id="btnReset"
                                    styleClass="orgDataButton"
-                                   style="left:555px; top: 583px"
+                                   style="left:431px; top: 509px"
                                    text="Reset"/>
                         
                         <ui:button action="#{participantData.btnRemove_action}"
                                    binding="#{participantData.btnRemove}"
                                    id="btnRemove"
                                    styleClass="orgDataButton"
-                                   style="left: 675px;top: 583px"
+                                   style="left: 551px;top: 509px"
                                    toolTip="Permanently remove the current participant"
                                    onClick="return confirmDelete()"
                                    text="Remove"/>
 
+                        <div style="position: absolute">
+                            <jsp:directive.include file="pfAddRemove.jspf"/>
+                        </div>
+ 
+                        </ui:panelLayout>
+                      </center>
 
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"
                                         panelLayout="flow"/>
                         
 
-                        <div style="left: 123px; top: 458px; position: absolute">
-                            <jsp:directive.include file="pfAddRemove.jspf"/>
-                        </div>
-                    
+
                     </ui:form>
                 </ui:body>
             </ui:html>

@@ -10,9 +10,7 @@ package org.yawlfoundation.yawl.util;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -22,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.nio.CharBuffer;
 
 
 public class StringUtil
@@ -310,4 +309,50 @@ public class StringUtil
         }
         return true;
     }
+
+
+    public static File stringToFile(String fileName, String contents) {
+        File f = new File(fileName);
+        try {
+            BufferedWriter buf = new BufferedWriter(new FileWriter(f));
+            buf.write(contents, 0, contents.length());
+            buf.close();
+        }
+        catch (IOException ioe) {
+            f = null;
+        }
+        finally {
+            if (f != null) f.delete();
+        }
+        return f;
+    }
+
+
+    public static String fileToString(File f) {
+        if (f.exists()) {
+            CharBuffer charBuffer = CharBuffer.allocate(Math.abs((int) f.length()));
+
+            try {
+                BufferedReader buf = new BufferedReader(new FileReader(f));
+
+                int read;
+                do {
+                    read = buf.read(charBuffer);
+                } while (read != -1 && buf.ready());
+
+                charBuffer.position(0);
+                return charBuffer.toString();
+            }
+            catch (Exception e) {
+                return null;
+            }
+        }
+        else return null;
+    }
+
+
+    public static String fileToString(String filename) {
+        return fileToString(new File(filename));
+    }
+
 }

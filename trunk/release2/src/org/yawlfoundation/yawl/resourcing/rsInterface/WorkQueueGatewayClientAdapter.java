@@ -14,8 +14,10 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
+import org.yawlfoundation.yawl.resourcing.util.PasswordEncryptor;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Set;
 
 /**
@@ -91,12 +93,16 @@ public class WorkQueueGatewayClientAdapter {
      * @param password  the corresponding password
      * @return a sessionhandle if successful, or a failure message if otherwise
      */
-    public String login(String userid, String password) {
+    public String userlogin(String userid, String password) {
         try {
-            return _wqclient.login(userid, password) ;
+            return _wqclient.userlogin(userid,
+                    PasswordEncryptor.getInstance().encrypt(password)) ;
         }
         catch (IOException ioe) {
             return "<failure>IOException attempting to connect to Service.</failure>";
+        }
+        catch (NoSuchAlgorithmException nsae) {
+            return "<failure>Could not encrypt password.</failure>";
         }
     }
 

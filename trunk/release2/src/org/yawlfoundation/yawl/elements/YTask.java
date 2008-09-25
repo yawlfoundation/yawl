@@ -57,7 +57,7 @@ public abstract class YTask extends YExternalNetElement {
     protected YInternalCondition _mi_active = new YInternalCondition(YInternalCondition._mi_active, this);
     protected YInternalCondition _mi_entered = new YInternalCondition(YInternalCondition._mi_entered, this);
     protected YInternalCondition _mi_complete = new YInternalCondition(YInternalCondition._mi_complete, this);
-    protected YInternalCondition _mi_executing = new YInternalCondition(YInternalCondition._executing, this);
+    protected YInternalCondition _mi_executing = new YInternalCondition(YInternalCondition._mi_executing, this);
     protected static YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
 
     //private attributes
@@ -861,7 +861,7 @@ public abstract class YTask extends YExternalNetElement {
         copy._mi_active = new YInternalCondition(YInternalCondition._mi_active, copy);
         copy._mi_complete = new YInternalCondition(YInternalCondition._mi_complete, copy);
         copy._mi_entered = new YInternalCondition(YInternalCondition._mi_entered, copy);
-        copy._mi_executing = new YInternalCondition(YInternalCondition._executing, copy);
+        copy._mi_executing = new YInternalCondition(YInternalCondition._mi_executing, copy);
         copy._removeSet = new HashSet();
         Iterator iter = _removeSet.iterator();
         while (iter.hasNext()) {

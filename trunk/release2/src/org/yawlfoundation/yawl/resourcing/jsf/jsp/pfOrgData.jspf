@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<div style="height: 300px; width: 540px; -rave-layout: grid"
+<div style="height: 300px; width: 540px; top: 84px; position: absolute; -rave-layout: grid"
      xmlns:f="http://java.sun.com/jsf/core"
      xmlns:ui="http://www.sun.com/web/ui">
 
@@ -7,7 +7,7 @@
         <ui:label binding="#{pfOrgData.lblItems}"
                   for="lbxItems"
                   id="lblItems"
-                  style="left: 12px; top: 18px; position: absolute"
+                  style="left: 12px; top: 58px; position: absolute"
                   text="#{SessionBean.orgDataListLabelText}"/>
 
         <ui:listbox binding="#{pfOrgData.lbxItems}"
@@ -21,58 +21,58 @@
         <ui:label binding="#{pfOrgData.lblAdd}"
                   for="txtAdd"
                   id="lblAdd"
-                  style="left: 12px; top: 210px; position: absolute"
+                  style="left: 12px; top: 250px; position: absolute"
                   text="Add New"/>
 
         <ui:textField binding="#{pfOrgData.txtAdd}"
                       id="txtAdd"
                       styleClass="queuesTextField"
-                      style="left: 12px; top: 230px; width: 184px"
+                      style="left: 12px; top: 270px; width: 184px"
                       trim="false"/>
 
         <ui:label binding="#{pfOrgData.lblBelongs}"
                   for="cbbBelongs"
                   id="lblBelongs"
-                  style="top: 18px; left: 450px; position: absolute"
+                  style="top: 58px; left: 450px; position: absolute"
                   text="#{SessionBean.orgDataBelongsLabelText}"/>
 
         <ui:dropDown binding="#{pfOrgData.cbbBelongs}"
                      id="cbbBelongs"
                      items="#{SessionBean.orgDataBelongsItems}"
-                     style="left: 450px; top: 36px; position: absolute; width: 150px"/>
+                     style="left: 450px; top: 76px; position: absolute; width: 150px"/>
 
         <ui:label binding="#{pfOrgData.lblGroup}"
                   for="cbbGroup"
                   id="lblGroup"
-                  style="top: 72px; left: 450px; position: absolute"
+                  style="top: 112px; left: 450px; position: absolute"
                   text="#{SessionBean.orgDataGroupLabelText}"/>
 
         <ui:dropDown binding="#{pfOrgData.cbbGroup}"
                      id="cbbGroup"
                      items="#{SessionBean.orgDataGroupItems}"
-                     style="left: 450px; top: 90px; position: absolute; width: 150px"/>
+                     style="left: 450px; top: 130px; position: absolute; width: 150px"/>
 
         <ui:label binding="#{pfOrgData.lblDesc}"
                   for="txtDesc"
                   id="lblDesc"
                   styleClass="queuesLabelRight"
-                  style="top: 18px; left: 230px; position: absolute;"
+                  style="top: 58px; left: 230px; position: absolute;"
                   text="Description"/>
 
         <ui:label binding="#{pfOrgData.lblNotes}"
                   for="txtNotes"
                   id="lblNotes"
                   styleClass="queuesLabelRight"
-                  style="top: 110px; left: 230px; position: absolute;"
+                  style="top: 148px; left: 230px; position: absolute;"
                   text="Notes"/>
 
         <ui:textArea binding="#{pfOrgData.txtDesc}"
                      id="txtDesc"
-                     style="left: 230px; top: 36px; height: 60px; width: 170px; position: absolute"/>
+                     style="left: 230px; top: 76px; height: 60px; width: 170px; position: absolute"/>
 
         <ui:textArea binding="#{pfOrgData.txtNotes}"
                      id="txtNotes"
-                     style="left: 230px; top: 126px; height: 60px;  width: 170px; position: absolute"/>
+                     style="left: 230px; top: 166px; height: 60px;  width: 170px; position: absolute"/>
 
         <!-- Buttons -->
 
@@ -80,7 +80,7 @@
                    binding="#{orgDataMgt.btnSave}"
                     id="btnSave"
                     styleClass="orgDataButton"
-                    style="left: 450px; top: 140px"
+                    style="left: 450px; top: 170px"
                     toolTip="Save current changes"
                     text="Save"/>
 
@@ -88,21 +88,21 @@
                     binding="#{orgDataMgt.btnAdd}"
                     id="btnAdd"
                     styleClass="orgDataButton"
-                    style="left: 570px; top: 140px"
+                    style="left: 570px; top: 170px"
                     text="New"/>
 
          <ui:button action="#{orgDataMgt.btnReset_action}"
                     binding="#{orgDataMgt.btnReset}"
                     id="btnReset"
                     styleClass="orgDataButton"
-                    style="left:450px; top: 183px"
+                    style="left:450px; top: 213px"
                     text="Reset"/>
 
          <ui:button action="#{orgDataMgt.btnRemove_action}"
                     binding="#{orgDataMgt.btnRemove}"
                     id="btnRemove"
                     styleClass="orgDataButton"
-                    style="left: 570px;top: 183px"
+                    style="left: 570px;top: 213px"
                     toolTip="Permanently remove the selected item"
                     onClick="return confirmDelete()"
                     text="Remove"/>

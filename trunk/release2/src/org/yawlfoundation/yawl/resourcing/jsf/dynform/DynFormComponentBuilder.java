@@ -34,8 +34,10 @@ public class DynFormComponentBuilder {
     private int _maxDropDownChars = 0;
     private int _maxLabelChars = 0;
     private int _maxTextValueChars = 0;
+    private boolean _hasCheckboxOnly = true;
 
     private final int FONT_WIDTH = 6;
+    private final int DROPDOWN_BUTTON_WIDTH = 15;
     private final SimpleDateFormat _sdf = new SimpleDateFormat("yyyy-MM-dd");
     
 
@@ -84,13 +86,16 @@ public class DynFormComponentBuilder {
 
         if (type.equals("boolean"))
             field = makeCheckbox(input, top);
-        else if (type.equals("date"))
-            field = makeCalendar(input, top);
-        else if (input.hasEnumeratedValues())
-            field = makeEnumeratedList(input, top);
-        else
-            field = makeTextField(input, top);
-
+        else {
+            _hasCheckboxOnly = false;
+            if (type.equals("date"))
+                field = makeCalendar(input, top);
+            else if (input.hasEnumeratedValues())
+                field = makeEnumeratedList(input, top);
+            else
+                field = makeTextField(input, top);
+        }
+        
         label.setFor(field.getId());
 
         result.add(label);
@@ -281,7 +286,7 @@ public class DynFormComponentBuilder {
     }
 
     public int getMaxDropDownWidth() {
-        return (_maxDropDownChars * FONT_WIDTH) + 15;
+        return (_maxDropDownChars * FONT_WIDTH) + DROPDOWN_BUTTON_WIDTH;
     }
 
 
@@ -293,6 +298,15 @@ public class DynFormComponentBuilder {
     public int getMaxTextValueWidth() {
         return _maxTextValueChars * FONT_WIDTH;
     }
+
+    public boolean hasOnlyCheckboxes() {
+        return _hasCheckboxOnly ;
+    }
+
+    public int getMaxFieldWidth() {
+        return Math.max(getMaxDropDownWidth(), getMaxTextValueWidth());
+    }
+
 
     public Hashtable<TextField, DynFormField> getTextFieldMap() {
         return _componentFieldTable;

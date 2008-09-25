@@ -240,6 +240,13 @@ public class adminQueues extends AbstractPageBean {
     public void setMetaRefresh(Meta m) { metaRefresh = m; }
 
 
+    private PanelLayout pnlContainer ;
+
+    public PanelLayout getPnlContainer() { return pnlContainer; }
+
+    public void setPnlContainer(PanelLayout pnl) { pnlContainer = pnl; }
+
+
     /********************************************************************************/
 
     // SPECIFIC DELARATIONS AND METHODS //
@@ -269,15 +276,7 @@ public class adminQueues extends AbstractPageBean {
         Tab selTab = null;
 
         if (selTabName == null) {
-
-            // this is the first rendering of the page in this session
-            WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.UNOFFERED) ;
-            if (wir != null) ((pfQueueUI) getBean("pfQueueUI")).populateTextBoxes(wir);
-
-       //     setRefreshRate(0) ;               // get default refresh rate from web.xml
-            tabSet.setSelected("tabUnOffered");
-            selTab = tabUnOffered;
-            tabUnOffered_action() ;           // default
+            selTab = initDefaultTab();
         }
         else {
             if (selTabName.equals("tabUnOffered")) {
@@ -288,10 +287,25 @@ public class adminQueues extends AbstractPageBean {
                 tabWorklisted_action() ;
                 selTab = tabWorklisted;
             }
+            else {
+                selTab = initDefaultTab();                
+            }
         }
         updateTabHeaders(selTab) ;
         _sb.setActiveTab(tabSet.getSelected());
         _sb.setActivePage(ApplicationBean.PageRef.adminQueues);
+    }
+
+
+    private Tab initDefaultTab() {
+        // this is the first rendering of the page in this session
+        WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.UNOFFERED) ;
+        if (wir != null) ((pfQueueUI) getBean("pfQueueUI")).populateTextBoxes(wir);
+
+   //     setRefreshRate(0) ;               // get default refresh rate from web.xml
+        tabSet.setSelected("tabUnOffered");
+        tabUnOffered_action() ;           // default
+        return tabUnOffered;
     }
 
 

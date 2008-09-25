@@ -32,15 +32,19 @@
                         <!-- include banner -->
                         <div><jsp:directive.include file="pfHeader.jspf"/></div>
 
-                        <div style="left: 0px; top: 72px; position: absolute">
-                            <jsp:directive.include file="pfMenu.jspf"/>
+                        <div style="top: 20px; position: relative">
+                            <jsp:directive.include file="pfMenubar.jspf"/>
                         </div>
+                        <center>
+                        <ui:panelLayout binding="#{customServices.pnlContainer}"
+                                        id="pnlContainer"
+                                        styleClass="servicesContainerPanel">
 
                         <!-- Registered Services Panel -->
                         <ui:panelLayout binding="#{customServices.pnlServices}"
                                         id="pnlServices"
                                         styleClass="servicesPanel"
-                                        style="height: 240px; top: 77px">
+                                        style="height: 240px; top: 0px">
 
                             <ui:staticText binding="#{customServices.staticText2}"
                                            id="staticText2"
@@ -110,7 +114,7 @@
 
                             <ui:button action="#{customServices.btnRemove_action}"
                                        binding="#{customServices.btnRemove}"
-                                       id="btnRemove"
+                                       id="btnRemoveService"
                                        styleClass="servicesButton"
                                        style="left: 11px; top: 200px"
                                        text="Remove"/>
@@ -121,7 +125,7 @@
                         <ui:panelLayout binding="#{customServices.pnlAddService}"
                                         id="pnlAddService"
                                         styleClass="servicesPanel"
-                                        style="height: 210px; top: 323px">
+                                        style="height: 210px; top: 243px">
 
                             <ui:staticText binding="#{customServices.staticText1}"
                                            id="staticText1"
@@ -149,20 +153,22 @@
 
                             <ui:button action="#{customServices.btnAdd_action}"
                                        binding="#{customServices.btnAdd}"
-                                       id="btnAdd"
+                                       id="btnAddService"
                                        styleClass="servicesButton"
                                        style="left: 11px; top: 168px"
                                        text="Add"/>
 
                             <ui:button action="#{customServices.btnClear_action}"
                                        binding="#{customServices.btnClear}"
-                                       id="btnClear"
+                                       id="btnClearService"
                                        styleClass="servicesButton"
                                        style="left: 119px; top: 168px"
                                        text="Clear"/>
 
                         </ui:panelLayout>
 
+                        </ui:panelLayout>
+                       </center>
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"
                                         panelLayout="flow"/>

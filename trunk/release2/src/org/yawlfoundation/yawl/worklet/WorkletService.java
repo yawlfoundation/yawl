@@ -24,6 +24,7 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.worklet.admin.AdminTasksManager;
 import org.yawlfoundation.yawl.worklet.admin.AdministrationTask;
 import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
@@ -329,7 +330,7 @@ public class WorkletService extends InterfaceBWebsideController {
         PrintWriter outputWriter = response.getWriter();
         StringBuffer output = new StringBuffer();
         String fileName = Library.wsHomeDir + "welcome.htm";
-        String welcomePage = Library.FileToString(fileName) ;
+        String welcomePage = StringUtil.fileToString(fileName) ;
 
         // load the full welcome page if possible
         if (welcomePage != null) output.append(welcomePage) ;
@@ -861,7 +862,7 @@ public class WorkletService extends InterfaceBWebsideController {
             return true ;
         }
 
-        String wSpec = Library.FileToString(fullFileName);  // needs spec as String
+        String wSpec = StringUtil.fileToString(fullFileName);  // needs spec as String
 
         if (wSpec != null) {
            try {

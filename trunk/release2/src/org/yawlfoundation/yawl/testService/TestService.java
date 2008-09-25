@@ -20,6 +20,7 @@ import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGatewayClient;
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGatewayClientAdapter;
+import org.yawlfoundation.yawl.schema.XSDType;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -62,7 +63,7 @@ public class TestService extends InterfaceBWebsideController {
         StringBuffer output = new StringBuffer();
 
         output.append("<html><head><title>YAWL Test Service Welcome Page</title>")
-              .append("</head><body><H3>Test Output</H3><p>");
+              .append("</head><body><H3>Test Output</H3><p><pre>");
 
    //     output.append(doResourceServiceGatewayTest()) ;
    //    output.append(createDummyOrgData());
@@ -73,9 +74,11 @@ public class TestService extends InterfaceBWebsideController {
    //     output.append(doGetParticipantsTest()) ;
    //       output.append(controllerTest());
    //     output.append(stressTest());
-        output.append(wqTest());
+    //    output.append(wqTest());
+   //     output.append(xsdTest());
+        output.append(getCaseState());
 
-         output.append("</p></body></html>");
+         output.append("</pre></p></body></html>");
          outputWriter.write(output.toString());
          outputWriter.flush();
          outputWriter.close();
@@ -111,6 +114,15 @@ private static String getReply(InputStream is) throws IOException {
     return out.toString();
 }
 
+    private String getCaseState() {
+        try {
+        String handle = connect("admin", "YAWL");
+        return _interfaceBClient.getCaseState("53", handle);
+        }
+        catch (IOException ioe) {
+        return ""; }
+    }
+
     private String doGetParticipantsTest() {
         String resURL = "http://localhost:8080/resourceService/gateway";
         ResourceGatewayClientAdapter resClient = new ResourceGatewayClientAdapter(resURL) ;
@@ -133,26 +145,53 @@ private static String getReply(InputStream is) throws IOException {
         return "";
     }
 
+    private String xsdTest() {
+        XSDType.getInstance();
+        return "";
+    }
+
+
     private String wqTest() {
         WorkQueueGatewayClientAdapter c = new
         WorkQueueGatewayClientAdapter("http://localhost:8080/resourceService/workqueuegateway");
         String handle = c.connect("admin", "YAWL");
         prn("handle = " + handle);
 
-        if (c.checkConnection(handle)) {
-            try {
-                prn(c.getRunningCases("Order_Fulfilment.ywl", "0.11", handle));
-                prn(c.getSpecList(handle).toString());
-                prn(c.getSpecData("Order_Fulfilment.ywl", "0.11", handle).toString());
-                prn(c.getCaseData("70", handle));
-                prn(c.getRegisteredServices(handle).toString());
-                prn(c.cancelCase("70", handle));
-                prn(c.unloadSpecification("Order_Fulfilment.ywl", "0.11", handle));
+        try {
+        System.out.println("WQG Result:");
+        System.out.println(c.getCaseData("77", handle));
+
+        String sh2 = connect("admin", "YAWL");
+        System.out.println("IBC Result:");
+        System.out.println(_interfaceBClient.getCaseData("77",sh2));
+
+            String sh3 = c.userlogin("stephan","stephan"); 
+            System.out.println(c.isValidUserSession(sh3));
+
+            String resourceId = c.getParticipantFromUserID("stephan", handle).getID();
+            Set<WorkItemRecord> offered =
+c.getQueuedWorkItems(resourceId,WorkQueue.OFFERED,handle);
+Set<WorkItemRecord> allocated=
+c.getQueuedWorkItems(resourceId,WorkQueue.ALLOCATED,handle);
+Set<WorkItemRecord> started=
+c.getQueuedWorkItems(resourceId,WorkQueue.STARTED,handle);
+Set<WorkItemRecord> suspended=
+c.getQueuedWorkItems(resourceId,WorkQueue.SUSPENDED,handle);
+
+//        if (c.checkConnection(handle)) {
+//            try {
+//                prn(c.getRunningCases("Order_Fulfilment.ywl", "0.11", handle));
+//                prn(c.getSpecList(handle).toString());
+//                prn(c.getSpecData("Order_Fulfilment.ywl", "0.11", handle).toString());
+//                prn(c.getCaseData("70", handle));
+//                prn(c.getRegisteredServices(handle).toString());
+//                prn(c.cancelCase("70", handle));
+//                prn(c.unloadSpecification("Order_Fulfilment.ywl", "0.11", handle));
             }
             catch (Exception e) {
                 return "error";
             }
-        }
+ //       }
         return "success";
     }
 

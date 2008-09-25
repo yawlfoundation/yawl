@@ -23,7 +23,6 @@ import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.exceptions.YStateException;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -51,7 +50,7 @@ public interface InterfaceAManagement {
     /**
      * Loads a process specification into the engine from an XML definition file created by the YAWL Designer.<P>
      *
-     * @param specificationFile
+     * @param specificationStr
      * @param ignoreErors
      * @param errorMessages
      * @return
@@ -59,7 +58,7 @@ public interface InterfaceAManagement {
      * @throws IOException
      * @throws YPersistenceException
      */
-    List<YSpecificationID> addSpecifications(File specificationFile, boolean ignoreErors,
+    List<YSpecificationID> addSpecifications(String specificationStr, boolean ignoreErors,
                                              List<YVerificationMessage> errorMessages)
                                throws JDOMException, IOException, YPersistenceException;
 

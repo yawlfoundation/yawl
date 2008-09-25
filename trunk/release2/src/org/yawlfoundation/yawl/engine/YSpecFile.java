@@ -9,82 +9,66 @@
 
 package org.yawlfoundation.yawl.engine;
 
-import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
-import java.io.BufferedReader;
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.nio.CharBuffer;
+import java.io.Reader;
 import java.util.List;
 
 public class YSpecFile{
     String xml = "";
     P_YSpecFileID specid = new P_YSpecFileID();
-    private static final Logger logger = Logger.getLogger(YSpecFile.class);
 
 
     public YSpecFile() { }
 
+
+    public YSpecFile(Reader ioReader) {
+        this();
+        init(ioReader);
+    }
+
+
     public YSpecFile(String filename) {
         this();
-        specid = new P_YSpecFileID();
         try {
-            logger.debug("--> YSpecFile: " + filename);
-            SAXBuilder builder = new SAXBuilder();
-
-            Document document = builder.build(filename);
-            Element specificationSetEl = document.getRootElement();
-
-            List specificationElemList = specificationSetEl.getChildren();
-            for (int i = 0; i < specificationElemList.size(); i++) {
-
-                Element specificationElem = (Element) specificationElemList.get(i);
-                String uriString = specificationElem.getAttributeValue("uri");
-                specid.setId(uriString);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+            Reader ioReader = new FileReader(filename);
+            init(ioReader);
         }
+        catch (FileNotFoundException fnfe) {
+            fnfe.printStackTrace();
+        }
+    }
 
+
+    private void init(Reader ioReader) {
+        specid = new P_YSpecFileID();
+        SAXBuilder builder = new SAXBuilder();
+        Document doc;
         try {
-            /**
-             * Following code is good example of how not to load a file into a String instance!!!.
-             * Load time for a 41K XML spec gets reduced from 10mins to 1 sec on a P4 1.8GHz PC.
-             */
-//            BufferedReader buf = new BufferedReader(new FileReader(new File(filename)));
-//            while ((temp = buf.readLine()) != null) {
-//                xml = xml + temp;
-//                System.out.println(xml.length());
-//            }
-//            buf.close();
-
-            //mlf:BEGIN
-            File file = new File(filename);
-            long length = file.length();
-            logger.info("Allocating input buffer at size " + length + " bytes");
-            CharBuffer charBuffer = CharBuffer.allocate(Math.abs((int) length));
-
-            BufferedReader buf = new BufferedReader(new FileReader(file));
-
-            int read;
-            do
-            {
-                read = buf.read(charBuffer);
-            }
-            while (read != -1 && buf.ready());
-
-            charBuffer.position(0);
-            xml = charBuffer.toString();
-            logger.info("Specification buffer loaded OK");
-            //mlf:END
-
-        } catch (Exception e) {
+            doc = builder.build(ioReader);
+            initSpecID(doc);
+            xml = JDOMUtil.documentToString(doc);
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+    private void initSpecID(Document doc) {
+        Element specificationSetEl = doc.getRootElement();
+        List specificationElemList = specificationSetEl.getChildren();
+        for (int i = 0; i < specificationElemList.size(); i++) {
+            Element specificationElem = (Element) specificationElemList.get(i);
+            String uriString = specificationElem.getAttributeValue("uri");
+            specid.setId(uriString);
+        }
+    }
+
 
     public String getXML() {
         return xml;

@@ -9,20 +9,18 @@
 
 package org.yawlfoundation.yawl.unmarshal;
 
-import org.yawlfoundation.yawl.elements.YSpecification;
-import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
-import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
+import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -60,16 +58,22 @@ public class YMarshal {
     }
 
 
+
+//    public static List<YSpecification> unmarshalSpecifications(String specificationSetFileID)
+//        throws YSyntaxException, YSchemaBuildingException, JDOMException, IOException {
+//        return unmarshalSpecifications(new FileReader(specificationSetFileID)) ;
+//    }
+
     /**
      * Returns the _specifications. Does some primary checking of the file against
      * schemas and checks well formedness of the XML.
      * @return List
      */
-    public static List<YSpecification> unmarshalSpecifications(String specificationSetFileID)
+    public static List<YSpecification> unmarshalSpecifications(String specStr)
             throws YSyntaxException, YSchemaBuildingException, JDOMException, IOException {
         //first check if is well formed and build a document
         SAXBuilder builder = new SAXBuilder();
-        Document document = builder.build(specificationSetFileID);
+        Document document = builder.build(new StringReader(specStr));
         Element specificationSetEl = document.getRootElement();
 
         //next get the version out as text - if possible
@@ -81,10 +85,10 @@ public class YMarshal {
         }
 
         //now check the specification file against its' respective schema
-        String errors = YawlXMLSpecificationValidator.getInstance().checkSchema(specificationSetFileID, version);
+        String errors = YawlXMLSpecificationValidator.getInstance().checkSchema(specStr, version);
         if (errors == null || errors.length() > 0) {
             throw new YSyntaxException(
-                    " The file [" + specificationSetFileID + "] failed to verify against YAWL's Schema:\n"
+                    " The specification file failed to verify against YAWL's Schema:\n"
                     + errors);
         }
 
@@ -141,10 +145,10 @@ public class YMarshal {
     }
 
 
-    public static void main(String[] args) throws IOException, YSchemaBuildingException, YSyntaxException, JDOMException {
-        URL xmlFileURL = YMarshal.class.getResource("MakeRecordings.xml");
-        File file = new File(xmlFileURL.getFile());
-        List specifications = unmarshalSpecifications(file.getCanonicalPath());
-        String marshalledSpecs = marshal(specifications, YSpecification._Beta7_1);
-    }
+//    public static void main(String[] args) throws IOException, YSchemaBuildingException, YSyntaxException, JDOMException {
+//        URL xmlFileURL = YMarshal.class.getResource("MakeRecordings.xml");
+//        File file = new File(xmlFileURL.getFile());
+//        List specifications = unmarshalSpecifications(file.getCanonicalPath());
+//        String marshalledSpecs = marshal(specifications, YSpecification._Beta7_1);
+//    }
 }
