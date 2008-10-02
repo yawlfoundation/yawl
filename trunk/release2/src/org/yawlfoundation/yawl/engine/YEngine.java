@@ -1148,17 +1148,17 @@ public class YEngine implements InterfaceADesign,
                             }
                         }
                     } else if (workItem.getStatus().equals(YWorkItemStatus.statusFired)) {
-                        workItem.setStatusToStarted(pmgr, userID);
                         netRunner = _workItemRepository.getNetRunner(workItem.getCaseID().getParent());
+                        netRunner.startWorkItemInTask(pmgr, workItem.getCaseID(), workItem.getTaskID());
+                        workItem.setStatusToStarted(pmgr, userID);
 /**
  * AJH:  As the workitem's data is restored coutesy of Hibernate, why do we need to explicity restore it, get it wrong and
  * subsequently set it to NULL?
  * After further digging I suspect this id all down to implementing multi-atomics and getting it wrong.
  */
-//                        Element dataList = ((YTask) netRunner.getNetElement(workItem.getTaskID())).getData(workItem.getCaseID());
-//                      workItem.setData(pmgr, dataList);
+                        Element dataList = ((YTask) netRunner.getNetElement(workItem.getTaskID())).getData(workItem.getCaseID());
+                        workItem.setData(pmgr, dataList);
    
-                        netRunner.startWorkItemInTask(pmgr, workItem.getCaseID(), workItem.getTaskID());
                         resultantItem = workItem;
                     } else if (workItem.getStatus().equals(YWorkItemStatus.statusDeadlocked)) {
                         resultantItem = workItem;
@@ -1980,21 +1980,6 @@ public class YEngine implements InterfaceADesign,
     }
 
 
-    /**
-     * Connects the user to the engine, and returns a sessionhandle back to the user.
-     * This session lasts for one hour at time of writing.
-     *
-     * @param userID   the userid
-     * @param password the password
-     * @return the session handle
-     * @throws YAuthenticationException if the password is not valid.
-     * @deprecated
-     */
-    private String connect(String userID, String password) throws YAuthenticationException {
-        return _userList.connect(userID, password);
-    }
-
-
     protected void announceEnabledTaskToResourceService(YWorkItem item) {
         if (_resourceObserver != null) {
             _logger.debug("Announcing enabled task " + item.getIDString() + " on service " +
@@ -2008,7 +1993,7 @@ public class YEngine implements InterfaceADesign,
             }
             catch (YStateException yse) {
                 _logger.error("Failed to announce enablement of workitem '" +
-                               item.getIDString() + "': ",yse);
+                               item.getIDString() + "': ", yse);
             }
         }
     }

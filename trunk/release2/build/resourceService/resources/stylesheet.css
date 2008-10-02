@@ -16,6 +16,13 @@
     position:relative;
 }
 
+.addInstanceContainerPanel {
+    height: 350px;
+    width: 306px;
+    top: 50px;
+    position:relative;
+}
+
 .servicesContainerPanel {
     height: 455px;
     width: 666px;

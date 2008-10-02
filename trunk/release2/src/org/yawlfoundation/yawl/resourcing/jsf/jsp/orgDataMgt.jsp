@@ -103,11 +103,11 @@
                         </div>
 
                         </ui:panelLayout>
-                      </center>
 
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"
                                         panelLayout="flow"/>
+                        </center>
 
                         <ui:meta binding="#{orgDataMgt.metaRefresh}"
                                  httpEquiv="refresh"

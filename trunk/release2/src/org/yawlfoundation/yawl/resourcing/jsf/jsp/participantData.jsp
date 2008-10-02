@@ -307,12 +307,12 @@
                         </div>
  
                         </ui:panelLayout>
-                      </center>
 
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"
                                         panelLayout="flow"/>
-                        
+                        </center>
+
 
 
                     </ui:form>

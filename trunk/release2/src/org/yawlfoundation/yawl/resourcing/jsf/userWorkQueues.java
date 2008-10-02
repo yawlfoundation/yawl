@@ -20,6 +20,7 @@ import org.yawlfoundation.yawl.resourcing.jsf.comparator.WorkItemAgeComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.faces.FacesException;
 import javax.faces.context.ExternalContext;
@@ -330,7 +331,7 @@ public class userWorkQueues extends AbstractPageBean {
      */
     public void prerender() {
         getSessionBean().checkLogon();                     // check session still live
-        msgPanel.show(350, 200, "absolute");               // show msgs (if any)
+        msgPanel.show();                                   // show msgs (if any)
 
         // return to same tab on a refresh
         if (_sb.getSourceTab() != null) {
@@ -343,6 +344,7 @@ public class userWorkQueues extends AbstractPageBean {
         else if (_sb.isReallocating()) postReallocate();
         else if (_sb.isCustomFormPost()) postCustomForm();
         else if (_sb.isWirEdit()) postEditWIR() ;
+        else if (_sb.isAddInstance()) postAddInstance();
 
         // get the last selected tab
         String selTabName = tabSet.getSelected() ;
@@ -432,7 +434,20 @@ public class userWorkQueues extends AbstractPageBean {
     }
 
     public String btnNewInstance_action() {
-        return null;      // todo
+        _sb.setSourceTab("tabStarted");                      // come back to started tab
+        WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
+        if (wir != null) {
+            String paramName = _rm.getMIFormalInputParamName(wir);
+            if (paramName != null) {
+                _sb.setAddInstanceParamName(paramName);
+                _sb.setAddInstanceItemID(wir.getID());
+                _sb.setAddInstanceHeader(wir.getTaskIDForDisplay());
+                return "addInstance";
+            }
+            else
+                msgPanel.error("Could not retreive task parameter from Engine for new instance creation");
+        }
+        return null;
     }
 
     public String btnStart_action() {
@@ -750,6 +765,27 @@ public class userWorkQueues extends AbstractPageBean {
     }
 
 
+    private void postAddInstance() {
+        String paramValue = _sb.getAddInstanceParamVal();
+        if (paramValue != null) {
+            String data = StringUtil.wrap(paramValue, _sb.getAddInstanceParamName());
+            WorkItemRecord newWir = _rm.createNewWorkItemInstance(
+                                              _sb.getAddInstanceItemID(), data);
+            if (newWir != null) {
+                newWir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
+                _sb.getParticipant().getWorkQueues().addToQueue(newWir, WorkQueue.ALLOCATED);
+                msgPanel.success("New instance successfully created and added to allocate queue.");
+            }
+            else msgPanel.error("Create Instance Error: " +
+                                "Engine failed to create new instance. See logs for details.");
+        }
+        else msgPanel.error("Create Instance Error: " +
+                            "Problem reading parameter value from New Instance form.");
+
+        _sb.clearAddInstanceParam();
+    }
+
+
     private void completeWorkItem(WorkItemRecord wir, Participant p) {
         String result = _rm.checkinItem(p, wir, _sb.getSessionhandle());
         if (_rm.successful(result))
@@ -910,7 +946,7 @@ public class userWorkQueues extends AbstractPageBean {
                 String canCreate = wir.getAllowsDynamicCreation();
                 btnNewInstance.setDisabled((canCreate != null) &&
                                             ! canCreate.equalsIgnoreCase("true"));
-            }    
+            }
         }
     }
 

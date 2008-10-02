@@ -183,10 +183,10 @@
                         </ui:panelLayout>
 
                         </ui:panelLayout>
-                      </center>
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"
                                         panelLayout="flow"/>
+                        </center>
 
                         <ui:hiddenField binding="#{caseMgt.hdnRowIndex}" id="hdnRowIndex"/>
 

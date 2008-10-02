@@ -237,7 +237,7 @@ public class orgDataMgt extends AbstractPageBean {
     // Callback method that is called just before rendering takes place.
     public void prerender() {
         getSessionBean().checkLogon();
-        msgPanel.show(420, 200, "absolute");
+        msgPanel.show();
 
         if (_sb.getSourceTab() != null) {
             tabSet.setSelected(_sb.getSourceTab());

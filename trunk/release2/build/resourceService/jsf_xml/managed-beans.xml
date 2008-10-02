@@ -63,6 +63,11 @@
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>
     <managed-bean>
+        <managed-bean-name>addInstance</managed-bean-name>
+        <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.addInstance</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+    <managed-bean>
         <managed-bean-name>DynFormFactory</managed-bean-name>
         <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory</managed-bean-class>
         <managed-bean-scope>session</managed-bean-scope>

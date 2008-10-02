@@ -97,11 +97,16 @@ public class MessagePanel extends PanelLayout {
     public void show(int top, int left, String position) {
         _style = String.format("top: %dpx; left: %dpx; position: %s;",
                                 top, left, position);
-        show();
+        showPanel();
     }
 
     /* show the panel */
     public void show() {
+        _style = "top:70px; left:0px; position: relative;";      // default style & posn
+        showPanel();
+    }
+
+    private void showPanel() {
         MsgType msgType = getDominantType() ;
         if (msgType != null) {                          // if msgs to show
             _pnlMessages.getChildren().clear();

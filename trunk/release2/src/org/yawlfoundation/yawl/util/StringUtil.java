@@ -270,6 +270,22 @@ public class StringUtil
         return wrap(JDOMUtil.encodeEscapes(core), wrapTag);
     }
 
+
+    /**
+     * Removes an outer set of xml tags from an xml string, if possible
+     * @param inputXML the xml string to strip
+     * @return the stripped xml string
+     */
+    public static String unwrap(String inputXML) {
+        if (inputXML != null) {
+            int beginClipping = inputXML.indexOf(">") + 1;
+            int endClipping = inputXML.lastIndexOf("<");
+            if (beginClipping >= 0 && endClipping >= 0 && endClipping > beginClipping) {
+                inputXML = inputXML.substring(beginClipping, endClipping);
+            }
+        }
+        return inputXML;
+    }
     
     /**
      * Encodes reserved characters in an xml string

@@ -50,6 +50,7 @@ import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ConnectionCache;
 import org.yawlfoundation.yawl.resourcing.util.*;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -1496,15 +1497,19 @@ public class ResourceManager extends InterfaceBWebsideController {
                 // get the rest of the kids and distribute them
                 distributeChildren(oneToStart, children) ;
             }
-            else oneToStart = (WorkItemRecord) children.get(0) ;
-
-            oneToStart.setResourceStatus(WorkItemRecord.statusResourceStarted);
+            else if (children.size() == 0) {                  // a 'fired' workitem
+                oneToStart = refreshWIRFromEngine(wir, handle) ;
+            }
+            else {                                            // exactly one child
+                oneToStart = (WorkItemRecord) children.get(0) ;
+            }
 
             // replace the parent in the cache with the executing child
             _workItemCache.remove(wir) ;
             _workItemCache.add(oneToStart);
 
             p.getWorkQueues().movetoStarted(wir, oneToStart);
+            oneToStart.setResourceStatus(WorkItemRecord.statusResourceStarted);
 
             // cleanup deallocation list for started item (if any)
             ResourceMap rMap = getResourceMap(wir);
@@ -2536,13 +2541,15 @@ public class ResourceManager extends InterfaceBWebsideController {
         return result ;
     }
 
-    private WorkItemRecord refreshWIRFromEngine(WorkItemRecord wir, String handle)
-                                                    throws IOException, JDOMException {
-
+    private WorkItemRecord refreshWIRFromEngine(WorkItemRecord wir, String handle) {
+        try {
             wir = getEngineStoredWorkItem(wir.getID(), handle);
             _workItemCache.update(wir) ;
             return wir ;
-
+        }
+        catch (Exception e) {
+            return wir;
+        }
     }
 
 
@@ -2871,4 +2878,42 @@ public class ResourceManager extends InterfaceBWebsideController {
          return result ;
    }
 
+
+   public String getMIFormalInputParamName(WorkItemRecord wir) {
+       String result = null;
+       try {
+           String mayAdd = _interfaceBClient.checkPermissionToAddInstances(
+                                         wir.getID(), _engineSessionHandle);
+           if (successful(mayAdd)) {
+               TaskInformation taskInfo = getTaskInformation(
+                   new YSpecificationID(wir.getSpecificationID(), wir.getSpecVersion()),
+                                        wir.getTaskID(), _engineSessionHandle);
+               YParameter formalInputParam = taskInfo.getParamSchema().getFormalInputParam();
+               if (formalInputParam != null) {
+                   result = formalInputParam.getName();
+               }
+           }
+       }
+       catch (IOException ioe) {
+           // nothing to do
+       }
+       return result;
+   }
+
+
+   public WorkItemRecord createNewWorkItemInstance(String id, String value) {
+       WorkItemRecord result = null;
+       try {
+           String xml = _interfaceBClient.createNewInstance(id, value, _engineSessionHandle);
+           if (successful(xml)) {
+               result = Marshaller.unmarshalWorkItem(StringUtil.unwrap(xml));
+               _workItemCache.add(result);
+           }
+           else _log.error(xml);
+       }
+       catch (IOException ioe) {
+           // nothing to do
+       }
+       return result;
+   }
 }                                                                                  

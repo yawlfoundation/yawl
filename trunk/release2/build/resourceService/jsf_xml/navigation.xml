@@ -32,6 +32,10 @@
             <to-view-id>/selectUser.jsp</to-view-id>
         </navigation-case>
         <navigation-case>
+            <from-outcome>addInstance</from-outcome>
+            <to-view-id>/addInstance.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
             <from-outcome>showServiceMgt</from-outcome>
             <to-view-id>/customServices.jsp</to-view-id>
         </navigation-case>
@@ -107,6 +111,13 @@
         <navigation-case>
             <from-outcome>showAdminQueues</from-outcome>
             <to-view-id>/adminQueues.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+    <navigation-rule>
+        <from-view-id>/addInstance.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>showUserQueues</from-outcome>
+            <to-view-id>/userWorkQueues.jsp</to-view-id>
         </navigation-case>
     </navigation-rule>
     <navigation-rule>

@@ -337,7 +337,7 @@ public class caseMgt extends AbstractPageBean {
      */
     public void prerender() {
         _sb.checkLogon();
-        msgPanel.show(650, 130, "absolute");
+        msgPanel.show();
 
         // take postback action on case launch
         if (_sb.isCaseLaunch()) {

@@ -428,7 +428,7 @@ public class participantData extends AbstractPageBean {
         // set active page and show any pending messages to user
         sb.setBlankStartOfParticipantList(true);
         sb.setActivePage(ApplicationBean.PageRef.participantData);
-        msgPanel.show(630, 124, "absolute");
+        msgPanel.show();
     }
 
 
