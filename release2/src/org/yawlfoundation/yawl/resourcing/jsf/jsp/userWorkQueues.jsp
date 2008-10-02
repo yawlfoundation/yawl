@@ -208,11 +208,11 @@
                         </div>
 
                          </ui:panelLayout>
+                    <ui:panelLayout binding="#{SessionBean.messagePanel}"
+                                    id="msgPanel"
+                                    panelLayout="flow"/>
                        </center>
 
-                        <ui:panelLayout binding="#{SessionBean.messagePanel}"
-                                        id="msgPanel"
-                                        panelLayout="flow"/>
 
                         <ui:meta binding="#{userWorkQueues.metaRefresh}"
                                  httpEquiv="refresh"

@@ -52,7 +52,7 @@ function highlightAndSelectRow(tr) {
 // set alternate background colours for data table rows
 function getBgColorForRow(i) {
     if (i % 2 == 0) return '#ffffff';             // white for even rows
-    else return '#e6f0fd';                        // light blue for odd rows
+    else return '#e6e6fa' ; //'#e6f0fd';                        // light blue for odd rows
 
 }
 

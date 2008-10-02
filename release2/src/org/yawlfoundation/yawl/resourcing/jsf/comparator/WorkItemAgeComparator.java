@@ -30,8 +30,15 @@ public class WorkItemAgeComparator implements Comparator<WorkItemRecord> {
             // return +ve means first wir is younger
             if ((wir1EnableTime==0) && (wir2EnableTime==0))
                 return compareCaseIDs(wir1, wir2);
-            else
-                return (int) (wir1EnableTime - wir2EnableTime);
+            else {
+                int result = (int) (wir1EnableTime - wir2EnableTime);
+
+                // if identical enable times, sort on caseid
+                if (result == 0)
+                    return compareCaseIDs(wir1, wir2);
+                else
+                    return result;
+            }
         }
         catch (NumberFormatException nfe) {
             return compareCaseIDs(wir1, wir2);

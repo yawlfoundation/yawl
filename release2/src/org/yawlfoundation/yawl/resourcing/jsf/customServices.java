@@ -128,6 +128,27 @@ public class customServices extends AbstractPageBean {
     public void setStaticText1(StaticText st) { staticText1 = st; }
 
 
+    private Label lblName = new Label();
+
+    public Label getLblName() { return lblName; }
+
+    public void setLblName(Label l) { lblName = l; }
+
+
+    private Label lblURL = new Label();
+
+    public Label getLblURL() { return lblURL; }
+
+    public void setLblURL(Label l) { lblURL = l; }
+
+
+    private Label lblDesc = new Label();
+
+    public Label getLblDesc() { return lblDesc; }
+
+    public void setLblDesc(Label l) { lblDesc = l; }
+
+       
     private TextField txtName = new TextField();
 
     public TextField getTxtName() { return txtName; }
@@ -298,7 +319,7 @@ public class customServices extends AbstractPageBean {
      */
     public void prerender() {
         getSessionBean().checkLogon();
-        getSessionBean().getMessagePanel().show(538, 150, "absolute");
+        msgPanel.show();
         getSessionBean().setActivePage(ApplicationBean.PageRef.customServices);
     }
 
@@ -308,24 +329,31 @@ public class customServices extends AbstractPageBean {
         try {
             Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
             getSessionBean().removeRegisteredService(selectedRowIndex - 1);
+            msgPanel.success("Service successfully removed.");
         }
         catch (NumberFormatException nfe) {
             msgPanel.error("No service selected to remove.");
         }
+        catch (Exception e) {
+            msgPanel.error("Could not remove service. See logs for details");
+            e.printStackTrace();
+        }
         return null;
     }
 
+    
     // add a new service to the engine
     public String btnAdd_action() {
         String name = (String) txtName.getText() ;
         String uri = (String) txtURL.getText();
-        if (! (isNullOrEmpty(name)) || (! isNullOrEmpty(uri))) {
-            String doco = (String) txtDescription.getText();
+        String doco = (String) txtDescription.getText();
+        if (! (isNullOrEmpty(name) || isNullOrEmpty(uri) || isNullOrEmpty(doco))) {
             getSessionBean().addRegisteredService(name, uri, doco);
             clearInputs();
+            msgPanel.success("Service successfully added.");
         }
         else
-            msgPanel.warn("Add Service: name and URI required.");
+            msgPanel.warn("Add Service: Please enter values in all fields.");
 
         return null;
     }

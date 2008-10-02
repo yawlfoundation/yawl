@@ -463,7 +463,7 @@ public class viewProfile extends AbstractPageBean {
         getSessionBean().checkLogon();
         populateFields(participant);
         getSessionBean().setActivePage(ApplicationBean.PageRef.viewProfile);
-        msgPanel.show(455, 124, "absolute");
+        msgPanel.show();
     }
 
     public void destroy() { }

@@ -30,7 +30,7 @@
                     <ui:form binding="#{customServices.form1}" id="form1">
 
                         <!-- include banner -->
-                        <div><jsp:directive.include file="pfHeader.jspf"/></div>
+                        <jsp:include page="pfHeader.jspf"/>
 
                         <div style="top: 20px; position: relative">
                             <jsp:directive.include file="pfMenubar.jspf"/>
@@ -133,23 +133,35 @@
                                            style="left: 12px; top: 12px"
                                            text="Add Service"/>
 
+                            <ui:label binding="#{customServices.lblName}"
+                                      for="txtName"
+                                      id="lblName"
+                                      style="left: 12px; top: 40px; position: absolute"
+                                      text="Name:"/>                            
+
+                            <ui:label binding="#{customServices.lblURL}"
+                                      for="txtURL"
+                                      id="lblURL"
+                                      style="left: 12px; top: 70px; position: absolute"
+                                      text="URI:"/>
+
+                            <ui:label binding="#{customServices.lblDesc}"
+                                      for="txtDescription"
+                                      id="lblDesc"
+                                      style="left: 12px; top: 100px; position: absolute"
+                                      text="Description:"/>
+
                             <ui:textField binding="#{customServices.txtName}"
                                           id="txtName"
-                                          label="Name:"
-                                          columns="40"
-                                          style="left: 48px; top: 40px; position: absolute"/>
+                                          style="left: 100px; top: 40px; width: 500px; position: absolute"/>
 
                             <ui:textField binding="#{customServices.txtURL}"
                                           id="txtURL"
-                                          label="URI:"
-                                          columns="40"
-                                          style="left: 59px; top: 70px; position: absolute"/>
+                                          style="left: 100px; top: 70px; width: 500px; position: absolute"/>
 
                             <ui:textArea binding="#{customServices.txtDescription}"
                                          id="txtDescription"
-                                         label="Description:"
-                                         columns="37"
-                                         style="height: 110px; left: 12px; top: 100px; position: absolute"/>
+                                         style="height: 50px; left: 100px; top: 100px; width: 505px; position: absolute"/>
 
                             <ui:button action="#{customServices.btnAdd_action}"
                                        binding="#{customServices.btnAdd}"
@@ -168,11 +180,11 @@
                         </ui:panelLayout>
 
                         </ui:panelLayout>
-                       </center>
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"
                                         panelLayout="flow"/>
-                                                
+                        </center>
+
                         <ui:hiddenField binding="#{customServices.hdnRowIndex}" id="hdnRowIndex"/>
 
                     </ui:form>

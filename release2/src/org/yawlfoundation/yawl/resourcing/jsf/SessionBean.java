@@ -1377,6 +1377,55 @@ public class SessionBean extends AbstractSessionBean {
         }
     }
 
+
+    // Add Instance
+    private String addInstanceParamVal ;
+
+    public String getAddInstanceParamVal() {
+        return addInstanceParamVal;
+    }
+
+    public void setAddInstanceParamVal(String val) {
+        addInstanceParamVal = val;
+    }
+
+    public boolean isAddInstance() { return addInstanceParamVal != null ; }
+
+    private String addInstanceParamName ;
+
+    public String getAddInstanceParamName() {
+        return addInstanceParamName;
+    }
+
+    public void setAddInstanceParamName(String name) {
+        addInstanceParamName = name;
+    }
+
+    public void clearAddInstanceParam() {
+        addInstanceParamVal = null ;
+        addInstanceParamName = null;
+        addInstanceItemID = null;
+    }
+
+    private String addInstanceItemID ;
+
+    public String getAddInstanceItemID() {
+        return addInstanceItemID;
+    }
+
+    public void setAddInstanceItemID(String itemID) {
+        addInstanceItemID = itemID;
+    }
+
+    private String addInstanceHeader ;
+
+    public String getAddInstanceHeader() {
+        return addInstanceHeader;
+    }
+
+    public void setAddInstanceHeader(String taskID) {
+        addInstanceHeader = "Create a New Workitem Instance of Task '" + taskID + "'";
+    }
 }
 
 
