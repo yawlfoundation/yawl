@@ -47,7 +47,7 @@ public class SetCustomFormAction extends YAWLSelectedNetAction
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Set Custom Form...");
     putValue(Action.LONG_DESCRIPTION, "Set the Form URI to display the task at runtime.");
-    putValue(Action.SMALL_ICON, getIconByName("Blank"));
+    putValue(Action.SMALL_ICON, getPNGIcon("application_form"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_F));
   }
 

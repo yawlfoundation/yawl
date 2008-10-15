@@ -26,18 +26,15 @@ package org.yawlfoundation.yawl.editor.elements.model;
 
 import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.GraphConstants;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.HashSet;
-import java.awt.Color;
-import java.awt.Dimension;
-
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.Point2D;
-
-import javax.swing.ImageIcon;
 import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 public abstract class Decorator extends DefaultGraphCell 
                                 implements YAWLCell {
@@ -215,7 +212,14 @@ public abstract class Decorator extends DefaultGraphCell
       setPortLocation(getPorts()[i], getLocationFor(i));
     }
   }
-  
+
+  public void refreshPortLocations() {
+      DecoratorPort[] ports = getPorts();
+      for(int i = 0; i < ports.length; i++) {
+          setPortLocation(getPorts()[i], getLocationFor(i));          
+      }
+  }
+
   public DecoratorPort[] getPorts() {
     DecoratorPort[] ports = new DecoratorPort[5];
     Object[] children = this.getChildren().toArray();

@@ -23,42 +23,30 @@
 
 package org.yawlfoundation.yawl.editor.actions.element;
 
-import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLMultipleInstanceTask;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
-
+import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.swing.ActionAndFocusListener;
 import org.yawlfoundation.yawl.editor.swing.JUtilities;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
-import org.yawlfoundation.yawl.editor.swing.net.NetVariableComboBox;
 import org.yawlfoundation.yawl.editor.swing.data.DataVariableUpdateDialog;
+import org.yawlfoundation.yawl.editor.swing.data.DataVariableUpdateDialogFactory;
 import org.yawlfoundation.yawl.editor.swing.data.JXQueryEditor;
 import org.yawlfoundation.yawl.editor.swing.data.JXQueryPanel;
-import org.yawlfoundation.yawl.editor.swing.data.TaskDataVariableUpdateDialog;
-import org.yawlfoundation.yawl.editor.swing.element.TaskVariableComboBox;
-
 import org.yawlfoundation.yawl.editor.swing.element.AbstractTaskDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.element.MultipleInstanceBoundsPanel;
-import org.yawlfoundation.yawl.editor.swing.data.DataVariableUpdateDialogFactory;
+import org.yawlfoundation.yawl.editor.swing.element.TaskVariableComboBox;
+import org.yawlfoundation.yawl.editor.swing.net.NetVariableComboBox;
 
-import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-
 import java.util.LinkedList;
-  
-import javax.swing.Action;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JButton;
-import javax.swing.JTabbedPane;
-import javax.swing.border.EmptyBorder;
 
 public class SetMultipleInstanceDetailAction extends YAWLSelectedNetAction implements TooltipTogglingWidget {
 
@@ -76,7 +64,7 @@ public class SetMultipleInstanceDetailAction extends YAWLSelectedNetAction imple
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Set Instance Detail...");
     putValue(Action.LONG_DESCRIPTION, "Specify instance detail for this task.");
-    putValue(Action.SMALL_ICON, getIconByName("Blank"));
+    putValue(Action.SMALL_ICON, getPNGIcon("table_row_insert"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_I));
   }
   

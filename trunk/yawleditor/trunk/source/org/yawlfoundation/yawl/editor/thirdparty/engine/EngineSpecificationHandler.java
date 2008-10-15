@@ -25,6 +25,7 @@ package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.FileChooserFactory;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 
@@ -35,7 +36,7 @@ import java.util.prefs.Preferences;
 public class EngineSpecificationHandler {
   
   
-  private static final String SPECIFICATION_FILE_TYPE = "xml";
+  private static final String SPECIFICATION_FILE_TYPE = "yawl,xml";
   
   private static final JFileChooser EXPORT_FILE_CHOOSER = 
     FileChooserFactory.buildFileChooser(
@@ -46,12 +47,12 @@ public class EngineSpecificationHandler {
         FileChooserFactory.IMPORTING_AND_EXPORTING
     );
 
-  private static final JFileChooser IMPORT_FILE_CHOOSER = 
+  private static final JFileChooser OPEN_FILE_CHOOSER =
     FileChooserFactory.buildFileChooser(
         SPECIFICATION_FILE_TYPE,
         "YAWL Engine Specification",
-        "Import specification from engine ",
-        " format",
+        "Open specification from ",
+        " file",
         FileChooserFactory.IMPORTING_AND_EXPORTING
     );
 
@@ -80,10 +81,9 @@ public class EngineSpecificationHandler {
   // the import, that too has been renamed to match.
 
   public void engineFormatFileExport(SpecificationModel editorSpec) {
-    saveSpecificationToFile(
-        editorSpec,
-        promptForSaveFileName()
-   );
+    String fileName = editorSpec.getFileName();
+    if (fileName == null) fileName = promptForSaveFileName();
+    saveSpecificationToFile(editorSpec, fileName);
   }
 
   public void engineFormatFileImport() {
@@ -91,7 +91,7 @@ public class EngineSpecificationHandler {
   }
   
   private void importEngineSpecificationFile(String fullFileName) {
-    YAWLEditor.setStatusBarText("Importing Engine Specification...");
+    YAWLEditor.setStatusBarText("Opening Specification...");
     YAWLEditor.progressStatusBarOverSeconds(2);
     YAWLEditorDesktop.getInstance().setVisible(false);
 
@@ -108,11 +108,11 @@ public class EngineSpecificationHandler {
   private String promptForLoadFileName() {
 
     if (JFileChooser.CANCEL_OPTION == 
-        IMPORT_FILE_CHOOSER.showOpenDialog(YAWLEditor.getInstance())) {
+        OPEN_FILE_CHOOSER.showOpenDialog(YAWLEditor.getInstance())) {
       return null;
     }
 
-    File file = IMPORT_FILE_CHOOSER.getSelectedFile();
+    File file = OPEN_FILE_CHOOSER.getSelectedFile();
 
     return getFullNameFromFile(file);
   }
@@ -156,13 +156,13 @@ public class EngineSpecificationHandler {
       return;     // user-cancelled save or no file name selected
     }
 
-    YAWLEditor.setStatusBarText("Exporting Engine Specification...");
+    YAWLEditor.setStatusBarText("Saving Specification...");
     YAWLEditor.progressStatusBarOverSeconds(2);
 
-    EngineSpecificationExporter.checkAndExportEngineSpecToFile(
-        editorSpec,
-        fullFileName
-    );
+    if (EngineSpecificationExporter.checkAndExportEngineSpecToFile(
+            editorSpec, fullFileName)) {
+        SpecificationUndoManager.getInstance().setDirty(false);
+    }
 
     YAWLEditor.setStatusBarTextToPrevious();
     YAWLEditor.resetStatusBarProgress();
@@ -173,10 +173,14 @@ public class EngineSpecificationHandler {
       return "";
     }
     String fullFileName = file.getAbsolutePath();
-    if (!fullFileName.toLowerCase().endsWith(SPECIFICATION_FILE_TYPE)) {
-      fullFileName += "." + SPECIFICATION_FILE_TYPE;
+    String [] extns = SPECIFICATION_FILE_TYPE.split(",");
+    for (String extn : extns) {
+      if (fullFileName.toLowerCase().endsWith("." + extn)) {
+         return fullFileName;                                   // ok
+      }
     }
-    return fullFileName;
-  }
+    return fullFileName += ".xml";
+    }
+
 }
 

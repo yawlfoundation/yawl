@@ -529,12 +529,12 @@ public class NetGraph extends JGraph {
     return getNetModel().areConnected(sourceCell, targetCell);
   }
   
-  public boolean acceptsIncommingFlows(YAWLCell cell) {
-    return getNetModel().acceptsIncommingFlows(cell);
+  public boolean acceptsIncomingFlows(YAWLCell cell) {
+    return getNetModel().acceptsIncomingFlows(cell);
   }
   
-  public boolean hasIncommingFlow(YAWLCell cell) {
-    return getNetModel().hasIncommingFlow(cell);
+  public boolean hasIncomingFlow(YAWLCell cell) {
+    return getNetModel().hasIncomingFlow(cell);
   }
 
   public boolean generatesOutgoingFlows(YAWLCell cell) {

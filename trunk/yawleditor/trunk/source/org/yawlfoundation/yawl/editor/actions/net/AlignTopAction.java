@@ -24,17 +24,15 @@
 
 package org.yawlfoundation.yawl.editor.actions.net;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-
 import org.jgraph.event.GraphSelectionEvent;
-
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionSubscriber;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 public class AlignTopAction extends YAWLSelectedNetAction implements TooltipTogglingWidget, SpecificationSelectionSubscriber {
 
@@ -48,7 +46,7 @@ public class AlignTopAction extends YAWLSelectedNetAction implements TooltipTogg
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Align along Top Edges");
     putValue(Action.LONG_DESCRIPTION, "Align the selected elements their top edges.");
-    putValue(Action.SMALL_ICON, getIconByName("AlignTop"));
+    putValue(Action.SMALL_ICON, getPNGIcon("shape_align_top"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_T));
   }
   

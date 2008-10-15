@@ -24,14 +24,11 @@
 
 package org.yawlfoundation.yawl.editor.actions.specification;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-import javax.swing.KeyStroke;
-
-import org.yawlfoundation.yawl.editor.actions.specification.YAWLOpenSpecificationAction;
 import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 public class CloseSpecificationAction extends YAWLOpenSpecificationAction implements TooltipTogglingWidget {
   /**
@@ -43,7 +40,7 @@ public class CloseSpecificationAction extends YAWLOpenSpecificationAction implem
     putValue(Action.SHORT_DESCRIPTION,getDisabledTooltipText());
     putValue(Action.NAME, "Close Specification");
     putValue(Action.LONG_DESCRIPTION, "Clise this specification ");
-    putValue(Action.SMALL_ICON, getIconByName("CloseSpecification"));
+    putValue(Action.SMALL_ICON, getPNGIcon("page_delete"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_C));
     putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control W"));
   }

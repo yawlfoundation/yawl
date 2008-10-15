@@ -22,13 +22,11 @@
 
 package org.yawlfoundation.yawl.editor.actions;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-import javax.swing.KeyStroke;
-
-import org.yawlfoundation.yawl.editor.actions.specification.*;
+import org.yawlfoundation.yawl.editor.actions.specification.YAWLActiveOpenSpecificationAction;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 public class RedoAction extends YAWLActiveOpenSpecificationAction {
 
@@ -41,8 +39,8 @@ public class RedoAction extends YAWLActiveOpenSpecificationAction {
   {
     putValue(Action.SHORT_DESCRIPTION, " Redo the last undone action ");
     putValue(Action.NAME, "Redo");
-    putValue(Action.LONG_DESCRIPTION, "Redoes last undone action");
-    putValue(Action.SMALL_ICON, getIconByName("Redo"));
+    putValue(Action.LONG_DESCRIPTION, "Redo last undone action");
+    putValue(Action.SMALL_ICON, getPNGIcon("arrow_redo"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_R));
     putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control Y"));
   }

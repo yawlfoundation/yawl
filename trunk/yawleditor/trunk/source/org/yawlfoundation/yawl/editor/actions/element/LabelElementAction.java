@@ -24,16 +24,14 @@
 
 package org.yawlfoundation.yawl.editor.actions.element;
 
-import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
-
+import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.swing.element.LabelElementDialog;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
 
 public class LabelElementAction extends YAWLSelectedNetAction 
                                 implements TooltipTogglingWidget {
@@ -47,7 +45,7 @@ public class LabelElementAction extends YAWLSelectedNetAction
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Set Label...");
     putValue(Action.LONG_DESCRIPTION, "Labels this element.");
-    putValue(Action.SMALL_ICON, getIconByName("LabelElement"));
+    putValue(Action.SMALL_ICON, getPNGIcon("page_edit"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_L));
   }
   

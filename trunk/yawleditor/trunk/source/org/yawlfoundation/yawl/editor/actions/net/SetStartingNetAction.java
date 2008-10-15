@@ -51,7 +51,7 @@ public class SetStartingNetAction extends YAWLExistingNetAction {
     putValue(Action.SHORT_DESCRIPTION, " Specify the net workflow execution starts in. ");
     putValue(Action.NAME, "Set Starting Net...");
     putValue(Action.LONG_DESCRIPTION, "Specify the net workflow execution starts in.");
-    putValue(Action.SMALL_ICON, getIconByName("Blank"));
+    putValue(Action.SMALL_ICON, getPNGIcon("table_key"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_S));
   }
 

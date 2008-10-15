@@ -37,6 +37,9 @@ import org.yawlfoundation.yawl.editor.swing.menu.YAWLMenuBar;
 import org.yawlfoundation.yawl.editor.swing.specification.ProblemMessagePanel;
 import org.yawlfoundation.yawl.editor.swing.specification.SpecificationBottomPanel;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.EngineSpecificationExporter;
+import org.yawlfoundation.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
+import org.yawlfoundation.yawl.editor.analyser.YAWLResetAnalyser;
 
 import javax.swing.*;
 import java.awt.*;
@@ -83,7 +86,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
   public static void main(String[] args) {
 
-//    setLookAndFeel();
+    setLookAndFeel();
 
     startLoading();
 
@@ -105,12 +108,16 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   }
 
   private static void setLookAndFeel() {
-    try {
-        UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-    }
-    catch (Exception e) {
-      // do nothing
-    }   
+
+    // move menu to screen top - only affects mac installs  
+    System.setProperty("apple.laf.useScreenMenuBar", "true");
+      
+//    try {
+//        UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+//    }
+//    catch (Exception e) {
+//      // do nothing
+//    }
   }
 
   private static JSplashScreen getSplashScreen() {
@@ -387,7 +394,27 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     } else {
       this.setLocation(posX, posY);
     }
+
+    // initialise analysis 'off'  
+    prefs.putBoolean(EngineSpecificationExporter.ANALYSIS_WITH_EXPORT_PREFERENCE, false);
+    initResetNetAnalysisPreferences();
+    initWofYAWLAnalysisPreferences();
   }
+
+  private void initResetNetAnalysisPreferences() {
+      prefs.putBoolean(YAWLResetAnalyser.WEAKSOUNDNESS_ANALYSIS_PREFERENCE, false);
+      prefs.putBoolean(YAWLResetAnalyser.CANCELLATION_ANALYSIS_PREFERENCE, false);
+      prefs.putBoolean(YAWLResetAnalyser.ORJOIN_ANALYSIS_PREFERENCE, false);
+      prefs.putBoolean(YAWLResetAnalyser.SHOW_OBSERVATIONS_PREFERENCE,false);
+  }
+
+  private void initWofYAWLAnalysisPreferences() {
+    prefs.putBoolean(WofYAWLProxy.WOFYAWL_ANALYSIS_PREFERENCE, false);
+    prefs.putBoolean(WofYAWLProxy.STRUCTURAL_ANALYSIS_PREFERENCE, false);
+    prefs.putBoolean(WofYAWLProxy.BEHAVIOURAL_ANALYSIS_PREFERENCE, false);
+    prefs.putBoolean(WofYAWLProxy.EXTENDED_COVERABILITY_PREFERENCE, false);
+  }
+
 
   public static void hideBottomOfSplitPane() {
     if (!YAWLEngineProxy.engineLibrariesAvailable()) {

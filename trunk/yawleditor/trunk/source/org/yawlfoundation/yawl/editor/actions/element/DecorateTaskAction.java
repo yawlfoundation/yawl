@@ -240,7 +240,7 @@ class JoinDecoratorPanel extends DecoratorPanel {
   }
 
   protected boolean decoratorIsOptional() {
-    return (task.getIncommingFlowCount() <= 1 && task.hasNoSelfReferencingFlows());
+    return (task.getIncomingFlowCount() <= 1 && task.hasNoSelfReferencingFlows());
   }
   
   protected void assignMnemonics() {

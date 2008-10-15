@@ -64,7 +64,7 @@ public class UpdateFlowDetailsAction extends YAWLSelectedNetAction
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Update Flow Detail...");
     putValue(Action.LONG_DESCRIPTION, "Update flow detail for this task.");
-    putValue(Action.SMALL_ICON, getIconByName("Blank"));
+    putValue(Action.SMALL_ICON, getPNGIcon("arrow_divide"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_F));
   }
   

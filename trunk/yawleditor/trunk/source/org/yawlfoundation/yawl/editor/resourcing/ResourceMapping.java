@@ -8,6 +8,7 @@ import org.yawlfoundation.yawl.editor.data.DataVariableUtilities;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
@@ -592,7 +593,7 @@ public class ResourceMapping implements Serializable, Cloneable  {
           name = name.substring(0, name.lastIndexOf("_")) ;           // lop engine id
           Set<YAWLAtomicTask> taskSet = NetUtilities.getAtomicTasks(net);
           for (YAWLAtomicTask task : taskSet) {
-              if (task.getLabel().equals(name)) {
+              if (((YAWLVertex) task).getEngineId().equals(name)) {
                   result = task ;
                   break;
               }

@@ -24,27 +24,13 @@
 
 package org.yawlfoundation.yawl.editor.swing.menu;
 
-import java.awt.event.KeyEvent;
-
-import javax.swing.JMenu;
-
-import javax.swing.AbstractAction;
-import org.yawlfoundation.yawl.editor.actions.ExitAction;
-import org.yawlfoundation.yawl.editor.actions.specification.AnalyseSpecificationAction;
-import org.yawlfoundation.yawl.editor.actions.specification.CloseSpecificationAction;
-import org.yawlfoundation.yawl.editor.actions.specification.CreateSpecificationAction;
-import org.yawlfoundation.yawl.editor.actions.specification.OpenSpecificationAction;
-import org.yawlfoundation.yawl.editor.actions.specification.SaveSpecificationAction;
-import org.yawlfoundation.yawl.editor.actions.specification.SaveSpecificationAsAction;
-import org.yawlfoundation.yawl.editor.actions.specification.ExportToEngineFormatAction;
-import org.yawlfoundation.yawl.editor.actions.specification.ImportFromEngineFormatAction;
-import org.yawlfoundation.yawl.editor.actions.specification.UpdateDataTypeDefinitionsAction;
-import org.yawlfoundation.yawl.editor.actions.specification.UpdateSpecificationPropertiesAction;
-import org.yawlfoundation.yawl.editor.actions.specification.ValidateSpecificationAction;
-import org.yawlfoundation.yawl.editor.actions.specification.PrintSpecificationAction;
-
 import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.actions.ExitAction;
+import org.yawlfoundation.yawl.editor.actions.specification.*;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+
+import javax.swing.*;
+import java.awt.event.KeyEvent;
 
 class SpecificationMenu extends JMenu {
     
@@ -62,7 +48,10 @@ class SpecificationMenu extends JMenu {
   protected void buildInterface() {
     addMenuItemAction(new CreateSpecificationAction());
     addMenuItemAction(new OpenSpecificationAction());
-    
+    if (YAWLEngineProxy.engineLibrariesAvailable()) {
+        addMenuItemAction(new ImportFromEngineFormatAction());        
+    }
+
     addSeparator();
     
     addMenuItemAction(new SaveSpecificationAction());
@@ -74,8 +63,6 @@ class SpecificationMenu extends JMenu {
       addSeparator();
       addMenuItemAction(new ValidateSpecificationAction());
       addMenuItemAction(new AnalyseSpecificationAction());
-      addMenuItemAction(new ExportToEngineFormatAction());
-      addMenuItemAction(new ImportFromEngineFormatAction());
     }
 
     YAWLEditor.updateLoadProgress(16);

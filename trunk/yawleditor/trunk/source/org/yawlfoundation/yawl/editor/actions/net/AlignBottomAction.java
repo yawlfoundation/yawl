@@ -22,17 +22,15 @@
 
 package org.yawlfoundation.yawl.editor.actions.net;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-
 import org.jgraph.event.GraphSelectionEvent;
-
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionSubscriber;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 public class AlignBottomAction extends YAWLSelectedNetAction implements TooltipTogglingWidget, SpecificationSelectionSubscriber {
 
@@ -46,7 +44,7 @@ public class AlignBottomAction extends YAWLSelectedNetAction implements TooltipT
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Align along Bottom Edges");
     putValue(Action.LONG_DESCRIPTION, "Align the selected elements along their bottom edges.");
-    putValue(Action.SMALL_ICON, getIconByName("AlignBottom"));
+    putValue(Action.SMALL_ICON, getPNGIcon("shape_align_bottom"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_B));
   }
   

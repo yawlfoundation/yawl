@@ -24,39 +24,13 @@
 
 package org.yawlfoundation.yawl.editor.swing.menu;
 
-import java.awt.Insets;
-
 import org.yawlfoundation.yawl.editor.actions.RedoAction;
 import org.yawlfoundation.yawl.editor.actions.UndoAction;
-import org.yawlfoundation.yawl.editor.actions.net.DecreaseSizeAction;
-import org.yawlfoundation.yawl.editor.actions.net.DeleteAction;
-import org.yawlfoundation.yawl.editor.actions.net.IncreaseSizeAction;
-import org.yawlfoundation.yawl.editor.actions.net.AlignTopAction;
-import org.yawlfoundation.yawl.editor.actions.net.AlignBottomAction;
-import org.yawlfoundation.yawl.editor.actions.net.AlignMiddleAction;
-import org.yawlfoundation.yawl.editor.actions.net.AlignLeftAction;
-import org.yawlfoundation.yawl.editor.actions.net.AlignCentreAction;
-import org.yawlfoundation.yawl.editor.actions.net.AlignRightAction;
-import org.yawlfoundation.yawl.editor.actions.net.AddToVisibleCancellationSetAction;
-import org.yawlfoundation.yawl.editor.actions.net.RemoveFromVisibleCancellationSetAction;
-import org.yawlfoundation.yawl.editor.actions.net.ZoomActualSizeAction;
-import org.yawlfoundation.yawl.editor.actions.net.ZoomOutAction;
-import org.yawlfoundation.yawl.editor.actions.net.ZoomInAction;
-import org.yawlfoundation.yawl.editor.actions.net.ZoomSelectedElementsAction;
-
-import org.yawlfoundation.yawl.editor.actions.specification.CreateNetAction;
-import org.yawlfoundation.yawl.editor.actions.net.RemoveNetAction;
-import org.yawlfoundation.yawl.editor.actions.specification.CreateSpecificationAction;
-import org.yawlfoundation.yawl.editor.actions.specification.OpenSpecificationAction;
-import org.yawlfoundation.yawl.editor.actions.specification.SaveSpecificationAction;
-import org.yawlfoundation.yawl.editor.actions.specification.SaveSpecificationAsAction;
-import org.yawlfoundation.yawl.editor.actions.specification.CloseSpecificationAction;
-import org.yawlfoundation.yawl.editor.actions.specification.ValidateSpecificationAction;
-import org.yawlfoundation.yawl.editor.actions.specification.AnalyseSpecificationAction;
-import org.yawlfoundation.yawl.editor.actions.specification.ExportToEngineFormatAction;
-import org.yawlfoundation.yawl.editor.actions.specification.ImportFromEngineFormatAction;
-
+import org.yawlfoundation.yawl.editor.actions.net.*;
+import org.yawlfoundation.yawl.editor.actions.specification.*;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+
+import java.awt.*;
 
 public class ToolBarMenu extends YAWLToolBar {
 
@@ -73,34 +47,35 @@ public class ToolBarMenu extends YAWLToolBar {
     setMargin(new Insets(3,2,2,0));
     add(new YAWLToolBarButton(new CreateSpecificationAction()));
     add(new YAWLToolBarButton(new OpenSpecificationAction()));
+    if (YAWLEngineProxy.engineLibrariesAvailable()) {
+        add(new YAWLToolBarButton(new ImportFromEngineFormatAction()));
+    }
     add(new YAWLToolBarButton(new SaveSpecificationAction()));
-	add(new YAWLToolBarButton(new SaveSpecificationAsAction()));
+	  add(new YAWLToolBarButton(new SaveSpecificationAsAction()));
     add(new YAWLToolBarButton(new CloseSpecificationAction()));
     if (YAWLEngineProxy.engineLibrariesAvailable()) {
       addSeparator();
-	  add(new YAWLToolBarButton(new ValidateSpecificationAction()));
+	    add(new YAWLToolBarButton(new ValidateSpecificationAction()));
       add(new YAWLToolBarButton(new AnalyseSpecificationAction()));
-      add(new YAWLToolBarButton(new ExportToEngineFormatAction()));
-      add(new YAWLToolBarButton(new ImportFromEngineFormatAction()));
     }
     addSeparator();
     add(new YAWLToolBarButton(new CreateNetAction()));
-	add(new YAWLToolBarButton(new RemoveNetAction()));
+  	add(new YAWLToolBarButton(new RemoveNetAction()));
     addSeparator();
     add(new YAWLToolBarButton(UndoAction.getInstance()));
     add(new YAWLToolBarButton(RedoAction.getInstance()));
     add(new YAWLToolBarButton(DeleteAction.getInstance()));
     addSeparator();
-	add(new YAWLToolBarButton(AlignTopAction.getInstance()));
-	add(new YAWLToolBarButton(AlignMiddleAction.getInstance()));
-	add(new YAWLToolBarButton(AlignBottomAction.getInstance()));
-	add(new YAWLToolBarButton(AlignLeftAction.getInstance()));
-	add(new YAWLToolBarButton(AlignCentreAction.getInstance()));
-	add(new YAWLToolBarButton(AlignRightAction.getInstance()));
-	addSeparator();
+  	add(new YAWLToolBarButton(AlignTopAction.getInstance()));
+   	add(new YAWLToolBarButton(AlignMiddleAction.getInstance()));
+	  add(new YAWLToolBarButton(AlignBottomAction.getInstance()));
+	  add(new YAWLToolBarButton(AlignLeftAction.getInstance()));
+	  add(new YAWLToolBarButton(AlignCentreAction.getInstance()));
+	  add(new YAWLToolBarButton(AlignRightAction.getInstance()));
+	  addSeparator();
     add(new YAWLToolBarButton(IncreaseSizeAction.getInstance()));
     add(new YAWLToolBarButton(DecreaseSizeAction.getInstance()));
-	addSeparator();
+	  addSeparator();
     add(new YAWLToolBarButton(AddToVisibleCancellationSetAction.getInstance()));
     add(new YAWLToolBarButton(RemoveFromVisibleCancellationSetAction.getInstance()));
     addSeparator();

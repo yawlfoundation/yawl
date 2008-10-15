@@ -22,39 +22,13 @@
 
 package org.yawlfoundation.yawl.editor.net;
 
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.HashSet;
-
+import org.jgraph.graph.*;
 import org.yawlfoundation.yawl.editor.data.DataVariableSet;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
-
-import org.yawlfoundation.yawl.editor.elements.model.YAWLCell;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
-import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
-import org.yawlfoundation.yawl.editor.elements.model.JoinDecorator;
-import org.yawlfoundation.yawl.editor.elements.model.SplitDecorator;
-import org.yawlfoundation.yawl.editor.elements.model.DecoratorPort;
-import org.yawlfoundation.yawl.editor.elements.model.ElementUtilities;
-
-import org.yawlfoundation.yawl.editor.elements.model.YAWLCondition;
-import org.yawlfoundation.yawl.editor.elements.model.InputCondition;
-import org.yawlfoundation.yawl.editor.elements.model.OutputCondition;
-
-import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
-import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
-
+import org.yawlfoundation.yawl.editor.elements.model.*;
 import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
 
-import org.jgraph.graph.Port;
-import org.jgraph.graph.Edge;
-
-import org.jgraph.graph.DefaultGraphModel;
-import org.jgraph.graph.ParentMap;
-import org.jgraph.graph.ConnectionSet;
+import java.util.*;
 
 public class NetGraphModel extends DefaultGraphModel implements Comparable {
   
@@ -282,7 +256,7 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable {
       // System.out.println("source cannot generate outgoing flows");
       rulesAdheredTo = false;                  
     }
-    if (!acceptsIncommingFlows(targetCell, edgeToIgnore)) {
+    if (!acceptsIncomingFlows(targetCell, edgeToIgnore)) {
       // System.out.println("target cannot accept incoming flows");
       rulesAdheredTo = false;                  
     }
@@ -399,15 +373,15 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable {
     return ElementUtilities.getSourceOf(this, edge);
   }
   
-  public boolean acceptsIncommingFlows(YAWLCell vertex) {
-    return acceptsIncommingFlows(vertex, null);
+  public boolean acceptsIncomingFlows(YAWLCell vertex) {
+    return acceptsIncomingFlows(vertex, null);
   }
   
-  public boolean acceptsIncommingFlows(YAWLCell cell, Edge edge) {
+  public boolean acceptsIncomingFlows(YAWLCell cell, Edge edge) {
     if (cell instanceof InputCondition) {
       return false;
     }
-    if (cell instanceof YAWLTask && hasIncommingFlow(cell, edge)) {
+    if (cell instanceof YAWLTask && hasIncomingFlow(cell, edge)) {
       return false;
     }
     if (cell instanceof SplitDecorator) {
@@ -416,11 +390,11 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable {
     return true;
   }
   
-  public boolean hasIncommingFlow(YAWLCell cell) {
-    return hasIncommingFlow(cell, null);
+  public boolean hasIncomingFlow(YAWLCell cell) {
+    return hasIncomingFlow(cell, null);
   }
   
-  public boolean hasIncommingFlow(YAWLCell cell, Edge edgeToIgnore) {
+  public boolean hasIncomingFlow(YAWLCell cell, Edge edgeToIgnore) {
     Iterator setIterator = 
       getEdges(this, new Object[] { cell} ).iterator();
     while(setIterator.hasNext()) {
@@ -474,7 +448,7 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable {
     JoinDecorator oldJoinDecorator     = null;
 		JoinDecorator newJoinDecorator     = null;
 
-    YAWLFlowRelation onlyIncommingFlow = null;
+    YAWLFlowRelation onlyIncomingFlow = null;
     
     if (task.hasJoinDecorator()) {
       
@@ -483,12 +457,12 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable {
            return;
       }
 
-      onlyIncommingFlow = task.getJoinDecorator().getOnlyFlow();
+      onlyIncomingFlow = task.getJoinDecorator().getOnlyFlow();
       oldJoinDecorator = deleteOldJoinDecorator(task, type, position,
                                                 objectsToDelete, parentMap,
                                                 flowsToRedirect);
     } else {
-      onlyIncommingFlow = task.getOnlyIncommingFlow();
+      onlyIncomingFlow = task.getOnlyIncomingFlow();
     }
     
     if (position != YAWLTask.NOWHERE && 
@@ -501,9 +475,9 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable {
                                              objectsToInsert, parentMap, 
                                              decoratedTask);
     
-      if (onlyIncommingFlow != null) {
-        flowsToRedirect.connect(onlyIncommingFlow,
-                                onlyIncommingFlow.getSource(),
+      if (onlyIncomingFlow != null) {
+        flowsToRedirect.connect(onlyIncomingFlow,
+                                onlyIncomingFlow.getSource(),
                                 newJoinDecorator.getDefaultPort());
       }
       

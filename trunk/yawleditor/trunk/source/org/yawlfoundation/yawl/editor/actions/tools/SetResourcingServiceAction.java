@@ -50,7 +50,7 @@ public class SetResourcingServiceAction extends YAWLBaseAction {
     putValue(Action.SHORT_DESCRIPTION, " Specify login details for a running resourcing service. ");
     putValue(Action.NAME, "Resource Service Connection Settings...");
     putValue(Action.LONG_DESCRIPTION, "Specify login details for a running resourcing service.");
-//    putValue(Action.SMALL_ICON, getIconByName("Blank"));
+    putValue(Action.SMALL_ICON, getPNGIcon("user_go"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_R));
   }
   

@@ -24,13 +24,11 @@
 
 package org.yawlfoundation.yawl.editor.actions.specification;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-
-import org.yawlfoundation.yawl.editor.actions.specification.YAWLOpenSpecificationAction;
 import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 public class SaveSpecificationAsAction extends YAWLOpenSpecificationAction implements TooltipTogglingWidget {
 
@@ -43,7 +41,7 @@ public class SaveSpecificationAsAction extends YAWLOpenSpecificationAction imple
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Save Specification As...");
     putValue(Action.LONG_DESCRIPTION, "Save this specification to a different filename ");
-    putValue(Action.SMALL_ICON, getIconByName("SaveAs"));
+    putValue(Action.SMALL_ICON, getPNGIcon("disk_multiple"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_A));
   }
   

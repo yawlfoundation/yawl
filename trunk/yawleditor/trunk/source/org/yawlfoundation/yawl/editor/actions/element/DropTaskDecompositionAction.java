@@ -48,7 +48,7 @@ public class DropTaskDecompositionAction extends YAWLSelectedNetAction
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Drop Task Decomposition...");
     putValue(Action.LONG_DESCRIPTION, "Remove the current decomposition from this task.");
-    putValue(Action.SMALL_ICON, getIconByName("Blank"));
+    putValue(Action.SMALL_ICON, getPNGIcon("chart_organisation_delete"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_R));
   }
 

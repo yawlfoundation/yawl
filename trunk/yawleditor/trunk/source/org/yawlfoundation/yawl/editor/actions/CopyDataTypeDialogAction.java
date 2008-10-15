@@ -38,7 +38,7 @@ public class CopyDataTypeDialogAction extends YAWLBaseAction {
       putValue(Action.SHORT_DESCRIPTION, " Copy the selected text to the Clipboard");
       putValue(Action.NAME, "Copy");
       putValue(Action.LONG_DESCRIPTION, "Copy the selected text");
-      putValue(Action.SMALL_ICON, getIconByName("Copy"));
+      putValue(Action.SMALL_ICON, getPNGIcon("page_copy"));
       putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_C));
       putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control C"));
     }

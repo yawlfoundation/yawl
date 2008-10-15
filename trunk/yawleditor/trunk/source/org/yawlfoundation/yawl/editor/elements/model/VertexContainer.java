@@ -68,7 +68,7 @@ public class VertexContainer extends DefaultGraphCell
     return getVertex().isCopyable();
   }
   
-  public boolean acceptsIncommingFlows() {
+  public boolean acceptsIncomingFlows() {
    return true; 
   }
 

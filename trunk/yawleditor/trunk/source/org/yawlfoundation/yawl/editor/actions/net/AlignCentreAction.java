@@ -24,18 +24,15 @@
 
 package org.yawlfoundation.yawl.editor.actions.net;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-
 import org.jgraph.event.GraphSelectionEvent;
-
 import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionSubscriber;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 
-import org.yawlfoundation.yawl.editor.net.utilities.NetCellUtilities;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 public class AlignCentreAction extends YAWLSelectedNetAction implements TooltipTogglingWidget, SpecificationSelectionSubscriber {
 
@@ -48,7 +45,7 @@ public class AlignCentreAction extends YAWLSelectedNetAction implements TooltipT
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Align along Vertical Centre");
     putValue(Action.LONG_DESCRIPTION, "Vertically align the selected elements along their centre.");
-    putValue(Action.SMALL_ICON, getIconByName("AlignCentre"));
+    putValue(Action.SMALL_ICON, getPNGIcon("shape_align_center"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_V));
   }
   

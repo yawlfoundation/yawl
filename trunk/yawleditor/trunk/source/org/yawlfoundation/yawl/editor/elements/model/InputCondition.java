@@ -24,10 +24,10 @@
 
 package org.yawlfoundation.yawl.editor.elements.model;
 
+import org.jgraph.graph.GraphConstants;
+
 import java.awt.geom.Point2D;
 import java.util.HashMap;
-
-import org.jgraph.graph.GraphConstants;
 
 public class InputCondition extends YAWLCondition {
 
@@ -79,7 +79,7 @@ public class InputCondition extends YAWLCondition {
     return false; 
   }
   
-  public boolean acceptsIncommingFlows() {
+  public boolean acceptsIncomingFlows() {
     return false; 
   }
   

@@ -119,7 +119,7 @@ public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparabl
     return false;
   }
   
-  public boolean acceptsIncommingFlows() {
+  public boolean acceptsIncomingFlows() {
     return false;
   }
 

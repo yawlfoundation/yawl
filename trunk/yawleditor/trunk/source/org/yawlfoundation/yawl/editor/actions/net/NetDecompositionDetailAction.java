@@ -24,17 +24,13 @@
 
 package org.yawlfoundation.yawl.editor.actions.net;
 
-import java.util.HashMap;
-
 import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.swing.data.NetDecompositionUpdateDialog;
 
-import org.yawlfoundation.yawl.editor.net.NetGraph;
-
+import javax.swing.*;
 import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
+import java.util.HashMap;
 
 public class NetDecompositionDetailAction extends YAWLSelectedNetAction {
 
@@ -48,7 +44,7 @@ public class NetDecompositionDetailAction extends YAWLSelectedNetAction {
     putValue(Action.SHORT_DESCRIPTION, " Manage decomposition detail of this Net  ");
     putValue(Action.NAME, "Update Net Detail...");
     putValue(Action.LONG_DESCRIPTION, "Manage the decomposition of this net.");
-    putValue(Action.SMALL_ICON, getIconByName("DecompositionDetail"));
+    putValue(Action.SMALL_ICON, getPNGIcon("chart_organisation"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_D));
   }
   

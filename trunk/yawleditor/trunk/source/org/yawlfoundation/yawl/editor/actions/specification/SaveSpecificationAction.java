@@ -24,32 +24,50 @@
 
 package org.yawlfoundation.yawl.editor.actions.specification;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-import javax.swing.KeyStroke;
-
-import org.yawlfoundation.yawl.editor.actions.specification.YAWLOpenSpecificationAction;
 import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.util.prefs.Preferences;
 
 public class SaveSpecificationAction extends YAWLOpenSpecificationAction implements TooltipTogglingWidget {
   /**
    * 
    */
+  protected static final Preferences prefs =  Preferences.userNodeForPackage(YAWLEditor.class);
+  public static final String SHOW_EXPORT_DIALOG_PREFERENCE = "showExportDialog";
+  boolean shouldShowExportDialog = true;
+  private boolean isDialogShownPreviously = false;
+
+  ExportConfigDialog dialog = new ExportConfigDialog();
   private static final long serialVersionUID = 1L;
 
   {
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Save Specification");
     putValue(Action.LONG_DESCRIPTION, "Save this specification");
-    putValue(Action.SMALL_ICON, getIconByName("Save"));
+    putValue(Action.SMALL_ICON, getPNGIcon("disk"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_S));
     putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control S"));
   }
   
   public void actionPerformed(ActionEvent event) {
-    ArchivingThread.getInstance().save();
+//    shouldShowExportDialog = prefs.getBoolean(SHOW_EXPORT_DIALOG_PREFERENCE, true);
+    if (shouldShowExportDialog) {
+      if (!isDialogShownPreviously) {
+        dialog.setLocationRelativeTo(YAWLEditor.getInstance());
+        isDialogShownPreviously = true;
+      }
+      dialog.showOrHideSpecIDField();
+      dialog.setVisible(true);
+    } else {
+      ArchivingThread.getInstance().engineFileExport(
+          SpecificationModel.getInstance()
+      );
+    }
   }
   
   public String getEnabledTooltipText() {

@@ -52,7 +52,7 @@ public class ConfigureAnalysisToolsAction extends YAWLBaseAction {
     putValue(Action.SHORT_DESCRIPTION, " Configure Specification Analysis ");
     putValue(Action.NAME, "Configure Specification Analysis...");
     putValue(Action.LONG_DESCRIPTION, "Configure Specification Analysis.");
-//    putValue(Action.SMALL_ICON, getIconByName("Blank"));
+    putValue(Action.SMALL_ICON, getPNGIcon("cog_go"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_C));
   }
   

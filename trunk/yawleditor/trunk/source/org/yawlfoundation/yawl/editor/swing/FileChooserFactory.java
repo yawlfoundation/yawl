@@ -24,15 +24,13 @@
 package org.yawlfoundation.yawl.editor.swing;
 
 
-import java.awt.Component;
-import java.awt.HeadlessException;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+
+import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import java.awt.*;
 import java.io.File;
 import java.util.prefs.Preferences;
-
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
-
-import org.yawlfoundation.yawl.editor.YAWLEditor;
 
 public class FileChooserFactory {
   
@@ -112,24 +110,54 @@ public class FileChooserFactory {
         }
         return selectedFile;
       }
-    };
-    
+
+  };
+
+
+      class YAWLFileFilter extends FileFilter {
+
+          private String[] makeExtensions() {
+              return fileType.split(",");
+          }
+
+          private boolean isValidExtension(File file) {
+              String[] extns = makeExtensions();
+              for (String extn : extns) {
+                  if (file.getName().toLowerCase().endsWith("." + extn))
+                      return true;
+              }
+              return false;
+          }
+
+          public String getDescription() {
+              StringBuilder result = new StringBuilder(description);
+              result.append(" (");
+              String[] extns = makeExtensions();
+              for (int i=0; i<extns.length; i++) {
+                  if (i>0) result.append(" and ") ;
+                  result.append(extns[i].toUpperCase());
+              }
+              result.append(" files)");
+              return result.toString();
+          }
+
+          public boolean accept(File file) {
+            return file.isDirectory() || isValidExtension(file);
+          }
+
+      }  // class
+
+
     fileChooser.setDialogTitle(
       titlePrefix + 
-      fileType.toUpperCase() + 
+      fileType.toUpperCase().replaceAll(",", " or ") +
       titleSuffix
     );
     
-    fileChooser.setFileFilter(new FileFilter() {
-      public String getDescription() {
-        return  description + " (*." + fileType + ")";
-      }
-      public boolean accept(File file) {
-        return file.isDirectory()
-          || file.getName().toLowerCase().endsWith("." + fileType);
-      }
-    });
+    fileChooser.setFileFilter(new YAWLFileFilter());
     
     return fileChooser;
   }
+
 }
+
