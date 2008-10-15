@@ -192,6 +192,7 @@ public class QueueSet implements Serializable {
     }
 
     public boolean hasWorkItemInAnyQueue(WorkItemRecord wir) {
+        if (wir == null) return false;
         for (int queue = WorkQueue.OFFERED; queue <= WorkQueue.SUSPENDED; queue++) {
             if (hasWorkItemInQueue(wir.getID(), queue)) return true ;
         }

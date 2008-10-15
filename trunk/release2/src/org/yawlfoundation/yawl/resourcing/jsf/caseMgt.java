@@ -374,15 +374,20 @@ public class caseMgt extends AbstractPageBean {
 
         if (uploadedFile != null) {
             String uploadedFileName = stripPath(uploadedFile.getOriginalName());
-            if (uploadedFileName.endsWith(".xml")) {
+            if (validExtension(uploadedFileName)) {
                 String fileAsString = uploadedFile.getAsString() ;
                 uploadSpec(uploadedFileName, fileAsString) ;
             }
-            else msgPanel.error("Only yawl files with an 'xml' extension may be uploaded.");
+            else msgPanel.error(
+                    "Only yawl files with an extension of '.yawl' or '.xml' may be uploaded.");
         }
         return null;
     }
 
+
+    private boolean validExtension(String fileName) {
+        return fileName.endsWith(".xml") || fileName.endsWith(".yawl");
+    }
     
     // upload the chosen spec into the engine
     private void uploadSpec(String fileName, String fileContents) {

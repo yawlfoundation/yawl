@@ -11,6 +11,7 @@ package org.yawlfoundation.yawl.engine;
 
 import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
@@ -61,7 +62,8 @@ public class YSpecFile{
 
     private void initSpecID(Document doc) {
         Element specificationSetEl = doc.getRootElement();
-        List specificationElemList = specificationSetEl.getChildren();
+        Namespace ns = specificationSetEl.getNamespace();
+        List specificationElemList = specificationSetEl.getChildren("specification", ns);
         for (int i = 0; i < specificationElemList.size(); i++) {
             Element specificationElem = (Element) specificationElemList.get(i);
             String uriString = specificationElem.getAttributeValue("uri");

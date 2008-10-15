@@ -12,6 +12,7 @@ package org.yawlfoundation.yawl.unmarshal;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
@@ -39,6 +40,7 @@ public class YMarshal {
      */
     private static List<YSpecification> buildSpecifications(Document specificationSetDoc) throws YSchemaBuildingException, YSyntaxException {
         Element specificationSetElem = specificationSetDoc.getRootElement();
+        Namespace ns = specificationSetElem.getNamespace();
         String version = specificationSetElem.getAttributeValue("version");
         if (null == version) {
             //version attribute was not mandatory in version 2
@@ -46,7 +48,7 @@ public class YMarshal {
             version = YSpecification._Beta2;
         }
         List<YSpecification> specifications = new Vector<YSpecification>();
-        List specificationElemList = specificationSetElem.getChildren();
+        List specificationElemList = specificationSetElem.getChildren("specification", ns);
         for (int i = 0; i < specificationElemList.size(); i++) {
             Element xmlSpecification = (Element) specificationElemList.get(i);
 
@@ -59,17 +61,17 @@ public class YMarshal {
 
 
 
-//    public static List<YSpecification> unmarshalSpecifications(String specificationSetFileID)
-//        throws YSyntaxException, YSchemaBuildingException, JDOMException, IOException {
-//        return unmarshalSpecifications(new FileReader(specificationSetFileID)) ;
-//    }
+    public static List<YSpecification> unmarshalSpecifications(String specStr)
+        throws YSyntaxException, YSchemaBuildingException, JDOMException, IOException {
+        return unmarshalSpecifications(specStr, true) ;
+    }
 
     /**
      * Returns the _specifications. Does some primary checking of the file against
      * schemas and checks well formedness of the XML.
      * @return List
      */
-    public static List<YSpecification> unmarshalSpecifications(String specStr)
+    public static List<YSpecification> unmarshalSpecifications(String specStr, boolean schemaValidate)
             throws YSyntaxException, YSchemaBuildingException, JDOMException, IOException {
         //first check if is well formed and build a document
         SAXBuilder builder = new SAXBuilder();
@@ -85,11 +87,13 @@ public class YMarshal {
         }
 
         //now check the specification file against its' respective schema
-        String errors = YawlXMLSpecificationValidator.getInstance().checkSchema(specStr, version);
-        if (errors == null || errors.length() > 0) {
-            throw new YSyntaxException(
+        if (schemaValidate) {
+            String errors = YawlXMLSpecificationValidator.getInstance().checkSchema(specStr, version);
+            if (errors == null || errors.length() > 0) {
+                throw new YSyntaxException(
                     " The specification file failed to verify against YAWL's Schema:\n"
                     + errors);
+            }
         }
 
         //now build a set of specifications - verification has not yet occured.

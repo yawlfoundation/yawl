@@ -58,7 +58,7 @@ public class orgDataMgt extends AbstractPageBean {
             log("userWorkQueues Initialization Failure", e);
             throw e instanceof FacesException ? (FacesException) e: new FacesException(e);
         }
-        tabRoles_action();
+//        tabRoles_action();
     }
 
     public void preprocess() { }
@@ -350,6 +350,7 @@ public class orgDataMgt extends AbstractPageBean {
             innerForm.clearFieldsAfterRemove();
             msgPanel.success("Chosen item successfully removed.");
             _sb.setOrgDataItemRemovedFlag(true) ;
+            _sb.setOrgDataChoice(null);
         }
         return null;
     }
@@ -396,6 +397,7 @@ public class orgDataMgt extends AbstractPageBean {
             btnReset.setToolTip("Discard unsaved changes");
             btnSave.setDisabled(false);
             btnRemove.setDisabled(false);
+            body1.setFocus("form1:pfQueueUI:txtAdd");
             populateForm(getAttribType(_sb.getActiveTab())) ;            
         }
         else {

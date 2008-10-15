@@ -203,7 +203,7 @@
                                    toolTip="Refresh Queues"
                                    text=""/>
 
-                        <div style="position: absolute">
+                        <div>
                             <jsp:include page="pfQueueUI.jspf"/>
                         </div>
 

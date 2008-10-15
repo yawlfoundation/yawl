@@ -258,7 +258,7 @@ public class adminQueues extends AbstractPageBean {
      */
     public void prerender() {
         _sb.checkLogon();
-        _sb.getMessagePanel().show(410, 150, "absolute");
+        _sb.getMessagePanel().show();
 
         // hide 'direct to me' checkbox if logged on with 'admin' userid
         cbxDirectToMe.setVisible(_sb.getParticipant() != null);

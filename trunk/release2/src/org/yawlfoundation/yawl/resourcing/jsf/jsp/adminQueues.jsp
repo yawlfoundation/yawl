@@ -32,7 +32,7 @@
                             <jsp:directive.include file="pfMenubar.jspf"/>
                         </div>
                         <center>
-                        <ui:panelLayout binding="#{customServices.pnlContainer}"
+                        <ui:panelLayout binding="#{adminQueues.pnlContainer}"
                                         id="pnlAQContainer"
                                         styleClass="adminQueuesContainerPanel">
 
@@ -150,18 +150,17 @@
                                      styleClass="queuesCheckbox"
                                      selected="#{SessionBean.redirectToMe}"/>
 
-
-                        <div style="position: absolute">
+                        <div>
                             <jsp:include page="pfQueueUI.jspf"/>
                         </div>
 
                          </ui:panelLayout>
-                       </center>
 
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"
                                         panelLayout="flow"/>
-                        
+                        </center>
+
                         <ui:meta binding="#{adminQueues.metaRefresh}"
                                  httpEquiv="refresh"
                                  id="metaRefresh" />

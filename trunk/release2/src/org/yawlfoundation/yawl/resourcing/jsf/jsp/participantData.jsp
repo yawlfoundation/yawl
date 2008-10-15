@@ -28,7 +28,7 @@
                     <ui:form binding="#{participantData.form1}" id="form1">
 
                         <!-- include banner -->
-                        <div><jsp:directive.include file="pfHeader.jspf"/></div>
+                        <jsp:include page="pfHeader.jspf"/>
 
                         <div style="top: 20px; position: relative">
                             <jsp:directive.include file="pfMenubar.jspf"/>
@@ -50,11 +50,11 @@
                                          items="#{SessionBean.orgDataParticipantList}"
                                          onChange="common_timeoutSubmitForm(this.form, 'cbbParticipants');"
                                          toolTip="Select a participant to view, edit or remove"
-                                         style="left: 102px; top: 8px; position: absolute; width: 288px"
+                                         style="left: 100px; top: 8px; position: absolute; width: 288px"
                                          valueChangeListener="#{participantData.cbbParticipants_processValueChange}"/>
 
                             <ui:label binding="#{participantData.label1}"
-                                      id="label1" style="left: 18px; top: 12px; position: absolute"
+                                      id="label1" style="left: 12px; top: 12px; position: absolute"
                                       text="Participant:"/>
                         </ui:panelLayout>
 
@@ -83,63 +83,42 @@
                                          label="Start Work Items Concurrently"
                                          styleClass="orgDataPrivCheckBox"
                                          selected="false"
-                                         style="top: 69px"/>
+                                         style="top: 83px"/>
 
                             <ui:checkbox binding="#{participantData.cbxReorderItems}"
                                          id="cbxReorderItems"
                                          label="Reorder Work Items"
                                          styleClass="orgDataPrivCheckBox"
                                          selected="false"
-                                         style="top: 98px"/>
-
-                            <ui:checkbox binding="#{participantData.cbxViewAllOffered}"
-                                         id="cbxViewAllOffered"
-                                         label="View All Offered Work items"
-                                         styleClass="orgDataPrivCheckBox"
-                                         selected="false"
-                                         style="top: 127px"/>
-
-                            <ui:checkbox binding="#{participantData.cbxViewAllAllocated}"
-                                         id="cbxViewAllAllocated"
-                                         label="View All Allocated Work Items"
-                                         styleClass="orgDataPrivCheckBox"
-                                         selected="false"
-                                         style="top: 156px"/>
-
-                            <ui:checkbox binding="#{participantData.cbxViewAllExecuting}"
-                                         id="cbxViewAllExecuting"
-                                         label="View All Executing Work Items"
-                                         styleClass="orgDataPrivCheckBox"
-                                         selected="false"
-                                         style="top: 185px"/>
+                                         style="top: 126px"/>
 
                             <ui:checkbox binding="#{participantData.cbxViewTeamItems}"
                                          id="cbxViewTeamItems"
                                          label="View All Work Items of Team"
                                          styleClass="orgDataPrivCheckBox"
                                          selected="false"
-                                         style="top: 214px"/>
+                                         style="top: 169px"/>
 
                             <ui:checkbox binding="#{participantData.cbxViewOrgGroupItems}"
                                          id="cbxViewOrgGroupItems"
                                          label="View All Work items of Org Group"
                                          styleClass="orgDataPrivCheckBox"
                                          selected="false"
-                                         style="top: 243px"/>
+                                         style="top: 213px"/>
 
                             <ui:checkbox binding="#{participantData.cbxChainItems}"
                                          id="cbxChainItems"
                                          label="Chain Work Item Execution"
                                          styleClass="orgDataPrivCheckBox"
                                          selected="false"
-                                         style="top: 272px"/>
+                                         style="top: 256px"/>
 
                             <ui:checkbox binding="#{participantData.cbxManageCases}"
                                          id="cbxManageCases"
                                          label="Manage Cases"
                                          styleClass="orgDataPrivCheckBox"
                                          selected="false"
-                                         style="top: 301px"/>
+                                         style="top: 299px"/>
                         </ui:panelLayout>
 
 
@@ -148,22 +127,47 @@
                                         styleClass="orgDataPanel"
                                         style="height: 293px; top: 40px;">
 
+                            <ui:label binding="#{participantData.lblFirstName}"
+                                      for="txtFirstName"
+                                      id="lblFirstName"
+                                      style="left: 12px; top: 12px; position: absolute"
+                                      text="First Name:"/>
+
+                            <ui:label binding="#{participantData.lblLastName}"
+                                      for="txtLastName"
+                                      id="lblLastName"
+                                      style="left: 12px; top: 48px; position: absolute"
+                                      text="Last Name:"/>
+
+                            <ui:label binding="#{participantData.lblUserID}"
+                                      for="txtUserID"
+                                      id="lblUserID"
+                                      style="left: 12px; top: 84px; position: absolute"
+                                      text="User ID:"/>
+
+                            <ui:label binding="#{participantData.lblDesc}"
+                                      for="txtDesc"
+                                      id="lblDesc"
+                                      style="left: 12px; top: 126px; position: absolute"
+                                      text="Description:"/>
+
+                            <ui:label binding="#{participantData.lblNotes}"
+                                      for="txtNotes"
+                                      id="lblNotes"
+                                      style="left: 12px; top: 210px; position: absolute"
+                                      text="Notes:"/>
+
                             <ui:textField binding="#{participantData.txtFirstName}"
-                                          columns="40"
                                           id="txtFirstName"
-                                          label="First Name:"
-                                          style="left: 18px; top: 12px; position: absolute"/>
+                                          style="left: 100px; top: 12px; width: 280px; position: absolute"/>
 
                             <ui:textField binding="#{participantData.txtLastName}"
-                                          columns="40"
                                           id="txtLastName"
-                                          label="Last Name:"
-                                          style="left: 18px; top: 48px; position: absolute"/>
+                                          style="left: 100px; top: 48px; width: 280px; position: absolute"/>
 
                             <ui:textField binding="#{participantData.txtUserID}"
-                                          columns="20" id="txtUserID"
-                                          label="User ID:"
-                                          style="left: 37px; top: 84px; position: absolute"/>
+                                          id="txtUserID"
+                                          style="left: 100px; top: 84px; width: 150px; position: absolute"/>
 
                             <ui:checkbox binding="#{participantData.cbxAdmin}"
                                          id="cbxAdmin"
@@ -172,18 +176,12 @@
                                          style="left: 270px; top: 84px; position: absolute"/>
 
                             <ui:textArea binding="#{participantData.txtDesc}"
-                                         columns="40"
                                          id="txtDesc"
-                                         label="Description:"
-                                         rows="4"
-                                         style="left: 11px; top: 126px; position: absolute"/>
+                                         style="left: 100px; top: 126px; width: 285px; height: 60px; position: absolute"/>
 
                             <ui:textArea binding="#{participantData.txtNotes}"
-                                         columns="40"
                                          id="txtNotes"
-                                         label="Notes:"
-                                         rows="4"
-                                         style="left: 43px; top: 210px; position: absolute"/>
+                                         style="left: 100px; top: 210px; width: 285px; height: 60px; position: absolute"/>
                         </ui:panelLayout>
 
 
@@ -255,17 +253,25 @@
 
                             <!--=====================================================-->
                             
+                            <ui:label binding="#{participantData.lblPassword}"
+                                      for="txtNewPassword"
+                                      id="lblPassword"
+                                      style="left: 12px; top: 40px; position: absolute"
+                                      text="New:"/>
+
+                            <ui:label binding="#{participantData.lblConfirm}"
+                                      for="txtConfirmPassword"
+                                      id="lblConfirm"
+                                      style="left: 12px; top: 76px; position: absolute"
+                                      text="Confirm:"/>
+
                             <ui:passwordField binding="#{participantData.txtNewPassword}"
-                                              columns="20"
                                               id="txtNewPassword"
-                                              label="New:"
-                                              style="left: 39px; top: 40px; position: absolute"/>
+                                              style="left: 70px; top: 40px; width: 160px; position: absolute"/>
 
                             <ui:passwordField binding="#{participantData.txtConfirmPassword}"
-                                              columns="20"
                                               id="txtConfirmPassword"
-                                              label="Confirm:"
-                                              style="left: 18px; top: 76px; position: absolute"/>
+                                              style="left: 70px; top: 76px; width: 160px; position: absolute"/>
 
                         </ui:panelLayout>
 

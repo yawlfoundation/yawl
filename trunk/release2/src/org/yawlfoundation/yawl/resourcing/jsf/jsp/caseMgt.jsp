@@ -171,7 +171,6 @@
                             <ui:listbox binding="#{caseMgt.lbxRunningCases}"
                                         id="lbxRunningCases"
                                         items="#{SessionBean.runningCaseListOptions}"
-                                        rows="8"
                                         selected="#{SessionBean.runningCaseListChoice}"
                                         styleClass="caseMgtListbox"/>
 
