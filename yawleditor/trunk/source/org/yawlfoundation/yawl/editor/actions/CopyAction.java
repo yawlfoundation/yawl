@@ -21,18 +21,14 @@
  */
 package org.yawlfoundation.yawl.editor.actions;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-import javax.swing.KeyStroke;
-import javax.swing.TransferHandler;
-
 import org.jgraph.event.GraphSelectionEvent;
-
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionSubscriber;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
-import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 /**
  * @author Lindsay Bradford
@@ -50,7 +46,7 @@ public class CopyAction extends YAWLBaseAction implements TooltipTogglingWidget,
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Copy");
     putValue(Action.LONG_DESCRIPTION, "Copy the selected elements");
-    putValue(Action.SMALL_ICON, getIconByName("Copy"));
+    putValue(Action.SMALL_ICON, getPNGIcon("page_copy"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_C));
     putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control C"));
   }

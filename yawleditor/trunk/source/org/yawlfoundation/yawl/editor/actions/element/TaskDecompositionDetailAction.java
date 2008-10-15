@@ -55,7 +55,7 @@ public class TaskDecompositionDetailAction extends YAWLSelectedNetAction
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Task Decomposition Detail...");
     putValue(Action.LONG_DESCRIPTION, "Manage the decomposition this task points to.");
-    putValue(Action.SMALL_ICON, getIconByName("DecompositionDetail"));
+    putValue(Action.SMALL_ICON, getPNGIcon("chart_organisation"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_A));
   }
   

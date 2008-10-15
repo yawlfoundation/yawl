@@ -24,20 +24,15 @@
 
 package org.yawlfoundation.yawl.editor.actions.element;
 
-import javax.swing.Action;
-
-import java.awt.event.KeyEvent;
-import java.awt.event.ActionEvent;
-
-
 import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
-
 import org.yawlfoundation.yawl.editor.net.CancellationSetModel;
 import org.yawlfoundation.yawl.editor.net.CancellationSetModelListener;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 
-import javax.swing.JCheckBoxMenuItem;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
 public class ViewCancellationSetAction extends YAWLBaseAction 
                                           implements CancellationSetModelListener{
@@ -54,9 +49,9 @@ public class ViewCancellationSetAction extends YAWLBaseAction
 
   {
     putValue(Action.SHORT_DESCRIPTION, " Toggle viewing of this task's cancellation set. ");
-    putValue(Action.NAME, "    View Cancellation Set");
+    putValue(Action.NAME, "View Cancellation Set");
     putValue(Action.LONG_DESCRIPTION, " Toggle viewing of this task's cancellation set. ");
-    //putValue(Action.SMALL_ICON, getIconByName("Blank"));
+    putValue(Action.SMALL_ICON, getPNGIcon("zoom_out"));
     putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_V));
   }
 

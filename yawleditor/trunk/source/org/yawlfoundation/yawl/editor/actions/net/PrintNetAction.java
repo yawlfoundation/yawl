@@ -24,27 +24,19 @@
 
 package org.yawlfoundation.yawl.editor.actions.net;
 
-import java.awt.event.ActionEvent;
+import org.yawlfoundation.yawl.editor.net.utilities.NetPrintUtilities;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
-import javax.swing.Action;
-import java.util.Locale;
-import javax.swing.JOptionPane;
-
-import javax.print.attribute.PrintRequestAttributeSet;
-import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.DocFlavor;
 import javax.print.PrintService;
-import javax.print.ServiceUI;
 import javax.print.PrintServiceLookup;
-
-import javax.print.attribute.standard.Copies;
-import javax.print.attribute.standard.MediaSizeName;
-import javax.print.attribute.standard.OrientationRequested;
-import javax.print.attribute.standard.Chromaticity;
-import javax.print.attribute.standard.JobName;
-
-import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.net.utilities.NetPrintUtilities;
+import javax.print.ServiceUI;
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
+import javax.print.attribute.standard.*;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.util.Locale;
 
 public class PrintNetAction extends YAWLSelectedNetAction {
   /**
@@ -63,7 +55,7 @@ public class PrintNetAction extends YAWLSelectedNetAction {
     putValue(Action.SHORT_DESCRIPTION, " Print the current net ");
     putValue(Action.NAME, "Print Net...");
     putValue(Action.LONG_DESCRIPTION, "Prints the currently active net");
-    putValue(Action.SMALL_ICON, getIconByName("Print"));
+    putValue(Action.SMALL_ICON, getPNGIcon("printer"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_P));
   }
   

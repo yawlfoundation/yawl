@@ -32,5 +32,5 @@ public interface YAWLCell {
   
   public boolean generatesOutgoingFlows();
   
-  public boolean acceptsIncommingFlows();
+  public boolean acceptsIncomingFlows();
 }

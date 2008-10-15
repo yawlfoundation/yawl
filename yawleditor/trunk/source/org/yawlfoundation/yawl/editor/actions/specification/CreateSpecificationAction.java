@@ -24,16 +24,13 @@
 
 package org.yawlfoundation.yawl.editor.actions.specification;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-import javax.swing.KeyStroke;
-
 import org.yawlfoundation.yawl.editor.specification.SpecificationFileModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
-
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 public class CreateSpecificationAction extends YAWLNoOpenSpecificationAction
                                        implements TooltipTogglingWidget {
@@ -46,7 +43,7 @@ public class CreateSpecificationAction extends YAWLNoOpenSpecificationAction
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Create Specification");
     putValue(Action.LONG_DESCRIPTION, "Create a new specification");
-    putValue(Action.SMALL_ICON, getIconByName("New"));
+    putValue(Action.SMALL_ICON, getPNGIcon("page_add"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_C));
     putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control S"));
   }

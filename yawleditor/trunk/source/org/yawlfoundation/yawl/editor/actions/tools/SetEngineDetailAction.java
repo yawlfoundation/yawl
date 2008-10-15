@@ -49,7 +49,7 @@ public class SetEngineDetailAction extends YAWLBaseAction {
     putValue(Action.SHORT_DESCRIPTION, " Specify login details for a running YAWL Engine.");
     putValue(Action.NAME, "Engine Connection Settings...");
     putValue(Action.LONG_DESCRIPTION, "Specify login details for a running YAWL Engine.");
-//    putValue(Action.SMALL_ICON, getIconByName("Blank"));
+    putValue(Action.SMALL_ICON, getPNGIcon("disconnect"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_E));
   }
   

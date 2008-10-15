@@ -1,14 +1,14 @@
 package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 public abstract class AnalysisResultsParser {
   // added this flag to allow the temp file to be inspected in case of error - MJF
@@ -18,12 +18,14 @@ public abstract class AnalysisResultsParser {
   
   public List getAnalysisResults(SpecificationModel editorSpec) {
     
-    String tempEngineFile = getTempEngineXMLFile(editorSpec);
+//    String tempEngineFile = getTempEngineXMLFile(editorSpec);
 
-    List results = getAnalysisResults(tempEngineFile);
+    String specXML = EngineSpecificationExporter.getEngineSpecificationXML(editorSpec);
+
+    List results = getAnalysisResults(specXML);
     
     // added this check to allow the temp file to be inspected in case of error - MJF
-    if (!errorFound) removeFile(tempEngineFile);
+//    if (!errorFound) removeFile(tempEngineFile);
     
     return results;
   }
@@ -61,7 +63,7 @@ public abstract class AnalysisResultsParser {
 
     return tempEngineFile;
   }
-  
+
   protected void removeFile(String file) {
     (new File(file)).delete();
   }

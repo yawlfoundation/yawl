@@ -48,7 +48,7 @@ public class UpdateDataTypeDefinitionsAction extends YAWLOpenSpecificationAction
     putValue(Action.SHORT_DESCRIPTION, " Update Data Type Definitions. ");
     putValue(Action.NAME, "Update Data Type Definitions");
     putValue(Action.LONG_DESCRIPTION, "Update Data Type Definitions.");
-    putValue(Action.SMALL_ICON, getIconByName("Blank"));
+    putValue(Action.SMALL_ICON, getPNGIcon("page_white_code"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_D));
   }
 

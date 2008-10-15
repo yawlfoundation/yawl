@@ -207,7 +207,7 @@ public class YAWLEditorDesktop extends JDesktopPane
     updateState();   
   }
   
-  private void repositionViewportIfNecessary(JInternalFrame frame) {
+  public void repositionViewportIfNecessary(JInternalFrame frame) {
     
     // TODO: reposition to work on iconified frames as well.
 
@@ -254,7 +254,7 @@ public class YAWLEditorDesktop extends JDesktopPane
     } catch (Exception e) {}
   }
   
-  private void resizeIfNecessary() {
+  public void resizeIfNecessary() {
     if (!this.isVisible()) {
       return;
     }

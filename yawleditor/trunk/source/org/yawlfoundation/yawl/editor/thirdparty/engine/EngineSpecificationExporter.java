@@ -47,6 +47,7 @@ import org.yawlfoundation.yawl.resourcing.interactions.OfferInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.unmarshal.YMetaData;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.swing.*;
 import javax.xml.datatype.DatatypeFactory;
@@ -55,38 +56,49 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import java.util.prefs.Preferences;
 
 public class EngineSpecificationExporter extends EngineEditorInterpretor {
-  
-  protected static final Preferences prefs =  Preferences.userNodeForPackage(YAWLEditor.class);
 
+  protected static final Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
 
   public static String VERIFICATION_WITH_EXPORT_PREFERENCE = "verifyWithExportCheck";
   public static String ANALYSIS_WITH_EXPORT_PREFERENCE = "analyseWithExportCheck";
   public static String AUTO_INCREMENT_VERSION_WITH_EXPORT_PREFERENCE = "autoIncVersionExportCheck";
 
   public static void exportEngineSpecToFile(SpecificationModel editorSpec, String fullFileName) {
-      if (checkUserDefinedDataTypes(editorSpec))
-          exportIfSucessful(getEngineSpecificationXML(editorSpec), fullFileName);
-//      exportIfSucessful(getEngineSpecificationXML(editorSpec)
-//              + getLayout(editorSpec), fullFileName);
+      if (checkUserDefinedDataTypes(editorSpec)) {
+          String specXML = getEngineSpecificationXML(editorSpec);
+          if (successful(specXML)) {
+              exportStringToFile(addLayoutData(specXML, editorSpec), fullFileName);
+          }
+      }
   }
   
-  public static void checkAndExportEngineSpecToFile(SpecificationModel editorSpec, String fullFileName) {
-      if (checkUserDefinedDataTypes(editorSpec))
-          exportIfSucessful(getAndCheckEngineSpecificationXML(editorSpec), fullFileName);
-//      exportIfSucessful(getAndCheckEngineSpecificationXML(editorSpec)
-//              + getLayout(editorSpec), fullFileName);
+  public static boolean checkAndExportEngineSpecToFile(SpecificationModel editorSpec, String fullFileName) {
+      boolean success = false;
+      if (checkUserDefinedDataTypes(editorSpec)) {
+          String specXML = getAndCheckEngineSpecificationXML(editorSpec);
+          success = successful(specXML);
+          if (success) {
+              exportStringToFile(addLayoutData(specXML, editorSpec), fullFileName);
+          }
+      }
+      return success;
   }
 
-  private static String getLayout(SpecificationModel editorSpec) {
-      return new LayoutExporter().export(editorSpec);
+  private static String addLayoutData(String specXML, SpecificationModel editorSpec) {
+      int closingTag = specXML.lastIndexOf("</");
+      return specXML.substring(0, closingTag) +
+             new LayoutExporter().export(editorSpec) +
+             specXML.substring(closingTag) ;
   }
 
 
-  private static void exportIfSucessful(String xml, String fullFileName) {
+  private static boolean successful(String xml) {
     if ((xml == null) || (xml.equals("null")) || (xml.startsWith("<fail"))) {
       String msg = "Export resulted in a 'null' xml specification.\n File not created.\n";
       if ((xml != null) && (xml.startsWith("<fail"))) {
@@ -96,9 +108,9 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       }
       JOptionPane.showMessageDialog(null, msg, "Export File Generation Error",
                                     JOptionPane.ERROR_MESSAGE);
+      return false;
     }
-    else
-        exportStringToFile(xml, fullFileName);
+    return true;
   }
   
   private static void exportStringToFile(String string, String fullFileName) {
@@ -109,7 +121,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
             false,
             "UTF-8"
         );
-      outputStream.println(string);
+      outputStream.println(JDOMUtil.formatXMLString(string));
 
       outputStream.close();
     } catch (IOException e) {
@@ -478,7 +490,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
             )
         );
       }
-      
+
       engineNet.addNetElement(engineCondition);
 
       editorToEngineElementMap.put(editorCondition, engineCondition);
@@ -868,8 +880,15 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     if (!(editorTask instanceof YAWLAtomicTask)) {
       return;
     }
-
-    engineTask.setCustomFormURI(editorTask.getCustomFormURL());
+    String urlStr = editorTask.getCustomFormURL();
+    if (urlStr != null) {
+        try {
+            engineTask.setCustomFormURI(new URL(urlStr));
+        }
+        catch (MalformedURLException mue) {
+            // do nothing
+        }
+    }
   }
 
   private static void populateResourceDetail(YTask engineTask, YAWLTask editorTask) {

@@ -22,13 +22,11 @@
 
 package org.yawlfoundation.yawl.editor.actions;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-import javax.swing.KeyStroke;
-
-import org.yawlfoundation.yawl.editor.actions.specification.*;
+import org.yawlfoundation.yawl.editor.actions.specification.YAWLActiveOpenSpecificationAction;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 public class UndoAction extends YAWLActiveOpenSpecificationAction {
 
@@ -42,7 +40,7 @@ public class UndoAction extends YAWLActiveOpenSpecificationAction {
     putValue(Action.SHORT_DESCRIPTION, " Undo the last action ");
     putValue(Action.NAME, "Undo");
     putValue(Action.LONG_DESCRIPTION, "Undoes last action");
-    putValue(Action.SMALL_ICON, getIconByName("Undo"));
+    putValue(Action.SMALL_ICON, getPNGIcon("arrow_undo"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_U));
     putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control Z"));
   }

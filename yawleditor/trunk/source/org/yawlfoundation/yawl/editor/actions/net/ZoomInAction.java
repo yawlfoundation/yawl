@@ -24,11 +24,10 @@
 
 package org.yawlfoundation.yawl.editor.actions.net;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-
 import org.yawlfoundation.yawl.editor.net.NetGraph;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 public class ZoomInAction extends YAWLSelectedNetAction {
 
@@ -41,7 +40,7 @@ public class ZoomInAction extends YAWLSelectedNetAction {
     putValue(Action.SHORT_DESCRIPTION, " Zoom in ");
     putValue(Action.NAME, "Zoom In");
     putValue(Action.LONG_DESCRIPTION, "Zoom in on this net.");
-    putValue(Action.SMALL_ICON, getIconByName("ZoomIn"));
+    putValue(Action.SMALL_ICON, getPNGIcon("magnifier_zoom_in"));
   }
   
   private ZoomInAction() {};  

@@ -55,7 +55,7 @@ public class EngineSpecificationValidator {
       }
       
       messageString = messageString.replaceAll("postset size","outgoing flow number");
-      messageString = messageString.replaceAll("preset size","incomming flow number");
+      messageString = messageString.replaceAll("preset size","incoming flow number");
       messageString = messageString.replaceAll("Check the empty tasks linking from i to o.",
                                                "Should all atomic tasks in the net have no decomposition?");
       messageString = messageString.replaceAll("from i to o","between the input and output conditions");

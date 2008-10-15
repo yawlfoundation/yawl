@@ -144,7 +144,7 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
             break;
           }
         }
-        if (getTask().getIncommingFlowCount() > 1) {
+        if (getTask().getIncomingFlowCount() > 1) {
           typeButtons[TYPE_NONE].setEnabled(false);
         }
       }

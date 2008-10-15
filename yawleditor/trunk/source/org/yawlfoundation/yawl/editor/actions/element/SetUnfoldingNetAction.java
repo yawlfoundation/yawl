@@ -24,17 +24,14 @@
 
 package org.yawlfoundation.yawl.editor.actions.element;
 
-import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLCompositeTask;
-
+import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
-
 import org.yawlfoundation.yawl.editor.swing.element.SelectUnfoldingNetDialog;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
 
 public class SetUnfoldingNetAction extends YAWLSelectedNetAction implements TooltipTogglingWidget {
 
@@ -52,7 +49,7 @@ public class SetUnfoldingNetAction extends YAWLSelectedNetAction implements Tool
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Unfold to net...");
     putValue(Action.LONG_DESCRIPTION, "Specify the net this task unfolds to.");
-    putValue(Action.SMALL_ICON, getIconByName("Blank"));
+    putValue(Action.SMALL_ICON, getPNGIcon("shape_ungroup"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_U));
   }
   

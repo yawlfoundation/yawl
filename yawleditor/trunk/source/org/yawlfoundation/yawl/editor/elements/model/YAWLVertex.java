@@ -149,13 +149,18 @@ public abstract class YAWLVertex extends DefaultGraphCell
   }
 
 
-  public void setActualEngineID(String id) {
+  public int setActualEngineID(String id) {
+      int result = -1;
       int suffixPos = id.lastIndexOf("_");
       if (suffixPos > -1) {
           String suffix = id.substring(suffixPos + 1);
-          if (isValidInt(suffix)) id = id.substring(0, suffixPos);
+          if (isValidInt(suffix)) {
+              id = id.substring(0, suffixPos);
+              result = new Integer(suffix);
+          }
       }
       serializationProofAttributeMap.put("actualEngineid", id);
+      return result;
   }
 
   public String getActualEngineID() {
@@ -293,7 +298,7 @@ public abstract class YAWLVertex extends DefaultGraphCell
     return null;
   }
   
-  public int getPositionOfIncommingFlow() {
+  public int getPositionOfIncomingFlow() {
     List children = this.getChildren();
     for (int i = 0; i < children.size(); i++) {
       if (children.get(i) instanceof YAWLPort) {
@@ -362,7 +367,7 @@ public abstract class YAWLVertex extends DefaultGraphCell
     return true;
   }
   
-  public boolean acceptsIncommingFlows() {
+  public boolean acceptsIncomingFlows() {
     return true; 
   }
   

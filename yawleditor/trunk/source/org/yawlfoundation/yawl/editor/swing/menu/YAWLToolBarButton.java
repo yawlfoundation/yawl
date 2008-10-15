@@ -24,21 +24,18 @@
 
 package org.yawlfoundation.yawl.editor.swing.menu;
 
-import java.awt.Insets;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
-
-import javax.swing.Action;
-import javax.swing.JButton;
-
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseEvent;
 
 public class YAWLToolBarButton extends JButton {
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
-  private static final Insets margin = new Insets(0,0,0,0);
+  private static final Insets margin = new Insets(4,4,4,4);
 
   public YAWLToolBarButton(Action a) {
     super(a);    

@@ -41,7 +41,7 @@ public class CreateNetAction extends YAWLOpenSpecificationAction implements Tool
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Create Net");
     putValue(Action.LONG_DESCRIPTION, "Create a new net");
-    putValue(Action.SMALL_ICON, getIconByName("NewNet"));
+    putValue(Action.SMALL_ICON, getPNGIcon("application_add"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_C));
     putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control N"));
   }

@@ -23,6 +23,8 @@
 package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
 import org.jdom.Element;
+import org.jdom.Document;
+import org.jdom.input.SAXBuilder;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.DataVariableSet;
@@ -39,7 +41,7 @@ import org.yawlfoundation.yawl.editor.specification.SpecificationFileModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
-import org.yawlfoundation.yawl.editor.swing.LayoutManager;
+import org.yawlfoundation.yawl.editor.swing.DefaultLayoutArranger;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.swing.specification.ProblemMessagePanel;
 import org.yawlfoundation.yawl.elements.*;
@@ -56,55 +58,77 @@ import java.awt.*;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
+import java.io.StringReader;
 
 public class EngineSpecificationImporter extends EngineEditorInterpretor {
   
   private static final Point DEFAULT_LOCATION = new Point(100,100);
   private static Point OPEN_NET_LOCATION = new Point(0,0);
   private static List<String> _invalidResourceReferences;
+  private static int _maxEngineNumber = 0;
 
-  
   public static void importEngineSpecificationFromFile(SpecificationModel editorSpec,
                                                        String fullFileName) {
-    if (fullFileName == null) {
-      return;
-    }
+    if (fullFileName == null)  return;
+
+    String specStr = StringUtil.fileToString(fullFileName);
+    if ((specStr == null) || specStr.length() == 0) return;
 
     _invalidResourceReferences = new ArrayList<String>();
+    _maxEngineNumber = 0;
 
-    YSpecification engineSpec = importEngineSpecificationAsEngineObjects(fullFileName);
-    
+    YSpecification engineSpec = importEngineSpecificationAsEngineObjects(specStr);
+
     if (engineSpec == null) {
       JOptionPane.showMessageDialog(
           YAWLEditor.getInstance(), 
-          "Error discovered reading YAWL engine file.\nDiscarding this file.\n",
+          "Specification file falied to validate against YAWL Schema.\nDiscarding this file.\n",
           "Engine File Loading Error",
           JOptionPane.ERROR_MESSAGE);
       return;
     }
 
     editorSpec.reset();
-    
     convertEngineSpecObjectsToEditorObjects(editorSpec, engineSpec);
 
-    LayoutManager.layoutSpecification();
+    Element layout = getLayoutElement(specStr);
+    if (layout != null) {
+        LayoutImporter.importAndApply(editorSpec, layout) ;
+    }
+    else {
+        removeUnnecessaryDecorators(editorSpec);
+        DefaultLayoutArranger.layoutSpecification();
+    }
 
     SpecificationModel.getInstance().setFileName(fullFileName);
-
     SpecificationFileModel.getInstance().incrementFileCount();
     SpecificationUndoManager.getInstance().discardAllEdits();
+    SpecificationModel.getInstance().setUniqueElementNumber(_maxEngineNumber);
+
     if (! _invalidResourceReferences.isEmpty()) showInvalidResourceReferences();
+
   }
 
-  public static YSpecification importEngineSpecificationAsEngineObjects(String fullFileName) {
+  public static YSpecification importEngineSpecificationAsEngineObjects(String specXML) {
     try {
-      String specStr = StringUtil.fileToString(fullFileName);
-      List specifications = YMarshal.unmarshalSpecifications(specStr);
+      List specifications = YMarshal.unmarshalSpecifications(specXML, false);
       return (YSpecification) specifications.get(0); // Engine currently only supplies a single specification per file.
     } catch (Exception e) {
       e.printStackTrace();
     }
     return null;
+  }
+
+  public static Element getLayoutElement(String specXML) {
+      try {
+          SAXBuilder builder = new SAXBuilder();
+          Document document = builder.build(new StringReader(specXML));
+          Element root = document.getRootElement();
+          return root.getChild("layout", root.getNamespace());
+      }
+      catch (Exception e) {
+          return null;
+      }
   }
   
   public static void convertEngineSpecObjectsToEditorObjects(
@@ -387,6 +411,9 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
       );
       
     editorNet.getGraph().addElement(editorInputCondition);
+    editorNet.getGraph().setElementLabel(editorInputCondition,
+          engineNetElementSummary.getInputCondition().getName());
+
     editorToEngineElementMap.put(
        engineNetElementSummary.getInputCondition(),        
        editorInputCondition
@@ -398,6 +425,9 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
       );
     
     editorNet.getGraph().addElement(editorOutputCondition);
+    editorNet.getGraph().setElementLabel(editorOutputCondition,
+            engineNetElementSummary.getOutputCondition().getName());
+
     editorToEngineElementMap.put(
         engineNetElementSummary.getOutputCondition(),        
          editorOutputCondition
@@ -407,16 +437,17 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     populateFlows(engineNetElementSummary.getFlows(), editorNet);
     removeImplicitConditions(engineNetElementSummary.getConditions(), editorNet);
     populateCancellationSetDetail(engineNetElementSummary.getTasksWithCancellationSets(), editorNet);
-    removeUnnecessaryDecorators(editorNet);
   }
-  
+
   private static InputCondition generateEditorInputCondition(YInputCondition engineInputCondition) {
     InputCondition editorInputCondition = new InputCondition(DEFAULT_LOCATION);
+    mapUniqueElementID(editorInputCondition, engineInputCondition.getID()) ;
     return editorInputCondition;
   }
   
   private static OutputCondition generateEditorOutputCondition(YOutputCondition engineOutputCondition) {
     OutputCondition editorOutputCondition = new OutputCondition(DEFAULT_LOCATION);
+    mapUniqueElementID(editorOutputCondition, engineOutputCondition.getID()) ;
     return editorOutputCondition;
   }
   
@@ -458,10 +489,13 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   private static void setEditorTaskLabel(NetGraph editorNet, YAWLTask editorTask, YTask engineTask) {
     if (engineTask.getName() == null && engineTask.getDecompositionPrototype() != null) {
       editorNet.setElementLabel(editorTask, engineTask.getDecompositionPrototype().getID());
-      return;
-    } 
-    editorNet.setElementLabel(editorTask, engineTask.getName());
+    }
+    else {
+      mapUniqueElementID(editorTask, engineTask.getID()) ;
+      editorNet.setElementLabel(editorTask, engineTask.getName());
+    }
   }
+
   
   private static void setTaskDecorators(YTask engineTask, YAWLTask editorTask, NetGraphModel editorNet) {
     editorNet.setJoinDecorator(
@@ -515,7 +549,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
 
   private static AtomicTask generateEditorAtomicTask(YAtomicTask engineAtomicTask, NetGraphModel editorNet) {
     AtomicTask editorAtomicTask = new AtomicTask(DEFAULT_LOCATION);
-    editorAtomicTask.setActualEngineID(engineAtomicTask.getID());
+    mapUniqueElementID(editorAtomicTask, engineAtomicTask.getID()) ;
     if (engineAtomicTask.getDecompositionPrototype() == null) {
       return editorAtomicTask;
     }
@@ -532,8 +566,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
 
   private static MultipleAtomicTask generateEditorMultipleAtomicTask(YAtomicTask engineAtomicTask, NetGraphModel editorNet) {
     MultipleAtomicTask editorMultipleAtomicTask = new MultipleAtomicTask(DEFAULT_LOCATION);
-    editorMultipleAtomicTask.setActualEngineID(engineAtomicTask.getID());
-
+    mapUniqueElementID(editorMultipleAtomicTask, engineAtomicTask.getID()) ;
     if (engineAtomicTask.getDecompositionPrototype() == null) {
       return editorMultipleAtomicTask;
     }
@@ -643,7 +676,8 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   
   private static CompositeTask generateEditorCompositeTask(YCompositeTask engineCompositeTask, NetGraphModel editorNet) {
     CompositeTask editorCompositeTask = new CompositeTask(DEFAULT_LOCATION);
-    
+    mapUniqueElementID(editorCompositeTask, engineCompositeTask.getID()) ;
+
     NetGraphModel decomposedEditorNet = SpecificationUtilities.getNetModelFromName(
       SpecificationModel.getInstance(),
       engineCompositeTask.getDecompositionPrototype().getID()    
@@ -658,6 +692,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   
   private static MultipleCompositeTask generateEditorMultipleCompositeTask(YCompositeTask engineCompositeTask, NetGraphModel editorNet) {
     MultipleCompositeTask editorMultipleCompositeTask = new MultipleCompositeTask(DEFAULT_LOCATION);
+    mapUniqueElementID(editorMultipleCompositeTask, engineCompositeTask.getID()) ;
 
     NetGraphModel decomposedEditorNet = SpecificationUtilities.getNetModelFromName(
         SpecificationModel.getInstance(),
@@ -751,6 +786,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
       Condition editorCondition = generateEditorCondition(engineCondition);
 
       editorNet.getGraph().addElement(editorCondition);
+      mapUniqueElementID(editorCondition, engineCondition.getID()) ;
 
       editorNet.getGraph().setElementLabel(
           editorCondition,
@@ -821,53 +857,89 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     }
   }
 
-  
   private static void removeImplicitConditions(Set engineConditions, NetGraphModel editorNet) {
-    Iterator conditionIterator = engineConditions.iterator();
-    while(conditionIterator.hasNext()) {
-      YCondition engineCondition = (YCondition) conditionIterator.next();
-      Condition editorCondition = (Condition) editorToEngineElementMap.get(engineCondition);
+      for (Object o : engineConditions) {
+          YCondition engineCondition = (YCondition) o;
+          if (engineCondition.isImplicit()) {
+              Condition editorCondition = (Condition)
+                      editorToEngineElementMap.get(engineCondition);
 
-      // assumption: a labelled flow, or one with more than single flow into or out of it 
-      // indicates an explicit condition. It's not foolproof, but it should take away 90% 
-      // of the noise implicit  conditions, leaving the designer to add back in those 
-      // explicit conditions that have been compressed to flows.
+              YAWLFlowRelation sourceFlow = editorCondition.getOnlyIncomingFlow();
+              YAWLFlowRelation targetFlow = editorCondition.getOnlyOutgoingFlow();
+              if(sourceFlow != null && targetFlow != null) {
+                  YAWLTask sourceTask = ((YAWLPort) sourceFlow.getSource()).getTask();
+                  YAWLTask targetTask = ((YAWLPort) targetFlow.getTarget()).getTask();
+                  if (sourceTask != null && targetTask != null) {
+                      editorNet.getGraph().removeCellsAndTheirEdges(
+                              new Object[] { editorCondition });
 
-      if(editorCondition.getLabel() == null || editorCondition.getLabel().trim().equals("")) {
+                      YAWLFlowRelation editorFlow =
+                          editorNet.getGraph().connect(sourceTask, targetTask);
 
-        YAWLFlowRelation sourceFlow = editorCondition.getOnlyIncomingFlow();
-        YAWLFlowRelation targetFlow = editorCondition.getOnlyOutgoingFlow();
-        
-        if(sourceFlow != null && targetFlow != null) {
+                      // map predicate & priority from removed condition to new flow
+                      editorFlow.setPredicate(sourceFlow.getPredicate());
+                      editorFlow.setPriority(sourceFlow.getPriority());
 
-          YAWLTask sourceTask = ((YAWLPort) sourceFlow.getSource()).getTask();
-          YAWLTask targetTask = ((YAWLPort) targetFlow.getTarget()).getTask();
-          
-          if (sourceTask != null && targetTask != null) {
-
-            editorNet.getGraph().removeCellsAndTheirEdges(
-                new Object[] { editorCondition }    
-            );
-
-            YAWLFlowRelation editorFlow = editorNet.getGraph().connect(sourceTask, targetTask);
-
-            // map predicate & priority from removed condition to new flow  
-            editorFlow.setPredicate(sourceFlow.getPredicate());
-            editorFlow.setPriority(sourceFlow.getPriority());
-
-            editorFlowEngineConditionMap.put(engineCondition, editorFlow);
+                      editorFlowEngineConditionMap.put(engineCondition, editorFlow);
+                  }
+              }
           }
-        }
       }
-    }
   }
+
+ // I'm leaving the below method as a monument to the grief it caused me //
+//  private static void removeImplicitConditions(Set engineConditions, NetGraphModel editorNet) {
+//    Iterator conditionIterator = engineConditions.iterator();
+//    while(conditionIterator.hasNext()) {
+//      YCondition engineCondition = (YCondition) conditionIterator.next();
+//      Condition editorCondition = (Condition) editorToEngineElementMap.get(engineCondition);
+//
+//      // assumption: a labelled flow, or one with more than single flow into or out of it
+//      // indicates an explicit condition. It's not foolproof, but it should take away 90%
+//      // of the noise implicit  conditions, leaving the designer to add back in those
+//      // explicit conditions that have been compressed to flows.
+//
+//      if(editorCondition.getLabel() == null || editorCondition.getLabel().trim().equals("")) {
+//
+//        YAWLFlowRelation sourceFlow = editorCondition.getOnlyIncomingFlow();
+//        YAWLFlowRelation targetFlow = editorCondition.getOnlyOutgoingFlow();
+//
+//        if(sourceFlow != null && targetFlow != null) {
+//
+//          YAWLTask sourceTask = ((YAWLPort) sourceFlow.getSource()).getTask();
+//          YAWLTask targetTask = ((YAWLPort) targetFlow.getTarget()).getTask();
+//
+//          if (sourceTask != null && targetTask != null) {
+//
+//            editorNet.getGraph().removeCellsAndTheirEdges(
+//                new Object[] { editorCondition }
+//            );
+//
+//            YAWLFlowRelation editorFlow = editorNet.getGraph().connect(sourceTask, targetTask);
+//
+//            // map predicate & priority from removed condition to new flow
+//            editorFlow.setPredicate(sourceFlow.getPredicate());
+//            editorFlow.setPriority(sourceFlow.getPriority());
+//
+//            editorFlowEngineConditionMap.put(engineCondition, editorFlow);
+//          }
+//        }
+//      }
+//    }
+//  }
   
+    private static void removeUnnecessaryDecorators(SpecificationModel editorSpec) {
+        for (NetGraphModel net : editorSpec.getNets())
+            removeUnnecessaryDecorators(net);
+    }
+
+
   private static void removeUnnecessaryDecorators(NetGraphModel editorNet) {
     Set tasks = NetUtilities.getAllTasks(editorNet);
     Iterator taskIterator = tasks.iterator();
     while(taskIterator.hasNext()) {
       YAWLTask editorTask = (YAWLTask) taskIterator.next();
-      if (editorTask.hasJoinDecorator() && editorTask.getIncommingFlowCount() < 2) {
+      if (editorTask.hasJoinDecorator() && editorTask.getIncomingFlowCount() < 2) {
         editorNet.setJoinDecorator(
             editorTask,
             JoinDecorator.NO_TYPE,
@@ -922,6 +994,19 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
       return MultipleAtomicTask.DYNAMIC_INSTANCE_CREATION;
     }
     return MultipleAtomicTask.STATIC_INSTANCE_CREATION;
+  }
+
+    private static void mapUniqueElementID(YAWLVertex vertex, String engineID) {
+      int engNbr = vertex.setActualEngineID(engineID);
+      if (engNbr > -1) {
+          vertex.setEngineIdNumber(String.valueOf(engNbr));
+          updateMaxEngineNumber(engNbr);
+      }
+    }
+
+    
+    private static void updateMaxEngineNumber(int nbr) {
+      if (nbr > _maxEngineNumber) _maxEngineNumber = nbr;
   }
 
 }

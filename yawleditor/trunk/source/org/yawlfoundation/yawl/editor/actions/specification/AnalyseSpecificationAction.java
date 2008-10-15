@@ -24,14 +24,12 @@
 
 package org.yawlfoundation.yawl.editor.actions.specification;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-
-import org.yawlfoundation.yawl.editor.actions.specification.YAWLOpenSpecificationAction;
 import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 public class AnalyseSpecificationAction extends YAWLOpenSpecificationAction implements TooltipTogglingWidget {
   /**
@@ -43,7 +41,7 @@ public class AnalyseSpecificationAction extends YAWLOpenSpecificationAction impl
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Analyse Specification");
     putValue(Action.LONG_DESCRIPTION, "Analyse this specification.");
-    putValue(Action.SMALL_ICON, getIconByName("Analyse"));
+    putValue(Action.SMALL_ICON, getPNGIcon("eye"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_Y));
   }
   

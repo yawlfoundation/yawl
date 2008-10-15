@@ -39,7 +39,7 @@ public class PasteDataTypeDialogAction extends YAWLBaseAction {
       putValue(Action.SHORT_DESCRIPTION, " Paste contents of clipboard ");
       putValue(Action.NAME, "Paste");
       putValue(Action.LONG_DESCRIPTION, "Paste contents of clipboard");
-      putValue(Action.SMALL_ICON, getIconByName("Paste"));
+      putValue(Action.SMALL_ICON, getPNGIcon("page_paste"));
       putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_P));
       putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control V"));
     }

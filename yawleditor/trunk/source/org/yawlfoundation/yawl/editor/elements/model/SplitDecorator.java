@@ -56,7 +56,7 @@ public class SplitDecorator extends Decorator {
     return true;
   }
   
-  public boolean acceptsIncommingFlows() {
+  public boolean acceptsIncomingFlows() {
     return false;
   }
   

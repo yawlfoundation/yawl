@@ -90,7 +90,7 @@ public abstract class YAWLTask extends YAWLVertex {
     if (getJoinDecorator() != null) {
       return getJoinDecorator().getCardinalPosition();
     }
-    return this.getPositionOfIncommingFlow();
+    return this.getPositionOfIncomingFlow();
   }
   
   public int hasJoinDecoratorAt() {
@@ -149,11 +149,11 @@ public abstract class YAWLTask extends YAWLVertex {
     return null;
   }
 
-  public YAWLFlowRelation getOnlyIncommingFlow() {
-    if (getPositionOfIncommingFlow() != NOWHERE) {
+  public YAWLFlowRelation getOnlyIncomingFlow() {
+    if (getPositionOfIncomingFlow() != NOWHERE) {
 
       return (YAWLFlowRelation) 
-        (getPortAt(getPositionOfIncommingFlow()).getEdges().toArray())[0];
+        (getPortAt(getPositionOfIncomingFlow()).getEdges().toArray())[0];
     }
     return null;
   }
@@ -192,7 +192,7 @@ public abstract class YAWLTask extends YAWLVertex {
   }
 
   
-  public int getIncommingFlowCount() {
+  public int getIncomingFlowCount() {
     return getJoinDecorator() != null ? 
       getJoinDecorator().getFlowCount() : super.getIncomingFlows().size();
   }

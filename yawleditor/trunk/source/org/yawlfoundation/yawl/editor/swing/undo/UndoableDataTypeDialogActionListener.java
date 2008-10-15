@@ -60,7 +60,7 @@ public class UndoableDataTypeDialogActionListener implements UndoableEditListene
           putValue(Action.SHORT_DESCRIPTION, " Undo the last action ");
           putValue(Action.NAME, "Undo");
           putValue(Action.LONG_DESCRIPTION, "Undoes last action");
-          putValue(Action.SMALL_ICON, getIconByName("Undo"));
+          putValue(Action.SMALL_ICON, getPNGIcon("arrow_undo"));
           putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control Z"));
         }
 
@@ -93,7 +93,7 @@ public class UndoableDataTypeDialogActionListener implements UndoableEditListene
           putValue(Action.SHORT_DESCRIPTION, " Redo the last undone action ");
           putValue(Action.NAME, "Redo");
           putValue(Action.LONG_DESCRIPTION, "Redo the last undone action");
-          putValue(Action.SMALL_ICON, getIconByName("Redo"));
+          putValue(Action.SMALL_ICON, getPNGIcon("arrow_redo"));
           putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_R));
           putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control Y"));
         }

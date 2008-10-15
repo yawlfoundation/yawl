@@ -24,10 +24,10 @@
 
 package org.yawlfoundation.yawl.editor.specification;
 
-import java.awt.Cursor;
-
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+
+import java.awt.*;
 
 public class ArchivingThread extends Thread {
 
@@ -84,7 +84,7 @@ public class ArchivingThread extends Thread {
 
   public synchronized void engineFileExport(SpecificationModel specification) {
     this.specification = specification;
-    request = ENGINE_FILE_EXPORT;
+    request = SAVE;
   }
 
   public synchronized void engineFileImport() {
@@ -129,6 +129,7 @@ public class ArchivingThread extends Thread {
         break;
       }
       case SAVE: {
+ //       YAWLEngineProxy.getInstance().engineFormatFileExport(specification);
         SpecificationArchiveHandler.getInstance().processSaveRequest();
         break;
       }
@@ -136,8 +137,9 @@ public class ArchivingThread extends Thread {
         SpecificationArchiveHandler.getInstance().processSaveAsRequest();
         break;
       }
-      case OPEN: {
-        SpecificationArchiveHandler.getInstance().processOpenRequest();
+      case OPEN: {      
+  //      SpecificationArchiveHandler.getInstance().processOpenRequest();
+        YAWLEngineProxy.getInstance().engineFormatFileImport();
         break;
       }
       case OPEN_FILE: {
@@ -149,11 +151,11 @@ public class ArchivingThread extends Thread {
         break;
       }
       case ENGINE_FILE_EXPORT: {
-        YAWLEngineProxy.getInstance().engineFormatFileExport(specification);
+//        YAWLEngineProxy.getInstance().engineFormatFileExport(specification);
         break;
       }
       case ENGINE_FILE_IMPORT: {
-        YAWLEngineProxy.getInstance().engineFormatFileImport();
+        SpecificationArchiveHandler.getInstance().processOpenRequest();
         break;
       }
       case VALIDATE: {

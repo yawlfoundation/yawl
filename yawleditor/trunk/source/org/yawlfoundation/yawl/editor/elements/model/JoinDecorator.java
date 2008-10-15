@@ -56,7 +56,7 @@ public class JoinDecorator extends Decorator {
     return false;
   }
   
-  public boolean acceptsIncommingFlows() {
+  public boolean acceptsIncomingFlows() {
     return true;
   }
   

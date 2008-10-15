@@ -36,7 +36,7 @@ import javax.swing.undo.UndoableEdit;
 
 /**
  * The <code>SpecificationUndoManager</code> is a special case of an <code>UndoManager</code> 
- * where the manager can be told to accept incomming edit events or not.<p>
+ * where the manager can be told to accept incoming edit events or not.<p>
  * The intent behind this is to switch off acceptance of edits when models relying on
  * the <code>SpecificationUndoMananger</code> need to publish a number of edits (for example, when 
  * loading an exisiting file, or supplying a set of default elements on a graph) to the manager
@@ -77,7 +77,7 @@ public class SpecificationUndoManager extends GraphUndoManager {
    * returned <code>SpecificationUndoManager</code> initially accepts edits
    * or not.
    * 
-   * @param acceptEdits whether to accept incomming edits
+   * @param acceptEdits whether to accept incoming edits
    * @see #acceptEdits
    **/
 
@@ -86,10 +86,10 @@ public class SpecificationUndoManager extends GraphUndoManager {
   }
 
   /** 
-   * Toggles whether incomming undoable edits should be
+   * Toggles whether incoming undoable edits should be
    * accepted by this manager.
    * 
-   * @param acceptEdits whether to accept incomming edits
+   * @param acceptEdits whether to accept incoming edits
    */
 
   public void acceptEdits(boolean acceptEdits) {
@@ -103,7 +103,7 @@ public class SpecificationUndoManager extends GraphUndoManager {
   }
 
   /** 
-   * Adds incomming undoable edit to the list of valid events
+   * Adds incoming undoable edit to the list of valid events
    * managed if we are currently accepting edits.
    * 
    * @see #acceptEdits  

@@ -169,8 +169,8 @@ public class SpecificationModel {
   
   public void reset() {
     netCount = 0;
-    nets = new HashSet();
-    webServiceDecompositions = new HashSet();
+    nets = new HashSet<NetGraphModel>();
+    webServiceDecompositions = new HashSet<WebServiceDecomposition>();
     fontSize = DEFAULT_FONT_SIZE;
     defaultNetBackgroundColor = DEFAULT_NET_BACKGROUND_COLOR;
     setFileName("");
@@ -232,6 +232,13 @@ public class SpecificationModel {
       }
     }
     return subNets;
+  }
+
+  public NetGraphModel getNet(String id) {
+      for (NetGraphModel net : nets) {
+          if (net.getName().equals(id)) return net ;
+      }
+      return null;
   }
   
   public void setStartingNet(NetGraphModel newStartingNet) {

@@ -24,12 +24,11 @@
 
 package org.yawlfoundation.yawl.editor.actions.specification;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-
 import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 public class ImportFromEngineFormatAction extends YAWLNoOpenSpecificationAction implements TooltipTogglingWidget {
 
@@ -40,9 +39,9 @@ public class ImportFromEngineFormatAction extends YAWLNoOpenSpecificationAction 
 
   {
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-    putValue(Action.NAME, "Import from YAWL Engine file...");
-    putValue(Action.LONG_DESCRIPTION, "Import a YAWL engine file to the editor. ");
-    putValue(Action.SMALL_ICON, getIconByName("Import"));
+    putValue(Action.NAME, "Import from 'YWL' file...");
+    putValue(Action.LONG_DESCRIPTION, "Import a 'YWL' specification file to the editor. ");
+    putValue(Action.SMALL_ICON, getPNGIcon("page_go"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_M));
   }
   
@@ -51,11 +50,10 @@ public class ImportFromEngineFormatAction extends YAWLNoOpenSpecificationAction 
   }
   
   public String getEnabledTooltipText() {
-    return " Import a YAWL engine file to the editor ";
+    return " Import a 'YWL' specification file to the editor ";
   }
   
   public String getDisabledTooltipText() {
-    return " You must have no specification" + 
-           " open to in order import a new one ";
+    return " You must have no specification open to in order import a 'ywl' file ";
   }
 }

@@ -1,29 +1,21 @@
 package org.yawlfoundation.yawl.editor.net;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-
-import javax.swing.SwingUtilities;
-
 import org.jgraph.graph.BasicMarqueeHandler;
 import org.jgraph.graph.CellView;
 import org.jgraph.graph.Port;
 import org.jgraph.graph.PortView;
-
 import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLCell;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLPort;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.elements.model.*;
 import org.yawlfoundation.yawl.editor.net.utilities.NetCellFactory;
 import org.yawlfoundation.yawl.editor.swing.CursorFactory;
 import org.yawlfoundation.yawl.editor.swing.menu.ControlFlowPalette;
 import org.yawlfoundation.yawl.editor.swing.menu.Palette;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 
 public class NetMarqueeHandler extends BasicMarqueeHandler {
@@ -282,7 +274,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
         PortView portUnderMouse = getPortViewAt(event.getPoint());
         if (portUnderMouse != null && portUnderMouse != sourcePort &&
             connectionAllowable(sourcePort, portUnderMouse) &&
-            acceptsIncommingFlows(portUnderMouse)) {
+            acceptsIncomingFlows(portUnderMouse)) {
           hidePort(targetPort);         
           targetPort = portUnderMouse;    
           showPort(targetPort);
@@ -526,13 +518,13 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
    * @return true if flows can end at this port, false otherwise.
    */
   
-  private boolean acceptsIncommingFlows(PortView portView) {
+  private boolean acceptsIncomingFlows(PortView portView) {
     CellView parentView = portView.getParentView();
     YAWLPort yawlPort  = (YAWLPort) portView.getCell();
     YAWLCell vertex = (YAWLCell) parentView.getCell();  
     return yawlPort.acceptsIncomingFlows() && 
-           vertex.acceptsIncommingFlows()   && 
-           getNet().acceptsIncommingFlows(vertex);
+           vertex.acceptsIncomingFlows()   &&
+           getNet().acceptsIncomingFlows(vertex);
   }
 
   
@@ -612,7 +604,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
   public void connectElementsOrIgnoreFlow() {
     if (targetPort != null && sourcePort != null &&
         connectionAllowable(sourcePort, targetPort) &&
-        acceptsIncommingFlows(targetPort)) {
+        acceptsIncomingFlows(targetPort)) {
       getNet().connect(
         (YAWLPort) sourcePort.getCell(), 
         (YAWLPort) targetPort.getCell()

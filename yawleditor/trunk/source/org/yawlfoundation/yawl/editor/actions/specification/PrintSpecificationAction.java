@@ -24,33 +24,21 @@
 
 package org.yawlfoundation.yawl.editor.actions.specification;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
-import java.util.Locale;
-import java.util.Iterator;
-
-import javax.print.attribute.PrintRequestAttributeSet;
-import javax.print.attribute.HashPrintRequestAttributeSet;
-import javax.print.DocFlavor;
-import javax.print.PrintService;
-import javax.print.ServiceUI;
-import javax.print.PrintServiceLookup;
-
-import javax.print.attribute.standard.Copies;
-import javax.print.attribute.standard.MediaSizeName;
-import javax.print.attribute.standard.OrientationRequested;
-import javax.print.attribute.standard.Chromaticity;
-import javax.print.attribute.standard.JobName;
-/*
-import javax.print.MultiDocPrintService;
-import javax.print.attribute.standard.MultipleDocumentHandling;
-*/
-import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.net.utilities.NetPrintUtilities;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+
+import javax.print.DocFlavor;
+import javax.print.PrintService;
+import javax.print.PrintServiceLookup;
+import javax.print.ServiceUI;
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
+import javax.print.attribute.standard.*;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.util.Iterator;
+import java.util.Locale;
 
 public class PrintSpecificationAction extends YAWLOpenSpecificationAction {
   /**
@@ -69,7 +57,7 @@ public class PrintSpecificationAction extends YAWLOpenSpecificationAction {
     putValue(Action.SHORT_DESCRIPTION, " Print this specification ");
     putValue(Action.NAME, "Print Specification...");
     putValue(Action.LONG_DESCRIPTION, "Prints this specification");
-    putValue(Action.SMALL_ICON, getIconByName("Print"));
+    putValue(Action.SMALL_ICON, getPNGIcon("printer"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_P));
     putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control P"));
   }

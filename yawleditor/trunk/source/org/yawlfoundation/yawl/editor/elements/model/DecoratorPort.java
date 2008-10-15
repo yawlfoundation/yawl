@@ -32,7 +32,7 @@ public class DecoratorPort extends YAWLPort {
   private static final long serialVersionUID = 1L;
 
   public boolean acceptsIncomingFlows() {
-    return getDecorator().acceptsIncommingFlows();
+    return getDecorator().acceptsIncomingFlows();
   }
 
   public boolean generatesOutgoingFlows() {

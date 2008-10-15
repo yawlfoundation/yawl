@@ -60,7 +60,7 @@ public class UpdateParametersAction extends YAWLSelectedNetAction
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Update Parameter Mappings...");
     putValue(Action.LONG_DESCRIPTION, "Update Parameters for this task.");
-    putValue(Action.SMALL_ICON, getIconByName("Blank"));
+    putValue(Action.SMALL_ICON, getPNGIcon("table_relationship"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_P));
   }
   

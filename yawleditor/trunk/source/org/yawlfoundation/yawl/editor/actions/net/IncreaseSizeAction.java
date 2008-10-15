@@ -24,19 +24,16 @@
 
 package org.yawlfoundation.yawl.editor.actions.net;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-
-import javax.swing.Action;
-import javax.swing.KeyStroke;
-
 import org.jgraph.event.GraphSelectionEvent;
-
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionSubscriber;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
 public class IncreaseSizeAction extends YAWLSelectedNetAction implements TooltipTogglingWidget, SpecificationSelectionSubscriber  {
 
@@ -50,7 +47,7 @@ public class IncreaseSizeAction extends YAWLSelectedNetAction implements Tooltip
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Increase Size");
     putValue(Action.LONG_DESCRIPTION, "Increase size of currently selected net elements.");
-    putValue(Action.SMALL_ICON, getIconByName("IncreaseSize"));
+    putValue(Action.SMALL_ICON, getPNGIcon("shape_handles"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_I));
     putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,InputEvent.CTRL_MASK));
   }

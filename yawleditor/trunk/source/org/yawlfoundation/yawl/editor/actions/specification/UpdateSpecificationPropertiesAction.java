@@ -56,7 +56,7 @@ public class UpdateSpecificationPropertiesAction extends YAWLOpenSpecificationAc
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Update Specification Properties");
     putValue(Action.LONG_DESCRIPTION, "Update Specification Properties");
-    putValue(Action.SMALL_ICON, getIconByName("Blank"));
+    putValue(Action.SMALL_ICON, getPNGIcon("page_white_gear"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_U));
   }
   

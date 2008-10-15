@@ -22,14 +22,11 @@
 
 package org.yawlfoundation.yawl.editor.actions;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-import javax.swing.KeyStroke;
-import javax.swing.TransferHandler;
-
-import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 public class PasteAction extends YAWLBaseAction {
 
@@ -43,7 +40,7 @@ public class PasteAction extends YAWLBaseAction {
     putValue(Action.SHORT_DESCRIPTION, " Paste contents of clipboard ");
     putValue(Action.NAME, "Paste");
     putValue(Action.LONG_DESCRIPTION, "Paste contents of clipboard");
-    putValue(Action.SMALL_ICON, getIconByName("Paste"));
+    putValue(Action.SMALL_ICON, getPNGIcon("page_paste"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_P));
     putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control V"));
   }

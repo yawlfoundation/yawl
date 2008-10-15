@@ -24,6 +24,7 @@
 package org.yawlfoundation.yawl.editor.specification;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 import org.yawlfoundation.yawl.editor.foundations.ArchivableNetState;
 import org.yawlfoundation.yawl.editor.foundations.ArchivableSpecificationState;
 import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
@@ -50,12 +51,15 @@ import java.util.zip.ZipOutputStream;
 
 public class SpecificationArchiveHandler {
 
-  private static final String SPECIFICATION_FILE_TYPE = "ywl";
+  private static final String SAVE_SPECIFICATION_FILE_TYPE = "yawl";
+  private static final String OPEN_SPECIFICATION_FILE_TYPE = "ywl";
   private static final String DESCRIPTION = "YAWL Specification";
+
+  private static boolean _conversionAttempted = false;
   
   private static final JFileChooser SAVE_FILE_CHOOSER = 
     FileChooserFactory.buildFileChooser(
-        SPECIFICATION_FILE_TYPE,
+        SAVE_SPECIFICATION_FILE_TYPE,
         DESCRIPTION,
         "Save specification to ",
         " file",
@@ -64,9 +68,9 @@ public class SpecificationArchiveHandler {
   
   private static final JFileChooser OPEN_FILE_CHOOSER = 
     FileChooserFactory.buildFileChooser(
-        SPECIFICATION_FILE_TYPE,
+        OPEN_SPECIFICATION_FILE_TYPE,
         DESCRIPTION,
-        "Open specification from ",
+        "Import specification from ",
         " file",
         FileChooserFactory.SAVING_AND_LOADING
     );
@@ -84,12 +88,12 @@ public class SpecificationArchiveHandler {
    *  Processes a user's request to save an open specification.
    *  This might include prompting for a file name if one has not yet beem
    *  set for the specification.
-   *  @returns true if the specification was saved, false if the user cancelled the save.
+   *  @return true if the specification was saved, false if the user cancelled the save.
    */
 
   public boolean processSaveRequest() {
-    if (SpecificationModel.getInstance().getFileName().equals("") ||
-      ! SpecificationModel.getInstance().getFileName().endsWith(".ywl")) {
+    String fileName = SpecificationModel.getInstance().getFileName();
+    if (fileName.equals("") || ! fileName.endsWith(".yawl")) {
 
       if (!promptForAndSetSaveFileName()) {
         return false;
@@ -98,17 +102,26 @@ public class SpecificationArchiveHandler {
     saveUpdatingGUI();
     return true;
   }
+
+  private File getSuggestedFileName() {
+      String fileName = SpecificationModel.getInstance().getFileName();
+      if (fileName.equals("")) return null;
+      return new File(fileName.substring(0, fileName.lastIndexOf(".")) + ".yawl");
+  }
   
   private boolean promptForAndSetSaveFileName() {
 
+    SAVE_FILE_CHOOSER.setSelectedFile(getSuggestedFileName());
+
     if (JFileChooser.CANCEL_OPTION == SAVE_FILE_CHOOSER.showSaveDialog(YAWLEditor.getInstance())) {
-	  return false;
+   	  return false;
     }
 
     File file = SAVE_FILE_CHOOSER.getSelectedFile();
 
     if (file.exists() && 
-        !getFullNameFromFile(file).equals(SpecificationModel.getInstance().getFileName())) {
+        ! getFullNameFromFile(file, SAVE_SPECIFICATION_FILE_TYPE).equals(
+                SpecificationModel.getInstance().getFileName())) {
       if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(YAWLEditor.getInstance(),
               "You have chosen an existing specification file.\n" +
               "If you save to this file, you will overwrite the file's contents.\n\n" +
@@ -120,7 +133,7 @@ public class SpecificationArchiveHandler {
       }
     }
     SpecificationModel.getInstance().setFileName(
-        getFullNameFromFile(file)
+        getFullNameFromFile(file, SAVE_SPECIFICATION_FILE_TYPE)
     );
       
     SpecificationModel.getInstance().setUniqueID("UID_" + UUID.randomUUID().toString());
@@ -190,20 +203,25 @@ public class SpecificationArchiveHandler {
   
   public void saveUpdatingGUI() {
     saveUpdatingGUI(
-        SpecificationModel.getInstance().getFileName()
+        SpecificationModel.getInstance()
     );
   }
-  
-  public void saveUpdatingGUI(String fullFileName) {
+
+    public void saveUpdatingGUI(SpecificationModel specification) {
+
+//  public void saveUpdatingGUI(String fullFileName) {
+    String fullFileName = specification.getFileName();
     if (fullFileName.trim().equals("")) {
       return;
     }
 
-    YAWLEditor.setStatusBarText("Saving Specification...");
-    YAWLEditor.progressStatusBarOverSeconds(2);
+//    YAWLEditor.setStatusBarText("Saving Specification...");
+//    YAWLEditor.progressStatusBarOverSeconds(2);
     
     try {
-      save(fullFileName);
+//      save(fullFileName);
+        YAWLEngineProxy.getInstance().engineFormatFileExport(specification);
+        
     } catch (Exception e) {
       JOptionPane.showMessageDialog(
           YAWLEditor.getInstance(), 
@@ -214,8 +232,8 @@ public class SpecificationArchiveHandler {
       e.printStackTrace();
     }
 
-    YAWLEditor.resetStatusBarProgress();
-    YAWLEditor.setStatusBarTextToPrevious();
+//    YAWLEditor.resetStatusBarProgress();
+//    YAWLEditor.setStatusBarTextToPrevious();
   }
   
   private void writeSpecification(XMLEncoder encoder) {
@@ -355,44 +373,36 @@ public class SpecificationArchiveHandler {
 
     if (fileName == null) { // prompt user for the file
       if (JFileChooser.CANCEL_OPTION == 
-        OPEN_FILE_CHOOSER.showOpenDialog(YAWLEditor.getInstance())) {
+            OPEN_FILE_CHOOSER.showOpenDialog(YAWLEditor.getInstance())) {
         YAWLEditor.setStatusBarTextToPrevious();
         return;
       }
       file = OPEN_FILE_CHOOSER.getSelectedFile();
-    } else {
+    }
+    else {
       file = new File(fileName);
       if (!file.exists()) { // create a specification with this name
-
         YAWLEditorDesktop.getInstance().newNet();
-
         SpecificationModel.getInstance().setFileName(fileName);
-        
         SpecificationFileModel.getInstance().incrementFileCount();
-
         SpecificationUndoManager.getInstance().discardAllEdits();
-
         return;
-
-      } else if (!file.canRead()) { // file exists, but can't be read
+      }
+      else if (!file.canRead()) { // file exists, but can't be read
         YAWLEditor.setStatusBarTextToPrevious();
         return;        
       }
     }
 
-    YAWLEditor.progressStatusBarOverSeconds(2);
-    YAWLEditorDesktop.getInstance().setVisible(false);
-    
+    YAWLEditor.setStatusBarText("Importing 'YWL' Specification file...");    
     try {
-      YAWLEditor.setStatusBarText("Opening Specification...");
-
       openSpecificationFromFile(
-          getFullNameFromFile(file)
+          getFullNameFromFile(file, OPEN_SPECIFICATION_FILE_TYPE)
       );  
     } catch (Exception e) {
       JOptionPane.showMessageDialog(
           YAWLEditor.getInstance(), 
-          "Error discovered reading YAWL Editor save file.\nDiscarding this load file.\n",
+          "Error discovered reading YWL save file.\nDiscarding this load file.\n",
           "Editor File Loading Error",
           JOptionPane.ERROR_MESSAGE);
       SpecificationArchiveHandler.getInstance().closeWithoutSaving();
@@ -405,9 +415,11 @@ public class SpecificationArchiveHandler {
   }
 
   
-  public void openSpecificationFromFile(String fullFileName) throws Exception {
+  public boolean openSpecificationFromFile(String fullFileName) throws Exception {
+    YAWLEditor.progressStatusBarOverSeconds(2);
+    YAWLEditorDesktop.getInstance().setVisible(false);
     if (fullFileName.equals("")) {
-      return;
+      return false;
     }
 
     try{
@@ -431,21 +443,32 @@ public class SpecificationArchiveHandler {
           SpecificationModel.getInstance().setFileName(fullFileName);
           SpecificationFileModel.getInstance().incrementFileCount();
           SpecificationUndoManager.getInstance().discardAllEdits();
+          return true;
       }
       else {
-          JOptionPane.showMessageDialog(
-              YAWLEditor.getInstance(),
-              "Error discovered reading YAWL Editor save file.\n" +
-              "It appears to be a pre-2.0 file. Please convert it using\n" +
-              "the YAWLSaveFileConverter utility and try again.\n",
-              "Editor File Loading Error",
-              JOptionPane.ERROR_MESSAGE);
+          if (! _conversionAttempted) {
+             YAWLEditor.resetStatusBarProgress();
+             YAWLEditor.setStatusBarText(
+                     "Attempting to convert old format 'YWL' Specification file...");
+              String fileName = new SpecificationConverter().convert(fullFileName);
+              boolean converted = openSpecificationFromFile(fileName);
+              if (! converted) {
+                 JOptionPane.showMessageDialog(
+                    YAWLEditor.getInstance(),
+                    "Attempt to convert YWL file to v2.0 failed.\n",
+                    "YWL File Loading Error",
+                    JOptionPane.ERROR_MESSAGE);
+              }
+              _conversionAttempted = true;
+          }
       }
 
     } catch (Exception e) {
       processCloseRequest(); 
       throw e;
     }
+    _conversionAttempted = false;
+    return false;
   }
   
   private boolean readSpecification(XMLDecoder encoder) {
@@ -563,13 +586,13 @@ public class SpecificationArchiveHandler {
     return net;
   }
   
-  private String getFullNameFromFile(File file) {
+  private String getFullNameFromFile(File file, String type) {
     if (file == null) {
       return "";
     }
     String fullFileName = file.getAbsolutePath();
-    if (!fullFileName.toLowerCase().endsWith(SPECIFICATION_FILE_TYPE)) {
-      fullFileName += "." + SPECIFICATION_FILE_TYPE;
+    if (!fullFileName.toLowerCase().endsWith(type)) {
+      fullFileName += "." + type;
     }
     return fullFileName;
   }

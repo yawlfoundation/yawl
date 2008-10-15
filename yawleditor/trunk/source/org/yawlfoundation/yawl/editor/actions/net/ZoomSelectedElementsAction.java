@@ -24,20 +24,15 @@
 
 package org.yawlfoundation.yawl.editor.actions.net;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-
 import org.jgraph.event.GraphSelectionEvent;
-
-import java.awt.geom.Rectangle2D;
-import java.awt.Point;
-import java.awt.Dimension;
-
-
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionSubscriber;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.geom.Rectangle2D;
 
 public class ZoomSelectedElementsAction extends YAWLSelectedNetAction implements SpecificationSelectionSubscriber  {
 
@@ -51,7 +46,7 @@ public class ZoomSelectedElementsAction extends YAWLSelectedNetAction implements
     putValue(Action.SHORT_DESCRIPTION, " Zoom to selected elements ");
     putValue(Action.NAME, "Zoom to selected elements");
     putValue(Action.LONG_DESCRIPTION, "Zoom to selected elements.");
-    putValue(Action.SMALL_ICON, getIconByName("ZoomSelectedElements"));
+    putValue(Action.SMALL_ICON, getPNGIcon("magnifier"));
   }
   
   private ZoomSelectedElementsAction() {

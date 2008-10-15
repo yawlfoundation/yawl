@@ -24,27 +24,14 @@
 
 package org.yawlfoundation.yawl.editor.net.utilities;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.swing.ImageIcon;
-
-import org.yawlfoundation.yawl.editor.elements.model.CompositeTask;
-import org.yawlfoundation.yawl.editor.elements.model.Condition;
-import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLCompositeTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLCondition;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
-import org.yawlfoundation.yawl.editor.elements.model.InputCondition;
-import org.yawlfoundation.yawl.editor.elements.model.OutputCondition;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLCell;
+import org.yawlfoundation.yawl.editor.elements.model.*;
 import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
-
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+
+import javax.swing.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A library of standard utilities that return information on, or manipulate 
@@ -313,9 +300,9 @@ public final class NetUtilities {
   }
 
   /**
-   * Returns all the incomming flows to the specified cell.
+   * Returns all the incoming flows to the specified cell.
    * @param cell
-   * @return A set of incomming flows to the cell
+   * @return A set of incoming flows to the cell
    */
 
   public static Set<YAWLFlowRelation> getIncomingFlowsTo(YAWLCell cell) {

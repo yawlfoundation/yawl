@@ -22,24 +22,26 @@
 
 package org.yawlfoundation.yawl.editor.actions;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
-
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+
 public abstract class YAWLBaseAction extends AbstractAction {
 
+  protected static final String iconPath = "/org/yawlfoundation/yawl/editor/resources/menuicons/";
+
   protected ImageIcon getIconByName(String iconName) {
-    return ResourceLoader.getImageAsIcon("/org/yawlfoundation/yawl/editor/resources/menuicons/" 
-           + iconName + "16.gif");
+    return ResourceLoader.getImageAsIcon(iconPath + iconName + "16.gif");
   }
+
+  protected ImageIcon getPNGIcon(String iconName) {
+      return ResourceLoader.getImageAsIcon(iconPath + iconName + ".png");
+  }
+
 
   public void actionPerformed(ActionEvent e) {
     JOptionPane.showMessageDialog(YAWLEditor.getInstance(),

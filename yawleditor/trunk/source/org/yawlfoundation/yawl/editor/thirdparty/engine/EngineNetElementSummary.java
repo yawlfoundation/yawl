@@ -48,7 +48,7 @@ public class EngineNetElementSummary {
   private HashSet tasksWithCancellationSets = new HashSet();
   
   public EngineNetElementSummary(YNet engineNet) {
-    assert engineNet != null : "No NetGraphModel specificed in constructor";
+    assert engineNet != null : "No NetGraphModel specified in constructor";
     this.engineNet = engineNet;
     parseEngineNet();
   }
