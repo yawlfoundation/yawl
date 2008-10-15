@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<div style="height: 202px; top: 84px; position: absolute; width: 542px; -rave-layout: grid"
-     xmlns:f="http://java.sun.com/jsf/core"
+<div xmlns:f="http://java.sun.com/jsf/core"
      xmlns:ui="http://www.sun.com/web/ui">
+
     <center>
 
     <f:subview id="pfQueueUI">

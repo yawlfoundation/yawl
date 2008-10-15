@@ -797,7 +797,10 @@ public class SessionBean extends AbstractSessionBean {
     }
 
     public String getAssignedToText() {
-        return "Assigned To (" + adminQueueAssignedList.length + ")" ;
+        if ((adminQueueAssignedList == null) || (adminQueueAssignedList.length == 0))
+            return "Assigned To";
+        else
+            return "Assigned To (" + adminQueueAssignedList.length + ")" ;
     }
 
     private String adminQueueAction ;
@@ -1158,9 +1161,9 @@ public class SessionBean extends AbstractSessionBean {
 
     public void removeParticipant(Participant p) {
         Participant pToRemove = participantMap.get(p.getID());
+        setEditedParticipant((Participant) null);
         _rm.removeParticipant(pToRemove);
         refreshOrgDataParticipantList();
-        editedParticipant = null ;
     }
 
     /******************************************************************************/
@@ -1182,7 +1185,7 @@ public class SessionBean extends AbstractSessionBean {
     public void setInitCaseID(String id) {}
 
     public String getInitTaskID() {
-        if (chosenWIR != null) return chosenWIR.getCaseID();
+        if (chosenWIR != null) return chosenWIR.getTaskID();
         return "" ;
     }
 
@@ -1425,6 +1428,56 @@ public class SessionBean extends AbstractSessionBean {
 
     public void setAddInstanceHeader(String taskID) {
         addInstanceHeader = "Create a New Workitem Instance of Task '" + taskID + "'";
+    }
+
+    //////
+    
+    private boolean teamRBSelected = true;
+
+    private boolean orgGroupRBSelected = false;
+
+    public boolean getTeamRBSelected() { return teamRBSelected; }
+
+    public boolean isTeamRBSelected() { return teamRBSelected; }
+
+    public void setTeamRBSelected(boolean selected) { teamRBSelected = selected; }
+
+    public boolean getOrgGroupRBSelected() { return orgGroupRBSelected; }
+
+    public boolean isOrgGroupRBSelected() { return orgGroupRBSelected; }
+
+    public void setOrgGroupRBSelected(boolean selected) { orgGroupRBSelected = selected; }
+
+    public boolean getTeamRBDisabled() {
+        return (participant == null) ||
+               (! (participant.isAdministrator() ||
+                   participant.getUserPrivileges().canViewTeamItems()));
+    }
+
+    public boolean getOrgGroupRBDisabled() {
+        return (participant == null) ||
+               (! (participant.isAdministrator() ||
+                   participant.getUserPrivileges().canViewOrgGroupItems()));
+    }
+
+    private WorkItemRecord selectedTeamQueueWIR ;
+
+    public WorkItemRecord getSelectedTeamQueueWIR() {
+        return selectedTeamQueueWIR;
+    }
+
+    public void setSelectedTeamQueueWIR(WorkItemRecord wir) {
+        selectedTeamQueueWIR = wir;
+    }
+
+    private String resourceState  ;
+
+    public String getResourceState() {
+        return resourceState;
+    }
+
+    public void setResourceState(String state) {
+        resourceState = state;
     }
 }
 

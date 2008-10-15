@@ -789,6 +789,7 @@
 			<xs:extension base="yawl:SpecificationSetType">
 				<xs:sequence>
 					<xs:element name="specification" type="yawl:YAWLSpecificationFactsType" maxOccurs="unbounded"/>
+          <xs:element name="layout" type="yawl:LayoutFactsType" minOccurs="0"/>
 				</xs:sequence>
 				<xs:attribute name="version" use="required">
 					<xs:simpleType>
@@ -982,4 +983,180 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+
+    <!--
+    #### LAYOUT TYPE ADDITIONS ####
+    -->
+  <xs:complexType name="LayoutFactsType">
+    <xs:sequence>
+      <xs:element name="specification" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="size" type="yawl:LayoutDimensionType"/>
+            <xs:element name="net" type="yawl:LayoutNetFactsType" maxOccurs="unbounded"/>
+            <xs:element name="labelFontSize" type="xs:integer" minOccurs="0"/>
+          </xs:sequence>
+          <xs:attribute name="id" type="xs:NCName" use="required"/>
+          <xs:attribute name="defaultBgColor" type="xs:integer"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+ </xs:complexType>
+
+ <xs:complexType name="LayoutNetFactsType">
+   <xs:choice maxOccurs="unbounded">
+       <xs:element name="frame" type="yawl:LayoutFrameType"/>
+       <xs:element name="scale" type="xs:double"/>
+       <xs:element name="vertex" type="yawl:LayoutVertexFactsType"
+                   minOccurs="0" maxOccurs="unbounded"/>
+       <xs:element name="container" type="yawl:LayoutContainerFactsType"
+                   minOccurs="0" maxOccurs="unbounded"/>
+       <xs:element name="flow" type="yawl:LayoutFlowFactsType"
+                   minOccurs="0" maxOccurs="unbounded"/>
+   </xs:choice>
+   <xs:attribute name="id" type="xs:NCName" use="required"/>
+   <xs:attribute name="bgColor" type="xs:integer"/>
+ </xs:complexType>
+
+ <xs:complexType name="LayoutVertexFactsType">
+   <xs:sequence>
+       <xs:element name="startpoint" type="yawl:LayoutPointType" minOccurs="0"/>
+       <xs:element name="iconpath" type="xs:anyURI" minOccurs="0"/>
+       <xs:element name="attributes" type="yawl:LayoutAttributesFactsType"/>
+   </xs:sequence>
+   <xs:attribute name="id" type="xs:NCName"/>
+ </xs:complexType>
+
+ <xs:complexType name="LayoutContainerFactsType">
+   <xs:choice maxOccurs="unbounded">
+       <xs:element name="vertex" type="yawl:LayoutVertexFactsType"
+                   minOccurs="0" maxOccurs="unbounded"/>
+       <xs:element name="label" type="yawl:LayoutLabelFactsType"
+                   minOccurs="0" maxOccurs="unbounded"/>
+       <xs:element name="decorator" type="yawl:LayoutDecoratorFactsType"
+                   minOccurs="0" maxOccurs="unbounded"/>
+   </xs:choice>
+   <xs:attribute name="id" type="xs:NCName" use="required"/>
+ </xs:complexType>
+
+ <xs:complexType name="LayoutFlowFactsType">
+   <xs:sequence>
+       <xs:element name="label" type="xs:string" minOccurs="0"/>
+       <xs:element name="ports" type="yawl:LayoutPortsType"/>
+       <xs:element name="attributes" type="yawl:LayoutAttributesFactsType"/>
+   </xs:sequence>
+   <xs:attribute name="source" type="xs:NCName" use="required"/>
+   <xs:attribute name="target" type="xs:NCName" use="required"/>
+ </xs:complexType>
+
+ <xs:complexType name="LayoutDecoratorFactsType">
+   <xs:sequence>
+     <xs:element name="position" type="xs:integer"/>
+     <xs:element name="attributes" type="yawl:LayoutAttributesFactsType"/>
+    </xs:sequence>
+    <xs:attribute name="type" type="xs:NCName" use="required"/>
+  </xs:complexType>
+
+ <xs:complexType name="LayoutLabelFactsType">
+   <xs:sequence>
+       <xs:element name="userobject" type="yawl:LayoutUserObjectHTMLType" minOccurs="0"/>
+       <xs:element name="attributes" type="yawl:LayoutAttributesFactsType"/>
+   </xs:sequence>
+ </xs:complexType>
+
+ <xs:complexType name="LayoutPointType">
+     <xs:attribute name="x" type="xs:double" use="required"/>
+     <xs:attribute name="y" type="xs:double" use="required"/>
+ </xs:complexType>
+
+ <xs:complexType name="LayoutPortsType">
+    <xs:attribute name="in" type="xs:integer" use="required"/>
+    <xs:attribute name="out" type="xs:integer" use="required"/>
+ </xs:complexType>
+
+ <xs:complexType name="LayoutUserObjectHTMLType">
+   <xs:sequence>
+     <xs:element name="html">
+       <xs:complexType>
+         <xs:sequence>
+           <xs:element name="body">
+             <xs:complexType>
+               <xs:simpleContent>
+                 <xs:extension base="xs:string">
+                    <xs:attribute name="style" type="xs:string"/>
+                    <xs:attribute name="align" type="xs:string"/>
+                 </xs:extension>
+               </xs:simpleContent>
+             </xs:complexType>
+           </xs:element>
+         </xs:sequence>
+       </xs:complexType>
+     </xs:element>
+   </xs:sequence>
+ </xs:complexType>
+
+ <xs:complexType name="LayoutAttributesFactsType">
+   <xs:choice maxOccurs="unbounded">
+       <xs:element name="autosize" type="xs:boolean"/>
+       <xs:element name="backgroundColor" type="xs:integer"/>
+       <xs:element name="bendable" type="xs:boolean"/>
+       <xs:element name="bounds" type="yawl:LayoutRectangleType"/>
+       <xs:element name="connectable" type="xs:boolean"/>
+       <xs:element name="disconnectable" type="xs:boolean"/>
+       <xs:element name="editable" type="xs:boolean"/>
+       <xs:element name="endFill" type="xs:boolean"/>
+       <xs:element name="font" type="yawl:LayoutFontType"/>
+       <xs:element name="foregroundColor" type="xs:integer"/>
+       <xs:element name="labelposition" type="yawl:LayoutPointType"/>
+       <xs:element name="linecolor" type="xs:integer"/>
+       <xs:element name="lineEnd" type="xs:integer"/>
+       <xs:element name="lineStyle" type="xs:integer"/>
+       <xs:element name="offset" type="yawl:LayoutPointType"/>
+       <xs:element name="opaque" type="xs:boolean"/>
+       <xs:element name="points" type="yawl:LayoutPointsType"/>
+       <xs:element name="resize" type="xs:boolean"/>
+       <xs:element name="size" type="yawl:LayoutDimensionType"/>
+       <xs:element name="sizeable" type="xs:boolean"/>
+   </xs:choice>
+ </xs:complexType>
+
+ <xs:complexType name="LayoutColorType">
+   <xs:attribute name="r" type="xs:integer" use="required"/>
+   <xs:attribute name="g" type="xs:integer" use="required"/>
+   <xs:attribute name="b" type="xs:integer" use="required"/>
+ </xs:complexType>
+
+ <xs:complexType name="LayoutRectangleType">
+   <xs:attribute name="x" type="xs:double" use="required"/>
+   <xs:attribute name="y" type="xs:double" use="required"/>
+   <xs:attribute name="w" type="xs:double" use="required"/>
+   <xs:attribute name="h" type="xs:double" use="required"/>
+ </xs:complexType>
+
+ <xs:complexType name="LayoutFrameType">
+   <xs:attribute name="x" type="xs:integer" use="required"/>
+   <xs:attribute name="y" type="xs:integer" use="required"/>
+   <xs:attribute name="w" type="xs:integer" use="required"/>
+   <xs:attribute name="h" type="xs:integer" use="required"/>
+ </xs:complexType>
+
+ <xs:complexType name="LayoutPointsType">
+   <xs:sequence>
+     <xs:element name="value" type="yawl:LayoutPointType" maxOccurs="unbounded"/>
+   </xs:sequence>
+ </xs:complexType>
+
+ <xs:complexType name="LayoutFontType">
+   <xs:sequence>
+     <xs:element name="name" type="xs:string"/>
+     <xs:element name="style" type="xs:integer"/>
+     <xs:element name="size" type="xs:integer"/>
+   </xs:sequence>
+ </xs:complexType>
+
+ <xs:complexType name="LayoutDimensionType">
+   <xs:attribute name="w" type="xs:integer" use="required"/>
+   <xs:attribute name="h" type="xs:integer" use="required"/>
+ </xs:complexType>
+    
 </xs:schema>

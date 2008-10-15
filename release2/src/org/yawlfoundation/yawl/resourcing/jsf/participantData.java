@@ -150,6 +150,55 @@ public class participantData extends AbstractPageBean {
     public void setTxtConfirmPassword(PasswordField pw) { txtConfirmPassword = pw; }
 
 
+    private Label lblFirstName = new Label();
+
+    public Label getLblFirstName() { return lblFirstName; }
+
+    public void setLblFirstName(Label l) { lblFirstName = l; }
+
+
+    private Label lblUserID = new Label();
+
+    public Label getLblUserID() { return lblUserID; }
+
+    public void setLblUserID(Label l) { lblUserID = l; }
+
+
+    private Label lblLastName = new Label();
+
+    public Label getLblLastName() { return lblLastName; }
+
+    public void setLblLastName(Label l) { lblLastName = l; }
+
+    
+    private Label lblDesc = new Label();
+
+    public Label getLblDesc() { return lblDesc; }
+
+    public void setLblDesc(Label l) { lblDesc = l; }
+
+
+    private Label lblNotes = new Label();
+
+    public Label getLblNotes() { return lblNotes; }
+
+    public void setLblNotes(Label l) { lblNotes = l; }
+
+
+    private Label lblPassword = new Label();
+
+    public Label getLblPassword() { return lblPassword; }
+
+    public void setLblPassword(Label l) { lblPassword = l; }
+
+
+    private Label lblConfirm = new Label();
+
+    public Label getLblConfirm() { return lblConfirm; }
+
+    public void setLblConfirm(Label l) { lblConfirm = l; }
+
+    
     private Checkbox cbxChooseItemToStart = new Checkbox();
 
     public Checkbox getCbxChooseItemToStart() { return cbxChooseItemToStart; }
@@ -171,25 +220,25 @@ public class participantData extends AbstractPageBean {
     public void setCbxReorderItems(Checkbox c) { cbxReorderItems = c; }
 
 
-    private Checkbox cbxViewAllOffered = new Checkbox();
-
-    public Checkbox getCbxViewAllOffered() { return cbxViewAllOffered; }
-
-    public void setCbxViewAllOffered(Checkbox c) { cbxViewAllOffered = c; }
-
-
-    private Checkbox cbxViewAllAllocated = new Checkbox();
-
-    public Checkbox getCbxViewAllAllocated() { return cbxViewAllAllocated; }
-
-    public void setCbxViewAllAllocated(Checkbox c) { cbxViewAllAllocated = c; }
-
-
-    private Checkbox cbxViewAllExecuting = new Checkbox();
-
-    public Checkbox getCbxViewAllExecuting() { return cbxViewAllExecuting; }
-
-    public void setCbxViewAllExecuting(Checkbox c) { cbxViewAllExecuting = c; }
+//    private Checkbox cbxViewAllOffered = new Checkbox();
+//
+//    public Checkbox getCbxViewAllOffered() { return cbxViewAllOffered; }
+//
+//    public void setCbxViewAllOffered(Checkbox c) { cbxViewAllOffered = c; }
+//
+//
+//    private Checkbox cbxViewAllAllocated = new Checkbox();
+//
+//    public Checkbox getCbxViewAllAllocated() { return cbxViewAllAllocated; }
+//
+//    public void setCbxViewAllAllocated(Checkbox c) { cbxViewAllAllocated = c; }
+//
+//
+//    private Checkbox cbxViewAllExecuting = new Checkbox();
+//
+//    public Checkbox getCbxViewAllExecuting() { return cbxViewAllExecuting; }
+//
+//    public void setCbxViewAllExecuting(Checkbox c) { cbxViewAllExecuting = c; }
 
 
     private Checkbox cbxViewTeamItems = new Checkbox();
@@ -592,9 +641,9 @@ public class participantData extends AbstractPageBean {
         cbxManageCases.setValue(up.canManageCases());
         cbxReorderItems.setValue(up.canReorder());
         cbxStartConcurrent.setValue(up.canStartConcurrent());
-        cbxViewAllAllocated.setValue(up.canViewAllAllocated());
-        cbxViewAllExecuting.setValue(up.canViewAllExecuting());
-        cbxViewAllOffered.setValue(up.canViewAllOffered());
+//        cbxViewAllAllocated.setValue(up.canViewAllAllocated());
+//        cbxViewAllExecuting.setValue(up.canViewAllExecuting());
+//        cbxViewAllOffered.setValue(up.canViewAllOffered());
         cbxViewOrgGroupItems.setValue(up.canViewOrgGroupItems());
         cbxViewTeamItems.setValue(up.canViewTeamItems());
         
@@ -622,9 +671,9 @@ public class participantData extends AbstractPageBean {
         cbxManageCases.setSelected(false);
         cbxReorderItems.setSelected(false);
         cbxStartConcurrent.setSelected(false);
-        cbxViewAllAllocated.setSelected(false);
-        cbxViewAllExecuting.setSelected(false);
-        cbxViewAllOffered.setSelected(false);
+//        cbxViewAllAllocated.setSelected(false);
+//        cbxViewAllExecuting.setSelected(false);
+//        cbxViewAllOffered.setSelected(false);
         cbxViewOrgGroupItems.setSelected(false);
         cbxViewTeamItems.setSelected(false);
 
@@ -663,9 +712,9 @@ public class participantData extends AbstractPageBean {
         up.setCanManageCases((Boolean) cbxManageCases.getValue());
         up.setCanReorder((Boolean) cbxReorderItems.getValue());
         up.setCanStartConcurrent((Boolean) cbxStartConcurrent.getValue());
-        up.setCanViewAllAllocated((Boolean) cbxViewAllAllocated.getValue());
-        up.setCanViewAllExecuting((Boolean) cbxViewAllExecuting.getValue());
-        up.setCanViewAllOffered((Boolean) cbxViewAllOffered.getValue());
+//        up.setCanViewAllAllocated((Boolean) cbxViewAllAllocated.getValue());
+//        up.setCanViewAllExecuting((Boolean) cbxViewAllExecuting.getValue());
+//        up.setCanViewAllOffered((Boolean) cbxViewAllOffered.getValue());
         up.setCanViewOrgGroupItems((Boolean) cbxViewOrgGroupItems.getValue());
         up.setCanViewTeamItems((Boolean) cbxViewTeamItems.getValue());
     }
@@ -777,6 +826,30 @@ public class participantData extends AbstractPageBean {
     private boolean hasText(PasswordField field) {
         return ((String) field.getPassword()).length() > 0 ;
     }
+
+
+    // below are tags removed from the jsp - may be reused later - here for safekeeping
+    
+//                <ui:checkbox binding="#{participantData.cbxViewAllOffered}"
+//                    id="cbxViewAllOffered"
+//                    label="View All Offered Work items"
+//                    styleClass="orgDataPrivCheckBox"
+//                    selected="false"
+//                    style="top: 127px"/>
+//
+//                <ui:checkbox binding="#{participantData.cbxViewAllAllocated}"
+//                    id="cbxViewAllAllocated"
+//                    label="View All Allocated Work Items"
+//                    styleClass="orgDataPrivCheckBox"
+//                    selected="false"
+//                    style="top: 156px"/>
+//
+//                <ui:checkbox binding="#{participantData.cbxViewAllExecuting}"
+//                    id="cbxViewAllExecuting"
+//                    label="View All Executing Work Items"
+//                    styleClass="orgDataPrivCheckBox"
+//                    selected="false"
+//                    style="top: 185px"/>
 
 }
 

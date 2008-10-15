@@ -77,6 +77,7 @@ public class pfMenubar extends AbstractFragmentBean {
     private final String BTN_ADMINQUEUES = "AdminQueues";
     private final String BTN_SERVICEMGT = "ServiceMgt";
     private final String BTN_ORGDATAMGT = "OrgDataMgt";
+    private final String BTN_TEAMQUEUES = "TeamQueues";
 
     private final int BTN_WIDTH = 95;
     private final int BOOKEND_WIDTH = 38;
@@ -91,10 +92,15 @@ public class pfMenubar extends AbstractFragmentBean {
         if (p != null) {
             menuPanel.getChildren().add(makeButton(BTN_WORKQUEUES));
             menuPanel.getChildren().add(makeButton(BTN_PROFILE));
+
+            // participants with admin or team view access get to view teams
+            if (p.isAdministrator() || canViewTeamQueues(p)) {
+                menuPanel.getChildren().add(makeButton(BTN_TEAMQUEUES));
+            }
         }
 
         // the "admin" user (p == null) and users with admin privileges get admin access
-        if ((p == null) || p.isAdministrator()) {           
+        if ((p == null) || p.isAdministrator()) {
             menuPanel.getChildren().add(makeButton(BTN_ADMINQUEUES));
             menuPanel.getChildren().add(makeButton(BTN_CASEMGT));
             menuPanel.getChildren().add(makeButton(BTN_USERMGT));
@@ -109,7 +115,7 @@ public class pfMenubar extends AbstractFragmentBean {
            }
         }
 
-        // everyone gets to logoff
+        // and everyone gets to logoff
         menuPanel.getChildren().add(makeButton(BTN_LOGOUT));
 
         menuPanel.getChildren().add(makeBookEnd(getRightBookEndLeftPos()));
@@ -161,6 +167,7 @@ public class pfMenubar extends AbstractFragmentBean {
         if (btnType.equals(BTN_ADMINQUEUES)) result = "Admin Queues";
         if (btnType.equals(BTN_SERVICEMGT)) result = "Services";
         if (btnType.equals(BTN_ORGDATAMGT)) result = "Org Data";
+        if (btnType.equals(BTN_TEAMQUEUES)) result = "Team Queues";
         return result;
     }
 
@@ -182,6 +189,11 @@ public class pfMenubar extends AbstractFragmentBean {
                     btn.setStyleClass("menubarButton");
             }
         }
+    }
+
+    private boolean canViewTeamQueues(Participant p) {
+        return p.getUserPrivileges().canViewOrgGroupItems() ||
+               p.getUserPrivileges().canViewTeamItems();
     }
 
 
@@ -233,14 +245,9 @@ public class pfMenubar extends AbstractFragmentBean {
     }
 
 
-
-    public String mnuAdUserQueues_action() {
-        return null;
-    }
-
-
-    public String mnuTeamQueues_action() {
-         return null;
+    public String btnTeamQueuesAction() {
+        showSelection(BTN_TEAMQUEUES);
+        return "showTeamQueues";
     }
 
 

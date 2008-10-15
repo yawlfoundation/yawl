@@ -145,7 +145,11 @@ import java.io.*;
     /****************************************************************************/
 
     public static String formatXMLString(String s) {
-        return elementToString(stringToElement(s));
+        if (s == null) return null;
+        if (s.startsWith("<?xml"))
+            return documentToString(stringToDocument(s));
+        else
+            return elementToString(stringToElement(s));
     }
 
 } //ends

@@ -73,7 +73,7 @@ public class ApplicationBean extends AbstractApplicationBean {
 
     public enum PageRef { adminQueues, caseMgt, customServices, dynForm,
                           Login, orgDataMgt, participantData, selectUser,
-                          userWorkQueues, viewProfile }
+                          userWorkQueues, viewProfile, addInstance, teamQueues }
 
     public enum TabRef { offered, allocated, started, suspended, unoffered, worklisted }
 

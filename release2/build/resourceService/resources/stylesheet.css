@@ -10,21 +10,21 @@
 }
 
 .vpcontainerPanel {
-    height: 380px;
+    height: 400px;
     width: 544px;
     top: 50px;
     position:relative;
 }
 
 .addInstanceContainerPanel {
-    height: 350px;
+    height: 370px;
     width: 306px;
     top: 50px;
     position:relative;
 }
 
 .servicesContainerPanel {
-    height: 455px;
+    height: 475px;
     width: 666px;
     top: 50px;
     position:relative;
@@ -32,35 +32,42 @@
 }
 
 .adminQueuesContainerPanel {
-    height: 330px;
+    height: 350px;
+    width: 696px;
+    top: 50px;
+    position:relative;
+}
+
+.teamQueuesContainerPanel {
+    height: 350px;
     width: 696px;
     top: 50px;
     position:relative;
 }
 
 .userQueuesContainerPanel {
-    height: 264px;
+    height: 284px;
     width: 696px;
     top: 50px;
     position:relative;
 }
 
 .caseMgtContainerPanel {
-    height: 560px;
+    height: 580px;
     width: 602px;
     top: 50px;
     position:relative;
 }
 
 .userMgtContainerPanel {
-    height: 543px;
+    height: 563px;
     width: 670px;
     top: 50px;
     position:relative;
 }
 
 .orgDataMgtContainerPanel {
-    height: 328px;
+    height: 348px;
     width: 694px;
     top: 50px;
     position:relative;
@@ -68,7 +75,7 @@
 
 .viewProfilePanel {
     background-color: #d4e5f6;
-    height: 376px;
+    height: 396px;
     width: 540px;
     top: 50px;
     position:relative;
@@ -169,41 +176,6 @@
     color: red ;
 }
 
-
-/* Rules for menu sidebar */
-
-.menuPanel {
-    background-color: #f0f0f0;
-    border-right-style: solid;
-    border-bottom-style: solid;
-    border-top-style: solid;
-    border-right-width: 2px;
-    border-bottom-width: 2px;
-    border-right-color: gray;
-    border-bottom-color: gray;
-    border-top-color: gray;
-    height: 235px;
-    left: 0px;
-    top: 0px;
-    position: absolute;
-    width: 121px;
-}
-
-.menuSelector {
-    left: 0px;
-    position: absolute;
-    width: 20px;
-    height: 20px;
-}
-
-.menuButton {
-    left: 20px;
-    position: absolute;
-    width: 100px;
-    height: 24px
-}
-
-
 .menubar {
     height: 30px;
     position: relative;
@@ -280,6 +252,30 @@
 .orgDataPrivCheckBox {
     left: 24px;
     position: absolute;
+}
+
+.teamQueuesRBGroup {
+    /*top: -200px;*/
+    /*left: 270px;*/
+    top: 60px;
+    left: 270px;
+    width: 100px;
+    height: 70px;
+    position: absolute;
+    border: 1px solid black;
+    background-color: #f0f0f0;
+}
+
+.teamQueuesRadioButton {
+    left: 5px;
+    position: absolute;
+}
+
+.teamQueuesRadioButtonDisabled {
+    left: 5px;
+    position: absolute;
+    color: gray;
+    font-style: italic;
 }
 
 
@@ -398,6 +394,7 @@
     top: 36px;
     position: absolute;
     width: 570px;
+    height: 110px;
 }
 
 
@@ -454,6 +451,22 @@
 
 /* Rules for Work Queues Pages */
 
+.queueUI {
+    height: 202px;
+    top: 84px;
+    position: absolute;
+    width: 542px;
+    -rave-layout: grid;
+}
+
+.teamQueueUI {
+    height: 202px;
+    top: 10px;
+    position: absolute;
+    width: 542px;
+    -rave-layout: grid;
+}
+
 .userQueuesTabSet {
     border: 1px solid black;
     height: 262px;
@@ -482,6 +495,16 @@
     position: absolute;
     width: 696px;
     background-color: #d4e5f6;
+    -rave-layout: grid;
+}
+
+.teamQueuesInnerPanel {
+    height: 289px;
+    position: absolute;
+    top: 40px;
+    width: 696px;
+    background-color: #d4e5f6;
+    border: 1px solid gray;
     -rave-layout: grid;
 }
 

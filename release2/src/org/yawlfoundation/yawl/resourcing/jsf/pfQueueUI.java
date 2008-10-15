@@ -263,6 +263,10 @@ public class pfQueueUI extends AbstractFragmentBean {
                 result += s.substring(0, maxLen - 1) + "- ";
                 s = s.substring(maxLen - 1);
             }
+            else {
+                result += s.substring(0, spacePos + 1);
+                s = s.substring(spacePos + 1);
+            }
         }
         result += s;
         return result;

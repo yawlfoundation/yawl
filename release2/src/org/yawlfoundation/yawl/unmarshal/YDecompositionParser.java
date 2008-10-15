@@ -339,24 +339,28 @@ public class YDecompositionParser {
         YCondition condition = null;
         String conditionType = conditionElem.getName();
         String id = conditionElem.getAttributeValue("id");
-        String label = conditionElem.getChildText("label");
-        if ("inputCondition".equals(conditionType)) {
-            if (label != null) {
-                condition = new YInputCondition(id, label, aNet);
-            } else {
-                condition = new YInputCondition(id, aNet);
-            }
-        } else if ("outputCondition".equals(conditionType)) {
-            if (label != null) {
-                condition = new YOutputCondition(id, label, aNet);
-            } else {
-                condition = new YOutputCondition(id, aNet);
-            }
-        } else if ("condition".equals(conditionType)) {
+        if ("condition".equals(conditionType)) {
+            String label = conditionElem.getChildText("label");
             if (label != null) {
                 condition = new YCondition(id, label, aNet);
             } else {
                 condition = new YCondition(id, aNet);
+            }
+        }
+        else if ("inputCondition".equals(conditionType)) {
+            String name = conditionElem.getChildText("name");
+            if (name != null) {
+                condition = new YInputCondition(id, name, aNet);
+            } else {
+                condition = new YInputCondition(id, aNet);
+            }
+        }
+        else if ("outputCondition".equals(conditionType)) {
+            String name = conditionElem.getChildText("name");
+            if (name != null) {
+                condition = new YOutputCondition(id, name, aNet);
+            } else {
+                condition = new YOutputCondition(id, aNet);
             }
         }
         List postsetElements = parsePostset(conditionElem);

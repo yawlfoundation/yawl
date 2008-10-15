@@ -1090,6 +1090,15 @@ public class ResourceManager extends InterfaceBWebsideController {
             return null ;
     }
 
+
+    public Set<Participant> getOrgGroupMembers(OrgGroup o) {
+        Set<Participant> result = new HashSet<Participant>();
+        for (Participant p : _ds.participantMap.values()) {
+            if (p.isOrgGroupMember(o)) result.add(p);
+        }
+        return result;
+    }
+
     /**
      * Gets the complete set of Participants that ultimately report to the
      * position(s) held by a Participant
