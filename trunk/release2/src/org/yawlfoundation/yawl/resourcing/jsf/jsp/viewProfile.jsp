@@ -39,6 +39,7 @@
                         <center>
                             <ui:panelLayout binding="#{viewProfile.pnlContainer}"
                                             id="pnlContainer"
+                                            panelLayout="flow"
                                             styleClass="vpcontainerPanel">
 
 
@@ -109,6 +110,37 @@
 
                                  </ui:panelLayout>
 
+
+                                 <!-- Piled Tasks -->
+
+                                 <ui:panelLayout binding="#{viewProfile.pnlPiled}"
+                                                 id="pnlPiled"
+                                                 styleClass="orgDataPanel"
+                                                 style="right: 0; height: 185px; width: 270px">
+
+                                     <ui:staticText binding="#{viewProfile.sttPiled}"
+                                                    id="sttPiled"
+                                                    styleClass="pageSubheading"
+                                                    style="left: 12px; top: 12px"
+                                                    text="Piled Tasks"/>
+
+                                     <ui:listbox binding="#{viewProfile.lbxPiled}"
+                                                 id="lbxPiled"
+                                                 items="#{SessionBean.piledTasks}"
+                                                 style="height: 99px; left: 12px; top: 35px; position: absolute; width: 245px"/>
+
+                                     <ui:button action="#{viewProfile.btnUnpile_action}"
+                                                binding="#{viewProfile.btnUnpile}"
+                                                id="btnUnpile"
+                                                styleClass="orgDataButton"
+                                                style="left: 85px; top: 145px"
+                                                toolTip="Stop piling the selected task"
+                                                text="Unpile"/>
+
+                                 </ui:panelLayout>
+
+
+
 <!-- Password Panel -->
 
 <ui:panelLayout binding="#{viewProfile.pnlNewPassword}"
@@ -153,42 +185,13 @@
 </ui:panelLayout>
 
 
-<!-- Piled Tasks -->
-
-<ui:panelLayout binding="#{viewProfile.pnlPiled}"
-                id="pnlPiled"
-                styleClass="orgDataPanel"
-                style="left: 269px; height: 185px; width: 270px">
-
-    <ui:staticText binding="#{viewProfile.sttPiled}"
-                   id="sttPiled"
-                   styleClass="pageSubheading"
-                   style="left: 12px; top: 12px"
-                   text="Piled Tasks"/>
-
-    <ui:listbox binding="#{viewProfile.lbxPiled}"
-                id="lbxPiled"
-                items="#{SessionBean.piledTasks}"
-                style="height: 99px; left: 12px; top: 35px; position: absolute; width: 245px"/>
-
-    <ui:button action="#{viewProfile.btnUnpile_action}"
-               binding="#{viewProfile.btnUnpile}"
-               id="btnUnpile"
-               styleClass="orgDataButton"
-               style="left: 85px; top: 145px"
-               toolTip="Stop piling the selected task"
-               text="Unpile"/>
-
-</ui:panelLayout>
-
-
                              <!-- Chained Cases -->
 
                              <ui:panelLayout
                                  binding="#{viewProfile.pnlChained}"
                                  id="pnlChained"
                                  styleClass="orgDataPanel"
-                                 style="left: 269px; height: 185px; top: 189px; width: 270px">
+                                 style="right:0; height: 185px; top: 189px; width: 270px">
 
                                  <ui:staticText
                                          binding="#{viewProfile.sttChained}"

@@ -989,6 +989,7 @@
     -->
   <xs:complexType name="LayoutFactsType">
     <xs:sequence>
+      <xs:element name="locale" type="yawl:LayoutLocaleType"/>  
       <xs:element name="specification" maxOccurs="unbounded">
         <xs:complexType>
           <xs:sequence>
@@ -1067,6 +1068,11 @@
  <xs:complexType name="LayoutPointType">
      <xs:attribute name="x" type="xs:double" use="required"/>
      <xs:attribute name="y" type="xs:double" use="required"/>
+ </xs:complexType>
+
+ <xs:complexType name="LayoutLocaleType">
+     <xs:attribute name="language" type="xs:string" use="required"/>
+     <xs:attribute name="country" type="xs:string" use="required"/>
  </xs:complexType>
 
  <xs:complexType name="LayoutPortsType">

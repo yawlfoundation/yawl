@@ -132,9 +132,11 @@ public class pfMenubar extends AbstractFragmentBean {
 
     private ImageComponent makeBookEnd(int left) {
         ImageComponent image = new ImageComponent();
-        image.setStyle("height: 30px; width: 39px; position: absolute; left: " + left + "px");
+        image.setStyle("height:30px; width:39px; position:absolute; left:" + left + "px");
         image.setId(left==0 ? "menuLeft" : "menuRight");
         image.setUrl(left==0 ? "/resources/menuLeft.png" : "/resources/menuRight.png");
+        image.setWidth(39);
+        image.setHeight(30);
         return image;
     }
 

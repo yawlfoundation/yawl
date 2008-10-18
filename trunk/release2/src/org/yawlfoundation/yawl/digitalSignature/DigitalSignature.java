@@ -42,7 +42,7 @@ public class DigitalSignature extends InterfaceBWebsideController
     private static String _Certificate = null;
     private static String _P12 = null;
     private static String _Password = null;
-    private static String _Pathway = "C:/Program Files/Apache Software Foundation/Tomcat 6.0/webapps/DigitalSignature/files/";
+    private static String _Pathway = System.getenv("CATALINA_HOME") + "/webapps/digitalSignature/files/";
     private static String _Name = null;
     
     private static String _sessionHandle = null;

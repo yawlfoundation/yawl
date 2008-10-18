@@ -181,6 +181,8 @@ public class MessagePanel extends PanelLayout {
         _imgIcon = new ImageComponent() ;
         _imgIcon.setId("imgIcon001");
         _imgIcon.setUrl(errorIconURL);
+        _imgIcon.setHeight(48);
+        _imgIcon.setWidth(48);
         _imgIcon.setStyle(getPosStyle(10, 10) + "background-color: #f0f0f0; " +
                                                 "height: 48px; width: 48px;") ;
         return _imgIcon ;
@@ -266,9 +268,9 @@ public class MessagePanel extends PanelLayout {
 
         // estimated constants
         double minHeight = 70.0;
-        double lineHeight = 15;
+        double lineHeight = 15.5;
 
-        long height = Math.round(Math.max(minHeight, lineCount * lineHeight));
-        this.setStyle(String.format("%s height: %dpx", _style, height));
+        double height = Math.round(Math.max(minHeight, lineCount * lineHeight));
+        this.setStyle(String.format("%s height: %.0fpx", _style, height));
     }
 }

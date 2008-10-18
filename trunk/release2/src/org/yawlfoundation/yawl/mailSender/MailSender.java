@@ -94,7 +94,7 @@ public class MailSender extends InterfaceBWebsideController {
          
          MimeBodyPart mimebodypart1 = null;
          mimebodypart1 = new MimeBodyPart();
-         FileDataSource filedatasource = new FileDataSource("C:/Program Files/Apache Software Foundation/Tomcat 6.0/webapps/MailSender/files/"+filename);
+         FileDataSource filedatasource = new FileDataSource(System.getenv("CATALINA_HOME") + "/webapps/mailSender/files/" + filename);
          mimebodypart1.setDataHandler(new DataHandler(filedatasource));
          mimebodypart1.setFileName(filename);
          mimebodypart1.setDisposition("inline");

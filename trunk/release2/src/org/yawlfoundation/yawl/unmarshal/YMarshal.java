@@ -14,11 +14,10 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -131,13 +130,13 @@ public class YMarshal {
         }
         xml.append("</specificationSet>");
 
-        SAXBuilder builder = new SAXBuilder();
-        Document finalDoc = null;
-
-        finalDoc = builder.build(new StringReader(xml.toString()));
-        XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
-        return out.outputString(finalDoc);
-
+        return JDOMUtil.formatXMLStringAsDocument(xml.toString());
+//        SAXBuilder builder = new SAXBuilder();
+//        Document finalDoc = null;
+//
+//        finalDoc = builder.build(new StringReader(xml.toString()));
+//        XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
+//        return out.outputString(finalDoc);
     }
 
 
