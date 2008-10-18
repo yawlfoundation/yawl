@@ -124,7 +124,7 @@ class DecomposeToDirectDataTransferDialog extends AbstractTaskDoneDialog  {
   
   protected void makeLastAdjustments() {
     //pack();
-    setSize(640, 300);
+    setSize(640, 360);
     JUtilities.setMinSizeToCurrent(this);
   }
   
@@ -317,7 +317,7 @@ class SelectableNetVarTable extends JSingleSelectTable {
     getColumn("").setResizable(false);
   }
   
-  public SelectableNetVarTableModel  getSelectableNetVarTableModel() {
+  public SelectableNetVarTableModel getSelectableNetVarTableModel() {
     return (SelectableNetVarTableModel) getModel();
   }
   
@@ -326,6 +326,7 @@ class SelectableNetVarTable extends JSingleSelectTable {
     setPreferredScrollableViewportSize(
         getPreferredSize()
     );
+    updateUI();
   }
   
   public List<DataVariable> getSelectedVariables() {
@@ -387,10 +388,7 @@ class SelectableNetVarTableModel extends AbstractTableModel {
        variableListSelection.add(new Boolean(false)); 
     }
     
-    fireTableRowsUpdated(
-        0, 
-        variables.size() - 1
-    );
+    fireTableRowsUpdated(0, variables.size() - 1);
   }
   
   public int getColumnCount() {

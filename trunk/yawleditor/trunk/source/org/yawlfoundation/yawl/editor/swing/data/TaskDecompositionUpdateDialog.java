@@ -220,6 +220,7 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
         getDataVariablePanel().setVariables(
             generateDataVariablesFromServiceSelection()
         );
+        cbxAutomated.setEnabled(yawlServiceComboBox.getSelectedIndex() == 0);
       }
     });
     return yawlServiceComboBox;

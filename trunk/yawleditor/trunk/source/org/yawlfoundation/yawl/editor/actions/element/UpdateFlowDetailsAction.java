@@ -115,7 +115,6 @@ class FlowPriorityDialog extends AbstractTaskDoneDialog {
   
   public void buildContentPanel(FlowDetailTablePanel flowPanel) {
     this.flowDetailPanel = flowPanel;
-    
     JPanel panel = new JPanel();
     
     GridBagLayout gbl = new GridBagLayout();
@@ -231,6 +230,13 @@ class FlowDetailTablePanel extends AbstractOrderedTablePanel {
   public void setTaskAndNet(YAWLTask task, NetGraph net) {
     this.netOfTask = net;
     flowTable.setTaskAndNet(task, net);
+
+    // don't show alternate row colours if there's less than 5 rows
+    if (task.getSplitDecorator().getFlowCount() < 5)
+        getOrderedTable().setOddRowColor(Color.WHITE);
+    else
+        getOrderedTable().setOddRowColor(Color.decode("0xFAEBD7"));  //default odd row colour
+      
     rememberOriginalFlowColours(task);
   }
   

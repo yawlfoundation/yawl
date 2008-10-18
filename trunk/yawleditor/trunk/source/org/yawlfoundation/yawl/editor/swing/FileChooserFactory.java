@@ -120,7 +120,7 @@ public class FileChooserFactory {
               return fileType.split(",");
           }
 
-          private boolean isValidExtension(File file) {
+          private boolean isValidExtension(File file) {   
               String[] extns = makeExtensions();
               for (String extn : extns) {
                   if (file.getName().toLowerCase().endsWith("." + extn))
@@ -154,8 +154,9 @@ public class FileChooserFactory {
       titleSuffix
     );
     
+    fileChooser.setAcceptAllFileFilterUsed(false);      // don't show 'all files' choice
     fileChooser.setFileFilter(new YAWLFileFilter());
-    
+
     return fileChooser;
   }
 

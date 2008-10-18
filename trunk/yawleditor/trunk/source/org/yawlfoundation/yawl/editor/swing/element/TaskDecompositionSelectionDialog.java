@@ -131,6 +131,11 @@ public class TaskDecompositionSelectionDialog extends AbstractTaskDoneDialog {
         
         WebServiceDecomposition decomposition = new WebServiceDecomposition();
 
+        // if the task has a label, use it as a default decomp name
+        if (getTask().getLabel() != null) {
+            decomposition.setLabel(getTask().getLabel());
+        }
+
         getGraph().stopUndoableEdits();
 
         TaskDecompositionUpdateDialog updateDialog = 
