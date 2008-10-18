@@ -91,6 +91,7 @@ public class EngineSpecificationHandler {
   }
   
   private void importEngineSpecificationFile(String fullFileName) {
+    if (fullFileName == null) return;  
     YAWLEditor.setStatusBarText("Opening Specification...");
     YAWLEditor.progressStatusBarOverSeconds(2);
     YAWLEditorDesktop.getInstance().setVisible(false);
@@ -113,8 +114,10 @@ public class EngineSpecificationHandler {
     }
 
     File file = OPEN_FILE_CHOOSER.getSelectedFile();
-
-    return getFullNameFromFile(file);
+    if (file.isFile())                              // check for odd dirs on non dos os's
+        return getFullNameFromFile(file);
+    else
+        return null;
   }
 
   
@@ -179,7 +182,7 @@ public class EngineSpecificationHandler {
          return fullFileName;                                   // ok
       }
     }
-    return fullFileName += ".xml";
+    return fullFileName += ".yawl";
     }
 
 }

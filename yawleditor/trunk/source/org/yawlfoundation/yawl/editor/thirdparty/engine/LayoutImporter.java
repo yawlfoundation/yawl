@@ -15,6 +15,7 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.List;
 
@@ -27,6 +28,8 @@ public class LayoutImporter {
     public LayoutImporter() {}
 
     private static Namespace _ns ;
+    private static NumberFormat _nbrFormatter;
+    private static Locale _locale;
 
     private static final int SPLIT = 1;
     private static final int JOIN = 2;
@@ -34,6 +37,8 @@ public class LayoutImporter {
     // import is a reserved word
     public static void importAndApply(SpecificationModel model, Element layout) {
         _ns = layout.getNamespace();
+        setLocale(layout);
+
         Element spec = layout.getChild("specification", _ns);
         if (spec != null) {
             List nets = spec.getChildren("net", _ns);
@@ -90,7 +95,7 @@ public class LayoutImporter {
 
         String scale = e.getChildText("scale", _ns);
         if (scale != null) {
-            netModel.getGraph().setScale(new Double(scale));
+            netModel.getGraph().setScale(doubleFormat(scale));
         }
 
         Element eFrame = e.getChild("frame", _ns);
@@ -345,14 +350,14 @@ public class LayoutImporter {
     private static Point2D.Double createPoint(Element e) {
         String x = e.getAttributeValue("x");
         String y = e.getAttributeValue("y");
-        return new Point2D.Double(new Double(x), new Double(y));
+        return new Point2D.Double(doubleFormat(x), doubleFormat(y));
     }
 
 
     private static AttributeMap.SerializablePoint2D createPoint2D(Element e) {
         String x = e.getAttributeValue("x");
         String y = e.getAttributeValue("y");
-        return new AttributeMap.SerializablePoint2D(new Double(x), new Double(y));
+        return new AttributeMap.SerializablePoint2D(doubleFormat(x), doubleFormat(y));
     }
 
 
@@ -361,8 +366,8 @@ public class LayoutImporter {
         String y = e.getAttributeValue("y");
         String w = e.getAttributeValue("w");
         String h = e.getAttributeValue("h");
-        return new AttributeMap.SerializableRectangle2D(new Double(x),
-                          new Double(y), new Double(w), new Double(h));
+        return new AttributeMap.SerializableRectangle2D(doubleFormat(x),
+                          doubleFormat(y), doubleFormat(w), doubleFormat(h));
     }
 
 
@@ -384,6 +389,29 @@ public class LayoutImporter {
         }
     }
 
+
+    private static void setLocale(Element e) {
+        Element eLocale = e.getChild("locale", _ns);
+        if (eLocale != null) {
+            String language = eLocale.getAttributeValue("language");
+            String country = eLocale.getAttributeValue("country");
+            _locale = new Locale(language, country);
+        }
+        else _locale = Locale.getDefault();
+
+        _nbrFormatter = NumberFormat.getInstance(_locale);
+    }
+
+
+    // takes care of any locale issues with decimal separators
+    private static Double doubleFormat(String d) {
+        try {
+            return _nbrFormatter.parse(d).doubleValue();
+        }
+        catch (Exception pe) {
+            return (double) 1 ;
+        }
+    }
 
     private static void reposition(NetGraphModel netModel, YAWLVertex vertex) {
         GraphCell cell = vertex;

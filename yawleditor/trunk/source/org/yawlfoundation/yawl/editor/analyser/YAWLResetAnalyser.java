@@ -68,8 +68,11 @@ public class YAWLResetAnalyser{
           specs = YMarshal.unmarshalSpecifications(fileURL).get(0);
        }
        catch (YSyntaxException yse) {
+           String msg = yse.getMessage().trim();
+           msg = msg.substring(0, msg.indexOf(":")) + ".";
            JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
-               yse.getMessage() + "\nAnalysis cannot proceed until these issues are fixed.",
+               msg + "\nAnalysis cannot proceed until these issues are fixed.\n" +
+               "Please validate the specification for more detailed information.",
                "Error validating specification",
                JOptionPane.ERROR_MESSAGE);
            return "";

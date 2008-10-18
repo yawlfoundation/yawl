@@ -100,7 +100,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
   private static boolean successful(String xml) {
     if ((xml == null) || (xml.equals("null")) || (xml.startsWith("<fail"))) {
-      String msg = "Export resulted in a 'null' xml specification.\n File not created.\n";
+      String msg = "File save process resulted in a 'null' specification.\n File not created.\n";
       if ((xml != null) && (xml.startsWith("<fail"))) {
          int start = xml.indexOf('>') + 1;
          int len = xml.lastIndexOf('<') - start;

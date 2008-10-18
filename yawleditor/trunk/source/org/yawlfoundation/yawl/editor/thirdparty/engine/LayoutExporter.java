@@ -14,6 +14,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.Enumeration;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -25,14 +26,17 @@ public class LayoutExporter {
     public LayoutExporter() {}
 
     public String export(SpecificationModel model) {
-        StringBuilder xml = new StringBuilder("<layout><specification id=\"");
-        xml.append(model.getId());
+        StringBuilder xml = new StringBuilder("<layout>");
+        xml.append(writeLocale());
 
+        xml.append("<specification id=\"");
+        xml.append(model.getId());
         if (model.getDefaultNetBackgroundColor() != Color.WHITE.getRGB()) {
             xml.append("\" defaultBgColor=\"");
             xml.append(String.valueOf(model.getDefaultNetBackgroundColor()));
         }
         xml.append("\">");
+
         xml.append(writeDesktopDimension());
 
         for (NetGraphModel net : model.getNets()) {
@@ -372,6 +376,13 @@ public class LayoutExporter {
             return String.format(template, dimension.width, dimension.height);
         }
         return String.format(template, 800, 600) ;                          // default
+    }
+
+
+    private String writeLocale() {
+        Locale locale = Locale.getDefault();
+        return String.format("<locale language=\"%s\" country=\"%s\"/>",
+                locale.getLanguage(), locale.getCountry());
     }
     
 }

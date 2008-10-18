@@ -376,7 +376,7 @@ public abstract class YAWLVertex extends DefaultGraphCell
     Object[] children = this.getChildren().toArray();
     
     int j = 0;
-    for(int i = 0; i < children.length; i++) {
+    for(int i = 0; i < Math.min(children.length, 4); i++) {
       if (children[i] instanceof YAWLPort) {
         ports[j++] = (YAWLPort) children[i];
       }
