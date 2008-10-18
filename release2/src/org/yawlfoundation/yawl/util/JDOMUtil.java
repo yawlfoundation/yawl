@@ -152,4 +152,14 @@ import java.io.*;
             return elementToString(stringToElement(s));
     }
 
+    public static String formatXMLStringAsDocument(String s) {
+        return documentToString(stringToDocument(s));
+    }
+
+    public static String formatXMLStringAsElement(String s) {
+        return elementToString(stringToElement(s));
+    }
+
+
+
 } //ends

@@ -14,6 +14,7 @@
     width: 544px;
     top: 50px;
     position:relative;
+    border: 2px solid gray;
 }
 
 .addInstanceContainerPanel {
@@ -21,6 +22,7 @@
     width: 306px;
     top: 50px;
     position:relative;
+    border: 2px solid gray;
 }
 
 .servicesContainerPanel {
@@ -28,7 +30,6 @@
     width: 666px;
     top: 50px;
     position:relative;
-    border: 1px solid gray;
 }
 
 .adminQueuesContainerPanel {
@@ -114,6 +115,7 @@
     border: 2px solid gray;
     left: 12px;
     top: 36px;
+    height: 122px;
     position: absolute;    
 }
 
@@ -209,8 +211,8 @@
     border-bottom-style: solid;
     border-bottom-width: 2px;
     height: 110px;
-    left: 0px;
-    top: 0px;
+    left: 0;
+    top: 0;
     position: absolute;
     width: 100%;
 }
@@ -312,7 +314,7 @@
 .dynformOccursButton {
     font-size: 10px;
     font-weight: bold;
-    top: 0px ;
+    top: 0;
     height: 18px ;
     width: 20px;
     position: absolute;
@@ -470,6 +472,7 @@
 .userQueuesTabSet {
     border: 1px solid black;
     height: 262px;
+    left: 0;
     position: absolute;
     width: 696px;
 }
@@ -477,6 +480,7 @@
 .adminQueuesTabSet {
     border: 1px solid black;
     height: 326px;
+    left: 0;
     position: absolute;
     width: 696px;
 }
@@ -554,6 +558,7 @@
     background-color: #d4e5f6;
     position: absolute;
     width: 406px;
+    left:0;
     -rave-layout: grid;
 }
 

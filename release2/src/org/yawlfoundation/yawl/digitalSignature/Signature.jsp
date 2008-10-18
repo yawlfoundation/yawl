@@ -3,14 +3,7 @@
 <%@ page import="org.yawlfoundation.yawl.engine.interfce.WorkItemRecord" %>
     <html xmlns="http://www.w3.org/1999/xhtml">
     
-    <%@ page import="org.apache.commons.fileupload.servlet.*,
-    org.apache.commons.fileupload.disk.*,
-     org.apache.commons.io.*,
-     java.util.*,
-     org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException,
-     org.apache.commons.fileupload.*,
-     org.yawlfoundation.yawl.digitalSignature.DigitalSignature,
-     java.io.*" %>
+
      
 	<head>
 		<title>Welcome to the Digital Signature Service</title>
