@@ -54,9 +54,9 @@ public class UserPrivileges implements Serializable {
         setCanChooseItemToStart(canChooseItemToStart) ;
         setCanStartConcurrent(canStartConcurrent) ;
         setCanReorder(canReorder) ;
-        setCanViewAllOffered(canViewAllOffered) ;
-        setCanViewAllAllocated(canViewAllAllocated) ;
-        setCanViewAllExecuting(canViewAllExecuting) ;
+//        setCanViewAllOffered(canViewAllOffered) ;
+//        setCanViewAllAllocated(canViewAllAllocated) ;
+//        setCanViewAllExecuting(canViewAllExecuting) ;
         setCanViewTeamItems(canViewTeamItems) ;
         setCanViewOrgGroupItems(canViewOrgGroupItems);
         setCanChainExecution(canChainExecution) ;
@@ -77,9 +77,9 @@ public class UserPrivileges implements Serializable {
         setCanChooseItemToStart(up.canChooseItemToStart()) ;
         setCanStartConcurrent(up.canStartConcurrent()) ;
         setCanReorder(up.canReorder()) ;
-        setCanViewAllOffered(up.canViewAllOffered()) ;
-        setCanViewAllAllocated(up.canViewAllAllocated()) ;
-        setCanViewAllExecuting(up.canViewAllExecuting()) ;
+//        setCanViewAllOffered(up.canViewAllOffered()) ;
+//        setCanViewAllAllocated(up.canViewAllAllocated()) ;
+//        setCanViewAllExecuting(up.canViewAllExecuting()) ;
         setCanViewTeamItems(up.canViewTeamItems()) ;
         setCanViewOrgGroupItems(up.canViewOrgGroupItems());
         setCanChainExecution(up.canChainExecution()) ;
@@ -111,17 +111,17 @@ public class UserPrivileges implements Serializable {
         return carteblanche || canReorder;
     }
 
-    public boolean canViewAllOffered() {
-        return carteblanche || canViewAllOffered;
-    }
-
-    public boolean canViewAllAllocated() {
-        return carteblanche || canViewAllAllocated;
-    }
-
-    public boolean canViewAllExecuting() {
-        return carteblanche || canViewAllExecuting;
-    }
+//    public boolean canViewAllOffered() {
+//        return carteblanche || canViewAllOffered;
+//    }
+//
+//    public boolean canViewAllAllocated() {
+//        return carteblanche || canViewAllAllocated;
+//    }
+//
+//    public boolean canViewAllExecuting() {
+//        return carteblanche || canViewAllExecuting;
+//    }
 
     public boolean canChainExecution() {
         return carteblanche || canChainExecution;
@@ -151,17 +151,17 @@ public class UserPrivileges implements Serializable {
         this.canReorder = canReorder;
     }
 
-    public void setCanViewAllOffered(boolean canViewAllOffered) {
-        this.canViewAllOffered = canViewAllOffered;
-    }
-
-    public void setCanViewAllAllocated(boolean canViewAllAllocated) {
-        this.canViewAllAllocated = canViewAllAllocated;
-    }
-
-    public void setCanViewAllExecuting(boolean canViewAllExecuting) {
-        this.canViewAllExecuting = canViewAllExecuting;
-    }
+//    public void setCanViewAllOffered(boolean canViewAllOffered) {
+//        this.canViewAllOffered = canViewAllOffered;
+//    }
+//
+//    public void setCanViewAllAllocated(boolean canViewAllAllocated) {
+//        this.canViewAllAllocated = canViewAllAllocated;
+//    }
+//
+//    public void setCanViewAllExecuting(boolean canViewAllExecuting) {
+//        this.canViewAllExecuting = canViewAllExecuting;
+//    }
 
     public void setCanViewTeamItems(boolean canViewTeamItems) {
         this.canViewTeamItems = canViewTeamItems;
@@ -186,9 +186,9 @@ public class UserPrivileges implements Serializable {
            .append(wrapPrivilege(canChooseItemToStart(), "canChooseItemToStart"))
            .append(wrapPrivilege(canStartConcurrent(), "canStartConcurrent"))
            .append(wrapPrivilege(canReorder(), "canReorder"))
-           .append(wrapPrivilege(canViewAllOffered(), "canViewAllOffered"))
-           .append(wrapPrivilege(canViewAllAllocated(), "canViewAllAllocated"))
-           .append(wrapPrivilege(canViewAllExecuting(), "canViewAllExecuting"))
+//           .append(wrapPrivilege(canViewAllOffered(), "canViewAllOffered"))
+//           .append(wrapPrivilege(canViewAllAllocated(), "canViewAllAllocated"))
+//           .append(wrapPrivilege(canViewAllExecuting(), "canViewAllExecuting"))
            .append(wrapPrivilege(canViewTeamItems(), "canViewTeamItems"))
            .append(wrapPrivilege(canViewOrgGroupItems(), "canViewOrgGroupItems"))
            .append(wrapPrivilege(canChainExecution(), "canChainExecution"))
@@ -205,9 +205,9 @@ public class UserPrivileges implements Serializable {
             setCanChooseItemToStart(e.getChildText("canChooseItemToStart").equals("true"));
             setCanStartConcurrent(e.getChildText("canStartConcurrent").equals("true"));
             setCanReorder(e.getChildText("canReorder").equals("true"));
-            setCanViewAllOffered(e.getChildText("canViewAllOffered").equals("true"));
-            setCanViewAllAllocated(e.getChildText("canViewAllAllocated").equals("true"));
-            setCanViewAllExecuting(e.getChildText("canViewAllExecuting").equals("true"));
+//            setCanViewAllOffered(e.getChildText("canViewAllOffered").equals("true"));
+//            setCanViewAllAllocated(e.getChildText("canViewAllAllocated").equals("true"));
+//            setCanViewAllExecuting(e.getChildText("canViewAllExecuting").equals("true"));
             setCanViewTeamItems(e.getChildText("canViewTeamItems").equals("true"));
             setCanViewOrgGroupItems(e.getChildText("canViewOrgGroupItems").equals("true"));
             setCanChainExecution(e.getChildText("canChainExecution").equals("true"));

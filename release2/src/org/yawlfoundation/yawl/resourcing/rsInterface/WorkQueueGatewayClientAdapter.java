@@ -159,6 +159,13 @@ public class WorkQueueGatewayClientAdapter {
     }
 
 
+    public Set<Participant> getOrgGroupMembers(String oid, String handle)
+                                                                throws IOException {
+        String xml = _wqclient.getOrgGroupMembers(oid, handle) ;
+        return _marshaller.unmarshallParticipants(xml) ;
+    }
+
+
     public Participant getParticipant(String pid, String handle) throws IOException {
         Participant result = null;
         String xml = _wqclient.getParticipant(pid, handle) ;

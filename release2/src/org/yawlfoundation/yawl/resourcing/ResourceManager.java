@@ -2482,8 +2482,17 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
         return result ;
     }
+
+
+    public String launchCase(String specID, String version, String caseData, String handle)
+            throws IOException {
+        YSpecificationID ySpecID = new YSpecificationID(specID, version);
+        return launchCase(ySpecID, caseData, handle);
+    }
     
-    public String launchCase(String specID, String caseData, String handle) throws IOException {
+    
+    public String launchCase(YSpecificationID specID, String caseData, String handle)
+            throws IOException {
         return _interfaceBClient.launchCase(specID, caseData, getHandleForEngineCall(handle)) ;
     }
 
