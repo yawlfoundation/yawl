@@ -13,6 +13,7 @@ import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
 import com.sun.rave.web.ui.model.UploadedFile;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
@@ -341,9 +342,7 @@ public class caseMgt extends AbstractPageBean {
 
         // take postback action on case launch
         if (_sb.isCaseLaunch()) {
-            String specID = _sb.getLoadedSpecListChoice().getSpecName() ;
-            if (specID != null)
-                beginCase(specID, _sb.getSessionhandle());
+            beginCase(_sb.getLoadedSpecListChoice(), _sb.getSessionhandle());
         }
         updateRunningCaseList();
         activateButtons();
@@ -532,7 +531,9 @@ public class caseMgt extends AbstractPageBean {
             else {
 
                 // no case params to worry about
-                beginCase(specData.getID(), _sb.getSessionhandle());
+                YSpecificationID ySpecID = new YSpecificationID(specData.getID(),
+                                                                specData.getSpecVersion());
+                beginCase(ySpecID, _sb.getSessionhandle());
             }
         }
         return null ;
@@ -540,7 +541,7 @@ public class caseMgt extends AbstractPageBean {
 
 
     // starts a new case (either directly from startCase() or via a postback action)
-    private void beginCase(String specID, String handle) {
+    private void beginCase(YSpecificationID specID, String handle) {
         String caseData = null ;
         String result ;
         if (_sb.isCaseLaunch()) {

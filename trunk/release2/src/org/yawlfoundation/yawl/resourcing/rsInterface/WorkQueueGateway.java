@@ -16,6 +16,7 @@ import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.resource.OrgGroup;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
 
@@ -147,6 +148,12 @@ public class WorkQueueGateway extends HttpServlet {
             Set<Participant> set = _rm.getParticipantsReportingTo(pid);
             result = _marshaller.marshallParticipants(set) ;
         }
+        else if (action.equals("getOrgGroupMembers")) {
+            String groupid = req.getParameter("groupid");
+            OrgGroup og = _rm.getOrgGroup(groupid);
+            Set<Participant> set = _rm.getOrgGroupMembers(og);
+            result = _marshaller.marshallParticipants(set) ;
+        }        
         else if (action.equals("getParticipant")) {
             result = _rm.getParticipant(pid).toXML();
         }
@@ -308,7 +315,8 @@ public class WorkQueueGateway extends HttpServlet {
         else if (action.equals("launchCase")) {
             String specID = req.getParameter("specid") ;
             String caseData = req.getParameter("casedata") ;
-            result = _rm.launchCase(specID, caseData, handle);
+            String version = req.getParameter("version");
+            result = _rm.launchCase(specID, version, caseData, handle);
         }
         else if (action.equals("cancelCase")) {
             String caseID = req.getParameter("caseid") ;

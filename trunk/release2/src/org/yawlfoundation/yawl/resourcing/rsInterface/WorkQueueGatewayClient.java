@@ -170,6 +170,13 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
 
+    public String getOrgGroupMembers(String oid, String handle) throws IOException {
+        params.clear();
+        params.put("groupid", oid) ;
+        return performGet("getOrgGroupMembers", params, handle) ;
+    }
+
+
     public String getParticipant(String pid, String handle) throws IOException {
         params.clear();
         params.put("participantid", pid) ;

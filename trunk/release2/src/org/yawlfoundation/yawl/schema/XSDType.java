@@ -59,7 +59,7 @@ public class XSDType {
     public static final int ENTITY               = 37;
     public static final int ENTITIES             = 38;
 
-    // Oddball Types
+    // Other Types
     public static final int QNAME                = 39;
     public static final int BOOLEAN              = 40;
     public static final int HEX_BINARY           = 41;
@@ -178,7 +178,7 @@ public class XSDType {
     }
 
     public List<String> getBuiltInTypeList() {
-        return _typeList;
+        return new ArrayList<String>(_typeList);                        // send a copy  
     }
 
     public String[] getBuiltInTypeArray() {

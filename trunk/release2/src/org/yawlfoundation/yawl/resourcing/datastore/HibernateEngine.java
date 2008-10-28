@@ -161,7 +161,7 @@ public class HibernateEngine {
             tx.commit();
         }
         catch (HibernateException he) {
-            _log.error("Error persisting object (" + actionToString(action) +
+            _log.error("Handled Exception: Error persisting object (" + actionToString(action) +
                     "): " + obj.toString(), he);
             if (tx != null) tx.rollback();
         }

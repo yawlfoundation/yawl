@@ -123,6 +123,10 @@ private static String getReply(InputStream is) throws IOException {
         return ""; }
     }
 
+//    private String launchCase() {
+//
+//    }
+
     private String doGetParticipantsTest() {
         String resURL = "http://localhost:8080/resourceService/gateway";
         ResourceGatewayClientAdapter resClient = new ResourceGatewayClientAdapter(resURL) ;

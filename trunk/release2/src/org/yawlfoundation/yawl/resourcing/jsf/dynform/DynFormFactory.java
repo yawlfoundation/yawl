@@ -546,7 +546,10 @@ public class DynFormFactory extends AbstractSessionBean {
 
         // get container of this panel
         UIComponent parent = panel.getParent();
-        parent.getChildren().add(newPanel);
+        List children = parent.getChildren();
+
+        // insert the new panel directly after the cloned one
+        children.add(children.indexOf(panel) + 1, newPanel);
 
         SubPanel level0Container = panel.getController().addSubPanel(newPanel);
         int adjustment = newPanel.getHeight() + DynFormFactory.Y_PP_INCREMENT;

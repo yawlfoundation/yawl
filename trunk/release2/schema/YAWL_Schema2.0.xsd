@@ -1007,7 +1007,7 @@
  <xs:complexType name="LayoutNetFactsType">
    <xs:choice maxOccurs="unbounded">
        <xs:element name="frame" type="yawl:LayoutFrameType"/>
-       <xs:element name="scale" type="xs:double"/>
+       <xs:element name="scale" type="xs:string"/>
        <xs:element name="vertex" type="yawl:LayoutVertexFactsType"
                    minOccurs="0" maxOccurs="unbounded"/>
        <xs:element name="container" type="yawl:LayoutContainerFactsType"
@@ -1066,8 +1066,8 @@
  </xs:complexType>
 
  <xs:complexType name="LayoutPointType">
-     <xs:attribute name="x" type="xs:double" use="required"/>
-     <xs:attribute name="y" type="xs:double" use="required"/>
+     <xs:attribute name="x" type="xs:string" use="required"/>
+     <xs:attribute name="y" type="xs:string" use="required"/>
  </xs:complexType>
 
  <xs:complexType name="LayoutLocaleType">
@@ -1132,11 +1132,12 @@
    <xs:attribute name="b" type="xs:integer" use="required"/>
  </xs:complexType>
 
+ <!--strings instead of doubles used to avoid locale issues: '.' vs ','  -->
  <xs:complexType name="LayoutRectangleType">
-   <xs:attribute name="x" type="xs:double" use="required"/>
-   <xs:attribute name="y" type="xs:double" use="required"/>
-   <xs:attribute name="w" type="xs:double" use="required"/>
-   <xs:attribute name="h" type="xs:double" use="required"/>
+   <xs:attribute name="x" type="xs:string" use="required"/>
+   <xs:attribute name="y" type="xs:string" use="required"/>
+   <xs:attribute name="w" type="xs:string" use="required"/>
+   <xs:attribute name="h" type="xs:string" use="required"/>
  </xs:complexType>
 
  <xs:complexType name="LayoutFrameType">
