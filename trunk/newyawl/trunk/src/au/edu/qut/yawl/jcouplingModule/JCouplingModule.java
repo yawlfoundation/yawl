@@ -42,7 +42,7 @@ public class JCouplingModule extends InterfaceBWebsideController implements Runn
                         WorkItemRecord itemRecord = (WorkItemRecord) children.get(i);
                         //System.out.println("WebServiceController::processEnabledAnnouncement() itemRecord = " + itemRecord);
                         
-// prepare the replying element, used later in interaction       	 //from SMSSender                
+// prepare the replying element, used later in interaction       	              
                         Element dataForEngine = prepareReplyRootElement(enabledWorkItem, _sessionHandle);
 
 // get msg input parameters                        
