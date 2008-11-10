@@ -81,7 +81,7 @@ Public Class TreeSet
 
     ' returns the rule tree for the specified task name
     Public Function getTreeForTask(ByVal task As String) As RuleTree
-        Dim result As RuleTree
+        Dim result As RuleTree = Nothing
 
         For Each tree As RuleTree In _trees
             If tree.Name = task Then

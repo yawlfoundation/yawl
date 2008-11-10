@@ -8,7 +8,7 @@ Imports System.Xml
 Imports System.IO
 Imports System.Runtime.Serialization.Formatters.Binary
 
-Module Global
+Module [Global]
 
     ' This module contains some global variables and methods
     '
@@ -71,7 +71,7 @@ Module Global
 
     ' converts the contents of a listbox of cornerstone data to a composite item array
     Public Function buildCornerStone(ByVal lbx As ListBox) As CompositeItem()
-        Dim result As CompositeItem()
+        Dim result As CompositeItem() = Nothing
         Dim element As CompositeItem
         Dim pair() As String
 
@@ -135,7 +135,6 @@ Module Global
 
     ' checks for a valid repository path
     Public Function GoodRepositoryPath(ByVal path As String) As Boolean
-        Dim errStr As String
         If Not (Directory.Exists(path & "\rules") OrElse _
                 Directory.Exists(path & "\selected") OrElse _
                 Directory.Exists(path & "\worklets")) Then
@@ -152,7 +151,6 @@ Module Global
 
     ' checks for a valid YAWL Editor path
     Public Function GoodYAWLEditorPath(ByVal path As String) As Boolean
-        Dim errStr As String
         If Not File.Exists(path) Then
             MessageBox.Show("It appears the YAWLEditor path specified is incorrect," & _
                             " or doesn't contain the editor jar file." & _
@@ -184,12 +182,16 @@ Module Global
     'returns a string representation of the contents of the hashtable passed
     Public Function getWorkletCaseIdentifiers(ByVal list As Hashtable) As String
         Dim itr As IDictionaryEnumerator = list.GetEnumerator()
-        Dim result As String
+        Dim result As String = ""
 
         While itr.MoveNext()
             result &= vbTab & "* " & itr.Key & ": " & itr.Value & vbCrLf
         End While
         Return result
+    End Function
+
+    Public Function isValidSpecFileExtn(ByVal fileName As String) As Boolean
+        Return fileName.EndsWith(".yawl") OrElse fileName.EndsWith(".xml")
     End Function
 
     '********************************************************************************************************

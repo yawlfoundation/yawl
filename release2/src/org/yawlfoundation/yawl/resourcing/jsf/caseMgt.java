@@ -318,6 +318,13 @@ public class caseMgt extends AbstractPageBean {
     public void setPnlContainer(PanelLayout pnl) { pnlContainer = pnl; }
 
 
+    private PanelGroup pnlGroup ;
+
+    public PanelGroup getPnlGroup() { return pnlGroup; }
+
+    public void setPnlGroup(PanelGroup group) { pnlGroup = group; }
+    
+
     /*******************************************************************************/
 
     private ResourceManager _rm = getApplicationBean().getResourceManager() ;
@@ -345,6 +352,7 @@ public class caseMgt extends AbstractPageBean {
             beginCase(_sb.getLoadedSpecListChoice(), _sb.getSessionhandle());
         }
         updateRunningCaseList();
+        _sb.refreshLoadedSpecs();
         activateButtons();
         _sb.setActivePage(ApplicationBean.PageRef.caseMgt);
     }
@@ -414,7 +422,7 @@ public class caseMgt extends AbstractPageBean {
         String refPage = null ;
         try {
             Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
-            SpecificationData spec = _sb.getLoadedSpec(selectedRowIndex - 1);
+            SpecificationData spec = _sb.getLoadedSpec(selectedRowIndex);
 
             // make sure the latest spec version is selected
             YSpecVersion latestVersion = _sb.getLatestLoadedSpecVersion(spec);
@@ -488,7 +496,7 @@ public class caseMgt extends AbstractPageBean {
         // get selected spec
         try {
             Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
-            SpecificationData spec = _sb.getLoadedSpec(selectedRowIndex - 1);
+            SpecificationData spec = _sb.getLoadedSpec(selectedRowIndex);
             if (spec != null) {
                 String result = unloadSpec(spec) ;
                 if (result.indexOf("success") == -1) {

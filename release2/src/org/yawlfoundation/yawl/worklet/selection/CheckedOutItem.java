@@ -53,10 +53,10 @@ public class CheckedOutItem {
 	 *  @param w - the WorkItemRecord of the 'parent' workitem
 	 */	
 	public CheckedOutItem(WorkItemRecord w) {
- 		_wir = w ;
-        _persistID = _wir.getID();
+ 		  _wir = w ;
+      _persistID = _wir.getID();
 
-        initNonPersistedItems();
+      initNonPersistedItems();
 	}
 	
 //===========================================================================//
@@ -89,7 +89,7 @@ public class CheckedOutItem {
     }
 
     // update the persisted object
-    private void persistThis() {
+    public void persistThis() {
         DBManager dbMgr = DBManager.getInstance(false);
         if ((dbMgr != null) && dbMgr.isPersisting())
              dbMgr.persist(this, DBManager.DB_UPDATE);

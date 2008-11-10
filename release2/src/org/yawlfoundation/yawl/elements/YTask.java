@@ -912,6 +912,8 @@ public abstract class YTask extends YExternalNetElement {
             String expression = _dataMappingsForTaskStarting.get(inputParamName);
             if (this.isMultiInstance() && inputParamName.equals(
                     _multiInstAttr.getMIFormalInputParam())) {
+                if (_multiInstanceSpecificParamsIterator == null) continue;
+
                 Element specificMIData = (Element)
                         _multiInstanceSpecificParamsIterator.next();
 

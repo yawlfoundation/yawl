@@ -250,4 +250,9 @@ public class ApplicationBean extends AbstractApplicationBean {
       //  context.renderResponse(); //Optional
   }
 
+
+  public void synch() {
+      _rm.sanitiseCaches();
+  }
+
 }

@@ -587,8 +587,12 @@ public class userWorkQueues extends AbstractPageBean {
                 _rm.deallocateWorkItem(p, wir);
             else if (action.equals("skip"))
                 _rm.skipWorkItem(p, wir, handle);
-            else if (action.equals("start"))
-                _rm.start(p, wir, handle);
+            else if (action.equals("start")) {
+                if (! _rm.start(p, wir, handle)) {
+                    msgPanel.error("Could not start workitem '" + wir.getID() +
+                     "'. Please see the log files for details.");   
+                }
+            }    
             else if (action.equals("suspend"))
                 _rm.suspendWorkItem(p, wir);
             else if (action.equals("unsuspend"))
@@ -605,9 +609,13 @@ public class userWorkQueues extends AbstractPageBean {
 
                     // if the accepted offer has a system-initiated start, it's
                     // already started, so don't do it again
-                    if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceAllocated))
-                        _rm.start(p, wir, handle);                   
-                }    
+                    if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceAllocated)) {
+                        if (! _rm.start(p, wir, handle)) {
+                            msgPanel.error("Could not start workitem '" + wir.getID() +
+                             "'. Please see the log files for details.");
+                        }
+                    }    
+                }
                 else
                     msgPanel.info("Another participant has already accepted this offer.");
             }
@@ -737,7 +745,7 @@ public class userWorkQueues extends AbstractPageBean {
             _sb.setWirEdit(false);
 
             if (_sb.isCompleteAfterEdit()) {
-               completeWorkItem(wir, _sb.getParticipant());
+                completeWorkItem(wir, _sb.getParticipant());
                 _sb.setCompleteAfterEdit(false);
                 if (msgPanel.hasMessage()) forceRefresh();
             }
@@ -862,10 +870,9 @@ public class userWorkQueues extends AbstractPageBean {
 
         if ((queue != null) && (! queue.isEmpty())) {
 
-            // add items to listbox and get first one in list
-            WorkItemRecord firstWir = addItemsToListOptions(queue) ;
-            WorkItemRecord choice = _sb.getChosenWIR(queueType) ;
-            if (choice == null) choice = firstWir ;
+            // add items to listbox and get first or selected one in list
+            addItemsToListOptions(queue, _sb.getChosenWIR(queueType)) ;
+            WorkItemRecord choice = _sb.getChosenWIR(queueType) ;         
             showWorkItem(choice);                                   // show details
             processTaskPrivileges(choice, queueType) ;
             result = queue.size() ;
@@ -891,27 +898,28 @@ public class userWorkQueues extends AbstractPageBean {
      * @param queue the set of items in the queue
      * @return the first item in the list
      */
-    private WorkItemRecord addItemsToListOptions(Set<WorkItemRecord> queue) {
+    private void addItemsToListOptions(Set<WorkItemRecord> queue,
+                                                 WorkItemRecord selected) {
         Option[] options = new Option[queue.size()] ;
-        WorkItemRecord result = null;
-
-        // sort the items by age
+        WorkItemRecord first = null;
+        boolean listContainsSelected = false;
         SortedSet<WorkItemRecord> qSorted =
                                new TreeSet<WorkItemRecord>(new WorkItemAgeComparator());
         qSorted.addAll(queue);
-
         int i = 0 ;
         for (WorkItemRecord wir : qSorted) {
             if (wir != null) {
-                if (i==0) {
-                    _sb.setChosenWIR(wir);          // return first listed
-                    result = wir;
-                }
+                if (i==0) first = wir;                       // get first non-null item
                 options[i++] = new Option(wir.getID()) ;
+                if ((selected != null) && (selected.getID().equals(wir.getID()))) {
+                    listContainsSelected = true;
+                }
             }
         }
+        if (! listContainsSelected) {
+            _sb.setChosenWIR(first);                             // set first listed
+        }
         _sb.setWorklistOptions(options);
-        return result ;
     }
 
 

@@ -156,6 +156,13 @@ public class dynForm extends AbstractPageBean {
     public void setBtnComplete(Button b) { btnComplete = b; }
 
 
+    private PanelLayout pnlContainer ;
+
+    public PanelLayout getPnlContainer() { return pnlContainer; }
+
+    public void setPnlContainer(PanelLayout pnl) { pnlContainer = pnl; }
+
+
     /****** Custom Methods ******************************************************/
 
     /**

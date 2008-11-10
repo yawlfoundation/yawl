@@ -233,6 +233,13 @@ public class adminQueues extends AbstractPageBean {
     public void setCbxDirectToMe(Checkbox c) { cbxDirectToMe = c; }
 
 
+    private Button btnSynch = new Button();
+
+    public Button getBtnSynch() { return btnSynch; }
+
+    public void setBtnSynch(Button btn) { btnSynch = btn; }
+
+
     private Meta metaRefresh = new Meta();
 
     public Meta getMetaRefresh() { return metaRefresh; }
@@ -258,13 +265,16 @@ public class adminQueues extends AbstractPageBean {
      */
     public void prerender() {
         _sb.checkLogon();
-        _sb.getMessagePanel().show();
 
         // hide 'direct to me' checkbox if logged on with 'admin' userid
         cbxDirectToMe.setVisible(_sb.getParticipant() != null);
 
         // take appropriate postback action if required
-        _sb.performAdminQueueAction();
+        if (! _sb.performAdminQueueAction()) {
+            _sb.getMessagePanel().error("Could not complete workitem action." +
+                    " Please see the log files for details.");               
+        }
+        _sb.getMessagePanel().show();
 
         // goto last selected tab
         if (_sb.getSourceTab() != null) {
@@ -312,6 +322,11 @@ public class adminQueues extends AbstractPageBean {
     // BUTTON AND TAB ACTIONS //
 
     public String btnRefresh_action() {
+        return null ;
+    }
+
+    public String btnSynch_action() {
+        getApplicationBean().synch();
         return null ;
     }
 
@@ -417,10 +432,8 @@ public class adminQueues extends AbstractPageBean {
         ((pfQueueUI) getBean("pfQueueUI")).clearQueueGUI();
 
         if ((queue != null) && (!queue.isEmpty())) {
-            WorkItemRecord firstWir = addItemsToListOptions(queue) ;
-            WorkItemRecord choice = _sb.getChosenWIR(queueType) ;
-            if (choice == null) choice = firstWir ;
-            showWorkItem(choice, queueType);
+            addItemsToListOptions(queue, _sb.getChosenWIR(queueType)) ;
+            showWorkItem(_sb.getChosenWIR(queueType), queueType);
             result = queue.size() ;
         }
         else {
@@ -446,24 +459,28 @@ public class adminQueues extends AbstractPageBean {
         else enableUnofferedButtons();
     }
 
-    private WorkItemRecord addItemsToListOptions(Set<WorkItemRecord> queue) {
+    private void addItemsToListOptions(Set<WorkItemRecord> queue,
+                                                 WorkItemRecord selected) {
         Option[] options = new Option[queue.size()] ;
-        WorkItemRecord result = null;
+        WorkItemRecord first = null;
+        boolean listContainsSelected = false;
         SortedSet<WorkItemRecord> qSorted =
                                new TreeSet<WorkItemRecord>(new WorkItemAgeComparator());
         qSorted.addAll(queue);
         int i = 0 ;
         for (WorkItemRecord wir : qSorted) {
             if (wir != null) {
-                if (i==0) {
-                    _sb.setChosenWIR(wir);          // return first listed
-                    result = wir;
-                }
+                if (i==0) first = wir;                       // get first non-null item
                 options[i++] = new Option(wir.getID()) ;
+                if ((selected != null) && (selected.getID().equals(wir.getID()))) {
+                    listContainsSelected = true;
+                }    
             }
         }
+        if (! listContainsSelected) {
+            _sb.setChosenWIR(first);                             // set first listed
+        }
         _sb.setWorklistOptions(options);
-        return result ;
     }
 
     /**

@@ -385,15 +385,15 @@ Friend Class frmAddRule
     ' loads a 'selected' file into the editor. A 'selected' file contains information
     ' about the selection of the rejected worklet.
     Private Sub btnLoad_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnLoad.Click
-        Dim x As XmlTextReader
-        Dim item As String
+        Dim x As XmlTextReader = Nothing
+        Dim item As String = ""
 
         Try
             ' setup dialog to open a 'selected' file
             Dim ofd As New OpenFileDialog
             ofd.InitialDirectory = pathOf.repository & "\selected"
             ofd.Filter = "Worklet Selection Files (*.xws) | *.xws"
-            If ofd.ShowDialog = DialogResult.OK Then
+            If ofd.ShowDialog = Windows.Forms.DialogResult.OK Then
 
                 ' open & read the file
                 x = New XmlTextReader(ofd.FileName)
@@ -475,7 +475,7 @@ Friend Class frmAddRule
 
     ' read each data item of the case from the file and add it into the listbox
     Private Function ReadCaseData(ByVal x As XmlTextReader) As String()
-        Dim item As String
+        Dim item As String = ""
         Dim list As New ArrayList
 
         While x.Read
@@ -496,7 +496,8 @@ Friend Class frmAddRule
 
     ' read the set of pairs of caseid and worklet name for all worklets running for this case
     Private Function ReadWorklets(ByVal x As XmlTextReader) As Hashtable
-        Dim item, wName As String
+        Dim item As String = ""
+        Dim wName As String = ""
         Dim result As New Hashtable
 
         While x.Read
@@ -570,7 +571,6 @@ Friend Class frmAddRule
     ' saves the new rule descriptors to the new node structure
     Private Sub btnSave_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnSave.Click
         Dim errMsg As String = ""
-        Dim dataitem As String
 
         ' validate inputs
         If txtCondition.Text.Length = 0 Then
@@ -619,12 +619,11 @@ Friend Class frmAddRule
     Private Sub btnNew_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnNew.Click
         Dim frmWorklet As frmChooseWorklet
         Dim frmDraw As frmDrawConc
-        Dim workletName As String
 
         ' if a selection rule, there's no graph to draw, so go directly to worklet list
         If loadedRuleType = "Selection" Then
             frmWorklet = New frmChooseWorklet
-            If frmWorklet.ShowDialog = DialogResult.OK Then
+            If frmWorklet.ShowDialog = Windows.Forms.DialogResult.OK Then
                 ReDim conclusion(0)
                 conclusion(0) = New ConclusionItem("_1", "select", frmWorklet.workletSelections)
                 txtConclusion.Text = ConclusionTextify(conclusion, ConclusionItem.TextFormat.pretty)

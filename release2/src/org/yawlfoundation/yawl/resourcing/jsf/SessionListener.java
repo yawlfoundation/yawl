@@ -26,9 +26,11 @@ import javax.servlet.http.HttpSessionListener;
 
 public class SessionListener implements HttpSessionListener {
 
-    private Logger _log = Logger.getLogger(SessionListener.class);
+    private Logger _log;
 
-    public SessionListener() {}
+    public SessionListener() {
+       _log = Logger.getLogger(SessionListener.class);
+    }
 
 
     // can be used to log new session etc.

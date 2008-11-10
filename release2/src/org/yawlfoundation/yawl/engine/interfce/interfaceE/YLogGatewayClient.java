@@ -50,12 +50,6 @@ public class YLogGatewayClient extends Interface_Client {
      */
     private String performGet(String action, String pName, String pValue, String handle)
                                                                      throws IOException {
-//        StringBuilder sb = new StringBuilder(_logURI) ;
-//        sb.append("?action=").append(action) ;
-//        if (pName != null)
-//            sb.append("&").append(pName).append("=").append(pValue);
-//        sb.append("&handle=").append(handle);
-//        return executeGet(sb.toString());
         Map<String, String> params = new HashMap <String, String>();
         params.put("action", action);
         params.put("handle", handle);

@@ -615,14 +615,17 @@ public class YNetRunner {
     private void fireCompositeTask(YCompositeTask task, YPersistenceManager pmgr)
                       throws YDataStateException, YStateException, YQueryException,
                              YSchemaBuildingException, YPersistenceException {
-        _busyTasks.add(task);
-        _busyTaskNames.add(task.getID());
-        if (pmgr != null) pmgr.updateObject(this);
+        
+        if (! _busyTasks.contains(task)) {     // don't proceed if task already started
+            _busyTasks.add(task);
+            _busyTaskNames.add(task.getID());
+            if (pmgr != null) pmgr.updateObject(this);
 
-        Iterator caseIDs = task.t_fire(pmgr).iterator();
-        while (caseIDs.hasNext()) {
-            YIdentifier id = (YIdentifier) caseIDs.next();
-            task.t_start(pmgr, id);
+            Iterator caseIDs = task.t_fire(pmgr).iterator();
+            while (caseIDs.hasNext()) {
+                YIdentifier id = (YIdentifier) caseIDs.next();
+                task.t_start(pmgr, id);
+            }
         }
     }
 

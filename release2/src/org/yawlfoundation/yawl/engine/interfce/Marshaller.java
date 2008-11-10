@@ -252,7 +252,7 @@ public class Marshaller {
             wir.setFiringTimeMs(workItemElement.getChildText("firingTimeMs"));
             wir.setStartTimeMs(workItemElement.getChildText("startTimeMs"));
             wir.setCompletionTimeMs(workItemElement.getChildText("completionTimeMs"));
-            wir.setCompletionTimeMs(workItemElement.getChildText("resourceStatus"));
+            wir.setResourceStatus(workItemElement.getChildText("resourceStatus"));
             wir.setTimerTrigger(workItemElement.getChildText("timertrigger"));
             wir.setTimerExpiry(workItemElement.getChildText("timerexpiry"));
             wir.setStartedBy(workItemElement.getChildText("startedBy"));

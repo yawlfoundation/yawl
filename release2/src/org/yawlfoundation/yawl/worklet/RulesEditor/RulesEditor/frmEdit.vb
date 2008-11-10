@@ -595,7 +595,7 @@ Friend Class frmEdit
         Else
             ' no rules file loaded
             fSpecLocator = New frmSpecLocator
-            If fSpecLocator.ShowDialog = DialogResult.OK Then
+            If fSpecLocator.ShowDialog = Windows.Forms.DialogResult.OK Then
 
                 ' create a temp ruleset manager for the new rules form
                 fNewRule.tempRSMgr = New RuleSetMgr(fSpecLocator.txtSpecFile.Text, fSpecLocator.rulesFileName)
@@ -678,7 +678,7 @@ Friend Class frmEdit
         Me.Hide()
         result = fAdd.ShowDialog()
         Me.Show()
-        If result = DialogResult.OK Then                ' show it & Ok pressed
+        If result = Windows.Forms.DialogResult.OK Then                ' show it & Ok pressed
             newNode = fAdd.newNode                                ' get new node from form 
 
             If Convert.ToInt32(newNode.id) > -1 Then              ' index of new node  
@@ -834,22 +834,22 @@ Friend Class frmEdit
         question &= getWorkletCaseIdentifiers(workitem.worklets)
 
         If MessageBox.Show(question, "Replace running worklet?", MessageBoxButtons.YesNo, _
-                           MessageBoxIcon.Question) = DialogResult.Yes Then
+                           MessageBoxIcon.Question) = Windows.Forms.DialogResult.Yes Then
             TriggerReplaceWorklet(queryText)         ' if 'yes', replace it
         End If
     End Sub
 
     ' tells worklet service to replace a worklet & waits for a response
     Private Function TriggerReplaceWorklet(ByVal params As String) As Stream
-        Dim req As HttpWebRequest
-        Dim resp As HttpWebResponse
+        Dim req As HttpWebRequest = Nothing
+        Dim resp As HttpWebResponse = Nothing
         Dim url As String = pathOf.ServiceURL & "/gateway"     ' to wsGateway servlet
         Dim query As String = "?"
-        Dim result As Stream                                   ' the response
+        Dim result As Stream = Nothing                         ' the response
         Dim strResp As String                                  ' converted to string
 
         If Not ValidServiceURI(url) Then                       ' make sure url is valid
-            Exit Function
+            Return Nothing
         End If
 
         ' build the query here 
@@ -979,7 +979,7 @@ Friend Class frmEdit
         ' show an open dialog tailored for rules file selection
         ofd.Filter = "Worklet Ruleset Files (*.xrs) | *.xrs"
         ofd.InitialDirectory = pathOf.repository & "\rules"
-        If ofd.ShowDialog = DialogResult.OK Then
+        If ofd.ShowDialog = Windows.Forms.DialogResult.OK Then
             If rsMgr.LoadRulesFromFile(ofd.FileName) Then              ' successful load
                 InitGUIAfterLoad()
                 Return True
@@ -1006,7 +1006,7 @@ Friend Class frmEdit
 
     ' reads the trigger value from the data set
     Private Function getTrigger(ByVal items() As String) As String
-        Dim result As String
+        Dim result As String = ""
         For Each item As String In items
             If item.StartsWith("trigger") Then
                 result = (item.Split("="c))(1).Trim

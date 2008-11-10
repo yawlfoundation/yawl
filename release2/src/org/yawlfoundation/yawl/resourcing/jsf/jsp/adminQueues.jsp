@@ -110,26 +110,26 @@
                                               for="cbbAssignedTo"
                                               id="lblAssignedTo"
                                               styleClass="queuesLabelLeft"
-                                              style="left: 217px; top: 213px"
+                                              style="left: 317px; top: 213px"
                                               text="Assigned To"/>
 
                                     <ui:label binding="#{adminQueues.lblResourceState}"
                                               for="txtResourceState"
                                               id="lblResourceState"
                                               styleClass="queuesLabelRight"
-                                              style="left: 379px; top: 213px"
+                                              style="left: 479px; top: 213px"
                                               text="Resource State"/>
 
                                     <ui:dropDown binding="#{adminQueues.cbbAssignedTo}"
                                                  id="cbbAssignedTo"
                                                  forgetValue="true"
-                                                 style="left: 217px; top: 230px; position: absolute; width: 145px"/>
+                                                 style="left: 317px; top: 230px; position: absolute; width: 145px"/>
 
                                     <ui:textField binding="#{adminQueues.txtResourceState}"
                                                   id="txtResourceState"
                                                   readOnly="true"
                                                   styleClass="queuesTextField"
-                                                  style="left: 379px; top: 230px"
+                                                  style="left: 479px; top: 230px"
                                                   trim="false"/>
 
                                 </ui:panelLayout>
@@ -142,6 +142,14 @@
                                    imageURL="/resources/refresh.png"
                                    styleClass="refreshButton"
                                    toolTip="Refresh Queues"
+                                   text=""/>
+
+                        <ui:button binding="#{adminQueues.btnSynch}"
+                                   action="#{adminQueues.btnSynch_action}"
+                                   id="btnSynch"
+                                   imageURL="/resources/synch.png"
+                                   styleClass="synchButton"
+                                   toolTip="Synchronise Work Items with Engine"
                                    text=""/>
 
                         <ui:checkbox binding="#{adminQueues.cbxDirectToMe}"

@@ -196,8 +196,9 @@ public class WorkQueue implements Serializable {
      */
     public Set<WorkItemRecord> getAll() {
         Set<WorkItemRecord> result = new HashSet<WorkItemRecord>();
-        Iterator itr = _workitems.values().iterator();
-        while(itr.hasNext()) result.add((WorkItemRecord) itr.next());
+        for (WorkItemRecord wir : _workitems.values()) {
+            if (wir != null) result.add(wir);
+        }
         return result  ;
     }
 
@@ -227,6 +228,22 @@ public class WorkQueue implements Serializable {
             _workitems.clear();
             persistThis() ;
         }    
+    }
+
+
+    public void cleanse(WorkItemCache cache) {
+        Set<String> clonedQueue = new HashSet<String>(_workitems.keySet());
+        for (String itemID : clonedQueue) {
+            if (cache.get(itemID) == null) _workitems.remove(itemID);
+        }
+    }
+
+    
+    public void removeCase(String caseID) {
+        Set<WorkItemRecord> clonedQueue = new HashSet<WorkItemRecord>(_workitems.values());
+        for (WorkItemRecord wir : clonedQueue) {
+            if (wir.getRootCaseID().equals(caseID)) remove(wir);           
+        }
     }
 
 

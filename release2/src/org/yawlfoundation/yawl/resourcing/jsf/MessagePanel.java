@@ -102,7 +102,7 @@ public class MessagePanel extends PanelLayout {
 
     /* show the panel */
     public void show() {
-        _style = "top:50px; left:0px; position: relative;";      // default style & posn
+        _style = "top:70px; left:0px; position: relative;";      // default style & posn
         showPanel();
     }
 

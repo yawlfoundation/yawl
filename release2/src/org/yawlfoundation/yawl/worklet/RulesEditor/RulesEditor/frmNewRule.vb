@@ -541,7 +541,7 @@ Friend Class frmNewRule
                                        "specification. Would you like to commit the tree to the Rule Set?", _
                                        "Commit Current Tree?", _
                                        MessageBoxButtons.YesNo, MessageBoxIcon.Question)
-            If response = DialogResult.Yes Then btnAddTree.PerformClick()
+            If response = Windows.Forms.DialogResult.Yes Then btnAddTree.PerformClick()
             'Exit Sub
         End If
 
@@ -562,7 +562,7 @@ Friend Class frmNewRule
         ' if a selection rule, there's no graph to draw - show worklet choice form directly
         If cbxRuleType.SelectedItem = "Selection" Then
             frmWorklet = New frmChooseWorklet
-            If frmWorklet.ShowDialog = DialogResult.OK Then
+            If frmWorklet.ShowDialog = Windows.Forms.DialogResult.OK Then
                 ReDim newNode.Conclusion(0)                          ' selection only has one item
                 newNode.Conclusion(0) = New ConclusionItem("_1", "select", frmWorklet.workletSelections)
                 txtConclusion.Text = ConclusionTextify(newNode.Conclusion, ConclusionItem.TextFormat.pretty)
@@ -579,7 +579,7 @@ Friend Class frmNewRule
             Me.Hide()
             result = frmDraw.ShowDialog()
             Me.Show()
-            If Not (result = DialogResult.Cancel) Then
+            If Not (result = Windows.Forms.DialogResult.Cancel) Then
                 If Not frmDraw.finalConclusion Is Nothing Then
                     newNode.Conclusion = frmDraw.finalConclusion.Clone
                     txtConclusion.Text = ConclusionTextify(newNode.Conclusion, ConclusionItem.TextFormat.pretty)
@@ -600,7 +600,7 @@ Friend Class frmNewRule
                                  "and commit it to the Rule Set?", _
                                  "Commit New Rule Tree?", MessageBoxButtons.YesNo, MessageBoxIcon.Warning)
 
-        If result = DialogResult.Yes Then
+        If result = Windows.Forms.DialogResult.Yes Then
             currentTree.Name = cbxTaskName.Text                             ' add name of task to tree
             tempRSMgr.addTreeToRuleSet(currentTree, ruleTypeStr)            ' add tree to the ruleset
 
@@ -629,7 +629,6 @@ Friend Class frmNewRule
     ' adds the currently defined rule to the tree
     Private Sub btnAddRule_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnAddRule.Click
         Dim parentNode As RuleNode
-        Dim terminalNodes() As RuleNode
         Dim selectedNode As TreeNode = tvRules.SelectedNode
         Dim selIndex As Integer = newNode.id
 
@@ -672,7 +671,7 @@ Friend Class frmNewRule
             If MessageBox.Show("Cancelling now will discard all the rules and/or trees added. Are you sure " & _
                                "you want to cancel?", _
                                "Cancel - Are You Sure?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = _
-                               DialogResult.Yes Then
+                               Windows.Forms.DialogResult.Yes Then
                 cancelClosing = False
                 formCancelled = True
             Else
@@ -738,7 +737,7 @@ Friend Class frmNewRule
     ' user has made a selection change in the rule type combo
     Private Sub cbxRuleType_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cbxRuleType.SelectedIndexChanged
         Dim item As String = cbxRuleType.SelectedItem
-        Dim treeType = rsMgr.StringToTreeType(item)
+        Dim treeType As RuleSetMgr.exType = rsMgr.StringToTreeType(item)
 
         If rsMgr.isCaseLevelTree(treeType) Then                       ' disable taskname combo
             lblTaskName.Enabled = False
@@ -936,7 +935,7 @@ Friend Class frmNewRule
         If (errMsg.Length > 0) Then
             errMsg &= vbCrLf & "Do you want to save this rule anyway?"
             Return MessageBox.Show(errMsg, "Warning on non-mandatory items", MessageBoxButtons.YesNo, _
-                    MessageBoxIcon.Warning) = DialogResult.Yes
+                    MessageBoxIcon.Warning) = Windows.Forms.DialogResult.Yes
         Else
             Return True
         End If

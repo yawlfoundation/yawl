@@ -310,6 +310,13 @@ public class customServices extends AbstractPageBean {
     public void setPnlContainer(PanelLayout pnl) { pnlContainer = pnl; }
 
 
+    private PanelGroup pnlGroup ;
+
+    public PanelGroup getPnlGroup() { return pnlGroup; }
+
+    public void setPnlGroup(PanelGroup group) { pnlGroup = group; }
+
+    
     /********************************************************************************/
 
     private MessagePanel msgPanel = getSessionBean().getMessagePanel();
@@ -328,7 +335,7 @@ public class customServices extends AbstractPageBean {
     public String btnRemove_action() {
         try {
             Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
-            getSessionBean().removeRegisteredService(selectedRowIndex - 1);
+            getSessionBean().removeRegisteredService(selectedRowIndex);
             msgPanel.success("Service successfully removed.");
         }
         catch (NumberFormatException nfe) {

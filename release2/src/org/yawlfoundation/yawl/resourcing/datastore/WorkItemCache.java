@@ -11,10 +11,8 @@ package org.yawlfoundation.yawl.resourcing.datastore;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Iterator;
 import java.io.Serializable;
+import java.util.*;
 
 
 /**
@@ -62,6 +60,15 @@ public class WorkItemCache extends HashMap<String, WorkItemRecord> implements Se
 
     public WorkItemRecord remove(WorkItemRecord wir) {
         return this.remove(wir.getID());
+    }
+
+    public void removeCase(String caseID) {
+        Set<WorkItemRecord> clonedValues = new HashSet<WorkItemRecord>(this.values());
+        for (WorkItemRecord wir : clonedValues) {
+            if (wir.getRootCaseID().equals(caseID)) {
+                this.remove(wir);
+            }
+        }
     }
 
     public WorkItemRecord update(WorkItemRecord wir) {

@@ -489,5 +489,17 @@ public class ResourceGatewayClientAdapter {
         return xmlStringToResourceAttributeList(rStr, "Role") ;
     }    
 
+
+    public List getParticipantCapabilities(String pid, String handle) throws IOException {
+        String cStr = _rgclient.getParticipantCapabilities(pid, handle) ;
+        return xmlStringToResourceAttributeList(cStr, "Capability") ;
+    }
+
+
+    public List getParticipantPositions(String pid, String handle) throws IOException {
+        String pStr = _rgclient.getParticipantPositions(pid, handle) ;
+        return xmlStringToResourceAttributeList(pStr, "Position") ;
+    }
+
     
 }
