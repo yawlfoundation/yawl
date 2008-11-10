@@ -27,6 +27,7 @@ package org.yawlfoundation.yawl.editor.actions.element;
 import com.toedter.calendar.JDateChooser;
 import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
 import org.yawlfoundation.yawl.editor.data.DataVariableSet;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.elements.model.AtomicTask;
 import org.yawlfoundation.yawl.editor.elements.model.TaskTimeoutDetail;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
@@ -181,7 +182,7 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
   }
   
   public String getTitlePrefix() {
-    return "Set Timeout Detail for ";
+    return "Set Timer Detail for ";
   }
 
   public void setTask(YAWLTask task, NetGraph graph) {
@@ -525,7 +526,12 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
     );
 
     onEnablementRadioButton.setEnabled(timeoutNeeded && (! viaNetVariableRadioButton.isSelected()));
-    onStartingRadioButton.setEnabled(timeoutNeeded && (! viaNetVariableRadioButton.isSelected()));
+
+    Decomposition decomp = getTask().getDecomposition();
+    boolean autotask = (decomp != null) && (! decomp.isManualInteraction());
+    onStartingRadioButton.setEnabled(timeoutNeeded &&
+            (! viaNetVariableRadioButton.isSelected()) &&
+            (! autotask));
 
     viaStaticDateRadioButton.setEnabled(timeoutNeeded);
     

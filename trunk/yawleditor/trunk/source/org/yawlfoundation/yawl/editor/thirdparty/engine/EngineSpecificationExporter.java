@@ -215,6 +215,11 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     try {
       schema = YTimerType.adjustSchema(editorSpec.getDataTypeDefinition(),
                                          SpecificationParametersIncludeYTimerType);
+
+      // remove any header inadvertently inserted by user
+      if (schema.startsWith("<?xml")) {
+          schema = schema.substring(schema.indexOf('>') + 1);
+      }
       engineSpec.setSchema(schema);
     }
     catch (Exception eActual) {

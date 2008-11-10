@@ -222,6 +222,10 @@ public class LayoutImporter {
                 Color color = createColor(eAttribute);
                 attributeMap.put("foregroundColor", color);
             }
+            else if (eAttribute.getName().equals("linecolor")) {
+                Color color = createColor(eAttribute);
+                attributeMap.put("linecolor", color);
+            }
             else if (eAttribute.getName().equals("bounds")) {
                 AttributeMap.SerializableRectangle2D rect = createRectangle(eAttribute);
                 attributeMap.put("bounds", rect);
