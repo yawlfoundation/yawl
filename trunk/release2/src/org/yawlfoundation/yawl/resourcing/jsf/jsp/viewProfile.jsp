@@ -39,15 +39,13 @@
                         <center>
                             <ui:panelLayout binding="#{viewProfile.pnlContainer}"
                                             id="pnlContainer"
-                                            panelLayout="flow"
                                             styleClass="vpcontainerPanel">
-
 
                                  <!-- View Profile Panel -->
                                  <ui:panelLayout binding="#{viewProfile.pnlProfile}"
                                                  id="pnlSelectUser"
-                                                 style="height: 220px; width: 265px"
-                                                 styleClass="orgDataPanel">
+                                                 style="position: absolute; height: 220px; width: 265px; top: 0; left: 0;"
+                                                 styleClass="viewProfilePanel">
 
                                        <ui:label binding="#{viewProfile.lblName}"
                                                  id="lblName"
@@ -115,8 +113,8 @@
 
                                  <ui:panelLayout binding="#{viewProfile.pnlPiled}"
                                                  id="pnlPiled"
-                                                 styleClass="orgDataPanel"
-                                                 style="right: 0; height: 185px; width: 270px">
+                                                 styleClass="viewProfilePanel"
+                                                 style="position: absolute; right: 0; top:0; height: 185px; width: 270px">
 
                                      <ui:staticText binding="#{viewProfile.sttPiled}"
                                                     id="sttPiled"
@@ -145,8 +143,8 @@
 
 <ui:panelLayout binding="#{viewProfile.pnlNewPassword}"
                 id="pnlNewPassword"
-                styleClass="orgDataPanel"
-                style="height: 150px; top: 224px; width: 265px">
+                styleClass="viewProfilePanel"
+                style="position: absolute; height: 150px; top: 223px; left:0; width: 265px">
 
     <ui:staticText binding="#{viewProfile.sttPassword}"
                    id="sttPassword"
@@ -190,8 +188,8 @@
                              <ui:panelLayout
                                  binding="#{viewProfile.pnlChained}"
                                  id="pnlChained"
-                                 styleClass="orgDataPanel"
-                                 style="right:0; height: 185px; top: 189px; width: 270px">
+                                 styleClass="viewProfilePanel"
+                                 style="position: absolute; right: 0; height: 185px; top:188px; width: 270px">
 
                                  <ui:staticText
                                          binding="#{viewProfile.sttChained}"
@@ -217,12 +215,12 @@
 
                                 </ui:panelLayout>
 
-                                <ui:panelLayout
-                                        binding="#{SessionBean.messagePanel}"
-                                        id="msgPanel"
-                                        panelLayout="flow"/>
-
                             </ui:panelLayout>  <!-- pnlContainer -->
+
+                            <ui:panelLayout
+                                    binding="#{SessionBean.messagePanel}"
+                                    id="msgPanel"
+                                    panelLayout="flow"/>
 
                         </center>
                     </ui:form>

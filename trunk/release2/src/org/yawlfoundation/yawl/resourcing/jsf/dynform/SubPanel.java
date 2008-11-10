@@ -86,7 +86,7 @@ public class SubPanel extends PanelLayout implements Cloneable {
                      (DynFormFactory.SUBPANEL_INSET * 2 *
                      (maxLevel - controller.getDepthlevel() + 1)) ;
 
-        String style = String.format("top: %dpx; left: %dpx; height: %dpx; width: %dpx",
+        String style = String.format("position: absolute; top: %dpx; left: %dpx; height: %dpx; width: %dpx",
                                       top, DynFormFactory.SUBPANEL_INSET, height, width);
 
         this.setStyle(style);

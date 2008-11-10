@@ -239,7 +239,7 @@ Public Class frmConfig
 
     ' load the resource file paths from the config file
     Friend Sub LoadPathsFromFile()
-        Dim cfgStream As StreamReader
+        Dim cfgStream As StreamReader = Nothing
         Dim cfgLine As String
 
         Try
@@ -264,7 +264,7 @@ Public Class frmConfig
 
     ' save the resource file paths to the config file
     Friend Sub SavePathsToFile(ByVal validate As Boolean)
-        Dim cfgStream As StreamWriter
+        Dim cfgStream As StreamWriter = Nothing
 
         If validate Then
             If Not GoodPaths() Then         ' check paths in inputs are valid
@@ -312,7 +312,7 @@ Public Class frmConfig
         With BrowserDialog
             .Description = "Select the worklet repository folder"
             .SelectedPath = txtRepository.Text
-            If .ShowDialog() = DialogResult.OK Then
+            If .ShowDialog() = Windows.Forms.DialogResult.OK Then
                 txtRepository.Text = .SelectedPath
             End If
         End With
@@ -326,7 +326,7 @@ Public Class frmConfig
             Else
                 .InitialDirectory = txtYAWLEditor.Text
             End If
-            If .ShowDialog = DialogResult.OK Then
+            If .ShowDialog = Windows.Forms.DialogResult.OK Then
                 txtYAWLEditor.Text = .FileName
             End If
         End With
@@ -342,7 +342,7 @@ Public Class frmConfig
             Else
                 .SelectedPath = currentPath.Substring(currentPath.LastIndexOf(";"c))
             End If
-            If .ShowDialog() = DialogResult.OK Then
+            If .ShowDialog() = Windows.Forms.DialogResult.OK Then
                 If currentPath.Length = 0 Then
                     txtSpecPaths.Text = .SelectedPath
                 Else

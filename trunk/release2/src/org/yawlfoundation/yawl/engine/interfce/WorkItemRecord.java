@@ -333,6 +333,15 @@ public class WorkItemRecord implements Cloneable {
         return exSuffix.replaceAll("_", " ");
     }
 
+    // returns the case id of the root ancestor case
+    public String getRootCaseID() {
+        String result = _caseID;
+        if ((_caseID != null) && (_caseID.indexOf(".") > 0)) {
+            result = _caseID.split("\\.")[0] ;
+        }
+        return result ;
+    }
+
     public boolean isEdited() { return _edited; }
 
     public boolean isDeferredChoiceGroupMember() {

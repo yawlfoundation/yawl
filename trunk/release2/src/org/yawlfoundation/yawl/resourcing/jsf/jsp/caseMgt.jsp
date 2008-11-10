@@ -30,7 +30,7 @@
                         </div>
                         <center>
 
-                        <ui:panelLayout binding="#{customServices.pnlContainer}"
+                        <ui:panelLayout binding="#{caseMgt.pnlContainer}"
                                         id="pnlContainer"
                                         styleClass="caseMgtContainerPanel">
 
@@ -38,7 +38,7 @@
                         <ui:panelLayout binding="#{caseMgt.layoutPanel1}"
                                         id="layoutPanel1"
                                         styleClass="caseMgtPanel"
-                                        style="height: 120px">
+                                        style="position: absolute; height: 120px">
 
                             <ui:staticText binding="#{caseMgt.staticText1}"
                                            id="staticText1"
@@ -65,13 +65,13 @@
                         <ui:panelLayout binding="#{caseMgt.layoutPanel2}"
                                         id="layoutPanel2"
                                         styleClass="caseMgtPanel"
-                                        style="height: 240px; top: 123px">
+                                        style="position: absolute; height: 270px; top: 123px">
 
                             <ui:button action="#{caseMgt.btnLaunch_action}"
                                        binding="#{caseMgt.btnLaunch}"
                                        id="btnLaunch"
                                        styleClass="caseMgtButton"
-                                       style="left: 11px; top: 200px"
+                                       style="left: 11px; top: 230px"
                                        text="Launch Case"/>
 
                             <ui:staticText binding="#{caseMgt.staticText2}"
@@ -79,6 +79,11 @@
                                            styleClass="pageSubheading"
                                            style="left: 12px; top: 12px"
                                            text="Loaded Specifications"/>
+
+                            <ui:panelGroup binding="#{caseMgt.pnlGroup}"
+                                            id="pnlGroup"
+                                            style="position: absolute"
+                                            styleClass="tablePnlGroup">
 
                             <h:dataTable binding="#{caseMgt.dataTable1}"
                                          headerClass="dataTableHeader"
@@ -100,11 +105,6 @@
                                                   id="colNameRows"
                                                   value="#{currentRow.ID}"/>
 
-                                    <f:facet name="header">
-                                        <h:outputText binding="#{caseMgt.colNameHeader}"
-                                                      id="colNameHeader"
-                                                      value="Name"/>
-                                    </f:facet>
                                 </h:column>
 
                                 <h:column binding="#{caseMgt.colVersion}"
@@ -113,11 +113,6 @@
                                                   id="colVersionRows"
                                                   value="#{currentRow.specVersion}"/>
 
-                                    <f:facet name="header">
-                                        <h:outputText binding="#{caseMgt.colVersionHeader}"
-                                                      id="colVersionHeader"
-                                                      value="Version"/>
-                                    </f:facet>
                                 </h:column>
 
                                 <h:column binding="#{caseMgt.colDescription}"
@@ -126,24 +121,19 @@
                                                   id="colDescriptionRows"
                                                   value="#{currentRow.documentation}"/>
 
-                                    <f:facet name="header">
-                                        <h:outputText binding="#{caseMgt.colDescriptionHeader}"
-                                                      id="colDescriptionHeader"
-                                                      value="Description"/>
-                                    </f:facet>
                                 </h:column>
 
                                 <h:column binding="#{caseMgt.colSBar}"
                                           id="colSBar"/>
 
                             </h:dataTable>
-
+                            </ui:panelGroup>
 
                             <ui:button action="#{caseMgt.btnUnload_action}"
                                        binding="#{caseMgt.btnUnload}"
                                        id="btnUnload"
                                        styleClass="caseMgtButton"
-                                       style="left: 119px; top: 200px"
+                                       style="left: 119px; top: 230px"
                                        text="Unload Spec"/>
                         </ui:panelLayout>
 
@@ -151,7 +141,7 @@
                         <ui:panelLayout binding="#{caseMgt.layoutPanel3}"
                                         id="layoutPanel3"
                                         styleClass="caseMgtPanel"
-                                        style="height: 194px; top: 366px">
+                                        style="height: 194px; top: 396px">
                             
                             <ui:button binding="#{SessionBean.btnRefresh}"
                                        action="#{caseMgt.btnRefresh_action}"

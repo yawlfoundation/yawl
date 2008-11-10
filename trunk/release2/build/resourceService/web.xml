@@ -300,7 +300,7 @@
 
 <filter-mapping>
 <filter-name>SessionTimeoutFilter</filter-name>
-<url-pattern>*.jsp</url-pattern> 
+<url-pattern>*.jsp</url-pattern>
 </filter-mapping>
 
   <servlet>

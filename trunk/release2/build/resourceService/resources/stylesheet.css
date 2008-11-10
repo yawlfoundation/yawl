@@ -10,11 +10,11 @@
 }
 
 .vpcontainerPanel {
-    height: 400px;
-    width: 544px;
+    height: 372px;
+    width: 538px;
     top: 50px;
     position:relative;
-    border: 2px solid gray;
+    /*border: 2px solid gray;*/
 }
 
 .addInstanceContainerPanel {
@@ -34,21 +34,21 @@
 
 .adminQueuesContainerPanel {
     height: 350px;
-    width: 696px;
+    width: 796px;
     top: 50px;
     position:relative;
 }
 
 .teamQueuesContainerPanel {
     height: 350px;
-    width: 696px;
+    width: 796px;
     top: 50px;
     position:relative;
 }
 
 .userQueuesContainerPanel {
     height: 284px;
-    width: 696px;
+    width: 796px;
     top: 50px;
     position:relative;
 }
@@ -64,6 +64,13 @@
     height: 563px;
     width: 670px;
     top: 50px;
+    position:relative;
+}
+
+.dynFormContainerPanel {
+    height: 10px;
+    width: 10px;
+    top: 0px;
     position:relative;
 }
 
@@ -111,19 +118,32 @@
 
 /* Rules for data tables */
 
-.dataTable {
-    border: 2px solid gray;
+.tablePnlGroup {
+    position: absolute;
     left: 12px;
-    top: 36px;
-    height: 122px;
+    top: 40px;
+    height: 170px;
+    width: 567px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    background-color: #f0f0f0;
+    border: 2px solid gray;
+}
+
+.dataTable {
+    left: 0;
+    top: 0px! important
+    height: 152px;
     position: absolute;    
 }
 
 .dataTable tbody {
-    overflow-x:hidden;
-    overflow-y:scroll;
     width:95%;
-    height:120px;
+    height:150px;
+}
+
+.dataTable tbody tr {
+    height:20px;
 }
 
 .dataTableHeader {
@@ -220,9 +240,9 @@
 .pageHeading {
    color: #3277ba; 
    font-size: 18px; 
-   left: 50px; 
-   top: 90px; 
-   position: absolute;
+   left: 0; 
+   top: 40px;
+   position: relative;
 }
 
 .pageSubheading {
@@ -233,11 +253,27 @@
 }
 
 .refreshButton {
-    left: 669px;
+    left: 769px;
     top: 8px;
     width: 20px;
     height: 20px;
     position: absolute;    
+}
+
+.synchButton {
+    left: 740px;
+    top: 8px;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+}
+
+.refreshOrgDataButton {
+    left: 669px;
+    top: 8px;
+    width: 20px;
+    height: 20px;
+    position: absolute;
 }
 
 .refreshCasesButton {
@@ -260,7 +296,7 @@
     /*top: -200px;*/
     /*left: 270px;*/
     top: 60px;
-    left: 270px;
+    left: 320px;
     width: 100px;
     height: 70px;
     position: absolute;
@@ -287,8 +323,8 @@
    border-style: inset; 
    border-color: gray;
    background-color: #97cbfd; 
-   left: 50px; 
-   top: 130px;
+   left: 0;
+   top: 80px;
    position: absolute;
 }
 
@@ -305,10 +341,11 @@
 }
 
 .dynformButton {
-   font-size: 14px; 
-   height: 30px; 
-   position: absolute; 
-   width: 76px;
+    font-size: 14px;
+    height: 30px;
+    position: absolute;
+    width: 76px;
+    /*top: 80px;*/
 }
 
 .dynformOccursButton {
@@ -454,10 +491,10 @@
 /* Rules for Work Queues Pages */
 
 .queueUI {
-    height: 202px;
+    height: 266px;
     top: 84px;
     position: absolute;
-    width: 542px;
+    width: 642px;
     -rave-layout: grid;
 }
 
@@ -465,16 +502,16 @@
     height: 202px;
     top: 10px;
     position: absolute;
-    width: 542px;
+    width: 642px;
     -rave-layout: grid;
 }
 
 .userQueuesTabSet {
     border: 1px solid black;
-    height: 262px;
+    height: 326px;
     left: 0;
     position: absolute;
-    width: 696px;
+    width: 796px;
 }
 
 .adminQueuesTabSet {
@@ -482,19 +519,34 @@
     height: 326px;
     left: 0;
     position: absolute;
+    width: 796px;
+}
+
+.orgDataTabSet {
+    border: 1px solid black;
+    height: 326px;
+    left: 0;
+    position: absolute;
     width: 696px;
 }
 
-
 .userQueuesTabPanel {
-    height: 225px;
+    height: 289px;
     position: absolute;
-    width: 696px;
+    width: 796px;
     background-color: #d4e5f6;
     -rave-layout: grid;
 }
 
 .adminQueuesTabPanel {
+    height: 289px;
+    position: absolute;
+    width: 796px;
+    background-color: #d4e5f6;
+    -rave-layout: grid;
+}
+
+.orgDataTabPanel {
     height: 289px;
     position: absolute;
     width: 696px;
@@ -506,7 +558,7 @@
     height: 289px;
     position: absolute;
     top: 40px;
-    width: 696px;
+    width: 796px;
     background-color: #d4e5f6;
     border: 1px solid gray;
     -rave-layout: grid;
@@ -514,18 +566,27 @@
 
 .queuesButton {
     position: absolute;
-    left: 565px;
+    left: 665px;
     height: 25px;
     width: 95px;
 }
 
 .queuesCheckbox {
     position: absolute;
-    left: 565px;
+    left: 665px;
     top: 180px;
 }
 
 .queuesListbox {
+    border: 2px inset rgb(204, 204, 255);
+    height: 220px;
+    left: 12px;
+    top: 76px;
+    position: absolute;
+    width: 284px;
+}
+
+.orgDataListbox {
     border: 2px inset rgb(204, 204, 255);
     height: 156px;
     left: 12px;
@@ -544,12 +605,12 @@
 }
 
 .queuesLabelLeft  {
-    left: 220px;
+    left: 320px;
     position: absolute;
 }
 
 .queuesLabelRight  {
-    left: 382px;
+    left: 482px;
     position: absolute;
 }
 
@@ -558,7 +619,7 @@
     background-color: #d4e5f6;
     position: absolute;
     width: 406px;
-    left:0;
+    text-align: left;
     -rave-layout: grid;
 }
 
@@ -568,9 +629,18 @@
     width: 100px;
 }
 
-.orgDataTabPanel {
+
+.userOrgDataTabPanel {
     height: 165px;
-    width: 100%;
     background-color: #d4e5f6;
+    width: 100%;
+}
+
+.viewProfilePanel {
+    border: 2px solid gray;
+    background-color: #d4e5f6;
+    position: absolute;
+    text-align: left;
+    -rave-layout: grid;
 }
 

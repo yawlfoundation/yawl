@@ -55,6 +55,13 @@ public class DynFormFactory extends AbstractSessionBean {
     public void setHeaderText(String text) { headerText = text ; }
 
 
+    private String containerStyle ;
+
+    public String getContainerStyle() { return containerStyle; }
+
+    public void setContainerStyle(String style) { containerStyle = style; }
+
+
     private String btnOKStyle ;
 
     public String getBtnOKStyle() { return btnOKStyle; }
@@ -133,11 +140,11 @@ public class DynFormFactory extends AbstractSessionBean {
     static final int Y_CHOICE_DECREMENT = 20;   // dec of y coord for choice container top
     static final int Y_SINGLE_ELEM_INCREMENT = 25;  // inc of y coord for single content box
     static final int SUBPANEL_INSET = 10 ;      // gap between panel side walls
-    static final int OUTER_PANEL_TO_BUTTONS = 15;   // gap from panel bottom to buttons
-    static final int OUTER_PANEL_TOP = 130;      // top (y) coord of outer panel
-    static final int OUTER_PANEL_LEFT = 50;      // left (x) coord of outer panel
-    static final int FORM_BUTTON_WIDTH = 76;     // buttons under outer panel
-    static final int FORM_BUTTON_GAP = 15;       // ... and the gap between them
+    static final int OUTER_PANEL_TO_BUTTONS = 20;   // gap from panel bottom to buttons
+    static final int OUTER_PANEL_TOP = 80;      // top (y) coord of outer panel
+    static final int OUTER_PANEL_LEFT = 0;      // left (x) coord of outer panel
+    static final int FORM_BUTTON_WIDTH = 76;    // buttons under outer panel
+    static final int FORM_BUTTON_GAP = 15;      // ... and the gap between them
     static final int X_LABEL_OFFSET = 10;
     static final int DEFAULT_FIELD_OFFSET = 125;
     static final int DEFAULT_PANEL_BASE_WIDTH = 250;         // width of innermost panel
@@ -322,8 +329,13 @@ public class DynFormFactory extends AbstractSessionBean {
         // calc and set height and width of outermost panel
         int height = calcHeight(content) ;
         int width = getFormWidth() ;
-        String style = String.format("height: %dpx; width: %dpx", height, width);
+        String style = String.format("position: absolute; height: %dpx; width: %dpx",
+                                      height, width);
         compPanel.setStyle(style);
+
+        // ...and its container
+        containerStyle = String.format("position: relative; height: 10px; top: 0; width: %dpx",
+                                        width);        
 
         // reposition buttons to go directly under resized panel, centered
         int btnTop = OUTER_PANEL_TOP + height + OUTER_PANEL_TO_BUTTONS;
@@ -340,10 +352,7 @@ public class DynFormFactory extends AbstractSessionBean {
     }
 
     private int getNumberOfVisibleButtons() {
-        if (_sb.getDynFormType() == ApplicationBean.DynFormType.netlevel)
-            return 2;
-        else
-            return 3;
+        return (_sb.getDynFormType() == ApplicationBean.DynFormType.netlevel) ? 2 : 3;
     }
 
 

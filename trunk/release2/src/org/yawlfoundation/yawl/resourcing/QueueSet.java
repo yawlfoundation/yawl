@@ -174,6 +174,15 @@ public class QueueSet implements Serializable {
     }
 
 
+    public void removeCaseFromQueue(String caseID, int queue) {
+        if (! isNullQueue(queue)) getQueue(queue).removeCase(caseID);
+    }
+
+
+    public void cleanseQueue(WorkItemCache cache, int queue) {
+        if (! isNullQueue(queue)) getQueue(queue).cleanse(cache);
+    }
+
     public Set<WorkItemRecord> getQueuedWorkItems(int queue) {
         if (isNullQueue(queue)) return null ;
         else return getQueue(queue).getAll();
@@ -200,20 +209,23 @@ public class QueueSet implements Serializable {
     }
 
     public void removeFromAllQueues(WorkItemRecord wir) {
-        int max, min;
-        if (_type == setType.adminSet) {
-            min = WorkQueue.UNOFFERED ;
-            max = WorkQueue.WORKLISTED ;            
-        }
-        else {
-            min = WorkQueue.OFFERED;
-            max = WorkQueue.SUSPENDED;
-        }
-        for (int queue = min; queue <= max; queue++)
+        for (int queue = getStartQueue(); queue <= getEndQueue(); queue++) 
             removeFromQueue(wir, queue);
     }
 
 
+    public void removeCaseFromAllQueues(String caseID) {
+        for (int queue = getStartQueue(); queue <= getEndQueue(); queue++)
+            removeCaseFromQueue(caseID, queue);
+    }
+
+
+    public void cleanseAllQueues(WorkItemCache cache) {
+        for (int queue = getStartQueue(); queue <= getEndQueue(); queue++)
+            cleanseQueue(cache, queue);
+    }
+
+    
     public void purgeQueue(int queue) {
         if (! isNullQueue(queue)) getQueue(queue).clear();        
     }
@@ -230,22 +242,23 @@ public class QueueSet implements Serializable {
         setQueue(q);
     }
 
+
+    private int getStartQueue() {
+        return (_type == setType.adminSet) ? WorkQueue.UNOFFERED : WorkQueue.OFFERED;
+    }
+
+
+    private int getEndQueue() {
+        return (_type == setType.adminSet) ? WorkQueue.WORKLISTED : WorkQueue.SUSPENDED;
+    }
+
+
     public String toXML() {
-        int max, min;
         StringBuilder xml = new StringBuilder("<QueueSet>") ;
-        if (_type == setType.adminSet) {
-            min = WorkQueue.UNOFFERED ;
-            max = WorkQueue.WORKLISTED ;
-        }
-        else {
-            min = WorkQueue.OFFERED;
-            max = WorkQueue.SUSPENDED;
-        }
-        for (int queue = min; queue <= max; queue++)
+        for (int queue = getStartQueue(); queue <= getEndQueue(); queue++) {
              if (!isNullQueue(queue)) xml.append(getQueue(queue).toXML()) ;
-
+        }
         xml.append("</QueueSet>");
-
         return xml.toString();
     }
 

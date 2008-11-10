@@ -44,14 +44,19 @@
                         <ui:panelLayout binding="#{customServices.pnlServices}"
                                         id="pnlServices"
                                         styleClass="servicesPanel"
-                                        style="height: 240px; top: 0px">
+                                        style="position: absolute; height: 270px; top: 0px">
 
                             <ui:staticText binding="#{customServices.staticText2}"
                                            id="staticText2"
                                            styleClass="pageSubheading"
                                            style="left: 12px; top: 12px"
                                            text="Registered Services"/>
-                            
+
+                            <ui:panelGroup binding="#{customServices.pnlGroup}"
+                                            id="cspnlGroup"
+                                            style="position: absolute; width: 635px"
+                                            styleClass="tablePnlGroup">
+
                             <h:dataTable binding="#{customServices.dataTable1}"
                                          headerClass="dataTableHeader"
                                          id="dataTable1"
@@ -72,11 +77,6 @@
                                                   id="colNameRows"
                                                   value="#{currentRow._serviceName}"/>
 
-                                    <f:facet name="header">
-                                        <h:outputText binding="#{customServices.colNameHeader}"
-                                                      id="colNameHeader"
-                                                      value="Name"/>
-                                    </f:facet>
                                 </h:column>
 
                                 <h:column binding="#{customServices.colURI}"
@@ -86,11 +86,6 @@
                                                   id="colURIRows"
                                                   value="#{currentRow._yawlServiceID}"/>
 
-                                    <f:facet name="header">
-                                        <h:outputText binding="#{customServices.colURIHeader}"
-                                                      id="colURIHeader"
-                                                      value="Service URI"/>
-                                    </f:facet>
                                 </h:column>
 
                                 <h:column binding="#{customServices.colDescription}"
@@ -99,24 +94,19 @@
                                                   id="colDescriptionRows"
                                                   value="#{currentRow._documentation}"/>
 
-                                    <f:facet name="header">
-                                        <h:outputText binding="#{customServices.colDescriptionHeader}"
-                                                      id="colDescriptionHeader"
-                                                      value="Description"/>
-                                    </f:facet>
                                 </h:column>
 
                                 <h:column binding="#{customServices.colSBar}"
                                           id="colSBar"/>
 
                             </h:dataTable>
-
+                            </ui:panelGroup>
 
                             <ui:button action="#{customServices.btnRemove_action}"
                                        binding="#{customServices.btnRemove}"
                                        id="btnRemoveService"
                                        styleClass="servicesButton"
-                                       style="left: 11px; top: 200px"
+                                       style="left: 11px; top: 230px"
                                        text="Remove"/>
                         </ui:panelLayout>
 
@@ -125,7 +115,7 @@
                         <ui:panelLayout binding="#{customServices.pnlAddService}"
                                         id="pnlAddService"
                                         styleClass="servicesPanel"
-                                        style="height: 210px; top: 243px">
+                                        style="height: 210px; top: 273px">
 
                             <ui:staticText binding="#{customServices.staticText1}"
                                            id="staticText1"

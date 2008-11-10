@@ -153,10 +153,14 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
         else if ("timerExpiry".equals(action)) {
             _controller.handleTimerExpiryEvent(workItem);
         }
-        else if (InterfaceB_EngineBasedClient.ANNOUNCE_COMPLETE_CASE_CMD.equals(action)) {
+        else if ("announceCompletion".equals(action)) {
             String caseID = request.getParameter("caseID");
             String casedata = request.getParameter("casedata");
             _controller.handleCompleteCaseEvent(caseID, casedata);
+        }
+        else if ("announceCaseCancelled".equals(action)) {
+            String caseID = request.getParameter("caseID");
+            _controller.handleCancelledCaseEvent(caseID);
         }
         else if ("announceEngineInitialised".equals(action)) {
             _controller.handleEngineInitialisationCompletedEvent();

@@ -105,4 +105,11 @@ public interface ObserverGateway
      */
     public void announceNotifyEngineInitialised(Set<YAWLServiceReference> services) ;
 
+    /**
+     * Notify the engine has cancelled a case
+     */
+    public void announceNotifyCaseCancellation(Set<YAWLServiceReference> services, YIdentifier id) ;
+
+
+
 }

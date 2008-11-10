@@ -96,6 +96,12 @@ public abstract class InterfaceBWebsideController {
 
 
     /**
+     * Override this method to take any necessary action when a case is cancelled
+     * @param caseID the id of the case to cancel
+     */
+    public void handleCancelledCaseEvent(String caseID) { }
+
+    /**
      * By overriding this method one can process case completion events.
      * @param caseID the id of the completed case.
      */

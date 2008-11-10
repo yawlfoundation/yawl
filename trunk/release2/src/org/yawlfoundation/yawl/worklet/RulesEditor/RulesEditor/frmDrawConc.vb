@@ -381,7 +381,7 @@ Friend Class frmDrawConc
         suspend = 3
         suspendCase = 4
         suspendAll = 5
-        continue = 6
+        [continue] = 6
         continueCase = 7
         continueAll = 8
         restart = 9
@@ -571,7 +571,6 @@ Friend Class frmDrawConc
     ' creates a context menu for all drawing icons
     Private Function getContextMenu(ByVal tooltype As tool) As ContextMenu
         Dim result As New ContextMenu
-        Dim mnuAncestor As MenuItem
 
         ' add delete function to all icons
         result.MenuItems.Add(New MenuItem("&Delete", New EventHandler(AddressOf cmDelete_Click)))
@@ -601,7 +600,7 @@ Friend Class frmDrawConc
         Dim node As ProcNode = getProcNode(DirectCast(sourceMenu, ContextMenu).SourceControl) ' which node?
         Dim workletForm As New frmChooseWorklet
 
-        If workletForm.ShowDialog = DialogResult.OK Then                                  ' user selects worklet  
+        If workletForm.ShowDialog = Windows.Forms.DialogResult.OK Then                                  ' user selects worklet  
             node.worklet = workletForm.workletSelections                                  ' save the name(s)
         End If
     End Sub
@@ -651,6 +650,7 @@ Friend Class frmDrawConc
                 Return tempStep                           ' pbox passed 
             End If
         Next
+        Return Nothing
     End Function
 
     ' Draw a node icon on the canvas and create a new node in thelist of nodes for the process
@@ -721,7 +721,7 @@ Friend Class frmDrawConc
     End Sub
 
     ' sorts nodes into sequence along arcs from startnode, and returns the filtered out loose nodes
-    Private Function SortNodeList()
+    Private Function SortNodeList() As ArrayList
         Dim sortedList As New ArrayList
         Dim remaining As New ArrayList
         Dim nextNode As ProcNode = getProcNode(pbStart) ' get start node
@@ -871,7 +871,7 @@ Friend Class frmDrawConc
     Private Sub ReAlignNodes()
         Dim alignedTop As Integer = pbStart.Top                                      ' align vert. with start node
         Dim eachGap As Integer = (pbStop.Left - pbStart.Left) \ (nodeList.Count - 1) ' equidistant horiz.
-        Dim runningLeft = pbStart.Left + eachGap                                     ' accum. for icon posn.
+        Dim runningLeft As Integer = pbStart.Left + eachGap                          ' accum. for icon posn.
         Dim leftOvers As New ArrayList                                               ' unattached nodes
         Dim sortedList As New ArrayList
         Dim temp As ProcNode
@@ -916,7 +916,8 @@ Friend Class frmDrawConc
 
     ' returns the left-most node in the list (and removes it from the list)
     Private Function getNextLeftNode(ByVal list As ArrayList) As ProcNode
-        Dim temp, result As ProcNode
+        Dim temp As ProcNode = Nothing
+        Dim result As ProcNode = Nothing
         Dim lowLeft As Integer = 10000
 
         For Each temp In list
@@ -936,7 +937,7 @@ Friend Class frmDrawConc
 
     ' controls graph validation
     Private Function ValidGraph() As Boolean
-        Dim msg As String
+
         'validation:
         '  - all nodes are linked - map from start to end
         If Not isCompleteGraph() Then
@@ -997,7 +998,7 @@ Friend Class frmDrawConc
 
     ' converts the graphically drawn process into an array of ConclusionItems ready to write to XML
     Private Function ComposeGraphXML() As ConclusionItem()
-        Dim result() As ConclusionItem
+        Dim result() As ConclusionItem = Nothing
         Dim tempConc As ConclusionItem
         Dim tagIndex As Integer = 1
         Dim node As ProcNode = getProcNode(pbStart).nextItem   ' first item after start node
@@ -1012,7 +1013,7 @@ Friend Class frmDrawConc
                 Case tool.compensate
                     tempConc.Action = "compensate"
                     tempConc.Target = node.worklet
-                Case tool.continue
+                Case tool.[continue]
                     tempConc.Action = "continue"
                 Case tool.continueAll
                     tempConc.Action = "continue"
@@ -1071,7 +1072,7 @@ Friend Class frmDrawConc
         Dim toolType As tool
         Dim factor As Integer = 1
         Dim idx As Integer
-        Dim pNode, prevNode, nextNode As ProcNode
+        Dim pNode As ProcNode
 
         nodeList.Clear()
         InitTerminalNodes()    ' add start and end nodes
@@ -1118,7 +1119,7 @@ Friend Class frmDrawConc
             Case "continue"
                 Select Case conc.Target
                     Case "workitem"
-                        result = tool.continue
+                        result = tool.[continue]
                     Case "case"
                         result = tool.continueCase
                     Case "allcases", "ancestorCases"

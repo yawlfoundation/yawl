@@ -15,7 +15,7 @@
                     items="#{SessionBean.orgDataOptions}"
                     selected="#{SessionBean.orgDataChoice}"
                     onChange="common_timeoutSubmitForm(this.form, 'lbxItems');"
-                    styleClass="queuesListbox"
+                    styleClass="orgDataListbox"
                     valueChangeListener="#{pfOrgData.lbxItems_processValueChange}"/>
 
         <ui:label binding="#{pfOrgData.lblAdd}"

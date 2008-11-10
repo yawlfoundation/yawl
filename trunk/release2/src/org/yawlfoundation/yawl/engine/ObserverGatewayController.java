@@ -284,4 +284,25 @@ public class ObserverGatewayController
         }).start();
     }
 
+
+    /**
+     * Notify environment that the engine has cancelled a case
+     * @param services - all services registered with the engine
+     * @param id - the case identifier
+     */
+    public void notifyCaseCancellation(final Set<YAWLServiceReference> services,
+                                       final YIdentifier id)
+    {
+        new Thread(new Runnable()
+        {
+            public void run()
+            {
+                for(ObserverGateway observerGateway : gateways)
+                {
+                    observerGateway.announceNotifyCaseCancellation(services, id);
+                }
+            }
+        }).start();
+    }
+
 }

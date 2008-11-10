@@ -24,7 +24,7 @@
                       id="txtSpecID"
                       readOnly="true"
                       styleClass="queuesTextField"
-                      style="left: 220px; top: 76px; align: left"
+                      style="left: 320px; top: 76px; align: left"
                       text="#{SessionBean.initSpecID}"
                       trim="false"/>
 
@@ -46,7 +46,7 @@
                       id="txtCreated"
                       readOnly="true"
                       styleClass="queuesTextField"
-                      style="left: 220px; top: 208px"
+                      style="left: 320px; top: 208px"
                       text="#{SessionBean.initCreatedDate}"
                       trim="false"/>
 
@@ -54,7 +54,7 @@
                       id="txtCaseID"
                       readOnly="true"
                       styleClass="queuesTextField"
-                      style="left: 220px; top: 142px"
+                      style="left: 320px; top: 142px"
                       text="#{SessionBean.initCaseID}"
                       trim="false"/>
 
@@ -62,7 +62,7 @@
                       id="txtAge"
                       readOnly="true"
                       styleClass="queuesTextField"
-                      style="left: 382px; top: 208px"
+                      style="left: 482px; top: 208px"
                       text="#{SessionBean.initAge}"
                       trim="false"/>
 
@@ -70,7 +70,7 @@
                       id="txtStatus"
                       readOnly="true"
                       styleClass="queuesTextField"
-                      style="left: 382px; top: 142px"
+                      style="left: 482px; top: 142px"
                       text="#{SessionBean.initStatus}"
                       trim="false"/>
 
@@ -78,7 +78,7 @@
                       id="txtTaskID"
                       readOnly="true"
                       styleClass="queuesTextField"
-                      style="left: 382px; top: 76px"
+                      style="left: 482px; top: 76px"
                       text="#{SessionBean.initTaskID}"
                       trim="false"/>
 

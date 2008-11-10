@@ -397,21 +397,26 @@ public class SessionBean extends AbstractSessionBean {
     // the wir matching the item id selected by the user
     private WorkItemRecord chosenWIR = null;
 
-    public void setChosenWIR(WorkItemRecord wir) { chosenWIR = wir ; }
+    public void setChosenWIR(WorkItemRecord wir) {
+        chosenWIR = wir ;
+        worklistChoice = (wir != null) ? wir.getID() : null;
+    }
 
     /** @return the WorkItemRecord for the id selected in the list */
     public WorkItemRecord getChosenWIR(int qType) {
-        Set<WorkItemRecord> items = getQueue(qType);
-        if (items != null) {
-            for (WorkItemRecord wir : items) {
-                if (wir != null) {
-                    if (wir.getID().equals(worklistChoice)) {
-                        chosenWIR = wir ;
-                        return wir;
+        if (worklistChoice != null) {
+            Set<WorkItemRecord> items = getQueue(qType);
+            if (items != null) {
+                for (WorkItemRecord wir : items) {
+                    if (wir != null) {
+                        if (wir.getID().equals(worklistChoice)) {
+                            chosenWIR = wir ;
+                            return wir;
+                        }
                     }
                 }
             }
-        }   
+        }
         return null ;
     }
 
@@ -672,7 +677,7 @@ public class SessionBean extends AbstractSessionBean {
         if (specDataSet != null) {
             loadedSpecs = new ArrayList<SpecificationData>(specDataSet);
             Collections.sort(loadedSpecs, new SpecificationDataComparator());
-            refreshSchemaLibraries() ;
+        //    refreshSchemaLibraries() ;
         }
         else
             loadedSpecs = null ;
@@ -813,24 +818,28 @@ public class SessionBean extends AbstractSessionBean {
         this.adminQueueAction = adminQueueAction;
     }
 
-    public void performAdminQueueAction() {
+    public boolean performAdminQueueAction() {
+        boolean result = true;
         if (getAdminQueueAction() != null) {
-            performAdminQueueAction(getAdminQueueAction());
+            result = performAdminQueueAction(getAdminQueueAction());
             setAdminQueueAction(null);
         }
+        return result;
     }
 
-    public void performAdminQueueAction(String action) {
+    public boolean performAdminQueueAction(String action) {
         String participantID = getSelectUserListChoice() ;        // this is the p-id
         WorkItemRecord wir ;
+        boolean result = true;
         if (action.startsWith("Re")) {
             wir = getChosenWIR(WorkQueue.WORKLISTED);
             _rm.reassignWorklistedItem(wir, participantID, action) ;
         }    
         else  {
             wir = getChosenWIR(WorkQueue.UNOFFERED);
-            _rm.assignUnofferedItem(wir, participantID, action) ;
+            result = _rm.assignUnofferedItem(wir, participantID, action) ;
         }
+        return result ;
     }
 
 

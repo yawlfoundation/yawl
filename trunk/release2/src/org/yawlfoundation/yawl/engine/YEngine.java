@@ -582,6 +582,7 @@ public class YEngine implements InterfaceADesign,
                 runner.cancel(pmgr);
                 _workItemRepository.removeWorkItemsForCase(caseID);
                 finishCase(pmgr, caseID);
+                announceCaseCancellationToEnvironment(caseID);
 
                 // announce cancellation to exception service (if required)
                 if (_exceptionObserver != null)
@@ -1845,6 +1846,10 @@ public class YEngine implements InterfaceADesign,
 
     public void announceEngineInitialisationCompletion() {
         observerGatewayController.notifyEngineInitialised(getYAWLServices());
+    }
+
+    public void announceCaseCancellationToEnvironment(YIdentifier id) {
+        observerGatewayController.notifyCaseCancellation(getYAWLServices(), id);
     }
 
 

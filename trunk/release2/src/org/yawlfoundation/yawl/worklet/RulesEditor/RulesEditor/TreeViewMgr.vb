@@ -147,7 +147,7 @@ Friend Class TreeViewMgr
 
     ' returns the treenode in the view with the specified rule id
     Private Function FindNode(ByVal nodes As TreeNodeCollection, ByVal id As String) As TreeNode
-        Dim result As TreeNode
+        Dim result As TreeNode = Nothing
 
         For Each n As TreeNode In nodes
             If n.Text = id Then                                    ' either it's the top level Nodes
@@ -164,10 +164,10 @@ Friend Class TreeViewMgr
     Public Function getEffectiveCondition(ByVal view As TreeView, ByVal tree As RuleTree) As String
         Dim nodeID As Integer = getSelectedNode(view)
         Dim list As New ArrayList
-        Dim node, prevNode As RuleNode
+        Dim node As RuleNode = Nothing
+        Dim prevNode As RuleNode = Nothing
         Dim result As String = ""
         Dim tabs As Integer = 1
-        Dim prevID As Integer
         Dim compact As ConclusionItem.TextFormat = ConclusionItem.TextFormat.compact
 
         ' create list of nodes on direct path from selected node back to root node

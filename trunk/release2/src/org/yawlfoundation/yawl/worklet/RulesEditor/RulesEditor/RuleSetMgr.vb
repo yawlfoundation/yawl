@@ -119,7 +119,7 @@ Public Class RuleSetMgr
 
     ' reads an rdr ruleset file into the editor
     Public Function LoadRulesFromFile(ByVal fName As String) As Boolean
-        Dim x As XmlTextReader
+        Dim x As XmlTextReader = Nothing
         Dim tsType As exType
 
         Try
@@ -217,7 +217,6 @@ Public Class RuleSetMgr
     Private Sub LoadExternalRules(ByVal x As XmlReader)
         Dim result As New TreeSet
         Dim tree As RuleTree
-        Dim outerTag As String
 
         result.OuterTag = "external"
 
@@ -285,10 +284,11 @@ Public Class RuleSetMgr
                 End If
             ElseIf x.NodeType = XmlNodeType.EndElement Then
                 If x.Name = endTag Then                                         ' read closing tag
-                    Return tree
+                    Exit While
                 End If
             End If
         End While
+        Return tree
     End Function
 
     ' reads a version one ruleset file into a 'selection' tree (version one only provided for selection rules)
@@ -321,9 +321,8 @@ Public Class RuleSetMgr
 
     ' read a single rule node from the file
     Private Function ReadRuleNode(ByVal x As XmlTextReader) As RuleNode
-        Dim item As String                                                      ' element name
+        Dim item As String = ""                                                 ' element name
         Dim node As New RuleNode                                                ' this node
-        Dim idx As Integer                                                      ' to add rule to list
         Dim datalist As New ArrayList                                           ' for cornerstone data
 
         While x.Read
@@ -351,15 +350,16 @@ Public Class RuleSetMgr
                 End Select
             ElseIf x.NodeType = XmlNodeType.EndElement Then
                 If x.Name = "ruleNode" Then                                     ' end of rulenode def.
-                    Return node
+                    Exit While
                 End If
             End If
         End While
+        Return node
     End Function
 
     ' read conclusion data items & values
     Private Function ReadConclusion(ByVal x As XmlTextReader, ByVal outerTag As String) As ConclusionItem()
-        Dim result() As ConclusionItem                                          ' to store conc data
+        Dim result() As ConclusionItem = Nothing                                ' to store conc data
         Dim conclusion As ConclusionItem
 
         While x.Read
@@ -369,17 +369,18 @@ Public Class RuleSetMgr
                 result = AddConclusion(result, conclusion)
             ElseIf x.NodeType = XmlNodeType.EndElement Then
                 If x.Name = outerTag Then                                       ' we're done when
-                    Return result                                               ' at end of conc element
+                    Exit While                                                  ' at end of conc element
                 End If
             End If
         End While
+        Return result
     End Function
 
     ' read a set of attribute-value pairs (or <tag>value</tag> ) til closing tag found
     Private Function ReadCompositeItem(ByVal x As XmlTextReader, ByVal outerTag As String) As CompositeItem()
-        Dim result() As CompositeItem                                           ' to store comp data
+        Dim result() As CompositeItem = Nothing                                 ' to store comp data
         Dim element As CompositeItem
-        Dim item As String                                                      ' element name
+        Dim item As String = ""                                                 ' element name
 
         While x.Read
             If x.NodeType = XmlNodeType.Element Then                            ' get element name  
@@ -389,17 +390,18 @@ Public Class RuleSetMgr
                 result = AddCompositeItem(result, element)                      ' ...then the data
             ElseIf x.NodeType = XmlNodeType.EndElement Then
                 If x.Name = outerTag Then                                       ' we're done when
-                    Return result                                               ' at end of cs element
+                    Exit While                                               ' at end of cs element
                 End If
             End If
         End While
+        Return result
     End Function
 
     '****** END OF READING METHODS ****************************************************************    
 
     'save ruleset back to file (with any additions)
     Public Sub SaveRulesToFile()
-        Dim xw As XmlTextWriter                               ' Write the XML file
+        Dim xw As XmlTextWriter = Nothing                     ' Write the XML file
         Dim tSet As TreeSet                                   ' for each treeset in ruleSet array
         Dim tree As RuleTree                                  ' ... for each tree in treeset 
         Dim node As RuleNode                                  ' ... ... for each node in tree

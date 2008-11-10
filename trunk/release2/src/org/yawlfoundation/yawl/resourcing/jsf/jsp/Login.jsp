@@ -4,7 +4,7 @@
           xmlns:h="http://java.sun.com/jsf/html"
           xmlns:jsp="http://java.sun.com/JSP/Page"
           xmlns:ui="http://www.sun.com/web/ui">
-
+    
     <jsp:directive.page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"/>
 
     <f:view>

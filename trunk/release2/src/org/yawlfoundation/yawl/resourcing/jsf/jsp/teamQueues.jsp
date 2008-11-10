@@ -43,27 +43,27 @@
                                           for="cbbAssignedTo"
                                           id="lblAssignedTo"
                                           styleClass="queuesLabelLeft"
-                                          style="left: 217px; top: 213px"
+                                          style="left: 317px; top: 213px"
                                           text="#{SessionBean.assignedToText}"/>
 
                                 <ui:label binding="#{teamQueues.lblResourceState}"
                                           for="txtResourceState"
                                           id="lblResourceState"
                                           styleClass="queuesLabelRight"
-                                          style="left: 379px; top: 213px"
+                                          style="left: 479px; top: 213px"
                                           text="Resource State"/>
 
                                 <ui:dropDown binding="#{teamQueues.cbbAssignedTo}"
                                              id="cbbAssignedTo"
                                              forgetValue="true"
                                              items="#{SessionBean.adminQueueAssignedList}"
-                                             style="left: 217px; top: 230px; position: absolute; width: 145px"/>
+                                             style="left: 317px; top: 230px; position: absolute; width: 145px"/>
 
                                 <ui:textField binding="#{teamQueues.txtResourceState}"
                                               id="txtResourceState"
                                               readOnly="true"
                                               styleClass="queuesTextField"
-                                              style="left: 379px; top: 230px"
+                                              style="left: 479px; top: 230px"
                                               trim="false"
                                               text="#{SessionBean.resourceState}" />
 

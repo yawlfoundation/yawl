@@ -57,7 +57,7 @@ Public Class frmSpecLocator
     Friend WithEvents Label1 As System.Windows.Forms.Label
     Friend WithEvents ofdSpec As System.Windows.Forms.OpenFileDialog
     <System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
-        Dim resources As System.Resources.ResourceManager = New System.Resources.ResourceManager(GetType(frmSpecLocator))
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmSpecLocator))
         Me.btnCancel = New System.Windows.Forms.Button
         Me.btnBrowse = New System.Windows.Forms.Button
         Me.txtSpecFile = New System.Windows.Forms.TextBox
@@ -72,6 +72,7 @@ Public Class frmSpecLocator
         Me.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel
         Me.btnCancel.Location = New System.Drawing.Point(244, 88)
         Me.btnCancel.Name = "btnCancel"
+        Me.btnCancel.Size = New System.Drawing.Size(75, 23)
         Me.btnCancel.TabIndex = 14
         Me.btnCancel.Text = "Cancel"
         '
@@ -90,12 +91,12 @@ Public Class frmSpecLocator
         Me.txtSpecFile.Name = "txtSpecFile"
         Me.txtSpecFile.Size = New System.Drawing.Size(304, 20)
         Me.txtSpecFile.TabIndex = 11
-        Me.txtSpecFile.Text = ""
         '
         'Label2
         '
         Me.Label2.Location = New System.Drawing.Point(16, 48)
         Me.Label2.Name = "Label2"
+        Me.Label2.Size = New System.Drawing.Size(100, 23)
         Me.Label2.TabIndex = 10
         Me.Label2.Text = "Specification File:"
         '
@@ -104,6 +105,7 @@ Public Class frmSpecLocator
         Me.btnOK.DialogResult = System.Windows.Forms.DialogResult.OK
         Me.btnOK.Location = New System.Drawing.Point(144, 88)
         Me.btnOK.Name = "btnOK"
+        Me.btnOK.Size = New System.Drawing.Size(75, 23)
         Me.btnOK.TabIndex = 13
         Me.btnOK.Text = "OK"
         '
@@ -112,14 +114,14 @@ Public Class frmSpecLocator
         Me.Label1.AutoSize = True
         Me.Label1.Location = New System.Drawing.Point(16, 16)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(444, 16)
+        Me.Label1.Size = New System.Drawing.Size(421, 13)
         Me.Label1.TabIndex = 15
         Me.Label1.Text = "Please select or enter the path to the specification file that the new rule set w" & _
-        "ill describe:"
+            "ill describe:"
         '
         'ofdSpec
         '
-        Me.ofdSpec.Filter = "Spec Files|*.xml"
+        Me.ofdSpec.Filter = "Spec Files|*.yawl;*.xml"
         '
         'frmSpecLocator
         '
@@ -138,6 +140,7 @@ Public Class frmSpecLocator
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent
         Me.Text = "Specification Location"
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
 
@@ -156,7 +159,7 @@ Public Class frmSpecLocator
             Else
                 .InitialDirectory = Application.StartupPath           ' otherwise default to startup  
             End If
-            If .ShowDialog = DialogResult.OK Then
+            If .ShowDialog = Windows.Forms.DialogResult.OK Then
                 txtSpecFile.Text = .FileName                    ' copy filename to input
                 lastPathInSpecLocator = .FileName               ' save thispath for next time
             End If
@@ -169,7 +172,7 @@ Public Class frmSpecLocator
         rulesFileName = pathOf.repository & "\rules\" & spec & ".xrs"  ' make rules filename
 
         If spec.Length > 0 Then                                        ' only validate if text has been entered
-            If Not txtSpecFile.Text.EndsWith(".xml") Then              ' not an xml file
+            If Not isValidSpecFileExtn(txtSpecFile.Text) Then          ' not a yawl or xml file
                 MessageBox.Show("'" & txtSpecFile.Text & "' does not appear to be a valid specification " & _
                                 "file name." & vbCrLf & "Please modify" & _
                                 " the specification name and click OK again, or click" & _

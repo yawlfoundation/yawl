@@ -68,12 +68,16 @@ public class RdrConversionTools {
 
         String status = eWIR.getChildText("status");
         String specID = eWIR.getChildText("specid");
-        String id = eWIR.getChildText("id");
-        String[] idSplit = id.split(":");                      // id = taskid:caseid
-        String taskName = Library.getTaskNameFromId(idSplit[0]);
+//        String id = eWIR.getChildText("id");
+//        String[] idSplit = id.split(":");                      // id = taskid:caseid
+
+        String caseid = eWIR.getChildText("caseid");
+        String taskid = eWIR.getChildText("taskid");
+
+        String taskName = Library.getTaskNameFromId(taskid);
 
         // call the wir constructor
-        WorkItemRecord wir = new WorkItemRecord( idSplit[1], idSplit[0], specID,
+        WorkItemRecord wir = new WorkItemRecord( caseid, taskid, specID,
                               null, status);
 
         // add data list if non-parent item

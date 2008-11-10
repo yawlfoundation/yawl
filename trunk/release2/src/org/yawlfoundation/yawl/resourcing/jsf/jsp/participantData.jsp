@@ -35,14 +35,14 @@
                         </div>
                         <center>
 
-                        <ui:panelLayout binding="#{customServices.pnlContainer}"
+                        <ui:panelLayout binding="#{participantData.pnlContainer}"
                                         id="pnlContainer"
                                         styleClass="userMgtContainerPanel">
 
                         <!-- Select Participant Panel -->
                         <ui:panelLayout binding="#{participantData.pnlSelectUser}"
                                         id="pnlSelectUser"
-                                        style="height: 34px;"
+                                        style="height: 34px; position: absolute; left: 0"
                                         styleClass="orgDataPanel">
 
                             <ui:dropDown binding="#{participantData.cbbParticipants}"
@@ -63,7 +63,7 @@
                         <ui:panelLayout binding="#{participantData.pnlPrivileges}"
                                         id="pnlPrivileges"
                                         styleClass="orgDataPanel"
-                                        style="height: 333px; left: 411px; width: 255px">
+                                        style="position: absolute; height: 333px; left: 411px; width: 255px">
 
                             <ui:staticText binding="#{participantData.staticText1}"
                                            id="staticText1"
@@ -125,7 +125,7 @@
                         <ui:panelLayout binding="#{participantData.pnlUserDetails}"
                                         id="pnlUserDetails"
                                         styleClass="orgDataPanel"
-                                        style="height: 293px; top: 40px;">
+                                        style="position: absolute; height: 293px; top: 40px; left: 0">
 
                             <ui:label binding="#{participantData.lblFirstName}"
                                       for="txtFirstName"
@@ -188,7 +188,7 @@
                         <ui:tabSet binding="#{participantData.tabSetAttributes}"
                                    id="tabSetAttributes"
                                    selected="tabRoles"
-                                   style="border: 2px solid gray; height: 200px; top: 339px; position: absolute; width: 406px">
+                                   style="border: 2px solid gray; height: 200px; top: 339px; left: 0; position: absolute; width: 406px">
 
                             <ui:tab binding="#{participantData.tabRoles}"
                                     action="#{participantData.tabRoles_action}"
@@ -198,7 +198,7 @@
                                 <ui:panelLayout
                                         binding="#{participantData.tabPanelRole}"
                                         id="tabPanelRole"
-                                        styleClass="orgDataTabPanel"/>
+                                        styleClass="userOrgDataTabPanel"/>
                             </ui:tab>
 
                             <ui:tab binding="#{participantData.tabPosition}"
@@ -208,7 +208,7 @@
 
                                 <ui:panelLayout binding="#{participantData.tabPanelPosition}"
                                                 id="tabPanelPosition"
-                                                styleClass="orgDataTabPanel"/>
+                                                styleClass="userOrgDataTabPanel"/>
                             </ui:tab>
 
                             <ui:tab binding="#{participantData.tabCapability}"
@@ -218,7 +218,7 @@
 
                                 <ui:panelLayout binding="#{participantData.tabPanelCapability}"
                                                 id="tabPanelCapability"
-                                                styleClass="orgDataTabPanel"/>
+                                                styleClass="userOrgDataTabPanel"/>
                             </ui:tab>
 
                         </ui:tabSet>
@@ -229,7 +229,7 @@
                         <ui:panelLayout binding="#{participantData.pnlNewPassword}"
                                         id="pnlNewPassword"
                                         styleClass="orgDataPanel"
-                                        style="height: 110px; top: 339px; left: 411px; width: 255px">
+                                        style="position: absolute; height: 110px; top: 339px; left: 411px; width: 255px">
 
                             <ui:staticText binding="#{participantData.sttPassword}"
                                            id="sttPassword"

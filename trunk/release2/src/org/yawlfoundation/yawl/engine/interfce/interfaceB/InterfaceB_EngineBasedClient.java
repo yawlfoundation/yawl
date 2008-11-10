@@ -48,6 +48,8 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     protected static final String ANNOUNCE_COMPLETE_CASE_CMD =  "announceCompletion";
     protected static final String ANNOUNCE_TIMER_EXPIRY_CMD =   "announceTimerExpiry";
     protected static final String ANNOUNCE_INIT_ENGINE =        "announceEngineInitialised";
+    protected static final String ANNOUNCE_CASE_CANCELLED =     "announceCaseCancelled";
+
 
     /**
      * Indicates which protocol this shim services.<P>
@@ -192,6 +194,18 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         }
     }
 
+    /**
+     * Called by the engine when it has completed initialisation and is running
+     */
+    public void announceNotifyCaseCancellation(Set<YAWLServiceReference> services,
+                                               YIdentifier id) {
+        for (YAWLServiceReference service : services) {
+            Handler myHandler = new Handler(service, id, ANNOUNCE_CASE_CANCELLED);
+            myHandler.start();
+        }
+    }
+
+
 
     /**
      * Returns an array of YParameter objects that describe the YAWL service
@@ -257,6 +271,12 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
             _command = command;
         }
 
+        public Handler(YAWLServiceReference yawlService,  YIdentifier id, String command) {
+            _yawlService = yawlService;
+            _caseID = id;
+            _command = command;
+        }
+
         private Map<String, String> prepareParamMap(String action) {
             Map<String, String> map = new HashMap<String, String>();
             map.put("action", action);
@@ -297,6 +317,13 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                     Map<String, String> paramsMap = prepareParamMap(_command);
                     paramsMap.put("caseID", caseID);
                     paramsMap.put("casedata", casedataStr) ;
+                    executePost(urlOfYawlService, paramsMap);
+                }
+                else if (ANNOUNCE_CASE_CANCELLED.equals(_command)) {
+                    String urlOfYawlService = _yawlService.getURI();
+                    String caseID = _caseID.toString();
+                    Map<String, String> paramsMap = prepareParamMap(_command);
+                    paramsMap.put("caseID", caseID);
                     executePost(urlOfYawlService, paramsMap);
                 }
                 else if (ANNOUNCE_TIMER_EXPIRY_CMD.equals(_command)) {

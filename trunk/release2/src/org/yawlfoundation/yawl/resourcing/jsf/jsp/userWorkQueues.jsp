@@ -32,7 +32,7 @@
                     </div>
                     <center>
 
-                    <ui:panelLayout binding="#{customServices.pnlContainer}"
+                    <ui:panelLayout binding="#{userWorkQueues.pnlContainer}"
                                     id="pnlUQContainer"
                                     styleClass="userQueuesContainerPanel">
                     

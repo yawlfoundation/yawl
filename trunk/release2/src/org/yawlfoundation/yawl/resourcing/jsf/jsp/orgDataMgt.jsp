@@ -37,7 +37,7 @@
 
                         <ui:tabSet binding="#{orgDataMgt.tabSet}"
                                    id="tabSet"
-                                   styleClass="adminQueuesTabSet">
+                                   styleClass="orgDataTabSet">
 
                             <ui:tab action="#{orgDataMgt.tabRoles_action}"
                                     binding="#{orgDataMgt.tabRoles}"
@@ -47,7 +47,7 @@
 
                                 <ui:panelLayout binding="#{orgDataMgt.lpRoles}"
                                                 id="lpRoles"
-                                                styleClass="adminQueuesTabPanel">
+                                                styleClass="orgDataTabPanel">
 
                                 </ui:panelLayout>
                             </ui:tab>
@@ -59,7 +59,7 @@
 
                                 <ui:panelLayout binding="#{orgDataMgt.lpCapabilities}"
                                                 id="lpCapabilities"
-                                                styleClass="adminQueuesTabPanel">
+                                                styleClass="orgDataTabPanel">
 
                                 </ui:panelLayout>
                             </ui:tab>
@@ -71,7 +71,7 @@
 
                                 <ui:panelLayout binding="#{orgDataMgt.lpPositions}"
                                                 id="lpPositions"
-                                                styleClass="adminQueuesTabPanel">
+                                                styleClass="orgDataTabPanel">
 
                                 </ui:panelLayout>
                             </ui:tab>
@@ -84,7 +84,7 @@
                                 <ui:panelLayout
                                         binding="#{orgDataMgt.lpOrgGroups}"
                                         id="lpOrgGroups"
-                                        styleClass="adminQueuesTabPanel">
+                                        styleClass="orgDataTabPanel">
 
                                 </ui:panelLayout>
                             </ui:tab>
@@ -94,7 +94,7 @@
                                    action="#{orgDataMgt.btnRefresh_action}"
                                    id="btnRefresh"
                                    imageURL="/resources/refresh.png"
-                                   styleClass="refreshButton"
+                                   styleClass="refreshOrgDataButton"
                                    toolTip="Refresh Queues"
                                    text=""/>
 

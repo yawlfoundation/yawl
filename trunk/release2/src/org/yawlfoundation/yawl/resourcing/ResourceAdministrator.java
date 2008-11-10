@@ -47,6 +47,10 @@ public class ResourceAdministrator {
         _qSet.removeFromQueue(wir, WorkQueue.WORKLISTED);
     }
 
+    public void removeCaseFromAllQueues(String caseID) {
+        _qSet.removeCaseFromAllQueues(caseID);
+    }
+
     public void createWorkQueues(boolean persisting) {
         _qSet = new QueueSet(null, QueueSet.setType.adminSet, persisting) ;
     }

@@ -198,17 +198,19 @@
         <pathelement location="${lib.dir}/${log4j}"/>
 
         <!-- Include all elements that Tomcat exposes to applications -->
-        <pathelement location="${CATALINA_HOME}/common/classes"/>
-        <fileset dir="${CATALINA_HOME}/common/endorsed">
-            <include name="*.jar"/>
-        </fileset>
-        <fileset dir="${CATALINA_HOME}/common/lib">
-            <include name="*.jar"/>
-        </fileset>
-        <pathelement location="${CATALINA_HOME}/shared/classes"/>
-        <fileset dir="${CATALINA_HOME}/shared/lib">
-            <include name="*.jar"/>
-        </fileset>
+        <pathelement location="${CATALINA_HOME}/lib"/>
+
+        <!--<pathelement location="${CATALINA_HOME}/common/classes"/>-->
+        <!--<fileset dir="${CATALINA_HOME}/common/endorsed">-->
+            <!--<include name="*.jar"/>-->
+        <!--</fileset>-->
+        <!--<fileset dir="${CATALINA_HOME}/common/lib">-->
+            <!--<include name="*.jar"/>-->
+        <!--</fileset>-->
+        <!--<pathelement location="${CATALINA_HOME}/shared/classes"/>-->
+        <!--<fileset dir="${CATALINA_HOME}/shared/lib">-->
+            <!--<include name="*.jar"/>-->
+        <!--</fileset>-->
     </path>
 
     <path id="cp.standard">
@@ -389,7 +391,7 @@
                      includes="${persistence.libs} ${xsd.libs} ${common.libs} ${jcommon}
                                ${jfreechart} ${jaxenFull} ${postgres8} ${saxpath}
                                ${xml-apis} ${saxon.libs}"
-                     excludes="hibernate.cfg.xml"/>
+                     excludes="hibernate.cfg.xml ${servlet}"/>
         </unzip>	
     	
         <!-- Create a self contained jar of the YAWL library -->

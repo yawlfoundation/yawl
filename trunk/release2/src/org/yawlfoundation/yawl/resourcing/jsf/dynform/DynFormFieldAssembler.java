@@ -156,12 +156,24 @@ public class DynFormFieldAssembler {
             if (simple != null) {
                 field = addField(name, null, data, minOccurs, maxOccurs, level);
                 applySimpleTypeFacets(simple, ns, field);
+                result.add(field);
             }
             else {
                 // new complex type - recurse in a new field list
-                field = addGroupField(name, eField, ns, data, minOccurs, maxOccurs, level);
+                List dataList = (data != null) ? data.getChildren(name) : null;
+                if (dataList != null) {
+                    for (Object o : dataList) {
+                        field = addGroupField(name, eField, ns, (Element) o,
+                                              minOccurs, maxOccurs, level);
+                        result.add(field);
+                    }
+                }
+                else {
+                    field = addGroupField(name, eField, ns, null,
+                                          minOccurs, maxOccurs, level);
+                    result.add(field);
+                }
             }
-            result.add(field);
         }
         else  {
             // a plain element
@@ -176,19 +188,18 @@ public class DynFormFieldAssembler {
                                        Element data, String minOccurs, String maxOccurs,
                                        int level) {
         DynFormField field ;
-        Element subData = (data != null) ? data.getChild(name) : null;
         String groupID = getNextGroupID();
-        int instances = getInitialInstanceCount(minOccurs, subData) ;
+        int instances = getInitialInstanceCount(minOccurs, data) ;
 
         if (instances == 1) {
-            field = addField(name, createFieldList(eField, subData, ns, level),
+            field = addField(name, createFieldList(eField, data, ns, level),
                              minOccurs, maxOccurs, level);
         }
         else {
             field = addContainingField(name, minOccurs, maxOccurs, level);
             String subGroupID = getNextGroupID();
             for (int i = 0; i < instances; i++) {
-                Element data4Inst = getIteratedContent(subData, i) ;
+                Element data4Inst = getIteratedContent(data, i) ;
                 List<DynFormField> subFieldList =
                         createFieldList(eField, data4Inst, ns, level);
                 DynFormField subField = subFieldList.get(0);

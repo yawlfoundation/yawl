@@ -153,6 +153,18 @@ public class ResourceGatewayClient extends Interface_Client {
         return executeGet(_serviceURI, params) ;
     }
 
+    public String getParticipantCapabilities(String id, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getParticipantCapabilities", handle);
+        params.put("id", id);
+        return executeGet(_serviceURI, params) ;
+    }
+
+    public String getParticipantPositions(String id, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getParticipantPositions", handle);
+        params.put("id", id);
+        return executeGet(_serviceURI, params) ;
+    }
+
 
 
     /**

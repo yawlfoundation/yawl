@@ -93,7 +93,6 @@ public class ResourceManager extends InterfaceBWebsideController {
     // currently logged on 'admin' users (not participants with admin privileges)
     private ArrayList<String> _liveAdmins = new ArrayList<String>();
 
-
     // groups of items that are members of a deferred choice offering
     private HashSet<TaggedStringList> _deferredItemGroups =
             new HashSet<TaggedStringList>();
@@ -270,6 +269,15 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
+    public synchronized void handleCancelledCaseEvent(String caseID) {
+        if (_serviceEnabled) {
+            removeCaseFromAllQueues(caseID) ;                              // workqueues
+            _workItemCache.removeCase(caseID);
+            removeChain(caseID);
+        }
+    }
+
+
     public void handleEngineInitialisationCompletedEvent() {
         if (connected()) {
             restoreAutoTasks();
@@ -442,9 +450,10 @@ public class ResourceManager extends InterfaceBWebsideController {
     /**
      * This does final initialisation tasks involved in ensuring the caches match
      * the engine's known work. It is called with the first logon after startup, because
-     * it needs the engine to be completely initialised first.
+     * it needs the engine to be completely initialised first. It may also be executed
+     * via the 'synch' button on the admin queues.
      */
-    private void sanitiseCaches() {
+    public void sanitiseCaches() {
 
         // check local cache = engine records
         try {
@@ -496,6 +505,8 @@ public class ResourceManager extends InterfaceBWebsideController {
             _log.warn("Sanitise caches method could not get workitem list from engine.") ;
         }
 
+        cleanseQueues();                       // removed any uncached items from queues
+
         // finally, rebuild all 'offered' datasets
        for (Participant p : _ds.participantMap.values()) {
            QueueSet qSet = p.getWorkQueues();
@@ -507,6 +518,17 @@ public class ResourceManager extends InterfaceBWebsideController {
                }
            }
        }
+    }
+
+
+    private void cleanseQueues() {
+        for (Participant p : _ds.participantMap.values()) {
+            QueueSet qSet = p.getWorkQueues();
+            if (qSet != null) {
+                qSet.cleanseAllQueues(_workItemCache);
+            }
+        }
+        _resAdmin.getWorkQueues().getQueue(WorkQueue.UNOFFERED).cleanse(_workItemCache);
     }
 
 
@@ -811,6 +833,32 @@ public class ResourceManager extends InterfaceBWebsideController {
             return xml.toString() ;
         }
         else return("<roles/>") ;   
+    }
+
+
+    public String getParticipantCapabilitiesAsXML(String pid) {
+        Set<Capability> capSet = getParticipantCapabilities(pid);
+        if (capSet != null) {
+            String header = String.format("<capabilities participantid=\"%s\">", pid);
+            StringBuilder xml = new StringBuilder(header) ;
+            for (Capability c : capSet) xml.append(c.toXML()) ;
+            xml.append("</capabilities>");
+            return xml.toString() ;
+        }
+        else return("<capabilities/>") ;
+    }
+
+
+    public String getParticipantPositionsAsXML(String pid) {
+        Set<Position> posSet = getParticipantPositions(pid);
+        if (posSet != null) {
+            String header = String.format("<positions participantid=\"%s\">", pid);
+            StringBuilder xml = new StringBuilder(header) ;
+            for (Position p : posSet) xml.append(p.toXML()) ;
+            xml.append("</positions>");
+            return xml.toString() ;
+        }
+        else return("<positions/>") ;   
     }
 
 
@@ -1329,6 +1377,15 @@ public class ResourceManager extends InterfaceBWebsideController {
         _resAdmin.removeFromAllQueues(wir);
     }
 
+
+    public void removeCaseFromAllQueues(String caseID) {
+        for (Participant p : _ds.participantMap.values()) {
+            p.getWorkQueues().removeCaseFromAllQueues(caseID);
+            announceModifiedQueue(p.getID()) ;
+        }
+        _resAdmin.removeCaseFromAllQueues(caseID);
+    }
+
     public QueueSet getAdminQueues() {
         return _resAdmin.getWorkQueues();
     }
@@ -1749,15 +1806,6 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    // truncates the case number
-    public String getUltimateCaseID(String id) {
-        if ((id != null) && (id.indexOf(".") > 0)) {
-            id = id.split("\\.")[0] ;
-        }
-        return id ;
-    }
-
-
     /*****************************************************************************/
 
     public String chainCase(Participant p, WorkItemRecord wir) {
@@ -1782,7 +1830,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public String addChain(Participant p, WorkItemRecord wir) {
         String result ;
-        String caseID = getUltimateCaseID(wir.getCaseID()) ;
+        String caseID = wir.getRootCaseID() ;
         if (! isChainedCase(caseID)) {
             _chainedCases.put(caseID, p);
             routeChainedWorkItem(p, wir) ;
@@ -1836,7 +1884,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public boolean routeIfChained(WorkItemRecord wir, Set<Participant> distributionSet) {
         boolean result = false;
-        String caseID = getUltimateCaseID(wir.getCaseID()) ;
+        String caseID = wir.getRootCaseID() ;
         if (isChainedCase(caseID)) {
             Participant p = getChainedParticipant(caseID);
             if (distributionSet.contains(p))
@@ -1849,7 +1897,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     private String getSpecIDForCase(String caseID) {
         for (WorkItemRecord wir : _workItemCache.values()) {
-            if (getUltimateCaseID(wir.getCaseID()).equals(caseID))
+            if (wir.getRootCaseID().equals(caseID))
                 return wir.getSpecificationID();
         }
         return "" ;
@@ -1864,8 +1912,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             }
             List<WorkItemRecord> wirList = new ArrayList(_workItemCache.values());
             for (WorkItemRecord wir : wirList) {
-                String ultID = getUltimateCaseID(wir.getCaseID());
-                if (! liveCases.contains(ultID)) _workItemCache.remove(wir);
+                if (! liveCases.contains(wir.getRootCaseID())) _workItemCache.remove(wir);
             }
         }
     }
@@ -2688,16 +2735,22 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public void assignUnofferedItem(WorkItemRecord wir, String participantID,
+    public boolean assignUnofferedItem(WorkItemRecord wir, String participantID,
                                         String action) {
+        boolean result = true ;
         if (wir != null) {
             Participant p = getParticipant(participantID);
             if (action.equals("Start") &&
-                   wir.getStatus().equals(WorkItemRecord.statusEnabled))
-                start(p, wir, _engineSessionHandle);
+                   wir.getStatus().equals(WorkItemRecord.statusEnabled)) {
+                result = start(p, wir, _engineSessionHandle);
+
+                // if could not start, fallback to allocate action
+                if (! result) action = "Allocate";
+            }
 
             _resAdmin.assignUnofferedItem(wir, p, action) ;
         }
+        return result;
     }
 
     

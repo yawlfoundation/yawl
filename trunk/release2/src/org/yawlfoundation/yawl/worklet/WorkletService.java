@@ -429,7 +429,8 @@ public class WorkletService extends InterfaceBWebsideController {
                  logSelectionForMISummary(coParent, taskInfo) ;
              }
         }
-        else _log.warn("No rule set found for specId: " + specId);
+        else _log.warn("Rule set does not contain rules for task: " + taskId +
+                       " OR No rule set found for specId: " + specId);
     }
 
 
@@ -1722,7 +1723,7 @@ public class WorkletService extends InterfaceBWebsideController {
            while (itr.hasNext()) {
                coi = (CheckedOutItem) itr.next();
                coi.setItem(RdrConversionTools.xmlStringtoWIR(coi.get_wirStr()));  // restore wir
-               coi.initNonPersistedItems();
+ //              coi.initNonPersistedItems();
                loadTree(coi.getSpecId());             // needed when child items restore
                result.put(coi.getParentID(), coi);
            }
