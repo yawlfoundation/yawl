@@ -174,7 +174,8 @@ public class DataVariable implements Serializable, Cloneable {
   }
 
   private static String[] makeBaseDataTypeArray() {
-      List<String> typeList = XSDType.getInstance().getBuiltInTypeList();
+      List<String> typeList = new ArrayList<String>(
+                                  XSDType.getInstance().getBuiltInTypeList());
       typeList.add(YAWL_SCHEMA_TIMER_TYPE);
       Collections.sort(typeList, new StringIgnoreCaseComparator());
       return typeList.toArray(new String[typeList.size()]);

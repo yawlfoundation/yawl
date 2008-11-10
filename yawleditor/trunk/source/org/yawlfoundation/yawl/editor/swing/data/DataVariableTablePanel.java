@@ -75,6 +75,9 @@ public class DataVariableTablePanel extends AbstractTableUpdatePanel {
       refreshSelectedRow();
     }
     updateState();
+
+    updateDialog.getDoneButton().setEnabled(true);              // reset for next call
+      
   }
   
   protected void doUpdateButtonAction() {

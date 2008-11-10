@@ -75,7 +75,7 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
   private JButton newVariableButton;
   private XQueryEditorPanel xQueryEditorPanel;
   
-  private XQueryDescriptorLabel xQueryButtonDescriptor;
+//  private XQueryDescriptorLabel xQueryButtonDescriptor;
   
   public ParameterUpdateDialog(AbstractDoneDialog parent, int transitionType) {
     super("", true);
@@ -234,7 +234,7 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
     gbc.gridwidth = 3;
     gbc.insets = new Insets(0,0,5,5);
     
-    panel.add(getXQueryButtonDescriptor(), gbc);
+//    panel.add(getXQueryButtonDescriptor(), gbc);
 
     gbc.weighty = 1;
     gbc.weightx = 1;
@@ -309,27 +309,27 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
       }
     });
     
-    inputVariableQueryElementButton.addMouseListener(new MouseAdapter() {
-      public void mouseEntered(MouseEvent e) {
-        if (!inputVariableQueryElementButton.isEnabled()) {
-          return;
-        }
-        xQueryButtonDescriptor.setMode(
-          XQueryDescriptorLabel.DISPLAY_FOR_ENTIRE_ELEMENT
-        );
-        xQueryEditor.refreshDividerLocation();
-      }
-      
-      public void mouseExited(MouseEvent e) {
-        if (!inputVariableQueryElementButton.isEnabled()) {
-          return;
-        }
-        xQueryButtonDescriptor.setMode(
-            XQueryDescriptorLabel.DISPLAY_NOTHING  
-        );
-        xQueryEditor.refreshDividerLocation();
-      }
-    });
+//    inputVariableQueryElementButton.addMouseListener(new MouseAdapter() {
+//      public void mouseEntered(MouseEvent e) {
+//        if (!inputVariableQueryElementButton.isEnabled()) {
+//          return;
+//        }
+//        xQueryButtonDescriptor.setMode(
+//          XQueryDescriptorLabel.DISPLAY_FOR_ENTIRE_ELEMENT
+//        );
+//        xQueryEditor.refreshDividerLocation();
+//      }
+//
+//      public void mouseExited(MouseEvent e) {
+//        if (!inputVariableQueryElementButton.isEnabled()) {
+//          return;
+//        }
+//        xQueryButtonDescriptor.setMode(
+//            XQueryDescriptorLabel.DISPLAY_NOTHING
+//        );
+//        xQueryEditor.refreshDividerLocation();
+//      }
+//    });
 
     return inputVariableQueryElementButton; 
   }
@@ -358,39 +358,39 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
       }
     });
 
-    inputVariableQueryContentButton.addMouseListener(new MouseAdapter() {
-      public void mouseEntered(MouseEvent e) {
-        if (!inputVariableQueryContentButton.isEnabled()) {
-          return;
-        }
-        xQueryButtonDescriptor.setMode(
-          XQueryDescriptorLabel.DISPLAY_FOR_CONTENT_ONLY  
-        );
-        xQueryEditor.refreshDividerLocation();
-      }
-      
-      public void mouseExited(MouseEvent e) {
-        if (!inputVariableQueryContentButton.isEnabled()) {
-          return;
-        }
-        xQueryButtonDescriptor.setMode(
-            XQueryDescriptorLabel.DISPLAY_NOTHING  
-        );
-        xQueryEditor.refreshDividerLocation();
-      }
-    });
+//    inputVariableQueryContentButton.addMouseListener(new MouseAdapter() {
+//      public void mouseEntered(MouseEvent e) {
+//        if (!inputVariableQueryContentButton.isEnabled()) {
+//          return;
+//        }
+//        xQueryButtonDescriptor.setMode(
+//          XQueryDescriptorLabel.DISPLAY_FOR_CONTENT_ONLY
+//        );
+//        xQueryEditor.refreshDividerLocation();
+//      }
+//
+//      public void mouseExited(MouseEvent e) {
+//        if (!inputVariableQueryContentButton.isEnabled()) {
+//          return;
+//        }
+//        xQueryButtonDescriptor.setMode(
+//            XQueryDescriptorLabel.DISPLAY_NOTHING
+//        );
+//        xQueryEditor.refreshDividerLocation();
+//      }
+//    });
 
     return inputVariableQueryContentButton; 
   }
   
-  private XQueryDescriptorLabel getXQueryButtonDescriptor() {
-    xQueryButtonDescriptor = new XQueryDescriptorLabel();
-    
-    xQueryButtonDescriptor.setHorizontalAlignment(JLabel.CENTER);
-    xQueryButtonDescriptor.setForeground(Color.GREEN.darker().darker());
-    
-    return xQueryButtonDescriptor;
-  }
+//  private XQueryDescriptorLabel getXQueryButtonDescriptor() {
+//    xQueryButtonDescriptor = new XQueryDescriptorLabel();
+//
+//    xQueryButtonDescriptor.setHorizontalAlignment(JLabel.CENTER);
+//    xQueryButtonDescriptor.setForeground(Color.GREEN.darker().darker());
+//
+//    return xQueryButtonDescriptor;
+//  }
   
   private JButton getNewOutputVariableButton() {
     newVariableButton = new JButton("Create...");
@@ -547,9 +547,9 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
     xQueryEditor.setTargetVariableName(
         (String) sinkVariableComboBox.getSelectedItem()
     );
-    xQueryButtonDescriptor.setMode(
-        XQueryDescriptorLabel.DISPLAY_NOTHING  
-    );
+//    xQueryButtonDescriptor.setMode(
+//        XQueryDescriptorLabel.DISPLAY_NOTHING
+//    );
     enableDoneButtonIfAppropriate();
   }
   
