@@ -8,15 +8,16 @@
 
 package org.yawlfoundation.yawl.worklet.rdr;
 
-import org.yawlfoundation.yawl.worklet.support.*;
-import org.yawlfoundation.yawl.worklet.WorkletService;
-import org.yawlfoundation.yawl.util.JDOMUtil;
-
-import java.util.*;
-
-import org.jdom.* ;
-
 import org.apache.log4j.Logger;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.worklet.WorkletService;
+import org.yawlfoundation.yawl.worklet.support.Library;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *  Maintains a set of RdrTrees for a particular specification, for each of the following
@@ -164,7 +165,7 @@ public class RdrSet {
 	
     /** load a set of trees from rules file */
 	private boolean loadRules() {
-		String fileName = _specID + ".xrs" ;           // xrs = Xml Rule Set
+		String fileName = _specID + ".xrs" ;               // xrs = Xml Rule Set
         Document doc ;                                 // doc to hold rules
 
         String rulepath = Library.wsRulesDir + fileName ;

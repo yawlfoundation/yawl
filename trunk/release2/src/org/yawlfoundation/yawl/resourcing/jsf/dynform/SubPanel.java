@@ -130,4 +130,10 @@ public class SubPanel extends PanelLayout implements Cloneable {
         return top;
     }
 
+
+    public void enableOccursButtons(boolean enable) {
+        if (btnPlus != null) btnPlus.setDisabled(! enable);
+        if (btnMinus != null) btnMinus.setDisabled(! enable);
+    }
+
 }

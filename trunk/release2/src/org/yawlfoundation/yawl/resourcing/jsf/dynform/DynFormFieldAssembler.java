@@ -160,17 +160,20 @@ public class DynFormFieldAssembler {
             }
             else {
                 // new complex type - recurse in a new field list
+                String groupID = getNextGroupID();                
                 List dataList = (data != null) ? data.getChildren(name) : null;
                 if (dataList != null) {
                     for (Object o : dataList) {
                         field = addGroupField(name, eField, ns, (Element) o,
                                               minOccurs, maxOccurs, level);
+                        field.setGroupID(groupID);
                         result.add(field);
                     }
                 }
                 else {
                     field = addGroupField(name, eField, ns, null,
                                           minOccurs, maxOccurs, level);
+                    field.setGroupID(groupID);
                     result.add(field);
                 }
             }
@@ -188,7 +191,7 @@ public class DynFormFieldAssembler {
                                        Element data, String minOccurs, String maxOccurs,
                                        int level) {
         DynFormField field ;
-        String groupID = getNextGroupID();
+//        String groupID = getNextGroupID();
         int instances = getInitialInstanceCount(minOccurs, data) ;
 
         if (instances == 1) {
@@ -207,7 +210,7 @@ public class DynFormFieldAssembler {
                 field.addSubField(subField);
             }
         }
-        field.setGroupID(groupID);
+ //       field.setGroupID(groupID);
         field.setOccursCount(instances);
 
         return field;

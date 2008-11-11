@@ -570,20 +570,25 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      * @param hr - the worklet record containing the list of worklets to launch
      * @return true if *any* of the worklets are successfully launched
      */
-     protected boolean launchWorkletList(HandlerRunner hr, String list) {
+    protected boolean launchWorkletList(HandlerRunner hr, String list) {
         String[] wNames = list.split(",");
         boolean launchSuccess = false;
 
         // for each worklet listed in the conclusion (in case of multiple worklets)
         for (int i=0; i < wNames.length; i++) {
+            String fileName = getWorkletFileName(wNames[i]);
+            if (fileName != null) {
+                String specID = readSpecID(fileName);
 
-            // load spec & launch case as substitute for checked out workitem
-   		    if (uploadWorklet(wNames[i])) {
-	           String caseID = launchWorklet(hr, wNames[i], false) ;
-               if (caseID != null) {
-                   _handlersStarted.put(caseID, hr) ;
-                   launchSuccess = true ;
-               }
+                // load spec & launch case as substitute for checked out workitem
+                if (uploadWorklet(specID, fileName, wNames[i])) {
+                    String caseID = launchWorklet(hr, wNames[i], specID, true) ;
+
+                    if (caseID != null) {
+                        _handlersStarted.put(caseID, hr) ;
+                        launchSuccess = true ;
+                    }
+                }
             }
         }
         return launchSuccess ;

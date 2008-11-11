@@ -49,13 +49,14 @@ Public Class frmAbout
     Friend WithEvents Label1 As System.Windows.Forms.Label
     Friend WithEvents Label4 As System.Windows.Forms.Label
     <System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
-        Dim resources As System.Resources.ResourceManager = New System.Resources.ResourceManager(GetType(frmAbout))
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmAbout))
         Me.btnOK = New System.Windows.Forms.Button
         Me.PictureBox1 = New System.Windows.Forms.PictureBox
         Me.Label3 = New System.Windows.Forms.Label
         Me.Label2 = New System.Windows.Forms.Label
         Me.Label1 = New System.Windows.Forms.Label
         Me.Label4 = New System.Windows.Forms.Label
+        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'btnOK
@@ -64,8 +65,10 @@ Public Class frmAbout
         Me.btnOK.DialogResult = System.Windows.Forms.DialogResult.OK
         Me.btnOK.Location = New System.Drawing.Point(224, 168)
         Me.btnOK.Name = "btnOK"
+        Me.btnOK.Size = New System.Drawing.Size(75, 23)
         Me.btnOK.TabIndex = 2
         Me.btnOK.Text = "OK"
+        Me.btnOK.UseVisualStyleBackColor = False
         '
         'PictureBox1
         '
@@ -85,7 +88,7 @@ Public Class frmAbout
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(72, 32)
         Me.Label3.TabIndex = 12
-        Me.Label3.Text = "Version 0.8 23/08/2006"
+        Me.Label3.Text = "Version 2.0 11/11/2008"
         '
         'Label2
         '
@@ -114,7 +117,7 @@ Public Class frmAbout
         Me.Label4.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label4.Location = New System.Drawing.Point(40, 8)
         Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(256, 25)
+        Me.Label4.Size = New System.Drawing.Size(248, 24)
         Me.Label4.TabIndex = 13
         Me.Label4.Text = "Worklet Service Rules Editor"
         '
@@ -136,7 +139,9 @@ Public Class frmAbout
         Me.Name = "frmAbout"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent
         Me.Text = "About"
+        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
 

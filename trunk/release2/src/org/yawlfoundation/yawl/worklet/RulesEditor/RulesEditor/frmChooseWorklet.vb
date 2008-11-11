@@ -154,9 +154,11 @@ Public Class frmChooseWorklet
         End If
 
         ' add worklet names to file
-        For Each fi In di.GetFiles("*.xml")
-            fName = fi.Name.Remove(fi.Name.LastIndexOf(".xml"), 4)       ' cut extn
-            lbxWorklet.Items.Add(fName)
+        For Each fi In di.GetFiles()
+            If fi.Name.EndsWith(".yawl") OrElse fi.Name.EndsWith(".xml") Then
+                fName = fi.Name.Substring(0, fi.Name.LastIndexOf("."))       ' cut extn
+                lbxWorklet.Items.Add(fName)
+            End If
         Next
 
         Return True
@@ -179,16 +181,18 @@ Public Class frmChooseWorklet
         End If
 
         ' add new worklet names to file
-        For Each fi In di.GetFiles("*.xml")
-            fName = fi.Name.Remove(fi.Name.LastIndexOf(".xml"), 4)
+        For Each fi In di.GetFiles()
+            If fi.Name.EndsWith(".yawl") OrElse fi.Name.EndsWith(".xml") Then
+                fName = fi.Name.Substring(0, fi.Name.LastIndexOf("."))       ' cut extn
 
-            ' only add new worklets (don't double up in list)
-            With lbxWorklet
-                If .Items.IndexOf(fName) = -1 Then
-                    .Items.Add(fName)
-                    .SelectedIndex = .Items.IndexOf(fName)    ' show new worklet as selected
-                End If
-            End With
+                ' only add new worklets (don't double up in list)
+                With lbxWorklet
+                    If .Items.IndexOf(fName) = -1 Then
+                        .Items.Add(fName)
+                        .SelectedIndex = .Items.IndexOf(fName)    ' show new worklet as selected
+                    End If
+                End With
+            End If
         Next
     End Sub
 

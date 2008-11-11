@@ -110,7 +110,7 @@ Public Class RuleSetMgr
         _specFullPath = specFile
         _fName = rulesFile
         _taskNames = getTaskListFromSpec()
-        ExtractSpecName()
+        _spec = ReadSpecURI(specFile)
     End Sub
 
     '***********************************************************************************************
@@ -564,6 +564,11 @@ Public Class RuleSetMgr
         Return s.Substring(0, s.IndexOf("."c))                                 ' remove extn
     End Function
 
+    Public Function getSpecFileName() As String
+        Return _specFullPath.Substring(_specFullPath.LastIndexOf("\"c) + 1)   ' remove path
+    End Function
+
+
 
     '**************************************************************************************************
     '****** SUPPORT METHODS ***************************************************************************
@@ -681,7 +686,7 @@ Public Class RuleSetMgr
     ' This method is also accessed through 'taskNames' property
     Private Function getTaskListFromSpec() As String()
         Dim result As New ArrayList
-        Dim specFile As String = "\" & _spec & ".xml"                        ' name of spec file to find
+        Dim specFile As String = "\" & getSpecFileName()                        ' name of spec file to find
         Dim paths() As String
         Dim fullPath As String
         Dim defResult() As String = {""}                    ' default empty array to return when spec not found
@@ -738,6 +743,27 @@ Public Class RuleSetMgr
         End Try
 
         Return result
+    End Function
+
+    ' get specification names from spec file
+    ' pre: specfile is a valid path to a spec yawl/xml file
+    Public Function ReadSpecURI(ByVal specfile As String) As String
+
+        Try
+            Dim xtr As XmlTextReader = New XmlTextReader(specfile)
+            xtr.WhitespaceHandling = WhitespaceHandling.None
+
+            ' look for "specification" tag to get uri of the spec
+            While xtr.Read
+                If xtr.NodeType = XmlNodeType.Element AndAlso xtr.Name = "specification" Then
+                    Return xtr.GetAttribute("uri")
+                End If
+            End While
+        Catch ex As Exception
+            ShowError("Exception reading specification: " & specfile & vbCrLf & ex.Message)
+        End Try
+
+        Return Nothing            ' couldn't find uri
     End Function
 
     ' returns a list of all task names in the loaded spec that 

@@ -69,7 +69,13 @@ public class DynFormComponentBuilder {
         if (spc.canVaryOccurs()) {
             subPanel.addOccursButton(_factory.makeOccursButton(name, "+"));
             subPanel.addOccursButton(_factory.makeOccursButton(name, "-"));
-            spc.setOccursButtonsEnablement();
+
+            if (field.isInputOnly()) {
+                subPanel.enableOccursButtons(false);
+            }
+            else {
+                spc.setOccursButtonsEnablement();
+            }    
         }
         return subPanel ;
     }
