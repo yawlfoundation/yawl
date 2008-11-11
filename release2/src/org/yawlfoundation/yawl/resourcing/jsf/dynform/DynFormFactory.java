@@ -562,22 +562,26 @@ public class DynFormFactory extends AbstractSessionBean {
 
         SubPanel level0Container = panel.getController().addSubPanel(newPanel);
         int adjustment = newPanel.getHeight() + DynFormFactory.Y_PP_INCREMENT;
-        repositionLevel0Panels(level0Container, adjustment, panel.getTop()) ;
-        repositionOutermostFields(panel.getTop(), adjustment);
+        adjustLayouts(level0Container, adjustment);
     }
 
 
     private void removeSubPanel(SubPanel panel) {
         SubPanel level0Container = panel.getController().removeSubPanel(panel);
         int adjustment = - (panel.getHeight() + DynFormFactory.Y_PP_INCREMENT);
-        repositionLevel0Panels(level0Container, adjustment, panel.getTop()) ;
-        repositionOutermostFields(panel.getTop(), adjustment);
+        adjustLayouts(level0Container, adjustment);
 
         UIComponent parent = panel.getParent();
         parent.getChildren().remove(panel);
     }
 
-    
+
+    private void adjustLayouts(SubPanel level0Container, int adjustment) {
+        repositionLevel0Panels(level0Container, adjustment, level0Container.getTop()) ;
+        repositionOutermostFields(level0Container.getTop(), adjustment);
+    }
+
+
     private void repositionLevel0Panels(SubPanel container, int adjustment, int top) {
         for (SubPanelController controller : _subPanelTable.values()) {
             if (controller.getDepthlevel() == 0) {

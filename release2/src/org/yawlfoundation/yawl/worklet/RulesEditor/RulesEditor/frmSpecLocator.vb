@@ -168,7 +168,7 @@ Public Class frmSpecLocator
 
     ' ok - only close if spec file validates
     Private Sub btnOK_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnOK.Click
-        Dim spec As String = rsMgr.ExtractSpecName(txtSpecFile.Text)   ' get spec name from path
+        Dim spec As String = rsMgr.ReadSpecURI(txtSpecFile.Text)   ' get spec name from path
         rulesFileName = pathOf.repository & "\rules\" & spec & ".xrs"  ' make rules filename
 
         If spec.Length > 0 Then                                        ' only validate if text has been entered
@@ -181,6 +181,7 @@ Public Class frmSpecLocator
                 canClose = False                                       ' block the close 
 
             End If
+
             If File.Exists(rulesFileName) Then                         ' rules file already exists
                 MessageBox.Show("A rules file with the specification name supplied" & _
                                 " already exists." & vbCrLf & "Please modify" & _

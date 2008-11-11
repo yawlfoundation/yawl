@@ -24,6 +24,7 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.worklet.admin.AdminTasksManager;
 import org.yawlfoundation.yawl.worklet.admin.AdministrationTask;
@@ -849,49 +850,72 @@ public class WorkletService extends InterfaceBWebsideController {
 
     /**
      *  Uploads a worklet specification into the engine
-     *  @param workletName - the name of the worklet specification to upoad
+     *  @param workletName - the name of the worklet specification to upload
      *  @return true if upload is successful or spec is already loaded
      */
-    protected boolean uploadWorklet(String workletName) {
-
-        String fileName = workletName + ".xml" ;
-        String fullFileName = _workletsDir + fileName ;
-
-        if (isUploaded(workletName)) {
-            _log.info("Worklet specification '" + workletName
+    protected boolean uploadWorklet(String specID, String fileName, String workletName) {
+        if (fileName != null) {
+            if (isUploaded(specID)) {
+                _log.info("Worklet specification '" + workletName
                         + "' is already loaded in Engine") ;
-            return true ;
-        }
+                return true ;
+            }
 
-        String wSpec = StringUtil.fileToString(fullFileName);  // needs spec as String
-
-        if (wSpec != null) {
-           try {
-               if (successful(_interfaceAClient.uploadSpecification(wSpec,
-                            fileName, _sessionHandle))) {
-                  _log.info("Successfully uploaded worklet specification: "
+            try {
+                if (successful(_interfaceAClient.uploadSpecification(fileName,
+                        _sessionHandle))) {
+                    _log.info("Successfully uploaded worklet specification: "
                             + workletName) ;
-                  return true ;
-              }
-              else {
-                 _log.error("Unsuccessful worklet specification upload : "
-                           + workletName)	;
-                 return false ;
-              }
-           }
-           catch (IOException ioe) {
-               _log.error("Unsuccessful worklet specification upload : "
-                         + workletName)	;
-               return false ;
-           }
+                    return true ;
+                }
+                else {
+                    _log.error("Unsuccessful worklet specification upload : "
+                            + workletName)	;
+                    return false ;
+                }
+            }
+            catch (IOException ioe) {
+                _log.error("Unsuccessful worklet specification upload : "
+                        + workletName)	;
+                return false ;
+            }
         }
-          else {
-              _log.info("Rule search found: " + workletName +
-                       ", but there is no worklet of that name in " +
-                       "the repository, or there was a problem " +
-                       "opening/reading the worklet specification") ;
+        else {
+            _log.info("Rule search found: " + workletName +
+                      ", but there is no worklet of that name in " +
+                      "the repository, or there was a problem " +
+                      "opening/reading the worklet specification") ;
             return false ;
         }
+    }
+
+
+    protected String getWorkletFileName(String workletName) {
+
+        // try xml first
+        String result = String.format("%s%s%s", _workletsDir, workletName, ".xml");
+        if (Library.fileExists(result)) return result;
+
+        // no good? try yawl next
+        result = String.format("%s%s%s", _workletsDir, workletName, ".yawl");
+        if (Library.fileExists(result)) return result;
+
+        return null;
+    }
+
+
+    protected String readSpecID(String workletFileName) {
+        Document doc = JDOMUtil.fileToDocument(workletFileName);
+        if (doc != null) {
+            Element root = doc.getRootElement();
+            if (root != null) {
+                Element spec = root.getChild("specification", root.getNamespace());
+                if (spec != null) {
+                    return spec.getAttributeValue("uri");
+                }
+            }
+        }
+        return null;
     }
 
 //***************************************************************************//
@@ -910,13 +934,18 @@ public class WorkletService extends InterfaceBWebsideController {
         // for each worklet listed in the conclusion (in case of multiple worklets)
         for (int i=0; i < wNames.length; i++) {
 
-            // load spec & launch case as substitute for checked out workitem
-               if (uploadWorklet(wNames[i])) {
-               String caseID = launchWorklet(wr, wNames[i], true) ;
-               if (caseID != null) {
-                   _casesStarted.put(caseID, childId) ;
-                   launchSuccess = true ;
-               }
+            String fileName = getWorkletFileName(wNames[i]);
+            if (fileName != null) {
+                String specID = readSpecID(fileName);
+
+                // load spec & launch case as substitute for checked out workitem
+                if (uploadWorklet(specID, fileName, wNames[i])) {
+                    String caseID = launchWorklet(wr, wNames[i], specID, true) ;
+                    if (caseID != null) {
+                        _casesStarted.put(caseID, childId) ;
+                        launchSuccess = true ;
+                    }
+                }
             }
         }
         return launchSuccess ;
@@ -956,7 +985,7 @@ public class WorkletService extends InterfaceBWebsideController {
      *              to start the worklet for
      *  @return - the case id of the started worklet case
      */
-    protected String launchWorklet(WorkletRecord wr, String wName, boolean setObserver) {
+    protected String launchWorklet(WorkletRecord wr, String wName, String specID, boolean setObserver) {
 
         String caseId ;
 
@@ -965,7 +994,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
         try {
             // launch case (and set completion observer)
-            caseId = launchCase(wName, caseData, _sessionHandle, setObserver);
+            caseId = launchCase(specID, caseData, _sessionHandle, setObserver);
 
             if (successful(caseId)) {
 
@@ -1535,11 +1564,13 @@ public class WorkletService extends InterfaceBWebsideController {
      */
     private boolean isUploaded(String workletName) {
 
+        if (workletName == null) return false;
+
          // refresh list of specifications loaded into the engine
          getLoadedSpecs();
 
          // check if any loaded specids match the worklet spec selected
-           for (int i=0;i<_loadedSpecs.size();i++) {
+         for (int i=0;i<_loadedSpecs.size();i++) {
              SpecificationData spec = (SpecificationData) _loadedSpecs.get(i) ;
              if (workletName.equals(spec.getID())) return true ;
          }
