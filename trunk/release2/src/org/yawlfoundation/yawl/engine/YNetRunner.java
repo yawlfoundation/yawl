@@ -428,11 +428,6 @@ public class YNetRunner {
             List newChildIdentifiers = task.t_fire(pmgr);
             _enabledTasks.remove(task);
             _enabledTaskNames.remove(task.getID());
-
-// todo: remove this second persist if not required as suspected
-//            if (pmgr != null) {
-//                pmgr.updateObject(this);
-//            }
             _busyTasks.add(task);
             _busyTaskNames.add(task.getID());
             if (pmgr != null) {

@@ -942,6 +942,8 @@ public class jdbcImpl extends DataSource {
         return null ;
     }
 
+    public void importObj(Object obj) { insert(obj); }
+
 
     /**
      * updates an existing object in the database with new values

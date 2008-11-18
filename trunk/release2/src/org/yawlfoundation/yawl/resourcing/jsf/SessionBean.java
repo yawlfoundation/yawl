@@ -1488,6 +1488,16 @@ public class SessionBean extends AbstractSessionBean {
     public void setResourceState(String state) {
         resourceState = state;
     }
+
+    private boolean orgDataUploadPanelVisible = false;
+
+    public boolean isOrgDataUploadPanelVisible() {
+        return orgDataUploadPanelVisible;
+    }
+
+    public void setOrgDataUploadPanelVisible(boolean visible) {
+        orgDataUploadPanelVisible = visible;
+    }
 }
 
 

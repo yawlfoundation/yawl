@@ -9,12 +9,11 @@
 
 package org.yawlfoundation.yawl.engine;
 
-import org.yawlfoundation.yawl.elements.YTask;
+import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.elements.YExternalNetElement;
+import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
-
-import org.apache.log4j.Logger;
 
 import java.util.*;
 
@@ -92,6 +91,7 @@ public class YWorkItemRepository {
     protected void addNewWorkItem(YWorkItem workItem) {
         logger.debug("--> addNewWorkItem: " + workItem.getIDString());
         _idStringToWorkItemsMap.put(workItem.getIDString(), workItem);
+   //     YEngine.getInstance().getInstanceCache().addWorkItem(workItem);        
     }
 
 

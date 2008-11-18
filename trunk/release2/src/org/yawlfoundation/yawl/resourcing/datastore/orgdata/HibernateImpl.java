@@ -145,6 +145,17 @@ public class HibernateImpl extends DataSource {
         return id ;
     }
 
+    public void importObj(Object obj) {
+        if (obj instanceof Participant) {
+            Participant p = (Participant) obj ;
+
+            // pre-insert the participant's user privileges
+            _db.exec(p.getUserPrivileges(), _INSERT);
+        }
+        _db.exec(obj, _INSERT);
+    }
+
+
     public int execUpdate(String query) {
         return _db.execUpdate(query);
     }

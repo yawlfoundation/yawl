@@ -178,6 +178,9 @@ public class YEngineRestorer {
             }
             witem.addToRepository();
 
+            // re-add to instance cache
+    //        _engine.getInstanceCache().addWorkItem(witem);
+
             // MJF: for any work items with data, restore to netrunner instance
             witem.restoreDataToNet();
         }

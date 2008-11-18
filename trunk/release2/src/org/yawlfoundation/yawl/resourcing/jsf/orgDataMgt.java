@@ -11,11 +11,20 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
+import com.sun.rave.web.ui.model.UploadedFile;
+import org.jdom.Document;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataBackupEngine;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.FacesException;
 import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.faces.event.ValueChangeEvent;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
 /*
  * The backing bean for the YAWL 2.0 org data mgt form
@@ -208,11 +217,40 @@ public class orgDataMgt extends AbstractPageBean {
     public void setBtnAdd(Button b) { btnAdd = b; }
 
 
-    private Meta metaRefresh = new Meta();
+    private Button btnExport = new Button();
 
-    public Meta getMetaRefresh() { return metaRefresh; }
+    public Button getBtnExport() { return btnExport; }
 
-    public void setMetaRefresh(Meta m) { metaRefresh = m; }
+    public void setBtnExport(Button btn) { btnExport = btn; }
+
+
+    private Button btnImport = new Button();
+
+    public Button getBtnImport() { return btnImport; }
+
+    public void setBtnImport(Button btn) { btnImport = btn; }
+
+
+    private Button btnUpload = new Button();
+
+    public Button getBtnUpload() { return btnUpload; }
+
+    public void setBtnUpload(Button b) { btnUpload = b; }
+
+
+    private StaticText staticText1 = new StaticText();
+
+    public StaticText getStaticText1() { return staticText1; }
+
+    public void setStaticText1(StaticText st) { staticText1 = st; }
+
+
+
+    private Upload fileUpload = new Upload();
+
+    public Upload getFileUpload() { return fileUpload; }
+
+    public void setFileUpload(Upload u) { fileUpload = u; }
 
 
     private PanelLayout pnlContainer ;
@@ -220,7 +258,21 @@ public class orgDataMgt extends AbstractPageBean {
     public PanelLayout getPnlContainer() { return pnlContainer; }
 
     public void setPnlContainer(PanelLayout pnl) { pnlContainer = pnl; }
-    
+
+
+    private Meta metaRefresh = new Meta();
+
+    public Meta getMetaRefresh() { return metaRefresh; }
+
+    public void setMetaRefresh(Meta m) { metaRefresh = m; }
+
+
+    private PanelLayout pnlUpload;
+
+    public PanelLayout getPnlUpload() { return pnlUpload; }
+
+    public void setPnlUpload(PanelLayout pnl) { pnlUpload = pnl; }
+
 
 
     /********************************************************************************/
@@ -304,6 +356,61 @@ public class orgDataMgt extends AbstractPageBean {
     }
 
 
+    public String btnExport_action() {
+        DataBackupEngine exporter = new DataBackupEngine();
+        String result = exporter.exportOrgData();
+        try {
+            Document doc = JDOMUtil.stringToDocument(result);
+            FacesContext context = FacesContext.getCurrentInstance();
+            HttpServletResponse response =
+                     ( HttpServletResponse ) context.getExternalContext().getResponse();
+            response.setContentType("text/xml");
+            response.setHeader("Content-Disposition",
+                               "attachment;filename=\"YAWLOrgDataExport.ybkp\"");
+            OutputStream os = response.getOutputStream();
+            OutputStreamWriter osw = new OutputStreamWriter(os);
+            osw.write(JDOMUtil.documentToString(doc));
+            osw.flush();
+            osw.close();
+            FacesContext.getCurrentInstance().responseComplete();
+        }
+        catch (IOException ioe) {
+            msgPanel.error("Could not create export file. Please see the log for details.");
+        }
+        return null ;
+    }
+
+
+    public String btnImport_action() {
+        _sb.setOrgDataUploadPanelVisible(true);
+        return null ;
+    }
+
+
+    public void fileUpload_processValueChange(ValueChangeEvent event) { }    
+
+
+    public String btnUpload_action() {
+        UploadedFile uploadedFile = fileUpload.getUploadedFile();
+        String fileName = uploadedFile.getOriginalName();
+        if (fileName.length() > 0) {
+            if (fileName.endsWith(".ybkp")) {
+                DataBackupEngine importer = new DataBackupEngine();
+                String result = importer.importOrgData(uploadedFile.getAsString());
+                if (result.startsWith("Invalid"))
+                    msgPanel.error(result);
+                else
+                    msgPanel.success(result);
+            }
+            else msgPanel.error(
+                "Only exported YAWL Org Data files with an extension of '.ybkp' may be uploaded.");
+        }
+
+        _sb.setOrgDataUploadPanelVisible(false);
+        return null ;
+    }
+
+    
     public String btnSave_action() {
         if (innerForm.saveChanges(_sb.getOrgDataChoice()))
             populateForm(getAttribType(_sb.getActiveTab())) ;
