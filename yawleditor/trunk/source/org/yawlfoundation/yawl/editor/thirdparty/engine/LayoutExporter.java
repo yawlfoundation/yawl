@@ -7,10 +7,8 @@ import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
-import org.yawlfoundation.yawl.editor.swing.net.YAWLEditorNetFrame;
 import org.yawlfoundation.yawl.util.StringUtil;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.Enumeration;
@@ -60,7 +58,7 @@ public class LayoutExporter {
         StringBuilder xml = new StringBuilder(
                 String.format("<net id=\"%s\"%s>", unspace(net.getName()), bgColor));
 
-        xml.append(getNetFrameDimensions(net.getGraph()));
+        xml.append(getNetDimensions(net.getGraph()));
 
         double scale = net.getGraph().getScale();
         if (Math.abs(scale-1) > 0.01) {                      // allow for rounding error
@@ -354,18 +352,15 @@ public class LayoutExporter {
     private String unspace(String s) { return s.replaceAll(" ", "_"); }
 
 
-    private String getNetFrameDimensions(NetGraph netGraph) {
-        String template = "<frame x=\"%d\" y=\"%d\" w=\"%d\" h=\"%d\"/>";
-        JInternalFrame[] frames = YAWLEditorDesktop.getInstance().getAllFrames();
-        for (JInternalFrame frame : frames) {
-            NetGraph frameGraph = ((YAWLEditorNetFrame) frame).getNet();
-            if (frameGraph == netGraph) {
-                Rectangle bounds = frame.getBounds();
-                return String.format(template, bounds.x, bounds.y,
-                          bounds.width, bounds.height);
-            }
-        }
-        return String.format(template, 10, 10, 210, 210);                   // default
+    private String getNetDimensions(NetGraph netGraph) {
+        String template = "<%s x=\"%d\" y=\"%d\" w=\"%d\" h=\"%d\"/>";
+        Rectangle frame = netGraph.getFrame().getBounds();
+        Rectangle viewport = netGraph.getFrame().getContentPane().getBounds();
+        Rectangle bounds = netGraph.getBounds();
+        return String.format(template, "bounds", bounds.x, bounds.y, bounds.width, bounds.height) +
+               String.format(template, "frame", frame.x, frame.y, frame.width, frame.height) +
+               String.format(template, "viewport", viewport.x, viewport.y,
+                              viewport.width, viewport.height) ;
     }
 
 
@@ -384,5 +379,5 @@ public class LayoutExporter {
         return String.format("<locale language=\"%s\" country=\"%s\"/>",
                 locale.getLanguage(), locale.getCountry());
     }
-    
+
 }

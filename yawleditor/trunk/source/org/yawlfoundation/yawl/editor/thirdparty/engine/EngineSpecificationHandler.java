@@ -93,7 +93,7 @@ public class EngineSpecificationHandler {
   private void importEngineSpecificationFile(String fullFileName) {
     if (fullFileName == null) return;  
     YAWLEditor.setStatusBarText("Opening Specification...");
-    YAWLEditor.progressStatusBarOverSeconds(2);
+    YAWLEditor.progressStatusBarOverSeconds(4);
     YAWLEditorDesktop.getInstance().setVisible(false);
 
     EngineSpecificationImporter.importEngineSpecificationFromFile(

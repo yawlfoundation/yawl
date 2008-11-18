@@ -484,6 +484,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
           editorAtomicTask
       );
     }
+    finaliseRetainFamiliarMappings(editorNet);
   }
   
   private static void setEditorTaskLabel(NetGraph editorNet, YAWLTask editorTask, YTask engineTask) {
@@ -758,6 +759,14 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
               _invalidResourceReferences.add(editorNet.getName() + "::" + editorTask.getLabel());
           }
           editorTask.setResourceMapping(resourceMap);
+      }
+  }
+
+
+  private static void finaliseRetainFamiliarMappings(NetGraphModel editorNet) {
+      Set<YAWLAtomicTask> taskSet = NetUtilities.getAtomicTasks(editorNet);
+      for (YAWLAtomicTask task : taskSet) {
+          task.getResourceMapping().finaliseRetainFamiliarTasks(taskSet);
       }
   }
 

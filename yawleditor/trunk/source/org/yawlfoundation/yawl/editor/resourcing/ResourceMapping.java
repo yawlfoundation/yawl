@@ -11,7 +11,6 @@ import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
-import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 import org.yawlfoundation.yawl.schema.XSDType;
@@ -96,7 +95,23 @@ public class ResourceMapping implements Serializable, Cloneable  {
     serializationProofAttributeMap.put("retainFamiliarTask", task);
   }
 
-  
+    public void setRetainFamiliarTaskID(String taskid) {
+      serializationProofAttributeMap.put("retainFamiliarTaskID", taskid);
+    }
+
+    public String getRetainFamiliarTaskID() {
+      return (String) serializationProofAttributeMap.get("retainFamiliarTaskID");
+    }
+
+    public String getSeparationOfDutiesTaskID() {
+      return (String) serializationProofAttributeMap.get("separationOfDutiesTaskID");
+    }
+
+    public void setSeparationOfDutiesTaskID(String taskid) {
+      serializationProofAttributeMap.put("separationOfDutiesTaskID", taskid);
+    }
+
+
   public YAWLAtomicTask getSeparationOfDutiesTask() {
     return (YAWLAtomicTask) serializationProofAttributeMap.get("separationOfDutiesTask");
   }
@@ -479,11 +494,12 @@ public class ResourceMapping implements Serializable, Cloneable  {
                       Map<String, String> params = parseParams(eConstraint, nsYawl);
                       String famTaskName = params.get("familiarTask");
                         if (famTaskName != null) {
-                          YAWLAtomicTask famTask = getTaskWithName(famTaskName,
-                                  containingNet);
-                          if (famTask != null) {
-                              setSeparationOfDutiesTask(famTask);
-                          }
+                            setSeparationOfDutiesTaskID(famTaskName);
+//                          YAWLAtomicTask famTask = getTaskWithName(famTaskName,
+//                                  containingNet);
+//                          if (famTask != null) {
+//                              setSeparationOfDutiesTask(famTask);
+//                          }
                       }
                   }
               }
@@ -497,12 +513,37 @@ public class ResourceMapping implements Serializable, Cloneable  {
       if (eFamTask != null) {
           String famTaskName = eFamTask.getAttributeValue("taskID");
           if (famTaskName != null) {
-              YAWLAtomicTask famTask = getTaskWithName(famTaskName, containingNet);
-              if (famTask != null) {
-                  this.setRetainFamiliarTask(famTask);
-              }
+              this.setRetainFamiliarTaskID(famTaskName);
+//              YAWLAtomicTask famTask = getTaskWithName(famTaskName, containingNet);
+//              if (famTask != null) {
+//                  this.setRetainFamiliarTask(famTask);
+//              }
           }
       }
+  }
+
+  // this must be called only after all the net's tasks are loaded
+  public void finaliseRetainFamiliarTasks(Set<YAWLAtomicTask> taskSet) {
+
+      // first do the retain familiar tasks
+      String famTaskName = this.getRetainFamiliarTaskID();
+      if (famTaskName != null) {
+          YAWLAtomicTask famTask = getTaskWithName(famTaskName, taskSet);
+          if (famTask != null) {
+              this.setRetainFamiliarTask(famTask);
+          }
+      }
+
+      // now do the separation of duties constraint
+      famTaskName = this.getSeparationOfDutiesTaskID();
+      if (famTaskName != null) {
+          YAWLAtomicTask famTask = getTaskWithName(famTaskName, taskSet);
+          if (famTask != null) {
+              this.setSeparationOfDutiesTask(famTask);
+          }
+      }
+
+      
   }
 
 
@@ -587,11 +628,9 @@ public class ResourceMapping implements Serializable, Cloneable  {
   }
 
 
-  private YAWLAtomicTask getTaskWithName(String name, NetGraphModel net) {
+  private YAWLAtomicTask getTaskWithName(String name, Set<YAWLAtomicTask> taskSet) {
       YAWLAtomicTask result = null;
       if (name != null) {
-          name = name.substring(0, name.lastIndexOf("_")) ;           // lop engine id
-          Set<YAWLAtomicTask> taskSet = NetUtilities.getAtomicTasks(net);
           for (YAWLAtomicTask task : taskSet) {
               if (((YAWLVertex) task).getEngineId().equals(name)) {
                   result = task ;
