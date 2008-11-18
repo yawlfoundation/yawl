@@ -5,14 +5,12 @@ import org.jdom.Namespace;
 import org.jgraph.graph.AttributeMap;
 import org.jgraph.graph.GraphCell;
 import org.yawlfoundation.yawl.editor.elements.model.*;
-import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.swing.net.YAWLEditorNetFrame;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.text.NumberFormat;
@@ -98,13 +96,19 @@ public class LayoutImporter {
             netModel.getGraph().setScale(doubleFormat(scale));
         }
 
-        Element eFrame = e.getChild("frame", _ns);
-        int x = new Integer(eFrame.getAttributeValue("x"));
-        int y = new Integer(eFrame.getAttributeValue("y"));
-        int w = new Integer(eFrame.getAttributeValue("w"));
-        int h = new Integer(eFrame.getAttributeValue("h"));
-        Rectangle bounds = new Rectangle(x, y, w, h);
-        setNetFrameDimensions(netModel.getGraph(), bounds);
+        Rectangle frameBounds = createRectangle(e.getChild("frame", _ns));
+        Rectangle viewportBounds = createRectangle(e.getChild("viewport", _ns)) ;
+        Rectangle graphBounds = createRectangle(e.getChild("bounds", _ns));
+        YAWLEditorNetFrame netFrame = netModel.getGraph().getFrame();
+
+        netFrame.setBounds(frameBounds);
+        if (viewportBounds != null) {
+            netFrame.getContentPane().setBounds(viewportBounds);
+        }
+        if (graphBounds != null) {
+            netModel.getGraph().setBounds(graphBounds);
+            netModel.getGraph().setPreferredSize(new Dimension(graphBounds.width, graphBounds.height));
+        }
     }
 
 
@@ -227,7 +231,7 @@ public class LayoutImporter {
                 attributeMap.put("linecolor", color);
             }
             else if (eAttribute.getName().equals("bounds")) {
-                AttributeMap.SerializableRectangle2D rect = createRectangle(eAttribute);
+                AttributeMap.SerializableRectangle2D rect = createRectangle2D(eAttribute);
                 attributeMap.put("bounds", rect);
             }
             else if (eAttribute.getName().equals("points")) {
@@ -365,7 +369,7 @@ public class LayoutImporter {
     }
 
 
-    private static AttributeMap.SerializableRectangle2D createRectangle(Element e) {
+    private static AttributeMap.SerializableRectangle2D createRectangle2D(Element e) {
         String x = e.getAttributeValue("x");
         String y = e.getAttributeValue("y");
         String w = e.getAttributeValue("w");
@@ -375,22 +379,19 @@ public class LayoutImporter {
     }
 
 
-    private static void putBooleanAttribute(AttributeMap map, Element e) {
-        map.put(e.getName(), e.getText().equals("true"));
+    private static Rectangle createRectangle(Element e) {
+        if (e != null) {
+            int x = new Integer(e.getAttributeValue("x"));
+            int y = new Integer(e.getAttributeValue("y"));
+            int w = new Integer(e.getAttributeValue("w"));
+            int h = new Integer(e.getAttributeValue("h"));
+            return new Rectangle(x, y, w, h);
+        }
+        return null;
     }
 
-
-    private static void setNetFrameDimensions(NetGraph netGraph, Rectangle bounds) {
-        YAWLEditorDesktop desktop = YAWLEditorDesktop.getInstance();
-        JInternalFrame[] frames = desktop.getAllFrames();
-        for (JInternalFrame frame : frames) {
-            NetGraph frameGraph = ((YAWLEditorNetFrame) frame).getNet();
-            if (frameGraph == netGraph) {
-                frame.setBounds(bounds);
-                netGraph.setSize(frame.getContentPane().getSize());
-                desktop.repositionViewportIfNecessary(frame);
-            }
-        }
+    private static void putBooleanAttribute(AttributeMap map, Element e) {
+        map.put(e.getName(), e.getText().equals("true"));
     }
 
 
