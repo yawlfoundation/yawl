@@ -180,7 +180,7 @@ public class Login extends AbstractPageBean {
         String nextPage = null ;
 
         // check if this browser session already has a logged in user
-        if (sb.getParticipant() != null) {
+        if (sb.getUserid() != null) {
             msgPanel.error("User '" + sb.getUserid() + "' is already logged on in this" +
                            " browser instance. Only one user logon per browser " +
                            " instance is possible. If you wish to logon, please " +
@@ -192,11 +192,7 @@ public class Login extends AbstractPageBean {
             String user = (String) txtUserName.getText() ;
             String pword = (String) txtPassword.getText();
             if (validateUser(user, pword)) {
-                if (user.equals("admin")) {                              // special case
-                    sb.setMnuSelectorStyle("top: 128px");
-                    nextPage = "showAdminQueues" ;
-                }
-                else nextPage =  "showUserQueues" ;
+                nextPage = user.equals("admin") ? "showAdminQueues" : "showUserQueues";
             }
         }
 

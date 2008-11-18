@@ -213,6 +213,17 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                 else if (action.equals("getChildren")) {
                     msg.append(_engine.getChildrenOfWorkItem(workItemID, sessionHandle));
                 }
+                else if (action.equals("getCaseInstanceSummary")) {
+                    msg.append(_engine.getCaseInstanceSummary(sessionHandle));
+                }
+                else if (action.equals("getWorkItemInstanceSummary")) {
+                    String caseID = request.getParameter("caseID");
+                    msg.append(_engine.getWorkItemInstanceSummary(caseID, sessionHandle));
+                }
+                else if (action.equals("getParameterInstanceSummary")) {
+                    String caseID = request.getParameter("caseID");
+                    msg.append(_engine.getParameterInstanceSummary(caseID, workItemID, sessionHandle));
+                }
             }  // action is null
             else if (request.getRequestURI().endsWith("ib")) {
                 msg.append(_engine.getAvailableWorkItemIDs(sessionHandle));

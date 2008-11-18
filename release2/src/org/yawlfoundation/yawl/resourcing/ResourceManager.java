@@ -528,7 +528,8 @@ public class ResourceManager extends InterfaceBWebsideController {
                 qSet.cleanseAllQueues(_workItemCache);
             }
         }
-        _resAdmin.getWorkQueues().getQueue(WorkQueue.UNOFFERED).cleanse(_workItemCache);
+        WorkQueue q = _resAdmin.getWorkQueues().getQueue(WorkQueue.UNOFFERED);
+        if (q != null) q.cleanse(_workItemCache);
     }
 
 
@@ -670,6 +671,50 @@ public class ResourceManager extends InterfaceBWebsideController {
         String newID = _orgdb.insert(o) ;             // persist it
         if (_isNonDefaultOrgDB) o.setID(newID);       // cleanup for non-default db
         _ds.orgGroupMap.put(newID, o) ;               // ...and add it to the data set
+    }
+
+
+    public void importParticipant(Participant p) {
+
+        // persist it to the data store
+        _orgdb.importObj(p) ;
+        p.createQueueSet(_persisting) ;
+
+        // cleanup for non-default db
+        if (_isNonDefaultOrgDB) {
+            if (_persisting) {
+                _persister.insert(p.getUserPrivileges());
+                _persister.insert(p.getWorkQueues());
+            }
+        }
+        else _orgdb.update(p);
+
+        // ...and add it to the data set
+        _ds.participantMap.put(p.getID(), p) ;
+        addUserKey(p);                                       // and the userid--pid map
+    }
+
+    public void importRole(Role r) {
+        _orgdb.importObj(r) ;
+        _ds.roleMap.put(r.getID(), r) ;
+    }
+
+
+    public void importCapability(Capability c) {
+        _orgdb.importObj(c) ;
+        _ds.capabilityMap.put(c.getID(), c) ;
+    }
+
+
+    public void importPosition(Position p) {
+        _orgdb.importObj(p) ;
+        _ds.positionMap.put(p.getID(), p) ;
+    }
+
+
+    public void importOrgGroup(OrgGroup o) {
+        _orgdb.importObj(o) ;
+        _ds.orgGroupMap.put(o.getID(), o) ;
     }
 
 
@@ -2043,8 +2088,10 @@ public class ResourceManager extends InterfaceBWebsideController {
                         if (event.getChildText("taskID").equals(taskID) &&
                             event.getChildText("eventName").equals("Complete")) {
                             String userid = event.getChildText("resourceID");
-                            if (userid != null)
-                                result.add(getParticipantFromUserID(userid));
+                            if (userid != null) {
+                                Participant p = getParticipantFromUserID(userid);
+                                if (p != null) result.add(p);
+                            }
                         }
                     }
                 }
@@ -2368,12 +2415,22 @@ public class ResourceManager extends InterfaceBWebsideController {
         return _connections.checkConnection(handle);
     }
 
-    // An connected external service doesn't have a session with the engine, so this
+    // A connected external service doesn't have a session with the engine, so this
     // method swaps service session handles with this classes handle to allow
     // authorised external services to query the engine
     private String getHandleForEngineCall(String handle) {
         return checkServiceConnection(handle) && connected() ?
                _engineSessionHandle : handle;
+    }
+
+
+    private String getParticipantSessionHandle(Participant p) {
+        for (String handle : _liveSessions.keySet()) {
+            Participant candidate = _liveSessions.get(handle);
+            if (candidate.getID().equals(p.getID()))
+                return handle;
+        }
+        return null;
     }
 
     public Set<SpecificationData> getLoadedSpecs(String handle) {
@@ -2742,7 +2799,9 @@ public class ResourceManager extends InterfaceBWebsideController {
             Participant p = getParticipant(participantID);
             if (action.equals("Start") &&
                    wir.getStatus().equals(WorkItemRecord.statusEnabled)) {
-                result = start(p, wir, _engineSessionHandle);
+                String handle = getParticipantSessionHandle(p);
+                if (handle == null) handle = _engineSessionHandle;
+                result = start(p, wir, handle);
 
                 // if could not start, fallback to allocate action
                 if (! result) action = "Allocate";

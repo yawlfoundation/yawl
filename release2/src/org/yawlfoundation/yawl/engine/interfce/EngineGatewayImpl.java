@@ -1185,4 +1185,37 @@ public class EngineGatewayImpl implements EngineGateway {
         }
         else return failureMessage("There is no active case with id: " + caseID);
     }
+
+    public String getCaseInstanceSummary(String sessionHandle) throws RemoteException {
+//        try {
+//            _userList.checkConnection(sessionHandle);
+//            return _engine.getInstanceCache().marshalCases();
+//        } catch (YAuthenticationException e) {
+//            return failureMessage(e.getMessage());
+//        }
+        return "";
+    }
+
+    public String getWorkItemInstanceSummary(String caseID, String sessionHandle)
+            throws RemoteException {
+//        try {
+//            _userList.checkConnection(sessionHandle);
+//            return _engine.getInstanceCache().marshalWorkItems(caseID);
+//        } catch (YAuthenticationException e) {
+//            return failureMessage(e.getMessage());
+//        }
+        return "";
+    }
+
+    public String getParameterInstanceSummary(String caseID, String itemID, String sessionHandle)
+            throws RemoteException {
+//        try {
+//            _userList.checkConnection(sessionHandle);
+//            return _engine.getInstanceCache().marshalParameters(caseID, itemID);
+//        } catch (YAuthenticationException e) {
+//            return failureMessage(e.getMessage());
+//        }
+        return "";
+    }
+
 }

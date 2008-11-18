@@ -31,5 +31,7 @@ public class EmptyDataSource extends DataSource {
         return null; 
     }
 
+    public void importObj(Object obj) { }
+
     public int execUpdate(String query) { return -1; } 
 }

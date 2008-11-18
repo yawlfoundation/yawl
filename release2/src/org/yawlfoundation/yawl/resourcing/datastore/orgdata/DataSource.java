@@ -87,12 +87,22 @@ public abstract class DataSource {
      */
     public abstract void delete(Object obj) ;
 
+
     /**
      * inserts (persists) a new object record into the datastore
      * @param obj the object to insert
      * @return a newly created unique identifier (primary key) for the inserted object
      */
     public abstract String insert(Object obj) ;
+
+
+    /**
+     * imports (persists) a new object into the datastore. The difference between this
+     * method and 'insert' is that insert generates a new object id - this method does
+     * not (it assumes the object already has a valid id).
+     * @param obj the object to insert
+     */
+    public abstract void importObj(Object obj);
 
 
     public abstract int execUpdate(String query) ; 

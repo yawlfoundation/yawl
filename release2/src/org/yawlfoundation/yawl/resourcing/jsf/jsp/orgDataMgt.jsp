@@ -90,6 +90,23 @@
                             </ui:tab>
                         </ui:tabSet>
 
+                            <ui:button binding="#{orgDataMgt.btnExport}"
+                                       action="#{orgDataMgt.btnExport_action}"
+                                       id="btnExport"
+                                       imageURL="/resources/dbExport.png"
+                                       styleClass="exportButton"
+                                       toolTip="Export Org Data to file"
+                                       text=""/>
+
+
+                            <ui:button binding="#{orgDataMgt.btnImport}"
+                                       id="btnImport"
+                                        action="#{orgDataMgt.btnImport_action}"
+                                       imageURL="/resources/dbImport.png"
+                                       styleClass="importButton"
+                                       toolTip="Import Org Data from file"
+                                       text=""/>
+
                         <ui:button binding="#{SessionBean.btnRefresh}"
                                    action="#{orgDataMgt.btnRefresh_action}"
                                    id="btnRefresh"
@@ -102,16 +119,49 @@
                             <jsp:directive.include file="pfOrgData.jspf"/>
                         </div>
 
+                            <ui:panelLayout binding="#{orgDataMgt.pnlUpload}"
+                                            id="pnlUpload"
+                                            styleClass="orgDataUploadPanel"
+                                            style="position:absolute;"
+                                            visible="#{SessionBean.orgDataUploadPanelVisible}" >
+
+                                <ui:staticText binding="#{orgDataMgt.staticText1}"
+                                               id="staticText1"
+                                               styleClass="pageSubheading"
+                                               style="position:absolute; left: 12px; top: 12px"
+                                               text="Import Org Data"/>
+
+                                <ui:upload binding="#{orgDataMgt.fileUpload}"
+                                           columns="60" id="fileUpload"
+                                           styleClass="fileUpload"
+                                           style="left: 12px; top: 40px; position: absolute"
+                                           immediate="true"
+                                           valueChangeListener="#{orgDataMgt.fileUpload_processValueChange}"/>
+
+                                <ui:button action="#{orgDataMgt.btnUpload_action}"
+                                           binding="#{orgDataMgt.btnUpload}"
+                                           id="btnUpload"
+                                           style="left: 12px; top: 81px"
+                                           styleClass="caseMgtButton"
+                                           text="Import File"/>
+
+                            </ui:panelLayout>
                         </ui:panelLayout>
 
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"
                                         panelLayout="flow"/>
+
+
+
+
                         </center>
 
                         <ui:meta binding="#{orgDataMgt.metaRefresh}"
                                  httpEquiv="refresh"
                                  id="metaRefresh" />
+
+
                     </ui:form>
                 </ui:body>
             </ui:html>

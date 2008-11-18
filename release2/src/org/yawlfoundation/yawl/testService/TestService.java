@@ -76,7 +76,8 @@ public class TestService extends InterfaceBWebsideController {
    //     output.append(stressTest());
     //    output.append(wqTest());
    //     output.append(xsdTest());
-        output.append(getCaseState());
+   //     output.append(getCaseState());
+        output.append(testSummaries());
 
          output.append("</pre></p></body></html>");
          outputWriter.write(output.toString());
@@ -121,6 +122,22 @@ private static String getReply(InputStream is) throws IOException {
         }
         catch (IOException ioe) {
         return ""; }
+    }
+
+
+    private String testSummaries() {
+        String result = "";
+        try {
+            String handle = connect("admin", "YAWL");
+            result = _interfaceBClient.getCaseInstanceSummary(handle);
+            System.out.println(result);
+            result = _interfaceBClient.getWorkItemInstanceSummary("148", handle);
+            System.out.println(result);
+
+        }
+        catch (IOException ioe) { }
+        return result;
+
     }
 
 //    private String launchCase() {

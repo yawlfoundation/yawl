@@ -218,5 +218,32 @@ public class UserPrivileges implements Serializable {
     private String wrapPrivilege(boolean value, String name) {
         return StringUtil.wrap(String.valueOf(value), name);
     }
+
+
+    public String getPrivilegesAsBits() {
+        StringBuilder result = new StringBuilder();
+        result.append(canChooseItemToStart ? 1 : 0);
+        result.append(canStartConcurrent ? 1 : 0);
+        result.append(canReorder ? 1 : 0);
+        result.append(canViewTeamItems ? 1 : 0);
+        result.append(canViewOrgGroupItems ? 1 : 0);
+        result.append(canChainExecution ? 1 : 0);
+        result.append(canManageCases ? 1 : 0);
+        result.append(carteblanche ? 1 : 0);
+        return result.toString();
+    }
+
+
+    public void setPrivilegesFromBits(String bits) {
+        char[] bitArray = bits.toCharArray();
+        canChooseItemToStart = (bitArray[0] == '1');
+        canStartConcurrent = (bitArray[1] == '1');
+        canReorder = (bitArray[2] == '1');
+        canViewTeamItems = (bitArray[3] == '1');
+        canViewOrgGroupItems = (bitArray[4] == '1');
+        canChainExecution = (bitArray[5] == '1');
+        canManageCases = (bitArray[6] == '1');     
+        carteblanche = (bitArray[7] == '1');
+    }
 }
 

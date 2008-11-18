@@ -648,6 +648,49 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
+     * Gets a summary table of all currently live process instances
+     * @param sessionHandle the session handle
+     * @return an XML Representation of live processes
+     * @throws IOException if the engine cannot be found.
+     */
+    public String getCaseInstanceSummary(String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("getCaseInstanceSummary", sessionHandle);
+        return executeGet(_backEndURIStr, params);
+    }
+
+
+    /**
+     * Gets a summary table of all completed and live workitems for a case
+     * @param caseID the case id of the process to get the workitems for
+     * @param sessionHandle the session handle
+     * @return an XML Representation of workitems for a live case
+     * @throws IOException if the engine cannot be found.
+     */
+    public String getWorkItemInstanceSummary(String caseID, String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("getWorkItemInstanceSummary", sessionHandle);
+        params.put("caseID", caseID);
+        return executeGet(_backEndURIStr, params);
+    }
+
+
+    /**
+     * Gets a summary table of all completed and live workitems for a case
+     * @param caseID the case id of the process to get the workitems for
+     * @param itemID the id of the workitem to get the data params for
+     * @param sessionHandle the session handle
+     * @return an XML Representation of parameters for a workitem
+     * @throws IOException if the engine cannot be found.
+     */
+    public String getParameterInstanceSummary(String caseID, String itemID, String sessionHandle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("getParameterInstanceSummary", sessionHandle);
+        params.put("caseID", caseID);
+        params.put("itemID", itemID);
+        return executeGet(_backEndURIStr, params);
+    }
+
+
+    /**
      * Transforms an xml-string set of WorkItemRecords into a list 
      * @param xml the string describing the WorkItemRecords
      * @return a list of WorkItemRecord objects

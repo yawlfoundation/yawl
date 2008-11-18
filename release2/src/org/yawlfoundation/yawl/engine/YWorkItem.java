@@ -415,12 +415,18 @@ public class YWorkItem {
     }
 
 
-    /** @return true if workitem is finsished */
+    /** @return true if workitem is finished */
     public boolean hasFinishedStatus() {
         return _status.equals(statusComplete) ||
                _status.equals(statusDeleted)  ||
                _status.equals(statusForcedComplete) ||
                _status.equals(statusFailed) ;
+    }
+
+    /** @return true if workitem has completed */
+    public boolean hasCompletedStatus() {
+        return _status.equals(statusComplete) ||
+               _status.equals(statusForcedComplete) ;
     }
 
 
