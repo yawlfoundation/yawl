@@ -25,6 +25,8 @@ package org.yawlfoundation.yawl.editor.swing.data;
 
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.DataVariableSet;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
+import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.AbstractTableUpdatePanel;
@@ -100,18 +102,24 @@ public class DataVariableTablePanel extends AbstractTableUpdatePanel {
       JOptionPane.showConfirmDialog(this,
          "This will permanently delete variable '" +
          variableName + "' and all its associated mappings.\n",
-         "Deleting Task Variable",
+         "Deleting Variable",
          JOptionPane.WARNING_MESSAGE, 
          JOptionPane.YES_NO_OPTION);
     if (selectedValue != JOptionPane.YES_OPTION) {
       return;
     }
 
-    
-    SpecificationModel.getInstance().propogateVariableDeletion(
-        getVariableTable().getVariableAt(oldSelectedRow)  
-      );
-    
+    DataVariable var = getVariableTable().getVariableAt(oldSelectedRow);
+
+    Decomposition decomp = var.getScope().getDecomposition();
+    if (decomp instanceof WebServiceDecomposition) {         // task level
+      decomp.removeVariable(var);
+      SpecificationModel.getInstance().propogateVariableSetChange(decomp);
+    }
+    else {
+      SpecificationModel.getInstance().propogateVariableDeletion(var);
+    }
+
     getVariableTable().getVariableModel().removeRow(oldSelectedRow);
     if (oldSelectedRow == getTable().getRowCount()) {
       getVariableTable().selectRow(oldSelectedRow - 1);

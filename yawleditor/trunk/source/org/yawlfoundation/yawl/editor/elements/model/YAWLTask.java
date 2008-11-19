@@ -349,7 +349,23 @@ public abstract class YAWLTask extends YAWLVertex {
       Parameter param = (Parameter) oldInputParams.next();
       getParameterLists().getInputParameters().remove(param.getVariable());
     }
-    
+
+      paramsToDelete.clear();
+      Iterator outputParameters = getParameterLists().getOutputParameters().getParameters().iterator();
+      while (outputParameters.hasNext()) {
+        Parameter parameter = (Parameter) outputParameters.next();
+        if (!getDecomposition().hasVariableEqualTo(parameter.getVariable())) {
+          paramsToDelete.add(parameter);
+        }
+      }
+
+      oldInputParams = paramsToDelete.iterator();
+      while(oldInputParams.hasNext()) {
+        Parameter param = (Parameter) oldInputParams.next();
+        getParameterLists().getOutputParameters().remove(param.getVariable());
+      }
+
+
     //Output parameters are scoped to something other than the task. Don't need 
     // to delete them, but perhaps the queries are broken.
   }
