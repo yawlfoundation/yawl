@@ -1,3 +1,202 @@
+                      YAWL Release 2.0 beta (Update 3) 18/11/2008
+                      ===========================================
+
+This beta update is an interim release of the YAWL Environment, and includes a
+number of bug-fixes and enhancements. Please take the time to read the change list
+below and the previous 2.0 beta release notes further down the page.
+
+
+QUICK START: After installation, start Tomcat and point a browser to
+             http://localhost:8080/resourceService
+
+
+1. MINIMUM REQUIREMENTS
+-----------------------
+  * Tomcat 5.5.25 or higher
+  * Java 5 (1.5) or higher
+
+
+2. CHANGES IN THIS UPDATE
+-------------------------
+(a) ENGINE:
+ - Fixed a permission denied error when loading specifications into the engine on OSX
+   installations where the logged on user did not have (osx) admin privileges.
+ - Removed from the process of loading a specification into the engine the creation of
+   temporary file with the specification's contents, which (in addition to being
+   inefficient) was causing problems for users who did not have admin (write) access to
+   the tomcat directories (e.g. XP Prof, Win Server, OSX).
+ - Added specification versioning to deprecated services so they will all work with
+   YAWL 2.0.
+ - Fixed an obscure bug that occurred when a task split enabled a number of tasks, among
+   which were included at least one composite task and at least one empty task (i.e. a
+   task with no decomposition), which would result in an attempt to start the composite
+   task(s) twice.
+ - Interface B now contains a 'handleCancelledCaseEvent' which can be overridden by
+   custom services to take the appropriate action when a case is cancelled.
+ - Removed the javax/servlet package from the YAWL standalone.jar file, as it was not
+   required for standalone use and was causing conflicts to other applications.
+
+(b) RESOURCE SERVICE:
+ - All forms now render correctly in MSIE. Other browsers successfully tested: Firefox 2
+   (linux) & 3 (win, osx); Safari (win, osx); opera (win, osx).
+ - Added a 'Team Queues' form, which will be available for participants with either
+   admin access, or ‘view team’ and/or ‘view orggroup’ privileges, and will display a
+   read-only view of all the current workitems on the queues of any member of their
+   team and/or org group as appropriate. A team member is a participant who holds a
+   position that hierarchically reports to a position held by the logged on participant.
+   An org group member is a participant who holds a position that ‘belongs to’ an org
+   group (including subgroups) that ‘owns’ a position held by the logged on participant.
+ - There is new functionality to export/import org data tables to/from file. On the
+   Org Data Management form, top right corner (near the 'refresh' button) there are two
+   new icons: one for export, one for import. The files generated are standard xml. On
+   import, the contents will be added to the db only if they don’t already exist
+   (compared by id). So, several exports can be imported in sequence to effect a merge of
+   org data.
+ - Updated look and feel for the worklist and admin forms. Browser caches may need to
+   be emptied or forms reloaded a few times for them to render correctly.
+ - Message boxes now appear correctly aligned and centred under their respective forms.
+ - Added a workaround for Firefox 3, Chrome and some other browsers autofilling userid
+   and password data in the user management form's fields.
+ - Refactored the WorkQueueGateway's pass through of Interfaces A & B methods to the
+   engine.
+ - Fixed a bug where a newly added participant would not have their roles, positions &
+   capabilities displayed on the User Management form after another participant was
+   selected and then the new participant was re-selected.
+ - Fixed a bug that caused an exception when navigating to the admin queues and the
+   first task in the list had a name longer than 20 characters and contained underscores.
+ - Removed non-meaningful privileges (can view all offered/allocated/started) from the
+   User Management Form.
+ - Fixed a bug that caused an exception on the Org Data Management form if a new
+   role/position/capability was added, then another one, then the newly added one listed
+   first was deleted, then the 'remove' button was clicked again (without doing anything
+   else).
+ - Fixed a bug that caused an exception on the Org Data Management form if a new role
+   was created, then a new participant was created (on the User Management form) and
+   assigned the new role, then the participant was immediately deleted, then the new
+   role was immediately deleted.
+ - Fixed a bug that showed a list of roles rather than a list of positions in the
+   'reports to' dropdown of the position tab of the Org Data Management form when adding
+   a new position, iff the 'belongs to' list on the roles tab was first opened prior to
+   navigating to the positions tab.
+ - Added getParticipantCapabilities() and getParticipantPositions() methods to
+   WorkQueueGateway.
+ - Fixed an issue where a process failure due to a 'Bad Process Definition' caused by a
+   malformed XQuery would show no error on the workqueue form (although it was being
+   reported in the logs).
+ - Fixed an exception that intermittently occurred on admin queues for process instances
+   that contained multiple-instance tasks.
+ - Fixed an issue where if specifications were loaded via another custom service (e.g.
+   the worklet service) they would not appear in the list of loaded specifications on the
+   case mgt form.
+ - Added handling of 'cancelledCaseEvents' to remove workitems from queues when cases
+   are cancelled via another custom service.
+ - Fixed a bug that caused multiple instances of a workitem's data items, where the data
+   item was a complex type, to be ignored by the dynamic form when it was first displayed. 
+ - A small 'synch' button has been added to the admin queues (next to the refresh button)
+   that, when clicked, will re-synch the resource service's caches with those of the
+   engine. Such re-synching will only ever be necessary if there are items being checked
+   in directly via interface B by applications not conforming to the YAWL custom service
+   paradigm (i.e. standalone apps); this button will remove any such workitems from the
+   queues. This provides admins with an easy, manual way to clean the queues in such
+   (albeit rare) circumstances.
+ - The +/- buttons on dynamic form sub-panels are now disabled if the sub-panels contents
+   are all read-only.
+ - Fixed a login issue that would cause an exception if there was a logon as 'admin' in
+   a browser session and an attempt was made to logon as a user in the same session
+   (the other way round was trapped successfully). Now only one logon per browser
+   session is possible, no matter which type of user logs on first.
+
+(c) WORKLET SERVICE:
+ - Added a more meaningful error message when a valid ruleset is found, but no
+   corresponding rule tree for the calling task can be found within it.
+ - Fixed a bug when restarting a worklet from persistence and the worklet was created in
+   a different YAWL version than the parent specification.
+ - Fixed the rules editor so that it would accept '.yawl' files in addition to '.xml'
+   files.
+ - Fixed a bug that produced inconsistent results at runtime when the filename of a
+   worklet was different to its specification id.
+ - Worklets with the extension '.yawl' are now included in the list of available worklets
+   when adding a new rule in the rules editor.
+ - Fixed an issue where the rules editor would save a ruleset file using the name of the
+   worklet file rather than the worklet's specification id.
+
+(d) EDITOR:
+ - This release includes a fundamental change: the 'ywl' file format has been deprecated
+   and replaced with an xml file format which combines the specification definition with
+   additional layout information, so dispensing with the need for two file formats for
+   each specification. The new file format has an extension '.yawl'. You will notice a 
+   few basic differences in the editor:
+      * The file-open menu item will allow you to open a 'yawl' file or an 'xml' file
+        (i.e. a specification xml file without layout information). An 'xml' file will
+        get a default layout, the same as when an xml file was imported previously.
+      * The file-save (and file-save-as) menu items will allow you to save a spec in
+        'yawl' format (i.e. with layout information).
+      * The import function will now import 'ywl' files (i.e. the old format). This means
+        that a ywl file can still be opened, and a save will automatically convert it to
+        the new format (its toolbar icon has moved so it is now next to file-open).
+      * The export function is no longer required and has been removed.
+      * The 'ywl' file converter for pre-2.0 ywl files is now built in to the editor.
+        It works well for all but the very, very old ywl files (beta 4 or earlier).
+      * The file-open dialog allows only yawl & xml files only to be selected - 'all
+        files' is no longer an available file type.
+   To facilitate the saving of incomplete nets, validation and analysis are disabled on
+   save by default. It is recommended that validation and analysis be explicitly
+   performed on specifications prior to loading them into the engine.
+ - Only the basic analysis checks are now selected by default. This is designed so that
+   analysis tasks, some of which can take a long time on large and/or complex specs, must
+   be explicitly selected during each editor session.
+ - The complete list of XML Schema data types are now available in the update parameter
+   dialogs, superseding the restricted set available in previous versions.
+ - Fixed a bug where codelet info was not being correctly saved to file in some cases.
+ - In the 'Task Decomposition' dialog, the 'Automated' checkbox now disables if the
+   selected service is not 'default worklist' (since it is not relevant for other custom
+   services).
+ - If a task has been given a label before a decomposition is created for it, the label
+   will be entered into the decomposition label field as a default decomposition name.
+ - An error dialog that shows when an analysis is attempted and the spec is not schema
+   valid has been improved layout- and message-wise. 
+ - In the 'Update Flow Predicates' dialog, the alternate colouring of rows has been
+   suppressed when there are <5 rows, to avoid visual confusion.
+ - The 'Direct-to-Decomposition' dialog now shows all net-level vars, no matter when they
+   were added to the net.
+ - Fixed the 'random' disabling of the 'Done' button on some dialogs.
+ - Fixed a bug that was preventing the listing of potential deferred allocation net-level
+   variables in resource wizard's 'Set Base Distribution List' form.
+ - In the 'Set Timer Detail' dialog, the 'upon workitem started' option is now disabled
+   for automated tasks (since that option is not relevant).
+ - The irritating mouse-over 'help' text has been removed from the 'Update Parameters'
+   dialog.
+ - Any xml header inserted into user-defined data definitions are automatically removed,
+   since these headers caused validation errors when saving specifications.
+ - Fixed a bug where a retain-familiar-task setting would randomly disappear from a net
+   after re-opening the specification.
+
+
+3. CURRENT KNOWN LIMITATIONS
+----------------------------
+   This beta update version ships with the current *known* limitations listed below.
+   They will be resolved in the final production release.
+
+   - Where there is a condition in a process with multiple incoming arcs and an
+     outgoing arc to a task, the task is not started immediately after an incoming
+     task completes (so that multiple task instances are available concurrently -
+     the expected behaviour), rather the latter tasks are enabled sequentially (so
+     that only one can be 'live' at any one time).
+
+   - Some of the more complex data schema constructs are not currently handled
+     correctly for dynamic form generation. For example, dynamic forms won't render a
+     choice element in a data schema that is a direct child of a complexType element
+     (choice can be rendered correctly as a direct child of a simpleType element).
+     Choice expressed as a combination of simpleType elements and 'memberType'
+     attributes are also not currently supported.
+
+
+   Please report any bugs or problems via the YAWL sourceforge page:
+
+                    http://sourceforge.net/projects/yawl
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 
                       YAWL Release 2.0 beta (Update 2) 03/09/2008
                       ===========================================

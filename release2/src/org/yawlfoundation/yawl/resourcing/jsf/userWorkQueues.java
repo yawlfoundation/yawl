@@ -513,7 +513,7 @@ public class userWorkQueues extends AbstractPageBean {
         else {
             _sb.setDynFormType(ApplicationBean.DynFormType.tasklevel);
             DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");
-            df.setHeaderText("Edit Work Item: " + wir.getIDForDisplay());
+            df.setHeaderText("Edit Work Item: " + wir.getCaseID());
             df.setDisplayedWIR(wir);
             if (df.initDynForm("YAWL 2.0 - Edit Work Item")) {
                 return "showDynForm" ;
