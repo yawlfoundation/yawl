@@ -736,10 +736,12 @@ public class YWorkItem {
             xmlBuff.append(StringUtil.wrap(getUserWhoIsExecutingThisItem(), "startedBy"));
         }
         if (_timerParameters != null) {
-            String trigger =
-                       ((YWorkItemTimer.Trigger) _timerParameters.get("trigger")).name();
-            xmlBuff.append(StringUtil.wrap(trigger, "timertrigger"));
-            xmlBuff.append(StringUtil.wrap(String.valueOf(_timerExpiry), "timerexpiry"));
+            YWorkItemTimer.Trigger trigger = (YWorkItemTimer.Trigger) _timerParameters.get("trigger");
+            if (trigger != null) {
+                String triggerName = trigger.name();
+                xmlBuff.append(StringUtil.wrap(triggerName, "timertrigger"));
+                xmlBuff.append(StringUtil.wrap(String.valueOf(_timerExpiry), "timerexpiry"));
+            }    
         }
         if (_customFormURL != null)
             xmlBuff.append(StringUtil.wrap(_customFormURL.toString(), "customform"));
