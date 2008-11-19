@@ -766,7 +766,8 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   private static void finaliseRetainFamiliarMappings(NetGraphModel editorNet) {
       Set<YAWLAtomicTask> taskSet = NetUtilities.getAtomicTasks(editorNet);
       for (YAWLAtomicTask task : taskSet) {
-          task.getResourceMapping().finaliseRetainFamiliarTasks(taskSet);
+          ResourceMapping rMap = task.getResourceMapping();
+          if (rMap != null) rMap.finaliseRetainFamiliarTasks(taskSet);
       }
   }
 
