@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE web-app
+PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application
+2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+
+    <!-- General description of your web application -->
+    <display-name> Mail Sender </display-name>
+    <description> Send an e-mail </description>
+
+    <context-param>
+        <param-name>InterfaceB_BackEnd</param-name>
+        <param-value>http://localhost:8080/yawl/ib</param-value>
+    </context-param>
+    
+	<context-param>
+		<param-name>InterfaceBWebSideController</param-name>
+		<param-value>org.yawlfoundation.yawl.MailSender.MailSender</param-value>
+		<description></description>
+	</context-param>
+
+	<servlet>
+		<servlet-name>InterfaceB_Servlet</servlet-name>
+		<description>Listens to notification of work items from the engine. Shouldn't need to change this.</description>
+		<servlet-class>org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EnvironmentBasedServer</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+	
+
+    
+	<servlet-mapping>
+		<servlet-name>InterfaceB_Servlet</servlet-name>
+		<url-pattern>/ib</url-pattern>
+	</servlet-mapping>
+
+    
+	<session-config>
+		<session-timeout>30</session-timeout>
+	<!-- 30 minutes -->
+	</session-config>
+
+    <welcome-file-list>
+        <welcome-file>WebMail.jsp</welcome-file>
+    </welcome-file-list>
+<servlet>
+    <servlet-name>WebMail</servlet-name>
+    <jsp-file>/WebMail.jsp</jsp-file>
+    <load-on-startup>1</load-on-startup>
+</servlet>
+
+<servlet-mapping>
+    <servlet-name>WebMail</servlet-name>
+    <url-pattern>/WebMail</url-pattern>
+</servlet-mapping>
+
+</web-app>
