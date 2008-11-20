@@ -59,7 +59,6 @@ public class userWorkQueues extends AbstractPageBean {
             log("userWorkQueues Initialization Failure", e);
             throw e instanceof FacesException ? (FacesException) e: new FacesException(e);
         }
-        tabOffered_action();                     // select the offered worklist on init
     }
 
     public void preprocess() { }
@@ -331,7 +330,7 @@ public class userWorkQueues extends AbstractPageBean {
      */
     public void prerender() {
         getSessionBean().checkLogon();                     // check session still live
-        msgPanel.show();                                   // show msgs (if any)
+        msgPanel.show(100, 0, "relative");                 // show msgs (if any)
 
         // return to same tab on a refresh
         if (_sb.getSourceTab() != null) {
@@ -739,17 +738,22 @@ public class userWorkQueues extends AbstractPageBean {
     private void postEditWIR() {
         if (_sb.isWirEdit()) {
             WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
-            Element data = JDOMUtil.stringToElement(getDynFormFactory().getDataList());
-            wir.setUpdatedData(data);
-            _rm.getWorkItemCache().update(wir) ;
-            _sb.setWirEdit(false);
+            if (wir != null) {
+                Element data = JDOMUtil.stringToElement(getDynFormFactory().getDataList());
+                wir.setUpdatedData(data);
+                _rm.getWorkItemCache().update(wir) ;
 
-            if (_sb.isCompleteAfterEdit()) {
-                completeWorkItem(wir, _sb.getParticipant());
-                _sb.setCompleteAfterEdit(false);
-                if (msgPanel.hasMessage()) forceRefresh();
+                if (_sb.isCompleteAfterEdit()) {
+                    completeWorkItem(wir, _sb.getParticipant());
+                }
+            }
+            else {
+                msgPanel.error("Could not complete workitem. Check log for details.");
             }
         }
+        _sb.setWirEdit(false);
+        _sb.setCompleteAfterEdit(false);
+        if (msgPanel.hasMessage()) forceRefresh();
     }
 
 

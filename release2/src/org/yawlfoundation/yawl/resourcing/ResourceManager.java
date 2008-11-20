@@ -2522,8 +2522,17 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
     }
 
-    
-    public String cancelCase(String caseID, String handle) throws IOException {
+    /**
+     * Cancels the case & removes its workitems (if any) from the service's queues
+     * & caches. Note: this method is synchronised to prevent any clash with
+     * 'handleCancelledCaseEvent', which is triggered by the call to cancelCase in
+     * this method.
+     * @param caseID the case to cancel
+     * @param handle a valid session handle with the engine
+     * @return a message from the engine indicating success or otherwise
+     * @throws IOException if there's trouble talking to the engine
+     */
+    public synchronized String cancelCase(String caseID, String handle) throws IOException {
         List<WorkItemRecord> liveItems = getLiveWorkItemsForCase(caseID, handle) ;
 
         // cancel the case in the engine
