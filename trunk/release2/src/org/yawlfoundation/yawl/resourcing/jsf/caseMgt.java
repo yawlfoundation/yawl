@@ -452,7 +452,7 @@ public class caseMgt extends AbstractPageBean {
         // get selected case
         String choice = _sb.getRunningCaseListChoice() ;
         if ((choice != null) && (choice.length() > 0)) {
-            choice = choice.substring(0, choice.indexOf(':')) ;    // drop casenbr prefix
+            choice = choice.substring(0, choice.indexOf(':')) ;    // get casenbr prefix
             String result = cancelCase(choice) ;
             if (! Interface_Client.successful(result))
                 msgPanel.error("Could not cancel case.\n\n" +  msgPanel.format(result)) ;
