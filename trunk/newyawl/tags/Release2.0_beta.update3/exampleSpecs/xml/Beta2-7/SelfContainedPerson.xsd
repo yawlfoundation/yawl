@@ -1,0 +1,90 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="person" type="PersonType"/>
+	<xs:complexType name="PersonType">
+		<xs:sequence>
+			<xs:element name="age" type="xs:nonNegativeInteger"/>
+			<xs:element ref="address"/>
+			<xs:element name="name2" type="xs:string"/>
+			<xs:element name="favouriteFruit" type="FruitType"/>
+		</xs:sequence>
+		<xs:attribute ref="maritalStatus"/>
+		<xs:attribute name="isParent" type="xs:boolean"/>
+	</xs:complexType>
+	<xs:element name="address">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="number"/>
+				<xs:element name="streetName" type="xs:string"/>
+				<xs:element ref="locality" minOccurs="0"/>
+				<xs:element name="state" type="StateType"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:attribute name="maritalStatus" type="MaritalStatusType"/>
+	<xs:element name="number" type="xs:nonNegativeInteger"/>
+	<!--xs:element name="complexNum" substitutionGroup="number">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="unitTnhse" type="xs:nonNegativeInteger"/>
+				<xs:element ref="streetNumber"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="businessNumber" substitutionGroup="number">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="floor" type="xs:nonNegativeInteger"/>
+				<xs:element name="suiteOrRoom" type="xs:nonNegativeInteger"/>
+				<xs:element ref="streetNumber"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element-->
+	<xs:element name="streetNumber" type="xs:nonNegativeInteger"/>
+	<!--xs:element name="gpoBoxAddress" substitutionGroup="address">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="number" type="xs:nonNegativeInteger"/>
+				<xs:element ref="locality"/>
+				<xs:element ref="postCode"/>
+				<xs:element ref="state" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element-->
+	<xs:element name="postCode">
+		<xs:simpleType>
+			<xs:restriction base="xs:nonNegativeInteger">
+				<xs:minInclusive value="1000"/>
+				<xs:maxInclusive value="9999"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:simpleType name="StateType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Qld"/>
+			<xs:enumeration value="NSW"/>
+			<xs:enumeration value="Vic"/>
+			<xs:enumeration value="WA"/>
+			<xs:enumeration value="ACT"/>
+			<xs:enumeration value="NT"/>
+			<xs:enumeration value="SA"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="FruitType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Apples"/>
+			<xs:enumeration value="Bananas"/>
+			<xs:enumeration value="Grapes"/>
+			<xs:enumeration value="Peaches"/>
+			<xs:enumeration value="Tomatoes"/>
+			<xs:enumeration value="Lychees"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="MaritalStatusType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Married"/>
+			<xs:enumeration value="Single"/>
+			<xs:enumeration value="Defacto"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:element name="locality" type="xs:string"/>
+</xs:schema>
