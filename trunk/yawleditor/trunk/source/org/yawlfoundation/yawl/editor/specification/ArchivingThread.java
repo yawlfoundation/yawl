@@ -38,9 +38,8 @@ public class ArchivingThread extends Thread {
   private static final int OPEN_FILE = 4;
   
   private static final int CLOSE = 5;
-  private static final int ENGINE_FILE_EXPORT = 6;
+  private static final int ENGINE_FILE_IMPORT_FILE = 6;
   private static final int ENGINE_FILE_IMPORT = 7;
-
   private static final int VALIDATE = 8;
   private static final int ANALYSE = 9;
   
@@ -74,8 +73,11 @@ public class ArchivingThread extends Thread {
   }
 
   public synchronized void open(String fileName) {
-    request = OPEN_FILE;
     openFileName = fileName;
+    if (fileName.endsWith(".yawl") || fileName.endsWith(".xml"))
+        request = OPEN_FILE;
+     else
+        request = ENGINE_FILE_IMPORT_FILE;
   }
 
   public synchronized void close() {
@@ -129,7 +131,6 @@ public class ArchivingThread extends Thread {
         break;
       }
       case SAVE: {
- //       YAWLEngineProxy.getInstance().engineFormatFileExport(specification);
         SpecificationArchiveHandler.getInstance().processSaveRequest();
         break;
       }
@@ -138,20 +139,19 @@ public class ArchivingThread extends Thread {
         break;
       }
       case OPEN: {      
-  //      SpecificationArchiveHandler.getInstance().processOpenRequest();
         YAWLEngineProxy.getInstance().engineFormatFileImport();
         break;
       }
       case OPEN_FILE: {
-        SpecificationArchiveHandler.getInstance().processOpenRequest(openFileName);
+        YAWLEngineProxy.getInstance().engineFormatFileImport(openFileName);
         break;
       }
       case EXIT: {
         SpecificationArchiveHandler.getInstance().processExitRequest();
         break;
       }
-      case ENGINE_FILE_EXPORT: {
-//        YAWLEngineProxy.getInstance().engineFormatFileExport(specification);
+      case ENGINE_FILE_IMPORT_FILE: {
+        SpecificationArchiveHandler.getInstance().processOpenRequest(openFileName);
         break;
       }
       case ENGINE_FILE_IMPORT: {

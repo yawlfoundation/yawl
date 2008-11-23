@@ -89,7 +89,11 @@ public class EngineSpecificationHandler {
   public void engineFormatFileImport() {
     importEngineSpecificationFile(promptForLoadFileName());
   }
-  
+
+  public void engineFormatFileImport(String fileName) {
+      importEngineSpecificationFile(fileName);
+  }
+
   private void importEngineSpecificationFile(String fullFileName) {
     if (fullFileName == null) return;  
     YAWLEditor.setStatusBarText("Opening Specification...");
