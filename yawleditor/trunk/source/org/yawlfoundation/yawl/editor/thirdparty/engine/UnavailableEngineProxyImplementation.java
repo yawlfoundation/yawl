@@ -23,15 +23,15 @@
 
 package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
-import java.util.Set;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.data.AbstractXMLStyledDocument;
 import org.yawlfoundation.yawl.editor.swing.data.ValidityEditorPane;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 public class UnavailableEngineProxyImplementation implements
     YAWLEngineProxyInterface {
@@ -39,6 +39,8 @@ public class UnavailableEngineProxyImplementation implements
   public void engineFormatFileExport(SpecificationModel spec) {}
 
   public void engineFormatFileImport() {}
+
+  public void engineFormatFileImport(String fileName) {}
 
   public void validate(SpecificationModel editorSpec) {}
 

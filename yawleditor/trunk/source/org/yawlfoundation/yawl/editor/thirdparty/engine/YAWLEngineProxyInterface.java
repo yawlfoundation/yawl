@@ -23,14 +23,14 @@
 
 package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
-import java.util.List;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.LinkedList;
-
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.data.AbstractXMLStyledDocument;
 import org.yawlfoundation.yawl.editor.swing.data.ValidityEditorPane;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 public interface YAWLEngineProxyInterface {
   
@@ -47,7 +47,9 @@ public interface YAWLEngineProxyInterface {
   public void engineFormatFileExport(SpecificationModel specification);
 
   public void engineFormatFileImport();
-  
+
+  public void engineFormatFileImport(String fileName);
+
   public void validate(SpecificationModel specification); 
   
   public void connect();

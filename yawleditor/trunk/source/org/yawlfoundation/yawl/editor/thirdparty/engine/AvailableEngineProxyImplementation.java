@@ -83,6 +83,10 @@ public class AvailableEngineProxyImplementation implements
     EngineSpecificationHandler.getInstance().engineFormatFileImport();
   }
   
+  public void engineFormatFileImport(String fileName) {
+    EngineSpecificationHandler.getInstance().engineFormatFileImport(fileName);
+  }
+
   public void validate(SpecificationModel editorSpec) {
     EngineSpecificationHandler.getInstance().validate(editorSpec);
   }
