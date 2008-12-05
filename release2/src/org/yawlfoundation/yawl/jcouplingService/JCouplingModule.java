@@ -1,13 +1,12 @@
 package org.yawlfoundation.yawl.jcouplingService;
 
+import org.jdom.Element;
+import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.jdom.Element;
-
-import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
 /** Bridge between JCoupling and YAWL Engine */
 
@@ -153,7 +152,7 @@ public class JCouplingModule extends InterfaceBWebsideController implements Runn
     }
 
 
-	@Override
+	//@Override
 	public void run() {
 		_running = true;
 
