@@ -82,7 +82,7 @@
 					<tr>
             <p align="left">
 						<td><strong>Login</strong></td>
-						<td><input type="text" name="Login" class="dynformInput TxtFld" style="top: 40px" value="" size="20" maxlength="20" /></td>
+						<td><input type="text" name="Login" class="dynformInput TxtFld" style="top: 40px" value="" size="40" maxlength="40" /></td>
 						</p>
 					</tr>
 					

@@ -71,26 +71,24 @@ try{
 				else
 				{
 				  /* The file item contains an uploaded file */
-		  		 if(fileItem.getFieldName().equals("fileLocation")) fileLocation = FilenameUtils.getName(fileItem.getName());
-				 System.out.println(fileLocation);
-				 String fileName = fileItem.getName();
-				 File fullFile = new File(fileName);
-				 File savedFile = new File(getServletContext().getRealPath("/files/"), fullFile.getName());
-				 fileItem.write(savedFile);
-						  
+		  		 if(fileItem.getFieldName().equals("fileLocation"))
+		  			 if(fileItem.getName().isEmpty());
+		  			 else
+		  			 {
+		  				fileLocation = FilenameUtils.getName(fileItem.getName());
+				        System.out.println(fileLocation);
+				        String fileName = fileItem.getName();
+		  		        File fullFile = new File(fileName);
+				        File savedFile = new File(getServletContext().getRealPath("/files/"), fullFile.getName());
+				        fileItem.write(savedFile);
+					};
+
 				}
 			  }
 			}
            	         	        	
            	
 		MailSender _MailController = (MailSender) application.getAttribute("controller");
-		System.out.println(SMTP);
-		System.out.println(Login);
-		System.out.println(password);
-		System.out.println(To);
-		System.out.println(Alias);
-		System.out.println(object);
-		System.out.println(content);
 			_MailController.SendEmail(SMTP, Login, password, To, Alias, object, content, fileLocation);
 			
 			String redirectURL = "http://localhost:8080/resourceService/" + 
