@@ -57,6 +57,7 @@
     <property name="yawl.xforms.app.name" value="yawlXForms"/>
     <property name="yawl.worklet.app.name" value="workletService"/>
     <property name="yawl.resource.app.name" value="resourceService"/>
+    <property name="yawl.monitor.app.name" value="monitorService"/>
     <property name="yawl.digitalSignature.app.name" value="digitalSignature"/>
     <property name="yawl.mailSender.app.name" value="mailSender"/>
 
@@ -104,13 +105,14 @@
     <property name="commonsLang"           value="commons-lang-2.3.jar"/>
     <property name="commonsLogging"        value="commons-logging-1.1.jar"/>
     <property name="dom"                   value="dom.jar"/>
-    <property name="dom4j"                 value="dom4j-1.4.jar"/>
+    <property name="dom4j"                 value="dom4j-1.6.1.jar"/>
     <property name="ecore"                 value="ecore.jar"/>
     <property name="ehcache"               value="ehcache-1.3.0.jar"/>
     <property name="hibernate"             value="hibernate3.jar"/>
     <property name="hsql"                  value="hsqldb.jar"/>
     <property name="itext"                 value="itext-1.4.jar"/>
     <property name="jaxenFull"             value="jaxen-full.jar"/>
+    <property name="javaAssist"            value="javassist-3.4.GA.jar"/>
     <property name="jaxp-api"              value="jaxp-api.jar"/>
     <property name="jaxrpc"                value="jaxrpc.jar"/>
     <property name="jcommon"               value="jcommon-1.0.0-rc1.jar"/>
@@ -127,7 +129,7 @@
     <property name="jsf-rowset"            value="rowset.jar"/>
     <property name="jsf-standard"          value="standard.jar"/>
     <property name="jsf-webui"             value="webui.jar"/>
-    <property name="jta"                   value="jta.jar"/>
+    <property name="jta"                   value="jta-1.1.jar"/>
     <property name="junit"                 value="junit.jar"/>
     <property name="log4j"                 value="log4j-1.2.14.jar"/>
     <property name="odmg"                  value="odmg-3.0.jar"/>
@@ -145,6 +147,8 @@
     <property name="saxonjdom"             value="saxon9-jdom.jar"/>
     <property name="saxpath"               value="saxpath.jar"/>
     <property name="servlet"               value="servlet-api.jar"/>
+    <property name="slf4j"                 value="slf4j-api-1.5.6.jar"/>
+    <property name="slf4j-log4j"           value="slf4j-log4j12-1.5.6.jar"/>
     <property name="soaprmi"               value="soaprmi-1_1.jar"/>
     <property name="wsdl4j"                value="wsdl4j-20030807.jar"/>
     <property name="wsif"                  value="wsif.jar"/>
@@ -158,12 +162,12 @@
 
     <!-- jar groups -->
     <property name="persistence.libs"
-              value="${asm} ${antlr} ${cglib} ${commonsCollections}
-                     ${commonsLogging} ${dom4j} ${ehcache} ${hibernate}
-                     hibernate.cfg.xml ${jta} ${odmg}"/>
-
+              value="${antlr} ${commonsCollections} ${commonsLogging} ${dom4j}
+                     ${ehcache} ${hibernate} hibernate.cfg.xml ${jta} ${odmg}
+                     ${slf4j} ${javaAssist} ${slf4j-log4j}"/>
+<!-- ${asm}  ${cglib} -->
 	  <property name="xsd.libs"
-              value="${common} ${ecore} ${xsd} ${xsd.resources}"/>
+                value="${common} ${ecore} ${xsd} ${xsd.resources}"/>
 
     <property name="jsf.libs"
               value="${jsf-appbase} ${jsf-api} ${jsf-impl} ${jsf-cl} ${jsf-webui}
@@ -965,7 +969,7 @@
       	<copy todir="${yawl.worklet.app.name}/WEB-INF/lib">
     	    <fileset dir="${lib.dir}"
                    includes="${persistence.libs} ${xsd.libs} ${jdom} ${log4j}
-                             ${postgres8}"/>
+                             ${postgres8} ${saxon.libs}"/>
         </copy>
 
         <!-- 4. Copy hibernate & postgres files (assumes version 8) -->
@@ -1048,11 +1052,11 @@
 
         <!-- 2b. Copy required resourcing support files into dir root -->
         <copy todir="${yawl.resource.app.name}"
-              file="${build.dir}/resourceService/welcome/welcome.htm"/>
+              file="${build.dir}/${yawl.resource.app.name}/welcome/welcome.htm"/>
 
         <!-- 2c. Copy in graphics for welcome page -->
         <copy todir="${yawl.resource.app.name}/graphics">
-            <fileset dir="${build.dir}/resourceService/welcome/graphics"/>
+            <fileset dir="${build.dir}/${yawl.resource.app.name}/welcome/graphics"/>
         </copy>
         <copy todir="${yawl.resource.app.name}/graphics" file="${graphics.dir}/common.css"/>
         <copy todir="${yawl.resource.app.name}/graphics" file="${graphics.dir}/subtext.jpg"/>
@@ -1060,7 +1064,7 @@
 
         <!-- 2c(i). Copy in resources for jsps -->
         <copy todir="${yawl.resource.app.name}/resources">
-            <fileset dir="${build.dir}/resourceService/resources"/>
+            <fileset dir="${build.dir}/${yawl.resource.app.name}/resources"/>
         </copy>
 
         <!-- 2d. Copy in jsps -->
@@ -1082,7 +1086,7 @@
         </copy>
 
         <copy todir="${yawl.resource.app.name}/WEB-INF">
-           <fileset dir="${build.dir}/resourceService/jsf_xml" includes="*.xml"/>
+           <fileset dir="${build.dir}/${yawl.resource.app.name}/jsf_xml" includes="*.xml"/>
         </copy>  
 
         <!-- 4. Copy hibernate & postgres files (assumes version 8) -->
@@ -1090,7 +1094,7 @@
             tofile="${yawl.resource.app.name}/WEB-INF/classes/hibernate.properties"/>
 
         <!-- 4.5. Increment the build number -->
-        <propertyfile file="${build.dir}/resourceService/version.properties">
+        <propertyfile file="${build.dir}/${yawl.resource.app.name}/version.properties">
             <entry key="Version" value="${app.version}"/>
             <entry key="BuiltBy" value="${user.name}"/>
             <entry key="BuildDate" type="date" value="now"/>
@@ -1100,15 +1104,15 @@
             <entry key="OSVersion" value="${os.version}"/>
         </propertyfile>
 
-        <copy file="${build.dir}/resourceService/version.properties"
+        <copy file="${build.dir}/${yawl.resource.app.name}/version.properties"
             tofile="${yawl.resource.app.name}/WEB-INF/classes/version.properties"/>
 
         <!-- 5. Copy web.xml file into dir structure -->
         <copy todir="${yawl.resource.app.name}/WEB-INF"
-              file="${build.dir}/resourceService/web.xml"/>
+              file="${build.dir}/${yawl.resource.app.name}/web.xml"/>
 
         <!-- 6. create Web Archive file -->
-        <jar destfile="${output.dir}/resourceService.war">
+        <jar destfile="${output.dir}/${yawl.resource.app.name}.war">
             <fileset dir="${yawl.resource.app.name}"/>
         </jar>
 
@@ -1118,6 +1122,115 @@
     </target>
 
 
+    <!-- Build the resourceService war file  -->
+    <target name="build_monitorService.war" depends="compile">
+
+        <!-- 1. Copy required yawl classes into dir structure -->
+        <copy todir="${yawl.monitor.app.name}${webinf.dir}/engine/interfce/interfaceB">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceB"/>
+        </copy>
+        <copy todir="${yawl.monitor.app.name}${webinf.dir}/engine/instance">
+            <fileset dir="${classes.dir}${packageRoot}/engine/instance"
+                     excludes="InstanceCache.class"/>
+        </copy>
+        <copy todir="${yawl.monitor.app.name}${webinf.dir}/engine">
+              <fileset dir="${classes.dir}${packageRoot}/engine"
+                       includes="YWorkItem.class YSpecificationID.class"/>
+        </copy>
+        <copy todir="${yawl.monitor.app.name}${webinf.dir}/elements">
+            <fileset dir="${classes.dir}${packageRoot}/elements"
+                     includes="YSpecVersion.class"/>
+        </copy>
+        <copy todir="${yawl.monitor.app.name}${webinf.dir}/elements/data">
+            <fileset dir="${classes.dir}${packageRoot}/elements/data"
+                     includes="YParameter.class YVariable.class"/>
+        </copy>
+        <copy todir="${yawl.monitor.app.name}${webinf.dir}/exceptions">
+           <fileset dir="${classes.dir}${packageRoot}/exceptions"
+                    includes="YSchemaBuildingException.class YDataStateException.class
+                              YSyntaxException.class YAWLException.class
+                              YStateException.class YQueryException.class" />
+        </copy>
+        <copy todir="${yawl.monitor.app.name}${webinf.dir}/elements/state">
+            <fileset dir="${classes.dir}${packageRoot}/elements/state"
+                     includes="YIdentifier.class"/>
+        </copy>
+        <copy todir="${yawl.monitor.app.name}${webinf.dir}/util">
+              <fileset dir="${classes.dir}${packageRoot}/util"
+                       includes="JDOMUtil.class StringUtil.class"/>
+        </copy>
+        <copy todir="${yawl.monitor.app.name}${webinf.dir}/engine/interfce">
+              <fileset dir="${classes.dir}${packageRoot}/engine/interfce"
+                       includes="ErrorServlet.class WorkItemRecord.class
+                                 WorklistModel.class AuthenticationConfig.class
+                                 Interface_Client.class ServletUtils.class"/>
+        </copy>
+       
+        <copy todir="${yawl.monitor.app.name}${webinf.dir}/resourcing/jsf">
+              <fileset dir="${classes.dir}${packageRoot}/resourcing/jsf"
+                       includes="SessionListener.class SessionTimeoutFilter.class
+                                 CachePhaseListener.class MessagePanel*.class"/>
+        </copy>
+
+        <!-- 2. copy resourcing classes to relevant dirs -->
+        <copy todir="${yawl.monitor.app.name}${webinf.dir}/monitor">
+            <fileset dir="${classes.dir}${packageRoot}/monitor"
+                     includes="**/*.class"/>
+        </copy>
+
+        <!-- 2c(i). Copy in resources for jsps -->
+        <copy todir="${yawl.monitor.app.name}/resources">
+            <fileset dir="${build.dir}/${yawl.monitor.app.name}/resources"/>
+        </copy>
+
+        <!-- 2d. Copy in jsps -->
+        <copy todir="${yawl.monitor.app.name}">
+            <fileset dir="${classes.dir}${packageRoot}/monitor/jsf/jsp"
+                     includes="*.jsp *.jspf *.html"/>
+        </copy>
+
+        <!-- 2e. Copy log4j properties -->
+        <copy file="${properties.dir}/log4j.properties"
+              todir="${yawl.monitor.app.name}/WEB-INF/classes"/>
+
+        <!-- 3. Copy required 3rd party libraries into dir structure -->
+        <copy todir="${yawl.monitor.app.name}/WEB-INF/lib">
+           <fileset dir="${lib.dir}"
+                    includes="${jdom} ${log4j} ${jsf.libs} ${commonsLang}
+                              ${commonsLogging} ${commonsCollections}"/>
+        </copy>
+
+        <copy todir="${yawl.monitor.app.name}/WEB-INF">
+           <fileset dir="${build.dir}/${yawl.monitor.app.name}/jsf_xml" includes="*.xml"/>
+        </copy>
+
+        <!-- 4.5. Increment the build number -->
+        <propertyfile file="${build.dir}/${yawl.monitor.app.name}/version.properties">
+            <entry key="Version" value="${app.version}"/>
+            <entry key="BuiltBy" value="${user.name}"/>
+            <entry key="BuildDate" type="date" value="now"/>
+            <entry key="BuildNumber" default="0" type="int" operation="+" value="1"/>
+            <entry key="JavaVersion" value="${java.version}"/>
+            <entry key="OS" value="${os.name}"/>
+            <entry key="OSVersion" value="${os.version}"/>
+        </propertyfile>
+
+        <copy file="${build.dir}/${yawl.monitor.app.name}/version.properties"
+            tofile="${yawl.monitor.app.name}/WEB-INF/classes/version.properties"/>
+
+        <!-- 5. Copy web.xml file into dir structure -->
+        <copy todir="${yawl.monitor.app.name}/WEB-INF"
+              file="${build.dir}/${yawl.monitor.app.name}/web.xml"/>
+
+        <!-- 6. create Web Archive file -->
+        <jar destfile="${output.dir}/${yawl.monitor.app.name}.war">
+            <fileset dir="${yawl.monitor.app.name}"/>
+        </jar>
+
+        <!-- 7. Remove temp build area -->
+        <delete dir="${yawl.monitor.app.name}"/>
+
+    </target>
 
     <!-- Build the test service -->
     <target name="build_testService.war" depends="compile">
@@ -1202,7 +1315,7 @@
     </target>
 
      <!-- Build the YAWL Digital Signature Service WebApplication -->
-        <target name="build_DigitalSignature.war" depends="compile">
+        <target name="build_digitalSignature.war" depends="compile">
             <copy todir="${yawl.digitalSignature.app.name}${webinf.dir}/elements">
                 <fileset dir="${classes.dir}${packageRoot}/elements" includes="**/*.class **/*.xsd"/>
             </copy>
@@ -1235,7 +1348,7 @@
                   <fileset dir="${classes.dir}${packageRoot}/util"/>
             </copy>
             <copy todir="${yawl.digitalSignature.app.name}">
-                <fileset dir="${classes.dir}${packageRoot}/DigitalSignature">
+                <fileset dir="${classes.dir}${packageRoot}/digitalSignature">
                     <exclude name="*.class"/>
                 </fileset>
             </copy>
@@ -1246,8 +1359,8 @@
             </copy>
 
             <mkdir dir="DigitalSignature/files"/>
-            <copy todir="${yawl.digitalSignature.app.name}${webinf.dir}/DigitalSignature">
-                <fileset dir="${classes.dir}${packageRoot}/DigitalSignature">
+            <copy todir="${yawl.digitalSignature.app.name}${webinf.dir}/digitalSignature">
+                <fileset dir="${classes.dir}${packageRoot}/digitalSignature">
                     <include name="*.class"/>
                 </fileset>
             </copy>
@@ -1262,7 +1375,7 @@
         </target>
 
     <!-- Build the YAWL Mail Sender Service WebApplication -->
-            <target name="build_MailSender.war" depends="compile">
+            <target name="build_mailSender.war" depends="compile">
                 <copy todir="${yawl.mailSender.app.name}${webinf.dir}/elements">
                     <fileset dir="${classes.dir}${packageRoot}/elements" includes="**/*.class **/*.xsd"/>
                 </copy>
@@ -1296,7 +1409,7 @@
                       <fileset dir="${classes.dir}${packageRoot}/util"/>
                 </copy>
                 <copy todir="${yawl.mailSender.app.name}">
-                    <fileset dir="${classes.dir}${packageRoot}/MailSender">
+                    <fileset dir="${classes.dir}${packageRoot}/mailSender">
                         <exclude name="*.class"/>
                     </fileset>
                 </copy>
@@ -1306,8 +1419,8 @@
                 </copy>
 
                 <mkdir dir="MailSender/files"/>
-                <copy todir="${yawl.mailSender.app.name}${webinf.dir}/MailSender">
-                    <fileset dir="${classes.dir}${packageRoot}/MailSender">
+                <copy todir="${yawl.mailSender.app.name}${webinf.dir}/mailSender">
+                    <fileset dir="${classes.dir}${packageRoot}/mailSender">
                         <include name="*.class"/>
                     </fileset>
                 </copy>
@@ -1334,7 +1447,8 @@
         build_yawlWSInvoker.war,
         build_TimeService.war,
         build_workletService.war,
-        build_resourceService.war"
+        build_resourceService.war,
+        build_monitorService.war"
         description=
         "Builds a distribution version of all
         the YAWL runtime Web apps and copies to the output directory.">
@@ -1391,6 +1505,13 @@
         <antcall target="cleanup"/>
     </target>
 
+    <target name="deployMonitorService" depends="build_monitorService.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${yawl.monitor.app.name}.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
+
     <target name="deployTestService" depends="build_testService.war">
         <copy todir="${webapps.dir}">
             <fileset file="${output.dir}/testService.war"/>
@@ -1398,14 +1519,14 @@
         <antcall target="cleanup"/>
     </target>
 
-    <target name="deployDigitalSignature" depends="build_DigitalSignature.war">
+    <target name="deployDigitalSignature" depends="build_digitalSignature.war">
         <copy todir="${webapps.dir}">
             <fileset file="${output.dir}/${yawl.digitalSignature.app.name}.war"/>
         </copy>
         <antcall target="cleanup"/>
     </target>
 
-    <target name="deployMailSender" depends="build_MailSender.war">
+    <target name="deployMailSender" depends="build_mailSender.war">
         <copy todir="${webapps.dir}">
             <fileset file="${output.dir}/${yawl.mailSender.app.name}.war"/>
         </copy>
@@ -1420,7 +1541,8 @@
         deploySMS,
         deployTimeService,
         deployWorkletService,
-        deployResourceService"
+        deployResourceService,
+        deployMonitorService"
         description=
         "Deploys all of the web apps to Tomcat, and if tomcat is on it forces a reload.">
     </target>
@@ -1430,6 +1552,7 @@
         <delete dir="${yawl.worklist.app.name}"/>
         <delete dir="${yawl.worklet.app.name}"/>
         <delete dir="${yawl.resource.app.name}"/>
+        <delete dir="${yawl.monitor.app.name}"/>
     </target>
 
     <!--
@@ -1446,6 +1569,7 @@
         build_TimeService.war,
         build_workletService.war,
         build_resourceService.war,
+        build_monitorService.war,
         javadoc">
     </target>
 
