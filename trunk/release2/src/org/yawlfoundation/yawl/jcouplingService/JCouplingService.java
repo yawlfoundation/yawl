@@ -12,12 +12,10 @@ import java.util.List;
 
 public class JCouplingService extends InterfaceBWebsideController implements Runnable{
 
-	
-	
 /**	
  * not yet finished interactions, these interactions are still running inside the YAWL Engine
 */
-	private static List _outStandingControllers = new ArrayList(); 
+	private static List<Controller> _outStandingControllers = new ArrayList(); 
 
 /**	
  * 	reports, if the interaction is still running (interaction hasn’t finished yet), or if it has already 
@@ -41,10 +39,16 @@ public class JCouplingService extends InterfaceBWebsideController implements Run
  *	input parameter for YAWL Editor - reply message text
  */
 	private static final String REPLY_MESSAGE = "reply_message";
-
 	
 /**	
- * <br>1) Check the connection, i fit is OK(_sessionHandle)
+ *	JMS receiver enables receiving messages from JMS server 
+ */
+	private JMSReceiver receiver;
+		
+		
+	
+/**	
+ * <br>1) Check the connection, if it is OK(_sessionHandle)
  * <br>2) Parse XML from YAWL Engine, trying to find OUTGOING_MESSAGE Element, save this element as String and send it through JMS Channel to JCoupling
  * <br>3) Create new Interaction, that will be waiting for the answer from JCoupling
  * <br>4) Run new thread with this Interaction
@@ -76,7 +80,9 @@ public class JCouplingService extends InterfaceBWebsideController implements Run
                         System.out.println("message: " + message);	
                         
                         if (message!=null){
-                        	new Controller(message, itemRecord);
+                        	Controller controller = new Controller(itemRecord);
+                        	controller.sendMessage(message, State.filter_registration);
+                        	receiver = new JMSReceiver();
                         }                    
                     }
                  
@@ -129,7 +135,6 @@ public class JCouplingService extends InterfaceBWebsideController implements Run
     }
 
 
-	//@Override
 	public void run() {
 		_running = true;
 
@@ -140,16 +145,19 @@ public class JCouplingService extends InterfaceBWebsideController implements Run
 		for(int i=0; i< _outStandingControllers.size(); i++){
 			Controller controller = (Controller) _outStandingControllers.get(i);
 		  try {
-			  if(this.isFinished(controller)==true){
+			  
+			  controller.checkState();
+			  
+			  if(controller.getState().equals(State.finished)){
 				  Element replyMsg = new Element(REPLY_MESSAGE);
-				  replyMsg.setText(controller.getResponse().getMessageText());
+				  replyMsg.setText(controller.getResponse());
 						
 				  Element dataForEngine = controller.getDataForEngine();
 				  dataForEngine.addContent(replyMsg);
 				  
 					
 				System.out.println("Content of Reply for Message <" + controller.getMapping().getWorkItemID() + "> " +
-						"is:<" + controller.getResponse().getMessageText() + ">");
+						"is:<" + controller.getResponse() + ">");
 			  
 				  checkInWorkItem(controller.getWorkItemRecord().getID(),
 						  			controller.getWorkItemRecord().getWorkItemData(),
@@ -178,16 +186,10 @@ public class JCouplingService extends InterfaceBWebsideController implements Run
 	 }
 	}
 	
-             
-		
-    private boolean isFinished(Controller controller){
-    	if (controller.getState()==State.finished){
-    		return true;
-    	}else{
-    		return false;}
-    }
-		  
-
+    
+	public static List<Controller> get_outStandingControllers() {
+		return _outStandingControllers;
+	}
 
 }
 
