@@ -21,7 +21,6 @@ public class JMSReceiver extends JMSConnector implements MessageListener{
         
         this.getConnection().start();	
         
-        System.out.println("started");
 	}
 
 	
@@ -34,9 +33,7 @@ public class JMSReceiver extends JMSConnector implements MessageListener{
      */
 	public void onMessage(Message message){
 		TextMessage textMessage = (TextMessage) message;
-		
-		System.out.println("message received");
-		
+				
 		//1. filter was succesfully registred
 		try {
 			if (textMessage.getJMSCorrelationID()!=null){
@@ -55,6 +52,7 @@ public class JMSReceiver extends JMSConnector implements MessageListener{
 			else if (message.getJMSCorrelationID()==null){
 				String msgRequestKey = textMessage.getText();
 				String response = textMessage.getText();
+				System.out.println(response);
 				
 				for (Controller controller: JCouplingService.get_outStandingControllers()){
 					if (controller.getState().equals(State.requestKey_received)){
