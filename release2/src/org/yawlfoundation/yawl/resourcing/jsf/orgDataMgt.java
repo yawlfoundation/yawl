@@ -12,6 +12,7 @@ import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
 import com.sun.rave.web.ui.model.UploadedFile;
+import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataBackupEngine;
@@ -284,6 +285,7 @@ public class orgDataMgt extends AbstractPageBean {
     private ResourceManager _rm = getApplicationBean().getResourceManager();
     private MessagePanel msgPanel = _sb.getMessagePanel() ;
     private pfOrgData innerForm = (pfOrgData) getBean("pfOrgData");
+    private Logger _log = Logger.getLogger(this.getClass());
 
 
     // Callback method that is called just before rendering takes place.
@@ -291,10 +293,10 @@ public class orgDataMgt extends AbstractPageBean {
         getSessionBean().checkLogon();
         msgPanel.show();
 
-        if (_sb.getSourceTab() != null) {
-            tabSet.setSelected(_sb.getSourceTab());
-            _sb.setSourceTab(null);
-        }
+//        if (_sb.getSourceTab() != null) {
+//            tabSet.setSelected(_sb.getSourceTab());
+//            _sb.setSourceTab(null);
+//        }
 
         String selTabName = tabSet.getSelected() ;
         Tab selTab = null;
@@ -306,7 +308,7 @@ public class orgDataMgt extends AbstractPageBean {
             selTab = tabRoles;
             _sb.getOrgDataOptions();
             setMode(SessionBean.Mode.edit);
-            _sb.setOrgDataChoice(null);
+            nullifyChoices();
             tabRoles_action() ;           // default
             setVisibleComponents("tabRoles");
         }
@@ -315,7 +317,7 @@ public class orgDataMgt extends AbstractPageBean {
                 ((pfOrgData) getBean("pfOrgData")).setCombosToNil();
             
             if (! _sb.getActiveTab().equals(selTabName)) {
-                _sb.setOrgDataChoice(null);
+                nullifyChoices();
                 setMode(SessionBean.Mode.edit);
                 setVisibleComponents(selTabName);
             }
@@ -399,8 +401,10 @@ public class orgDataMgt extends AbstractPageBean {
                 String result = importer.importOrgData(uploadedFile.getAsString());
                 if (result.startsWith("Invalid"))
                     msgPanel.error(result);
-                else
+                else {
+                    _sb.refreshOrgDataParticipantList();
                     msgPanel.success(result);
+                }
             }
             else msgPanel.error(
                 "Only exported YAWL Org Data files with an extension of '.ybkp' may be uploaded.");
@@ -448,14 +452,21 @@ public class orgDataMgt extends AbstractPageBean {
         String id = _sb.getOrgDataChoice();
         if (id != null) {
             AttribType type = getAttribType(_sb.getActiveTab());
-            switch (type) {
-                case role       : rm.removeRole(rm.getRole(id)); break ;
-                case capability : rm.removeCapability(rm.getCapability(id)); break ;
-                case position   : rm.removePosition(rm.getPosition(id)); break;
-                case orggroup   : rm.removeOrgGroup(rm.getOrgGroup(id));
+            try {
+                switch (type) {
+                    case role       : rm.removeRole(rm.getRole(id)); break ;
+                    case capability : rm.removeCapability(rm.getCapability(id)); break ;
+                    case position   : rm.removePosition(rm.getPosition(id)); break;
+                    case orggroup   : rm.removeOrgGroup(rm.getOrgGroup(id));
+                }
+                innerForm.clearFieldsAfterRemove();
+                nullifyChoices();
+                msgPanel.success("Chosen item successfully removed.");
             }
-            innerForm.clearFieldsAfterRemove();
-            msgPanel.success("Chosen item successfully removed.");
+            catch (Exception e) {
+                msgPanel.error("Could not remove chosen item. See log file for details.");
+                _log.error("Handled Exception: Unable to remove reosurce attribute", e);
+            }
             _sb.setOrgDataItemRemovedFlag(true) ;
             _sb.setOrgDataChoice(null);
         }
@@ -521,6 +532,13 @@ public class orgDataMgt extends AbstractPageBean {
 
     private void setVisibleComponents(String tabName) {
         innerForm.setVisibleComponents(tabName);
+    }
+
+
+    private void nullifyChoices() {
+        _sb.setOrgDataChoice(null);
+        _sb.setOrgDataBelongsChoice(null);
+        _sb.setOrgDataGroupChoice(null);
     }
 
 

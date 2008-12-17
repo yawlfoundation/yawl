@@ -9,12 +9,11 @@
 
 package org.yawlfoundation.yawl.smsModule;
 
-import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
-import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.jdom.Element;
 import org.apache.log4j.Logger;
+import org.jdom.Element;
+import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -44,6 +43,9 @@ public class SMSSender extends InterfaceBWebsideController implements Runnable {
     private String _smsPassword;
 
     private static String _sessionHandle = null;
+
+    public static String _sendURI ;
+    public static String _receiveURI;
 
     //param names
     private static final String SMS_MESSAGE_PARAMNAME = "SMSMessage";
@@ -147,16 +149,13 @@ public class SMSSender extends InterfaceBWebsideController implements Runnable {
         System.out.println("performSMSSend::username = " + _smsUsername);
         System.out.println("performSMSSend::password = " + _smsPassword);
 
-        Map params = new HashMap();
+        Map<String, String> params = new HashMap<String, String>();
         params.put("u", _smsUsername);
         params.put("p", _smsPassword);
         params.put("d", toPhone);
         params.put("m", message);
         params.put("rr", Integer.toString(1));
-        String resultFromSMSService =
-                Interface_Client.executePost(
-                        "https://www.valuesms.com/msg.php",
-                        params);
+        String resultFromSMSService = _interfaceBClient.postToExternalURL(_sendURI, params);
         System.out.println("performSMSSend::resultFromSMSService = " + resultFromSMSService);
         String [] result = resultFromSMSService.split(" ");
         if("ACK".equals(result[0])) {
@@ -289,15 +288,13 @@ public class SMSSender extends InterfaceBWebsideController implements Runnable {
     }
 
     private List getReplies(String smsJobID) throws IOException {
-        Map params = new HashMap();
+        Map<String, String> params = new HashMap<String, String>();
         params.put("u", _smsUsername);
         params.put("p", _smsPassword);
         params.put("j", smsJobID);
 
         String resultFromSMSService =
-                Interface_Client.executePost(
-                        "https://www.valuesms.com/rcv.php",
-                        params);
+                _interfaceBClient.postToExternalURL(_receiveURI, params);
         _logger.info("Returned Message FromSMSService = " + resultFromSMSService);
 
         return parseReplies(resultFromSMSService);

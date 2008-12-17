@@ -578,7 +578,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @see this.getTaskInformationStr
      * @return the TaskInformation object
      */
-    public static TaskInformation parseTaskInformation(String taskInfoStr) {
+    public TaskInformation parseTaskInformation(String taskInfoStr) {
         taskInfoStr = stripOuterElement(taskInfoStr);
         return successful(taskInfoStr) ?
                Marshaller.unmarshalTaskInformation(taskInfoStr) : null ;
@@ -594,7 +594,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     public boolean isAdministrator(String sessionHandle) throws IOException {
         String result = executeGet(_backEndURIStr, prepareParamMap("checkIsAdmin",
                                                                    sessionHandle));
-        return (result.indexOf("administrator") != -1);
+        return (result.indexOf("Granted") != -1);
     }
 
     /**
@@ -655,7 +655,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      */
     public String getCaseInstanceSummary(String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("getCaseInstanceSummary", sessionHandle);
-        return executeGet(_backEndURIStr, params);
+        return stripOuterElement(executeGet(_backEndURIStr, params));
     }
 
 
@@ -669,7 +669,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     public String getWorkItemInstanceSummary(String caseID, String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("getWorkItemInstanceSummary", sessionHandle);
         params.put("caseID", caseID);
-        return executeGet(_backEndURIStr, params);
+        return stripOuterElement(executeGet(_backEndURIStr, params));
     }
 
 
@@ -686,7 +686,12 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
         Map<String, String> params = prepareParamMap("getParameterInstanceSummary", sessionHandle);
         params.put("caseID", caseID);
         params.put("itemID", itemID);
-        return executeGet(_backEndURIStr, params);
+        return stripOuterElement(executeGet(_backEndURIStr, params));
+    }
+
+
+    public String postToExternalURL(String url, Map<String, String> params) throws IOException {
+        return executePost(url, params);
     }
 
 

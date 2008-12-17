@@ -39,7 +39,7 @@ public class YLogGateway extends HttpServlet {
         }
     }
 
-    public void doGet(HttpServletRequest req, HttpServletResponse res)
+    public void doPost(HttpServletRequest req, HttpServletResponse res)
                                throws IOException {
 
        String result = "";
@@ -47,14 +47,7 @@ public class YLogGateway extends HttpServlet {
        String handle = req.getParameter("handle");
 
        if (action == null) {
-              result = "<html><head>" +
-           "<title>YAWL Process Log Gateway</title>" +
-           "</head><body>" +
-           "<H3>Welcome to the YAWL Process Log Gateway</H3>" +
-           "<p> The Log Gateway acts as a bridge between YAWL's " +
-               "process logs and the external world (it isn't meant to be browsed " +
-               " to directly).</p>" +
-           "</body></html>";
+           throw new IOException("YLogGateway called with null action.");
        }
        else if (action.equalsIgnoreCase("connect")) {
            String userid = req.getParameter("userid");
@@ -129,8 +122,10 @@ public class YLogGateway extends HttpServlet {
 
 
 
-    public void doPost(HttpServletRequest req, HttpServletResponse res)
-                                throws IOException, ServletException { }
+    public void doGet(HttpServletRequest req, HttpServletResponse res)
+                                throws IOException, ServletException {
+        doPost(req, res);
+    }
 
 
     private boolean validConnection(String handle) {

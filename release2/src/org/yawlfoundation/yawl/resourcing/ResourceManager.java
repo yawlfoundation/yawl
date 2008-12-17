@@ -35,6 +35,7 @@ import org.yawlfoundation.yawl.resourcing.datastore.HibernateEngine;
 import org.yawlfoundation.yawl.resourcing.datastore.PersistedAutoTask;
 import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.LogMiner;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataSource;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataSourceFactory;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.EmptyDataSource;
@@ -763,7 +764,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     // REMOVE ORG DATA OBJECTS //
 
-    public void removeParticipant(Participant p) {
+    public synchronized void removeParticipant(Participant p) {
         handleWorkQueuesOnRemoval(p);    
         p.removeAttributeReferences() ;
         removeUserKey(p);
@@ -775,51 +776,59 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
     }
 
-    public void removeRole(Role r) {
+    public synchronized void removeRole(Role r) {
         disconnectResources(r);
         for (Role role : _ds.roleMap.values()) {
             Role owner = role.getOwnerRole() ;
-            if ((owner != null) && owner.getID().equals(r.getID()))
+            if ((owner != null) && owner.getID().equals(r.getID())) {
                 role.setOwnerRole(null);
+                _orgdb.update(role);
+            }
         }
         _ds.roleMap.remove(r.getID());
         _orgdb.delete(r);
     }
 
 
-    public void removeCapability(Capability c) {
+    public synchronized void removeCapability(Capability c) {
         disconnectResources(c);
         _ds.capabilityMap.remove(c.getID());
         _orgdb.delete(c);
     }
 
-    public void removePosition(Position p) {
+    public synchronized void removePosition(Position p) {
         disconnectResources(p);
         for (Position position : _ds.positionMap.values()) {
             Position boss = position.getReportsTo();
-            if ((boss != null) && boss.getID().equals(p.getID()))
+            if ((boss != null) && boss.getID().equals(p.getID())) {
                 position.setReportsTo(null);
+                _orgdb.update(position);
+            }
         }
         _ds.positionMap.remove(p.getID());
         _orgdb.delete(p);
     }
 
-    public void removeOrgGroup(OrgGroup o) {
+    public synchronized void removeOrgGroup(OrgGroup o) {
         for (Position position : _ds.positionMap.values()) {
             OrgGroup group = position.getOrgGroup();
-            if ((group != null) && group.getID().equals(o.getID()))
+            if ((group != null) && group.getID().equals(o.getID())) {
                 position.setOrgGroup(null);
+                _orgdb.update(position);
+            }
         }
         for (OrgGroup group : _ds.orgGroupMap.values()) {
             OrgGroup owner = group.getBelongsTo();
-            if ((owner != null) && owner.getID().equals(o.getID()))
+            if ((owner != null) && owner.getID().equals(o.getID())) {
                 group.setBelongsTo(null);
+                _orgdb.update(group);
+            }
         }
         _ds.orgGroupMap.remove(o.getID());
         _orgdb.delete(o);
     }
 
-    private void disconnectResources(AbstractResourceAttribute attrib) {
+    private synchronized void disconnectResources(AbstractResourceAttribute attrib) {
         Set<AbstractResource> resources = attrib.getResources();
 
         // get ids to avoid ConcurrentModificationException
@@ -1522,7 +1531,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     //  - Started: forceComplete items (since we need another p. to reallocate to)
     //  - Suspended: same as Started.
     //
-    public void handleWorkQueuesOnRemoval(Participant p) {
+    public synchronized void handleWorkQueuesOnRemoval(Participant p) {
         QueueSet qs = p.getWorkQueues() ;
 
         if (qs == null) return ;    // no queues = nothing to do
@@ -2609,6 +2618,23 @@ public class ResourceManager extends InterfaceBWebsideController {
         return _interfaceBClient.launchCase(specID, caseData, getHandleForEngineCall(handle)) ;
     }
 
+
+    public String getTaskParamsAsXML(YSpecificationID specID, String taskID,
+                                              String sessionHandle) throws IOException {
+        String xml = _interfaceBClient.getTaskInformationStr(specID, taskID, sessionHandle);
+        if (xml != null) {
+            Element response = JDOMUtil.stringToElement(xml);
+            if (response != null) {
+                Element taskInfo = response.getChild("taskInfo");
+                if (taskInfo != null) {
+                    Element params = taskInfo.getChild("params");
+                    return JDOMUtil.elementToString(params);
+                }
+            }
+        }
+        return "";
+    }
+
     
     public Map<String, FormParameter> getWorkItemParamsInfo(WorkItemRecord wir)
                                                    throws IOException, JDOMException {
@@ -3055,4 +3081,11 @@ public class ResourceManager extends InterfaceBWebsideController {
        }
        return result;
    }
+
+
+    public String getWorkItemDurationsForParticipant(YSpecificationID specID,
+                                                     String taskName, String pid) {
+        LogMiner miner = LogMiner.getInstance();
+        return miner.getWorkItemDurationsForParticipant(specID, taskName, pid);
+    }    
 }                                                                                  

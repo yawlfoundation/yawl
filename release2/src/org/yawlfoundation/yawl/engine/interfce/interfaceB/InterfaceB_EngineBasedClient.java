@@ -12,7 +12,6 @@ import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
@@ -27,7 +26,6 @@ import org.yawlfoundation.yawl.unmarshal.YDecompositionParser;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.*;
 
 
@@ -81,7 +79,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param yawlService the YAWL service reference.
      * @param workItem the work item to cancel.
      */
-    static void cancelWorkItem(YAWLServiceReference yawlService, YWorkItem workItem) {
+    public void cancelWorkItem(YAWLServiceReference yawlService, YWorkItem workItem) {
         Handler myHandler = new Handler(yawlService, workItem, "cancelWorkItem");
         myHandler.start();
     }
@@ -215,37 +213,32 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @throws IOException if connection problem
      * @throws JDOMException if XML content problem.
      */
-    public static YParameter[] getRequiredParamsForService(YAWLServiceReference yawlService)
+    public YParameter[] getRequiredParamsForService(YAWLServiceReference yawlService)
                                                      throws IOException, JDOMException {
-        List paramResults = new ArrayList();
+        List<YParameter> paramResults = new ArrayList<YParameter>();
+        Map<String, String> paramMap = new Hashtable<String, String>();
+        paramMap.put("action", "ParameterInfoRequest");
+        String parametersAsString = executeGet(yawlService.getURI(), paramMap);
 
-        String urlOfYawlService = yawlService.getURI();
-
-        String parametersAsString = executeGet(
-                                     urlOfYawlService + "?action=ParameterInfoRequest");
-        //above should have returned a xml doc containing params descriptions
-        //of required params to operate custom service.
-        SAXBuilder builder = new SAXBuilder();
-        Document doc = builder.build(new StringReader(parametersAsString));
-        List paramsASXML = doc.getRootElement().getChildren();
-        for (int i = 0; i < paramsASXML.size(); i++) {
-            Element paramElem = (Element) paramsASXML.get(i);
-
-            YParameter param = new YParameter(null, paramElem.getName());
-            YDecompositionParser.parseParameter(
-                    paramElem,
-                    param,
-                    null,
-                    false);
-            paramResults.add(param);
+        // above should have returned a xml doc containing params descriptions
+        // of required params to operate custom service.
+        Element eParams = JDOMUtil.stringToElement(parametersAsString);
+        if (eParams != null) {
+            List params = eParams.getChildren();
+            for (Object o : params) {
+                Element paramElem = (Element) o;
+                YParameter param = new YParameter(null, paramElem.getName());
+                YDecompositionParser.parseParameter(paramElem, param, null, false);
+                paramResults.add(param);
+            }
         }
-        return (YParameter[]) paramResults.toArray(new YParameter[paramResults.size()]);
+        return paramResults.toArray(new YParameter[paramResults.size()]);
     }
 
     /*******************************************************************************/
     /*******************************************************************************/
     
-    static class Handler extends Thread {
+    private class Handler extends Thread {
         private YWorkItem _workItem;
         private YAWLServiceReference _yawlService;
         private String _command; 
@@ -340,8 +333,10 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                 }
             } catch (IOException e) {
 
-                // ignore initialisation announcements execeptions for missing services 
-                if (! ANNOUNCE_INIT_ENGINE.equals(_command)) {
+                // ignore initialisation announcement and case cancelled execeptions
+                // for missing services 
+                if (! (ANNOUNCE_INIT_ENGINE.equals(_command) ||
+                       ANNOUNCE_CASE_CANCELLED.equals(_command))) {
                     logger.error("failed to call YAWL service", e);
                     e.printStackTrace();
                 }

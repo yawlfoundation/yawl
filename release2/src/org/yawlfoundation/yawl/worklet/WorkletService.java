@@ -39,6 +39,7 @@ import org.yawlfoundation.yawl.worklet.support.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -862,7 +863,7 @@ public class WorkletService extends InterfaceBWebsideController {
             }
 
             try {
-                if (successful(_interfaceAClient.uploadSpecification(fileName,
+                if (successful(_interfaceAClient.uploadSpecification(new File(fileName),
                         _sessionHandle))) {
                     _log.info("Successfully uploaded worklet specification: "
                             + workletName) ;

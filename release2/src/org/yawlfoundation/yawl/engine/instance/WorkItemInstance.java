@@ -1,6 +1,19 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
+ */
+
 package org.yawlfoundation.yawl.engine.instance;
 
+import org.jdom.Element;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.elements.YTask;
+import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YWorkItem;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.util.Collection;
@@ -35,6 +48,18 @@ public class WorkItemInstance {
         this();
         workItem = item;
     }
+
+    public WorkItemInstance(String xml) {
+        this();
+        fromXML(xml);
+    }
+
+    public WorkItemInstance(Element instance) {
+        this();
+        fromXML(instance);
+    }
+
+
 
 
     public void close() {
@@ -135,6 +160,26 @@ public class WorkItemInstance {
         parameters.put(param.getName(), param);
     }
 
+    public void addParameterInstance(YParameter parameter, String predicate, Element data) {
+        ParameterInstance param = new ParameterInstance(parameter, predicate, data);
+        parameters.put(param.getName(), param);
+    }
+
+
+    public void addParameters(YTask task, Element data) {
+        YDecomposition decomp = task.getDecompositionPrototype();
+        if (decomp != null) {
+            Map<String, YParameter> paramMap = decomp.getInputParameters();
+            for (String name : paramMap.keySet()) {
+                String predicate = task.getDataBindingForInputParam(name);
+                YParameter param = paramMap.get(name);
+                Element paramData = data.getChild(name);
+                addParameterInstance(param, predicate, paramData);
+            }
+        }
+    }
+
+
     public ParameterInstance getParameterInstance(String name) {
         return parameters.get(name);
     }
@@ -170,5 +215,34 @@ public class WorkItemInstance {
         xml.append("</workitemInstance>");
         return xml.toString();
     }
-     
+
+    public void fromXML(String xml) {
+        fromXML(JDOMUtil.stringToElement(xml));
+    }
+
+    public void fromXML(Element instance) {
+        if (instance != null) {
+            id = instance.getChildText("id");
+            taskID = instance.getChildText("taskid");
+            status = instance.getChildText("status");
+            resource = instance.getChildText("resource");
+            timerStatus = instance.getChildText("timerStatus");
+            enabledTime = strToLong(instance.getChildText("enabledtime"));
+            startTime = strToLong(instance.getChildText("starttime"));
+            completionTime = strToLong(instance.getChildText("completiontime"));
+            timerExpiry = strToLong(instance.getChildText("timerexpiry"));
+        }
+    }
+
+    private long strToLong(String s) {
+        long result = 0;
+        if (s != null) {
+            try {
+                result = new Long(s);
+            }
+            catch (NumberFormatException ignore) {}
+        }
+        return result;
+    }
+    
 }

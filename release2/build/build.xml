@@ -97,6 +97,7 @@
     <property name="cglib"                 value="cglib-2.1_3.jar"/>
     <property name="common"                value="common.jar"/>
     <property name="commonsBeanutils"      value="commons-beanutils.jar"/>
+    <property name="commonsCodec"          value="commons-codec-1.3.jar"/>
     <property name="commonsCollections"    value="commons-collections-3.2.jar"/>
     <property name="commonsDigester"       value="commons-digester.jar"/>
     <property name="commonsDiscovery"      value="commons-discovery.jar"/>
@@ -139,6 +140,7 @@
     <property name="mail"                  value="mail.jar"/>
     <property name="mysql"                 value="mysql-connector-java-5.1.6-bin.jar"/>
     <property name="qname"                 value="qname-from-wsdl4j-20030807.jar"/>
+    <property name="resolver"              value="resolver.jar"/>
     <property name="saaj"                  value="saaj.jar"/>
     <property name="sax"                   value="sax.jar"/>
     <property name="saxon"                 value="saxon9.jar"/>
@@ -146,6 +148,7 @@
     <property name="saxondom"              value="saxon9-dom.jar"/>
     <property name="saxonjdom"             value="saxon9-jdom.jar"/>
     <property name="saxpath"               value="saxpath.jar"/>
+    <property name="serializer"            value="serializer.jar"/>
     <property name="servlet"               value="servlet-api.jar"/>
     <property name="slf4j"                 value="slf4j-api-1.5.6.jar"/>
     <property name="slf4j-log4j"           value="slf4j-log4j12-1.5.6.jar"/>
@@ -180,10 +183,13 @@
                      ${jaxrpc} ${saaj} ${wsdl4j} ${xmlParserAPIs}"/>
 
     <property name="common.libs"
-              value="${junit} ${xerces} ${saxon} ${jdom} ${servlet} ${log4j}"/>
+              value="${junit} ${saxon} ${jdom} ${servlet} ${log4j}"/>
 
     <property name="saxon.libs"
               value="${saxon} ${saxondom} ${saxonapi} ${saxonjdom}"/>
+
+    <property name="xerces.libs"
+              value="${xerces} ${resolver} ${xml-apis} ${serializer}" />
 
 
     <!-- ==================== Compilation Classpath =========================== -->
@@ -193,6 +199,9 @@
     <path id="cp.compile">
         <pathelement location="${lib.dir}/${junit}"/>
         <pathelement location="${lib.dir}/${xerces}"/>
+        <pathelement location="${lib.dir}/${xml-apis}"/>
+        <pathelement location="${lib.dir}/${resolver}"/>
+        <pathelement location="${lib.dir}/${serializer}"/>
         <pathelement location="${lib.dir}/${saxon}"/>
         <pathelement location="${lib.dir}/${saxonapi}"/>
         <pathelement location="${lib.dir}/${saxondom}"/>
@@ -261,6 +270,7 @@
         <pathelement location="${lib.dir}/${commonsDigester}"/>
         <pathelement location="${lib.dir}/${commonsFileupload}"/>
         <pathelement location="${lib.dir}/${commonsIO}"/>
+        <pathelement location="${lib.dir}/${commonsCodec}"/>
     </path>
 
     <path id="cp.jsf">
@@ -394,7 +404,7 @@
             <fileset dir="${lib.dir}"
                      includes="${persistence.libs} ${xsd.libs} ${common.libs} ${jcommon}
                                ${jfreechart} ${jaxenFull} ${postgres8} ${saxpath}
-                               ${xml-apis} ${saxon.libs}"
+                               ${xml-apis} ${saxon.libs} ${xerces.libs}"
                      excludes="hibernate.cfg.xml ${servlet}"/>
         </unzip>	
     	
@@ -512,7 +522,7 @@
 
         <copy todir="${yawl.eng.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}"
-                     includes="${persistence.libs} ${xsd.libs} ${common.libs}
+                     includes="${persistence.libs} ${xsd.libs} ${common.libs} ${xerces.libs}
                      ${jaxenFull} ${jcommon} ${postgres8} ${saxpath} ${saxon.libs}"
                      excludes="${servlet}"/>
         </copy>
@@ -1021,7 +1031,8 @@
            <fileset dir="${classes.dir}${packageRoot}/exceptions"
                     includes="YSchemaBuildingException.class YDataStateException.class
                               YSyntaxException.class YAWLException.class
-                              YStateException.class YQueryException.class" />
+                              YStateException.class YQueryException.class
+                              YPersistenceException.class"/>
         </copy>
 
         <copy todir="${yawl.resource.app.name}${webinf.dir}/forms">
@@ -1041,7 +1052,8 @@
 
         <copy todir="${yawl.resource.app.name}${webinf.dir}/util">
               <fileset dir="${classes.dir}${packageRoot}/util"
-                       includes="JDOMUtil.class StringUtil.class DOMUtil.class"/>
+                       includes="JDOMUtil.class StringUtil.class
+                                 CharsetFilter.class DOMUtil.class"/>
         </copy>
 
         <!-- 2. copy resourcing classes to relevant dirs -->
@@ -1252,16 +1264,17 @@
               file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
         <copy todir="testService${webinf.dir}/schema"
               file="${classes.dir}${packageRoot}/schema/XSDType.class"/>
-
-
+        <copy todir="testService${webinf.dir}/exceptions">
+           <fileset dir="${classes.dir}${packageRoot}/exceptions"/>
+        </copy>
         <copy todir="testService${webinf.dir}/resourcing/rsInterface">
             <fileset dir="${classes.dir}${packageRoot}/resourcing/rsInterface"/>
         </copy>
         <copy todir="testService${webinf.dir}/resourcing">
             <fileset dir="${classes.dir}${packageRoot}/resourcing"/>
         </copy>
-        <copy todir="testService${webinf.dir}/resourcing/datastore/persistence">
-            <fileset dir="${classes.dir}${packageRoot}/resourcing/datastore/persistence"/>
+        <copy todir="testService${webinf.dir}/resourcing/datastore">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/datastore"/>
         </copy>
         <copy todir="testService${webinf.dir}/resourcing/allocators">
             <fileset dir="${classes.dir}${packageRoot}/resourcing/allocators"/>
@@ -1300,10 +1313,6 @@
         <copy todir="testService/graphics">
             <fileset dir="${graphics.dir}"/>
         </copy>
-        <copy todir="testService${webinf.dir}/exceptions">
-            <fileset dir="${classes.dir}${packageRoot}/exceptions"
-                includes="YAWLException.class"/>
-        </copy>
         <copy todir="testService/WEB-INF">
             <fileset file="${build.dir}/testService/web.xml"/>
         </copy>
@@ -1332,11 +1341,15 @@
                      includes="YAWLException.class"/>
             </copy>
             <copy todir="${yawl.digitalSignature.app.name}/WEB-INF/lib">
-                <fileset dir="${lib.dir}" includes="${jdom} ${log4j} commons-io-1.1.jar commons-fileupload-1.1.jar bcmail-jdk15-139.jar bcprov-jdk15-139.jar commons-codec-1.3.jar"/>
+                <fileset dir="${lib.dir}"
+                         includes="${jdom} ${log4j} ${commonsCodec} ${commonsIO}
+                                   ${commonsFileupload} ${bcmail} ${bcprov}"/>
             </copy>
 
             <copy file="${properties.dir}/log4j.properties"
                   todir="${yawl.digitalSignature.app.name}/WEB-INF/classes"/>
+            <copy todir="${yawl.digitalSignature.app.name}${webinf.dir}/engine"
+                  file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
 
             <copy todir="${yawl.digitalSignature.app.name}${webinf.dir}/engine/interfce">
                 <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>

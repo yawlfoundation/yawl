@@ -3,7 +3,6 @@ package org.yawlfoundation.yawl.resourcing.util;
 import org.yawlfoundation.yawl.resourcing.constraints.AbstractConstraint;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
-import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClient;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -39,7 +38,7 @@ public class ExampleAdapter extends ResourceGatewayClientAdapter {
     private boolean connected() {
         if (! checkConnection(_handle)) {
             _handle = connect(_userName, _password) ;
-            return ResourceGatewayClient.successful(_handle) ;
+            return _rgclient.successful(_handle) ;
         }
         else return true ;
     }

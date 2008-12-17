@@ -111,7 +111,7 @@ public class YEngine implements InterfaceADesign,
     private boolean workItemsAnnounced = false;
     private ObserverGatewayController observerGatewayController = null;
     private YAWLServiceReference _resourceObserver = null ;
-//    private InstanceCache instanceCache = new InstanceCache();
+    private InstanceCache instanceCache = new InstanceCache();
 
 
     /********************************************************************************/
@@ -302,9 +302,9 @@ public class YEngine implements InterfaceADesign,
             runner.restoreprepare();
             _caseIDToNetRunnerMap.put(runner.getCaseID(), runner);
             _runningCaseIDToSpecMap.put(runner.getCaseID(), specification);
-//            instanceCache.addCase(runner.getCaseID().getId(), specification.getName(),
-//                                  specification.getSpecVersion(),
-//                                  runner.getCasedata().getData(), "");
+            instanceCache.addCase(runner.getCaseID().getId(), specification.getName(),
+                                  specification.getSpecVersion(),
+                                  runner.getCasedata().getData(), "");
 
             // announce the add
             if (_interfaceBClient != null) {
@@ -479,8 +479,8 @@ public class YEngine implements InterfaceADesign,
             _yawllog.logCaseCreated(pmgr, runnerCaseID.toString(), username, specID);
 
             // cache instance
-//            instanceCache.addCase(runnerCaseID.toString(), specID,
-//                    specification.getSpecVersion(), caseParams, username);
+            instanceCache.addCase(runnerCaseID.toString(), specID,
+                    specification.getSpecVersion(), caseParams, username);
 
             runner.continueIfPossible(pmgr);
 
@@ -515,7 +515,7 @@ public class YEngine implements InterfaceADesign,
         _runningCaseIDToSpecMap.remove(caseID);
         _workItemRepository.cancelNet(caseID);
         _yawllog.logCaseCompleted(pmgr, caseID.toString());
-//        instanceCache.removeCase(caseID.toString());
+        instanceCache.removeCase(caseID.toString());
         
         if (_interfaceBClient != null)
             _interfaceBClient.removeCase(caseID.toString());
@@ -1135,6 +1135,8 @@ public class YEngine implements InterfaceADesign,
                     if (workItem.getStatus().equals(YWorkItemStatus.statusEnabled)) {
                         netRunner = _workItemRepository.getNetRunner(workItem.getCaseID());
                         List childCaseIDs = netRunner.attemptToFireAtomicTask(pmgr, workItem.getTaskID());
+                        Element dataList;
+                        YTask task = (YTask) netRunner.getNetElement(workItem.getTaskID());
 
                         if (childCaseIDs != null) {
                             for (int i = 0; i < childCaseIDs.size(); i++) {
@@ -1143,8 +1145,7 @@ public class YEngine implements InterfaceADesign,
                                 if (i == 0) {
                                     netRunner.startWorkItemInTask(pmgr, nextWorkItem.getCaseID(), workItem.getTaskID());
                                     nextWorkItem.setStatusToStarted(pmgr, userID);
-                                    Element dataList = ((YTask)
-                                            netRunner.getNetElement(workItem.getTaskID())).getData(childID);
+                                    dataList = task.getData(childID);
                                     nextWorkItem.setData(pmgr, dataList);
                                     resultantItem = nextWorkItem;
                                 }
@@ -1153,9 +1154,10 @@ public class YEngine implements InterfaceADesign,
                                  */
                                 else
                                 {
-                                    Element dataList = ((YTask)netRunner.getNetElement(workItem.getTaskID())).getData(childID);
+                                    dataList = task.getData(childID);
                                     nextWorkItem.setData(pmgr, dataList);
                                 }
+                                instanceCache.addParameters(nextWorkItem, task, dataList);                                
                             }
                         }
                     } else if (workItem.getStatus().equals(YWorkItemStatus.statusFired)) {
@@ -1371,7 +1373,7 @@ public class YEngine implements InterfaceADesign,
                         }
                         workItem.setStatusToComplete(pmgr, force);
                         workItem.completeData(pmgr, doc);
-//                        instanceCache.closeWorkItem(workItem);
+                        instanceCache.closeWorkItem(workItem);
                         
                         /**
                          * If case is suspending, see if we can progress into a fully suspended state
@@ -2807,7 +2809,7 @@ public class YEngine implements InterfaceADesign,
                        YPersistenceManager pmgr = getPersistenceSession();
                        runner.cancelTask(pmgr, taskID);
                        workItem.setStatusToDeleted(pmgr, statusFail);
-//                       instanceCache.closeWorkItem(workItem);
+                       instanceCache.closeWorkItem(workItem);
                        runner.continueIfPossible(pmgr);
                        if (pmgr != null) pmgr.commit();
                    }
@@ -2820,8 +2822,8 @@ public class YEngine implements InterfaceADesign,
    }
 
 
-//   public InstanceCache getInstanceCache() {
-//       return instanceCache;
-//   }
+   public InstanceCache getInstanceCache() {
+       return instanceCache;
+   }
 
 }

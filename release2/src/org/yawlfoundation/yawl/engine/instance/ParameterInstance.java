@@ -1,6 +1,17 @@
+/*
+ * This file is made available under the terms of the LGPL licence.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
+ * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
+ * collaboration of individuals and organisations who are committed to improving
+ * workflow technology.
+ */
+
 package org.yawlfoundation.yawl.engine.instance;
 
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.jdom.Element;
 
 /**
  * Author: Michael Adams
@@ -19,6 +30,33 @@ public class ParameterInstance {
     private String originalValue;
     private String defaultValue;
     private String value;
+
+    
+    public ParameterInstance() {}
+
+    public ParameterInstance(YParameter param, String predicate, Element data) {
+        name =  param.getName() != null ? param.getName() : param.getElementName();
+        dataType = param.getDataTypeName();
+        setUsage(param.getParamType());
+        inputPredicate = predicate;
+        defaultValue = param.getDefaultValue();
+        if (data != null) {
+            originalValue = data.getText();
+            value = originalValue;
+        }
+    }
+
+    public ParameterInstance(String xml) {
+        this();
+        fromXML(xml);
+    }
+
+    public ParameterInstance(Element instance) {
+        this();
+        fromXML(instance);
+    }
+
+
 
 
     public String getName() { return name; }
@@ -39,6 +77,13 @@ public class ParameterInstance {
     public Usage getUsage() { return usage; }
 
     public void setUsage(Usage u) { usage = u; }
+
+    public void setUsage(String s) {
+        if (s.equals("inputParam"))
+            usage = Usage.inputOnly;
+        else
+            usage = Usage.outputOnly ;
+    }
 
 
     public String getInputPredicate() { return inputPredicate; }
@@ -80,5 +125,21 @@ public class ParameterInstance {
         return xml.toString();
     }
         
+    public void fromXML(String xml) {
+        fromXML(JDOMUtil.stringToElement(xml));
+    }
+
+    public void fromXML(Element instance) {
+        if (instance != null) {
+            name = instance.getChildText("name");
+            dataType = instance.getChildText("dataType");
+            setUsage(instance.getChildText("usage"));
+            inputPredicate = instance.getChildText("inputPredicate");
+            outputPredicate = instance.getChildText("outputPredicate");
+            originalValue = instance.getChildText("originalValue");
+            defaultValue = instance.getChildText("defaultValue");
+            value = instance.getChildText("value");
+        }
+    }
 
 }

@@ -14,7 +14,6 @@ import com.sun.rave.web.ui.model.Option;
 import com.sun.rave.web.ui.model.UploadedFile;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
-import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
@@ -26,6 +25,7 @@ import javax.faces.component.html.HtmlDataTable;
 import javax.faces.component.html.HtmlOutputText;
 import javax.faces.event.ValueChangeEvent;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -189,6 +189,20 @@ public class caseMgt extends AbstractPageBean {
     public Button getBtnUnload() { return btnUnload; }
 
     public void setBtnUnload(Button b) { btnUnload = b; }
+
+
+    private Button btnRaiseException = new Button();
+
+    public Button getBtnRaiseException() { return btnRaiseException; }
+
+    public void setBtnRaiseException(Button b) { btnRaiseException = b; }
+
+
+    private Button btnRejectWorklet = new Button();
+
+    public Button getBtnRejectWorklet() { return btnRejectWorklet; }
+
+    public void setBtnRejectWorklet(Button b) { btnRejectWorklet = b; }
 
 
     private MessageGroup msgBox = new MessageGroup();
@@ -375,6 +389,16 @@ public class caseMgt extends AbstractPageBean {
         return null ;
     }
 
+
+    public String btnRaiseException_action() {
+        return null ;
+    }
+
+
+    public String btnRejectWorklet_action() {
+        return null ;
+    }
+
     // upload the chosen spec file
     public String btnUpload_action() {
         UploadedFile uploadedFile = fileUpload1.getUploadedFile();
@@ -382,7 +406,19 @@ public class caseMgt extends AbstractPageBean {
         if (uploadedFile != null) {
             String uploadedFileName = stripPath(uploadedFile.getOriginalName());
             if (validExtension(uploadedFileName)) {
-                String fileAsString = uploadedFile.getAsString() ;
+                String fileAsString ;
+
+                // try getting the uploaded spec in the correct encoding
+                try {
+                    fileAsString = new String(uploadedFile.getBytes(), "UTF-8");
+                }
+                catch (UnsupportedEncodingException e) {
+
+                     // fallback to plain string
+                    fileAsString = uploadedFile.getAsString() ;
+
+                }
+                
                 uploadSpec(uploadedFileName, fileAsString) ;
             }
             else msgPanel.error(
@@ -404,7 +440,7 @@ public class caseMgt extends AbstractPageBean {
             fileContents = fileContents.substring(BOF, EOF + 19) ;         // trim file
             String handle = _sb.getSessionhandle() ;
             String result = _rm.uploadSpecification(fileContents, fileName, handle);
-            if (! Interface_Client.successful(result))
+            if (! _rm.successful(result))
                 msgPanel.error(msgPanel.format((result)));
 
             _sb.refreshLoadedSpecs();
@@ -454,7 +490,7 @@ public class caseMgt extends AbstractPageBean {
         if ((choice != null) && (choice.length() > 0)) {
             choice = choice.substring(0, choice.indexOf(':')) ;    // get casenbr prefix
             String result = cancelCase(choice) ;
-            if (! Interface_Client.successful(result))
+            if (! _rm.successful(result))
                 msgPanel.error("Could not cancel case.\n\n" +  msgPanel.format(result)) ;
         }
         else msgPanel.error("No case selected to cancel.");
@@ -558,7 +594,7 @@ public class caseMgt extends AbstractPageBean {
         }
         try {
             result = _rm.launchCase(specID, caseData, handle);
-            if (Interface_Client.successful(result))
+            if (_rm.successful(result))
                 updateRunningCaseList();
             else
                 msgPanel.error("Unsuccessful case start:" + msgPanel.format(result)) ;

@@ -30,6 +30,7 @@ public class CachePhaseListener implements PhaseListener {
         response.addHeader("Cache-Control", "no-store");
         response.addHeader("Cache-Control", "must-revalidate");
         response.addHeader("Expires", "Wed, 1 Jan 2008 05:00:00 GMT");     //in the past
+        response.setContentType("text/html; charset=UTF-8");       
     }
 }
 

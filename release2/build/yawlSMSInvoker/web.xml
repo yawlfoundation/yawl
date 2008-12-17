@@ -12,7 +12,7 @@
     <description>
         This custom YAWL Service is able to send and receive SMS messages on behalf
         of YAWL processes.
-        Copyright © 2003 Queensland University of Technology. All rights reserved.
+        Copyright © 2003-2008 Queensland University of Technology. All rights reserved.
         Author: Lachlan Aldred
         Date: 28/1/2004
         Time: 15:44:01
@@ -55,6 +55,22 @@
         <param-value>org.yawlfoundation.yawl.smsModule.SMSSender</param-value>
         <description>
             The class name of the Interface B Server implementation.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>SendURI</param-name>
+        <param-value>https://www.valuesms.com/msg.php</param-value>
+        <description>
+            The URI of the sms provider service.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>ReceiveURI</param-name>
+        <param-value>https://www.valuesms.com/rcv.php</param-value>
+        <description>
+            The URI of the sms provider service.
         </description>
     </context-param>
 
@@ -142,7 +158,7 @@
         <servlet-class>
             org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EnvironmentBasedServer
         </servlet-class>
-        <load-on-startup>2</load-on-startup>
+        <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet>
@@ -163,6 +179,20 @@
 		<servlet-class>org.yawlfoundation.yawl.engine.interfce.ErrorServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
+
+    <servlet>
+        <servlet-name>gateway</servlet-name>
+        <description>
+            For replacing a started worklet with another one.
+        </description>
+        <servlet-class>org.yawlfoundation.yawl.smsModule.SMSGateway</servlet-class>
+        <load-on-startup>3</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>gateway</servlet-name>
+        <url-pattern>/gateway</url-pattern>
+    </servlet-mapping>
 
 
     <!-- Define mappings that are used by the servlet container to

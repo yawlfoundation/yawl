@@ -8,13 +8,16 @@
 
 package org.yawlfoundation.yawl.worklet.support;
 
-import org.yawlfoundation.yawl.util.JDOMUtil;
-
-import java.util.*;
-
-import org.jdom.Element ;
-import org.apache.log4j.Logger;
+import net.sf.saxon.s9api.SaxonApiException;
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.SaxonUtil;
+
+import java.util.HashMap;
+import java.util.Vector;
 
 
 /** ConditionEvaluator is a member class of the Worklet Dynamic Selection
@@ -135,19 +138,31 @@ public class ConditionEvaluator {
      */
     public boolean evaluate(String cond, Element dlist)
                                          throws RdrConditionException {
+        String result;
         _dataList = dlist ;
 
         // DEBUG: log received items
         _log.info("received condition: " + cond );
         _log.info("data = " + JDOMUtil.elementToString(dlist)) ;
 
-
-        String result = parseAndEvaluate(cond) ;                // evaluate
-
+        // check if it's an XQuery
+        if (cond.startsWith("{") || cond.startsWith("\\")) {
+            try {
+                if (cond.startsWith("{")) cond = deQuote(cond);      // remove braces
+                String query = String.format("boolean(%s)", cond);
+                result = SaxonUtil.evaluateQuery(query, new Document(_dataList));
+            }
+            catch (SaxonApiException sae) {
+                throw new RdrConditionException("Invalid XPath expression (" + cond + ").");
+            }
+        }
+        else {
+           result = parseAndEvaluate(cond) ;                // evaluate
+        }
         // if a boolean result, return it
         if (isBoolean(result))
-           return result.equalsIgnoreCase("TRUE") ;
-         else throw new RdrConditionException(getMessage(1));   // result not T/F
+            return result.equalsIgnoreCase("TRUE") ;
+        else throw new RdrConditionException(getMessage(1));   // result not T/F
     }
 
 //==========================================================================//    

@@ -13,6 +13,7 @@ import com.sun.rave.web.ui.component.RadioButton;
 import com.sun.rave.web.ui.component.TextField;
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
+import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.resourcing.jsf.MessagePanel;
 import org.yawlfoundation.yawl.schema.ErrorHandler;
 import org.yawlfoundation.yawl.util.DOMUtil;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -106,7 +108,10 @@ public class DynFormValidator {
         String text = (String) field.getText();
         DynFormField input = _componentFieldLookup.get(field);
         if (input != null) {
-            result = validateField(input, text);
+            if (isTimerExpiryField(input))
+                result = validateExpiry(input, text);
+            else
+                result = validateField(input, text);
         }
         else {
 
@@ -127,6 +132,25 @@ public class DynFormValidator {
         if (isValid && (! isEmptyValue(value)))
             isValid = validateAgainstSchema(input, value);
         return isValid;
+    }
+
+
+    private boolean validateExpiry(DynFormField input, String value) {
+        try {
+            DatatypeFactory.newInstance().newDuration(value);    // try duration 1st
+            return true;
+        }
+        catch (Exception e) {
+            DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+            try {
+                sdf.parse(value);
+                return true;
+            }
+            catch (ParseException pe) {
+                addValidationErrorMessage(value, input.getName(), "Duration or DateTime", false);
+                return false;
+            }
+        }
     }
 
 
@@ -342,6 +366,11 @@ public class DynFormValidator {
     }
 
 
+    private boolean isTimerExpiryField(DynFormField input) {
+        return input.getParam().getDataTypeName().equals("YTimerType");
+    }
+
+
     private boolean validateAgainstSchema(DynFormField input, String value) {
         try {
             _errorHandler.reset();
@@ -355,8 +384,8 @@ public class DynFormValidator {
             }
         }
         catch (SAXException se) {
+            _msgPanel.error(se.getMessage());
             se.printStackTrace();
-            //
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -372,7 +401,7 @@ public class DynFormValidator {
 
 
     private SAXSource getInputValueAsXML(DynFormField input, String value) {
-        return createSAXSource(StringUtil.wrap(value, input.getName()));
+        return createSAXSource(StringUtil.wrap(ServletUtils.urlEncode(value), input.getName()));
     }
 
 

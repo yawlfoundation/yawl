@@ -11,18 +11,20 @@ package org.yawlfoundation.yawl.engine.interfce;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * This class is used by clients and servers to execute GET and POST requests
- * across the YAWL interfaces
+ * across the YAWL interfaces. Note that since v2.0 (12/08) all requests are sent as
+ * POSTS - increases efficiency, security and allows 'extended' chars to be included.
  *
  * @author Lachlan Aldred
  * Date: 22/03/2004
  * Time: 17:49:42
  *
- * @author Michael Adams (refactored for v2.0, 06/2008)
+ * @author Michael Adams (refactored for v2.0, 06/2008; and again 12/2008)
  */
 
 public class Interface_Client {
@@ -35,90 +37,25 @@ public class Interface_Client {
      * @return the result of the POST request
      * @throws IOException when there's some kind of communication problem
      */
-    public static String executePost(String urlStr, Map<String, String> paramsMap)
+    protected String executePost(String urlStr, Map<String, String> paramsMap)
             throws IOException {
 
-        // create and setup connection
-        HttpURLConnection connection = initPostConnection(urlStr);
-
-        // encode data and send query
-        sendData(connection, encodeData(paramsMap)) ;
-
-        //retrieve reply
-        String result = getReply(connection.getInputStream());
-        connection.disconnect();
-
-        return stripOuterElement(result);
-    }
-
-    /**
-     * Executes a HTTP POST request on the url specified, sending the contents of
-     * a specification file.
-     *
-     * @param urlStr the URL to send the POST to
-     * @param specAsXML the spec xml as a string
-     * @param filename the name of the specification
-     * @param handle an active session handle
-     * @return the result of the POST request (success/fail)
-     * @throws IOException when there's some kind of communication problem
-     */
-    protected String executeUpload(String urlStr, String specAsXML, String filename,
-                                   String handle) throws IOException {
-
-        // create and setup connection
-        HttpURLConnection connection = initPostConnection(urlStr);
-        connection.setRequestProperty("YAWLSessionHandle", handle);
-        connection.setRequestProperty("filename", filename);
-        connection.setRequestProperty("Content-Type", "text/xml");
-
-        //send query
-        sendData(connection, specAsXML) ;
-
-        //retrieve reply
-        String result = getReply(connection.getInputStream());
-        connection.disconnect();
-
-        return stripOuterElement(result);
+        return send(urlStr, paramsMap, true);
     }
 
 
     /**
-     * Executes a HTTP GET request on the specified URL
+     * Executes a rerouted HTTP GET request as a POST on the specified URL
      *
      * @param urlStr the URL to send the GET to
      * @param paramsMap a set of attribute-value pairs that make up the posted data
-     * @return the result of the GET request
+     * @return the result of the request
      * @throws IOException when there's some kind of communication problem
      */
-    public static String executeGet(String urlStr, Map<String, String> paramsMap)
+    protected String executeGet(String urlStr, Map<String, String> paramsMap)
             throws IOException {
 
-        // prepare & encode data
-        if (paramsMap != null) {
-            urlStr += "?" + encodeData(paramsMap) ;
-        }
-
-        // do the GET
-        return completeGet(urlStr);
-    }
-
-
-    /**
-     * Executes a HTTP GET request on the specified URL
-     *
-     * @param urlStr the URL to send the GET to, combined with data
-     * @return the result of the GET request
-     * @throws IOException when there's some kind of communication problem
-     */
-    public static String executeGet(String urlStr) throws IOException {
-
-        // prepare & encode data
-        String[] urlParts = urlStr.split("\\?");
-        if (urlParts.length > 1) {
-            urlStr = urlParts[0] + "?" + encodeData(urlParts[1]);
-        }
-
-        return completeGet(urlStr);
+        return send(urlStr, paramsMap, false);
     }
 
 
@@ -141,7 +78,7 @@ public class Interface_Client {
      * @param inputXML the xml string to strip
      * @return the stripped xml string
      */
-    protected static String stripOuterElement(String inputXML) {
+    protected String stripOuterElement(String inputXML) {
         if (inputXML != null) {
             int beginClipping = inputXML.indexOf(">") + 1;
             int endClipping = inputXML.lastIndexOf("<");
@@ -158,12 +95,10 @@ public class Interface_Client {
      * @param message the response message to test
      * @return true if the response represents success
      */
-    public static boolean successful(String message) {
-        return message != null
-                &&
-                message.indexOf("<failure>") == -1
-                &&
-                message.length() > 0;
+    public boolean successful(String message) {
+        return (message != null)  &&
+               (message.length() > 0) &&
+               (message.indexOf("<failure>") == -1) ;
     }
 
 
@@ -172,80 +107,53 @@ public class Interface_Client {
     // PRIVATE METHODS //
 
     /**
-     * Executes a HTTP GET request with the combined encoded data on the specified URL
-     *
-     * @param encodedURLStr the URL to send the GET request to, combined with an
-     *        encoded query
-     * @return the result of the GET request
-     * @throws IOException when there's some kind of communication problem
+     * Sends data to the specified url via a HTTP POST, and returns the reply
+     * @param urlStr the url to connect to
+     * @param paramsMap a map of atttribute=value pairs representing the data to send
+     * @param post true if this was originally a POST request, false if a GET request
+     * @return the response from the url
+     * @throws IOException
      */
-    private static String completeGet(String encodedURLStr) throws IOException {
+    private String send(String urlStr, Map<String, String> paramsMap, boolean post)
+            throws IOException {
 
-        // create connection
-        URL url = new URL(encodedURLStr);
-        HttpURLConnection connection = initConnection(url);
+        // create and setup connection
+        HttpURLConnection connection = initPostConnection(urlStr);
+
+        // encode data and send query
+        sendData(connection, encodeData(paramsMap)) ;
 
         //retrieve reply
-        String result = getReply(url.openStream());
+        String result = getReply(connection.getInputStream());
         connection.disconnect();
 
+        if (post) result = stripOuterElement(result);
         return result;
     }
 
 
-    /**
-     * Initialises a HTTP connection
-     * @param url the url to connect to
-     * @return a generic initialised connection (for GET or POST requests)
-     * @throws IOException when there's some kind of communication problem
-     */
-    private static HttpURLConnection initConnection(URL url) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setDoInput(true);
-        return connection ;
-    }
-
-    
     /**
      * Initialises a HTTP POST connection
      * @param urlStr the url to connect to
      * @return an initialised POST connection
      * @throws IOException when there's some kind of communication problem
      */
-    private static HttpURLConnection initPostConnection(String urlStr) throws IOException {
+    private HttpURLConnection initPostConnection(String urlStr) throws IOException {
         URL url = new URL(urlStr);
-        HttpURLConnection connection = initConnection(url);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setDoOutput(true);
         connection.setRequestMethod("POST");
         return connection ;
     }
 
 
-    /**
-     * Encodes parameter values for HTTP transport
-     * @param data a string of the data parameter values, of the form
-     *        "param1=value1&param2=value2..."
-     * @return a string of the same format with the data values encoded
-     */
-    private static String encodeData(String data) {
-        Map<String, String> map = new HashMap<String, String>();
-        String[] params = data.split("&");
-        for (String param : params) {
-            String[] parts = param.split("=");
-            String value = (parts.length == 2) ? parts[1] : "" ;
-            map.put(parts[0], value);
-        }
-        return encodeData(map) ;
-    }
-
-
-    /**
+     /**
      * Encodes parameter values for HTTP transport
      * @param params a map of the data parameter values, of the form
-     *        [param1,value1],[param2=value2]...
-     * @return a formatted url suffix string  with the data values encoded
+     *        [param1=value1],[param2=value2]...
+     * @return a formatted http data string with the data values encoded
      */
-    private static String encodeData(Map<String, String> params) {
+    private String encodeData(Map<String, String> params) {
         StringBuilder result = new StringBuilder("");
         for (String param : params.keySet()) {
             if (result.length() > 0) result.append("&");
@@ -263,10 +171,10 @@ public class Interface_Client {
      * @param data the data to submit
      * @throws IOException when there's some kind of communication problem
      */
-    private static void sendData(HttpURLConnection connection, String data)
+    private void sendData(HttpURLConnection connection, String data)
             throws IOException {
-        PrintWriter out = new PrintWriter(connection.getOutputStream());
-        out.print(data);
+        OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
+        out.write(data);
         out.flush();
         out.close();
     }
@@ -278,18 +186,22 @@ public class Interface_Client {
      * @return the stream's contents (ie. the HTTP reply)
      * @throws IOException when there's some kind of communication problem
      */
-    private static String getReply(InputStream is) throws IOException {
-        InputStreamReader isr = new InputStreamReader(is);
-        StringWriter out = new StringWriter(8192);
-        char[] buffer = new char[8192];
-        int count;
+    private String getReply(InputStream is) throws IOException {
+        DataInputStream din = new DataInputStream(is);
 
-        while ((count = isr.read(buffer)) > 0)
-           out.write(buffer, 0, count);
+        // read spec into a byte array wrapped in a ByteBuffer - can't do it in
+        // one read because of a buffer size limit in the InputStream
+        byte[] specContents = new byte[din.available()];
+        ByteBuffer bytes = ByteBuffer.wrap(specContents);
+        byte[] buffer = new byte[8192];
 
-        isr.close();
-        return out.toString();
+        // read chunks from the stream and append them to the ByteBuffer
+        int bytesRead;
+        while ((bytesRead = din.read(buffer, 0, buffer.length)) > 0) {
+            bytes.put(buffer, 0, bytesRead);
+        }
+
+        // convert the bytes to a string with the right charset
+        return new String(specContents, "UTF-8");
     }
-
-
 }

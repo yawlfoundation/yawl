@@ -58,7 +58,7 @@ public class InstanceBuilder {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             
-            byte[] xmlByteArray = schema.getBytes();
+            byte[] xmlByteArray = schema.getBytes("UTF-8");
     		ByteArrayInputStream xmlStream = new ByteArrayInputStream( xmlByteArray );
     		InputSource xmlReader = new InputSource(xmlStream);
     		
@@ -88,7 +88,7 @@ public class InstanceBuilder {
 	        	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 	        	DocumentBuilder builder = factory.newDocumentBuilder();
 	            
-	            byte[] xmlByteArray = instance.getBytes();
+	            byte[] xmlByteArray = instance.getBytes("UTF-8");
 	    		ByteArrayInputStream xmlStream = new ByteArrayInputStream(xmlByteArray);
 	    		InputSource xmlReader = new InputSource(xmlStream);
 	    		

@@ -19,6 +19,7 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideContr
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -175,30 +176,44 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
      * Uploads a specification into the engine.
      * @param specification this is *not* a file name, this is the entire specification
      * xml file in string format.
-     * @param filename the file name of the specification xml file
+     * @param sessionHandle a sessionhandle.
+     * @return a diagnostic XML result message.
+     * @throws IOException if bad connection.
+     */
+    public String uploadSpecification(String specification,
+                                      String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("upload", sessionHandle);
+        params.put("specXML", specification);
+        return executePost(_backEndURIStr, params);
+    }
+
+    /**
+     * @deprecated use uploadSpecification(String, String) instead (since 2.0)
+     * Uploads a specification into the engine.
+     * @param specification this is *not* a file name, this is the entire specification
+     * xml file in string format.
+     * @param filename the file name of the specification xml file (no longer used since 2.0)
      * @param sessionHandle a sessionhandle.
      * @return a diagnostic XML result message.
      * @throws IOException if bad connection.
      */
     public String uploadSpecification(String specification, String filename,
                                       String sessionHandle) throws IOException {
-        return executeUpload(_backEndURIStr + "/upload", specification, filename,
-                             sessionHandle);
+        return uploadSpecification(specification, sessionHandle);
     }
 
 
     /**
      * Uploads a specification into the engine.
-     * @param filename the file name of the specification xml file
+     * @param file the file name of the specification xml file
      * @param sessionHandle a sessionhandle.
      * @return a diagnostic XML result message.
      * @throws IOException if bad connection.
      */
-    public String uploadSpecification(String filename,
+    public String uploadSpecification(File file,
                                       String sessionHandle) throws IOException {
-        String specification = StringUtil.fileToString(filename);
-        return executeUpload(_backEndURIStr + "/upload", specification, filename,
-                             sessionHandle);
+        String specification = StringUtil.fileToString(file.getAbsolutePath());
+        return uploadSpecification(specification, sessionHandle);
     }
 
 

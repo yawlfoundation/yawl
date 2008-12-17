@@ -901,7 +901,8 @@ public abstract class YTask extends YExternalNetElement {
             return;
         }
         Element dataForChildCase = produceDataRootElement();
-
+//        InstanceCache instanceCache = YEngine.getInstance().getInstanceCache();
+//
         List inputParams = new ArrayList(_decompositionPrototype.getInputParameters().values());
         Collections.sort(inputParams);
         for (int i = 0; i < inputParams.size(); i++) {
@@ -939,16 +940,15 @@ public abstract class YTask extends YExternalNetElement {
                     }
                 }
                 dataForChildCase.addContent(specificMIData);
+//                instanceCache.addParameter(childInstanceID, parameter,
+//                                           expression, specificMIData);
                }
 
             } else {
                 Element result = performDataExtraction(expression, parameter);
 
-                if (result == null) {
-                    continue;
-                }
-                else
-                {
+                if (result != null) {
+
                 if (YEngine.getInstance().generateUIMetaData())
                 {
                     /**
@@ -966,8 +966,11 @@ public abstract class YTask extends YExternalNetElement {
                     }
                 }
                 dataForChildCase.addContent((Element) result.clone());
+//                instanceCache.addParameter(childInstanceID, parameter,
+//                                           expression, (Element) result.clone());
             }
           }
+
         }
 
         if (YEngine.getInstance().generateUIMetaData())

@@ -10,6 +10,7 @@ package org.yawlfoundation.yawl.engine.interfce.interfaceX;
 import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
+import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 
 import javax.servlet.ServletContext;
@@ -19,7 +20,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
 import java.rmi.RemoteException;
 
 
@@ -84,33 +85,12 @@ public class InterfaceX_EngineSideServer extends HttpServlet {
 
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        //reloading of the remote engine.
-        response.setContentType("text/xml");
-        PrintWriter outputWriter = response.getWriter();
-        StringBuffer output = new StringBuffer();
-        output.append("<response>");
-        output.append(processGetQuery(request));
-        output.append("</response>");
-        if (_engine.enginePersistenceFailure())
-        {
-            logger.fatal("************************************************************");
-            logger.fatal("A failure has occured whilst persisting workflow state to the");
-            logger.fatal("database. Check the satus of the database connection defined");
-            logger.fatal("for the YAWL service, and restart the YAWL web application.");
-            logger.fatal("Further information may be found within the Tomcat log files.");
-            logger.fatal("************************************************************");
-            response.sendError(500, "Database persistence failure detected");
-        }
-        outputWriter.write(output.toString());
-        outputWriter.flush();
-        outputWriter.close();
+        doPost(request, response);
     }
 
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        //reloading of the remote engine.
-        response.setContentType("text/xml");
-        PrintWriter outputWriter = response.getWriter();
+        OutputStreamWriter outputWriter = ServletUtils.prepareResponse(response);
         StringBuffer output = new StringBuffer();
         output.append("<response>");
         output.append(processPostQuery(request));
@@ -124,23 +104,16 @@ public class InterfaceX_EngineSideServer extends HttpServlet {
             logger.fatal("Further information may be found within the Tomcat log files.");
             logger.fatal("************************************************************");
             response.sendError(500, "Database persistence failure detected");
-        }        outputWriter.write(output.toString());
-        outputWriter.flush();
-        outputWriter.close();
+        }
+        ServletUtils.finalizeResponse(outputWriter, output);
     }
-
-
 
 
     //###############################################################################
     //      Start YAWL Processing methods
     //###############################################################################
-    private String processGetQuery(HttpServletRequest request) {
-        StringBuffer msg = new StringBuffer();
-        return msg.toString();
-    }
 
-
+    
     // pass the POST request as a method call to the engine
     private String processPostQuery(HttpServletRequest request) {
         StringBuffer msg = new StringBuffer();

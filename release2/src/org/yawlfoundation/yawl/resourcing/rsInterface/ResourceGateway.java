@@ -1,6 +1,7 @@
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.util.Docket;
@@ -11,7 +12,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
 
 
 /**
@@ -98,7 +99,7 @@ public class ResourceGateway extends HttpServlet {
 
 
 
-   public void doGet(HttpServletRequest req, HttpServletResponse res)
+   public void doPost(HttpServletRequest req, HttpServletResponse res)
                                throws IOException {
 
        String result = "";
@@ -200,37 +201,28 @@ public class ResourceGateway extends HttpServlet {
                String id = req.getParameter("id");
                result = String.valueOf(rm.isKnownOrgGroup(id)) ;
            }
+           else if (action.equalsIgnoreCase("refreshOrgDataSet")) {
+               rm.loadResources();
+           }
+           else if (action.equalsIgnoreCase("resetOrgDataRefreshRate")) {
+               String rate = req.getParameter("rate");
+               rm.startOrgDataRefreshTimer(Long.parseLong(rate));
+           }
+           else if (action.equalsIgnoreCase("disconnect")) {
+               rm.serviceDisconnect(handle);
+           }
        }
        else throw new IOException("Invalid or disconnected session handle");
 
        // generate the output
-       res.setContentType("text/html");
-       PrintWriter out = res.getWriter();
-       out.write(result);
-       out.flush();
-       out.close();
+       OutputStreamWriter outputWriter = ServletUtils.prepareResponse(res);
+       ServletUtils.finalizeResponse(outputWriter, result);
     }
 
 
 
-    public void doPost(HttpServletRequest req, HttpServletResponse res)
+    public void doGet(HttpServletRequest req, HttpServletResponse res)
                                 throws IOException, ServletException {
-
-        String action = req.getParameter("action");
-        String handle = req.getParameter("sessionHandle");
-
-        if (rm.checkServiceConnection(handle)) {
-            if (action.equalsIgnoreCase("refreshOrgDataSet")) {
-                rm.loadResources();
-            }
-            else if (action.equalsIgnoreCase("resetOrgDataRefreshRate")) {
-                String rate = req.getParameter("rate");
-                rm.startOrgDataRefreshTimer(Long.parseLong(rate));
-            }
-            else if (action.equalsIgnoreCase("disconnect")) {
-                rm.serviceDisconnect(handle);
-            }
-        }
-        else throw new IOException("Invalid or disconnected session handle");
+        doPost(req, res);
     }
 }
