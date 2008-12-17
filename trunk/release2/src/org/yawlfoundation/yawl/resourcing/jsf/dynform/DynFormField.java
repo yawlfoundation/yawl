@@ -343,8 +343,9 @@ public class DynFormField {
 
 
     public String getToolTip() {
-        String tip = String.format(" Please enter a value of %s type",
-                                    getDataTypeUnprefixed());
+        String type = (_param.getDataTypeName().equals("YTimerType")) ? "Duration or DateTime"
+                                                              : getDataTypeUnprefixed();
+        String tip = String.format(" Please enter a value of %s type", type);
         if (hasRestriction())
             tip += _restriction.getToolTipExtn();
         else if (hasListType())

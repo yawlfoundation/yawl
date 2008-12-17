@@ -9,8 +9,9 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceD;
 
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.jdom.JDOMException;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,11 +19,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.HashMap;
-
-import org.jdom.JDOMException;
 
 /**
  * Sends workitem related messages to a
@@ -49,7 +48,7 @@ public class InterfaceD_Client extends Interface_Client{
      * @return A success or failure message
      * @throws IOException
      */
-    public static String executePost(String urlStr, Map paramsMap, WorkItemRecord attribute) throws IOException {
+    public String executePost(String urlStr, Map paramsMap, WorkItemRecord attribute) throws IOException {
         StringBuffer result = new StringBuffer();
         HttpURLConnection connection = null;
 

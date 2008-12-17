@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.util.Enumeration;
 
@@ -116,7 +117,7 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
 
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        PrintWriter outputWriter = ServletUtils.prepareResponse(response);
+        OutputStreamWriter outputWriter = ServletUtils.prepareResponse(response);
         StringBuffer output = new StringBuffer();
         output.append("<response>");
         output.append(processPostQuery(request));

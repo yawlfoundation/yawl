@@ -748,7 +748,7 @@ public class EngineGatewayImpl implements EngineGateway {
      * @return a diagnostic XML message indicating the result of loading the
      * specificationStr.
      */
-    public String loadSpecification(String specificationStr, String fileName, String sessionHandle) {
+    public String loadSpecification(String specificationStr, String sessionHandle) {
         try {
             _userList.checkConnection(sessionHandle);
         } catch (YAuthenticationException e) {
@@ -1187,35 +1187,32 @@ public class EngineGatewayImpl implements EngineGateway {
     }
 
     public String getCaseInstanceSummary(String sessionHandle) throws RemoteException {
-//        try {
-//            _userList.checkConnection(sessionHandle);
-//            return _engine.getInstanceCache().marshalCases();
-//        } catch (YAuthenticationException e) {
-//            return failureMessage(e.getMessage());
-//        }
-        return "";
+        try {
+            _userList.checkConnection(sessionHandle);
+            return _engine.getInstanceCache().marshalCases();
+        } catch (YAuthenticationException e) {
+            return failureMessage(e.getMessage());
+        }
     }
 
     public String getWorkItemInstanceSummary(String caseID, String sessionHandle)
             throws RemoteException {
-//        try {
-//            _userList.checkConnection(sessionHandle);
-//            return _engine.getInstanceCache().marshalWorkItems(caseID);
-//        } catch (YAuthenticationException e) {
-//            return failureMessage(e.getMessage());
-//        }
-        return "";
+        try {
+            _userList.checkConnection(sessionHandle);
+            return _engine.getInstanceCache().marshalWorkItems(caseID);
+        } catch (YAuthenticationException e) {
+            return failureMessage(e.getMessage());
+        }
     }
 
     public String getParameterInstanceSummary(String caseID, String itemID, String sessionHandle)
             throws RemoteException {
-//        try {
-//            _userList.checkConnection(sessionHandle);
-//            return _engine.getInstanceCache().marshalParameters(caseID, itemID);
-//        } catch (YAuthenticationException e) {
-//            return failureMessage(e.getMessage());
-//        }
-        return "";
+        try {
+            _userList.checkConnection(sessionHandle);
+            return _engine.getInstanceCache().marshalParameters(caseID, itemID);
+        } catch (YAuthenticationException e) {
+            return failureMessage(e.getMessage());
+        }
     }
 
 }

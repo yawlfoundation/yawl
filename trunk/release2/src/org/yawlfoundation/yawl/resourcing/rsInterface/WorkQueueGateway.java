@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
+import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
@@ -25,7 +26,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
 import java.util.Set;
 
 /**
@@ -52,13 +53,11 @@ public class WorkQueueGateway extends HttpServlet {
     }
 
     
-    public void doGet(HttpServletRequest req, HttpServletResponse res)
+    public void doPost(HttpServletRequest req, HttpServletResponse res)
                                 throws IOException, ServletException {
-
         String result = "";
         String action = req.getParameter("action");
         String handle = req.getParameter("sessionHandle");
-
 
         if (action == null) {
             result = "<html><head>" +
@@ -88,44 +87,25 @@ public class WorkQueueGateway extends HttpServlet {
         }
         
         else if (_rm.checkServiceConnection(handle)) {
-            result = doGetAction(action, req);
+            result = doAction(action, req);
         }
         else
             throw new IOException("Invalid or disconnected session handle");
 
         // generate the output
-        res.setContentType("text/html");
-        PrintWriter out = res.getWriter();
-        out.write(result);
-        out.flush();
-        out.close();
+        OutputStreamWriter outputWriter = ServletUtils.prepareResponse(res);
+        ServletUtils.finalizeResponse(outputWriter, result);
     }
 
 
-    public void doPost(HttpServletRequest req, HttpServletResponse res)
+    public void doGet(HttpServletRequest req, HttpServletResponse res)
                                 throws IOException, ServletException {
-
-        String result = "";
-        String action = req.getParameter("action");
-        String handle = req.getParameter("sessionHandle");
-
-        if (_rm.checkServiceConnection(handle))
-            result = doPostAction(action, req) ;
-        else
-            throw new IOException("Invalid or disconnected session handle");
-
-        // generate the output
-        res.setContentType("text/html");
-        PrintWriter out = res.getWriter();
-        out.write(result);
-        out.flush();
-        out.close();
+        doPost(req, res);
     }
     
 
-    private String doGetAction(String action, HttpServletRequest req) throws IOException {
+    private String doAction(String action, HttpServletRequest req) throws IOException {
         String result = "";
-
         String handle = req.getParameter("sessionHandle");
         String userid = req.getParameter("userid") ;
         String pid = req.getParameter("participantid");
@@ -178,6 +158,13 @@ public class WorkQueueGateway extends HttpServlet {
             Set<Participant> set = _rm.getParticipantsAssignedWorkItem(itemid, queueType);
             result = _marshaller.marshallParticipants(set) ;
         }
+        else if (action.equals("getWorkItemDurationsForParticipant")) {
+            String specName = req.getParameter("specname");
+            String version = req.getParameter("version");
+            String taskName = req.getParameter("taskname");
+            YSpecificationID specID = new YSpecificationID(specName, version);
+            result = _rm.getWorkItemDurationsForParticipant(specID, taskName, pid);
+        }
 
         // the following calls are convenience pass-throughs to engine interfaces A & B
 
@@ -213,19 +200,7 @@ public class WorkQueueGateway extends HttpServlet {
         else if (action.equals("getRegisteredServices")) {
             result = _rm.getRegisteredServicesAsXML(handle);
         }
-        return result ;
-    }
-
-
-    private String doPostAction(String action, HttpServletRequest req)
-                                                                   throws IOException {
-        String result = "";
-
-        String handle = req.getParameter("sessionHandle");
-        String pid = req.getParameter("participantid");
-        String itemid = req.getParameter("workitemid");
-
-        if (action.equals("disconnect")) {
+        else if (action.equals("disconnect")) {
            _rm.serviceDisconnect(handle);
         }
         else if (action.equals("acceptOffer")) {

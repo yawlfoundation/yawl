@@ -11,6 +11,7 @@ package org.yawlfoundation.yawl.resourcing.rsInterface;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
@@ -333,6 +334,14 @@ public class WorkQueueGatewayClientAdapter {
     public String getCaseData(String caseID, String handle) throws IOException {
         return _wqclient.getCaseData(caseID, handle) ;
     }
+
+    
+    public String getWorkItemDurationsForParticipant(YSpecificationID specID,
+                                           String taskName, String pid, String handle)
+                                           throws IOException {
+        return _wqclient.getWorkItemDurationsForParticipant(specID, taskName, pid, handle);
+    }
+
 
 
     /********************************************************************************/

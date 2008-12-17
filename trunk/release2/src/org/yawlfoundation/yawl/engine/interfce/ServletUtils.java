@@ -6,16 +6,20 @@
  *
  */
 
-
 package org.yawlfoundation.yawl.engine.interfce;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 
@@ -26,49 +30,21 @@ import java.net.URLEncoder;
  */
 public class ServletUtils {
 
-/*    public static EngineGateway init(ServletContext application) {
-        String rmiSvrNm = application.getInitParameter("RMIServerName");
-        EngineGateway engine = null;
-        try {
-            engine = (EngineGatewayImpl) Naming.lookup(rmiSvrNm);
-        } catch (Exception e) {
-            System.out.println(
-                "\n\n" +
-                "#########################################################################\n" +
-                "###################      Warning From YAWL Engine     ###################\n" +
-                "#########################################################################\n" +
-                "####                                                                     \n" +
-                "####                                                                     \n" +
-                "####            Interface B of the YAWL Engine was trying to look        \n" +
-                "####            up an RMI Registry for a YAWL RMI server ("+rmiSvrNm+")  \n" +
-                "####            and failed to find it.  This is either because:          \n" +
-                "####               a) RMI Registry has not been launched.                \n" +
-                "####               b) The value ["+rmiSvrNm+"] of 'RMIServerName' inside \n" +
-                "####                      web.xml was incorrect.                         \n" +
-                "####               c) The engine is not yet successfully launched in     \n" +
-                "####                      'networked mode'.                              \n" +
-                "####                                                                     \n" +
-                "####                                                                     \n" +
-                "#########################################################################\n" +
-                "#########################################################################\n" +
-                "#########################################################################\n" +
-                "\n\n");
-        }
-        return engine;
-    }*/
-
-
-    public static PrintWriter prepareResponse(HttpServletResponse response) throws IOException {
+    public static OutputStreamWriter prepareResponse(HttpServletResponse response) throws IOException {
         response.setContentType("text/xml");
-        PrintWriter outputWriter = response.getWriter();
-        return outputWriter;
+        return new OutputStreamWriter(response.getOutputStream(), "UTF-8");
+    }
+
+    
+    public static void finalizeResponse(OutputStreamWriter outputWriter, String output) throws IOException {
+        outputWriter.write(output);
+        outputWriter.flush();
+        outputWriter.close();
     }
 
 
-    public static void finalizeResponse(PrintWriter outputWriter, StringBuffer output) {
-        outputWriter.write(output.toString());
-        outputWriter.flush();
-        outputWriter.close();
+    public static void finalizeResponse(OutputStreamWriter outputWriter, StringBuffer output) throws IOException {
+        finalizeResponse(outputWriter, output.toString());
     }
 
 
@@ -154,5 +130,36 @@ public class ServletUtils {
         catch (UnsupportedEncodingException uee) {
             return s;
         }
+    }
+
+
+    public static Map<String, String> getRequestParams(HttpServletRequest request) throws IOException {
+        ServletInputStream in = request.getInputStream();
+
+                // read spec into a byte array wrapped in a ByteBuffer - can't do it in
+                // one read because of a buffer size limit in the InputStream
+                byte[] contents = new byte[request.getContentLength()];
+                ByteBuffer bytes = ByteBuffer.wrap(contents);
+                byte[] buffer = new byte[8192];
+
+                // read chunks from the stream and append them to the ByteBuffer
+                int bytesRead;
+                while ((bytesRead = in.read(buffer, 0, buffer.length)) > 0) {
+                    bytes.put(buffer, 0, bytesRead);
+                }
+
+                // convert the bytes to a string with the right charset
+                String paramStr = new String(contents, "UTF-8");
+
+        // split into params & rebuild map
+        Map<String, String> result = new HashMap<String, String>();
+        String[] params = paramStr.split("&");
+        for (String param : params) {
+            String[] parts = param.split("=");
+            if (parts.length == 2) {
+                result.put(parts[0], parts[1]);
+            }
+        }
+        return result;
     }
 }

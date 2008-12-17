@@ -8,22 +8,13 @@
 
 package org.yawlfoundation.yawl.worklist;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.net.URLEncoder;
-import javax.servlet.ServletContext;
-
 import org.apache.log4j.Logger;
 import org.jdom.JDOMException;
-
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
+import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.engine.interfce.YParametersSchema;
 import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.forms.InstanceBuilder;
@@ -32,9 +23,14 @@ import org.yawlfoundation.yawl.schema.ElementCreationInstruction;
 import org.yawlfoundation.yawl.schema.ElementReuseInstruction;
 import org.yawlfoundation.yawl.schema.Instruction;
 import org.yawlfoundation.yawl.schema.XMLToolsForYAWL;
-import org.yawlfoundation.yawl.engine.interfce.*;
 import org.yawlfoundation.yawl.worklist.model.WorklistController;
-import org.yawlfoundation.yawl.engine.interfce.YParametersSchema;
+
+import javax.servlet.ServletContext;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.util.*;
 
 
 /**
@@ -565,7 +561,7 @@ public class WorkItemProcessor {
 		map.put("decompositionID",decompositionID);
 		map.put("workitem",xmlBuff.toString());
 		//map.put("username",_worklistController.getUsername());
-		Interface_Client.executePost("http://localhost:8080/worklist/handler",map); // TODO: remove localhost reference
+//		Interface_Client.executePost("http://localhost:8080/worklist/handler",map); // TODO: remove localhost reference
 		logger.debug("Calling the pdf handler");
 		
 		return item.getSpecificationID()+item.getTaskID()+item.getUniqueID()+".pdf";

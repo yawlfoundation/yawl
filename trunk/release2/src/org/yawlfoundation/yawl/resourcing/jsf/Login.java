@@ -238,7 +238,7 @@ public class Login extends AbstractPageBean {
             }
 
             String handle = rm.login(u, pEncrypt);
-            if (Interface_Client.successful(handle)) {           // successful login
+            if (rm.successful(handle)) {           // successful login
                 initSession(u, handle) ;
                 msgPanel.clear();
                 return true ;

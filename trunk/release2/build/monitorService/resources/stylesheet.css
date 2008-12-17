@@ -1,0 +1,172 @@
+
+.loginPanel {
+    padding: 6px;
+    background-color: #98ccfe;
+    height: 120px;
+    width: 240px;
+    top: 50px;
+    border: 2px solid gray;
+    position:relative;
+}
+
+.casesContainerPanel {
+    height: 580px;
+    width: 602px;
+    top: 50px;
+    position:relative;
+}
+
+
+.loginLabel {
+    left:18px;
+    position: absolute;
+}
+
+.loginField {
+    left:105px;
+    position: absolute;
+    width: 120px;    
+}
+
+.loginButton {
+    font-size: 18px;
+    left: 80px;
+    top: 90px;
+    position: absolute;
+    height: 30px;
+    width: 85px;
+}
+
+.messagePanel {
+    width: 350px;
+    height: 100px;
+    background-color: #f0f0f0;
+    border: 2px solid gray;
+}
+
+/* Rules for data tables */
+
+.tablePnlGroup {
+    position: absolute;
+    left: 12px;
+    top: 40px;
+    height: 170px;
+    width: 567px;
+    /*overflow-x: hidden;*/
+    /*overflow-y: scroll;*/
+    background-color: #f0f0f0;
+    border: 2px solid gray;
+}
+
+.dataTable {
+    left: 0;
+    top: 0px! important
+    /*height: 152px;*/
+    position: absolute;    
+}
+
+.dataTable tbody {
+    width:95%;
+    /*height:150px;*/
+}
+
+.dataTable tbody tr {
+    height:20px;
+}
+
+.dataTableHeader {
+  background-color: #eeeeee;
+  font-size: larger;
+  font-weight: bold;
+}
+
+.dataTablePagingHeader {
+  background-color: white;
+}
+
+.dataTablePagingFooter {
+  background-color: white;
+}
+
+.dataTableRowEven {
+    background-color: white;
+}
+
+.dataTableRowOdd {
+  background-color: #e6f0fd;
+}
+
+
+.caseIDCol {
+    width: 80px;
+}
+
+.specNameCol {
+    width: 200px;
+}
+
+.versionCol {
+    width: 60px;
+}
+
+.startedByCol {
+    width: 150px;
+}
+
+.startTimeCol {
+    width: 200px;
+}
+
+.ageCol {
+    width: 200px;
+}
+
+
+/* General Rules used by several pages */
+
+.topPanel {
+    background-image: url( headbgright.jpg );
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+    height: 110px;
+    left: 0;
+    top: 0;
+    position: absolute;
+    width: 100%;
+}
+
+.pageHeading {
+   color: #3277ba; 
+   font-size: 18px; 
+   left: 0; 
+   top: 40px;
+   position: relative;
+}
+
+.pageSubheading {
+    color: #3277ba;
+    font-size: 14px;
+    font-weight: bold;
+    position: absolute;    
+}
+
+
+.refreshCasesButton {
+  /*  border: 1px solid; */
+    left: 577px;
+    top: 2px;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+}
+
+
+
+.casesPanel {
+   border: 2px solid gray;
+   background-color: #d4e5f6;
+   position: absolute;
+   width: 600px;
+}
+
+

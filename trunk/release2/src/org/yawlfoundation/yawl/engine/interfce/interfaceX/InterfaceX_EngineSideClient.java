@@ -134,7 +134,7 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
      * to the service side.
      */
 
-    static class Handler extends Thread {
+    private class Handler extends Thread {
         private YWorkItem _workItem;
         private String _observerURI;
         private String _caseID;

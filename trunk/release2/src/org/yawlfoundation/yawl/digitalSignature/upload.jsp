@@ -28,7 +28,7 @@
 			String password = null;
 			String p12 = null;
 			String Certificate = null;
-		    String	Path = "http://localhost:8080/DigitalSignature/files/";
+		    String	Path = "http://localhost:8080/digitalSignature/files/";
 			String workItemXML = request.getParameter("workitem");
 			WorkItemRecord wir;
 			if (workItemXML != null) {
@@ -68,7 +68,7 @@
 						/* Save the uploaded file if its size is greater than 0. */
 						/*if (fileItem.getSize() > 0){
 							fileName = fileItem.getName();
-						 	String dirName = "webapps/DigitalSignature/files/";
+						 	String dirName = "webapps/digitalSignature/files/";
 						  	File saveTo = new File(dirName + fileName);
 						    try { fileItem.write(saveTo);}
 						       catch (Exception e){}*/
@@ -94,10 +94,12 @@
 						//data.getChild(Signature).setText(Result);                      // update data var's value
 						//wir.getDataList().getChild(Signature).setText(Result);
 						wir.getUpdatedData();
+
 						//System.out.println(wir.getDataList().getChild(Signature).getValue());
 						// pass the updated wir back to the calling worklist page;
 						// must convert it back to XML in the process.
-						String redirectURL = "http://localhost:8080/resourceService/" + 
+						System.out.println(wir.getDataList().getChild(Signature).getText().toString());
+						String redirectURL = "http://localhost:8080/resourceService/" +
 													"faces/userWorkQueues.jsp?workitem=" + wir.toXML();
 						response.sendRedirect(response.encodeURL(redirectURL));
 					//} else {System.out.println("This workitem does not contain a variable called '" + Signature + "'.");} 

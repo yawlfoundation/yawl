@@ -9,6 +9,7 @@
 package org.yawlfoundation.yawl.worklet.support;
 
 import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.worklet.WorkletService;
 import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
 
@@ -18,9 +19,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
 
- /**
+/**
   *  The WorkletGateway class acts as a gateway between the Worklet Selection
   *  Service and the external RDREditor. It initialises the service with values from
   *  'web.xml' and provides functionality to trigger a running worklet replacement
@@ -62,9 +63,8 @@ public class WorkletGateway extends HttpServlet {
     }
 
 
-    public void doGet(HttpServletRequest req, HttpServletResponse res)
+    public void doPost(HttpServletRequest req, HttpServletResponse res)
                                 throws IOException, ServletException {
-
         String result = "";
 
         try {
@@ -103,23 +103,18 @@ public class WorkletGateway extends HttpServlet {
             }
 
             // generate the output
-	    	res.setContentType("text/html");
-	        PrintWriter out = res.getWriter();
-	        out.write(result);   
-	        out.flush();
-	        out.close();
+            OutputStreamWriter outputWriter = ServletUtils.prepareResponse(res);
+            ServletUtils.finalizeResponse(outputWriter, result);
+
          }
     	 catch (Exception e) {
-    	 	_log.error("Exception in doGet()", e);
+    	 	_log.error("Exception in doPost()", e);
     	 }
 	}
 
 
-     public void doPost(HttpServletRequest req, HttpServletResponse res)
+     public void doGet(HttpServletRequest req, HttpServletResponse res)
                                  throws IOException, ServletException {
-
-         String itemid = req.getQueryString() ;
-          _log.info("The workitem id passed is: " + itemid);
-
+         doPost(req, res);
      }
 }

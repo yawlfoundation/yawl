@@ -184,7 +184,7 @@ public class HibernateEngine {
      * @param queryString - the sql query to execute
      * @return the List of objects returned, or null if the query has some problem
      */
-    private List execQuery(String queryString) {
+    public List execQuery(String queryString) {
 
         List result = null;
         Transaction tx = null;

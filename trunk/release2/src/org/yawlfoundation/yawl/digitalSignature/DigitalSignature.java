@@ -4,6 +4,8 @@ package org.yawlfoundation.yawl.digitalSignature;
  *
  * @author seb
  */
+
+import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.cms.*;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.jdom.Document;
@@ -84,18 +86,26 @@ public class DigitalSignature extends InterfaceBWebsideController
 	                        //Get the signed document
 	                        String Document = element.getChild(_Signature).getText();
 	                        Document  = Document.replace(" ","+");
-	                       
-	                        //Decode the BASE64 signature              
-	                        sun.misc.BASE64Decoder deCoder = new sun.misc.BASE64Decoder();
-	                        byte[] SignedDocument = deCoder.decodeBuffer(Document);
-                        
 	                        System.out.println("Beginning of Checking XmlSignature:");
+
+	                        System.out.println(Document);
+	                        //Decode the BASE64 signature
+	                        //org.apache.commons.codec.binary.Base64.decodeBase64(;);
+	                        //BinaryEncoder deCoder = new BinaryEncoder();
+	                        //sun.misc.BASE64Decoder deCoder = new sun.misc.BASE64Decoder();
+	                        //byte[] SignedDocument = deCoder.decodeBuffer(Document);
+	                        Base64 deCoder = new Base64();
+
+
+	                        byte[] SignedDocument = deCoder.decode(Document.getBytes());
+	                        System.out.println("Beginning of Checking XmlSignature:");
+	                        //System.out.println(SignedDocument);
 	                        if(checkSignature(SignedDocument))
 	                        	answer = "true";
 	                        else answer = "false";
 	                        System.out.println("end of Checking XmlSignature:");
-	                   
-	              
+	                        System.out.println(answer);
+
 	                        //Set the output element
 	                        Element Outputelement = prepareReplyRootElement(itemRecord, _sessionHandle);
 	                        Element Child = new Element(_CheckSignature);
@@ -138,7 +148,7 @@ public class DigitalSignature extends InterfaceBWebsideController
          param.setDocumentation("This is the Document Content");
          params[2] = param;
          
-         param = new YParameter(null, YParameter._INPUT_PARAM_TYPE);
+         param = new YParameter(null, YParameter._OUTPUT_PARAM_TYPE);
          param.setDataTypeAndName(XSD_STRINGTYPE, _Alias, XSD_NAMESPACE);
          param.setDocumentation("This is the Document Content");
          params[3] = param;
@@ -153,14 +163,24 @@ public class DigitalSignature extends InterfaceBWebsideController
     {
         try
         {
-         // extract the Signed Fingerprint data  
+        	System.out.println("Beginning of Checking XmlSignature:");
+        	 System.out.println(Document);
+
+         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+
+         // extract the Signed Fingerprint data
          CMSSignedData signature = new CMSSignedData(Document);
+         System.out.println("Beginning of Checking XmlSignature:");
+
          SignerInformation signer = (SignerInformation) signature.getSignerInfos().getSigners().iterator().next();
-      
+         System.out.println("Beginning of Checking XmlSignature:");
+
          // Get from the collection the appropriate registered certificate
          CertStore cs = signature.getCertificatesAndCRLs("Collection", "BC");
          Iterator iter = cs.getCertificates(signer.getSID()).iterator();
+         System.out.println("Beginning of Checking XmlSignature:");
          X509Certificate certificate = (X509Certificate) iter.next();
+         System.out.println("Beginning of Checking XmlSignature:");
          // get the contents of the document
          CMSProcessable sg = signature.getSignedContent();
     	 byte[] data = (byte[]) sg.getContent();
@@ -368,8 +388,11 @@ public class DigitalSignature extends InterfaceBWebsideController
     	  	  	
                  // Convert the signed data in a BASE64 string to make it a valid content 
                  // for Yawl
-                 sun.misc.BASE64Encoder enCoder = new sun.misc.BASE64Encoder();
-                 String base64OfSignatureValue = enCoder.encode(signeddata);
+                 //sun.misc.BASE64Encoder enCoder = new sun.misc.BASE64Encoder();
+                 Base64 enCoder = new Base64();
+                 String base64OfSignatureValue = new String(enCoder.encode(signeddata));
+                 System.out.println(base64OfSignatureValue);
+
                  return base64OfSignatureValue;
                           
                 

@@ -91,7 +91,7 @@ public class YWorkItemRepository {
     protected void addNewWorkItem(YWorkItem workItem) {
         logger.debug("--> addNewWorkItem: " + workItem.getIDString());
         _idStringToWorkItemsMap.put(workItem.getIDString(), workItem);
-   //     YEngine.getInstance().getInstanceCache().addWorkItem(workItem);        
+        YEngine.getInstance().getInstanceCache().addWorkItem(workItem);
     }
 
 

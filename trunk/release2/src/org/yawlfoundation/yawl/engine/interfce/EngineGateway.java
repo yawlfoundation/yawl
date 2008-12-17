@@ -104,7 +104,7 @@ public interface EngineGateway extends Remote {
 
     public String getWorkItemOptions(String workItemID, String thisURL, String sessionHandle) throws RemoteException;
 
-    public String loadSpecification(String specification, String fileName, String sessionHandle) throws RemoteException;
+    public String loadSpecification(String specification, String sessionHandle) throws RemoteException;
 
     public String unloadSpecification(YSpecificationID specID, String sessionHandle) throws RemoteException;
 

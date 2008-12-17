@@ -11,7 +11,6 @@ package org.yawlfoundation.yawl.engine.interfce.interfaceE;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -50,9 +49,7 @@ public class YLogGatewayClient extends Interface_Client {
      */
     private String performGet(String action, String pName, String pValue, String handle)
                                                                      throws IOException {
-        Map<String, String> params = new HashMap <String, String>();
-        params.put("action", action);
-        params.put("handle", handle);
+        Map<String, String> params = prepareParamMap(action, handle);
         if (pName != null) params.put(pName, pValue);
         return executeGet(_logURI, params);
     }
@@ -171,12 +168,10 @@ public class YLogGatewayClient extends Interface_Client {
      */
     public String getCaseEventTime(String caseID, String eventType, String handle)
                                                                   throws IOException  {
-        StringBuilder sb = new StringBuilder(_logURI) ;
-        sb.append("?action=getCaseEventTime") ;
-        sb.append("&caseid=").append(caseID);
-        sb.append("&eventtype=").append(eventType);
-        sb.append("&handle=").append(handle);
-        return executeGet(sb.toString());
+        Map<String, String> params = prepareParamMap("getCaseEventTime", handle);
+        params.put("caseid", caseID);
+        params.put("eventtype", eventType);
+        return executeGet(_logURI, params);
     }
 
 
@@ -207,13 +202,13 @@ public class YLogGatewayClient extends Interface_Client {
      * @throws java.io.IOException if there's a problem connecting to the engine
      */
     public String connect(String userID, String password) throws IOException {
-        StringBuilder sb = new StringBuilder(_logURI);
-        sb.append("?action=connect&userid=").append(userID)
-          .append("&password=").append(password);
-
-        return executeGet(sb.toString());
+        Map<String, String> params = prepareParamMap("connect", null);
+        params.put("userid", userID);
+        params.put("password", password);
+        return executeGet(_logURI, params);
     }
 
+    
     /**
      * Checks if a sessionhandle is active
      * @param handle the sessionhandle to check

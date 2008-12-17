@@ -29,6 +29,7 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import java.net.URL;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -72,7 +73,7 @@ public class YWorkItem {
 
     private Map _timerParameters ;                         // timer extensions
     private boolean _timerStarted ;
-    private long _timerExpiry = 0;
+    private long _timerExpiry = 0;                     // set to expiry when timer starts
 
     private URL _customFormURL ;
     private String _codelet ;
@@ -187,8 +188,8 @@ public class YWorkItem {
      * Finds the net-level param specified, then deconstructs its data to simple
      * timer parameters. The data in the net-level param is a complex type YTimerType
      * consisting of two elements: 'trigger' (either 'OnEnabled' or 'OnExecuting'), and
-     * 'expiry': a string that may represent a duration type or a long value to be
-     * converted to a Date.
+     * 'expiry': a string that may represent a duration type, a dateTime type, or a long
+     * value to be converted to a Date.
      * @param param the name of the YTimerType parameter
      * @param data the case or net-level data object
      * @return true if the param is successfully unpacked.
@@ -226,9 +227,19 @@ public class YWorkItem {
                 return true ;                        // OK - trigger & duration set
             }
             catch (DatatypeConfigurationException dce) {
-                // do nothing here
+                // do nothing here - trickle down
             }
-        }    
+        }
+
+        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        try {
+            Date date = sdf.parse(expiry);                        // test for dateTime
+            _timerParameters.put("expiry", date);
+            return true;
+        }
+        catch (ParseException pe) {
+            // do nothing here - trickle down                
+        }
 
         try {
             long time = Long.parseLong(expiry);                 // test for long value
@@ -238,7 +249,7 @@ public class YWorkItem {
         catch (NumberFormatException nfe) {
             _log.warn("Unable to set timer for workitem: " + getIDString() +
                       ". Invalid 'expiry' parameter." ) ;
-            return false ;                                     // not duration or long
+            return false ;                             // not duration, dateTime or long
         }
     }
 

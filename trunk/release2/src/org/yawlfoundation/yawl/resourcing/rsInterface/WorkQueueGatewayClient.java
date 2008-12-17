@@ -11,6 +11,7 @@ package org.yawlfoundation.yawl.resourcing.rsInterface;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -386,6 +387,18 @@ public class WorkQueueGatewayClient extends Interface_Client {
          params.put("caseid", caseID) ;
          return performGet("getCaseData", params, handle);
      }
+
+    public String getWorkItemDurationsForParticipant(YSpecificationID specID,
+                                           String taskName, String pid, String handle)
+                                           throws IOException {
+        params.clear();
+        params.put("specname", specID.getSpecName());
+        params.put("version", specID.getVersionAsString());
+        params.put("taskname", taskName);
+        params.put("participantid", pid);
+        return performGet("getWorkItemDurationsForParticipant", params, handle);
+    }
+
 
 
     /********************************************************************************/

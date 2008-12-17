@@ -18,14 +18,12 @@ import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
 import javax.servlet.UnavailableException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.rmi.RemoteException;
+import java.io.OutputStreamWriter;
 import java.util.Enumeration;
 
 
@@ -35,14 +33,14 @@ import java.util.Enumeration;
  * Date: 22/12/2003
  * Time: 12:03:41
  *
- * @author Michael Adams (refactored for v2.0, 06/2008)
+ * @author Michael Adams (refactored for v2.0, 06/2008; 12/2008)
  */
 public class InterfaceA_EngineBasedServer extends HttpServlet {
     private EngineGateway _engine;
     private static final boolean _debug = false;
     private static final Logger logger = Logger.getLogger(InterfaceA_EngineBasedServer.class);
 
-    public void init() throws ServletException {
+    public void init() throws ServletException {     
 
         /**
          * Initialise logging
@@ -66,27 +64,12 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
 
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        PrintWriter outputWriter = ServletUtils.prepareResponse(response);
-        StringBuffer output = new StringBuffer();
-        output.append("<response>");
-        output.append(processGetQuery(request));
-        output.append("</response>");
-        if (_engine.enginePersistenceFailure())
-        {
-            logger.fatal("************************************************************");
-            logger.fatal("A failure has occured whilst persisting workflow state to the");
-            logger.fatal("database. Check the satus of the database connection defined");
-            logger.fatal("for the YAWL service, and restart the YAWL web application.");
-            logger.fatal("Further information may be found within the Tomcat log files.");
-            logger.fatal("************************************************************");
-            response.sendError(500, "Database persistence failure detected");
-        }
-        ServletUtils.finalizeResponse(outputWriter, output);
+        doPost(request, response);
     }
 
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        PrintWriter outputWriter = ServletUtils.prepareResponse(response);
+        OutputStreamWriter outputWriter = ServletUtils.prepareResponse(response);
         StringBuffer output = new StringBuffer();
         output.append("<response>");
         output.append(processPostQuery(request));
@@ -102,59 +85,6 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
             response.sendError(500, "Database persistence failure detected");
         }
         ServletUtils.finalizeResponse(outputWriter, output);
-    }
-
-    protected void doPut(HttpServletRequest request, HttpServletResponse response) {
-
-    }
-
-
-    protected void doDelete(HttpServletRequest request, HttpServletResponse responce) {
-
-    }
-
-
-    //###############################################################################
-    //      Start YAWL Processing methods
-    //###############################################################################
-
-    private String processGetQuery(HttpServletRequest request) {
-        StringBuffer msg = new StringBuffer();
-        String sessionHandle = request.getParameter("sessionHandle");
-        String action = request.getParameter("action");
-
-        try {
-            if (_debug) {
-                debug(request, "Get") ;
-            }
-            
-            if (action != null) {
-                if (action.equals("checkConnection")) {
-                    msg.append(_engine.checkConnectionForAdmin(sessionHandle));
-                }
-                else if (action.equals("getUsers")) {
-                    msg.append(_engine.getUsers(sessionHandle));
-                }
-                else if (action.equals("getList")) {
-                    msg.append(_engine.getSpecificationList(sessionHandle));
-                }
-                else if (action.equals("getYAWLServices")) {
-                    msg.append(_engine.getYAWLServices(sessionHandle));
-                }
-            }
-        } catch (RemoteException e) {
-            logger.error("Exception in Interface B with action: " + action, e);
-        }
-        if (msg.length() == 0) {
-            msg.append(
-                    "<failure><reason>" +
-                    "Invalid action or exception was thrown." +
-                    "</reason></failure>");
-        }
-        if (_debug) {
-            logger.debug("return = " + msg);
-        }
-        return msg.toString();
     }
 
 
@@ -173,6 +103,22 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
             if (action != null) {
                 if ("connect".equals(action)) {
                     msg.append(_engine.connect(userID, password));
+                }
+                else if ("checkConnection".equals(action)) {
+                    msg.append(_engine.checkConnectionForAdmin(sessionHandle));
+                }
+                else if ("upload".equals(action)) {
+                    String specXML = request.getParameter("specXML");
+                    msg.append(_engine.loadSpecification(specXML, sessionHandle));
+                }
+                else if ("getUsers".equals(action)) {
+                    msg.append(_engine.getUsers(sessionHandle));
+                }
+                else if ("getList".equals(action)) {
+                    msg.append(_engine.getSpecificationList(sessionHandle));
+                }
+                else if ("getYAWLServices".equals(action)) {
+                    msg.append(_engine.getYAWLServices(sessionHandle));
                 }
                 else if ("createUser".equals(action) || "createAdmin".equals(action)) {
                     boolean isAdmin = ("createAdmin".equals(action));
@@ -199,26 +145,12 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                     msg.append(_engine.unloadSpecification(specID, sessionHandle));
                 }
             }
-            else if (request.getRequestURI().endsWith("/upload")) {
-                sessionHandle = request.getHeader("YAWLSessionHandle");
-                String fileName = request.getHeader("filename");
-                StringBuffer specification = new StringBuffer();
-                ServletInputStream in = request.getInputStream();
-                int i = in.read();
-                while (i != -1) {
-                    specification.append((char) i);
-                    i = in.read();
-                }
-                msg.append(_engine.loadSpecification(specification.toString(),
-                                                     fileName, sessionHandle));
-            }
         }
         catch (Exception e) {
             logger.error("Exception in Interface B with action: " + action, e);
         }
         if (msg.length() == 0) {
-            msg.append("<failure><reason>" +
-                       "Null action or exception was thrown." +
+            msg.append("<failure><reason>Invalid action or exception was thrown." +
                        "</reason></failure>");
         }
         if (_debug) {

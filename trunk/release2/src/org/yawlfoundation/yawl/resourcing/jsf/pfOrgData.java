@@ -467,6 +467,9 @@ public class pfOrgData extends AbstractFragmentBean {
         cbbGroup.setItems(null);
         _sb.setOrgDataBelongsItems(null);
         _sb.setOrgDataGroupItems(null);
+        _sb.setOrgDataChoice(null);
+        _sb.setOrgDataBelongsChoice(null);
+        _sb.setOrgDataGroupChoice(null);
     }
 
     private String getFirstListboxItem() {

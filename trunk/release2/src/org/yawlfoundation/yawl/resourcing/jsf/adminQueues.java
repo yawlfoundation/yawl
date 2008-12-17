@@ -12,6 +12,7 @@ import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.WorkItemAgeComparator;
 
@@ -366,21 +367,29 @@ public class adminQueues extends AbstractPageBean {
     }
 
 
-
     // initialise and show the user select form //
     public String selectParticipant(String action) {
+        String nextPage = null;
         _sb.setAdminQueueAction(action) ;
         if (cbxDirectToMe.isChecked()) {
             _sb.setSelectUserListChoice(_sb.getParticipant().getID());
-            return null;
         }
         else {
-            _sb.setBlankStartOfParticipantList(false);
-            _sb.setSelectUserListOptions(_sb.getOrgDataParticipantList());
-            _sb.setUserListFormHeaderText(action + " selected workitem(s) to:") ;
-            _sb.setNavigateTo("showAdminQueues");
-            return "userSelect" ;
-        }    
+            if (ResourceManager.getInstance().getParticipantCount() == 0) {
+                _sb.getMessagePanel().error("Unable to assign workitem because there " +
+                    "are no participants defined in the organisational database. " +
+                    "Please add some participants via the 'User Mgt' form, then return " +
+                    "to this form to assign the workitem.");
+            }
+            else {
+                _sb.setBlankStartOfParticipantList(false);
+                _sb.setSelectUserListOptions(_sb.getOrgDataParticipantList());
+                _sb.setUserListFormHeaderText(action + " selected workitem(s) to:") ;
+                _sb.setNavigateTo("showAdminQueues");
+                nextPage = "userSelect" ;
+            }
+        }
+        return nextPage;
     }
 
 
@@ -459,6 +468,7 @@ public class adminQueues extends AbstractPageBean {
         else enableUnofferedButtons();
     }
 
+    
     private void addItemsToListOptions(Set<WorkItemRecord> queue,
                                                  WorkItemRecord selected) {
         Option[] options = new Option[queue.size()] ;
@@ -489,9 +499,15 @@ public class adminQueues extends AbstractPageBean {
      */
     private void processButtonEnablement(String status) {
         btnReoffer.setDisabled(false);
-        btnReallocate.setDisabled(status.equals(WorkItemRecord.statusResourceOffered));
-        btnRestart.setDisabled(status.equals(WorkItemRecord.statusResourceOffered) ||
-                               status.equals(WorkItemRecord.statusResourceAllocated));
+        if (status != null) {
+            btnReallocate.setDisabled(status.equals(WorkItemRecord.statusResourceOffered));
+            btnRestart.setDisabled(status.equals(WorkItemRecord.statusResourceOffered) ||
+                                   status.equals(WorkItemRecord.statusResourceAllocated));
+        }
+        else {                                      // null = no status; so play it safe
+            btnReallocate.setDisabled(true);
+            btnRestart.setDisabled(true);
+        }
     }
 
 

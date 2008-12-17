@@ -158,6 +158,22 @@
                                        style="left: 11px; top: 156px"
                                        text="Cancel Case"/>
 
+                            <ui:button action="#{caseMgt.btnRaiseException_action}"
+                                       binding="#{caseMgt.btnRaiseException}"
+                                       id="btnRaiseException"
+                                       styleClass="caseMgtButton"
+                                       style="left: 119px; top: 156px"
+                                       visible="false"
+                                       text="Raise Exception"/>
+
+                            <ui:button action="#{caseMgt.btnRejectWorklet_action}"
+                                       binding="#{caseMgt.btnRejectWorklet}"
+                                       id="btnRejectWorklet"
+                                       styleClass="caseMgtButton"
+                                       style="left: 227px; top: 156px"
+                                       visible="false"
+                                       text="Reject Worklet"/>
+
                             <ui:listbox binding="#{caseMgt.lbxRunningCases}"
                                         id="lbxRunningCases"
                                         items="#{SessionBean.runningCaseListOptions}"

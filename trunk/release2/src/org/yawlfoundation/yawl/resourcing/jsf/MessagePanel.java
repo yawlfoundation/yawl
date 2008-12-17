@@ -141,8 +141,10 @@ public class MessagePanel extends PanelLayout {
 
     /* adds a message to a particular list */
     private List<String> addMessage(List<String> list, String message) {
-        if (list == null)  list = new ArrayList<String>();
-        list.add(message);
+        if (message != null) {
+            if (list == null) list = new ArrayList<String>();
+            list.add(message);
+        }    
         return list ;
     }
 
@@ -269,8 +271,9 @@ public class MessagePanel extends PanelLayout {
         // estimated constants
         double minHeight = 70.0;
         double lineHeight = 15.5;
+        double margin = 20.0;
 
-        double height = Math.round(Math.max(minHeight, lineCount * lineHeight));
+        double height = Math.round(Math.max(minHeight, lineCount * lineHeight + margin));
         this.setStyle(String.format("%s height: %.0fpx", _style, height));
     }
 }

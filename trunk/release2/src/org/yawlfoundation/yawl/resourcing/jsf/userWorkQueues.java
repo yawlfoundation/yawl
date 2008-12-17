@@ -12,6 +12,7 @@ import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
 import org.jdom.Element;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
@@ -673,9 +674,15 @@ public class userWorkQueues extends AbstractPageBean {
                     xml = dirtywir.toXML();
                 }
 
+                // package up task param info
+                YSpecificationID specID = new YSpecificationID(wir.getSpecificationID(),
+                                                               wir.getSpecVersion());
+                String params = _rm.getTaskParamsAsXML(specID, wir.getTaskID(),
+                                                              _sb.getSessionhandle());
+
                 // show the custom form
                 StringBuilder s = new StringBuilder(url);
-                s.append("?workitem=").append(xml);
+                s.append("?workitem=").append(xml).append("&params=").append(params);
                 context.getExternalContext().redirect(s.toString());
             }
             catch (Exception e) {

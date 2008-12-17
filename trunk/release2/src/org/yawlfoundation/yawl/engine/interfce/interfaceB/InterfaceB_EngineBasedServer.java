@@ -36,7 +36,7 @@ import java.util.Enumeration;
  * Date: 22/12/2003
  * Time: 12:03:41
  *
- * @author Michael Adams (refactored for v2.0, 06/2008)
+ * @author Michael Adams (refactored for v2.0, 06/2008; 12/2008)
  *
  */
 public class InterfaceB_EngineBasedServer extends HttpServlet {
@@ -84,31 +84,13 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
 
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        //reloading of the remote engine.
-        PrintWriter outputWriter = ServletUtils.prepareResponse(response);
-        StringBuffer output = new StringBuffer();
-        output.append("<response>");
-        output.append(processGetQuery(request));
-        output.append("</response>");
-        if (_engine.enginePersistenceFailure())
-        {
-            logger.fatal("************************************************************");
-            logger.fatal("A failure has occured whilst persisting workflow state to the");
-            logger.fatal("database. Check the satus of the database connection defined");
-            logger.fatal("for the YAWL service, and restart the YAWL web application.");
-            logger.fatal("Further information may be found within the Tomcat log files.");
-            logger.fatal("************************************************************");
-            response.sendError(500, "Database persistence failure detected");
-        }
-        outputWriter.write(output.toString());
-        outputWriter.flush();
-        outputWriter.close();
+        doPost(request, response);
     }
 
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         //reloading of the remote engine.
-        PrintWriter outputWriter = ServletUtils.prepareResponse(response);
+        OutputStreamWriter outputWriter = ServletUtils.prepareResponse(response);
         StringBuffer output = new StringBuffer();
         output.append("<response>");
         output.append(processPostQuery(request));
@@ -129,21 +111,11 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
     }
 
 
-    protected void doPut(HttpServletRequest request, HttpServletResponse response) {
-
-    }
-
-
-    protected void doDelete(HttpServletRequest request, HttpServletResponse response) {
-
-    }
-
-
     //###############################################################################
     //      Start YAWL Processing methods
     //###############################################################################
 
-    private String processGetQuery(HttpServletRequest request) {
+    private String processPostQuery(HttpServletRequest request) {
         StringBuffer msg = new StringBuffer();
         String sessionHandle = request.getParameter("sessionHandle");
         String action = request.getParameter("action");
@@ -154,10 +126,34 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
 
         try {
             if (logger.isDebugEnabled()) {
-                debug(request, "Get");
+                debug(request, "Post");
             }
 
             if (action != null) {
+                if (action.equals("connect")) {
+                    String userID = request.getParameter("userid");
+                    String password = request.getParameter("password");
+                    msg.append(_engine.connect(userID, password));
+                }
+                else if (action.equals("checkout")) {
+                    msg.append(_engine.startWorkItem(workItemID, sessionHandle));
+                }
+                else if (action.equals("checkin")) {
+                    String data = request.getParameter("data");
+                    msg.append(_engine.completeWorkItem(workItemID, data, false,
+                            sessionHandle));
+                }
+                else if (action.equals("launchCase")) {
+                    String specID = request.getParameter("specID");
+                    URI completionObserver = getCompletionObserver(request);
+                    String caseParams = request.getParameter("caseParams");
+                    msg.append(_engine.launchCase(specID, caseParams,
+                            completionObserver, sessionHandle));
+                }
+                else if (action.equals("cancelCase")) {
+                    String caseID = request.getParameter("caseID");
+                    msg.append(_engine.cancelCase(caseID, sessionHandle));
+                }
                 if (action.equals("details")) {
                     msg.append(_engine.getWorkItemDetails(workItemID, sessionHandle));
                 }
@@ -183,6 +179,9 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                     YSpecificationID specID = new YSpecificationID(specName, version);
                     msg.append(_engine.getResourcingSpecs(specID, taskID, sessionHandle));
                 }
+                else if (action.equals("checkIsAdmin")) {
+                    msg.append(_engine.checkConnectionForAdmin(sessionHandle));
+                }
                 else if (action.equals("checkAddInstanceEligible")) {
                     msg.append(_engine.checkElegibilityToAddInstances(
                                                               workItemID, sessionHandle));
@@ -196,7 +195,7 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                 }
                 else if (action.equals("getSpecificationDataSchema")) {
                     YSpecificationID specID = new YSpecificationID(specName, version);
-                    msg.append(_engine.getSpecificationDataSchema(specID, sessionHandle));                   
+                    msg.append(_engine.getSpecificationDataSchema(specID, sessionHandle));
                 }
                 else if (action.equals("getCasesForSpecification")) {
                     YSpecificationID specID = new YSpecificationID(specName, version);
@@ -224,6 +223,24 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                     String caseID = request.getParameter("caseID");
                     msg.append(_engine.getParameterInstanceSummary(caseID, workItemID, sessionHandle));
                 }
+                else if (action.equals("createInstance")) {
+                    String paramValueForMICreation =
+                            request.getParameter("paramValueForMICreation");
+                    msg.append(_engine.createNewInstance(workItemID,
+                            paramValueForMICreation, sessionHandle));
+                }
+                else if (action.equals("suspend")) {
+                    msg.append(_engine.suspendWorkItem(workItemID, sessionHandle));
+                }
+                else if (action.equals("rollback")) {
+                    msg.append(_engine.rollbackWorkItem(workItemID, sessionHandle));
+                }
+                else if (action.equals("unsuspend")) {
+                    msg.append(_engine.unsuspendWorkItem(workItemID, sessionHandle));
+                }
+                else if (action.equals("skip")) {
+                    msg.append(_engine.skipWorkItem(workItemID, sessionHandle));
+                }
             }  // action is null
             else if (request.getRequestURI().endsWith("ib")) {
                 msg.append(_engine.getAvailableWorkItemIDs(sessionHandle));
@@ -231,75 +248,6 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
             else if (request.getRequestURI().contains("workItem")) {
                 msg.append(_engine.getWorkItemOptions(workItemID,
                         request.getRequestURL().toString(), sessionHandle));
-            }
-        } catch (RemoteException e) {
-            logger.error("Remote Exception in Interface B with action: " + action, e);
-        }
-        if (logger.isDebugEnabled()) {
-            logger.debug("InterfaceB_EngineBasedServer::doGet() result = " + msg);
-            logger.debug("\n");
-        }
-        return msg.toString();
-    }
-
-
-    private String processPostQuery(HttpServletRequest request) {
-        StringBuffer msg = new StringBuffer();
-        String action = request.getParameter("action");
-
-        try {
-            if (logger.isDebugEnabled()) {
-                debug(request, "Post");
-            }
-
-            if (action != null) {
-                if (action.equals("connect")) {
-                    String userID = request.getParameter("userid");
-                    String password = request.getParameter("password");
-                    msg.append(_engine.connect(userID, password));
-                }
-                else {
-                    String workItemID = request.getParameter("workItemID");
-                    String sessionHandle = request.getParameter("sessionHandle");
-
-                    if (action.equals("checkout")) {
-                        msg.append(_engine.startWorkItem(workItemID, sessionHandle));
-                    }
-                    else if (action.equals("checkin")) {
-                        String data = request.getParameter("data");
-                        msg.append(_engine.completeWorkItem(workItemID, data, false,
-                                sessionHandle));
-                    }
-                    else if (action.equals("launchCase")) {
-                        String specID = request.getParameter("specID");
-                        URI completionObserver = getCompletionObserver(request);
-                        String caseParams = request.getParameter("caseParams");
-                        msg.append(_engine.launchCase(specID, caseParams,
-                                completionObserver, sessionHandle));
-                    }
-                    else if (action.equals("cancelCase")) {
-                        String caseID = request.getParameter("caseID");
-                        msg.append(_engine.cancelCase(caseID, sessionHandle));
-                    }
-                    else if (action.equals("createInstance")) {
-                        String paramValueForMICreation =
-                                request.getParameter("paramValueForMICreation");
-                        msg.append(_engine.createNewInstance(workItemID,
-                                paramValueForMICreation, sessionHandle));
-                    }
-                    else if (action.equals("suspend")) {
-                        msg.append(_engine.suspendWorkItem(workItemID, sessionHandle));
-                    }
-                    else if (action.equals("rollback")) {
-                        msg.append(_engine.rollbackWorkItem(workItemID, sessionHandle));
-                    }
-                    else if (action.equals("unsuspend")) {
-                        msg.append(_engine.unsuspendWorkItem(workItemID, sessionHandle));
-                    }
-                    else if (action.equals("skip")) {
-                        msg.append(_engine.skipWorkItem(workItemID, sessionHandle));
-                    }
-                }
             }
             else logger.error("Interface B called with null action.");
         }
@@ -323,8 +271,7 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
             }
         }
         return null;
-    }
-
+    }                                         
 
 
     private void debug(HttpServletRequest request, String service) {

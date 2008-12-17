@@ -35,7 +35,7 @@ public class ResourceEvent {
         _specID = wir.getSpecificationID();
         _specVersion = wir.getSpecVersion();
         _caseID = wir.getCaseID();
-        _taskID = wir.getTaskID();
+        _taskID = wir.getTaskName(); 
         _itemID = wir.getID();
         _participantID = pid;
         _event = eType.name() ;

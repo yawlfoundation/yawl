@@ -70,6 +70,10 @@ public class Persister implements Serializable {
        return _db.getObjectsForClassWhere(className, whereClause) ;
     }
 
+    public List execQuery(String query) {
+        return _db.execQuery(query);
+    }
+
 
     public Object selectScalar(String className, String id) {
        Object retObj = null ;

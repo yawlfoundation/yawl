@@ -329,8 +329,20 @@ public class WorkItemRecord implements Cloneable {
     }
 
     public String getTaskIDForDisplay() {
-        String exSuffix = _taskID.substring(0, _taskID.lastIndexOf("_"));
+        String exSuffix = getTaskName();
         return exSuffix.replaceAll("_", " ");
+    }
+
+    public String getTaskName() {
+        String result;
+        char c = _taskID.charAt(0);
+        if ((c >= '0') && (c <= '9')) {                        // taskid startswith digit
+            result = _taskID.substring(_taskID.indexOf("_") + 1);        // pre b7.1 task
+        }
+        else {
+            result = _taskID.substring(0, _taskID.lastIndexOf("_"));     // post b7.1
+        }
+        return result;
     }
 
     // returns the case id of the root ancestor case

@@ -16,7 +16,6 @@ import com.sun.rave.web.ui.model.Option;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
-import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
@@ -607,7 +606,7 @@ public class SessionBean extends AbstractSessionBean {
             YAWLServiceReference service = registeredServices.get(listIndex);
             result = _rm.removeRegisteredService(service.get_yawlServiceID(),
                                                                          sessionhandle);
-            if (Interface_Client.successful(result)) refreshRegisteredServices();
+            if (_rm.successful(result)) refreshRegisteredServices();
         }
         catch (IOException ioe) {
             // message ...
@@ -622,7 +621,7 @@ public class SessionBean extends AbstractSessionBean {
             YAWLServiceReference service = new YAWLServiceReference(uri, null, name);
             service.set_documentation(doco);
             result = _rm.addRegisteredService(service, sessionhandle);
-            if (Interface_Client.successful(result)) refreshRegisteredServices();
+            if (_rm.successful(result)) refreshRegisteredServices();
         }
         catch (IOException ioe) {
             // message ...
@@ -828,16 +827,18 @@ public class SessionBean extends AbstractSessionBean {
     }
 
     public boolean performAdminQueueAction(String action) {
-        String participantID = getSelectUserListChoice() ;        // this is the p-id
         WorkItemRecord wir ;
         boolean result = true;
-        if (action.startsWith("Re")) {
-            wir = getChosenWIR(WorkQueue.WORKLISTED);
-            _rm.reassignWorklistedItem(wir, participantID, action) ;
-        }    
-        else  {
-            wir = getChosenWIR(WorkQueue.UNOFFERED);
-            result = _rm.assignUnofferedItem(wir, participantID, action) ;
+        String participantID = getSelectUserListChoice() ;            // this is the p-id
+        if (participantID != null) {                       // null if browser-back-btn'ed
+            if (action.startsWith("Re")) {
+                wir = getChosenWIR(WorkQueue.WORKLISTED);
+                _rm.reassignWorklistedItem(wir, participantID, action) ;
+            }
+            else  {
+                wir = getChosenWIR(WorkQueue.UNOFFERED);
+                result = _rm.assignUnofferedItem(wir, participantID, action) ;
+            }
         }
         return result ;
     }
@@ -882,8 +883,7 @@ public class SessionBean extends AbstractSessionBean {
     }
 
     private HashMap<String, Participant> getParticipantMap() {
-        if (participantMap == null)
-            participantMap = _rm.getParticipantMap();
+        participantMap = _rm.getParticipantMap();
         return participantMap;
     }
 

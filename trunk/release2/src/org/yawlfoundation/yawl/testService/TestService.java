@@ -2,6 +2,7 @@ package org.yawlfoundation.yawl.testService;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
 import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
@@ -18,7 +19,6 @@ import org.yawlfoundation.yawl.resourcing.interactions.OfferInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
-import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGatewayClient;
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGatewayClientAdapter;
 import org.yawlfoundation.yawl.schema.XSDType;
 
@@ -77,7 +77,8 @@ public class TestService extends InterfaceBWebsideController {
     //    output.append(wqTest());
    //     output.append(xsdTest());
    //     output.append(getCaseState());
-        output.append(testSummaries());
+   //     output.append(testSummaries());
+        output.append(testLogMiner());
 
          output.append("</pre></p></body></html>");
          outputWriter.write(output.toString());
@@ -143,6 +144,20 @@ private static String getReply(InputStream is) throws IOException {
 //    private String launchCase() {
 //
 //    }
+
+    private String testLogMiner() {
+        String resURL = "http://localhost:8080/resourceService/workqueuegateway";
+        WorkQueueGatewayClientAdapter resClient = new WorkQueueGatewayClientAdapter(resURL);
+        String handle = resClient.connect("admin", "YAWL");
+        try {
+            return resClient.getWorkItemDurationsForParticipant(
+                new YSpecificationID("bbb"),
+                "abeäen", "PA-ec2ddfbf-0a73-4fc7-ab95-bed876c145c5", handle);
+        }
+        catch (IOException ioe) {
+            return "io exception";
+        }
+    }
 
     private String doGetParticipantsTest() {
         String resURL = "http://localhost:8080/resourceService/gateway";
@@ -572,9 +587,9 @@ public String[] getAllResources()
   {
     try {
         String sessionHandler = connect("admin","YAWL");
-        if(WorkQueueGatewayClient.successful(sessionHandler)){
-            System.out.println("OK - Session:"+sessionHandler);
-        }
+//        if(WorkQueueGatewayClient.successful(sessionHandler)){
+//            System.out.println("OK - Session:"+sessionHandler);
+//        }
         Set<Participant> participantSet = getAllParticipants(sessionHandler);
         Iterator iter = participantSet.iterator();
         String[] retValue = new String[participantSet.size()];
