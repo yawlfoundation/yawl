@@ -1,18 +1,19 @@
 package org.yawlfoundation.yawl.editor.reductionrules;
 
 
-import org.yawlfoundation.yawl.elements.*;
+import org.jdom.JDOMException;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.elements.YNet;
+import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
+import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
-import org.yawlfoundation.yawl.exceptions.*;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URL;
 import java.util.*;
-import org.jdom.JDOMException;
 
 public class ReductionRuleTester{
 	
@@ -206,7 +207,7 @@ public class ReductionRuleTester{
       outputStream.println(getEngineSpecificationXML(specification));
        
       outputStream.close();
-      System.out.println("file succesfully exported to:"+fullFileName);
+      System.out.println("file successfully exported to:"+fullFileName);
     } catch (IOException e) {
       e.printStackTrace();
     }

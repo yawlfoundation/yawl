@@ -23,19 +23,17 @@
 
 package org.yawlfoundation.yawl.editor.swing.specification;
 
-import java.awt.BorderLayout;
-import java.util.List;
-
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.border.EmptyBorder;
-
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.specification.ProblemList;
 import org.yawlfoundation.yawl.editor.specification.ProblemListSubscriber;
 import org.yawlfoundation.yawl.editor.specification.SpecificationFileModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationFileModelListener;
 import org.yawlfoundation.yawl.editor.swing.ProblemTable;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.util.List;
 
 public class ProblemMessagePanel extends JPanel  implements SpecificationFileModelListener, ProblemListSubscriber {
   /**
@@ -83,8 +81,7 @@ public class ProblemMessagePanel extends JPanel  implements SpecificationFileMod
   private void populateProblemListTable(List problemList) {
     for(int i = 0; i < problemList.size(); i++) {
       String problem = (String) problemList.get(i);
-      
-      problemResultsTable.addMessage(problem.trim());
+      if (problem != null) problemResultsTable.addMessage(problem.trim());
     }
   }
 
