@@ -22,12 +22,14 @@
  
 package org.yawlfoundation.yawl.editor.reductionrules;
 
-import org.yawlfoundation.yawl.elements.*;
-import org.yawlfoundation.yawl.editor.analyser.*;
+import org.yawlfoundation.yawl.editor.analyser.RElement;
+import org.yawlfoundation.yawl.editor.analyser.RPlace;
+import org.yawlfoundation.yawl.editor.analyser.RTransition;
+import org.yawlfoundation.yawl.editor.analyser.ResetWFNet;
+
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashSet;
-import java.util.Iterator;
 
 /**
  * Reduction rule for RWF-net: FESR rule
@@ -63,7 +65,7 @@ public class FESRrule extends ResetReductionRule{
                     Iterator netElesIter = netElements.values().iterator();
     				while (netElesIter.hasNext()) {
 	           			 RElement p2 = (RElement) netElesIter.next();
-	            		 if (p2 instanceof RPlace) {
+	            		 if ((p != p2) && (p2 instanceof RPlace)) {
 	                           Set postSet2 = p2.getPostsetElements();
 	                           Set preSet2  = p2.getPresetElements(); 
 	                           

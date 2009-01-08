@@ -67,18 +67,25 @@ public class SetCustomFormAction extends YAWLSelectedNetAction
                           "Set Custom Form URI", JOptionPane.PLAIN_MESSAGE,
                           null, null, urlStr);
 
-      if ((result != null) && (! result.equals("http://"))) {
-        try {
-          new URL(result);                   // check for well formedness
-          task.setCustomFormURL(result);     // passed the test
-          done = true ;  
-        }
-        catch (MalformedURLException mfue) {
-          JOptionPane.showMessageDialog(graph,
-                "'" + result + "' is not a valid absolute URL. Please correct or cancel.",
-                "Malformed URL",
-                JOptionPane.ERROR_MESSAGE);
-        }   
+      if (result != null) {
+          if ((result.length() == 0) || (result.equals("http://"))) {
+              task.setCustomFormURL(null);
+              done = true;
+          }
+          else {                              // uri supplied
+              try {
+                  new URL(result);                   // check for well formedness
+                  task.setCustomFormURL(result);     // passed the test
+                  done = true ;
+              }
+              catch (MalformedURLException mfue) {       // not wellformed - try again
+                  JOptionPane.showMessageDialog(graph,
+                            "'" + result +
+                            "' is not a valid absolute URL. Please correct or cancel.",
+                            "Malformed URL",
+                            JOptionPane.ERROR_MESSAGE);
+              }
+          }
       }
       else done = true ;                                                  // cancelled
     }
