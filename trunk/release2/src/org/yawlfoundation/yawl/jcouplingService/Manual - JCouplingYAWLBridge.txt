@@ -1,0 +1,15 @@
+1) openJMS installieren
+2) openJMS starten (openJMS.bat)
+3) neue Queues erzeugen - JMSAdmin.java innerhalb der 
+	jcouplingService Package starten
+
+
+http://openjms.sourceforge.net/usersguide/examples.html
+1) compilieren
+2) TC starten 
+
+Receiver
+	run Receiver requestQueue 1000  	1000 - Nummer der Nachrichten, die Receiver kann maximal empfangen
+
+Sender
+	run Sender nameDerQueue 1000
