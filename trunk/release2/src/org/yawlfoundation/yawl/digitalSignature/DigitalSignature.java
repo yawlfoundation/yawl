@@ -90,16 +90,11 @@ public class DigitalSignature extends InterfaceBWebsideController
 
 	                        System.out.println(Document);
 	                        //Decode the BASE64 signature
-	                        //org.apache.commons.codec.binary.Base64.decodeBase64(;);
-	                        //BinaryEncoder deCoder = new BinaryEncoder();
-	                        //sun.misc.BASE64Decoder deCoder = new sun.misc.BASE64Decoder();
-	                        //byte[] SignedDocument = deCoder.decodeBuffer(Document);
 	                        Base64 deCoder = new Base64();
 
 
 	                        byte[] SignedDocument = deCoder.decode(Document.getBytes());
 	                        System.out.println("Beginning of Checking XmlSignature:");
-	                        //System.out.println(SignedDocument);
 	                        if(checkSignature(SignedDocument))
 	                        	answer = "true";
 	                        else answer = "false";
@@ -341,6 +336,9 @@ public class DigitalSignature extends InterfaceBWebsideController
         try {
             X509Certificate cert = getCertificate();
             PrivateKey privatekey = getPrivateKey();
+	            if(privatekey==null){return null;}
+	            else
+	            {
             String Document = PrepareDocumentToBeSign(InputDocument);
             System.out.println(Document);
             System.out.println("Certificate loaded");
@@ -367,6 +365,7 @@ public class DigitalSignature extends InterfaceBWebsideController
             // the second variable "true" means that the content will be wrap with the signature
             return signGen.generate(content, true, "BC");
             } 
+            }
         catch (Exception e) {
             e.printStackTrace();  
             return null;
@@ -384,19 +383,21 @@ public class DigitalSignature extends InterfaceBWebsideController
                  System.out.println("Beginning of XmlSignature:");
                  //Call the function to sign the document
                  byte[] signeddata = SignedData(Document).getEncoded();
+                 if(signeddata.toString().compareTo(null)==0) return null;
+                 else
+                 {
                  System.out.println("End of Xml Signature");
     	  	  	
                  // Convert the signed data in a BASE64 string to make it a valid content 
                  // for Yawl
-                 //sun.misc.BASE64Encoder enCoder = new sun.misc.BASE64Encoder();
                  Base64 enCoder = new Base64();
                  String base64OfSignatureValue = new String(enCoder.encode(signeddata));
                  System.out.println(base64OfSignatureValue);
 
                  return base64OfSignatureValue;
-                          
+	              }
+
                 
-    		
     	} catch (Exception e) {e.printStackTrace();
     	return null;
     	}
