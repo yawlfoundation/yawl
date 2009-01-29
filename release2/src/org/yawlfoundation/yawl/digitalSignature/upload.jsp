@@ -25,6 +25,7 @@
 	try{
 			String Document = "Document";
 			String Signature = "Signature";
+
 			String password = null;
 			String p12 = null;
 			String Certificate = null;
@@ -64,7 +65,6 @@
 					
     					String fileName = fileItem.getName();
 						System.out.println(fileName);
-						//System.out.println(getServletContext().getRealPath("/");
 						/* Save the uploaded file if its size is greater than 0. */
 						/*if (fileItem.getSize() > 0){
 							fileName = fileItem.getName();
@@ -91,18 +91,15 @@
 				Element dataitem = data.getChild(Signature);        // get data var
 					if (dataitem != null) {
 						dataitem.setText(Result);
-						//data.getChild(Signature).setText(Result);                      // update data var's value
-						//wir.getDataList().getChild(Signature).setText(Result);
+						// update data var's value
 						wir.getUpdatedData();
 
-						//System.out.println(wir.getDataList().getChild(Signature).getValue());
 						// pass the updated wir back to the calling worklist page;
 						// must convert it back to XML in the process.
 						System.out.println(wir.getDataList().getChild(Signature).getText().toString());
 						String redirectURL = "http://localhost:8080/resourceService/" +
 													"faces/userWorkQueues.jsp?workitem=" + wir.toXML();
 						response.sendRedirect(response.encodeURL(redirectURL));
-					//} else {System.out.println("This workitem does not contain a variable called '" + Signature + "'.");} 
 				}else { System.out.println("This workitem does not contain any data for updating.");}
 				
 				  
