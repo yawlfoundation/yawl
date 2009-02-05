@@ -31,7 +31,8 @@ import java.util.Enumeration;
 
 
 /**
- * 
+ * Receives & responds to POST messages from custom services
+ *
  * @author Lachlan Aldred
  * Date: 22/12/2003
  * Time: 12:03:41
@@ -65,6 +66,7 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                 YProperties.getInstance().setProperties(out.toString());
             }
 
+            // init engine reference
             _engine = (EngineGateway) context.getAttribute("engine");
             if (_engine == null) {
                 String persistOn = context.getInitParameter("EnablePersistence");
@@ -84,12 +86,12 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
 
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        doPost(request, response);
+        doPost(request, response);                 // redirect all GETs to POSTs
     }
 
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        //reloading of the remote engine.
+
         OutputStreamWriter outputWriter = ServletUtils.prepareResponse(response);
         StringBuffer output = new StringBuffer();
         output.append("<response>");

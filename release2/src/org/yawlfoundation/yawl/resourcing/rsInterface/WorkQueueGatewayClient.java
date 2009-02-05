@@ -18,19 +18,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *  The WorkQueue Gateway provides a gateway (or a set of API) between the Resource
+ *  The WorkQueue Gateway externalises the full worklist functionality of the
+ *  Resource Service by providign a gateway (or a set of API) between the 
  *  Service and the participant workqueue jsps.
  *
  *  @author Michael Adams
  *  v0.1, 13/08/2007
  *
- *  Last Date: 07/03/2008
+ *  Last Date: 17/12/2008
  */
 
 public class WorkQueueGatewayClient extends Interface_Client {
 
    /** the uri of the resource service's **workqueue gateway**
-     * a default would be "http://localhost:8080/resourceService/workqueuegateway" */
+    * a default would be "http://localhost:8080/resourceService/workqueuegateway"
+    */
     private String _serviceURI ;
 
 
@@ -39,7 +41,8 @@ public class WorkQueueGatewayClient extends Interface_Client {
 
 
     /** the only constructor
-     * @param uri the uri of the resourceService's gateway */
+     * @param uri the uri of the resourceService's workqueue gateway
+     */
     public WorkQueueGatewayClient(String uri) {
         _serviceURI = uri ;
     }
@@ -49,10 +52,10 @@ public class WorkQueueGatewayClient extends Interface_Client {
     // GET & POST WRAPPER METHODS //
 
     /**
-     * a wrapper for the executeGet method - returns a String
+     * a wrapper for the executeGet method
      * @param action the name of the gateway method to call
-     * @return the resultant Element
-     * @throws IOException
+     * @return the resultant reply String
+     * @throws IOException if the service can't be reached
      */
     private String performGet(String action, String handle) throws IOException {
         return executeGet(_serviceURI, prepareParamMap(action, handle)) ;
@@ -64,7 +67,7 @@ public class WorkQueueGatewayClient extends Interface_Client {
      * @param action the name of the gateway method to call
      * @param map a map of parameters and values
      * @param handle an active sessionhandle
-     * @return the resultant Element
+     * @return the resultant reply String
      * @throws java.io.IOException if there's a problem connecting to the engine
      */
     private String performGet(String action, Map<String, String> map, String handle)

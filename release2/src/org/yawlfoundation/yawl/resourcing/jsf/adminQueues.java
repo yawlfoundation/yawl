@@ -376,10 +376,10 @@ public class adminQueues extends AbstractPageBean {
         }
         else {
             if (ResourceManager.getInstance().getParticipantCount() == 0) {
-                _sb.getMessagePanel().error("Unable to assign workitem because there " +
-                    "are no participants defined in the organisational database. " +
-                    "Please add some participants via the 'User Mgt' form, then return " +
-                    "to this form to assign the workitem.");
+                _sb.getMessagePanel().error("Unable to assign workitem: " +
+                    "Missing or empty organisational database. Please check and, if " +
+                    "necessary, add some participants via the 'User Mgt' form, then " +
+                    "return to this form to assign the workitem.");
             }
             else {
                 _sb.setBlankStartOfParticipantList(false);

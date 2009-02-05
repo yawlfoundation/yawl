@@ -26,18 +26,20 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 
 /**
- * This class is an API for accessing the YAWL engine webapp.  It uses by default XML-over-HTTP
- * as a transport mechanism.
+ * An abstract class designed to be implemented by YAWL custom services. It provides
+ * access to, and receives event notifications from, the Engine via Interface B.
+ *
  * @author Lachlan Aldred
  * Date: 19/03/2004
  * Time: 11:44:49
+ *
+ * @author Michael Adams (refactored and enhanced for v2.0 2008-09)
  */
+
 public abstract class InterfaceBWebsideController {
     protected InterfaceB_EnvironmentBasedClient _interfaceBClient;
     protected WorklistModel _model;
@@ -63,6 +65,7 @@ public abstract class InterfaceBWebsideController {
         _authConfig4WS = AuthenticationConfig.getInstance();
     }
 
+    
     /**
      * Provided that you set up the web.xml file according to the YAWL doumentation
      * you do not need to call this method.  It allows implementors to set up
@@ -76,53 +79,56 @@ public abstract class InterfaceBWebsideController {
 
 
     /**
-     * It recieves messages from the engine
-     * notifying an enabled task and acts accordingly.  In this case it takes the message,
-     * tries to check out the work item, and if successful it begins to start up a web service
-     * invokation.
-     * @param enabledWorkItem
+     * Receives notification from the engine of an enabled workitem. Typically, a
+     * custom service will implement this method to check out the work item, and
+     * process it as appropriate for the service.
+     * @param enabledWorkItem the enabled work item
      */
     public abstract void handleEnabledWorkItemEvent(WorkItemRecord enabledWorkItem);
 
+
     /**
-     * By implementing this method and deploying a web app containing the implementation
-     * the YAWL engine will send events to this method notifying your custom
-     * YAWL service that an active work item has been cancelled by the
-     * engine.
-     * @param workItemRecord a "snapshot" of the work item cancelled in
-     * the engine.
+     * Receives notification from the engine that an active workitem has been
+     * cancelled. A custom service will implement this method to take any cleanup
+     * action on a previously checked out workitem.
+     * 
+     * @param workItemRecord the cancelled work item
      */
     public abstract void handleCancelledWorkItemEvent(WorkItemRecord workItemRecord);
 
 
     /**
-     * Override this method to take any necessary action when a case is cancelled
-     * @param caseID the id of the case to cancel
+     * Receives notification from the engine that an active case has been
+     * cancelled.  Override this method to take any necessary action.
+     * @param caseID the id of the case that has been cancelled
      */
     public void handleCancelledCaseEvent(String caseID) { }
 
+
     /**
-     * By overriding this method one can process case completion events.
+     * Receives notification from the engine that an active case has been
+     * completed. By overriding this method a service can process case completion
+     * events as required.
      * @param caseID the id of the completed case.
+     * @param casedata the set of net-level data for the case when it completes
      */
-    public void handleCompleteCaseEvent(String caseID, String casedata) {
-
-    }
+    public void handleCompleteCaseEvent(String caseID, String casedata) { }
 
 
     /**
-     * Override this method to handle timeout on timed workitems
-     * @param expiredWorkItem
+     * Receives notification from the engine that an active workitem's timer has
+     * expired. Override this method to handle timer expiries on timed workitems.
+     * @param expiredWorkItem the workitem that has an expired timer
      */
     public void handleTimerExpiryEvent(WorkItemRecord expiredWorkItem) { }
 
 
     /**
-     * Override this method to handle final initialisation tasks that require a
-     * running engine
+     * Receives notification from the engine that it has finished startup
+     * initialisation and is now in a running state. Override this method to
+     * handle final service initialisation tasks that require a running engine
      */
     public void handleEngineInitialisationCompletedEvent() { }
-
 
 
 
@@ -137,13 +143,13 @@ public abstract class InterfaceBWebsideController {
 
 
     /**
-     * If you are going outside of a firewall then you will need to
+     * If a custom service is installed outside of a firewall then you will need to
      * set this method once.  Doing so will allow the WSIF code to access
      * Web services outside your organisation's firewall (http authenticating
      * proxy).
      *
      * NOTE:  If your custom YAWL service doesn't need to negotiate a
-     * a firewall merely provide an empty implementation of this method.
+     * a firewall this method can be ignored
      *
      * @param userName mandatory
      * @param password mandatory
@@ -158,13 +164,13 @@ public abstract class InterfaceBWebsideController {
 
 
     /**
-     * Your opportunity to provide a welcome screen for your Custom YAWL Service
-     * when you override this method.
+     * Override this method to provide a welcome screen for your Custom YAWL Service
      * For instance you could redirect to a JSP or just write typical
      * servlet doGet() code inside your subclass.
      * @param request the request
      * @param response the response.
-     * @throws IOException
+     * @throws IOException if an error is detected when the servlet handles the GET request
+     * @throws ServletException if the request for the GET could not be handled
      */
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
@@ -194,8 +200,8 @@ public abstract class InterfaceBWebsideController {
     /**
      * Checks if the sessionhandle with the engine is currently active.
      * @param sessionHandle the session handle
-     * @return true if the session handle is OK; else false.
-     * @throws IOException if the engine cannot be connected with.
+     * @return true if the session handle is valid and active; else false.
+     * @throws IOException if a connection with the engine cannot be established.
      */
     public boolean checkConnection(String sessionHandle) throws IOException {
         String msg = _interfaceBClient.checkConnection(sessionHandle);
@@ -204,11 +210,13 @@ public abstract class InterfaceBWebsideController {
 
 
     /**
-     * Creates a session with the engine.  These typically last for ONE HOUR.
+     * Creates a session with the engine.  A session is automatically disconnected
+     * after 60 minutes of inactivty (although this value can be changed via config
+     * value in the web.xml file).
      * @param userID the userID
      * @param password the password.
      * @return a sessionhandle string
-     * @throws IOException if the engine cannot be connected with.
+     * @throws IOException if a connection with the engine cannot be established.
      */
     public String connect(String userID, String password) throws IOException {
         return _interfaceBClient.connect(userID, password);
@@ -216,11 +224,12 @@ public abstract class InterfaceBWebsideController {
 
 
     /**
-     * Checks a work item out of the engine.  Also stores a local copy of the active item.
+     * Checks a work item out of the engine. Also stores a local copy of the active item.
      * @param workItemID the work item id.
-     * @param sessionHandle the session handle
+     * @param sessionHandle a valid session handle
      * @return the resultant checked-out workitem.
-     * @throws IOException if the engine cannot be connected with.
+     * @throws IOException if a connection with the engine cannot be established.
+     * @throws YAWLException if the checkout was unsuccessful 
      */
     public WorkItemRecord checkOut(String workItemID, String sessionHandle)
             throws IOException, YAWLException {
@@ -252,7 +261,7 @@ public abstract class InterfaceBWebsideController {
      * @param sessionHandle the session handle.
      * @return a diagnostic result of the action - in XML.
      * @throws IOException if there is a problem contacting the engine.
-     * @throws JDOMException if there is a problem parsing XML of input data or output data
+     * @throws JDOMException if there is a problem parsing XML of input or output data
      * @deprecated replaced by checkInWorkItem(String workItemID, Element inputData, Element outputData, String sessionHandle)
      */
     public String checkInWorkItem(String workItemID, String inputData, String outputData, String sessionHandle) throws IOException, JDOMException {
@@ -287,24 +296,24 @@ public abstract class InterfaceBWebsideController {
      * @param workItemID the work item id.
      * @param inputData the input data as an XML String.
      * @param outputData the output data as an XML String
-     * @param sessionHandle
+     * @param sessionHandle a valid session handle
      * @return a diagnostic result of the action - in XML.
      * @throws IOException if there is a problem contacting the engine.
-     * @throws JDOMException if there is a problem parsing XML of input data or output data
+     * @throws JDOMException if there is a problem parsing XML of input or output data
      */
     public String checkInWorkItem(String workItemID, Element inputData, Element outputData, String sessionHandle) throws IOException, JDOMException {
-        //first merge the input and output data together
-        String mergedlOutputData = Marshaller.getMergedOutputData(inputData, outputData);
 
-        //Now if this is beta4 or greater then remove all those input only bits of data
-        //by first preparing a list of output params to iterate over.
+        // first merge the input and output data together
+        String mergedlOutputData = Marshaller.getMergedOutputData(inputData, outputData);
+        String filteredOutputData;
+
         WorkItemRecord workitem = this.getCachedWorkItem(workItemID);
         YSpecificationID specID = new YSpecificationID(workitem.getSpecificationID(),
                                                        workitem.getSpecVersion());
         SpecificationData specData = getSpecificationData(specID, sessionHandle);
 
-        String filteredOutputData;
-
+        // Now if this is beta4 or greater then remove all those input only bits of data
+        // by first preparing a list of output params to iterate over.
         if (!(specData.usesSimpleRootData())) {
             TaskInformation taskInfo = getTaskInformation(specID, workitem.getTaskID(),
                                                           sessionHandle);
@@ -324,17 +333,26 @@ public abstract class InterfaceBWebsideController {
 
     /**
      * Gets a locally stored copy of a work item.
-     * @param workItemID
+     * @param workItemID the id of the workitem to retrieve
      * @return a local (to the custom service) cached copy of the workitem.
      */
     public WorkItemRecord getCachedWorkItem(String workItemID) {
         return _model.getWorkItem(workItemID);
     }
 
-    public WorkItemRecord getEngineStoredWorkItem(String workItemID, String sessionHandle) throws JDOMException, IOException {
-        List items = _interfaceBClient.getCompleteListOfLiveWorkItems(sessionHandle);
-        for (Iterator iterator = items.iterator(); iterator.hasNext();) {
-            WorkItemRecord record = (WorkItemRecord) iterator.next();
+
+    /**
+     * Gets a copy of a workitem form the engine's cache
+     * @param workItemID the id of the workitem to retrieve
+     * @param sessionHandle a valid sesion handle
+     * @return a remote (to the custom service) cached copy of the workitem.
+     * @throws IOException if there is a problem contacting the engine.
+     * @throws JDOMException if there is a problem parsing the XML result
+     */
+    public WorkItemRecord getEngineStoredWorkItem(String workItemID, String sessionHandle)
+            throws JDOMException, IOException {
+        List<WorkItemRecord> items = _interfaceBClient.getCompleteListOfLiveWorkItems(sessionHandle);
+        for (WorkItemRecord record : items) {
             if (record.getID().equals(workItemID)) {
                 return record;
             }
@@ -344,12 +362,13 @@ public abstract class InterfaceBWebsideController {
 
 
     /**
-     * @deprecated superceded by getTaskInformation(YSpecificationID, String, String)
-     * @param specID
-     * @param taskID
-     * @param sessionHandle
-     * @return
-     * @throws IOException
+     * Gets metadata of a task.
+     * @deprecated superseded by getTaskInformation(YSpecificationID, String, String)
+     * @param specID the specification id
+     * @param taskID the task id
+     * @param sessionHandle a valid session handle
+     * @return a task metadata description
+     * @throws IOException if there is a problem contacting the engine.
      */
     public TaskInformation getTaskInformation(String specID, String taskID,
                                               String sessionHandle) throws IOException {
@@ -357,6 +376,14 @@ public abstract class InterfaceBWebsideController {
     }
 
 
+    /**
+     * Gets metadata of a task.
+     * @param specID the specification id
+     * @param taskID the task id
+     * @param sessionHandle a valid session handle
+     * @return a task metadata description
+     * @throws IOException if there is a problem contacting the engine.
+     */
     public TaskInformation getTaskInformation(YSpecificationID specID, String taskID,
                                               String sessionHandle) throws IOException {
         TaskInformation taskInfo = _model.getTaskInformation(specID, taskID);
@@ -370,16 +397,19 @@ public abstract class InterfaceBWebsideController {
     }
 
 
+    /**
+     * Gets a reference to the local cache
+     * @return a reference to the cache
+     */
     public WorklistModel getModel() {
         return _model;
     }
 
 
-    public List<WorkItemRecord> getChildren(String workItemID, String sessionHandle)
-            throws IOException {
-        return _interfaceBClient.getChildrenOfWorkItem(workItemID, sessionHandle);
-    }
-
+    /**
+     * Gets a reference to the authentication configuration for the local service (if any)
+     * @return the authentication object for this instantiation
+     */
 
     public AuthenticationConfig getAuthenticationConfig() {
         return _authConfig4WS;
@@ -387,15 +417,27 @@ public abstract class InterfaceBWebsideController {
 
 
     /**
-     * logs the failure of client to contact the YAWL engine.
+     * Retrieve a list of all the child work items for a given parent work item
+     * @param workItemID the id of the parent workitem
+     * @param sessionHandle a valid session handle
+     * @return the list of child workitems
+     * @throws IOException if there is a problem contacting the engine.
+     */
+    public List<WorkItemRecord> getChildren(String workItemID, String sessionHandle)
+            throws IOException {
+        return _interfaceBClient.getChildrenOfWorkItem(workItemID, sessionHandle);
+    }
+
+
+    /**
+     * Logs the failure of a client to contact the YAWL engine.
      * gives some suggestion of why?
-     * @param e
-     * @param backEndURIStr
+     * @param e the thrown exception
+     * @param backEndURIStr the uri of the engine
      */
     public static void logContactError(IOException e, String backEndURIStr) {
         Logger.getLogger(InterfaceBWebsideController.class).error(
-                "[error] problem contacting YAWL engine at URI [" +
-                backEndURIStr + "]");
+                "[error] problem contacting YAWL engine at URI [" + backEndURIStr + "]");
         if (e.getStackTrace() != null) {
             Logger.getLogger(InterfaceBWebsideController.class).error("line of code := " +
                     e.getStackTrace()[0].toString());
@@ -404,45 +446,54 @@ public abstract class InterfaceBWebsideController {
 
 
     /**
-     * checks to see if the inupt string doesn't contain a <failure>..</failure> message.
-     * @param input
+     * Checks an interface return message for success .
+     * @param input the return message
+     * @return true if the message indicates success; false if otherwise
      */
     public boolean successful(String input) {
         return _interfaceBClient.successful(input);
     }
 
 
-    public List getSpecificationPrototypesList(String sessionHandle)
+    /**
+     * Gets a list of all specifications currently loaded in the engine
+     * @param sessionHandle a valid session handle
+     * @return the full list of specifications
+     * @throws IOException if there is a problem contacting the engine.
+     */
+    public List<SpecificationData> getSpecificationPrototypesList(String sessionHandle)
             throws IOException {
         return _interfaceBClient.getSpecificationList(sessionHandle);
     }
 
+
     /**
-     * @deprecated superceded by getSpecificationData(YSpecificationID, String)
-     * @param specID
-     * @param sessionHandle
-     * @return
-     * @throws IOException
+     * Gets the specification data object with the spec id.  If called it will return the
+     * specdata object and the entire XML representation of the specification.
+     * @deprecated superseded by getSpecificationData(YSpecificationID, String)
+     * @param specID the specification id
+     * @param sessionHandle a valid session handle
+     * @return a specification data object
+     * @throws IOException if there is a problem contacting the engine.
      */
     public SpecificationData getSpecificationData(String specID, String sessionHandle)
             throws IOException {
         return getSpecificationData(new YSpecificationID(specID), sessionHandle);
     }
 
+
     /**
      * Gets the specification data object with the spec id.  If called it will return the
-     * specdata object and the entire XML representation of the specification.
-     * @see org.yawlfoundation.yawl.engine.interfce.SpecificationData
-     * @param specID
-     * @param sessionHandle
-     * @return a Specification data object for spec id else null.
-     * @throws java.io.IOException
+     * specdata object including the entire XML representation of the specification.
+     * @param specID the specification id
+     * @param sessionHandle a valid session handle
+     * @return a specification data object
+     * @throws IOException if there is a problem contacting the engine.
      */
     public SpecificationData getSpecificationData(YSpecificationID specID, String sessionHandle)
             throws IOException {
-        List specs = _interfaceBClient.getSpecificationList(sessionHandle);
-        for (int i = 0; i < specs.size(); i++) {
-            SpecificationData data = (SpecificationData) specs.get(i);
+        List<SpecificationData> specs = _interfaceBClient.getSpecificationList(sessionHandle);
+        for (SpecificationData data : specs) {
             if (data.getID().equals(specID.getSpecName())) {
                 String specAsXML = data.getAsXML();
                 if (specAsXML == null) {
@@ -461,12 +512,13 @@ public abstract class InterfaceBWebsideController {
      * Utility method for implementers to use for helping to check all instances
      * of a given task out of the engine.
      * @param enabledWorkItem an enabled WorkItemRecord.
-     * @param sessionHandle the session handle with the engine.
+     * @param sessionHandle a valid session handle with the engine.
      * @return a list of work item records that correspond to the executing work-items
      * that should be checked back into the engine when the task is complete.
      * @throws IOException if there is a problem communicating with the engine.
+     * @throws YAWLException if the checkout is unsuccessful
      */
-    protected List checkOutAllInstancesOfThisTask(
+    protected List<WorkItemRecord> checkOutAllInstancesOfThisTask(
             WorkItemRecord enabledWorkItem, String sessionHandle)
             throws IOException, YAWLException {
         if (null == enabledWorkItem) 
@@ -475,33 +527,27 @@ public abstract class InterfaceBWebsideController {
         if (!enabledWorkItem.getStatus().equals(WorkItemRecord.statusEnabled))
             throw new IllegalArgumentException("Param enabledWorkItem must be enabled.");
 
-        List executingChildrenOfWorkItem = new ArrayList();
-
-        //first of all checkout an enabled work item
+        // first of all checkout an enabled work item
         WorkItemRecord result = checkOut(enabledWorkItem.getID(), sessionHandle);
 
         _logger.debug("Result of item [" + enabledWorkItem.getID() +
                 "] checkout is : " + result);
 
-        //if the work item has any children
-        List mixedChildren = getChildren(enabledWorkItem.getID(), sessionHandle);
-        for (int i = 0; i < mixedChildren.size(); i++) {
-            WorkItemRecord itemRecord = (WorkItemRecord) mixedChildren.get(i);
+        // if the work item has any children
+        List<WorkItemRecord> mixedChildren = getChildren(enabledWorkItem.getID(), sessionHandle);
+        for (WorkItemRecord itemRecord : mixedChildren) {
             if (WorkItemRecord.statusFired.equals(itemRecord.getStatus())) {
                 _logger.debug("Result of item [" +
                         itemRecord.getID() + "] checkout is : " +
                         checkOut(itemRecord.getID(), sessionHandle));
             }
-            executingChildrenOfWorkItem = getChildren(
-                    enabledWorkItem.getID(),
-                    sessionHandle);
         }
-        return executingChildrenOfWorkItem;
+        return getChildren(enabledWorkItem.getID(), sessionHandle);
     }
 
 
     /**
-     * Utility method to prepare the reply element for checking work item back into
+     * Utility method to prepare the reply element for checking a work item back into
      * the engine.
      * @param enabledWorkItem the enabled work item.
      * @param sessionHandle the session handle
@@ -509,11 +555,11 @@ public abstract class InterfaceBWebsideController {
      * of the process specification.
      * @throws IOException if there is a problem communicating with the engine.
      */
-    protected Element prepareReplyRootElement(WorkItemRecord enabledWorkItem, String sessionHandle) throws IOException {
+    protected Element prepareReplyRootElement(WorkItemRecord enabledWorkItem, String sessionHandle)
+            throws IOException {
         Element replyToEngineRootDataElement;
         YSpecificationID specID = new YSpecificationID(enabledWorkItem.getSpecificationID(),
                                                        enabledWorkItem.getSpecVersion());
-
 
         //prepare reply root element.
         SpecificationData sdata = getSpecificationData(specID, sessionHandle);
@@ -531,6 +577,15 @@ public abstract class InterfaceBWebsideController {
         return replyToEngineRootDataElement;
     }
 
+
+    /**
+     * Retrieve the resourcing specifications for a given task
+     * @param specID the specification id
+     * @param taskID the task id
+     * @param sessionHandle a valid sessionhandle
+     * @return the task's resourcing specification, or null if it doesn't have one (pre v2.0)
+     * @throws IOException if there is a problem communicating with the engine.
+     */
     protected Element getResourcingSpecs(YSpecificationID specID, String taskID,
                                          String sessionHandle) throws IOException {
         String result = _interfaceBClient.getResourcingSpecs(specID, taskID, sessionHandle) ;

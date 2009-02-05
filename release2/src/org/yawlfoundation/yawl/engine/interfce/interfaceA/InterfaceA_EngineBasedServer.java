@@ -28,7 +28,9 @@ import java.util.Enumeration;
 
 
 /**
- * 
+ * An API between the YAWL Engine and custom services for the management of processes
+ * and users.
+ *
  * @author Lachlan Aldred
  * Date: 22/12/2003
  * Time: 12:03:41
@@ -40,15 +42,14 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
     private static final boolean _debug = false;
     private static final Logger logger = Logger.getLogger(InterfaceA_EngineBasedServer.class);
 
+
     public void init() throws ServletException {     
 
-        /**
-         * Initialise logging
-         */
         ServletContext context = getServletContext();
 
+        // read persistence flag from web.xml & get engine instance
         try {
-            String persistOn = context.getInitParameter("EnablePersistance") ;
+            String persistOn = context.getInitParameter("EnablePersistence") ;
             boolean enablePersist = "true".equalsIgnoreCase(persistOn);
 
             _engine = (EngineGateway) context.getAttribute("engine");
@@ -64,7 +65,7 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
 
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        doPost(request, response);
+        doPost(request, response);                       // all gets redirected as posts
     }
 
 

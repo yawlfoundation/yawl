@@ -17,6 +17,23 @@
 		<description></description>
 	</context-param>
 
+    <!--CharsetFilter -->
+
+     <filter>
+       <filter-name>CharsetFilter</filter-name>
+       <filter-class>org.yawlfoundation.yawl.util.CharsetFilter</filter-class>
+         <init-param>
+           <param-name>requestEncoding</param-name>
+           <param-value>UTF-8</param-value>
+         </init-param>
+     </filter>
+
+     <filter-mapping>
+       <filter-name>CharsetFilter</filter-name>
+       <url-pattern>/*</url-pattern>
+     </filter-mapping>
+    
+
 	<servlet>
 		<servlet-name>InterfaceB_Servlet</servlet-name>
 		<description>Listens to notification of work items from the engine. Shouldn't need to change this.</description>
@@ -43,6 +60,17 @@
     <jsp-file>/Signature.jsp</jsp-file>
     <load-on-startup>1</load-on-startup>
 </servlet>
+
+<servlet>
+    <servlet-name>SupervisorCertification</servlet-name>
+    <jsp-file>/SupervisorCertification.jsp</jsp-file>
+    <load-on-startup>1</load-on-startup>
+</servlet>
+
+<servlet-mapping>
+    <servlet-name>SupervisorCertification</servlet-name>
+    <url-pattern>/SupervisorCertification</url-pattern>
+</servlet-mapping>
 
 <servlet-mapping>
     <servlet-name>Signature</servlet-name>

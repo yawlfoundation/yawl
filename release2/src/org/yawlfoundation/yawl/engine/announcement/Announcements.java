@@ -1,6 +1,6 @@
 /*
  * This file is made available under the terms of the LGPL licence.
- * This licence can be retreived from http://www.gnu.org/copyleft/lesser.html.
+ * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
  * The source remains the property of the YAWL Group.  The YAWL Group is a collaboration of
  * individuals and organisations who are commited to improving workflow technology.
  *

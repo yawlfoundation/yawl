@@ -43,7 +43,7 @@ public class ResourceGateway extends HttpServlet {
                 Docket.setServiceRootDir(context.getRealPath("/")) ;
 
                 // set the engine uri
-                rm.initEngineURI(context.getInitParameter("InterfaceB_BackEnd"));
+                rm.initInterfaceClients(context.getInitParameter("InterfaceB_BackEnd"));
 
                 // enable/or disable persistence
                 String persist = context.getInitParameter("EnablePersistence");
@@ -223,6 +223,6 @@ public class ResourceGateway extends HttpServlet {
 
     public void doGet(HttpServletRequest req, HttpServletResponse res)
                                 throws IOException, ServletException {
-        doPost(req, res);
+        doPost(req, res);                                // redirect all GETs to POSTs
     }
 }
