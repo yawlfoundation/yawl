@@ -134,7 +134,6 @@ public class ResourceManager extends InterfaceBWebsideController {
     private String _adminUser = "admin" ;
     private String _adminPassword = "YAWL" ;
     private String _engineSessionHandle = null ;
-    private String _engineURI ;
     private Namespace _yNameSpace =
             Namespace.getNamespace("http://www.yawlfoundation.org/yawlschema");
 
@@ -184,12 +183,11 @@ public class ResourceManager extends InterfaceBWebsideController {
                       "Check datasource settings in 'web.xml'") ;
     }
 
-    public void initEngineURI(String uri) {
-        _engineURI = uri ;
+    public void initInterfaceClients(String uri) {
         _interfaceAClient = new InterfaceA_EnvironmentBasedClient(
-                                                 _engineURI.replaceFirst("/ib", "/ia"));
+                                                 uri.replaceFirst("/ib", "/ia"));
         _interfaceEClient = new YLogGatewayClient(
-                                         _engineURI.replaceFirst("/ib", "/logGateway"));
+                                         uri.replaceFirst("/ib", "/logGateway"));
     }
 
 
@@ -2832,12 +2830,19 @@ public class ResourceManager extends InterfaceBWebsideController {
         boolean result = true ;
         if (wir != null) {
             Participant p = getParticipant(participantID);
-            if (action.equals("Start") &&
-                   wir.getStatus().equals(WorkItemRecord.statusEnabled)) {
-                String handle = getParticipantSessionHandle(p);
-                if (handle == null) handle = _engineSessionHandle;
-                result = start(p, wir, handle);
-
+            if (action.equals("Start")) {
+                String status = wir.getStatus();
+                if (status.equals(WorkItemRecord.statusEnabled) ||
+                    status.equals(WorkItemRecord.statusFired)) {
+                    String handle = getParticipantSessionHandle(p);
+                    if (handle == null) handle = _engineSessionHandle;
+                    result = start(p, wir, handle);
+                }
+                else {
+                    _log.error("Unable to start workitem due to invalid status: " + status);
+                    result = false;
+                }
+                
                 // if could not start, fallback to allocate action
                 if (! result) action = "Allocate";
             }

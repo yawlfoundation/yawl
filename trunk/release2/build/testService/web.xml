@@ -21,6 +21,23 @@
  	<param-value>http://localhost:8080/yawl/ib</param-value>
 	</context-param>
 
+    <!--CharsetFilter -->
+
+     <filter>
+       <filter-name>CharsetFilter</filter-name>
+       <filter-class>org.yawlfoundation.yawl.util.CharsetFilter</filter-class>
+         <init-param>
+           <param-name>requestEncoding</param-name>
+           <param-value>UTF-8</param-value>
+         </init-param>
+     </filter>
+
+     <filter-mapping>
+       <filter-name>CharsetFilter</filter-name>
+       <url-pattern>/*</url-pattern>
+     </filter-mapping>
+    
+
 <servlet>
   <servlet-name>testService</servlet-name>
   <servlet-class>

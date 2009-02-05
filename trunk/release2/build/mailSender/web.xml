@@ -17,6 +17,22 @@
 		<description></description>
 	</context-param>
 
+    <!--CharsetFilter -->
+
+     <filter>
+       <filter-name>CharsetFilter</filter-name>
+       <filter-class>org.yawlfoundation.yawl.util.CharsetFilter</filter-class>
+         <init-param>
+           <param-name>requestEncoding</param-name>
+           <param-value>UTF-8</param-value>
+         </init-param>
+     </filter>
+
+     <filter-mapping>
+       <filter-name>CharsetFilter</filter-name>
+       <url-pattern>/*</url-pattern>
+     </filter-mapping>    
+
 	<servlet>
 		<servlet-name>InterfaceB_Servlet</servlet-name>
 		<description>Listens to notification of work items from the engine. Shouldn't need to change this.</description>
@@ -24,8 +40,22 @@
 		<load-on-startup>2</load-on-startup>
 	</servlet>
 	
+    <servlet>
+        <servlet-name>WelcomeServlet</servlet-name>
+        <description>
+            Welcomes users to the SMS Invoker application.
+            Shouldn't need to change this.
+        </description>
+        <jsp-file>/SetSMTP.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
 
-    
+    <servlet-mapping>
+        <servlet-name>WelcomeServlet</servlet-name>
+        <url-pattern>/setSMTP</url-pattern>
+    </servlet-mapping>
+
+
 	<servlet-mapping>
 		<servlet-name>InterfaceB_Servlet</servlet-name>
 		<url-pattern>/ib</url-pattern>

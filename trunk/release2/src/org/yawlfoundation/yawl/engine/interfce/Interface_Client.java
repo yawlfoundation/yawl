@@ -11,13 +11,12 @@ package org.yawlfoundation.yawl.engine.interfce;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * This class is used by clients and servers to execute GET and POST requests
- * across the YAWL interfaces. Note that since v2.0 (12/08) all requests are sent as
+ * across the YAWL interfaces. Note that since v2.0up4 (12/08) all requests are sent as
  * POSTS - increases efficiency, security and allows 'extended' chars to be included.
  *
  * @author Lachlan Aldred
@@ -156,10 +155,13 @@ public class Interface_Client {
     private String encodeData(Map<String, String> params) {
         StringBuilder result = new StringBuilder("");
         for (String param : params.keySet()) {
-            if (result.length() > 0) result.append("&");
-            result.append(param)
-                  .append("=")
-                  .append(ServletUtils.urlEncode(params.get(param)));
+            String value = params.get(param);
+            if (value != null) {
+                if (result.length() > 0) result.append("&");
+                result.append(param)
+                      .append("=")
+                      .append(ServletUtils.urlEncode(value));
+            }
         }
         return result.toString();
     }
@@ -187,21 +189,21 @@ public class Interface_Client {
      * @throws IOException when there's some kind of communication problem
      */
     private String getReply(InputStream is) throws IOException {
-        DataInputStream din = new DataInputStream(is);
+        final int BUF_SIZE = 16384;
+        
+        // read reply into buffered byte stream - to preserve UTF-8
+        BufferedInputStream inStream = new BufferedInputStream(is);
+        ByteArrayOutputStream outStream = new ByteArrayOutputStream(BUF_SIZE);
+        byte[] buffer = new byte[BUF_SIZE];
 
-        // read spec into a byte array wrapped in a ByteBuffer - can't do it in
-        // one read because of a buffer size limit in the InputStream
-        byte[] specContents = new byte[din.available()];
-        ByteBuffer bytes = ByteBuffer.wrap(specContents);
-        byte[] buffer = new byte[8192];
-
-        // read chunks from the stream and append them to the ByteBuffer
-        int bytesRead;
-        while ((bytesRead = din.read(buffer, 0, buffer.length)) > 0) {
-            bytes.put(buffer, 0, bytesRead);
+        // read chunks from the input stream and write them out
+        int bytesRead = 0;
+        while ((bytesRead = inStream.read(buffer, 0, BUF_SIZE)) > 0) {
+            outStream.write(buffer, 0, bytesRead);
         }
+        outStream.flush();
 
-        // convert the bytes to a string with the right charset
-        return new String(specContents, "UTF-8");
+        // convert the bytes to a UTF-8 string
+        return outStream.toString("UTF-8");
     }
 }

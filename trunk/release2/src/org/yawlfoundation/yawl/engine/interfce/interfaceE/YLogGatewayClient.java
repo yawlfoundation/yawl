@@ -24,12 +24,14 @@ import java.util.Map;
 
 public class YLogGatewayClient extends Interface_Client {
 
-    /** the uri of yawl's **logGateway**
-     * a default would be "http://localhost:8080/yawl/logGateway" */
+    /** the uri of the YAWL Engine's __logGateway__
+     * a default would be "http://localhost:8080/yawl/logGateway"
+     */
     private String _logURI;
 
     /** the only constructor
-     * @param uri the uri of the resourceService's gateway */
+     * @param uri the uri of the YAWL engine's log gateway
+     */
     public YLogGatewayClient(String uri) {
         _logURI = uri ;
     }
@@ -44,7 +46,7 @@ public class YLogGatewayClient extends Interface_Client {
      * @param pName the name of the parameter passed
      * @param pValue the parameter's value
      * @param handle an active sessionhandle
-     * @return the resultant Element
+     * @return the resultant String response (log data or error message)
      * @throws java.io.IOException if there's a problem connecting to the engine
      */
     private String performGet(String action, String pName, String pValue, String handle)

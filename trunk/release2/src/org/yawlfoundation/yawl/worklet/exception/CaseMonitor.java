@@ -64,7 +64,7 @@ public class CaseMonitor {
         _log = Logger.getLogger("org.yawlfoundation.yawl.worklet.exception.CaseMonitor");
         _specID = specID ;
         _caseID = caseID ;
-        _caseData = JDOMUtil.stringToElement(data);
+        _caseData = (data != null) ? JDOMUtil.stringToElement(data) : new Element(specID);
         _netLevelData = _caseData ;
         _itemRunners = new HashMap() ;
         _liveCase = true ;

@@ -445,7 +445,7 @@ public class userWorkQueues extends AbstractPageBean {
                 return "addInstance";
             }
             else
-                msgPanel.error("Could not retreive task parameter from Engine for new instance creation");
+                msgPanel.error("Could not retrieve task parameter from Engine for new instance creation");
         }
         return null;
     }

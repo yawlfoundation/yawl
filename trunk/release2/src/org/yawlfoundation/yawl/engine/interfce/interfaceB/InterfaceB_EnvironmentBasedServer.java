@@ -29,12 +29,16 @@ import java.util.Enumeration;
 
 
 /**
- * 
+ * Receives event announcements from the engine and passes each of them to the
+ *  custom service's appropriate handling method
+ *
  * @author Lachlan Aldred
  * Date: 23/01/2004
  * Time: 13:26:04
- * 
+ *
+ * @author Michael Adams (refactored for v2.0, 12/2008)
  */
+
 public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
     private InterfaceBWebsideController _controller;
     private static final boolean _debug = false;
@@ -44,11 +48,14 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
         ServletContext context = servletConfig.getServletContext();
+
+        // get the name of the custom service implementing this interface
+        // (i.e. the name of the class that extends InterfaceBWebSideController)
         String controllerClassName =
                 context.getInitParameter("InterfaceBWebSideController");
 
-        //If you need to get through an auth proxy firewall and have configured it in the
-        //web.xml file they will be retrieved for use.
+        //If there is an auth proxy firewall and it has been configured it in the
+        //web.xml file the settings be retrieved for use.
         String userName = context.getInitParameter("UserName");
         String password = context.getInitParameter("Password");
         String proxyHost = context.getInitParameter("ProxyHost");
@@ -66,7 +73,7 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
                 _controller = (InterfaceBWebsideController) controllerClass.newInstance();
             }
             
-            //here the URL of the YAWL Engine get retrieved from the web.xml file.
+            // retrieve the URL of the YAWL Engine from the web.xml file.
             String engineBackendAddress = context.getInitParameter("InterfaceB_BackEnd");
             _controller.setUpInterfaceBClient(engineBackendAddress);
             _controller.setRemoteAuthenticationDetails(

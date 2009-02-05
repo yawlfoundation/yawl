@@ -165,9 +165,6 @@ public class WorkQueueGateway extends HttpServlet {
             YSpecificationID specID = new YSpecificationID(specName, version);
             result = _rm.getWorkItemDurationsForParticipant(specID, taskName, pid);
         }
-
-        // the following calls are convenience pass-throughs to engine interfaces A & B
-
         else if (action.equals("getLoadedSpecs")) {
             Set<SpecificationData> set = _rm.getLoadedSpecs(handle) ;
             result = _marshaller.marshallSpecificationDataSet(set) ;
@@ -274,6 +271,11 @@ public class WorkQueueGateway extends HttpServlet {
             boolean success = _rm.reallocateStatelessWorkItem(pOrig, pDest, wir) ;
             result = String.valueOf(success);
         }
+        else if (action.equals("updateWorkItemCache")) {
+            String wirAsXML = req.getParameter("wir") ;
+            WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirAsXML);
+            _rm.getWorkItemCache().update(wir) ;
+        }
 
         // the following calls are convenience pass-throughs to engine interfaces A & B
 
@@ -296,11 +298,6 @@ public class WorkQueueGateway extends HttpServlet {
         else if (action.equals("cancelCase")) {
             String caseID = req.getParameter("caseid") ;
             result = _rm.cancelCase(caseID, handle) ;
-        }
-        else if (action.equals("updateWorkItemCache")) {
-            String wirAsXML = req.getParameter("wir") ;
-            WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirAsXML);
-            _rm.getWorkItemCache().update(wir) ;
         }
         else if (action.equals("removeRegisteredService")) {
             String id = req.getParameter("serviceid");

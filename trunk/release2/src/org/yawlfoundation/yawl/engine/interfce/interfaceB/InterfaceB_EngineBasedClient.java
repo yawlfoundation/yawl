@@ -30,14 +30,17 @@ import java.util.*;
 
 
 /**
- * 
+ * This interface announces specfic Engine events to listening custom services
+ *
  * @author Lachlan Aldred
  * Date: 22/01/2004
  * Time: 17:19:12
  *
- * @author Michael Adams (refactored for v2.0, 06/2008)
+ * @author Michael Adams (refactored for v2.0, 06/2008 - 12/2008)
  */
+
 public class InterfaceB_EngineBasedClient extends Interface_Client implements ObserverGateway {
+
     protected static Logger logger = Logger.getLogger(InterfaceB_EngineBasedClient.class);
 
     protected static final String ADDWORKITEM_CMD =             "announceWorkItem";
@@ -75,7 +78,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     }
 
     /**
-     * Annonuces work item cancellation to the YAWL Service.
+     * Announces work item cancellation to the YAWL Service.
      * @param yawlService the YAWL service reference.
      * @param workItem the work item to cancel.
      */
@@ -124,7 +127,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
 
     /**
      * Called by the engine to annouce when a case suspends (i.e. becomes fully
-     * suspended as opposed to entering the 'suspending' state.
+     * suspended) as opposed to entering the 'suspending' state.
      */
     public void announceCaseSuspended(YIdentifier caseID)
     {
@@ -133,7 +136,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
 
     /**
      * Called by the engine to annouce when a case starts to suspends (i.e. enters the
-     * suspending state as opposed to entering the fully 'suspended' state.
+     * suspending state) as opposed to entering the fully 'suspended' state.
      */
     public void announceCaseSuspending(YIdentifier caseID)
     {
@@ -141,7 +144,8 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     }
 
     /**
-     * Called by the engine to annouce when a case resumes from a previous 'suspending' or 'suspended' state.
+     * Called by the engine to annouce when a case resumes from a previous 'suspending'
+     * or 'suspended' state.
      */
     public void announceCaseResumption(YIdentifier caseID)
     {
@@ -155,7 +159,8 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param oldStatus previous status
      * @param newStatus new status
      */
-    public void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus oldStatus, YWorkItemStatus newStatus)
+    public void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus oldStatus,
+                                             YWorkItemStatus newStatus)
     {
         //todo MLF: this has been stubbed
     }
@@ -184,6 +189,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
 
     /**
      * Called by the engine when it has completed initialisation and is running
+     * @param services a set of custom services to receive the announcement
      */
     public void announceNotifyEngineInitialised(Set<YAWLServiceReference> services) {
         for (YAWLServiceReference service : services) {
@@ -193,7 +199,9 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     }
 
     /**
-     * Called by the engine when it has completed initialisation and is running
+     * Called by the engine to announce the cancellation of a case
+     * @param services a set of custom services to receive the announcement
+     * @param id the case id of the cancelled case
      */
     public void announceNotifyCaseCancellation(Set<YAWLServiceReference> services,
                                                YIdentifier id) {
@@ -237,7 +245,12 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
 
     /*******************************************************************************/
     /*******************************************************************************/
-    
+
+    /*
+     * This internal class sends the specified announcement and any required
+     * parameter values as HTTP POST messages to external custom services
+     */
+
     private class Handler extends Thread {
         private YWorkItem _workItem;
         private YAWLServiceReference _yawlService;
@@ -270,18 +283,16 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
             _command = command;
         }
 
-        private Map<String, String> prepareParamMap(String action) {
-            Map<String, String> map = new HashMap<String, String>();
-            map.put("action", action);
-            return map;
-        }
 
+        /**
+         * Load parameter map as required, then POST the message to the custom service
+         */
         public void run() {
             try {
                 if (ADDWORKITEM_CMD.equals(_command)) {
                     String urlOfYawlService = _yawlService.getURI();
                     String workItemXML = _workItem.toXML();
-                    Map<String, String> paramsMap = prepareParamMap("handleEnabledItem");
+                    Map<String, String> paramsMap = prepareParamMap("handleEnabledItem", null);
                     paramsMap.put("workItem", workItemXML);
                     executePost(urlOfYawlService, paramsMap);
                 }
@@ -299,7 +310,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                 else if (CANCELWORKITEM_CMD.equals(_command)) {
                     String urlOfYawlService = _yawlService.getURI();
                     String workItemXML = _workItem.toXML();
-                    Map<String, String> paramsMap = prepareParamMap("cancelWorkItem");
+                    Map<String, String> paramsMap = prepareParamMap("cancelWorkItem", null);
                     paramsMap.put("workItem", workItemXML);
                     executePost(urlOfYawlService, paramsMap);
                 }
@@ -307,7 +318,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                     String urlOfYawlService = _yawlService.getURI();
                     String caseID = _caseID.toString();
                     String casedataStr = JDOMUtil.documentToString(_casedata) ;
-                    Map<String, String> paramsMap = prepareParamMap(_command);
+                    Map<String, String> paramsMap = prepareParamMap(_command, null);
                     paramsMap.put("caseID", caseID);
                     paramsMap.put("casedata", casedataStr) ;
                     executePost(urlOfYawlService, paramsMap);
@@ -315,20 +326,20 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                 else if (ANNOUNCE_CASE_CANCELLED.equals(_command)) {
                     String urlOfYawlService = _yawlService.getURI();
                     String caseID = _caseID.toString();
-                    Map<String, String> paramsMap = prepareParamMap(_command);
+                    Map<String, String> paramsMap = prepareParamMap(_command, null);
                     paramsMap.put("caseID", caseID);
                     executePost(urlOfYawlService, paramsMap);
                 }
                 else if (ANNOUNCE_TIMER_EXPIRY_CMD.equals(_command)) {
                     String urlOfYawlService = _yawlService.getURI();
                     String workItemXML = _workItem.toXML();
-                    Map<String, String> paramsMap = prepareParamMap("timerExpiry");
+                    Map<String, String> paramsMap = prepareParamMap("timerExpiry", null);
                     paramsMap.put("workItem", workItemXML);
                     executePost(urlOfYawlService, paramsMap);
                 }
                 else if (ANNOUNCE_INIT_ENGINE.equals(_command)) {
                     String urlOfYawlService = _yawlService.getURI();
-                    Map<String, String> paramsMap = prepareParamMap(_command);
+                    Map<String, String> paramsMap = prepareParamMap(_command, null);
                     executePost(urlOfYawlService, paramsMap);
                 }
             } catch (IOException e) {

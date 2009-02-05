@@ -1,9 +1,9 @@
 package org.yawlfoundation.yawl.engine.interfce.interfaceE;
 
+import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.logging.YLogManager;
-import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -14,12 +14,12 @@ import java.io.PrintWriter;
 
 
 /**
- *  The Log Gateway class acts as a gateway between YAWL and its process logs.
+ *  The Log Gateway class acts as an API gateway between YAWL and its process logs.
  *
  *  @author Michael Adams
  *  v0.1, 29/10/2007
  *
- *  Last Date: 29/10/2007
+ *  Last Date: 1/2009
  */
 
 public class YLogGateway extends HttpServlet {
@@ -30,21 +30,23 @@ public class YLogGateway extends HttpServlet {
 
     private final String _noEngine = "<failure>Not connected to YAWL Engine.</failure>";
 
+
     public void init() {
         try {
-            _engine = new EngineGatewayImpl(false) ;
+            _engine = new EngineGatewayImpl(false) ;            // get engine reference
         }
         catch (YPersistenceException ype) {
              _log.error("Could not connect to YAWL Engine.", ype);
         }
     }
 
+
     public void doPost(HttpServletRequest req, HttpServletResponse res)
                                throws IOException {
 
        String result = "";
        String action = req.getParameter("action");
-       String handle = req.getParameter("handle");
+       String handle = req.getParameter("sessionHandle");
 
        if (action == null) {
            throw new IOException("YLogGateway called with null action.");

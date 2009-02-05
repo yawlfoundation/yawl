@@ -25,7 +25,8 @@ import java.util.*;
 
 /**
  /**
- * 
+ * A client side API for the management of processes, services and users
+ *
  * @author Lachlan Aldred
  * Date: 16/04/2004
  * Time: 16:15:02
@@ -49,9 +50,9 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
-     * Checks that a seesion handle is active
+     * Checks that a session handle is active
      * @param sessionHandle the handle to check
-     * @return true if the handle is active
+     * @return true if the handle is active, false if not
      * @throws IOException if there's a problem connecting to the engine
      */
     public String checkConnection(String sessionHandle) throws IOException {
@@ -61,8 +62,8 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
-     * Change the password of a user on the engine.
-     * The person's password is the one that owns the session handle.
+     * Change the password of a user on the engine, the user being the owner of
+     * the session handle.
      * @param password the new password
      * @param sessionHandle an active handle
      * @return diagnostic string of results from engine.
@@ -76,9 +77,9 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
-     * Delete the user
+     * Delete a user
      * PREcondition: cannot delete self AND
-     *               must be an Admin
+     *               must be an Admin sessionHandle
      * @param username the user to delete
      * @param sessionHandle an active handle
      * @return diagnostic string of results from engine.
@@ -92,8 +93,8 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
-     * Returns a sessionhandle for use in all other engine access methods.  It is used for
-     * to achieve "admin level" access.
+     * Creates a user session with the engine. Returns a sessionhandle for use in all
+     * other engine access methods.
      * @param userID a valid user ID
      * @param password a valid password
      * @return the sessionHandle - expires after one hour.
@@ -109,7 +110,7 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
 
     /**
      * Returns a list of YAWL service objects registered with the engine.
-     * @param sessionHandle the session handle - won't work without the correct one.
+     * @param sessionHandle a valid session handle
      * @return the set of active yawl services
      */
     public Set<YAWLServiceReference> getRegisteredYAWLServices(String sessionHandle) {
@@ -144,9 +145,9 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
-     * Lets the engine know of a new custom YAWL service avaliable.
+     * Registers a new custom YAWL service woth the engine.
      * @param service the service.
-     * @param sessionHandle a valuid sessionhandle
+     * @param sessionHandle a valid sessionhandle
      * @return a diagnostic XML message.
      * @throws IOException if something goes awry.
      */
@@ -161,7 +162,7 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
     /**
      * Removes a YAWL service from the engine.
      * @param serviceURI the service URI.
-     * @param sessionHandle a sessionhandle.
+     * @param sessionHandle a valid sessionhandle.
      * @return a diagnostic XML result message.
      * @throws IOException if bad connection.
      */
@@ -188,8 +189,8 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
     }
 
     /**
-     * @deprecated use uploadSpecification(String, String) instead (since 2.0)
      * Uploads a specification into the engine.
+     * @deprecated use uploadSpecification(String, String) instead (since 2.0)
      * @param specification this is *not* a file name, this is the entire specification
      * xml file in string format.
      * @param filename the file name of the specification xml file (no longer used since 2.0)

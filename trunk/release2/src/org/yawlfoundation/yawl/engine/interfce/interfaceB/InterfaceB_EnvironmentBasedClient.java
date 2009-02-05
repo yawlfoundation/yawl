@@ -20,7 +20,9 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * 
+ * An API for custom services to call Engine functionalities regarding workitem
+ * management, process progression,
+ *
  * @author Lachlan Aldred
  * Date: 27/01/2004
  * Time: 18:50:10
@@ -60,11 +62,11 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
-     * Returns a list of WorkItemRecord objects. All the work items that are
-     * currently active inside the engine.
+     * Returns a list (of WorkItemRecord) of all the work items that are
+     * currently active in the engine.
      * @see org.yawlfoundation.yawl.engine.interfce.WorkItemRecord
      * @param sessionHandle the session handle
-     * @return the list of workitem objects
+     * @return the list of WorkItemRecord objects
      * @throws IOException if engine can't be found.
      */
     public List<WorkItemRecord> getCompleteListOfLiveWorkItems(String sessionHandle)
@@ -72,7 +74,13 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
         return unPackWorkItemList(getCompleteListOfLiveWorkItemsAsXML(sessionHandle));
     }
 
-
+    /**
+     * Returns an XML string describing all the work items that are
+     * currently active in the engine.
+     * @param sessionHandle the session handle
+     * @return an XML representation of the set of live workitems
+     * @throws IOException if engine can't be found.
+     */
     public String getCompleteListOfLiveWorkItemsAsXML(String sessionHandle)
                throws IOException {
         return executeGet(_backEndURIStr, prepareParamMap("getLiveItems", sessionHandle));
@@ -85,7 +93,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      *        "task" for a specific taskID
      * @param id the identifier for the case/spec/task
      * @param sessionHandle the session handle
-     * @return the List of live workitems
+     * @return the List of live workitems (as WorkItemRecords)
      * @throws IOException if there's a problem connecting to the engine
      * @throws JDOMException if there's a problem with xml conversions
      */
@@ -112,6 +120,17 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
         return result ;
     }
 
+    
+    /**
+     * Retrieves an XML description of live workitems for the case or spec id passed
+     * @param idType : "case" for a case's workitems, "spec" for a specification's,
+     *        "task" for a specific taskID
+     * @param id the identifier for the case/spec/task
+     * @param sessionHandle the session handle
+     * @return the XML representation of live workitems in the engine
+     * @throws IOException if there's a problem connecting to the engine
+     * @throws JDOMException if there's a problem with xml conversions
+     */
     public String getLiveWorkItemsForIdentifierAsXML(String idType, String id,
                          String sessionHandle) throws IOException, JDOMException {
         List<WorkItemRecord> wirList = getLiveWorkItemsForIdentifier(idType, id,
@@ -129,8 +148,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
-     * Creates a list of SpecificationData objects loaded into the engine.
-     * These are brief meta data summary
+     * Creates a list of SpecificationData objects for the specifications currently
+     * loaded into the engine. These are brief meta data summary
      * information objects that describe a worklfow specification.
      * @param sessionHandle the session handle
      * @return  the list of spec data objects
@@ -147,7 +166,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
     /**
      * Gets an XML representation of a workflow specification.
-     * @deprecated superceded by getSpecification(YSpecificationID, String)
+     * @deprecated superseded by getSpecification(YSpecificationID, String)
      * @param specID the specid.
      * @param sessionHandle the session handle
      * @return the XML representation, or an XML diagnostic error message.
@@ -176,7 +195,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
     /**
      * Gets the user-defined data schema for a specification
-     * @deprecated superceded by getSpecificationDataSchema(YSpecificationID, String)
+     * @deprecated superseded by getSpecificationDataSchema(YSpecificationID, String)
      * @param specID the specification id
      * @param sessionHandle an active session handle
      * @return an XML representation, or an XML diagnostic error message.
@@ -206,13 +225,13 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
-     * Allows clients to obtain ownership of a unit of work.  This means that the
+     * Allow a client to obtain ownership of a unit of work. This means that the
      * workitem must be enabled or fired first, and that upon successful checkout the
      * workitem will be exectuing.
      * @param workItemID the workitem id.
      * @param sessionHandle the sessionhandle
-     * @return in case of success returns an XML representation of the created
-     * workitem.  In case of failure returns a diagnostic XML message.
+     * @return in case of success returns a WorkItemRecord object of the created
+     * workitem. In case of failure returns a diagnostic XML message.
      * @throws IOException if the engine can't be found.
      */
     public String checkOutWorkItem(String workItemID, String sessionHandle) throws IOException {
@@ -225,7 +244,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     /**
      * Gets an XML representation of information the task declaration.
      * This can be parsed into a copy of a YTask
-     * @deprecated superceded by getTaskInformationStr(YSpecificationID, String, String)
+     * @deprecated superseded by getTaskInformationStr(YSpecificationID, String, String)
      * @param specID the spec id.
      * @param taskID the task id.
      * @param sessionHandle the session handle
@@ -272,7 +291,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
     /**
      * Checks the work item back into the engine once the task is complete.
-     * Succesfully doing so will cause the work item to be complete.
+     * Succesfully doing so will cause the work item to be completed in the engine.
      * @param workItemID the work item id.
      * @param data formated data eg. <data><param1Name>value</param1Name></data>
      * @param sessionHandle the session handle
@@ -291,14 +310,15 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
     /**
      * Determines whether or not a task will allow a dynamically
-     * created new instance to be created.  MultiInstance Task with
-     * dyanmic instance creation.
+     * created new instance to be created.
+     * @pre the 'parent' task is a MultiInstance Task with
+     * dynamic instance creation.
      * @param workItemID the workItemID of a sibling work item.
      * @param sessionHandle the session handle
      * @return diagnostic message that should indicate permission
      * if task is MultiInstance, and
-     * if task allows dynamic instance creation,
-     * and if current number of instances is less than the maxInstances
+     * if task allows dynamic instance creation, and
+     * if current number of instances is less than the maxInstances
      * for the task.
      * @throws IOException if engine cannot be found
      * if task does not allow dynamic instance creation,
@@ -316,7 +336,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
     /**
      * Creates a new instance of a multi instance task.
-     * @param workItemID the work item id
+     * @pre the referenced task is multi-instance and allows dynamic creation
+     * @param workItemID the work item id of a sibling workitem
      * @param paramValueForMICreation the data needed for creating a new instance.
      * @param sessionHandle the session handle
      * @return diagnostic string indicating result of action
@@ -375,7 +396,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
-     * Rolls back a work item from executing to fired.
+     * Rolls back a work item, from 'executing' to 'fired' status.
      * @param workItemID the work item id.
      * @param sessionHandle the sessoin handle
      * @return diagnostic XML message
@@ -390,7 +411,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
     /**
      * Launches a case instance of the latest version of the specification loaded.
-     * @deprecated superceded by launchCase(YSpecificationID, String, String)
+     * @deprecated superseded by launchCase(YSpecificationID, String, String)
      * @param specID the specification id (see SpecificationData.getID())
      * @param caseParams the case params in XML. i.e.
      * <pre>
@@ -399,7 +420,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      *        &lt;secondParam&gt;value&lt;/secondParam&gt;
      *    &lt;/data&gt;
      * </pre>
-     * If there are no params then just pass in null.
+     * If there are no case params then null should be passed.
      * @param sessionHandle the session handle
      * @return returns a diagnostic message in case of failure
      * @throws IOException if engine can't be found
@@ -419,7 +440,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      *        &lt;secondParam&gt;value&lt;/secondParam&gt;
      *    &lt;/data&gt;
      * </pre>
-     * If there are no params then just pass in null.
+     * If there are no case params then null should be passed.
      * @param sessionHandle the session handle
      * @return returns a diagnostic message in case of failure
      * @throws IOException if engine can't be found
@@ -436,8 +457,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
     /** 
      * Override of launchCase to provide the ability to add a listener
-     * for the Case-Completion event (MJA 06/12/05)
-     * @deprecated superceded by launchCase(YSpecificationID, String, String)
+     * for the Case-Completion event
+     * @deprecated superseded by launchCase(YSpecificationID, String, String)
      * @param specID the specification id (see SpecificationData.getID())
      * @param caseParams the case params in XML. 
      * @param sessionHandle the session handle
@@ -480,7 +501,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
     /**
      * Gets the set of active cases in the engine.
-     * @deprecated superceded by getCases(YSpecificationID, String)
+     * @deprecated superseded by getCases(YSpecificationID, String)
      * @param specID the specification id.
      * @param sessionHandle the session handle
      * @return an XML list of case ids that are instances of the spec
@@ -556,9 +577,9 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
-     * Finds out the children of a given work item. Only work item that are parents
-     * have children.  See YAWL paper and other documentation - good luck.
-     * @param workItemID the work item id.
+     * Finds out the children of a given work item. Only work items that are parents
+     * have children.
+     * @param workItemID the work item id of the parent workitem.
      * @param sessionHandle the session handle
      * @return a Java.util.List of WorkItemRecord objects.
      * @throws IOException if the engine cannot be found.
@@ -599,7 +620,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
     /**
      * Gets an XML representation of the attributes of a multi-instance task.
-     * @deprecated superceded by getMITaskAttributes(YSpecificationID, String, String)
+     * @deprecated superseded by getMITaskAttributes(YSpecificationID, String, String)
      * @param specID the spec id.
      * @param taskID the task id.
      * @param sessionHandle the session handle
@@ -629,7 +650,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     }
 
     /**
-     * Gets the set of resourcing specifications for the specified spec and task
+     * Gets the set of resourcing specifications for the specified task of the specified spec
      * @param specID the specification id
      * @param taskID the id of the task to get the resourcing specs for
      * @param sessionHandle the session handle
@@ -674,7 +695,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
-     * Gets a summary table of all completed and live workitems for a case
+     * Gets a summary table of all data parameters for the workitem of the case specified
      * @param caseID the case id of the process to get the workitems for
      * @param itemID the id of the workitem to get the data params for
      * @param sessionHandle the session handle
@@ -690,6 +711,14 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     }
 
 
+    /**
+     * A generic method for sending a HTTP POST message, with parameters, to a URL
+     * external to the standard YAWL environment
+     * @param url the external URL to which the message is posted
+     * @param params a map of attribute-value pairs to post with the message
+     * @return a reply string from the external URL
+     * @throws IOException if the external URL is invalid or unresponsive.
+     */
     public String postToExternalURL(String url, Map<String, String> params) throws IOException {
         return executePost(url, params);
     }

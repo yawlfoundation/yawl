@@ -87,8 +87,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     // the constructor
     public ExceptionService(){
         super();
-        _ixClient = new InterfaceX_ServiceSideClient(_engineURI + "/ix");
-        _log = Logger.getLogger("org.yawlfoundation.yawl.worklet.exception.ExceptionService");
+        _log = Logger.getLogger(ExceptionService.class);
         setUpInterfaceBClient(_engineURI + "/ib");
         _me = this ;
         registerExceptionService(this);                 // register service with parent
@@ -103,6 +102,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     // called from servlet WorkletGateway after contexts are loaded
     public void completeInitialisation() {
         super.completeInitialisation();
+        _ixClient = new InterfaceX_ServiceSideClient(_engineURI + "/ix");
         if (_persisting) restoreDataSets();             // reload running cases data
     }
 

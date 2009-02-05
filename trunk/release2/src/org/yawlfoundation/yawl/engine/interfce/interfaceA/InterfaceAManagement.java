@@ -63,6 +63,7 @@ public interface InterfaceAManagement {
                                throws JDOMException, IOException, YPersistenceException;
 
     boolean loadSpecification(YSpecification spec);
+    
     Set<YSpecificationID> getLoadedSpecifications() throws YPersistenceException;
 
     /**
