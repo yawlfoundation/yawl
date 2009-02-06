@@ -355,11 +355,23 @@ public class YMarking {
     }
 
     public boolean equivalentTo(YMarking marking) {
-        List otherMarkingsLocations = new Vector(marking.getLocations());
-        if (_locations.containsAll(otherMarkingsLocations)
-                && otherMarkingsLocations.containsAll(_locations)) {
-            return true;
-        }
-        return false;
+        Vector otherMarkingsLocations = new Vector(marking.getLocations());
+
+        // short-circuit test if sizes differ
+        if (otherMarkingsLocations.size() != _locations.size()) return false;
+
+        // ok, same size so sort and compare for equality
+        Vector thisMarkingsLocations = new Vector(_locations);        // don't sort orig.
+        Collections.sort(otherMarkingsLocations);
+        Collections.sort(thisMarkingsLocations);
+
+        // vectors are equal if each element pair is equal 
+        return thisMarkingsLocations.equals(otherMarkingsLocations);
+
+//        if (_locations.containsAll(otherMarkingsLocations)
+//                && otherMarkingsLocations.containsAll(_locations)) {
+//            return true;
+//        }
+//        return false;
     }
 }

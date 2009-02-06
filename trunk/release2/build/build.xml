@@ -405,7 +405,7 @@
                      includes="${persistence.libs} ${xsd.libs} ${common.libs} ${jcommon}
                                ${jfreechart} ${jaxenFull} ${postgres8} ${saxpath}
                                ${xml-apis} ${saxon.libs} ${xerces.libs}"
-                     excludes="hibernate.cfg.xml ${servlet}"/>
+                     excludes="hibernate.cfg.xml"/>
         </unzip>	
     	
         <!-- Create a self contained jar of the YAWL library -->
