@@ -347,7 +347,7 @@ public class AvailableEngineProxyImplementation implements
       YParameter[] engineParametersForService;
       
       try {
-          engineParametersForService = InterfaceB_EngineBasedClient.getRequiredParamsForService(
+          engineParametersForService = new InterfaceB_EngineBasedClient().getRequiredParamsForService(
               registeredService        
           );
 //          System.out.println("YParameter number returned from InterfaceB = " + engineParametersForService.length);
@@ -355,7 +355,6 @@ public class AvailableEngineProxyImplementation implements
         return null;
       }
       
-      // TODO: What about data-types that the editor is currently unaware of?
       // TODO: What about when the engine is unavailable?
 
       for(int i = 0; i < engineParametersForService.length; i++) {
