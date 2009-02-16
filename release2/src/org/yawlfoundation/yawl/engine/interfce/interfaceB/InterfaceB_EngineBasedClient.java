@@ -16,6 +16,7 @@ import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.ObserverGateway;
+import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.YWorkItemStatus;
 import org.yawlfoundation.yawl.engine.announcement.Announcements;
@@ -50,6 +51,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     protected static final String ANNOUNCE_TIMER_EXPIRY_CMD =   "announceTimerExpiry";
     protected static final String ANNOUNCE_INIT_ENGINE =        "announceEngineInitialised";
     protected static final String ANNOUNCE_CASE_CANCELLED =     "announceCaseCancelled";
+    protected static final String ANNOUNCE_ITEM_STATUS =        "announceItemStatus";
 
 
     /**
@@ -162,7 +164,12 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     public void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus oldStatus,
                                              YWorkItemStatus newStatus)
     {
-        //todo MLF: this has been stubbed
+       Set<YAWLServiceReference> services = YEngine.getInstance().getYAWLServices() ;
+        for (YAWLServiceReference service : services) {
+            Handler myHandler = new Handler(service, workItem, oldStatus.toString(),
+                                            newStatus.toString(), ANNOUNCE_ITEM_STATUS);
+            myHandler.start();
+        }
     }
 
     /**
@@ -212,7 +219,6 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     }
 
 
-
     /**
      * Returns an array of YParameter objects that describe the YAWL service
      * being referenced.
@@ -257,11 +263,22 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         private String _command; 
         private YIdentifier _caseID;
         private Document _casedata;
+        private String _oldStatus;
+        private String _newStatus;
 
         public Handler(YAWLServiceReference yawlService, YWorkItem workItem, String command) {
             _workItem = workItem;
             _yawlService = yawlService;
             _command = command;
+        }
+
+        public Handler(YAWLServiceReference yawlService, YWorkItem workItem,
+                       String oldStatus, String newStatus, String command) {
+            _workItem = workItem;
+            _yawlService = yawlService;
+            _command = command;
+            _oldStatus = oldStatus;
+            _newStatus = newStatus;
         }
 
         public Handler(YAWLServiceReference yawlService, YIdentifier caseID,
@@ -340,6 +357,14 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                 else if (ANNOUNCE_INIT_ENGINE.equals(_command)) {
                     String urlOfYawlService = _yawlService.getURI();
                     Map<String, String> paramsMap = prepareParamMap(_command, null);
+                    executePost(urlOfYawlService, paramsMap);
+                }
+                else if (ANNOUNCE_ITEM_STATUS.equals(_command)) {
+                    String urlOfYawlService = _yawlService.getURI();
+                    Map<String, String> paramsMap = prepareParamMap(_command, null);
+                    paramsMap.put("workItem", _workItem.toXML());
+                    paramsMap.put("oldStatus", _oldStatus);
+                    paramsMap.put("newStatus", _newStatus);
                     executePost(urlOfYawlService, paramsMap);
                 }
             } catch (IOException e) {
