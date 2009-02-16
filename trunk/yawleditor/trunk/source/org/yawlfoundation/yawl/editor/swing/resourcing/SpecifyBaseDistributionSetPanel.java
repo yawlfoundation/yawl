@@ -275,17 +275,20 @@ class UserList extends JList {
     }
     
     int[] selectedUserIndicies = new int[selectedUsers.size()];
-
+    boolean selectionValid = false ;
     int j = 0;
     for(int i = 0; i < users.size(); i ++) {
       for(ResourcingParticipant selectedUser : selectedUsers) {
         if (users.get(i).equals(selectedUser)) {
           selectedUserIndicies[j] = i;
           j++;
+          selectionValid = true;
         }
       }
     }
-    setSelectedIndices(selectedUserIndicies);
+
+    if (selectionValid) setSelectedIndices(selectedUserIndicies);
+
     setEnabled(true);
   }
   
@@ -410,17 +413,18 @@ class RoleList extends JList {
     }
     
     int[] selectedRoleIndicies = new int[selectedRoles.size()];
-
+    boolean selectionValid = false ;
     int j = 0;
     for(int i = 0; i < roles.size(); i ++) {
       for(ResourcingRole selectedRole : selectedRoles) {
         if (roles.get(i).equals(selectedRole)) {
           selectedRoleIndicies[j] = i;
           j++;
+          selectionValid = true ;
         }
       }
     }
-    setSelectedIndices(selectedRoleIndicies);
+    if (selectionValid) setSelectedIndices(selectedRoleIndicies);
     setEnabled(true);
   }
   

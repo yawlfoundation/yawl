@@ -90,7 +90,7 @@ public class FilterParameterValueComboBoxEditor extends AbstractCellEditor
             }
         }
         if (positions != null) {
-            for (i=0; i<positions.size(); i++) {
+            for (i=0; i<positions.size() ; i++) {
                 Position p = (Position) positions.get(i) ;
                 mapPosition.put(p.getTitle(), p.getID());
             }

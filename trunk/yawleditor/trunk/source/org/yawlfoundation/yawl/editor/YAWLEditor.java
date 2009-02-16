@@ -22,6 +22,7 @@
 
 package org.yawlfoundation.yawl.editor;
 
+import org.yawlfoundation.yawl.editor.analyser.YAWLResetAnalyser;
 import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.specification.SpecificationFileModel;
@@ -36,10 +37,10 @@ import org.yawlfoundation.yawl.editor.swing.menu.ToolBarMenu;
 import org.yawlfoundation.yawl.editor.swing.menu.YAWLMenuBar;
 import org.yawlfoundation.yawl.editor.swing.specification.ProblemMessagePanel;
 import org.yawlfoundation.yawl.editor.swing.specification.SpecificationBottomPanel;
-import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.EngineSpecificationExporter;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 import org.yawlfoundation.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
-import org.yawlfoundation.yawl.editor.analyser.YAWLResetAnalyser;
 
 import javax.swing.*;
 import java.awt.*;
@@ -111,13 +112,6 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
     // move menu to screen top - only affects mac installs  
     System.setProperty("apple.laf.useScreenMenuBar", "true");
-      
-//    try {
-//        UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-//    }
-//    catch (Exception e) {
-//      // do nothing
-//    }
   }
 
   private static JSplashScreen getSplashScreen() {
@@ -132,7 +126,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     getSplashScreen().setContent(
         "/org/yawlfoundation/yawl/editor/resources/yawlSplashScreen.jpg",
         "YAWLEditor" + getSizeDistinction() + " v " +
-        getVersionNumber() + " - (c) 2008 The YAWL Foundation");
+        getVersionNumber() + " - (c) 2009 The YAWL Foundation");
 
     getSplashScreen().show();
   }
@@ -459,6 +453,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   private void attemptEngineConnectionIfApplicable() {
     if (YAWLEngineProxy.engineLibrariesAvailable())  {
       YAWLEngineProxy.getInstance().connect();
+      ResourcingServiceProxy.getInstance().connect();  
     }
   }
 

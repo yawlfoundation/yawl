@@ -836,7 +836,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
       // (because it is the _default_ flow) - so when importing from that xml,
       // a default predicate and ordering need to be reinstated.
       if (engineFlow.isDefaultFlow()) {
-          editorFlow.setPredicate("true()");
+          if (editorFlow.getPredicate() == null) editorFlow.setPredicate("true()");
           editorFlow.setPriority(10000);        // ensure it's ordered last
       }
     }

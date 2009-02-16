@@ -46,7 +46,8 @@ public class ResourcingServiceProxy implements ResourcingServiceProxyInterface {
   private ResourcingServiceProxy() {}
   
   private ResourcingServiceProxyInterface getImplementation() {
-    if (serviceLibrariesAvailable() && getAvailableImplementation().testConnection() ) {
+//    if (serviceLibrariesAvailable() && getAvailableImplementation().testConnection() ) {
+    if (serviceLibrariesAvailable()) {
       return getAvailableImplementation();
     } 
     return getUnavailableImplementation();

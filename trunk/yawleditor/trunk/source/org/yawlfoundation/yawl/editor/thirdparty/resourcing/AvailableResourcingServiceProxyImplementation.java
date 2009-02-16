@@ -75,7 +75,8 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
     try {
       if (!connected()) {
         sessionHandle = tryConnect(serviceURI, userID, password);
-      } 
+        if (sessionHandle.startsWith("<failure>")) sessionHandle = null;  
+      }
     } catch (Exception e) {
       //e.printStackTrace();
       sessionHandle = null;
@@ -328,15 +329,16 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
   }
   
   public boolean testConnection(String serviceURI, String userID, String password) {
-    String testSessionID = "";
-     try {
-       testSessionID = tryConnect(serviceURI, userID, password);
-       gateway.disconnect(testSessionID);
-     } catch (Exception e) {
-       e.printStackTrace();
-       testSessionID = "";
-     }
-     return (testSessionID.length() > 0) && (! testSessionID.startsWith("<failure>"));
+      return ConnectionTester.testConnection(serviceURI, 0 , 1000);
+//    String testSessionID = "";
+//     try {
+//       testSessionID = tryConnect(serviceURI, userID, password);
+//       gateway.disconnect(testSessionID);
+//     } catch (Exception e) {
+//       e.printStackTrace();
+//       testSessionID = "";
+//     }
+//     return (testSessionID.length() > 0) && (! testSessionID.startsWith("<failure>"));
   }
 
   public boolean checkConnection() {
