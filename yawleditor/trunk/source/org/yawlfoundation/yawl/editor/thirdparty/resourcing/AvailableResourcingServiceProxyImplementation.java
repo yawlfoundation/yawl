@@ -329,16 +329,15 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
   }
   
   public boolean testConnection(String serviceURI, String userID, String password) {
-      return ConnectionTester.testConnection(serviceURI, 0 , 1000);
-//    String testSessionID = "";
-//     try {
-//       testSessionID = tryConnect(serviceURI, userID, password);
-//       gateway.disconnect(testSessionID);
-//     } catch (Exception e) {
-//       e.printStackTrace();
-//       testSessionID = "";
-//     }
-//     return (testSessionID.length() > 0) && (! testSessionID.startsWith("<failure>"));
+    String testSessionID = "";
+     try {
+       testSessionID = tryConnect(serviceURI, userID, password);
+       gateway.disconnect(testSessionID);
+     } catch (Exception e) {
+       e.printStackTrace();
+       testSessionID = "";
+     }
+     return (testSessionID.length() > 0) && (! testSessionID.startsWith("<failure>"));
   }
 
   public boolean checkConnection() {
