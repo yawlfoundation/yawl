@@ -100,7 +100,11 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     // cases that have workitems chained to a participant: <caseid, Participant>
     private Hashtable<String, Participant> _chainedCases =
-                                          new Hashtable<String, Participant>();
+            new Hashtable<String, Participant>();
+
+    // cache of who completed tasks, for four-eyes and retain familiar use <caseid, cache>
+    private Hashtable<String, FourEyesCache> _taskCompleters =
+            new Hashtable<String, FourEyesCache>();
 
     private static ResourceManager _me ;                  // instance reference
     private ResourceAdministrator _resAdmin ;             // admin capabilities
@@ -271,9 +275,17 @@ public class ResourceManager extends InterfaceBWebsideController {
     public synchronized void handleCancelledCaseEvent(String caseID) {
         if (_serviceEnabled) {
             removeCaseFromAllQueues(caseID) ;                              // workqueues
+            removeCaseFromTaskCompleters(caseID);
             _workItemCache.removeCase(caseID);
             removeChain(caseID);
         }
+    }
+
+
+    public void handleCompletedWorkItemEvent(WorkItemRecord wir) {
+        _workItemCache.remove(wir);
+        ResourceMap rMap = getResourceMap(wir);
+        if (rMap != null) rMap.removeIgnoreList(wir);
     }
 
 
@@ -284,6 +296,13 @@ public class ResourceManager extends InterfaceBWebsideController {
         }    
     }
 
+
+    public void handleWorkItemStatusChangeEvent(WorkItemRecord wir,
+                                                String oldStatus, String newStatus) {
+        WorkItemRecord cachedWir = getWorkItemCache().get(wir.getID());
+        if (cachedWir != null)
+            cachedWir.setStatus(newStatus);
+    }
 
 
     /**
@@ -318,18 +337,9 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     /*********************************************************************************/
-
-
-    public void handleCompletedWorkItemEvent(WorkItemRecord wir) {
-        _workItemCache.remove(wir);
-        ResourceMap rMap = getResourceMap(wir);
-        if (rMap != null) rMap.removeIgnoreList(wir);
-    }
-
     /*********************************************************************************/
     
     // GET SELECTOR METHODS - USED PRIMARILY BY THE RESOURCE GATEWAY //
-
 
     public Set getConstraints() {
         return ConstraintFactory.getConstraints() ;
@@ -2081,33 +2091,36 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public Set<Participant> getWhoCompletedTask(String taskID, WorkItemRecord wir) {
         Set<Participant> result = new HashSet<Participant>();
+        FourEyesCache cache = _taskCompleters.get(wir.getCaseID());
+        if (cache != null) result = cache.getCompleters(taskID);
 
-        try {
-            String xml = _interfaceEClient.getParentWorkItemEventsForCaseID(
-                                                wir.getCaseID(), _engineSessionHandle) ;
-            if (xml != null) {
-                Element root = JDOMUtil.stringToElement(xml) ;
-                List events = root.getChildren();
-                if (events != null) {
-                    Iterator itr = events.iterator();
-                    while (itr.hasNext()) {
-                        Element event = (Element) itr.next();
-                        if (event.getChildText("taskID").equals(taskID) &&
-                            event.getChildText("eventName").equals("Complete")) {
-                            String userid = event.getChildText("resourceID");
-                            if (userid != null) {
-                                Participant p = getParticipantFromUserID(userid);
-                                if (p != null) result.add(p);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        catch (IOException ioe) {
-            _log.error("Connection to engine failed.", ioe);
-            result = null ;
-        }
+//
+//        try {
+//            String xml = _interfaceEClient.getParentWorkItemEventsForCaseID(
+//                                                wir.getCaseID(), _engineSessionHandle) ;
+//            if (xml != null) {
+//                Element root = JDOMUtil.stringToElement(xml) ;
+//                List events = root.getChildren();
+//                if (events != null) {
+//                    Iterator itr = events.iterator();
+//                    while (itr.hasNext()) {
+//                        Element event = (Element) itr.next();
+//                        if (event.getChildText("taskID").equals(taskID) &&
+//                            event.getChildText("eventName").equals("Complete")) {
+//                            String userid = event.getChildText("resourceID");
+//                            if (userid != null) {
+//                                Participant p = getParticipantFromUserID(userid);
+//                                if (p != null) result.add(p);
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        catch (IOException ioe) {
+//            _log.error("Connection to engine failed.", ioe);
+//            result = null ;
+//        }
         // return set of participants who completed workitems for this task & case
         return result ;
     }
@@ -2195,7 +2208,7 @@ public class ResourceManager extends InterfaceBWebsideController {
      *  @param p - the participant checking in the item
      *  @param wir - workitem to check into the engine
      *  @param handle - the sessionHandle of the current user
-     *  @return true id checkin is successful
+     *  @return true if checkin is successful
      */
     public String checkinItem(Participant p, WorkItemRecord wir, String handle) {
         String result = "<failure/>";                              // assume the worst
@@ -2206,6 +2219,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                 Element outData = wir.getUpdatedData();
                 if (outData == null) outData = wir.getDataList();
                 checkCacheForWorkItem(wir);
+                addTaskCompleter(p, wir);
                 result = checkInWorkItem(wir.getID(), wir.getDataList(),
                                                 outData, getHandleForEngineCall(handle)) ;
                 if (successful(result)) {
@@ -2213,6 +2227,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                     _workItemCache.remove(wir) ;
                     EventLogger.log(wir, p.getID(), EventLogger.event.complete);
                 }
+                else removeTaskCompleter(p, wir);
             }
         }
         catch (IOException ioe) {
@@ -2224,6 +2239,36 @@ public class ResourceManager extends InterfaceBWebsideController {
             _log.error(result, jde) ;
         }
         return result ;
+    }
+
+
+    private void addTaskCompleter(Participant p, WorkItemRecord wir) {
+        String caseid = getRootCaseID(wir.getCaseID());
+        FourEyesCache cache = _taskCompleters.get(caseid);
+        if (cache == null) {
+            cache = new FourEyesCache(caseid);
+            _taskCompleters.put(caseid, cache);
+        }
+        cache.addCompleter(wir.getTaskID(), p);
+    }
+
+
+    private void removeTaskCompleter(Participant p, WorkItemRecord wir) {
+        FourEyesCache cache = _taskCompleters.get(getRootCaseID(wir.getCaseID()));
+        if (cache != null) cache.removeCompleter(wir.getTaskID(), p);
+    }
+
+
+    private void removeCaseFromTaskCompleters(String caseid) {
+        _taskCompleters.remove(getRootCaseID(caseid));
+    }
+
+    private String getRootCaseID(String id) {
+        int firstDot = id.indexOf(".");
+        if (firstDot > -1)
+            return id.substring(0, firstDot);
+        else
+            return id;
     }
 
 //***************************************************************************//

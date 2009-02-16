@@ -367,11 +367,5 @@ public class YMarking {
 
         // vectors are equal if each element pair is equal 
         return thisMarkingsLocations.equals(otherMarkingsLocations);
-
-//        if (_locations.containsAll(otherMarkingsLocations)
-//                && otherMarkingsLocations.containsAll(_locations)) {
-//            return true;
-//        }
-//        return false;
     }
 }

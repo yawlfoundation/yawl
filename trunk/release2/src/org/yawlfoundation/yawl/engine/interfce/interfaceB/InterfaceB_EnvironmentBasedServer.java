@@ -173,6 +173,11 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
         else if ("announceEngineInitialised".equals(action)) {
             _controller.handleEngineInitialisationCompletedEvent();
         }
+        else if ("announceItemStatus".equals(action)) {
+            String oldStatus = request.getParameter("oldStatus");
+            String newStatus = request.getParameter("newStatus");
+            _controller.handleWorkItemStatusChangeEvent(workItem, oldStatus, newStatus);
+        }
         if (_debug) {
         }
         return "<success/>";
