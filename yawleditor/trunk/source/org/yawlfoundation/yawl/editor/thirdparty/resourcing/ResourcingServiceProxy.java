@@ -78,8 +78,8 @@ public class ResourcingServiceProxy implements ResourcingServiceProxyInterface {
     return unavailableImplementation;
   }
 
-  public void connect() {
-    getImplementation().connect();
+  public boolean connect() {
+    return getImplementation().connect();
   }
 
   public void disconnect() {
