@@ -27,12 +27,17 @@ import org.yawlfoundation.yawl.editor.resourcing.AllocationMechanism;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingFilter;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
 
 import java.util.List;
 import java.util.Map;
+import java.util.prefs.Preferences;
 
 public interface ResourcingServiceProxyInterface {
   
+    public static final Preferences prefs =
+      Preferences.userNodeForPackage(YAWLEditor.class);
+
   public static final String DEFAULT_RESOURCING_SERVICE_URI = 
     "http://localhost:8080/resourceService/gateway";
 

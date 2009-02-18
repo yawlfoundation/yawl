@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.editor.resourcing.AllocationMechanism;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingFilter;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.ServerLookup;
 
 import java.util.List;
 import java.util.Map;
@@ -36,22 +37,41 @@ public class ResourcingServiceProxy implements ResourcingServiceProxyInterface {
   private transient static final ResourcingServiceProxy INSTANCE 
     = new ResourcingServiceProxy();
 
-  private ResourcingServiceProxyInterface availableImplementation;
-  private ResourcingServiceProxyInterface unavailableImplementation;
+//  private ResourcingServiceProxyInterface availableImplementation;
+//  private ResourcingServiceProxyInterface unavailableImplementation;
+  private ResourcingServiceProxyInterface implementation;
 
   public static ResourcingServiceProxy getInstance() {
     return INSTANCE; 
   }
     
-  private ResourcingServiceProxy() {}
-  
-  private ResourcingServiceProxyInterface getImplementation() {
-//    if (serviceLibrariesAvailable() && getAvailableImplementation().testConnection() ) {
-    if (serviceLibrariesAvailable()) {
-      return getAvailableImplementation();
-    } 
-    return getUnavailableImplementation();
+  private ResourcingServiceProxy() {
+      setImplementation(prefs.get("resourcingServiceURI", DEFAULT_RESOURCING_SERVICE_URI));
   }
+  
+  public ResourcingServiceProxyInterface getImplementation() {
+    return implementation;
+  }
+
+    public void setImplementation(ResourcingServiceProxyInterface impl) {
+        implementation = impl;
+    }
+
+
+    public void setImplementation(String serviceURI) {
+        try {
+            if (serviceLibrariesAvailable() && ServerLookup.isReachable(serviceURI)) {
+                implementation = new AvailableResourcingServiceProxyImplementation();
+            }
+            else {
+                implementation = new UnavailableResourcingServiceProxyImplementation();
+            }
+        }
+        catch (Exception e) {
+            implementation = new UnavailableResourcingServiceProxyImplementation();
+        }
+    }
+
   
   public static boolean serviceLibrariesAvailable() {
     // assumption: If we can find ResourceGatewayClientAdapter, we can find everything we
@@ -64,80 +84,79 @@ public class ResourcingServiceProxy implements ResourcingServiceProxyInterface {
     }
   }
   
-  private ResourcingServiceProxyInterface getAvailableImplementation() {
-    if (availableImplementation == null) {
-      availableImplementation = new AvailableResourcingServiceProxyImplementation();
-    }
-    return availableImplementation;
-  }
-  
-  private ResourcingServiceProxyInterface getUnavailableImplementation() {
-    if (unavailableImplementation == null) {
-      unavailableImplementation = new UnavailableResourcingServiceProxyImplementation();
-    }
-    return unavailableImplementation;
-  }
+//  private ResourcingServiceProxyInterface getAvailableImplementation() {
+//    if (availableImplementation == null) {
+//      availableImplementation = new AvailableResourcingServiceProxyImplementation();
+//    }
+//    return availableImplementation;
+//  }
+//
+//  private ResourcingServiceProxyInterface getUnavailableImplementation() {
+//    if (unavailableImplementation == null) {
+//      unavailableImplementation = new UnavailableResourcingServiceProxyImplementation();
+//    }
+//    return unavailableImplementation;
+//  }
 
   public boolean connect() {
-    return getImplementation().connect();
+    return implementation.connect();
   }
 
   public void disconnect() {
-    getImplementation().disconnect();
+    implementation.disconnect();
   }
 
   public boolean testConnection() {
-    return getImplementation().testConnection();
+    return implementation.testConnection();
   }
 
   public boolean isLiveService() {
-    ResourcingServiceProxyInterface proxy = getImplementation();
-    return (proxy instanceof AvailableResourcingServiceProxyImplementation);
+    return (implementation instanceof AvailableResourcingServiceProxyImplementation);
   }
   
   public boolean testConnection(String serviceURI, String userID, String password) {
-    return getImplementation().testConnection(serviceURI, userID, password);
+    return implementation.testConnection(serviceURI, userID, password);
   }
   
   public List<ResourcingParticipant> getAllParticipants() {
-    return getImplementation().getAllParticipants();
+    return implementation.getAllParticipants();
   }
   
   public List<ResourcingRole> getAllRoles() {
-    return getImplementation().getAllRoles();
+    return implementation.getAllRoles();
   }
   
   public List<ResourcingFilter> getRegisteredResourcingFilters() {
-    return getImplementation().getRegisteredResourcingFilters();
+    return implementation.getRegisteredResourcingFilters();
   }
 
   public List<AllocationMechanism> getRegisteredAllocationMechanisms() {
-    return getImplementation().getRegisteredAllocationMechanisms();
+    return implementation.getRegisteredAllocationMechanisms();
   }
 
   public List getCapabilities() {
-    return getImplementation().getCapabilities();
+    return implementation.getCapabilities();
   }
 
   public List getPositions() {
-    return getImplementation().getPositions();
+    return implementation.getPositions();
   }
 
   public List getOrgGroups() {
-    return getImplementation().getOrgGroups();        
+    return implementation.getOrgGroups();
   }
 
 
   public Map<String, String> getRegisteredCodelets() {
-    return getImplementation().getRegisteredCodelets();     
+    return implementation.getRegisteredCodelets();
   }
 
   public List<String> getAllParticipantIDs() {
-    return getImplementation().getAllParticipantIDs();
+    return implementation.getAllParticipantIDs();
   }
 
   public List<String> getAllRoleIDs() {
-    return getImplementation().getAllRoleIDs();
+    return implementation.getAllRoleIDs();
   }
 
 

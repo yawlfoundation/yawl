@@ -26,15 +26,20 @@ package org.yawlfoundation.yawl.editor.thirdparty.engine;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.data.AbstractXMLStyledDocument;
 import org.yawlfoundation.yawl.editor.swing.data.ValidityEditorPane;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.prefs.Preferences;
 
 public interface YAWLEngineProxyInterface {
   
-  public static final String DEFAULT_ENGINE_URI = 
+    public static final Preferences prefs =
+      Preferences.userNodeForPackage(YAWLEditor.class);    
+
+    public static final String DEFAULT_ENGINE_URI =
     "http://localhost:8080/yawl/ia";
   
   public static final String DEFAULT_ENGINE_ADMIN_USER = "admin";
