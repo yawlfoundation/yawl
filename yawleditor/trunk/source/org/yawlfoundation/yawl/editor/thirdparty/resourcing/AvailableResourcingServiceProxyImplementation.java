@@ -78,7 +78,6 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
         if (sessionHandle.startsWith("<failure>")) sessionHandle = null;  
       }
     } catch (Exception e) {
-      //e.printStackTrace();
       sessionHandle = null;
     }
   }
@@ -114,7 +113,6 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
     try {
       engineParticipants = gateway.getParticipants(sessionHandle);
     } catch (Exception e) {
-      e.printStackTrace();
       return participantList;
     }
     
@@ -146,7 +144,6 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
     try {
       engineRoles = gateway.getRoles(sessionHandle);
     } catch (Exception e) {
-      e.printStackTrace();
       return registeredRoles;
     }
     
@@ -176,7 +173,6 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
     try {
       engineAllocators = gateway.getAllocators(sessionHandle);
     } catch (Exception e) {
-      e.printStackTrace();
       return null;
     }
     
@@ -207,7 +203,6 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
     try {
       engineFilters = gateway.getFilters(sessionHandle);
     } catch (Exception e) {
-      e.printStackTrace();
       return null;
     }
     
@@ -283,7 +278,6 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
            return gateway.getCodeletMap(sessionHandle);
         }
         catch (Exception e) {
-           e.printStackTrace();
             return null;
         }
     }
@@ -334,7 +328,6 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
        testSessionID = tryConnect(serviceURI, userID, password);
        gateway.disconnect(testSessionID);
      } catch (Exception e) {
-       e.printStackTrace();
        testSessionID = "";
      }
      return (testSessionID.length() > 0) && (! testSessionID.startsWith("<failure>"));
