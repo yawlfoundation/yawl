@@ -175,6 +175,30 @@
                property="lite.editor.jar.exists" />
   </target>
 
+      <property name="enumeratedClasses" value="${basedir}/enumerated3rdPartyClasses"/>
+
+
+      <target name="build_complete (pre-alpha)" depends="compile">
+          <mkdir dir="${enumeratedClasses}"/>
+          <unzip dest="${enumeratedClasses}">
+              <fileset file="${engine.jar.file}"/>
+              <fileset file="${jcal.jar.file}"/>
+              <fileset file="${lite.editor.jar.file}"/>
+          </unzip>
+
+          <jar destfile="${distribution.directory}/YAWL_Test.jar">
+              <fileset dir="${build.directory}"/>
+              <fileset dir="${enumeratedClasses}"/>
+              <manifest>
+                  <attribute name="Created-By" value="Dr Who"/>
+                  <attribute name="Main-Class"
+                             value="${source.file.class.path}"/>
+              </manifest>
+          </jar>
+          <delete dir="${enumeratedClasses}"/>
+      </target>
+      
+
   <target name="optimise"
           depends="package"
   	      description="Optimisation of the editor">
