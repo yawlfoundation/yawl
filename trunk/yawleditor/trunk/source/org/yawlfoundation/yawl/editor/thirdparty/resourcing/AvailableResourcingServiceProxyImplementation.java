@@ -33,6 +33,8 @@ import org.yawlfoundation.yawl.resourcing.resource.Role;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,8 +52,8 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
 
   private String serviceURI ;
   
-  public void connect() {
-    connect(
+  public boolean connect() {
+    return connect(
         prefs.get(  
             "resourcingServiceURI", 
             DEFAULT_RESOURCING_SERVICE_URI
@@ -70,16 +72,26 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
   public boolean connected() {
     return (sessionHandle != null);
   }
+
+  public boolean serviceIsReachable(String serviceURI, int timeout) {
+      try {
+          URL url = new URL(serviceURI);
+          return InetAddress.getByName(url.getHost()).isReachable(timeout);
+      }
+      catch (Exception e) { return false; }
+  }
   
-  public void connect(String serviceURI, String userID, String password) {
+  public boolean connect(String serviceURI, String userID, String password) {
     try {
-      if (!connected()) {
+      if ((!connected()) && serviceIsReachable(serviceURI, 100)) {
         sessionHandle = tryConnect(serviceURI, userID, password);
+          System.out.println(System.currentTimeMillis());            
         if (sessionHandle.startsWith("<failure>")) sessionHandle = null;  
       }
     } catch (Exception e) {
       sessionHandle = null;
     }
+    return (sessionHandle != null);  
   }
   
   private String tryConnect(String uri, String userID, String password) {    
@@ -92,6 +104,7 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
         serviceURI = uri;
         gateway = new ResourceGatewayClientAdapter(serviceURI);
       }
+      System.out.println(System.currentTimeMillis());
       return gateway.connect(userID, password) ;
     }
   }
@@ -105,181 +118,170 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
   }
   
   public List<ResourcingParticipant> getAllParticipants() {
-    connect();
-    
-    List engineParticipants = null;
-    LinkedList<ResourcingParticipant> participantList = new LinkedList<ResourcingParticipant>();
+      List engineParticipants;
+      LinkedList<ResourcingParticipant> participantList = new LinkedList<ResourcingParticipant>();
 
-    try {
-      engineParticipants = gateway.getParticipants(sessionHandle);
-    } catch (Exception e) {
+      if (connect()) {
+          try {
+              engineParticipants = gateway.getParticipants(sessionHandle);
+          } catch (Exception e) {
+              return participantList;
+          }
+
+          if (engineParticipants != null) {
+              for (Object engineParticipant: engineParticipants) {
+                  Participant participant = (Participant) engineParticipant;
+
+                  participantList.add(
+                          new ResourcingParticipant(
+                                  participant.getID(),
+                                  participant.getFullName() + " (" +
+                                          participant.getUserID() + ")"
+                          )
+                  );
+              }
+          }
+      }
       return participantList;
-    }
-    
-    if (engineParticipants != null) {
-      for (Object engineParticipant: engineParticipants) {
-        Participant participant = (Participant) engineParticipant;
-
-        participantList.add(
-          new ResourcingParticipant(
-              participant.getID(),
-              participant.getFullName() + " (" +
-              participant.getUserID() + ")"
-          )
-        );
-      }    
-    }
-
-    disconnect();
-
-    return participantList;
-  }
-  
-  public List<ResourcingRole> getAllRoles() {
-    connect();
-   
-    List engineRoles = null;
-    LinkedList<ResourcingRole> registeredRoles = new LinkedList<ResourcingRole>();
-
-    try {
-      engineRoles = gateway.getRoles(sessionHandle);
-    } catch (Exception e) {
-      return registeredRoles;
-    }
-    
-    if ( engineRoles != null) {
-      for (Object engineRole: engineRoles) {
-        Role role = (Role) engineRole;
-
-        registeredRoles.add(
-          new ResourcingRole(
-              role.getID(),
-              role.getName()
-          )
-        );
-      }
-    }
-
-    disconnect();
-    
-    return registeredRoles;
-  }
-  
-  public List<AllocationMechanism> getRegisteredAllocationMechanisms() {
-    connect();
-    
-    List engineAllocators;
-    
-    try {
-      engineAllocators = gateway.getAllocators(sessionHandle);
-    } catch (Exception e) {
-      return null;
-    }
-    
-    LinkedList<AllocationMechanism> resultsList = new LinkedList<AllocationMechanism>();
-    
-    for (Object engineAllocator: engineAllocators) {
-      AbstractAllocator allocator = (AbstractAllocator) engineAllocator;
-
-      resultsList.add(
-          new AllocationMechanism(
-              allocator.getName(),
-              allocator.getDisplayName(),
-              allocator.getDescription()
-          )
-      );
-    }
-    
-    disconnect();
-
-    return resultsList;
   }
 
-  public List<ResourcingFilter> getRegisteredResourcingFilters() {
-    connect();
-    
-    List engineFilters;
-    
-    try {
-      engineFilters = gateway.getFilters(sessionHandle);
-    } catch (Exception e) {
-      return null;
+    public List<ResourcingRole> getAllRoles() {
+        List engineRoles;
+        LinkedList<ResourcingRole> registeredRoles = new LinkedList<ResourcingRole>();
+        if (connect()) {
+
+            try {
+                engineRoles = gateway.getRoles(sessionHandle);
+            } catch (Exception e) {
+                return registeredRoles;
+            }
+
+            if ( engineRoles != null) {
+                for (Object engineRole: engineRoles) {
+                    Role role = (Role) engineRole;
+
+                    registeredRoles.add(
+                            new ResourcingRole(
+                                    role.getID(),
+                                    role.getName()
+                            )
+                    );
+                }
+            }
+        }
+        return registeredRoles;
     }
-    
-    LinkedList<ResourcingFilter> resultsList = new LinkedList<ResourcingFilter>();
-    
-    for (Object engineFilter: engineFilters) {
-      AbstractFilter filter = (AbstractFilter) engineFilter;
 
-      resultsList.add(
-          new ResourcingFilter(
-              filter.getName(),
-              filter.getDisplayName(),
-              filter.getParams()
-          )
-      );
+    public List<AllocationMechanism> getRegisteredAllocationMechanisms() {
+        List engineAllocators;
+        LinkedList<AllocationMechanism> resultsList = new LinkedList<AllocationMechanism>();
+        if (connect()) {
+
+            try {
+                engineAllocators = gateway.getAllocators(sessionHandle);
+            } catch (Exception e) {
+                return null;
+            }
+
+            for (Object engineAllocator: engineAllocators) {
+                AbstractAllocator allocator = (AbstractAllocator) engineAllocator;
+
+                resultsList.add(
+                        new AllocationMechanism(
+                                allocator.getName(),
+                                allocator.getDisplayName(),
+                                allocator.getDescription()
+                        )
+                );
+            }
+        }
+        return resultsList;
     }
-    disconnect();
 
-    return resultsList;
-  }
+    public List<ResourcingFilter> getRegisteredResourcingFilters() {
+        List engineFilters;
+        LinkedList<ResourcingFilter> resultsList = new LinkedList<ResourcingFilter>();
+
+        if (connect()) {
+            try {
+                engineFilters = gateway.getFilters(sessionHandle);
+            } catch (Exception e) {
+                return null;
+            }
+
+            for (Object engineFilter: engineFilters) {
+                AbstractFilter filter = (AbstractFilter) engineFilter;
+
+                resultsList.add(
+                        new ResourcingFilter(
+                                filter.getName(),
+                                filter.getDisplayName(),
+                                filter.getParams()
+                        )
+                );
+            }
+        }
+        return resultsList;
+    }
 
 
-  public List getCapabilities() {
-      List result = null;
-      connect();
+    public List getCapabilities() {
+        List result = null;
+        if (connect()) {
 
-      try {
-          result = gateway.getCapabilities(sessionHandle);
-      }
-      catch (IOException ioe) {
-          // do nothing
-      }
+            try {
+                result = gateway.getCapabilities(sessionHandle);
+            }
+            catch (IOException ioe) {
+                // do nothing
+            }
 
-      disconnect();
-      return result;
-  }
+        }
+        return result;
+    }
 
     public List getPositions() {
         List result = null;
-        connect();
+        if (connect()) {
 
-        try {
-            result = gateway.getPositions(sessionHandle);
-        }
-        catch (IOException ioe) {
-            // do nothing
-        }
+            try {
+                result = gateway.getPositions(sessionHandle);
+            }
+            catch (IOException ioe) {
+                // do nothing
+            }
 
-        disconnect();
+        }
         return result;
     }
 
     public List getOrgGroups() {
         List result = null;
-        connect();
+        if (connect()) {
 
-        try {
-            result = gateway.getOrgGroups(sessionHandle); 
+            try {
+                result = gateway.getOrgGroups(sessionHandle);
+            }
+            catch (IOException ioe) {
+                // do nothing
+            }
         }
-        catch (IOException ioe) {
-            // do nothing
-        }
-
-        disconnect();
         return result;
     }
 
 
     public Map<String, String> getRegisteredCodelets() {
-        connect();
+        Map<String, String> result = null;
+        if (connect()) {
 
-        try {
-           return gateway.getCodeletMap(sessionHandle);
+            try {
+                result = gateway.getCodeletMap(sessionHandle);
+            }
+            catch (Exception e) {
+                // do nothing
+            }
         }
-        catch (Exception e) {
-            return null;
-        }
+        return result;
     }
 
 
@@ -323,7 +325,7 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
   }
   
   public boolean testConnection(String serviceURI, String userID, String password) {
-    String testSessionID = "";
+    String testSessionID;
      try {
        testSessionID = tryConnect(serviceURI, userID, password);
        gateway.disconnect(testSessionID);
@@ -334,7 +336,7 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
   }
 
   public boolean checkConnection() {
-    if ((gateway == null) || (sessionHandle == null)) return false ;
-    return gateway.checkConnection(sessionHandle);
+      return !((gateway == null) || (sessionHandle == null))
+              && gateway.checkConnection(sessionHandle);
   }
 }

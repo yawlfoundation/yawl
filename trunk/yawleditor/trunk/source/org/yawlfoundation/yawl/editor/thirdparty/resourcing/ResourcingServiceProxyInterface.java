@@ -42,7 +42,7 @@ public interface ResourcingServiceProxyInterface {
   public static final String DEFAULT_RESOURCING_SERVICE_USER_PASSWORD = 
     "YAWL";
   
-  public void connect();
+  public boolean connect();
   public void disconnect();
 
   public boolean testConnection();
