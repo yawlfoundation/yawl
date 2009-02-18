@@ -33,8 +33,6 @@ import org.yawlfoundation.yawl.resourcing.resource.Role;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -73,20 +71,12 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
     return (sessionHandle != null);
   }
 
-  public boolean serviceIsReachable(String serviceURI, int timeout) {
-      try {
-          URL url = new URL(serviceURI);
-          return InetAddress.getByName(url.getHost()).isReachable(timeout);
-      }
-      catch (Exception e) { return false; }
-  }
-  
+   
   public boolean connect(String serviceURI, String userID, String password) {
     try {
-      if ((!connected()) && serviceIsReachable(serviceURI, 100)) {
+      if (!connected()) {
         sessionHandle = tryConnect(serviceURI, userID, password);
-          System.out.println(System.currentTimeMillis());            
-        if (sessionHandle.startsWith("<failure>")) sessionHandle = null;  
+        if (sessionHandle.startsWith("<failure>")) sessionHandle = null;
       }
     } catch (Exception e) {
       sessionHandle = null;
@@ -104,7 +94,6 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
         serviceURI = uri;
         gateway = new ResourceGatewayClientAdapter(serviceURI);
       }
-      System.out.println(System.currentTimeMillis());
       return gateway.connect(userID, password) ;
     }
   }

@@ -178,7 +178,7 @@
       <property name="enumeratedClasses" value="${basedir}/enumerated3rdPartyClasses"/>
 
 
-      <target name="build_complete (pre-alpha)" depends="compile">
+      <target name="build_complete (experimental)" depends="package">
           <mkdir dir="${enumeratedClasses}"/>
           <unzip dest="${enumeratedClasses}">
               <fileset file="${engine.jar.file}"/>
@@ -186,7 +186,7 @@
               <fileset file="${lite.editor.jar.file}"/>
           </unzip>
 
-          <jar destfile="${distribution.directory}/YAWL_Test.jar">
+          <jar destfile="${distribution.directory}/YAWL_Experimental.jar">
               <fileset dir="${build.directory}"/>
               <fileset dir="${enumeratedClasses}"/>
               <manifest>

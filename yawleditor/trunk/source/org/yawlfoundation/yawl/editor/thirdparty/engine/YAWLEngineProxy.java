@@ -37,7 +37,7 @@ import java.util.Set;
 
 public class YAWLEngineProxy implements YAWLEngineProxyInterface {
   
-  private transient static final YAWLEngineProxy INSTANCE 
+   private transient static final YAWLEngineProxy INSTANCE
     = new YAWLEngineProxy();
 
   private YAWLEngineProxyInterface implementation;
@@ -45,14 +45,32 @@ public class YAWLEngineProxy implements YAWLEngineProxyInterface {
   public static YAWLEngineProxy getInstance() {
     return INSTANCE; 
   }
-    
-  private YAWLEngineProxy() {
-    if (engineLibrariesAvailable()) {
-      implementation = new AvailableEngineProxyImplementation();
-    } else {
-      implementation = new UnavailableEngineProxyImplementation();
+
+    private YAWLEngineProxy() {
+        setImplementation(prefs.get("engineURI", DEFAULT_ENGINE_URI));
     }
-  }
+
+    public YAWLEngineProxyInterface getImplementation() {
+        return implementation;
+    }
+
+    public void setImplementation(YAWLEngineProxyInterface impl) {
+        implementation = impl;
+    }
+
+    public void setImplementation(String engineURI) {
+        try {
+            if (engineLibrariesAvailable() && ServerLookup.isReachable(engineURI)) {
+                implementation = new AvailableEngineProxyImplementation();
+            }
+            else {
+                implementation = new UnavailableEngineProxyImplementation();
+            }
+        }
+        catch (Exception e) {
+            implementation = new UnavailableEngineProxyImplementation();
+        }
+    }
   
   public void connect() {
     implementation.connect();

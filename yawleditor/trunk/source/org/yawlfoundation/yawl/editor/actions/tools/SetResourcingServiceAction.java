@@ -23,11 +23,12 @@
 package org.yawlfoundation.yawl.editor.actions.tools;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
+import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxyInterface;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -106,6 +107,9 @@ class ResourceServiceDialog extends AbstractDoneDialog {
              "resourcingServiceUserPassword", 
              new String(resourcingServicePasswordField.getPassword())
          );
+
+         ResourcingServiceProxy.getInstance().setImplementation(
+                 resourcingServiceURIField.getText());  
 
          SpecificationUndoManager.getInstance().setDirty(true);                            
        }
@@ -339,6 +343,9 @@ class ResourceServiceDialog extends AbstractDoneDialog {
    
    testButton.addActionListener(new ActionListener(){
      public void actionPerformed(ActionEvent e) {
+       ResourcingServiceProxyInterface oldImpl = 
+               ResourcingServiceProxy.getInstance().getImplementation();
+       ResourcingServiceProxy.getInstance().setImplementation(resourcingServiceURIField.getText());
        boolean connectionResult = ResourcingServiceProxy.getInstance().testConnection(
            resourcingServiceURIField.getText(),
            resourcingServiceUserField.getText(),
@@ -348,11 +355,13 @@ class ResourceServiceDialog extends AbstractDoneDialog {
        if (connectionResult == false) {
          testMessage.setText("Failed to connect to a running resource service with the specified details.");
          testMessage.setForeground(Color.RED);
-       } else {
+       }
+       else {
          testMessage.setText("Successfully connected to a running resource service.");
          testMessage.setForeground(Color.BLACK);
        }
        testMessage.setVisible(true);
+       ResourcingServiceProxy.getInstance().setImplementation(oldImpl);
        detailDialog.pack();
      }
    });

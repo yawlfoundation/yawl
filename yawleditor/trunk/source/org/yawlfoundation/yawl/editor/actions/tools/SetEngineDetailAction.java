@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxyInterface;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -105,6 +106,8 @@ class EngineDetailDialog extends AbstractDoneDialog {
              "engineUserPassword", 
              new String(enginePasswordField.getPassword())
          );
+           YAWLEngineProxy.getInstance().setImplementation(
+                   engineURIField.getText());
 
          SpecificationUndoManager.getInstance().setDirty(true);
        }
@@ -338,6 +341,9 @@ class EngineDetailDialog extends AbstractDoneDialog {
    
    testButton.addActionListener(new ActionListener(){
      public void actionPerformed(ActionEvent e) {
+         YAWLEngineProxyInterface oldImpl =
+                 YAWLEngineProxy.getInstance().getImplementation();
+         YAWLEngineProxy.getInstance().setImplementation(engineURIField.getText());
        boolean connectionResult = YAWLEngineProxy.getInstance().testConnection(
            engineURIField.getText(),
            engineUserField.getText(),
@@ -352,6 +358,7 @@ class EngineDetailDialog extends AbstractDoneDialog {
          testMessage.setForeground(Color.BLACK);
        }
        testMessage.setVisible(true);
+       YAWLEngineProxy.getInstance().setImplementation(oldImpl);
        detailDialog.pack();
      }
    });

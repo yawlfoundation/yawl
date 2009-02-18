@@ -49,7 +49,6 @@ public class VertexPopupMenu extends JPopupMenu {
   
   public VertexPopupMenu(YAWLCell cell, NetGraph graph) {
     super();
-    System.out.println("Constructor: " + System.currentTimeMillis());
     this.cell = cell;
     this.graph = graph;
     addMenuItems();
@@ -57,16 +56,10 @@ public class VertexPopupMenu extends JPopupMenu {
   
   private void addMenuItems() {
     YAWLVertex vertex = (YAWLVertex) cell;
-      System.out.println("AddItems1: " + System.currentTimeMillis());
-
     addGraphSpecificMenuItems(vertex);
-      System.out.println("AddItems2: " + System.currentTimeMillis());
     addControlFlowPerspectiveMenuItems(vertex);
-      System.out.println("AddItems3: " + System.currentTimeMillis());
     addDataPerspectiveMenuItems(vertex);
-      System.out.println("AddItems4: " + System.currentTimeMillis());
     addResourcePerspectiveMenuItems(vertex);
-      System.out.println("AddItems5: " + System.currentTimeMillis());  
   }
   
   private void addGraphSpecificMenuItems(YAWLVertex vertex) {
