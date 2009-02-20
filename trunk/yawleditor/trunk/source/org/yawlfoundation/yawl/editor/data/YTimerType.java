@@ -1,6 +1,7 @@
 package org.yawlfoundation.yawl.editor.data;
 
 import org.yawlfoundation.yawl.editor.net.NetGraph;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 
 import java.util.List;
@@ -76,6 +77,11 @@ public class YTimerType {
     public static String addSchemaToSpecificationDataSchema(String specDataSchema) {
         String result = specDataSchema ;
         if ((specDataSchema != null) && (specDataSchema.indexOf("YTimerType") == -1)) {
+
+            // if empty string, or normalised header only, get unnormalised version
+            if ((specDataSchema.length()==0) || specDataSchema.endsWith("/>")) {
+                specDataSchema = SpecificationModel.DEFAULT_TYPE_DEFINITION;
+            }
 
             // remove end
             int insertPoint = specDataSchema.lastIndexOf('<') ;

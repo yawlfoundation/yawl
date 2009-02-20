@@ -59,15 +59,17 @@ public class YAWLEngineProxy implements YAWLEngineProxyInterface {
     }
 
     public void setImplementation(String engineURI) {
-        try {
-            if (engineLibrariesAvailable() && ServerLookup.isReachable(engineURI)) {
+        if (engineLibrariesAvailable()) {
+            try {
+                if (ServerLookup.isReachable(engineURI)) {
+                    implementation = new ConnectableEngineProxyImplementation();
+                }
+            }
+            catch (Exception e) {
                 implementation = new AvailableEngineProxyImplementation();
             }
-            else {
-                implementation = new UnavailableEngineProxyImplementation();
-            }
         }
-        catch (Exception e) {
+        else {
             implementation = new UnavailableEngineProxyImplementation();
         }
     }
@@ -83,6 +85,11 @@ public class YAWLEngineProxy implements YAWLEngineProxyInterface {
   public void disconnect() {
     implementation.disconnect();
   }
+
+    public boolean isConnectable() {
+      return (implementation.isConnectable());
+    }
+
   
   public void engineFormatFileExport(SpecificationModel editorSpec) {
     implementation.engineFormatFileExport(editorSpec);

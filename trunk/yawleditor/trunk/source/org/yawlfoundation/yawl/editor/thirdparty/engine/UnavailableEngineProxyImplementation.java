@@ -52,6 +52,8 @@ public class UnavailableEngineProxyImplementation implements
 
   public void disconnect() {}
 
+  public boolean isConnectable() { return false;}
+
   public HashMap getRegisteredYAWLServices() {
     HashMap services= new HashMap();
     services.put(

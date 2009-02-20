@@ -24,19 +24,16 @@
 
 package org.yawlfoundation.yawl.editor.swing;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
+import javax.swing.*;
+import java.awt.*;
 
 public class JStatusBar extends JPanel {
 
   private static final long serialVersionUID = 1L;
 
   private static JLabel statusLabel = new JLabel();
+
+  private static JLabel modeLabel = new JLabel();  
 
   public static int APPARENTLY_INSTANT_MILLISECONDS = 50;
 
@@ -45,6 +42,10 @@ public class JStatusBar extends JPanel {
   private SecondUpdateThread secondUpdateThread;
 
   private String previousStatusText;
+
+  private String engineStatus = "Offline";
+  private String resourceStatus = "Offline";
+
 
   public JStatusBar() {
     super();
@@ -57,6 +58,16 @@ public class JStatusBar extends JPanel {
             BorderFactory.createEmptyBorder(0, 2, 0, 2)
         )
     );
+      modeLabel.setForeground(Color.DARK_GRAY);
+      modeLabel.setBorder(
+          BorderFactory.createCompoundBorder(
+              BorderFactory.createLoweredBevelBorder(),
+              BorderFactory.createEmptyBorder(0, 2, 0, 2)
+          )
+      );
+      modeLabel.setSize(70, 10);
+      modeLabel.setText("Online");
+    add(modeLabel, BorderLayout.WEST);
     add(statusLabel, BorderLayout.CENTER);
     add(getProgressBar(), BorderLayout.EAST);
   }
@@ -67,12 +78,27 @@ public class JStatusBar extends JPanel {
 
   public void setStatusBarText(String message) {
     previousStatusText = getStatusText();
-    statusLabel.setText(message);
+    statusLabel.setText(" " + message);
   }
 
   public void setStatusBarTextToPrevious() {
     setStatusBarText(previousStatusText);
   }
+
+  public void setStatusMode(String component, boolean online) {
+      if (component.equals("engine")) {
+          engineStatus = getModeText(online);
+      }
+      else if (component.equals("resource")) {
+          resourceStatus = getModeText(online);
+      }
+      modeLabel.setText(engineStatus + "/" + resourceStatus);
+  }
+
+  private String getModeText(boolean online) {
+      return (online ? "Online" : "Offline");
+  }
+
 
   private JProgressBar getProgressBar() {
     progressBar = new JProgressBar();

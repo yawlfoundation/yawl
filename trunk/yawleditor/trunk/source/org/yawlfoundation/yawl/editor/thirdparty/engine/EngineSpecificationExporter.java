@@ -210,7 +210,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   
   private static void generateEngineDataTypeDefinition(SpecificationModel editorSpec, 
                                                 YSpecification engineSpec) {
-    String schema = null;
+    String schema;
         
     try {
       schema = YTimerType.adjustSchema(editorSpec.getDataTypeDefinition(),
@@ -355,9 +355,14 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       );
 
       String initialValue = editorNetVariable.getInitialValue();
-      if (editorNetVariable.getDataType().equals("string")) {
+      String dataType = editorNetVariable.getDataType();
+      if (dataType.equals("string")) {
           initialValue = XMLUtilities.quoteSpecialCharacters(initialValue);
       }
+      else if (dataType.equals(DataVariable.YAWL_SCHEMA_TIMER_TYPE)) {
+        SpecificationParametersIncludeYTimerType = true ;
+    }
+
       engineNetVariable.setInitialValue(initialValue);
      
       engineNet.setLocalVariable(engineNetVariable);
