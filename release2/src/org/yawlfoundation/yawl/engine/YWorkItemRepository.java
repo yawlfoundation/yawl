@@ -26,14 +26,14 @@ import java.util.*;
  */
 public class YWorkItemRepository {
     private static Map<String, YWorkItem> _idStringToWorkItemsMap;//[case&taskIDStr=YWorkItem]
-    protected static Map _caseToNetRunnerMap;
+    protected static Map<YIdentifier, YNetRunner> _caseToNetRunnerMap;
     private static YWorkItemRepository _myInstance;
     private static final Logger logger = Logger.getLogger(YWorkItemRepository.class);
 
 
     private YWorkItemRepository() {
         _idStringToWorkItemsMap = new HashMap<String, YWorkItem>();
-        _caseToNetRunnerMap = new HashMap();
+        _caseToNetRunnerMap = new HashMap<YIdentifier, YNetRunner>();
     }
 
     public void dump(Logger logger) {
@@ -127,8 +127,8 @@ public class YWorkItemRepository {
 
 
     protected void clear() {
-        _idStringToWorkItemsMap = new HashMap();
-        _caseToNetRunnerMap = new HashMap();
+        _idStringToWorkItemsMap = new HashMap<String, YWorkItem>();
+        _caseToNetRunnerMap = new HashMap<YIdentifier, YNetRunner>();
     }
 
 
@@ -159,18 +159,27 @@ public class YWorkItemRepository {
     //###################################################################################
 
     public YNetRunner getNetRunner(YIdentifier caseID) {
-        return (YNetRunner)
-                _caseToNetRunnerMap.get(caseID);
+        return _caseToNetRunnerMap.get(caseID);
+    }
+
+    public YNetRunner getNetRunner(String caseID) {
+        Set<YIdentifier> idSet = _caseToNetRunnerMap.keySet();
+        for (YIdentifier id : idSet) {
+            if (id.get_idString().equals(caseID)) {
+                return _caseToNetRunnerMap.get(id);
+            }
+        }
+        return null;
     }
 
 
     public YWorkItem getWorkItem(String caseIDStr, String taskID) {
-        return (YWorkItem) _idStringToWorkItemsMap.get(caseIDStr + ":" + taskID);
+        return _idStringToWorkItemsMap.get(caseIDStr + ":" + taskID);
     }
 
 
     public YWorkItem getWorkItem(String workItemID) {
-        return (YWorkItem) _idStringToWorkItemsMap.get(workItemID);
+        return _idStringToWorkItemsMap.get(workItemID);
     }
 
 
@@ -282,8 +291,7 @@ public class YWorkItemRepository {
             YWorkItem workitem = (YWorkItem) iter.next();
             if (workitem.getStatus() == statusExecuting) {
                 YIdentifier caseID = workitem.getWorkItemID().getCaseID();
-                YNetRunner runner = (YNetRunner)
-                        _caseToNetRunnerMap.get(caseID.getParent());
+                YNetRunner runner = _caseToNetRunnerMap.get(caseID.getParent());
                 boolean foundOne = false;
                 Set busyTasks = runner.getBusyTasks();
                 for (Iterator iterator = busyTasks.iterator(); iterator.hasNext();) {
@@ -329,12 +337,12 @@ public class YWorkItemRepository {
             if (workitem.getStatus().equals(statusEnabled) ||
                     workitem.getStatus().equals(statusIsParent) ||
                     workitem.isEnabledSuspended()) {
-                runner = (YNetRunner) _caseToNetRunnerMap.get(caseID);
+                runner = _caseToNetRunnerMap.get(caseID);
             } else if (workitem.getStatus().equals(statusComplete) ||
                     workitem.getStatus().equals(statusExecuting) ||
                     workitem.getStatus().equals(statusSuspended) ||
                     workitem.getStatus().equals(statusFired)) {
-                runner = (YNetRunner) _caseToNetRunnerMap.get(caseID.getParent());
+                runner = _caseToNetRunnerMap.get(caseID.getParent());
             } else {
                 continue;
             }

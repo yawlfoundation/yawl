@@ -23,10 +23,7 @@ import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.YWorkItemStatus;
-import org.yawlfoundation.yawl.exceptions.YAWLException;
-import org.yawlfoundation.yawl.exceptions.YAuthenticationException;
-import org.yawlfoundation.yawl.exceptions.YEngineStateException;
-import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -1175,6 +1172,17 @@ public class EngineGatewayImpl implements EngineGateway {
         } catch (YAuthenticationException e) {
             return failureMessage(e.getMessage());
         }
+
+        // if the case id is of a sub-net, get the sub-net's data instead
+        if (caseID.indexOf(".") > -1) {
+            try {
+                return _engine.getNetData(caseID);
+            }
+            catch (YStateException yse) {
+                return failureMessage(yse.getMessage());
+            }
+        }
+
         if (_engine.getCaseID(caseID) != null) {
             Document caseData = _engine.getCaseDataDocument(caseID);
             if (caseData != null)
