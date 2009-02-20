@@ -1089,6 +1089,10 @@ public class YEngine implements InterfaceADesign,
 
 
     public synchronized String getCaseData(String caseID) throws YStateException {
+
+        // if this is for a sub-net, act accordingly
+        if (caseID.indexOf(".") > -1) return getNetData(caseID) ;
+
         YIdentifier id = getCaseID(caseID);
         if (id == null) {
             throw new YStateException("Received invalid case id '" + caseID + "'.");
@@ -1098,6 +1102,20 @@ public class YEngine implements InterfaceADesign,
         return runner.getCasedata().getData();
     }
 
+
+    public synchronized String getNetData(String caseID) throws YStateException {
+
+        // if this is a root net case id, the net data is equivalent to the case data
+        if (caseID.indexOf(".") == -1) return getCaseData(caseID);
+
+        YNetRunner subNetRunner = _workItemRepository.getNetRunner(caseID);
+        if (subNetRunner != null) {
+           return subNetRunner.getCasedata().getData();
+        }
+        else {
+            throw new YStateException("Received invalid case id '" + caseID + "'.");            
+        }
+    }
 
     public synchronized Set getAllWorkItems() {
         return _workItemRepository.getWorkItems();
@@ -2541,13 +2559,13 @@ public class YEngine implements InterfaceADesign,
      */
     public int getCaseExecutionStatus(YIdentifier id) throws YPersistenceException
     {
-        YNetRunner runner = (YNetRunner)_caseIDToNetRunnerMap.get(id);
+        YNetRunner runner = _caseIDToNetRunnerMap.get(id);
         return runner.getCasedata().getExecutionState();
     }
 
     public YCaseData getCaseData(YIdentifier id)
     {
-        YNetRunner runner = (YNetRunner)_caseIDToNetRunnerMap.get(id);
+        YNetRunner runner = _caseIDToNetRunnerMap.get(id);
         if (runner != null)
             return runner.getCasedata();
         else return null ;

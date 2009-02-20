@@ -2793,10 +2793,12 @@ public class ResourceManager extends InterfaceBWebsideController {
         return result;
     }
 
+
     public String getSchemaLibrary(YSpecificationID specID, String handle) throws IOException {
         return _interfaceBClient.getSpecificationDataSchema(specID, handle) ;
     }
 
+    
     public String getDataSchema(YSpecificationID specID) {
         String result = null ;
         try {
