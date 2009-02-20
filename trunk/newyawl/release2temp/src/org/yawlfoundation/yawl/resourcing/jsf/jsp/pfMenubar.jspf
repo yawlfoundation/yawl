@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div style="position: relative; -rave-layout: grid"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://www.sun.com/web/ui">
+
+    <f:subview id="pfMenubar">
+        <center>
+            <ui:panelLayout binding="#{pfMenubar.menuPanel}"
+                            id="menubarLayoutPanel"
+                            styleClass="menubar"/>
+        </center>
+    </f:subview>
+</div>
