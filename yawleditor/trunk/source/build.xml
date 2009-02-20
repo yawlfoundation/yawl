@@ -186,11 +186,12 @@
               <fileset file="${lite.editor.jar.file}"/>
           </unzip>
 
-          <jar destfile="${distribution.directory}/YAWL_Experimental.jar">
+          <jar destfile="${distribution.directory}/YAWL_Experimental.jar" duplicate="preserve">
               <fileset dir="${build.directory}"/>
-              <fileset dir="${enumeratedClasses}"/>
+              <fileset dir="${enumeratedClasses}"
+                       excludes="*.* /META-INF/** org/hibernate/** org/postgresql/**"/>
               <manifest>
-                  <attribute name="Created-By" value="Dr Who"/>
+                  <attribute name="Created-By" value="The YAWL Foundation"/>
                   <attribute name="Main-Class"
                              value="${source.file.class.path}"/>
               </manifest>

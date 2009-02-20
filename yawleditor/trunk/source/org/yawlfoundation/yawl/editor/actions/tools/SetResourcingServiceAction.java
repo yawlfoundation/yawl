@@ -109,7 +109,9 @@ class ResourceServiceDialog extends AbstractDoneDialog {
          );
 
          ResourcingServiceProxy.getInstance().setImplementation(
-                 resourcingServiceURIField.getText());  
+                 resourcingServiceURIField.getText());
+         YAWLEditor.setStatusMode("resource",
+                                  ResourcingServiceProxy.getInstance().isLiveService());
 
          SpecificationUndoManager.getInstance().setDirty(true);                            
        }

@@ -62,6 +62,8 @@ public interface YAWLEngineProxyInterface {
   public boolean testConnection(String engineURL, String engineUserID, String engineUserPassword);
 
   public void disconnect();
+
+  public boolean isConnectable();
   
   public HashMap getRegisteredYAWLServices();
 

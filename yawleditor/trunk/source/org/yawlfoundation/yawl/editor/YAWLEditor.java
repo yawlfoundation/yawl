@@ -176,6 +176,11 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     getStatusBar().progressStatusBarOverSeconds(seconds);
   }
 
+  public static void setStatusMode(String component, boolean on) {
+      getStatusBar().setStatusMode(component, on);
+  }
+
+
   private void buildInterface() {
 
     setJMenuBar(new YAWLMenuBar());
@@ -452,7 +457,9 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
   private void attemptEngineConnectionIfApplicable() {
       YAWLEngineProxy.getInstance().connect();
-      ResourcingServiceProxy.getInstance().connect();  
+      ResourcingServiceProxy.getInstance().connect();
+      setStatusMode("engine", YAWLEngineProxy.getInstance().isConnectable());
+      setStatusMode("resource", ResourcingServiceProxy.getInstance().isLiveService());
   }
 
   private static void pause(long milliseconds) {

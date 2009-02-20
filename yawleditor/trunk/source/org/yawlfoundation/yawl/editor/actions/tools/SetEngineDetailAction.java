@@ -108,6 +108,7 @@ class EngineDetailDialog extends AbstractDoneDialog {
          );
            YAWLEngineProxy.getInstance().setImplementation(
                    engineURIField.getText());
+           YAWLEditor.setStatusMode("engine", YAWLEngineProxy.getInstance().isConnectable());
 
          SpecificationUndoManager.getInstance().setDirty(true);
        }
