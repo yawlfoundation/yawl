@@ -29,12 +29,12 @@ import java.util.Set;
  */
 
 
-public class RoundRobinByFrequency extends AbstractAllocator {
+public class RoundRobinByLeastFrequency extends AbstractAllocator {
 
-    public RoundRobinByFrequency() {
+    public RoundRobinByLeastFrequency() {
         super();
         setName(this.getClass().getSimpleName()) ;        
-        setDisplayName("Round Robin (by frequency)");
+        setDisplayName("Round Robin (by least frequency)");
         setDescription("The Round-Robin (by frequency) allocator distributes a workitem " +
                        "to the participant in the distribution set who has performed " +
                        "the task the least number of times.");
