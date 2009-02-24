@@ -88,13 +88,11 @@ class AboutEditorDialog extends AbstractDoneDialog {
         "<ul>" +
             "<li>YAWL Engine @CompatibleEngineReleaseNumber@"+
             "<li>JGraph @JGraphReleaseNumber@"+
-            "<li>Proguard @ProguardReleaseNumber@"+
             "<li>WofYAWL @WofYawlReleaseNumber@</ul>" +
         "This version of the editor requires:" +
         "<ul>" +
           "<li>Java @CompatibleJavaReleaseNumber@ or later"+
           "<li>YAWL Engine @CompatibleEngineReleaseNumber@</ul>" +
-//        "Saved 'ywl' file formats of previous YAWLEditor versions are not compatible with this version.<br><br>" +
         "Contributors to the editor source code:" +
         "<ul><li>@EditorContributors@</ul>" +
          "<br><center>Build Date: @BuildDate@</center>" +   

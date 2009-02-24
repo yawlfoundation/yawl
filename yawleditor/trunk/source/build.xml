@@ -1,352 +1,261 @@
-  <project name="YAWLEditor" default="full" basedir="../">
+<project name="YAWLEditor" default="full" basedir="../">
 
-  <!-- global properties -->
-  
-  <property file="source/build.properties" />
+    <!-- properties file with editable values -->
+    <property file="source/build.properties" />
 
-  <property name="root.class.name" value="YAWLEditor" />
-  <property name="root.source.file" value="${root.class.name}.java" />
-  <property name="root.class.directory" value="org/yawlfoundation/yawl/editor" />
-  <property name="source.file.class.path"
-            value="org.yawlfoundation.yawl.editor.${root.class.name}" />
+    <!-- global filters (read from build properties -->
+    <filter token="EditorReleaseNumber" value="${editor.release.number}" />
+    <filter token="EditorContributors" value="${editor.contributors}" />
+    <filter token="CompatibleEngineReleaseNumber" value="${compatible.engine.release.number}" />
+    <filter token="CompatibleEngineJarName" value="${compatible.engine.jar.name}" />
+    <filter token="CompatibleJavaReleaseNumber" value="${compatible.java.release.number}" />
+    <filter token="JGraphReleaseNumber" value="${jgraph.release.number}" />
+    <filter token="WofYawlReleaseNumber" value="${wofyawl.release.number}" />
 
-  <property name="source.directory" value="${basedir}/source" />
-  <property name="source.file"
-            value="${root.class.directory}/${root.source.file}" />
+    <!-- define root class name, path and directories -->
+    <property name="root.class.name" value="YAWLEditor" />
+    <property name="root.source.file" value="${root.class.name}.java" />
+    <property name="package.base.dir" value="org/yawlfoundation/yawl" />
+    <property name="package.dir" value="${package.base.dir}/editor" />
+    <property name="root.classpath"
+              value="org.yawlfoundation.yawl.editor.${root.class.name}" />
+    <property name="source.file" value="${package.dir}/${root.source.file}" />
+    <property name="source.release" value="1.5" />
 
-  <property name="build.directory"
-            value="${basedir}/classFiles/${root.class.name}" />
-  <property name="distribution.directory" value="${basedir}/distribution" />
+    <!-- the various input & output directories -->
+    <property name="source.dir" value="${basedir}/source" />
+    <property name="build.dir" value="${basedir}/classFiles/${root.class.name}" />
+    <property name="distribution.dir" value="${basedir}/distribution" />
+    <property name="library.dir" value="${basedir}/lib" />
+    <property name="tool.dir" value="${basedir}/tools" />
+    <property name="javadoc.dir" value="${basedir}/javadoc" />
+    <property name="filtered.source.dir" value="${basedir}/filtered/source" />
+    <property name="enumeratedLibraries.dir" value="${basedir}/enumerated3rdPartyLibraries"/>
 
-  <property name="library.directory" value="${basedir}/lib" />
-  <property name="tool.directory" value="${basedir}/tools" />
+    <!-- output file names & paths -->
+    <property name="source.zip"
+              value="${distribution.dir}/${root.class.name}${editor.release.number}source.zip" />
+    <property name="editor.jar.file"
+              value="${distribution.dir}/${root.class.name}${editor.release.number}.jar" />
+    <property name="lite.editor.jar.file"
+              value="${distribution.dir}/${root.class.name}Lite${editor.release.number}.jar" />
 
-  <property name="source.archive.root" value="${root.class.name}${editor.release.number}source.zip" />
-  <property name="source.archive"
-            value="${distribution.directory}/${source.archive.root}" />
-  <property name="javadoc.directory" value="${basedir}/javadoc" />
+    <!-- external libaries -->
+    <property name="engine.jar.file" value="${library.dir}/${compatible.engine.jar.name}" />
+    <property name="jcal.jar.file" value="${library.dir}/jcalendar-1.3.2.jar"/>
+    <property name="servlet.jar.file" value="${library.dir}/servlet-api.jar"/>
+    <property name="junit.jar.file" value="${tool.dir}/junit-4.4.jar"/>
 
-  <property name="source.release" value="1.5" />
+    <!-- TARGETS -->
+    <target name="initialize"
+            description="Initialisation of properties and directories.">
 
-  <property name="editor.jar.file.base"
-            value="${distribution.directory}/${root.class.name}${editor.release.number}" />
-  <property name="editor.jar.file" value="${editor.jar.file.base}.jar" />
+        <!-- Create the time stamp & filter token for 'about' box -->
+        <tstamp>
+            <format property="buildDate" pattern="yyyy.MM.dd HH:mm:ss"/>
+        </tstamp>
+        <filter token="BuildDate" value="${buildDate}" />
 
-   <property name="lite.editor.jar.file.base"
-              value="${distribution.directory}/${root.class.name}Lite${editor.release.number}" />
-   <property name="lite.editor.jar.file"
-            value="${lite.editor.jar.file.base}.jar" />
-  
-  <property name="temporary.editor.jar.file"
-            value="${editor.jar.file.base}_tmp.jar" />
+        <!-- Create the distribution dir if it doesn't already exist -->
+        <mkdir dir="${distribution.dir}" />
+    </target>
 
-  <taskdef resource="proguard/ant/task.properties"
-           classpath="${tool.directory}/proguard${proguard.release.number}/lib/proguard.jar" />
-  
-  <!-- global filters -->
-  
-  <filter token="EditorReleaseNumber" value="${editor.release.number}" />
-  <filter token="EditorContributors" value="${editor.contributors}" />
-  <filter token="CompatibleEngineReleaseNumber" value="${compatible.engine.release.number}" />
-  <filter token="CompatibleEngineJarName" value="${compatible.engine.jar.name}" />
-  
-  <filter token="CompatibleJavaReleaseNumber" value="${compatible.java.release.number}" />
-  <filter token="JGraphReleaseNumber" value="${jgraph.release.number}" />
-  <filter token="ProguardReleaseNumber" value="${proguard.release.number}" />
-  <filter token="WofYawlReleaseNumber" value="${wofyawl.release.number}" />
+
+    <target name="clean"
+            description="Remove any output and library files from previous builds.">
+
+        <delete dir="${build.dir}" />
+        <delete dir="${javadoc.dir}" />
+        <delete dir="${enumeratedLibraries.dir}"/>
+        <delete file="${editor.jar.file}" />
+        <delete file="${lite.editor.jar.file}" />
+        <delete file="${distribution.dir}/${compatible.engine.jar.name}" />
+        <delete file="${source.zip}" />
+    </target>
+
+
+    <target name="compile"
+            depends="initialize"
+            description="Compile the source code.">
+
+        <!-- filter source files with filter tokens declared to fill in values-->
+        <mkdir dir="${filtered.source.dir}" />       
+        <copy todir="${filtered.source.dir}" filtering="true">
+            <fileset dir="${source.dir}"/>
+        </copy>
+
+        <mkdir dir="${build.dir}" />
+        <copy todir="${build.dir}/${package.dir}/resources">
+            <fileset dir="${source.dir}/${package.dir}/resources">
+                <include name="**/*" />
+                <include name="**/*.*" />
+            </fileset>
+        </copy>
+
+        <echo message="Compiling: ${source.file}" />
+        <javac fork="yes"
+               debug="yes"
+               source="${source.release}"
+               srcdir="${filtered.source.dir}"
+               destdir="${build.dir}">
+            <include name="${source.file}" />
+            <classpath>
+                <pathelement location="${engine.jar.file}" />
+                <pathelement location="${jcal.jar.file}" />
+                <pathelement location="${servlet.jar.file}" />
+            </classpath>
+        </javac>
+    
+        <delete dir="${filtered.source.dir}" />
+    </target>
+
+
+    <target name="compileTestFiles"
+            depends="compile"
+            description="Compile test files from source">
+
+        <echo message="Compiling Test: ${package.dir}/Test${root.source.file}" />
+        <javac fork="yes"
+               debug="yes"
+               source="${source.release}"
+               srcdir="${source.dir}"
+               destdir="${build.dir}">
+
+            <include name="${package.dir}/Test${root.source.file}" />
+            <classpath>
+                <pathelement location="${junit.jar.file}" />
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="runTests"
+            depends="compileTestFiles"
+            description="Unit Testing of compiled source.">
+
+        <junit printsummary="true">
+            <formatter type="plain" usefile="false" />
+            <test name="${build.dir}/${package.dir}/Test${root.class.name}" />
+            <classpath>
+                <pathelement location="${build.dir}" />
+                <pathelement location="${engine.jar.file}" />
+                <pathelement location="${jcal.jar.file}" />
+                <pathelement location="${servlet.jar.file}" />
+           </classpath>
+        </junit>
+    </target>
+
+
+    <target name="buildEditorLite"
+            depends="compile"
+  	        description="Packaging of compiled source into editor lite jar file.">
+
+        <property name="manifestFile" value="${root.class.name}.mf" />
+
+        <manifest file="${manifestFile}">
+            <attribute name="Main-Class" value="${root.classpath}" />
+            <attribute name="Class-Path" value="${compatible.engine.jar.name}" />
+        </manifest>
+
+        <jar jarfile="${lite.editor.jar.file}"
+             basedir="${build.dir}"
+             manifest="${manifestFile}"
+             excludes="**/Test*.class" />
  
-  <property name="base.engine.name" value="yawl" />
-  <property name="engine.jar.file"
-            value="${library.directory}/${compatible.engine.jar.name}" />
-  <property name="jcal.jar.file"
-            value="${library.directory}/jcalendar-1.3.2.jar"/>
- 
-  <target name="initialize"
-          description="Initialisation of properties and directories.">
-    <!-- Create the time stamp -->
-    <tstamp>
-        <format property="buildDate" pattern="yyyy.MM.dd HH:mm:ss"/>
-    </tstamp>
-    <filter token="BuildDate" value="${buildDate}" />
-
-    <!-- Create the distribution directory -->
-    <mkdir dir="${distribution.directory}" />
-  </target>
-
-  <target name="clean" description="Resetting environment to source-only.">
-    <delete dir="${build.directory}" />
-    <delete dir="${javadoc.directory}" />
-    <delete file="${editor.jar.file}" />
-    <delete file="${lite.editor.jar.file}" />
-    <delete file="${distribution.directory}/${compatible.engine.jar.name}" />
-    <delete file="${source.archive}" />
-<!--    <delete file="${web.page.archive}" />  -->
-  </target>
-
-  <target name="compile"  
-          depends="initialize"
-          description="Compilation of Source.">
-    <!-- Compile the java code from ${srcDir} into ${build.directory} -->
-
-    <delete dir="${build.directory}" />
-    <mkdir dir="${build.directory}" />
-    
-    <property name="filtered.source.directory" value="${basedir}/filtered/source" />
-    
-     <copy todir="${filtered.source.directory}" filtering="true">
-       <fileset dir="${source.directory}"/>
-     </copy>
-
-    <copy todir="${build.directory}/${root.class.directory}/resources">
-      <fileset dir="${source.directory}/${root.class.directory}/resources">
-        <include name="**/*" />
-        <include name="**/*.*" />
-      </fileset>
-    </copy>
-
-    <echo message="Compiling: ${source.file}" />
-
-    <javac fork="yes"
-           debug="yes" 
-           source="${source.release}"
-           srcdir="${filtered.source.directory}"
-           destdir="${build.directory}">
-      <include name="${source.file}" />
-      <classpath>
-        <pathelement location="${engine.jar.file}" />
-        <pathelement location="${jcal.jar.file}" />
-      </classpath>
-    </javac>
-    
-    <delete dir="${basedir}/filtered" />
-
-  </target>
-
-  <target name="compile.test"
-          depends="compile"
-          description="Compilation of Test off Source">
-
-    <echo message="Compiling Test: ${root.class.directory}/Test${root.source.file}" />
-
-    <javac fork="yes"
-           debug="yes"  
-           source="${source.release}"
-           srcdir="${source.directory}"
-           destdir="${build.directory}">
-      <include name="${root.class.directory}/Test${root.source.file}" />
-      <classpath>
-<!--        <pathelement path="${enginePath}" />  -->
-      </classpath>
-    </javac>
-  </target>
-
-  <target name="test"
-          depends="compile.test"
-          description="Unit Testing of compiled source.">
-    <junit printsummary="true">
-      <formatter type="plain" usefile="false" />
-      <test name="${root.class.directory}/Test${root.class.name}" />
-      <classpath>
-        <pathelement location="${build.directory}" />
-        <pathelement location="${engine.jar.file}" />
-        <pathelement location="${jcal.jar.file}" />
-      </classpath>
-    </junit>
-  </target>
-
-  <target name="package"
-          depends="compile"
-  	      description="Packaging of compiled source into Jar file.">
-    <!-- Put everything in ${build} into the ${jarName}.jar file -->
-    <property name="manifestFile" value="${root.class.name}.mf" />
-
-    <manifest file="${manifestFile}">
-      <attribute name="Main-Class" value="${source.file.class.path}" />
-      <attribute name="Class-Path" value="${compatible.engine.jar.name}" />
-    </manifest>
-
-    <jar jarfile="${lite.editor.jar.file}"
-         basedir="${build.directory}"
-         manifest="${manifestFile}"
-         excludes="**/Test*.class" />
- 
-    <delete file="${manifestFile}" />
-    <available file="${lite.editor.jar.file}"
-               property="lite.editor.jar.exists" />
-  </target>
-
-      <property name="enumeratedClasses" value="${basedir}/enumerated3rdPartyClasses"/>
+        <delete file="${manifestFile}" />
+    </target>
 
 
-      <target name="build_complete (experimental)" depends="package">
-          <mkdir dir="${enumeratedClasses}"/>
-          <unzip dest="${enumeratedClasses}">
-              <fileset file="${engine.jar.file}"/>
-              <fileset file="${jcal.jar.file}"/>
-              <fileset file="${lite.editor.jar.file}"/>
-          </unzip>
+    <target name="checkEnumeratedLibraries">
+        <available filepath="${enumeratedLibraries.dir}/${package.base.dir}/engine/"
+                   file="YEngine.class"
+                   property="enumdir.present"/>
+        <antcall target="enumerateLibraries"/>
+    </target>
 
-          <jar destfile="${distribution.directory}/YAWL_Experimental.jar" duplicate="preserve">
-              <fileset dir="${build.directory}"/>
-              <fileset dir="${enumeratedClasses}"
-                       excludes="*.* /META-INF/** org/hibernate/** org/postgresql/**"/>
-              <manifest>
-                  <attribute name="Created-By" value="The YAWL Foundation"/>
-                  <attribute name="Main-Class"
-                             value="${source.file.class.path}"/>
-              </manifest>
-          </jar>
-          <delete dir="${enumeratedClasses}"/>
-      </target>
+
+    <target name="enumerateLibraries" unless="enumdir.present">
+        <mkdir dir="${enumeratedLibraries.dir}"/>
+        <unzip dest="${enumeratedLibraries.dir}">
+            <fileset file="${engine.jar.file}"/>
+            <fileset file="${jcal.jar.file}"/>
+            <fileset file="${servlet.jar.file}"/>
+        </unzip>
+    </target>
+
+
+    <target name="buildEditorComplete"
+            depends="compile"
+            description="Packaging of compiled source and required libraries into editor jar file.">
+
+        <antcall target="checkEnumeratedLibraries"/>
+
+        <jar destfile="${editor.jar.file}" duplicate="fail">
+            <fileset dir="${build.dir}"/>
+            <fileset dir="${enumeratedLibraries.dir}"
+                     includes="com/toedter/** javax/** net/sf/saxon/** org/apache/**
+                               org/dom4j/** org/jdom/** org/eclipse/**
+                               ${package.base.dir}/elements/**
+                               ${package.base.dir}/engine/**
+                               ${package.base.dir}/exceptions/**
+                               ${package.base.dir}/resourcing/**
+                               ${package.base.dir}/schema/**
+                               ${package.base.dir}/unmarshal/**
+                               ${package.base.dir}/util/**"
+                     excludes="**/*.hbm.xml ${package.base.dir}/**/*.jpg
+                               ${package.base.dir}/**/*.gif"/>
+            <manifest>
+                <attribute name="Created-By" value="The YAWL Foundation"/>
+                <attribute name="Main-Class" value="${root.classpath}"/>
+            </manifest>
+        </jar>
+
+        <!--<delete dir="${enumeratedLibraries.dir}"/>-->
+    </target>
       
 
-  <target name="optimise"
-          depends="package"
-  	      description="Optimisation of the editor">
-    <proguard optimize="true" obfuscate="false" shrink="true" note="false" overloadaggressively="false" defaultpackage="">
-      <libraryjar file="${java.home}/lib/rt.jar"/>
-      <libraryjar file="${engine.jar.file}"/>
-      <libraryjar file="${jcal.jar.file}"/>
-      <injar  file="${lite.editor.jar.file}"/>
-      <outjar file="${temporary.editor.jar.file}"/> 
+    <target name="document"
+            depends="initialize"
+            description="Generate Javadocs for the source-code">
 
-      <!--  Keep Bootstap class and its main() method.  -->
+        <mkdir dir="${javadoc.dir}" />
+        <javadoc packagenames="org.yawlfoundation.yawl.editor.*"
+                 sourcepath="${source.dir}"
+                 source="${source.release}"
+                 classpath="${engine.jar.file}"
+                 defaultexcludes="yes"
+                 destdir="${javadoc.dir}"
+                 author="true"
+                 version="true"
+                 use="true"
+                 windowtitle="YAWLEditor ${editor.release.number} API">
+	        <doctitle>
+	            <![CDATA[<h1>YAWLEditor ${editor.release.number} API</h1>]]>
+	        </doctitle>
+            <link offline="false" href="http://java.sun.com/j2se/1.5.0/docs/api/"/>
+        </javadoc>
+    </target>
 
-      <keepclasseswithmembers name="${source.file.class.path}">
-        <method access="public static" type="void" name="main" parameters="java.lang.String[]"/> 
-      </keepclasseswithmembers>
 
-      <!-- Basic - Library. Keep all externally accessible classes, fields, and methods. -->
-      
-      <keep access="public">
-        <field access="public protected"/>
-      	<method access="public protected"/>
-      </keep>
-      
-      <!-- Keep Serialization code. -->
-     
-      <keepclassmembers type="class" name="*" extends="java.io.Serializable">
-        <field access="static final" type="long" name="serialVersionUID"/>
-        <method access="private" type="void" name="writeObject" parameters="java.io.ObjectOutputStream"/>
-        <method access="private" type="void" name="readObject" parameters="java.io.ObjectInputStream"/>
-        <method type="java.lang.Object" name="writeReplace" parameters=""/>
-        <method type="java.lang.Object" name="readResolve" parameters=""/>
-      </keepclassmembers>
-
-      <!-- Keep Clone code. -->
-      
-      <keepclassmembers type="class" name="*" extends="Cloneable">
-        <method access="public" name="clone" />
-      </keepclassmembers>
-      
-    </proguard>
-    <move file="${temporary.editor.jar.file}"
-          tofile="${lite.editor.jar.file}" />
-  </target>
-
-  <target name="fuse.engine"
-          depends="optimise"
-          description="Fuses the editor with requisite engine classes">
-    <echo message="Fusing ${editor.jar.file} with required engine classes." />
-   
-    <!-- Engine treatment breaks the final result in ways that are hard/time-consuming
-         to resolve. Have  switched off optimisation/shrinking for the time being -->  
-    
-   <!-- Update 06/10/2006: shrinking seems to work for Progard 3.6 with the 7.2.1 engine -->
-    
-    <proguard optimize="true" obfuscate="false" shrink="true" warn="false" ignorewarnings="true">
-      <libraryjar file="${java.home}/lib/rt.jar"/>
-      <injar  file="${lite.editor.jar.file}"/>
-      <injar  file="${engine.jar.file}"/>
-      <injar  file="${jcal.jar.file}"/>
-      <outjar file="${temporary.editor.jar.file}"/>
-
-      <!--  Keep Bootstap class and its main() method.  -->
-
-      <keepclasseswithmembers name="${source.file.class.path}">
-        <method access="public static" type="void" name="main" parameters="java.lang.String[]"/>
-      </keepclasseswithmembers>
-
-      <!-- Basic - Library. Keep all externally accessible classes, fields, and methods. -->
-
-      <keep access="public">
-        <field access="public protected"/>
-        <method access="public protected"/>
-      </keep>
-
-      <!-- Keep Serialization code. -->
-
-      <keepclassmembers type="class" name="*" extends="java.io.Serializable">
-        <field access="static final" type="long" name="serialVersionUID"/>
-        <method access="private" type="void" name="writeObject" parameters="java.io.ObjectOutputStream"/>
-        <method access="private" type="void" name="readObject" parameters="java.io.ObjectInputStream"/>
-        <method type="java.lang.Object" name="writeReplace" parameters=""/>
-        <method type="java.lang.Object" name="readResolve" parameters=""/>
-      </keepclassmembers>
-
-      <!-- Keep Clone code. -->
-
-      <keepclassmembers type="class" name="*" extends="Cloneable">
-        <method access="public" name="clone" />
-      </keepclassmembers>
-
-    </proguard>
-    <move file="${temporary.editor.jar.file}" tofile="${editor.jar.file}" />
-  </target>
-
-  <target name="document"
-          depends="initialize"
-          description="Generate Javadocs for the source-code">
-    <mkdir dir="${javadoc.directory}" />
-    <javadoc packagenames="org.yawleditor.yawl.editor.*"
-             sourcepath="${source.directory}"
-             source="${source.release}"
-             classpath="${engine.jar.file}"
-             defaultexcludes="yes"
-             destdir="${javadoc.directory}"
-             author="true"
-             version="true"
-             use="true"
-             windowtitle="YAWLEditor ${editor.release.number} API">
-	    <doctitle>
-	      <![CDATA[<h1>YAWLEditor ${editor.release.number} API</h1>]]>
-	    </doctitle>
-      <link offline="false" href="http://java.sun.com/j2se/1.4.2/docs/api/"/> 
-    </javadoc>
-  </target>
-
-	<target name="zip.source"
+	<target name="zipSourceCode"
 	        depends="initialize"
 	        description="Generate a zipfile of the source">
     
-		<zip destfile="${source.archive}">
-      <zipfileset dir="${source.directory}" prefix="source"/>
-		  <zipfileset dir="${library.directory}" prefix="lib"/>
-		  <zipfileset dir="${tool.directory}" prefix="tools" />
+		<zip destfile="${source.zip}">
+        <zipfileset dir="${source.dir}" prefix="source"/>
+	  	    <zipfileset dir="${library.dir}" prefix="lib"/>
+		    <zipfileset dir="${tool.dir}" prefix="tools" />
 		</zip>
    
-    <property name="filtered.source.directory" value="${basedir}/filtered/source" />
-    
-    <copy todir="${distribution.directory}" filtering="true">
-      <fileset file="${source.directory}/ReleaseNotes.txt"/>
-      <fileset file="${source.directory}/ChangeLog.txt"/>
-    </copy>
+        <copy todir="${distribution.dir}" filtering="true">
+            <fileset file="${source.dir}/ReleaseNotes.txt"/>
+            <fileset file="${source.dir}/ChangeLog.txt"/>
+        </copy>
+    </target>
 
-  </target>
-	
-	<target name="clean.fusion"
-	        depends="clean,fuse.engine"
-	        description="Complete reset, rebuild and fusion with engine JAR." />
-	<target name="full"
-	        depends="clean,fuse.engine,zip.source,document"
-	        description="Complete reset and rebuild of everytthing" />
-	<target name="clean.test"
-	        depends="clean,test"
-	        description="Complete reset and retest" />
-	<target name="clean.package"
-	        depends="clean,package"
-	        description="Complete reset and retest" />
-	<target name="clean.optimise"
-	        depends="clean,optimise"
-	        description="Complete reset, rebuild and optimisation " />
+	<target name="release"
+	        depends="buildEditorLite,buildEditorComplete,zipSourceCode,document"
+	        description="Complete build of everything" />
+    <target name="full"
+            depends="clean,buildEditorLite,buildEditorComplete,zipSourceCode,document"
+            description="Complete reset, clean and build of everything (may take a while)" />
 </project>
