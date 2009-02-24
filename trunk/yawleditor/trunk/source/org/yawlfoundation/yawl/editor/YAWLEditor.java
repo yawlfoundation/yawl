@@ -28,10 +28,7 @@ import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.specification.SpecificationFileModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationFileModelListener;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.swing.JSplashScreen;
-import org.yawlfoundation.yawl.editor.swing.JStatusBar;
-import org.yawlfoundation.yawl.editor.swing.JUtilities;
-import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.swing.*;
 import org.yawlfoundation.yawl.editor.swing.menu.Palette;
 import org.yawlfoundation.yawl.editor.swing.menu.ToolBarMenu;
 import org.yawlfoundation.yawl.editor.swing.menu.YAWLMenuBar;
@@ -125,8 +122,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   private static void startLoading() {
     getSplashScreen().setContent(
         "/org/yawlfoundation/yawl/editor/resources/yawlSplashScreen.jpg",
-        "YAWLEditor" + getSizeDistinction() + " v " +
-        getVersionNumber() + " - (c) 2009 The YAWL Foundation");
+            SplashContent.getCopyright());
 
     getSplashScreen().show();
   }
@@ -422,17 +418,6 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
       splitPane.setDividerSize(0);
     }
     splitPane.setDividerLocation((double)1);
-  }
-
-  private static String getSizeDistinction() {
-    if (YAWLEngineProxy.engineLibrariesAvailable()) {
-      return "";
-    }
-    return "Lite";
-  }
-
-  private static String getVersionNumber() {
-    return "@EditorReleaseNumber@";
   }
 
   public void specificationFileModelStateChanged(int state) {
