@@ -273,7 +273,8 @@ public class WorkItemRecord implements Cloneable {
     public Hashtable<String, String> getAttributeTable() {
         if ((_extendedAttributes.length() > 0) && (_attributeTable == null))
             _attributeTable = attributeStringToTable();
-        return _attributeTable; }
+        return _attributeTable;
+    }
 
     public String getID() { return _caseID + ":" + _taskID; }
 

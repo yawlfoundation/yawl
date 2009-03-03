@@ -672,9 +672,9 @@ public class YNetRunner {
     private YWorkItem createEnabledWorkItem(YPersistenceManager pmgr, YIdentifier caseIDForNet, YAtomicTask atomicTask) throws YPersistenceException, YDataStateException, YSchemaBuildingException, YQueryException, YStateException {
         _logger.debug("--> createEnabledWorkItem: Case=" + caseIDForNet.get_idString() + " Task=" + atomicTask.getID());
 
-        boolean allowDynamicCreation =
-                atomicTask.getMultiInstanceAttributes() == null ? false :
-                YMultiInstanceAttributes._creationModeDynamic.equals(atomicTask.getMultiInstanceAttributes().getCreationMode());
+        boolean allowDynamicCreation = atomicTask.getMultiInstanceAttributes() != null &&
+                    YMultiInstanceAttributes._creationModeDynamic.equals(
+                            atomicTask.getMultiInstanceAttributes().getCreationMode());
 
         //creating a new work item puts it into the work item
         //repository automatically.

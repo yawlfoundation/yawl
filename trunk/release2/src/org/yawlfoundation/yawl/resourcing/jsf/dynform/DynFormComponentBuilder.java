@@ -188,6 +188,7 @@ public class DynFormComponentBuilder {
         dropdown.setStyle(makeTopStyle(top)) ;
         dropdown.setItems(getEnumeratedList(input));
         dropdown.setSelected(input.getValue());
+        dropdown.setDisabled(input.isInputOnly());
         return dropdown;
     }
 
@@ -244,6 +245,7 @@ public class DynFormComponentBuilder {
         rb.setLabel("");
         rb.setName(input.getChoiceID());               // same name means same rb group
         rb.setStyle(makeTopStyle(top));
+        rb.setDisabled(input.isInputOnly());
         rb.setStyleClass("dynformRadioButton");        
         return rb;
     }

@@ -8,15 +8,13 @@
 
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
-import org.jdom.Element;
+import org.jdom.Attribute;
 import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.Namespace;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Author: Michael Adams
@@ -244,6 +242,7 @@ public class DynFormFieldAssembler {
         input.setMaxoccurs(maxOccurs);
         input.setLevel(level);
         input.setParam(_currentParam);
+        input.setAttributes(new DynFormUserAttributes(getAttributeMap(data, name)));
         if (type != null) input.setRequired();
         return input;
     }
@@ -343,6 +342,23 @@ public class DynFormFieldAssembler {
     
     private String getNextChoiceID() {
         return "choice" + String.valueOf(_uniqueSuffix++);
+    }
+
+    private Map<String, String> getAttributeMap(Element data, String name) {
+        Map<String, String> result = new Hashtable<String, String>();
+        if (data != null) {
+            Element child = data.getChild(name);
+            if (child != null) {
+                List attributes = child.getAttributes() ;
+                for (Object o : attributes) {
+                    Attribute attribute = (Attribute) o;
+                    result.put(attribute.getName(), attribute.getValue());
+
+                    // !!! consider passing these as a list of attributes !!! //
+                }
+            }
+        }
+        return result;
     }
 
 
