@@ -22,22 +22,13 @@
  *
  */
 
-package org.yawlfoundation.yawl.editor.swing; 
+package org.yawlfoundation.yawl.editor.swing;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JWindow;
-
+import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
+
+import javax.swing.*;
+import java.awt.*;
 
 /** 
  *  JSplashScreen is a simple window object that displays a splash screen 
@@ -56,8 +47,6 @@ public class JSplashScreen {
 
   /**
 	 * Creates a new splashscreen containing an image file, progress bar and message string.
-	 * @param imageFile  the filename of the image to display.
-	 * @param message    the message string to display below the progress bar.
 	 */
   
   public JSplashScreen() {}
@@ -102,17 +91,10 @@ public class JSplashScreen {
 
   public void finish() {
     updateProgressBar(100);
-    pause(200);
+    YAWLEditor.pause(200);
     splashScreen.setVisible(false);
   }
 
-  private static void pause(long milliseconds) {
-    long now = System.currentTimeMillis();
-    long finishTime = now + milliseconds;
-    while(now < finishTime) {
-      now = System.currentTimeMillis();
-    }
-  }
 
   private void buildScreen() {
     splashScreen = new JWindow();

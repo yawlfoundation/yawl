@@ -23,14 +23,13 @@
 
 package org.yawlfoundation.yawl.editor.swing.data;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Collections;
-import java.util.Iterator;
-
-import javax.swing.JComboBox;
-
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+
+import javax.swing.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 public class YawlServiceComboBox extends JComboBox {
   
@@ -68,11 +67,7 @@ public class YawlServiceComboBox extends JComboBox {
     Iterator serviceIterator = sortedServices.iterator();
     while(serviceIterator.hasNext()) {
       String serviceDescription = (String) serviceIterator.next();
-/*
-      System.out.println("Adding service \"" + serviceDescription + "\" to combobox.\n" + 
-          "Service URI = " + (String) services.get(serviceDescription));
-*/
-      addItem(serviceDescription);
+      addItem(serviceDescription);                            // add service to combobox
     }
   }
   

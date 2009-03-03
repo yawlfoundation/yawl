@@ -39,7 +39,7 @@ import org.yawlfoundation.yawl.editor.specification.SpecificationFileModelListen
 public abstract class YAWLNoOpenSpecificationAction extends YAWLBaseAction 
                                                     implements SpecificationFileModelListener {
 
-  private final SpecificationFileModel fileModel = 
+  private final SpecificationFileModel fileModel =
     SpecificationFileModel.getInstance();
 
   {

@@ -33,10 +33,7 @@ import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 
 import javax.swing.*;
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -51,6 +48,8 @@ public class YAWLResetAnalyser{
   public static final String SHOW_OBSERVATIONS_PREFERENCE = "resetShowObservationsCheck";
   public static final String USE_YAWLREDUCTIONRULES_PREFERENCE	= "yawlReductionRules";
   public static final String USE_RESETREDUCTIONRULES_PREFERENCE	= "resetReductionRules";
+
+  public static AnalysisDialog messageDlg ;
       /**
      * This method is used for the analysis.
      * @fileURL - xml file format of the YAWL model
@@ -61,7 +60,6 @@ public class YAWLResetAnalyser{
      */
      public String analyse(String fileURL,String options,boolean useYAWLReductionRules,boolean useResetReductionRules) throws IOException, YSchemaBuildingException, YSyntaxException, JDOMException {
        long startTime = System.currentTimeMillis();
-
        YSpecification specs;
        StringBuffer msgBuffer = new StringBuffer(400);
        try {
@@ -78,20 +76,13 @@ public class YAWLResetAnalyser{
            return "";
        }
 
-    //   boolean useYAWLReductionRules = true;
-    //   boolean useResetReductionRules = false;
-       
        // TODO: Check whether reset net analysis is needed at all.
 
-     //  while (listIt.hasNext()){
-
        //Check if there is decomposition
-	   
 	   YDecomposition decomposition;
 	   YNet decomRootNet,reducedYNet;
 	   ResetWFNet decomResetNet, reducedNet;
-	   
-	   YSpecification newSpecification = specs;
+     messageDlg = new AnalysisDialog();
 	   	   
 	   Set decompositions = new HashSet(specs.getDecompositions());
 	   if (decompositions.size()>0)
@@ -113,10 +104,12 @@ public class YAWLResetAnalyser{
 		        }
 		        		        
 		        decomResetNet = new ResetWFNet(decomRootNet);
-	            
+	          decomResetNet.setAnalysisDialog(messageDlg);
+
 		        YAWLReachabilityUtils utils = new YAWLReachabilityUtils(decomRootNet);
-		        
-		        if (useResetReductionRules)
+		        utils.setAnalysisDialog(messageDlg);
+
+		         if (useResetReductionRules)
 		        {
 		        	reducedNet = reduceNet(decomResetNet);
 			        if (reducedNet != null)
@@ -201,34 +194,21 @@ public class YAWLResetAnalyser{
 		           
 		   	  }
 
-
-		  /**
-		     //Alternative proper completion check
-                YNet transformedNet = transformNetforProperCompletionCheck(decomRootNet);
-		        ResetWFNet transformedResetNet = new ResetWFNet(transformedNet);
-		   		msg += transformedResetNet.checkProperCompletion2();
-
-		   		msg += decomResetNet.checkCancellationSets();
-
-		  */
-
 	         } //endif
 	   		} //end for
 	   }//end if
 
-    // }//end while
-    
-  // String exportFileName = fileURL+"reduced"; 
-  //  exportEngineSpecificationToFile(exportFileName,newSpecification);
 
 	long endTime = System.currentTimeMillis();
 	long duration = endTime - startTime;
-	System.out.println("Duration: " + duration + " millisecs");
+	messageDlg.write("Duration: " + duration + " millisecs");
+  messageDlg.finished();        
 	return formatXMLMessageForEditor(msgBuffer.toString());
     }
     
     private YNet reduceNet(YNet originalNet){
-	System.out.println("# Elements in the original YAWL net: "+ originalNet.getNetElements().size());
+	messageDlg.write("# Elements in the original YAWL net (" + originalNet.getID() + "): "
+                   + originalNet.getNetElements().size());
 	YAWLReductionRule rule;
 
     YNet reducedNet_t, reducedNet;
@@ -311,15 +291,15 @@ public class YAWLResetAnalyser{
  { //if (reducedNet != originalNet)
    //{  
         loop --;
-        System.out.println("YAWL Reduction rules: "+ loop + "rules "+ rulesmsg);
-        System.out.println("Reduced net size: "+ reducedNet.getNetElements().size());
+        messageDlg.write("YAWL Reduction rules: "+ loop + " rules "+ rulesmsg);
+        messageDlg.write("Reduced net size: "+ reducedNet.getNetElements().size());
         return reducedNet;
    //}
    //else 
    //return null; 
  }  
  else{
- rulesmsg += rules;
+ rulesmsg += rules + ";";
  reducedNet = reducedNet_t;                                                     
  
 }
@@ -329,13 +309,15 @@ public class YAWLResetAnalyser{
  } 
     
  private ResetWFNet reduceNet(ResetWFNet originalNet){
- System.out.println("# Elements in the original reset net: "+ originalNet.getNetElements().size());
+ messageDlg.write("# Elements in the original reset net: "+ originalNet.getNetElements().size());
  ResetReductionRule rule;
  
  ResetWFNet reducedNet_t, reducedNet;
 // reducedNet = originalNet;
 //a copy of original net
    reducedNet = new ResetWFNet(originalNet);
+   reducedNet.setAnalysisDialog(messageDlg);
+     
    String rules = "FSPR"; 
    String rulesmsg = "";                       
    int loop=0;
@@ -384,8 +366,8 @@ public class YAWLResetAnalyser{
  if (reducedNet_t == null)
  { if (reducedNet != originalNet)
    { loop --;
-     System.out.println("Reset Reduced net "+ loop + "rules "+ rulesmsg);
-     System.out.println("Reduced net size:"+ reducedNet.getNetElements().size());
+     messageDlg.write("Reset Reduced net "+ loop + " rules: "+ rulesmsg);
+     messageDlg.write("Reduced net size:"+ reducedNet.getNetElements().size());
      return reducedNet;
    }
    else 
@@ -393,7 +375,7 @@ public class YAWLResetAnalyser{
    }
  }    
  else
- { rulesmsg += rules;
+ { rulesmsg += rules + ";";
   reducedNet = reducedNet_t;                                                     
  }
 } while (reducedNet != null);//end while
@@ -437,138 +419,5 @@ return null;
 	   
 	  	return msgBuffer.toString();	
 	 }
-	 
-	/* 
-	private Set generateCombination(Set netElements, int size) {
 
-      Set subSets = new HashSet();
-      Object[] elements = netElements.toArray();
-      int[] indices;
-      CombinationGenerator x = new CombinationGenerator(elements.length, size);
-      while (x.hasMore()) {
-        Set combsubSet = new HashSet();
-        indices = x.getNext();
-        for (int i = 0; i < indices.length; i++) {
-          combsubSet.add(elements[indices[i]]);
-        }
-        subSets.add(combsubSet);
-      }
-      return subSets;
-    }*/ 
-	 
-	  /**
-    * This transformation involves adding 2 tasks and 2 conditions
-    * to E2WFNet to check proper completion. This enables us to
-    * ask just one coverable question.
-    * limitation is we don't know where the dead token is .
-    */
-   
-/*   private YNet transformNetforProperCompletionCheck(YNet net) {
-   		
-   	YNet yNet = (YNet) net.clone();
-    YOutputCondition output = yNet.getOutputCondition();
-       
-   	//Create two join tasks - t_XOR and t_AND - default split is AND
-   	YAtomicTask t_xor = new YAtomicTask("t_xor",YTask._XOR,YTask._AND,yNet);
-   	YAtomicTask t_and = new YAtomicTask("t_and",YTask._AND,YTask._AND,yNet);
-   	
-   	//Add flow relations for preset of t_XOR
-   	 YExternalNetElement XORtask = t_xor;
-   	 YExternalNetElement ANDtask = t_and;
-   	 
-   	 yNet.addNetElement(XORtask);
-   	 yNet.addNetElement(ANDtask);
-   	 
-   	 //Connect all conditions except input and output to t_xor
-   	 Map netElements = yNet.getNetElements();
-     for (Iterator i= netElements.values().iterator(); i.hasNext();)
-   	 {  YExternalNetElement nextElement = (YExternalNetElement) i.next();
-   	 
-   	 //only interested in conditions
-	   	 if(nextElement instanceof YCondition)
-	     { if (!(nextElement instanceof YInputCondition)||!(nextElement instanceof YOutputCondition))
-	       { 
-	         YFlow preflow = new YFlow(nextElement,XORtask);
-	         XORtask.setPreset(preflow);
-	       }
-	          
-	     }
-     } 
-        
-   	//Create two conditions c_bt and c_output
-   	
-   	YCondition cbt= new YCondition("c_bt","c_bt",yNet);
-   	YCondition coutput= new YCondition("c_output","c_output",yNet);
-   	
-    YExternalNetElement c_bt = cbt;
-   	YExternalNetElement c_output = coutput;
-   	
-   	yNet.addNetElement(c_bt);
-   	yNet.addNetElement(c_output);
-   	
-   	//Add flow relations post for t_XOR to c_bt
-   	YFlow cbtPreflow = new YFlow(XORtask,c_bt);
-   	XORtask.setPostset(cbtPreflow);
-  
-   	
-   	//Add flow relations preset from c_bt to t_AND
-   	YFlow cbtPostflow = new YFlow(c_bt,ANDtask);
-  	ANDtask.setPreset(cbtPostflow);
-   	
-   	//Add flow relations from c_out to t_AND
-   	YFlow cOutflow = new YFlow(c_output,ANDtask);
-   	ANDtask.setPreset(cOutflow);
-   	
-   	//Change flow relations for preset of output condition
-    //Need to replace output condition with c_output
-    if(output != null)
-    {  Set outPresetElements = output.getPresetElements();
-      for(Iterator i= outPresetElements.iterator(); i.hasNext();)
-       { YExternalNetElement ele = (YExternalNetElement) i.next();
-       
-       	 YFlow f = ele.getPostsetFlow(output);
-       	 ele.removePostsetFlow(f);
-       	 f = new YFlow(ele,c_output);
-       	 c_output.setPreset(f);
-       	// ele.setPostset(f);
-       
-       
-       }
-     
-    }
-   	    	
-   	// Create a new output condition
-   	YOutputCondition newOutput = new YOutputCondition(output.getID(),output.getID(),yNet);
-   	//Add flow relations postset from t_AND to output condition
-   	YFlow oflow = new YFlow(ANDtask,newOutput);
-   	ANDtask.setPostset(oflow);
-      	
-    return yNet;
-     
- }*/   	  
- 
- private void exportEngineSpecificationToFile(String fullFileName, YSpecification specification) {
-    try {
-      PrintStream outputStream = 
-        new PrintStream(
-            new BufferedOutputStream(new FileOutputStream(fullFileName)),
-            false,
-            "UTF-8"
-        );
-      outputStream.println(getEngineSpecificationXML(specification));
-       
-      outputStream.close();
-      System.out.println("file succesfully exported to:"+fullFileName);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }	
-    private String getEngineSpecificationXML(YSpecification specification) {
-    try {
-       return YMarshal.marshal(specification);
-    } catch (Exception e) {
-      e.printStackTrace();
-      return null;
-    }
-  }
 }

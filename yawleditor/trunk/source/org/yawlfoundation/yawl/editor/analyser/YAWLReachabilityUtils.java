@@ -54,7 +54,12 @@ public class YAWLReachabilityUtils{
       _yNet =  transformNet(net);
      //	_yNet = net;
      }
-     
+
+     private AnalysisDialog messageDlg;
+
+     public void setAnalysisDialog(AnalysisDialog dlg) {
+         messageDlg = dlg;
+     }
      
      /**
       * It returns whether the set of markings contains markings that marks
@@ -554,17 +559,17 @@ public class YAWLReachabilityUtils{
          RS.addAll(visitingPS);
             if(RS.size() > maxNumMarkings)
         {
-    		throw new Exception("Reachable markings >"+maxNumMarkings+ ". Possible infinite loop in the net "+_yNet.getID());
+    		throw new Exception("Reachable markings > "+maxNumMarkings+ ". Possible infinite loop in the net "+_yNet.getID());
         }
 
     	YSetOfMarkings successors = getImmediateSuccessors(visitingPS);
         visitingPS.removeAll();
         visitingPS.addAll(successors);
-        System.out.println("Immediate Successors: "+ visitingPS.size());
+        messageDlg.write("Immediate Successors: "+ visitingPS.size());
 
         }
 
-     System.out.println("Reachability Set size: "+RS.size());
+     messageDlg.write("Reachability Set size: "+RS.size());
      return RS; 
     
     }
@@ -875,10 +880,10 @@ public class YAWLReachabilityUtils{
 	 }
 	 
 	 
-	 //A convinent method to convert a marking that we have into an identifer object.
+	 //A convenient method to convert a marking that we have into an identifer object.
 	 private YIdentifier convertMarkingToIdentifier(YMarking m)
 	 {
-	 	YIdentifier id = new YIdentifier();
+	 	YIdentifier id = new YIdentifier("temp");
 	 	List locations = new LinkedList(m.getLocations());
 	 	
 	 	try{

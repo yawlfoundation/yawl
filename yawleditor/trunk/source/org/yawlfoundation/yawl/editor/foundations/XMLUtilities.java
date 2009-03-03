@@ -302,7 +302,7 @@ public class XMLUtilities {
     //       Can I use the "restriction" tag of simple enumerated types to see if it's a number?
     
     if (variable.isNumberType()) {
-      return "number{" + getVariableContentXQuery(variable) + ")";
+      return "number(" + getVariableContentXQuery(variable) + ")";
     }
     return getVariableContentXQuery(variable);
   }

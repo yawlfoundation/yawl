@@ -22,8 +22,8 @@
 
 package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
-import org.jdom.Element;
 import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
@@ -32,18 +32,17 @@ import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.elements.model.*;
 import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.foundations.LogWriter;
 import org.yawlfoundation.yawl.editor.net.CancellationSet;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
-import org.yawlfoundation.yawl.editor.specification.SpecificationFileModel;
-import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
-import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
+import org.yawlfoundation.yawl.editor.specification.*;
 import org.yawlfoundation.yawl.editor.swing.DefaultLayoutArranger;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.swing.specification.ProblemMessagePanel;
+import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
@@ -55,10 +54,10 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import javax.swing.*;
 import javax.xml.datatype.Duration;
 import java.awt.*;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
-import java.io.StringReader;
 
 public class EngineSpecificationImporter extends EngineEditorInterpretor {
   
@@ -105,7 +104,14 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     SpecificationUndoManager.getInstance().discardAllEdits();
     SpecificationModel.getInstance().setUniqueElementNumber(_maxEngineNumber);
 
-    if (! _invalidResourceReferences.isEmpty()) showInvalidResourceReferences();
+    if (! _invalidResourceReferences.isEmpty()) {
+        showInvalidResourceReferences();
+        if (! ResourcingServiceProxy.getInstance().isLiveService()) {
+            if (showDisconnectedResourceServiceWarning() == JOptionPane.YES_OPTION) {
+                SpecificationArchiveHandler.getInstance().processCloseRequest();
+            }
+        }
+    }
 
   }
 
@@ -114,7 +120,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
       List specifications = YMarshal.unmarshalSpecifications(specXML, false);
       return (YSpecification) specifications.get(0); // Engine currently only supplies a single specification per file.
     } catch (Exception e) {
-      e.printStackTrace();
+        LogWriter.error("Error unmarshalling specification from XML.", e);
     }
     return null;
   }
@@ -296,7 +302,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     
     while(inputIterator.hasNext()) {
       
-      YParameter engineParameter = (YParameter) engineDecomposition.getInputParameters().get(inputIterator.next());
+      YParameter engineParameter = engineDecomposition.getInputParameters().get(inputIterator.next());
       
       createEditorVariable(
           editorDecomposition,
@@ -387,10 +393,27 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
             editorDecomposition
         );
 
+        convertInteractionSettings(engineDecomposition, editorDecomposition);
+        convertExtendedAttributes(engineDecomposition, editorDecomposition);
+
         SpecificationModel.getInstance().addWebServiceDecomposition(editorDecomposition);
       }
     }
   }
+
+
+  private static void convertInteractionSettings(YDecomposition engineDecomposition,
+                                                 WebServiceDecomposition editorDecomposition) {
+      editorDecomposition.setCodelet(engineDecomposition.getCodelet());
+      editorDecomposition.setManualInteraction(engineDecomposition.requiresResourcingDecisions());
+  }
+
+
+    private static void convertExtendedAttributes(YDecomposition engineDecomposition,
+                                                   WebServiceDecomposition editorDecomposition) {
+      editorDecomposition.setAttributes(engineDecomposition.getAttributes());
+    }
+
   
   private static void populateEditorNets(YSpecification engineSpecification) {
     Iterator netIterator = editorToEngineNetMap.keySet().iterator();
@@ -1017,6 +1040,28 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     
     private static void updateMaxEngineNumber(int nbr) {
       if (nbr > _maxEngineNumber) _maxEngineNumber = nbr;
-  }
+    }
+
+
+    private static int showDisconnectedResourceServiceWarning() {
+        Object[] buttonText = {"Close", "Continue"};
+        return JOptionPane.showOptionDialog(
+                YAWLEditor.getInstance(),
+                "The loaded specification contains resource settings, but the resource\n " +
+                "service is currently offline. This means that the settings cannot be\n "+
+                "validated and will be LOST if the specification is saved. It is\n " +
+                "suggested that the specification be closed, a valid connection to\n " +
+                "the resource service is established (via the Tools menu), then\n " +
+                "the specification be reloaded.\n\n" +
+                "Click the 'Close' button to close the loaded file (recommended)\n " +
+                "or the 'Continue' button to keep it loaded, but with resourcing\n " +
+                "settings stripped.",
+                "Warning - read carefully",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE,
+                null,
+                buttonText,
+                buttonText[0]);
+    }    
 
 }

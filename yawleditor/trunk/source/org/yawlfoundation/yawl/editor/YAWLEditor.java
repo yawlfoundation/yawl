@@ -23,6 +23,7 @@
 package org.yawlfoundation.yawl.editor;
 
 import org.yawlfoundation.yawl.editor.analyser.YAWLResetAnalyser;
+import org.yawlfoundation.yawl.editor.foundations.LogWriter;
 import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.specification.SpecificationFileModel;
@@ -120,6 +121,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   }
 
   private static void startLoading() {
+    LogWriter.init();
     getSplashScreen().setContent(
         "/org/yawlfoundation/yawl/editor/resources/yawlSplashScreen.jpg",
             SplashContent.getCopyright());
@@ -133,7 +135,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
   private static void validateParameter(String[] args) {
     if (args.length > 1) {
-      System.out.println("Usage: " + System.getProperty("java.class.path") + " [<EditorSaveFile>]");
+      LogWriter.info("Usage: " + System.getProperty("java.class.path") + " [<EditorSaveFile>]");
       System.exit(1);
     }
 
@@ -318,8 +320,6 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
           "Programming Exception with problem list generation",
           stackMessageList
       );
-
-//      e.printStackTrace();
     }
   }
 
@@ -447,7 +447,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
       setStatusMode("resource", ResourcingServiceProxy.getInstance().isLiveService());
   }
 
-  private static void pause(long milliseconds) {
+  public static void pause(long milliseconds) {
     Object lock = new Object();
     long now = System.currentTimeMillis();
     long finishTime = now + milliseconds;

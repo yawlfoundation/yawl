@@ -24,11 +24,9 @@
 
 package org.yawlfoundation.yawl.editor.foundations;
 
+import javax.swing.*;
 import java.io.FileInputStream;
 import java.io.InputStream;
-
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 
 public class ResourceLoader {
   static final int MAX_IMAGE_SIZE = 131072;
@@ -48,7 +46,6 @@ public class ResourceLoader {
       in.close();
       return new ImageIcon(imageByteBuffer);
     } catch (Exception e) {
-      // e.printStackTrace();
       return null;
     }
   }
@@ -60,7 +57,6 @@ public class ResourceLoader {
       in.close();
       return new ImageIcon(imageByteBuffer);
     } catch (Exception e) {
-      // e.printStackTrace();
       return null;
     }
   }

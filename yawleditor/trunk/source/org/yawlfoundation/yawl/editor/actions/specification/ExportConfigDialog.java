@@ -36,6 +36,7 @@ class ExportConfigDialog extends AbstractDoneDialog {
   private JCheckBox verificationCheckBox;
   private JCheckBox analysisCheckBox;
   private JCheckBox autoIncVersionCheckBox;
+  private JCheckBox backupCheckBox;
   private JLabel idLabel;
 
   public ExportConfigDialog() {
@@ -58,10 +59,10 @@ class ExportConfigDialog extends AbstractDoneDialog {
                 EngineSpecificationExporter.AUTO_INCREMENT_VERSION_WITH_EXPORT_PREFERENCE,
                 autoIncVersionCheckBox.isSelected()
             );
-//            prefs.putBoolean(
-//                ExportToEngineFormatAction.SHOW_EXPORT_DIALOG_PREFERENCE,
-//                showDialogCheckBox.isSelected()
-//            );
+              prefs.putBoolean(
+                  EngineSpecificationExporter.FILE_BACKUP_PREFERENCE,
+                  backupCheckBox.isSelected()
+              );
 
             SpecificationModel.getInstance().setVersionNumber(
                     new YSpecVersion(versionNumberField.getText()));
@@ -141,11 +142,9 @@ class ExportConfigDialog extends AbstractDoneDialog {
 
     panel.add(getAutoIncVersionCheckBox(), gbc);
 
-//    gbc.gridy++;
-//
-//    gbc.insets = new Insets(15,5,5,5);
-//
-//    panel.add(getShowDialogCheckBox(), gbc);
+    gbc.gridy++;
+
+   panel.add(getBackupCheckBox(), gbc);
 
     return panel;
   }
@@ -199,14 +198,13 @@ class ExportConfigDialog extends AbstractDoneDialog {
     return autoIncVersionCheckBox;
   }
 
-//  private JCheckBox getShowDialogCheckBox() {
-//    showDialogCheckBox = new JCheckBox();
-//
-//    showDialogCheckBox.setText("Show this dialog in the future");
-//    showDialogCheckBox.setMnemonic(KeyEvent.VK_S);
-//
-//    return showDialogCheckBox;
-//  }
+    private JCheckBox getBackupCheckBox() {
+      backupCheckBox = new JCheckBox();
+      backupCheckBox.setText("Create backup");
+      backupCheckBox.setMnemonic(KeyEvent.VK_B);
+      return backupCheckBox;
+    }
+
 
   private boolean showSpecIDField() {
       String id = SpecificationModel.getInstance().getId();
@@ -242,12 +240,13 @@ class ExportConfigDialog extends AbstractDoneDialog {
               true
           )
       );
-//      showDialogCheckBox.setSelected(
-//          prefs.getBoolean(
-//              ExportToEngineFormatAction.SHOW_EXPORT_DIALOG_PREFERENCE,
-//              true
-//          )
-//      );
+      backupCheckBox.setSelected(
+            prefs.getBoolean(
+                EngineSpecificationExporter.FILE_BACKUP_PREFERENCE,
+                true
+            )
+        );
+
 
       String verStr = SpecificationModel.getInstance().getVersionNumber().toString();
       YSpecVersion version = new YSpecVersion(verStr);

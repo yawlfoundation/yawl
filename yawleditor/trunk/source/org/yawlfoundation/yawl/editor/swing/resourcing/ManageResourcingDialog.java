@@ -79,15 +79,6 @@ public class ManageResourcingDialog extends AbstractWizardDialog {
     return this.task;
   }
 
-  /*
-  public void doFirst() {
-    System.out.println("----Start resource mapping----");
-    System.out.println(
-        getResourceMapping()
-    );
-    super.doFirst();
-  }
-  */
 
   public boolean doFinish() {
       if (getCurrentPanel().doNext()) {
@@ -95,12 +86,6 @@ public class ManageResourcingDialog extends AbstractWizardDialog {
           return true;
       }
       return false;
-  /*
-    System.out.println("----Finish resource mapping----");
-    System.out.println(
-        getResourceMapping()
-    );
-  */
   }
 
   public void setVisible(boolean state) {

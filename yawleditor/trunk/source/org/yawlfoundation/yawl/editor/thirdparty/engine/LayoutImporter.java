@@ -96,6 +96,14 @@ public class LayoutImporter {
             netModel.getGraph().setScale(doubleFormat(scale));
         }
 
+        String cancelTaskID = e.getChildText("cancellationtask", _ns);
+        if (cancelTaskID != null) {
+            YAWLTask cancelTask = (YAWLTask) rootMap.getVertex(cancelTaskID) ;
+            if (cancelTask != null) {
+                netModel.getGraph().changeCancellationSet(cancelTask);
+            }
+        }
+
         Rectangle frameBounds = createRectangle(e.getChild("frame", _ns));
         Rectangle viewportBounds = createRectangle(e.getChild("viewport", _ns)) ;
         Rectangle graphBounds = createRectangle(e.getChild("bounds", _ns));

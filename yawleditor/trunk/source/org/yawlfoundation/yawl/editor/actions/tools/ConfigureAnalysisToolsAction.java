@@ -23,9 +23,10 @@
 package org.yawlfoundation.yawl.editor.actions.tools;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.analyser.AnalysisDialog;
 import org.yawlfoundation.yawl.editor.analyser.YAWLResetAnalyser;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
 
@@ -93,6 +94,7 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
   private JCheckBox showObservationsCheckBox;
   private JCheckBox useYAWLReductionRulesCheckBox;
   private JCheckBox useResetReductionRulesCheckBox;
+  private JCheckBox keepOpenCheckBox;
   
   public ConfigureAnalysisDialog() {
     super("Configure Specification Analysis", true);
@@ -141,10 +143,15 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
         YAWLResetAnalyser.USE_YAWLREDUCTIONRULES_PREFERENCE,
         useYAWLReductionRulesCheckBox.isSelected()
     );
+
      prefs.putBoolean(
         YAWLResetAnalyser.USE_RESETREDUCTIONRULES_PREFERENCE,
         useResetReductionRulesCheckBox.isSelected()
     );
+
+    prefs.putBoolean(AnalysisDialog.KEEP_OPEN_PREFERENCE,
+            keepOpenCheckBox.isSelected()
+    );  
   }
   
   private void rememberWofYAWLAnalysisPreferences() {
@@ -254,7 +261,24 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
       ),
       gbc
     );
-    
+
+      gbc.gridx = 0;
+      gbc.gridy++;
+      gbc.weightx = 0;
+      gbc.gridwidth = 2;
+      gbc.fill = GridBagConstraints.HORIZONTAL;
+ 
+      gbc.insets = new Insets(5,12,5,12);
+
+      panel.add(new JSeparator(),gbc);
+
+      gbc.gridy++;
+      gbc.gridwidth = 1;
+      gbc.insets = new Insets(0,0,5,5);
+      gbc.anchor = GridBagConstraints.WEST;
+
+      panel.add(getKeepOpenCheckBox(),gbc);
+
     return panel;
   }
 
@@ -345,6 +369,14 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
     useResetReductionRulesCheckBox.setSelected(true);
     return useResetReductionRulesCheckBox;
   }
+
+    private JCheckBox getKeepOpenCheckBox() {
+      keepOpenCheckBox = new JCheckBox("Keep Analysis progess dialog open when Analysis completes.");
+      keepOpenCheckBox.setMnemonic(KeyEvent.VK_K);
+      keepOpenCheckBox.setSelected(true);
+      return keepOpenCheckBox;
+    }
+
   private JPanel getWofYAWLPanel() {
     GridBagLayout gbl = new GridBagLayout();
     GridBagConstraints gbc = new GridBagConstraints();
@@ -490,6 +522,10 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
     
     useResetReductionRulesCheckBox.setSelected(
         prefs.getBoolean(YAWLResetAnalyser.USE_RESETREDUCTIONRULES_PREFERENCE, true)
+    );
+
+    keepOpenCheckBox.setSelected(
+            prefs.getBoolean(AnalysisDialog.KEEP_OPEN_PREFERENCE, true)
     );
     
     enableResetNetCheckBoxesAsAppropriate();

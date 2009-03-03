@@ -129,7 +129,6 @@ public class AvailableEngineProxyImplementation implements
   }
   
   public void setDataTypeSchema(String schema) {
-    // System.out.println("Setting Data Type Schema with:\n-----\n\n" + schema);
     try {
       xmlTools = new XMLToolsForYAWL();
       xmlTools.setPrimarySchema(schema); 
@@ -154,16 +153,15 @@ public class AvailableEngineProxyImplementation implements
   
   public String createSchemaForVariable(String variableName, String dataType) {
     try {
-      String schema = xmlTools.createYAWLSchema(
+      return xmlTools.createYAWLSchema(
           new ElementCreationInstruction[] 
             { new ElementCreationInstruction(variableName, dataType, false) },
           "data"
       ); 
-      return schema;
-    } catch (Exception e) {
-   //   e.printStackTrace();
     }
-    return null;
+    catch (Exception e) {
+      return null;
+    }    
   }
   
   public int getDataTypeComplexity(String dataType) {

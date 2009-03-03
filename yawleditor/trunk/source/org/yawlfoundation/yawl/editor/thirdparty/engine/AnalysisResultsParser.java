@@ -85,10 +85,7 @@ public abstract class AnalysisResultsParser {
       resultsMatcher.group();
       rawResults = resultsMatcher.replaceAll("$1");
     }
-/*
-    System.out.println("Raw " + tagName + " results:\n----\n" + rawResults);
-    System.out.println("----");
-*/  
+
     return rawResults;
   }
 

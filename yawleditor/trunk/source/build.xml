@@ -44,6 +44,7 @@
     <property name="engine.jar.file" value="${library.dir}/${compatible.engine.jar.name}" />
     <property name="jcal.jar.file" value="${library.dir}/jcalendar-1.3.2.jar"/>
     <property name="servlet.jar.file" value="${library.dir}/servlet-api.jar"/>
+    <property name="forms.jar.file" value="${library.dir}/forms_rt.jar"/>
     <property name="junit.jar.file" value="${tool.dir}/junit-4.4.jar"/>
 
     <!-- TARGETS -->
@@ -103,6 +104,7 @@
                 <pathelement location="${engine.jar.file}" />
                 <pathelement location="${jcal.jar.file}" />
                 <pathelement location="${servlet.jar.file}" />
+                <pathelement location="${forms.jar.file}" />
             </classpath>
         </javac>
     
@@ -140,6 +142,7 @@
                 <pathelement location="${engine.jar.file}" />
                 <pathelement location="${jcal.jar.file}" />
                 <pathelement location="${servlet.jar.file}" />
+                <pathelement location="${forms.jar.file}" />
            </classpath>
         </junit>
     </target>
@@ -179,6 +182,7 @@
             <fileset file="${engine.jar.file}"/>
             <fileset file="${jcal.jar.file}"/>
             <fileset file="${servlet.jar.file}"/>
+            <fileset file="${forms.jar.file}"/>
         </unzip>
     </target>
 
@@ -193,7 +197,7 @@
             <fileset dir="${build.dir}"/>
             <fileset dir="${enumeratedLibraries.dir}"
                      includes="com/toedter/** javax/** net/sf/saxon/** org/apache/**
-                               org/dom4j/** org/jdom/** org/eclipse/**
+                               org/dom4j/** org/jdom/** org/eclipse/** com/intellij/**
                                ${package.base.dir}/elements/**
                                ${package.base.dir}/engine/**
                                ${package.base.dir}/exceptions/**

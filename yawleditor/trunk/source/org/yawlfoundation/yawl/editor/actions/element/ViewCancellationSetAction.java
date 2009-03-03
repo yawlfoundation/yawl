@@ -65,7 +65,7 @@ public class ViewCancellationSetAction extends YAWLBaseAction
     selected = !selected;
     
     if (selected) {
-      graph.changeCancellationSet(task);     
+      graph.changeCancellationSet(task); 
     } else {
       graph.changeCancellationSet(null);     
     }

@@ -23,16 +23,17 @@
 
 package org.yawlfoundation.yawl.editor.swing.data;
 
+import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.DataVariableSet;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
+import org.yawlfoundation.yawl.editor.foundations.LogWriter;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.resourcing.SelectCodeletDialog;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
-import org.yawlfoundation.yawl.editor.YAWLEditor;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -331,8 +332,7 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
 
       panel.add(getAttributesPanel(), BorderLayout.NORTH);
     } catch (IOException e) {     //if the model can't be created we do nothing more.
-      //todo do we report this at all?
-      e.printStackTrace();
+      LogWriter.error("Error creating external attributes panel.", e) ;
     }
   }
 
