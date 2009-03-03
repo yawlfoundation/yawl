@@ -24,12 +24,9 @@
 
 package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
-import java.util.LinkedList;
-import java.util.Iterator;
-
-import junit.framework.*;
-
-import org.yawlfoundation.yawl.editor.data.DataVariable;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 public class TestAvailableEngineProxyImplementation extends TestCase {
@@ -55,21 +52,6 @@ public class TestAvailableEngineProxyImplementation extends TestCase {
     proxy.setDataTypeSchema(SpecificationModel.DEFAULT_TYPE_DEFINITION);
   }
   
-  /*
-  public void testGetEngineParametersForRegisteredService() {
-    LinkedList variables = 
-        proxy.getEngineParametersForRegisteredService(
-            "http://localhost:8080/yawlSMSInvoker/ib"
-    );
-    
-    Iterator variableIterator = variables.iterator();
-    while(variableIterator.hasNext()) {
-      System.out.println(((DataVariable) variableIterator.next()).toString());
-    }
-    
-    assertTrue(true);    
-  }
-  */
   
   public void testValidateSimpleSchemaForStringBaseType() {
     assertEquals(

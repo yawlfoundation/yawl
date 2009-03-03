@@ -23,39 +23,26 @@
 
 package org.yawlfoundation.yawl.editor.net.utilities;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-
-import java.awt.geom.Rectangle2D;
-
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-
-import java.util.Set;
-import java.util.LinkedList;
-import java.util.Iterator;
-
-import javax.imageio.ImageIO;
-import javax.print.Doc;
-import javax.print.MultiDoc;
-import javax.print.DocPrintJob;
-import javax.print.MultiDocPrintJob;
-import javax.print.PrintService;
-import javax.print.MultiDocPrintService;
-import javax.print.SimpleDoc;
-import javax.print.DocFlavor;
-import javax.print.attribute.DocAttributeSet;
-import javax.print.attribute.HashDocAttributeSet;
-import javax.print.attribute.PrintRequestAttributeSet;
-
+import org.yawlfoundation.yawl.editor.foundations.LogWriter;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.net.PrettyOutputStateManager;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
+import javax.imageio.ImageIO;
+import javax.print.*;
+import javax.print.attribute.DocAttributeSet;
+import javax.print.attribute.HashDocAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Set;
 
 public class NetPrintUtilities {
   private static final String PNG_FILE_TYPE = "png";
@@ -78,7 +65,7 @@ public class NetPrintUtilities {
     try {
       ImageIO.write(img, fileType.toLowerCase(), new File(fullFileName));
     } catch (IOException ioe) {
-      ioe.printStackTrace();
+      LogWriter.error("Could not write image", ioe);
     }
   }
 
@@ -157,7 +144,7 @@ public class NetPrintUtilities {
       
       tempFile.delete();
     } catch (Exception e) {
-      e.printStackTrace();
+      LogWriter.error("Error printing net.", e);
     } 
 
     stateManager.revertNetGraphToPreviousState();
@@ -198,7 +185,7 @@ public class NetPrintUtilities {
 
         tempFile.delete();
       } catch (Exception e) {
-        e.printStackTrace();
+        LogWriter.error("Error printing net", e);
       } 
 
       stateManager.revertNetGraphToPreviousState();
@@ -208,7 +195,7 @@ public class NetPrintUtilities {
     try {
       job.print(multiDoc, printAttribs);
     } catch (Exception e) {
-      e.printStackTrace();
+        LogWriter.error("Error printing net", e);
     }
   }
 }

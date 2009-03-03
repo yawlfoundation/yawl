@@ -120,7 +120,6 @@ public class DataVariableTablePanel extends AbstractTableUpdatePanel {
       SpecificationModel.getInstance().propogateVariableDeletion(var);
     }
 
-    getVariableTable().getVariableModel().removeRow(oldSelectedRow);
     if (oldSelectedRow == getTable().getRowCount()) {
       getVariableTable().selectRow(oldSelectedRow - 1);
     } else {

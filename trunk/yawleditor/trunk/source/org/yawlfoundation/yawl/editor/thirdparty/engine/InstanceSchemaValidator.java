@@ -7,6 +7,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.helpers.XMLReaderFactory;
 import org.xml.sax.helpers.DefaultHandler;
 import org.jdom.input.SAXBuilder;
+import org.yawlfoundation.yawl.editor.foundations.LogWriter;
 
 import java.io.StringReader;
 import java.io.File;
@@ -90,7 +91,7 @@ public class InstanceSchemaValidator extends DefaultHandler {
         } catch (SAXParseException e) {
            addMessage(e, "Error");
         } catch (Exception e) {
-            e.printStackTrace();
+            LogWriter.error("Error parsing against schema.", e);
         }
         return _errorsString.toString();
     }
@@ -105,7 +106,7 @@ public class InstanceSchemaValidator extends DefaultHandler {
             parser.setProperty("http://apache.org/xml/properties/schema/external-noNamespaceSchemaLocation",
                 "" + schemaURL);
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            LogWriter.error("Malformed url.", e);
         }
         parser.setContentHandler(this);
         parser.setErrorHandler(this);
@@ -203,34 +204,20 @@ public class InstanceSchemaValidator extends DefaultHandler {
           writer.flush();
           writer.close();
       } catch (IOException ioe) {
-          ioe.printStackTrace();
+          LogWriter.error("IO Exception creating schema file.", ioe);
       }
       
       try {
         setUpTypeSchemaChecker();
       } catch (SAXException saxe) {
-        saxe.printStackTrace();
+          LogWriter.error("Error setting up schema checker.", saxe);
       }
       
-      // showPreCheckDebugState(schema, instance);
       String result = checkSchema(new InputSource(new StringReader(instance)));
-      // showPostCheckDebugState(result);
       
       elementSchema.delete();
 
       return result;
     }
-/*
-    private void showPreCheckDebugState(String schema, String instance) {
-      System.out.println("\n====");
-      System.out.println(schema);
-      System.out.println("----");
-      System.out.println(instance);
-      System.out.println("====\n");
-    }
-    
-    private void showPostCheckDebugState(String result) {
-      System.out.println(result);
-    }
-    */
+
 }

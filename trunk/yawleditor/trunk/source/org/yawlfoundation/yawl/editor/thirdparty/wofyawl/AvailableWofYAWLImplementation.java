@@ -23,18 +23,16 @@
 
 package org.yawlfoundation.yawl.editor.thirdparty.wofyawl;
 
-import java.io.File;
+import org.yawlfoundation.yawl.editor.foundations.LogWriter;
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.AnalysisResultsParser;
+
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
-
 import java.util.List;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.thirdparty.engine.AnalysisResultsParser;
-import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 
 public class AvailableWofYAWLImplementation extends AnalysisResultsParser implements WofYAWLProxyInterface {
 
@@ -80,7 +78,7 @@ public class AvailableWofYAWLImplementation extends AnalysisResultsParser implem
       return resultText.toString();
 
     } catch (Exception e) {
-      e.printStackTrace();
+        LogWriter.error("Unexpected Error in wofyawl analysis tool.", e);
       return "Unexpected Error: The wofyawl analysis tool did not return any analysis information.";
     }
   }

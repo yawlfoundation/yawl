@@ -103,7 +103,7 @@ public class Decomposition implements Serializable {
     Iterator variableIterator = getVariables().getAllVariables().iterator();
     while(variableIterator.hasNext()) {
       DataVariable myVariable = (DataVariable) variableIterator.next();
-      if (myVariable.equals(variable)) {
+      if (myVariable.equalsIgnoreUsage(variable)) {
         return true;
       }
     }

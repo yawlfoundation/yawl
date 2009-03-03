@@ -2,6 +2,7 @@ package org.yawlfoundation.yawl.editor.swing.undo;
 
 
 import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.foundations.LogWriter;
 import org.yawlfoundation.yawl.editor.swing.data.AbstractXMLStyledDocument;
 import org.yawlfoundation.yawl.editor.swing.menu.DataTypeDialogToolBarMenu;
 
@@ -74,7 +75,7 @@ public class UndoableDataTypeDialogActionListener implements UndoableEditListene
                 undo.undo();
                 validateSchema();
             } catch (CannotUndoException ex) {
-                System.out.println("Unable to undo: " + ex);
+                LogWriter.error("Unable to undo: ", ex);
             }
             updateUndoState();
             redoAction.updateRedoState();
@@ -108,7 +109,7 @@ public class UndoableDataTypeDialogActionListener implements UndoableEditListene
                 undo.redo();
                 validateSchema();
             } catch (CannotRedoException ex) {
-                System.out.println("Unable to redo: " + ex);
+                LogWriter.error("Unable to redo: ", ex);
             }
             updateRedoState();
             undoAction.updateUndoState();

@@ -24,6 +24,9 @@
 
 package org.yawlfoundation.yawl.editor.swing;
 
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.foundations.LogWriter;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -117,16 +120,8 @@ public class JStatusBar extends JPanel {
 
   public void finishStatusBarProgress() {
     updateStatusBarProgress(100);
-    pause(APPARENTLY_INSTANT_MILLISECONDS * 4);
+    YAWLEditor.pause(APPARENTLY_INSTANT_MILLISECONDS * 4);
     updateStatusBarProgress(0);
-  }
-
-  private static void pause(long milliseconds) {
-    long now = System.currentTimeMillis();
-    long finishTime = now + milliseconds;
-    while (now < finishTime) {
-      now = System.currentTimeMillis();
-    }
   }
 
   public void progressStatusBarOverSeconds(final int pauseSeconds) {
@@ -135,7 +130,7 @@ public class JStatusBar extends JPanel {
       secondUpdateThread.setPauseSeconds(pauseSeconds);
       secondUpdateThread.start();
     } catch (Exception e) {
-      e.printStackTrace();
+      LogWriter.error("Error initialising statusbar", e);
       // either it works or it doesn't. 
       // Simply testing against the active status is not good enough. 
     }
@@ -158,7 +153,7 @@ public class JStatusBar extends JPanel {
           return;
         }
         updateStatusBarProgress((i * 10000) / (pausePasses * 100));
-        pause(APPARENTLY_INSTANT_MILLISECONDS);
+        YAWLEditor.pause(APPARENTLY_INSTANT_MILLISECONDS);
       }
     }
 

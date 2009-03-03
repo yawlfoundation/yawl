@@ -65,6 +65,11 @@ public class LayoutExporter {
             xml.append(StringUtil.wrap(String.format("%.3f",scale), "scale"));
         }
 
+        YAWLTask cancelTask = net.getGraph().getCancellationSetModel().getTriggeringTask();
+        if (cancelTask != null) {
+            xml.append(StringUtil.wrap(cancelTask.getEngineId(), "cancellationtask"));
+        }
+
         for (Object o : net.getRoots()) {
            if (o instanceof VertexContainer)
                xml.append(getContainerLayout((VertexContainer) o));

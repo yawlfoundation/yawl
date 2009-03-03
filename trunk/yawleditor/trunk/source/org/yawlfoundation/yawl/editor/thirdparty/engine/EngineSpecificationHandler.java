@@ -24,6 +24,7 @@
 package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.actions.specification.OpenRecentSubMenu;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.FileChooserFactory;
@@ -107,7 +108,7 @@ public class EngineSpecificationHandler {
 
     YAWLEditorDesktop.getInstance().setVisible(true);
     YAWLEditor.resetStatusBarProgress();
-
+    OpenRecentSubMenu.getInstance().addRecentFile(fullFileName);              
   }
   
   private String promptForLoadFileName() {

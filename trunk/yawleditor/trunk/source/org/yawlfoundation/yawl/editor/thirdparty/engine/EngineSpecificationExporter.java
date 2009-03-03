@@ -25,6 +25,8 @@ package org.yawlfoundation.yawl.editor.thirdparty.engine;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.data.*;
 import org.yawlfoundation.yawl.editor.elements.model.*;
+import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
+import org.yawlfoundation.yawl.editor.foundations.LogWriter;
 import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 import org.yawlfoundation.yawl.editor.net.NetElementSummary;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
@@ -68,6 +70,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   public static String VERIFICATION_WITH_EXPORT_PREFERENCE = "verifyWithExportCheck";
   public static String ANALYSIS_WITH_EXPORT_PREFERENCE = "analyseWithExportCheck";
   public static String AUTO_INCREMENT_VERSION_WITH_EXPORT_PREFERENCE = "autoIncVersionExportCheck";
+  public static String FILE_BACKUP_PREFERENCE = "backupOnExportCheck";
 
   public static void exportEngineSpecToFile(SpecificationModel editorSpec, String fullFileName) {
       if (checkUserDefinedDataTypes(editorSpec)) {
@@ -80,12 +83,21 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   
   public static boolean checkAndExportEngineSpecToFile(SpecificationModel editorSpec, String fullFileName) {
       boolean success = false;
-      if (checkUserDefinedDataTypes(editorSpec)) {
-          String specXML = getAndCheckEngineSpecificationXML(editorSpec);
-          success = successful(specXML);
-          if (success) {
-              exportStringToFile(addLayoutData(specXML, editorSpec), fullFileName);
+      try {
+          if (checkUserDefinedDataTypes(editorSpec)) {
+              String specXML = getAndCheckEngineSpecificationXML(editorSpec);
+              success = successful(specXML);
+              if (success) {
+                  exportStringToFile(addLayoutData(specXML, editorSpec), fullFileName);
+              }
           }
+      }
+      catch (Exception e) {
+          JOptionPane.showMessageDialog(null,
+                  "The attempt to save this specifcation to file failed.\n\n " +
+                  "Please see the log for details", "Save File Error",
+                  JOptionPane.ERROR_MESSAGE);
+          LogWriter.error("Error saving specification to file.", e);
       }
       return success;
   }
@@ -115,7 +127,10 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   
   private static void exportStringToFile(String string, String fullFileName) {
     try {
-      PrintStream outputStream = 
+        if (prefs.getBoolean(FILE_BACKUP_PREFERENCE, false))
+            FileUtilities.copy(fullFileName, fullFileName + ".bak");     // back it up
+
+      PrintStream outputStream =
         new PrintStream(
             new BufferedOutputStream(new FileOutputStream(fullFileName)),
             false,
@@ -125,8 +140,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
       outputStream.close();
     } catch (IOException e) {
-      e.printStackTrace();
-    }
+        LogWriter.error("IO Exception saving specification to file.", e);
+     }
   }
 
 
@@ -153,12 +168,21 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     if (verificationNeeded) {
       results.addAll(EngineSpecificationValidator.getValidationResults(engineSpec));
     }
-    
-    if (analysisNeeded) {
-      results.addAll(
-        YAWLEngineProxy.getInstance().getAnalysisResults(editorSpec)
-      );
-    }
+      try {
+          if (analysisNeeded) {
+              results.addAll(
+                      YAWLEngineProxy.getInstance().getAnalysisResults(editorSpec)
+              );
+          }
+      }
+      catch (NoClassDefFoundError e) {
+          JOptionPane.showMessageDialog(null,
+                  "The attempt to analyse this specifcation failed.\n\n " +
+                  "Please see the log for details", "Save File Error",
+                  JOptionPane.ERROR_MESSAGE);
+          LogWriter.error("The attempt to analyse the specifcation failed", e);
+      }
+      
 
     YAWLEditor.getInstance().showProblemList(
         editorSpec, 
@@ -182,7 +206,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     try {
       return YMarshal.marshal(engineSpec);
     } catch (Exception e) {
-      e.printStackTrace();
+      LogWriter.error("Error marshalling specification to XML.", e);
       return null;
     }
   }
@@ -292,7 +316,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
         }
 
     } catch (Exception e) {
-      e.printStackTrace();
+        LogWriter.error("Error parsing timestamps.", e);
     }
     
     engineSpec.setMetaData(metaData);

@@ -23,55 +23,28 @@
 package org.yawlfoundation.yawl.editor.swing.menu;
 
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-
-import java.util.LinkedList;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.Icon;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
-import javax.swing.TransferHandler;
-
-import javax.swing.border.EmptyBorder;
-
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeSelectionModel;
-
 import org.jgraph.event.GraphSelectionEvent;
-
-import java.io.File;
-
 import org.yawlfoundation.yawl.editor.YAWLEditor;
-
 import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
-
 import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
 import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
-
-import org.yawlfoundation.yawl.editor.specification.SpecificationModelListener;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModelListener;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionSubscriber;
-
-import org.yawlfoundation.yawl.editor.swing.JUtilities;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.swing.menu.ControlFlowPalette.SelectionState;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.*;
+import java.awt.*;
+import java.io.File;
+import java.util.LinkedList;
 
 public class Palette extends JPanel implements SpecificationModelListener {
 
@@ -465,28 +438,6 @@ class TaskIconTree extends JTree implements SpecificationSelectionSubscriber {
         new TaskIconTreeNodeRenderer()
     );
     
-    /*  Drag end of D&D behaviour. Drop is causing me grief . Edited out for the time being.
-    addMouseListener(
-        new MouseAdapter() {
-          public void mousePressed(MouseEvent event) {
-              TaskIconTree eventSource = (TaskIconTree)event.getSource();
-      
-              if (eventSource.isTaskPaletteNodeSelected()) {
-                eventSource.getTransferHandler().exportAsDrag(
-                    eventSource, 
-                    event, 
-                    TransferHandler.COPY
-                );
-
-                System.out.println(
-                    "Dragging item: " + 
-                    eventSource.getSelectionPath().getLastPathComponent().toString()
-                );
-              }
-          }
-          
-        }
-    );*/
   }
 
   public void receiveGraphSelectionNotification(int state, GraphSelectionEvent event) {

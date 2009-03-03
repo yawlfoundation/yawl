@@ -24,12 +24,16 @@
 
 package org.yawlfoundation.yawl.editor.swing;
 
-import java.text.*;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import org.yawlfoundation.yawl.editor.foundations.LogWriter;
 
 import javax.swing.*;
-import javax.swing.text.*;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DateFormatter;
+import javax.swing.text.DocumentFilter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class JFormattedDateField extends JFormattedSelectField {
   /**
@@ -75,7 +79,7 @@ public class JFormattedDateField extends JFormattedSelectField {
     try {
       setValue(TIMESTAMP_FORMAT.parse(timestamp));
     } catch (Exception e) {
-      e.printStackTrace();  
+      LogWriter.error("Could not parse timestamp: " + timestamp, e);  
     }
   }
 

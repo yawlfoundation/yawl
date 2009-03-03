@@ -36,6 +36,7 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
     {
         this.variable = variable;
         if(variable !=null && variable.getScope() != null) this.decomposition = variable.getScope().getDecomposition();
+        loadDefaultProperties();
         loadProperties();
         parseProperties();
     }
@@ -44,6 +45,7 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
     {
         this.decomposition = decomposition;
         this.graph = graph;
+        loadDefaultProperties();
         loadProperties();
         parseProperties();
     }
@@ -75,6 +77,15 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
         }
     }
 
+
+    private void loadDefaultProperties() {
+        if (variable != null) {
+            rows = new DefaultExtendedAttributes(decomposition, variable).getAttributes();
+        }
+        else
+            rows = new DefaultExtendedAttributes(graph, decomposition).getAttributes();
+    }
+
     private void parseProperties()
     {
         //todo what about properties that exist in the spec but not in the file? ignore or display? ignoring for now...
@@ -93,7 +104,6 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
     {
         if (props != null)
         {
-            rows = new Vector<ExtendedAttribute>();  //clear out old - if any
             Vector<String> keys = new Vector<String>();
             for (Enumeration enumer = props.keys(); enumer.hasMoreElements(); keys.add(enumer.nextElement().toString()));
             Collections.sort(keys);
@@ -245,6 +255,8 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
         this.variable = variable;
         this.decomposition = variable.getScope().getDecomposition();
 
+        loadDefaultProperties();
+
         try
         {
             loadProperties();
@@ -259,6 +271,7 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
     public void setDecomposition(Decomposition decomposition)
     {
         this.decomposition = decomposition;
+        loadDefaultProperties();
         try
         {
             loadProperties();

@@ -1,12 +1,12 @@
 package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
-import java.net.URLEncoder;
+import org.yawlfoundation.yawl.editor.analyser.YAWLResetAnalyser;
+import org.yawlfoundation.yawl.editor.foundations.LogWriter;
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
+
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.yawlfoundation.yawl.editor.analyser.YAWLResetAnalyser;
-import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 
 public class ResetNetAnalysisResultsParser extends AnalysisResultsParser {
   private static final YAWLResetAnalyser ANALYSER = new YAWLResetAnalyser();
@@ -21,7 +21,8 @@ public class ResetNetAnalysisResultsParser extends AnalysisResultsParser {
     try {
       return ANALYSER.analyse(tempEngineFile, getOptionParameters(),getParameterForYAWLReductionRules(),getParameterForResetReductionRules());
     } catch (Exception e) {
-      e.printStackTrace();
+        LogWriter.error("Error analysing specification.", e);
+        
       // Changed this return to allow errors to bubble up - MJF
       return "<error>"+XMLUtilities.quoteSpecialCharacters(e.getMessage())+"</error>";
     }

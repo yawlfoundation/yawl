@@ -24,30 +24,30 @@
 package org.yawlfoundation.yawl.editor.specification;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.actions.specification.OpenRecentSubMenu;
 import org.yawlfoundation.yawl.editor.foundations.ArchivableNetState;
 import org.yawlfoundation.yawl.editor.foundations.ArchivableSpecificationState;
-import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
+import org.yawlfoundation.yawl.editor.foundations.LogWriter;
 import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.swing.FileChooserFactory;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 
 import javax.swing.*;
 import java.beans.ExceptionListener;
 import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.UUID;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 public class SpecificationArchiveHandler {
 
@@ -154,53 +154,6 @@ public class SpecificationArchiveHandler {
     }
   }
   
-  public void save() throws Exception {
-    save(SpecificationModel.getInstance().getFileName());
-  }
-  
-  public void save(String fullFileName) throws Exception {
-    // We write to a temporary file and then copy to the final file JIC
-    // something goes wrong resulting in a crash. Only the temporary copy will
-    // be in a corrupt state. 
-    
-    File temporarySpec = File.createTempFile("tempYAWLSpecification",null);
-    
-    ZipOutputStream outputStream = 
-      new ZipOutputStream(
-          new BufferedOutputStream(
-              new FileOutputStream(
-                  temporarySpec.getName()
-             )
-          )
-      );
-    
-    outputStream.putNextEntry(
-        new ZipEntry(
-            "specification.xml"
-        )
-    );
-
-    XMLEncoder encoder = new XMLEncoder(outputStream);
-
-    encoder.setExceptionListener(
-        new ExceptionListener() {
-          public void exceptionThrown(Exception exception) {
-            exception.printStackTrace();
-          }
-        }
-    );
-    
-    writeSpecification(encoder);
-    encoder.close();
-    outputStream.close();
-    
-    FileUtilities.move(
-        temporarySpec.getName(), 
-        fullFileName
-    );
-    SpecificationUndoManager.getInstance().setDirty(false);
-  }
-  
   public void saveUpdatingGUI() {
     saveUpdatingGUI(
         SpecificationModel.getInstance()
@@ -208,19 +161,14 @@ public class SpecificationArchiveHandler {
   }
 
     public void saveUpdatingGUI(SpecificationModel specification) {
+      String fullFileName = specification.getFileName();
+      if (fullFileName.trim().equals("")) {
+        return;
+      }
 
-//  public void saveUpdatingGUI(String fullFileName) {
-    String fullFileName = specification.getFileName();
-    if (fullFileName.trim().equals("")) {
-      return;
-    }
-
-//    YAWLEditor.setStatusBarText("Saving Specification...");
-//    YAWLEditor.progressStatusBarOverSeconds(2);
-    
     try {
-//      save(fullFileName);
         YAWLEngineProxy.getInstance().engineFormatFileExport(specification);
+        OpenRecentSubMenu.getInstance().addRecentFile(fullFileName);
         
     } catch (Exception e) {
       JOptionPane.showMessageDialog(
@@ -229,20 +177,10 @@ public class SpecificationArchiveHandler {
           "Editor File Saving Error",
           JOptionPane.ERROR_MESSAGE
       );
-      e.printStackTrace();
+      LogWriter.error("Error discovered whilst saving specification", e);
     }
-
-//    YAWLEditor.resetStatusBarProgress();
-//    YAWLEditor.setStatusBarTextToPrevious();
   }
   
-  private void writeSpecification(XMLEncoder encoder) {
-    encoder.writeObject(
-        new ArchivableSpecificationState(
-            SpecificationModel.getInstance()
-        )
-    );
-  }
 
   /**
    *  Processes a user's request to close an open specification.
@@ -305,11 +243,7 @@ public class SpecificationArchiveHandler {
     }
 
     doPreSaveClosingWork();
-    try {
-      saveUpdatingGUI();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    saveUpdatingGUI();
     doPostSaveClosingWork();
 
     return true;
@@ -406,7 +340,7 @@ public class SpecificationArchiveHandler {
           "Editor File Loading Error",
           JOptionPane.ERROR_MESSAGE);
       SpecificationArchiveHandler.getInstance().closeWithoutSaving();
-      e.printStackTrace();
+      LogWriter.error("Error discovered reading YWL file", e);
     }
 
     YAWLEditorDesktop.getInstance().setVisible(true);
@@ -429,8 +363,8 @@ public class SpecificationArchiveHandler {
 
       XMLDecoder encoder = new XMLDecoder(inputStream);
       encoder.setExceptionListener(new ExceptionListener() {
-        public void exceptionThrown(Exception exception) {
-          exception.printStackTrace();
+        public void exceptionThrown(Exception e) {
+          LogWriter.error("Error decoding YWL file.", e);
         }
       });
       SpecificationModel.getInstance().reset();

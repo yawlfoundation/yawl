@@ -48,6 +48,7 @@ class SpecificationMenu extends JMenu {
   protected void buildInterface() {
     addMenuItemAction(new CreateSpecificationAction());
     addMenuItemAction(new OpenSpecificationAction());
+    add(OpenRecentSubMenu.getInstance());
     if (YAWLEngineProxy.engineLibrariesAvailable()) {
         addMenuItemAction(new ImportFromEngineFormatAction());        
     }

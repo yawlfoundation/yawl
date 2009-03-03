@@ -24,7 +24,6 @@ public class ConnectableEngineProxyImplementation extends AvailableEngineProxyIm
           tryConnect();
         }
       } catch (Exception e) {
-        //e.printStackTrace();
         sessionID = "";
       }
     }

@@ -60,7 +60,13 @@ public final class ResetWFNet {
     
     //to keep track of endMarkings - reachability graph
     private RSetOfMarkings endMarkings = new RSetOfMarkings();
-   
+
+    private AnalysisDialog messageDlg;
+
+    public void setAnalysisDialog(AnalysisDialog dlg) {
+        messageDlg = dlg;
+    }
+
     
     int maxNumMarkings = 10000;
      /**
@@ -1140,10 +1146,10 @@ public final class ResetWFNet {
         
         }
         visitingPS = getImmediateSuccessors(visitingPS);
-        System.out.println("Immediate successors: "+ visitingPS.size());
+        messageDlg.write("Immediate successors: "+ visitingPS.size());
        
         }      
-     System.out.println("Reachability set size: " + RS.size());
+     messageDlg.write("Reachability set size: " + RS.size());
      return RS;
     }
     
