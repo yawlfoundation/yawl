@@ -447,6 +447,7 @@ public class adminQueues extends AbstractPageBean {
         }
         else {
             _sb.setWorklistChoice(null);
+            if (queueType == WorkQueue.WORKLISTED) clearWorklistedFields();
             disableAllButtons(queueType);
         }
         
@@ -529,5 +530,11 @@ public class adminQueues extends AbstractPageBean {
         btnOffer.setDisabled(false);
         btnAllocate.setDisabled(false);
         btnStart.setDisabled(false);        
+    }
+
+    private void clearWorklistedFields() {
+        cbbAssignedTo.setItems(null);
+        lblAssignedTo.setText("Assigned To");
+        txtResourceState.setText(" ");        
     }
 }

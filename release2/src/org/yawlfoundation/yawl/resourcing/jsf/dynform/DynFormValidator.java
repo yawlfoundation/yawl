@@ -401,7 +401,9 @@ public class DynFormValidator {
 
 
     private SAXSource getInputValueAsXML(DynFormField input, String value) {
-        return createSAXSource(StringUtil.wrap(ServletUtils.urlEncode(value), input.getName()));
+        if (input.getDataTypeUnprefixed().equals("string"))
+            value = ServletUtils.urlEncode(value);               // encode string values
+        return createSAXSource(StringUtil.wrap(value, input.getName()));
     }
 
 

@@ -33,6 +33,8 @@ public class DynFormField {
     private DynFormFieldRestriction _restriction;
     private DynFormFieldUnion _union;
     private DynFormFieldListFacet _list;
+    private DynFormUserAttributes _attributes;      // the variable's extended attributes
+
 
     private List<DynFormField> _subFieldList;
     private String _groupID;
@@ -179,10 +181,8 @@ public class DynFormField {
     }
 
     public boolean isInputOnly() {
-        if (_param != null)
-           return _param.isInputOnly();
-        else
-           return false;
+        return (_param != null && _param.isInputOnly()) ||
+               (_attributes != null && _attributes.getBooleanValue("readOnly"));
     }
 
     public boolean isRequired() {
@@ -309,9 +309,14 @@ public class DynFormField {
         return _list != null;
     }
 
+    public DynFormUserAttributes getAttributes() {
+        return _attributes;
+    }
 
+    public void setAttributes(DynFormUserAttributes attributes) {
+        _attributes = attributes;
+    }
 
-   
     private long convertOccurs(String occurs) {
         long result = 1 ;
 
@@ -330,6 +335,7 @@ public class DynFormField {
         return result;
     }
 
+    
     public boolean isPrimitiveType() {
         String type = getDataTypeUnprefixed();
         return (type.equals("string")  ||

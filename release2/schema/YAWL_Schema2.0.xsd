@@ -1010,6 +1010,7 @@
        <xs:element name="frame" type="yawl:LayoutFrameType"/>
        <xs:element name="viewport" type="yawl:LayoutFrameType"/>
        <xs:element name="scale" type="xs:string"/>
+       <xs:element name="cancellationtask" type="xs:NCName" minOccurs="0"/>      
        <xs:element name="vertex" type="yawl:LayoutVertexFactsType"
                    minOccurs="0" maxOccurs="unbounded"/>
        <xs:element name="container" type="yawl:LayoutContainerFactsType"

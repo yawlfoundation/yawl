@@ -16,6 +16,7 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 import org.yawlfoundation.yawl.authentication.User;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
@@ -43,10 +44,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 
 /**
@@ -130,7 +128,7 @@ public class WorkletService extends InterfaceBWebsideController {
     protected String _adminPassword = "YAWL" ;
     protected String _sessionHandle = null ;
     protected String _engineURI ; 
-    private String _workletURI = "http://localhost:8080/workletService/ib" ;
+    private String _workletURI = null ;
     private InterfaceA_EnvironmentBasedClient _interfaceAClient ;
 
 
@@ -187,6 +185,22 @@ public class WorkletService extends InterfaceBWebsideController {
         _engineURI = uri ;
         _interfaceAClient = new InterfaceA_EnvironmentBasedClient(
                                                  _engineURI.replaceFirst("/ib", "/ia"));
+    }
+
+
+    protected void setWorkletURI() {
+        _workletURI = "http://localhost:8080/workletService/ib" ;       // a default
+        if (connected()) {
+            Set<YAWLServiceReference> services =
+                    _interfaceAClient.getRegisteredYAWLServices(_sessionHandle) ;
+            if (services != null) {
+                for (YAWLServiceReference service : services) {
+                    if (service.getURI().indexOf("workletService") > -1) {
+                        _workletURI = service.getURI();
+                    }
+                }
+            }
+        }
     }
 
 
@@ -359,7 +373,7 @@ public class WorkletService extends InterfaceBWebsideController {
     private String launchCase(String specID, String caseParams,
                               String sessionHandle, boolean observer)
                                      throws IOException {
-
+        if (_workletURI == null) setWorkletURI();
         String obsURI = observer? _workletURI : null ;
         return _interfaceBClient.launchCase(specID, caseParams, sessionHandle, obsURI);
 

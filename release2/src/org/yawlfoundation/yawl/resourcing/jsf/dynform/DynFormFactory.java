@@ -161,6 +161,10 @@ public class DynFormFactory extends AbstractSessionBean {
     private SessionBean _sb =  (SessionBean) getBean("SessionBean") ;
 
 
+    /** the workitem's extended attributes (decomposition level) **/
+    private DynFormUserAttributes _userAttributes ;
+
+
     /**
      * Initialises a new dynamic form
      * @param title the page title
@@ -185,9 +189,10 @@ public class DynFormFactory extends AbstractSessionBean {
             String schema = getSchema();
             if (schema != null) {
                 String data = getInstanceData(schema) ;
-                Map<String, FormParameter> params = getParamInfo();
+                _userAttributes =
+                        new DynFormUserAttributes(_displayedWIR.getAttributeTable());
                 DynFormFieldAssembler fieldAssembler =
-                        new DynFormFieldAssembler(schema, data, params);
+                        new DynFormFieldAssembler(schema, data, getParamInfo());
                 buildForm(fieldAssembler);
             }
             return (schema != null);
@@ -643,6 +648,11 @@ public class DynFormFactory extends AbstractSessionBean {
     public boolean validateInputs() {
         return new DynFormValidator().validate(compPanel, _componentFieldTable,
                                                _sb.getMessagePanel());
+    }
+
+
+    public DynFormUserAttributes getAttributes() {
+        return _userAttributes;
     }
 
 

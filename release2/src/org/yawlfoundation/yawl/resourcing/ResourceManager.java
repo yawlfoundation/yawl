@@ -138,6 +138,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private String _adminUser = "admin" ;
     private String _adminPassword = "YAWL" ;
     private String _engineSessionHandle = null ;
+    private String _serviceURI = null;
     private Namespace _yNameSpace =
             Namespace.getNamespace("http://www.yawlfoundation.org/yawlschema");
 
@@ -192,6 +193,22 @@ public class ResourceManager extends InterfaceBWebsideController {
                                                  uri.replaceFirst("/ib", "/ia"));
         _interfaceEClient = new YLogGatewayClient(
                                          uri.replaceFirst("/ib", "/logGateway"));
+    }
+
+
+    private void setServiceURI() {
+        _serviceURI = "http://localhost:8080/resourceService/ib";         // a default
+        if (connected()) {
+            Set<YAWLServiceReference> services =
+                    _interfaceAClient.getRegisteredYAWLServices(_engineSessionHandle) ;
+            if (services != null) {
+                for (YAWLServiceReference service : services) {
+                    if (service.getURI().indexOf("resourceService") > -1) {
+                        _serviceURI = service.getURI();
+                    }
+                }
+            }
+        }
     }
 
 
@@ -286,6 +303,11 @@ public class ResourceManager extends InterfaceBWebsideController {
         _workItemCache.remove(wir);
         ResourceMap rMap = getResourceMap(wir);
         if (rMap != null) rMap.removeIgnoreList(wir);
+    }
+
+
+    public void handleCompleteCaseEvent(String caseID, String casedata) {
+        handleCancelledCaseEvent(caseID);       // just for cleaning up purposes, if any
     }
 
 
@@ -2091,37 +2113,8 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public Set<Participant> getWhoCompletedTask(String taskID, WorkItemRecord wir) {
         Set<Participant> result = new HashSet<Participant>();
-        FourEyesCache cache = _taskCompleters.get(wir.getCaseID());
+        FourEyesCache cache = _taskCompleters.get(wir.getRootCaseID());
         if (cache != null) result = cache.getCompleters(taskID);
-
-//
-//        try {
-//            String xml = _interfaceEClient.getParentWorkItemEventsForCaseID(
-//                                                wir.getCaseID(), _engineSessionHandle) ;
-//            if (xml != null) {
-//                Element root = JDOMUtil.stringToElement(xml) ;
-//                List events = root.getChildren();
-//                if (events != null) {
-//                    Iterator itr = events.iterator();
-//                    while (itr.hasNext()) {
-//                        Element event = (Element) itr.next();
-//                        if (event.getChildText("taskID").equals(taskID) &&
-//                            event.getChildText("eventName").equals("Complete")) {
-//                            String userid = event.getChildText("resourceID");
-//                            if (userid != null) {
-//                                Participant p = getParticipantFromUserID(userid);
-//                                if (p != null) result.add(p);
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        catch (IOException ioe) {
-//            _log.error("Connection to engine failed.", ioe);
-//            result = null ;
-//        }
-        // return set of participants who completed workitems for this task & case
         return result ;
     }
 
@@ -2658,7 +2651,9 @@ public class ResourceManager extends InterfaceBWebsideController {
     
     public String launchCase(YSpecificationID specID, String caseData, String handle)
             throws IOException {
-        return _interfaceBClient.launchCase(specID, caseData, getHandleForEngineCall(handle)) ;
+        if (_serviceURI == null) setServiceURI();
+        return _interfaceBClient.launchCase(specID, caseData,
+                       getHandleForEngineCall(handle), _serviceURI) ;
     }
 
 
