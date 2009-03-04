@@ -103,10 +103,10 @@ public class YAWLEditorDesktop extends JDesktopPane
                       boolean maximised,
                       NetGraph graph) {
     YAWLEditorNetFrame frame = new YAWLEditorNetFrame(bounds, graph.getName());
-    bindFrame(frame);
     graph.setSize(frame.getContentPane().getSize());
     frame.setNet(graph);
-   
+    bindFrame(frame);
+
     try {
       frame.setMaximum(maximised);
     } catch (Exception e) {};
@@ -151,7 +151,9 @@ public class YAWLEditorDesktop extends JDesktopPane
   public void closeAllNets() {
     JInternalFrame[] frames = getAllFrames();
     for(int i = 0; i < frames.length; i++) {
-      ((YAWLEditorNetFrame)frames[i]).dispose();
+//        ((YAWLEditorNetFrame) frames[i]).getNet().removeFrame();
+        ((YAWLEditorNetFrame) frames[i]).resetFrame();
+        frames[i].dispose();
     }
     setPreferredSize(new Dimension(0,0));
   }
@@ -243,7 +245,7 @@ public class YAWLEditorDesktop extends JDesktopPane
   
   private void updateState() {
     JInternalFrame frame = getSelectedFrame();
-    if (frame == null) {
+    if ((frame == null) || (((YAWLEditorNetFrame) frame).getNet() == null)) {
       model.nothingSelected();
       return;
     }

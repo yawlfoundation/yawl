@@ -1150,6 +1150,8 @@ public class NetGraph extends JGraph {
   public void setFrame(YAWLEditorNetFrame frame) {
     this.frame = frame;
   }
+
+  public void removeFrame() { frame = null; }  
   
   public String getName() {
     return getNetModel().getName();

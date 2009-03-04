@@ -30,6 +30,7 @@ import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.InternalFrameListener;
 import java.awt.*;
 
 public class YAWLEditorNetFrame extends JInternalFrame {
@@ -55,7 +56,7 @@ public class YAWLEditorNetFrame extends JInternalFrame {
     super(null,
           true, //resizable
           true, //closable
-          true, //maximizable
+          false, //maximizable
           false);//iconifiable
 
     Point location = new Point(bounds.x, bounds.y);
@@ -69,7 +70,7 @@ public class YAWLEditorNetFrame extends JInternalFrame {
     int counter = 0;
     while (!validNameFound) {
     	counter++;
-			newTitleString = new String("New Net " + counter);
+			newTitleString = "New Net " + counter;
 			if (SpecificationUtilities.getNetModelFromName(SpecificationModel.getInstance(),newTitleString) == null) {
 				validNameFound = true;
 			}
@@ -81,7 +82,7 @@ public class YAWLEditorNetFrame extends JInternalFrame {
     super(null,
           true, //resizable
           true, //closable
-          true, //maximizable
+          false, //maximizable
           false);//iconifiable
 
     setBounds(bounds);
@@ -118,6 +119,14 @@ public class YAWLEditorNetFrame extends JInternalFrame {
   
   public NetGraph getNet() {
     return net;
+  }
+
+  public void resetFrame() {
+      getContentPane().remove(scrollPane);
+      net.setFrame(null);
+      getLayout().removeLayoutComponent(scrollPane);
+      scrollPane = null;
+      net = null;
   }
   
   public void setNetName(String title) {
@@ -164,5 +173,13 @@ public class YAWLEditorNetFrame extends JInternalFrame {
   
   public JScrollPane getScrollPane() {
     return scrollPane;
+  }
+
+  public void dispose() {
+      InternalFrameListener[] listeners = this.getInternalFrameListeners();
+      for (InternalFrameListener listener : listeners) {
+          removeInternalFrameListener(listener);
+      }
+      super.dispose();
   }
 }

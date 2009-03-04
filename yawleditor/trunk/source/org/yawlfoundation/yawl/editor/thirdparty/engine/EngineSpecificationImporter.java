@@ -113,6 +113,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
         }
     }
 
+    reset();
   }
 
   public static YSpecification importEngineSpecificationAsEngineObjects(String specXML) {

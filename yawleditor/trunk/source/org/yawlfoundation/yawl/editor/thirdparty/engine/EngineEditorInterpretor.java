@@ -54,4 +54,6 @@ public abstract class EngineEditorInterpretor {
     editorFlowEngineConditionMap = new HashMap();
     SpecificationParametersIncludeYTimerType = false;  
   }
+
+  public static void reset() { initialise(); }
 }

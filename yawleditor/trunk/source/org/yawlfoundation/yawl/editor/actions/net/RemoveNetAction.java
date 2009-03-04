@@ -24,6 +24,7 @@
 
 package org.yawlfoundation.yawl.editor.actions.net;
 
+import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
@@ -56,11 +57,12 @@ public class RemoveNetAction extends YAWLSelectedNetAction implements TooltipTog
   	if (!(state == SpecificationModel.State.SOME_NET_SELECTED)){
   	  super.receiveSpecificationModelNotification(state);
   	} else {
-  	  if (YAWLEditorDesktop.getInstance().getSelectedGraph().getNetModel().isStartingNet()) {
-        setEnabled(false); 		
-      } else {
-        setEnabled(true);
-      }
+      NetGraph graph = YAWLEditorDesktop.getInstance().getSelectedGraph();
+//  	  if (graph.getNetModel().isStartingNet()) {
+        setEnabled((graph != null) && (! graph.getNetModel().isStartingNet()));
+//      } else {
+//        setEnabled(true);
+//      }
     }
   }
   
