@@ -20,6 +20,7 @@ public class OpenRecentSubMenu extends JMenu implements SpecificationFileModelLi
 
     private static Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
     private static OpenRecentSubMenu INSTANCE = null;
+    private YAWLMenuItem[] items;
 
     public static OpenRecentSubMenu getInstance() {
         if (INSTANCE == null) {
@@ -32,6 +33,7 @@ public class OpenRecentSubMenu extends JMenu implements SpecificationFileModelLi
         super("Open Recent");
         setMnemonic(KeyEvent.VK_R);
         setIcon(getImageAsIcon());
+        createMenuItems();
         loadMenuItems();
         SpecificationFileModel.getInstance().subscribe(this);
     }
@@ -42,12 +44,25 @@ public class OpenRecentSubMenu extends JMenu implements SpecificationFileModelLi
                 "/org/yawlfoundation/yawl/editor/resources/menuicons/open_recent.png");
     }
 
+    
+    private void createMenuItems() {
+        items = new YAWLMenuItem[8];
+        for (int i = 0; i < 8; i++) {
+            YAWLMenuItem item = new YAWLMenuItem(new OpenRecentSpecificationAction());
+            item.setVisible(false);
+            add(item);
+            items[i] = item;
+        }
+    }
+
 
     private void loadMenuItems() {
         List<String> recentList = loadRecentFileList();
-        for (String fileName : recentList) {
+        for (int i = 0; i < recentList.size(); i++) {
+            String fileName = recentList.get(i) ;
             if ((fileName != null) && (fileName.length() > 0)) {
-                 add(new YAWLMenuItem(new OpenRecentSpecificationAction(fileName)));
+                ((OpenRecentSpecificationAction) items[i].getAction()).setFileName(fileName);
+                items[i].setVisible(true);
             }
         }
     }
@@ -81,7 +96,6 @@ public class OpenRecentSubMenu extends JMenu implements SpecificationFileModelLi
     
    public void addRecentFile(String fullFileName) {
        pushRecentFile(fullFileName);
-       this.removeAll();
        loadMenuItems();
    }
 

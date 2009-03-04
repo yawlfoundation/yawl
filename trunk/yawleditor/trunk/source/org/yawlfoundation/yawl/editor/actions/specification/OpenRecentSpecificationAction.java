@@ -39,17 +39,20 @@ public class OpenRecentSpecificationAction extends YAWLNoOpenSpecificationAction
   private static final long serialVersionUID = 1L;
 
   {
-//    putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-//    putValue(Action.NAME, "Open Recent...");
     putValue(Action.LONG_DESCRIPTION, "Open a recently loaded specification");
     putValue(Action.SMALL_ICON, getPNGIcon("folder_page"));
-//    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_R));
-    putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control R"));
   }
 
-  private String _fullFileName ;
+  private String _fullFileName = null;
+
+  public OpenRecentSpecificationAction() { }  
 
   public OpenRecentSpecificationAction(String fullFileName) {
+      setFileName(fullFileName);
+  }
+
+
+  public void setFileName(String fullFileName) {
       _fullFileName = fullFileName ;
       putValue(Action.NAME, getShortFileName());
   }

@@ -79,6 +79,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
               exportStringToFile(addLayoutData(specXML, editorSpec), fullFileName);
           }
       }
+      reset();
   }
   
   public static boolean checkAndExportEngineSpecToFile(SpecificationModel editorSpec, String fullFileName) {
@@ -99,6 +100,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
                   JOptionPane.ERROR_MESSAGE);
           LogWriter.error("Error saving specification to file.", e);
       }
+      reset();
       return success;
   }
 
