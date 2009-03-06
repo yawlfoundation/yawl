@@ -31,8 +31,8 @@ import org.yawlfoundation.yawl.editor.data.DataVariableSet;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.elements.model.*;
-import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 import org.yawlfoundation.yawl.editor.foundations.LogWriter;
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 import org.yawlfoundation.yawl.editor.net.CancellationSet;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
@@ -62,7 +62,6 @@ import java.util.List;
 public class EngineSpecificationImporter extends EngineEditorInterpretor {
   
   private static final Point DEFAULT_LOCATION = new Point(100,100);
-  private static Point OPEN_NET_LOCATION = new Point(0,0);
   private static List<String> _invalidResourceReferences;
   private static int _maxEngineNumber = 0;
 
@@ -237,10 +236,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
 
     SpecificationModel.getInstance().addNetNotUndoable(editorNet.getNetModel());
 
-    OPEN_NET_LOCATION.x += 30;
-    OPEN_NET_LOCATION.y += 30;
-
-    YAWLEditorDesktop.getInstance().openNet(editorNet, OPEN_NET_LOCATION);
+    YAWLEditorDesktop.getInstance().openNet(editorNet);
 
     editorToEngineNetMap.put(engineNet, editorNet.getNetModel());
 

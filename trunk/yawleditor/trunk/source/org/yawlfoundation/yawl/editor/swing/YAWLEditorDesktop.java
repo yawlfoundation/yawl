@@ -26,283 +26,93 @@ package org.yawlfoundation.yawl.editor.swing;
 
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.swing.net.YAWLEditorNetFrame;
+import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
+import org.yawlfoundation.yawl.editor.swing.net.YAWLEditorNetPanel;
 
 import javax.swing.*;
-import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.InternalFrameListener;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 
-public class YAWLEditorDesktop extends JDesktopPane 
-                               implements InternalFrameListener {
-                                 
+public class YAWLEditorDesktop extends JTabbedPane {
+
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
-
   private static final SpecificationModel model = SpecificationModel.getInstance();
+  private static YAWLEditorDesktop INSTANCE = null;
 
-  public final static int X_OFFSET = 20;
-  public final static int Y_OFFSET = 20;
-  
-  private static final YAWLEditorDesktop INSTANCE = new YAWLEditorDesktop();
-  
-  private static JScrollPane scrollPane;
 
    private YAWLEditorDesktop() {
      super();
-     setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);    
-     setBackground(Color.WHITE);
    }
 
-   public static YAWLEditorDesktop getInstance( ) {
-     return INSTANCE;
-   }  
-   
-   public void setScrollPane(JScrollPane inputScrollPane) {
-    scrollPane = inputScrollPane;
+    public static YAWLEditorDesktop getInstance( ) {
+       if (INSTANCE == null)
+           INSTANCE = new YAWLEditorDesktop();
+       return INSTANCE;
    }
 
-  public YAWLEditorNetFrame newNet() {
-    YAWLEditorNetFrame frame = new YAWLEditorNetFrame(getDefaultNetFrameBounds());
+
+  public YAWLEditorNetPanel newNet() {
+    YAWLEditorNetPanel frame = new YAWLEditorNetPanel(getBounds());
     bindFrame(frame);
     return frame;
   }
 
-  private Rectangle getDefaultNetFrameBounds(Point location) {
-      Rectangle outerBounds = this.getBounds();
-      return new Rectangle(location.x, location.y,
-                           Math.max(outerBounds.width-60, 150),
-                           Math.max(outerBounds.height-150, 100));
-  }
 
-  private Rectangle getDefaultNetFrameBounds() {
-    return getDefaultNetFrameBounds(getNewLocation());
-  }
-  
   public void openNet(NetGraph graph) {
-    openNet(
-       getDefaultNetFrameBounds(),
-       false,
-       graph
-    );
+      YAWLEditorNetPanel frame = new YAWLEditorNetPanel(getBounds(), graph);
+      bindFrame(frame);
+      SpecificationSelectionListener.getInstance().publishSubscriptions(
+              graph.getSelectionModel(), null);
   }
 
-  public void openNet(NetGraph graph, Point location) {
-      openNet(
-         getDefaultNetFrameBounds(location),
-         false,
-         graph
-      );
-  }
-  
-  public void openNet(Rectangle bounds, 
-                      boolean maximised,
-                      NetGraph graph) {
-    YAWLEditorNetFrame frame = new YAWLEditorNetFrame(bounds, graph.getName());
-    graph.setSize(frame.getContentPane().getSize());
-    frame.setNet(graph);
-    bindFrame(frame);
 
-    try {
-      frame.setMaximum(maximised);
-    } catch (Exception e) {};
+  private void bindFrame(final YAWLEditorNetPanel frame) {
+      addTab(frame.getTitle(), frame.getFrameIcon(), frame);
+      updateState();
+  }
 
-    if (graph.getNetModel().isStartingNet()) {
-        frame.moveToFront();
-    }
-  }
-  
-  private void bindFrame(final YAWLEditorNetFrame frame) {
-    frame.addInternalFrameListener(this);
-    add(frame);
-    frame.setVisible(true); //necessary as of 1.3
-    try {
-      frame.setSelected(true);
-      getDesktopManager().activateFrame(frame);
-    } catch (java.beans.PropertyVetoException e) {}
-    
-    frame.addComponentListener(
-      new ComponentAdapter() {
-        public void componentMoved(ComponentEvent event) {
-          frame.setLocation(Math.max(0,frame.getX()),Math.max(0, frame.getY()));
-          resizeIfNecessary();
-          repositionViewportIfNecessary(frame);
-        }
-          
-        public void componentResized(ComponentEvent event) {
-          if (!frame.isMaximum()) {
-            resizeIfNecessary();
-          }
-        }
-    });
-  }
-  
+
   public void removeActiveNet() {
-    YAWLEditorNetFrame f = (YAWLEditorNetFrame) getSelectedFrame();
-    if (f != null && !f.getNet().getNetModel().isStartingNet()) {
-      f.doDefaultCloseAction();
-    }
-  }
-  
-  public void closeAllNets() {
-    JInternalFrame[] frames = getAllFrames();
-    for(int i = 0; i < frames.length; i++) {
-//        ((YAWLEditorNetFrame) frames[i]).getNet().removeFrame();
-        ((YAWLEditorNetFrame) frames[i]).resetFrame();
-        frames[i].dispose();
-    }
-    setPreferredSize(new Dimension(0,0));
-  }
-  
-  public void iconifyAllNets() {
-    JInternalFrame[] frames = getAllFrames();
-    for(int i = 0; i < frames.length; i++) {
-      try {
-        frames[i].setIcon(true);
-      } catch (Exception e) {}
-    }
-  }
-  
-  public void showAllNets() {
-    JInternalFrame[] frames = getAllFrames();
-    for(int i = frames.length - 1; i >= 0; i--){
-      try {
-        frames[i].setIcon(false);
-      } catch (Exception e) {}
-    }
-  }
- 
-  public void internalFrameActivated(InternalFrameEvent e) {
-    updateState();   
-  }
-
-  public void internalFrameDeactivated(InternalFrameEvent e) {
-    updateState();   
-  }
-
-  public void internalFrameClosing(InternalFrameEvent e) {}
-
-  public void internalFrameClosed(InternalFrameEvent e) {
-    resizeIfNecessary();   
-    updateState();   
-  }
-  
-  public void internalFrameDeiconified(InternalFrameEvent e) {
-    resizeIfNecessary();
-    repositionViewportIfNecessary(e.getInternalFrame());
-    updateState();   
-  }
-
-  public void internalFrameIconified(InternalFrameEvent e) {
-    resizeIfNecessary();
-    repositionViewportIfNecessary(e.getInternalFrame());
-    updateState();   
-  }
-
-  public void internalFrameOpened(InternalFrameEvent e) {
-    resizeIfNecessary();
-    repositionViewportIfNecessary(e.getInternalFrame());
-    updateState();   
-  }
-  
-  public void repositionViewportIfNecessary(JInternalFrame frame) {
-    
-    // TODO: reposition to work on iconified frames as well.
-
-    if (!this.isVisible() || scrollPane == null) {
-  		return;
-  	}
-    final JViewport viewport  = scrollPane.getViewport();
-    final Rectangle trimmedViewport = removeOffset(viewport.getViewRect());
-    if (!trimmedViewport.contains(frame.getBounds())) {
-      viewport.setVisible(false);  // for faster redraw
-      viewport.scrollRectToVisible(addOffset(frame.getBounds()));
-      if (!trimmedViewport.contains(frame.getBounds())) {  // must be too big...
-        viewport.setViewPosition(new Point(Math.max(0,frame.getX() - X_OFFSET), 
-                                           Math.max(0,frame.getY() - Y_OFFSET)));
+      YAWLEditorNetPanel f = (YAWLEditorNetPanel) getSelectedComponent();
+      if ((f != null) && (! f.getNet().getNetModel().isStartingNet())) {
+        remove(f);
       }
-      viewport.setVisible(true);
-    }
-  }
-  
-  private Rectangle removeOffset(Rectangle rectangle) {
-    return new Rectangle((int) rectangle.getX() + X_OFFSET,
-                         (int) rectangle.getY() + Y_OFFSET,
-                         (int) rectangle.getWidth()  - (2 *  X_OFFSET),
-                         (int) rectangle.getHeight() - (2 * Y_OFFSET));
   }
 
-  private Rectangle addOffset(Rectangle rectangle) {
-    return new Rectangle((int) rectangle.getX() - X_OFFSET,
-                         (int) rectangle.getY() - Y_OFFSET,
-                         (int) rectangle.getWidth()  + (2 *  X_OFFSET),
-                         (int) rectangle.getHeight() + (2 * Y_OFFSET));
+
+  public void closeAllNets() {
+    Component[] frames = getComponents();
+    System.out.println("Length: " + frames.length);
+    for(int i = 0; i < frames.length; i++) {
+        ((YAWLEditorNetPanel) frames[i]).resetFrame();
+        remove(frames[i]);
+        System.out.println("removed: " + i );
+    }
   }
-  
+
+
+
   private void updateState() {
-    JInternalFrame frame = getSelectedFrame();
-    if ((frame == null) || (((YAWLEditorNetFrame) frame).getNet() == null)) {
+    YAWLEditorNetPanel frame = (YAWLEditorNetPanel) this.getSelectedComponent();
+    if ((frame == null) || (frame.getNet() == null)) {
       model.nothingSelected();
       return;
     }
-    model.somethingSelected();    
+    model.somethingSelected();
     try {
       getSelectedGraph().getSelectionListener().forceActionUpdate();
       getSelectedGraph().getCancellationSetModel().refresh();
     } catch (Exception e) {}
   }
-  
-  public void resizeIfNecessary() {
-    if (!this.isVisible()) {
-      return;
-    }
 
-    int maxX = 0;
-    int maxY = 0;
-
-    JInternalFrame currentFrame = null;
-    JInternalFrame[] frames = getAllFrames();
-
-    for (int i=0; i < frames.length; i++) {
-      currentFrame = frames[i];
-      
-      Rectangle currentFrameBounds = currentFrame.getNormalBounds();
-      
-      if ((currentFrameBounds.getX() + currentFrameBounds.getWidth()) > maxX) {
-        maxX = (int) (currentFrameBounds.getX() + currentFrameBounds.getWidth());
-      }
-      if ((currentFrameBounds.getY() + currentFrameBounds.getHeight()) > maxY) {
-        maxY = (int) (currentFrameBounds.getY() + currentFrameBounds.getHeight());
-      }
-    }
-    maxX += X_OFFSET;
-    maxY += Y_OFFSET;
     
-    setPreferredSize(new Dimension(maxX,maxY));
-   }
-  
-  private Point getNewLocation() {
-    Point point = new Point();
-    YAWLEditorNetFrame frame = (YAWLEditorNetFrame) getSelectedFrame();
-    if (frame == null) {
-      point.x = X_OFFSET;
-      point.y = Y_OFFSET;
-    } else {
-      point.x = frame.getX() + X_OFFSET;
-      point.y = frame.getY() + Y_OFFSET;      
-    }
-    return point;  
-  }
-  
   public NetGraph getSelectedGraph() {
-    final YAWLEditorNetFrame frame = (YAWLEditorNetFrame) getSelectedFrame();
+      YAWLEditorNetPanel frame = (YAWLEditorNetPanel) this.getSelectedComponent();
     if (frame != null) {
-      return frame.getNet();  
-    } 
-    return null; 
+      return frame.getNet();
+    }
+    return null;
   }
 }

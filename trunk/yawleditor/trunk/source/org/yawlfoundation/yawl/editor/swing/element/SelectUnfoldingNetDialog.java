@@ -21,21 +21,6 @@
 
 package org.yawlfoundation.yawl.editor.swing.element;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.util.Arrays;
-import java.util.Set;
-
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLCompositeTask;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
@@ -47,7 +32,16 @@ import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.JUtilities;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.swing.data.NetDecompositionUpdateDialog;
-import org.yawlfoundation.yawl.editor.swing.net.YAWLEditorNetFrame;
+import org.yawlfoundation.yawl.editor.swing.net.YAWLEditorNetPanel;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.util.Arrays;
+import java.util.Set;
 
 public class SelectUnfoldingNetDialog extends AbstractDoneDialog {
   /**
@@ -168,7 +162,7 @@ public class SelectUnfoldingNetDialog extends AbstractDoneDialog {
     
     button.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        YAWLEditorNetFrame newFrame = YAWLEditorDesktop.getInstance().newNet();
+        YAWLEditorNetPanel newFrame = YAWLEditorDesktop.getInstance().newNet();
         
         NetDecompositionUpdateDialog netDialog = new NetDecompositionUpdateDialog(
             newFrame.getNet().getNetModel().getDecomposition()

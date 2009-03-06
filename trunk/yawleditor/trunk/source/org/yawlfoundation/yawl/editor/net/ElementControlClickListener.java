@@ -24,18 +24,16 @@
 
 package org.yawlfoundation.yawl.editor.net;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.InputEvent;
-
 import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLCompositeTask;
-
-import org.yawlfoundation.yawl.editor.net.NetGraph;
-
-import org.yawlfoundation.yawl.editor.swing.element.SelectUnfoldingNetDialog;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
+import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.swing.element.SelectUnfoldingNetDialog;
+
+import java.awt.event.InputEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class ElementControlClickListener extends MouseAdapter {
   private NetGraph net;
@@ -77,12 +75,14 @@ public class ElementControlClickListener extends MouseAdapter {
         dialog.setTask(net, compositeTask);
         dialog.setVisible(true);
       } else {
-        try {
-          unfoldingNet.getGraph().getFrame().setIcon(true);  // this tricks the frame into taking focus.
-          unfoldingNet.getGraph().getFrame().setIcon(false);
-        } catch (Exception e) {}
-        unfoldingNet.getGraph().getFrame().moveToFront();
-        unfoldingNet.getGraph().getFrame().requestFocus();
+          YAWLEditorDesktop.getInstance().setSelectedComponent(
+                  unfoldingNet.getGraph().getFrame());
+//        try {
+//          unfoldingNet.getGraph().getFrame().setIcon(true);  // this tricks the frame into taking focus.
+//          unfoldingNet.getGraph().getFrame().setIcon(false);
+//        } catch (Exception e) {}
+//        unfoldingNet.getGraph().getFrame().moveToFront();
+//        unfoldingNet.getGraph().getFrame().requestFocus();
       }
     }  
 }

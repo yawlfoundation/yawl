@@ -439,7 +439,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
     showPort(sourcePort);
     matchCursorTo(CursorFactory.FLOW_RELATION);
     YAWLEditor.setStatusBarText(
-        "Left-click on this conection point, drag the flow to another " +
+        "Left-click on this connection point, drag the flow to another " +
         "valid connection point and release the mouse button to create a flow."
     );
   }

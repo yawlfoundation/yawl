@@ -24,24 +24,21 @@
 
 package org.yawlfoundation.yawl.editor.foundations;
 
-import java.awt.Color;
-import java.awt.Rectangle;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
-
 import org.jgraph.graph.ConnectionSet;
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.ParentMap;
-
 import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLPort;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+
+import java.awt.*;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
 
 /**
  * @author bradforl
@@ -91,17 +88,8 @@ public class ArchivableNetState implements Serializable {
     generateConnectionSetData();
     generateParentMapData();
 
-    setBounds(graphModel.getGraph().getFrame().getNormalBounds());
-    setIconified(graphModel.getGraph().getFrame().isIcon());
-    if (getIconified()) {
-    	setIconBounds(graphModel.getGraph().getFrame().getDesktopIcon().getBounds());
-    }
-    setMaximised(graphModel.getGraph().getFrame().isMaximum());
-    setZOrder(
-        YAWLEditorDesktop.getInstance().getIndexOf(  
-          graphModel.getGraph().getFrame()
-        )
-    );
+    setBounds(graphModel.getGraph().getFrame().getBounds());
+
     setTriggeringTaskOfVisibleCancellationSet(
       graphModel.getGraph().getCancellationSetModel().getTriggeringTask()
     );

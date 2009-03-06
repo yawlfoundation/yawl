@@ -63,7 +63,7 @@ public class OpenRecentSpecificationAction extends YAWLNoOpenSpecificationAction
   }
 
   public String getEnabledTooltipText() {
-    return " Open a recently loaded  specification ";
+    return _fullFileName;
   }
 
   public String getDisabledTooltipText() {

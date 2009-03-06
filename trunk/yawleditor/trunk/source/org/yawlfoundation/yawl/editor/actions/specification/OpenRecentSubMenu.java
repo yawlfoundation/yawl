@@ -63,7 +63,9 @@ public class OpenRecentSubMenu extends JMenu implements SpecificationFileModelLi
             if ((fileName != null) && (fileName.length() > 0)) {
                 ((OpenRecentSpecificationAction) items[i].getAction()).setFileName(fileName);
                 items[i].setVisible(true);
+                items[i].setToolTipText(fileName);
             }
+            else items[i].setVisible(false);
         }
     }
 

@@ -8,7 +8,7 @@ import org.yawlfoundation.yawl.editor.elements.model.*;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
-import org.yawlfoundation.yawl.editor.swing.net.YAWLEditorNetFrame;
+import org.yawlfoundation.yawl.editor.swing.net.YAWLEditorNetPanel;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.awt.*;
@@ -107,15 +107,22 @@ public class LayoutImporter {
         Rectangle frameBounds = createRectangle(e.getChild("frame", _ns));
         Rectangle viewportBounds = createRectangle(e.getChild("viewport", _ns)) ;
         Rectangle graphBounds = createRectangle(e.getChild("bounds", _ns));
-        YAWLEditorNetFrame netFrame = netModel.getGraph().getFrame();
+        YAWLEditorNetPanel netFrame = netModel.getGraph().getFrame();
 
-        netFrame.setBounds(frameBounds);
+ //       netFrame.setBounds(frameBounds);
         if (viewportBounds != null) {
-            netFrame.getContentPane().setBounds(viewportBounds);
+            Rectangle x = new Rectangle(-graphBounds.x, -graphBounds.y,
+                    viewportBounds.width, viewportBounds.height);
+  //          netModel.getGraph().scrollRectToVisible(x);
+            netFrame.getScrollPane().scrollRectToVisible(x);
+           netFrame.getScrollPane().revalidate(); 
+//   //         netFrame.setBounds(viewportBounds);
+//            netFrame.scrollToViewport(x);
+ //           netFrame.scrollToViewport(viewportBounds);
         }
         if (graphBounds != null) {
-            netModel.getGraph().setBounds(graphBounds);
-            netModel.getGraph().setPreferredSize(new Dimension(graphBounds.width, graphBounds.height));
+//            netModel.getGraph().setBounds(graphBounds);
+//            netModel.getGraph().setPreferredSize(new Dimension(graphBounds.width, graphBounds.height));
         }
     }
 
