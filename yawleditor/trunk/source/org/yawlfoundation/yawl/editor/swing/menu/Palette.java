@@ -370,7 +370,7 @@ class TaskIconTree extends JTree implements SpecificationSelectionSubscriber {
               return;  // don't care if it's not a TaskIconTreeNode
             }
             
-            if (YAWLEditorDesktop.getInstance().getSelectedGraph() == null || 
+            if (YAWLEditorDesktop.getInstance().getSelectedGraph() == null ||
                 YAWLEditorDesktop.getInstance().getSelectedGraph().getSelectionCell() == null) {
               return;  // don't care if we don't have a selected cell to change an icon on.
             }

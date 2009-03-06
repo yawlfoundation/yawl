@@ -263,7 +263,7 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
             else {
               JOptionPane.showMessageDialog(null,
                    "A connection to a running resource service could not be etablished.\n" +
-                   "Codelets cannot be selected without a valid resource service conection.",
+                   "Codelets cannot be selected without a valid resource service connection.",
                    "Resource Service Connection Error", JOptionPane.ERROR_MESSAGE);
             }           
         }

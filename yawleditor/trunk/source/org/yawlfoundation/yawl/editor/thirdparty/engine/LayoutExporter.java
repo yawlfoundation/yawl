@@ -360,7 +360,7 @@ public class LayoutExporter {
     private String getNetDimensions(NetGraph netGraph) {
         String template = "<%s x=\"%d\" y=\"%d\" w=\"%d\" h=\"%d\"/>";
         Rectangle frame = netGraph.getFrame().getBounds();
-        Rectangle viewport = netGraph.getFrame().getContentPane().getBounds();
+        Rectangle viewport = netGraph.getFrame().getCurrentViewportBounds();
         Rectangle bounds = netGraph.getBounds();
         return String.format(template, "bounds", bounds.x, bounds.y, bounds.width, bounds.height) +
                String.format(template, "frame", frame.x, frame.y, frame.width, frame.height) +

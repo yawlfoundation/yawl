@@ -42,6 +42,13 @@ public class FileUtilities {
     copy(sourceFile, targetFile);
     new File(sourceFile).delete();
   }
+
+    public static void backup(String sourceFile, String targetFile) throws IOException {
+        File file = new File(sourceFile);
+        if (file.exists()) copy(sourceFile, targetFile);
+    }
+
+
   
   /**
    * Copies one file to another. Note that if a file already exists with the same
@@ -148,7 +155,6 @@ public class FileUtilities {
 
   /**
    * Returns the absolute path of the decomposition extended attribute properties plugin file
-   * @param relativeIconPath
    * @return
    */
   public static String getDecompositionPropertiesExtendeAttributePath() {
@@ -159,7 +165,6 @@ public class FileUtilities {
 
   /**
    * Returns the absolute path of the variable extended attribute properties plugin file
-   * @param relativeIconPath
    * @return
    */
   public static String getVariablePropertiesExtendedAttributePath() {

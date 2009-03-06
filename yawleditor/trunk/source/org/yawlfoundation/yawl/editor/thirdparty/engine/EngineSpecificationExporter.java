@@ -129,9 +129,9 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   
   private static void exportStringToFile(String string, String fullFileName) {
     try {
-        if (prefs.getBoolean(FILE_BACKUP_PREFERENCE, false))
-            FileUtilities.copy(fullFileName, fullFileName + ".bak");     // back it up
-
+        if (prefs.getBoolean(FILE_BACKUP_PREFERENCE, false)) {
+            FileUtilities.backup(fullFileName, fullFileName + ".bak");     // back it up
+        }
       PrintStream outputStream =
         new PrintStream(
             new BufferedOutputStream(new FileOutputStream(fullFileName)),

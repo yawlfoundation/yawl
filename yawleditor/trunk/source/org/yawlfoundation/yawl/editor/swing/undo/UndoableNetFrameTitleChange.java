@@ -24,9 +24,9 @@
 
 package org.yawlfoundation.yawl.editor.swing.undo;
 
-import javax.swing.undo.AbstractUndoableEdit;
+import org.yawlfoundation.yawl.editor.swing.net.YAWLEditorNetPanel;
 
-import org.yawlfoundation.yawl.editor.swing.net.YAWLEditorNetFrame;
+import javax.swing.undo.AbstractUndoableEdit;
 
 public class UndoableNetFrameTitleChange extends AbstractUndoableEdit {
   /**
@@ -34,12 +34,12 @@ public class UndoableNetFrameTitleChange extends AbstractUndoableEdit {
    */
   private static final long serialVersionUID = 1L;
 
-  private YAWLEditorNetFrame frame;
+  private YAWLEditorNetPanel frame;
     
   private String oldName;
   private String newName;
     
-  public UndoableNetFrameTitleChange(YAWLEditorNetFrame frame, String oldName, String newName) {
+  public UndoableNetFrameTitleChange(YAWLEditorNetPanel frame, String oldName, String newName) {
     this.frame = frame;
     this.oldName = oldName;
     this.newName = newName;

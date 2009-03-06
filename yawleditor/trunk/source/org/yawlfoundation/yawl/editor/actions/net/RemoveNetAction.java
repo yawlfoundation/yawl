@@ -49,7 +49,7 @@ public class RemoveNetAction extends YAWLSelectedNetAction implements TooltipTog
   }
 
   public void actionPerformed(ActionEvent event) {
-    YAWLEditorDesktop.getInstance().removeActiveNet();          
+    YAWLEditorDesktop.getInstance().removeActiveNet();
     SpecificationUndoManager.getInstance().setDirty(true);
   }
   

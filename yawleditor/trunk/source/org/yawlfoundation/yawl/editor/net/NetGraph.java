@@ -34,7 +34,7 @@ import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 import org.yawlfoundation.yawl.editor.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
-import org.yawlfoundation.yawl.editor.swing.net.YAWLEditorNetFrame;
+import org.yawlfoundation.yawl.editor.swing.net.YAWLEditorNetPanel;
 import org.yawlfoundation.yawl.editor.swing.undo.UndoableTaskDecompositionChange;
 import org.yawlfoundation.yawl.editor.swing.undo.UndoableTaskIconChange;
 
@@ -67,7 +67,7 @@ public class NetGraph extends JGraph {
 
   protected transient final Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
 
-  private YAWLEditorNetFrame frame;
+  private YAWLEditorNetPanel frame;
   
   private NetSelectionListener selectionListener;
   private CancellationSetModel cancellationSetModel;
@@ -83,7 +83,7 @@ public class NetGraph extends JGraph {
     getNetModel().setDecomposition(decomposition);
   }
 
-  public NetGraph(YAWLEditorNetFrame frame) {
+  public NetGraph(YAWLEditorNetPanel frame) {
     super();
     initialize();
     setFrame(frame);
@@ -1143,11 +1143,11 @@ public class NetGraph extends JGraph {
     getModel().edit(attributes, null, null, null);
   }
   
-  public YAWLEditorNetFrame getFrame() {
+  public YAWLEditorNetPanel getFrame() {
     return frame;
   }
   
-  public void setFrame(YAWLEditorNetFrame frame) {
+  public void setFrame(YAWLEditorNetPanel frame) {
     this.frame = frame;
   }
 

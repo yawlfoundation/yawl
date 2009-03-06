@@ -70,7 +70,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
   private static JSplitPane splitPane;
   private static SpecificationBottomPanel specificationBottomPanel;
-
+  private static YAWLEditorDesktop editDesktop;
   private static YAWLEditor INSTANCE;
 
   private static final JSplashScreen splashScreen = new JSplashScreen();
@@ -238,7 +238,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
       }
 
       public void componentResized(ComponentEvent event) {
-        rememberLocation();
+          rememberLocation();
 
         prefs.putInt("width", frame.getWidth());
         prefs.putInt("height", frame.getHeight());
@@ -259,7 +259,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
     splitPane.setDividerSize(10);
     splitPane.setResizeWeight(0);
-    splitPane.setOneTouchExpandable(true);
+//    splitPane.setOneTouchExpandable(true);
 
     return splitPane;
   }
@@ -301,7 +301,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
   public void indicateProblemsTabActivity() {
     specificationBottomPanel.selectProblemsTab();
-    indicateSplitPaneActivity();
+ //   indicateSplitPaneActivity();
   }
 
   public void showProblemList(SpecificationModel editgorSpec, String title, String statusBarText, List problemList) {
@@ -369,11 +369,11 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
   private JPanel getEditPanel() {
     JPanel editPanel = new JPanel(new BorderLayout());
-    YAWLEditorDesktop editDesktop = YAWLEditorDesktop.getInstance();
+     editDesktop = YAWLEditorDesktop.getInstance();
     editPanel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
-    final JScrollPane scrollPane = new JScrollPane(editDesktop);
-    editDesktop.setScrollPane(scrollPane);
-    editPanel.add(scrollPane, BorderLayout.CENTER);
+ //   final JScrollPane scrollPane = new JScrollPane(editDesktop);
+//    editDesktop.setScrollPane(scrollPane);
+    editPanel.add(editDesktop, BorderLayout.CENTER);
     return editPanel;
   }
 

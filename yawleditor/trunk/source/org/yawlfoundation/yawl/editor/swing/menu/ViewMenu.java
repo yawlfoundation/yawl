@@ -180,14 +180,14 @@ class ViewNetAction extends AbstractAction {
   }
 
   public void actionPerformed(ActionEvent event) {
-    if (net.getGraph().getFrame().isIcon()) {
-      try {
-        net.getGraph().getFrame().setIcon(false);
-      } catch (Exception e) {};
-    }
-
-    try {
-      net.getGraph().getFrame().setSelected(true);
-    } catch (Exception e) {};
+//    if (net.getGraph().getFrame().isIcon()) {
+//      try {
+//        net.getGraph().getFrame().setIcon(false);
+//      } catch (Exception e) {};
+//    }
+//
+//    try {
+//      net.getGraph().getFrame().setSelected(true);
+//    } catch (Exception e) {};
   }
 }

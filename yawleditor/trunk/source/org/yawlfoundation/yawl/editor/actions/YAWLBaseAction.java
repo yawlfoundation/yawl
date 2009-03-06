@@ -54,7 +54,7 @@ public abstract class YAWLBaseAction extends AbstractAction {
   }
 
   public NetGraph getGraph() {
-    return YAWLEditorDesktop.getInstance().getSelectedGraph(); 
+    return YAWLEditorDesktop.getInstance().getSelectedGraph();
   }
   
   public boolean shouldBeEnabled() {

@@ -233,9 +233,9 @@ public class SpecificationUndoManager extends GraphUndoManager {
   
   private void showFrameOfModel(NetGraphModel model) {
     try {
-      model.getGraph().getFrame().setIcon(false);
-      model.getGraph().getFrame().toFront();
-      model.getGraph().getFrame().requestFocus();
+//      model.getGraph().getFrame().setIcon(false);
+//      model.getGraph().getFrame().toFront();
+//      model.getGraph().getFrame().requestFocus();
     } catch (Exception e) {}
   }
 

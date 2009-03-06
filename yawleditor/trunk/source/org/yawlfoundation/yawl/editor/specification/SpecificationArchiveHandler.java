@@ -473,10 +473,10 @@ public class SpecificationArchiveHandler {
 
     try {
       for(int i = 0; i < netArray.length; i ++) {
-        YAWLEditorDesktop.getInstance().setComponentZOrder(
-            rebuiltNets.get(i).getFrame(), 
-            ((ArchivableNetState) netArray[i]).getZOrder()
-        );
+//        YAWLEditorDesktop.getInstance().setComponentZOrder(
+//            rebuiltNets.get(i).getFrame(),
+//            ((ArchivableNetState) netArray[i]).getZOrder()
+//        );
       }
     } catch (Exception e) {
       // Older spec save files did not save zOrder, leave as-is if this is the case.
@@ -486,9 +486,7 @@ public class SpecificationArchiveHandler {
   private NetGraph readNet(ArchivableNetState archivedNet) {
     NetGraph net = new NetGraph(archivedNet.getDecomposition());
     
-    YAWLEditorDesktop.getInstance().openNet(archivedNet.getBounds(), 
-                                            archivedNet.getMaximised(),
-                                            net);
+    YAWLEditorDesktop.getInstance().openNet(net);
                                             
     net.getNetModel().insert(archivedNet.getCells(), 
                              archivedNet.getCellViewAttributes(),
