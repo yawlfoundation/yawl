@@ -2343,15 +2343,20 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     // pseudo-logout by removing session handle from map of live users
     public void logout(String handle) {
-        Participant p = _liveSessions.remove(handle);
+        Participant p = removeSession(handle);
         if (p != null) {
            removeChainedCasesForParticpant(p);
         }
-        _liveAdmins.remove(handle);
     }
 
     public boolean isValidUserSession(String handle) {
         return _liveSessions.containsKey(handle) || _liveAdmins.contains(handle);
+    }
+
+
+    public Participant removeSession(String handle) {
+        _liveAdmins.remove(handle);
+        return _liveSessions.remove(handle);
     }
 
 

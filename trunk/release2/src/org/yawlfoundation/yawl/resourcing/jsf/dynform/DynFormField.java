@@ -30,6 +30,7 @@ public class DynFormField {
     private int _order;
     private boolean _required ;
 
+    private DynFormField _parent;
     private DynFormFieldRestriction _restriction;
     private DynFormFieldUnion _union;
     private DynFormFieldListFacet _list;
@@ -54,6 +55,9 @@ public class DynFormField {
     public DynFormField(String name, List<DynFormField> subList) {
         _name = name;
         _subFieldList = subList;
+        if (subList != null) {
+            for (DynFormField field : subList) field.setParent(this);
+        }
     }
 
     /******************************************************************************/
@@ -180,26 +184,46 @@ public class DynFormField {
         this._occursCount = occursCount;
     }
 
-    public boolean isInputOnly() {
-        return (_param != null && _param.isInputOnly()) ||
-               (_attributes != null && _attributes.getBooleanValue("readOnly"));
+    public DynFormField getParent() {
+        return _parent;
     }
 
-    public boolean isRequired() {
-        return _required;
+    public void setParent(DynFormField parent) {
+        _parent = parent;
     }
+
+    public boolean isInputOnly() {
+        return ((_parent != null) && _parent.isInputOnly()) ||
+               (_param != null && (_param.isInputOnly() || _param.isReadOnly())) ||
+               ((_attributes != null) && _attributes.getBooleanValue("readOnly"));
+    }
+
+//    public boolean isRequired() {
+//        return _required;
+//    }
 
     public void setRequired(boolean required) {
         this._required = required;
     }
 
-    // treat all non-strings as required pending handling of optional params
-    public void setRequired() {
+    // treat all non-strings as required pending handling of optional params, because
+    // the engine will validate against schema on the way in and will find any empty
+    // values invalid for non-strings - intended external attribute will override
+    // schema validation
+    public boolean isRequired() {
         String simpleTypeName = getDataTypeUnprefixed();
         boolean nonString = (simpleTypeName != null) && (! simpleTypeName.equals("string"));
-        _required = (! isInputOnly()) && ((_minoccurs > 0) || nonString);
+        _required = (! isInputOnly()) && ((! hasZeroMinimum()) || nonString); 
+        return _required;
     }
 
+
+    private boolean hasZeroMinimum() {
+        if (_parent != null) 
+            return _parent.hasZeroMinimum() || (_minoccurs == 0);
+        else
+            return (_minoccurs == 0);
+    }
     
     public void setEnumeratedValues(List<String> enumValues) {
         if (_restriction != null)
@@ -236,7 +260,16 @@ public class DynFormField {
     public void addSubField(DynFormField field) {
         if (_subFieldList == null)
             _subFieldList = new ArrayList<DynFormField>();
+        field.setParent(this);
         _subFieldList.add(field);
+    }
+
+    public void addSubFieldList(List<DynFormField> fieldList) {
+        if (fieldList != null) {
+            for (DynFormField field : fieldList) {
+                addSubField(field);
+            }
+        }
     }
 
     public boolean removeSubField(DynFormField field) {
@@ -358,6 +391,14 @@ public class DynFormField {
             tip = " Please enter " + _list.getToolTipExtn();
 
         return tip + " ";
+    }
+
+
+    public boolean equals(DynFormField other) {
+        return (other.getName().equals(this.getName()) &&
+                other.getDatatype().equals(this.getDatatype())); 
+//                &&
+//                other.getValue().equals(this.getValue()));
     }
 
 

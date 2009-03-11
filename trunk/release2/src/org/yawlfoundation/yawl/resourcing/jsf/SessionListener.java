@@ -9,6 +9,7 @@
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
 
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
@@ -50,7 +51,8 @@ public class SessionListener implements HttpSessionListener {
     }
 
     public void handleSessionTimeout(HttpSession session) {
-     //   SessionBean sb = (SessionBean) session.getAttribute("SessionBean");
+        SessionBean sb = (SessionBean) session.getAttribute("SessionBean");
+        ResourceManager.getInstance().removeSession(sb.getSessionhandle());
     }
 
 }

@@ -47,12 +47,12 @@
                 response.sendRedirect(response.encodeURL(redirectURL));
             }
             else {
-                System.out.println("This workitem does not contain a variable called '"
+                out.println("This workitem does not contain a variable called '"
                                    + varName + "'.");
             }
         }
         else {
-            System.out.println("This workitem does not contain any data for updating.");
+            out.println("This workitem does not contain any data for updating.");
         }
     }
 %>
