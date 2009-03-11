@@ -437,6 +437,7 @@ public class SessionBean extends AbstractSessionBean {
     // logs out of session //
     public void doLogout() {
         _rm.logout(sessionhandle) ;
+        setEditedParticipant((Participant) null);
         getApplicationBean().removeLiveUser(userid);
         
         FacesContext context = FacesContext.getCurrentInstance();
@@ -974,8 +975,8 @@ public class SessionBean extends AbstractSessionBean {
     public void saveParticipantUpdates(Participant temp) {
         Participant p = getParticipantMap().get(temp.getID());
         p.merge(temp);
-        editedParticipant = temp ;
         p.save();
+        setEditedParticipant(p.getID()) ;             // reset
     }
 
     

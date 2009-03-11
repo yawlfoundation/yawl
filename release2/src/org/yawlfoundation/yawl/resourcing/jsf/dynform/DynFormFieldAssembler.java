@@ -189,6 +189,7 @@ public class DynFormFieldAssembler {
                                        Element data, String minOccurs, String maxOccurs,
                                        int level) {
         DynFormField field ;
+        List<DynFormField> simpleContents = new ArrayList<DynFormField>();
         int instances = getInitialInstanceCount(minOccurs, data) ;
 
         if (instances == 1) {
@@ -202,13 +203,14 @@ public class DynFormFieldAssembler {
                 Element data4Inst = getIteratedContent(data, i) ;
                 List<DynFormField> subFieldList =
                         createFieldList(eField, data4Inst, ns, level);
-                DynFormField subField = subFieldList.get(0);
+                DynFormField subField = subFieldList.get(0);      // the multi-inst field
                 subField.setGroupID(subGroupID);
                 field.addSubField(subField);
+                simpleContents = addSimpleContents(simpleContents, subFieldList);
             }
         }
         field.setOccursCount(instances);
-
+        field.addSubFieldList(simpleContents);
         return field;
     }
 
@@ -238,12 +240,7 @@ public class DynFormFieldAssembler {
                                   String minOccurs, String maxOccurs, int level) {
         String value = (data != null) ? data.getChildText(name) : "";
         DynFormField input = new DynFormField(name, type, value);
-        input.setMinoccurs(minOccurs);
-        input.setMaxoccurs(maxOccurs);
-        input.setLevel(level);
-        input.setParam(_currentParam);
-        input.setAttributes(new DynFormUserAttributes(getAttributeMap(data, name)));
-        if (type != null) input.setRequired();
+        populateField(input, name, data, minOccurs, maxOccurs, level) ;
         return input;
     }
 
@@ -252,11 +249,18 @@ public class DynFormFieldAssembler {
                                   String minOccurs, String maxOccurs,int level) {
         if (name == null) name = "choice";
         DynFormField input = new DynFormField(name, subFieldList);
+        populateField(input, name, null, minOccurs, maxOccurs, level) ;
+        return input;
+    }
+
+
+    private void populateField(DynFormField input, String name, Element data,
+                                  String minOccurs, String maxOccurs,int level) {
         input.setMinoccurs(minOccurs);
         input.setMaxoccurs(maxOccurs);
         input.setParam(_currentParam);
         input.setLevel(level);
-        return input;
+        input.setAttributes(new DynFormUserAttributes(getAttributeMap(data, name)));
     }
 
 
@@ -295,8 +299,24 @@ public class DynFormFieldAssembler {
             field.setDatatype(fieldList.getItemType());
             field.setListType(fieldList);
         }
-        if (field.getDatatype() != null) field.setRequired();
+    }
 
+
+    private List<DynFormField> addSimpleContents(List<DynFormField> simpleContents,
+                                                 List<DynFormField> subFieldList) {
+        if (subFieldList == null) return simpleContents;
+
+        boolean contains = false;
+
+        for (int i=1; i<subFieldList.size(); i++) {
+            DynFormField field = subFieldList.get(i);
+            for (DynFormField simple : simpleContents) {
+                contains = simple.equals(field) ;
+                if (contains) break;
+            }
+            if (! contains) simpleContents.add(field);
+        }
+        return simpleContents;
     }
 
 

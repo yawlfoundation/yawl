@@ -368,7 +368,7 @@ public class caseMgt extends AbstractPageBean {
         updateRunningCaseList();
         _sb.refreshLoadedSpecs();
         activateButtons();
-        _sb.setActivePage(ApplicationBean.PageRef.caseMgt);
+        _sb.setActivePage(ApplicationBean.PageRef.caseMgt); 
     }
 
 
@@ -494,7 +494,7 @@ public class caseMgt extends AbstractPageBean {
                 msgPanel.error("Could not cancel case.\n\n" +  msgPanel.format(result)) ;
         }
         else msgPanel.error("No case selected to cancel.");
-        
+
         return null;
     }
 

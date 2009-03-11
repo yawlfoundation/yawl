@@ -11,6 +11,7 @@ package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 
 import java.io.Serializable;
+import java.util.Hashtable;
 
 /**
  *  Adds a few extra members to a YParameter object, so it can be used to populate
@@ -50,4 +51,13 @@ public class FormParameter extends YParameter implements Serializable {
     public boolean isRequired() { return _required; }
 
     public void setRequired(boolean required) { _required = required; }
+
+    public boolean isReadOnly() {
+        Hashtable table = getAttributes();
+        if (table != null) {
+            String readOnly = (String) table.get("readOnly");
+            return (readOnly != null) && readOnly.equalsIgnoreCase("true") ;
+        }
+        return false;
+    }
 }
