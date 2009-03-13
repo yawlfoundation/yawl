@@ -26,6 +26,7 @@ import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
+import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 
 import javax.swing.*;
 import java.awt.*;
@@ -133,7 +134,16 @@ public class YAWLEditorNetPanel extends JPanel {
 
     public String getTitle() { return title; }
 
-    public void setTitle(String title) { this.title = title;}
+    public void setTitle(String title) {
+        this.title = title;
+        YAWLEditorDesktop parent = (YAWLEditorDesktop) this.getParent();
+        if (parent != null) {
+            int index = parent.getSelectedIndex();
+            if (index > -1) {
+                parent.setTitleAt(index, title);
+            }
+        }
+    }
 
     public void showRenameDialog() {
         String oldName = getNet().getNetModel().getName();
