@@ -21,6 +21,7 @@
 
 package org.yawlfoundation.yawl.editor.swing.element;
 
+import org.yawlfoundation.yawl.editor.elements.model.YAWLCondition;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
@@ -39,13 +40,18 @@ public class LabelElementDialog extends AbstractVertexDoneDialog {
    */
   private static final long serialVersionUID = 1L;
   protected JFormattedSafeXMLCharacterField labelField;
+  protected JCheckBox cbxSynch;
   
   public LabelElementDialog() {
     super(null, true, true);
     setContentPanel(getLabelPanel());
     getDoneButton().addActionListener(new ActionListener(){
         public void actionPerformed(ActionEvent e) {
-          graph.setElementLabel(getVertex(), labelField.getText());
+            YAWLVertex vertex = getVertex();
+            graph.setElementLabel(vertex, labelField.getText());
+            if (cbxSynch.isSelected()) {
+                vertex.setActualEngineID(labelField.getText());
+            }
           graph.clearSelection();           
           SpecificationUndoManager.getInstance().setDirty(true);
         }
@@ -81,6 +87,15 @@ public class LabelElementDialog extends AbstractVertexDoneDialog {
     
     panel.add(labelField, gbc);
 
+      gbc.gridx--;
+      gbc.gridy++;
+      gbc.gridwidth = 2 ;
+      gbc.insets = new Insets(10,0,0,0);
+
+      cbxSynch = new JCheckBox("Synchronise task name with label");
+      cbxSynch.setSelected(true);                                  // always by default
+      panel.add(cbxSynch, gbc);
+      pack();
     return panel;
   }
   
@@ -112,8 +127,9 @@ public class LabelElementDialog extends AbstractVertexDoneDialog {
   
   public void setVertex(YAWLVertex vertex, NetGraph graph) {
     super.setVertex(vertex,graph);
-
     labelField.setText(vertex.getLabel());
+    String vType = (getVertex() instanceof YAWLCondition) ? "condition" : "task" ;
+    cbxSynch.setText("Synchronise " + vType + " name with label");
   }
   
   public String getTitlePrefix() {

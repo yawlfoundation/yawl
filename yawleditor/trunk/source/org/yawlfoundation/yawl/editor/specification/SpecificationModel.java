@@ -299,8 +299,7 @@ public class SpecificationModel {
   }
   
   public boolean removeNetNotUndoable(NetGraphModel netModel) {
-    boolean removalSuccessful = false;
-    removalSuccessful = nets.remove(netModel);
+    boolean removalSuccessful = nets.remove(netModel);
     if (removalSuccessful) {
       publishNetCountDecrement();
     }

@@ -58,11 +58,7 @@ public class RemoveNetAction extends YAWLSelectedNetAction implements TooltipTog
   	  super.receiveSpecificationModelNotification(state);
   	} else {
       NetGraph graph = YAWLEditorDesktop.getInstance().getSelectedGraph();
-//  	  if (graph.getNetModel().isStartingNet()) {
         setEnabled((graph != null) && (! graph.getNetModel().isStartingNet()));
-//      } else {
-//        setEnabled(true);
-//      }
     }
   }
   

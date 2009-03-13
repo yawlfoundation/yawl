@@ -29,6 +29,8 @@ import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModelListener;
+import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.swing.net.YAWLEditorNetPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -180,14 +182,9 @@ class ViewNetAction extends AbstractAction {
   }
 
   public void actionPerformed(ActionEvent event) {
-//    if (net.getGraph().getFrame().isIcon()) {
-//      try {
-//        net.getGraph().getFrame().setIcon(false);
-//      } catch (Exception e) {};
-//    }
-//
-//    try {
-//      net.getGraph().getFrame().setSelected(true);
-//    } catch (Exception e) {};
+      YAWLEditorNetPanel frame = net.getGraph().getFrame();
+      if (frame != null) {
+          ((YAWLEditorDesktop) frame.getParent()).setSelectedComponent(frame);
+      }
   }
 }

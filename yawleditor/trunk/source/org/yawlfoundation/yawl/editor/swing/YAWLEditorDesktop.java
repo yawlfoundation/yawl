@@ -30,9 +30,11 @@ import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListen
 import org.yawlfoundation.yawl.editor.swing.net.YAWLEditorNetPanel;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 
-public class YAWLEditorDesktop extends JTabbedPane {
+public class YAWLEditorDesktop extends JTabbedPane implements ChangeListener {
 
   /**
    *
@@ -44,6 +46,7 @@ public class YAWLEditorDesktop extends JTabbedPane {
 
    private YAWLEditorDesktop() {
      super();
+     addChangeListener(this);  
    }
 
     public static YAWLEditorDesktop getInstance( ) {
@@ -75,23 +78,22 @@ public class YAWLEditorDesktop extends JTabbedPane {
 
 
   public void removeActiveNet() {
-      YAWLEditorNetPanel f = (YAWLEditorNetPanel) getSelectedComponent();
-      if ((f != null) && (! f.getNet().getNetModel().isStartingNet())) {
-        remove(f);
+      YAWLEditorNetPanel frame = (YAWLEditorNetPanel) getSelectedComponent();
+      if ((frame != null) && (! frame.getNet().getNetModel().isStartingNet())) {
+        frame.removeFromSpecification();
+        remove(frame);
       }
   }
 
 
-  public void closeAllNets() {
-    Component[] frames = getComponents();
-    System.out.println("Length: " + frames.length);
-    for(int i = 0; i < frames.length; i++) {
-        ((YAWLEditorNetPanel) frames[i]).resetFrame();
-        remove(frames[i]);
-        System.out.println("removed: " + i );
-    }
-  }
+    public void closeAllNets() {
+        Component[] frames = getComponents();
 
+        for(int i = 0; i < frames.length; i++) {
+            ((YAWLEditorNetPanel) frames[i]).resetFrame();
+            remove(frames[i]);
+        }
+    }
 
 
   private void updateState() {
@@ -104,7 +106,8 @@ public class YAWLEditorDesktop extends JTabbedPane {
     try {
       getSelectedGraph().getSelectionListener().forceActionUpdate();
       getSelectedGraph().getCancellationSetModel().refresh();
-    } catch (Exception e) {}
+    }
+    catch (Exception e) {}
   }
 
     
@@ -114,5 +117,9 @@ public class YAWLEditorDesktop extends JTabbedPane {
       return frame.getNet();
     }
     return null;
+  }
+
+  public void stateChanged(ChangeEvent e) {
+      updateState();
   }
 }
