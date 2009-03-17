@@ -764,11 +764,15 @@ public class EngineGatewayImpl implements EngineGateway {
         }
 
         if (errorMessages.size() > 0) {
+            String status;
             StringBuffer errorMsg = new StringBuffer();
             errorMsg.append(OPEN_FAILURE);
             for (int i = 0; i < errorMessages.size(); i++) {
                 YVerificationMessage message = errorMessages.get(i);
-                errorMsg.append("<error>");
+                status =  message.getStatus().equals(YVerificationMessage.ERROR_STATUS) ?
+                    "error" : "warning";
+
+                errorMsg.append("<" + status + ">");
                 Object src = message.getSource();
                 if (src instanceof YTask) {
                     YDecomposition decomp = ((YTask) src).getDecompositionPrototype();
@@ -781,7 +785,9 @@ public class EngineGatewayImpl implements EngineGateway {
                 }
                 errorMsg.append("<message>").
                         append(message.getMessage()).
-                        append("</message></error>");
+                        append("</message>").
+                        append("</" + status + ">");
+
             }
             errorMsg.append(CLOSE_FAILURE);
             return errorMsg.toString();
