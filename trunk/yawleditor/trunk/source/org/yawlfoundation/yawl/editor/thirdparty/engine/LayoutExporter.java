@@ -137,6 +137,11 @@ public class LayoutExporter {
             xml.append(StringUtil.wrap(iconpath, "iconpath"));
 
         xml.append(writeAttributes(vertex));
+
+        String notes = vertex.getDesignNotes();
+        if ((notes != null) && (notes.length() > 0)) {
+            xml.append(StringUtil.wrap(notes, "notes"));
+        }
         xml.append("</vertex>");
         return xml.toString();
     }
