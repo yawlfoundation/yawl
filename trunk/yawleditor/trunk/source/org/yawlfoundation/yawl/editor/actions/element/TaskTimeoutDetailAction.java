@@ -89,8 +89,8 @@ public class TaskTimeoutDetailAction extends YAWLSelectedNetAction
     graph.clearSelection();
   }
   
-  public boolean shouldBeEnabled() {
-    return (task instanceof AtomicTask);
+  public boolean shouldBeEnabled() {     
+    return (task instanceof AtomicTask) && (task.getDecomposition() != null);
   }
 }
 

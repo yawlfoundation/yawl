@@ -45,6 +45,7 @@ public class VertexPopupMenu extends JPopupMenu {
   private YAWLPopupMenuItem manageResourcingItem;
   private YAWLPopupMenuItem dropTaskDecompositionItem;
   private YAWLPopupMenuItem customFormItem;
+  private YAWLPopupMenuItem setTimerItem;
 
   
   public VertexPopupMenu(YAWLCell cell, NetGraph graph) {
@@ -100,13 +101,9 @@ public class VertexPopupMenu extends JPopupMenu {
     
     if (vertex instanceof AtomicTask) {
       addSeparator();
-      add(
-          new YAWLPopupMenuItem(
-              new TaskTimeoutDetailAction(
-                  (AtomicTask) vertex, graph
-              )
-          )
-      );
+      setTimerItem = new YAWLPopupMenuItem(
+              new TaskTimeoutDetailAction((AtomicTask) vertex, graph));
+      add(setTimerItem);
     }
   }
 
@@ -271,6 +268,11 @@ public class VertexPopupMenu extends JPopupMenu {
         customFormItem.setEnabled(
             customFormItem.shouldBeEnabled()
         );
+      }
+          if (setTimerItem != null) {
+            setTimerItem.setEnabled(
+                setTimerItem.shouldBeEnabled()
+            );
       }
 
     }

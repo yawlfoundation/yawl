@@ -195,6 +195,8 @@ public class NetDecompositionUpdateDialog extends AbstractDoneDialog {
     labelField.setDecomposition(decomposition);
     oldLabel = decomposition.getLabel();
     dataVariablePanel.setVariables(decomposition.getVariables());
+    getDoneButton().setEnabled(
+            (labelField.getText() != null) && (labelField.getText().length() > 0));  
   }
   
   class LabelFieldDocumentListener implements KeyListener {
