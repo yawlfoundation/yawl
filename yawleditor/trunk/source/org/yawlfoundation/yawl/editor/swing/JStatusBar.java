@@ -36,7 +36,7 @@ public class JStatusBar extends JPanel {
 
   private static JLabel statusLabel = new JLabel();
 
-  private static JLabel modeLabel = new JLabel();  
+  private static JConnectionStatus modeIndicator = new JConnectionStatus();
 
   public static int APPARENTLY_INSTANT_MILLISECONDS = 50;
 
@@ -45,9 +45,6 @@ public class JStatusBar extends JPanel {
   private SecondUpdateThread secondUpdateThread;
 
   private String previousStatusText;
-
-  private String engineStatus = "Offline";
-  private String resourceStatus = "Offline";
 
 
   public JStatusBar() {
@@ -61,16 +58,8 @@ public class JStatusBar extends JPanel {
             BorderFactory.createEmptyBorder(0, 2, 0, 2)
         )
     );
-      modeLabel.setForeground(Color.DARK_GRAY);
-      modeLabel.setBorder(
-          BorderFactory.createCompoundBorder(
-              BorderFactory.createLoweredBevelBorder(),
-              BorderFactory.createEmptyBorder(0, 2, 0, 2)
-          )
-      );
-      modeLabel.setSize(70, 10);
-      modeLabel.setText("Online");
-    add(modeLabel, BorderLayout.WEST);
+
+    add(modeIndicator, BorderLayout.WEST);
     add(statusLabel, BorderLayout.CENTER);
     add(getProgressBar(), BorderLayout.EAST);
   }
@@ -89,17 +78,7 @@ public class JStatusBar extends JPanel {
   }
 
   public void setStatusMode(String component, boolean online) {
-      if (component.equals("engine")) {
-          engineStatus = getModeText(online);
-      }
-      else if (component.equals("resource")) {
-          resourceStatus = getModeText(online);
-      }
-      modeLabel.setText(engineStatus + "/" + resourceStatus);
-  }
-
-  private String getModeText(boolean online) {
-      return (online ? "Online" : "Offline");
+      modeIndicator.setStatusMode(component, online);
   }
 
 
@@ -152,7 +131,7 @@ public class JStatusBar extends JPanel {
         if (shouldReset) {
           return;
         }
-        updateStatusBarProgress((i * 10000) / (pausePasses * 100));
+        updateStatusBarProgress((i * 100) / (pausePasses));
         YAWLEditor.pause(APPARENTLY_INSTANT_MILLISECONDS);
       }
     }
