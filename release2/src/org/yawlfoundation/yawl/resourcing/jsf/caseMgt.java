@@ -440,9 +440,12 @@ public class caseMgt extends AbstractPageBean {
             fileContents = fileContents.substring(BOF, EOF + 19) ;         // trim file
             String handle = _sb.getSessionhandle() ;
             String result = _rm.uploadSpecification(fileContents, fileName, handle);
-            if (! _rm.successful(result))
-                msgPanel.error(msgPanel.format((result)));
-
+            if (! _rm.successful(result)) {
+                if (result.indexOf("<warning>") > -1)
+                    msgPanel.warn(msgPanel.format((result)));
+                else
+                    msgPanel.error(msgPanel.format((result)));
+            }
             _sb.refreshLoadedSpecs();
         }
         else msgPanel.error("The file '" + fileName + "' does not appear to be a " +

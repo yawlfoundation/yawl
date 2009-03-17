@@ -85,7 +85,7 @@ public class QueueSet implements Serializable {
     // queue must receive the child
     public void movetoStarted(WorkItemRecord parent, WorkItemRecord child) {
         String resStatus = parent.getResourceStatus();
-        if (resStatus != null) {                      // will be null if resoucing is SSS
+        if (resStatus != null) {                      // will be null if resourcing is SSS
             if (resStatus.equals(WorkItemRecord.statusResourceAllocated))
                 removeFromQueue(parent, WorkQueue.ALLOCATED);
             else

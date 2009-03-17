@@ -1027,6 +1027,7 @@
        <xs:element name="startpoint" type="yawl:LayoutPointType" minOccurs="0"/>
        <xs:element name="iconpath" type="xs:anyURI" minOccurs="0"/>
        <xs:element name="attributes" type="yawl:LayoutAttributesFactsType"/>
+       <xs:element name="notes" type="xs:string" minOccurs="0"/>
    </xs:sequence>
    <xs:attribute name="id" type="xs:NCName"/>
  </xs:complexType>
