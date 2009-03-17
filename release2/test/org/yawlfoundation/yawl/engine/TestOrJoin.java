@@ -13,6 +13,7 @@ import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.exceptions.*;
+import org.yawlfoundation.yawl.util.StringUtil;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -55,7 +56,7 @@ public class TestOrJoin extends TestCase {
         File yawlXMLFile = new File(fileURL.getFile());
         YSpecification specification = null;
         specification = (YSpecification) YMarshal.
-                            unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
+                            unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
         _engine = YEngine.getInstance();
         EngineClearer.clear(_engine);
 //todo AJH:Obsoltete ????
@@ -210,7 +211,7 @@ public class TestOrJoin extends TestCase {
         File yawlXMLFile2 = new File(fileURL2.getFile());
         YSpecification specification2 = null;
         specification2 = (YSpecification) YMarshal.
-                            unmarshalSpecifications(yawlXMLFile2.getAbsolutePath()).get(0);
+                            unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile2.getAbsolutePath())).get(0);
         _engine = YEngine.getInstance();
         EngineClearer.clear(_engine);
         _engine.loadSpecification(specification2);

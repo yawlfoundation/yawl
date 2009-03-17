@@ -231,7 +231,7 @@ public final class YSpecification implements Cloneable, YVerifiable {
     }
 
     public YDecomposition getDecomposition(String id) {
-        return (YDecomposition) _decompositions.get(id);
+        return _decompositions.get(id);
     }
 
 
@@ -245,17 +245,17 @@ public final class YSpecification implements Cloneable, YVerifiable {
     //#####################################################################################
     public List<YVerificationMessage> verify() {
         List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
-        for (Iterator iterator = _decompositions.values().iterator(); iterator.hasNext();) {
-            YDecomposition decomposition = (YDecomposition) iterator.next();
+        for (YDecomposition decomposition : _decompositions.values()) {
             messages.addAll(decomposition.verify());
         }
-        //check all nets are being used
-        //check that decomposition works
+
+        //check all nets are being used & that each decomposition works
         if (_rootNet != null) {
             messages.addAll(checkDecompositionUsage());
             messages.addAll(checkForInfiniteLoops());
             messages.addAll(checkForEmptyExecutionPaths());
-        } else {
+        }
+        else {
             messages.add(
                     new YVerificationMessage(this,
                             "Specifications must have a root net.",
@@ -267,25 +267,22 @@ public final class YSpecification implements Cloneable, YVerifiable {
     }
 
 
-    private List checkDataTypesValidity() {
-        List msgs = new ArrayList();
-        if(!_dataValidator.validateSchema())
-        {
-            for(String message : _dataValidator.getMessages())
-            {
+    private List<YVerificationMessage> checkDataTypesValidity() {
+        List<YVerificationMessage> msgs = new ArrayList<YVerificationMessage>();
+        if (!_dataValidator.validateSchema()) {
+            for (String message : _dataValidator.getMessages()) {
                 msgs.add(new YVerificationMessage(this,message,YVerificationMessage.ERROR_STATUS));
-                }
             }
+        }
         return msgs;
     }
 
 
-    private List checkForEmptyExecutionPaths() {
-        List messages = new ArrayList();
-        for (Iterator iterator = _decompositions.values().iterator(); iterator.hasNext();) {
-            YDecomposition decomposition = (YDecomposition) iterator.next();
+    private List<YVerificationMessage> checkForEmptyExecutionPaths() {
+        List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
+        for (YDecomposition decomposition : _decompositions.values()) {
             if (decomposition instanceof YNet) {
-                Set visited = new HashSet();
+                Set<YCondition> visited = new HashSet<YCondition>();
                 visited.add(((YNet) decomposition).getInputCondition());
 
                 Set visiting = getEmptyPostsetAtThisLevel(visited);
@@ -321,13 +318,14 @@ public final class YSpecification implements Cloneable, YVerifiable {
     }
 
 
-    private List checkForInfiniteLoops() {
-        List messages = new ArrayList();
+    private List<YVerificationMessage> checkForInfiniteLoops() {
+        List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
         //check inifinite loops under rootnet and generate error messages
         Set relevantNets = new HashSet();
         relevantNets.add(_rootNet);
         Set relevantTasks = selectEmptyAndDecomposedTasks(relevantNets);
         messages.addAll(checkTheseTasksForInfiniteLoops(relevantTasks, false));
+        messages.addAll(checkForEmptyTasksWithTimerParams(relevantTasks));
         //check inifinite loops not under rootnet and generate warning messages
         Set netsBeingUsed = new HashSet();
         unfoldNetChildren(_rootNet, netsBeingUsed, null);
@@ -335,12 +333,13 @@ public final class YSpecification implements Cloneable, YVerifiable {
         relevantNets.removeAll(netsBeingUsed);
         relevantTasks = selectEmptyAndDecomposedTasks(relevantNets);
         messages.addAll(checkTheseTasksForInfiniteLoops(relevantTasks, true));
+        messages.addAll(checkForEmptyTasksWithTimerParams(relevantTasks));
         return messages;
     }
 
 
-    private List checkTheseTasksForInfiniteLoops(Set relevantTasks, boolean generateWarnings) {
-        List messages = new ArrayList();
+    private List<YVerificationMessage> checkTheseTasksForInfiniteLoops(Set relevantTasks, boolean generateWarnings) {
+        List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
         for (Iterator iterator = relevantTasks.iterator(); iterator.hasNext();) {
             YExternalNetElement q = (YExternalNetElement) iterator.next();
             Set visited = new HashSet();
@@ -360,6 +359,23 @@ public final class YSpecification implements Cloneable, YVerifiable {
                 visiting.removeAll(visited);
                 visited.addAll(visiting);
                 visiting = getEmptyTasksPostset(visiting);
+            }
+        }
+        return messages;
+    }
+
+
+    private List<YVerificationMessage> checkForEmptyTasksWithTimerParams(Set relevantTasks) {
+        List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
+        for (Iterator iterator = relevantTasks.iterator(); iterator.hasNext();) {
+            YTask task = (YTask) iterator.next();
+            if (task.getDecompositionPrototype() == null) {
+                if (task.getTimeParameters() != null) {
+                    messages.add(new YVerificationMessage( task,
+                            "The task (" + task + ") has timer settings but no " +
+                             "decomposition. The timer settings will be ignored at runtime.",
+                            YVerificationMessage.WARNING_STATUS));
+                }
             }
         }
         return messages;
@@ -405,8 +421,8 @@ public final class YSpecification implements Cloneable, YVerifiable {
     }
 
 
-    private List checkDecompositionUsage() {
-        List messages = new ArrayList();
+    private List<YVerificationMessage> checkDecompositionUsage() {
+        List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
         Set netsBeingUsed = new HashSet();
         unfoldNetChildren(_rootNet, netsBeingUsed, null);
         Set specifiedDecompositons = new HashSet(_decompositions.values());

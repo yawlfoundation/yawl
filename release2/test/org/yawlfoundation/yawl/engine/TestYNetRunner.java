@@ -16,6 +16,7 @@ import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.exceptions.*;
+import org.yawlfoundation.yawl.util.StringUtil;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -51,7 +52,7 @@ public class TestYNetRunner extends TestCase {
         File yawlXMLFile1 = new File(fileURL.getFile());
         YSpecification specification = null;
         specification = (YSpecification) YMarshal.
-                            unmarshalSpecifications(yawlXMLFile1.getAbsolutePath()).get(0);
+                            unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile1.getAbsolutePath())).get(0);
         YEngine engine2 = YEngine.getInstance();
         EngineClearer.clear(engine2);
         engine2.loadSpecification(specification);

@@ -9,14 +9,15 @@
 
 package org.yawlfoundation.yawl.unmarshal;
 
-import junit.framework.TestSuite;
-import junit.framework.TestCase;
 import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+import org.yawlfoundation.yawl.elements.YSpecVersion;
 
-import java.util.Date;
-import java.text.SimpleDateFormat;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * 
@@ -44,7 +45,7 @@ public class TestMetaDataMarshal extends TestCase{
         metaData.setTitle("Meta Data Test");
         metaData.setValidFrom(new Date());
         metaData.setValidUntil(new Date(new Date().getTime() + 86400000));
-        metaData.setVersion(1.1);
+        metaData.setVersion(new YSpecVersion("1.1"));
     }
 
     public void testToXML(){

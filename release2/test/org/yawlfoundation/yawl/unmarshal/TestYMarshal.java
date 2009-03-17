@@ -13,6 +13,7 @@ import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
+import org.yawlfoundation.yawl.util.StringUtil;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -50,7 +51,7 @@ public class TestYMarshal extends TestCase {
 
     public void setUp() throws YSyntaxException, IOException, YSchemaBuildingException, JDOMException {
         File specificationFile = new File(YMarshal.class.getResource("MakeRecordings.xml").getFile());
-        List specifications = YMarshal.unmarshalSpecifications(specificationFile.getAbsolutePath());
+        List specifications = YMarshal.unmarshalSpecifications(StringUtil.fileToString(specificationFile.getAbsolutePath()));
         _originalSpec = (YSpecification) specifications.iterator().next();
         String marshalledSpecs = YMarshal.marshal(specifications, _originalSpec.getSchemaVersion());
         File derivedSpecFile = new File(specificationFile.getParent() + File.separator + tempfileName);
@@ -63,7 +64,7 @@ public class TestYMarshal extends TestCase {
             e.printStackTrace();
         }
         _copy = (YSpecification) YMarshal.unmarshalSpecifications(
-                derivedSpecFile.getAbsolutePath()).iterator().next();
+                StringUtil.fileToString(derivedSpecFile.getAbsolutePath())).iterator().next();
         derivedSpecFile.delete();
         _originalXMLString = YMarshal.marshal(_originalSpec);
         _copyXMLString = YMarshal.marshal(_copy);
@@ -75,8 +76,8 @@ public class TestYMarshal extends TestCase {
 //        File specificationFile = new File(YMarshal.class.getResource("MakeRecordings.xml").getFile());
         File specificationFile = new File(YMarshal.class.getResource(tempfileName).getFile());
         List specifications = null;
-        specifications = YMarshal.unmarshalSpecifications(
-                specificationFile.getAbsolutePath());
+        specifications = YMarshal.unmarshalSpecifications(StringUtil.fileToString(
+                specificationFile.getAbsolutePath()));
         _originalSpec = (YSpecification) specifications.iterator().next();
         String marshalledSpecsString = YMarshal.marshal(specifications, _originalSpec.getSchemaVersion());
         SAXBuilder builder = new SAXBuilder();
@@ -96,7 +97,7 @@ System.out.println("marshalledSpecsString = " + marshalledSpecsString);
             e.printStackTrace();
         }
         _copy = (YSpecification) YMarshal.unmarshalSpecifications(
-                derivedSpecFile.getAbsolutePath()).iterator().next();
+                StringUtil.fileToString(derivedSpecFile.getAbsolutePath())).iterator().next();
 
         derivedSpecFile.delete();
         _originalXMLString = YMarshal.marshal(_originalSpec);

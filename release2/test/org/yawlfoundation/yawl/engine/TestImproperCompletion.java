@@ -9,21 +9,22 @@
 
 package org.yawlfoundation.yawl.engine;
 
-import org.yawlfoundation.yawl.elements.YSpecification;
-import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.unmarshal.YMarshal;
-import org.yawlfoundation.yawl.exceptions.*;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+import org.jdom.JDOMException;
+import org.yawlfoundation.yawl.elements.YSpecVersion;
+import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.elements.state.YIdentifier;
+import org.yawlfoundation.yawl.exceptions.*;
+import org.yawlfoundation.yawl.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Set;
-
-import org.jdom.JDOMException;
 
 /**
  /**
@@ -48,8 +49,8 @@ public class TestImproperCompletion extends TestCase{
         URL fileURL = getClass().getResource("TestImproperCompletion.xml");
         File yawlXMLFile = new File(fileURL.getFile());
         _specification = (YSpecification) YMarshal.
-                            unmarshalSpecifications(
-                                    yawlXMLFile.getAbsolutePath()).get(0);
+                            unmarshalSpecifications(StringUtil.fileToString(
+                                    yawlXMLFile.getAbsolutePath())).get(0);
 
         _engine = YEngine.getInstance();
     }
@@ -68,7 +69,8 @@ public class TestImproperCompletion extends TestCase{
         _engine.loadSpecification(_specification);
         _id = _engine.startCase(null, null, _specification.getID(), null, null);
         int numIter = 0;
-        Set s = _engine.getCasesForSpecification(new YSpecificationID("TestImproperCompletion", 0.1));
+        YSpecVersion version = new YSpecVersion();
+        Set s = _engine.getCasesForSpecification(new YSpecificationID("TestImproperCompletion", version));
 
         assertTrue("s = " + s, s.contains(_id));
         while (numIter < 10 && (_workItemRepository.getEnabledWorkItems().size() > 0 ||
@@ -95,7 +97,7 @@ public class TestImproperCompletion extends TestCase{
             }
             numIter ++;
         }
-        YSpecificationID ys = new YSpecificationID("TestImproperCompletion", 0.1);
+        YSpecificationID ys = new YSpecificationID("TestImproperCompletion", version);
         s = _engine.getCasesForSpecification(ys);
         assertTrue("s = " + s, s.contains(_id));
         _engine.cancelCase(_id);

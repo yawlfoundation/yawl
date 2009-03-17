@@ -35,7 +35,7 @@ public class TestYWorkItem extends TestCase{
         _identifier = new YIdentifier();
         _childIdentifier = _identifier.createChild(null);
         _workItemID = new YWorkItemID(_identifier, "task-123");
-        _workItem = new YWorkItem(null, new YSpecificationID("ASpecID", 0.1), _workItemID, true, false);
+        _workItem = new YWorkItem(null, new YSpecificationID("ASpecID"), _workItemID, true, false);
     }
 
 

@@ -14,6 +14,7 @@ import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.yawlfoundation.yawl.util.StringUtil;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -140,7 +141,7 @@ public class TestYMarking extends TestCase{
         File yawlXMLFile = new File(fileURL.getFile());
         YSpecification specification = null;
         specification = (YSpecification) YMarshal.
-                            unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
+                            unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
         _loopedNet  = specification.getRootNet();
         id = new YIdentifier();
         id.addLocation(null, (YCondition)_loopedNet.getNetElement("c{w_d}"));

@@ -17,6 +17,7 @@ import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.jdom.JDOMException;
 
 import java.io.IOException;
@@ -48,7 +49,7 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
         _specification = null;
 
         _specification = (YSpecification) YMarshal.
-                unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
+                unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
 
         _engine = YEngine.getInstance();
     }

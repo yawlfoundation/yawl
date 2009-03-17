@@ -22,6 +22,7 @@ import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
 import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +55,7 @@ public class TestCaseCancellation extends TestCase {
         URL fileURL = getClass().getResource("CaseCancellation.xml");
         File yawlXMLFile = new File(fileURL.getFile());
         _specification = (YSpecification) YMarshal.
-                    unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
+                    unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
 
         _engine.loadSpecification(_specification);
         URI serviceURI = new URI("mock://mockedURL/testingCaseCompletion");
@@ -79,6 +80,8 @@ public class TestCaseCancellation extends TestCase {
             }
             public void announceWorkItems(Announcements<NewWorkItemAnnouncement> a) {}
             public void announceTimerExpiry(YAWLServiceReference ys, YWorkItem i) {}
+            public void announceNotifyEngineInitialised(Set<YAWLServiceReference> ys) {}
+            public void announceNotifyCaseCancellation(Set<YAWLServiceReference> ys, YIdentifier i) {}
             public void announceCaseSuspended(YIdentifier id) {}
             public void announceCaseSuspending(YIdentifier id) {}
             public void announceCaseResumption(YIdentifier id) {}
