@@ -224,6 +224,9 @@ public class LayoutImporter {
             if (! attributeMap.isEmpty()) {
                 vertex.getAttributes().applyMap(attributeMap);
             }
+
+            String notes = e.getChildText("notes", _ns);
+            if (notes != null) vertex.setDesignNotes(notes);
         }
     }
 
