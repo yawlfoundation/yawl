@@ -19,9 +19,11 @@ package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 import com.sun.rave.web.ui.appbase.AbstractSessionBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.component.Calendar;
+import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
 import org.yawlfoundation.yawl.resourcing.jsf.SessionBean;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.application.Application;
 import javax.faces.component.UIComponent;
@@ -189,8 +191,7 @@ public class DynFormFactory extends AbstractSessionBean {
             String schema = getSchema();
             if (schema != null) {
                 String data = getInstanceData(schema) ;
-                _userAttributes =
-                        new DynFormUserAttributes(_displayedWIR.getAttributeTable());
+                _userAttributes = getUserAttributes();
                 DynFormFieldAssembler fieldAssembler =
                         new DynFormFieldAssembler(schema, data, getParamInfo());
                 buildForm(fieldAssembler);
@@ -220,8 +221,12 @@ public class DynFormFactory extends AbstractSessionBean {
         String result ;
         if (_sb.getDynFormType() == ApplicationBean.DynFormType.netlevel)
             result = _sb.getInstanceData(schema) ;
-        else
-            result = _sb.getInstanceData(schema, _displayedWIR);
+        else {
+            Element data = (_displayedWIR.getUpdatedData() != null) ?
+                            _displayedWIR.getUpdatedData() :
+                            _displayedWIR.getDataList();
+            result = JDOMUtil.elementToStringDump(data);
+        }
         return result;
     }
 
@@ -232,6 +237,16 @@ public class DynFormFactory extends AbstractSessionBean {
         else
             return ((ApplicationBean) getBean("ApplicationBean")).getWorkItemParams(_displayedWIR);
     }
+
+
+    private DynFormUserAttributes getUserAttributes() {
+        if (_sb.getDynFormType() == ApplicationBean.DynFormType.netlevel)
+            return null;
+        else
+            return new DynFormUserAttributes(_displayedWIR.getAttributeTable());
+    }
+
+
 
 
     private void buildForm(DynFormFieldAssembler fieldAssembler) {

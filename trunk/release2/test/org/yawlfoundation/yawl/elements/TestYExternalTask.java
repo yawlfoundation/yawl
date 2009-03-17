@@ -16,6 +16,7 @@ import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.YMessagePrinter;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
+import org.yawlfoundation.yawl.util.StringUtil;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -373,7 +374,7 @@ public class TestYExternalTask extends TestCase{
         YSpecification specification = null;
 
         specification = (YSpecification) YMarshal.
-                        unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
+                        unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
 
         List verificationList = specification.verify();
         String verificationResult = YMessagePrinter.getMessageString(verificationList);

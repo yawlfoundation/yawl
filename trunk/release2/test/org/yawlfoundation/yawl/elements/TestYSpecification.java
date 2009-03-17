@@ -9,21 +9,21 @@
 
 package org.yawlfoundation.yawl.elements;
 
-import org.yawlfoundation.yawl.unmarshal.YMarshal;
-import org.yawlfoundation.yawl.util.YMessagePrinter;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
-import org.yawlfoundation.yawl.exceptions.YSyntaxException;
-import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+import org.jdom.JDOMException;
+import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
+import org.yawlfoundation.yawl.exceptions.YSyntaxException;
+import org.yawlfoundation.yawl.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.YMessagePrinter;
+import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
-import org.jdom.JDOMException;
 
 /**
  * 
@@ -52,15 +52,15 @@ public class TestYSpecification extends TestCase {
     public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException {
         File specificationFile = new File(YMarshal.class.getResource("MakeRecordings.xml").getFile());
         List specifications = null;
-        specifications = YMarshal.unmarshalSpecifications(specificationFile.getAbsolutePath());
+        specifications = YMarshal.unmarshalSpecifications(StringUtil.fileToString(specificationFile.getAbsolutePath()));
 
         _originalSpec = (YSpecification) specifications.iterator().next();
         File file1 = new File(getClass().getResource("GoodNetSpecification.xml").getFile());
         File file2 = new File(getClass().getResource("BadNetSpecification.xml").getFile());
         File file3 = new File(getClass().getResource("infiniteDecomps.xml").getFile());
-        _goodSpecification = (YSpecification) YMarshal.unmarshalSpecifications(file1.getAbsolutePath()).get(0);
-        _badSpecification = (YSpecification) YMarshal.unmarshalSpecifications(file2.getAbsolutePath()).get(0);
-        _infiniteLoops = (YSpecification) YMarshal.unmarshalSpecifications(file3.getAbsolutePath()).get(0);
+        _goodSpecification = (YSpecification) YMarshal.unmarshalSpecifications(StringUtil.fileToString(file1.getAbsolutePath())).get(0);
+        _badSpecification = (YSpecification) YMarshal.unmarshalSpecifications(StringUtil.fileToString(file2.getAbsolutePath())).get(0);
+        _infiniteLoops = (YSpecification) YMarshal.unmarshalSpecifications(StringUtil.fileToString(file3.getAbsolutePath())).get(0);
         spec = new YSpecification("something");
     }
 

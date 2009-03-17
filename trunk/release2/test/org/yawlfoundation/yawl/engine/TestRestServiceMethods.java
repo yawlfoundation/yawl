@@ -9,23 +9,23 @@
 
 package org.yawlfoundation.yawl.engine;
 
-import org.yawlfoundation.yawl.elements.YTask;
-import org.yawlfoundation.yawl.elements.YSpecification;
-import org.yawlfoundation.yawl.unmarshal.YMarshal;
-import org.yawlfoundation.yawl.exceptions.YSyntaxException;
-import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
-import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.yawlfoundation.yawl.exceptions.YEngineStateException;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+import org.jdom.JDOMException;
+import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.elements.YTask;
+import org.yawlfoundation.yawl.exceptions.YEngineStateException;
+import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
+import org.yawlfoundation.yawl.exceptions.YSyntaxException;
+import org.yawlfoundation.yawl.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-
-import org.jdom.JDOMException;
 
 /**
  * 
@@ -51,9 +51,9 @@ public class TestRestServiceMethods extends TestCase{
         File mmFile = new File(makeMusic.getFile());
         File mm2File = new File(makeMusic2.getFile());
         _specification = (YSpecification) YMarshal.
-                unmarshalSpecifications(mmFile.getAbsolutePath()).get(0);
+                unmarshalSpecifications(StringUtil.fileToString(mmFile.getAbsolutePath())).get(0);
         _specification2 = (YSpecification) YMarshal.
-                unmarshalSpecifications(mm2File.getAbsolutePath()).get(0);
+                unmarshalSpecifications(StringUtil.fileToString(mm2File.getAbsolutePath())).get(0);
         _engine = YEngine.getInstance();
         EngineClearer.clear(_engine);
         _engine.loadSpecification(_specification);
@@ -68,7 +68,7 @@ public class TestRestServiceMethods extends TestCase{
     }
 
     public void testGetTaskWithoutSpecification(){
-        YTask task = _engine.getTaskDefinition(new YSpecificationID("badSpecName", 0.1), "irrelevant");
+        YTask task = _engine.getTaskDefinition(new YSpecificationID("badSpecName"), "irrelevant");
         assertTrue(task == null);
     }
 

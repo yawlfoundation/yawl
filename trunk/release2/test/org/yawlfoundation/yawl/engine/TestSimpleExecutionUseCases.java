@@ -9,21 +9,21 @@
 
 package org.yawlfoundation.yawl.engine;
 
-import org.yawlfoundation.yawl.elements.YSpecification;
-import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.unmarshal.YMarshal;
-import org.yawlfoundation.yawl.exceptions.*;
-import junit.framework.TestCase;
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+import org.jdom.JDOMException;
+import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.elements.state.YIdentifier;
+import org.yawlfoundation.yawl.exceptions.*;
+import org.yawlfoundation.yawl.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Set;
-
-import org.jdom.JDOMException;
 
 /**
  * 
@@ -48,7 +48,7 @@ public class TestSimpleExecutionUseCases extends TestCase{
         _workItemRepository = YWorkItemRepository.getInstance();
         YSpecification specification = null;
         specification = (YSpecification) YMarshal.
-                        unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
+                        unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
         _engine = YEngine.getInstance();
         EngineClearer.clear(_engine);
         _engine.loadSpecification(specification);

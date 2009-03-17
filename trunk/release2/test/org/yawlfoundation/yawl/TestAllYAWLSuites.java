@@ -9,7 +9,6 @@
 
 package org.yawlfoundation.yawl;
 
-import org.yawlfoundation.yawl.admintool.AdminToolTestSuite;
 import org.yawlfoundation.yawl.authentication.AuthenticationTestSuite;
 import org.yawlfoundation.yawl.elements.ElementsTestSuite;
 import org.yawlfoundation.yawl.elements.state.StateTestSuite;
@@ -39,7 +38,6 @@ public class TestAllYAWLSuites extends TestSuite{
 
     public static Test suite(){
         TestSuite suite = new TestSuite();
-        suite.addTest(AdminToolTestSuite.suite());
         suite.addTest(ElementsTestSuite.suite());
         suite.addTest(StateTestSuite.suite());
         suite.addTest(EngineTestSuite.suite());
@@ -49,7 +47,6 @@ public class TestAllYAWLSuites extends TestSuite{
         suite.addTest(UnmarshallerTestSuite.suite());
         suite.addTest(UtilTestSuite.suite());
         suite.addTest(org.yawlfoundation.yawl.swingWorklist.WorklistTestSuite.suite());
-        suite.addTest(org.yawlfoundation.yawl.worklist.WorklistTestSuite.suite());
         suite.addTest(AuthenticationTestSuite.suite());
         return suite;
     }

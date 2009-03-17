@@ -9,24 +9,24 @@
 
 package org.yawlfoundation.yawl.elements.state;
 
-import org.yawlfoundation.yawl.elements.YAtomicTask;
-import org.yawlfoundation.yawl.elements.YTask;
-import org.yawlfoundation.yawl.elements.YNet;
-import org.yawlfoundation.yawl.elements.YSpecification;
-import org.yawlfoundation.yawl.unmarshal.YMarshal;
-import org.yawlfoundation.yawl.exceptions.YSyntaxException;
-import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+import org.jdom.JDOMException;
+import org.yawlfoundation.yawl.elements.YAtomicTask;
+import org.yawlfoundation.yawl.elements.YNet;
+import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.elements.YTask;
+import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
+import org.yawlfoundation.yawl.exceptions.YSyntaxException;
+import org.yawlfoundation.yawl.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
-
-import org.jdom.JDOMException;
 
 /**
  * 
@@ -51,22 +51,22 @@ public class TestYOrJoinUtils extends TestCase{
         File yawlXMLFile = new File(fileURL.getFile());
         YSpecification specification = null;
         specification = (YSpecification) YMarshal.
-                        unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
+                        unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
         _net  = specification.getRootNet();
         fileURL = getClass().getResource("YAWLOrJoinTestSpecification2.xml");
         yawlXMLFile = new File(fileURL.getFile());
         specification =(YSpecification) YMarshal.
-                    unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
+                    unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
         _net2  = specification.getRootNet();
         fileURL = getClass().getResource("YAWLOrJoinTestSpecificationWithLoop.xml");
         yawlXMLFile = new File(fileURL.getFile());
         specification =(YSpecification) YMarshal.
-                    unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
+                    unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
         _net3  = specification.getRootNet();
         fileURL = getClass().getResource("YAWLOrJoinTestSpecificationLongLoops.xml");
         yawlXMLFile = new File(fileURL.getFile());
             specification =(YSpecification) YMarshal.
-                    unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
+                    unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
         _net4  = specification.getRootNet();
     }
 

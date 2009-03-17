@@ -9,15 +9,15 @@
 
 package org.yawlfoundation.yawl.elements;
 
-import org.yawlfoundation.yawl.exceptions.YSyntaxException;
-import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
-import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import junit.framework.TestCase;
+import org.jdom.JDOMException;
+import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
+import org.yawlfoundation.yawl.exceptions.YSyntaxException;
+import org.yawlfoundation.yawl.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
-
-import org.jdom.JDOMException;
 
 /**
  * 
@@ -41,8 +41,8 @@ public class TestDataParsing extends TestCase {
         Exception d = null;
         try {
             File file1 = new File(getClass().getResource("duplicateDataSpecification.xml").getFile());
-            _badSpecification = (YSpecification) YMarshal.unmarshalSpecifications(
-                    file1.getAbsolutePath()).get(0);
+            _badSpecification = (YSpecification) YMarshal.unmarshalSpecifications(StringUtil.fileToString(
+                    file1.getAbsolutePath())).get(0);
         } catch (YSyntaxException e) {
             d = e;
         }

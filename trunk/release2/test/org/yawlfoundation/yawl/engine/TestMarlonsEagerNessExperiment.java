@@ -9,16 +9,16 @@
 
 package org.yawlfoundation.yawl.engine;
 
+import org.jdom.JDOMException;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.exceptions.*;
+import org.yawlfoundation.yawl.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-
-import org.jdom.JDOMException;
 
 /**
  /**
@@ -39,7 +39,7 @@ public class TestMarlonsEagerNessExperiment {
         File yawlXMLFile = new File(fileURL.getFile());
         YSpecification specification = null;
         specification = (YSpecification) YMarshal.
-                        unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
+                        unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
         YEngine engine2 = YEngine.getInstance();
         engine2.loadSpecification(specification);
         _idForTopNet = engine2.startCase(null, null, specification.getID(), null, null);

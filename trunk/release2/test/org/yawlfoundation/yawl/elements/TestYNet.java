@@ -9,19 +9,21 @@
 
 package org.yawlfoundation.yawl.elements;
 
-import org.yawlfoundation.yawl.elements.state.TestYMarking;
-import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.engine.TestEngineAgainstImproperCompletionOfASubnet;
-import org.yawlfoundation.yawl.unmarshal.YMarshal;
-import org.yawlfoundation.yawl.util.YMessagePrinter;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
-import org.yawlfoundation.yawl.exceptions.YSyntaxException;
-import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
-import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+import org.jdom.JDOMException;
+import org.yawlfoundation.yawl.elements.state.TestYMarking;
+import org.yawlfoundation.yawl.elements.state.YIdentifier;
+import org.yawlfoundation.yawl.engine.TestEngineAgainstImproperCompletionOfASubnet;
+import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
+import org.yawlfoundation.yawl.exceptions.YSyntaxException;
+import org.yawlfoundation.yawl.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.YMessagePrinter;
+import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,8 +31,6 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.jdom.JDOMException;
 
 /**
  * @author aldredl
@@ -64,10 +64,10 @@ public class TestYNet extends TestCase {
         File file2 = new File(getClass().getResource("BadNetSpecification.xml").getFile());
         YSpecification specification1 = null;
 
-        specification1 = (YSpecification) YMarshal.unmarshalSpecifications(file1.getAbsolutePath()).get(0);
+        specification1 = (YSpecification) YMarshal.unmarshalSpecifications(StringUtil.fileToString(file1.getAbsolutePath())).get(0);
 
 
-        _badSpecification = (YSpecification) YMarshal.unmarshalSpecifications(file2.getAbsolutePath()).get(0);
+        _badSpecification = (YSpecification) YMarshal.unmarshalSpecifications(StringUtil.fileToString(file2.getAbsolutePath())).get(0);
 
         _goodNet = specification1.getRootNet();
         _badNet = _badSpecification.getRootNet();
@@ -77,7 +77,7 @@ public class TestYNet extends TestCase {
         File yawlXMLFile = new File(fileURL.getFile());
         YSpecification specification = null;
         specification = (YSpecification) YMarshal.
-                        unmarshalSpecifications(yawlXMLFile.getAbsolutePath()).get(0);
+                        unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
         _loopedNet = specification.getRootNet();
         _id1 = new YIdentifier();
 
@@ -112,7 +112,7 @@ public class TestYNet extends TestCase {
                 "ImproperCompletion.xml").getFile());
         try {
             _weirdSpecification = (YSpecification) YMarshal.unmarshalSpecifications(
-                    file3.getAbsolutePath()).get(0);
+                    StringUtil.fileToString(file3.getAbsolutePath())).get(0);
         } catch (YSyntaxException e) {
             e.printStackTrace();
         }
@@ -200,7 +200,7 @@ public class TestYNet extends TestCase {
     public void testCloneWithNewDataModel() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException {
         File specificationFile = new File(YMarshal.class.getResource("MakeRecordings.xml").getFile());
         List specifications = null;
-        specifications = YMarshal.unmarshalSpecifications(specificationFile.getAbsolutePath());
+        specifications = YMarshal.unmarshalSpecifications(StringUtil.fileToString(specificationFile.getAbsolutePath()));
         YSpecification originalSpec = (YSpecification) specifications.iterator().next();
         YNet originalNet = originalSpec.getRootNet();
         YNet clonedNet = null;

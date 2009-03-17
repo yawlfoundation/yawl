@@ -37,7 +37,7 @@ public class TestWorklistController extends TestCase{
                 "</outputParam>" +
                 "</params></taskInfo></response>";
         TaskInformation taskinfo =
-                InterfaceB_EnvironmentBasedClient.
+                new InterfaceB_EnvironmentBasedClient("").
                 parseTaskInformation(thestring);
         assertTrue(taskinfo != null);
     }

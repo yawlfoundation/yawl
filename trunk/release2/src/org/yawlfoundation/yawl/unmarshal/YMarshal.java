@@ -131,12 +131,6 @@ public class YMarshal {
         xml.append("</specificationSet>");
 
         return JDOMUtil.formatXMLStringAsDocument(xml.toString());
-//        SAXBuilder builder = new SAXBuilder();
-//        Document finalDoc = null;
-//
-//        finalDoc = builder.build(new StringReader(xml.toString()));
-//        XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
-//        return out.outputString(finalDoc);
     }
 
 
