@@ -163,7 +163,6 @@
              basedir="${build.dir}"
              manifest="${manifestFile}"
              excludes="**/Test*.class" />
- 
         <delete file="${manifestFile}" />
     </target>
 

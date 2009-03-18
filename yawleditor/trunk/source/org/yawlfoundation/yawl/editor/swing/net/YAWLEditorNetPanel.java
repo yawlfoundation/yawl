@@ -138,7 +138,7 @@ public class YAWLEditorNetPanel extends JPanel {
         this.title = title;
         YAWLEditorDesktop parent = (YAWLEditorDesktop) this.getParent();
         if (parent != null) {
-            int index = parent.getSelectedIndex();
+            int index = parent.indexOfComponent(this);
             if (index > -1) {
                 parent.setTitleAt(index, title);
             }

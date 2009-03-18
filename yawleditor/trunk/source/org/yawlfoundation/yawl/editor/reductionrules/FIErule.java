@@ -22,11 +22,11 @@
  
 package org.yawlfoundation.yawl.editor.reductionrules;
 
-import org.yawlfoundation.yawl.elements.*;
-import java.util.Map;
+import org.yawlfoundation.yawl.elements.YExternalNetElement;
+import org.yawlfoundation.yawl.elements.YNet;
+import org.yawlfoundation.yawl.elements.YTask;
+
 import java.util.Set;
-import java.util.HashSet;
-import java.util.Iterator;
 
 /**
  * Reduction rule for YAWL net with OR-joins: FOR rule
@@ -40,50 +40,47 @@ public class FIErule extends YAWLReductionRule{
     * @element an  for consideration.
     * returns a reduced YNet or null if a given net cannot be reduced.
     */
-    
+
     public YNet reduceElement(YNet net, YExternalNetElement nextElement){
-      YNet reducedNet = net;
-      boolean isReducible = false;
-      if (nextElement instanceof YTask){
-        YTask task = (YTask) nextElement;
-        //ORjoin 
-        if (task.getJoinType() == YTask._OR) 
-        {   //all inputs to ORjoin - preSet
-            Set preSet = new HashSet(task.getPresetElements());
-            //from two or more places
-            if (preSet.size() >=  2)
-           { //all input tasks to these places
-             Set preSetTasks = YNet.getPreset(preSet);      
-             Iterator preEls = preSetTasks.iterator();
-             while (preEls.hasNext()) {
-              YTask t = (YTask) preEls.next();
-              Set postSetOft = t.getPostsetElements();
-              
-              preSet.retainAll(postSetOft);
-              
-              //task has more than one input to ORjoin 
-             if (preSet.size()>1 && checkEqualConditions(preSet))
-              { //remove common places except 1
-              	 Iterator commonInputsIter = preSet.iterator();
-                 YExternalNetElement firstCommonPlace = (YExternalNetElement) commonInputsIter.next();
-                 while (commonInputsIter.hasNext())
-                 { YExternalNetElement commonPlace = (YExternalNetElement) commonInputsIter.next();
-                   reducedNet.removeNetElement(commonPlace);
-                   task.addToYawlMappings(commonPlace);
-                   task.addToYawlMappings(commonPlace.getYawlMappings());
-                   isReducible = true;
-                 }	
-              }
-             if (isReducible)
-            { 
-            	return reducedNet;
-            }                    
-           }//while  
-        } //endif N>=2 
-       }  //endif - OR-join
-	} //endif - task
-   return null;
-} 
+        YNet reducedNet = net;
+        boolean isReducible = false;
+
+        if (nextElement instanceof YTask) {
+            YTask task = (YTask) nextElement;
+            if (task.getJoinType() == YTask._OR)  {     // each task that has an or join
+
+                // get all the input places to this OR join
+                Set<YExternalNetElement> preSet = task.getPresetElements();
+                if (preSet.size() >= 2) {
+
+                    // get all the input tasks to these places
+                    Set preSetTasks = YNet.getPreset(preSet);
+                    for (Object o : preSetTasks) {
+                        YTask t = (YTask) o;
+                        Set postSetOft = t.getPostsetElements();
+
+                        preSet.retainAll(postSetOft);
+
+                        //task has more than one input to ORjoin
+                        //remove common places except 2
+                        if (preSet.size() > 2 && checkEqualConditions(preSet)) {
+                            Object[] preSets = preSet.toArray();
+                            for (int i=2; i<preSets.length; i++) {
+                                YExternalNetElement commonPlace =
+                                        (YExternalNetElement) preSets[i];
+                                reducedNet.removeNetElement(commonPlace);
+                                task.addToYawlMappings(commonPlace);
+                                task.addToYawlMappings(commonPlace.getYawlMappings());
+                                isReducible = true;
+                            }
+                        }
+                        if (isReducible) return reducedNet;
+                    } // for
+                } // endif N>=2
+            }  //endif - OR-join
+        } //endif - task
+        return null;
+    }
 
 
 }
