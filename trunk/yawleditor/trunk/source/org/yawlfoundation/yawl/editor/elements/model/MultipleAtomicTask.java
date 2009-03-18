@@ -24,10 +24,10 @@
 
 package org.yawlfoundation.yawl.editor.elements.model;
 
-import java.awt.geom.Point2D;
-
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
+
+import java.awt.geom.Point2D;
 
 public class MultipleAtomicTask extends YAWLTask 
           implements YAWLMultipleInstanceTask, YAWLAtomicTask {

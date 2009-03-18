@@ -80,8 +80,10 @@ public class YAWLEditorDesktop extends JTabbedPane implements ChangeListener {
   public void removeActiveNet() {
       YAWLEditorNetPanel frame = (YAWLEditorNetPanel) getSelectedComponent();
       if ((frame != null) && (! frame.getNet().getNetModel().isStartingNet())) {
-        frame.removeFromSpecification();
-        remove(frame);
+          if (removeNetConfirmed()) {
+              frame.removeFromSpecification();
+              remove(frame);
+          }
       }
   }
 
@@ -108,6 +110,18 @@ public class YAWLEditorDesktop extends JTabbedPane implements ChangeListener {
       getSelectedGraph().getCancellationSetModel().refresh();
     }
     catch (Exception e) {}
+  }
+
+
+  private boolean removeNetConfirmed() {
+      Object[] choices = {"Remove Net", "Cancel"};
+      int selection = JOptionPane.showOptionDialog(this,
+          "This will permanently remove the selected Net from the\n" +
+          "Specification and cannot be undone. Are you sure?",
+          "Remove Selected Net", JOptionPane.YES_NO_OPTION,
+          JOptionPane.WARNING_MESSAGE, null, choices, choices[1]);
+
+      return selection == 0 ;
   }
 
     

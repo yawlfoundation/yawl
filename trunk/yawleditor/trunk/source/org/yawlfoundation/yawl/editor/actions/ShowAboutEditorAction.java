@@ -87,12 +87,14 @@ class AboutEditorDialog extends AbstractDoneDialog {
         "The editor incorporates and/or uses components of the following tools:" +
         "<ul>" +
             "<li>YAWL Engine @CompatibleEngineReleaseNumber@"+
+            "<li>YAWL Resource Service @CompatibleEngineReleaseNumber@"+
             "<li>JGraph @JGraphReleaseNumber@"+
             "<li>WofYAWL @WofYawlReleaseNumber@</ul>" +
+
         "This version of the editor requires:" +
         "<ul>" +
-          "<li>Java @CompatibleJavaReleaseNumber@ or later"+
-          "<li>YAWL Engine @CompatibleEngineReleaseNumber@</ul>" +
+          "<li>Java @CompatibleJavaReleaseNumber@ or later</ul>"+
+
         "Contributors to the editor source code:" +
         "<ul><li>@EditorContributors@</ul>" +
          "<br><center>Build Date: @BuildDate@</center>" +   
