@@ -202,7 +202,7 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
       if (getAtomicTask().getTimeoutDetail().getTimeoutVariable() != null) {
         this.viaNetVariableRadioButton.setSelected(true);
         this.timerVariableComboBox.setSelectedItem(
-            getAtomicTask().getTimeoutDetail().getTimeoutVariable()
+            getAtomicTask().getTimeoutDetail().getTimeoutVariable().getName()
         );
       }
       else {
