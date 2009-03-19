@@ -3,7 +3,7 @@
 
     <!-- ========================== Properties ================================= -->
 
-    <property name="app.version" value="_Release_2.0_RC1"/>
+    <property name="app.version" value="_2.0_RC1"/>
     <property name="developer.name" value="Lachlan Aldred, Michael Adams, Andrew Hastie,
                                            Mike Fowler, Matt Flaherty et al."/>
 
@@ -419,6 +419,7 @@
                            value="org/yawlfoundation/yawl/engine/gui/TabbedEngineGUI"/>
             </manifest>
         </jar>
+        <checksum file="${output.dir}/YAWL${app.version}_Standalone.jar"/>
         <delete dir="${enumeratedClasses}"/>
     </target>
 
@@ -455,6 +456,7 @@
         <jar destfile="${output.dir}/YAWL${app.version}_SourceAndTestCode.zip">
             <fileset dir="${output.dir}/engine"/>
         </jar>
+        <checksum file="${output.dir}/YAWL${app.version}_SourceAndTestCode.zip"/>
         <delete dir="${output.dir}/engine"/>
     </target>
 
@@ -544,6 +546,7 @@
         <jar destfile="${output.dir}/yawl.war">
             <fileset dir="${yawl.eng.app.name}"/>
         </jar>
+        <checksum file="${output.dir}/yawl.war"/>
         <delete dir="${yawl.eng.app.name}"/>
     </target>
 
@@ -740,6 +743,7 @@
         <jar destfile="${output.dir}/${yawl.webService.app.name}.war">
             <fileset dir="${yawl.webService.app.name}"/>
         </jar>
+        <checksum file="${output.dir}/${yawl.webService.app.name}.war"/>
         <delete dir="${yawl.webService.app.name}"/>
     </target>
 
@@ -806,6 +810,7 @@
         <jar destfile="${output.dir}/${yawl.smsService.app.name}.war">
             <fileset dir="${yawl.smsService.app.name}"/>
         </jar>
+        <checksum file="${output.dir}/${yawl.smsService.app.name}.war"/>
         <delete dir="${yawl.smsService.app.name}"/>
     </target>
 
@@ -995,6 +1000,7 @@
         <jar destfile="${output.dir}/workletService.war">
             <fileset dir="${yawl.worklet.app.name}"/>
         </jar>
+        <checksum file="${output.dir}/workletService.war"/>
 
         <!-- 7. Remove temp build area -->
         <delete dir="${yawl.worklet.app.name}"/>
@@ -1128,6 +1134,7 @@
         <jar destfile="${output.dir}/${yawl.resource.app.name}.war">
             <fileset dir="${yawl.resource.app.name}"/>
         </jar>
+        <checksum file="${output.dir}/${yawl.resource.app.name}.war"/>
 
         <!-- 7. Remove temp build area -->
         <delete dir="${yawl.resource.app.name}"/>
@@ -1135,7 +1142,7 @@
     </target>
 
 
-    <!-- Build the resourceService war file  -->
+    <!-- Build the monitorService war file  -->
     <target name="build_monitorService.war" depends="compile">
 
         <!-- 1. Copy required yawl classes into dir structure -->
@@ -1239,6 +1246,7 @@
         <jar destfile="${output.dir}/${yawl.monitor.app.name}.war">
             <fileset dir="${yawl.monitor.app.name}"/>
         </jar>
+        <checksum file="${output.dir}/${yawl.monitor.app.name}.war"/>
 
         <!-- 7. Remove temp build area -->
         <delete dir="${yawl.monitor.app.name}"/>
@@ -1385,6 +1393,7 @@
             <jar destfile="${output.dir}/${yawl.digitalSignature.app.name}.war">
                 <fileset dir="${yawl.digitalSignature.app.name}"/>
             </jar>
+            <checksum file="${output.dir}/${yawl.digitalSignature.app.name}.war"/>
             <delete dir="${yawl.digitalSignature.app.name}"/>
         </target>
 
@@ -1445,6 +1454,7 @@
                 <jar destfile="${output.dir}/${yawl.mailSender.app.name}.war">
                     <fileset dir="${yawl.mailSender.app.name}"/>
                 </jar>
+                <checksum file="${output.dir}/${yawl.mailSender.app.name}.war"/>
                 <delete dir="${yawl.mailSender.app.name}"/>
             </target>
 

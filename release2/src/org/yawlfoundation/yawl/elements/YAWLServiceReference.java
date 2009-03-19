@@ -94,20 +94,21 @@ public class YAWLServiceReference implements YVerifiable{
 
     /**
      * AJH: Extended message to conditionally include WSGateway ID.
-     */ 
+     */
     public List verify() {
         List messages = new ArrayList();
-        YEngine engine = YEngine.getInstance();
-        YAWLServiceReference service = engine.getRegisteredYawlService(_yawlServiceID);
-        if(service == null){
-            messages.add(
-                    new YVerificationMessage(
-                            this,
-                            "YAWL service[" + _yawlServiceID + "] " +
-                            (_webServiceGateway != null
-                             ? "at WSGateway[" + _webServiceGateway.getID() + "] "
-                             : " ") + "is not registered with engine.",
-                            YVerificationMessage.WARNING_STATUS));
+        if (YEngine.isRunning()) {
+            YEngine engine = YEngine.getInstance();
+            YAWLServiceReference service = engine.getRegisteredYawlService(_yawlServiceID);
+            if(service == null){
+                messages.add(new YVerificationMessage(
+                                this,
+                                "YAWL service[" + _yawlServiceID + "] " +
+                                 (_webServiceGateway != null
+                                     ? "at WSGateway[" + _webServiceGateway.getID() + "] "
+                                     : " ") + "is not registered with engine.",
+                                YVerificationMessage.WARNING_STATUS));
+            }
         }
         return messages;
     }

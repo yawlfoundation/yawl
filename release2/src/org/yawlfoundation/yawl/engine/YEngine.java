@@ -61,6 +61,7 @@ public class YEngine implements InterfaceADesign,
     // STATIC MEMBERS //
 
     // Engine statuses
+    public static final int ENGINE_STATUS_DORMANT = -1;
     public static final int ENGINE_STATUS_INITIALISING = 0;
     public static final int ENGINE_STATUS_RUNNING = 1;
     public static final int ENGINE_STATUS_TERMINATING = 2;
@@ -106,7 +107,7 @@ public class YEngine implements InterfaceADesign,
     private InterfaceAManagementObserver _interfaceAClient;
     private InterfaceBClientObserver _interfaceBClient;
     private final Object mutex = new Object();
-    private int engineStatus;
+    private int engineStatus = ENGINE_STATUS_DORMANT;
     private AnnouncementContext announcementContext;
     private boolean workItemsAnnounced = false;
     private ObserverGatewayController observerGatewayController = null;
@@ -192,6 +193,16 @@ public class YEngine implements InterfaceADesign,
             }
         }
         return _thisInstance;
+    }
+
+
+    /**
+     * Checks if the engine is currently running
+     * @return true if running, false otherwise
+     */
+    public static boolean isRunning() {
+        return (_thisInstance != null) &&
+               (_thisInstance.getEngineStatus() == YEngine.ENGINE_STATUS_RUNNING) ;
     }
 
 
