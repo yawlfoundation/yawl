@@ -131,7 +131,7 @@
     <property name="jsf-standard"          value="standard.jar"/>
     <property name="jsf-webui"             value="webui.jar"/>
     <property name="jta"                   value="jta-1.1.jar"/>
-    <property name="junit"                 value="junit.jar"/>
+    <property name="junit"                 value="junit-4.5.jar"/>
     <property name="log4j"                 value="log4j-1.2.14.jar"/>
     <property name="odmg"                  value="odmg-3.0.jar"/>
     <property name="optional"              value="optional-1_5_1.jar"/>
@@ -1591,7 +1591,7 @@
   	Compile test source code
     Compiles the source for test cases into the ${classes} directory.
   	-->
-    <target name="compile-test" depends="buildAll">
+    <target name="compile-test" depends="compile">
         <copy todir="${classes.dir}">
             <fileset dir="${test.dir}" excludes="**/*.java"/>
         </copy>
@@ -1617,6 +1617,27 @@
             <classpath refid="cp.xsd"/>
             <classpath refid="cp.persist"/>
         </java>
+    </target>
+
+    <target name="unitTest" depends="compile-test">
+        <junit printsummary="yes" fork="yes">
+            <classpath refid="cp.standard"/>
+            <classpath refid="cp.compile"/>
+            <classpath refid="cp.wsif"/>
+            <classpath refid="cp.xsd"/>
+            <classpath refid="cp.persist"/>
+            <classpath refid="cp.apacheCommons"/>
+            <classpath refid="cp.jsf"/>
+            <classpath refid="cp.ds"/>
+            <classpath refid="cp.mail"/>
+            <classpath>
+              <pathelement location="${lib.dir}/${junit}"/>
+              <pathelement path="${java.class.path}"/>
+              <pathelement path="${classes.dir}"/>
+            </classpath>
+            <formatter type="plain"/>
+            <test name="org.yawlfoundation.yawl.TestAllYAWLSuites"/>
+        </junit>
     </target>
 
 

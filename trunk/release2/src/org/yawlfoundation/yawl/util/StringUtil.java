@@ -20,7 +20,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.nio.CharBuffer;
 
 
 public class StringUtil
@@ -346,18 +345,25 @@ public class StringUtil
 
     public static String fileToString(File f) {
         if (f.exists()) {
-            CharBuffer charBuffer = CharBuffer.allocate(Math.abs((int) f.length()));
 
             try {
-                BufferedReader buf = new BufferedReader(new FileReader(f));
+                int bufsize = (int) f.length();
+                FileInputStream fis = new FileInputStream(f) ;
 
-                int read;
-                do {
-                    read = buf.read(charBuffer);
-                } while (read != -1 && buf.ready());
+                // read into buffered byte stream - to preserve UTF-8
+                BufferedInputStream inStream = new BufferedInputStream(fis);
+                ByteArrayOutputStream outStream = new ByteArrayOutputStream(bufsize);
+                byte[] buffer = new byte[bufsize];
 
-                charBuffer.position(0);
-                return charBuffer.toString();
+                // read chunks from the input stream and write them out
+                int bytesRead = 0;
+                while ((bytesRead = inStream.read(buffer, 0, bufsize)) > 0) {
+                    outStream.write(buffer, 0, bytesRead);
+                }
+                outStream.flush();
+
+                // convert the bytes to a UTF-8 string
+                return outStream.toString("UTF-8");
             }
             catch (Exception e) {
                 return null;

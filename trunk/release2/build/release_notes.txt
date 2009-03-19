@@ -1,7 +1,7 @@
-                   YAWL Release 2.0 (Release Candidate 1) 17/03/2009
+                   YAWL Release 2.0 (Release Candidate 1) 19/03/2009
                    =================================================
 
-This is the first release candidate the YAWL 2.0 Environment, and includes a
+This is the first release candidate of the YAWL 2.0 Environment, and includes a
 number of bug-fixes and enhancements. Please take the time to read the change list
 below and the previous 2.0 beta release notes further down the page.
 
@@ -177,6 +177,16 @@ QUICK START: After installation, start Tomcat and point a browser to
    instead of 'number(...)'.
  - Fixed a bug where, if a variable of a composite task was deleted, it was not actually
    removed from the net specification.
+ - Fixed a bug that prevented notes for tasks and conditions being saved with the
+   specification.
+ - Fixed a bug on the 'Set Timer' dialog, where the selected 'net parameter' would not
+   stick, so that it was always the first listed item that was displayed in the dropdown.
+ - Fixed a bug in the 'Services' combobox of the 'Task Decomposition' dialog where, if
+   the first and only item selected was 'Default Worklist', and there were other services
+   listed that preceded it alphabetically, then the selection would not stick the next
+   time the dialog was shown.
+ - Fixed a ClassCastException which occurred when analysing a net using reduction rules in
+   certain scenarios.
 
 (e) WORKLET SERVICE:
  - Ripple-down rules now also accept XPath/XQuery predicates as conditional expressions.
@@ -187,20 +197,24 @@ QUICK START: After installation, start Tomcat and point a browser to
 (f) INSTALLERS:
  - The properties for the Windows shortcut created to the Editor now explicitly starts
    'javaw.exe' instead of relying on the existing 'jar' file association.
-  - Fixed a bug where the Windows file association for compressed files was changed to be
-    associated the Editor.
+ - Fixed a bug where the Windows file association for compressed files was changed to be
+   associated the Editor.
 
 (g) NEW SERVICES:
-New Services:
- - digital Signature service.
- - mail sender service.
+ - Digital Signature Service: authenticates the information provided on a form using
+   a digital signature via x509 certificates and private keys.
+ - Mail Sender Service: provides a custom form for a workitem, from which an email can
+   be sent.
 
+                         #############################
 
     Please report any bugs or problems via the YAWL sourceforge page:
 
                      http://sourceforge.net/projects/yawl
 
+
  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 
  
                       YAWL Release 2.0 beta (Update 3) 18/11/2008

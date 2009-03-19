@@ -9,8 +9,6 @@
 
 package org.yawlfoundation.yawl.schema;
 
-import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
-import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -20,14 +18,17 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.xsd.*;
 import org.eclipse.xsd.impl.XSDModelGroupImpl;
 import org.eclipse.xsd.impl.XSDParticleImpl;
-import org.eclipse.xsd.util.XSDConstants;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
+import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 
 /**
@@ -320,28 +321,28 @@ public class TestXSD4YAWLBuilder extends TestCase {
 
 
 
-    public void testSimpleTypeCreation(){
-        try {
-            String [][] desiredElementNamesToTypes = new String[2][];
-            desiredElementNamesToTypes[0] = new String[]{"number",
-                                                         "integer",
-                                                         XSDConstants.SCHEMA_FOR_SCHEMA_URI_2001};
-            desiredElementNamesToTypes[1] = new String[]{"address",
-                                                         "string",
-                                                         XSDConstants.SCHEMA_FOR_SCHEMA_URI_2001};
-            XSDSchema schema =
-                    _xsd4YAWLBuilder.createYAWLSchema(
-                            desiredElementNamesToTypes,
-                            null,
-                            "data");
-            String schemaStr = XSDUtil.convertToString(schema);
-            assertTrue(schemaStr.indexOf("<xsd:element name=\"number\" type=\"xsd:integer\"/>") != -1);
-            assertTrue(schemaStr.indexOf("<xsd:element name=\"address\" type=\"xsd:string\"/>") != -1);
-        } catch (YSchemaBuildingException e) {
-            e.printStackTrace();
-            fail("The generated schema should not throw exceptions." + e.getMessage());
-        }
-    }
+//    public void testSimpleTypeCreation(){
+//        try {
+//            String [][] desiredElementNamesToTypes = new String[2][];
+//            desiredElementNamesToTypes[0] = new String[]{"number",
+//                                                         "integer",
+//                                                         XSDConstants.SCHEMA_FOR_SCHEMA_URI_2001};
+//            desiredElementNamesToTypes[1] = new String[]{"address",
+//                                                         "string",
+//                                                         XSDConstants.SCHEMA_FOR_SCHEMA_URI_2001};
+//            XSDSchema schema =
+//                    _xsd4YAWLBuilder.createYAWLSchema(
+//                            desiredElementNamesToTypes,
+//                            null,
+//                            "data");
+//            String schemaStr = XSDUtil.convertToString(schema);
+//            assertTrue(schemaStr.indexOf("<xsd:element name=\"number\" type=\"xsd:integer\"/>") != -1);
+//            assertTrue(schemaStr.indexOf("<xsd:element name=\"address\" type=\"xsd:string\"/>") != -1);
+//        } catch (YSchemaBuildingException e) {
+//            e.printStackTrace();
+//            fail("The generated schema should not throw exceptions." + e.getMessage());
+//        }
+//    }
 
 
 
