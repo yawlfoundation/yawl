@@ -185,6 +185,8 @@ QUICK START: After installation, start Tomcat and point a browser to
    the first and only item selected was 'Default Worklist', and there were other services
    listed that preceded it alphabetically, then the selection would not stick the next
    time the dialog was shown.
+ - Fixed a bug in the 'Services' combobox of the 'Task Decomposition' dialog where a
+   previously selected service would not initially be selected when the file was reopened.
  - Fixed a ClassCastException which occurred when analysing a net using reduction rules in
    certain scenarios.
 
