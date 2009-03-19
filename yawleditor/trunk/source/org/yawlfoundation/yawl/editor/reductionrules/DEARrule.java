@@ -23,11 +23,10 @@
 package org.yawlfoundation.yawl.editor.reductionrules;
 
 import org.yawlfoundation.yawl.editor.analyser.*;
-import org.yawlfoundation.yawl.editor.analyser.RElement;
-import java.util.Map;
-import java.util.Set;
+
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Reduction rule for RWF-net: DEAR rule
@@ -127,22 +126,29 @@ private boolean isResetplaces(Set places)
 
 private boolean isNotOutput(Set places)
 {
-  for (Iterator i = places.iterator(); i.hasNext();)
-  { RPlace p = (RPlace) i.next();
-  	if (p.getPostsetElements().size() == 0)
-  	{ return false;
-  	}
+  for (Iterator i = places.iterator(); i.hasNext();) {
+      Object o = i.next();
+      if (o instanceof RPlace) {
+          RPlace p = (RPlace) o;
+  	      if (p.getPostsetElements().size() == 0)
+  	      { return false;
+  	      }
+      }
   }
   return true;
-}
+  }
+
 
 private boolean isNotInput(Set places)
 {
-  for (Iterator i = places.iterator(); i.hasNext();)
-  { RPlace p = (RPlace) i.next();
-  	if (p.getPresetElements().size() == 0)
-  	{ return false;
-  	}
+  for (Iterator i = places.iterator(); i.hasNext();) {
+      Object o = i.next();
+      if (o instanceof RPlace) {
+          RPlace p = (RPlace) o;
+  	      if (p.getPresetElements().size() == 0) {
+              return false;
+  	      }
+      }
   }
   return true;
 }

@@ -90,6 +90,11 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
             if (cachedYAWLServiceID != null) {
                 applyChange();
             }
+            else {  // if both cached & selected are null, the def. worklist is selected
+                getWebServiceDecomposition().setYawlServiceDescription(
+                    (String) yawlServiceComboBox.getSelectedItem()
+                );
+            }
         }
 
         getWebServiceDecomposition().setManualInteraction(! cbxAutomated.isSelected());
