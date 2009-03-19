@@ -163,6 +163,7 @@
              basedir="${build.dir}"
              manifest="${manifestFile}"
              excludes="**/Test*.class" />
+        <checksum file="${lite.editor.jar.file}"/>
         <delete file="${manifestFile}" />
     </target>
 
@@ -199,7 +200,7 @@
                                org/dom4j/** org/jdom/** org/eclipse/** com/intellij/**
                                ${package.base.dir}/elements/**
                                ${package.base.dir}/engine/**
-                               ${package.base.dir}/exceptions/**
+                               ${package.base.dir}/exceptions/**                              
                                ${package.base.dir}/resourcing/**
                                ${package.base.dir}/schema/**
                                ${package.base.dir}/unmarshal/**
@@ -211,8 +212,8 @@
                 <attribute name="Main-Class" value="${root.classpath}"/>
             </manifest>
         </jar>
+        <checksum file="${editor.jar.file}"/>
 
-        <!--<delete dir="${enumeratedLibraries.dir}"/>-->
     </target>
       
 
@@ -248,7 +249,8 @@
 	  	    <zipfileset dir="${library.dir}" prefix="lib"/>
 		    <zipfileset dir="${tool.dir}" prefix="tools" />
 		</zip>
-   
+        <checksum file="${source.zip}"/>
+
         <copy todir="${distribution.dir}" filtering="true">
             <fileset file="${source.dir}/ReleaseNotes.txt"/>
             <fileset file="${source.dir}/ChangeLog.txt"/>
