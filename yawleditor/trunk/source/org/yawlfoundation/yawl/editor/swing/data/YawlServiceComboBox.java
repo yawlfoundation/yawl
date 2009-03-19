@@ -74,6 +74,16 @@ public class YawlServiceComboBox extends JComboBox {
   public String getSelectedItemID() {
     return (String) services.get(getSelectedItem());
   }
+
+  public String getDescriptionFromID(String id) {
+      for (Object description : services.keySet()) {
+          String serviceID = (String) services.get(description);
+          if ((serviceID != null) && serviceID.equals(id)) {
+              return (String) description;
+          }
+      }
+      return null;
+  }
   
   /**
    * Returns whether the selected item will need further web service detail

@@ -289,12 +289,28 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
     setTitle(DataVariable.SCOPE_TASK);
 
     yawlServiceComboBox.setEnabled(false);
-    
+
     Thread refreshThread = new Thread(){
       public void run() {
         yawlServiceComboBox.refresh();
+          
+          String serviceDescription = getWebServiceDecomposition().getYawlServiceDescription();
+
+          // if there's an id (url) but no description it means this is a freshly loaded file,
+          // so we have to associate the url with its description so that it can be set as
+          // selected
+          if (cachedYAWLServiceID != null) {
+              if (serviceDescription == null) {
+                 serviceDescription = yawlServiceComboBox.getDescriptionFromID(cachedYAWLServiceID);
+              }
+          }
+          else {
+              serviceDescription = "Default Engine Worklist";   // no url, so set to worklist
+          }
+
+
         if (yawlServiceComboBox.getItemCount() > 1) {
-          yawlServiceComboBox.setSelectedItem(getWebServiceDecomposition().getYawlServiceDescription());
+          yawlServiceComboBox.setSelectedItem(serviceDescription);
         }
         pack();
       }
