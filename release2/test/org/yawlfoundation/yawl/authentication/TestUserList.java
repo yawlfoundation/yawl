@@ -53,7 +53,7 @@ public class TestUserList extends TestCase {
             f= e;
         }
         assertEquals(
-                "Password (1234) not valid.",
+                "Invalid Password.",
                 f.getMessage());
         String key = null;
         try {

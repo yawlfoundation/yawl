@@ -273,11 +273,10 @@ public final class YNet extends YDecomposition {
     }
 
 
-    public static Set getPreset(Set elements) {
-        Set preset = new HashSet();
-        Iterator iter = elements.iterator();
-        while (iter.hasNext()) {
-            YExternalNetElement ne = (YExternalNetElement) iter.next();
+    public static Set<YExternalNetElement> getPreset(Set elements) {
+        Set<YExternalNetElement> preset = new HashSet<YExternalNetElement>();
+        for (Object o : elements) {
+            YExternalNetElement ne = (YExternalNetElement) o;
 
             if (ne != null && !(ne instanceof YInputCondition)) {
                 preset.addAll(ne.getPresetElements());

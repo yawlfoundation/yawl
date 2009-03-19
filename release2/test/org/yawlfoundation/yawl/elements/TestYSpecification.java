@@ -62,6 +62,7 @@ public class TestYSpecification extends TestCase {
         _badSpecification = (YSpecification) YMarshal.unmarshalSpecifications(StringUtil.fileToString(file2.getAbsolutePath())).get(0);
         _infiniteLoops = (YSpecification) YMarshal.unmarshalSpecifications(StringUtil.fileToString(file3.getAbsolutePath())).get(0);
         spec = new YSpecification("something");
+        spec.setSchema("<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"/>");
     }
 
 

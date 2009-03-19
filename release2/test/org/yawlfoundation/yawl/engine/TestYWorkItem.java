@@ -53,7 +53,7 @@ public class TestYWorkItem extends TestCase{
         assertNull(child.getChildren());
         assertNull(_workItem.getParent());
         assertEquals(_workItem.getChildren().iterator().next(), child);
-        assertTrue(child.getStatus().equals("Fired"));
+        assertTrue(child.getStatus().equals(YWorkItemStatus.statusFired));
         assertNotNull(child.getEnablementTime());
         assertEquals(child.getEnablementTime(), _workItem.getEnablementTime());
         assertFalse( child.getFiringTime().before(_workItem.getEnablementTime()));
@@ -79,6 +79,6 @@ public class TestYWorkItem extends TestCase{
 
     public void testConstructor(){
         assertNull(_workItem.getParent());
-        assertTrue(_workItem.getStatus().equals("Enabled"));
+        assertTrue(_workItem.getStatus().equals(YWorkItemStatus.statusEnabled));
     }
 }
