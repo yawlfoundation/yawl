@@ -51,8 +51,8 @@ QUICK START: After installation, start Tomcat and point a browser to
    workitem's variables (name, type, etc), whether input, output or both.
  - Refactored support for the 'retain familiar' and 'separation of duties' patterns to
    fix a timing issue in certain scenarios where the 'familiar' task is immediately
-   preceded in control-flow by the referencing task and the familiar task completer was
-   not reported.
+   followed in control-flow by the referencing task and the familiar task completer was
+   not yet stored.
  - Refactored the application of dynamic form data attributes for complex data types so
    that elements in complex types would always have their attributes overridden by those
    of their parent. 
@@ -63,7 +63,7 @@ QUICK START: After installation, start Tomcat and point a browser to
  - Fixed a bug where warning messages were sometimes being displayed as errors when
    uploading a specification.
  - Fixed a bug on dynamic forms where complex types were sometimes not correctly rendered
-   when that had no input or output predicates defined.
+   when they had no input or output predicates defined.
  - Fixed a bug where deleting entries from the 'Org Data Mgt' form would sometimes throw
    an exception (the underlying cause was a database synchronisation issue).
  - Fixed a bug where tabs on the 'Org Data Mgt' form would sometimes need to be clicked
@@ -95,7 +95,7 @@ QUICK START: After installation, start Tomcat and point a browser to
  - Fixed a bug where, if a participant had workitems in their queue, and then had their
    privileges changed by an administrator, they would not receive any workitems in
    subsequent cases (that they would otherwise have been allocated).
- - Fixed bug where reference to timed out user sessions were sometimes not fully removed
+ - Fixed bug where references to timed out user sessions were sometimes not fully removed
    from the service.
 
 (d) EDITOR:
