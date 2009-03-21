@@ -1211,9 +1211,21 @@ public class NetGraph extends JGraph {
 
     getNetModel().beginUpdate();
     
-    if ((decomposition != null) && (task.getLabel() == null)) {
-      setElementLabelInsideUpdate(task, decomposition.getLabel());
+    if (decomposition != null) {
+        if (task.getLabel() == null) {
+          setElementLabelInsideUpdate(task, decomposition.getLabel());
+        }
     }
+    else {
+
+        // if decomp is null, its being dropped, so if the decomp's name == the task's label
+        // remove the label also
+        if ((oldDecomposition != null) &&
+            (oldDecomposition.getLabel().equals(task.getLabel()))) {
+            setElementLabelInsideUpdate(task, null);
+        }
+    }
+
     
     getNetModel().postEdit(
         new UndoableTaskDecompositionChange(
