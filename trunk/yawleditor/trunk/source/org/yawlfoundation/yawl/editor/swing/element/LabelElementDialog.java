@@ -48,9 +48,11 @@ public class LabelElementDialog extends AbstractVertexDoneDialog {
     getDoneButton().addActionListener(new ActionListener(){
         public void actionPerformed(ActionEvent e) {
             YAWLVertex vertex = getVertex();
-            graph.setElementLabel(vertex, labelField.getText());
+            String newLabel = labelField.getText();
+            if (newLabel.length() == 0) newLabel = null;
+            graph.setElementLabel(vertex, newLabel);
             if (cbxSynch.isSelected()) {
-                vertex.setActualEngineID(labelField.getText());
+                vertex.setActualEngineID(newLabel);
             }
           graph.clearSelection();           
           SpecificationUndoManager.getInstance().setDirty(true);

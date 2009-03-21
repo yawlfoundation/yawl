@@ -151,12 +151,14 @@ public abstract class YAWLVertex extends DefaultGraphCell
 
   public int setActualEngineID(String id) {
       int result = -1;
-      int suffixPos = id.lastIndexOf("_");
-      if (suffixPos > -1) {
-          String suffix = id.substring(suffixPos + 1);
-          if (isValidInt(suffix)) {
-              id = id.substring(0, suffixPos);
-              result = new Integer(suffix);
+      if (id != null) {
+          int suffixPos = id.lastIndexOf("_");
+          if (suffixPos > -1) {
+              String suffix = id.substring(suffixPos + 1);
+              if (isValidInt(suffix)) {
+                  id = id.substring(0, suffixPos);
+                  result = new Integer(suffix);
+              }
           }
       }
       serializationProofAttributeMap.put("actualEngineid", id);
