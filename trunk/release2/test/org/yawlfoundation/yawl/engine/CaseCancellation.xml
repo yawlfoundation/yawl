@@ -73,10 +73,10 @@
 			</processControlElements>
 		</rootNet>
 		<decomposition id="do_itinerary_segment" xsi:type="NetFactsType">
-			<inputParam name="stub">
-				<type>xs:string</type>
-				<mandatory/>
-			</inputParam>
+			<!--<inputParam name="stub">-->
+				<!--<type>xs:string</type>-->
+				<!--<mandatory/>-->
+			<!--</inputParam>-->
 			<processControlElements>
 				<inputCondition id="start">
 					<name>Start</name>

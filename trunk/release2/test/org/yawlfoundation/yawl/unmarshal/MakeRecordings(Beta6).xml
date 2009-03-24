@@ -4,7 +4,7 @@
 		<name>Cut Records</name>
 		<documentation>A lightweight process presenting steps to record some some songs in 
 		a studio (for the purposes of demonstrating YAWL).</documentation>
-		<metaData/>
+		<metaData><version>0.1</version><persistent>false</persistent></metaData>
 		<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified">
 			<xs:simpleType name="FormatType">
 				<xs:restriction base="xs:NMTOKEN">
