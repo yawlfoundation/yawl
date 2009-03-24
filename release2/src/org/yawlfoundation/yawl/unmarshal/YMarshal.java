@@ -85,7 +85,7 @@ public class YMarshal {
             version = YSpecification._Beta2;
         }
 
-        //now check the specification file against its' respective schema
+        //now check the specification file against its respective schema
         if (schemaValidate) {
             String errors = YawlXMLSpecificationValidator.getInstance().checkSchema(specStr, version);
             if (errors == null || errors.length() > 0) {

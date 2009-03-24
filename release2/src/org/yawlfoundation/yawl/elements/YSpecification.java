@@ -202,9 +202,11 @@ public final class YSpecification implements Cloneable, YVerifiable {
                          .append(decomposition.getCodelet())
                          .append("</codelet>");
                   }
-                  xml.append("<externalInteraction>")
-                     .append(decomposition.requiresResourcingDecisions() ? "manual": "automated")
-                     .append("</externalInteraction>");
+                  if (! _version.startsWith("Beta")) {
+                      xml.append("<externalInteraction>")
+                         .append(decomposition.requiresResourcingDecisions() ? "manual": "automated")
+                         .append("</externalInteraction>");
+                  }    
                 }
                 xml.append("</decomposition>");
             }

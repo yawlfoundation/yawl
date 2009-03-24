@@ -26,7 +26,6 @@ import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -270,52 +269,52 @@ public class TestXSD4YAWLBuilder extends TestCase {
     }
 
 
-    public void testIfWeCanBuildAnAnyDeclaration() {
-        Set set = new HashSet();
-        try {
-            String [][] desiredElementNamesToTypes = new String[1][];
-            desiredElementNamesToTypes[0] =
-                    new String[]{"xs:any", null, "http://www.w3.org/2001/XMLSchema"};
-
-            XSDSchema schema = _xsd4YAWLBuilder.createYAWLSchema(
-                    desiredElementNamesToTypes,
-                    set,
-                    "data");
-            String schemaStr = XSDUtil.convertToString(schema);
-            assertTrue(schemaStr.indexOf("<xsd:any processContents=\"lax\"/>") != -1);
-        } catch (YSchemaBuildingException e) {
-            e.printStackTrace();
-            fail("The generated schema should not throw exceptions." + e.getMessage());
-        }
-    }
-
-
+//    public void testIfWeCanBuildAnAnyDeclaration() {
+//        Set set = new HashSet();
+//        try {
+//            String [][] desiredElementNamesToTypes = new String[1][];
+//            desiredElementNamesToTypes[0] =
+//                    new String[]{"xs:any", null, "http://www.w3.org/2001/XMLSchema"};
+//
+//            XSDSchema schema = _xsd4YAWLBuilder.createYAWLSchema(
+//                    desiredElementNamesToTypes,
+//                    set,
+//                    "data");
+//            String schemaStr = XSDUtil.convertToString(schema);
+//            assertTrue(schemaStr.indexOf("<xsd:any processContents=\"lax\"/>") != -1);
+//        } catch (YSchemaBuildingException e) {
+//            e.printStackTrace();
+//            fail("The generated schema should not throw exceptions." + e.getMessage());
+//        }
+//    }
 
 
-    public void testIfWeCanSerialiseATypesProperly() {
-        Set globalDefinitions = _xsd4YAWLBuilder.getGlobalDefinitionsForType("PersonType");
-        try {
-            String [][] desiredElementNamesToTypes = new String[6][];
-            desiredElementNamesToTypes[0] = new String[]{"number", null};
-            desiredElementNamesToTypes[1] = new String[]{"address", null};
-            desiredElementNamesToTypes[2] = new String[]{"person", "PersonType"};
-            desiredElementNamesToTypes[3] = new String[]{"person2", "PersonType"};
-            desiredElementNamesToTypes[4] = new String[]{"myState", "StateType"};
-            desiredElementNamesToTypes[5] = new String[]{"yourState", "StateType"};
 
-            XSDSchema schema = _xsd4YAWLBuilder.createYAWLSchema(
-                    desiredElementNamesToTypes,
-                    globalDefinitions,
-                    "data");
-            String schemaStr = XSDUtil.convertToString(schema);
-            if(schemaStr.indexOf("<xsd:enumeration value=\"Qld\"/>") == -1) {
-                System.out.println("schemaStr = " + schemaStr);
-                fail("Was looking for content inside stateType but not found.");
-            }
-        } catch (YSchemaBuildingException e) {
-            fail("The generated schema should not throw exceptions.");
-        }
-    }
+
+//    public void testIfWeCanSerialiseATypesProperly() {
+//        Set globalDefinitions = _xsd4YAWLBuilder.getGlobalDefinitionsForType("PersonType");
+//        try {
+//            String [][] desiredElementNamesToTypes = new String[6][];
+//            desiredElementNamesToTypes[0] = new String[]{"number", null};
+//            desiredElementNamesToTypes[1] = new String[]{"address", null};
+//            desiredElementNamesToTypes[2] = new String[]{"person", "PersonType"};
+//            desiredElementNamesToTypes[3] = new String[]{"person2", "PersonType"};
+//            desiredElementNamesToTypes[4] = new String[]{"myState", "StateType"};
+//            desiredElementNamesToTypes[5] = new String[]{"yourState", "StateType"};
+//
+//            XSDSchema schema = _xsd4YAWLBuilder.createYAWLSchema(
+//                    desiredElementNamesToTypes,
+//                    globalDefinitions,
+//                    "data");
+//            String schemaStr = XSDUtil.convertToString(schema);
+//            if(schemaStr.indexOf("<xsd:enumeration value=\"Qld\"/>") == -1) {
+//                System.out.println("schemaStr = " + schemaStr);
+//                fail("Was looking for content inside stateType but not found.");
+//            }
+//        } catch (YSchemaBuildingException e) {
+//            fail("The generated schema should not throw exceptions.");
+//        }
+//    }
 
 
 

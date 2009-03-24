@@ -197,26 +197,26 @@ public class TestYNet extends TestCase {
     }
 
 
-    public void testCloneWithNewDataModel() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException {
-        File specificationFile = new File(YMarshal.class.getResource("MakeRecordings.xml").getFile());
-        List specifications = null;
-        specifications = YMarshal.unmarshalSpecifications(StringUtil.fileToString(specificationFile.getAbsolutePath()));
-        YSpecification originalSpec = (YSpecification) specifications.iterator().next();
-        YNet originalNet = originalSpec.getRootNet();
-        YNet clonedNet = null;
-        clonedNet = (YNet) originalNet.clone();
-//System.out.println("originalSpec = " + originalSpec.toXML(false));
-        List messages = originalNet.verify();
-        if (messages.size() > 0) {
-            fail(YMessagePrinter.getMessageString(messages));
-        }
-        assertTrue(originalNet.verify().size() == 0);
-        if (clonedNet.verify().size() != 0) {
-            fail(YMessagePrinter.getMessageString(clonedNet.verify()));
-        }
-//System.out.println("cloneSpec =    " + cloneSpec.toXML());
-        assertEquals(originalNet.toXML(), clonedNet.toXML());
-    }
+//    public void testCloneWithNewDataModel() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException {
+//        File specificationFile = new File(YMarshal.class.getResource("MakeRecordings.xml").getFile());
+//        List specifications = null;
+//        specifications = YMarshal.unmarshalSpecifications(StringUtil.fileToString(specificationFile.getAbsolutePath()));
+//        YSpecification originalSpec = (YSpecification) specifications.iterator().next();
+//        YNet originalNet = originalSpec.getRootNet();
+//        YNet clonedNet = null;
+//        clonedNet = (YNet) originalNet.clone();
+////System.out.println("originalSpec = " + originalSpec.toXML(false));
+//        List messages = originalNet.verify();
+//        if (messages.size() > 0) {
+//            fail(YMessagePrinter.getMessageString(messages));
+//        }
+//        assertTrue(originalNet.verify().size() == 0);
+//        if (clonedNet.verify().size() != 0) {
+//            fail(YMessagePrinter.getMessageString(clonedNet.verify()));
+//        }
+////System.out.println("cloneSpec =    " + cloneSpec.toXML());
+//        assertEquals(originalNet.toXML(), clonedNet.toXML());
+//    }
 
 
     public void testDataStructureAgainstWierdSpecification(){

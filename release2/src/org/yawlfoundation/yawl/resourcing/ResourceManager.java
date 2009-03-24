@@ -2563,7 +2563,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public String uploadSpecification(String fileContents, String fileName, String handle) {
         try {
-            return _interfaceAClient.uploadSpecification(fileContents, fileName,
+            return _interfaceAClient.uploadSpecification(fileContents,
                     getHandleForEngineCall(handle));
         }
         catch (IOException ioe) {

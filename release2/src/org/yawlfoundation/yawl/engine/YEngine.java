@@ -340,13 +340,13 @@ public class YEngine implements InterfaceADesign,
         _logger.debug("--> addSpecification");
 
         List<YSpecificationID> result = new Vector<YSpecificationID>();
-        List<YSpecification> newSpecifications = null;
+        List<YSpecification> newSpecifications;
         try {
             newSpecifications = YMarshal.unmarshalSpecifications(specStr);
         }
         catch (YSyntaxException e) {
 
-            // catch the xml parsers exception, transform it into YAWL format
+            // catch the xml parser's exception, transform it into YAWL format
             // and abort the load
             String[] msgs = e.getMessage().split("\n");
             for (String msg : msgs) {
