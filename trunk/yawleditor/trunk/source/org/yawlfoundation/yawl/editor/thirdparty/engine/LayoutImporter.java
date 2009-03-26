@@ -10,6 +10,7 @@ import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.swing.net.YAWLEditorNetPanel;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -226,7 +227,7 @@ public class LayoutImporter {
             }
 
             String notes = e.getChildText("notes", _ns);
-            if (notes != null) vertex.setDesignNotes(notes);
+            if (notes != null) vertex.setDesignNotes(StringUtil.xmlDecode(notes));
         }
     }
 
