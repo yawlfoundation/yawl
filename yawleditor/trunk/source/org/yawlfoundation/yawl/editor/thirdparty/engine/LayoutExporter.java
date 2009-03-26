@@ -140,7 +140,7 @@ public class LayoutExporter {
 
         String notes = vertex.getDesignNotes();
         if ((notes != null) && (notes.length() > 0)) {
-            xml.append(StringUtil.wrap(notes, "notes"));
+            xml.append(StringUtil.wrap(StringUtil.xmlEncode(notes), "notes"));
         }
         xml.append("</vertex>");
         return xml.toString();
