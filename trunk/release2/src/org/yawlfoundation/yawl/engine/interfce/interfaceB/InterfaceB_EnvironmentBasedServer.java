@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.util.Enumeration;
@@ -98,28 +97,8 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
                         request.getParameter(name));
             }
         }
-        if (request.getParameter("action") != null &&
-                request.getParameter("action").equals("ParameterInfoRequest")) {
 
-            YParameter[] params = _controller.describeRequiredParams();
-
-            response.setContentType("text/xml");
-            PrintWriter outputWriter = response.getWriter();
-            StringBuffer output = new StringBuffer();
-
-            output.append("<params>");
-            for (int i = 0; i < params.length; i++) {
-                YParameter param = params[i];
-                output.append(param.toXML());
-            }
-            output.append("</params>");
-
-            outputWriter.write(output.toString());
-            outputWriter.flush();
-            outputWriter.close();
-        } else {
-            _controller.doGet(request, response);
-        }
+        _controller.doGet(request, response);
     }
 
 
@@ -177,6 +156,14 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
             String oldStatus = request.getParameter("oldStatus");
             String newStatus = request.getParameter("newStatus");
             _controller.handleWorkItemStatusChangeEvent(workItem, oldStatus, newStatus);
+        }
+        else if ("ParameterInfoRequest".equals(action)) {
+            YParameter[] params = _controller.describeRequiredParams();
+            StringBuffer output = new StringBuffer();
+            for (YParameter param : params) {
+                output.append(param.toXML());
+            }
+            return output.toString();
         }
         if (_debug) {
         }
