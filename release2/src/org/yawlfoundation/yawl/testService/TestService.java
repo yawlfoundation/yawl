@@ -4,7 +4,9 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
@@ -21,6 +23,8 @@ import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGatewayClientAdapter;
 import org.yawlfoundation.yawl.schema.XSDType;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.elements.data.YParameter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -28,10 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA. User: Default Date: 17/09/2007 Time: 17:48:13 To change this
@@ -78,7 +79,7 @@ public class TestService extends InterfaceBWebsideController {
    //     output.append(xsdTest());
    //     output.append(getCaseState());
    //     output.append(testSummaries());
-        output.append(testLogMiner());
+        output.append(getEngineParametersForRegisteredService());
 
          output.append("</pre></p></body></html>");
          outputWriter.write(output.toString());
@@ -144,6 +145,56 @@ private static String getReply(InputStream is) throws IOException {
 //    private String launchCase() {
 //
 //    }
+
+    private String getEngineParametersForRegisteredService() {
+      String sessionID;
+      InterfaceA_EnvironmentBasedClient clientInterfaceA =
+              new InterfaceA_EnvironmentBasedClient("http://localhost:8080/yawl/ia");
+
+      try {
+        sessionID = clientInterfaceA.connect("admin", "YAWL");
+      }
+      catch (Exception e) {
+        return "<failure>Exception attempting to connect to Engine.</failure>";
+      }
+
+
+       LinkedList dataVariableList = new LinkedList();
+
+       YAWLServiceReference registeredService = null;
+
+       Set services = clientInterfaceA.getRegisteredYAWLServices(sessionID);
+
+         Iterator servicesIterator = services.iterator();
+         while(servicesIterator.hasNext()) {
+           YAWLServiceReference serviceReference = (YAWLServiceReference) servicesIterator.next();
+
+           if (serviceReference.getURI().equals("http://localhost:8080/yawlWSInvoker/")) {
+             registeredService = serviceReference;
+             break;
+           }
+         }
+         if (registeredService == null) {
+           return null;
+         }
+
+         YParameter[] engineParametersForService;
+
+         try {
+             engineParametersForService = new InterfaceB_EngineBasedClient().getRequiredParamsForService(
+                 registeredService
+             );
+         } catch (Exception ioe) {
+           return null;
+         }
+
+
+         for(int i = 0; i < engineParametersForService.length; i++) {
+             System.out.println(engineParametersForService[i].getName());
+         }
+        return "";
+    }
+
 
     private String testLogMiner() {
         String resURL = "http://localhost:8080/resourceService/workqueuegateway";
