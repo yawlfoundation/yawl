@@ -116,9 +116,11 @@ public class DataVariableTablePanel extends AbstractTableUpdatePanel {
 
     if (decomp instanceof WebServiceDecomposition) {         // task level
       SpecificationModel.getInstance().propogateVariableSetChange(decomp);
+        getVariableTable().removeRow(oldSelectedRow);
     }
     else {
       SpecificationModel.getInstance().propogateVariableDeletion(var);
+      getVariableTable().setFormat();                       // repaint table
     }
 
     if (oldSelectedRow == getTable().getRowCount()) {

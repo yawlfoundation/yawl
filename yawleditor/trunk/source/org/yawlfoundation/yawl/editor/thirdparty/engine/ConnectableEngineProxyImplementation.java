@@ -13,7 +13,7 @@ import java.util.LinkedList;
 import java.util.Set;
 
 /**
- * Author: Michael Adams
+ * Author: Michael Adams - extracted from AvailableEngineProxyImplementation
  * Creation Date: 20/02/2009
  */
 public class ConnectableEngineProxyImplementation extends AvailableEngineProxyImplementation {

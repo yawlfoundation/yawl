@@ -320,7 +320,11 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
   
   public DataVariableSet generateDataVariablesFromServiceSelection() {
 
-    DataVariableSet newVariableSet = new DataVariableSet();
+//    DataVariableSet newVariableSet = getDataVariablePanel().getVariables();
+//    if (newVariableSet == null) newVariableSet = new DataVariableSet();
+
+      DataVariableSet newVariableSet = new DataVariableSet();
+      newVariableSet.setDecomposition(getDecomposition());
 
     if (yawlServiceComboBox.getSelectedItemID() == null && 
         cachedYAWLServiceID == null) {
