@@ -538,7 +538,7 @@ public final class ResetWFNet {
 	   }
 	msg += formatXMLMessage(deadTaskMsg,noDeadTasks);	
 	
-	
+	 if (noDeadTasks) {
    String properCompletionMsg = checkProperCompletion();
    if (properCompletionMsg.equals(""))
    { properCompletionMsg = "The net "+_ID +" has proper completion.";
@@ -556,7 +556,7 @@ public final class ResetWFNet {
    	
    }
    msg += formatXMLMessage(properCompletionMsg,properCompletion);
-   
+   }
    	
    //To display message regarding weak soundness property.
    String smsg;
