@@ -13,26 +13,21 @@ import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.resource.*;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.faces.FacesException;
 import javax.faces.event.ValueChangeEvent;
 
 /*
- * Fragment bean for work and admin queues
+ * Fragment bean for org data form
  *
  * @author: Michael Adams
  * Date: 23/10/2007
  */
 
 public class pfOrgData extends AbstractFragmentBean {
-    // <editor-fold defaultstate="collapsed" desc="Creator-managed Component Definition">
     private int __placeholder;
 
-    /**
-     * <p>Automatically managed component initialization. <strong>WARNING:</strong>
-     * This method is automatically generated, so any user-specified code inserted
-     * here is subject to being replaced.</p>
-     */
     private void _init() throws Exception {
     }
 
@@ -156,9 +151,6 @@ public class pfOrgData extends AbstractFragmentBean {
         this.lblDesc = l;
     }
 
-
-    // </editor-fold>
-
     public pfOrgData() {
     }
 
@@ -186,23 +178,10 @@ public class pfOrgData extends AbstractFragmentBean {
     }
 
 
-    /**
-     * <p>Callback method that is called whenever a page containing
-     * this page fragment is navigated to, either directly via a URL,
-     * or indirectly via page navigation.  Override this method to acquire
-     * resources that will be needed for event handlers and lifecycle methods.</p>
-     *
-     * <p>The default implementation does nothing.</p>
-     */
     public void init() {
         // Perform initializations inherited from our superclass
         super.init();
-        // Perform application initialization that must complete
-        // *before* managed components are initialized
-        // TODO - add your own initialiation code here
 
-        // <editor-fold defaultstate="collapsed" desc="Creator-managed Component Initialization">
-        // Initialize automatically managed components
         // *Note* - this logic should NOT be modified
         try {
             _init();
@@ -210,11 +189,6 @@ public class pfOrgData extends AbstractFragmentBean {
             log("pfQueueUI Initialization Failure", e);
             throw e instanceof FacesException ? (FacesException) e: new FacesException(e);
         }
-        // </editor-fold>
-        // Perform application initialization that must complete
-        // *after* managed components are initialized
-        // TODO - add your own initialization code here
-
     }
 
     public void destroy() { }
@@ -271,6 +245,9 @@ public class pfOrgData extends AbstractFragmentBean {
                 else
                     cbbBelongs.setSelected("nil");
 
+                _sb.setOrgDataGroupItems(getOrgGroupTypeOptions());
+                String groupType = ((OrgGroup) attrib).get_groupType();
+                cbbGroup.setSelected(StringUtil.capitalise(groupType));
             }
             lbxItems.setSelected(id);
         }
@@ -307,14 +284,16 @@ public class pfOrgData extends AbstractFragmentBean {
             cbbGroup.setVisible(true);
             lblGroup.setVisible(true);
             _sb.setOrgDataBelongsLabelText("Reports To");
+            _sb.setOrgDataGroupLabelText("Org Group");
         }
         else if (tabName.equals("tabOrgGroup")) {
-            cbbGroup.setVisible(false);
-            lblGroup.setVisible(false);
+            cbbGroup.setVisible(true);
+            lblGroup.setVisible(true);
             cbbGroup.setItems(null);
             cbbBelongs.setVisible(true);
             lblBelongs.setVisible(true);
             _sb.setOrgDataBelongsLabelText("Belongs To");
+            _sb.setOrgDataGroupLabelText("Group Type");
         }
     }
 
@@ -328,7 +307,14 @@ public class pfOrgData extends AbstractFragmentBean {
 
     public void setCombosToNil() {
         if (cbbBelongs.isVisible()) cbbBelongs.setSelected("nil");
-        if (cbbGroup.isVisible()) cbbGroup.setSelected("nil");        
+        if (cbbGroup.isVisible()) {
+            if (lblGroup.getText().equals("Group Type")) {
+                cbbGroup.setSelected("Group");
+            }
+            else {
+                cbbGroup.setSelected("nil");
+            }
+        }
     }
 
     public boolean saveChanges(String id) {
@@ -364,6 +350,8 @@ public class pfOrgData extends AbstractFragmentBean {
             else if (attrib instanceof OrgGroup) {
                 OrgGroup group = _rm.getOrgGroup(belongsToID);
                 ((OrgGroup) attrib).setBelongsTo(group);
+                String groupType = ((String) cbbGroup.getSelected()).toUpperCase();
+                ((OrgGroup) attrib).set_groupType(groupType.trim());
                 _rm.updateOrgGroup((OrgGroup) attrib);
             }
 
@@ -434,7 +422,7 @@ public class pfOrgData extends AbstractFragmentBean {
             OrgGroup orgGroup = new OrgGroup();
             orgGroup.setGroupName((String) txtAdd.getText());
             orgGroup.setBelongsTo(_rm.getOrgGroup(belongsToID));
-            orgGroup.setGroupType(OrgGroup.GroupType.GROUP);           // default type
+            orgGroup.set_groupType(((String) cbbGroup.getSelected()).toUpperCase().trim());
             setCommonFields(orgGroup);
             _rm.addOrgGroup(orgGroup);
             lbxItems.setSelected(orgGroup.getID());
@@ -479,6 +467,15 @@ public class pfOrgData extends AbstractFragmentBean {
             if (item != null) return (String) item.getValue();
         }
         return null;
+    }
+
+    private Option[] getOrgGroupTypeOptions() {
+        OrgGroup.GroupType[] groupTypes = OrgGroup.GroupType.values();
+        Option[] result = new Option[groupTypes.length];
+        for (int i = 0; i < groupTypes.length; i++) {
+            result[i] = new Option(StringUtil.capitalise(groupTypes[i].name()));
+        }
+        return result;
     }
 
 }

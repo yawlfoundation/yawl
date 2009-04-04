@@ -1,5 +1,4 @@
 <%@ page import="org.jdom.Element" %>
-<%@ page import="org.yawlfoundation.yawl.engine.interfce.Marshaller" %>
 <%@ page import="org.yawlfoundation.yawl.engine.interfce.WorkItemRecord" %>
 
 <!-- *  A simple custom form example and usage guide.
@@ -7,23 +6,9 @@
      *  version 2.0, 09/07/2008  -->
 
 <%
-    // The whole workitem record is passed via a request parameter as an XML string.
-    // Turn it back into a WIR (for ease of use) and gets its data tree.
-    String workItemXML = request.getParameter("workitem");
-    WorkItemRecord wir;
-
-    // workItemXML won't be null on the first call from the worklist handler
-    if (workItemXML != null) {
-        wir = Marshaller.unmarshalWorkItem(workItemXML) ;
-        session.setAttribute("workitem", wir);                  // save it for the post
-    }
-
-    // if it is null, it's after a 'submit' and the request param is lost,
-    // so retreive the wir from the session attribute saved earlier
-    else {
-        wir = (WorkItemRecord) session.getAttribute("workitem");
-    }
-
+    // The whole workitem record is passed via a session attribute.
+    // get the WorkItemRecord and read its data tree.
+    WorkItemRecord wir = (WorkItemRecord) session.getAttribute("workitem");
     Element data = wir.getDataList();
 
     // Here we read new values as entered on this form (see the html below)
@@ -39,11 +24,18 @@
             Element dataitem = data.getChild(varName);        // get data var
             if (dataitem != null) {
                 dataitem.setText(input);                      // update data var's value
-                
-                // pass the updated wir back to the calling worklist page;
-                // must convert it back to XML in the process.
+
+                // once all the data in the workitem is updated, update the session attr.
+                session.setAttribute("workitem", wir);
+
+                // if you want the workitem to complete when it posts back, set this
+                // attribute to true; if it's false or commented out, the workitem will
+                // update and remain on the worklist's 'started' queue
+                session.setAttribute("complete_on_post", true);
+
+                // now we can redirect back to the worklist
                 String redirectURL = "http://localhost:8080/resourceService/" +
-                                     "faces/userWorkQueues.jsp?workitem=" + wir.toXML();
+                                     "faces/userWorkQueues.jsp";
                 response.sendRedirect(response.encodeURL(redirectURL));
             }
             else {

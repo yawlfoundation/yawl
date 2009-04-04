@@ -79,7 +79,8 @@ public class TestService extends InterfaceBWebsideController {
    //     output.append(xsdTest());
    //     output.append(getCaseState());
    //     output.append(testSummaries());
-        output.append(getEngineParametersForRegisteredService());
+   //     output.append(getEngineParametersForRegisteredService());
+   output.append(testDynMultiCompTaskNewInst()) ;
 
          output.append("</pre></p></body></html>");
          outputWriter.write(output.toString());
@@ -195,6 +196,17 @@ private static String getReply(InputStream is) throws IOException {
         return "";
     }
 
+
+    private String testDynMultiCompTaskNewInst() {
+        String result = "bad";
+        try {
+            String handle = _interfaceBClient.connect("admin", "YAWL");
+            result = _interfaceBClient.createNewInstance("177:RunList_3", "newBob", handle);
+        }
+        catch (IOException ioe) { //
+        }
+        return result;
+    }
 
     private String testLogMiner() {
         String resURL = "http://localhost:8080/resourceService/workqueuegateway";

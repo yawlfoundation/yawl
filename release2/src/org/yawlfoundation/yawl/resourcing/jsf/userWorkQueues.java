@@ -26,7 +26,6 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import javax.faces.FacesException;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Set;
 import java.util.SortedSet;
@@ -663,27 +662,28 @@ public class userWorkQueues extends AbstractPageBean {
         String url = wir.getCustomFormURL();
         if (url != null) {
             _sb.setCustomFormPost(true);
-            String xml = wir.toXML();
-            FacesContext context = FacesContext.getCurrentInstance();
+            WorkItemRecord wirToPost = wir ;
+            ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
             try {
 
                 // if wir has updated data, clone it & copy updates to datalist
                 if (wir.getUpdatedData() != null) {
                     WorkItemRecord dirtywir = wir.clone() ;
                     dirtywir.setDataList(wir.getUpdatedData());
-                    xml = dirtywir.toXML();
+                    wirToPost = dirtywir;
                 }
 
-                // package up task param info
+                // package up task param info & put them into session attributes
                 YSpecificationID specID = new YSpecificationID(wir.getSpecificationID(),
                                                                wir.getSpecVersion());
                 String params = _rm.getTaskParamsAsXML(specID, wir.getTaskID(),
                                                               _sb.getSessionhandle());
 
+                context.getSessionMap().put("workitem", wirToPost);
+                context.getSessionMap().put("params", params);
+
                 // show the custom form
-                StringBuilder s = new StringBuilder(url);
-                s.append("?workitem=").append(xml).append("&params=").append(params);
-                context.getExternalContext().redirect(s.toString());
+                context.redirect(url);
             }
             catch (Exception e) {
                 _sb.setCustomFormPost(false);
@@ -769,15 +769,16 @@ public class userWorkQueues extends AbstractPageBean {
 
         // retrieve wir from custom form's post data
         ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-        HttpServletRequest request = (HttpServletRequest) context.getRequest();
-        String wirXML = request.getParameter("workitem");
-        WorkItemRecord updated = _rm.unMarshallWIR(wirXML);
+        WorkItemRecord updated = (WorkItemRecord) context.getSessionMap().remove("workitem");
+        boolean complete = (Boolean) context.getSessionMap().remove("complete_on_post");
+        context.getSessionMap().remove("params");       // cleanup session map
 
         // update edited wir
         if (updated != null) {
             WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
             wir.setUpdatedData(updated.getDataList());
             _rm.getWorkItemCache().update(wir) ;
+            if (complete) completeWorkItem(wir, _sb.getParticipant());
         }
 
         _sb.setCustomFormPost(false);                                  // reset flag

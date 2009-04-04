@@ -303,7 +303,7 @@ public class WSIFInvoker {
             String s = partType.getLocalPart();
             if ("string".equals(s)) {
                 types[i] = String.class;
-            } else if ("double".equals(s)) {
+            } else if ("double".equals(s) || "decimal".equals(s)) {
                 types[i] = Double.TYPE;
             } else if ("float".equals(s)) {
                 types[i] = Float.TYPE;
