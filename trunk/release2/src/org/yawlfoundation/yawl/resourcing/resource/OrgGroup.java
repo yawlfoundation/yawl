@@ -14,7 +14,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
 
 /**
  * Represents an organisational group to which a position (occupied by a participant) may
- * belong. Note that one org group may belong to a larger org group (or conversely, an
+ * belong. Note that one org group may belong to a larger org group (or alternately, an
  * org group may contain a number of smaller org groups).
  *
  *  @author Michael Adams
@@ -33,10 +33,15 @@ public class OrgGroup extends AbstractResourceAttribute implements Comparable {
     }
 
 
-    public OrgGroup() { super(); }
+    public OrgGroup() {
+        super();
+        _groupType = GroupType.GROUP;
+    }
 
+    
     public OrgGroup(String groupName, GroupType groupType,
                     OrgGroup belongsTo, String description) {
+        super();
         _groupName = groupName ;
         _groupType = groupType ;
         _belongsTo = belongsTo ;

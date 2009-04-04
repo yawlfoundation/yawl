@@ -1264,7 +1264,7 @@ public abstract class YTask extends YExternalNetElement {
                         append("</mapsTo></mapping>");
             }
             xml.append("</enablementMappings>");
-        }
+        }                                                             
         if (_timerParams != null) {
             xml.append(timerParamsToXML());
         }

@@ -112,7 +112,7 @@
                                    id="btnRefresh"
                                    imageURL="/resources/refresh.png"
                                    styleClass="refreshOrgDataButton"
-                                   toolTip="Refresh Queues"
+                                   toolTip="Refresh"
                                    text=""/>
 
                         <div style="position: absolute;">

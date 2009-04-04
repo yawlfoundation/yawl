@@ -293,11 +293,6 @@ public class orgDataMgt extends AbstractPageBean {
         getSessionBean().checkLogon();
         msgPanel.show();
 
-//        if (_sb.getSourceTab() != null) {
-//            tabSet.setSelected(_sb.getSourceTab());
-//            _sb.setSourceTab(null);
-//        }
-
         String selTabName = tabSet.getSelected() ;
         Tab selTab = null;
 
