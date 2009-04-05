@@ -142,12 +142,47 @@ public class SessionBean extends AbstractSessionBean {
 
     /** @return the id of the external http session */
     public String getExternalSessionID() {
+        HttpSession session = getExternalSession();
+        return (session != null) ? session.getId() : null ;
+    }
+
+
+    /** @return the external http session */
+    public HttpSession getExternalSession() {
         ExternalContext externalContext = getFacesContext().getExternalContext();
         if (externalContext != null)
-           return ((HttpSession) externalContext.getSession(false)).getId();
+           return ((HttpSession) externalContext.getSession(false));
         else
            return null ;
     }
+
+    int defaultSessionTimeoutValue = 3600;                              // 60 minutes
+
+    public int getDefaultSessionTimeoutValue() {
+        return defaultSessionTimeoutValue;
+    }
+
+    public void setDefaultSessionTimeoutValue(int value) {
+        defaultSessionTimeoutValue = value;
+    }
+
+    public void resetSessionTimeout() {
+        HttpSession session = getExternalSession();
+         if (defaultSessionTimeoutValue != session.getMaxInactiveInterval()) {
+             session.setMaxInactiveInterval(defaultSessionTimeoutValue);
+         }
+    }
+
+    boolean sessionTimeoutValueChanged = false;
+
+    public boolean isSessionTimeoutValueChanged() {
+        return sessionTimeoutValueChanged;
+    }
+
+    public void setSessionTimeoutValueChanged(boolean changed) {
+        sessionTimeoutValueChanged = changed;
+    }
+
 
     /*******************************************************************************/
 

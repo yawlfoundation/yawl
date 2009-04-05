@@ -26,6 +26,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import javax.faces.FacesException;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Set;
 import java.util.SortedSet;
@@ -329,7 +330,7 @@ public class userWorkQueues extends AbstractPageBean {
      * Overridden method that is called immediately before the page is rendered
      */
     public void prerender() {
-        getSessionBean().checkLogon();                     // check session still live
+        _sb.checkLogon();                                  // check session still live
         msgPanel.show(100, 0, "relative");                 // show msgs (if any)
 
         // return to same tab on a refresh
@@ -673,6 +674,9 @@ public class userWorkQueues extends AbstractPageBean {
                     wirToPost = dirtywir;
                 }
 
+                // adjust session timeout value if required
+                adjustSessionTimeout(wirToPost);
+
                 // package up task param info & put them into session attributes
                 YSpecificationID specID = new YSpecificationID(wir.getSpecificationID(),
                                                                wir.getSpecVersion());
@@ -773,6 +777,12 @@ public class userWorkQueues extends AbstractPageBean {
         boolean complete = (Boolean) context.getSessionMap().remove("complete_on_post");
         context.getSessionMap().remove("params");       // cleanup session map
 
+        // reset session timeout if previously changed
+         if (_sb.isSessionTimeoutValueChanged()) {
+             _sb.resetSessionTimeout();
+             _sb.setSessionTimeoutValueChanged(false);
+         }
+        
         // update edited wir
         if (updated != null) {
             WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
@@ -1025,6 +1035,31 @@ public class userWorkQueues extends AbstractPageBean {
                                        btnComplete.setDisabled(isEmptyQueue);
                                        break;
             case WorkQueue.SUSPENDED : btnUnsuspend.setDisabled(isEmptyQueue);
+        }
+    }
+
+
+    private void adjustSessionTimeout(WorkItemRecord wir) {
+
+        // get new timeout value (if any)
+        String rawValue = null;
+        Element data = wir.getDataList();
+        if (data != null) {
+            rawValue = data.getChildText("ySessionTimeout");
+        }
+
+        // convert to int, remember current timeout, set new timeout (as secs)
+        if (rawValue != null) {
+            try {
+                int minutes = new Integer(rawValue);
+                HttpSession session = _sb.getExternalSession();
+                _sb.setDefaultSessionTimeoutValue(session.getMaxInactiveInterval()) ;
+                session.setMaxInactiveInterval(minutes * 60);
+                _sb.setSessionTimeoutValueChanged(true);
+            }
+            catch (NumberFormatException nfe) {
+                // bad timeout value supplied - nothing further to do
+            }
         }
     }
 
