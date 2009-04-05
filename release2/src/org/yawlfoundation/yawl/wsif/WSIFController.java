@@ -58,7 +58,7 @@ public class WSIFController extends InterfaceBWebsideController {
 
                 for (int i = 0; i < executingChildren.size(); i++) {
                     WorkItemRecord itemRecord = (WorkItemRecord) executingChildren.get(i);
-                    Element inputData = itemRecord.getWorkItemData();
+                    Element inputData = itemRecord.getDataList();
                     String wsdlLocation = inputData.getChildText(WSDL_LOCATION_PARAMNAME);
                     String portName = inputData.getChildText(WSDL_PORTNAME_PARAMNAME);
                     String operationName = inputData.getChildText(WSDL_OPERATIONNAME_PARAMNAME);
