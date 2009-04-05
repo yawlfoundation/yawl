@@ -46,7 +46,7 @@ public class VertexPopupMenu extends JPopupMenu {
   private YAWLPopupMenuItem dropTaskDecompositionItem;
   private YAWLPopupMenuItem customFormItem;
   private YAWLPopupMenuItem setTimerItem;
-
+  private YAWLPopupMenuItem multipleInstanceDetailItem;
   
   public VertexPopupMenu(YAWLCell cell, NetGraph graph) {
     super();
@@ -139,11 +139,7 @@ public class VertexPopupMenu extends JPopupMenu {
     add(buildUpdateParametersItem());
     
     if (vertex instanceof YAWLMultipleInstanceTask) {
-      add(new YAWLPopupMenuItem(
-          new SetMultipleInstanceDetailAction(
-              (YAWLMultipleInstanceTask) vertex, graph)
-          )
-      );
+      add(buildMultipleInstanceDetailItem());
     }
     
     add(buildFlowDetailItem());
@@ -213,6 +209,14 @@ public class VertexPopupMenu extends JPopupMenu {
     return updateFlowDetailsItem;
   }
 
+  private YAWLPopupMenuItem buildMultipleInstanceDetailItem() {
+    multipleInstanceDetailItem =
+       new YAWLPopupMenuItem(new SetMultipleInstanceDetailAction(
+                    (YAWLMultipleInstanceTask) cell, graph));
+    return multipleInstanceDetailItem;
+  }
+
+
   public YAWLCell getCell() {
     return cell;
   }
@@ -242,12 +246,6 @@ public class VertexPopupMenu extends JPopupMenu {
         );
       }
       
-      if (updateParametersItem != null) {
-        updateParametersItem.setEnabled(
-            updateParametersItem.shouldBeEnabled()
-        );
-      }
-
       if (decompositionDetailItem != null) {
         decompositionDetailItem.setEnabled(
             decompositionDetailItem.shouldBeEnabled()
@@ -263,6 +261,11 @@ public class VertexPopupMenu extends JPopupMenu {
         dropTaskDecompositionItem.setEnabled(
             dropTaskDecompositionItem.shouldBeEnabled()
         );
+      }
+      if (multipleInstanceDetailItem != null) {
+          multipleInstanceDetailItem.setEnabled(
+              multipleInstanceDetailItem.shouldBeEnabled()
+          );
       }
       if (customFormItem != null) {
         customFormItem.setEnabled(

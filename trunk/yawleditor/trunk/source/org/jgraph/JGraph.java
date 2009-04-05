@@ -1848,9 +1848,9 @@ public class JGraph
 		boolean oldValue = gridVisible;
 		gridVisible = flag;
 		// Clear the double buffer if the grid has been enabled
-		if (flag && !oldValue) {
+//		if (flag && !oldValue) {
 			clearOffscreen();
-		}
+//		}
 		firePropertyChange(GRID_VISIBLE_PROPERTY, oldValue, flag);
 	}
 

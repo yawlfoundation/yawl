@@ -81,6 +81,10 @@ public class SetMultipleInstanceDetailAction extends YAWLSelectedNetAction imple
 
     graph.clearSelection();
   }
+
+  public boolean shouldBeEnabled() {
+    return (task != null) && (((YAWLTask)task).getDecomposition() != null);
+  }
   
   public String getEnabledTooltipText() {
     return " Specify instance detail for this task ";
@@ -230,6 +234,11 @@ class MultipleInstanceInstanceParamaterPanel extends JPanel {
         taskVariableBox.setSelectedIndex(0);
       } 
     }
+
+//    if ((task != null) && (((YAWLTask)task).getDecomposition() == null)) {
+//        createTaskVariableButton.setEnabled(false);
+//    }
+
     
     accessorQueryPanel.getEditor().setText(task.getAccessorQuery());
     
