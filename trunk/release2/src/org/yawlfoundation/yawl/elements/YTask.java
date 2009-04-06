@@ -26,7 +26,6 @@ import org.yawlfoundation.yawl.engine.YWorkItemRepository;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.*;
-import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.schema.YDataValidator;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.SaxonUtil;
@@ -84,7 +83,8 @@ public abstract class YTask extends YExternalNetElement {
     private E2WFOJNet _resetNet;
 
     // task resourcing mappings
-    private ResourceMap _resourceMap ;
+//    private ResourceMap _resourceMap ;
+    private String _resourcingXML = null;
     private Element _resourcingSpec ;
 
     // optional timer params [name, value]
@@ -1268,8 +1268,8 @@ public abstract class YTask extends YExternalNetElement {
         if (_timerParams != null) {
             xml.append(timerParamsToXML());
         }
-        if (_resourceMap != null) {
-            xml.append(_resourceMap.toXML()) ;
+        if (_resourcingXML != null) {
+            xml.append(_resourcingXML) ;
         }
         if (_customFormURL != null) {
             xml.append(StringUtil.wrap(_customFormURL.toString(), "customForm"));
@@ -1691,17 +1691,9 @@ public abstract class YTask extends YExternalNetElement {
     }
 
 
-    public ResourceMap getResourceMap() { return _resourceMap; }
+    public String getResourcingXML() { return _resourcingXML; }
 
-    public ResourceMap getResourceMap(boolean forceNew) {
-        if ((_resourceMap == null) && forceNew)
-           _resourceMap = new ResourceMap(this.getID());
-
-        return _resourceMap;
-    }
-
-
-    public void setResourceMap(ResourceMap map) { _resourceMap = map ; }
+    public void setResourcingXML(String xml) { _resourcingXML = xml ; }
 
 
     public Element getResourcingSpecs() { return _resourcingSpec ; }
