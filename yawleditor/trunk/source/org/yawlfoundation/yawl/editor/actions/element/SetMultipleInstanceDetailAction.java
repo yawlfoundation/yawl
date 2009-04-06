@@ -234,11 +234,6 @@ class MultipleInstanceInstanceParamaterPanel extends JPanel {
         taskVariableBox.setSelectedIndex(0);
       } 
     }
-
-//    if ((task != null) && (((YAWLTask)task).getDecomposition() == null)) {
-//        createTaskVariableButton.setEnabled(false);
-//    }
-
     
     accessorQueryPanel.getEditor().setText(task.getAccessorQuery());
     
