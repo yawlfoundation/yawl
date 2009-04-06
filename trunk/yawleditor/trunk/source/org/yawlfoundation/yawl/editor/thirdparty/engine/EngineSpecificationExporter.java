@@ -956,10 +956,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       );
     }
     
-    //  We create a map below if there isn't one already.
-    
-    ResourceMap engineResourceMapping = engineTask.getResourceMap(true);
-    
+
     engineTask.getDecompositionPrototype().setExternalInteraction(
             atomicEditorTask.getWSDecomposition().isManualInteraction()
     );
@@ -967,7 +964,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     engineTask.getDecompositionPrototype().setCodelet(
             atomicEditorTask.getWSDecomposition().getCodelet()
     );
-      
+
+    ResourceMap engineResourceMapping = new ResourceMap();
 
     populateOfferInteractionDetail(
       atomicEditorTask.getResourceMapping(),
@@ -988,6 +986,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       atomicEditorTask.getResourceMapping(),
       engineResourceMapping
     );
+
+    engineTask.setResourcingXML(engineResourceMapping.toXML());
   }
 
   private static void populateOfferInteractionDetail(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
