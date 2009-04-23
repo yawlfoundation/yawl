@@ -691,7 +691,8 @@ public class userWorkQueues extends AbstractPageBean {
             }
             catch (Exception e) {
                 _sb.setCustomFormPost(false);
-                msgPanel.error("IO Exception attempting to display custom form.");
+                msgPanel.error("IO Exception attempting to display custom form: " +
+                               e.getMessage());
             }
         }
     }
@@ -774,7 +775,7 @@ public class userWorkQueues extends AbstractPageBean {
         // retrieve wir from custom form's post data
         ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
         WorkItemRecord updated = (WorkItemRecord) context.getSessionMap().remove("workitem");
-        boolean complete = (Boolean) context.getSessionMap().remove("complete_on_post");
+        Boolean complete = (Boolean) context.getSessionMap().remove("complete_on_post");
         context.getSessionMap().remove("params");       // cleanup session map
 
         // reset session timeout if previously changed
@@ -788,7 +789,7 @@ public class userWorkQueues extends AbstractPageBean {
             WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
             wir.setUpdatedData(updated.getDataList());
             _rm.getWorkItemCache().update(wir) ;
-            if (complete) completeWorkItem(wir, _sb.getParticipant());
+            if ((complete != null) && complete) completeWorkItem(wir, _sb.getParticipant());
         }
 
         _sb.setCustomFormPost(false);                                  // reset flag

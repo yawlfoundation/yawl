@@ -771,7 +771,12 @@ public class participantData extends AbstractPageBean {
 
         // unique id?
         if (hasText(txtUserID)) {
-            if (! getApplicationBean().isUniqueUserID((String) txtUserID.getText())) {
+            String newUserID = (String) txtUserID.getText();
+            if (newUserID.equalsIgnoreCase("admin")) {
+                msgPanel.error("ERROR: 'admin' is a reserved User ID - please try another.");
+                result = false;
+            }
+            else if (! getApplicationBean().isUniqueUserID(newUserID)) {
                 msgPanel.error("ERROR: That User ID is already in use - please try another.");
                 result = false;
             }    
