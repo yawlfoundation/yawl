@@ -503,6 +503,14 @@ public class userWorkQueues extends AbstractPageBean {
         _sb.setSourceTab("tabStarted");                      // come back to started tab
         WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
 
+        // maybe the wir was part of a cancellation set and now it's gone
+        if (wir == null) {
+            msgPanel.error("Cannot view item contents - it appears that the " +
+                           "selected item has been removed or cancelled. " +
+                           "Please see the log files for details.");
+            return null;
+        }
+
         // if there's a custom form for this item, use it
         if (wir.getCustomFormURL() != null) {
             showCustomForm(wir) ;
@@ -519,7 +527,7 @@ public class userWorkQueues extends AbstractPageBean {
                 return "showDynForm" ;
             }
             else {
-                msgPanel.error("Cannot view task contents - problem initialising " +
+                msgPanel.error("Cannot view item contents - problem initialising " +
                                "dynamic form from task specification. " +
                                "Please see the log files for details.");
                 return null;

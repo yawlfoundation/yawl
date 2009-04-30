@@ -222,7 +222,7 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
         for (Iterator iter = _outputExpressions.iterator(); iter.hasNext();) {
             String expression = (String) iter.next();
             xml.append("<outputExpression query=\"").
-                    append(YTask.marshal(expression)).
+                    append(JDOMUtil.encodeEscapes(expression)).
                     append("\"/>");
         }
 

@@ -9,12 +9,12 @@
 
 package org.yawlfoundation.yawl.elements.data;
 
+import org.jdom.input.SAXBuilder;
 import org.yawlfoundation.yawl.elements.YDecomposition;
-import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.YVerifiable;
 import org.yawlfoundation.yawl.schema.XMLToolsForYAWL;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
-import org.jdom.input.SAXBuilder;
 
 import java.io.StringReader;
 import java.util.List;
@@ -198,12 +198,12 @@ public class YVariable implements Cloneable, YVerifiable, Comparable{
         }
         if (_initialValue != null) {
             xml.append("<initialValue>" +
-                    YTask.marshal(_initialValue) +
+                    JDOMUtil.encodeEscapes(_initialValue) +
                     "</initialValue>");
         }
         if (_defaultValue != null) {
             xml.append("<defaultValue>" +
-                    YTask.marshal(_defaultValue) +
+                    JDOMUtil.encodeEscapes(_defaultValue) +
                     "</defaultValue>");
         }
         return xml.toString();
