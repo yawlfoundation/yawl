@@ -10,6 +10,7 @@
 package org.yawlfoundation.yawl.elements;
 
 import org.yawlfoundation.yawl.util.YVerificationMessage;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
 
@@ -188,19 +189,19 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
     public String toXML() {
         StringBuffer xml = new StringBuffer();
 
-        xml.append("<minimum>" + (_minInstances != null ? _minInstances.toString() : _myTask.marshal(_minInstancesQuery)) + "</minimum>");
-        xml.append("<maximum>" + (_maxInstances != null ? _maxInstances.toString() : _myTask.marshal(_maxInstancesQuery)) + "</maximum>");
-        xml.append("<threshold>" + (_threshold != null ? _threshold.toString() : _myTask.marshal(_thresholdQuery)) + "</threshold>");
+        xml.append("<minimum>" + (_minInstances != null ? _minInstances.toString() : JDOMUtil.encodeEscapes(_minInstancesQuery)) + "</minimum>");
+        xml.append("<maximum>" + (_maxInstances != null ? _maxInstances.toString() : JDOMUtil.encodeEscapes(_maxInstancesQuery)) + "</maximum>");
+        xml.append("<threshold>" + (_threshold != null ? _threshold.toString() : JDOMUtil.encodeEscapes(_thresholdQuery)) + "</threshold>");
         xml.append("<creationMode code=\"" + _creationMode + "\"/>");
         xml.append("<miDataInput>");
-        xml.append("<expression query=\"" + _myTask.marshal(_myTask.getPreSplittingMIQuery()) + "\"/>");
-        xml.append("<splittingExpression query=\"" + _myTask.marshal(_inputSplittingQuery) + "\"/>");
+        xml.append("<expression query=\"" + JDOMUtil.encodeEscapes(_myTask.getPreSplittingMIQuery()) + "\"/>");
+        xml.append("<splittingExpression query=\"" + JDOMUtil.encodeEscapes(_inputSplittingQuery) + "\"/>");
         xml.append("<formalInputParam>" + _inputVarName + "</formalInputParam>");
         xml.append("</miDataInput>");
         if (_remoteOutputQuery != null) {
             xml.append("<miDataOutput>");
-            xml.append("<formalOutputExpression query=\"" + _myTask.marshal(_remoteOutputQuery) + "\"/>");
-            xml.append("<outputJoiningExpression query=\"" + _myTask.marshal(_outputProcessingQuery) + "\"/>");
+            xml.append("<formalOutputExpression query=\"" + JDOMUtil.encodeEscapes(_remoteOutputQuery) + "\"/>");
+            xml.append("<outputJoiningExpression query=\"" + JDOMUtil.encodeEscapes(_outputProcessingQuery) + "\"/>");
             xml.append("<resultAppliedToLocalVariable>" +
                     _myTask.getMIOutputAssignmentVar(_remoteOutputQuery) +
                     "</resultAppliedToLocalVariable>"

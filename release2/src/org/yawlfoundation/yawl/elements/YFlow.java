@@ -8,6 +8,7 @@
 
 package org.yawlfoundation.yawl.elements;
 
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.util.List;
@@ -242,7 +243,7 @@ public class YFlow implements Comparable {
             if (_evalOrdering != null) {
                 xml.append(" ordering=\"" + _evalOrdering.intValue() + "\"");
             }
-            xml.append(">" + YTask.marshal(_xpathPredicate) + "</predicate>");
+            xml.append(">" + JDOMUtil.encodeEscapes(_xpathPredicate) + "</predicate>");
         }
         if (_isDefaultFlow) {
             xml.append("<isDefaultFlow/>");

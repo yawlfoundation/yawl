@@ -2,11 +2,14 @@ package org.yawlfoundation.yawl.testService;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBasedClient;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EnvironmentBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
@@ -23,8 +26,6 @@ import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGatewayClientAdapter;
 import org.yawlfoundation.yawl.schema.XSDType;
-import org.yawlfoundation.yawl.elements.YAWLServiceReference;
-import org.yawlfoundation.yawl.elements.data.YParameter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -70,7 +71,7 @@ public class TestService extends InterfaceBWebsideController {
    //    output.append(createDummyOrgData());
    //      output.append(doLogGatewayTest()) ;
    //    output.append(doWorkQueueGatewayTest()) ;
-   //     output.append(ibTest());
+        output.append(ibTest());
    //     output.append(doRandomTest()) ;
    //     output.append(doGetParticipantsTest()) ;
    //       output.append(controllerTest());
@@ -80,7 +81,7 @@ public class TestService extends InterfaceBWebsideController {
    //     output.append(getCaseState());
    //     output.append(testSummaries());
    //     output.append(getEngineParametersForRegisteredService());
-   output.append(testDynMultiCompTaskNewInst()) ;
+  // output.append(testDynMultiCompTaskNewInst()) ;
 
          output.append("</pre></p></body></html>");
          outputWriter.write(output.toString());
@@ -580,13 +581,24 @@ c.getQueuedWorkItems(resourceId,WorkQueue.SUSPENDED,handle);
 
 
     private String ibTest() {
+
+        InterfaceB_EnvironmentBasedClient yawl =
+                new InterfaceB_EnvironmentBasedClient( "http://localhost:8080/yawl/ib" );
         try {
-            String handle = _interfaceBClient.connect("admin", "YAWL");
-            String doc = _interfaceBClient.getCaseData("2", handle);
-            System.out.println(doc);
+            String session = yawl.connect("admin", "YAWL");
+            System.out.println( "session = "+session);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        catch (Exception e) {}
-            return "";
+
+
+//        try {
+//            String handle = _interfaceBClient.connect("admin", "YAWL");
+//            String doc = _interfaceBClient.getCaseData("2", handle);
+//            System.out.println(doc);
+//        }
+//        catch (Exception e) {}
+        return "";
     }
 
     /********************************************************************************/

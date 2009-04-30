@@ -1224,7 +1224,7 @@ public abstract class YTask extends YExternalNetElement {
                     if (!isMultiInstance() || !getPreSplittingMIQuery().equals(expression)) {
                         xml.append("<mapping>");
                         xml.append("<expression query=\"").
-                                append(marshal(expression)).
+                                append(JDOMUtil.encodeEscapes(expression)).
                                 append("\"/>");
                         xml.append("<mapsTo>").
                                 append(mapsTo).
@@ -1242,7 +1242,7 @@ public abstract class YTask extends YExternalNetElement {
                     String mapsTo = _dataMappingsForTaskCompletion.get(expression);
                     if (!isMultiInstance() || !_multiInstAttr.getMIFormalOutputQuery().equals(expression)) {
                         xml.append("<mapping><expression query=\"").
-                                append(marshal(expression)).
+                                append(JDOMUtil.encodeEscapes(expression)).
                                 append("\"/>");
                         xml.append("<mapsTo>").
                                 append(mapsTo).
@@ -1257,7 +1257,7 @@ public abstract class YTask extends YExternalNetElement {
             for (String mapsTo : _dataMappingsForTaskEnablement.keySet()) {
                 String expression = _dataMappingsForTaskEnablement.get(mapsTo);
                 xml.append("<mapping><expression query=\"").
-                        append(marshal(expression)).
+                        append(JDOMUtil.encodeEscapes(expression)).
                         append("\"/>");
                 xml.append("<mapsTo>").
                         append(mapsTo).
@@ -1284,18 +1284,6 @@ public abstract class YTask extends YExternalNetElement {
         }
         xml.append("</task>");
         return xml.toString();
-    }
-
-
-    public static String marshal(String expression) {
-        if (expression != null) {
-            expression = expression.replaceAll("&", "&amp;");
-            expression = expression.replaceAll("<", "&lt;");
-            expression = expression.replaceAll(">", "&gt;");
-            expression = expression.replaceAll("\"", "&qout;");
-            expression = expression.replaceAll("'", "&apos;");
-        }
-        return expression;
     }
 
 
