@@ -274,10 +274,15 @@ public class DynFormComponentBuilder {
 
 
     private String getInputStyleClass(DynFormField input) {
-        if (input.isRequired())
+        if (input.isInputOnly()) {
+            return "dynformInputReadOnly";
+        }
+        else if (input.isRequired()) {
             return "dynformInputRequired";
-        else
-             return "dynformInput";
+        }
+        else {
+            return "dynformInput";
+        }    
     }
 
     private void setMaxLabelChars(Label label) {

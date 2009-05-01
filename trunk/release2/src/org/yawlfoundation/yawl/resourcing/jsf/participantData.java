@@ -467,11 +467,16 @@ public class participantData extends AbstractPageBean {
                 if (selTab == null) selTab = "tabRoles";
                 sb.getFullResourceAttributeList(selTab) ;
                 sb.getParticipantAttributeList(selTab, p);
+                enableFields(true);
             }
             else {
                 sb.setAvailableResourceAttributes(null);
                 sb.setOwnedResourceAttributes(null);
+                enableFields(false);
             }
+        }
+        else {
+            enableFields(true);
         }
 
         // set active page and show any pending messages to user
@@ -680,6 +685,42 @@ public class participantData extends AbstractPageBean {
         // clear Resource Attributes
         ((pfAddRemove) getBean("pfAddRemove")).clearLists();
     }
+
+
+    private void enableFields(boolean enabled) {
+
+        // only do it if a change is required
+        if (txtFirstName.isDisabled() == enabled) {
+
+            // enable simple fields
+            txtFirstName.setDisabled(!enabled);
+            txtLastName.setDisabled(!enabled);
+            txtUserID.setDisabled(!enabled);
+            txtDesc.setDisabled(!enabled);
+            txtNotes.setDisabled(!enabled);
+            cbxAdmin.setDisabled(!enabled);
+            if (txtNewPassword != null) {
+                txtNewPassword.setDisabled(!enabled);
+                txtConfirmPassword.setDisabled(!enabled);
+            }
+
+            // enable privileges
+            cbxChooseItemToStart.setDisabled(!enabled);
+            cbxChainItems.setDisabled(!enabled);
+            cbxManageCases.setDisabled(!enabled);
+            cbxReorderItems.setDisabled(!enabled);
+            cbxStartConcurrent.setDisabled(!enabled);
+//        cbxViewAllAllocated.setDisabled(!enabled);
+//        cbxViewAllExecuting.setDisabled(!enabled);
+//        cbxViewAllOffered.setDisabled(!enabled);
+            cbxViewOrgGroupItems.setDisabled(!enabled);
+            cbxViewTeamItems.setDisabled(!enabled);
+
+            // enable Resource Attributes
+            ((pfAddRemove) getBean("pfAddRemove")).enableFields(enabled);
+        }
+    }
+
 
 
     private void saveChanges(Participant p) {

@@ -401,6 +401,14 @@
     background-color: #ffcccc;                     /* pale red */
 }
 
+.dynformInputReadOnly {
+    position: absolute;
+    font-style: italic;
+    background-color: #e0e0e0;
+    color: black;
+}
+
+
 .dynformReadOnlyPanel {
     border: 2px inset rgb(204, 204, 255);
     background-color: #e0e0e0;
@@ -415,11 +423,6 @@
     left: 5px;
 }
 
-
-
-.dynformReadOnlyText {
-    font-style: italic;
-}
 
 .orgDataUploadPanel {
     border: 2px solid gray;
