@@ -155,6 +155,15 @@ public class pfAddRemove extends AbstractFragmentBean {
         lbxOwns.setSelected(null);
     }
 
+
+    public void enableFields(boolean enabled) {
+        lbxAvailable.setDisabled(!enabled);
+        lbxOwns.setDisabled(!enabled);
+        btnSelect.setDisabled(!enabled);
+        btnUnselect.setDisabled(!enabled);
+    }
+
+
     public void populateAvailableList() {
         String selTab = _sb.getActiveResourceAttributeTab();
         if (selTab != null) selTab = "tabRoles" ;
