@@ -12,7 +12,6 @@ import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
 import org.jdom.Element;
-import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
@@ -309,7 +308,13 @@ public class userWorkQueues extends AbstractPageBean {
 
     public void setPnlContainer(PanelLayout pnl) { pnlContainer = pnl; }
     
-    
+
+    private Button btnVisualiser = new Button();
+
+    public Button getBtnVisualiser() { return btnVisualiser; }
+
+    public void setBtnVisualiser(Button btn) { btnVisualiser = btn; }
+
 
     /********************************************************************************/
 
@@ -432,6 +437,12 @@ public class userWorkQueues extends AbstractPageBean {
     public String btnRefresh_action() {
         return null ;
     }
+
+
+    public String btnVisualise_action() {
+        return "showVisualiser" ;
+    }
+
 
     public String btnNewInstance_action() {
         _sb.setSourceTab("tabStarted");                      // come back to started tab
@@ -671,31 +682,19 @@ public class userWorkQueues extends AbstractPageBean {
         String url = wir.getCustomFormURL();
         if (url != null) {
             _sb.setCustomFormPost(true);
-            WorkItemRecord wirToPost = wir ;
-            ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
             try {
 
-                // if wir has updated data, clone it & copy updates to datalist
-                if (wir.getUpdatedData() != null) {
-                    WorkItemRecord dirtywir = wir.clone() ;
-                    dirtywir.setDataList(wir.getUpdatedData());
-                    wirToPost = dirtywir;
-                }
-
                 // adjust session timeout value if required
-                adjustSessionTimeout(wirToPost);
-
-                // package up task param info & put them into session attributes
-                YSpecificationID specID = new YSpecificationID(wir.getSpecificationID(),
-                                                               wir.getSpecVersion());
-                String params = _rm.getTaskParamsAsXML(specID, wir.getTaskID(),
-                                                              _sb.getSessionhandle());
-
-                context.getSessionMap().put("workitem", wirToPost);
-                context.getSessionMap().put("params", params);
+                adjustSessionTimeout(wir);
 
                 // show the custom form
-                context.redirect(url);
+                StringBuilder redir = new StringBuilder(url);
+                redir.append("?workitem=")
+                     .append(wir.getID())
+                     .append("&handle=")
+                     .append(_sb.getSessionhandle());
+
+                FacesContext.getCurrentInstance().getExternalContext().redirect(redir.toString());
             }
             catch (Exception e) {
                 _sb.setCustomFormPost(false);
@@ -777,27 +776,23 @@ public class userWorkQueues extends AbstractPageBean {
     }
 
 
-    /** retrieves and updates a workitem after editing on a custom form */
+    /** takes necessary action after editing a custom form */
     private void postCustomForm() {
 
-        // retrieve wir from custom form's post data
-        ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-        WorkItemRecord updated = (WorkItemRecord) context.getSessionMap().remove("workitem");
-        Boolean complete = (Boolean) context.getSessionMap().remove("complete_on_post");
-        context.getSessionMap().remove("params");       // cleanup session map
-
         // reset session timeout if previously changed
-         if (_sb.isSessionTimeoutValueChanged()) {
-             _sb.resetSessionTimeout();
-             _sb.setSessionTimeoutValueChanged(false);
-         }
-        
-        // update edited wir
-        if (updated != null) {
+        if (_sb.isSessionTimeoutValueChanged()) {
+            _sb.resetSessionTimeout();
+            _sb.setSessionTimeoutValueChanged(false);
+        }
+
+        // retrieve completion flag - if any
+        ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+        Boolean complete = (Boolean) context.getSessionMap().remove("complete_on_post");
+
+        // complete wir if requested
+        if ((complete != null) && complete) {
             WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
-            wir.setUpdatedData(updated.getDataList());
-            _rm.getWorkItemCache().update(wir) ;
-            if ((complete != null) && complete) completeWorkItem(wir, _sb.getParticipant());
+            completeWorkItem(wir, _sb.getParticipant());
         }
 
         _sb.setCustomFormPost(false);                                  // reset flag
@@ -1024,6 +1019,8 @@ public class userWorkQueues extends AbstractPageBean {
 
     /** Disables buttons if queue is empty, enables them if not */
     private void processButtonEnablement(int queueType) {
+        btnVisualiser.setVisible(_sb.isVisualiserEnabled());
+
         boolean isEmptyQueue = (_sb.getQueueSize(queueType) == 0) ;
         switch (queueType) {
             case WorkQueue.OFFERED   : btnAccept.setDisabled(isEmptyQueue);

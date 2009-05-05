@@ -124,6 +124,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public boolean _logOffers ;
     private boolean _persistPiling ;
+    private boolean _visualiserEnabled;
 
     // authority for write access to org data entities
     private enum ResUnit {Participant, Role, Capability, OrgGroup, Position}
@@ -229,6 +230,11 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
     }
 
+    public void setVisualiserEnabled(boolean enable) {
+        _visualiserEnabled = enable;
+    }
+
+    public boolean isVisualiserEnabled() { return _visualiserEnabled; }
 
     public WorkItemCache getWorkItemCache() { return _workItemCache ; }
 
@@ -1887,6 +1893,36 @@ public class ResourceManager extends InterfaceBWebsideController {
 
         ResourceMap rMap = getResourceMap(wir);
         return (rMap != null) && (rMap.getTaskPrivileges().hasPrivilege(p, privilege));
+    }
+
+    public String getWorkItem(String itemID) {
+        String result = StringUtil.wrap("Unknown workitem ID", "failure");
+        WorkItemRecord wir = _workItemCache.get(itemID);
+        if (wir != null) {
+            result = wir.toXML();
+        }
+        return result;
+    }
+
+
+
+    public String updateWorkItemData(String itemID, String data) {
+        String result = StringUtil.wrap("Unknown workitem ID", "failure");
+        WorkItemRecord wir = _workItemCache.get(itemID);
+        if (wir != null) {
+            if (wir.getStatus().equals(WorkItemRecord.statusExecuting)) {
+                wir.setUpdatedData(JDOMUtil.stringToElement(data));
+                result = "<success/>";
+            }
+            else {
+                result = StringUtil.wrap(
+                    "Workitem '" + itemID + "' has a status of '" + wir.getStatus() +
+                    "' - data may only be updated for a workitem with 'Executing' status.",
+                    "failure"
+                );
+            }
+        }
+        return result;
     }
 
 

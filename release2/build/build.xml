@@ -1142,6 +1142,36 @@
     </target>
 
 
+    <target name="build_YQueueGateway.jar" depends="compile">
+
+        <!--<copy todir="${yawl.monitor.app.name}${webinf.dir}/engine">-->
+              <!--<fileset dir="${classes.dir}${packageRoot}/engine"-->
+                       <!--includes="YWorkItem.class YSpecificationID.class"/>-->
+        <!--</copy>-->
+        
+
+        <jar destfile="${output.dir}/YQueueGateway.jar" basedir="${classes.dir}"
+                includes="org/yawlfoundation/yawl/resourcing/rsInterface/WorkQueueGatewayClient.class
+                          org/yawlfoundation/yawl/engine/interfce/Interface_Client.class
+                          org/yawlfoundation/yawl/engine/interfce/Interface_Client.class
+                          org/yawlfoundation/yawl/engine/interfce/WorkItemRecord.class
+                          org/yawlfoundation/yawl/engine/interfce/ServletUtils.class
+                          org/yawlfoundation/yawl/engine/YSpecificationID.class
+                          org/yawlfoundation/yawl/elements/YSpecVersion.class
+                          org/yawlfoundation/yawl/util/JDOMUtil.class
+                          org/yawlfoundation/yawl/util/StringUtil.class
+                          org/yawlfoundation/yawl/util/ServletUtil.class">
+
+            <manifest>
+                <attribute name="Created-By" value="${developer.name}"/>
+            </manifest>
+        </jar>
+        <checksum file="${output.dir}/YQueueGateway.jar"/>
+    </target>
+
+
+
+
     <!-- Build the monitorService war file  -->
     <target name="build_monitorService.war" depends="compile">
 

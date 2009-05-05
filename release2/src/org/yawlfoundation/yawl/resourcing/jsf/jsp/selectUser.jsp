@@ -12,7 +12,7 @@
                              rel="shortcut icon"
                             type="image/x-icon" url="/resources/favicon.ico"/>
 
-                </ui:head>
+                </ui:head>                               
                 <ui:body binding="#{selectUser.body1}" id="body1"
                          style="-rave-layout: grid">
                     <ui:form binding="#{selectUser.form1}" id="form1">
