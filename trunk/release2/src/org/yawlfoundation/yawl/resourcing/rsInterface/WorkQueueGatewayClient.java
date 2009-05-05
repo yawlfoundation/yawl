@@ -210,6 +210,22 @@ public class WorkQueueGatewayClient extends Interface_Client {
         return performGet("getQueuedWorkItems", params, handle) ;
     }
 
+    
+    public String getWorkItem(String itemID, String handle) throws IOException {
+        params.clear();
+        params.put("itemid", itemID);
+        return performGet("getWorkItem", params, handle);
+    }
+
+
+    public String updateWorkItemData(String itemID, String data, String handle)
+            throws IOException {
+        params.clear();
+        params.put("itemid", itemID);
+        params.put("data", data);
+        return performGet("updateWorkItemData", params, handle);        
+    }
+
 
     public String getParticipantsAssignedWorkItem(String workItemID, int queueType,
                                                   String handle) throws IOException {

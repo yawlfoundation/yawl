@@ -59,6 +59,10 @@
             <from-outcome>showTeamQueues</from-outcome>
             <to-view-id>/teamQueues.jsp</to-view-id>
         </navigation-case>
+        <navigation-case>
+            <from-outcome>showVisualiser</from-outcome>
+            <to-view-id>/visualiser.jsp</to-view-id>
+        </navigation-case>
     </navigation-rule>
     <navigation-rule>
         <from-view-id>/caseMgt.jsp</from-view-id>
@@ -342,4 +346,12 @@
             <to-view-id>/orgDataMgt.jsp</to-view-id>
         </navigation-case>
     </navigation-rule>
+    <navigation-rule>
+        <from-view-id>/visualiser.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>showDefaultQueues</from-outcome>
+            <to-view-id>/userWorkQueues.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+    
 </faces-config>

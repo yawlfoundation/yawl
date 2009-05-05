@@ -145,6 +145,15 @@ public class WorkQueueGateway extends HttpServlet {
             QueueSet qSet = _rm.getAdminQueues();
             result = qSet.toXML() ;
         }
+        else if (action.equals("getWorkItem")) {
+            String itemID = req.getParameter("itemid");
+            result = _rm.getWorkItem(itemID);
+        }
+        else if (action.equals("updateWorkItemData")) {
+            String itemID = req.getParameter("itemid");
+            String data = req.getParameter("data");
+            result = _rm.updateWorkItemData(itemID, data);            
+        }
         else if (action.equals("getQueuedWorkItems")) {
             int queueType = new Integer(req.getParameter("queue")) ;
             Participant p = _rm.getParticipant(pid);

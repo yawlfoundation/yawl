@@ -204,6 +204,17 @@ public class WorkQueueGatewayClientAdapter {
     }
 
 
+    public String getWorkItem(String itemID, String handle) throws IOException {
+        return _wqclient.getWorkItem(itemID, handle) ;
+    }
+
+
+    public String updateWorkItemData(String itemID, String data, String handle)
+            throws IOException {
+        return _wqclient.updateWorkItemData(itemID, data, handle) ;
+    }
+
+
     public Set<Participant> getParticipantsAssignedWorkItem(String workItemID,
                                    int queueType, String handle) throws IOException {
         String xml = _wqclient.getParticipantsAssignedWorkItem(workItemID,

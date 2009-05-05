@@ -67,9 +67,15 @@ public class ResourceGateway extends HttpServlet {
                 String logOffers = context.getInitParameter("LogOffers");
                 EventLogger.setOfferLogging(logOffers.equalsIgnoreCase("TRUE"));
 
-                //enable/disable the dropping of task piling on logout
+                // enable/disable the dropping of task piling on logout
                 String dropPiling = context.getInitParameter("DropTaskPilingOnLogoff");
                 rm.setPersistPiling(dropPiling.equalsIgnoreCase("FALSE")) ;
+
+                // enable the visualiser applet, if necessary
+                String enableVisualiser = context.getInitParameter("EnableVisualizer");
+                if (enableVisualiser.equalsIgnoreCase("TRUE")) {
+                    rm.setVisualiserEnabled(true);
+                }
 
                 // now that we have all the settings, complete the init
                 rm.finaliseInitialisation() ;

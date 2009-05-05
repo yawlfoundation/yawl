@@ -203,6 +203,14 @@
                                    toolTip="Refresh Queues"
                                    text=""/>
 
+                        <ui:button binding="#{userWorkQueues.btnVisualiser}"
+                                   action="#{userWorkQueues.btnVisualise_action}"
+                                   id="btnVisualiser"
+                                   imageURL="/resources/visualise.png"
+                                   styleClass="synchButton"
+                                   toolTip="Show Visualizer"
+                                   text=""/>
+
                         <div>
                             <jsp:include page="pfQueueUI.jspf"/>
                         </div>

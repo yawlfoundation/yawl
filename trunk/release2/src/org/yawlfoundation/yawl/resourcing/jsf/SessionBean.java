@@ -239,6 +239,8 @@ public class SessionBean extends AbstractSessionBean {
          }
     }
 
+    public boolean isVisualiserEnabled() { return _rm.isVisualiserEnabled(); }
+
     boolean sessionTimeoutValueChanged = false;
 
     public boolean isSessionTimeoutValueChanged() {
