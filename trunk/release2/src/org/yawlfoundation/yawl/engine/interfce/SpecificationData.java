@@ -13,14 +13,15 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.XMLOutputter;
-import org.xml.sax.InputSource;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
@@ -133,18 +134,12 @@ public class SpecificationData {
      * @return  schema library as a string.
      */
     public String getSchemaLibrary() throws IOException, JDOMException {
-        SAXBuilder builder = new SAXBuilder();
-
-        InputSource yawlSpecificationInputSource = new InputSource(new StringReader(_specAsXML));
-
-        Document document = builder.build(yawlSpecificationInputSource);
+        Document document = JDOMUtil.stringToDocument(_specAsXML);
         Element yawlSpecSetElement = document.getRootElement();
 
-        String ns ;
-        if (_betaFormat.equals("2.0"))
-            ns = "http://www.yawlfoundation.org/yawlschema" ;
-        else
-            ns = "http://www.citi.qut.edu.au/yawl" ;
+        String ns = _betaFormat.equals("2.0") ?
+                "http://www.yawlfoundation.org/yawlschema" :
+                "http://www.citi.qut.edu.au/yawl" ;
 
         Namespace yawlNameSpace = Namespace.getNamespace(ns);
         Element yawlSpecElement = yawlSpecSetElement.getChild("specification", yawlNameSpace);
@@ -154,8 +149,7 @@ public class SpecificationData {
             Element schemaLibraryElement = yawlSpecElement.getChild("schema", schema2SchNS);
 
             if (schemaLibraryElement != null) {
-                XMLOutputter output = new XMLOutputter();
-                return output.outputString(schemaLibraryElement);
+                return JDOMUtil.elementToString(schemaLibraryElement);
             }    
         }
         return null;

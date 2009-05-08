@@ -1039,7 +1039,7 @@
                     includes="YSchemaBuildingException.class YDataStateException.class
                               YSyntaxException.class YAWLException.class
                               YStateException.class YQueryException.class
-                              YPersistenceException.class"/>
+                              YPersistenceException.class YDataValidationException.class"/>
         </copy>
 
         <copy todir="${yawl.resource.app.name}${webinf.dir}/forms">
@@ -1053,13 +1053,13 @@
         <copy todir="${yawl.resource.app.name}${webinf.dir}/unmarshal">
             <fileset dir="${classes.dir}${packageRoot}/unmarshal"
                      includes="YDecompositionParser.class SchemaValidator.class
-                               SchemaForSchemaValidator.class"/>
+                               SchemaForSchemaValidator.class XMLValidator.class"/>
             <fileset dir="${schema.dir}" includes="*.xsd"/>
         </copy>
 
         <copy todir="${yawl.resource.app.name}${webinf.dir}/util">
               <fileset dir="${classes.dir}${packageRoot}/util"
-                       includes="JDOMUtil.class StringUtil.class
+                       includes="JDOMUtil.class StringUtil.class HttpURLValidator.class
                                  CharsetFilter.class DOMUtil.class"/>
         </copy>
 

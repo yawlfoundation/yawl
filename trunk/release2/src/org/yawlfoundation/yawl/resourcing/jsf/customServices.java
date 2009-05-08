@@ -11,11 +11,12 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.util.HttpURLValidator;
 
+import javax.faces.FacesException;
 import javax.faces.component.UIColumn;
 import javax.faces.component.html.HtmlDataTable;
 import javax.faces.component.html.HtmlOutputText;
-import javax.faces.FacesException;
 import java.util.List;
 
 /**
@@ -355,9 +356,15 @@ public class customServices extends AbstractPageBean {
         String uri = (String) txtURL.getText();
         String doco = (String) txtDescription.getText();
         if (! (isNullOrEmpty(name) || isNullOrEmpty(uri) || isNullOrEmpty(doco))) {
-            getSessionBean().addRegisteredService(name, uri, doco);
-            clearInputs();
-            msgPanel.success("Service successfully added.");
+            String validMsg = HttpURLValidator.validate(uri);
+            if (validMsg.startsWith("<success")) {
+                getSessionBean().addRegisteredService(name, uri, doco);
+                clearInputs();
+                msgPanel.success("Service successfully added.");
+            }
+            else {
+                msgPanel.error("Invalid URL: " + msgPanel.format(validMsg));
+            }
         }
         else
             msgPanel.warn("Add Service: Please enter values in all fields.");

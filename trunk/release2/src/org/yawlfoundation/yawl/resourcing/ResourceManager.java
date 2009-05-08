@@ -50,6 +50,7 @@ import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ConnectionCache;
 import org.yawlfoundation.yawl.resourcing.util.*;
+import org.yawlfoundation.yawl.schema.YDataValidator;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -1907,21 +1908,74 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public String updateWorkItemData(String itemID, String data) {
-        String result = StringUtil.wrap("Unknown workitem ID", "failure");
-        WorkItemRecord wir = _workItemCache.get(itemID);
-        if (wir != null) {
-            if (wir.getStatus().equals(WorkItemRecord.statusExecuting)) {
-                wir.setUpdatedData(JDOMUtil.stringToElement(data));
-                result = "<success/>";
+        String result ;
+        if ((data != null) && (data.length() > 0)) {
+            WorkItemRecord wir = _workItemCache.get(itemID);
+            if (wir != null) {
+                if (wir.getStatus().equals(WorkItemRecord.statusExecuting)) {
+                    Element dataElem = JDOMUtil.stringToElement(data);
+                    if (dataElem != null) {
+                        String validate = checkWorkItemDataAgainstSchema(wir, dataElem);
+                        if (validate.startsWith("<success")) {
+                            wir.setUpdatedData(dataElem);                  // all's good
+                            result = "<success/>";
+                        }
+                        else {
+                            result = StringUtil.wrap(
+                                    "Data failed validation: " + validate, "failure");
+                        }
+                    }
+                    else {
+                        result = StringUtil.wrap("Data XML is malformed", "failure");
+                    }
+                }
+                else {
+                    result = StringUtil.wrap(
+                        "Workitem '" + itemID + "' has a status of '" + wir.getStatus() +
+                        "' - data may only be updated for a workitem with 'Executing' status.",
+                        "failure"
+                    );
+                }
             }
             else {
-                result = StringUtil.wrap(
-                    "Workitem '" + itemID + "' has a status of '" + wir.getStatus() +
-                    "' - data may only be updated for a workitem with 'Executing' status.",
-                    "failure"
-                );
+                result = StringUtil.wrap("Unknown workitem: " + itemID, "failure");
             }
         }
+        else {
+            result = StringUtil.wrap("Data is null or empty.", "failure");
+        }
+        return result;
+    }
+
+
+    private String checkWorkItemDataAgainstSchema(WorkItemRecord wir, Element data) {
+        String result = "<success/>";
+        if (! data.getName().equals(wir.getTaskName())) {
+            result = StringUtil.wrap(
+                    "Invalid data structure: root element name doesn't match task name",
+                    "failure"
+            );
+        }
+        else {
+            YSpecificationID specID = new YSpecificationID(wir.getSpecificationID(),
+                    wir.getSpecVersion());
+            SpecificationData specData = getSpecData(specID);
+            try {
+                String schema = specData.getSchemaLibrary();
+                YDataValidator validator = new YDataValidator(schema);
+                if (validator.validateSchema()) {
+                    TaskInformation taskInfo = getTaskInformation(
+                            specID, wir.getTaskID(), _engineSessionHandle);
+
+                    // a YDataValidationException is thrown here if validation fails
+                    validator.validate(taskInfo.getParamSchema().getCombinedParams(), data, "");
+                }
+                else result = StringUtil.wrap("Invalid data schema", "failure");
+            }
+            catch (Exception e) {
+                result = StringUtil.wrap(e.getMessage(), "failure");
+            }
+        }    
         return result;
     }
 

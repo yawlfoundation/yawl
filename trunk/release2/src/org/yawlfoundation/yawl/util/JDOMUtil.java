@@ -77,7 +77,7 @@ import java.io.*;
     public static Element stringToElement(String s) {
         if (s == null) return null ;
         Document doc = stringToDocument(s);
-        return doc.getRootElement();
+        return (doc != null) ? doc.getRootElement() : null;
     }
 
     /****************************************************************************/
@@ -134,12 +134,12 @@ import java.io.*;
     }
 
     public static String decodeEscapes(String s) {
-        if (s == null) return s;
-        return s.replaceAll("&amp;", "&")
-                .replaceAll("&lt;","<")               
+        if ((s == null) || (s.indexOf('&') < 0)) return s;  // short circuit if no encodes
+        return s.replaceAll("&lt;","<")
                 .replaceAll("&gt;", ">")
                 .replaceAll("&quot;","\"")
-                .replaceAll("&apos;", "'") ;
+                .replaceAll("&apos;", "'")
+                .replaceAll("&amp;", "&");
     }
 
     /****************************************************************************/

@@ -32,7 +32,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -74,11 +73,10 @@ public class DynFormValidator {
         boolean subResult = true, finalResult = true, ignoring = false ;
         List components = panel.getChildren();
         if (components != null) {
-            Iterator itr = components.iterator();
 
             // checkboxes, dropdowns & calendars are self validating - only need to do textfields
-            while (itr.hasNext()) {
-                UIComponent component = (UIComponent) itr.next();
+            for (Object o : components) {
+                UIComponent component = (UIComponent) o;
 
                 // if a choice is involved, the unselected field(s) must be ignored
                 if (component instanceof RadioButton) {

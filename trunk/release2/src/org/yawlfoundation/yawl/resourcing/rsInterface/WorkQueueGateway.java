@@ -85,7 +85,9 @@ public class WorkQueueGateway extends HttpServlet {
         else if (action.equals("isValidUserSession")) {
             result = String.valueOf(_rm.isValidUserSession(handle)) ;
         }
-        
+        else if (authorisedCustomFormAction(action, handle)) {
+            result = doAction(action, req);
+        }
         else if (_rm.checkServiceConnection(handle)) {
             result = doAction(action, req);
         }
@@ -319,6 +321,14 @@ public class WorkQueueGateway extends HttpServlet {
         }
 
         return result ;
+    }
+
+
+    private boolean authorisedCustomFormAction(String action, String handle) {
+        if ((action.equals("getWorkItem")) || (action.equals("updateWorkItemData"))) {
+            return _rm.isValidUserSession(handle);
+        }
+        else return false;
     }
 
 }
