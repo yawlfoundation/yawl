@@ -26,6 +26,7 @@ import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGatewayClientAdapter;
 import org.yawlfoundation.yawl.schema.XSDType;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -70,8 +71,8 @@ public class TestService extends InterfaceBWebsideController {
    //     output.append(doResourceServiceGatewayTest()) ;
    //    output.append(createDummyOrgData());
    //      output.append(doLogGatewayTest()) ;
-   //    output.append(doWorkQueueGatewayTest()) ;
-        output.append(ibTest());
+       output.append(doWorkQueueGatewayTest()) ;
+    //    output.append(ibTest());
    //     output.append(doRandomTest()) ;
    //     output.append(doGetParticipantsTest()) ;
    //       output.append(controllerTest());
@@ -82,6 +83,7 @@ public class TestService extends InterfaceBWebsideController {
    //     output.append(testSummaries());
    //     output.append(getEngineParametersForRegisteredService());
   // output.append(testDynMultiCompTaskNewInst()) ;
+  //       output.append(testJU()) ;
 
          output.append("</pre></p></body></html>");
          outputWriter.write(output.toString());
@@ -223,6 +225,25 @@ private static String getReply(InputStream is) throws IOException {
         }
     }
 
+    private String testJU() {
+        String a = "<a>A</a>";
+        String encoded = JDOMUtil.encodeEscapes(a);
+        String b = "<b>"+encoded+"</b>";
+        String bEncoded = JDOMUtil.encodeEscapes(b);
+        String c = "<c>"+bEncoded+"</c>";
+        String cEncoded = JDOMUtil.encodeEscapes(c);
+        System.err.println("A = "+a);
+        System.err.println("B = "+b);
+        System.err.println("C = "+c);
+        System.err.println("A encoded="+encoded);
+        System.err.println("B encoded="+bEncoded);
+        System.err.println("B decoded="+JDOMUtil.decodeEscapes(bEncoded));
+        System.err.println("C encoded="+cEncoded);
+        System.err.println("C decoded="+JDOMUtil.decodeEscapes(cEncoded));
+        System.err.println("encode/decode results in same value:"+(b.equals(JDOMUtil.decodeEscapes(bEncoded))));
+        return "";
+    }
+
     private String doGetParticipantsTest() {
         String resURL = "http://localhost:8080/resourceService/gateway";
         ResourceGatewayClientAdapter resClient = new ResourceGatewayClientAdapter(resURL) ;
@@ -357,15 +378,21 @@ c.getQueuedWorkItems(resourceId,WorkQueue.SUSPENDED,handle);
         WorkQueueGatewayClientAdapter resClient = new WorkQueueGatewayClientAdapter(resURL);
         
 
-        String handle = resClient.connect("admin", "YAWL");
+//        String handle = resClient.connect("admin", "YAWL");
+//
+//        Participant p = resClient.getParticipantFromUserID("AdamsJ", handle);
+//
+//        Set<WorkItemRecord> set = resClient.getQueuedWorkItems(p.getID(), WorkQueue.OFFERED, handle) ;
+//
+//        System.out.println(set);
 
-        Participant p = resClient.getParticipantFromUserID("AdamsJ", handle);
+        String id = "3.1:5_Admit";
+        String data = "<Admit><Weight>85</Weight><DiastolicBP>80</DiastolicBP><Sex>M</Sex><PatientID>122345</PatientID><Height>1.8</Height><HeartRate>72</HeartRate><SystolicBP>120</SystolicBP><Name>dkdkd</Name><Age>21</Age></Admit>";
+        String handle = "8445744700114409003";
 
-        Set<WorkItemRecord> set = resClient.getQueuedWorkItems(p.getID(), WorkQueue.OFFERED, handle) ;
+        String result = resClient.updateWorkItemData(id, data, handle);
 
-        System.out.println(set);
-
-        return "";
+        return result;
     }
 
     private String doResourceServiceGatewayTest() throws IOException {

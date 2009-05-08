@@ -42,6 +42,18 @@ public class YParametersSchema {
         return list;
     }
 
+    public List<YParameter> getCombinedParams() {
+        List<YParameter> result = getInputParams();
+
+        // add any output only params to list
+        for (String name : _outputParams.keySet()) {
+            if (!_inputParams.containsKey(name)) {
+                result.add(_outputParams.get(name));
+            }
+        }
+        return result;
+    }
+
 
     public void setInputParam(YParameter parameter) {
         if (YParameter.getTypeForInput().equals(parameter.getDirection()))
