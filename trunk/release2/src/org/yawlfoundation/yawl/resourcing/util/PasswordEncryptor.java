@@ -15,18 +15,9 @@ import java.security.NoSuchAlgorithmException;
 
 public class PasswordEncryptor {
 
-    private static PasswordEncryptor _me;
-
     private PasswordEncryptor() { }
 
-
-    public static synchronized PasswordEncryptor getInstance() {
-        if (_me == null) _me = new PasswordEncryptor();
-        return _me;
-    }
-
-
-    public synchronized String encrypt(String text)
+    public static synchronized String encrypt(String text)
                         throws NoSuchAlgorithmException, UnsupportedEncodingException {
         MessageDigest md = MessageDigest.getInstance("SHA");
         md.update(text.getBytes("UTF-8"));
