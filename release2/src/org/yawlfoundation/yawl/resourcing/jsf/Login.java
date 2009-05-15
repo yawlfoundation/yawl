@@ -10,7 +10,6 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
-import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
@@ -225,7 +224,7 @@ public class Login extends AbstractPageBean {
             String pEncrypt = p ;                                // default for admin
             if (! u.equals("admin")) {
                 try {
-                    pEncrypt = PasswordEncryptor.getInstance().encrypt(p) ;
+                    pEncrypt = PasswordEncryptor.encrypt(p) ;
                 }
                 catch(NoSuchAlgorithmException nsae) {
                     msgPanel.error("Password Encryption Algorithm not available. Login failed.");

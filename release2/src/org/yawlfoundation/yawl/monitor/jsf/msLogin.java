@@ -10,7 +10,6 @@ package org.yawlfoundation.yawl.monitor.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
-import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.monitor.MonitorClient;
 import org.yawlfoundation.yawl.resourcing.jsf.MessagePanel;
 import org.yawlfoundation.yawl.resourcing.util.PasswordEncryptor;
@@ -210,7 +209,7 @@ public class msLogin extends AbstractPageBean {
             String pEncrypt = p ;                                // default for admin
             if (! u.equals("admin")) {
                 try {
-                    pEncrypt = PasswordEncryptor.getInstance().encrypt(p) ;
+                    pEncrypt = PasswordEncryptor.encrypt(p) ;
                 }
                 catch(NoSuchAlgorithmException nsae) {
                     msgPanel.error("Password Encryption Algorithm not available. Login failed.");

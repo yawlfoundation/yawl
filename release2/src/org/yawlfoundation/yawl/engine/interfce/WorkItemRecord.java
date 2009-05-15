@@ -372,7 +372,7 @@ public class WorkItemRecord implements Cloneable {
 
     public String toXML() {
         StringBuilder xml = new StringBuilder("<workItemRecord");
-        xml.append(_extendedAttributes)
+        xml.append(_extendedAttributes != null? _extendedAttributes : "")
            .append(">")
            .append(StringUtil.wrap(getID(), "id"))
            .append(StringUtil.wrap(_specificationID, "specid"))                

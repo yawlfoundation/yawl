@@ -96,8 +96,7 @@ public class WorkQueueGatewayClientAdapter {
      */
     public String userlogin(String userid, String password) {
         try {
-            return _wqclient.userlogin(userid,
-                    PasswordEncryptor.getInstance().encrypt(password)) ;
+            return _wqclient.userlogin(userid, PasswordEncryptor.encrypt(password)) ;
         }
         catch (IOException ioe) {
             return "<failure>IOException attempting to connect to Service.</failure>";

@@ -737,7 +737,7 @@ public class participantData extends AbstractPageBean {
         String password = (String) txtNewPassword.getPassword();
         if (password.length() > 0) {
             try {
-                p.setPassword(PasswordEncryptor.getInstance().encrypt(password));
+                p.setPassword(PasswordEncryptor.encrypt(password));
             }
             catch (Exception e) {
                 msgPanel.warn("Could not change password - encryption service unavailable.");
