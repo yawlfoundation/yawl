@@ -10,6 +10,7 @@
 package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
 import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.engine.ObserverGateway;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
@@ -24,6 +25,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.rmi.RemoteException;
@@ -74,6 +76,17 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                 _engine = new EngineGatewayImpl(persist);
                 context.setAttribute("engine", _engine);
             }
+
+            // init any 3rd party observer gateways
+            String gatewayStr = context.getInitParameter("ObserverGateway");
+            if (gatewayStr != null) {
+
+                // split multiples on the semi-colon (if any)
+                String[] gateways = gatewayStr.split(";");
+                for (String gateway : gateways) {
+                    registerObserverGateway(gateway);
+                }
+            }
         }
         catch (IOException ioe) {
             logger.warn("Could not load static properties from file.");
@@ -82,6 +95,32 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
             logger.fatal("Failure to initialise runtime (persistence failure)", e);
             throw new UnavailableException("Persistence failure");
         }
+    }
+
+
+    private void registerObserverGateway(String gatewayClassName) {
+        ObserverGateway gateway ;
+        try {
+            Class gatewayClass = Class.forName(gatewayClassName);
+
+            // If the class has a getInstance() method, call that method rather than
+            // calling a constructor (& thus instantiating 2 instances of the class)
+            try {
+                Method instMethod = gatewayClass.getDeclaredMethod("getInstance");
+                gateway = (ObserverGateway) instMethod.invoke(null);
+            }
+            catch (NoSuchMethodException nsme) {
+                gateway = (ObserverGateway) gatewayClass.newInstance();
+            }
+            if (gateway != null)
+                _engine.registerObserverGateway(gateway);
+            else
+                logger.warn("Error registering external ObserverGateway: " + gateway); 
+        }
+        catch (Exception e) {
+            logger.warn("Exception attempting to register external ObserverGateway.", e);
+        }
+
     }
 
 

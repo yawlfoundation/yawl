@@ -8,11 +8,12 @@
 
 package org.yawlfoundation.yawl.engine.interfce;
 
+import org.yawlfoundation.yawl.engine.ObserverGateway;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 
+import java.net.URI;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.net.URI;
 
 /**
  /**
@@ -30,6 +31,8 @@ public interface EngineGateway extends Remote {
      * @return boolean
      */
     public boolean enginePersistenceFailure();
+
+    public void registerObserverGateway(ObserverGateway gateway);
 
     /**
      *
