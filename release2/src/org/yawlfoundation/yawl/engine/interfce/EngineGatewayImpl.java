@@ -19,10 +19,7 @@ import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.engine.YEngine;
-import org.yawlfoundation.yawl.engine.YSpecificationID;
-import org.yawlfoundation.yawl.engine.YWorkItem;
-import org.yawlfoundation.yawl.engine.YWorkItemStatus;
+import org.yawlfoundation.yawl.engine.*;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -99,6 +96,15 @@ public class EngineGatewayImpl implements EngineGateway {
     public boolean enginePersistenceFailure()
     {
         return enginePersistenceFailure;
+    }
+
+
+    /**
+     * Registers an external observer gateway with the engine
+     * @param gateway the gateway to register
+     */
+    public void registerObserverGateway(ObserverGateway gateway) {
+        _engine.registerInterfaceBObserverGateway(gateway);
     }
 
 
