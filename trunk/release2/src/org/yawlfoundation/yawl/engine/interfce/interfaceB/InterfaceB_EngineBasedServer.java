@@ -109,18 +109,31 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                 Method instMethod = gatewayClass.getDeclaredMethod("getInstance");
                 gateway = (ObserverGateway) instMethod.invoke(null);
             }
+
+            // no getInstance(), so just create a plain new instance
             catch (NoSuchMethodException nsme) {
                 gateway = (ObserverGateway) gatewayClass.newInstance();
             }
+
             if (gateway != null)
                 _engine.registerObserverGateway(gateway);
             else
-                logger.warn("Error registering external ObserverGateway: " + gateway); 
+                logger.warn("Error registering external ObserverGateway '" +
+                            gatewayClassName + "'."); 
+        }
+        catch (ClassNotFoundException e) {
+            logger.warn("Unable to locate external ObserverGateway '" +
+                        gatewayClassName + "'.", e);
+        }
+        catch (InstantiationException ie) {
+            logger.warn("Unable to instantiate external ObserverGateway '" +
+                        gatewayClassName +
+                       "'. Perhaps it is missing a no-argument constructor.", ie);
         }
         catch (Exception e) {
-            logger.warn("Exception attempting to register external ObserverGateway.", e);
+            logger.warn("Unable to instantiate external ObserverGateway '" +
+                        gatewayClassName + "'.", e);
         }
-
     }
 
 
