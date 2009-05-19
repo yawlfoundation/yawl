@@ -23,7 +23,12 @@
 package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.data.*;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
+import org.yawlfoundation.yawl.editor.data.Parameter;
+import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
+import org.yawlfoundation.yawl.editor.data.internal.YStringListType;
+import org.yawlfoundation.yawl.editor.data.internal.YTimerType;
 import org.yawlfoundation.yawl.editor.elements.model.*;
 import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
 import org.yawlfoundation.yawl.editor.foundations.LogWriter;
@@ -236,28 +241,33 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   
   private static void generateEngineDataTypeDefinition(SpecificationModel editorSpec, 
                                                 YSpecification engineSpec) {
-    String schema;
-        
-    try {
-      schema = YTimerType.adjustSchema(editorSpec.getDataTypeDefinition(),
-                                         SpecificationParametersIncludeYTimerType);
+      String schema = adjustSchemaForInternalTypes(editorSpec.getDataTypeDefinition());
 
       // remove any header inadvertently inserted by user
       if (schema.startsWith("<?xml")) {
           schema = schema.substring(schema.indexOf('>') + 1);
       }
-      engineSpec.setSchema(schema);
-    }
-    catch (Exception eActual) {
       try {
-        schema = YTimerType.adjustSchema(SpecificationModel.DEFAULT_TYPE_DEFINITION,
-                                           SpecificationParametersIncludeYTimerType);
-        engineSpec.setSchema(schema);
+          engineSpec.setSchema(schema);
       }
-      catch (Exception eDefault) {}
-    }
+      catch (Exception eActual) {
+          try {
+              schema = adjustSchemaForInternalTypes(SpecificationModel.DEFAULT_TYPE_DEFINITION);
+              engineSpec.setSchema(schema);
+          }
+          catch (Exception eDefault) {}
+     }
   }
-  
+
+
+    private static String adjustSchemaForInternalTypes(String specDataSchema) {
+        String schema = YTimerType.adjustSchema(specDataSchema,
+                                             SpecificationParametersIncludeYTimerType);
+        return YStringListType.adjustSchema(schema,
+                                          SpecificationParametersIncludeYStringListType);
+    }
+
+
   private static void generateEngineMetaData(SpecificationModel editorSpec, 
                                              YSpecification engineSpec) {
     
@@ -387,7 +397,10 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       }
       else if (dataType.equals(DataVariable.YAWL_SCHEMA_TIMER_TYPE)) {
         SpecificationParametersIncludeYTimerType = true ;
-    }
+      }
+      else if (dataType.equals(DataVariable.YAWL_SCHEMA_STRINGLIST_TYPE)) {
+        SpecificationParametersIncludeYStringListType = true ;
+      }
 
       engineNetVariable.setInitialValue(initialValue);
      
@@ -796,6 +809,9 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     if (dataType.equals(DataVariable.YAWL_SCHEMA_TIMER_TYPE)) {
         SpecificationParametersIncludeYTimerType = true ;
     }
+      if (dataType.equals(DataVariable.YAWL_SCHEMA_STRINGLIST_TYPE)) {
+          SpecificationParametersIncludeYStringListType = true ;
+      }
   }
   
   private static void generateDecompositionOutputParameters(YDecomposition engineDecomposition, 

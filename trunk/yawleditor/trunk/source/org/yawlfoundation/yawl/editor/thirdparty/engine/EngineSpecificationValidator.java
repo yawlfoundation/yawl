@@ -123,7 +123,8 @@ public class EngineSpecificationValidator {
                                                  String netName, String taskName) {
       boolean valid;
       String datatype = var.getDataType();
-      if (! (DataVariable.isBaseDataType(datatype) || datatype.equals("YTimerType") ||
+      if (! (DataVariable.isBaseDataType(datatype) ||
+             datatype.equals("YTimerType") || datatype.equals("YStringListType") ||
              isXSBuiltInSimpleType(datatype))) {
           if (_checkedDataTypes.containsKey(datatype)) {
               valid = _checkedDataTypes.get(datatype);

@@ -326,7 +326,7 @@ public class XMLUtilities {
     
     String variableContent = null;
     
-    if (variable.isYTimerType()) {
+    if (variable.isYInternalType()) {
       variableContent = "*";
     }
     else  if (DataVariable.isBaseDataType(variable.getDataType())) {

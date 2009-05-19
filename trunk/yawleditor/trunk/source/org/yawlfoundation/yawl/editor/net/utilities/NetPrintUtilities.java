@@ -76,10 +76,12 @@ public class NetPrintUtilities {
 
     Dimension d = bounds.getBounds().getSize();
 
-    String printoutLabel = "Specification ID: " + SpecificationModel.getInstance().getId() + ", Net ID:  " + net.getName();
+    String printoutLabel = "Specification ID: " + SpecificationModel.getInstance().getId() +
+                           ", Net ID:  " + net.getName();
 
     int characterHeight = net.getFontMetrics(net.getFont()).getHeight();
-    int characterWidth = (int) net.getFontMetrics(net.getFont()).getStringBounds(printoutLabel, net.getGraphics()).getWidth();
+    int characterWidth = (int) net.getFontMetrics(net.getFont())
+                        .getStringBounds(printoutLabel, net.getGraphics()).getWidth();
     
     BufferedImage image =
       new BufferedImage(

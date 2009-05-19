@@ -39,7 +39,7 @@ public abstract class EngineEditorInterpretor {
   protected static HashMap editorToEngineNetMap;
   protected static HashMap editorFlowEngineConditionMap;
   protected static boolean SpecificationParametersIncludeYTimerType ;
-
+  protected static boolean SpecificationParametersIncludeYStringListType;
   protected static final String XML_SCHEMA_URI = "http://www.w3.org/2001/XMLSchema";
 
   protected static final String ENGINE_RESOURCE_ALLOCATION_PARAMETER = "YawlResourceAllocationQuery";
@@ -52,7 +52,8 @@ public abstract class EngineEditorInterpretor {
     editorToEngineElementMap = new HashMap();
     editorToEngineNetMap = new HashMap();
     editorFlowEngineConditionMap = new HashMap();
-    SpecificationParametersIncludeYTimerType = false;  
+    SpecificationParametersIncludeYTimerType = false;
+    SpecificationParametersIncludeYStringListType = false;    
   }
 
   public static void reset() { initialise(); }

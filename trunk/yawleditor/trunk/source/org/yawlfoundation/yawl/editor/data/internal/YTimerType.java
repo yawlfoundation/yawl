@@ -1,7 +1,9 @@
-package org.yawlfoundation.yawl.editor.data;
+package org.yawlfoundation.yawl.editor.data.internal;
 
+import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.data.DataVariableUtilities;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
-import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 
 import java.util.List;
@@ -12,7 +14,7 @@ import java.util.List;
  */
 public class YTimerType {
 
-    private static final String schema = "\n\t<xs:complexType name=\"YTimerType\">\n" +
+    private static final String _schema = "\n\t<xs:complexType name=\"YTimerType\">\n" +
                                    "\t\t<xs:sequence>\n" +
                                    "\t\t\t<xs:element name=\"trigger\">\n" +
                                    "\t\t\t\t<xs:simpleType>\n" +
@@ -26,7 +28,7 @@ public class YTimerType {
                                    "\t\t</xs:sequence>\n" +
                                    "\t</xs:complexType>\n";
 
-    private static final String valElement = "<element name=\"%s\">" +
+    private static final String _valElement = "<element name=\"%s\">" +
                                    "<complexType>" +
                                    "<sequence>" +
                                    "<element name=\"trigger\">" +
@@ -45,10 +47,10 @@ public class YTimerType {
 
     public YTimerType() {}
 
-    public static String getSchema() { return schema; }
+    public static String getSchema() { return _schema; }
 
     public static String getValidationSchema(String name) { 
-        return String.format(valElement, name);
+        return String.format(_valElement, name);
     }
 
     public List<DataVariable> getNetLevelTimerVariables() {
@@ -66,59 +68,8 @@ public class YTimerType {
     }
 
     public static String adjustSchema(String specDataSchema, boolean include) {
-        if (include) {
-           return addSchemaToSpecificationDataSchema(specDataSchema);
-        }
-        else {
-            return expungeSchemaFromSpecificationDataSchema(specDataSchema);             
-        }
+        return YInternalTypeHelper.adjustSchema(specDataSchema, "YTimerType",
+                                               _schema, include);
     }
-
-    public static String addSchemaToSpecificationDataSchema(String specDataSchema) {
-        String result = specDataSchema ;
-        if ((specDataSchema != null) && (specDataSchema.indexOf("YTimerType") == -1)) {
-
-            // if empty string, or normalised header only, get unnormalised version
-            if ((specDataSchema.length()==0) || specDataSchema.endsWith("/>")) {
-                specDataSchema = SpecificationModel.DEFAULT_TYPE_DEFINITION;
-            }
-
-            // remove end
-            int insertPoint = specDataSchema.lastIndexOf('<') ;
-            if (insertPoint > 0) {
-                String closer = specDataSchema.substring(insertPoint);
-                String newSchema = specDataSchema.substring(0, insertPoint - 1) ;
-
-                // insert schema
-                newSchema += schema + closer ;
-
-                String prefix = getPrefix(newSchema);
-                if (! prefix.equals("xs:")) {
-                    newSchema = newSchema.replaceAll("xs:", prefix) ;
-                }
-
-                result = newSchema ;
-            }
-        }
-        return result ;
-    }
-
-
-    public static String expungeSchemaFromSpecificationDataSchema(String specDataSchema) {
-        String result = specDataSchema ;
-        if ((specDataSchema != null) && (specDataSchema.indexOf("YTimerType") > -1)) {
-            result = specDataSchema.replaceFirst(schema, "");
-        }
-        return result ;
-    }   
-
-
-    private static String getPrefix(String schema) {
-        String result = "";
-        int end = schema.indexOf(":schema") ;
-        if (end > -1) result = schema.substring(1, end + 1) ;
-        return result;
-    }
-
 
 }

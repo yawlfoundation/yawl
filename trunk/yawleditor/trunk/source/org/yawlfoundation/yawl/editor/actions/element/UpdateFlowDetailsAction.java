@@ -102,6 +102,7 @@ class FlowPriorityDialog extends AbstractTaskDoneDialog {
   
   private FlowDetailTablePanel flowDetailPanel;
   private JButton updatePredicateButton;
+  private JLabel defaultLabel;
 
   private static final long serialVersionUID = 1L;
   
@@ -133,7 +134,7 @@ class FlowPriorityDialog extends AbstractTaskDoneDialog {
     gbc.insets = new Insets(10,0,0,0);
     gbc.fill = GridBagConstraints.HORIZONTAL;
 
-    panel.add(getDefaultLabel(), gbc);
+    panel.add(createDefaultLabel(), gbc);
     
     gbc.gridy = 0;
     gbc.gridwidth = 1;
@@ -163,6 +164,7 @@ class FlowPriorityDialog extends AbstractTaskDoneDialog {
     super.setTask(task, graph);
     getFlowDetailTablePanel().setTaskAndNet(task, graph);
     getFlowDetailTablePanel().selectFlowAtRow(0);
+    setDefaultLabelForSplitType(task);
     if (getFlowDetailTablePanel().hasFlows()) {
       updatePredicateButton.setEnabled(true);
     } else {
@@ -201,10 +203,19 @@ class FlowPriorityDialog extends AbstractTaskDoneDialog {
     return updatePredicateButton; 
    }
   
-  private JLabel getDefaultLabel() {
-    JLabel label = new JLabel("The bottom-most flow will be used as the default.");
-    label.setHorizontalAlignment(JLabel.CENTER);
-    return label;
+  private JLabel createDefaultLabel() {
+    defaultLabel = new JLabel("The bottom-most flow will be used as the default.");
+    defaultLabel.setHorizontalAlignment(JLabel.CENTER);
+    return defaultLabel;
+  }
+
+  public void setDefaultLabelForSplitType(YAWLTask task) {
+      String text = "The bottom-most flow will be used as the default.";
+      if (task.hasSplitDecorator() &&
+         (task.getSplitDecorator().getType() == Decorator.XOR_TYPE)) {
+          text = text.replaceFirst("be", "be set to 'true()' and");
+      }
+      defaultLabel.setText(text);
   }
 }
 
