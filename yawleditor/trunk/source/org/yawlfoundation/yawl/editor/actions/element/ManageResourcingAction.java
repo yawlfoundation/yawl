@@ -87,7 +87,7 @@ public class ManageResourcingAction extends YAWLSelectedNetAction
               ResourcingServiceProxy.getInstance().getAllParticipants().isEmpty()) {
               JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
                    "The organisational model supplied by the " +
-                   "Resource Service contains no particpants or roles.\n" +
+                   "Resource Service contains no participants or roles.\n" +
                    "There are no resources available to assign to the selected task.",
                    "No Available Resources", JOptionPane.WARNING_MESSAGE);
               return true;

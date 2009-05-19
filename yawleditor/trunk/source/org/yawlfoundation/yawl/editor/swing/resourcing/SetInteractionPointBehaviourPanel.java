@@ -40,7 +40,7 @@ public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
     JLabel discussion = new JLabel(
         "<html><body>There are three key decision points for managing the resourcing of " +
         "work items spawned from a task. At each of these <em>interaction points</em>, " +
-        "you may choose to have the system dynamic make a decision on resourcing at each point, " +
+        "you may choose to have the system dynamically make a decision on resourcing at each point, " +
         "or alternately, allow a user to manually make each decision. Each interaction point is " +
         "briefly described below:<ul><li>Offer: The point at which it is decided that a number of participants " +
         "<em>could</em> undertake the work item.<li>Allocation: The point at which one of the participants " +

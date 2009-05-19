@@ -54,15 +54,9 @@ public class DataVariable implements Serializable, Cloneable {
   
   public static final int SCOPE_NET = 0;
   public static final int SCOPE_TASK = 1;
-  
-//  public static final String XML_SCHEMA_BOOLEAN_TYPE  = "boolean";
-//  public static final String XML_SCHEMA_DATE_TYPE     = "date";
-//  public static final String XML_SCHEMA_DOUBLE_TYPE   = "double";
-//  public static final String XML_SCHEMA_DURATION_TYPE = "duration";
-//  public static final String XML_SCHEMA_LONG_TYPE     = "long";
-//  public static final String XML_SCHEMA_STRING_TYPE   = "string";
-//  public static final String XML_SCHEMA_TIME_TYPE     = "time";
-  public static final String YAWL_SCHEMA_TIMER_TYPE   = "YTimerType";
+
+  public static final String YAWL_SCHEMA_TIMER_TYPE = "YTimerType";
+  public static final String YAWL_SCHEMA_STRINGLIST_TYPE = "YStringListType";
 
   /**
    * A string array of base XMLSchema data types that can
@@ -164,7 +158,16 @@ public class DataVariable implements Serializable, Cloneable {
   public boolean isYTimerType() {
       return getDataType().equals(YAWL_SCHEMA_TIMER_TYPE);
   }
-  
+
+  public boolean isYStringListType() {
+      return getDataType().equals(YAWL_SCHEMA_STRINGLIST_TYPE);
+  }
+
+    public boolean isYInternalType() {
+        return isYTimerType() || isYStringListType();
+    }
+
+
   public static boolean isBaseDataType(String type) {
     return XSDType.getInstance().isBuiltInType(type);  
   }
@@ -177,6 +180,7 @@ public class DataVariable implements Serializable, Cloneable {
       List<String> typeList = new ArrayList<String>(
                                   XSDType.getInstance().getBuiltInTypeList());
       typeList.add(YAWL_SCHEMA_TIMER_TYPE);
+      typeList.add(YAWL_SCHEMA_STRINGLIST_TYPE);
       Collections.sort(typeList, new StringIgnoreCaseComparator());
       return typeList.toArray(new String[typeList.size()]);
   }

@@ -24,7 +24,8 @@
 package org.yawlfoundation.yawl.editor.swing.data;
 
 import org.yawlfoundation.yawl.editor.data.DataVariable;
-import org.yawlfoundation.yawl.editor.data.YTimerType;
+import org.yawlfoundation.yawl.editor.data.internal.YStringListType;
+import org.yawlfoundation.yawl.editor.data.internal.YTimerType;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
 import java.util.LinkedList;
@@ -113,8 +114,11 @@ class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
     if (dataType.equals("YTimerType")) {
         validateYTimerTypeInstance();
     }
+    else if (dataType.equals("YStringListType")) {
+        validateYStringListTypeInstance();
+    }
     else if (DataVariable.isBaseDataType(dataType)) {
-      validateBaseDataTypeInstance();        
+        validateBaseDataTypeInstance();        
     }
     else {
       validateUserSuppliedDataTypeInstance();
@@ -127,10 +131,14 @@ class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
   }
 
     private void validateYTimerTypeInstance() {
-      setProblemList(getYTimerTypeInstanceProblems());
+      setProblemList(getYInternalTypeInstanceProblems("YTimerType"));
       setValidity();
     }
 
+    private void validateYStringListTypeInstance() {
+      setProblemList(getYInternalTypeInstanceProblems("YStringListType"));
+      setValidity();
+    }
 
     private void setValidity() {
         if (getProblemList().size() == 0) {
@@ -163,12 +171,19 @@ class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
     return problemList;
   }
   
-    private LinkedList getYTimerTypeInstanceProblems() {
+    private LinkedList getYInternalTypeInstanceProblems(String typeName) {
       LinkedList problemList = new LinkedList();
+      String varName = getInstanceEditor().getVariableName();
+      String validationSchema = "" ;
+      if (typeName.equals("YTimerType")) {
+          validationSchema = YTimerType.getValidationSchema(varName);
+      }
+      else if (typeName.equals("YStringListType")) {
+          validationSchema = YStringListType.getValidationSchema(varName);
+      }
 
       String errors = YAWLEngineProxy.getInstance().validateBaseDataTypeInstance(
-          YTimerType.getValidationSchema(getInstanceEditor().getVariableName()),
-          getInstanceEditor().getSchemaInstance()
+          validationSchema,  getInstanceEditor().getSchemaInstance()
       );
 
       if (errors != null && errors.trim().length() > 0) {
