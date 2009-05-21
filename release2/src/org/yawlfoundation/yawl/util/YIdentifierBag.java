@@ -99,13 +99,14 @@ public class YIdentifierBag {
     }
 
 
-    public void removeAll() {
+    public void removeAll(YPersistenceManager pmgr) throws YPersistenceException {
         Iterator keys = new Vector(_idToQtyMap.keySet()).iterator();
         while (keys.hasNext()) {
             YIdentifier identifier = (YIdentifier) keys.next();
             _idToQtyMap.remove(identifier);
             while (identifier.getLocations().contains(_condition)) {
                 identifier.getLocations().remove(_condition);
+                identifier.removeLocation(pmgr, _condition);
             }
         }
     }

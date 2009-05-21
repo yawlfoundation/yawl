@@ -576,7 +576,9 @@ public abstract class YTask extends YExternalNetElement {
     }
 
 
-    private synchronized void t_exit(YPersistenceManager pmgr) throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
+    private synchronized void t_exit(YPersistenceManager pmgr)
+            throws YDataStateException, YStateException, YQueryException,
+                   YSchemaBuildingException, YPersistenceException {
         if (!t_isExitEnabled()) {
             throw new RuntimeException(this + "_exit() is not enabled.");
         }
@@ -598,7 +600,7 @@ public abstract class YTask extends YExternalNetElement {
                 ((YTask) netElement).cancel(pmgr);
             }
             else if (netElement instanceof YCondition) {
-                ((YCondition) netElement).removeAll(pmgr);
+                ((YCondition) netElement).removeAll(pmgr); 
             }
         }
         _mi_active.removeAll(pmgr);

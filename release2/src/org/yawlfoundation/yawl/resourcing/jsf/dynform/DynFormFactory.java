@@ -23,6 +23,7 @@ import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
 import org.yawlfoundation.yawl.resourcing.jsf.SessionBean;
+import org.yawlfoundation.yawl.resourcing.jsf.dynform.dynattributes.DynAttributeFactory;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.application.Application;
@@ -251,9 +252,12 @@ public class DynFormFactory extends AbstractSessionBean {
 
     private void buildForm(DynFormFieldAssembler fieldAssembler) {
         DynFormComponentBuilder builder = new DynFormComponentBuilder(this);
-        List content = buildInnerForm(null, builder, fieldAssembler.getFieldList()) ;
+        List<DynFormField> fieldList = fieldAssembler.getFieldList();
+        DynAttributeFactory.adjustFields(fieldList, _displayedWIR, _sb.getParticipant());   // 1st pass
+        DynFormComponentList content = buildInnerForm(null, builder, fieldList) ;
         compPanel.getChildren().add(builder.makeHeaderText(fieldAssembler.getFormName())) ;
         compPanel.getChildren().addAll(content) ;
+        DynAttributeFactory.applyAttributes(compPanel, _displayedWIR, _sb.getParticipant());  // 2nd pass
         setBaseWidths(builder);
         _componentFieldTable = builder.getTextFieldMap();
         sizeAndPositionContent(compPanel.getChildren()) ;
@@ -416,11 +420,6 @@ public class DynFormFactory extends AbstractSessionBean {
                 prevComponent = ComponentType.panel ;
             }
             else  {
-
-
-//                if (container != null) {
-//                    addOccursButtons(container, field);
-//                }
 
                 // create the field (inside a panel)
                 if ((container != null) && container.isChoicePanel() && result.isEmpty())

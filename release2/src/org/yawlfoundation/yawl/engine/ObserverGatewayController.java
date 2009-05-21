@@ -139,7 +139,8 @@ public class ObserverGatewayController
 
         for(ObserverGateway observerGateway : gateways)
         {
-            if (observerGateway.getScheme().trim().equalsIgnoreCase(scheme))
+            String gatewayScheme = observerGateway.getScheme();
+            if ((gatewayScheme != null) && gatewayScheme.trim().equalsIgnoreCase(scheme))
             {
                 temp.add(observerGateway);
             }
