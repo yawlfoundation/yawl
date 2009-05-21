@@ -1036,10 +1036,7 @@
         </copy>
         <copy todir="${yawl.resource.app.name}${webinf.dir}/exceptions">
            <fileset dir="${classes.dir}${packageRoot}/exceptions"
-                    includes="YSchemaBuildingException.class YDataStateException.class
-                              YSyntaxException.class YAWLException.class
-                              YStateException.class YQueryException.class
-                              YPersistenceException.class YDataValidationException.class"/>
+                    includes="*.class"/>
         </copy>
 
         <copy todir="${yawl.resource.app.name}${webinf.dir}/forms">

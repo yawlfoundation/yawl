@@ -9,7 +9,7 @@
     // The whole workitem record is passed via a session attribute.
     // get the WorkItemRecord and read its data tree.
     WorkItemRecord wir = (WorkItemRecord) session.getAttribute("workitem");
-    Element data = wir.getDataList();
+    Element data = wir.getDataList();          
 
     // Here we read new values as entered on this form (see the html below)
     String input = request.getParameter("input");

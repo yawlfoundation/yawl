@@ -29,6 +29,7 @@ public class DynFormField {
     private int _level;
     private int _order;
     private boolean _required ;
+    private boolean _hidden = false;
 
     private DynFormField _parent;
     private DynFormFieldRestriction _restriction;
@@ -216,6 +217,13 @@ public class DynFormField {
         _required = (! isInputOnly()) && ((! hasZeroMinimum()) || nonString); 
         return _required;
     }
+
+
+    public void hide() { _hidden = true; }
+
+    public void show() { _hidden = false; }
+
+    public boolean isHidden() { return _hidden; }
 
 
     private boolean hasZeroMinimum() {

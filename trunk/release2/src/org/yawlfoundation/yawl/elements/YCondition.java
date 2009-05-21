@@ -99,8 +99,8 @@ public class YCondition extends YExternalNetElement implements YConditionInterfa
         _bag.remove(pmgr, identifier, _bag.getAmount(identifier));
     }
 
-    public synchronized void removeAll(YPersistenceManager pmgr) {
-        _bag.removeAll();
+    public synchronized void removeAll(YPersistenceManager pmgr) throws YPersistenceException {
+        _bag.removeAll(pmgr);
     }
 
     public Object clone() throws CloneNotSupportedException {

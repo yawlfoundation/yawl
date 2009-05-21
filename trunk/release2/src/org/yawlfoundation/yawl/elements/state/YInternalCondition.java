@@ -118,8 +118,8 @@ public class YInternalCondition extends YNetElement implements YConditionInterfa
         _bag.remove(pmgr, identifier, _bag.getAmount(identifier));
     }
 
-    public void removeAll(YPersistenceManager pmgr) {
-        _bag.removeAll();
+    public void removeAll(YPersistenceManager pmgr) throws YPersistenceException {
+        _bag.removeAll(pmgr);
     }
 
     public String toString() {
