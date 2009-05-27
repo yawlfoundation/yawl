@@ -91,6 +91,7 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
   private JCheckBox soundnessCheckBox;
   private JCheckBox cancellationCheckBox;
   private JCheckBox orjoinCheckBox;
+  private JCheckBox orjoinCycleCheckBox;
   private JCheckBox showObservationsCheckBox;
   private JCheckBox useYAWLReductionRulesCheckBox;
   private JCheckBox useResetReductionRulesCheckBox;
@@ -134,6 +135,11 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
         orjoinCheckBox.isSelected()
     );
     
+    prefs.putBoolean(
+            YAWLResetAnalyser.ORJOINCYCLE_ANALYSIS_PREFERENCE,
+            orjoinCycleCheckBox.isSelected()
+        );
+
     prefs.putBoolean(
         YAWLResetAnalyser.SHOW_OBSERVATIONS_PREFERENCE,
         showObservationsCheckBox.isSelected()
@@ -243,6 +249,9 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
     panel.add(getOrjoinCheckBox(),gbc);
 
     gbc.gridy++;
+    panel.add(getOrjoinCycleCheckBox(),gbc);
+
+    gbc.gridy++;
     panel.add(getSoundnessCheckBox(),gbc);
     
     gbc.gridy++;
@@ -303,6 +312,7 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
       soundnessCheckBox.setEnabled(true);
       cancellationCheckBox.setEnabled(true);
       orjoinCheckBox.setEnabled(true);
+      orjoinCycleCheckBox.setEnabled(true);
       showObservationsCheckBox.setEnabled(true);
       useYAWLReductionRulesCheckBox.setEnabled(true);
       useResetReductionRulesCheckBox.setEnabled(true);
@@ -311,6 +321,7 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
       soundnessCheckBox.setEnabled(false);
       cancellationCheckBox.setEnabled(false);
       orjoinCheckBox.setEnabled(false);
+      orjoinCycleCheckBox.setEnabled(false);
       showObservationsCheckBox.setEnabled(false);
       useYAWLReductionRulesCheckBox.setEnabled(false);
       useResetReductionRulesCheckBox.setEnabled(false);
@@ -348,6 +359,13 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
     orjoinCheckBox.setSelected(true);
     return orjoinCheckBox;
   }
+
+  private JCheckBox getOrjoinCycleCheckBox() {
+	    orjoinCycleCheckBox = new JCheckBox("Check for or-joins in a cycle.");
+	    orjoinCycleCheckBox.setMnemonic(KeyEvent.VK_V);
+	    orjoinCycleCheckBox.setSelected(true);
+	    return orjoinCycleCheckBox;
+	  }
 
   private JCheckBox getShowObservationsCheckBox() {
     showObservationsCheckBox = new JCheckBox("Show observations in analysis results.");
@@ -511,6 +529,10 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
     orjoinCheckBox.setSelected(
         prefs.getBoolean(YAWLResetAnalyser.ORJOIN_ANALYSIS_PREFERENCE, true)
     );
+
+    orjoinCycleCheckBox.setSelected(
+            prefs.getBoolean(YAWLResetAnalyser.ORJOINCYCLE_ANALYSIS_PREFERENCE, true)
+        );
 
     showObservationsCheckBox.setSelected(
         prefs.getBoolean(YAWLResetAnalyser.SHOW_OBSERVATIONS_PREFERENCE, true)

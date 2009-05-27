@@ -48,12 +48,13 @@ public class YAWLResetAnalyser{
   public static final String SHOW_OBSERVATIONS_PREFERENCE = "resetShowObservationsCheck";
   public static final String USE_YAWLREDUCTIONRULES_PREFERENCE	= "yawlReductionRules";
   public static final String USE_RESETREDUCTIONRULES_PREFERENCE	= "resetReductionRules";
+  public static final String ORJOINCYCLE_ANALYSIS_PREFERENCE = "resetOrjoinCycleCheck";
 
   public static AnalysisDialog messageDlg ;
       /**
      * This method is used for the analysis.
      * @fileURL - xml file format of the YAWL model
-     * @options - four options (weak soundness w, soundness s, cancellation set c, orjoins o) 
+     * @options - five options (weak soundness w, soundness s, cancellation set c, orjoins o, vicious circles v)
      * @useYAWLReductionRules - reduce the net using YAWL reduction rules
      * @useResetReductionRules - reduce the net using Reset reduction rules
      * returns a xml formatted string with warnings and observations.
@@ -117,6 +118,8 @@ public class YAWLResetAnalyser{
 			        	decomResetNet = reducedNet;
 			        }
 		        }
+
+
 		        if (options.indexOf("w") >= 0)
 		        {   
 		            msgBuffer.append(decomResetNet.checkWeakSoundness());
@@ -193,7 +196,22 @@ public class YAWLResetAnalyser{
 		           }
 		           
 		   	  }
+		   	 //do orjoins in a cycle check (vicious circle)
+		   	  if (options.indexOf("v") >= 0)
+		   	  {
+		   	     try{
+			   	   	OrjoinInCycleUtils Orutils = new OrjoinInCycleUtils();
+			   	    Object[] results = Orutils.checkORjoinsInCycle(decomRootNet);
+		            msgBuffer.append((String)results[1]);
+		           	}
 
+		           catch (Exception e)
+		           {
+		            msgBuffer.append(formatXMLMessage(e.toString(),false));
+
+		           }
+
+		   	  }
 	         } //endif
 	   		} //end for
 	   }//end if
@@ -217,6 +235,11 @@ public class YAWLResetAnalyser{
     String rules = "FSPY"; 
    	String rulesmsg = "";                       
    	                     
+   	//Added to ensure that FOR rule is only applied to OR-joins without cycles
+   	OrjoinInCycleUtils utils = new OrjoinInCycleUtils();
+    Object[] results = utils.checkORjoinsInCycle(originalNet);
+  	Boolean containsORjoinCycles = (Boolean) results[0];
+
    do
     { loop++;
       rule	= new FSPYrule();
@@ -268,12 +291,13 @@ public class YAWLResetAnalyser{
 	      reducedNet_t = rule.reduce(reducedNet);
 	   
   	   if (reducedNet_t == null) 
-        { rules = "FOR";   
+        { rules = "FIE";
 		  rule = new FIErule();
 	      reducedNet_t = rule.reduce(reducedNet);
 	      
-     if (reducedNet_t == null) 
-        { rules = "FIE";   
+	 //this rule should only be applied to nets without OR-joins in a cycle.
+     if (reducedNet_t == null && !containsORjoinCycles)
+        { rules = "FOR";
 		  rule = new FORrule();
 	      reducedNet_t = rule.reduce(reducedNet);
      	}

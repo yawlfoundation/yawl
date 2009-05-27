@@ -25,6 +25,7 @@ package org.yawlfoundation.yawl.editor.analyser;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.elements.state.*;
+import org.yawlfoundation.yawl.elements.YNet;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,7 +53,7 @@ public class YAWLReachabilityUtils{
      
      public YAWLReachabilityUtils(YNet net){
       _yNet =  transformNet(net);
-     //	_yNet = net;
+
      }
 
      private AnalysisDialog messageDlg;
@@ -123,7 +124,7 @@ public class YAWLReachabilityUtils{
       }
 
      /**
-      * returns ture if no marking bigger than XOR is found in RS.
+      * returns true if no marking bigger than XOR is found in RS.
       */
      private boolean checkXOR(YSetOfMarkings RS,YMarking orJoinXORMarking,Set presetOJ)
        {
@@ -160,7 +161,6 @@ public class YAWLReachabilityUtils{
         RS = getReachableMarkings(Mi);
         }
         
-     //   System.out.println("Number of orJoins:"+orJoins.size());
         //first identify all OR-joins
         for(Iterator i = orJoins.iterator(); i.hasNext();)
         { YTask orJoin = (YTask) i.next();
@@ -169,7 +169,6 @@ public class YAWLReachabilityUtils{
           if (ojMarkings != null)
           {
           int  status = checkORjoinStatus(ojMarkings,preSet);
-    //      System.out.println("Status:"+status);
           if (status == 0)
           { changeToAND = true;
             and += orJoin.getID()+" ";
@@ -400,7 +399,7 @@ public class YAWLReachabilityUtils{
 	    
    if (msgArray.size() == 0) 
    { 
-      msg = "The net "+ _yNet.getID() +" satisfies the irredubile cancellation regions property.";
+      msg = "The net "+ _yNet.getID() +" satisfies the irreducible cancellation regions property.";
       msg = formatXMLMessage(msg,true);
    }
    else
