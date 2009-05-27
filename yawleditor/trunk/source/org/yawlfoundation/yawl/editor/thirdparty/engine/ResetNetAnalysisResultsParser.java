@@ -34,7 +34,8 @@ public class ResetNetAnalysisResultsParser extends AnalysisResultsParser {
     Options = getParameterForWeakSoundnessAnalysis() +
               getParameterForSoundnessAnalysis()+
               getParameterForCancellationAnalysis()+
-              getParameterForOrjoinAnalysis();
+              getParameterForOrjoinAnalysis()+
+              getParameterForOrjoinCycleAnalysis();
     return Options;
     
   }
@@ -65,6 +66,13 @@ public class ResetNetAnalysisResultsParser extends AnalysisResultsParser {
     }
     return "";
   }
+
+ private String getParameterForOrjoinCycleAnalysis() {
+	if(prefs.getBoolean(YAWLResetAnalyser.ORJOINCYCLE_ANALYSIS_PREFERENCE, true)) {
+	     return "v";
+	}
+	    return "";
+}
 
  private boolean getParameterForYAWLReductionRules() {
     

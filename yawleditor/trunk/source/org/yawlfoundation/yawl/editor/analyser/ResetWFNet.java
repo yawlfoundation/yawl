@@ -48,6 +48,7 @@ public final class ResetWFNet {
     private Map _Transitions = new HashMap(100);
     private Map _Places = new HashMap(100);
     private Map _YOJ = new HashMap();
+
    //testing for optimisation
     private Set alreadyConsideredMarkings = new HashSet(100);
     
@@ -697,6 +698,8 @@ public final class ResetWFNet {
      return _YOJ.size()>0;
    }
    
+
+
   /*
    private void convertORjoinToANDjoin()
    { 
