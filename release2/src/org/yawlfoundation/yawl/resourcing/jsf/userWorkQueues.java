@@ -25,6 +25,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import javax.faces.FacesException;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Set;
@@ -787,10 +788,11 @@ public class userWorkQueues extends AbstractPageBean {
 
         // retrieve completion flag - if any
         ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-        Boolean complete = (Boolean) context.getSessionMap().remove("complete_on_post");
+        HttpServletRequest request = (HttpServletRequest) context.getRequest();
+        String complete = request.getParameter("complete");
 
         // complete wir if requested
-        if ((complete != null) && complete) {
+        if ((complete != null) && complete.equalsIgnoreCase("true")) {
             WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
             completeWorkItem(wir, _sb.getParticipant());
         }

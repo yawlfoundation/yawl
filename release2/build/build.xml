@@ -1057,7 +1057,7 @@
         <copy todir="${yawl.resource.app.name}${webinf.dir}/util">
               <fileset dir="${classes.dir}${packageRoot}/util"
                        includes="JDOMUtil.class StringUtil.class HttpURLValidator.class
-                                 CharsetFilter.class DOMUtil.class"/>
+                                 CharsetFilter.class DOMUtil.class SaxonUtil.class"/>
         </copy>
 
         <!-- 2. copy resourcing classes to relevant dirs -->

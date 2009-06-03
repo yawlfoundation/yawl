@@ -106,8 +106,8 @@ public class YIdentifierBag {
             _idToQtyMap.remove(identifier);
             while (identifier.getLocations().contains(_condition)) {
                 identifier.getLocations().remove(_condition);
-                identifier.removeLocation(pmgr, _condition);
             }
+            identifier.clearLocations(pmgr);                  // from persistence
         }
     }
 }

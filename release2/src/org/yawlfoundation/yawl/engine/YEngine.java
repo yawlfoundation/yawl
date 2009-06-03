@@ -2327,6 +2327,7 @@ public class YEngine implements InterfaceADesign,
                 for (int i = 0; i < list.size(); i++) {
                     YIdentifier child = (YIdentifier) list.get(i);
                     clearCaseDelegate(pmgr, child);
+ //                   pmgr.deleteObject(child);
                 }
 
                 boolean runnerfound = false;

@@ -112,6 +112,14 @@ public class YIdentifier {
         return createChildWithID(pmgr, newID);
     }
 
+    public void clearChildren() {
+        _children = new Vector<YIdentifier>();
+    }
+
+    public boolean removeChild(YIdentifier child) {
+        return _children.remove(child);
+    }
+
 
     /**
      * Creates a child identifier.
@@ -187,6 +195,16 @@ public class YIdentifier {
         }
     }
 
+    
+    public synchronized void clearLocations(YPersistenceManager pmgr)
+            throws YPersistenceException {
+        _locations.clear();
+        locationNames.clear();
+        if (pmgr != null) {
+            pmgr.updateObjectExternal(this);
+        }
+    }
+
 
     public synchronized void removeLocation(YPersistenceManager pmgr,
                                             YConditionInterface condition)
@@ -202,10 +220,6 @@ public class YIdentifier {
             locationNames.remove(locName.substring(locName.indexOf(":") + 1, locName.length()));
         } else {
             locationNames.remove(condition.toString());
-        }
-
-        if (pmgr != null) {
-            pmgr.updateObjectExternal(this);
         }
     }
 
