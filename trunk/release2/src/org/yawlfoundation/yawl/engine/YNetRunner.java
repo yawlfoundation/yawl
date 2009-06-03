@@ -278,10 +278,10 @@ public class YNetRunner {
 
                 _logger.debug("Asking engine to finish case");
                 _engine.finishCase(pmgr, _caseIDForNet);
-                if (isRootNet()) _engine.clearCase(pmgr, _caseIDForNet);
             }
             if (! _cancelling && deadLocked()) notifyDeadLock(pmgr);
             cancel(pmgr);
+            if ((_engine != null) && isRootNet()) _engine.clearCase(pmgr, _caseIDForNet);
         }
 
         _logger.debug("<-- YNetRunner.kick");
