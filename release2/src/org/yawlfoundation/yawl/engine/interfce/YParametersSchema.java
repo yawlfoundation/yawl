@@ -44,11 +44,16 @@ public class YParametersSchema {
 
     public List<YParameter> getCombinedParams() {
         List<YParameter> result = getInputParams();
+        int count = result.size();
 
         // add any output only params to list
         for (String name : _outputParams.keySet()) {
             if (!_inputParams.containsKey(name)) {
-                result.add(_outputParams.get(name));
+                YParameter outputOnlyParam = _outputParams.get(name) ;
+
+                // make sure output only's are listed last
+                outputOnlyParam.setOrdering(count++);
+                result.add(outputOnlyParam);
             }
         }
         return result;

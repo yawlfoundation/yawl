@@ -145,7 +145,8 @@ public class WorkQueueGatewayClient extends Interface_Client {
                                                                throws IOException {
         Map<String, String> params = prepareParamMap("getParticipantFromUserID", handle);
         params.put("userid", userid);
-        return executeGet(_serviceURI, params) ;
+        String result = executeGet(_serviceURI, params) ;
+        return (result.equals("<null>")) ? null : result;
     }
 
 

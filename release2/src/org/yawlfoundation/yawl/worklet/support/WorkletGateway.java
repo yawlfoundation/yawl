@@ -91,8 +91,8 @@ public class WorkletGateway extends HttpServlet {
 
                 // get the service instance and call replace
                 if (exType == WorkletService.XTYPE_SELECTION) {
-            	  	WorkletService ws = WorkletService.getInstance() ;
-        	    	result = ws.replaceWorklet(itemID) ;
+            	  	  WorkletService ws = WorkletService.getInstance() ;
+        	    	    result = ws.replaceWorklet(itemID) ;
                 }
                 else {
                     String caseID = req.getParameter("caseID");
@@ -100,6 +100,11 @@ public class WorkletGateway extends HttpServlet {
                     ExceptionService ex = ExceptionService.getInst();
                     result = ex.replaceWorklet(exType, caseID, itemID, trigger);
                 }
+            }
+            else if (action.equalsIgnoreCase("refresh")) {
+                String specID = req.getParameter("specid");
+                WorkletService ws = WorkletService.getInstance() ;
+                ws.refreshRuleSet(specID);
             }
 
             // generate the output

@@ -1080,7 +1080,7 @@ public class WorkletService extends InterfaceBWebsideController {
                String taskId = getDecompID(coci.getItem()) ;
 
                // refresh ruleset to pickup newly added rule
-               RefreshRuleSet(specId);
+               refreshRuleSet(specId);
 
                RdrTree tree = getTree(specId, taskId, XTYPE_SELECTION) ;
 
@@ -1294,9 +1294,11 @@ public class WorkletService extends InterfaceBWebsideController {
     //***************************************************************************//
 
     /** Reloads the rule set from file (after a rule update) for the spec passed */
-    protected void RefreshRuleSet(String specID) {
-         RdrSet ruleSet = (RdrSet) _ruleSets.get(specID) ;
-         if (ruleSet != null) ruleSet.refresh() ;
+    public void refreshRuleSet(String specID) {
+        if (specID != null) {
+             RdrSet ruleSet = (RdrSet) _ruleSets.get(specID) ;
+             if (ruleSet != null) ruleSet.refresh() ;
+        }    
      }
 
     //***************************************************************************//

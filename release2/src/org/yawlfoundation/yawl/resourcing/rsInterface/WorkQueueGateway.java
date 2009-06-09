@@ -114,7 +114,8 @@ public class WorkQueueGateway extends HttpServlet {
         String itemid = req.getParameter("workitemid");
 
         if (action.equals("getParticipantFromUserID")) {
-            result = _rm.getParticipantFromUserID(userid).toXML();  
+            Participant p = _rm.getParticipantFromUserID(userid);
+            result = (p != null) ? p.toXML() : "<null>" ;  
         }
         else if (action.equals("getFullNameForUserID")) {
             result = _rm.getFullNameForUserID(userid) ;
@@ -214,7 +215,11 @@ public class WorkQueueGateway extends HttpServlet {
         else if (action.equals("acceptOffer")) {
             Participant p = _rm.getParticipant(pid);
             WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
-            _rm.acceptOffer(p, wir);
+            if (! wir.getResourceStatus().equals(WorkItemRecord.statusResourceOffered)) {
+                result = "<failure>A workitem must have 'Offered' status to accept an offer." +
+                         " This workitem has '" + wir.getResourceStatus() + "' status.</failure>";
+            }
+            else _rm.acceptOffer(p, wir);
         }
         else if (action.equals("startWorkItem")) {
             Participant p = _rm.getParticipant(pid);
