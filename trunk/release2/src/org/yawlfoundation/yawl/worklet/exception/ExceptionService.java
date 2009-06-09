@@ -1705,7 +1705,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 	        _log.debug("Launching new replacement worklet case(s) based on revised ruleset");
 
             // refresh ruleset to pickup newly added rule
-            RefreshRuleSet(mon.getSpecID());
+            refreshRuleSet(mon.getSpecID());
 
             // remove monitor's runner for cancelled worklet
             mon.removeHandlerRunner(hr);

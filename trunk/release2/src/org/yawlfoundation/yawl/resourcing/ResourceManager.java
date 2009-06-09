@@ -1668,6 +1668,10 @@ public class ResourceManager extends InterfaceBWebsideController {
             p.getWorkQueues().movetoStarted(wir, oneToStart);
             oneToStart.setResourceStatus(WorkItemRecord.statusResourceStarted);
 
+            if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceUnoffered)) {
+                _resAdmin.getWorkQueues().removeFromQueue(wir, WorkQueue.UNOFFERED);
+            }
+
             // cleanup deallocation list for started item (if any)
             ResourceMap rMap = getResourceMap(wir);
             if (rMap != null) rMap.removeIgnoreList(wir);       
