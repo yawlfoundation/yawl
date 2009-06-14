@@ -8,6 +8,10 @@
     String wsTaskID = request.getParameter("wsTask");
     String buttonText = request.getParameter("submit");
 
+    if ((buttonText != null) && (buttonText.equals("Back"))) {
+        response.sendRedirect(response.encodeURL(_caseMgtURL));   
+    }
+
     if (wsTaskID != null) {
         if (buttonText != null) {
             if (buttonText.equals("View Details")) {
@@ -100,6 +104,7 @@
 
     <table border="0" cellspacing="20">
         <tr>
+            <td><input value="Back" name="submit" type="submit"/></td>
             <td><input value="View Details" name="submit" type="submit"
                        onClick="return isCompletedForm('wsAdminTasks', 'wsTask')"/></td>
             <td><input value="Completed" name="submit" type="submit"

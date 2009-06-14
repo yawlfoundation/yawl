@@ -34,6 +34,7 @@ import java.util.Set;
 public class WorkQueue implements Serializable {
 
     // different queue types
+    public final static int UNDEFINED = -1 ;
     public final static int OFFERED = 0 ;
     public final static int ALLOCATED = 1 ;
     public final static int STARTED = 2 ;
@@ -276,6 +277,11 @@ public class WorkQueue implements Serializable {
             default : result = "Invalid Queue Type" ;
         }
         return result ;
+    }
+
+
+    public static boolean isValidQueueType(int queueType) {
+        return (queueType >= OFFERED) && (queueType <= WORKLISTED);
     }
 
     /** returns the name of this queue */

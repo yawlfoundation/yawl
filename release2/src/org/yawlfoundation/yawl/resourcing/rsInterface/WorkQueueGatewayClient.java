@@ -8,10 +8,9 @@
 
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
-import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.engine.YSpecificationID;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -237,11 +236,11 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
 
-    public void acceptOffer(String pid, String itemID, String handle) throws IOException {
+    public String acceptOffer(String pid, String itemID, String handle) throws IOException {
         params.clear();
         params.put("participantid", pid) ;
         params.put("workitemid", itemID) ;
-        performPost("acceptOffer", params, handle) ;
+        return performPost("acceptOffer", params, handle) ;
     }
 
 
@@ -312,7 +311,7 @@ public class WorkQueueGatewayClient extends Interface_Client {
         params.clear();
         params.put("participantid", pid) ;
         params.put("workitemid", itemID) ;
-        return performPost("checkinItem", params, handle) ;
+        return performPost("completeWorkItem", params, handle) ;
     }
 
 
@@ -437,10 +436,13 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
 
-    public String addRegisteredService(YAWLServiceReference service, String handle)
-                                                                    throws IOException {
+    public String addRegisteredService(String uri, String name, String doco,
+                                       boolean assignable, String handle) throws IOException {
         params.clear();
-        params.put("service", service.toXMLComplete()) ;
+        params.put("uri", uri) ;
+        params.put("name", name) ;
+        params.put("doco", doco) ;
+        params.put("assignable", String.valueOf(assignable)) ;
         return performPost("addRegisteredService", params, handle);
     }
 

@@ -42,8 +42,9 @@ public class ResourceGateway extends HttpServlet {
                 // set the actual root file path of the service
                 Docket.setServiceRootDir(context.getRealPath("/")) ;
 
-                // set the engine uri
-                rm.initInterfaceClients(context.getInitParameter("InterfaceB_BackEnd"));
+                // set the engine uri and the exception service uri (if enabled)
+                rm.initInterfaceClients(context.getInitParameter("InterfaceB_BackEnd"),
+                                        context.getInitParameter("InterfaceX_BackEnd"));
 
                 // enable/or disable persistence
                 String persist = context.getInitParameter("EnablePersistence");

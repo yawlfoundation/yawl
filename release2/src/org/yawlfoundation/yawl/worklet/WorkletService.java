@@ -128,7 +128,7 @@ public class WorkletService extends InterfaceBWebsideController {
     protected String _adminPassword = "YAWL" ;
     protected String _sessionHandle = null ;
     protected String _engineURI ; 
-    private String _workletURI = null ;
+    protected String _workletURI = null ;
     private InterfaceA_EnvironmentBasedClient _interfaceAClient ;
 
 
@@ -363,6 +363,11 @@ public class WorkletService extends InterfaceBWebsideController {
         outputWriter.write(output.toString());
         outputWriter.flush();
         outputWriter.close();
+    }
+
+
+    public void handleEngineInitialisationCompletedEvent() {
+        setWorkletURI();
     }
 
  //***************************************************************************//

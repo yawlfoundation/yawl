@@ -215,7 +215,8 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
                         break ;
                     case InterfaceX_EngineSideClient.NOTIFY_TIMEOUT:
                         paramsMap.put("workItem", _workItem.toXML());
-                        paramsMap.put("taskList", _taskList.toString());
+                        if (_taskList != null)
+                            paramsMap.put("taskList", _taskList.toString());
                         break ;
                 }
 

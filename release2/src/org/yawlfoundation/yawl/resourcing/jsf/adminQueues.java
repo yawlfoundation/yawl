@@ -466,7 +466,7 @@ public class adminQueues extends AbstractPageBean {
             txtResourceState.setText(wir.getResourceStatus());
             processButtonEnablement(wir.getResourceStatus());
         }
-        else enableUnofferedButtons();
+        else enableUnofferedButtons(! wir.hasStatus(WorkItemRecord.statusSuspended));
     }
 
     
@@ -526,10 +526,10 @@ public class adminQueues extends AbstractPageBean {
     }
 
 
-    private void enableUnofferedButtons() {
+    private void enableUnofferedButtons(boolean liveStatus) {
         btnOffer.setDisabled(false);
         btnAllocate.setDisabled(false);
-        btnStart.setDisabled(false);        
+        btnStart.setDisabled(! liveStatus);        
     }
 
     private void clearWorklistedFields() {

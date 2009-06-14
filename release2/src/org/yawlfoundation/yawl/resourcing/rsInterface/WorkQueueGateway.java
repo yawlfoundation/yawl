@@ -17,6 +17,7 @@ import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.resource.OrgGroup;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
@@ -46,6 +47,9 @@ public class WorkQueueGateway extends HttpServlet {
     private static final Logger _log = Logger.getLogger(WorkQueueGateway.class);
     private static WorkQueueGateway _me;
 
+    private static final String success = "<success/>";
+
+
 
     public static WorkQueueGateway getInstance() {
         if (_me == null) _me = new WorkQueueGateway();
@@ -55,7 +59,7 @@ public class WorkQueueGateway extends HttpServlet {
     
     public void doPost(HttpServletRequest req, HttpServletResponse res)
                                 throws IOException, ServletException {
-        String result = "";
+        String result ;
         String action = req.getParameter("action");
         String handle = req.getParameter("sessionHandle");
 
@@ -72,18 +76,20 @@ public class WorkQueueGateway extends HttpServlet {
         else if (action.equalsIgnoreCase("connect")) {
             String userid = req.getParameter("userid");
             String password = req.getParameter("password");
-            result = _rm.serviceConnect(userid, password);
+            result = _rm.serviceConnect(userid, password);           // service connect
         }
         else if (action.equalsIgnoreCase("userlogin")) {
             String userid = req.getParameter("userid");
             String password = req.getParameter("password");
-            result = _rm.login(userid, password);
+            result = _rm.login(userid, password);                    // user connect
         }
         else if (action.equalsIgnoreCase("checkConnection")) {
-            result = String.valueOf(_rm.checkServiceConnection(handle)) ;
+            result = _rm.checkServiceConnection(handle) ? success :
+                      fail("Invalid or disconnected session handle");
         }
         else if (action.equals("isValidUserSession")) {
-            result = String.valueOf(_rm.isValidUserSession(handle)) ;
+            result = _rm.isValidUserSession(handle) ? success : 
+                      fail("Invalid or disconnected session handle");
         }
         else if (authorisedCustomFormAction(action, handle)) {
             result = doAction(action, req);
@@ -106,8 +112,10 @@ public class WorkQueueGateway extends HttpServlet {
     }
     
 
+    /*** Private Methods *******************************/
+
     private String doAction(String action, HttpServletRequest req) throws IOException {
-        String result = "";
+        String result = fail("Unknown action: " + action);          // assume the worst
         String handle = req.getParameter("sessionHandle");
         String userid = req.getParameter("userid") ;
         String pid = req.getParameter("participantid");
@@ -115,38 +123,48 @@ public class WorkQueueGateway extends HttpServlet {
 
         if (action.equals("getParticipantFromUserID")) {
             Participant p = _rm.getParticipantFromUserID(userid);
-            result = (p != null) ? p.toXML() : "<null>" ;  
+            result = (p != null) ? p.toXML() : fail("Unknown userid: " + userid) ;
         }
         else if (action.equals("getFullNameForUserID")) {
-            result = _rm.getFullNameForUserID(userid) ;
+            String name = _rm.getFullNameForUserID(userid) ;
+            result = (name != null) ? name : fail("Unknown userid: " + userid) ;
         }
         else if (action.equals("getUserPrivileges")) {
             Participant p = _rm.getParticipant(pid);
             if (p != null) {
                 UserPrivileges up = p.getUserPrivileges();
-                if (up != null) result = up.toXML();
+                result = (up != null) ? up.toXML() :
+                          fail("No privileges available for participant id: " + pid);
             }
+            else result = fail("Unknown participant id: " + pid);
         }
         else if (action.equals("getParticipantsReportingTo")) {
             Set<Participant> set = _rm.getParticipantsReportingTo(pid);
-            result = _marshaller.marshallParticipants(set) ;
+            result = (set != null) ? _marshaller.marshallParticipants(set) :
+                     fail("Invalid participant id or no participants reporting to: " + pid);
         }
         else if (action.equals("getOrgGroupMembers")) {
             String groupid = req.getParameter("groupid");
             OrgGroup og = _rm.getOrgGroup(groupid);
-            Set<Participant> set = _rm.getOrgGroupMembers(og);
-            result = _marshaller.marshallParticipants(set) ;
+            if (og != null) {
+                Set<Participant> set = _rm.getOrgGroupMembers(og);     // set never null
+                result = _marshaller.marshallParticipants(set) ;
+            }
+            else result = fail("Unknown org group id: " + groupid);
         }        
         else if (action.equals("getParticipant")) {
-            result = _rm.getParticipant(pid).toXML();
+            Participant p = _rm.getParticipant(pid);
+            result = (p != null) ? _rm.getParticipant(pid).toXML() :
+                      fail("Unknown participant id: " + pid);
         }
         else if (action.equals("getParticipants")) {
             Set<Participant> set = _rm.getParticipants();
-            result = _marshaller.marshallParticipants(set) ;
+            result = (set != null) ? _marshaller.marshallParticipants(set) :
+                      fail("No participants found");
         }
         else if (action.equals("getAdminQueues")) {
             QueueSet qSet = _rm.getAdminQueues();
-            result = qSet.toXML() ;
+            result = qSet.toXML() ;                                    // set never null
         }
         else if (action.equals("getWorkItem")) {
             String itemID = req.getParameter("itemid");
@@ -158,17 +176,28 @@ public class WorkQueueGateway extends HttpServlet {
             result = _rm.updateWorkItemData(itemID, data);            
         }
         else if (action.equals("getQueuedWorkItems")) {
-            int queueType = new Integer(req.getParameter("queue")) ;
-            Participant p = _rm.getParticipant(pid);
-            if (p != null) {
-                Set<WorkItemRecord> set = p.getWorkQueues().getQueuedWorkItems(queueType);
-                result = _marshaller.marshallWorkItemRecords(set);
+            int queueType = getQueueType(req.getParameter("queue")) ;
+            if (WorkQueue.isValidQueueType(queueType)) {
+                Participant p = _rm.getParticipant(pid);
+                if (p != null) {
+                    QueueSet qSet = p.getWorkQueues();
+                    if (qSet != null) {
+                       Set<WorkItemRecord> set = qSet.getQueuedWorkItems(queueType);
+                       result = _marshaller.marshallWorkItemRecords(set) ;
+                    }
+                    else result = _marshaller.marshallWorkItemRecords(null);
+                }
+                else result = fail("Unknown participant id: " + pid);
             }
+            else result = fail("Invalid queue type: " + req.getParameter("queue")) ;
         }
         else if (action.equals("getParticipantsAssignedWorkItem")) {
-            int queueType = new Integer(req.getParameter("queue")) ;
-            Set<Participant> set = _rm.getParticipantsAssignedWorkItem(itemid, queueType);
-            result = _marshaller.marshallParticipants(set) ;
+            int queueType = getQueueType(req.getParameter("queue")) ;
+            if (WorkQueue.isValidQueueType(queueType)) {
+                Set<Participant> set = _rm.getParticipantsAssignedWorkItem(itemid, queueType);
+                result = _marshaller.marshallParticipants(set) ;
+            }
+            else result = fail("Invalid queue type: " + req.getParameter("queue")) ;
         }
         else if (action.equals("getWorkItemDurationsForParticipant")) {
             String specName = req.getParameter("specname");
@@ -190,8 +219,7 @@ public class WorkQueueGateway extends HttpServlet {
             String version = req.getParameter("version");
             SpecificationData specData = _rm.getSpecData(
                     new YSpecificationID(specID, version), handle);
-            if (specData != null)
-                result = new ResourceMarshaller().marshallSpecificationData(specData);
+            result = _marshaller.marshallSpecificationData(specData);
         }
         else if (action.equals("getRunningCases")) {
             String specID = req.getParameter("specid") ;
@@ -200,7 +228,8 @@ public class WorkQueueGateway extends HttpServlet {
         }
         else if (action.equals("getDecompID")) {
             WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
-            result = _rm.getDecompID(wir) ;
+            String decompID = _rm.getDecompID(wir) ;
+            result = (decompID != null) ? decompID : fail("Unknown workitem: " + itemid);
         }
         else if (action.equals("getCaseData")) {
             String caseID = req.getParameter("caseid") ;
@@ -210,87 +239,50 @@ public class WorkQueueGateway extends HttpServlet {
             result = _rm.getRegisteredServicesAsXML(handle);
         }
         else if (action.equals("disconnect")) {
-           _rm.serviceDisconnect(handle);
+            _rm.serviceDisconnect(handle);
+            result = success;
         }
         else if (action.equals("acceptOffer")) {
-            Participant p = _rm.getParticipant(pid);
-            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
-            if (! wir.getResourceStatus().equals(WorkItemRecord.statusResourceOffered)) {
-                result = "<failure>A workitem must have 'Offered' status to accept an offer." +
-                         " This workitem has '" + wir.getResourceStatus() + "' status.</failure>";
-            }
-            else _rm.acceptOffer(p, wir);
+            result = doResourceAction(req, action);
         }
         else if (action.equals("startWorkItem")) {
-            Participant p = _rm.getParticipant(pid);
-            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
-            _rm.start(p, wir, handle);
+            result = doResourceAction(req, action);
         }
         else if (action.equals("deallocateWorkItem")) {
-            Participant p = _rm.getParticipant(pid);
-            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
-            boolean success = _rm.deallocateWorkItem(p, wir) ;
-            result = String.valueOf(success);
+            result = doResourceAction(req, action);
         }
         else if (action.equals("skipWorkItem")) {
-            Participant p = _rm.getParticipant(pid);
-            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
-            boolean success = _rm.skipWorkItem(p, wir, handle) ;
-            result = String.valueOf(success);
+            result = doResourceAction(req, action);
         }
         else if (action.equals("pileWorkItem")) {
-            Participant p = _rm.getParticipant(pid);
-            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
-            result = _rm.pileWorkItem(p, wir) ;
+            result = doResourceAction(req, action);
         }
         else if (action.equals("suspendWorkItem")) {
-            Participant p = _rm.getParticipant(pid);
-            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
-            boolean success = _rm.suspendWorkItem(p, wir) ;
-            result = String.valueOf(success);
+            result = doResourceAction(req, action);
         }
         else if (action.equals("unsuspendWorkItem")) {
-            Participant p = _rm.getParticipant(pid);
-            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
-            boolean success = _rm.unsuspendWorkItem(p, wir) ;
-            result = String.valueOf(success);
+            result = doResourceAction(req, action);
         }
         else if (action.equals("completeWorkItem")) {
-            Participant p = _rm.getParticipant(pid);
-            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
-            result = _rm.checkinItem(p, wir, handle) ;
+            result = doResourceAction(req, action);
         }
         else if (action.equals("delegateWorkItem")) {
-            String pFrom = req.getParameter("pfrom");
-            String pTo = req.getParameter("pto");
-            Participant pOrig = _rm.getParticipant(pFrom);
-            Participant pDest = _rm.getParticipant(pTo);
-            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
-            boolean success = _rm.delegateWorkItem(pOrig, pDest, wir) ;
-            result = String.valueOf(success);
+            result = doResourceMoveAction(req, action);
         }
         else if (action.equals("reallocateStatefulWorkItem")) {
-            String pFrom = req.getParameter("pfrom");
-            String pTo = req.getParameter("pto");
-            Participant pOrig = _rm.getParticipant(pFrom);
-            Participant pDest = _rm.getParticipant(pTo);
-            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
-            boolean success = _rm.reallocateStatefulWorkItem(pOrig, pDest, wir) ;
-            result = String.valueOf(success);
+            result = doResourceMoveAction(req, action);
         }
         else if (action.equals("reallocateStatelessWorkItem")) {
-            String pFrom = req.getParameter("pfrom");
-            String pTo = req.getParameter("pto");
-            Participant pOrig = _rm.getParticipant(pFrom);
-            Participant pDest = _rm.getParticipant(pTo);
-            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
-            boolean success = _rm.reallocateStatelessWorkItem(pOrig, pDest, wir) ;
-            result = String.valueOf(success);
+            result = doResourceMoveAction(req, action);
         }
         else if (action.equals("updateWorkItemCache")) {
             String wirAsXML = req.getParameter("wir") ;
             WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirAsXML);
-            _rm.getWorkItemCache().update(wir) ;
+            if (wir != null) {
+                _rm.getWorkItemCache().update(wir) ;
+                result = success;
+            }
+            else result = fail("Malformed or empty work item XML record");
         }
 
         // the following calls are convenience pass-throughs to engine interfaces A & B
@@ -320,20 +312,198 @@ public class WorkQueueGateway extends HttpServlet {
             result = _rm.removeRegisteredService(id, handle);
         }
         else if (action.equals("addRegisteredService")) {
-            String service = req.getParameter("service");
-            YAWLServiceReference ysr = YAWLServiceReference.unmarshal(service);
+            String uri = req.getParameter("uri");
+            String name = req.getParameter("name");
+            String doco = req.getParameter("doco");
+            String assignable = req.getParameter("assignable");
+            YAWLServiceReference ysr = new YAWLServiceReference(uri, null, name);
+            ysr.setDocumentation(doco);
+            if (assignable != null) {
+                ysr.set_assignable(assignable.equals("true"));
+            }
             result = _rm.addRegisteredService(ysr, handle);
         }
 
         return result ;
     }
 
-
+    // returns true if the action can be performed without admin-level privileges
     private boolean authorisedCustomFormAction(String action, String handle) {
         if ((action.equals("getWorkItem")) || (action.equals("updateWorkItemData"))) {
             return _rm.isValidUserSession(handle);
         }
         else return false;
+    }
+
+
+    private String doResourceAction(HttpServletRequest req, String action) {
+        String result;
+        String pid = req.getParameter("participantid");
+        String itemid = req.getParameter("workitemid");
+
+        Participant p = _rm.getParticipant(pid);
+        if (p != null) {
+            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
+            if (wir != null) {
+                result = doResourceAction(p, wir, req, action);
+            }
+            else result = fail("Unknown workitem: " + itemid);
+        }
+        else result =  fail("Unknown participant: " + pid);
+
+        return result;
+    }
+
+    private String doResourceMoveAction(HttpServletRequest req, String action) {
+        String result;
+        String pFrom = req.getParameter("pfrom");
+        String pTo = req.getParameter("pto");
+        String itemid = req.getParameter("workitemid");
+
+        Participant pOrig = _rm.getParticipant(pFrom);
+        if (pOrig != null) {
+            Participant pDest = _rm.getParticipant(pTo);
+            if (pDest != null) {
+                WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
+                if (wir != null) {
+                    result = doResourceAction(pOrig, pDest, wir, action);
+                }
+                else result = fail("Unknown workitem: " + itemid);
+            }
+            else result =  fail("Unknown destination participant: " + pDest);
+        }
+        else result =  fail("Unknown source participant: " + pFrom);
+
+        return result;
+    }
+
+
+    private String doResourceAction(Participant p, WorkItemRecord wir,
+                                    HttpServletRequest req, String action) {
+        String result = "<failure/>";
+        String handle = req.getParameter("sessionHandle");
+        boolean successful ;
+
+        if (action.equals("acceptOffer")) {
+            if (wir.hasResourceStatus(WorkItemRecord.statusResourceOffered)) {
+                _rm.acceptOffer(p, wir);
+                result = success;
+            }
+            else result = fail("Offered", "accepted", wir.getResourceStatus());
+        }
+        else if (action.equals("startWorkItem")) {
+            if (wir.hasResourceStatus(WorkItemRecord.statusResourceUnoffered) ||
+                wir.hasResourceStatus(WorkItemRecord.statusResourceOffered) ||
+                wir.hasResourceStatus(WorkItemRecord.statusResourceAllocated)) {
+
+                successful = _rm.start(p, wir, handle);
+                result = successful ? success : fail("Could not start workitem: " +
+                        wir.getID());
+            }
+            else result = fail("Unoffered', 'Offered' or 'Allocated", "accepted",
+                    wir.getResourceStatus());                
+        }
+        else if (action.equals("deallocateWorkItem")) {
+            if (wir.hasResourceStatus(WorkItemRecord.statusResourceAllocated)) {
+                successful = _rm.deallocateWorkItem(p, wir) ;
+                result = successful ? success : fail("Could not deallocated workitem: " +
+                         wir.getID());
+            }
+            else result = fail("Allocated", "deallocated", wir.getResourceStatus());            
+        }
+        else if (action.equals("skipWorkItem")) {
+            if (wir.hasResourceStatus(WorkItemRecord.statusResourceAllocated)) {
+                successful = _rm.skipWorkItem(p, wir, handle) ;
+                result = successful ? success : fail("Could not skip workitem: " + wir.getID());
+            }
+            else result = fail("Allocated", "skipped", wir.getResourceStatus());
+        }
+        else if (action.equals("pileWorkItem")) {
+            if (wir.hasResourceStatus(WorkItemRecord.statusResourceAllocated)) {
+                result = _rm.pileWorkItem(p, wir) ;
+                if (result.startsWith("Cannot")) result = fail(result);
+            }
+            else result = fail("Allocated", "piled", wir.getResourceStatus());
+        }
+        else if (action.equals("suspendWorkItem")) {
+            if (wir.hasResourceStatus(WorkItemRecord.statusResourceStarted)) {
+                successful = _rm.suspendWorkItem(p, wir) ;
+                result = successful ? success : fail("Could not suspend workitem: " +
+                        wir.getID());
+            }
+            else result = fail("Started", "suspended", wir.getResourceStatus());            
+        }
+        else if (action.equals("unsuspendWorkItem")) {
+            if (wir.hasResourceStatus(WorkItemRecord.statusResourceSuspended)) {
+                successful = _rm.unsuspendWorkItem(p, wir) ;
+                result = successful ? success : fail("Could not unsuspend workitem: " +
+                        wir.getID());
+            }
+            else result = fail("Suspended", "unsuspended", wir.getResourceStatus());
+        }
+        else if (action.equals("completeWorkItem")) {
+            if (wir.hasResourceStatus(WorkItemRecord.statusResourceStarted)) {
+                result = _rm.checkinItem(p, wir, handle) ;
+            }
+            else result = fail("Started", "completed", wir.getResourceStatus());            
+        }
+        return result;
+    }
+
+
+    private String doResourceAction(Participant pOrig, Participant pDest,
+                                    WorkItemRecord wir, String action) {
+        String result = "<failure/>";
+        boolean successful ;
+
+        if (action.equals("delegateWorkItem")) {
+            if (wir.hasResourceStatus(WorkItemRecord.statusResourceAllocated)) {
+                successful = _rm.delegateWorkItem(pOrig, pDest, wir) ;
+                result = successful ? success : fail("Could not delegate workitem: " +
+                        wir.getID());
+            }
+            else result = fail("Allocated", "delegated", wir.getResourceStatus());
+        }
+        else if (action.equals("reallocateStatefulWorkItem")) {
+            if (wir.hasResourceStatus(WorkItemRecord.statusResourceStarted)) {
+                successful = _rm.reallocateStatefulWorkItem(pOrig, pDest, wir) ;
+                result = successful ? success : fail("Could not reallocate workitem: " +
+                        wir.getID());
+            }
+            else result = fail("Started", "reallocated", wir.getResourceStatus());
+        }
+        else if (action.equals("reallocateStatelessWorkItem")) {
+            if (wir.hasResourceStatus(WorkItemRecord.statusResourceStarted)) {
+                successful = _rm.reallocateStatelessWorkItem(pOrig, pDest, wir) ;
+                result = successful ? success : fail("Could not reallocate workitem: " +
+                        wir.getID());
+            }
+            else result = fail("Started", "reallocated", wir.getResourceStatus());
+        }
+        return result;
+    }
+
+
+    private int getQueueType(String queue) {
+        try {
+            return new Integer(queue) ;
+        }
+        catch (NumberFormatException nfe) {
+            return -1 ;
+        }
+    }
+
+
+    private String fail(String msg) {
+        return "<failure>" + msg + "</failure>";
+    }
+
+
+    private String fail(String reqStatus, String action, String hasStatus) {
+        return fail(
+           String.format("Only a workitem '%s' status can be %s. This workitem has '%s' status.",
+                   reqStatus, action, hasStatus)
+        );
     }
 
 }

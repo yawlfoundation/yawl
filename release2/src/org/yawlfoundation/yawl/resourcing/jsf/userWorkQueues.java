@@ -317,6 +317,22 @@ public class userWorkQueues extends AbstractPageBean {
     public void setBtnVisualiser(Button btn) { btnVisualiser = btn; }
 
 
+    private Button btnException = new Button();
+
+    public Button getBtnException() { return btnException; }
+
+    public void setBtnException(Button btn) { btnException = btn; }
+
+
+    private String btnExceptionStyle;
+
+    public String getBtnExceptionStyle() {
+        return _rm.isVisualiserEnabled() ? "left: 711px" : "left: 740px";
+    }
+
+    public void setBtnExceptionStyle(String style) { btnExceptionStyle = style; }
+
+
     /********************************************************************************/
 
     // SPECIFIC DELARATIONS AND METHODS //
@@ -553,6 +569,29 @@ public class userWorkQueues extends AbstractPageBean {
         if (redirect != null)
             _sb.setUserListFormHeaderText("Delegate workitem to:") ;
         return redirect;
+    }
+
+    
+    public String btnException_action() {
+        int activeQueue = getApplicationBean().getActiveQueue(tabSet.getSelected());
+        if (activeQueue != WorkQueue.UNDEFINED) {
+            WorkItemRecord wir = _sb.getChosenWIR(activeQueue);
+            if (wir != null) {
+                String ixURI = _rm.getExceptionServiceURI();
+                if (ixURI != null) {
+                    try {
+                        FacesContext.getCurrentInstance().getExternalContext()
+                            .redirect(ixURI + "/workItemException?workItemID=" + wir.getID());
+                    }
+                    catch (IOException ioe) {
+                        msgPanel.error(ioe.getMessage());
+                    }
+                }
+            }
+        }
+        else msgPanel.error("No work item selected to raise exception against.");
+
+        return null ;
     }
 
 
@@ -954,19 +993,26 @@ public class userWorkQueues extends AbstractPageBean {
     /** Enable/disable buttons depending on user/task privileges */
     private void processTaskPrivileges(WorkItemRecord wir, int qType) {
         Participant p = _sb.getParticipant();
-        if (qType == WorkQueue.ALLOCATED) {
+        boolean suspended = wir.hasStatus(WorkItemRecord.statusSuspended);
+
+        if (qType == WorkQueue.OFFERED) {
+            btnAcceptStart.setDisabled(suspended);
+            btnChain.setDisabled(suspended);
+        }
+        else if (qType == WorkQueue.ALLOCATED) {
+            btnStart.setDisabled(suspended);
             btnDeallocate.setDisabled(! _rm.hasUserTaskPrivilege(p, wir,
                                                TaskPrivileges.CAN_DEALLOCATE));
             btnDelegate.setDisabled(! _rm.hasUserTaskPrivilege(p, wir, 
                                                TaskPrivileges.CAN_DELEGATE));
-            btnSkip.setDisabled(! _rm.hasUserTaskPrivilege(p, wir,
-                                               TaskPrivileges.CAN_SKIP));
-            btnPile.setDisabled(! _rm.hasUserTaskPrivilege(p, wir,
-                                               TaskPrivileges.CAN_PILE));
+            btnSkip.setDisabled((! _rm.hasUserTaskPrivilege(p, wir,
+                                               TaskPrivileges.CAN_SKIP)) || suspended);
+            btnPile.setDisabled((! _rm.hasUserTaskPrivilege(p, wir,
+                                               TaskPrivileges.CAN_PILE)) || suspended);
         }
         else if (qType == WorkQueue.STARTED) {
-            btnSuspend.setDisabled(! _rm.hasUserTaskPrivilege(p, wir,
-                                               TaskPrivileges.CAN_SUSPEND));
+            btnSuspend.setDisabled((! _rm.hasUserTaskPrivilege(p, wir,
+                                               TaskPrivileges.CAN_SUSPEND)) || suspended);
             btnStateful.setDisabled(! _rm.hasUserTaskPrivilege(p, wir,
                                                TaskPrivileges.CAN_REALLOCATE_STATEFUL));
             btnStateless.setDisabled(! _rm.hasUserTaskPrivilege(p, wir,
@@ -984,6 +1030,10 @@ public class userWorkQueues extends AbstractPageBean {
                                             ! canCreate.equalsIgnoreCase("true"));
             }
         }
+        else if (qType == WorkQueue.SUSPENDED) {
+            btnUnsuspend.setDisabled(suspended);
+        }
+
     }
 
 
@@ -1021,7 +1071,6 @@ public class userWorkQueues extends AbstractPageBean {
 
     /** Disables buttons if queue is empty, enables them if not */
     private void processButtonEnablement(int queueType) {
-        btnVisualiser.setVisible(_sb.isVisualiserEnabled());
 
         boolean isEmptyQueue = (_sb.getQueueSize(queueType) == 0) ;
         switch (queueType) {

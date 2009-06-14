@@ -10,16 +10,26 @@
     String taskName = _exceptionService.getDecompID(wir) ;
     String caseID = wir.getCaseID();
 
-    String title = request.getParameter("title");
-    String scenario = request.getParameter("scenario");
-    String process = request.getParameter("process");
+    String submit = request.getParameter("submit");
+    if ((submit != null) && (submit.equals("Cancel"))) {
+        response.sendRedirect(response.encodeURL(_caseMgtURL));
+    }
+    else {
+        String title = request.getParameter("title");
+        String scenario = request.getParameter("scenario");
+        String process = request.getParameter("process");
 
-    if ((title != null) && (scenario != null) && (process != null)) {
-        _exceptionService.addAdministrationTask(caseID, itemID, title, scenario, process,
+        // make sure all fields are filled
+        if ((title != null) && (title.length() > 0) &&
+            (scenario != null) && (scenario.length() > 0) &&
+            (process != null) && (process.length() > 0)) {
+            _exceptionService.addAdministrationTask(caseID, itemID, title, scenario, process,
                                   AdministrationTask.TASKTYPE_ITEM_EXTERNAL_EXCEPTION);
-       // go back to YAWL worklist
-       response.sendRedirect(response.encodeURL("/worklist/availableWork") );
-     }
+
+           // go back to YAWL worklist
+           response.sendRedirect(response.encodeURL(_worklistURL));
+        }
+    }    
 
 %>
 
@@ -81,12 +91,18 @@
             </tr>
         </table>
 
-        <table border="0" cellspacing="20" width=70%>
+        <table border="0" cellspacing="0">
+            <tr><td height="30" width="100"/></tr>
             <tr>
-                <td align="center"><input value="Submit" type="submit"/></td>
+                <td align="right" width="100">
+                    <input type="submit" name="submit" value="Cancel"/>
+                </td>
+                <td align="center" width="100">
+                    <input type="submit" value="Submit"/>
+                </td>
             </tr>
         </table>
-    </form>
+     </form>
     <%@ include file="wsFooter.jsp" %>
 </body>
 </html>

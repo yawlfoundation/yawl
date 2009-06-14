@@ -597,13 +597,13 @@ public class YEngine implements InterfaceADesign,
             _logger.info("Deleting persisted process instance " + caseID);
 
             try {
-                clearCase(pmgr, caseID);
                 YNetRunner runner = _caseIDToNetRunnerMap.get(caseID);
                 _yawllog.logCaseCancelled(pmgr, caseID.toString());
                 if (_persisting) clearWorkItemsFromPersistence(pmgr, caseID);
-                runner.cancel(pmgr);
                 _workItemRepository.removeWorkItemsForCase(caseID);
                 finishCase(pmgr, caseID);
+                if (runner != null) runner.cancel(pmgr);
+                clearCase(pmgr, caseID);
                 announceCaseCancellationToEnvironment(caseID);
 
                 // announce cancellation to exception service (if required)
@@ -633,17 +633,16 @@ public class YEngine implements InterfaceADesign,
      * @throws YEngineStateException if engine is not in 'running' state
      * @throws YPersistenceException if there's some persistence problem
      */
-    public void cancelCase(YIdentifier id)
+    public synchronized void cancelCase(YIdentifier id)
             throws YPersistenceException, YEngineStateException {
-        synchronized (mutex) {
-            if (getEngineStatus() == ENGINE_STATUS_RUNNING) {
-                YPersistenceManager pmgr = getPersistenceSession();
-                cancelCase(pmgr, id);
-                if (pmgr != null) pmgr.commit();
-            }
-            else throw new YEngineStateException("Unable to accept request as engine" +
-                          " not in correct state: Current state = " + getEngineStatus());
+        if (getEngineStatus() == ENGINE_STATUS_RUNNING) {
+            YPersistenceManager pmgr = getPersistenceSession();
+            cancelCase(pmgr, id);
+            if (pmgr != null) pmgr.commit();
         }
+        else throw new YEngineStateException("Unable to accept request as engine" +
+                " not in correct state: Current state = " + getEngineStatus());
+
     }
 
     /**
@@ -2768,7 +2767,9 @@ public class YEngine implements InterfaceADesign,
         if (_resourceObserver != null)
             observerGatewayController.notifyTimerExpiry(_resourceObserver, item);
 
-        if (_exceptionObserver != null) _exceptionObserver.announceTimeOut(item, null);
+        if (_exceptionObserver != null) {
+            _exceptionObserver.announceTimeOut(item, null);
+        }    
     }
 
     /** updates the workitem with the data passed after completion of an exception handler */

@@ -4,14 +4,21 @@
 <meta name="Cache-Control" content="no-cache"/>
 <meta name="Expires" content="0"/>
 <link rel="stylesheet" href="./graphics/common.css"/>
+<link rel="shortcut icon" id="lnkFavIcon" type="image/x-icon" href="./graphics/favicon.ico"/>
 
 <%!
     ExceptionService _exceptionService = null ;
     String _engineURI ;
+
+    String _rootResServiceURL = "http://localhost:8080/resourceService/faces/";
+    String _worklistURL = _rootResServiceURL + "userWorkQueues.jsp";
+    String _adminlistURL = _rootResServiceURL + "adminQueues.jsp";
+    String _caseMgtURL = _rootResServiceURL + "caseMgt.jsp";
+
     public void jspInit(){
-                   ServletContext context = getServletContext();
+        ServletContext context = getServletContext();
         _exceptionService = (ExceptionService) context.getAttribute(
-                "org.yawlfoundation.yawl.worklet.exception.ExceptionService");
+                    "org.yawlfoundation.yawl.worklet.exception.ExceptionService");
         if(_exceptionService == null) {
             _exceptionService =  ExceptionService.getInst();
             context.setAttribute("org.yawlfoundation.yawl.workllet.exception.ExceptionService",

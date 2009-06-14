@@ -278,9 +278,8 @@ public class ResourceMap {
 
 
     private void addToAdminUnofferedQueue(WorkItemRecord wir) {
-        ResourceAdministrator admin = ResourceAdministrator.getInstance();
         wir.setResourceStatus(WorkItemRecord.statusResourceUnoffered);
-        admin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
+        ResourceAdministrator.getInstance().addToUnoffered(wir);
     }
 
 

@@ -13,6 +13,7 @@ import com.sun.rave.web.ui.component.Link;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 
 import javax.faces.FacesException;
@@ -248,11 +249,60 @@ public class ApplicationBean extends AbstractApplicationBean {
              .getViewRoot().getViewId());
         context.setViewRoot(viewRoot);
       //  context.renderResponse(); //Optional
-  }
+    }
 
 
-  public void synch() {
-      _rm.sanitiseCaches();
-  }
+    public void synch() {
+        _rm.sanitiseCaches();
+    }
+
+
+    private boolean exceptionServiceEnabled = _rm.hasExceptionServiceEnabled() ;
+
+    public boolean isExceptionServiceEnabled() {
+        return exceptionServiceEnabled;
+    }
+
+    public void setExceptionServiceEnabled(boolean enabled) {
+        exceptionServiceEnabled = enabled;
+    }
+
+    private boolean visualizerEnabled = _rm.isVisualiserEnabled() ;
+
+    public boolean isVisualizerEnabled() {
+        return visualizerEnabled;
+    }
+
+    public void setVisualizerEnabled(boolean enabled) {
+        visualizerEnabled = enabled;
+    }
+
+
+
+    public int getActiveQueue(String tabName) {
+        int result = WorkQueue.UNDEFINED;
+        if (tabName != null) {
+            if (tabName.equals("tabOffered")) {
+                result = WorkQueue.OFFERED;
+            }
+            else if (tabName.equals("tabAllocated")) {
+                result = WorkQueue.ALLOCATED;
+            }
+            else if (tabName.equals("tabStarted")) {
+                result = WorkQueue.STARTED;
+            }
+            else if (tabName.equals("tabSuspended")) {
+                result = WorkQueue.SUSPENDED;
+            }
+            else if (tabName.equals("tabUnoffered")) {
+                result = WorkQueue.UNOFFERED;
+            }
+            else if (tabName.equals("tabWorklisted")) {
+                result = WorkQueue.WORKLISTED;
+            }
+        }
+        return result;
+    }
+
 
 }

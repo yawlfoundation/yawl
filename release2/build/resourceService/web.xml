@@ -164,6 +164,21 @@
     </context-param>
 
 
+    <!-- This param, when available, enables the worklet exception
+         service add-ins to the worklist. If the exception service
+         is enabled in the engine, then this param should also be
+         made available. If it is disabled in the engine, the
+         entire context-param should be commented out. -->
+
+    <context-param>
+       <param-name>InterfaceX_BackEnd</param-name>
+       <param-value>http://localhost:8080/workletService</param-value>
+       <description>
+          The URL of the worklet exception service.
+       </description>
+    </context-param>
+    
+
 
     <!--CharsetFilter -->
 

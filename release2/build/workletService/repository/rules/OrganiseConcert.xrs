@@ -56,8 +56,8 @@
                                 <target>ChangeToSmallVenue</target>
                             </_2>
                             <_3>
-                                <action>complete</action>
-                                <target>workitem</target>
+                                <action>cancel</action>
+                                <target>case</target>
                             </_3>
                         </conclusion>
                         <cornerstone>

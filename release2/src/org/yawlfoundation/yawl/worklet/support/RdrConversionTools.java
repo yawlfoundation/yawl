@@ -8,12 +8,16 @@
 package org.yawlfoundation.yawl.worklet.support;
 
 import org.jdom.Element;
+import org.yawlfoundation.yawl.engine.interfce.Marshaller;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.worklet.rdr.RdrNode;
 import org.yawlfoundation.yawl.worklet.rdr.RdrTree;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  *  This class contains some static methods that convert some objects to Strings and
@@ -134,18 +138,32 @@ public class RdrConversionTools {
     /******************************************************************************/
 
     public static String WIRListToString(List items) {
-        List strList = new ArrayList() ;
-
         if (items != null) {
+            StringBuilder xml = new StringBuilder("<recordlist>");
             Iterator itr = items.iterator() ;
             while (itr.hasNext()) {
 
                 // convert each WIR to XML
-                strList.add(((WorkItemRecord) itr.next()).toXML());
+                xml.append(((WorkItemRecord) itr.next()).toXML());
             }
-            return itrToString(strList.iterator());
+            xml.append("</recordlist>");
+            return xml.toString();
         }
         return null ;
+    }
+
+    public static List<WorkItemRecord> xmlToWIRList(String xml) {
+        Element wirElem = JDOMUtil.stringToElement(xml);
+        if (wirElem != null) {
+            List<WorkItemRecord> result = new ArrayList<WorkItemRecord>();
+            List children = wirElem.getChildren();
+            for (Object o : children) {
+                Element child = (Element) o;
+                result.add(Marshaller.unmarshalWorkItem(child));
+            }
+            return result;
+        }
+        return null;
     }
 
     /**

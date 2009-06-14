@@ -20,6 +20,7 @@ import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.FacesException;
+import javax.faces.context.FacesContext;
 import javax.faces.component.UIColumn;
 import javax.faces.component.html.HtmlDataTable;
 import javax.faces.component.html.HtmlOutputText;
@@ -191,20 +192,6 @@ public class caseMgt extends AbstractPageBean {
     public void setBtnUnload(Button b) { btnUnload = b; }
 
 
-    private Button btnRaiseException = new Button();
-
-    public Button getBtnRaiseException() { return btnRaiseException; }
-
-    public void setBtnRaiseException(Button b) { btnRaiseException = b; }
-
-
-    private Button btnRejectWorklet = new Button();
-
-    public Button getBtnRejectWorklet() { return btnRejectWorklet; }
-
-    public void setBtnRejectWorklet(Button b) { btnRejectWorklet = b; }
-
-
     private MessageGroup msgBox = new MessageGroup();
 
     public MessageGroup getMsgBox() { return msgBox; }
@@ -337,7 +324,30 @@ public class caseMgt extends AbstractPageBean {
     public PanelGroup getPnlGroup() { return pnlGroup; }
 
     public void setPnlGroup(PanelGroup group) { pnlGroup = group; }
-    
+
+
+    // the next 3 buttons are available only when the exception service is enabled
+
+    private Button btnRaiseException = new Button();
+
+    public Button getBtnRaiseException() { return btnRaiseException; }
+
+    public void setBtnRaiseException(Button b) { btnRaiseException = b; }
+
+
+    private Button btnRejectWorklet = new Button();
+
+    public Button getBtnRejectWorklet() { return btnRejectWorklet; }
+
+    public void setBtnRejectWorklet(Button b) { btnRejectWorklet = b; }
+
+
+    private Button btnWorkletAdmin = new Button();
+
+    public Button getBtnWorkletAdmin() { return btnWorkletAdmin; }
+
+    public void setBtnWorkletAdmin(Button b) { btnWorkletAdmin = b; }
+
 
     /*******************************************************************************/
 
@@ -390,14 +400,53 @@ public class caseMgt extends AbstractPageBean {
     }
 
 
-    public String btnRaiseException_action() {
-        return null ;
+    private void redirectTo(String url) {
+        try {
+            FacesContext.getCurrentInstance().getExternalContext().redirect(url);
+        }
+        catch (IOException ioe) {
+            msgPanel.error(ioe.getMessage());
+        }
     }
 
 
     public String btnRejectWorklet_action() {
+        String caseID = getSelectedCaseID() ;
+        if (caseID != null) {
+            String ixURI = _rm.getExceptionServiceURI();
+            if (ixURI != null) {
+                redirectTo(ixURI + "/rejectWorklet?caseID=" + caseID);
+            }
+        }
+        else msgPanel.error("No worklet case selected to reject.");
+
         return null ;
     }
+
+    public String btnRaiseException_action() {
+        String caseID = getSelectedCaseID() ;
+        if (caseID != null) {
+            String ixURI = _rm.getExceptionServiceURI();
+            if (ixURI != null) {
+                redirectTo(ixURI + "/caseException?caseID=" + caseID);
+            }
+        }
+        else msgPanel.error("No case selected to raise exception against.");
+
+        return null ;
+    }
+
+    public String btnWorkletAdmin_action() {
+        String ixURI = _rm.getExceptionServiceURI();
+        if (ixURI != null) {
+            redirectTo(ixURI + "/wsAdminTasks?sH=" + _sb.getSessionhandle());
+        }
+        else msgPanel.error("Could not find the Worklet Service.");
+
+        return null ;
+    }
+
+
 
     // upload the chosen spec file
     public String btnUpload_action() {
@@ -489,9 +538,8 @@ public class caseMgt extends AbstractPageBean {
     public String btnCancelCase_action() {
 
         // get selected case
-        String choice = _sb.getRunningCaseListChoice() ;
-        if ((choice != null) && (choice.length() > 0)) {
-            choice = choice.substring(0, choice.indexOf(':')) ;    // get casenbr prefix
+        String choice = getSelectedCaseID() ;
+        if (choice != null) {
             String result = cancelCase(choice) ;
             if (! _rm.successful(result))
                 msgPanel.error("Could not cancel case.\n\n" +  msgPanel.format(result)) ;
@@ -499,6 +547,16 @@ public class caseMgt extends AbstractPageBean {
         else msgPanel.error("No case selected to cancel.");
 
         return null;
+    }
+
+    
+    private String getSelectedCaseID() {
+        String result = null ;
+        String choice = _sb.getRunningCaseListChoice() ;
+        if ((choice != null) && (choice.length() > 0)) {
+            result = choice.substring(0, choice.indexOf(':')) ;    // get casenbr prefix
+        }
+        return result;
     }
 
 

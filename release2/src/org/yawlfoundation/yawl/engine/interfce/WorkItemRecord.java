@@ -368,6 +368,15 @@ public class WorkItemRecord implements Cloneable {
                _status.equals(statusExecuting);
     }
 
+    public boolean hasStatus(String status) {
+        return (_status != null) && _status.equals(status);
+    }
+
+    public boolean hasResourceStatus(String status) {
+        return (_resourceStatus != null) && _resourceStatus.equals(status);
+    }
+
+    
     /********************************************************************************/
 
     public String toXML() {

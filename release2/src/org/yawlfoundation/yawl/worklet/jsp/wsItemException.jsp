@@ -11,6 +11,12 @@
     WorkItemRecord wir = _exceptionService.getWorkItemRecord(workItemID);
     String taskName = _exceptionService.getDecompID(wir) ;
 
+    String submit = request.getParameter("submit");
+    System.out.println(submit);
+    if ((submit != null) && (submit.equals("Cancel"))) {
+        response.sendRedirect(response.encodeURL(_worklistURL));
+    }
+
     if (triggerID != null) {
         if (triggerID.equals("newExternalException")) {
             String url = "/workletService/newItemException?itemID=" + workItemID;
@@ -18,7 +24,7 @@
         }
         else {
             _exceptionService.raiseExternalException("item", workItemID, triggerID);
-            response.sendRedirect(response.encodeURL("/worklist/availableWork") );
+            response.sendRedirect(response.encodeURL(_worklistURL));
         }
     }
 %>
@@ -111,9 +117,13 @@
         </table>
 
         <table border="0" cellspacing="0">
-            <tr><td height="30" width="150"/></tr>
+            <tr><td height="30" width="100"/></tr>
             <tr>
-                <td align="center" width="150"><input value="Submit" type="submit"
+                <td align="right" width="100">
+                    <input type="submit" name="submit" value="Cancel"/>
+                </td>
+                <td align="center" width="100">
+                    <input value="Submit" type="submit"
                           onClick="return isCompletedForm('itemException', 'trigger')"/>
                 </td>
             </tr>
