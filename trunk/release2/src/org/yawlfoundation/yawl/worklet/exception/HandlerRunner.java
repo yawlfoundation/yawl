@@ -7,16 +7,19 @@
  */
 package org.yawlfoundation.yawl.worklet.exception;
 
-import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
-import org.yawlfoundation.yawl.worklet.support.*;
-
+import org.apache.log4j.Logger;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.IllegalAddException;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
+import org.yawlfoundation.yawl.worklet.support.Library;
+import org.yawlfoundation.yawl.worklet.support.RdrConversionTools;
+import org.yawlfoundation.yawl.worklet.support.WorkletRecord;
 
-import java.util.*;
-
-import org.jdom.*;
-import org.apache.log4j.Logger;
+import java.util.Iterator;
+import java.util.List;
 
 /** The HandlerRunner class manages an exception handling process. An instance
  *  of this class is created for each exception process raised by a case. The CaseMonitor
@@ -240,15 +243,7 @@ public class HandlerRunner extends WorkletRecord {
 
         // reconstitute the susp items list
         if (_suspList != null) {
-            List list = RdrConversionTools.StringToStringList(_suspList);
-            if (list != null) {
-                _suspendedItems = new ArrayList();                    // init item list
-                Iterator itr = list.iterator();
-                while (itr.hasNext()) {
-                    String xmlItem = (String) itr.next();
-                    _suspendedItems.add(RdrConversionTools.xmlStringtoWIR(xmlItem));
-                }
-            }
+            _suspendedItems = RdrConversionTools.xmlToWIRList(_suspList);
         }
     }
 

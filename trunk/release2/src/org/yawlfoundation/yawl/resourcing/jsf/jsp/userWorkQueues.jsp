@@ -209,6 +209,17 @@
                                    imageURL="/resources/visualise.png"
                                    styleClass="synchButton"
                                    toolTip="Show Visualizer"
+                                   visible="#{ApplicationBean.visualizerEnabled}"
+                                   text=""/>
+
+                        <ui:button binding="#{userWorkQueues.btnException}"
+                                   action="#{userWorkQueues.btnException_action}"
+                                   id="btnException"
+                                   imageURL="/resources/workletException.png"
+                                   styleClass="synchButton"
+                                   style="#{userWorkQueues.btnExceptionStyle}"
+                                   toolTip="Raise Item-level Exception"
+                                   visible="#{ApplicationBean.exceptionServiceEnabled}"
                                    text=""/>
 
                         <div>

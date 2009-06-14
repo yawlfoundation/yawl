@@ -88,7 +88,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     public ExceptionService(){
         super();
         _log = Logger.getLogger(ExceptionService.class);
-        setUpInterfaceBClient(_engineURI + "/ib");
+        setUpInterfaceBClient(_engineURI);
         _me = this ;
         registerExceptionService(this);                 // register service with parent
     }
@@ -102,7 +102,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     // called from servlet WorkletGateway after contexts are loaded
     public void completeInitialisation() {
         super.completeInitialisation();
-        _ixClient = new InterfaceX_ServiceSideClient(_engineURI + "/ix");
+        _ixClient = new InterfaceX_ServiceSideClient(_engineURI.replaceFirst("/ib", "/ix"));
         if (_persisting) restoreDataSets();             // reload running cases data
     }
 
@@ -269,51 +269,73 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             _log.info("HANDLE TIMEOUT EVENT");
 
             if (connected()) {
-                String caseID = getIntegralID(wir.getCaseID());
-                String specID = wir.getSpecificationID();
-                CaseMonitor monitor = (CaseMonitor) _monitoredCases.get(caseID);
+                if (taskList != null) {
 
-                // split task list into individual taskids
-                taskList = taskList.substring(1, taskList.lastIndexOf(']')); // remove [ ]
-                String[] tList = taskList.split(", ");
+                    // split task list into individual taskids
+                    taskList = taskList.substring(1, taskList.lastIndexOf(']')); // remove [ ]
+                    String[] tList = taskList.split(", ");
 
-                // for each parallel task in the time out set
-                for (int i = 0; i < tList.length; i++) {
+                    // for each parallel task in the time out set
+                    for (int i = 0; i < tList.length; i++) {
 
-                    // get workitem record for this task & add it to the monitor's data
-                    List wirs = getWorkItemRecordsForTaskInstance(specID, tList[i]);
-                    if (wirs != null) {
-                        WorkItemRecord wirt = (WorkItemRecord) wirs.get(0);
-                        monitor.addProcessInfo(wirt);
-
-                        // get the exception handler for this time out for this task (if any)
-                        String taskID = getDecompID(specID, wir.getSpecVersion(), tList[i]);
-                        RdrConclusion conc = getExceptionHandler(monitor, taskID, XTYPE_TIMEOUT);
-
-                        // if conc is null there's no rules defined for this type of constraint
-                        if (conc == null)
-                            _log.info("No time-out exception handler defined for task: " + taskID);
-                        else {
-                            if (! conc.nullConclusion())                 // we have a handler
-                                raiseException(monitor, conc, wirt, XTYPE_TIMEOUT);
-                            else                       // there are rules but the item passes
-                                _log.info("Nothing to do for this TimeOut Event");
+                        // get workitem record for this task & add it to the monitor's data
+                        List wirs = getWorkItemRecordsForTaskInstance(wir.getSpecificationID(), tList[i]);
+                        if (wirs != null) {
+                            handleTimeout((WorkItemRecord) wirs.get(0));
                         }
-                        monitor.removeProcessInfo();
+                        else _log.info("No live work item found for task: " + tList[i]);
                     }
-                    else _log.info("No live work item found for task: " + tList[i]);
                 }
+                else handleTimeout(wir);
             }
             else _log.error("Unable to connect the Exception Service to the Engine");
         }
     }
 
 
+    private void handleTimeout(WorkItemRecord wir) {
+        String caseID = getIntegralID(wir.getCaseID());
+        CaseMonitor monitor = (CaseMonitor) _monitoredCases.get(caseID);
+        monitor.addProcessInfo(wir);
+
+        // get the exception handler for this time out for this task (if any)
+        RdrConclusion conc = getExceptionHandler(monitor, wir.getTaskName(), XTYPE_TIMEOUT);
+
+        // if conc is null there's no rules defined for this type of constraint
+        if (conc == null)
+            _log.info("No time-out exception handler defined for task: " + wir.getTaskID());
+        else {
+            if (! conc.nullConclusion())                 // we have a handler
+                raiseException(monitor, conc, wir, XTYPE_TIMEOUT);
+            else                       // there are rules but the item passes
+                _log.info("Nothing to do for this TimeOut Event");
+        }
+        monitor.removeProcessInfo();
+    }
+
+    public void handleResourceUnavailableException(WorkItemRecord wir) {
+        String caseID = getIntegralID(wir.getCaseID());
+        CaseMonitor monitor = (CaseMonitor) _monitoredCases.get(caseID);
+
+        // get the exception handler for this task (if any)
+        RdrConclusion conc = getExceptionHandler(monitor, wir.getTaskName(),
+                XTYPE_RESOURCE_UNAVAILABLE);
+
+        // if conc is null there's no rules defined for this type of constraint
+        if (conc == null)
+            _log.info("No resource unavailable exception handler defined for task: " +
+                    wir.getTaskID());
+        else {
+            if (! conc.nullConclusion())                 // we have a handler
+                raiseException(monitor, conc, wir, XTYPE_RESOURCE_UNAVAILABLE);
+            else                       // there are rules but the item passes
+                _log.info("Nothing to do for this Resource Unavailable Event");
+        }
+    }
+
     /** Interface Event handlers yet to be implemented */
 
     public void handleWorkItemAbortException(WorkItemRecord wir) {}
-
-    public void handleResourceUnavailableException(WorkItemRecord wir) {}
 
     public void handleConstraintViolationException(WorkItemRecord wir) {}
 
@@ -1279,7 +1301,6 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         HandlerRunner hr ;
         boolean runnerFound = false;         // flag for msg if no runners
         String caseID = monitor.getCaseID();
-        boolean isWorklet = isWorkletCase(caseID);
 
         if (connected()) {
 
@@ -1320,7 +1341,8 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
                 // unpersist the runner if its a 'top-level' parent
                 monitor.removeHandlerRunner(hr);
-                if (_persisting && ! isWorklet) _dbMgr.persist(hr, DBManager.DB_DELETE);
+                if (_persisting && ! isWorkletCase(caseID))
+                    _dbMgr.persist(hr, DBManager.DB_DELETE);
            }
            if (! runnerFound) _log.info("No worklets running for cancelled case: "
                                         + caseID);
@@ -1751,8 +1773,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
     /** returns true if case specified is a worklet instance */
     public boolean isWorkletCase(String caseID) {
-       return (_handlersStarted.containsKey(caseID) ||
-               WorkletService.getInstance().isWorkletCase(caseID)) ;
+       return (_handlersStarted.containsKey(caseID) || super.isWorkletCase(caseID));
     }
 
     //***************************************************************************//

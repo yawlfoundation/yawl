@@ -27,14 +27,14 @@ import java.util.Set;
  *
  * Author: Michael Adams
  * Date: 26/10/2007
- * Version: 0.1
+ * Version: 2.0
  *
  */
 
 public class WorkQueueGatewayClientAdapter {
 
     protected WorkQueueGatewayClient _wqclient;        // the gateway client
-    protected String _uri ;                           // the uri of the service gateway
+    protected String _uri ;                            // the uri of the service gateway
 
     protected ResourceMarshaller _marshaller = new ResourceMarshaller();
 
@@ -54,6 +54,11 @@ public class WorkQueueGatewayClientAdapter {
 
     public String getClientURI() { return _uri ; }
 
+
+    public boolean successful(String result) {
+        return (result != null) && (! result.startsWith("<failure>"));
+    }
+
     
     /*****************************************************************************/
 
@@ -66,7 +71,7 @@ public class WorkQueueGatewayClientAdapter {
      */
     public boolean checkConnection(String handle) {
         try {
-            return _wqclient.checkConnection(handle).equals("true") ;
+            return successful(_wqclient.checkConnection(handle)) ;
         }
         catch (IOException ioe) { return false; }
     }
@@ -120,7 +125,7 @@ public class WorkQueueGatewayClientAdapter {
 
 
     public boolean isValidUserSession(String handle) throws IOException {
-        return _wqclient.isValidUserSession(handle).equalsIgnoreCase("true");
+        return successful(_wqclient.isValidUserSession(handle));
     }
 
 
@@ -128,7 +133,7 @@ public class WorkQueueGatewayClientAdapter {
                                                                   throws IOException {
         Participant result = null;
         String xml = _wqclient.getParticipantFromUserID(userid, handle) ;
-        if (xml != null) {
+        if (successful(xml)) {
             result = new Participant() ;
             result.fromXML(xml);
         }
@@ -144,7 +149,7 @@ public class WorkQueueGatewayClientAdapter {
     public UserPrivileges getUserPrivileges(String pid, String handle) throws IOException {
         UserPrivileges result = null;
         String xml = _wqclient.getUserPrivileges(pid, handle);
-        if (xml != null) {
+        if (successful(xml)) {
             result = new UserPrivileges() ;
             result.fromXML(xml);
         }
@@ -371,7 +376,8 @@ public class WorkQueueGatewayClientAdapter {
 
     public String addRegisteredService(YAWLServiceReference service, String handle)
                                                                     throws IOException {
-        return _wqclient.addRegisteredService(service, handle);
+        return _wqclient.addRegisteredService(service.getURI(), service.get_serviceName(),
+                service.getDocumentation(), service.isAssignable(), handle);
     }
 
 }

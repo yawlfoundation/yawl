@@ -49,6 +49,7 @@ import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparat
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ConnectionCache;
+import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayServer;
 import org.yawlfoundation.yawl.resourcing.util.*;
 import org.yawlfoundation.yawl.schema.YDataValidator;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -141,12 +142,14 @@ public class ResourceManager extends InterfaceBWebsideController {
     private String _adminPassword = "YAWL" ;
     private String _engineSessionHandle = null ;
     private String _serviceURI = null;
+    private String _exceptionServiceURI = null ;
     private Namespace _yNameSpace =
             Namespace.getNamespace("http://www.yawlfoundation.org/yawlschema");
 
     // interface client references - IBClient is inherited from WebSideController
     private InterfaceA_EnvironmentBasedClient _interfaceAClient ;
     private YLogGatewayClient _interfaceEClient;
+    private ResourceGatewayServer _gatewayServer;
 
 
     // Constructor - initialises references to engine and database(s), and loads org data.
@@ -190,11 +193,15 @@ public class ResourceManager extends InterfaceBWebsideController {
                       "Check datasource settings in 'web.xml'") ;
     }
 
-    public void initInterfaceClients(String uri) {
+    public void initInterfaceClients(String engineURI, String exceptionURI) {
         _interfaceAClient = new InterfaceA_EnvironmentBasedClient(
-                                                 uri.replaceFirst("/ib", "/ia"));
+                                                 engineURI.replaceFirst("/ib", "/ia"));
         _interfaceEClient = new YLogGatewayClient(
-                                         uri.replaceFirst("/ib", "/logGateway"));
+                                         engineURI.replaceFirst("/ib", "/logGateway"));
+        if (exceptionURI != null) {
+            _exceptionServiceURI = exceptionURI;
+            _gatewayServer = new ResourceGatewayServer(exceptionURI + "/ix");
+        }    
     }
 
 
@@ -248,6 +255,23 @@ public class ResourceManager extends InterfaceBWebsideController {
         return (_orgdb != null);
     }
 
+    public boolean hasExceptionServiceEnabled() {
+        return (_exceptionServiceURI != null);
+    }
+
+    public String getExceptionServiceURI() {
+        return _exceptionServiceURI;
+    }
+
+    public void announceResourceUnavailable(WorkItemRecord wir) {
+        try {
+            if (_gatewayServer != null) _gatewayServer.announceResourceUnavailable(wir);
+        }
+        catch (IOException ioe) {
+            _log.error("Failed to announce unavailable resource to environment", ioe);
+        }
+    }
+
     public Logger getLogger() { return _log ; }
 
     /*********************************************************************************/
@@ -268,8 +292,8 @@ public class ResourceManager extends InterfaceBWebsideController {
             }
         }
 
-        // service disabled, so route directly to admin's unoffered
-        else _resAdmin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
+        // service disabled, so route directly to admin's unoffered queue
+        else _resAdmin.addToUnoffered(wir);
 
         if (wir.isDeferredChoiceGroupMember()) mapDeferredChoice(wir);
 
@@ -1446,7 +1470,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
         else {
             wir.setResourceStatus(WorkItemRecord.statusResourceUnoffered);
-            _resAdmin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
+            _resAdmin.addToUnoffered(wir);
         }
         return wir ;
     }
@@ -1590,15 +1614,21 @@ public class ResourceManager extends InterfaceBWebsideController {
 
             // compare each item in this part's queue to the complete set
             for (WorkItemRecord wir : wirSet) {
-                 if (! offerSet.contains(wir))
-                     _resAdmin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
+                 if (! offerSet.contains(wir)) _resAdmin.addToUnoffered(wir);
             }
         }
 
         // allocated queue - all allocated go back to admin's unoffered
         WorkQueue qAlloc = qs.getQueue(WorkQueue.ALLOCATED);
-        if ((qAlloc != null) && (! qAlloc.isEmpty()))
+        if ((qAlloc != null) && (! qAlloc.isEmpty())) {
             _resAdmin.getWorkQueues().addToQueue(WorkQueue.UNOFFERED, qAlloc);
+            if (_gatewayServer != null) {
+                Set<WorkItemRecord> wirSet = qAlloc.getAll() ;
+                for (WorkItemRecord wir : wirSet) {
+                    this.announceResourceUnavailable(wir);
+                }
+            }
+        }
 
         // started & suspended queues
         WorkQueue qStart = qs.getQueue(WorkQueue.STARTED);
@@ -1788,7 +1818,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                     offerToAll(wir);
                     p.getWorkQueues().removeFromQueue(wir, WorkQueue.OFFERED);
                 }
-                else _resAdmin.getWorkQueues().addToQueue(wir, WorkQueue.UNOFFERED);
+                else _resAdmin.addToUnoffered(wir);
             }
             EventLogger.log(wir, p.getID(), EventLogger.event.deallocate);
             success = true;

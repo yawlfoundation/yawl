@@ -8,14 +8,20 @@
     String specID = _exceptionService.getSpecIDForCaseID(caseID);
     boolean isWorklet = _exceptionService.isWorkletCase(caseID) ;
 
+    String submit = request.getParameter("submit");
+    if ((submit != null) && (submit.equals("Cancel"))) {
+        response.sendRedirect(response.encodeURL(_caseMgtURL));
+    }    
+
     String title = request.getParameter("title");
     String scenario = request.getParameter("scenario");
 
-    if ((title != null) && (scenario != null)) {
+    if ((title != null) && (title.length() > 0) &&
+        (scenario != null) && (scenario.length() > 0)) {
          _exceptionService.addAdministrationTask(caseID, title, scenario, null,
                                       AdministrationTask.TASKTYPE_REJECTED_SELECTION);
         // go back to YAWL spec list
-        response.sendRedirect(response.encodeURL("/worklist/viewSpecifications") );
+        response.sendRedirect(response.encodeURL(_caseMgtURL));
     }
 
 %>
@@ -32,7 +38,7 @@
        <script language="javascript">
            <!--
             alert("Can't reject this case - it is not a worklet!");
-            location="/worklist/viewSpecifications";
+            location="/resourceService/faces/caseMgt.jsp";
            //-->
        </script>
 
@@ -75,9 +81,15 @@
             </tr>
         </table>
 
-        <table border="0" cellspacing="20" width=70%>
+        <table border="0" cellspacing="0">
+            <%--<tr><td height="30" width="100"/></tr>--%>
             <tr>
-                <td align="center"><input value="Submit" type="submit"/></td>
+                <td>
+                    <input type="submit" name="submit" value="Cancel"/>
+                </td>
+                <td>
+                    <input type="submit" value="Submit"/>
+                </td>
             </tr>
         </table>
      </form>

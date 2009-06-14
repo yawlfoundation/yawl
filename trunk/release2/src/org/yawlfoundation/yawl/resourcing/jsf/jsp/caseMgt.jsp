@@ -133,7 +133,7 @@
                                        binding="#{caseMgt.btnUnload}"
                                        id="btnUnload"
                                        styleClass="caseMgtButton"
-                                       style="left: 119px; top: 230px"
+                                       style="left: 129px; top: 230px"
                                        text="Unload Spec"/>
                         </ui:panelLayout>
 
@@ -162,17 +162,25 @@
                                        binding="#{caseMgt.btnRaiseException}"
                                        id="btnRaiseException"
                                        styleClass="caseMgtButton"
-                                       style="left: 119px; top: 156px"
-                                       visible="false"
+                                       style="left: 129px; top: 156px"
+                                       visible="#{ApplicationBean.exceptionServiceEnabled}"
                                        text="Raise Exception"/>
 
                             <ui:button action="#{caseMgt.btnRejectWorklet_action}"
                                        binding="#{caseMgt.btnRejectWorklet}"
                                        id="btnRejectWorklet"
                                        styleClass="caseMgtButton"
-                                       style="left: 227px; top: 156px"
-                                       visible="false"
+                                       style="left: 247px; top: 156px"
+                                       visible="#{ApplicationBean.exceptionServiceEnabled}"
                                        text="Reject Worklet"/>
+
+                            <ui:button action="#{caseMgt.btnWorkletAdmin_action}"
+                                        binding="#{caseMgt.btnWorkletAdmin}"
+                                        id="btnWorkletAdmin"
+                                        styleClass="caseMgtButton"
+                                        style="left: 365px; top: 156px"
+                                        visible="#{ApplicationBean.exceptionServiceEnabled}"
+                                        text="Worklet Admin"/>
 
                             <ui:listbox binding="#{caseMgt.lbxRunningCases}"
                                         id="lbxRunningCases"
