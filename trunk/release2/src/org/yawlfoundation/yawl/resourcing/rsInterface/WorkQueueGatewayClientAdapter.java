@@ -59,6 +59,14 @@ public class WorkQueueGatewayClientAdapter {
         return (result != null) && (! result.startsWith("<failure>"));
     }
 
+
+    private String successCheck(String xml) throws ResourceGatewayException {
+        if (successful(xml)) {
+            return xml;
+        }
+        else throw new ResourceGatewayException(xml);
+    }
+
     
     /*****************************************************************************/
 
@@ -130,159 +138,158 @@ public class WorkQueueGatewayClientAdapter {
 
 
     public Participant getParticipantFromUserID(String userid, String handle)
-                                                                  throws IOException {
-        Participant result = null;
+            throws IOException, ResourceGatewayException {
         String xml = _wqclient.getParticipantFromUserID(userid, handle) ;
-        if (successful(xml)) {
-            result = new Participant() ;
-            result.fromXML(xml);
-        }
-        return result; 
+        successCheck(xml);
+        Participant result = new Participant() ;
+        result.fromXML(xml);
+        return result;
     }
 
 
-    public String getFullNameForUserID(String userid, String handle) throws IOException {
-        return _wqclient.getFullNameForUserID(userid, handle);
+    public String getFullNameForUserID(String userid, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.getFullNameForUserID(userid, handle));
     }
 
 
-    public UserPrivileges getUserPrivileges(String pid, String handle) throws IOException {
-        UserPrivileges result = null;
+    public UserPrivileges getUserPrivileges(String pid, String handle)
+            throws IOException, ResourceGatewayException {
         String xml = _wqclient.getUserPrivileges(pid, handle);
-        if (successful(xml)) {
-            result = new UserPrivileges() ;
-            result.fromXML(xml);
-        }
+        successCheck(xml);
+        UserPrivileges result = new UserPrivileges() ;
+        result.fromXML(xml);
         return result;
     }
 
 
     public Set<Participant> getReportingToParticipant(String pid, String handle)
-                                                                throws IOException {
+            throws IOException, ResourceGatewayException {
         String xml = _wqclient.getReportingToParticipant(pid, handle) ;
-        return _marshaller.unmarshallParticipants(xml) ;
+        return _marshaller.unmarshallParticipants(successCheck(xml)) ;
     }
 
 
     public Set<Participant> getOrgGroupMembers(String oid, String handle)
-                                                                throws IOException {
+            throws IOException, ResourceGatewayException {
         String xml = _wqclient.getOrgGroupMembers(oid, handle) ;
-        return _marshaller.unmarshallParticipants(xml) ;
+        return _marshaller.unmarshallParticipants(successCheck(xml)) ;
     }
 
 
-    public Participant getParticipant(String pid, String handle) throws IOException {
-        Participant result = null;
+    public Participant getParticipant(String pid, String handle)
+            throws IOException, ResourceGatewayException {
         String xml = _wqclient.getParticipant(pid, handle) ;
-        if (xml != null) {
-            result = new Participant() ;
-            result.fromXML(xml);
-        }
+        successCheck(xml);
+        Participant result = new Participant() ;
+        result.fromXML(xml);
         return result;
     }
 
 
-    public Set<Participant> getAllParticipants(String handle) throws IOException {
+    public Set<Participant> getAllParticipants(String handle)
+            throws IOException, ResourceGatewayException {
         String xml = _wqclient.getAllParticipants(handle) ;
-        return _marshaller.unmarshallParticipants(xml) ;
+        return _marshaller.unmarshallParticipants(successCheck(xml)) ;
     }
 
 
     /*****************************************************************************/
 
-    public QueueSet getAdminQueues(String handle) throws IOException {
-        QueueSet result = null;
+    public QueueSet getAdminQueues(String handle)
+            throws IOException, ResourceGatewayException {
         String xml = _wqclient.getAdminQueues(handle) ;
-        if (xml != null) {
-            result = new QueueSet("admin", QueueSet.setType.adminSet, false) ;
-            result.fromXML(xml);
-        }
+        successCheck(xml);
+        QueueSet result = new QueueSet("admin", QueueSet.setType.adminSet, false) ;
+        result.fromXML(xml);
         return result;
     }
 
 
     public Set<WorkItemRecord> getQueuedWorkItems(String pid, int queue, String handle)
-                                                                    throws IOException {
+            throws IOException, ResourceGatewayException {
         String xml = _wqclient.getQueuedWorkItems(pid, queue, handle);
-        return _marshaller.unmarshallWorkItemRecords(xml);
+        return _marshaller.unmarshallWorkItemRecords(successCheck(xml));
     }
 
 
-    public String getWorkItem(String itemID, String handle) throws IOException {
-        return _wqclient.getWorkItem(itemID, handle) ;
+    public String getWorkItem(String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.getWorkItem(itemID, handle));
     }
 
 
     public String updateWorkItemData(String itemID, String data, String handle)
-            throws IOException {
-        return _wqclient.updateWorkItemData(itemID, data, handle) ;
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.updateWorkItemData(itemID, data, handle));
     }
 
 
     public Set<Participant> getParticipantsAssignedWorkItem(String workItemID,
-                                   int queueType, String handle) throws IOException {
+                                                            int queueType, String handle)
+            throws IOException, ResourceGatewayException {
         String xml = _wqclient.getParticipantsAssignedWorkItem(workItemID,
                                                                queueType, handle) ;
-        return _marshaller.unmarshallParticipants(xml) ;
+        return _marshaller.unmarshallParticipants(successCheck(xml)) ;
     }
 
 
-    public void acceptOffer(String pid, String itemID, String handle) throws IOException {
-        _wqclient.acceptOffer(pid, itemID, handle);
+    public String acceptOffer(String pid, String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.acceptOffer(pid, itemID, handle));
     }
 
     
-    public boolean startItem(String pid, String itemID, String handle) throws IOException {
-        String result = _wqclient.startItem(pid, itemID, handle);
-        return result.equals("true");
+    public String startItem(String pid, String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.startItem(pid, itemID, handle));
     }
 
 
-    public boolean deallocateItem(String pid, String itemID, String handle)
-                                                                    throws IOException {
-        String result = _wqclient.deallocateItem(pid, itemID, handle);
-        return result.equals("true");
+    public String deallocateItem(String pid, String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.deallocateItem(pid, itemID, handle));
     }
 
 
-    public boolean delegateItem(String pFrom, String pTo, String itemID, String handle)
-                                                                     throws IOException {
-        String result = _wqclient.delegateItem(pFrom, pTo, itemID, handle);
-        return result.equals("true");
+    public String delegateItem(String pFrom, String pTo, String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.delegateItem(pFrom, pTo, itemID, handle));
     }
 
 
-    public boolean reallocateItem(String pFrom, String pTo, String itemID,
-                               boolean stateful, String handle) throws IOException {
-        String result = _wqclient.reallocateItem(pFrom, pTo, itemID, stateful, handle);
-        return result.equals("true");
+    public String reallocateItem(String pFrom, String pTo, String itemID,
+                                 boolean stateful, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.reallocateItem(pFrom, pTo, itemID, stateful, handle));
     }
 
 
-    public boolean skipItem(String pid, String itemID, String handle) throws IOException {
-        String result = _wqclient.skipItem(pid, itemID, handle);
-        return result.equals("true");
+    public String skipItem(String pid, String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.skipItem(pid, itemID, handle));
     }
 
 
-    public String pileItem(String pid, String itemID, String handle) throws IOException {
-        return _wqclient.pileItem(pid, itemID, handle);
+    public String pileItem(String pid, String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.pileItem(pid, itemID, handle));
     }
 
 
-    public boolean suspendItem(String pid, String itemID, String handle) throws IOException {
-        String result = _wqclient.suspendItem(pid, itemID, handle);
-        return result.equals("true");
+    public String suspendItem(String pid, String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.suspendItem(pid, itemID, handle));
     }
 
-    public boolean unsuspendItem(String pid, String itemID, String handle) throws IOException {
-        String result = _wqclient.unsuspendItem(pid, itemID, handle);
-        return result.equals("true");
+    public String unsuspendItem(String pid, String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.unsuspendItem(pid, itemID, handle));
     }
 
-    public boolean completeItem(String pid, String itemID, String handle) throws IOException {
-        String result = _wqclient.completeItem(pid, itemID, handle);
-        return result.equals("true");
+    public String completeItem(String pid, String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.completeItem(pid, itemID, handle));
     }
 
     /********************************************************************************/
