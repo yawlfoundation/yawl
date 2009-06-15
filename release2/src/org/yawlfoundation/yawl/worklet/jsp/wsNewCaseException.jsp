@@ -9,6 +9,7 @@
     String submit = request.getParameter("submit");
     if ((submit != null) && (submit.equals("Cancel"))) {
         response.sendRedirect(response.encodeURL(_caseMgtURL));
+        return;
     }
     else {
         String title = request.getParameter("title");
@@ -22,8 +23,9 @@
             _exceptionService.addAdministrationTask(caseID, title, scenario, process,
                                   AdministrationTask.TASKTYPE_CASE_EXTERNAL_EXCEPTION);
 
-           // go back to YAWL case mgt page
-           response.sendRedirect(response.encodeURL(_caseMgtURL));
+            // go back to YAWL case mgt page
+            response.sendRedirect(response.encodeURL(_caseMgtURL));
+            return;
         }
     }
     String specID = _exceptionService.getSpecIDForCaseID(caseID);

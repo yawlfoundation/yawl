@@ -57,7 +57,7 @@
 
     <context-param>
 	<param-name>EnableExceptionService</param-name>
-	<param-value>true</param-value>
+	<param-value>false</param-value>
 	<description>
 		Set this value to 'true' to enable monitoring by an Exception Service
 		(specified by the URI param below).

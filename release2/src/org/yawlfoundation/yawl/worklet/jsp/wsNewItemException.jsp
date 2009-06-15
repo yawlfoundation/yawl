@@ -13,6 +13,7 @@
     String submit = request.getParameter("submit");
     if ((submit != null) && (submit.equals("Cancel"))) {
         response.sendRedirect(response.encodeURL(_caseMgtURL));
+        return;
     }
     else {
         String title = request.getParameter("title");

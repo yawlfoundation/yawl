@@ -9,7 +9,8 @@
     String buttonText = request.getParameter("submit");
 
     if ((buttonText != null) && (buttonText.equals("Back"))) {
-        response.sendRedirect(response.encodeURL(_caseMgtURL));   
+        response.sendRedirect(response.encodeURL(_caseMgtURL));
+        return;
     }
 
     if (wsTaskID != null) {

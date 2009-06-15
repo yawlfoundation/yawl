@@ -8,8 +8,10 @@
     String buttonText = request.getParameter("submit");
     AdministrationTask wsTask = _exceptionService.getAdminTask(wsTaskID);
 
-    if (buttonText != null)
+    if (buttonText != null) {
         response.sendRedirect(response.encodeURL("/workletService/wsAdminTasks"));
+        return;
+    }    
 
     String taskTypeStr = null;
     int taskType = wsTask.getTaskType();

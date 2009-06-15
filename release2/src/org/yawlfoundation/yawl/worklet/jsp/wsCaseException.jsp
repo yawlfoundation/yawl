@@ -10,9 +10,9 @@
     String specID = _exceptionService.getSpecIDForCaseID(caseID);
 
     String submit = request.getParameter("submit");
-    System.out.println(submit);
     if ((submit != null) && (submit.equals("Cancel"))) {
         response.sendRedirect(response.encodeURL(_caseMgtURL));
+        return;
     }
 
     if (triggerID != null) {

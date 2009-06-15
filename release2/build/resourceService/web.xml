@@ -159,7 +159,7 @@
         <description>
             When set to true, a button to show workitems via the Visualizer applet
             will display on user work queues (assumes the visualizer is available).
-            The default setting is false.
+            The default setting is false. NOTE: the visualizer is not yet supported.
         </description>
     </context-param>
 
@@ -169,7 +169,7 @@
          is enabled in the engine, then this param should also be
          made available. If it is disabled in the engine, the
          entire context-param should be commented out. -->
-
+<!--
     <context-param>
        <param-name>InterfaceX_BackEnd</param-name>
        <param-value>http://localhost:8080/workletService</param-value>
@@ -177,7 +177,7 @@
           The URL of the worklet exception service.
        </description>
     </context-param>
-    
+-->    
 
 
     <!--CharsetFilter -->

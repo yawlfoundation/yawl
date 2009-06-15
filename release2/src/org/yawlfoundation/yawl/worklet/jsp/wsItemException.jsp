@@ -15,6 +15,7 @@
     System.out.println(submit);
     if ((submit != null) && (submit.equals("Cancel"))) {
         response.sendRedirect(response.encodeURL(_worklistURL));
+        return;
     }
 
     if (triggerID != null) {
