@@ -31,20 +31,19 @@ import java.util.*;
  *
  */
 public class Marshaller {
-    //private static SAXBuilder builder = new SAXBuilder();
 
-    public static String getOutputParamsInXML(YParametersSchema params, String dataSpaceRootElementNm) {
+    public static String getOutputParamsInXML(YParametersSchema paramSchema,
+                                              String dataSpaceRootElementNm) {
         StringBuffer result = new StringBuffer();
 
-        result.append("<" + dataSpaceRootElementNm + ">");
-        if (params != null) {
-            for (Iterator iter = params.getOutputParams().iterator();
-                 iter.hasNext();) {
-                YParameter param = (YParameter) iter.next();
+        result.append("<").append(dataSpaceRootElementNm).append(">");
+        if (paramSchema != null) {
+            List<YParameter> params = paramSchema.getOutputParams();
+            for (YParameter param : params) {
                 result.append(presentParam(param));
             }
         }
-        result.append("\n</" + dataSpaceRootElementNm + ">");
+        result.append("</").append(dataSpaceRootElementNm).append(">");
         return result.toString();
     }
 
@@ -252,13 +251,15 @@ public class Marshaller {
             wir.setFiringTimeMs(workItemElement.getChildText("firingTimeMs"));
             wir.setStartTimeMs(workItemElement.getChildText("startTimeMs"));
             wir.setCompletionTimeMs(workItemElement.getChildText("completionTimeMs"));
-            wir.setResourceStatus(workItemElement.getChildText("resourceStatus"));
             wir.setTimerTrigger(workItemElement.getChildText("timertrigger"));
             wir.setTimerExpiry(workItemElement.getChildText("timerexpiry"));
             wir.setStartedBy(workItemElement.getChildText("startedBy"));
             wir.setTag(workItemElement.getChildText("tag"));
             wir.setCustomFormURL(workItemElement.getChildText("customform"));
 
+            String resStatus = workItemElement.getChildText("resourceStatus");
+            if (resStatus != null) wir.setResourceStatus(resStatus);
+            
             String edited = workItemElement.getChildText("edited") ;
             if (edited != null)
                 wir.setEdited(edited.equalsIgnoreCase("true"));

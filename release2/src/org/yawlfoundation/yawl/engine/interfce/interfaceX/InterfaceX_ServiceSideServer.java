@@ -102,7 +102,7 @@ public class InterfaceX_ServiceSideServer extends HttpServlet {
         String specID = request.getParameter("specID");
         String taskList = request.getParameter("taskList");
 
-        switch (Integer.parseInt(request.getParameter("action"))) {
+        switch (actionToNotifyType(request.getParameter("action"))) {
             case InterfaceX_EngineSideClient.NOTIFY_CHECK_CASE_CONSTRAINTS:
                _controller.handleCheckCaseConstraintEvent(specID, caseID, data, preCheck);
                break;
@@ -124,8 +124,20 @@ public class InterfaceX_ServiceSideServer extends HttpServlet {
             case InterfaceX_EngineSideClient.NOTIFY_CANCELLED_CASE:
                _controller.handleCaseCancellationEvent(caseID);
                break;
+            default: return "<failure>Unknown action: '" + request.getParameter("action") +
+                            "'</failure>"; 
         }
         return "<success/>";
+    }
+
+    /** @return the 'action' converted to an 'int' notify type, or -1 if invalid */
+    private int actionToNotifyType(String action) {
+        try {
+            return Integer.parseInt(action);
+        }
+        catch (NumberFormatException nfe) {
+            return -1;
+        }
     }
 
 
