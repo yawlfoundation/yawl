@@ -335,7 +335,47 @@ public class WorkletService extends InterfaceBWebsideController {
         else _log.error("Could not connect to YAWL engine") ;
     }
 
- //***************************************************************************//
+    //***************************************************************************//
+
+    public synchronized void handleCancelledCaseEvent(String caseID) {
+        _log.info("HANDLE CANCELLED CASE EVENT") ;
+
+        // only interested in child workitems for this case
+        List<CheckedOutChildItem> caseItems = getCheckedOutChildrenForCase(caseID);
+        if (! caseItems.isEmpty()) {
+            for (CheckedOutChildItem coItem : caseItems) {
+                if (connected()) {
+                    _log.info("Connection to engine is active") ;
+                    _log.info("ID of cancelled case: " + caseID ) ;
+                    String itemID = coItem.getItemId();
+
+                    if (cancelWorkletList(coItem)) {
+                        _handledWorkItems.remove(itemID) ;
+                        if (_persisting) _dbMgr.persist(coItem, DBManager.DB_DELETE);
+                        _log.info("Removed from handled child workitems: " + itemID);
+
+                        // remove child and if last child also remove parent
+                        CheckedOutItem coParent = coItem.getParent() ;
+                        coParent.removeChild(coItem) ;
+
+                        if (! coParent.hasCheckedOutChildItems()) {
+                            String parentId = coParent.getItem().getID() ;
+                            _log.info("No more child cases running for workitem: " +
+                                    parentId);
+                            _handledParentItems.remove(parentId) ;
+                            if (_persisting) _dbMgr.persist(coParent, DBManager.DB_DELETE);
+                            _log.info("Completed handling of workitem: " + parentId);
+                        }
+                    }
+                    else _log.error("Could not cancel worklets for item: " + itemID) ;
+                }
+                else _log.error("Could not connect to engine") ;
+            }
+        }
+        else _log.info("No worklets running for case: " + caseID) ;
+    }
+
+    //***************************************************************************//
 
      /**
       *  displays a web page describing the service
@@ -1532,6 +1572,21 @@ public class WorkletService extends InterfaceBWebsideController {
             // so that it can be checked back in
             getModel().addWorkItem(wir);
         }
+    }
+
+
+//***************************************************************************//
+
+    private List<CheckedOutChildItem> getCheckedOutChildrenForCase(String caseID) {
+        String ordinalCaseID = caseID + ".";
+        List<CheckedOutChildItem> result = new ArrayList<CheckedOutChildItem>();
+        for (Object o : _handledWorkItems.keySet()) {
+            String itemID = (String) o ;
+            if (itemID.startsWith(ordinalCaseID)) {
+                result.add((CheckedOutChildItem) _handledWorkItems.get(itemID));
+            }
+        }
+        return result;
     }
 
 //***************************************************************************//
