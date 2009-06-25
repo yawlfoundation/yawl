@@ -46,6 +46,9 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.net.URL;
+import java.security.CodeSource;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -75,6 +78,8 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
   private static final JSplashScreen splashScreen = new JSplashScreen();
   private static final JStatusBar statusBar = new JStatusBar();
+
+  private static final String HOME_DIR = setHomeDir();
 
   public static YAWLEditor getInstance() {
     if (INSTANCE == null) {
@@ -121,7 +126,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   }
 
   private static void startLoading() {
-    LogWriter.init();
+    LogWriter.init(HOME_DIR);
     getSplashScreen().setContent(
         "/org/yawlfoundation/yawl/editor/resources/yawlSplashScreen.jpg",
             SplashContent.getCopyright());
@@ -301,7 +306,6 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
   public void indicateProblemsTabActivity() {
     specificationBottomPanel.selectProblemsTab();
- //   indicateSplitPaneActivity();
   }
 
   public void showProblemList(SpecificationModel editgorSpec, String title, String statusBarText, List problemList) {
@@ -369,10 +373,8 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
   private JPanel getEditPanel() {
     JPanel editPanel = new JPanel(new BorderLayout());
-     editDesktop = YAWLEditorDesktop.getInstance();
+    editDesktop = YAWLEditorDesktop.getInstance();
     editPanel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
- //   final JScrollPane scrollPane = new JScrollPane(editDesktop);
-//    editDesktop.setScrollPane(scrollPane);
     editPanel.add(editDesktop, BorderLayout.CENTER);
     return editPanel;
   }
@@ -462,4 +464,27 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
       now = System.currentTimeMillis();
     }
   }
+
+    private static String setHomeDir() {
+        String result = "";
+        try {
+            Class qc = Class.forName("org.yawlfoundation.yawl.editor.YAWLEditor");
+            CodeSource source = qc.getProtectionDomain().getCodeSource();
+            if (source != null) {
+                URL location = source.getLocation();
+                String path = location.getPath();
+                System.out.println(location + "  " + path);
+                int lastSep = path.lastIndexOf(File.separator) ;
+                if (lastSep > -1) result = path.substring(0, lastSep + 1) ;
+            }
+        }
+        catch ( Exception e ) {
+            // nothing to do
+        }
+        return result;
+    }
+
+
+    public String getHomeDir() { return HOME_DIR; }
+
 }

@@ -174,7 +174,7 @@ class ExportConfigDialog extends AbstractDoneDialog {
   private JCheckBox getVerifyCheckBox() {
     verificationCheckBox = new JCheckBox();
 
-    verificationCheckBox.setText("Verify on export");
+    verificationCheckBox.setText("Verify on save");
     verificationCheckBox.setMnemonic(KeyEvent.VK_E);
 
     return verificationCheckBox;
@@ -183,7 +183,7 @@ class ExportConfigDialog extends AbstractDoneDialog {
   private JCheckBox getAnalysisCheckBox() {
     analysisCheckBox = new JCheckBox();
 
-    analysisCheckBox.setText("Analyse on export");
+    analysisCheckBox.setText("Analyse on save");
     analysisCheckBox.setMnemonic(KeyEvent.VK_A);
 
     return analysisCheckBox;

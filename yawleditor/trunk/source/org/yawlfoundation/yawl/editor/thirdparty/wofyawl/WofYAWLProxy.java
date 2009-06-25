@@ -23,10 +23,11 @@
 
 package org.yawlfoundation.yawl.editor.thirdparty.wofyawl;
 
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+
 import java.io.File;
 import java.util.List;
-
-import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 public class WofYAWLProxy implements WofYAWLProxyInterface {
   
@@ -56,14 +57,7 @@ public class WofYAWLProxy implements WofYAWLProxyInterface {
     // directory as the editor named by WOF_YAWL_BINARY, we assume it's
     // the right utility needed to invoke to return semantic analysis results.
     
-    File wofBinary = new File(
-        getBinaryExecutableFilePath()
-    );
-    
-    if (wofBinary.exists()) {
-      return true;
-    }
-    return false;
+    return new File(getBinaryExecutableFilePath()).exists();
   }
   
   private WofYAWLProxyInterface getAvailableImplementation() {
@@ -85,8 +79,6 @@ public class WofYAWLProxy implements WofYAWLProxyInterface {
   }
   
   public static String getBinaryExecutableFilePath() {
-    return System.getProperty("user.dir") + 
-           System.getProperty("file.separator") + 
-           WOF_YAWL_BINARY;
+    return YAWLEditor.getInstance().getHomeDir() + WOF_YAWL_BINARY;
   }
 }

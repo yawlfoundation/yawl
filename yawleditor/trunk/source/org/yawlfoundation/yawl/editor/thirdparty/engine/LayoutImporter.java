@@ -172,7 +172,8 @@ public class LayoutImporter {
 
     private static void setFlowLayout(Element e, YAWLFlowRelation flow) {
         if (flow == null) return ;
-        flow.setUserObject(e.getChildText("label", _ns));
+        String label = e.getChildText("label", _ns);
+        if (label != null) flow.setUserObject(StringUtil.xmlDecode(label));
         adjustPorts(flow, e.getChild("ports", _ns));
         AttributeMap attributeMap = createAttributeMap(e.getChild("attributes", _ns));
         if (! attributeMap.isEmpty())

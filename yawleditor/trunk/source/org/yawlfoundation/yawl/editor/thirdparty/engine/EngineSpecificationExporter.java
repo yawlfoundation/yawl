@@ -193,7 +193,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
     YAWLEditor.getInstance().showProblemList(
         editorSpec, 
-        "Export Analysis Results", 
+        "Analysis Results", 
         "Checking exported file...", 
         results
     );
