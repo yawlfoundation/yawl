@@ -1,0 +1,24 @@
+Changes from 1.0.0 to 2.0.0rc1
+------------------------------
+- complete AJAX interface to XForms processor tested on Firefox, IE 6 and Safari 2.0
+- fallback to non-scripted browser if javascript unavailable
+- major rework of XSLT stylesheets
+- new Tabsheet appearance (switch appearance="full")
+- file upload with progression bar
+- basic range control
+- all samples now in XHTML1 namespace now
+- upgraded to Chiba core 1.2.0
+- fixed baseURI behaviour
+- reworked CSS stylesheets and merge into one
+- added cookie support
+
+Version 1.0.0
+-------------
+This is the first release of Chiba-web as a standalone package since Chiba core
+and servlet integration has been separated. Below you find the changes since last
+Chiba release.
+
+Changes
+-------
+- ChibaServlet and ServletAdapter reworked
+- samples adapted to new directory organisation
