@@ -108,7 +108,7 @@ public class LayoutExporter {
 
         String label = (String) flow.getUserObject();
         if (label != null) {
-            xml.append(StringUtil.wrap(label, "label"));
+            xml.append(StringUtil.wrap(StringUtil.xmlEncode(label), "label"));
         }
         xml.append(writePorts(flow));
         xml.append(writeAttributes(flow));

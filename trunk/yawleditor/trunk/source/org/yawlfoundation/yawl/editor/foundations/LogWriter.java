@@ -14,16 +14,15 @@ public class LogWriter {
     private static Logger _log = Logger.getLogger(YAWLEditor.class) ;
 
     private LogWriter() {
-        configure();
+        configure("");
     }
 
-    public static void init() { configure() ;}
+    public static void init(String homeDir) { configure(homeDir) ;}
     
     
-    private static void configure() {
+    private static void configure(String homeDir) {
         _log.setLevel(Level.ALL);
 
-      //  "%d{ISO8601} [%-5p] %-20c{1} :- %m%n"
         PatternLayout layout = new PatternLayout("%d{ISO8601} [%-5p] :- %m%n");
 
         // appender for system.out
@@ -31,7 +30,7 @@ public class LogWriter {
 
         // appender for file
         try {
-            _log.addAppender(new FileAppender(layout, "YAWLEditor.log"));
+            _log.addAppender(new FileAppender(layout, homeDir + "YAWLEditor.log"));
         }
         catch (IOException ioe) {
             _log.error("Could not instantiate log file", ioe) ;
