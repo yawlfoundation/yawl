@@ -286,14 +286,29 @@ public abstract class YTask extends YExternalNetElement {
         List childIdentifiers = new Vector();
         for (int i = 0; i < numToSpawn; i++) {
             YIdentifier childID = createFiredIdentifier(pmgr);
+
             try {
                 prepareDataForInstanceStarting(childID);
-            } catch (YSchemaBuildingException e) {
+            }
+            catch (Exception e) {
 
                 //if there was a problem firing the task then roll back the case.
-                cancel(pmgr);
-                throw e;
-                }
+                rollbackFired(childID, pmgr);
+                
+                if (e instanceof YDataStateException)
+                    throw (YDataStateException) e;
+                else if (e instanceof YStateException)
+                    throw (YStateException) e;
+                else if (e instanceof YQueryException)
+                    throw (YQueryException) e;
+                else if (e instanceof YSchemaBuildingException)
+                    throw (YSchemaBuildingException) e;
+            }
+
+//            try {
+//                prepareDataForInstanceStarting(childID);
+//                throw e;
+//            }
             childIdentifiers.add(childID);
         }
         prepareDataDocsForTaskOutput();
@@ -1119,6 +1134,15 @@ public abstract class YTask extends YExternalNetElement {
             _i.removeLocation(pmgr, this);
             _i = null;
         }
+    }
+
+    public synchronized void rollbackFired(YIdentifier childID, YPersistenceManager pmgr)
+            throws YPersistenceException {
+        _mi_active.removeAll(pmgr);
+        _mi_entered.removeAll(pmgr);
+        _i.removeChild(childID);
+        _i.removeLocation(pmgr, this);
+        _i = null;
     }
 
     public YInternalCondition getMIActive() {
