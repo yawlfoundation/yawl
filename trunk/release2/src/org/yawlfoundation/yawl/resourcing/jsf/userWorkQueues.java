@@ -727,13 +727,15 @@ public class userWorkQueues extends AbstractPageBean {
                 // adjust session timeout value if required
                 adjustSessionTimeout(wir);
 
-                // show the custom form
+                // add params to the custom form url
                 StringBuilder redir = new StringBuilder(url);
-                redir.append("?workitem=")
+                redir.append((url.indexOf('?') == -1) ? "?" : "&")  // any static params?
+                     .append("workitem=")
                      .append(wir.getID())
                      .append("&handle=")
                      .append(_sb.getSessionhandle());
 
+                // show the custom form
                 FacesContext.getCurrentInstance().getExternalContext().redirect(redir.toString());
             }
             catch (Exception e) {
