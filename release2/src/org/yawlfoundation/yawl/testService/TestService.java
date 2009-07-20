@@ -4,7 +4,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
@@ -24,9 +23,9 @@ import org.yawlfoundation.yawl.resourcing.interactions.OfferInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
+import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayException;
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGatewayClientAdapter;
 import org.yawlfoundation.yawl.schema.XSDType;
-import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -70,8 +69,8 @@ public class TestService extends InterfaceBWebsideController {
 
    //     output.append(doResourceServiceGatewayTest()) ;
    //    output.append(createDummyOrgData());
-   //      output.append(doLogGatewayTest()) ;
-       output.append(doWorkQueueGatewayTest()) ;
+         output.append(doLogGatewayTest()) ;
+     //  output.append(doWorkQueueGatewayTest()) ;
     //    output.append(ibTest());
    //     output.append(doRandomTest()) ;
    //     output.append(doGetParticipantsTest()) ;
@@ -84,6 +83,7 @@ public class TestService extends InterfaceBWebsideController {
    //     output.append(getEngineParametersForRegisteredService());
   // output.append(testDynMultiCompTaskNewInst()) ;
   //       output.append(testJU()) ;
+   //     output.append(testGateway());
 
          output.append("</pre></p></body></html>");
          outputWriter.write(output.toString());
@@ -211,38 +211,38 @@ private static String getReply(InputStream is) throws IOException {
         return result;
     }
 
-    private String testLogMiner() {
-        String resURL = "http://localhost:8080/resourceService/workqueuegateway";
-        WorkQueueGatewayClientAdapter resClient = new WorkQueueGatewayClientAdapter(resURL);
-        String handle = resClient.connect("admin", "YAWL");
-        try {
-            return resClient.getWorkItemDurationsForParticipant(
-                new YSpecificationID("bbb"),
-                "abeäen", "PA-ec2ddfbf-0a73-4fc7-ab95-bed876c145c5", handle);
-        }
-        catch (IOException ioe) {
-            return "io exception";
-        }
-    }
+//    private String testLogMiner() {
+//        String resURL = "http://localhost:8080/resourceService/workqueuegateway";
+//        WorkQueueGatewayClientAdapter resClient = new WorkQueueGatewayClientAdapter(resURL);
+//        String handle = resClient.connect("admin", "YAWL");
+//        try {
+//            return resClient.getWorkItemDurationsForParticipant(
+//                new YSpecificationID("bbb"),
+//                "abeäen", "PA-ec2ddfbf-0a73-4fc7-ab95-bed876c145c5", handle);
+//        }
+//        catch (IOException ioe) {
+//            return "io exception";
+//        }
+//    }
 
-    private String testJU() {
-        String a = "<a>A</a>";
-        String encoded = JDOMUtil.encodeEscapes(a);
-        String b = "<b>"+encoded+"</b>";
-        String bEncoded = JDOMUtil.encodeEscapes(b);
-        String c = "<c>"+bEncoded+"</c>";
-        String cEncoded = JDOMUtil.encodeEscapes(c);
-        System.err.println("A = "+a);
-        System.err.println("B = "+b);
-        System.err.println("C = "+c);
-        System.err.println("A encoded="+encoded);
-        System.err.println("B encoded="+bEncoded);
-        System.err.println("B decoded="+JDOMUtil.decodeEscapes(bEncoded));
-        System.err.println("C encoded="+cEncoded);
-        System.err.println("C decoded="+JDOMUtil.decodeEscapes(cEncoded));
-        System.err.println("encode/decode results in same value:"+(b.equals(JDOMUtil.decodeEscapes(bEncoded))));
-        return "";
+    private String testGateway() {
+//        WorkQueueGatewayClientAdapter adapter =
+//               new WorkQueueGatewayClientAdapter("http://localhost:8080/resourceService/workqueuegateway");
+//        String handle = adapter.connect("admin", "YAWL");
+//        try {
+//            Participant p = adapter.getParticipantFromUserID("th", handle);
+//            QueueSet set = adapter.getAdminQueues(handle);
+//            Set<WorkItemRecord> unofferedItems = set.getQueuedWorkItems(WorkQueue.UNOFFERED);
+//   //         Set<WorkItemRecord> allocatedItems = adapter.getQueuedWorkItems(p.getID(),
+//    //                WorkQueue.ALLOCATED, handle);
+////            for (WorkItemRecord item : unofferedItems) {
+////                adapter.startItem(p.getID(), item.getID(), handle);
+////            }
+//            if (unofferedItems == null) return "";
+//        WorkItemRecord wir = unofferedItems.iterator().next();
+          return "";
     }
+    
 
     private String doGetParticipantsTest() {
         String resURL = "http://localhost:8080/resourceService/gateway";
@@ -322,7 +322,11 @@ c.getQueuedWorkItems(resourceId,WorkQueue.SUSPENDED,handle);
                                          "http://localhost:8080/yawl/logGateway") ;
         String handle = logClient.connect("admin", "YAWL") ;
 
-
+        prn(logClient.getCaseEventsForSpec("ListBuilder", handle));
+        prn(logClient.getCaseEventsForSpec("ListBuilder", handle));
+        prn(logClient.getCaseEventIDsForSpec("ListBuilder", handle));
+        return "";
+       /*
         // test all methods
         prn("getAllSpecIDs:");
         prn(logClient.getAllSpecIDs(handle));
@@ -365,7 +369,7 @@ c.getQueuedWorkItems(resourceId,WorkQueue.SUSPENDED,handle);
         prn("getCaseEventTime - caseid and started passed:");
         prn(logClient.getCaseEventTime("260", "started", handle)) ;
 
-        return "" ;
+        return "" ;    */
     }
 
 
@@ -389,8 +393,13 @@ c.getQueuedWorkItems(resourceId,WorkQueue.SUSPENDED,handle);
         String id = "3.1:5_Admit";
         String data = "<Admit><Weight>85</Weight><DiastolicBP>80</DiastolicBP><Sex>M</Sex><PatientID>122345</PatientID><Height>1.8</Height><HeartRate>72</HeartRate><SystolicBP>120</SystolicBP><Name>dkdkd</Name><Age>21</Age></Admit>";
         String handle = "8445744700114409003";
-
-        String result = resClient.updateWorkItemData(id, data, handle);
+        String result;
+        try {
+            result = resClient.updateWorkItemData(id, data, handle);
+        }
+        catch (ResourceGatewayException rge) {
+            result = rge.getMessage();
+        }
 
         return result;
     }
@@ -692,9 +701,19 @@ public String[] getAllResources()
 //        if(WorkQueueGatewayClient.successful(sessionHandler)){
 //            System.out.println("OK - Session:"+sessionHandler);
 //        }
-        Set<Participant> participantSet = getAllParticipants(sessionHandler);
+        Set<Participant> participantSet;
+        String[] retValue;
+        try {
+            participantSet = getAllParticipants(sessionHandler);
+        }
+        catch (ResourceGatewayException rge) {
+            retValue = new String[1];
+            retValue[0] = rge.getMessage();
+            return retValue;
+        }
+
         Iterator iter = participantSet.iterator();
-        String[] retValue = new String[participantSet.size()];
+        retValue = new String[participantSet.size()];
         int i = 0;
         while (iter.hasNext()) {
             Object obj = iter.next();
