@@ -42,10 +42,8 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 import java.util.prefs.Preferences;
 
 /**
@@ -111,6 +109,8 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
     private InterfaceBClientObserver _engineClientObserver;
     private InterfaceBInterop _engineInterop;
 
+    // RTE_TOOLIT
+    private static Hashtable<String, File> specTestDataDirs = new Hashtable<String, File>();
 
     private YAdminGUI() {
         super();
@@ -162,6 +162,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
         _createWorklistButton = new JButton(_createWorklistCommand);
         _createWorklistButton.setBackground(new Color(150, 150, 255));
         _createWorklistButton.addActionListener(this);
+
         _reannounceButton = new JButton(_reannounceEnabledWorkItems);
         _reannounceButton.setBackground(new Color(150, 150, 255));
         _reannounceButton.addActionListener(this);
@@ -172,6 +173,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
         _inspectStateButton = new JButton(_inspectStateCommand);
         _inspectStateButton.setBackground(new Color(150, 150, 255));
         _inspectStateButton.addActionListener(this);
+
         _suspendCaseButton = new JButton(_suspendCaseCommand);
         _suspendCaseButton.setBackground(new Color(150, 150, 255));
         _suspendCaseButton.addActionListener(this);
@@ -182,6 +184,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
         _dumpButton = new JButton(_dumpCommand);
         _dumpButton.setBackground(new Color(150, 150, 255));
         _dumpButton.addActionListener(this);
+
         splash.setProgress(10);
         _loadedSpecificationsTableModel =
                 new YWorklistTableModel(new String[]{"SpecificationID", "Root Net Name"});
@@ -289,11 +292,16 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
         });
         splash.setProgress(60);
         setSize(getPreferredSize());
-        Dimension screenSize =
-                Toolkit.getDefaultToolkit().getScreenSize();
+
+        /**
+         * AJH: Changed to force display onto primary screen in a dual-head X environment
+         */
         Dimension guiSize = getPreferredSize();
-        setLocation(screenSize.width / 2 - (guiSize.width / 2),
-                screenSize.height / 2 - (guiSize.height / 2));
+        Double screenWidth = new Double(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getWidth());
+        Double screenHeight = new Double(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getHeight());
+
+        setLocation(screenWidth.intValue() / 2 - (guiSize.width / 2),
+                    screenHeight.intValue() / 2 - (guiSize.height / 2));
         setVisible(true);
 
         /**
@@ -374,8 +382,15 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
      *
      */
     private void logError(String message, Exception e) {
+        if (e == null)
+        {
+            JOptionPane.showMessageDialog(this, message, "Log Error", JOptionPane.ERROR_MESSAGE);
+        }
+        else
+        {
         JOptionPane.showMessageDialog(this, e.getMessage(), message, JOptionPane.ERROR_MESSAGE);
         logger.error(message, e);
+    }
     }
 
 
@@ -527,6 +542,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
 
 
     private void attemptToLoadSpecificationFile(File selectedFile) {
+        YSpecification spec = null;
         Preferences prefs =
                 Preferences.userNodeForPackage(YAdminGUI.class);
         if (selectedFile != null) {
@@ -563,11 +579,41 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
         if (YVerificationMessage.containsNoErrors(errorMessages)) {
             for (YSpecificationID specID : newSpecIDs)
             {
-
-                YSpecification spec = _engineManagement.getSpecification(specID);
+                spec = _engineManagement.getSpecification(specID);
                 _loadedSpecificationsTableModel.addRow(specID, new Object[]{specID, spec.getRootNet().getID()});
             }
         }
+
+        /**
+         * AJH: Create a directory to hold the test data files if required
+         */
+        try
+        {
+            File dataDir = new File(selectedFile.getParentFile().getAbsolutePath() + File.separator + spec.getRootNet().getID() + "_DAT");
+            if (!dataDir.exists())
+            {
+                if (!dataDir.mkdir())
+                {
+                    throw new IOException("Failure to create RTE_TOOLKIT directory - " + dataDir.getAbsolutePath());
+    }
+
+                logger.info("RTE_TOOKIT directory created - " + dataDir.getAbsolutePath());
+            }
+            else
+            {
+                logger.info("Reading test data files from " + dataDir.getAbsolutePath());
+            }
+            specTestDataDirs.put(spec.getRootNet().getID(), dataDir);
+        }
+        catch (IOException e)
+        {
+             logError("Failure to create RTE_TOOLKIT directory", e);
+        }
+    }
+
+    public static File getSpecTestDataDirectory(String specID)
+    {
+        return specTestDataDirs.get(specID);
     }
 
 
@@ -641,12 +687,27 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
             try {
                 //todo AJH - IS this where we pass in the input params ???????
 //                String caseIDStr = _engineClient.startCase(specID).toString();
-                String caseIDStr = _engineClient.launchCase("",specID.getSpecName(), "", null);
+                /**
+                 * AJH: If we have a data file defined for the initial net data, get the XML and pass into the
+                 * case launcher
+                 */
+                File initCaseData = new File(getSpecTestDataDirectory(specID.getSpecName()), "starting_net.xml");
+                if (initCaseData.exists())
+                {
+                    logger.info("Loading initial case net data from " + initCaseData.getAbsolutePath());
+                    _engineClient.launchCase("",specID.getSpecName(), StringUtil.fileToString(initCaseData), null);
+                }
+                else
+                {
+                    _engineClient.launchCase("", specID.getSpecName(), "", null);
+                }
             } catch (Exception e) {
                 logError("Failure to start case", e);
             }
         }
     }
+
+
 
     public void addCase(String specID, String caseIDStr) {
         _activeCasesTableModel.addRow(caseIDStr, new Object[]{specID, caseIDStr});

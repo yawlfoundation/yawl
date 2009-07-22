@@ -9,15 +9,14 @@
 
 package org.yawlfoundation.yawl.swingWorklist;
 
+import org.apache.log4j.Logger;
+import org.jdom.input.JDOMParseException;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.gui.YAdminGUI;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
-import org.yawlfoundation.yawl.exceptions.YEngineStateException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.exceptions.YQueryException;
 import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
-import org.apache.log4j.Logger;
-import org.jdom.input.JDOMParseException;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -37,12 +36,17 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
     private YWorklistModel _worklistModel;
     private JTable _availableTable;
     private JTable _activeTable;
+    private JButton _applyButton;
     private String _applyCommand = "Apply for Task";
+    private JButton _completeButton;
     private String _completionCommand = "Register Completion";
     private JButton _newInstanceButton;
     private String _newInstanceCommand = "Create new Instance";
+    private JButton _cancelTaskButton;
     private String _suspendTaskCommand = "Suspend Task";
+    private JButton _viewDataButton;
     private String _viewDataCommand = "View/edit data";
+    private JButton _updateListsButton;
     private String _updateListsCommand = " Update Lists ";
     private int _rowSelected = -1;
     private String _userName;
@@ -68,18 +72,18 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
         setBackground(YAdminGUI._apiColour);
         JPanel worklistsPanel = new JPanel(new GridLayout(2, 1));
         setLayout(new BorderLayout());
-        JButton _applyButton = new JButton(_applyCommand);
+        _applyButton = new JButton(_applyCommand);
         _applyButton.setBackground(new Color(204, 255, 0));
         _applyButton.setPreferredSize(new Dimension(160, 30));
         _applyButton.addActionListener(this);
-        JButton _completeButton = new JButton(_completionCommand);
+        _completeButton = new JButton(_completionCommand);
         _completeButton.setBackground(new Color(255, 100, 100));
         _completeButton.addActionListener(this);
         _newInstanceButton = new JButton(_newInstanceCommand);
         _newInstanceButton.addActionListener(this);
-        JButton _cancelTaskButton = new JButton(_suspendTaskCommand);
+        _cancelTaskButton = new JButton(_suspendTaskCommand);
         _cancelTaskButton.addActionListener(this);
-        JButton _viewDataButton = new JButton(_viewDataCommand);
+        _viewDataButton = new JButton(_viewDataCommand);
         _viewDataButton.setBackground(new Color(150, 150, 255));
         _viewDataButton.addActionListener(this);
         //do available work panel
@@ -108,7 +112,7 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
         worklistsPanel.add(activePanel);
         //do bottom panel
         JPanel bottomPanel = new JPanel(new BorderLayout());
-        JButton _updateListsButton = new JButton(_updateListsCommand);
+        _updateListsButton = new JButton(_updateListsCommand);
         bottomPanel.add(_updateListsButton, BorderLayout.EAST);
         bottomPanel.setBackground(YAdminGUI._apiColour);
         bottomPanel.setBorder(
@@ -126,7 +130,7 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
 
                     try {
                         applyForWorkItem(rowSelected);
-                    } catch (Exception e2) {
+                    } catch (YPersistenceException e2) {
                         logError("Failure to apply for work item", e2);
                         logger.fatal("Failure to apply for work item", e2);
                         System.exit(99);
@@ -205,7 +209,7 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
 
             try {
                 applyForWorkItem(rowSel);
-            } catch (Exception e2) {
+            } catch (YPersistenceException e2) {
                 logError("Failure to apply for work item", e2);
                 logger.fatal("Failure to apply for work item", e2);
                 System.exit(99);
@@ -273,7 +277,7 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
         _worklistModel.refreshLists(_userName);
     }
 
-    private void applyForWorkItem(int rowSel) throws YPersistenceException, YEngineStateException {
+    private void applyForWorkItem(int rowSel) throws YPersistenceException {
         if (rowSel >= 0) {
             String caseID = (String) _availableTable.getValueAt(rowSel, 0);
             String taskID = (String) _availableTable.getValueAt(rowSel, 1);

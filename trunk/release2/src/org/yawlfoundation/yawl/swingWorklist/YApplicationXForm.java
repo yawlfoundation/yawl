@@ -17,6 +17,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Iterator;
 
 /**
  * 
@@ -32,12 +33,15 @@ public class YApplicationXForm extends JDialog implements ActionListener {
     private String _enableMentTime;
     private String _firingTimeTime;
     private String _startTime;
+    private String _sequence;
     private boolean _allowsInstanceCreation;
     private String _inputData;
     private String _outputData;
+    private String _skeletonOutputData;
     private JTextPane _outputDataTextPane;
     private String _keepCommand = "Keep for Later";
     private String _releaseCommand = "Release WorkItem";
+    private String _resetCommand = "Set default XML";
     private YWorklistModel _model;
     private YWorklistGUI _worklistGUI;
 
@@ -51,13 +55,26 @@ public class YApplicationXForm extends JDialog implements ActionListener {
         _enableMentTime = (String) workItemData[3];
         _firingTimeTime = (String) workItemData[4];
         _startTime = (String) workItemData[5];
-        _allowsInstanceCreation = ((Boolean) workItemData[6]).booleanValue();
-        _inputData = (String) workItemData[7];
-        if (workItemData.length > 8) {
-            _outputData = (String) workItemData[8];
+        _sequence = (String) workItemData[6];
+        _allowsInstanceCreation = ((Boolean) workItemData[7]).booleanValue();
+        _inputData = (String) workItemData[8];
+
+
+        /**
+         * AJH: Pre-load output data from test data file
+         */
+        _skeletonOutputData = model.getOutputSkeletonXML(_caseID, _taskID);
+        _outputData = model.getTaskTestData(_caseID, _taskID);
+
+        if (_outputData == null)
+        {
+            if (workItemData.length > 9) {
+                _outputData = (String) workItemData[9];
         } else {
-            _outputData = model.getOutputSkeletonXML(_caseID, _taskID);
+                _outputData = _skeletonOutputData;
         }
+        }
+
         _model = model;
         Container c = getContentPane();
         c.setLayout(new BorderLayout());
@@ -75,25 +92,25 @@ public class YApplicationXForm extends JDialog implements ActionListener {
             }
         });
 
-        Dimension screenSize =
-                Toolkit.getDefaultToolkit().getScreenSize();
-        Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(this.getGraphicsConfiguration());
-        screenSize.setSize(screenSize.getWidth(), screenSize.getHeight() - insets.bottom);
-        setSize(screenSize);
+        /**
+         * AJH: Changed to force display onto primary screen in a dual-head X environment
+         */
+//        Dimension guiSize = getPreferredSize();
+//        Double screenWidth = new Double(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getWidth());
+//        Double screenHeight = new Double(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getHeight());
+//        setSize(new Double((screenWidth - guiSize.width) * 2).intValue(), new Double((screenHeight - guiSize.height) * 2).intValue());
+//        setLocation(((screenWidth.intValue() - guiSize.width) / 2),0);
+//        pack();
+        setSize(1000, 800);
+        setLocationRelativeTo(null);
         show();
     }
 
     private void storeData() {
-        _model.setActiveTableData(new Object[]{
-                _caseID,
-                _taskID,
-                _description,
-                _enableMentTime,
-                _firingTimeTime,
-                _startTime,
-                (_allowsInstanceCreation) ? Boolean.TRUE : Boolean.FALSE,
-                _inputData,
-                _outputDataTextPane.getText()});
+        _model.setActiveTableData(new Object[]{_caseID, _taskID, _description,
+                                               _enableMentTime, _firingTimeTime,
+                                               _startTime, _sequence, new Boolean(_allowsInstanceCreation),
+                                               _inputData, _outputDataTextPane.getText()});
     }
 
     private void this_windowClosing() {
@@ -104,7 +121,7 @@ public class YApplicationXForm extends JDialog implements ActionListener {
     private JPanel createTopPanel() {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBackground(YAdminGUI._apiColour);
-        JPanel rightPanel = new JPanel(new GridLayout(4, 2));
+        JPanel rightPanel = new JPanel(new GridLayout(5, 2));
         JPanel leftPanel = new JPanel(new BorderLayout());
         leftPanel.setBackground(YAdminGUI._apiColour);
         rightPanel.setBackground(YAdminGUI._apiColour);
@@ -113,8 +130,8 @@ public class YApplicationXForm extends JDialog implements ActionListener {
                         BorderFactory.createTitledBorder(
                                 BorderFactory.createEtchedBorder(), "Work Item Attributes"),
                         BorderFactory.createEmptyBorder(10, 10, 10, 10)));
-        String[] text = {_caseID, _taskID, _description, _startTime};
-        String[] labels = {"Case ID", "Task ID", "Task Description", "Task Started"};
+        String[] text = {_caseID, _taskID, _description, _startTime, _sequence};
+        String[] labels = {"Case ID", "Task ID", "Task Description", "Task Started", "In Sequence"};
         for (int i = 0; i < text.length; i++) {
             String s = text[i];
             rightPanel.add(new JLabel(labels[i]));
@@ -182,10 +199,14 @@ public class YApplicationXForm extends JDialog implements ActionListener {
         JButton releaseButton = new JButton(_releaseCommand);
         releaseButton.setToolTipText("Send completed work item back to YAWL engine.");
         releaseButton.addActionListener(this);
+        JButton setDefaultDataButton = new JButton(_resetCommand);
+        setDefaultDataButton.setToolTipText("Reset the template output XML data.");
+        setDefaultDataButton.addActionListener(this);
         JPanel p = new JPanel();
         p.setBackground(YAdminGUI._apiColour);
         p.add(keepButton);
         p.add(releaseButton);
+        p.add(setDefaultDataButton);
         bottomPanel.add(p, BorderLayout.EAST);
         return bottomPanel;
     }
@@ -201,8 +222,35 @@ public class YApplicationXForm extends JDialog implements ActionListener {
             this_windowClosing();
         } else if (command.equals(_releaseCommand)) {
             storeData();
+            java.util.List errorMessages = _model.validateData();
+            if (errorMessages.size() == 0) {
             this_windowClosing();
             _worklistGUI.completeWorkItem(_caseID, _taskID);
+            } else {
+                StringBuffer errorMessageStr = new StringBuffer();
+                Iterator iterator = errorMessages.iterator();
+                errorMessageStr.append(iterator.next());
+                while (iterator.hasNext()) {
+                    errorMessageStr.append("\t" + iterator.next() + "\r\n");
         }
+                JOptionPane.showMessageDialog(this,
+                                              "The data provided failed validation:\n " + errorMessages,
+                                              "Error during validation",
+                                              JOptionPane.ERROR_MESSAGE);
     }
+        } else if (command == _resetCommand) {
+            _outputDataTextPane.setText(_skeletonOutputData);
+}
+    }
+    /*
+        new Object[]{
+            caseIDstr,
+            taskID,
+            description,
+            _formatter.format(enablementTime),
+            _formatter.format(firingTime),
+            _formatter.format(startTime),
+            new Boolean(allowsDynamicInstanceCreation),
+            xmlData
+    */
 }

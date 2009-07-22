@@ -811,7 +811,7 @@ public class ConditionEvaluator {
    /** get the value of the 'this' argument */
     private String getThisData() {
         String result = null;
-        Element eThis = _dataList.getChild("process_info").getChild("itemRecord");
+        Element eThis = _dataList.getChild("process_info").getChild("workItemRecord");
         if (eThis != null) result = JDOMUtil.elementToString(eThis);
         return result;
     }

@@ -13,6 +13,7 @@ import org.yawlfoundation.yawl.engine.gui.YAdminGUI;
 import org.yawlfoundation.yawl.swingWorklist.util.TableSorter;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 
 /**
@@ -35,6 +36,7 @@ public class YWorkListPanel extends JPanel {
         setLayout(new BorderLayout(10, 10));
         TableSorter sorter = new TableSorter(worklistModel); //ADDED THIS
         _myTable = new JTable(sorter);
+        _myTable.setDefaultRenderer(String.class, new tableCellRenderer());
         _myTable.setPreferredScrollableViewportSize(size);
         _myTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         worklistModel.addRow("InstanceValidator", new String[]{"", "", "", "", "", ""});
@@ -80,4 +82,27 @@ public class YWorkListPanel extends JPanel {
     public JTable getMyTable() {
         return _myTable;
     }
+
+    class tableCellRenderer extends DefaultTableCellRenderer
+    {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+        {
+            Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            // Set row green if sequence is Y
+            if (table.getModel().getValueAt(row, 6).equals("Y"))
+            {
+                comp.setBackground(Color.GREEN);
+}
+            else
+            {
+                comp.setBackground(Color.WHITE);
+            }
+
+
+            return comp;
+        }
+    }
+
 }

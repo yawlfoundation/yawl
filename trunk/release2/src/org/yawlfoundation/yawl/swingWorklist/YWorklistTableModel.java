@@ -176,10 +176,10 @@ public class YWorklistTableModel extends AbstractTableModel {
         String outputParamsData = null;
 
         Object[] row = (Object[]) _rows.get(caseIDStr + taskID);
-        if (row != null && row.length > 8)
+        if (row != null && row.length > 9)
         {
-            outputParamsData = (String) row[8];
-            inputParamsData = (String) row[7];
+            outputParamsData = (String) row[9];
+            inputParamsData = (String) row[8];
 
             /**
              * AJH: I don't think we need to do this anymore given support for optional params. If its an OUTPUT var then you *MUST* pass it back in.

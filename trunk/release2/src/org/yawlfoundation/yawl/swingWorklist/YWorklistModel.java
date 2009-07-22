@@ -9,20 +9,24 @@
 
 package org.yawlfoundation.yawl.swingWorklist;
 
-import org.yawlfoundation.yawl.elements.YTask;
-import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.engine.*;
-import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceAManagement;
-import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBClient;
-import org.yawlfoundation.yawl.engine.interfce.Marshaller;
-import org.yawlfoundation.yawl.engine.gui.YAdminGUI;
-import org.yawlfoundation.yawl.exceptions.*;
-import org.yawlfoundation.yawl.swingWorklist.util.ParamsDefinitions;
-import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
-import org.yawlfoundation.yawl.engine.interfce.YParametersSchema;
 import org.apache.log4j.Logger;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.yawlfoundation.yawl.elements.YTask;
+import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.YEngine;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.engine.YWorkItem;
+import org.yawlfoundation.yawl.engine.YWorkItemStatus;
+import org.yawlfoundation.yawl.engine.gui.YAdminGUI;
+import org.yawlfoundation.yawl.engine.interfce.Marshaller;
+import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
+import org.yawlfoundation.yawl.engine.interfce.YParametersSchema;
+import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceAManagement;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBClient;
+import org.yawlfoundation.yawl.exceptions.*;
+import org.yawlfoundation.yawl.swingWorklist.util.ParamsDefinitions;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,12 +34,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 /**
  * 
@@ -48,6 +51,7 @@ public class YWorklistModel {
     private static final Logger logger = Logger.getLogger(YWorklistModel.class);
     private YWorklistTableModel _availableWork;
     private YWorklistTableModel _myActiveTasks;
+    private Vector inSequenceWorkitemIDs = new Vector();
     private DateFormat _formatter;
     private static ParamsDefinitions _paramsDefinitions = new ParamsDefinitions();
 
@@ -56,6 +60,7 @@ public class YWorklistModel {
 
     // Reference to engine's client interface (used for worklist driving)
     private static InterfaceBClient _engineClient = YEngine.getInstance();
+    private static String xmlCommentHeader = "<!-- Test data loaded from -";
 
     private String _username;
     private YWorklistGUI _gui;
@@ -66,9 +71,9 @@ public class YWorklistModel {
         _frame = frame;
         _username = userName;
         _availableWork = new YWorklistTableModel(new String[]{
-            "Case ID", "Task ID", "Description", "Status", "Enablement Time", "Firing Time"});
+            "Case ID", "Task ID", "Description", "Status", "Enablement Time", "Firing Time","Seq"});
         _myActiveTasks = new YWorklistTableModel(new String[]{
-            "Case ID", "Task ID", "Description", "Enablement Time", "Firing Time", "Start Time"});
+            "Case ID", "Task ID", "Description", "Enablement Time", "Firing Time", "Start Time", "Seq"});
         _formatter = new SimpleDateFormat("MMM dd H:mm:ss");
         _gui = new YWorklistGUI(userName, this, frame);
     }
@@ -79,9 +84,12 @@ public class YWorklistModel {
     //                    INTERFACE TO LOCAL WORKLIST
     //####################################################################################
 
+    private void removeUnstartedWorkItem(String caseIDStr, String taskID) {
+        _availableWork.removeRow(caseIDStr + taskID);
+    }
 
 
-    private void addEnabledWorkItem(YWorkItem workItem) {
+    private void addEnabledWorkItem(YWorkItem workItem, boolean inSequence) {
 
         logger.debug("addEnabledWorkItem: " + workItem.getIDString());
 
@@ -95,11 +103,12 @@ public class YWorklistModel {
         }
         _availableWork.addRow(caseIDStr + taskID,
                 new Object[]{caseIDStr, taskID, taskDescription, "Enabled",
-                             _formatter.format(workItem.getEnablementTime()), ""});
+                                           _formatter.format(workItem.getEnablementTime()), "",
+                                           inSequence ? "Y" : "N"});
     }
 
 
-    private void addFiredWorkItem(YWorkItem workItem) {
+    private void addFiredWorkItem(YWorkItem workItem, boolean inSequence) {
         String caseIDStr = workItem.getCaseID().toString();
         String taskID = workItem.getTaskID();
         YSpecificationID specificationID = workItem.getSpecificationID();
@@ -114,13 +123,17 @@ public class YWorklistModel {
                              taskDescription,
                              "Fired",
                              _formatter.format(workItem.getEnablementTime()),
-                             _formatter.format(workItem.getFiringTime())});
+                                           _formatter.format(workItem.getFiringTime()),
+                                           inSequence ? "Y" : "N"});
     }
 
 
+    private void removeStartedItem(String caseIDStr, String taskID) {
+        _myActiveTasks.removeRow(caseIDStr + taskID);
+    }
 
 
-    private void addStartedWorkItem(YWorkItem item) {
+    private void addStartedWorkItem(YWorkItem item, boolean inSequence) {
         String caseIDStr = item.getCaseID().toString();
         String taskID = item.getTaskID();
         YSpecificationID specificationID = item.getSpecificationID();
@@ -143,7 +156,8 @@ public class YWorklistModel {
                     _formatter.format(item.getEnablementTime()),
                     _formatter.format(item.getFiringTime()),
                     _formatter.format(item.getStartTime()),
-                    (allowsDynamicInstanceCreation) ? Boolean.TRUE : Boolean.FALSE,
+                                  inSequence ? "Y" : "N",
+                                  new Boolean(allowsDynamicInstanceCreation),
                     item.getDataString(),
                     getOutputSkeletonXML(caseIDStr, taskID)
                 });
@@ -169,7 +183,7 @@ public class YWorklistModel {
     //######################################################################################
 
     // MUTATORS ############################################################################
-    public void applyForWorkItem(String caseID, String taskID) throws YSchemaBuildingException, YPersistenceException, YEngineStateException {
+    public void applyForWorkItem(String caseID, String taskID) throws YSchemaBuildingException, YPersistenceException {
         Set workItems = _engineClient.getAvailableWorkItems();
         for (Iterator iterator = workItems.iterator(); iterator.hasNext();) {
             YWorkItem item = (YWorkItem) iterator.next();
@@ -179,16 +193,16 @@ public class YWorklistModel {
                     _engineClient.startWorkItem(item, _username);
 
                 } catch (YStateException e) {
-                    logger.error("State Exception", e);
+                    e.printStackTrace();
                     reportGeneralProblem(e);
                 } catch (YDataStateException e) {
-                    logger.error("Bad Specification");e.printStackTrace();
+                    e.printStackTrace();
                     new SpecificationQueryProcessingValidationErrorBox(
                             _frame,
                             item,
                             e);
-                } catch (YQueryException e) {
-                    logger.error("YQueryException",e);
+                } catch (YAWLException e) {
+                    e.printStackTrace();
                     reportGeneralProblem(e);
                 }
             }
@@ -238,6 +252,20 @@ public class YWorklistModel {
                     item.getTaskID().equals(taskID)) {
                 try {
                     String outputData = _myActiveTasks.getOutputData(caseID, taskID);
+
+                    /**
+                     * AJH: Write the output data into test data file
+                     */
+                    File testDataDir =  YAdminGUI.getSpecTestDataDirectory(item.getSpecificationID().getSpecName());
+                    File taskInputData = new File(testDataDir, taskID + ".xml");
+                    if (!taskInputData.exists())
+                    {
+                        logger.info("Creating task data file - " + taskInputData.getAbsolutePath());
+                        taskInputData.createNewFile();
+                    }
+                    StringUtil.stringToFile(taskInputData.getAbsolutePath(), outputData);
+
+            //        _engineClient.completeWorkItem(item, outputData, inSequenceWorkitemIDs);
                     _engineClient.completeWorkItem(item, outputData, false);
                 } catch (YDataStateException e) {
                     String errors = e.getMessage();
@@ -249,9 +277,55 @@ public class YWorklistModel {
                         System.out.println(e.getMessage());
                     }
                 } catch (Exception e) {
+                    //todo AJH - Create defalut skeleton at this point????
                     reportGeneralProblem(e);
                 }
             }
+        }
+    }
+
+    /**
+     * Return the XML test data for a specified task
+     *
+     * @param caseID
+     * @param taskID
+     * @return testData
+     */
+
+    public String getTaskTestData(String caseID, String taskID)
+    {
+        String testData = null;
+        File taskInputData = null;
+
+        Set workItems = _engineClient.getAllWorkItems();
+        for (Iterator iterator = workItems.iterator(); iterator.hasNext();) {
+            YWorkItem item = (YWorkItem) iterator.next();
+            if (item.getCaseID().toString().equals(caseID) &&
+                item.getTaskID().equals(taskID)) {
+                try {
+                    File testDataDir =  YAdminGUI.getSpecTestDataDirectory(item.getSpecificationID().getSpecName());
+                    taskInputData = new File(testDataDir, taskID + ".xml");
+                    if (taskInputData.exists())
+                    {
+                        testData = StringUtil.fileToString(taskInputData);
+                    }
+                } catch (Exception e) {
+                    reportGeneralProblem(e);
+                }
+            }
+        }
+
+        if (testData == null)
+        {
+            return testData;
+        }
+        else if (testData.startsWith(xmlCommentHeader))
+        {
+            return testData;
+        }
+        else
+        {
+            return xmlCommentHeader + taskInputData.getName() + " -->\n" + testData;
         }
     }
 
@@ -296,21 +370,42 @@ public class YWorklistModel {
     }
 
     private void updateSelf() {
+        boolean inSequence = false;
         Set availableWorkItems = _engineClient.getAvailableWorkItems();
         for (Iterator iterator = availableWorkItems.iterator(); iterator.hasNext();) {
             YWorkItem item = (YWorkItem) iterator.next();
+
+            if (inSequenceWorkitemIDs.contains(item.getTaskID()))
+            {
+                inSequence = true;
+            }
+            else
+            {
+                inSequence = false;
+            }
+
             if (item.getStatus().equals(YWorkItemStatus.statusEnabled)) {
-                addEnabledWorkItem(item);
+                addEnabledWorkItem(item, inSequence);
             } else if (item.getStatus().equals(YWorkItemStatus.statusFired)) {
-                addFiredWorkItem(item);
+                addFiredWorkItem(item, inSequence);
             }
         }
         Set allWorkItems = _engineClient.getAllWorkItems();
         for (Iterator iterator = allWorkItems.iterator(); iterator.hasNext();) {
             YWorkItem item = (YWorkItem) iterator.next();
+
+            if (inSequenceWorkitemIDs.contains(item.getTaskID()))
+            {
+                inSequence = true;
+            }
+            else
+            {
+                inSequence = false;
+            }
+
             if (item.getStatus().equals(YWorkItemStatus.statusExecuting)) {
                 if (item.getUserWhoIsExecutingThisItem().equals(_username)) {
-                    addStartedWorkItem(item);
+                    addStartedWorkItem(item, inSequence);
                 }
             }
             if (_paramsDefinitions.getParamsForTask(item.getTaskID()) == null) {
@@ -345,6 +440,11 @@ public class YWorklistModel {
                 task.getDecompositionPrototype().getRootDataElementName());
     }
 
+    public List validateData() {
+        List validationMessages = new Vector();
+
+        return validationMessages;
+    }
 
 
     public YParameter getMIUniqueParam(String taskID) {
@@ -381,11 +481,14 @@ class UserInputValidationErrorBox extends JDialog implements ActionListener {
                 this_windowClosing();
             }
         });
-        Dimension screenSize =
-                Toolkit.getDefaultToolkit().getScreenSize();
-        Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(this.getGraphicsConfiguration());
-        screenSize.setSize(screenSize.getWidth(), screenSize.getHeight() - insets.bottom);
-        setSize(screenSize);
+
+        Double screenWidth = new Double(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getWidth());
+        Double screenHeight = new Double(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getHeight());
+        setSize(new Double(screenWidth * 0.8).intValue(), new Double(screenHeight * 0.8).intValue());
+
+        Dimension labelSize = this.getSize();
+        setLocation(screenWidth.intValue() / 2 - (labelSize.width / 2),
+                    screenHeight.intValue() / 2 - (labelSize.height / 2));
         show();
     }
 
@@ -616,11 +719,14 @@ class SpecificationQueryProcessingValidationErrorBox extends JDialog implements 
         });
         //setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setSize(800, 600);
-        Dimension screenSize =
-                Toolkit.getDefaultToolkit().getScreenSize();
+        Double screenWidth = new Double(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getWidth());
+        Double screenHeight = new Double(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getHeight());
+//        setSize(new Double((screenWidth - guiSize.width) * 2).intValue(), new Double((screenHeight - guiSize.height) * 2).intValue());
+//        setLocation(((screenWidth.intValue() - guiSize.width) / 2),0);
+//        pack();
         Dimension labelSize = this.getSize();
-        setLocation(screenSize.width / 2 - (labelSize.width / 2),
-                screenSize.height / 2 - (labelSize.height / 2));
+        setLocation(screenWidth.intValue() / 2 - (labelSize.width / 2),
+                    screenHeight.intValue() / 2 - (labelSize.height / 2));
         show();
     }
 

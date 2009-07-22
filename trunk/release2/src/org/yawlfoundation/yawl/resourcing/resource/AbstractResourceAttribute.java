@@ -102,6 +102,10 @@ public abstract class AbstractResourceAttribute {
      }
 
 
+    public int hashCode() {
+       return 31 + (_id != null? _id.hashCode() : 0);
+    }
+
     // hibernate mappings
 
     protected Set get_resources() { return _resources; }
