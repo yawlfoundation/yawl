@@ -172,7 +172,7 @@ public class ResourceMap {
         ResourceMap result = null;
         if (getPersisting()) {
             String where = String.format("_specID='%s' and _taskID='%s'",
-                                          _specID, _taskID);
+                                          _specID.toString(), _taskID);
             List map = _persister.selectWhere("ResourceMap", where) ;
             if ((map != null) && (! map.isEmpty())) {
                 result = (ResourceMap) map.iterator().next();
@@ -426,4 +426,17 @@ public class ResourceMap {
     public long get_id() { return _id; }
 
     public void set_id(long id) { _id = id; }
+
+    private String get_specID() { return _specID.toString(); }
+
+    private void set_specID(String specID) {
+        if (specID != null) {
+            String[] parts = specID.split(" - version ");
+            if (parts.length > 1)
+                _specID = new YSpecificationID(parts[0], parts[1]);
+            else
+                _specID = new YSpecificationID(parts[0]);
+        }
+    }
+
 }

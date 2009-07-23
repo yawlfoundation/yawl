@@ -1032,9 +1032,9 @@ public class userWorkQueues extends AbstractPageBean {
                                             ! canCreate.equalsIgnoreCase("true"));
             }
         }
-        else if (qType == WorkQueue.SUSPENDED) {
-            btnUnsuspend.setDisabled(suspended);
-        }
+//        else if (qType == WorkQueue.SUSPENDED) {
+//            btnUnsuspend.setDisabled(suspended);
+//        }
 
     }
 
