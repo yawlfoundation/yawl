@@ -520,6 +520,9 @@ public class orgDataMgt extends AbstractPageBean {
             btnReset.setToolTip("Discard data and revert to edit mode");
             btnSave.setDisabled(true);
             btnRemove.setDisabled(true);
+            if (getAttribType(_sb.getActiveTab()) == AttribType.orggroup) {
+               _sb.setOrgDataGroupItems(innerForm.getOrgGroupTypeOptions());
+            }
         }
         _sb.setOrgMgtMode(mode);
     }

@@ -227,6 +227,19 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
 
+    public String getWorkItemParameters(String itemID, String handle)
+            throws IOException {
+        params.clear();
+        params.put("itemid", itemID);
+        return performGet("getWorkItemParameters", params, handle);        
+    }
+
+
+    public String synchroniseCaches(String handle) throws IOException {
+        return performGet("synchroniseCaches", null, handle) ;
+    }
+
+
     public String getParticipantsAssignedWorkItem(String workItemID, int queueType,
                                                   String handle) throws IOException {
         params.clear();

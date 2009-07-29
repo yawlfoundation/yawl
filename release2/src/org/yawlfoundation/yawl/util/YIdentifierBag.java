@@ -19,10 +19,11 @@ import java.util.*;
 /**
  * 
  * @author Lachlan Aldred
+ * @author Michael Adams (updated for 2.0)
  * 
  */
 public class YIdentifierBag {
-    private Map _idToQtyMap = new HashMap();
+    private Map<YIdentifier, Integer> _idToQtyMap = new HashMap<YIdentifier, Integer>();
     public YConditionInterface _condition;
 
 
@@ -34,18 +35,18 @@ public class YIdentifierBag {
     public void addIdentifier(YPersistenceManager pmgr, YIdentifier identifier) throws YPersistenceException {
         int amount = 0;
         if (_idToQtyMap.containsKey(identifier)) {
-            amount = ((Integer) _idToQtyMap.get(identifier)).intValue();
+            amount = _idToQtyMap.get(identifier);
         }
-        _idToQtyMap.put(identifier, new Integer(++amount));
+        _idToQtyMap.put(identifier, ++amount);
         identifier.addLocation(pmgr, _condition);
     }
 
 
     public int getAmount(YIdentifier identifier) {
         if (_idToQtyMap.containsKey(identifier)) {
-            return ((Integer) _idToQtyMap.get(identifier)).intValue();
-        } else
-            return 0;
+            return _idToQtyMap.get(identifier);
+        }
+        else return 0;
     }
 
 
@@ -54,13 +55,10 @@ public class YIdentifierBag {
     }
 
 
-    public List getIdentifiers() {
-        List idList = new Vector();
-        Set keys = _idToQtyMap.keySet();
-        Iterator iter = keys.iterator();
-        while (iter.hasNext()) {
-            YIdentifier identifier = (YIdentifier) iter.next();
-            int amnt = ((Integer) _idToQtyMap.get(identifier)).intValue();
+    public List<YIdentifier> getIdentifiers() {
+        List<YIdentifier> idList = new Vector<YIdentifier>();
+        for (YIdentifier identifier : _idToQtyMap.keySet()) {
+            int amnt = _idToQtyMap.get(identifier);
             for (int i = 0; i < amnt; i++) {
                 idList.add(identifier);
             }
@@ -69,19 +67,23 @@ public class YIdentifierBag {
     }
 
 
-    public void remove(YPersistenceManager pmgr, YIdentifier identifier, int amountToRemove) throws YPersistenceException {
+    public void remove(YPersistenceManager pmgr, YIdentifier identifier, int amountToRemove)
+            throws YPersistenceException {
         if (_idToQtyMap.containsKey(identifier)) {
-            int amountExisting = ((Integer) _idToQtyMap.get(identifier)).intValue();
+            int amountExisting = _idToQtyMap.get(identifier);
             if (amountToRemove <= 0) {
                 throw new RuntimeException("You cannot remove " + amountToRemove
                         + " from YIdentifierBag:" + _condition + " " + identifier.toString());
-            } else if (amountExisting > amountToRemove) {
-                _idToQtyMap.put(identifier, new Integer(amountExisting - amountToRemove));
+            }
+            else if (amountExisting > amountToRemove) {
+                _idToQtyMap.put(identifier, amountExisting - amountToRemove);
                 identifier.removeLocation(pmgr, _condition);
-            } else if (amountToRemove == amountExisting) {
+            } 
+            else if (amountToRemove == amountExisting) {
                 _idToQtyMap.remove(identifier);
                 identifier.removeLocation(pmgr, _condition);
-            } else {
+            }
+            else {
                 throw new RuntimeException("You cannot remove " + amountToRemove
                         + " tokens from YIdentifierBag:" + _condition
                         + " - this bag only contains " + amountExisting
@@ -100,14 +102,11 @@ public class YIdentifierBag {
 
 
     public void removeAll(YPersistenceManager pmgr) throws YPersistenceException {
-        Iterator keys = new Vector(_idToQtyMap.keySet()).iterator();
-        while (keys.hasNext()) {
-            YIdentifier identifier = (YIdentifier) keys.next();
-            _idToQtyMap.remove(identifier);
+        for (YIdentifier identifier : _idToQtyMap.keySet()) {
             while (identifier.getLocations().contains(_condition)) {
-                identifier.getLocations().remove(_condition);
+                identifier.clearLocation(pmgr, _condition);
             }
-            identifier.clearLocations(pmgr);                  // from persistence
+            _idToQtyMap.remove(identifier);
         }
     }
 }

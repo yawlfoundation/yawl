@@ -9,9 +9,10 @@
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
@@ -216,6 +217,17 @@ public class WorkQueueGatewayClientAdapter {
     public String getWorkItem(String itemID, String handle)
             throws IOException, ResourceGatewayException {
         return successCheck(_wqclient.getWorkItem(itemID, handle));
+    }
+
+    public Set<YParameter> getWorkItemParameters(String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        String result = successCheck(_wqclient.getWorkItemParameters(itemID, handle));
+        return _marshaller.parseWorkItemParams(result);
+    }
+
+
+    public boolean synchroniseCaches(String handle) throws IOException {
+        return successful(_wqclient.synchroniseCaches(handle));
     }
 
 

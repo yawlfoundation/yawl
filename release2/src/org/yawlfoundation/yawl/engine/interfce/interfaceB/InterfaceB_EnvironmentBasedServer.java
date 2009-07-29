@@ -130,7 +130,11 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
 
         String action = request.getParameter("action");
         String workItemXML = request.getParameter("workItem");
-        WorkItemRecord workItem = Marshaller.unmarshalWorkItem(workItemXML);
+        WorkItemRecord workItem = null;
+        if (workItemXML != null) {
+            workItem = Marshaller.unmarshalWorkItem(workItemXML);
+        }
+        
         if ("handleEnabledItem".equals(action)) {
             _controller.handleEnabledWorkItemEvent(workItem);
         }

@@ -17,6 +17,7 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.unmarshal.YDecompositionParser;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -72,64 +73,58 @@ public class Marshaller {
 
     public static TaskInformation unmarshalTaskInformation(String taskInfoAsXML) {
         YParametersSchema paramsForTaskNCase = new YParametersSchema();
-        String taskID = null;
-        String specificationID = null;
-        String taskName = null;
-        String taskDocumentation = null;
-	      HashMap attributemap = new HashMap();
-        String decompositionID = null;
+        HashMap attributemap = new HashMap();
 
-        try {
-            SAXBuilder builder = new SAXBuilder();
-            Document doct = builder.build(new StringReader(taskInfoAsXML));
-            Element taskInfo = doct.getRootElement();
-            taskID = taskInfo.getChildText("taskID");
-            specificationID = taskInfo.getChildText("specificationID");
-            taskName = taskInfo.getChildText("taskName");
-            taskDocumentation = taskInfo.getChildText("taskDocumentation");
-            decompositionID = taskInfo.getChildText("decompositionID");
-            Element yawlService = taskInfo.getChild("yawlService");
+        Element taskInfo = JDOMUtil.stringToElement(taskInfoAsXML);
 
-	          Element attributes = taskInfo.getChild("attributes");
-    	      if (attributes!=null) {
-    	      	List attributelist = attributes.getChildren();
-	    	      for (int i = 0; i < attributelist.size(); i++) {
-		              Element attribute = (Element) attributelist.get(i);
-		              attributemap.put(attribute.getName(),attributes.getChildText(attribute.getName()));
-		          }
-	          }
-
-            Element params = taskInfo.getChild("params");
-            List paramElementsList = params.getChildren();
-            for (int i = 0; i < paramElementsList.size(); i++) {
-                Element paramElem = (Element) paramElementsList.get(i);
-                if ("formalInputParam".equals(paramElem.getName())) {
-                    paramsForTaskNCase.setFormalInputParam(paramElem.getText());
-                    continue;
-                }
-                YParameter param = new YParameter(null, paramElem.getName());
-                YDecompositionParser.parseParameter(
-                        paramElem,
-                        param,
-                        null,
-                        false);
-                if (param.isInput()) {
-                    paramsForTaskNCase.setInputParam(param);
-                } else {
-                    paramsForTaskNCase.setOutputParam(param);
-                }
-                String paramOrdering = paramElem.getChildText("ordering");
-                if (paramOrdering != null) {
-                    int order = Integer.parseInt(paramOrdering);
-                    param.setOrdering(order);
-                }    
-            }
-        } catch (JDOMException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        // if the string was encased in response tags, go down one level
+        if (taskInfoAsXML.startsWith("<response>")) {
+            taskInfo = taskInfo.getChild("taskInfo");
         }
-        TaskInformation taskInfo = new TaskInformation(
+        String taskID = taskInfo.getChildText("taskID");
+        String specificationID = taskInfo.getChildText("specificationID");
+        String taskName = taskInfo.getChildText("taskName");
+        String taskDocumentation = taskInfo.getChildText("taskDocumentation");
+        String decompositionID = taskInfo.getChildText("decompositionID");
+        Element yawlService = taskInfo.getChild("yawlService");
+
+        Element attributes = taskInfo.getChild("attributes");
+        if (attributes != null) {
+            List attributelist = attributes.getChildren();
+            for (Object o : attributelist) {
+                Element attribute = (Element) o;
+                attributemap.put(attribute.getName(),
+                        attributes.getChildText(attribute.getName()));
+            }
+        }
+
+        Element params = taskInfo.getChild("params");
+        List paramElementsList = params.getChildren();
+        for (Object o : paramElementsList) {
+            Element paramElem = (Element) o;
+            if ("formalInputParam".equals(paramElem.getName())) {
+                paramsForTaskNCase.setFormalInputParam(paramElem.getText());
+                continue;
+            }
+            YParameter param = new YParameter(null, paramElem.getName());
+            YDecompositionParser.parseParameter(
+                    paramElem,
+                    param,
+                    null,
+                    false);
+            if (param.isInput()) {
+                paramsForTaskNCase.setInputParam(param);
+            } else {
+                paramsForTaskNCase.setOutputParam(param);
+            }
+            String paramOrdering = paramElem.getChildText("ordering");
+            if (paramOrdering != null) {
+                int order = Integer.parseInt(paramOrdering);
+                param.setOrdering(order);
+            }
+        }
+
+        TaskInformation taskInformation = new TaskInformation(
                 paramsForTaskNCase,
                 taskID,
                 specificationID,
@@ -137,9 +132,9 @@ public class Marshaller {
                 taskDocumentation,
                 decompositionID);
 
-	      taskInfo.setAttributes(attributemap);
+        taskInformation.setAttributes(attributemap);
 
-        return taskInfo;
+        return taskInformation;
     }
 
 
@@ -151,78 +146,58 @@ public class Marshaller {
      * @return  the list
      */
     public static List<SpecificationData> unmarshalSpecificationSummary(
-                                             String specificationSummaryListXML) {
+            String specificationSummaryListXML) {
         List<SpecificationData> specSummaryList = new ArrayList<SpecificationData>();
 
-        try {
-            SAXBuilder builder = new SAXBuilder();
-            Document doc = builder.build(new StringReader(specificationSummaryListXML));
-            List specSummaryElements = doc.getRootElement().getChildren();
-            for (int i = 0; i < specSummaryElements.size(); i++) {
-                SpecificationData specData = null;
-                Element specElement = (Element) specSummaryElements.get(i);
-                String specID = specElement.getChildText("id");
-                String specName = specElement.getChildText("name");
-                String specDoco = specElement.getChildText("documentation");
-                String specStatus = specElement.getChildText("status");
-                String version = specElement.getChildText("version");
-                String rootNetID = specElement.getChildText("rootNetID");
+        Element specElem = JDOMUtil.stringToElement(specificationSummaryListXML);
+        List specSummaryElements = specElem.getChildren();
+        for (Object o : specSummaryElements) {
+            Element specElement = (Element) o;
+            String specID = specElement.getChildText("id");
+            String specName = specElement.getChildText("name");
+            String specDoco = specElement.getChildText("documentation");
+            String specStatus = specElement.getChildText("status");
+            String version = specElement.getChildText("version");
+            String rootNetID = specElement.getChildText("rootNetID");
 
-                if (specID != null && specStatus != null) {
-                    specData = new SpecificationData(
-                            specID,
-                            specName,
-                            specDoco,
-                            specStatus,
-                            version);
-                    specData.setRootNetID(rootNetID);
-                    specData.setSpecVersion(specElement.getChildText("specversion"));
-                    specSummaryList.add(specData);
-                    Element inputParams = specElement.getChild("params");
-                    if (inputParams != null) {
-                        List paramElements = inputParams.getChildren();
-                        for (int j = 0; j < paramElements.size(); j++) {
-                            Element paramElem = (Element) paramElements.get(j);
-                            YParameter param = new YParameter(null, YParameter._INPUT_PARAM_TYPE);
-                            YDecompositionParser.parseParameter(
-                                    paramElem,
-                                    param,
-                                    null,
-                                    false);//todo check correctness
-                            specData.addInputParam(param);
-                        }
+            if (specID != null && specStatus != null) {
+                SpecificationData specData = new SpecificationData(
+                        specID,
+                        specName,
+                        specDoco,
+                        specStatus,
+                        version);
+                specData.setRootNetID(rootNetID);
+                specData.setSpecVersion(specElement.getChildText("specversion"));
+                specSummaryList.add(specData);
+                Element inputParams = specElement.getChild("params");
+                if (inputParams != null) {
+                    List paramElements = inputParams.getChildren();
+                    for (Object p :paramElements) {
+                        Element paramElem = (Element) p;
+                        YParameter param = new YParameter(null, YParameter._INPUT_PARAM_TYPE);
+                        YDecompositionParser.parseParameter(
+                                paramElem,
+                                param,
+                                null,
+                                false);//todo check correctness
+                        specData.addInputParam(param);
                     }
                 }
             }
-        } catch (JDOMException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         return specSummaryList;
     }
 
 
     public static WorkItemRecord unmarshalWorkItem(String workItemXML) {
-        WorkItemRecord workItem = null;
-        if (workItemXML != null) {
-            Document doc;
-            try {
-                SAXBuilder builder = new SAXBuilder();
-                doc = builder.build(new StringReader(workItemXML));
-                workItem = unmarshalWorkItem(doc.getRootElement());
-            } catch (JDOMException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return workItem;
+        return unmarshalWorkItem(JDOMUtil.stringToElement(workItemXML));
     }
 
 
     public static WorkItemRecord unmarshalWorkItem(Element workItemElement) {
-
+        if (workItemElement == null) return null;
+        
         WorkItemRecord wir;
         String status = workItemElement.getChildText("status");
         String caseID = workItemElement.getChildText("caseid");
@@ -290,22 +265,17 @@ public class Marshaller {
 
     public static List<String> unmarshalCaseIDs(String casesAsXML) {
         List<String> cases = new ArrayList<String>();
-        try {
-            SAXBuilder builder = new SAXBuilder();
-            StringReader reader = new StringReader(casesAsXML);
-            Element casesElem = builder.build(reader).getRootElement();
-            for (Iterator iterator = casesElem.getChildren().iterator(); iterator.hasNext();) {
-                Element caseElem = (Element) iterator.next();
-                String caseID = caseElem.getText();
-                if (caseID != null) {
-                    cases.add(caseID);
-                }
+
+        Element casesElem = JDOMUtil.stringToElement(casesAsXML);
+        List caseList = casesElem.getChildren();
+        for (Object o : caseList) {
+            Element caseElem = (Element) o;
+            String caseID = caseElem.getText();
+            if (caseID != null) {
+                cases.add(caseID);
             }
-        } catch (JDOMException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+
         return cases;
     }
 
@@ -313,7 +283,7 @@ public class Marshaller {
     public static String getMergedOutputData(Element inputData, Element outputData) {
         Document mergedDoc;
         try {
-            mergedDoc = new Document();//
+            mergedDoc = new Document();
             mergedDoc.setRootElement((Element) inputData.clone());
 
             List children = outputData.getContent();

@@ -207,4 +207,23 @@ public class ResourceMarshaller {
         if (result.isEmpty()) return null;
         return result ;
     }
+
+
+    public Set<YParameter> parseWorkItemParams(String paramStr) {
+        Set<YParameter> result = new HashSet<YParameter>();
+
+        Element params = JDOMUtil.stringToElement(paramStr);
+        List paramElementsList = params.getChildren();
+        for (Object o : paramElementsList) {
+            Element paramElem = (Element) o;
+            if ("formalInputParam".equals(paramElem.getName())) {
+                continue;
+            }
+            YParameter param = new YParameter(null, paramElem.getName());
+            YDecompositionParser.parseParameter(paramElem, param, null, false);
+            result.add(param);
+        }
+        return result;
+    }
+
 }
