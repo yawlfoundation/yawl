@@ -102,7 +102,7 @@ abstract public class DataVariableUpdateDialog extends AbstractDoneDialog {
 
   protected void makeLastAdjustments() {
     pack();
- //   setResizable(false);
+    setResizable(false);
   }
   
   protected void addExtraEventListeners() {
@@ -326,6 +326,7 @@ abstract public class DataVariableUpdateDialog extends AbstractDoneDialog {
   
   private JXMLSchemaInstanceEditorPane buildVariableValueEditor() {
     variableValueEditor = new JXMLSchemaInstanceEditorPane();
+    variableValueEditor.setPreferredSize(new Dimension(300,150));
     return variableValueEditor;
   }
 
