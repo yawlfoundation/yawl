@@ -863,12 +863,13 @@ class XSD4YAWLBuilder {
 
 
     /**
-     * conforms to QName syntax
+     * conforms to QName syntax : regex changed July 09 to support UTF-8
      * @param name
      * @return if
      */
     private boolean qName(String name) {
-        return name != null && name.matches("[a-z|A-Z|0-9|[-]|[_]]+");
+//        return name != null && name.matches("[a-z|A-Z|0-9|[-]|[_]]+");
+        return name != null && name.matches("^[^:0-9-\\.][^\\s:]*:?[^\\s:]*$");
     }
 
 

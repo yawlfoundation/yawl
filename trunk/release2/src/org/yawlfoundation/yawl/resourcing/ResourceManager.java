@@ -2786,6 +2786,18 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
+    public String getTaskParamsAsXML(String itemID) throws IOException {
+        WorkItemRecord wir = _workItemCache.get(itemID);
+        if (wir != null) {
+            String specName = wir.getSpecificationID();
+            String version = wir.getSpecVersion();
+            return getTaskParamsAsXML(new YSpecificationID(specName, version),
+                                      wir.getTaskID(), _engineSessionHandle);
+        }
+        else return "<failure>Unknown workitem: " + itemID + "</failure>";
+    }
+
+
     public String getTaskParamsAsXML(YSpecificationID specID, String taskID,
                                               String sessionHandle) throws IOException {
         String xml = _interfaceBClient.getTaskInformationStr(specID, taskID, sessionHandle);

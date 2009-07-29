@@ -170,6 +170,10 @@ public class WorkQueueGateway extends HttpServlet {
             String itemID = req.getParameter("itemid");
             result = _rm.getWorkItem(itemID);
         }
+        else if (action.equals("getWorkItemParameters")) {
+            String itemID = req.getParameter("itemid");
+            result = _rm.getTaskParamsAsXML(itemID);  
+        }
         else if (action.equals("updateWorkItemData")) {
             String itemID = req.getParameter("itemid");
             String data = req.getParameter("data");
@@ -283,6 +287,10 @@ public class WorkQueueGateway extends HttpServlet {
                 result = success;
             }
             else result = fail("Malformed or empty work item XML record");
+        }
+        else if (action.equals("synchroniseCaches")) {
+            _rm.sanitiseCaches();
+            result = success;
         }
 
         // the following calls are convenience pass-throughs to engine interfaces A & B
@@ -501,7 +509,7 @@ public class WorkQueueGateway extends HttpServlet {
 
     private String fail(String reqStatus, String action, String hasStatus) {
         return fail(
-           String.format("Only a workitem '%s' status can be %s. This workitem has '%s' status.",
+           String.format("Only a workitem with '%s' status can be %s. This workitem has '%s' status.",
                    reqStatus, action, hasStatus)
         );
     }

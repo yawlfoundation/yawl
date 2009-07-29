@@ -469,7 +469,7 @@ public class pfOrgData extends AbstractFragmentBean {
         return null;
     }
 
-    private Option[] getOrgGroupTypeOptions() {
+    public Option[] getOrgGroupTypeOptions() {
         OrgGroup.GroupType[] groupTypes = OrgGroup.GroupType.values();
         Option[] result = new Option[groupTypes.length];
         for (int i = 0; i < groupTypes.length; i++) {

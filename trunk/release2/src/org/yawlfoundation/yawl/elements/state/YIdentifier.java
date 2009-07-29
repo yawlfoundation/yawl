@@ -206,6 +206,15 @@ public class YIdentifier {
     }
 
 
+    public synchronized void clearLocation(YPersistenceManager pmgr, YConditionInterface condition)
+            throws YPersistenceException {
+        removeLocation(pmgr, condition);
+        if (pmgr != null) {
+            pmgr.updateObjectExternal(this);
+        }
+    }
+
+
     public synchronized void removeLocation(YPersistenceManager pmgr,
                                             YConditionInterface condition)
             throws YPersistenceException {

@@ -153,6 +153,7 @@
     <property name="slf4j"                 value="slf4j-api-1.5.6.jar"/>
     <property name="slf4j-log4j"           value="slf4j-log4j12-1.5.6.jar"/>
     <property name="soaprmi"               value="soaprmi-1_1.jar"/>
+    <property name="twitter4j"             value="twitter4j-2.0.8.jar"/>
     <property name="wsdl4j"                value="wsdl4j-20030807.jar"/>
     <property name="wsif"                  value="wsif.jar"/>
     <property name="wsif-j2c"              value="wsif-j2c.jar"/>
@@ -297,6 +298,10 @@
             <pathelement location="${lib.dir}/${activation}"/>
     </path>
 
+    <path id="cp.etc">
+            <pathelement location="${lib.dir}/${twitter4j}"/>
+    </path>
+
     <!-- ============================ Targets =================================== -->
 
     <!--
@@ -352,6 +357,7 @@
             <classpath refid="cp.jsf"/>
             <classpath refid="cp.ds"/>
             <classpath refid="cp.mail"/>
+            <classpath refid="cp.etc"/>
         </javac>
 
         <!-- copy in non-java files from source (ie. files that don't need compiling) -->
@@ -1327,7 +1333,7 @@
             <fileset dir="${classes.dir}${packageRoot}/util"/>
         </copy>
         <copy todir="testService/WEB-INF/lib">
-            <fileset dir="${lib.dir}" includes="${jdom} ${log4j}"/>
+            <fileset dir="${lib.dir}" includes="${jdom} ${log4j} ${twitter4j}"/>
         </copy>
 
         <copy file="${properties.dir}/log4j.properties"
@@ -1350,6 +1356,60 @@
             <fileset dir="testService"/>
         </jar>
         <delete dir="testService"/>
+    </target>
+
+    <!-- Build the twitter service -->
+    <target name="build_twitterService.war" depends="compile">
+        <copy todir="twitterService${webinf.dir}/elements/data">
+            <fileset dir="${classes.dir}${packageRoot}/elements/data"/>
+        </copy>
+        <!-- start copying files into war directory -->
+        <copy todir="twitterService${webinf.dir}/elements">
+            <fileset dir="${classes.dir}${packageRoot}/elements"
+                     includes="**/*.class **/*.xsd"/>
+        </copy>
+        <copy todir="twitterService${webinf.dir}/unmarshal">
+            <fileset
+                dir="${classes.dir}${packageRoot}/unmarshal"
+                includes="YDecompositionParser.class"/>
+            <fileset dir="${schema.dir}" includes="*.xsd"/>
+        </copy>
+        <copy todir="twitterService${webinf.dir}/engine">
+              <fileset dir="${classes.dir}${packageRoot}/engine"/>
+        </copy>
+        <copy todir="twitterService${webinf.dir}/schema"
+              file="${classes.dir}${packageRoot}/schema/XSDType.class"/>
+        <copy todir="twitterService${webinf.dir}/exceptions">
+           <fileset dir="${classes.dir}${packageRoot}/exceptions"/>
+        </copy>
+
+        <copy todir="twitterService${webinf.dir}/util">
+            <fileset dir="${classes.dir}${packageRoot}/util"/>
+        </copy>
+        <copy todir="twitterService/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${jdom} ${log4j} ${twitter4j}"/>
+        </copy>
+
+        <copy file="${properties.dir}/log4j.properties"
+              todir="twitterService/WEB-INF/classes"/>
+
+        <copy todir="twitterService${webinf.dir}/engine/interfce">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+        </copy>
+        <copy todir="twitterService${webinf.dir}/twitterService">
+            <fileset dir="${classes.dir}${packageRoot}/twitterService"/>
+        </copy>
+        <copy todir="twitterService/graphics">
+            <fileset dir="${graphics.dir}"/>
+        </copy>
+        <copy todir="twitterService/WEB-INF">
+            <fileset file="${build.dir}/twitterService/web.xml"/>
+        </copy>
+        <!-- prepare Web Archive file -->
+        <jar destfile="${output.dir}/twitterService.war">
+            <fileset dir="twitterService"/>
+        </jar>
+        <delete dir="twitterService"/>
     </target>
 
      <!-- Build the YAWL Digital Signature Service WebApplication -->
@@ -1559,6 +1619,13 @@
     <target name="deployTestService" depends="build_testService.war">
         <copy todir="${webapps.dir}">
             <fileset file="${output.dir}/testService.war"/>
+        </copy>
+        <antcall target="cleanup"/>
+    </target>
+
+    <target name="deployTwitterService" depends="build_twitterService.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/twitterService.war"/>
         </copy>
         <antcall target="cleanup"/>
     </target>
