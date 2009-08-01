@@ -109,8 +109,22 @@ public class WorkQueueGatewayClientAdapter {
      * @return a sessionhandle if successful, or a failure message if otherwise
      */
     public String userlogin(String userid, String password) {
+        return userlogin(userid, password, true);
+    }
+
+    
+    /**
+     * Attempts to connect to the service (as a user/participant)
+     * @param userid the userid
+     * @param password  the corresponding password
+     * @param encrypt true if encryption is required (most cases); false if the
+     *        password is already encrypted
+     * @return a sessionhandle if successful, or a failure message if otherwise
+     */
+    public String userlogin(String userid, String password, boolean encrypt) {
         try {
-            return _wqclient.userlogin(userid, PasswordEncryptor.encrypt(password)) ;
+            if (encrypt) password = PasswordEncryptor.encrypt(password);
+            return _wqclient.userlogin(userid, password) ;
         }
         catch (IOException ioe) {
             return "<failure>IOException attempting to connect to Service.</failure>";

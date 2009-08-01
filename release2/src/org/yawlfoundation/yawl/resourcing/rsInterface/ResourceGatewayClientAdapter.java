@@ -80,7 +80,8 @@ public class ResourceGatewayClientAdapter {
      */
     private List getChildren(String s) {
         if (s == null) return null;
-        return JDOMUtil.stringToElement(s).getChildren();
+        Element parent = JDOMUtil.stringToElement(s);
+        return (parent != null) ? parent.getChildren() : null;
     }
 
 

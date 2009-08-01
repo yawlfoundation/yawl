@@ -14,23 +14,32 @@
 
                 </ui:head>                               
 
-<ui:body style="background-color: rgb(255, 255, 255); -rave-layout: grid" id="body1"
-        binding="#{visualiser.body1}">
+                <ui:body style="background-color: rgb(255, 255, 255); -rave-layout: grid"
+                         id="body1" binding="#{visualiser.body1}">
 
+                    <ui:button action="#{visualiser.btnReturn_action}"
+                               binding="#{visualiser.btnReturn}"
+                               id="btnReturn"
+                               primary="true"
+                               styleClass="loginButton"
+                               style="top:650px"
+                               text="Return"/>
 
-                <jsp:plugin archive="visualiser.jar, javax.servlet.jar, jdom.jar,log4j-1.2.14.jar, resourceService.jar, saxon9.jar"
-                            code="worklist/WRKLApplet.class" height="600" hspace="10"
-                            type="applet" vspace="50" width="800"
-                            jreversion="1.5">
-                    <jsp:params>
-                        <jsp:param name="user" value="th"/>
-                        <jsp:param name="pass" value="apple"/>
-                        <jsp:param name="urYAWL" value="http://localhost:8080/WebApplet"/>
-                    </jsp:params>
-                    <jsp:fallback>
-   				Your browser can't display this applet. Sorry.
- 		    </jsp:fallback>
-                </jsp:plugin>
+                     <jsp:plugin
+                         archive="visualiser.jar,javax.servlet.jar,jdom.jar,resourceService.jar,saxon9.jar,log4j-1.2.14.jar"
+                         codebase="http://localhost:8080/visualiserApplet"
+                         code="worklist.WRKLApplet.class" height="600" hspace="10"
+                         type="applet" vspace="20" width="800" jreversion="1.5">
+                         <jsp:params>
+                             <jsp:param name="user" value="#{visualiser.username}"/>
+                             <jsp:param name="pass" value="#{visualiser.password}"/>
+                             <jsp:param name="urYAWL" value="http://localhost:8080"/>
+                         </jsp:params>
+                         <jsp:fallback>
+   			        	     Your browser can't display this applet. Sorry.
+ 		                 </jsp:fallback>
+                    </jsp:plugin>
+
 
                  </ui:body>
             </ui:html>

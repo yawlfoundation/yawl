@@ -10,7 +10,7 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
-import com.sun.rave.web.ui.model.DefaultOptionsList;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
 import javax.faces.FacesException;
 
@@ -93,57 +93,11 @@ public class visualiser extends AbstractPageBean {
         this.form1 = f;
     }
 
-    private Listbox lbxUserList = new Listbox();
+    private Button btnReturn = new Button();
 
-    public Listbox getLbxUserList() {
-        return lbxUserList;
-    }
+    public Button getBtnReturn() { return btnReturn; }
 
-    public void setLbxUserList(Listbox l) {
-        this.lbxUserList = l;
-    }
-
-    private DefaultOptionsList lbxUserListDefaultOptions = new DefaultOptionsList();
-
-    public DefaultOptionsList getLbxUserListDefaultOptions() {
-        return lbxUserListDefaultOptions;
-    }
-
-    public void setLbxUserListDefaultOptions(DefaultOptionsList dol) {
-        this.lbxUserListDefaultOptions = dol;
-    }
-
-    private StaticText staticText1 = new StaticText();
-
-    public StaticText getStaticText1() {
-        return staticText1;
-    }
-
-    public void setStaticText1(StaticText st) {
-        this.staticText1 = st;
-    }
-
-    private Button btnOK = new Button();
-
-    public Button getBtnOK() {
-        return btnOK;
-    }
-
-    public void setBtnOK(Button b) {
-        this.btnOK = b;
-    }
-
-    private Button btnCancel = new Button();
-
-    public Button getBtnCancel() {
-        return btnCancel;
-    }
-
-    public void setBtnCancel(Button b) {
-        this.btnCancel = b;
-    }
-
-    // </editor-fold>
+    public void setBtnReturn(Button b) { btnReturn = b; }
 
 
     /**
@@ -231,7 +185,6 @@ public class visualiser extends AbstractPageBean {
      */
     public void prerender() {
         getSessionBean().checkLogon();
-        getSessionBean().setActivePage(ApplicationBean.PageRef.selectUser);
     }
 
     /**
@@ -245,25 +198,20 @@ public class visualiser extends AbstractPageBean {
     public void destroy() {
     }
 
+    public String btnReturn_action() {
+        System.out.println("return button clicked");
+        return "showDefaultQueues" ;
+    }
 
-    public String btnOK_action() {
-        if (lbxUserList.getSelected() != null)  {
-            String header = getSessionBean().getUserListFormHeaderText();
-            if (header.startsWith("Delegate"))
-                getSessionBean().setDelegating(true);
-            else if (header.startsWith("Reallocate workitem"))
-                getSessionBean().setReallocating(true);
-            return getSessionBean().getNavigateTo();
-        }
-        else {
-            // message  - select a user
-            return null ;
-        }
+    public String getUsername() {
+        Participant p = getSessionBean().getParticipant();
+        return (p != null) ? p.getUserID() : "";
+    }
+
+    public String getPassword() {
+        Participant p = getSessionBean().getParticipant();
+        return (p != null) ? p.getPassword() : ""; 
     }
 
 
-    public String btnCancel_action() {
-        getSessionBean().setAdminQueueAction(null) ;
-        return getSessionBean().getNavigateTo();
-    }
 }
