@@ -198,6 +198,7 @@
             <fileset dir="${enumeratedLibraries.dir}"
                      includes="com/toedter/** javax/** net/sf/saxon/** org/apache/**
                                org/dom4j/** org/jdom/** org/eclipse/** com/intellij/**
+                               log4j.properties
                                ${package.base.dir}/elements/**
                                ${package.base.dir}/engine/**
                                ${package.base.dir}/exceptions/**                              
