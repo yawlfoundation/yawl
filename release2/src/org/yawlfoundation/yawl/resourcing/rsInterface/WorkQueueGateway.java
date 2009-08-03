@@ -337,7 +337,10 @@ public class WorkQueueGateway extends HttpServlet {
 
     // returns true if the action can be performed without admin-level privileges
     private boolean authorisedCustomFormAction(String action, String handle) {
-        if ((action.equals("getWorkItem")) || (action.equals("updateWorkItemData"))) {
+        if ((action.equals("getWorkItem")) ||
+            (action.equals("getWorkItemParameters")) ||    
+            (action.equals("updateWorkItemData"))) {
+
             return _rm.isValidUserSession(handle);
         }
         else return false;
