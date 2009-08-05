@@ -102,7 +102,8 @@ public class YIdentifierBag {
 
 
     public void removeAll(YPersistenceManager pmgr) throws YPersistenceException {
-        for (YIdentifier identifier : _idToQtyMap.keySet()) {
+        Set<YIdentifier> identifiers = new HashSet<YIdentifier>(_idToQtyMap.keySet());
+        for (YIdentifier identifier : identifiers) {
             while (identifier.getLocations().contains(_condition)) {
                 identifier.clearLocation(pmgr, _condition);
             }
