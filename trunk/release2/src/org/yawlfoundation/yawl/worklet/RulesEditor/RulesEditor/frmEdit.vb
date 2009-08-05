@@ -687,19 +687,24 @@ Friend Class frmEdit
 
                 ' update the parent node to reflect its new child
                 parentNode = currentTree.getNode(newNode.Parent)  ' get node
-                If fAdd.isTrueBranch Then
-                    parentNode.TrueChild = newNode.id             ' add new node as child
+                If Not parentNode Is Nothing Then
+                    If fAdd.isTrueBranch Then
+                        parentNode.TrueChild = newNode.id             ' add new node as child
+                    Else
+                        parentNode.FalseChild = newNode.id
+                    End If
+
+                    rsMgr.updateTreeInRuleSet(currentTree, cbxRuleType.Text)  ' update the tree
+
+                    tvRules.Nodes.Clear()                                     ' reload tree in GUI
+                    tvMgr.LoadTreeIntoView(tvRules, currentTree, False)
+
+                    rsMgr.SaveRulesToFile()                            ' update the file  
+                    ReplaceWorklet(fAdd.workItem)                      ' ask user if worklet replace wanted
                 Else
-                    parentNode.FalseChild = newNode.id
+                    MessageBox.Show("Invalid data in execution log, or log does not match current rule file.", _
+                                    "Error Adding Rule", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 End If
-
-                rsMgr.updateTreeInRuleSet(currentTree, cbxRuleType.Text)  ' update the tree
-
-                tvRules.Nodes.Clear()                                     ' reload tree in GUI
-                tvMgr.LoadTreeIntoView(tvRules, currentTree, False)
-
-                rsMgr.SaveRulesToFile()                            ' update the file  
-                ReplaceWorklet(fAdd.workItem)                      ' ask user if worklet replace wanted
             End If
         End If
     End Sub
