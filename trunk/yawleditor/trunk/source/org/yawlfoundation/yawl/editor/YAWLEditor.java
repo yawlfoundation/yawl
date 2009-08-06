@@ -113,7 +113,8 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
   private static void setLookAndFeel() {
 
-    // move menu to screen top - only affects mac installs  
+    // move menu to screen top - only affects mac installs
+    System.setProperty("com.apple.mrj.application.apple.menu.about.name", "YAWL Editor");
     System.setProperty("apple.laf.useScreenMenuBar", "true");
   }
 

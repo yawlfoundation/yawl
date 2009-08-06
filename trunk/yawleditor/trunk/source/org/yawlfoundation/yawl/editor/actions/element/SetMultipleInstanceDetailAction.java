@@ -132,7 +132,6 @@ class InstanceDetailDialog extends AbstractTaskDoneDialog {
   
   private void resize() {
     pack();
- //     this.setPreferredSize(new Dimension(500,550));
     setSize(550,550);
     JUtilities.setMinSizeToCurrent(this);
   }

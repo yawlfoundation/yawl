@@ -42,7 +42,7 @@ public class ManageResourcingDialog extends AbstractWizardDialog {
   }
   
   protected void makeLastAdjustments() {
-    setSize(800,500);
+    setSize(810,500);
     JUtilities.setMinSizeToCurrent(this);
   }
   
