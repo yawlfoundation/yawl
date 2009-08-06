@@ -34,6 +34,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.prefs.Preferences;
 
 public class SetEngineDetailAction extends YAWLBaseAction {
@@ -87,8 +89,20 @@ class EngineDetailDialog extends AbstractDoneDialog {
     super("YAWL Engine Connection Settings", true);
     setContentPanel(getEngineDetailPanel());
 
+    final EngineDetailDialog dlg = this;
     getDoneButton().addActionListener(new ActionListener(){
+
        public void actionPerformed(ActionEvent e) {
+           if (! hasValidURIPath(engineURIField.getText())) {
+             JOptionPane.showMessageDialog(
+               dlg,
+               "The URI supplied must be absolute\nand have the path '/yawl/ia'.",
+               "Invalid URI",
+               JOptionPane.ERROR_MESSAGE
+             );
+             dlg.closeCancelled = true;
+             return;
+           }
 
          YAWLEngineProxy.getInstance().disconnect(); 
          
@@ -342,25 +356,34 @@ class EngineDetailDialog extends AbstractDoneDialog {
    
    testButton.addActionListener(new ActionListener(){
      public void actionPerformed(ActionEvent e) {
-         YAWLEngineProxyInterface oldImpl =
-                 YAWLEngineProxy.getInstance().getImplementation();
-         YAWLEngineProxy.getInstance().setImplementation(engineURIField.getText());
-       boolean connectionResult = YAWLEngineProxy.getInstance().testConnection(
-           engineURIField.getText(),
-           engineUserField.getText(),
-           new String(enginePasswordField.getPassword())
-       );
+         String uriStr = engineURIField.getText();
+         YAWLEngineProxyInterface oldImpl = YAWLEngineProxy.getInstance().getImplementation();
+
+         if (hasValidURIPath(uriStr)) {
+           YAWLEngineProxy.getInstance().setImplementation(uriStr);
+           boolean connectionResult = YAWLEngineProxy.getInstance().testConnection(
+               uriStr,
+               engineUserField.getText(),
+               new String(enginePasswordField.getPassword())
+           );
        
-       if (connectionResult == false) {
-         testMessage.setText("Failed to connect to a running engine with the specified details.");
-         testMessage.setForeground(Color.RED);
-       } else {
-         testMessage.setText("Successfully connected to a running YAWL engine.");
-         testMessage.setForeground(Color.BLACK);
-       }
-       testMessage.setVisible(true);
-       YAWLEngineProxy.getInstance().setImplementation(oldImpl);
-       detailDialog.pack();
+           if (! connectionResult) {
+             testMessage.setText("Failed to connect to a running engine with the specified details.");
+             testMessage.setForeground(Color.RED);
+           }
+           else {
+             testMessage.setText("Successfully connected to a running YAWL engine.");
+             testMessage.setForeground(Color.BLACK);
+           }
+         }
+         else {
+             testMessage.setText("Invalid URI: it must be absolute and have the path '/yawl/ia'.");
+             testMessage.setForeground(Color.RED);
+         }
+
+         testMessage.setVisible(true);
+         YAWLEngineProxy.getInstance().setImplementation(oldImpl);
+         detailDialog.pack();
      }
    });
    
@@ -407,5 +430,15 @@ class EngineDetailDialog extends AbstractDoneDialog {
     }
 
     return true;
+  }
+
+  private boolean hasValidURIPath(String uriStr) {
+      try {
+          URI uri = new URI(uriStr);
+          return uri.getPath().equals("/yawl/ia");
+      }
+      catch (URISyntaxException use) {
+          return false;
+      }
   }
 }

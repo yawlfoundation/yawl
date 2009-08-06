@@ -43,6 +43,8 @@ public abstract class AbstractDoneDialog extends JDialog {
   
   private int buttonSelected = CANCEL_BUTTON;
 
+  protected boolean closeCancelled = false;
+
   public AbstractDoneDialog(String title, 
                             boolean modality,
                             JPanel contentPanel, 
@@ -99,9 +101,10 @@ public abstract class AbstractDoneDialog extends JDialog {
    final JDialog dialog = this;
    button.addActionListener(new ActionListener(){
        public void actionPerformed(ActionEvent e) {
-         dialog.setVisible(false);
+         if (! closeCancelled) dialog.setVisible(false);
          SpecificationUndoManager.getInstance().setDirty(true);
          buttonSelected = DONE_BUTTON;
+         closeCancelled = false;            // reset for next time  
        }
      }
    );
