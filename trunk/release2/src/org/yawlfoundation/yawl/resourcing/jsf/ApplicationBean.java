@@ -278,6 +278,17 @@ public class ApplicationBean extends AbstractApplicationBean {
     }
 
 
+    private String _resourceServiceBaseURI = null;
+
+    public String getResServiceBaseURI() {
+        if (_resourceServiceBaseURI == null) {
+            String uri = _rm.getServiceURI();
+            _resourceServiceBaseURI = uri.replaceFirst("/resourceService/ib", "");
+        }
+        return _resourceServiceBaseURI;
+    }
+
+
 
     public int getActiveQueue(String tabName) {
         int result = WorkQueue.UNDEFINED;

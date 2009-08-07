@@ -81,6 +81,13 @@
     position:relative;
 }
 
+.visualiserContainerPanel {
+    height: 30px;
+    width: 110px;
+    top: 5px;
+    position:relative;
+}
+
 .viewProfilePanel {
     background-color: #d4e5f6;
     height: 396px;
@@ -107,6 +114,14 @@
     position: absolute;
     height: 30px;
     width: 85px;
+}
+
+.visualiserButton {
+    height: 30px;
+    font-size: 18px;
+    position: absolute;
+    width: 105px;
+    left: 0px;
 }
 
 .messagePanel {

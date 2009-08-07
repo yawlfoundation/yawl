@@ -165,6 +165,8 @@ public class dynForm extends AbstractPageBean {
 
     /****** Custom Methods ******************************************************/
 
+    private SessionBean _sb = getSessionBean();
+
     /**
      * Updates workitem parameters with values added by user
      * @return a reference to the referring page
@@ -186,7 +188,7 @@ public class dynForm extends AbstractPageBean {
         if (! getDynFormFactory().validateInputs())
             return null;
 
-        getSessionBean().setCompleteAfterEdit(true);
+        _sb.setCompleteAfterEdit(true);
         return saveForm();
     }
 
@@ -196,10 +198,12 @@ public class dynForm extends AbstractPageBean {
      * @return a reference to the referring page
      */
     public String btnCancel_action() {
-        if (getSessionBean().getDynFormType() == ApplicationBean.DynFormType.netlevel)
-           return "showCaseMgt";
-        else
-           return "showUserQueues";
+        String refPage = getReferringPage();
+        if (refPage.equals("showVisualiser")) {
+            _sb.setVisualiserReferred(false);
+            _sb.setVisualiserEditedWIR(null);
+        }
+        return refPage;
     }
 
 
@@ -208,18 +212,21 @@ public class dynForm extends AbstractPageBean {
      * @return the name of the page that called this dynform
      */
     private String saveForm() {
-        String referringPage ;
-        SessionBean sb = getSessionBean();
-
-        if (sb.getDynFormType() == ApplicationBean.DynFormType.netlevel) {
-            sb.setCaseLaunch(true);                        // temp flag for post action
-            referringPage = "showCaseMgt";
+        if (_sb.getDynFormType() == ApplicationBean.DynFormType.netlevel) {
+            _sb.setCaseLaunch(true);                        // temp flag for post action
         }
         else {
-            sb.setWirEdit(true) ;
-            referringPage = "showUserQueues";
+            _sb.setWirEdit(true) ;
         }
-        return referringPage ;
+        return getReferringPage() ;
+    }
+
+
+    private String getReferringPage() {
+        if (_sb.getDynFormType() == ApplicationBean.DynFormType.netlevel) {
+           return "showCaseMgt";
+        }
+        return (_sb.isVisualiserReferred()) ? "showVisualiser" : "showUserQueues";
     }
 
     /******************************************************************************/

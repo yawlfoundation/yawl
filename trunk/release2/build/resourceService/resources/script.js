@@ -64,3 +64,16 @@ function confirmDelete() {
     return okPressed;       
 }
 
+/*************************************************************************************/
+
+function setSelectedItemID(itemID) {
+    document.getElementById('form1:hdnSelectedItemID').value = itemID;
+    document.getElementById('form1:btnView').click() ;
+}
+
+function editVisualiserWorkItem(itemID) {
+    document.getElementById('form1:hdnSelectedItemID').value = itemID;
+    document.getElementById('form1:btnView').click() ;
+}
+
+
