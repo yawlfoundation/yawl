@@ -10,9 +10,19 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
+import org.jdom.Element;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.FacesException;
+import javax.faces.component.html.HtmlOutputText;
+import javax.faces.context.ExternalContext;
+import java.io.IOException;
+import java.util.Set;
 
 /*
  * visualser.java
@@ -22,76 +32,52 @@ import javax.faces.FacesException;
  */
 
 public class visualiser extends AbstractPageBean {
-    // <editor-fold defaultstate="collapsed" desc="Creator-managed Component Definition">
     private int __placeholder;
 
-    /**
-     * <p>Automatically managed component initialization.  <strong>WARNING:</strong>
-     * This method is automatically generated, so any user-specified code inserted
-     * here is subject to being replaced.</p>
-     */
-    private void _init() throws Exception {
-    }
+    private void _init() throws Exception { }
+
 
     private Page page1 = new Page();
 
-    public Page getPage1() {
-        return page1;
-    }
+    public Page getPage1() { return page1; }
 
-    public void setPage1(Page p) {
-        this.page1 = p;
-    }
+    public void setPage1(Page p) { page1 = p; }
+
 
     private Html html1 = new Html();
 
-    public Html getHtml1() {
-        return html1;
-    }
+    public Html getHtml1() { return html1; }
 
-    public void setHtml1(Html h) {
-        this.html1 = h;
-    }
+    public void setHtml1(Html h) { html1 = h; }
+
 
     private Head head1 = new Head();
 
-    public Head getHead1() {
-        return head1;
-    }
+    public Head getHead1() { return head1; }
 
-    public void setHead1(Head h) {
-        this.head1 = h;
-    }
+    public void setHead1(Head h) { head1 = h; }
+
 
     private Link link1 = new Link();
 
-    public Link getLink1() {
-        return link1;
-    }
+    public Link getLink1() { return link1; }
 
-    public void setLink1(Link l) {
-        this.link1 = l;
-    }
+    public void setLink1(Link l) { link1 = l; }
+
 
     private Body body1 = new Body();
 
-    public Body getBody1() {
-        return body1;
-    }
+    public Body getBody1() { return body1; }
 
-    public void setBody1(Body b) {
-        this.body1 = b;
-    }
+    public void setBody1(Body b) { body1 = b; }
+
 
     private Form form1 = new Form();
 
-    public Form getForm1() {
-        return form1;
-    }
+    public Form getForm1() { return form1; }
 
-    public void setForm1(Form f) {
-        this.form1 = f;
-    }
+    public void setForm1(Form f) { form1 = f; }
+
 
     private Button btnReturn = new Button();
 
@@ -100,57 +86,57 @@ public class visualiser extends AbstractPageBean {
     public void setBtnReturn(Button b) { btnReturn = b; }
 
 
-    /**
-     * <p>Construct a new Page bean instance.</p>
-     */
-    public visualiser() {
-    }
+    private Button btnView = new Button();
+
+    public Button getBtnView() { return btnView; }
+
+    public void setBtnView(Button b) { btnView = b; }
+
+
+    private PanelLayout pnlContainer ;
+
+    public PanelLayout getPnlContainer() { return pnlContainer; }
+
+    public void setPnlContainer(PanelLayout pnl) { pnlContainer = pnl; }
+
+
+    private HtmlOutputText outputText ;
+
+    public HtmlOutputText getOutputText() { return outputText; }
+
+    public void setOutputText(HtmlOutputText text) { outputText = text; }
+
+
+    private HiddenField hdnSelectedItemID = new HiddenField();
+
+    public HiddenField getHdnSelectedItemID() { return hdnSelectedItemID; }
+
+    public void setHdnSelectedItemID(HiddenField hf) { hdnSelectedItemID = hf; }
+
+
+    /****************************************************************************/
+
+    public visualiser() { }
 
     /**
-     * <p>Return a reference to the scoped data bean.</p>
+     * <p>Return a reference to each scoped bean.</p>
      */
     protected ApplicationBean getApplicationBean() {
         return (ApplicationBean)getBean("ApplicationBean");
     }
 
-
-    /**
-     * <p>Return a reference to the scoped data bean.</p>
-     */
     protected RequestBean getRequestBean() {
         return (RequestBean)getBean("RequestBean");
     }
 
-
-    /**
-     * <p>Return a reference to the scoped data bean.</p>
-     */
     protected SessionBean getSessionBean() {
         return (SessionBean)getBean("SessionBean");
     }
 
 
-    /**
-     * <p>Callback method that is called whenever a page is navigated to,
-     * either directly via a URL, or indirectly via page navigation.
-     * Customize this method to acquire resources that will be needed
-     * for event handlers and lifecycle methods, whether or not this
-     * page is performing post back processing.</p>
-     *
-     * <p>Note that, if the current request is a postback, the property
-     * values of the components do <strong>not</strong> represent any
-     * values submitted with this request.  Instead, they represent the
-     * property values that were saved for this view when it was rendered.</p>
-     */
     public void init() {
-        // Perform initializations inherited from our superclass
         super.init();
-        // Perform application initialization that must complete
-        // *before* managed components are initialized
-        // TODO - add your own initialiation code here
 
-        // <editor-fold defaultstate="collapsed" desc="Creator-managed Component Initialization">
-        // Initialize automatically managed components
         // *Note* - this logic should NOT be modified
         try {
             _init();
@@ -158,60 +144,163 @@ public class visualiser extends AbstractPageBean {
             log("selectUser Initialization Failure", e);
             throw e instanceof FacesException ? (FacesException) e: new FacesException(e);
         }
-        // </editor-fold>
-        // Perform application initialization that must complete
-        // *after* managed components are initialized
-        // TODO - add your own initialization code here
-
     }
 
-    /**
-     * <p>Callback method that is called after the component tree has been
-     * restored, but before any event processing takes place.  This method
-     * will <strong>only</strong> be called on a postback request that
-     * is processing a form submit.  Customize this method to allocate
-     * resources that will be required in your event handlers.</p>
-     */
-    public void preprocess() {
-    }
+    public void preprocess() { }
 
-    /**
-     * <p>Callback method that is called just before rendering takes place.
-     * This method will <strong>only</strong> be called for the page that
-     * will actually be rendered (and not, for example, on a page that
-     * handled a postback and then navigated to a different page).  Customize
-     * this method to allocate resources that will be required for rendering
-     * this page.</p>
-     */
     public void prerender() {
-        getSessionBean().checkLogon();
+        _sb.checkLogon();                                  // check session still live
+        msgPanel.show(20, 0, "relative");                  // show msgs (if any)
+        if (_sb.isWirEdit()) postEditWIR() ;
     }
 
-    /**
-     * <p>Callback method that is called after rendering is completed for
-     * this request, if <code>init()</code> was called (regardless of whether
-     * or not this was the page that was actually rendered).  Customize this
-     * method to release resources acquired in the <code>init()</code>,
-     * <code>preprocess()</code>, or <code>prerender()</code> methods (or
-     * acquired during execution of an event handler).</p>
-     */
-    public void destroy() {
-    }
+    public void destroy() { }
+
+    /*********************************************************************/
+
+    private SessionBean _sb = getSessionBean();
+    private MessagePanel msgPanel = _sb.getMessagePanel() ;
+    private ResourceManager _rm = getApplicationBean().getResourceManager();
+
 
     public String btnReturn_action() {
-        System.out.println("return button clicked");
         return "showDefaultQueues" ;
     }
 
+
+    public String btnView_action() {
+        String itemID = (String) hdnSelectedItemID.getValue();
+        if (itemID == null) {
+            msgPanel.error("No work item selected. Please select a work item to view.");
+            return null;
+        }
+        
+        WorkItemRecord selectedWIR = getSelectedWIR(itemID);
+
+        // maybe the wir isn't started or was part of a cancellation set and now it's gone
+        if (selectedWIR == null) {
+            msgPanel.error("Cannot view item contents - it appears that the " +
+                           "selected item may have been removed or cancelled. " +
+                           "Please see the log files for details.");
+            return null;
+        }
+
+        _sb.setDynFormType(ApplicationBean.DynFormType.tasklevel);
+        DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");
+        df.setHeaderText("Edit Work Item: " + selectedWIR.getCaseID());
+        df.setDisplayedWIR(selectedWIR);
+        if (df.initDynForm("YAWL 2.0 - Edit Work Item")) {
+            _sb.setVisualiserReferred(true);
+            _sb.setVisualiserEditedWIR(selectedWIR);
+            return "showDynForm" ;
+        }
+        else {
+            msgPanel.error("Cannot view item contents - problem initialising " +
+                           "dynamic form from task specification. " +
+                           "Please see the log files for details.");
+            return null;
+        }
+    }
+
+
+        /** updates a workitem after editing on a dynamic form */
+    private void postEditWIR() {
+        if (_sb.isWirEdit()) {
+            WorkItemRecord wir = _sb.getVisualiserEditedWIR();
+            if (wir != null) {
+                Element data = JDOMUtil.stringToElement(
+                        ((DynFormFactory) getBean("DynFormFactory")).getDataList());
+                wir.setUpdatedData(data);
+                _rm.getWorkItemCache().update(wir) ;
+
+                if (_sb.isCompleteAfterEdit()) {
+                    completeWorkItem(wir, _sb.getParticipant());
+                }
+            }
+            else {
+                msgPanel.error("Could not complete workitem. Check log for details.");
+            }
+        }
+        _sb.setWirEdit(false);
+        _sb.setCompleteAfterEdit(false);
+        _sb.setVisualiserReferred(false);
+        _sb.setVisualiserEditedWIR(null);
+        if (msgPanel.hasMessage()) forceRefresh();
+    }
+
+
+    private void completeWorkItem(WorkItemRecord wir, Participant p) {
+        String result = _rm.checkinItem(p, wir, _sb.getSessionhandle());
+        if (_rm.successful(result))
+            _sb.removeWarnedForNonEdit(wir.getID());
+        else
+            msgPanel.error(msgPanel.format(result)) ;
+    }
+
+
+    
     public String getUsername() {
-        Participant p = getSessionBean().getParticipant();
+        Participant p = _sb.getParticipant();
         return (p != null) ? p.getUserID() : "";
     }
 
+
     public String getPassword() {
-        Participant p = getSessionBean().getParticipant();
+        Participant p = _sb.getParticipant();
         return (p != null) ? p.getPassword() : ""; 
     }
 
+    
+    /** refreshes the page */
+    public void forceRefresh() {
+        ExternalContext externalContext = getFacesContext().getExternalContext();
+        if (externalContext != null) {
+            try {
+                externalContext.redirect("visualiser.jsp");
+            }
+            catch (IOException ioe) {
+                // ok - do nothing
+            }
+        }
+    }
+
+    // it was necessary to do it this way rather than using 'jsp:plugin' in the
+    // jsf because the 'codebase' parameter does not support dynamic value setting
+    public String getAppletHtml() {
+        String baseURI = getApplicationBean().getResServiceBaseURI();
+        Participant p = _sb.getParticipant();
+        StringBuilder result = new StringBuilder("<applet width=\"800\" height=\"600\"");
+        result.append(" archive=\"visualiser.jar,javax.servlet.jar,jdom.jar,")
+              .append(" resourceService.jar,saxon9.jar,log4j-1.2.14.jar\"")
+              .append(" codebase=\"")
+              .append(baseURI)
+              .append("/visualiserApplet\"")
+              .append(" code=\"worklist.WRKLApplet.class\" MAYSCRIPT>")
+              .append(" <param name=\"user\" value=\"")
+              .append(p.getUserID())
+              .append("\"/>")
+              .append(" <param name=\"pass\" value=\"")
+              .append(p.getPassword())
+              .append("\"/>")
+              .append(" <param name=\"urYAWL\" value=\"")
+              .append(baseURI)
+              .append("\"/>")
+              .append("</applet>");
+
+        return result.toString();
+    }
+
+
+    private WorkItemRecord getSelectedWIR(String itemID) {
+        Set<WorkItemRecord> wirSet = _sb.getQueue(WorkQueue.STARTED);
+        WorkItemRecord selectedWIR = null;
+        for (WorkItemRecord wir : wirSet) {
+            if (wir.getID().equals(itemID)) {
+                selectedWIR = wir ;
+                break ;
+            }
+        }
+        return selectedWIR;
+    }
 
 }

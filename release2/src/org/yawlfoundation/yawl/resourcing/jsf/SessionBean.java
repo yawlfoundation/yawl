@@ -1532,6 +1532,26 @@ public class SessionBean extends AbstractSessionBean {
     public void setOrgDataUploadPanelVisible(boolean visible) {
         orgDataUploadPanelVisible = visible;
     }
+
+    private boolean visualiserReferred = false;
+
+    public boolean isVisualiserReferred() {
+        return visualiserReferred;
+    }
+
+    public void setVisualiserReferred(boolean referred) {
+        visualiserReferred = referred;
+    }
+
+    private WorkItemRecord visualiserEditedWIR = null;
+
+    public WorkItemRecord getVisualiserEditedWIR() {
+        return visualiserEditedWIR;
+    }
+
+    public void setVisualiserEditedWIR(WorkItemRecord wir) {
+        visualiserEditedWIR = wir;
+    }
 }
 
 

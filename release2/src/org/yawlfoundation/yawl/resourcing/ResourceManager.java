@@ -220,6 +220,11 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
     }
 
+    public String getServiceURI() {
+        if (_serviceURI == null) setServiceURI();
+        return _serviceURI;
+    }
+
 
     public void finaliseInitialisation() {
         EventLogger.setLogging(

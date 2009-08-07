@@ -158,8 +158,9 @@
         <param-value>false</param-value>
         <description>
             When set to true, a button to show workitems via the Visualizer applet
-            will display on user work queues (assumes the visualizer is available).
-            The default setting is false. NOTE: the visualizer is not yet supported.
+            will display on user work queues (assumes the visualizer applet is available).
+            The default setting is false.
+            NOTE: the visualizer is not yet supported.
         </description>
     </context-param>
 
