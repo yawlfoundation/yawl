@@ -61,7 +61,7 @@ public class WorkQueueGatewayClientAdapter {
     }
 
 
-    private String successCheck(String xml) throws ResourceGatewayException {
+    protected String successCheck(String xml) throws ResourceGatewayException {
         if (successful(xml)) {
             return xml;
         }

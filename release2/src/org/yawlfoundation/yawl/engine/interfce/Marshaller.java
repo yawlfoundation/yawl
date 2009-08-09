@@ -242,7 +242,11 @@ public class Marshaller {
             Element data = workItemElement.getChild("data");
             if ((null != data) && (data.getContentSize() > 0))
                    wir.setDataList((Element) data.getContent(0));
-            
+
+            Element updateddata = workItemElement.getChild("updateddata");
+            if ((null != updateddata) && (updateddata.getContentSize() > 0))
+                   wir.setUpdatedData((Element) updateddata.getContent(0));
+                        
             return wir;
         }
         throw new IllegalArgumentException("Input element could not be parsed.");

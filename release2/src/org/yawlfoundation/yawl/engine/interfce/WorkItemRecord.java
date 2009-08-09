@@ -413,6 +413,9 @@ public class WorkItemRecord implements Cloneable {
            .append("<data>")
            .append(_dataList != null? JDOMUtil.elementToStringDump(_dataList) : "")
            .append("</data>")
+           .append("<updateddata>")
+           .append(_dataListUpdated != null? JDOMUtil.elementToStringDump(_dataListUpdated) : "")
+           .append("</updateddata>")
            .append("</workItemRecord>");
         return xml.toString() ;
     }

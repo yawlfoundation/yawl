@@ -87,14 +87,18 @@ public class ResourceMarshaller {
         // each child is one WorkItemRecord (as xml)
         List eList = getChildren(xml);
         if (eList != null) {
-            Iterator itr = eList.iterator();
-            while (itr.hasNext()) {
-                Element e = (Element) itr.next();
+            for (Object o : eList) {
+                Element e = (Element) o;
                 result.add(Marshaller.unmarshalWorkItem(e));
             }
         }
         if (result.isEmpty()) return null;
         return result ;
+    }
+
+
+    public WorkItemRecord unmarshallWorkItemRecord(String xml) throws IOException {
+        return Marshaller.unmarshalWorkItem(xml);
     }
 
 
