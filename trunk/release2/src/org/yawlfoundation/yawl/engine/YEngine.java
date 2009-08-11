@@ -1631,7 +1631,10 @@ public class YEngine implements InterfaceADesign,
             YWorkItem workItem = _workItemRepository.getWorkItem(workItemID);
             if ((workItem != null) && (workItem.hasLiveStatus()))
                     workItem.setStatusToSuspended(pmgr);
-            if (pmgr != null) pmgr.closeSession();
+            if (pmgr != null) {
+                pmgr.commit();
+                pmgr.closeSession();
+            }
             return workItem ;
         }
     }
@@ -1643,7 +1646,10 @@ public class YEngine implements InterfaceADesign,
             if ((workItem != null) &&
                 (workItem.getStatus().equals(YWorkItemStatus.statusSuspended)))
                  workItem.setStatusToUnsuspended(pmgr);
-            if (pmgr != null) pmgr.closeSession();
+            if (pmgr != null) {
+                pmgr.commit();
+                pmgr.closeSession();
+            }
             return workItem ;
         }
     }

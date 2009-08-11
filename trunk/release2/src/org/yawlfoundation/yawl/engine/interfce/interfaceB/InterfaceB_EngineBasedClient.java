@@ -369,10 +369,10 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                 }
             } catch (IOException e) {
 
-                // ignore initialisation announcement and case cancelled execeptions
-                // for missing services 
+                // ignore broadcast announcements for missing services
                 if (! (ANNOUNCE_INIT_ENGINE.equals(_command) ||
-                       ANNOUNCE_CASE_CANCELLED.equals(_command))) {
+                       ANNOUNCE_CASE_CANCELLED.equals(_command) ||
+                       ANNOUNCE_ITEM_STATUS.equals(_command))) {
                     logger.error("failed to call YAWL service", e);
                     e.printStackTrace();
                 }
