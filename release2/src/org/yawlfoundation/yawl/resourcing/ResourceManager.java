@@ -1743,6 +1743,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                     _interfaceBClient.suspendWorkItem(wir.getID(), _engineSessionHandle))) {
                     wir.setResourceStatus(WorkItemRecord.statusResourceSuspended);
                     p.getWorkQueues().movetoSuspend(wir);
+                    _workItemCache.update(wir);
                     success = true ;
                 }
             }
@@ -1763,6 +1764,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                 _interfaceBClient.unsuspendWorkItem(wir.getID(), _engineSessionHandle))) {
                 wir.setResourceStatus(WorkItemRecord.statusResourceStarted);
                 p.getWorkQueues().movetoUnsuspend(wir);
+                _workItemCache.update(wir);
                 success = true ;
             }
         }
