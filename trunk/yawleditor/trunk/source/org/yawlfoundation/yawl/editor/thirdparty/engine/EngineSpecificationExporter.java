@@ -392,10 +392,11 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
       String initialValue = editorNetVariable.getInitialValue();
       String dataType = editorNetVariable.getDataType();
-      if (dataType.equals("string")) {
-          initialValue = XMLUtilities.quoteSpecialCharacters(initialValue);
-      }
-      else if (dataType.equals(DataVariable.YAWL_SCHEMA_TIMER_TYPE)) {
+//      if (dataType.equals("string")) {
+//          initialValue = XMLUtilities.quoteSpecialCharacters(initialValue);
+//      }
+//      else
+      if (dataType.equals(DataVariable.YAWL_SCHEMA_TIMER_TYPE)) {
         SpecificationParametersIncludeYTimerType = true ;
       }
       else if (dataType.equals(DataVariable.YAWL_SCHEMA_STRINGLIST_TYPE)) {
