@@ -49,6 +49,7 @@ import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.unmarshal.YMetaData;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
@@ -254,12 +255,17 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
       DataVariableSet varSet = editorNet.getNetModel().getDecomposition().getVariables();
 
       if (! localVarForOutputOnlyVar(varSet, engineVariable)) {
+        String dataType = engineVariable.getDataTypeName();
+        String initialValue = engineVariable.getInitialValue();
+        if (dataType.equals("string")) {
+            initialValue =  JDOMUtil.decodeEscapes(initialValue);
+        }
         createEditorVariable(
           editorNet.getNetModel().getDecomposition(),
           DataVariable.USAGE_LOCAL, 
-          engineVariable.getDataTypeName(),
+          dataType,
           engineVariable.getName(),
-          engineVariable.getInitialValue(),
+          initialValue,
           engineVariable.getDefaultValue(),
           new Hashtable()  // LWB: engine local variables do not have extended attributes, apparently.
         );
