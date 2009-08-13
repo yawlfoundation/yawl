@@ -135,7 +135,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
                          String sessionHandle) throws IOException, JDOMException {
         List<WorkItemRecord> wirList = getLiveWorkItemsForIdentifier(idType, id,
                                                                      sessionHandle) ;
-        if (! wirList.isEmpty()) {
+        if (wirList != null) {
             StringBuilder xml = new StringBuilder("<itemrecords>");
             for (WorkItemRecord wir : wirList) {
                 xml.append(wir.toXML());
