@@ -1466,6 +1466,13 @@ public abstract class YTask extends YExternalNetElement {
             }
             result.append("</params>");
 
+            if (_customFormURL != null) {
+                result.append(StringUtil.wrap(_customFormURL.toExternalForm(), "customform"));
+            }
+            else {
+                result.append("<customform/>");
+            }
+
             result.append("</taskInfo>");
             return result.toString();
         } catch (ClassCastException e) {
