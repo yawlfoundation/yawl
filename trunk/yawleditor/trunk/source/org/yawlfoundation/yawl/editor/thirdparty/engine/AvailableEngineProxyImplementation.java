@@ -255,20 +255,22 @@ class XQueryStyledDocument extends AbstractXMLStyledDocument{
   }
     
   public void checkValidity() {
-    if (getEditor().getText().equals("")) {
-      setContentValid(AbstractXMLStyledDocument.Validity.INVALID);
-      return;
-    }
+    if (isValidating()) {
+      if (getEditor().getText().equals("")) {
+        setContentValid(AbstractXMLStyledDocument.Validity.INVALID);
+        return;
+      }
     
-    try {
-      SaxonUtil.compileXQuery(preEditorText + getEditor().getText() + postEditorText);
-      setContentValid(AbstractXMLStyledDocument.Validity.VALID);
-      parseError = null;
-    }
-    catch (SaxonApiException e) {
-      parseError = e.getMessage().split("\n")[1].trim();
-      setContentValid(AbstractXMLStyledDocument.Validity.INVALID);
-    } 
+      try {
+        SaxonUtil.compileXQuery(preEditorText + getEditor().getText() + postEditorText);
+        setContentValid(AbstractXMLStyledDocument.Validity.VALID);
+        parseError = null;
+      }
+      catch (SaxonApiException e) {
+        parseError = e.getMessage().split("\n")[1].trim();
+        setContentValid(AbstractXMLStyledDocument.Validity.INVALID);
+      }
+    }    
   }
   
   public List getProblemList() {

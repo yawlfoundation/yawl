@@ -22,11 +22,13 @@
  
 package org.yawlfoundation.yawl.editor.reductionrules;
 
-import org.yawlfoundation.yawl.elements.*;
+import org.yawlfoundation.yawl.elements.YCondition;
+import org.yawlfoundation.yawl.elements.YExternalNetElement;
+import org.yawlfoundation.yawl.elements.YNet;
+import org.yawlfoundation.yawl.elements.YTask;
 
-import java.util.Map;
-import java.util.Set;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Reduction rule for YAWL net: ELPY
@@ -48,12 +50,16 @@ public class ELPYrule extends YAWLReductionRule{
                Set preSet = condition.getPresetElements();
                Set postSet = condition.getPostsetElements();
                // x has only one input and output - t
+
                // t cannot reset and t is not part of cancellation region
                if (preSet.equals(postSet) && preSet.size() == 1 )   
                   {  
                    YTask task = (YTask) preSet.toArray()[0];
                    //t does not reset
-                   if (task.getRemoveSet().isEmpty())
+                   // split and join type of t is XOR
+                   if (task.getRemoveSet().isEmpty() &&
+                	   task.getJoinType()==YTask._XOR &&
+                	   task.getSplitType() == YTask._XOR)
                    {
                    //Get all pre and post conditions of t
                    Set prepostConditions = task.getPresetElements();

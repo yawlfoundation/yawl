@@ -58,7 +58,6 @@ public final class ResetWFNet {
     private RPlace outputPlace;
     private String _ID;
     
-    
     //to keep track of endMarkings - reachability graph
     private RSetOfMarkings endMarkings = new RSetOfMarkings();
 
@@ -69,14 +68,13 @@ public final class ResetWFNet {
     }
 
     
-    int maxNumMarkings = 10000;
+    int maxNumMarkings = 5000;
      /**
      * Constructor for Reset net.
      *
      */
     public ResetWFNet(YNet yNet) {
     	
-//	_yNet = yNet;
 	_ID = yNet.getID();
     ConvertToResetNet(yNet.getNetElements());
 
@@ -96,7 +94,6 @@ public final class ResetWFNet {
     _Conditions = new HashSet(rNet._Conditions); 
     _Tasks = new HashSet(rNet._Tasks);
     
-        	
     }
     public String getID(){
     	
@@ -104,7 +101,6 @@ public final class ResetWFNet {
     }
     
     public Map getNetElements(){
-    	
     	Map allElements = new HashMap();
     	allElements.putAll(new HashMap(_Transitions));
     	allElements.putAll(new HashMap(_Places));
@@ -208,6 +204,7 @@ public final class ResetWFNet {
             	
             	//added for mappings
             	p.addToYawlMappings(nextElement);
+            	p.addToYawlMappings(YAWLReachabilityUtils.convertToYawlMappings(nextElement));
             	p.addToResetMappings(p);
             	
             	_Places.put(p.getID(),p);
@@ -226,6 +223,7 @@ public final class ResetWFNet {
                 
                 //added for mappings
             	p.addToYawlMappings(nextElement);
+            	p.addToYawlMappings(YAWLReachabilityUtils.convertToYawlMappings(nextElement));
             	p.addToResetMappings(p);
             	
             	_Places.put(p.getID(),p);
@@ -248,6 +246,7 @@ public final class ResetWFNet {
             
             	//added for mappings
             	t.addToYawlMappings(nextElement);
+            	t.addToYawlMappings(YAWLReachabilityUtils.convertToYawlMappings(nextElement));
             	t.addToResetMappings(t);
             	
             	 _StartTransitions.put(t.getID(),t);
@@ -278,6 +277,7 @@ public final class ResetWFNet {
                 
                 //added for mappings
             	t.addToYawlMappings(nextElement);
+            	t.addToYawlMappings(YAWLReachabilityUtils.convertToYawlMappings(nextElement));
             	t.addToResetMappings(t);
             	
             	_StartTransitions.put(t.getID(),t);
@@ -308,6 +308,7 @@ public final class ResetWFNet {
             	
             	//added for mappings
             	t.addToYawlMappings(nextElement);
+            	t.addToYawlMappings(YAWLReachabilityUtils.convertToYawlMappings(nextElement));
             	t.addToResetMappings(t);
             	
             	_StartTransitions.put(t.getID(),t);
@@ -332,6 +333,7 @@ public final class ResetWFNet {
             	
             	//added for mappings
             	t.addToYawlMappings(nextElement);
+            	t.addToYawlMappings(YAWLReachabilityUtils.convertToYawlMappings(nextElement));
             	t.addToResetMappings(t);
             	
             	_EndTransitions.put(t.getID(),t);
@@ -371,6 +373,7 @@ public final class ResetWFNet {
 	            	
 	            		//added for mappings
             	t.addToYawlMappings(nextElement);
+            	t.addToYawlMappings(YAWLReachabilityUtils.convertToYawlMappings(nextElement));
             	t.addToResetMappings(t);
             	
 	            _EndTransitions.put(t.getID(),t);
@@ -414,6 +417,7 @@ public final class ResetWFNet {
 	            	 RTransition t = new RTransition(nextElement.getID()+"_end^{"+t_id+"}");
 		             	//added for mappings
             	     t.addToYawlMappings(nextElement);
+            	     t.addToYawlMappings(YAWLReachabilityUtils.convertToYawlMappings(nextElement));
             	     t.addToResetMappings(t);
             	     
 		             _EndTransitions.put(t.getID(),t);
@@ -622,32 +626,13 @@ public final class ResetWFNet {
    RMarking Mi = new RMarking(iMap);
    RMarking Mp; 
    String msg= "";
- //  boolean fireableTask = false;
-  // old code using link to yawl   
-  /* for (Iterator i = _Tasks.iterator(); i.hasNext();)
-     { YExternalNetElement c = (YExternalNetElement) i.next();
-	     RPlace p = (RPlace) _Places.get("p_"+c.getID());
-	     if (p != null)
-	     {   pMap.put(p.getID(),tokenCount);
-	         Mp = new RMarking(pMap);
-	         fireableTask = Coverable(Mi,Mp);
-	         pMap.remove(p.getID());      
-	     }// Todo: slight change needed here regarding deadtasks
-	     if (!fireableTask)
-	     {
-	       msg += c.getID() + " "; 
-	     }
-	   
-	  }
-   */
+   HashSet DeadTasks = new HashSet();
    //use mappings but how to you know when a task is dead?
   boolean fireableTask = true;
   for (Iterator i = _Tasks.iterator(); i.hasNext();)
      { YExternalNetElement t = (YExternalNetElement) i.next();
          String placeName = "p_"+ t.getID();
          RElement e = findResetMapping(placeName);
-       //  System.out.println("task:"+ t.getID());
-      //   RPlace p = (RPlace) findResetMapping(placeName);
 	     if (e != null && e instanceof RPlace)
 	     {   RPlace p = (RPlace) e;
 	         pMap.put(p.getID(),tokenCount);
@@ -655,40 +640,26 @@ public final class ResetWFNet {
 	         fireableTask = Coverable(Mi,Mp);
 	         pMap.remove(p.getID());      
 	     }    
-	     if (!fireableTask)
+         else if (e != null && e instanceof RTransition)
+         {  Set preSet = e.getPresetElements();
+            for (Iterator iterator = preSet.iterator(); iterator.hasNext();)
 	     {
-	        msg += t.getID() + " ";
+             RPlace prePlace = (RPlace) iterator.next();
+             pMap.put(prePlace.getID(),tokenCount);
 	     }
-	  }
-   
-   //test done on reset and maps back to yawl for messages only
-   /*
-   RTransition t;
-   Set preset = new HashSet();
-    for (Iterator i = _Transitions.values().iterator(); i.hasNext();)
-     { 	t = (RTransition) i.next();
-       	preset = t.getPresetElements();
+            Mp = new RMarking(pMap);
+   	   	    fireableTask = Coverable(Mi,Mp);
        	pMap.clear();
-        for (Iterator prei = preset.iterator(); prei.hasNext();)
-        {    RPlace p = (RPlace) prei.next();
-        	 pMap.put(p.getID(),tokenCount);
         }
-        
-	    Mp = new RMarking(pMap);
-	 //   System.out.println("check t "+ t.getID() + printMarking(Mp));
-	    fireableTask = Coverable(Mi,Mp);
-	       
-	    if (!fireableTask)
-	    {  msg += convertToYawlMappings(t); 
-	      	     
+         if (!fireableTask){
+   	   		DeadTasks.addAll(convertToYawlMappingsForTasks(e));
+
 	    }
    }
-   
-   */
-   
-  
-   
-   
+   if (DeadTasks.size() > 0)
+   {
+	   msg = DeadTasks.toString();
+   }
    return msg;
    }
    
@@ -700,38 +671,7 @@ public final class ResetWFNet {
    
 
 
-  /*
-   private void convertORjoinToANDjoin()
-   { 
-     
-   	 for (Iterator i=_YOJ.values().iterator(); i.hasNext();)
-   	 {  YTask nextElement = (YTask) i.next();
-   	    RTransition t = new RTransition(nextElement.getID()+"_start");
-       	 _OJtoAND.put(t.getID(),t);
-       	 
-    	Set pre = nextElement.getPresetElements();
-    	Iterator preEls = pre.iterator();
-    	while (preEls.hasNext()) {
-    		
-    	YExternalNetElement preElement = (YExternalNetElement) preEls.next();
-    	RFlow inflow = new RFlow((RPlace)_Places.get(preElement.getID()),t);
-        t.setPreset(inflow);
-       
-        RFlow outflow = new RFlow(t,(RPlace)_Places.get("p_"+nextElement.getID()));
-        t.setPostset(outflow); 
-          
 
-        } 
-      
-     } 
-   //  System.out.println("OR_join converted to AND"+ _OJtoAND.size()); 
-     _Transitions.keySet().removeAll(_OJtoXOR.keySet());
-     _Transitions.putAll(_OJtoAND);
-   	 
-   	
-   }
-   */
-   
     /**
     *  To check if it is possible to have a token in the net, while there is 
     *  a token in the output condition. (Note: this alone cannot determine
@@ -826,7 +766,7 @@ public final class ResetWFNet {
 	        	isNotProper = Coverable(Mi,Mp);
 	        	if (isNotProper)
 		     	 { 
-		     		 msg += convertToYawlMappings(p); 
+		     		 msg += convertToYawlMappings(p).toString();
 			     }  		 
 				 pMap.remove(p.getID());  
 	         }		
@@ -986,6 +926,7 @@ public final class ResetWFNet {
    /**
     * This method uses reachable markings to check soundness property.
     * Only applicable to YAWL nets without OR-joins
+    *
     */
    public String checkSoundness() throws Exception
    {    
@@ -1009,97 +950,103 @@ public final class ResetWFNet {
 	   	
 	   	RSetOfMarkings RS = getReachableMarkings(Mi);
 	   	
-	   	String omsg;
+	   	String omsg = "";
         //To check whether exact marking Mo=o is reachable.
-   	   	if (RS.contains(Mo))
-   	   	{ omsg = "The net "+_ID+" has an option to complete. The final marking is reachable from the initial marking.";
+   	   	if (endMarkings.contains(Mo) && endMarkings.size() == 1)
+   	   	{ omsg = "The net "+_ID+" has an option to complete.";
 	    }
    	    else
-   	    { omsg = "The net "+_ID+" does not have an option to complete. The final marking is not reachable from the initial marking.";
+   	    {
    	      optionToComplete = false;
+	    	 if (!endMarkings.contains(Mo))
+	    	    {
+	    		 omsg = " The final marking Mo is not reachable.";
    	    }
-   	 
+	    	 String deadlockmsg = "";
+		     for (Iterator i = endMarkings.getMarkings().iterator(); i.hasNext();)
+		       { RMarking currentM = (RMarking) i.next();
+		       	if (!currentM.isBiggerThanOrEqual(Mo))
+		     	    { deadlockmsg += printMarking(currentM) + " ";
+		     	    }
+		     	  }
+
+		        omsg = "The net "+_ID +" does not have an option to complete." + omsg;
+		    	  if (deadlockmsg != "")
+		    	  {
+		    		  omsg = omsg + " Potential deadlocks: " + deadlockmsg;
+		    	  }
+   	   }
    	  msg += formatXMLMessage(omsg,optionToComplete);
-   	  
-   	  //Check the end markings for other end markings. 
+   	  //Note: Error messages could contain reset markings and not yawl markings
+
    	  String pmsg = "";
    	  String deadlockmsg = "";
-   	  for (Iterator i = endMarkings.getMarkings().iterator(); i.hasNext();)
+   	  for (Iterator i = RS.getMarkings().iterator(); i.hasNext();)
 	     {
 	       RMarking currentM = (RMarking) i.next();	
 	       if (currentM.isBiggerThan(Mo))
-	       { pmsg +="The net "+_ID+" does not have proper completion. A marking "+ printMarking(currentM)+" larger than the final marking is reachable.";
+	       { pmsg += printMarking(currentM)+ " ";
 	         properCompletion = false;
 	       }
-	       else if (!currentM.equals(Mo))
-	       { deadlockmsg += printMarking(currentM) + " ";
-	         optionToComplete = false;
 	       }
-	     }
-	  
-	   if (!deadlockmsg.equals(""))
-	   {
-	   	 pmsg += "The net "+_ID+" can deadlock at marking(s):"+ deadlockmsg;
-	   	 properCompletion = false;
-	   }
+
 	   if (pmsg.equals(""))
 	   {
 	   	pmsg = "The net "+_ID+" has proper completion.";
 	   }
+	   else
+	   
+    {   pmsg = "The net "+_ID+" does not have proper completion. Markings larger than Mo can be found: " +pmsg;
+
+	   }
 	   msg += formatXMLMessage(pmsg,properCompletion);
-	   
-	   
-	   
+
 	   //To check if there are dead tasks
-	 
+	   //Changes made to make this work with reduction rules
 	    String dmsg = "";
 	    Map cMap = new HashMap();
+	  HashSet DeadTasks = new HashSet();
       for (Iterator i = _Tasks.iterator(); i.hasNext();)
 	     { 
 	       YTask t = (YTask) i.next();
 	       String internalPlace = "p_"+ t.getID();
-           RPlace pt = (RPlace) findResetMapping(internalPlace);
-           
-           if (pt != null)
-           {
-	           cMap.put(pt.getID(),tokenCount);
+
+	       RElement e = findResetMapping(internalPlace);
+           if (e != null && e instanceof RPlace)
+           {   cMap.put(e.getID(),tokenCount);
 		       RMarking currentM = new RMarking(cMap); 	
 		   	   if (!RS.containsBiggerEqual(currentM))
 		   	   {
-		   	   	dmsg += t.getID()+" ";
+		   	   	DeadTasks.addAll(convertToYawlMappingsForTasks(e));
 		   	   	noDeadTasks = false;
 		   	   }
-		       cMap.remove(pt.getID());
+		       cMap.remove(e.getID());
 		   }       
-	     } 
-
-/* all transitions
-        Map pMap = new HashMap();
-   		RMarking Mp;
-   		RTransition t;
-   		Set preset = new HashSet();
-   		for (Iterator i = _Transitions.values().iterator(); i.hasNext();)
-     	{ 	t = (RTransition) i.next();
-       		preset = t.getPresetElements();
-       		pMap.clear();
-	        for (Iterator prei = preset.iterator(); prei.hasNext();)
-	        {    RPlace p = (RPlace) prei.next();
-	        	 pMap.put(p.getID(),tokenCount);
-	        }
-          	Mp = new RMarking(pMap);
-	   		if (!RS.containsBiggerEqual(Mp))
-	   	   { //System.out.println("t "+ t.getID()+ printMarking(Mp));
-	   	   	   	dmsg += convertToYawlMappings(t);
+           //For reduced net, a place could map to a transition
+           //In that case, check to see if a marking that marks
+           // all preset places of that transition can be found
+           else if (e != null && e instanceof RTransition)
+           {  Set preSet = e.getPresetElements();
+              for (Iterator iterator = preSet.iterator(); iterator.hasNext();)
+              {
+               RPlace prePlace = (RPlace) iterator.next();
+               cMap.put(prePlace.getID(),tokenCount);
+	     }
+              RMarking currentM = new RMarking(cMap);
+		   	  if (!RS.containsBiggerEqual(currentM))
+		   	  {
+		   		DeadTasks.addAll(convertToYawlMappingsForTasks(e));
 	   	   		noDeadTasks = false;
 	   	   }
-	        
+		       cMap.clear();
+           }
+
 	    }   
-*/	    
-	    if (dmsg.equals(""))
+        if (noDeadTasks)
 	    { dmsg = "The net "+_ID+" has no dead tasks.";
 	    } 
 	    else
-	    { dmsg = "The net "+_ID+" has dead tasks:" + dmsg;
+	    { dmsg = "The net "+_ID+" has dead tasks:" + DeadTasks.toString();
 	    }
 	     
 	   msg += formatXMLMessage(dmsg,noDeadTasks);
@@ -1145,8 +1092,9 @@ public final class ResetWFNet {
        { 
          RS.addAll(visitingPS);
            if(RS.size() > maxNumMarkings)
-        { throw new Exception("Reachable markings >"+maxNumMarkings+ ". Possible infinite loop in the net "+_ID);
-        
+        { //throw new Exception("Reachable markings >"+maxNumMarkings+ ". Possible infinite loop in the net "+_ID);
+          messageDlg.write("Reachable markings >"+maxNumMarkings+ ". Possible infinite loop in the net "+_ID);
+          return RS;
         }
         visitingPS = getImmediateSuccessors(visitingPS);
         messageDlg.write("Immediate successors: "+ visitingPS.size());
@@ -1596,78 +1544,34 @@ public final class ResetWFNet {
     }
    
    
-   	private String convertToYawlMarking(RMarking m){
-  
-    String printM = "";
-    Set mPlaces = m.getMarkedPlaces().entrySet();
-	for (Iterator i= mPlaces.iterator();i.hasNext();)
-	{  Map.Entry e = (Map.Entry) i.next();
-	     
-	   printM += e.getValue() +""+ e.getKey()+"+";
-	   
-	}
-	//To remove the last +
-    return printM.substring(0,printM.length()-1);
-    }
-    
+
+
    /**
     * This method is used for error messages mapping from reset
     * to yawl. If there are yawl mappings, the message returns them, otherwise 
-    * it returns the id of the element.
+    * it returns an empty set.
     */
-   public static String convertToYawlMappings(RElement e){
-   String msg = " ";
+   public static HashSet convertToYawlMappings(RElement e){
    HashSet resetMappings = new HashSet(e.getResetMappings());
-   HashSet mappings = new HashSet(e.getYawlMappings());
-   HashSet taskMappings = new HashSet();
-   HashSet condMappings = new HashSet();
-   
-   for (Iterator i= resetMappings.iterator();i.hasNext();) 
+   HashSet yawlMappings = new HashSet(e.getYawlMappings());
+
+
+   for (Iterator i= resetMappings.iterator();i.hasNext();)
    {
    	 RElement innerEle = (RElement)i.next();
-   	 mappings.addAll(innerEle.getYawlMappings());
+   	 yawlMappings.addAll(innerEle.getYawlMappings());
    	 
    }
-   /*
-   for (Iterator in= mappings.iterator();in.hasNext();) 
-   {
-   	 YExternalNetElement yEle = (YExternalNetElement)in.next();
-     if (yEle instanceof YTask)
-     { taskMappings.add(yEle);
-     } 
-   	 else
-   	 { condMappings.add(yEle);
-   	 }
+
+   return yawlMappings;
    }
-   
-   if (e instanceof RTransition)
-   {
-   	msg = "["+ taskMappings.toString() +"]";
-   }
-   else
-   {
-   	msg = "["+ condMappings.toString() +"]";
-   }
-   */
-  msg = "["+ mappings.toString() +"]";
-   
-   return msg;	       
-   }
-   
-   public static String convertToYawlMappingsForConditions(RElement e){
+
+   public static HashSet convertToYawlMappingsForConditions(RElement e){
    String msg = " ";
-   HashSet resetMappings = new HashSet(e.getResetMappings());
-   HashSet mappings = new HashSet(e.getYawlMappings());
+   HashSet mappings = convertToYawlMappings(e);
    HashSet condMappings = new HashSet();
    
-   for (Iterator i= resetMappings.iterator();i.hasNext();) 
-   {
-   	 RElement innerEle = (RElement)i.next();
-   	 mappings.addAll(innerEle.getYawlMappings());
-   	 
-   }
-  
-   for (Iterator in= mappings.iterator();in.hasNext();) 
+   for (Iterator in= mappings.iterator();in.hasNext();)
    {
    	 YExternalNetElement yEle = (YExternalNetElement)in.next();
      if (yEle instanceof YCondition)
@@ -1675,27 +1579,16 @@ public final class ResetWFNet {
      } 
    	 
    }
-   
-   msg = "["+ condMappings.toString() +"]";
-   return msg;	       
+   return condMappings;
    }
    
    
-   public static String convertToYawlMappingsForTasks(RElement e){
-   String msg = " ";
-   HashSet resetMappings = new HashSet(e.getResetMappings());
-   HashSet mappings = new HashSet(e.getYawlMappings());
+   public static HashSet convertToYawlMappingsForTasks(RElement e){
+
+   HashSet mappings = convertToYawlMappings(e);
    HashSet taskMappings = new HashSet();
   
-   
-   for (Iterator i= resetMappings.iterator();i.hasNext();) 
-   {
-   	 RElement innerEle = (RElement)i.next();
-   	 mappings.addAll(innerEle.getYawlMappings());
-   	 
-   }
-  
-   for (Iterator in= mappings.iterator();in.hasNext();) 
+   for (Iterator in= mappings.iterator();in.hasNext();)
    {
    	 YExternalNetElement yEle = (YExternalNetElement)in.next();
      if (yEle instanceof YTask)
@@ -1703,50 +1596,43 @@ public final class ResetWFNet {
      } 
    	
    }
-   msg = "["+ taskMappings.toString() +"]";
-   return msg;	       
+   return taskMappings;
    }
    
    
    /**
-    * @id - id of a RElement to retrive
-    * return the element or null - if it is not found
-    *
+    * @id - id of an RElement to retrieve from reset net
+    * it returns the element or null
+    * Changes made to make it work with reduced nets
     */
    private RElement findResetMapping(String id){
    	
-   //	Map elements = new HashMap(this.getNetElements());
-  // 	RElement e = (RElement) elements.get(id);
-    RElement e = (RElement) _Places.get(id);
+    Map allElements = new HashMap();
+    allElements.putAll(_Places);
+    allElements.putAll(_Transitions);
+    RElement e = (RElement) allElements.get(id);
+
     //might have reset mappings
     HashSet mappings;
     RElement mappedEle,innerEle;
+
    	if (e == null)
-   	{ for (Iterator i= _Places.values().iterator();i.hasNext();)
+   	{ for (Iterator i= allElements.values().iterator();i.hasNext();)
    	  {	mappedEle = (RElement) i.next();
    	 	mappings = new HashSet(mappedEle.getResetMappings());
    	 	for (Iterator inner = mappings.iterator();inner.hasNext();)
    	 	{ innerEle = (RElement) inner.next();
    	 	 if (innerEle.getID().equals(id))
-   	 		{ 	//System.out.println("Mappings from reduced net:"+mappedEle.getID());
+   	 		{
    	 	  		return mappedEle;	
    	 		}
    	 	}//inner for
    	 
    	  }	//outer for	 	
    	}
-   	else
-   	{
-   	  //System.out.println("Found in main reset net:"+e.getID());	
    	  return e;
    	}
-  // 	System.out.println("Return null from reset mapping"+id);
-   	return null;
-   	
+
    }
    
    
- 
-   
-   	       
-  }
