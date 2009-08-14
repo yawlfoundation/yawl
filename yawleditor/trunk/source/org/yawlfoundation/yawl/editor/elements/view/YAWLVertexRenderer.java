@@ -24,19 +24,16 @@
 
 package org.yawlfoundation.yawl.editor.elements.view;
 
-import java.awt.BasicStroke;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-
-import javax.swing.Icon;
-
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.VertexRenderer;
-
+import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
 import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.net.CancellationSet;
+
+import javax.swing.*;
+import java.awt.*;
 
 abstract class YAWLVertexRenderer extends VertexRenderer {
   
@@ -69,6 +66,12 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
       drawIcon(g, getSize()); 
       drawVertex(g, getSize());
     }
+    if (view.getCell() instanceof YAWLTask) {
+        CancellationSet cSet = ((YAWLTask) view.getCell()).getCancellationSet();
+        if ((cSet != null) && (cSet.size() > 0)) {
+           drawCancelSetMarker(g, getSize());
+        }
+    }      
   }
  
   protected void drawIcon(Graphics graphics, Dimension size) {
@@ -127,6 +130,17 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
   protected int getIconVerticalOffset(Dimension size, Icon icon) {
     return (size.height - icon.getIconHeight())/2;
   }
+
+
+    protected void drawCancelSetMarker(Graphics graphics, Dimension size) {
+       Color oldcolor = graphics.getColor();
+       graphics.setColor(Color.red);
+       int[] x = {size.width-7, size.width-2, size.width-2};
+       int[] y = { 1, 6, 1 };
+       graphics.fillPolygon(x, y, 3);
+       graphics.setColor(oldcolor);
+    }
+
   
   abstract protected void fillVertex(Graphics graphics, Dimension size);
   

@@ -24,10 +24,10 @@
 
 package org.yawlfoundation.yawl.editor.elements.view;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
-import org.jgraph.graph.VertexView;
 import org.jgraph.graph.CellViewRenderer;
+import org.jgraph.graph.VertexView;
+
+import java.awt.*;
 
 public class AtomicTaskView extends VertexView {
 
