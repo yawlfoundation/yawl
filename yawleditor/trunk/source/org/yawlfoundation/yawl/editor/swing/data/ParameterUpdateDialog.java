@@ -31,13 +31,17 @@ import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.JUtilities;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 public class ParameterUpdateDialog extends AbstractDoneDialog {
   /**
@@ -571,6 +575,7 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
     private static final long serialVersionUID = 1L;
     private JLabel openingSinkTagLabel = new JLabel("<sinkVarible>");
     private JLabel closingSinkTagLabel = new JLabel("</sinkVarible>");
+    private JButton btnFormat = new JButton("Format");
     
     public XQueryEditorPanel() {
       super(new BorderLayout());
@@ -592,8 +597,24 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
           new ParameterEditorDocumentListener()
       );
 
-      add(openingSinkTagLabel,BorderLayout.NORTH);
-        
+      btnFormat.addActionListener(new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+              String text = xQueryEditor.getText();
+              if (text.trim().startsWith("<")) {
+                  String formatted = JDOMUtil.formatXMLString(text);
+                  if (formatted != null) {
+                      xQueryEditor.setText(JDOMUtil.formatXMLString(text));
+                  }    
+              }
+          }
+      });
+
+      JPanel top = new JPanel(new BorderLayout());
+      top.add(openingSinkTagLabel, BorderLayout.WEST);
+      top.add(btnFormat, BorderLayout.EAST);
+
+      add(top, BorderLayout.NORTH);
+       
       add(xQueryEditor,BorderLayout.CENTER);
 
       add(closingSinkTagLabel,BorderLayout.SOUTH);
