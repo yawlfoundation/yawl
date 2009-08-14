@@ -51,7 +51,7 @@ public class JXQueryEditor extends ValidityEditorPane {
   }
   
   public void setValidating(boolean validating) {
-    // TODO: pass down to document.
+      getStyledDocument().setValidating(validating);
   }
   
   public AbstractXMLStyledDocument getStyledDocument() {

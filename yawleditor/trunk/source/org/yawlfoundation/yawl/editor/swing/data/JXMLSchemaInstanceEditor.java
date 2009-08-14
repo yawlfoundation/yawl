@@ -103,22 +103,24 @@ class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
   }
   
   public void checkValidity() {
-    String dataType = getInstanceEditor().getVariableType();
-    if (getEditor().getText().equals("") || dataType == null || dataType.equals("string")) {
-      setContentValid(AbstractXMLStyledDocument.Validity.VALID);
-      return;
-    }
-    if (dataType.equals("YTimerType")) {
-        validateYTimerTypeInstance();
-    }
-    else if (dataType.equals("YStringListType")) {
-        validateYStringListTypeInstance();
-    }
-    else if (DataVariable.isBaseDataType(dataType)) {
-        validateBaseDataTypeInstance();        
-    }
-    else {
-      validateUserSuppliedDataTypeInstance();
+    if (isValidating()) {
+      String dataType = getInstanceEditor().getVariableType();
+      if (getEditor().getText().equals("") || dataType == null || dataType.equals("string")) {
+        setContentValid(AbstractXMLStyledDocument.Validity.VALID);
+        return;
+      }
+      if (dataType.equals("YTimerType")) {
+          validateYTimerTypeInstance();
+      }
+      else if (dataType.equals("YStringListType")) {
+          validateYStringListTypeInstance();
+      }
+      else if (DataVariable.isBaseDataType(dataType)) {
+          validateBaseDataTypeInstance();
+      }
+      else {
+        validateUserSuppliedDataTypeInstance();
+      }
     }
   }
   

@@ -22,13 +22,12 @@
  */
 package org.yawlfoundation.yawl.editor.swing.data;
 
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Iterator;
-
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 public abstract class AbstractXMLStyledDocument extends DefaultStyledDocument  {
   
@@ -44,6 +43,8 @@ public abstract class AbstractXMLStyledDocument extends DefaultStyledDocument  {
   private ValidityEditorPane editor;
   
   private Validity contentValid = Validity.UNCERTAIN;
+
+  private boolean validating = true;
   
   public AbstractXMLStyledDocument(ValidityEditorPane editor) {
     this.editor = editor;
@@ -106,4 +107,10 @@ public abstract class AbstractXMLStyledDocument extends DefaultStyledDocument  {
   public void setContentValid(Validity validity) {
     this.contentValid = validity;
   }
+
+  public void setValidating(boolean validating) {
+    this.validating = validating;
+  }
+
+  public boolean isValidating() { return validating; }
 }
