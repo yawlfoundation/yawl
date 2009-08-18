@@ -47,8 +47,11 @@ public abstract class YAWLVertex extends DefaultGraphCell
   
   protected transient Point2D startPoint;
   
-  public static final Color DEFAULT_VERTEX_BACKGROUND = Color.WHITE;
+//  public static final Color DEFAULT_VERTEX_BACKGROUND = new Color(230,230,255);
   public static final Color DEFAULT_VERTEX_FOREGROUND = Color.BLACK;
+
+  private Color backgroundColor = 
+          SpecificationModel.getInstance().getDefaultVertexBackgroundColor();
   
   public static final int DEFAULT_SIZE = 32;
 
@@ -62,7 +65,7 @@ public abstract class YAWLVertex extends DefaultGraphCell
 
   private transient static final Dimension size = new Dimension(DEFAULT_SIZE, DEFAULT_SIZE);
 
-  /**
+    /**
    * This constructor is ONLY to be invoked when we are reconstructing a vertex
    * from saved state. Ports will not be created with this constructor, as they
    * are already part of the JGraph state-space.
@@ -224,12 +227,18 @@ public abstract class YAWLVertex extends DefaultGraphCell
     );
     GraphConstants.setOpaque(map, true);
     GraphConstants.setSizeable(map, false);
-    GraphConstants.setBackground(map, Color.WHITE);
-    GraphConstants.setForeground(map, Color.BLACK);
+    GraphConstants.setBackground(map, backgroundColor);
+    GraphConstants.setForeground(map, DEFAULT_VERTEX_FOREGROUND);
     GraphConstants.setEditable(map,false);
     
     getAttributes().applyMap(map);
   }
+
+  public void setBackgroundColor(Color color) {
+      backgroundColor = color;
+  }
+
+  public Color getBackgroundColor() { return backgroundColor; }
 
   public static Dimension getVertexSize() {
     return size;
@@ -467,7 +476,7 @@ public abstract class YAWLVertex extends DefaultGraphCell
     Map map = new HashMap();
     
     GraphConstants.setForeground(map, DEFAULT_VERTEX_FOREGROUND);
-    GraphConstants.setBackground(map, DEFAULT_VERTEX_BACKGROUND);
+    GraphConstants.setBackground(map, backgroundColor);
 
     getAttributes().applyMap(map);
     

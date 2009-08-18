@@ -26,17 +26,19 @@ package org.yawlfoundation.yawl.editor.elements.view;
 
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.VertexRenderer;
+import org.yawlfoundation.yawl.editor.data.Decomposition;
+import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
+import org.yawlfoundation.yawl.editor.elements.model.AtomicTask;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
 import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
-import org.yawlfoundation.yawl.editor.net.CancellationSet;
 
 import javax.swing.*;
 import java.awt.*;
 
 abstract class YAWLVertexRenderer extends VertexRenderer {
-  
+
   public void paint(Graphics g) {
     Graphics2D g2 = (Graphics2D) g;
     boolean tmp = selected;
@@ -66,12 +68,25 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
       drawIcon(g, getSize()); 
       drawVertex(g, getSize());
     }
+
+    g2.setStroke(new BasicStroke(1));
     if (view.getCell() instanceof YAWLTask) {
-        CancellationSet cSet = ((YAWLTask) view.getCell()).getCancellationSet();
-        if ((cSet != null) && (cSet.size() > 0)) {
-           drawCancelSetMarker(g, getSize());
+        YAWLTask task = (YAWLTask) view.getCell();
+        if (task.hasCancellationSetMembers()) {
+            drawCancelSetMarker(g, getSize());
         }
-    }      
+        if (isAutomatedTask(task)) {
+            drawAutomatedMarker(g, getSize());
+            if (hasCodelet(task)) {
+                drawCodeletMarker(g, getSize());
+            }
+        }
+        if (task instanceof AtomicTask) {
+            if (((AtomicTask) task).hasTimerEnabled()) {
+                drawTimerMarker(g, getSize());                
+            }
+        }
+    }
   }
  
   protected void drawIcon(Graphics graphics, Dimension size) {
@@ -114,13 +129,15 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
         );
       } catch (Exception e) {}
     }
-    
-    icon.paintIcon(
-        null, 
-        graphics,
-        getIconHorizontalOffset(size, icon),
-        getIconVerticalOffset(size,icon)
-    );
+
+      if (icon != null) {
+          icon.paintIcon(
+                  null,
+                  graphics,
+                  getIconHorizontalOffset(size, icon),
+                  getIconVerticalOffset(size,icon)
+          );
+      }
   }
   
   protected int getIconHorizontalOffset(Dimension size, Icon icon) {
@@ -131,17 +148,70 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
     return (size.height - icon.getIconHeight())/2;
   }
 
+    // these indicator marker graphics are designed to occupy 25% of the width of
+    // a task, and 25% of the height, across the top of the task
 
     protected void drawCancelSetMarker(Graphics graphics, Dimension size) {
-       Color oldcolor = graphics.getColor();
+       int height = getMarkerHeight(size);
        graphics.setColor(Color.red);
-       int[] x = {size.width-7, size.width-2, size.width-2};
-       int[] y = { 1, 6, 1 };
-       graphics.fillPolygon(x, y, 3);
-       graphics.setColor(oldcolor);
+       graphics.fillOval(Math.round(3 * size.width/4) - 2, 1, height, height);
     }
 
-  
+    protected void drawTimerMarker(Graphics graphics, Dimension size) {
+       int height = getMarkerHeight(size);
+       int centre = height/2 + 1; 
+       graphics.setColor(Color.white);
+       graphics.fillOval(1, 1, height, height);
+       graphics.setColor(Color.black);
+       graphics.drawOval(1, 1, height, height);
+       graphics.drawLine(centre, 1, centre, centre);
+       graphics.drawLine(centre, centre, height + 1, centre); 
+    }
+
+    protected void drawAutomatedMarker(Graphics graphics, Dimension size) {
+        int height = getMarkerHeight(size);
+        int midWidth = Math.round(size.width/2);
+        int eighthwidth = Math.round(size.width/8);
+        graphics.setColor(Color.black);
+        int[] x = { midWidth - eighthwidth, midWidth - eighthwidth, midWidth + eighthwidth };
+        int[] y = { 2, height, height/2 + 1 };
+        graphics.drawPolygon(x, y, 3);
+    }
+
+    protected void drawCodeletMarker(Graphics graphics, Dimension size) {
+        int height = getMarkerHeight(size);
+        int midWidth = Math.round(size.width/2);
+        int eighthwidth = Math.round(size.width/8);
+        graphics.setColor(Color.green.darker());
+        int[] x = { midWidth - eighthwidth, midWidth - eighthwidth, midWidth + eighthwidth };
+        int[] y = { 2, height, height/2 + 1 };
+         graphics.fillPolygon(x, y, 3);
+    }
+
+    private int getMarkerHeight(Dimension size) {
+        return Math.round(size.height/4);
+    }
+
+  private boolean isAutomatedTask(YAWLTask task) {
+      WebServiceDecomposition decomp = getWebServiceDecomposition(task);
+      return (decomp != null) && (! decomp.isManualInteraction());
+  }
+
+  private boolean hasCodelet(YAWLTask task) {
+      WebServiceDecomposition decomp = getWebServiceDecomposition(task);
+      return decomp.getCodelet() != null;
+  }
+
+  private WebServiceDecomposition getWebServiceDecomposition(YAWLTask task) {
+      WebServiceDecomposition result = null;
+      Decomposition decomp = task.getDecomposition();
+      if (decomp instanceof WebServiceDecomposition) {
+          result = (WebServiceDecomposition) decomp;
+      }
+      return result;
+  }
+
+
   abstract protected void fillVertex(Graphics graphics, Dimension size);
   
   abstract protected void drawVertex(Graphics graphics, Dimension size);

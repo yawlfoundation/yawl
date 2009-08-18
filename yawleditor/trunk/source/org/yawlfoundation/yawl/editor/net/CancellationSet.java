@@ -85,6 +85,10 @@ public class CancellationSet implements Serializable, Cloneable {
   public int size() {
     return setMembers.size();
   }
+
+  public boolean hasMembers() {
+      return size() > 0;
+  }
   
   public Object clone() {
     // Cancellation set members will NOT be copied.

@@ -22,17 +22,13 @@
 
 package org.yawlfoundation.yawl.editor.specification;
 
+import org.jgraph.event.GraphSelectionEvent;
+import org.jgraph.graph.GraphSelectionModel;
+import org.yawlfoundation.yawl.editor.elements.model.*;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-
-import org.jgraph.event.GraphSelectionEvent;
-import org.jgraph.graph.GraphSelectionModel;
-
-import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLCell;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 
 
 /**
@@ -83,6 +79,7 @@ public class SpecificationSelectionListener {
    */
   public static final int STATE_SINGLE_ELEMENT_SELECTED = 6;
   
+  public static final int ONE_OR_MORE_VERTEX_SELECTED = 7;
 
   /**
    * A mapping of possible selection states against subscribers that care to receive
@@ -119,6 +116,9 @@ public class SpecificationSelectionListener {
     }
     if (deletableElementsSelected(model)) {
       publishState(STATE_DELETABLE_ELEMENTS_SELECTED, event);
+    }
+    if (oneOrMoreVertexSelected(model)) {
+        publishState(ONE_OR_MORE_VERTEX_SELECTED, event);
     }
     if (moreThanOneVertexSelected(model)) {
       publishState(STATE_MORE_THAN_ONE_VERTEX_SELECTED, event);
@@ -213,6 +213,18 @@ public class SpecificationSelectionListener {
     return false;
   }
   
+    private boolean oneOrMoreVertexSelected(GraphSelectionModel model) {
+      Object[] elements = model.getSelectionCells();
+
+      for (Object o : elements) {
+        if ((o instanceof YAWLVertex || o instanceof VertexContainer) &&
+            (! ((o instanceof InputCondition) || (o instanceof OutputCondition)))) {
+          return true;
+        }
+      }
+      return false;
+    }
+
   /**
    * Returns true if the selection set supplied by 
    * <code>model</code> contains only a single task, false otherwise.
