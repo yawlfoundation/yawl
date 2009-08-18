@@ -24,35 +24,27 @@
 
 package org.yawlfoundation.yawl.editor.swing.menu;
 
+import org.yawlfoundation.yawl.editor.actions.net.*;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyEvent;
-import javax.swing.JMenu;
-
-import org.yawlfoundation.yawl.editor.actions.net.DecreaseSizeAction;
-import org.yawlfoundation.yawl.editor.actions.net.IncreaseSizeAction;
-
-import org.yawlfoundation.yawl.editor.actions.net.AlignLeftAction;
-import org.yawlfoundation.yawl.editor.actions.net.AlignRightAction;
-import org.yawlfoundation.yawl.editor.actions.net.AlignCentreAction;
-import org.yawlfoundation.yawl.editor.actions.net.AlignTopAction;
-import org.yawlfoundation.yawl.editor.actions.net.AlignMiddleAction;
-import org.yawlfoundation.yawl.editor.actions.net.AlignBottomAction;
-
-import org.yawlfoundation.yawl.editor.actions.net.AddToVisibleCancellationSetAction;
-import org.yawlfoundation.yawl.editor.actions.net.RemoveFromVisibleCancellationSetAction;
 
 
-class ElementsMenu extends YAWLOpenSpecificationMenu {
+public class ElementsMenu extends YAWLOpenSpecificationMenu {
 
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
+  private JMenu vertexMenu;
 
   public ElementsMenu() {
     super("Elements",KeyEvent.VK_L);
   }
   
   protected void buildInterface() {
+    add(new YAWLMenuItem(new SetSelectedElementsFillColourAction()));  
     add(getAlignmentMenu());
     addSeparator();
 		add(new YAWLMenuItem(IncreaseSizeAction.getInstance()));
@@ -60,6 +52,8 @@ class ElementsMenu extends YAWLOpenSpecificationMenu {
 		addSeparator();
     add(new YAWLMenuItem(AddToVisibleCancellationSetAction.getInstance()));
     add(new YAWLMenuItem(RemoveFromVisibleCancellationSetAction.getInstance()));
+//    addSeparator();
+//    add(getVertexMenu());
   }
   
   private JMenu getAlignmentMenu() {
@@ -75,5 +69,26 @@ class ElementsMenu extends YAWLOpenSpecificationMenu {
     alignmentMenu.add(new YAWLMenuItem(AlignRightAction.getInstance()));
 
     return alignmentMenu;
+  }
+
+  private JMenu getVertexMenu() {
+      vertexMenu = new JMenu("Element");
+      vertexMenu.setMnemonic(KeyEvent.VK_E);
+      vertexMenu.setEnabled(false);
+      return vertexMenu;
+  }
+
+  public void addVertexMenu(VertexPopupMenu menu) {
+      vertexMenu.removeAll();
+      Component[] components = menu.getComponents();
+      for (Component component : components) {
+          vertexMenu.add(component);
+      }
+      vertexMenu.setEnabled(true);
+  }
+
+  public void removeVertexMenu() {
+      vertexMenu.removeAll();
+      vertexMenu.setEnabled(false);
   }
 }

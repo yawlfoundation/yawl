@@ -24,11 +24,10 @@
 
 package org.yawlfoundation.yawl.editor.elements.view;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
-
-import org.jgraph.graph.VertexView;
 import org.jgraph.graph.CellViewRenderer;
+import org.jgraph.graph.VertexView;
+
+import java.awt.*;
 
 public class OutputConditionView extends VertexView {
 
@@ -52,12 +51,21 @@ class OutputConditionRenderer extends ConditionView.ConditionRenderer {
    * 
    */
   private static final long serialVersionUID = 1L;
+  private static final Color fillColor = new Color(255,240,240);
 
   protected void drawVertex(Graphics graphics, Dimension size) {
-    super.drawVertex(graphics, size);
-    graphics.fillRect(Math.round(size.width/4), 
-                      Math.round(size.height/4), 
-                      Math.round(size.width/2), 
+    graphics.setColor(fillColor);
+    super.fillVertex(graphics, size);
+    graphics.setColor(Color.RED);
+    graphics.fillRect(Math.round(size.width/4),
+                      Math.round(size.height/4),
+                      Math.round(size.width/2),
                       Math.round(size.height/2));
+    graphics.setColor(Color.black);
+    graphics.drawRect(Math.round(size.width/4),
+                      Math.round(size.height/4),
+                      Math.round(size.width/2 - 1),
+                      Math.round(size.height/2 - 1));
+    super.drawVertex(graphics, size);
   }
 }

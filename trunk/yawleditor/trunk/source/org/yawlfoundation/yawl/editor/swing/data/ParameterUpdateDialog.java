@@ -31,7 +31,6 @@ import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.JUtilities;
-import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -547,7 +546,7 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
   public void setContent() {
     populateInputVariableComboBox();
     populateOutputVariableComboBox();
-    xQueryEditor.setText(parameter.getQuery());
+    xQueryEditor.setText(XMLDialogFormatter.format(parameter.getQuery()));
     xQueryEditor.setTargetVariableName(
         (String) sinkVariableComboBox.getSelectedItem()
     );
@@ -575,7 +574,10 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
     private static final long serialVersionUID = 1L;
     private JLabel openingSinkTagLabel = new JLabel("<sinkVarible>");
     private JLabel closingSinkTagLabel = new JLabel("</sinkVarible>");
-    private JButton btnFormat = new JButton("Format");
+    private JButton btnFormat = new JButton(
+              ResourceLoader.getImageAsIcon(
+                  "/org/yawlfoundation/yawl/editor/resources/taskicons/AutoFormat.png")
+              );
     
     public XQueryEditorPanel() {
       super(new BorderLayout());
@@ -597,15 +599,12 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
           new ParameterEditorDocumentListener()
       );
 
+      btnFormat.setToolTipText("Auto-format content");
+        
       btnFormat.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {
               String text = xQueryEditor.getText();
-              if (text.trim().startsWith("<")) {
-                  String formatted = JDOMUtil.formatXMLString(text);
-                  if (formatted != null) {
-                      xQueryEditor.setText(JDOMUtil.formatXMLString(text));
-                  }    
-              }
+              xQueryEditor.setText(XMLDialogFormatter.format(text));
           }
       });
 

@@ -48,6 +48,7 @@ import org.yawlfoundation.yawl.elements.YSpecVersion;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 public class SpecificationModel {
   
@@ -65,13 +66,12 @@ public class SpecificationModel {
   
   public static final int   DEFAULT_FONT_SIZE = 15;
   public static final int   DEFAULT_NET_BACKGROUND_COLOR = Color.WHITE.getRGB();
-  
+
   public static final String DEFAULT_TYPE_DEFINITION = 
     "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n\n</xs:schema>";
   
   private String dataTypeDefinition = DEFAULT_TYPE_DEFINITION;
-  
-  
+
   /**
    * A mapping of possible selection states against subscribers that care to receive
    * notifications of a particular state.
@@ -83,6 +83,7 @@ public class SpecificationModel {
   private long    uniqueElementNumber = 0;
   private int     fontSize            = DEFAULT_FONT_SIZE;
   private int     defaultNetBackgroundColor =  DEFAULT_NET_BACKGROUND_COLOR;
+  private Color   defaultVertexBackground = getPreferredVertexBackground();
   private String  name                = "";
   private String  description         = "No description has been given.";
   private String  id                 = "";
@@ -173,6 +174,7 @@ public class SpecificationModel {
     webServiceDecompositions = new HashSet<WebServiceDecomposition>();
     fontSize = DEFAULT_FONT_SIZE;
     defaultNetBackgroundColor = DEFAULT_NET_BACKGROUND_COLOR;
+    defaultVertexBackground = getPreferredVertexBackground(); 
     setFileName("");
     setEngineFileName("");
     setDataTypeDefinition(DEFAULT_TYPE_DEFINITION);
@@ -188,7 +190,21 @@ public class SpecificationModel {
     YAWLEditor.setStatusBarText("Open or create a net to begin.");
     setState(State.NO_NETS_EXIST);
   }
-  
+
+  private Color getPreferredVertexBackground() {
+      Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
+      int preferredColor = prefs.getInt("PREFERRED_VERTEX_BACKGROUND_COLOR",
+                                         new Color(230,230,255).getRGB());
+      return new Color(preferredColor);
+  }
+
+    private void setPreferredVertexBackground(Color color) {
+        Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
+        prefs.putInt("PREFERRED_VERTEX_BACKGROUND_COLOR", color.getRGB());
+    }
+
+
+
   public void setNetCount(int netCount) {
     this.netCount = netCount;
   }
@@ -686,6 +702,15 @@ public class SpecificationModel {
   public int getDefaultNetBackgroundColor() {
     return this.defaultNetBackgroundColor;
   }
+
+    public void setDefaultVertexBackgroundColor(Color color) {
+      defaultVertexBackground = color;
+      setPreferredVertexBackground(color);
+    }
+
+    public Color getDefaultVertexBackgroundColor() {
+      return this.defaultVertexBackground;
+    }
 
 
   public void setName(String name) {

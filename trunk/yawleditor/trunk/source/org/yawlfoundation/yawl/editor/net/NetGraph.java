@@ -969,6 +969,11 @@ public class NetGraph extends JGraph {
   public CancellationSetModel getCancellationSetModel() {
     return this.cancellationSetModel;
   }
+
+  public void resetCancellationSet() {
+      YAWLTask task = cancellationSetModel.getTriggeringTask();
+      if (task != null) changeCancellationSet(task);       
+  }
   
   public void changeCancellationSet(YAWLTask task) {
     getNetModel().beginUpdate();
@@ -993,8 +998,7 @@ public class NetGraph extends JGraph {
   private void hideOldCancellationSet() {
     YAWLTask triggeringTask = cancellationSetModel.getTriggeringTask();
 
-    changeVertexBackground(triggeringTask, 
-                           YAWLVertex.DEFAULT_VERTEX_BACKGROUND);
+    changeVertexBackground(triggeringTask, triggeringTask.getBackgroundColor());
 
     Object[] setMembers = triggeringTask.getCancellationSet().getSetMembers().toArray();
     for(int i = 0; i < setMembers.length ; i++) {
@@ -1121,7 +1125,7 @@ public class NetGraph extends JGraph {
     }
   }
 
-  private void changeVertexBackground(YAWLVertex vertex, Color color) {
+  public void changeVertexBackground(YAWLVertex vertex, Color color) {
     changeCellBackground(vertex,color);
     if (vertex.getParent() != null && vertex instanceof YAWLTask) {
       YAWLTask task = (YAWLTask) vertex;

@@ -24,9 +24,9 @@
 
 package org.yawlfoundation.yawl.editor.elements.model;
 
-import java.awt.geom.Point2D;
-
 import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
+
+import java.awt.geom.Point2D;
 
 public class AtomicTask extends YAWLTask implements YAWLAtomicTask {
   /**
@@ -82,5 +82,13 @@ public class AtomicTask extends YAWLTask implements YAWLAtomicTask {
   
   public TaskTimeoutDetail getTimeoutDetail() {
     return (TaskTimeoutDetail) getSerializationProofAttributeMap().get("timeoutDetail");
+  }
+
+  public boolean hasTimerEnabled() {
+      return getTimeoutDetail() != null;
+  }
+        
+  public boolean isAutomated() {
+      return (getDecomposition() != null) && (! getDecomposition().isManualInteraction());
   }
 }

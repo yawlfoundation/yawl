@@ -218,6 +218,10 @@ public abstract class YAWLTask extends YAWLVertex {
     serializationProofAttributeMap.put("cancellationSet",cancellationSet);
   }
 
+  public boolean hasCancellationSetMembers() {
+      return getCancellationSet().hasMembers();
+  }
+
   public ParameterLists getParameterLists() {
     return (ParameterLists) serializationProofAttributeMap.get("parameterLists");
   }

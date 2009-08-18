@@ -68,9 +68,11 @@ public class VertexPopupMenu extends JPopupMenu {
         new LabelElementAction(vertex, graph)    
         )
     );
+    if (! (vertex instanceof InputCondition || vertex instanceof OutputCondition)) {
+        add(new YAWLPopupMenuItem(new SetElementFillColourAction(vertex, graph)));
+        addSeparator();
+    }
 
-    addSeparator();
-    
     addCopyableMenuItems(vertex);
     addRemoveableMenuItems(vertex);
   }

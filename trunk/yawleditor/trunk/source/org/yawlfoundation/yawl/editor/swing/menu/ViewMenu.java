@@ -73,6 +73,7 @@ class ViewMenu extends JMenu implements SpecificationModelListener {
     add(buildShowGridItem());
     add(buildAntiAliasedItem());
     add(buildNetBackgroundColourItem());
+    add(buildElementBackgroundColourItem());  
     add(buildFontSizeItem());
   }
   
@@ -111,6 +112,10 @@ class ViewMenu extends JMenu implements SpecificationModelListener {
   private JMenuItem buildNetBackgroundColourItem() {
     return new JMenuItem(new DefaultNetBackgroundColourAction());
   }
+
+    private JMenuItem buildElementBackgroundColourItem() {
+      return new JMenuItem(new DefaultElementBackgroundColourAction());
+    }
 
   public void receiveSpecificationModelNotification(SpecificationModel.State state) {
     switch (state) {
