@@ -72,7 +72,8 @@ public class YAWLEditorDesktop extends JTabbedPane implements ChangeListener {
 
 
   private void bindFrame(final YAWLEditorNetPanel frame) {
-      addTab(frame.getTitle(), frame.getFrameIcon(), frame);
+      insertTab(frame.getTitle(), frame.getFrameIcon(), frame, null,
+                getInsertionIndex(frame));
       updateState();
   }
 
@@ -122,6 +123,17 @@ public class YAWLEditorDesktop extends JTabbedPane implements ChangeListener {
           JOptionPane.WARNING_MESSAGE, null, choices, choices[1]);
 
       return selection == 0 ;
+  }
+
+    
+  private int getInsertionIndex(YAWLEditorNetPanel frame) {
+      int i = 0;
+      if (! frame.containsRootNet()) {                      // root net always first
+          for (i = 1; i < getTabCount(); i++) {
+              if (getTitleAt(i).compareToIgnoreCase(frame.getTitle()) > 0) break;
+          }
+      }
+      return i;
   }
 
     

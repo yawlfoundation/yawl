@@ -109,6 +109,9 @@ public class YAWLEditorNetPanel extends JPanel {
         icon = NetUtilities.getIconForNetModel(net.getNetModel());
     }
 
+    public boolean containsRootNet() {
+        return getNet().getNetModel().isStartingNet();
+    }
 
     public NetGraph getNet() {
         return net;

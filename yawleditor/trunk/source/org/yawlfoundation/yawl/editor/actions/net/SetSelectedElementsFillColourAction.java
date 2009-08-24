@@ -26,6 +26,7 @@ import org.jgraph.event.GraphSelectionEvent;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.elements.model.InputCondition;
 import org.yawlfoundation.yawl.editor.elements.model.OutputCondition;
+import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
@@ -73,15 +74,30 @@ public class SetSelectedElementsFillColourAction extends YAWLSelectedNetAction
             if (graph != null) {
                 Object[] selected = graph.getSelectionCells();
                 for (Object o : selected) {
-                    if ((o instanceof YAWLVertex) &&
-                            ! ((o instanceof InputCondition) || (o instanceof OutputCondition))) {
-                        ((YAWLVertex) o).setBackgroundColor(newColor);
-                        graph.changeVertexBackground((YAWLVertex) o, newColor);
+                    YAWLVertex vertex = getSelectedVertexIfAppropriate(o) ;
+                    if (vertex != null) {
+                        vertex.setBackgroundColor(newColor);
+                        graph.changeVertexBackground(vertex, newColor);
                     }
                 }
                 graph.resetCancellationSet();
             }
         }
+    }
+
+    private YAWLVertex getSelectedVertexIfAppropriate(Object o) {
+        YAWLVertex result = null;
+        if (o instanceof VertexContainer) {
+            result = ((VertexContainer) o).getVertex();
+        }
+        else if (o instanceof YAWLVertex) {
+            result = (YAWLVertex) o;
+        }
+        if ((result != null) &&
+            ((result instanceof InputCondition) || (result instanceof OutputCondition))) {
+            result = null;
+        }
+        return result ;
     }
 
     public String getEnabledTooltipText() {

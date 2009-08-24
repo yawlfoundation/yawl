@@ -49,7 +49,7 @@ class ViewMenu extends JMenu implements SpecificationModelListener {
   private static final SpecificationModel specificationModel =  
     SpecificationModel.getInstance(); 
   
-  private static final int NET_LIST_START_INDEX = 5;
+  private static final int NET_LIST_START_INDEX = 6;
   
   private boolean noNetList = true;
   
@@ -161,13 +161,22 @@ class ViewMenu extends JMenu implements SpecificationModelListener {
     add(separator, position++);
     netListMenuItems.add(separator);
 
-    for(NetGraphModel net : nets) {
-      JMenuItem newItem = new JMenuItem(
-            new ViewNetAction(net)
-        );
-      add(newItem, position++);
-      netListMenuItems.add(newItem);
+    for (NetGraphModel net : nets) {          // do root net first
+        if (net.isStartingNet()) {
+            addNetListMenuItem(net, position++);
+            break;
+        }
     }
+      
+    for (NetGraphModel net : nets) {
+        if (! net.isStartingNet()) addNetListMenuItem(net, position++);
+    }
+  }
+
+  private void addNetListMenuItem(NetGraphModel net, int position) {
+      JMenuItem newItem = new JMenuItem(new ViewNetAction(net));
+      add(newItem, position);
+      netListMenuItems.add(newItem);
   }
 }
 

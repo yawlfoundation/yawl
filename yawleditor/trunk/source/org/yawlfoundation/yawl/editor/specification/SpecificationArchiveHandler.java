@@ -45,7 +45,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.UUID;
 import java.util.zip.ZipInputStream;
 
@@ -458,29 +457,11 @@ public class SpecificationArchiveHandler {
 
 
   private void readNets(HashSet nets) {
-    Object[] netArray = nets.toArray();
-    LinkedList<NetGraph> rebuiltNets = new LinkedList<NetGraph>();
-    
-    for(int i = 0; i < netArray.length; i ++) {
-      rebuiltNets.add(
-          readNet((ArchivableNetState) netArray[i])
-      );
+    for (Object o : nets) {
+        readNet((ArchivableNetState) o);
     }
+ //   YAWLEditorDesktop.getInstance().
 
-    // now the full set of nets are built and have their internal
-    // framees built, we can specify the net internal frame z-order
-    // without odd z-order reshuffling that would happen with missing nets.
-
-    try {
-      for(int i = 0; i < netArray.length; i ++) {
-//        YAWLEditorDesktop.getInstance().setComponentZOrder(
-//            rebuiltNets.get(i).getFrame(),
-//            ((ArchivableNetState) netArray[i]).getZOrder()
-//        );
-      }
-    } catch (Exception e) {
-      // Older spec save files did not save zOrder, leave as-is if this is the case.
-    }
   }
   
   private NetGraph readNet(ArchivableNetState archivedNet) {

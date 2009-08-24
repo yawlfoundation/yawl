@@ -162,11 +162,13 @@ public class ParameterList implements Serializable, Cloneable {
     Iterator i = parameters.iterator();
     while (i.hasNext()) {
       Parameter parameter = (Parameter) i.next();
-      String updatedQuery = 
-        parameter.getQuery().replaceAll(
-            "/" + oldLabelAsElement + "/",
-            "/" + newLabelAsElement + "/");
-      parameter.setQuery(updatedQuery);
+      String query = parameter.getQuery();
+      if (query != null) {
+          String updatedQuery = query.replaceAll(
+          "/" + oldLabelAsElement + "/",
+          "/" + newLabelAsElement + "/");
+        parameter.setQuery(updatedQuery);
+      }
     }
   }
 
