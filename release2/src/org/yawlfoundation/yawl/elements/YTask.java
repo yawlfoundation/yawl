@@ -251,6 +251,14 @@ public abstract class YTask extends YExternalNetElement {
 
     public void setRemovesTokensFrom(List removeSet) {
         _removeSet.addAll(removeSet);
+
+        //Need to add the task to the CancelledBySet as well
+        if (!_removeSet.isEmpty()) {
+            for (Iterator ir = removeSet.iterator();ir.hasNext();) {
+                YExternalNetElement ele = (YExternalNetElement) ir.next();
+	  		    ele.addToCancelledBySet(this);
+            }
+	    }
     }
 
    //Added for reduction rules
