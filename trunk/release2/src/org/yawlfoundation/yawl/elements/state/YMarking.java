@@ -269,9 +269,19 @@ public class YMarking {
   public boolean isBiggerThan(YMarking marking) {
         List otherMarkingsLocations = new Vector(marking.getLocations());
         List myLocations = new Vector(_locations);
+
+        //This test is for c1+c2+c3 bigger than c1+c2
         if ((myLocations.containsAll(otherMarkingsLocations)
                 && !otherMarkingsLocations.containsAll(myLocations))) {
             return true;
+        }
+        
+        //This test is for c1+2c2 bigger than c1+c2
+        else if (myLocations.containsAll(otherMarkingsLocations)
+                && otherMarkingsLocations.containsAll(myLocations)
+        	    && myLocations.size() > otherMarkingsLocations.size())
+        {
+        	return true;
         }
         return false;
     }
