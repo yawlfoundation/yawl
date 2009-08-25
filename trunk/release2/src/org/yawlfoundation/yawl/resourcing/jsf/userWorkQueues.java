@@ -732,6 +732,8 @@ public class userWorkQueues extends AbstractPageBean {
                 redir.append((url.indexOf('?') == -1) ? "?" : "&")  // any static params?
                      .append("workitem=")
                      .append(wir.getID())
+                     .append("&participantid=")
+                     .append(_sb.getParticipant().getID())
                      .append("&handle=")
                      .append(_sb.getSessionhandle());
 

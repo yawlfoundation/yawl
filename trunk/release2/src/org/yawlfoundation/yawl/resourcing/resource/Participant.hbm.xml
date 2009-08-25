@@ -38,6 +38,7 @@
 
         <property name="_userID"
                   column="UserID"
+                  unique="true"
                   type="string"
                   access="field"/>
 
