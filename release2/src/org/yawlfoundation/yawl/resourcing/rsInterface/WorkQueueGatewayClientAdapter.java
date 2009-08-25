@@ -16,10 +16,8 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
-import org.yawlfoundation.yawl.resourcing.util.PasswordEncryptor;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Set;
 
 /**
@@ -112,7 +110,23 @@ public class WorkQueueGatewayClientAdapter {
         return userlogin(userid, password, true);
     }
 
-    
+
+    /**
+     * Logs out a user session (as opposed to a service connection)
+     * @param handle the session handle
+     * @return a success message
+     * @throws IOException
+     */
+    public String userlogout(String handle) {
+        try {
+            return _wqclient.userlogout(handle) ;
+        }
+        catch (IOException ioe) {
+            return "<failure>";
+        }
+    }
+
+
     /**
      * Attempts to connect to the service (as a user/participant)
      * @param userid the userid
@@ -123,14 +137,10 @@ public class WorkQueueGatewayClientAdapter {
      */
     public String userlogin(String userid, String password, boolean encrypt) {
         try {
-            if (encrypt) password = PasswordEncryptor.encrypt(password);
-            return _wqclient.userlogin(userid, password) ;
+            return _wqclient.userlogin(userid, password, encrypt) ;
         }
         catch (IOException ioe) {
             return "<failure>IOException attempting to connect to Service.</failure>";
-        }
-        catch (NoSuchAlgorithmException nsae) {
-            return "<failure>Could not encrypt password.</failure>";
         }
     }
 

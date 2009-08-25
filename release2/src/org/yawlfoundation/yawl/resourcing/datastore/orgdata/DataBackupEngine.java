@@ -246,7 +246,7 @@ public class DataBackupEngine {
                 Element part = (Element) o;
                 String id = part.getAttributeValue("id");
                 Participant p = _rm.getParticipant(id);
-                if (p == null) {
+                if ((p == null) && (! _rm.isKnownUserID(part.getAttributeValue("userid")))) {
                     p = new Participant();
                     p.reconstitute(part);
                     p.setPassword(part.getChildText("password"));

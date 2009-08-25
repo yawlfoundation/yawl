@@ -86,7 +86,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     // a cache of connections directly to the service - not to the engine
     private ConnectionCache _connections = ConnectionCache.getInstance();
 
-    // local cache of specificiations: id -> SpecificationData
+    // local cache of specifications: id -> SpecificationData
     private SpecDataCache _specCache = new SpecDataCache();
 
     // currently logged on participants: <sessionHandle, Participant>
@@ -691,6 +691,11 @@ public class ResourceManager extends InterfaceBWebsideController {
      * @param p the new Participant
      */
     public String addParticipant(Participant p) {
+
+        // check for userid uniqueness
+        if (isKnownUserID(p.getUserID())) {
+            return "<failure>User id '" + p.getUserID() + "' is already in use.</failure>"; 
+        }
 
         // persist it to the data store
         String newID = _orgdb.insert(p) ;

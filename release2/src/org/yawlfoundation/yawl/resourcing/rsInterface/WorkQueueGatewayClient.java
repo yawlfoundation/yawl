@@ -113,16 +113,25 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
 
-    public String userlogin(String userID, String password) throws IOException {
+    public String userlogin(String userID, String password, boolean encrypt) throws IOException {
+        if (userID.equals("admin")) {
+            return "<failure>UserID 'admin' is not a valid participant.</failure>";
+        }
         Map<String, String> params = prepareParamMap("userlogin", null);
         params.put("userid", userID);
         params.put("password", password);
+        params.put("encrypt", String.valueOf(encrypt));
         return executeGet(_serviceURI, params);
     }
 
+    
+    public String userlogin(String userID, String password) throws IOException {
+        return userlogin(userID, password, true);
+    }
 
-    public void logout(String handle) throws IOException {
-        disconnect(handle);
+
+    public String userlogout(String handle) throws IOException {
+       return performPost("userlogout", null, handle);
     }
 
 

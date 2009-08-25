@@ -21,6 +21,7 @@ import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.resource.OrgGroup;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
+import org.yawlfoundation.yawl.resourcing.util.PasswordEncryptor;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -28,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.security.NoSuchAlgorithmException;
 import java.util.Set;
 
 /**
@@ -81,6 +83,15 @@ public class WorkQueueGateway extends HttpServlet {
         else if (action.equalsIgnoreCase("userlogin")) {
             String userid = req.getParameter("userid");
             String password = req.getParameter("password");
+            String encrypt = req.getParameter("encrypt");
+            if ((encrypt != null) && encrypt.equalsIgnoreCase("true")) {
+                try {
+                    password = PasswordEncryptor.encrypt(password);
+                }
+                catch (NoSuchAlgorithmException nsae) {
+                    // nothing to do - call will return 'incorrect password'
+                }
+            }
             result = _rm.login(userid, password);                    // user connect
         }
         else if (action.equalsIgnoreCase("checkConnection")) {
@@ -244,6 +255,10 @@ public class WorkQueueGateway extends HttpServlet {
         }
         else if (action.equals("disconnect")) {
             _rm.serviceDisconnect(handle);
+            result = success;
+        }
+        else if (action.equals("userlogout")) {
+            _rm.logout(handle);
             result = success;
         }
         else if (action.equals("acceptOffer")) {
