@@ -182,6 +182,18 @@ public class ResourceGateway extends HttpServlet {
                String id = req.getParameter("id");
                result = rm.getParticipantPositionsAsXML(id);
            }
+           else if (action.equalsIgnoreCase("getParticipantsWithRole")) {
+               String name = req.getParameter("name");
+               result = rm.getParticpantsWithRoleAsXML(name);
+           }
+           else if (action.equalsIgnoreCase("getParticipantsWithPosition")) {
+               String name = req.getParameter("name");
+               result = rm.getParticpantsWithPositionAsXML(name);
+           }
+           else if (action.equalsIgnoreCase("getParticipantsWithCapability")) {
+               String name = req.getParameter("name");
+               result = rm.getParticpantsWithCapabilityAsXML(name);
+           }
            else if (action.equalsIgnoreCase("getActiveParticipants")) {
                result = rm.getActiveParticipantsAsXML();
            }

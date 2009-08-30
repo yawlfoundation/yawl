@@ -1149,7 +1149,6 @@
         <jar destfile="${output.dir}/YResourceServiceClient.jar" basedir="${classes.dir}"
                 includes="org/yawlfoundation/yawl/resourcing/rsInterface/WorkQueueGatewayClient.class
                           org/yawlfoundation/yawl/resourcing/rsInterface/ResourceGatewayClient.class
-                          org/yawlfoundation/yawl/resourcing/util/PasswordEncryptor.class
                           org/yawlfoundation/yawl/engine/interfce/Interface_Client.class
                           org/yawlfoundation/yawl/engine/interfce/WorkItemRecord.class
                           org/yawlfoundation/yawl/engine/interfce/ServletUtils.class

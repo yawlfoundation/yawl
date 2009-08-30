@@ -472,6 +472,7 @@ public class SessionBean extends AbstractSessionBean {
         _rm.logout(sessionhandle) ;
         setEditedParticipant((Participant) null);
         getApplicationBean().removeLiveUser(userid);
+        setUserid(null);
         
         FacesContext context = FacesContext.getCurrentInstance();
         if (context != null) {             // if null, session already destroyed
@@ -1551,6 +1552,16 @@ public class SessionBean extends AbstractSessionBean {
 
     public void setVisualiserEditedWIR(WorkItemRecord wir) {
         visualiserEditedWIR = wir;
+    }
+
+    private boolean rssAlreadyLoggedOn = false;
+
+    public boolean isRssAlreadyLoggedOn() {
+        return rssAlreadyLoggedOn;
+    }
+
+    public void setRssAlreadyLoggedOn(boolean loggedOn) {
+        rssAlreadyLoggedOn = loggedOn;
     }
 }
 

@@ -116,7 +116,7 @@ public class DataBackupEngine {
                 Element cap = (Element) o;
                 String id = cap.getAttributeValue("id");
                 Capability c = _rm.getCapability(id);
-                if (c == null) {
+                if ((c == null) && (! _rm.isKnownCapabilityName(cap.getChildText("name")))) {
                     c = new Capability();
                     c.reconstitute(cap);
                     _rm.importCapability(c);
@@ -139,7 +139,7 @@ public class DataBackupEngine {
                 Element role = (Element) o;
                 String id = role.getAttributeValue("id");
                 Role r = _rm.getRole(id);
-                if (r == null) {
+                if ((r == null) && (! _rm.isKnownRoleName(role.getChildText("name")))) {
                     r = new Role();
 
                     // ensure all roles created before cyclic refs are added
@@ -173,7 +173,7 @@ public class DataBackupEngine {
                 Element group = (Element) o;
                 String id = group.getAttributeValue("id");
                 OrgGroup og = _rm.getOrgGroup(id);
-                if (og == null) {
+                if ((og == null) && (! _rm.isKnownOrgGroupName(group.getChildText("groupName")))) {
                     og = new OrgGroup();
 
                     // ensure all OrgGroups created before cyclic refs are added
@@ -207,7 +207,7 @@ public class DataBackupEngine {
                 Element pos = (Element) o;
                 String id = pos.getAttributeValue("id");
                 Position p = _rm.getPosition(id);
-                if (p == null) {
+                if ((p == null) && (! _rm.isKnownPositionName(pos.getChildText("title")))) {
                     p = new Position();
 
                     // ensure all Positions created before cyclic refs are added
@@ -246,7 +246,7 @@ public class DataBackupEngine {
                 Element part = (Element) o;
                 String id = part.getAttributeValue("id");
                 Participant p = _rm.getParticipant(id);
-                if ((p == null) && (! _rm.isKnownUserID(part.getAttributeValue("userid")))) {
+                if ((p == null) && (! _rm.isKnownUserID(part.getChildText("userid")))) {
                     p = new Participant();
                     p.reconstitute(part);
                     p.setPassword(part.getChildText("password"));

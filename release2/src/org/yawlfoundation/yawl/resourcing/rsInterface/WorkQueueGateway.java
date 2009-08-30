@@ -21,6 +21,7 @@ import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.resource.OrgGroup;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
+import org.yawlfoundation.yawl.resourcing.util.GadgetFeeder;
 import org.yawlfoundation.yawl.resourcing.util.PasswordEncryptor;
 
 import javax.servlet.ServletException;
@@ -74,6 +75,9 @@ public class WorkQueueGateway extends HttpServlet {
                     "Service and a user interface implementation " +
                     "(it isn't meant to be browsed to directly).</p>" +
                     "</body></html>";
+        }
+        else if (action.equalsIgnoreCase("getGadgetContent")) {
+            result = (new GadgetFeeder(req)).getFeed();
         }
         else if (action.equalsIgnoreCase("connect")) {
             String userid = req.getParameter("userid");

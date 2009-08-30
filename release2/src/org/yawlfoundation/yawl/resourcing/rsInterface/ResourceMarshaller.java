@@ -33,7 +33,7 @@ public class ResourceMarshaller {
      * @return a list of child elements of the converted element passed
      */
     private List getChildren(String s) {
-        if (s == null) return null;
+        if ((s == null) || (! s.trim().startsWith("<"))) return null;
         return JDOMUtil.stringToElement(s).getChildren();
     }
 

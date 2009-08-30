@@ -259,6 +259,48 @@ public class ResourceGatewayClient extends Interface_Client {
 
 
     /**
+     * Gets all the participants holding the specified role (by name)
+     * @param name the name of the role (not the id)
+     * @param handle a valid session handle
+     * @return an XML string describing the participants
+     * @throws IOException if the service can't be reached
+     */
+    public String getParticipantsWithRole(String name, String handle)  throws IOException {
+        Map<String, String> params = prepareParamMap("getParticipantsWithRole", handle);
+        params.put("name", name);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Gets all the participants holding the specified position (by name)
+     * @param name the name of the position (not the id)
+     * @param handle a valid session handle
+     * @return an XML string describing the participants
+     * @throws IOException if the service can't be reached
+     */
+    public String getParticipantsWithPosition(String name, String handle)  throws IOException {
+        Map<String, String> params = prepareParamMap("getParticipantsWithPosition", handle);
+        params.put("name", name);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Gets all the participants holding the specified capability (by name)
+     * @param name the name of the capability (not the id)
+     * @param handle a valid session handle
+     * @return an XML string describing the participants
+     * @throws IOException if the service can't be reached
+     */
+    public String getParticipantsWithCapability(String name, String handle)  throws IOException {
+        Map<String, String> params = prepareParamMap("getParticipantsWithCapability", handle);
+        params.put("name", name);
+        return executeGet(_serviceURI, params) ;
+    }
+
+    
+    /**
      * Gets an XML list of the Codelets known to the service
      * @param handle a valid session handle
      * @return the list of codelets as an XML string

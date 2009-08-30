@@ -20,6 +20,7 @@
         <property name="_title"
                   column="Title"
                   type="string"
+                  unique="true"
                   access="field"/>
 
         <property name="_description"

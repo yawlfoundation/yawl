@@ -14,6 +14,7 @@
         <property name="_capability"
                   column="Capability"
                   type="string"
+                  unique="true"
                   access="field"/>
 
         <property name="_description"

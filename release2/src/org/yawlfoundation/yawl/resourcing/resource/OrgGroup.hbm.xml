@@ -14,6 +14,7 @@
         <property name="_groupName"
                   column="GroupName"
                   type="string"
+                  unique="true"
                   access="field"/>
 
         <!-- grouptype is an enum, so access is by a getter & a setter -->
