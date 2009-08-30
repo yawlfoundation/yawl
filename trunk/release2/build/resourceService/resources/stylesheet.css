@@ -88,6 +88,13 @@
     position:relative;
 }
 
+.rssLinkPanel {
+    height: 300px;
+    width: 60%;
+    top: 5px;
+    position:relative;
+}
+
 .viewProfilePanel {
     background-color: #d4e5f6;
     height: 396px;
@@ -104,7 +111,7 @@
 .loginField {
     left:105px;
     position: absolute;
-    width: 120px;    
+    width: 120px;
 }
 
 .loginButton {
@@ -114,6 +121,15 @@
     position: absolute;
     height: 30px;
     width: 85px;
+}
+
+.rssCloseButton {
+    font-size: 16px;
+    left: 40%;
+    position: absolute;
+    height: 30px;
+    width: 120px;
+    top: 150px;
 }
 
 .visualiserButton {

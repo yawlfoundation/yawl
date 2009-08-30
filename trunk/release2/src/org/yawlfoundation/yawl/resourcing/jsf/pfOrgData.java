@@ -390,7 +390,8 @@ public class pfOrgData extends AbstractFragmentBean {
 
 
     public boolean addNewItem(String activeTab) {
-        if ( txtAdd.getText() == null) {
+        String newName = (String) txtAdd.getText();
+        if (newName == null) {
             msgPanel.error("Please enter a name for the new Item");
             return false;
         }
@@ -398,34 +399,58 @@ public class pfOrgData extends AbstractFragmentBean {
         String belongsToID = (String) cbbBelongs.getSelected();
 
         if (activeTab.equals("tabRoles")) {
-            Role role = new Role((String) txtAdd.getText()) ;
-            role.setOwnerRole(_rm.getRole(belongsToID));
-            setCommonFields(role);
-            _rm.addRole(role);
-            lbxItems.setSelected(role.getID());
+            if (! _rm.isKnownRoleName(newName)) {
+                Role role = new Role((String) txtAdd.getText()) ;
+                role.setOwnerRole(_rm.getRole(belongsToID));
+                setCommonFields(role);
+                _rm.addRole(role);
+                lbxItems.setSelected(role.getID());
+            }
+            else {
+                msgPanel.error("There is already a role by that name - please choose another.");
+                return false;
+            }
         }
         else if (activeTab.equals("tabCapability")) {
-            Capability capability = new Capability((String) txtAdd.getText(), null);
-            setCommonFields(capability);
-            _rm.addCapability(capability);
-            lbxItems.setSelected(capability.getID());
+            if (! _rm.isKnownCapabilityName(newName)) {
+                Capability capability = new Capability((String) txtAdd.getText(), null);
+                setCommonFields(capability);
+                _rm.addCapability(capability);
+                lbxItems.setSelected(capability.getID());
+            }
+            else {
+                msgPanel.error("There is already a capability by that name - please choose another.");
+                return false;
+            }
         }
         else if (activeTab.equals("tabPosition")) {
-            Position position = new Position((String) txtAdd.getText());
-            position.setReportsTo(_rm.getPosition(belongsToID));
-            position.setOrgGroup(_rm.getOrgGroup((String) cbbGroup.getSelected()));
-            setCommonFields(position);
-            _rm.addPosition(position);
-            lbxItems.setSelected(position.getID());
+            if (! _rm.isKnownPositionName(newName)) {
+                Position position = new Position((String) txtAdd.getText());
+                position.setReportsTo(_rm.getPosition(belongsToID));
+                position.setOrgGroup(_rm.getOrgGroup((String) cbbGroup.getSelected()));
+                setCommonFields(position);
+                _rm.addPosition(position);
+                lbxItems.setSelected(position.getID());
+            }
+            else {
+                msgPanel.error("There is already a position by that name - please choose another.");
+                return false;
+            }
         }
         else if (activeTab.equals("tabOrgGroup")) {
-            OrgGroup orgGroup = new OrgGroup();
-            orgGroup.setGroupName((String) txtAdd.getText());
-            orgGroup.setBelongsTo(_rm.getOrgGroup(belongsToID));
-            orgGroup.set_groupType(((String) cbbGroup.getSelected()).toUpperCase().trim());
-            setCommonFields(orgGroup);
-            _rm.addOrgGroup(orgGroup);
-            lbxItems.setSelected(orgGroup.getID());
+            if (! _rm.isKnownOrgGroupName(newName)) {
+                OrgGroup orgGroup = new OrgGroup();
+                orgGroup.setGroupName((String) txtAdd.getText());
+                orgGroup.setBelongsTo(_rm.getOrgGroup(belongsToID));
+                orgGroup.set_groupType(((String) cbbGroup.getSelected()).toUpperCase().trim());
+                setCommonFields(orgGroup);
+                _rm.addOrgGroup(orgGroup);
+                lbxItems.setSelected(orgGroup.getID());
+            }
+            else {
+                msgPanel.error("There is already an org group by that name - please choose another.");
+                return false;
+            }
         }
 
         txtAdd.setText("");

@@ -488,8 +488,8 @@ public class participantData extends AbstractPageBean {
 
     // respond to a 'save' button click
     public String btnSave_action() {
-        if (checkValidPasswordChange(true)) {
-            Participant p = sb.getEditedParticipant() ;
+        Participant p = sb.getEditedParticipant() ;
+        if (checkValidPasswordChange(true) && (checkValidUserID(p, true))) {
             boolean nameChange = ! (txtLastName.getText()).equals(p.getLastName());
             saveChanges(p);
             sb.saveParticipantUpdates(p);
@@ -811,17 +811,8 @@ public class participantData extends AbstractPageBean {
         boolean result = checkForRequiredValues();
 
         // unique id?
-        if (hasText(txtUserID)) {
-            String newUserID = (String) txtUserID.getText();
-            if (newUserID.equalsIgnoreCase("admin")) {
-                msgPanel.error("ERROR: 'admin' is a reserved User ID - please try another.");
-                result = false;
-            }
-            else if (! getApplicationBean().isUniqueUserID(newUserID)) {
-                msgPanel.error("ERROR: That User ID is already in use - please try another.");
-                result = false;
-            }    
-        }
+        if (! checkValidUserID(null, false))
+            result = false;
 
         // password check
         if (! checkValidPasswordChange(false))
@@ -871,6 +862,30 @@ public class participantData extends AbstractPageBean {
 
     private boolean hasText(PasswordField field) {
         return ((String) field.getPassword()).length() > 0 ;
+    }
+
+
+    private boolean checkValidUserID(Participant p, boolean updating) {
+        boolean result = true;
+        if (hasText(txtUserID)) {
+            String newUserID = (String) txtUserID.getText();
+            if (newUserID.equalsIgnoreCase("admin")) {
+                msgPanel.error("ERROR: 'admin' is a reserved User ID - please try another.");
+                result = false;
+            }
+            else {
+                boolean modified = (! updating) || (! p.getUserID().equals(newUserID)) ;
+                if (modified && (! getApplicationBean().isUniqueUserID(newUserID))) {
+                    msgPanel.error("ERROR: That User ID is already in use - please try another.");
+                    result = false;
+                }
+            }
+        }
+        else {
+            msgPanel.error("ERROR: Please supply a userid.");
+            result = false;
+        }
+        return result;
     }
 
 

@@ -1151,6 +1151,22 @@ public class ResourceManager extends InterfaceBWebsideController {
         return _ds.orgGroupMap.containsKey(oid);
     }
 
+    public boolean isKnownRoleName(String name) {
+        return getRoleByName(name) != null;
+    }
+
+    public boolean isKnownCapabilityName(String name) {
+        return getCapabilityByLabel(name) != null;
+    }
+
+    public boolean isKnownPositionName(String name) {
+        return getPositionByLabel(name) != null;
+    }
+
+    public boolean isKnownOrgGroupName(String name) {
+        return this.getOrgGroupByLabel(name) != null;
+    }
+
 
     public String getFullNameForUserID(String userID) {
         if (userID.equals("admin")) return "Administrator" ;
@@ -1214,7 +1230,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             return null ;
     }
 
-    public Set<Participant> getCapabiltyParticipants(String cid) {
+    public Set<Participant> getCapabilityParticipants(String cid) {
         Capability c = _ds.capabilityMap.get(cid);
         if (c != null)
             return castToParticipantSet(c.getResources()) ;
@@ -1229,6 +1245,109 @@ public class ResourceManager extends InterfaceBWebsideController {
         else
             return null ;
     }
+
+    public Set<Participant> getParticipantsWithRole(String roleName) {
+        Set<Participant> result = null;
+        if (roleName != null) {
+            Role r = getRoleByName(roleName);
+            if (r != null) {
+                result = getRoleParticipants(r.getID());
+            }
+        }
+        return result;
+    }
+
+    public Set<Participant> getParticipantsWithPosition(String positionName) {
+        Set<Participant> result = null;
+        if (positionName != null) {
+            Position p = this.getPositionByLabel(positionName);
+            if (p != null) {
+                result = getPositionParticipants(p.getID());
+            }
+        }
+        return result;
+    }
+
+    public Set<Participant> getParticipantsWithCapability(String capabilityName) {
+        Set<Participant> result = null;
+        if (capabilityName != null) {
+            Capability c = this.getCapabilityByLabel(capabilityName);
+            if (c != null) {
+                result = getCapabilityParticipants(c.getID());
+            }
+        }
+        return result;
+    }
+
+
+    public String getParticpantsWithRoleAsXML(String roleName) {
+        String result = "<participants/>";
+        if (roleName != null) {
+            Role r = getRoleByName(roleName);
+            if (r != null) {
+                result = getRoleParticipantsAsXML(r.getID());
+            }
+        }
+        return result;
+    }
+
+    public String getRoleParticipantsAsXML(String rid) {
+        Set<Participant> pSet = getRoleParticipants(rid);
+        if (pSet != null) {
+            String header = String.format("<participants roleid=\"%s\">", rid);
+            return participantSetToXML(pSet, header);
+        }
+        else return "<participants/>" ;
+    }
+
+    public String getParticpantsWithPositionAsXML(String positionName) {
+        String result = "<participants/>";
+        if (positionName != null) {
+            Position p = getPositionByLabel(positionName);
+            if (p != null) {
+                result = getPositionParticipantsAsXML(p.getID());
+            }
+        }
+        return result;
+    }
+
+    public String getPositionParticipantsAsXML(String posid) {
+        Set<Participant> pSet = getPositionParticipants(posid);
+        if (pSet != null) {
+            String header = String.format("<participants positionid=\"%s\">", posid);
+            return participantSetToXML(pSet, header);
+        }
+        else return "<participants/>" ;
+    }
+
+    public String getParticpantsWithCapabilityAsXML(String capabilityName) {
+        String result = "<participants/>";
+        if (capabilityName != null) {
+            Capability c = getCapabilityByLabel(capabilityName);
+            if (c != null) {
+                result = getCapabilityParticipantsAsXML(c.getID());
+            }
+        }
+        return result;
+    }
+
+    public String getCapabilityParticipantsAsXML(String cid) {
+        Set<Participant> pSet = getCapabilityParticipants(cid);
+        if (pSet != null) {
+            String header = String.format("<participants positionid=\"%s\">", cid);
+            return participantSetToXML(pSet, header);
+        }
+        else return "<participants/>" ;
+    }
+
+
+    private String participantSetToXML(Set<Participant> pSet, String header) {
+        StringBuilder xml = new StringBuilder(header) ;
+        for (Participant p : pSet) xml.append(p.toXML()) ;
+        xml.append("</participants>");
+        return xml.toString() ;        
+    }
+
 
     public Set<Participant> castToParticipantSet(Set<AbstractResource> resources) {
         if (resources == null) return null;
@@ -1951,7 +2070,9 @@ public class ResourceManager extends InterfaceBWebsideController {
         return result;
     }
 
-
+    public WorkItemRecord getWorkItemRecord(String itemID) {
+        return _workItemCache.get(itemID);
+    }
 
     public String updateWorkItemData(String itemID, String data) {
         String result ;
@@ -2523,7 +2644,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         String handle ;
         String result = "success" ;
         try {
-            // create new user for service if necessary
+            // create new user for user if necessary (only for logging purposes)
             if (! isRegisteredUser(userid))
                 result = _interfaceAClient.createUser(userid, password, false,
                                                                    _engineSessionHandle);
@@ -2762,7 +2883,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         return result;
     }
 
-    private List<WorkItemRecord> getChildren(String parentID) {
+    public List<WorkItemRecord> getChildren(String parentID) {
         try {
             return getChildren(parentID, _engineSessionHandle) ;
         }

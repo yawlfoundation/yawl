@@ -502,5 +502,36 @@ public class ResourceGatewayClientAdapter {
         return xmlStringToResourceAttributeList(pStr, "Position") ;
     }
 
-    
+    public Set<Participant> getParticipantsWithRole(String roleName, String handle) {
+        try {
+            String xml = _rgclient.getParticipantsWithRole(roleName, handle) ;
+            return _marshaller.unmarshallParticipants(xml) ;
+        }
+        catch (IOException ioe) {
+            return null;
+        }
+    }
+
+    public Set<Participant> getParticipantsWithPosition(String positionName, String handle) {
+        try {
+            String xml = _rgclient.getParticipantsWithPosition(positionName, handle) ;
+            return _marshaller.unmarshallParticipants(xml) ;
+        }
+        catch (IOException ioe) {
+            return null;
+        }
+    }
+
+
+    public Set<Participant> getParticipantsWithCapability(String capabilityName, String handle) {
+        try {
+            String xml = _rgclient.getParticipantsWithCapability(capabilityName, handle) ;
+            return _marshaller.unmarshallParticipants(xml) ;
+        }
+        catch (IOException ioe) {
+            return null;
+        }
+    }
+
+
 }
