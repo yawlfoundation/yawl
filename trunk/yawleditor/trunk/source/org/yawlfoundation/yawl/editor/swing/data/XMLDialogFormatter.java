@@ -36,38 +36,38 @@ public class XMLDialogFormatter {
         Chopper prevChopper = Chopper.NIL;
 
         for (int i=0; i<input.length; i++) {
-            switch (input[i]) {
-                case ' ' :
-                case '\n' : continue;
-                case '<' : {
-                    boolean closer = (input[i+1] == '/');
-                    if (prevChopper == Chopper.OPEN) {
-                        if (! closer) tabCount += 2;
+            if (! isWhitespace(input[i])) {
+                switch (input[i]) {
+                    case '<' : {
+                        boolean closer = (input[i+1] == '/');
+                        if (prevChopper == Chopper.OPEN) {
+                            if (! closer) tabCount += 2;
+                        }
+                        else if (prevChopper != Chopper.NIL) {         // not NIL or OPEN
+                            if (closer) tabCount -= 2;
+                        }
+                        if (prevChopper != Chopper.NIL) {
+                            result.append(lineBreakAndIndent(tabCount));
+                        }
+                        prevChopper = closer ? Chopper.CLOSE : Chopper.OPEN;
+                        break;
                     }
-                    else if (prevChopper != Chopper.NIL) {         // not NIL or OPEN
-                        if (closer) tabCount -= 2;
-                    }                    
-                    if (prevChopper != Chopper.NIL) {
-                        result.append(lineBreakAndIndent(tabCount));                        
+                    case '>' : {
+                        if (input[i-1] == '/')  prevChopper = Chopper.SHORTCLOSE;
+                        break;
                     }
-                    prevChopper = closer ? Chopper.CLOSE : Chopper.OPEN;
-                    break;
-                }
-                case '>' : {
-                    if (input[i-1] == '/')  prevChopper = Chopper.SHORTCLOSE;
-                    break;
-                }
-                case '{' : {
-                    if (prevChopper == Chopper.OPEN) tabCount += 2;
+                    case '{' : {
+                        if (prevChopper == Chopper.OPEN) tabCount += 2;
 
-                    if (prevChopper != Chopper.NIL) {
-                        result.append(lineBreakAndIndent(tabCount));
+                        if (prevChopper != Chopper.NIL) {
+                            result.append(lineBreakAndIndent(tabCount));
+                        }
+                        prevChopper = Chopper.BRACE;
+                        break;
                     }
-                    prevChopper = Chopper.BRACE;
-                    break;
                 }
+                result.append(input[i]);
             }
-            result.append(input[i]);
         }
         return result.toString();
     }
@@ -78,6 +78,11 @@ public class XMLDialogFormatter {
         result[0] = '\n';
         for (int i=1; i<=tabCount; i++) result[i] = ' ';
         return result;
+    }
+
+    private static boolean isWhitespace(char c) {
+        return " \t\r\n".indexOf(c) > -1;
+
     }
 
 }

@@ -106,8 +106,8 @@ public class SpecificationModel {
   /**
    * A convenience legacy method that subscribes the specified 
    * object to set of more coarse-grained specification model events. 
-   * Namely {@link State.NO_NETS_EXIST},  {@link State.NETS_EXIST},
-   * {@link State.NO_NET_SELECTED}, {@link SOME_NET_SELECTED}.
+   * Namely {State.NO_NETS_EXIST},  {State.NETS_EXIST},
+   * {State.NO_NET_SELECTED}, {SOME_NET_SELECTED}.
    * @param subscriber
    * @see SpecificationModelListener
    */
@@ -194,7 +194,7 @@ public class SpecificationModel {
   private Color getPreferredVertexBackground() {
       Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
       int preferredColor = prefs.getInt("PREFERRED_VERTEX_BACKGROUND_COLOR",
-                                         new Color(230,230,255).getRGB());
+                                         Color.WHITE.getRGB());
       return new Color(preferredColor);
   }
 

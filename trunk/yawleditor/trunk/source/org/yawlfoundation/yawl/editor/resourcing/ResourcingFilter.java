@@ -78,9 +78,9 @@ public class ResourcingFilter implements Serializable {
       return false;
     }
 
-    if (!getDisplayName().equals(otherMechanism.getDisplayName())) {
-      return false;
-    }
+//    if (!getDisplayName().equals(otherMechanism.getDisplayName())) {
+//      return false;
+//    }
     
     return true;
   }
