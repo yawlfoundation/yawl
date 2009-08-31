@@ -325,21 +325,25 @@ class SelectableFilterTableModel extends AbstractTableModel {
   }
   
   private void setFlaggedFilters() {
-    if (getResourceMapping().getResourcingFilters() == null) {
+    List<ResourcingFilter> flaggedFilters = getResourceMapping().getResourcingFilters();
+    if (flaggedFilters == null) {
       getResourceMapping().setResourcingFilters(new LinkedList<ResourcingFilter>());
       return; // already defaults to false per filter, so we're done here.
     }
     
     for(int i = 0; i < filters.size(); i++) {
-      for(int j = 0; j < getResourceMapping().getResourcingFilters().size(); j++) {
-        if (getFilterAtRow(i).equals(getResourceMapping().getResourcingFilters().get(j))) {
+      for(int j = 0; j < flaggedFilters.size(); j++) {
+
+        ResourcingFilter flagged = flaggedFilters.get(j);
+        if (getFilterAtRow(i).equals(flagged)) {
 
           // The filters we get off the engine are like classes;  uninstantiated as yet.
           // The filters stored in ResourceMapping are like instances of the classes.
           // there is extra information that we should be using instead. We swap
           // out the engine filter in favour of the instantiated filter at this point.
-          
-          filters.set(i, getResourceMapping().getResourcingFilters().get(j));
+
+          flagged.setDisplayName(getFilterAtRow(i).getDisplayName());
+          filters.set(i, flagged);
           setFilterSelectionAtRow(i, Boolean.TRUE);
           fireTableRowsUpdated(i, i);
         }
