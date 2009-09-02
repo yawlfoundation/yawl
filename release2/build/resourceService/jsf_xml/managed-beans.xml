@@ -113,8 +113,8 @@
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>
     <managed-bean>
-        <managed-bean-name>rsslink</managed-bean-name>
-        <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.rsslink</managed-bean-class>
+        <managed-bean-name>rssFormViewer</managed-bean-name>
+        <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.rssFormViewer</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>
 </faces-config>

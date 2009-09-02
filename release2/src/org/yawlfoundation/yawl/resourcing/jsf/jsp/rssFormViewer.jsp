@@ -8,39 +8,39 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"/>
 
     <f:view>
-        <ui:page binding="#{rsslink.page}" id="page1">
-            <ui:html binding="#{rsslink.html}" id="html1">
-                <ui:head binding="#{rsslink.head}" id="head1"
-                         title="Welcome to YAWL 2.0: Please Login">
-                    <ui:link binding="#{rsslink.link}" id="link1"
+        <ui:page binding="#{rssFormViewer.page}" id="page1">
+            <ui:html binding="#{rssFormViewer.html}" id="html1">
+                <ui:head binding="#{rssFormViewer.head}" id="head1"
+                         title="YAWL 2.0: RSS Form Handler">
+                    <ui:link binding="#{rssFormViewer.link}" id="link1"
                              url="/resources/stylesheet.css"/>
                     <ui:link binding="#{ApplicationBean.favIcon}" id="lnkFavIcon"
                              rel="shortcut icon"
                             type="image/x-icon" url="/resources/favicon.ico"/>
                 </ui:head>
 
-                <ui:body binding="#{rsslink.body}" id="body1"
-                         focus="form1:txtUserName"
+                <ui:body binding="#{rssFormViewer.body}" id="body1"
+                         focus="form1:btnClose"
                          style="-rave-layout: grid">
                     <br/>
-                    <ui:form binding="#{rsslink.form}" id="form1">
+                    <ui:form binding="#{rssFormViewer.form}" id="form1">
 
                         <!-- include banner -->
                         <div><jsp:directive.include file="pfHeader.jspf"/></div>
 
                         <center>
 
-                            <ui:panelLayout binding="#{rsslink.pnlContainer}"
+                            <ui:panelLayout binding="#{rssFormViewer.pnlContainer}"
                                             id="pnlContainer"
-                                            styleClass="rssLinkPanel">
+                                            styleClass="rssFormViewerPanel">
 
-                                <ui:staticText binding="#{rsslink.staticText1}"
+                                <ui:staticText binding="#{rssFormViewer.staticText1}"
                                                id="staticText1"
-                                               styleClass="pageSubheading"
-                                               style="left: 12px; top: 12px"/>
+                                               styleClass="rssMessage"
+                                               style="top: 12px"/>
 
-                                <ui:button action="#{rsslink.btnClose_action}"
-                                           binding="#{rsslink.btnClose}"
+                                <ui:button action="#{rssFormViewer.btnClose_action}"
+                                           binding="#{rssFormViewer.btnClose}"
                                            id="btnClose"
                                            primary="true"
                                            styleClass="rssCloseButton"

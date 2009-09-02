@@ -11,7 +11,6 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
-import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
@@ -19,14 +18,11 @@ import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.WorkItemAgeComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
-import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.faces.FacesException;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Set;
 import java.util.SortedSet;
@@ -364,8 +360,7 @@ public class userWorkQueues extends AbstractPageBean {
         // check flags & take post-roundtrip action if any are set 
         if (_sb.isDelegating()) postDelegate();
         else if (_sb.isReallocating()) postReallocate();
-        else if (_sb.isCustomFormPost()) postCustomForm();
-        else if (_sb.isWirEdit()) postEditWIR() ;
+        else if (_sb.isCustomFormPost() || _sb.isWirEdit()) postFormDisplay();
         else if (_sb.isAddInstance()) postAddInstance();
 
         // get the last selected tab
@@ -539,27 +534,19 @@ public class userWorkQueues extends AbstractPageBean {
             return null;
         }
 
-        // if there's a custom form for this item, use it
-        if (wir.getCustomFormURL() != null) {
-            showCustomForm(wir) ;
-            return null ;
+        FormViewer form = new FormViewer(_sb);
+        String result = form.display(wir);
+        _sb.setFormViewerInstance(form);
+        if (result.startsWith("<failure>")) {
+            msgPanel.error(msgPanel.format(result));
+            return null;
         }
-
-        // otherwise default to a dynamic form
+        else if (result.startsWith("http")) {                // custom form
+            redirect(result);
+            return null;
+        }
         else {
-            _sb.setDynFormType(ApplicationBean.DynFormType.tasklevel);
-            DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");
-            df.setHeaderText("Edit Work Item: " + wir.getCaseID());
-            df.setDisplayedWIR(wir);
-            if (df.initDynForm("YAWL 2.0 - Edit Work Item")) {
-                return "showDynForm" ;
-            }
-            else {
-                msgPanel.error("Cannot view item contents - problem initialising " +
-                               "dynamic form from task specification. " +
-                               "Please see the log files for details.");
-                return null;
-            }
+            return result;
         }
     }
 
@@ -717,38 +704,6 @@ public class userWorkQueues extends AbstractPageBean {
 
 
 
-    /** prepare workitem data, pass to and show custom form */
-    private void showCustomForm(WorkItemRecord wir) {
-        String url = wir.getCustomFormURL();
-        if (url != null) {
-            _sb.setCustomFormPost(true);
-            try {
-
-                // adjust session timeout value if required
-                adjustSessionTimeout(wir);
-
-                // add params to the custom form url
-                StringBuilder redir = new StringBuilder(url);
-                redir.append((url.indexOf('?') == -1) ? "?" : "&")  // any static params?
-                     .append("workitem=")
-                     .append(wir.getID())
-                     .append("&participantid=")
-                     .append(_sb.getParticipant().getID())
-                     .append("&handle=")
-                     .append(_sb.getSessionhandle());
-
-                // show the custom form
-                FacesContext.getCurrentInstance().getExternalContext().redirect(redir.toString());
-            }
-            catch (Exception e) {
-                _sb.setCustomFormPost(false);
-                msgPanel.error("IO Exception attempting to display custom form: " +
-                               e.getMessage());
-            }
-        }
-    }
-
-
     /**********************************************************************************/
 
     // POST BACK ACTIONS //
@@ -797,50 +752,22 @@ public class userWorkQueues extends AbstractPageBean {
     }
 
 
-    /** updates a workitem after editing on a dynamic form */
-    private void postEditWIR() {
-        if (_sb.isWirEdit()) {
-            WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
-            if (wir != null) {
-                Element data = JDOMUtil.stringToElement(getDynFormFactory().getDataList());
-                wir.setUpdatedData(data);
-                _rm.getWorkItemCache().update(wir) ;
 
-                if (_sb.isCompleteAfterEdit()) {
-                    completeWorkItem(wir, _sb.getParticipant());
-                }
-            }
-            else {
-                msgPanel.error("Could not complete workitem. Check log for details.");
-            }
+    /** takes necessary action after editing a form */
+    private void postFormDisplay() {
+        String msg ;
+        FormViewer form = _sb.getFormViewerInstance();
+        if (form != null) {
+            msg = form.postDisplay(_sb.getChosenWIR(WorkQueue.STARTED)) ;
         }
-        _sb.setWirEdit(false);
-        _sb.setCompleteAfterEdit(false);
-        if (msgPanel.hasMessage()) forceRefresh();
-    }
-
-
-    /** takes necessary action after editing a custom form */
-    private void postCustomForm() {
-
-        // reset session timeout if previously changed
-        if (_sb.isSessionTimeoutValueChanged()) {
-            _sb.resetSessionTimeout();
-            _sb.setSessionTimeoutValueChanged(false);
+        else {
+            msg = "Unsuccessful form completion - could not finalise form." ;
         }
-
-        // retrieve completion flag - if any
-        ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-        HttpServletRequest request = (HttpServletRequest) context.getRequest();
-        String complete = request.getParameter("complete");
-
-        // complete wir if requested
-        if ((complete != null) && complete.equalsIgnoreCase("true")) {
-            WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
-            completeWorkItem(wir, _sb.getParticipant());
+        _sb.resetPostFormDisplay();
+        if (! msg.startsWith("<success/>")) {
+            msgPanel.error(msgPanel.format(msg));
+            forceRefresh();
         }
-
-        _sb.setCustomFormPost(false);                                  // reset flag
     }
 
 
@@ -880,14 +807,23 @@ public class userWorkQueues extends AbstractPageBean {
 
     /** refreshes the page */
     public void forceRefresh() {
-        ExternalContext externalContext = getFacesContext().getExternalContext();
-        if (externalContext != null) {
-            try {
-                externalContext.redirect("userWorkQueues.jsp");
+        redirect("userWorkQueues.jsp");
+    }
+
+
+    private void redirect(String uri) {
+        try {
+            ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+            if (context != null) {
+                context.redirect(uri);
             }
-            catch (IOException ioe) {}
+        }
+        catch (IOException ioe) {
+            msgPanel.error(ioe.getMessage());
         }
     }
+
+
 
 
     // Highlight selected tab's name and show queue's item count on each tab
@@ -1099,30 +1035,6 @@ public class userWorkQueues extends AbstractPageBean {
         }
     }
 
-
-    private void adjustSessionTimeout(WorkItemRecord wir) {
-
-        // get new timeout value (if any)
-        String rawValue = null;
-        Element data = wir.getDataList();
-        if (data != null) {
-            rawValue = data.getChildText("ySessionTimeout");
-        }
-
-        // convert to int, remember current timeout, set new timeout (as secs)
-        if (rawValue != null) {
-            try {
-                int minutes = new Integer(rawValue);
-                HttpSession session = _sb.getExternalSession();
-                _sb.setDefaultSessionTimeoutValue(session.getMaxInactiveInterval()) ;
-                session.setMaxInactiveInterval(minutes * 60);
-                _sb.setSessionTimeoutValueChanged(true);
-            }
-            catch (NumberFormatException nfe) {
-                // bad timeout value supplied - nothing further to do
-            }
-        }
-    }
 
     /********************************************************************************/
 }
