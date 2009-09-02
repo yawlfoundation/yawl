@@ -50,7 +50,7 @@ public class SessionTimeoutFilter implements Filter {
 
             // avoid infinite loop from login page back to timeout page
             if (! isLoginPageRequest(httpRequest)) {
-                if (isInvalidSession(httpRequest)) {
+                if (isInvalidSession(httpRequest) && (! isRSSFormRequest(httpRequest))) {
                     _log.warn("User session has expired");
                     String url = httpRequest.getContextPath() + _timeoutPage;
                     httpResponse.sendRedirect(url);
@@ -64,6 +64,10 @@ public class SessionTimeoutFilter implements Filter {
 
     private boolean isLoginPageRequest(HttpServletRequest request) {
         return StringUtils.contains(request.getRequestURI(), "Login");
+    }
+
+    private boolean isRSSFormRequest(HttpServletRequest request) {
+        return StringUtils.contains(request.getRequestURI(), "rssFormViewer");
     }
 
     private boolean isInvalidSession(HttpServletRequest httpServletRequest) {

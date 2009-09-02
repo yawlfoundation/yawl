@@ -1635,7 +1635,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public void acceptOffer(Participant p, WorkItemRecord wir) {
+    public WorkItemRecord acceptOffer(Participant p, WorkItemRecord wir) {
         StartInteraction starter = null;
         ResourceMap rMap = getResourceMap(wir);
         if (rMap != null) {
@@ -1649,6 +1649,11 @@ public class ResourceManager extends InterfaceBWebsideController {
         if ((starter != null) &&
             (starter.getInitiator() == AbstractInteraction.SYSTEM_INITIATED)) {
             startImmediate(p, wir);
+            WorkItemRecord startedItem = getExecutingChild(getChildren(wir.getID()));
+            if (startedItem != null) {
+                WorkItemRecord cachedItem = _workItemCache.get(startedItem.getID());
+                if (cachedItem != null) wir = cachedItem;
+            }
         }
         else {
 
@@ -1663,6 +1668,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
 
         _workItemCache.update(wir);
+        return wir;
     }
 
 
@@ -1808,7 +1814,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             if (children.size() > 1) {                   // i.e. if multi atomic task
 
                 // which one got started with the checkout?
-                oneToStart = getExecutingChild(wir, children) ;
+                oneToStart = getExecutingChild(children) ;
 
                 // get the rest of the kids and distribute them
                 distributeChildren(oneToStart, children) ;
@@ -2542,10 +2548,13 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
+    public WorkItemRecord getExecutingChild(WorkItemRecord parent) {
+        return getExecutingChild(getChildren(parent.getID()));
+    }
 
-    private WorkItemRecord getExecutingChild(WorkItemRecord wir, List children) {
-        for (int i = 0; i < children.size(); i++) {
-           WorkItemRecord itemRec = (WorkItemRecord) children.get(i);
+    
+    private WorkItemRecord getExecutingChild(List<WorkItemRecord> children) {
+        for (WorkItemRecord itemRec : children) {
 
            // find the one that's executing
            if (WorkItemRecord.statusExecuting.equals(itemRec.getStatus()))

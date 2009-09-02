@@ -88,10 +88,10 @@
     position:relative;
 }
 
-.rssLinkPanel {
-    height: 300px;
-    width: 60%;
-    top: 5px;
+.rssFormViewerPanel {
+    height: 200px;
+    width: 50%;
+    top: 50px;
     position:relative;
 }
 
@@ -129,7 +129,7 @@
     position: absolute;
     height: 30px;
     width: 120px;
-    top: 150px;
+    top: 100px;
 }
 
 .visualiserButton {
@@ -281,6 +281,12 @@
     font-size: 14px;
     font-weight: bold;
     position: absolute;    
+}
+
+.rssMessage {
+    color: #3333ff;
+    font-size: 16px;
+    position: relative;
 }
 
 .refreshButton {

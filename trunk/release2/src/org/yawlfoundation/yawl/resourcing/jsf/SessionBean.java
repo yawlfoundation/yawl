@@ -25,6 +25,7 @@ import org.yawlfoundation.yawl.resourcing.jsf.comparator.OptionComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.SpecificationDataComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.YAWLServiceComparator;
+import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -273,6 +274,10 @@ public class SessionBean extends AbstractSessionBean {
 
     public void setDynFormType(ApplicationBean.DynFormType type) {
         dynFormType = type;
+    }
+
+    public DynFormFactory getDynFormFactoryInstance() {
+        return (DynFormFactory) getBean("DynFormFactory");
     }
 
     
@@ -1562,6 +1567,45 @@ public class SessionBean extends AbstractSessionBean {
 
     public void setRssAlreadyLoggedOn(boolean loggedOn) {
         rssAlreadyLoggedOn = loggedOn;
+    }
+
+    private FormViewer formViewerInstance = null ;
+
+    public FormViewer getFormViewerInstance() {
+        return formViewerInstance;
+    }
+
+    public void setFormViewerInstance(FormViewer instance) {
+        formViewerInstance = instance;
+    }
+
+    private WorkItemRecord rssFormWIR = null;
+
+    public WorkItemRecord getRssFormWIR() {
+        return rssFormWIR;
+    }
+
+    public void setRssFormWIR(WorkItemRecord wir) {
+        rssFormWIR = wir;
+    }
+
+    public void resetPostFormDisplay() {
+        setFormViewerInstance(null);
+        setRssFormWIR(null);
+        setRssFormDisplay(false);
+        setWirEdit(false);
+        setCompleteAfterEdit(false);
+        setCustomFormPost(false);
+    }
+
+    private boolean rssFormDisplay = false ;
+
+    public boolean isRssFormDisplay() {
+        return rssFormDisplay;
+    }
+
+    public void setRssFormDisplay(boolean display) {
+        rssFormDisplay = display;
     }
 }
 

@@ -223,10 +223,20 @@ public class dynForm extends AbstractPageBean {
 
 
     private String getReferringPage() {
+        String result;
         if (_sb.getDynFormType() == ApplicationBean.DynFormType.netlevel) {
-           return "showCaseMgt";
+           result = "showCaseMgt";
         }
-        return (_sb.isVisualiserReferred()) ? "showVisualiser" : "showUserQueues";
+        else if (_sb.isVisualiserReferred()) {
+            result = "showVisualiser" ;
+        }
+        else if (_sb.isRssFormDisplay()) {
+            result = "showRssForm";
+        }
+        else {
+            result = "showUserQueues";
+        }
+        return result;
     }
 
     /******************************************************************************/

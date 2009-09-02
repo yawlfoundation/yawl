@@ -117,6 +117,10 @@
             <from-outcome>showVisualiser</from-outcome>
             <to-view-id>/visualiser.jsp</to-view-id>
         </navigation-case>
+        <navigation-case>
+            <from-outcome>showRssForm</from-outcome>
+            <to-view-id>/rssFormViewer.jsp</to-view-id>
+        </navigation-case>
     </navigation-rule>
     <navigation-rule>
         <from-view-id>/selectUser.jsp</from-view-id>
@@ -361,5 +365,12 @@
             <to-view-id>/dynForm.jsp</to-view-id>
         </navigation-case>        
     </navigation-rule>
-    
+    <navigation-rule>
+        <from-view-id>/rssFormViewer.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>showDynForm</from-outcome>
+            <to-view-id>/dynForm.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+
 </faces-config>

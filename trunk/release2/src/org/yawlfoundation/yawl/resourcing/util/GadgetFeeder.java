@@ -1,13 +1,16 @@
 package org.yawlfoundation.yawl.resourcing.util;
 
+import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.jsf.comparator.WorkItemAgeComparator;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
-import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Author: Michael Adams
@@ -15,23 +18,30 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class GadgetFeeder {
     
-    private final String _preamble = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+    private final String _preamble =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
             "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" +
             "<head>\n" +
             "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />";
 
-    private final String _css = "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://www.yawlfoundation.org/gadgets/yworklist.css\"></link>";
+    private final String _css =
+            "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://www.yawlfoundation.org/gadgets/yworklist.css\"></link>";
 
-    private final String _script = "<script type=\"text/javascript\" src=\"http://www.yawlfoundation.org/gadgets/addclasskillclass.js\"></script>" +
+    // these scripts enable a plain html tabset.
+    // sourced from: http://phrogz.net/JS/SemanticTabset/semantictabset.html  
+    private final String _script =
+            "<script type=\"text/javascript\" src=\"http://www.yawlfoundation.org/gadgets/addclasskillclass.js\"></script>" +
             "<script type=\"text/javascript\" src=\"http://www.yawlfoundation.org/gadgets/attachevent.js\"></script>" +
             "<script type=\"text/javascript\" src=\"http://www.yawlfoundation.org/gadgets/semantictabset.js\"></script>";
 
-    private final String _bodyPreamble = "<dl class=\"tabset\">\n" +
+    private final String _bodyPreamble =
+            "<dl class=\"tabset\">\n" +
             "<dt class=\"ieclear\"></dt>  \n";
 
     private final String _bodyPostfix = "</dl>";
 
+    
     private ResourceManager _rm;
     private String _userid;
     private String _password;
@@ -126,17 +136,14 @@ public class GadgetFeeder {
         result.append("</dt><dd>");
         if (queue != null) {
             result.append("<table cellpadding=\"1\">");
-            for (WorkItemRecord wir : queue.getAll()) {
+            SortedSet<WorkItemRecord> wirSet =
+                    new TreeSet<WorkItemRecord>(new WorkItemAgeComparator());
+            wirSet.addAll(queue.getAll());
+            for (WorkItemRecord wir : wirSet) {
                 result.append("<tr><td><a href=\"")
                       .append(_rootURI)  
-                      .append("resourceService/faces/rsslink.jsp?itemid=")
-                      .append(wir.getID())
-                      .append("&amp;userid=")
-                      .append(_userid)
-                      .append("&amp;password=")
-                      .append(JDOMUtil.encodeEscapes(_encryptedPassword))
-                      .append("&amp;parent=")
-                      .append(_parentURI)
+                      .append("resourceService/faces/rssFormViewer.jsp")
+                      .append(getParams(wir.getID()))
                       .append("\" target=\"_blank\">")
                       .append(wir.getIDForDisplay())
                       .append("</a></td></tr>");
@@ -144,6 +151,19 @@ public class GadgetFeeder {
             result.append("</table>");
         }
         result.append("</dd>");
+        return result.toString();
+    }
+
+
+    private String getParams(String itemid) {
+        StringBuilder result = new StringBuilder("?itemid=");
+        result.append(ServletUtils.urlEncode(itemid))
+              .append("&amp;userid=")
+              .append(ServletUtils.urlEncode(_userid))
+              .append("&amp;password=")
+              .append(ServletUtils.urlEncode(_encryptedPassword))
+              .append("&amp;parent=")
+              .append(ServletUtils.urlEncode(_parentURI));
         return result.toString();
     }
 
