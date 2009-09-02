@@ -58,7 +58,7 @@ public class SpecificationModel {
     NO_NET_SELECTED,
     SOME_NET_SELECTED,
     NET_DETAIL_CHANGED
-  };
+  }
   
   private int netCount;
   private HashSet<NetGraphModel> nets;
@@ -86,7 +86,7 @@ public class SpecificationModel {
   private Color   defaultVertexBackground = getPreferredVertexBackground();
   private String  name                = "";
   private String  description         = "No description has been given.";
-  private String  id                 = "";
+  private String  id                  = "";
   private String  uniqueID            = "UID_" + UUID.randomUUID().toString();
   private String  author              = System.getProperty("user.name");
   private YSpecVersion versionNumber  = new YSpecVersion("0.1");
