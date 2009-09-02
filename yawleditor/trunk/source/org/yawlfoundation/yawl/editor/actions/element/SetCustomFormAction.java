@@ -58,16 +58,16 @@ public class SetCustomFormAction extends YAWLSelectedNetAction
   }
 
   public void actionPerformed(ActionEvent event) {
-    String urlStr = task.getCustomFormURL();
-    if (urlStr == null) urlStr =  "http://";
-    boolean done = false ;
+      String urlStr = task.getCustomFormURL();
+      if (urlStr == null) urlStr =  "http://";
+      boolean done = false ;
+      CustomFormDialog dialog = new CustomFormDialog() ;
+      dialog.setURI(urlStr);
 
-    while (! done) {
-      String result = (String) JOptionPane.showInputDialog(graph, "Custom Form URI: ",
-                          "Set Custom Form URI", JOptionPane.PLAIN_MESSAGE,
-                          null, null, urlStr);
+      while (! done) {
+          dialog.setVisible(true);
+          String result = dialog.getURI();
 
-      if (result != null) {
           if ((result.length() == 0) || (result.equals("http://"))) {
               task.setCustomFormURL(null);
               done = true;
@@ -80,16 +80,14 @@ public class SetCustomFormAction extends YAWLSelectedNetAction
               }
               catch (MalformedURLException mfue) {       // not wellformed - try again
                   JOptionPane.showMessageDialog(graph,
-                            "'" + result +
-                            "' is not a valid absolute URL. Please correct or cancel.",
-                            "Malformed URL",
-                            JOptionPane.ERROR_MESSAGE);
+                          "'" + result +
+                          "' is not a valid absolute URL. Please correct or cancel.",
+                          "Malformed URL",
+                          JOptionPane.ERROR_MESSAGE);
               }
           }
       }
-      else done = true ;                                                  // cancelled
-    }
-    graph.clearSelection();
+      graph.clearSelection();
   }
 
     
