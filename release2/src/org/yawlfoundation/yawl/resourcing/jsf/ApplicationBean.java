@@ -21,7 +21,9 @@ import javax.faces.application.Application;
 import javax.faces.application.ViewHandler;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+import javax.faces.context.ExternalContext;
 import java.util.*;
+import java.io.IOException;
 
 /**
  * Application scope data bean for the worklist and admin pages.
@@ -314,6 +316,21 @@ public class ApplicationBean extends AbstractApplicationBean {
         }
         return result;
     }
+
+
+    public void redirect(String uri) {
+        try {
+            ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+            if (context != null) {
+                context.redirect(uri);
+            }
+        }
+        catch (IOException ioe) {
+            // nothing to do
+        }
+    }
+
+
 
 
 }
