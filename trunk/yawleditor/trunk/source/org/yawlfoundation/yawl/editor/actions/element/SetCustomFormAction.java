@@ -66,6 +66,9 @@ public class SetCustomFormAction extends YAWLSelectedNetAction
 
       while (! done) {
           dialog.setVisible(true);
+          if (dialog.isCancelled()) {
+              break;
+          }
           String result = dialog.getURI();
 
           if ((result.length() == 0) || (result.equals("http://"))) {
