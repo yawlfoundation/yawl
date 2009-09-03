@@ -16,7 +16,6 @@ import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.WorkItemAgeComparator;
-import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -338,16 +337,13 @@ public class userWorkQueues extends AbstractPageBean {
     private MessagePanel msgPanel = _sb.getMessagePanel() ;
 
 
-    /** @return a reference to the session scoped form factory bean. */
-    private DynFormFactory getDynFormFactory() {
-        return (DynFormFactory) getBean("DynFormFactory");
-    }
-
-
     /**
      * Overridden method that is called immediately before the page is rendered
      */
     public void prerender() {
+        if (_sb.isRssFormDisplay()) {
+            getApplicationBean().redirect("rssFormViewer.jsp");
+        }
         _sb.checkLogon();                                  // check session still live
         msgPanel.show(100, 0, "relative");                 // show msgs (if any)
 

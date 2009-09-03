@@ -412,7 +412,6 @@ public class rssFormViewer extends AbstractPageBean {
     }
 
 
-
     private void logout() {
         if (! sb.isRssAlreadyLoggedOn()) {
             sb.doLogout();

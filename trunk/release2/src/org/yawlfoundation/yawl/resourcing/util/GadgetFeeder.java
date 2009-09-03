@@ -41,27 +41,34 @@ public class GadgetFeeder {
 
     private final String _bodyPostfix = "</dl>";
 
-    
-    private ResourceManager _rm;
     private String _userid;
     private String _password;
     private String _rootURI;
     private String _parentURI;
     private String _encryptedPassword;
+    private String _libs;
+    private boolean _altTabNames;
+    private Participant _participant = null;
+
 
     public GadgetFeeder(HttpServletRequest req) {
-        _rm = ResourceManager.getInstance();
         _userid = req.getParameter("up_yawlUserID");
         _password = req.getParameter("up_yawlPassword");
         _rootURI = req.getParameter("up_tomcatHome");
         _parentURI = req.getParameter("parent");
+        _libs = req.getParameter("libs");
+        _participant = ResourceManager.getInstance().getParticipantFromUserID(_userid);
+        String altTabs = req.getParameter("up_altTabs");
+        _altTabNames = (altTabs != null) && altTabs.equals("1") ;
     }
 
 
     public String getFeed() {
+        String errMsg = checkCredentials(_participant);
+        if (errMsg != null) _participant = null;
         StringBuilder feed = new StringBuilder(_preamble);
         feed.append(getHead());
-        feed.append(getBody());
+        feed.append(getBody(errMsg));
         feed.append("\n</html>");
         return feed.toString();
     }
@@ -71,20 +78,20 @@ public class GadgetFeeder {
         StringBuilder head = new StringBuilder();
         head.append(_css);
         head.append(_script);
+        head.append(getLibs());
+        head.append(getTitleScript(_participant));
         head.append("</head>");
         return head.toString();
     }
 
 
-    private String getBody() {
+    private String getBody(String errMsg) {
         StringBuilder body = new StringBuilder("<body>");
-        Participant p = _rm.getParticipantFromUserID(_userid);
-        String errMsg = checkCredentials(p);
         if (errMsg != null) {
             body.append(getErrBody(errMsg));
         }
         else {
-            body.append(getWorkLists(p));
+            body.append(getWorkLists(_participant));
         }
         body.append("</body>");
         return body.toString();
@@ -116,6 +123,30 @@ public class GadgetFeeder {
     }
 
 
+    private String getLibs() {
+        StringBuilder result = new StringBuilder();
+        String[] libs = _libs.split(",");
+        for (String lib : libs) {
+             result.append("<script type=\"text/javascript\" src=\"http://www.google.com/ig/f/")
+                   .append(lib)
+                   .append("\"></script>\n");
+        }
+        return result.toString();
+    }
+
+
+    private String getTitleScript(Participant p) {
+        StringBuilder result = new StringBuilder("<script type=\"text/javascript\">");
+        result.append("function init() { _IG_SetTitle(\"YAWL Worklist");
+        if (p != null) {
+            result.append(": ")
+                  .append(p.getFullName());
+        }
+        result.append("\"); }; _IG_RegisterOnloadHandler(init); </script>");
+        return result.toString();       
+    }
+
+
     private String getWorkLists(Participant p) {
         StringBuilder result = new StringBuilder(_bodyPreamble);
         QueueSet qSet = p.getWorkQueues();
@@ -132,7 +163,7 @@ public class GadgetFeeder {
         StringBuilder result = new StringBuilder("<dt");
         if (qType == WorkQueue.OFFERED) result.append(" class=\"active\"");
         result.append(">");
-        result.append(WorkQueue.getQueueName(qType));
+        result.append(getTabName(qType));
         result.append("</dt><dd>");
         if (queue != null) {
             result.append("<table cellpadding=\"1\">");
@@ -152,6 +183,12 @@ public class GadgetFeeder {
         }
         result.append("</dd>");
         return result.toString();
+    }
+
+
+    private String getTabName(int qType) {
+        final String[] alts = { "Available", "Assigned", "In Progress", "Suspended" };
+        return _altTabNames ? alts[qType] : WorkQueue.getQueueName(qType);
     }
 
 
