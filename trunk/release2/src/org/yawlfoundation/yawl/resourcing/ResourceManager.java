@@ -516,9 +516,9 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     /**
      * This does final initialisation tasks involved in ensuring the caches match
-     * the engine's known work. It is called with the first logon after startup, because
-     * it needs the engine to be completely initialised first. It may also be executed
-     * via the 'synch' button on the admin queues.
+     * the engine's known work. It is called via the EngineInitialisationCompleted
+     * event, because it needs the engine to be completely initialised first. It
+     * may also be executed via the 'synch' button on the admin queues.
      */
     public void sanitiseCaches() {
 
