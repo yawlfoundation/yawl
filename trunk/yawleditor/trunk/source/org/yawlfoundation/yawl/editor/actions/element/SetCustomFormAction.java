@@ -24,6 +24,7 @@
 
 package org.yawlfoundation.yawl.editor.actions.element;
 
+import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
@@ -61,15 +62,15 @@ public class SetCustomFormAction extends YAWLSelectedNetAction
       String urlStr = task.getCustomFormURL();
       if (urlStr == null) urlStr =  "http://";
       boolean done = false ;
-      CustomFormDialog dialog = new CustomFormDialog() ;
-      dialog.setURI(urlStr);
+      CustomFormDialogPanel dialogPanel = new CustomFormDialogPanel() ;
+      dialogPanel.setURI(urlStr);
 
       while (! done) {
-          dialog.setVisible(true);
-          if (dialog.isCancelled()) {
-              break;
-          }
-          String result = dialog.getURI();
+          JOptionPane.showOptionDialog(YAWLEditor.getInstance(),
+                  dialogPanel, "Set Custom Form URI", JOptionPane.OK_CANCEL_OPTION,
+                  JOptionPane.PLAIN_MESSAGE, null, null, null);
+      
+          String result = dialogPanel.getURI();
 
           if ((result.length() == 0) || (result.equals("http://"))) {
               task.setCustomFormURL(null);
@@ -84,7 +85,7 @@ public class SetCustomFormAction extends YAWLSelectedNetAction
               catch (MalformedURLException mfue) {       // not wellformed - try again
                   JOptionPane.showMessageDialog(graph,
                           "'" + result +
-                          "' is not a valid absolute URL. Please correct or cancel.",
+                          "' is not a valid absolute URL. Please correct it or cancel.",
                           "Malformed URL",
                           JOptionPane.ERROR_MESSAGE);
               }
