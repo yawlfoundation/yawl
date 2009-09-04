@@ -47,7 +47,9 @@ public class GadgetFeeder {
     private String _parentURI;
     private String _encryptedPassword;
     private String _libs;
+    private String _view;
     private boolean _altTabNames;
+    private boolean _showSuspended;
     private Participant _participant = null;
 
 
@@ -57,9 +59,12 @@ public class GadgetFeeder {
         _rootURI = req.getParameter("up_tomcatHome");
         _parentURI = req.getParameter("parent");
         _libs = req.getParameter("libs");
-        _participant = ResourceManager.getInstance().getParticipantFromUserID(_userid);
+        _view = req.getParameter("view");
         String altTabs = req.getParameter("up_altTabs");
         _altTabNames = (altTabs != null) && altTabs.equals("1") ;
+        String showSusp = req.getParameter("up_showSusp");
+        _showSuspended = (showSusp != null) && showSusp.equals("1") ;
+        _participant = ResourceManager.getInstance().getParticipantFromUserID(_userid);
     }
 
 
@@ -150,10 +155,12 @@ public class GadgetFeeder {
     private String getWorkLists(Participant p) {
         StringBuilder result = new StringBuilder(_bodyPreamble);
         QueueSet qSet = p.getWorkQueues();
-        if (qSet != null)
-        for (int qType = WorkQueue.OFFERED; qType <= WorkQueue.SUSPENDED; qType++) {
-            WorkQueue queue = qSet.getQueue(qType);
-            result.append(getQueueContents(queue, qType));
+        if (qSet != null) {
+            int lastTab = getLastTab() ;
+            for (int qType = WorkQueue.OFFERED; qType <= lastTab; qType++) {
+                WorkQueue queue = qSet.getQueue(qType);
+                result.append(getQueueContents(queue, qType));
+            }
         }
         result.append(_bodyPostfix);
         return result.toString();
@@ -163,7 +170,7 @@ public class GadgetFeeder {
         StringBuilder result = new StringBuilder("<dt");
         if (qType == WorkQueue.OFFERED) result.append(" class=\"active\"");
         result.append(">");
-        result.append(getTabName(qType));
+        result.append(getTabName(qType, queue));
         result.append("</dt><dd>");
         if (queue != null) {
             result.append("<table cellpadding=\"1\">");
@@ -186,9 +193,14 @@ public class GadgetFeeder {
     }
 
 
-    private String getTabName(int qType) {
+    private String getTabName(int qType, WorkQueue queue) {
         final String[] alts = { "Available", "Assigned", "In Progress", "Suspended" };
-        return _altTabNames ? alts[qType] : WorkQueue.getQueueName(qType);
+        String tabName = _altTabNames ? alts[qType] : WorkQueue.getQueueName(qType);
+        if ((_view.equals("canvas")) || (! _showSuspended)) {
+            int qSize = (queue != null) ? queue.getQueueSize() : 0 ;
+            tabName += String.format(" (%d)", qSize);
+        }
+        return tabName;
     }
 
 
@@ -202,6 +214,11 @@ public class GadgetFeeder {
               .append("&amp;parent=")
               .append(ServletUtils.urlEncode(_parentURI));
         return result.toString();
+    }
+
+
+    private int getLastTab() {
+        return _showSuspended ? WorkQueue.SUSPENDED : WorkQueue.STARTED ;
     }
 
 }

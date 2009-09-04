@@ -26,7 +26,7 @@
                     <ui:form binding="#{rssFormViewer.form}" id="form1">
 
                         <!-- include banner -->
-                        <div><jsp:directive.include file="pfHeader.jspf"/></div>
+                        <div><jsp:directive.include file="pfRSSHeader.jspf"/></div>
 
                         <center>
 
