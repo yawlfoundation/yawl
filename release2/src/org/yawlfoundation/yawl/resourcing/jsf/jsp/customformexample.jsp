@@ -7,19 +7,25 @@
 
 <!-- *  A simple custom form example and usage guide.
      *  author Michael Adams
-     *  version 2.0, 06/2009  -->
+     *  version 2.01, 09/2009  -->
 
 <%
-    // the default worklist URL - change it to match your installed path.
-    String redirectURL = "http://localhost:8080/resourceService/faces/userWorkQueues.jsp";
+    // the calling or source URL is passed as a request parameter. Make sure we save it
+    // so we can redirect back to the same place when ready
+    String redirectURL = (String) session.getAttribute("redirectURL");
+    if (redirectURL == null) {
+        redirectURL = request.getParameter("source");
+        session.setAttribute("redirectURL", redirectURL);
+    }
 
     // If the Cancel button has been clicked on the form below, clean up any session
-    // attributes we set in our code below, then return directly to the worklist
+    // attributes we set previously, then return directly to the worklist
     String submit = request.getParameter("submit");
     if ((submit != null) && (submit.equals("Cancel"))) {
         session.removeAttribute("itemXML");
         session.removeAttribute("workitem");
         session.removeAttribute("handle");
+        session.removeAttribute("redirectURL");
 
         response.sendRedirect(response.encodeURL(redirectURL));
         return;
@@ -58,12 +64,11 @@
     // one level down from data is the actual workitem data tree
     Element wirData = (Element) data.getChildren().get(0);
 
-    System.out.println(wirData.getChildText("var"));
-
     // if there was a problem getting the workitem's xml, the xml will contain an
     // error message instead. It can be tested like this:
     String error = null;
     if (! wqClient.successful(itemXML)) {
+        
         // show the message to the user in an appropriate way. In this case, we'll
         // simply show it on the form below
         error = itemXML;
@@ -101,12 +106,13 @@
                         session.removeAttribute("itemXML");
                         session.removeAttribute("workitem");
                         session.removeAttribute("handle");
+                        session.removeAttribute("redirectURL");
 
                         // now we can redirect back to the worklist.
                         // if you want the workitem to complete when it posts back, add
                         // the parameter below and set it to 'true'; if it's false or
                         // missing, the workitem will update but remain on the worklist's
-                        // 'started' queue
+                        // 'started' queue (a 'save')
                         redirectURL += "?complete=true";
 
                         response.sendRedirect(response.encodeURL(redirectURL));

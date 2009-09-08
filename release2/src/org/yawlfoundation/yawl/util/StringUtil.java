@@ -377,4 +377,14 @@ public class StringUtil
         return fileToString(new File(filename));
     }
 
+
+    public static String extract(String source, String pattern) {
+        String extracted = null;
+        Pattern p = Pattern.compile(pattern);
+        Matcher m = p.matcher(source);
+        if (m.find()) {
+            extracted = m.group();
+        }
+        return extracted;
+    }
 }

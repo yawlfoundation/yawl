@@ -17,21 +17,29 @@ package org.yawlfoundation.yawl.resourcing.jsf.dynform;
  */
 
 import com.sun.rave.web.ui.appbase.AbstractSessionBean;
-import com.sun.rave.web.ui.component.*;
+import com.sun.rave.web.ui.component.Button;
 import com.sun.rave.web.ui.component.Calendar;
+import com.sun.rave.web.ui.component.Checkbox;
+import com.sun.rave.web.ui.component.*;
+import com.sun.rave.web.ui.component.Label;
+import com.sun.rave.web.ui.component.TextField;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
+import org.yawlfoundation.yawl.resourcing.jsf.FontUtil;
 import org.yawlfoundation.yawl.resourcing.jsf.SessionBean;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.dynattributes.DynAttributeFactory;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.faces.application.Application;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.el.MethodBinding;
 import javax.faces.event.ActionEvent;
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class DynFormFactory extends AbstractSessionBean {
 
@@ -148,6 +156,7 @@ public class DynFormFactory extends AbstractSessionBean {
     static final int OUTER_PANEL_LEFT = 0;      // left (x) coord of outer panel
     static final int FORM_BUTTON_WIDTH = 76;    // buttons under outer panel
     static final int FORM_BUTTON_GAP = 15;      // ... and the gap between them
+    static final int HEADERTEXT_HEIGHT = 18;    // 14 for font height + 4 vspace
     static final int X_LABEL_OFFSET = 10;
     static final int DEFAULT_FIELD_OFFSET = 125;
     static final int DEFAULT_PANEL_BASE_WIDTH = 250;         // width of innermost panel
@@ -291,8 +300,12 @@ public class DynFormFactory extends AbstractSessionBean {
                     height += ((SubPanel) o).getHeight();
                     currComponent = ComponentType.panel;
                 }
-                else
+                else {
+                    if (o instanceof StaticText) {
+                        height += getAdjustmentForWrappingHeaders((StaticText) o);
+                    }
                     currComponent = ComponentType.field;
+                }
 
                 // add gap between components
                 lastInc = getNextInc(prevComponent, currComponent);
@@ -307,6 +320,101 @@ public class DynFormFactory extends AbstractSessionBean {
     }
 
 
+    private int getAdjustmentForWrappingHeaders(StaticText statText) {
+        Font headerFont = new Font("Helvetica", Font.BOLD, 14);
+        int textLen = FontUtil.getWidth((String) statText.getText(), headerFont);
+        UIComponent parent = statText.getParent();
+        int parentWidth = (parent instanceof SubPanel) ? ((SubPanel) parent).getWidth()
+                                                       : PANEL_BASE_WIDTH;
+        return (int) Math.floor(textLen / parentWidth) * HEADERTEXT_HEIGHT ;
+    }
+
+
+    private void adjustTopsForWrappingHeaders(List content) {
+        StaticText header = getHeaderFromContent(content);
+        int adjustment = getAdjustmentForWrappingHeaders(getHeaderFromContent(content));
+        if (adjustment > 0) {
+            for (Object o : content) {
+                if (o instanceof SubPanel) {
+                    SubPanel panel = (SubPanel) o;
+                    panel.incTop(adjustment);
+                    panel.assignStyle(getMaxDepthLevel());
+                    adjustTopsForWrappingHeaders(panel.getChildren());
+                }
+                else if (! (o instanceof StaticText)) {
+                    UIComponent component = (UIComponent) o;
+                    setStyle(component, replaceTopInStyle(component, adjustment));
+                }
+            }
+            UIComponent container = header.getParent();
+            if (container instanceof SubPanel) {
+                ((SubPanel) container).incHeight(adjustment);
+                ((SubPanel) container).assignStyle(getMaxDepthLevel());
+            }
+            else {
+                repositionOutermostFields(10, adjustment);
+            }
+        }
+    }
+
+
+    private String getStyle(UIComponent component) {
+        String style = null;
+        if ((component instanceof Label))
+            style = ((Label) component).getStyle();
+        else if ((component instanceof SelectorBase))
+            style = ((SelectorBase) component).getStyle();
+        else if ((component instanceof FieldBase))
+            style = ((FieldBase) component).getStyle();
+        return style;
+    }
+
+
+    private void setStyle(UIComponent component, String style) {
+        if ((component instanceof Label))
+            ((Label) component).setStyle(style);
+        else if ((component instanceof SelectorBase))
+            ((SelectorBase) component).setStyle(style);
+        else if ((component instanceof FieldBase))
+            ((FieldBase) component).setStyle(style);
+    }
+
+
+    private String replaceTopInStyle(UIComponent component, int adjustment) {
+        String style = getStyle(component);
+        if (style != null) {
+            String topStyle = StringUtil.extract(style, "top:\\s*\\d+px") ;
+            if (topStyle != null) {
+                String value = StringUtil.extract(topStyle, "\\d+");
+                int top = -1;
+                try {
+                    top = Integer.parseInt(value);
+                }
+                catch (NumberFormatException nfe) {
+                    top = -1;    
+                }
+                if (top > -1) {
+                    String newTopStyle = String.format("top: %dpx", top + adjustment);
+                    style = style.replace(topStyle, newTopStyle);
+                }
+            }
+        }
+        return style;
+    }
+
+
+    // each header is a StaticText instance - and there's only one per panel, and its
+    // usually the first component in the list.
+    private StaticText getHeaderFromContent(List content) {
+        for (Object o : content) {
+            if (o instanceof StaticText) {
+                return (StaticText) o;
+            }
+        }
+        return null;
+    }
+
+    
     private void adjustFieldOffsetsAndWidths(List content) {
         String template = "%s; left:%dpx; width:%dpx";
         for (Object o : content) {
@@ -349,6 +457,8 @@ public class DynFormFactory extends AbstractSessionBean {
 
         // position input fields by setting the left coord
         adjustFieldOffsetsAndWidths(content);
+
+        adjustTopsForWrappingHeaders(content);
 
         // calc and set height and width of outermost panel
         int height = calcHeight(content) ;
@@ -620,22 +730,25 @@ public class DynFormFactory extends AbstractSessionBean {
 
 
     private void repositionOutermostFields(int startingY, int adjustment) {
-        String style = "top:%dpx";
         for (UIComponent component : _outermostTops.keySet()) {
             int top = _outermostTops.get(component);
             if (top > startingY) {
-               int newTop = top + adjustment;
-                if ((component instanceof Label))
-                    ((Label) component).setStyle(String.format(style, newTop));
-                else if ((component instanceof SelectorBase))
-                    ((SelectorBase) component).setStyle(String.format(style, newTop));
-                else if ((component instanceof FieldBase))
-                    ((FieldBase) component).setStyle(String.format(style, newTop));
-                
+                int newTop = top + adjustment;
+                setNewTopStyle(component, newTop);
                 _outermostTops.put(component, newTop);
             }    
         }
+    }
 
+
+    private void setNewTopStyle(UIComponent component, int top) {
+        String style = "top:%dpx";
+        if ((component instanceof Label))
+            ((Label) component).setStyle(String.format(style, top));
+        else if ((component instanceof SelectorBase))
+            ((SelectorBase) component).setStyle(String.format(style, top));
+        else if ((component instanceof FieldBase))
+            ((FieldBase) component).setStyle(String.format(style, top));
     }
 
 

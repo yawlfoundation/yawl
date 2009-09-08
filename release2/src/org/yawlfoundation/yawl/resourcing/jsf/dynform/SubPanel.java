@@ -21,6 +21,7 @@ import com.sun.rave.web.ui.component.PanelLayout;
 public class SubPanel extends PanelLayout implements Cloneable {
 
     private int height ;
+    private int width;
     private int top ;
     private String name ;
 
@@ -39,6 +40,10 @@ public class SubPanel extends PanelLayout implements Cloneable {
     public int getHeight() { return height; }
 
     public void setHeight(int height) { this.height = height; }
+
+    public int getWidth() { return width; }
+
+    public void setWidth(int width) { this.width = width; }
 
     public int getTop() { return top; }
 
@@ -82,7 +87,7 @@ public class SubPanel extends PanelLayout implements Cloneable {
     public void assignStyle(int maxLevel) {
 
         // resize width for the nested depth of this panel
-        int width =  DynFormFactory.PANEL_BASE_WIDTH +
+        width =  DynFormFactory.PANEL_BASE_WIDTH +
                      (DynFormFactory.SUBPANEL_INSET * 2 *
                      (maxLevel - controller.getDepthlevel() + 1)) ;
 
@@ -128,6 +133,11 @@ public class SubPanel extends PanelLayout implements Cloneable {
     public int decTop(int amount) {
         top -= amount ;
         return top;
+    }
+
+    public int incHeight(int amount) {
+        height += amount;
+        return height;
     }
 
 

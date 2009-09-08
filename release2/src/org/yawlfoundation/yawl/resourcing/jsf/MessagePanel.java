@@ -12,6 +12,8 @@ import com.sun.rave.web.ui.component.ImageComponent;
 import com.sun.rave.web.ui.component.PanelLayout;
 import com.sun.rave.web.ui.component.StaticText;
 
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +38,7 @@ public class MessagePanel extends PanelLayout {
 
     // panel width / font width: 268 / 6
     private static final int CHARS_PER_LINE = 45;
+    private static final Font _msgFont = new Font("Helvetica", Font.PLAIN, 12);
 
 
     // list of messages for each type
@@ -46,6 +49,7 @@ public class MessagePanel extends PanelLayout {
 
     private int idSuffix = 0 ;                         // used in creation of unique ids
     private String _style = "";
+    private int _outerWidth = 350;                     // default width of panel
 
 
     private PanelLayout _pnlMessages;
@@ -206,8 +210,8 @@ public class MessagePanel extends PanelLayout {
     private PanelLayout constructMessagesPanel() {
         _pnlMessages = new PanelLayout() ;
         _pnlMessages.setId("pnlMessages001");
-        _pnlMessages.setStyle("background-color: #f0f0f0; width: 270px;" +
-                               getPosStyle(70, 15)) ;
+        _pnlMessages.setStyle("background-color: #f0f0f0; " +
+                               getPosStyle(70, 15) + "width: 270px;") ;
         _pnlMessages.setPanelLayout("flow");
         return _pnlMessages ;
     }
@@ -220,7 +224,6 @@ public class MessagePanel extends PanelLayout {
         inner.setPanelLayout("flow");
         return inner ;
     }
-
 
 
     private MsgType getDominantType() {
@@ -260,6 +263,7 @@ public class MessagePanel extends PanelLayout {
         sttMessage.setStyle(getFontStyle(0, msgType));
         innerPanel.getChildren().add(sttMessage) ;
         _pnlMessages.getChildren().add(innerPanel);
+        adjustOuterSize(message);
     }
 
     private int getNextIDSuffix() {
@@ -274,6 +278,23 @@ public class MessagePanel extends PanelLayout {
         double margin = 20.0;
 
         double height = Math.round(Math.max(minHeight, lineCount * lineHeight + margin));
-        this.setStyle(String.format("%s height: %.0fpx", _style, height));
+        this.setStyle(String.format("%s height: %.0fpx; width: %dpx", _style, height, _outerWidth));
+    }
+
+    private void adjustOuterSize(String msg) {
+        Rectangle2D bounds = FontUtil.getBounds(getLongestWord(msg), _msgFont);
+        _outerWidth = (int) Math.max(_outerWidth, bounds.getWidth() + 80);
+    }
+
+    private String getLongestWord(String msg) {
+        if (msg == null) return null;
+        String[] words = msg.split("\\s+");
+        String longest = "";
+        for (String word : words) {
+            if (word.length() > longest.length()) {
+                longest = word;
+            }
+        }
+        return longest;
     }
 }
