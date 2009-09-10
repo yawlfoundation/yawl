@@ -308,12 +308,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public synchronized void handleCancelledWorkItemEvent(WorkItemRecord wir) {
-        if (_serviceEnabled) {
-            removeFromAll(wir) ;                                      // workqueues
-            _workItemCache.remove(wir);
-            ResourceMap rMap = getResourceMap(wir);
-            if (rMap != null) rMap.removeIgnoreList(wir);
-        }
+        cleanupWorkItemReferences(wir);
     }
 
 
@@ -321,7 +316,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (isAutoTask(wir))
             handleAutoTask(wir, true);
         else
-            handleCancelledWorkItemEvent(wir);                 // remove from worklists   
+            cleanupWorkItemReferences(wir);                // remove from worklists
     }
 
 
@@ -336,9 +331,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public void handleCompletedWorkItemEvent(WorkItemRecord wir) {
-        _workItemCache.remove(wir);
-        ResourceMap rMap = getResourceMap(wir);
-        if (rMap != null) rMap.removeIgnoreList(wir);
+        cleanupWorkItemReferences(wir);
     }
 
 
@@ -355,11 +348,60 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
+    // here we are only interested in items the service knows about being updated
+    // by services other than this one
     public void handleWorkItemStatusChangeEvent(WorkItemRecord wir,
                                                 String oldStatus, String newStatus) {
         WorkItemRecord cachedWir = getWorkItemCache().get(wir.getID());
-        if (cachedWir != null)
-            cachedWir.setStatus(newStatus);
+        if (cachedWir != null) {
+
+            // if its a status change this service didn't cause
+            if (! newStatus.equals(cachedWir.getStatus())) {
+
+                // if it has been 'finished', remove it from all queues
+                if ((newStatus.equals(WorkItemRecord.statusComplete)) ||
+                    (newStatus.equals(WorkItemRecord.statusDeadlocked)) ||
+                    (newStatus.equals(WorkItemRecord.statusFailed)) ||
+                    (newStatus.equals(WorkItemRecord.statusForcedComplete))) {
+
+                    cleanupWorkItemReferences(cachedWir);
+
+                }
+
+                // if it has been 'suspended', find it on a 'started' queue & move it
+                else if (newStatus.equals(WorkItemRecord.statusSuspended)) {
+                    Participant p = getParticipantAssignedWorkItem(cachedWir, WorkQueue.STARTED);
+                    if (p != null) {
+                        p.getWorkQueues().movetoSuspend(wir);
+                        cachedWir.setResourceStatus(WorkItemRecord.statusResourceSuspended);
+                        cachedWir.setStatus(newStatus);
+                        _workItemCache.update(wir);
+                    }
+                }
+
+                // if it has move to started status
+                else if (newStatus.equals(WorkItemRecord.statusExecuting)) {
+
+                    // ...and was previously suspended
+                    if (cachedWir.hasStatus(WorkItemRecord.statusSuspended)) {
+                        Participant p = getParticipantAssignedWorkItem(cachedWir, WorkQueue.SUSPENDED);
+                        if (p != null) {
+                            p.getWorkQueues().movetoUnsuspend(wir);
+                            cachedWir.setResourceStatus(WorkItemRecord.statusResourceStarted);
+                            cachedWir.setStatus(newStatus);
+                            _workItemCache.update(wir);
+                        }
+                    }       
+                }
+
+                // if it is 'Is Parent', its just been newly started and has spawned
+                // child items. Since we don't know who started it, all we can do is
+                // pass responsibility to the starting service & remove knowledge of it
+                else if (newStatus.equals(WorkItemRecord.statusIsParent)) {
+                    cleanupWorkItemReferences(cachedWir);
+                }
+            }
+        }
     }
 
 
@@ -391,6 +433,16 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
         outStream.flush();
         outStream.close();
+    }
+
+
+    private void cleanupWorkItemReferences(WorkItemRecord wir) {
+        if (_serviceEnabled) {
+            removeFromAll(wir) ;                                      // workqueues
+            _workItemCache.remove(wir);
+            ResourceMap rMap = getResourceMap(wir);
+            if (rMap != null) rMap.removeIgnoreList(wir);
+        }
     }
 
 
@@ -1109,6 +1161,21 @@ public class ResourceManager extends InterfaceBWebsideController {
                  result.add(p);
         }
         if (result.isEmpty()) result = null;
+        return result;
+    }
+
+
+    public Participant getParticipantAssignedWorkItem(WorkItemRecord wir, int qType) {
+        Participant result = null;
+        if ((qType > WorkQueue.OFFERED) && (qType <= WorkQueue.SUSPENDED)) {
+            for (Participant p : _ds.participantMap.values()) {
+                QueueSet qSet = p.getWorkQueues();
+                if ((qSet != null) && (qSet.hasWorkItemInQueue(wir.getID(), qType))) {
+                    result = p;
+                    break;
+                }
+            }
+        }
         return result;
     }
 

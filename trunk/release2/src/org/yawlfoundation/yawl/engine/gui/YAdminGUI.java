@@ -589,7 +589,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
          */
         try
         {
-            File dataDir = new File(selectedFile.getParentFile().getAbsolutePath() + File.separator + spec.getRootNet().getID() + "_DAT");
+            File dataDir = new File(selectedFile.getParentFile().getAbsolutePath() + File.separator + spec.getSpecificationID().getSpecName() + "_DAT");
             if (!dataDir.exists())
             {
                 if (!dataDir.mkdir())
@@ -603,7 +603,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
             {
                 logger.info("Reading test data files from " + dataDir.getAbsolutePath());
             }
-            specTestDataDirs.put(spec.getRootNet().getID(), dataDir);
+            specTestDataDirs.put(spec.getSpecificationID().getSpecName(), dataDir);
         }
         catch (IOException e)
         {

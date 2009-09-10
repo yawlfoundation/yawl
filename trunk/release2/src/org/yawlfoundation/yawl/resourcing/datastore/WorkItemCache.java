@@ -93,7 +93,7 @@ public class WorkItemCache extends HashMap<String, WorkItemRecord> implements Se
 
     // OVERRIDES //
 
-    public WorkItemRecord put(String id, WorkItemRecord wir) {
+    public synchronized WorkItemRecord put(String id, WorkItemRecord wir) {
         if (_persistOn) {
             if (containsKey(id))
                 _persister.update(wir) ;
@@ -103,7 +103,7 @@ public class WorkItemCache extends HashMap<String, WorkItemRecord> implements Se
         return super.put(id, wir);
     }
 
-    public WorkItemRecord remove(String id) {
+    public synchronized WorkItemRecord remove(String id) {
         if (containsKey(id)) {
            if (_persistOn) _persister.delete(get(id)) ;
            return super.remove(id);

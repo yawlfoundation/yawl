@@ -434,25 +434,15 @@ public class YEngine implements InterfaceADesign,
         return startCase(username, pmgr, specID, caseParams, completionObserver, null);
     }
 
+    
     protected YIdentifier startCase(String username, YPersistenceManager pmgr,
                                     String specID, String caseParams,
                                     URI completionObserver, String caseID)
             throws YStateException, YSchemaBuildingException, YDataStateException,
                     YPersistenceException, YQueryException{
-        SAXBuilder builder = new SAXBuilder();
-        Element data = null;
-        if(caseParams != null && !"".equals(caseParams)) {
-            try {
-                Document dirtyDoc;
-                dirtyDoc = builder.build(new StringReader(caseParams));
-                data = YDocumentCleaner.cleanDocument(dirtyDoc).getRootElement();
-                
-            } catch (Exception e) {
-                YStateException f = new YStateException(e.getMessage());
-                f.setStackTrace(e.getStackTrace());
-                throw f;
-            }
-        }
+
+        // check & format case data params (if any)
+        Element data = formatCaseParams(caseParams, specID);
 
         // get the latest loaded spec version
         YSpecification specification = _specifications.getSpecification(specID);
@@ -509,6 +499,21 @@ public class YEngine implements InterfaceADesign,
             throw new YStateException(
                     "No specification found with ID [" + specID + "]");
         }
+    }
+
+    protected Element formatCaseParams(String paramStr, String specID) throws YStateException {
+        Element data = null;
+        if (paramStr != null && !"".equals(paramStr)) {
+            data = JDOMUtil.stringToElement(paramStr);
+            if (data == null) {
+                throw new YStateException("Invalid or malformed caseParams.");
+            }
+            else if  (! specID.equals(data.getName())) {
+                throw new YStateException(
+                        "Invalid caseParams: outermost element name must match specification ID.");
+            }
+        }
+        return data;
     }
 
 
