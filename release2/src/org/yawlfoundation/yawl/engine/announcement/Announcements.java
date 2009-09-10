@@ -25,12 +25,12 @@ public class Announcements<A extends Announcement>
     /**
      * Maps resource uri's to the announcement object
      */
-    private Hashtable <URI, Vector<A>> uriToAnnouncements = new Hashtable<URI, Vector<A>>();
+    private Hashtable <URI, Set<A>> uriToAnnouncements = new Hashtable<URI, Set<A>>();
 
     /**
      * Maps the schemes of the uri to the uris of that scheme (QUT: http, M2: jmc)
      */
-    private Hashtable <String, Vector<URI>> schemeToUris = new Hashtable<String, Vector<URI>>();
+    private Hashtable <String, Set<URI>> schemeToUris = new Hashtable<String, Set<URI>>();
 
     /**
      * Appends the announcement to the collection
@@ -45,13 +45,13 @@ public class Announcements<A extends Announcement>
         {
             URI uri = new URI(announcement.getYawlService().getURI());
 
-            Vector<A> announcements = uriToAnnouncements.get(uri);
-            if(announcements == null) announcements = new Vector<A>();
+            Set<A> announcements = uriToAnnouncements.get(uri);
+            if(announcements == null) announcements = new HashSet<A>();
             announcements.add(announcement);
             uriToAnnouncements.put(uri, announcements);
 
-            Vector<URI> uris = schemeToUris.get(uri.getScheme());
-            if(uris == null) uris = new Vector<URI>();
+            Set<URI> uris = schemeToUris.get(uri.getScheme());
+            if(uris == null) uris = new HashSet<URI>();
             uris.add(uri);
             schemeToUris.put(uri.getScheme(), uris);
         }
@@ -80,11 +80,11 @@ public class Announcements<A extends Announcement>
     /**
      * @return All the announcements in the collection
      */
-    public Vector<A> getAllAnnouncements()
+    public Set<A> getAllAnnouncements()
     {
-        Vector<A> announcements = new Vector<A>();
+        Set<A> announcements = new HashSet<A>();
 
-        for(Vector<A> as : uriToAnnouncements.values())
+        for(Set<A> as : uriToAnnouncements.values())
         {
             announcements.addAll(as);
         }
@@ -120,7 +120,7 @@ public class Announcements<A extends Announcement>
      * @param uri to retrieve announcements for
      * @return list of all announcements for the given uri
      */
-    public List<A> getAnnouncementsForURI(URI uri)
+    public Set<A> getAnnouncementsForURI(URI uri)
     {
         return uriToAnnouncements.get(uri);
     }
@@ -132,7 +132,7 @@ public class Announcements<A extends Announcement>
     {
         long size = 0;
 
-        for(Vector<A> assignments : uriToAnnouncements.values())
+        for(Set<A> assignments : uriToAnnouncements.values())
         {
             size += assignments.size();
         }

@@ -153,7 +153,7 @@ public class YWorkItem {
         }
 
         // set final status, log event and remove from persistence
-        _status = completionStatus;
+        set_status(pmgr, completionStatus);
         _endEventID = _eventLog.logWorkItemEvent(pmgr, this, _status, _whoStartedMe);
         if (pmgr != null) pmgr.deleteObject(this);
 
@@ -271,7 +271,7 @@ public class YWorkItem {
             YIdentifier parentCaseID = getWorkItemID().getCaseID();
             if (childCaseID.getParent() != parentCaseID) return null;
 
-            _status = statusIsParent;
+            set_status(pmgr, statusIsParent);
 
             // if this parent has no children yet, create the set and log it
             if (_children == null) {
@@ -465,7 +465,7 @@ public class YWorkItem {
                     + _status + "\" it cannot be moved to \"" + statusExecuting + "\"]");
         }
 
-        _status = statusExecuting;
+        set_status(pmgr, statusExecuting);
         _startTime = new Date();
         _whoStartedMe = userName;
         if (! _timerStarted) checkStartTimer(pmgr, null) ;
@@ -494,7 +494,7 @@ public class YWorkItem {
                    + _status + "\" it cannot be rolled back to \"" + statusFired + "\"]");
         }
 
-        _status = statusFired;
+        set_status(pmgr, statusFired);
         _eventLog.logWorkItemEvent(pmgr, this, _status, _whoStartedMe);
         _startTime = null;
         _whoStartedMe = null;
