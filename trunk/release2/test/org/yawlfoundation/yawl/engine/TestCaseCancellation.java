@@ -80,8 +80,8 @@ public class TestCaseCancellation extends TestCase {
             }
             public void announceWorkItems(Announcements<NewWorkItemAnnouncement> a) {}
             public void announceTimerExpiry(YAWLServiceReference ys, YWorkItem i) {}
-            public void announceNotifyEngineInitialised(Set<YAWLServiceReference> ys) {}
-            public void announceNotifyCaseCancellation(Set<YAWLServiceReference> ys, YIdentifier i) {}
+            public void announceEngineInitialised(Set<YAWLServiceReference> ys) {}
+            public void announceCaseCancellation(Set<YAWLServiceReference> ys, YIdentifier i) {}
             public void announceCaseSuspended(YIdentifier id) {}
             public void announceCaseSuspending(YIdentifier id) {}
             public void announceCaseResumption(YIdentifier id) {}

@@ -198,7 +198,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * Called by the engine when it has completed initialisation and is running
      * @param services a set of custom services to receive the announcement
      */
-    public void announceNotifyEngineInitialised(Set<YAWLServiceReference> services) {
+    public void announceEngineInitialised(Set<YAWLServiceReference> services) {
         for (YAWLServiceReference service : services) {
             Handler myHandler = new Handler(service, ANNOUNCE_INIT_ENGINE);
             myHandler.start();
@@ -210,7 +210,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param services a set of custom services to receive the announcement
      * @param id the case id of the cancelled case
      */
-    public void announceNotifyCaseCancellation(Set<YAWLServiceReference> services,
+    public void announceCaseCancellation(Set<YAWLServiceReference> services,
                                                YIdentifier id) {
         for (YAWLServiceReference service : services) {
             Handler myHandler = new Handler(service, id, ANNOUNCE_CASE_CANCELLED);

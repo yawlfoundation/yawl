@@ -107,6 +107,15 @@ public class EngineGatewayImpl implements EngineGateway {
         _engine.registerInterfaceBObserverGateway(gateway);
     }
 
+    /**
+     * Triggers the announcement that engine startup is complete
+     * Should only be called from InterfaceB_EngineBasedServer.init()
+     */
+    public void notifyServletInitialisationComplete() {
+        _engine.announceEngineInitialisationCompletion();
+    }
+
+
 
     /**
      *

@@ -279,7 +279,7 @@ public class ObserverGatewayController
             {
                 for(ObserverGateway observerGateway : gateways)
                 {
-                    observerGateway.announceNotifyEngineInitialised(services);
+                    observerGateway.announceEngineInitialised(services);
                 }
             }
         }).start();
@@ -300,7 +300,7 @@ public class ObserverGatewayController
             {
                 for(ObserverGateway observerGateway : gateways)
                 {
-                    observerGateway.announceNotifyCaseCancellation(services, id);
+                    observerGateway.announceCaseCancellation(services, id);
                 }
             }
         }).start();
