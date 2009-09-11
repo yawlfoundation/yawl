@@ -167,7 +167,7 @@ public class YEngine implements InterfaceADesign,
             // Init completed - set engine status to up and running
             _logger.info("Marking engine status = RUNNING");
             _thisInstance.setEngineStatus(YEngine.ENGINE_STATUS_RUNNING);
-            _thisInstance.announceEngineInitialisationCompletion();
+ //           _thisInstance.announceEngineInitialisationCompletion();  --> moved to IB_EngServer
 
             // Now the engine's running, process any expired timers
             if (_expiredTimers != null) {
@@ -1875,6 +1875,11 @@ public class YEngine implements InterfaceADesign,
             else
                 return null ;
         }
+    }
+
+
+    public void notifyServletInitialisationComplete() {
+        announceEngineInitialisationCompletion();
     }
 
 

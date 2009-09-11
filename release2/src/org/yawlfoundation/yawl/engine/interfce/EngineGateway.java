@@ -34,6 +34,8 @@ public interface EngineGateway extends Remote {
 
     public void registerObserverGateway(ObserverGateway gateway);
 
+    public void notifyServletInitialisationComplete();
+    
     /**
      *
      * @param sessionHandle

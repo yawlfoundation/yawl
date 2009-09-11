@@ -95,6 +95,8 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
             logger.fatal("Failure to initialise runtime (persistence failure)", e);
             throw new UnavailableException("Persistence failure");
         }
+
+        if (_engine != null) _engine.notifyServletInitialisationComplete();
     }
 
 

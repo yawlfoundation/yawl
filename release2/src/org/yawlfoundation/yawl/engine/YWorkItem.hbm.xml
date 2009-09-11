@@ -13,10 +13,10 @@
 		
       <property name="_specName" column="specs" type="string"/>
       <property name="_specVersion" column="s_version" type="string"/>
-    	<property name="_enablementTime" column="enablement_time" type="timestamp" access="field"/>
-    	<property name="_firingTime" column="firing_time" type="timestamp" access="field"/>
-    	<property name="_startTime" column="start_time" type="timestamp" access="field"/>
-    	<property name="_status" column="status" type="string"/>
+      <property name="_enablementTime" column="enablement_time" type="timestamp" access="field"/>
+      <property name="_firingTime" column="firing_time" type="timestamp" access="field"/>
+      <property name="_startTime" column="start_time" type="timestamp" access="field"/>
+      <property name="_status" column="status" type="string"/>
       <property name="_prevStatus" column="prevstatus" type="string"/>
       <property name="_startEventID" column="startlogid" access="field"/>
       <property name="_endEventID" column="endlogid" access="field"/>

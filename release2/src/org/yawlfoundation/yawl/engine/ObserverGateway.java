@@ -103,13 +103,12 @@ public interface ObserverGateway
     /**
      * Notify the engine has completed initialisation and is running
      */
-    public void announceNotifyEngineInitialised(Set<YAWLServiceReference> services) ;
+    public void announceEngineInitialised(Set<YAWLServiceReference> services) ;
 
     /**
      * Notify the engine has cancelled a case
      */
-    public void announceNotifyCaseCancellation(Set<YAWLServiceReference> services, YIdentifier id) ;
-
+    public void announceCaseCancellation(Set<YAWLServiceReference> services, YIdentifier id) ;
 
 
 }
