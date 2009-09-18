@@ -1132,8 +1132,13 @@ public class YEngine implements InterfaceADesign,
         }
     }
 
-    public synchronized Set getAllWorkItems() {
+    public synchronized Set<YWorkItem> getAllWorkItems() {
         return _workItemRepository.getWorkItems();
+    }
+
+
+    public synchronized Set<YWorkItem> getWorkItemsWithIdentifier(String idType, String itemID) {
+        return _workItemRepository.getWorkItemsWithIdentifier(idType, itemID);
     }
 
 

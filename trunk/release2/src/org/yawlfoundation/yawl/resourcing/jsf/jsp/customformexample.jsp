@@ -20,6 +20,9 @@
 
     // If the Cancel button has been clicked on the form below, clean up any session
     // attributes we set previously, then return directly to the worklist
+    // NOTE: if the form is located outside of the resource service, then all of the
+    // session.removeAttribute lines should be removed and replaced with a single
+    // session.invalidate() 
     String submit = request.getParameter("submit");
     if ((submit != null) && (submit.equals("Cancel"))) {
         session.removeAttribute("itemXML");

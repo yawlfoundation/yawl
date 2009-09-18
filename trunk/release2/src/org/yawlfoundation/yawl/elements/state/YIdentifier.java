@@ -262,11 +262,14 @@ public class YIdentifier {
     }
 
     
-    public YIdentifier getAncestor() {
-        if (null != this.getParent()) {
-            return getAncestor();
-        } else
-            return this;
+    public YIdentifier getRootAncestor() {
+        return getRootAncestor(this);
+    }
+
+    
+    private YIdentifier getRootAncestor(YIdentifier identifier) {
+        YIdentifier parent = identifier.getParent();
+        return (parent != null) ? getRootAncestor(parent) : identifier;
     }
 
 

@@ -88,6 +88,55 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
+     * Returns the current set of active workitems for a case
+     * @param caseID the case in question
+     * @param sessionHandle the session handle
+     * @return a list of live workitems (as WorkItemRecords)
+     * @throws IOException if engine can't be found.
+     */
+    public List<WorkItemRecord> getWorkItemsForCase(String caseID, String sessionHandle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("getWorkItemsWithIdentifier", sessionHandle);
+        params.put("id", caseID) ;
+        params.put("idType", "case");
+        return unPackWorkItemList(executeGet(_backEndURIStr, params));
+    }
+
+
+    /**
+     * Returns the current set of active workitems for a specification
+     * @param specName the specification in question
+     * @param sessionHandle the session handle
+     * @return a list of live workitems (as WorkItemRecords)
+     * @throws IOException if engine can't be found.
+     */
+    public List<WorkItemRecord> getWorkItemsForSpecification(String specName, String sessionHandle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("getWorkItemsWithIdentifier", sessionHandle);
+        params.put("id", specName) ;
+        params.put("idType", "spec");
+        return unPackWorkItemList(executeGet(_backEndURIStr, params));
+    }
+
+
+    /**
+     * Returns the current set of active workitems that are instances of a specified task
+     * @param taskID the task in question
+     * @param sessionHandle the session handle
+     * @return a list of live workitems (as WorkItemRecords)
+     * @throws IOException if engine can't be found.
+     */
+    public List<WorkItemRecord> getWorkItemsForTask(String taskID, String sessionHandle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("getWorkItemsWithIdentifier", sessionHandle);
+        params.put("id", taskID) ;
+        params.put("idType", "task");
+        return unPackWorkItemList(executeGet(_backEndURIStr, params));
+    }
+
+
+
+    /**
      * Retrieves a List of live workitems for the case or spec id passed
      * @param idType : "case" for a case's workitems, "spec" for a specification's,
      *        "task" for a specific taskID
@@ -99,25 +148,16 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      */
     public List<WorkItemRecord> getLiveWorkItemsForIdentifier(String idType, String id,
                                String sessionHandle) throws IOException, JDOMException {
-        ArrayList<WorkItemRecord> result = new ArrayList<WorkItemRecord>() ;
-        List<WorkItemRecord> wirs = getCompleteListOfLiveWorkItems(sessionHandle) ;
-
-        if (wirs != null) {
-
-            // find out which wirs belong to the specified case/spec/task
-            for (WorkItemRecord wir : wirs) {
-                if ((idType.equalsIgnoreCase("spec") &&
-                       wir.getSpecificationID().equals(id)) ||
-                    (idType.equalsIgnoreCase("case") &&
-                       (wir.getCaseID().equals(id) ||
-                        wir.getCaseID().startsWith(id + "."))) ||
-                    (idType.equalsIgnoreCase("task") &&
-                        wir.getTaskID().equals(id)))
-                  result.add(wir);
-            }
+        if (idType.equalsIgnoreCase("spec")) {
+            return getWorkItemsForSpecification(id, sessionHandle);
         }
-        if (result.isEmpty()) result = null ;
-        return result ;
+        else if (idType.equalsIgnoreCase("case")) {
+            return getWorkItemsForCase(id, sessionHandle);
+        }
+        else if (idType.equalsIgnoreCase("task")) {
+            return getWorkItemsForTask(id, sessionHandle);
+        }
+        else return null;
     }
 
     

@@ -395,10 +395,9 @@ public class YWorkItemRepository {
             throw new IllegalArgumentException("the argument <caseID> is not valid.");
         }
 
-        List workItems = getWorkItemsForCase(caseID);
-        for (Iterator iterator = workItems.iterator(); iterator.hasNext();) {
-            YWorkItem item = (YWorkItem) iterator.next();
-                removeWorkItemFamily(item);
+        List<YWorkItem> workItems = getWorkItemsForCase(caseID);
+        for (YWorkItem item : workItems) {
+            removeWorkItemFamily(item);
         }
     }
 
@@ -407,25 +406,45 @@ public class YWorkItemRepository {
             throw new IllegalArgumentException("the argument <caseID> is not valid.");
         }
         
-        Set workItems = getWorkItems();
+        Set<YWorkItem> workItems = getWorkItems();
         ArrayList<YWorkItem> caseItems = new ArrayList<YWorkItem>();
 
-        for (Iterator iterator = workItems.iterator(); iterator.hasNext();) {
-            YWorkItem item = (YWorkItem) iterator.next();
+        for (YWorkItem item : workItems) {
             YWorkItemID wid = item.getWorkItemID();
 
             //get the root id for this work items case
-            //and if it matches the cancellation case id then remove it.
-            YIdentifier workItemsCaseID = wid.getCaseID();
-            while (workItemsCaseID.getParent() != null) {
-                workItemsCaseID = workItemsCaseID.getParent();
-            }
+            YIdentifier rootCaseID = wid.getCaseID().getRootAncestor();
+
             //if a work item's root case id matches case passed in save it
-            if (workItemsCaseID.toString().equals(caseID.toString())) {
+            if (rootCaseID.toString().equals(caseID.toString())) {
                 caseItems.add(item);
             }
         }
         return caseItems;
     }
+
+
+    public Set<YWorkItem> getWorkItemsWithIdentifier(String idType, String id) {
+        Set<YWorkItem> result = new HashSet<YWorkItem>() ;
+        Set<YWorkItem> items = getWorkItems() ;
+
+        if (items != null) {
+
+            // find out which items belong to the specified case/spec/task
+            for (YWorkItem item : items) {
+                if ((idType.equalsIgnoreCase("spec") &&
+                       item.getSpecificationID().getSpecName().equals(id)) ||
+                    (idType.equalsIgnoreCase("case") &&
+                       (item.getCaseID().toString().equals(id) ||
+                        item.getCaseID().toString().startsWith(id + "."))) ||
+                    (idType.equalsIgnoreCase("task") &&
+                        item.getTaskID().equals(id)))
+                  result.add(item);
+            }
+        }
+        if (result.isEmpty()) result = null ;
+        return result ;
+    }
+
 
 }
