@@ -220,6 +220,11 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                 else if (action.equals("getLiveItems")) {
                     msg.append(_engine.describeAllWorkItems(sessionHandle));
                 }
+                else if (action.equals("getWorkItemsWithIdentifier")) {
+                    String idType = request.getParameter("idType");
+                    String id = request.getParameter("id");
+                    msg.append(_engine.getWorkItemsWithIdentifier(idType, id, sessionHandle));
+                }
                 else if (action.equals("checkConnection")) {
                     msg.append(_engine.checkConnection(sessionHandle));
                 }

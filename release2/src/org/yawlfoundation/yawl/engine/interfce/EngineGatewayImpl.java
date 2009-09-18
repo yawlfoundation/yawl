@@ -421,6 +421,17 @@ public class EngineGatewayImpl implements EngineGateway {
     }
 
 
+    public String getWorkItemsWithIdentifier(String idType, String itemID,
+                                             String sessionHandle) throws RemoteException {
+        try {
+            _userList.checkConnection(sessionHandle);
+        } catch (YAuthenticationException e) {
+            return failureMessage(e.getMessage());
+        }
+        return describeWorkItems(_engine.getWorkItemsWithIdentifier(idType, itemID));
+    }
+
+
     /**
      *
      * @param userID
@@ -1007,12 +1018,10 @@ public class EngineGatewayImpl implements EngineGateway {
     }
 
 
-    private String describeWorkItems(Set workItems) {
+    private String describeWorkItems(Set<YWorkItem> workItems) {
         StringBuffer result = new StringBuffer();
         if (workItems != null) {
-            Iterator iter = workItems.iterator();
-            while (iter.hasNext()) {
-                YWorkItem workitem = (YWorkItem) iter.next();
+            for (YWorkItem workitem : workItems) {
                 result.append(workitem.toXML());
             }
         }    
