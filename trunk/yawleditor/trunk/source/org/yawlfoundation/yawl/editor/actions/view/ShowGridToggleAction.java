@@ -22,16 +22,14 @@
 
 package org.yawlfoundation.yawl.editor.actions.view;
 
-import java.awt.event.ActionEvent;
-import java.util.prefs.Preferences;
-
-import javax.swing.Action;
-import javax.swing.JCheckBoxMenuItem;
-
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.util.prefs.Preferences;
 
 public class ShowGridToggleAction extends YAWLBaseAction {
   /**
@@ -43,7 +41,7 @@ public class ShowGridToggleAction extends YAWLBaseAction {
 
   {
     putValue(Action.SHORT_DESCRIPTION, " Toggle the display of grids on nets. ");
-    putValue(Action.NAME, "Show grids in diagrams");
+    putValue(Action.NAME, "Show Grids in Diagrams");
     putValue(Action.LONG_DESCRIPTION, "Toggle the display of grids on nets.");
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_G));
   }
