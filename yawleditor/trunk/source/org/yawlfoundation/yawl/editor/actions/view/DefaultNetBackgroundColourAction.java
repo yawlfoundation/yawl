@@ -22,17 +22,13 @@
 
 package org.yawlfoundation.yawl.editor.actions.view;
 
-import java.awt.Color;
-
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-import javax.swing.JColorChooser;
-
 import org.yawlfoundation.yawl.editor.YAWLEditor;
-
-import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
 
 public class DefaultNetBackgroundColourAction extends YAWLBaseAction {
   
@@ -43,7 +39,7 @@ public class DefaultNetBackgroundColourAction extends YAWLBaseAction {
 
   {
     putValue(Action.SHORT_DESCRIPTION, " Set the default net background colour. ");
-    putValue(Action.NAME, "Default Net background colour...");
+    putValue(Action.NAME, "Default Net Background Colour...");
     putValue(Action.LONG_DESCRIPTION, "Set the default net background colour.");
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_B));
   }

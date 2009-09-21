@@ -38,9 +38,9 @@ public class DefaultElementBackgroundColourAction extends YAWLBaseAction {
   private static final long serialVersionUID = 1L;
 
   {
-    putValue(Action.SHORT_DESCRIPTION, " Set the default element background colour. ");
-    putValue(Action.NAME, "Default Element background colour...");
-    putValue(Action.LONG_DESCRIPTION, "Set the default element background colour.");
+    putValue(Action.SHORT_DESCRIPTION, " Set the default element fill colour. ");
+    putValue(Action.NAME, "Default Element Fill Colour...");
+    putValue(Action.LONG_DESCRIPTION, "Set the default element fill colour.");
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_E));
   }
 

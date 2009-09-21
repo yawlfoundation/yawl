@@ -41,7 +41,7 @@ public class AntiAliasedToggleAction extends YAWLBaseAction {
 
   {
     putValue(Action.SHORT_DESCRIPTION, " Toggle anti-aliasing of drawn graph elements. ");
-    putValue(Action.NAME, "Anti-alias diagrams");
+    putValue(Action.NAME, "Anti-alias Diagrams");
     putValue(Action.LONG_DESCRIPTION, "Toggle anti-aliasing of drawn graph elements.");
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_A));
   }
