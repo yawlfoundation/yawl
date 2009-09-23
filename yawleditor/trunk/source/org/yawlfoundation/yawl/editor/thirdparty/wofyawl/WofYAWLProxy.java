@@ -23,7 +23,7 @@
 
 package org.yawlfoundation.yawl.editor.thirdparty.wofyawl;
 
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 import java.io.File;
@@ -79,6 +79,6 @@ public class WofYAWLProxy implements WofYAWLProxyInterface {
   }
   
   public static String getBinaryExecutableFilePath() {
-    return YAWLEditor.getInstance().getHomeDir() + WOF_YAWL_BINARY;
+    return FileUtilities.getHomeDir() + WOF_YAWL_BINARY;
   }
 }

@@ -23,6 +23,7 @@
 package org.yawlfoundation.yawl.editor;
 
 import org.yawlfoundation.yawl.editor.analyser.YAWLResetAnalyser;
+import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
 import org.yawlfoundation.yawl.editor.foundations.LogWriter;
 import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
@@ -46,9 +47,6 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.net.URL;
-import java.security.CodeSource;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -79,7 +77,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   private static final JSplashScreen splashScreen = new JSplashScreen();
   private static final JStatusBar statusBar = new JStatusBar();
 
-  private static final String HOME_DIR = setHomeDir();
+//  private static final String HOME_DIR = setHomeDir();
 
   public static YAWLEditor getInstance() {
     if (INSTANCE == null) {
@@ -127,7 +125,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   }
 
   private static void startLoading() {
-    LogWriter.init(HOME_DIR);
+    LogWriter.init(FileUtilities.getHomeDir());
     getSplashScreen().setContent(
         "/org/yawlfoundation/yawl/editor/resources/yawlSplashScreen.jpg",
             SplashContent.getCopyright());
@@ -466,26 +464,26 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     }
   }
 
-    private static String setHomeDir() {
-        String result = "";
-        try {
-            Class qc = Class.forName("org.yawlfoundation.yawl.editor.YAWLEditor");
-            CodeSource source = qc.getProtectionDomain().getCodeSource();
-            if (source != null) {
-                URL location = source.getLocation();
-                String path = location.getPath();
-                System.out.println(location + "  " + path);
-                int lastSep = path.lastIndexOf(File.separator) ;
-                if (lastSep > -1) result = path.substring(0, lastSep + 1) ;
-            }
-        }
-        catch ( Exception e ) {
-            // nothing to do
-        }
-        return result;
-    }
-
-
-    public String getHomeDir() { return HOME_DIR; }
-
+//    private static String setHomeDir() {
+//        String result = "";
+//        try {
+//            Class qc = Class.forName("org.yawlfoundation.yawl.editor.YAWLEditor");
+//            CodeSource source = qc.getProtectionDomain().getCodeSource();
+//            if (source != null) {
+//                URL location = source.getLocation();
+//                String path = location.getPath();
+//                System.out.println(location + "  " + path);
+//                int lastSep = path.lastIndexOf(File.separator) ;
+//                if (lastSep > -1) result = path.substring(0, lastSep + 1) ;
+//            }
+//        }
+//        catch ( Exception e ) {
+//            // nothing to do
+//        }
+//        return result;
+//    }
+//
+//
+//    public String getHomeDir() { return HOME_DIR; }
+//
 }
