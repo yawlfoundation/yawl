@@ -26,6 +26,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.security.CodeSource;
+import java.net.URL;
 
 public class FileUtilities {
 
@@ -83,7 +85,9 @@ public class FileUtilities {
   }
   
   // Basic Plugin Detail
-  
+
+  private static final String HOME_DIR = setHomeDir();
+
   private static final String USER_DIRECTORY = System.getProperty("user.dir");
 
   private static final String RELATIVE_PLUGIN_PATH = "YAWLEditorPlugins";
@@ -172,4 +176,27 @@ public class FileUtilities {
            System.getProperty("file.separator") + 
            VARIABLE_EXTENDED_ATTRIBUTE_PROPERTIES;
   }
+
+    private static String setHomeDir() {
+        String result = "";
+        try {
+            Class qc = Class.forName("org.yawlfoundation.yawl.editor.YAWLEditor");
+            CodeSource source = qc.getProtectionDomain().getCodeSource();
+            if (source != null) {
+                URL location = source.getLocation();
+                String path = location.getPath();
+                System.out.println(location + "  " + path);
+                int lastSep = path.lastIndexOf(File.separator) ;
+                if (lastSep > -1) result = path.substring(0, lastSep + 1) ;
+            }
+        }
+        catch ( Exception e ) {
+            // nothing to do
+        }
+        return result;
+    }
+
+
+    public static String getHomeDir() { return HOME_DIR; }
+
 }
