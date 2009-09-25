@@ -25,9 +25,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.channels.FileChannel;
 import java.security.CodeSource;
-import java.net.URL;
 
 public class FileUtilities {
 
@@ -180,18 +181,17 @@ public class FileUtilities {
     private static String setHomeDir() {
         String result = "";
         try {
-            Class qc = Class.forName("org.yawlfoundation.yawl.editor.YAWLEditor");
-            CodeSource source = qc.getProtectionDomain().getCodeSource();
+            Class editorClass = Class.forName("org.yawlfoundation.yawl.editor.YAWLEditor");
+            CodeSource source = editorClass.getProtectionDomain().getCodeSource();
             if (source != null) {
                 URL location = source.getLocation();
-                String path = location.getPath();
-                System.out.println(location + "  " + path);
+                String path = URLDecoder.decode(location.getPath(), "UTF-8");
                 int lastSep = path.lastIndexOf(File.separator) ;
                 if (lastSep > -1) result = path.substring(0, lastSep + 1) ;
             }
         }
         catch ( Exception e ) {
-            // nothing to do
+            result = System.getProperty("user.dir");   // default to current working dir
         }
         return result;
     }

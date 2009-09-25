@@ -77,7 +77,6 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   private static final JSplashScreen splashScreen = new JSplashScreen();
   private static final JStatusBar statusBar = new JStatusBar();
 
-//  private static final String HOME_DIR = setHomeDir();
 
   public static YAWLEditor getInstance() {
     if (INSTANCE == null) {
@@ -464,26 +463,4 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     }
   }
 
-//    private static String setHomeDir() {
-//        String result = "";
-//        try {
-//            Class qc = Class.forName("org.yawlfoundation.yawl.editor.YAWLEditor");
-//            CodeSource source = qc.getProtectionDomain().getCodeSource();
-//            if (source != null) {
-//                URL location = source.getLocation();
-//                String path = location.getPath();
-//                System.out.println(location + "  " + path);
-//                int lastSep = path.lastIndexOf(File.separator) ;
-//                if (lastSep > -1) result = path.substring(0, lastSep + 1) ;
-//            }
-//        }
-//        catch ( Exception e ) {
-//            // nothing to do
-//        }
-//        return result;
-//    }
-//
-//
-//    public String getHomeDir() { return HOME_DIR; }
-//
 }

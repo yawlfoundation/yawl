@@ -779,7 +779,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
                                        NetGraphModel editorNet) {
       Element rawResourceElement = engineTask.getResourcingSpecs();
       if (rawResourceElement != null) {
-          ResourceMapping resourceMap = new ResourceMapping(editorTask, false);
+          ResourceMapping resourceMap = new ResourceMapping(editorTask, true);
           boolean badRef = resourceMap.parse(rawResourceElement, editorNet);
           if (badRef) {
               _invalidResourceReferences.add(editorNet.getName() + "::" + editorTask.getLabel());
