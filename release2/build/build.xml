@@ -3,7 +3,7 @@
 
     <!-- ========================== Properties ================================= -->
 
-    <property name="app.version" value="_2.0_RC2"/>
+    <property name="app.version" value="_2.0"/>
     <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
                                            Mike Fowler, Matt Flaherty et al."/>
 
