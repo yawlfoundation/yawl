@@ -1,3 +1,121 @@
+                        YAWL Release 2.0 (Final) 22/09/2009
+                       =====================================
+
+This is the final 2.0 release of the YAWL Environment (the next planned release will
+be 2.1). It includes several bug-fixes and enhancements. Please take the time to read
+the change list below and the previous 2.0 beta release notes further down the page.
+
+
+QUICK START: After installation, start Tomcat and point a browser to
+             http://localhost:8080/resourceService
+
+
+1. MINIMUM REQUIREMENTS
+-----------------------
+  * Tomcat 5.5.25 or higher
+  * Java 5 (1.5) or higher
+
+
+2. CHANGES IN THIS UPDATE
+-------------------------
+(a) ENGINE:
+ - fixed a bug that occurred when attempting to start a task, the start failing due to a
+   bad data definition, then immediatey cancelling the case, which would cause a fatal
+   persistence exception and terminate the Engine.
+ - refactored some Interface B methods to lessen the amount of data passing required
+   between the engine and custom services in some scenarios.
+ - refactored engine initialisation announcements to avoid concurrency issues affecting
+   3rd party observer gateways.
+ - added indexing to some persistence tables, gaining noticably improved response times
+   for some actions when large numbers of cases are active.
+ - fixed a bug that was causing duplicated work item announcements to services in certain
+   situations.
+ - refactored standalone admin GUI to allow saving of repeatedly used data to file.
+ - improved validation of case parameters on case launch.
+ - updated net analysis algorithms.
+ - added custom form details to Interface B getTaskInformation() method.
+ - fixed potential NPE in Interface B getLiveWorkItemsForIdentifierAsXML() method.
+ - fixed the persistence of workitem status changes when suspending and unsuspending
+   work items.
+ - fixed the loss of some updated data when marshalling/unmarshalling WorkItemRecord
+   objects.
+ - fixed bug in Marshaller which left a WorkItemRecord with a null resource status in
+   some cases.
+ - fixed bug causing persistence exceptions in certain scenarios involving a combination
+   of composite tasks and cancellation sets.
+ - revised regular expression used for QName validation to accommodate UTF-8 character
+   sets.
+ - fixed a bug in Interface X caused when an incorrect URL was registered to use it.
+ - a number of minor refactorings.
+
+
+(b) RESOURCE SERVICE:
+ - improved handling of workitem status change events in resource service (for events
+   that occur outside the service).
+ - updated 'customformexample.jsp' to reflect changes made to the way custom forms are
+   handled.
+ - fixed a bug which caused panels and/or fields to overwrite wrapped long header names
+   on dynamic forms.
+ - fixed message panel widths for wide messages which were extending past the panel's
+   right edge.
+ - introduced a simplified worklist handler as an iGoogle gadget.
+ - related to the above gadget, introduced the ability to receive worklisted items via
+   RSS feeds.
+ - fixed a loophole that allowed the definition of duplicated userids, rolenames etc.
+ - added several new Interface R & W methods & fixed some related Marshaller issues.
+ - updates to the WorkQueue Gateway to better support user logons & password encryption.
+ - changed access level for WorkQueueGatewayClientAdapter.successcheck() to protected so
+   that extending classes can use it.
+ - included WorkQueueGateway.getWorkItemParameters() in authorised custom form actions.
+ - added support for the Worklist Visualizer.
+ - fixed a potential NPE in the Resource Gateway.
+ - added an overloaded WorkQueueGateway.userlogin() method to accommodate pre-encrypted
+   passwords.
+ - fixed bug that affected the addition of an org group to an empty org database.
+ - added the ability to specify static parameters within custom form URLs.
+ - fixed a bug that affected the persistence of piled tasks.
+ - a number of minor refactorings.
+
+(c) WORKLET SERVICE
+ - fixed NPE in the Rules Editor.
+ - added a small update to the ConditionEvaluator algorithm.
+ - added case cancel event handling (for cases cancelled outside of the worklet service).
+
+(d) NEW SERVICES
+ - added new Twitter Service, which provides for status updates to Twitter.
+
+(e) EDITOR
+ - refactored the custom form dialog to allow multi-line wrapping.
+ - fixed bug that caused the specified filters in resource settings to be loaded
+   incorrectly from file.
+ - added auto-formatting for complex parameter XQuery expressions.
+ - for specifications with multple nets, subnet tabs now sorted on title.
+ - added task indicators for timers, cancellation sets & autotasks.
+ - added the ability for users to define fill colours for net elements.
+ - added some updates to analysis classes.
+ - added some improvements to XML validation editor windows.
+ - added 'format' button to XQuery dialog to prettify contents.
+ - fixed issue with text encoding and newline stripping of plain 'string' type initial
+   values for variables.
+ - tightened URI validation for external connections.
+ - some minor swing fixes (scroll bars in variable value input dialogs, some dialog
+   resizing, some label updates).
+ - editor-specific log4j.properties now included in build.
+ - fixed bug that mangled XML reserved chars that are included in flow labels.
+ - explicitly set log & WofYAWL location to editor's home dir rather than CWD.
+ - fixed case inconsistencies in some menu itmes.
+
+
+                        #############################
+
+    Please report any bugs or problems via the YAWL sourceforge page:
+
+                     http://sourceforge.net/projects/yawl
+
+
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
                    YAWL Release 2.0 (Release Candidate 2) 15/06/2009
                    =================================================
 
