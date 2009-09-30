@@ -226,10 +226,14 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
         getDataVariablePanel().setVariables(
             generateDataVariablesFromServiceSelection()
         );
-        cbxAutomated.setEnabled(yawlServiceComboBox.getSelectedIndex() == 0);
+        cbxAutomated.setEnabled(isDefaultWorklistSelected());
       }
     });
     return yawlServiceComboBox;
+  }
+
+  private boolean isDefaultWorklistSelected() {
+      return yawlServiceComboBox.getSelectedItem().equals("Default Engine Worklist");
   }
 
 

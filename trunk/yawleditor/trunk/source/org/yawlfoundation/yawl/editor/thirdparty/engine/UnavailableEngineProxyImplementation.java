@@ -73,6 +73,8 @@ public class UnavailableEngineProxyImplementation implements
   }
 
   public void setDataTypeSchema(String schema) {}
+
+  public String getDataTypeSchema() { return null; }   
   
   public boolean hasValidDataTypeDefinition() {
     return false;

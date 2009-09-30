@@ -104,6 +104,7 @@ class EngineDetailDialog extends AbstractDoneDialog {
              return;
            }
 
+         String dataSchema = YAWLEngineProxy.getInstance().getDataTypeSchema();
          YAWLEngineProxy.getInstance().disconnect(); 
          
          prefs.put(
@@ -120,8 +121,10 @@ class EngineDetailDialog extends AbstractDoneDialog {
              "engineUserPassword", 
              new String(enginePasswordField.getPassword())
          );
-           YAWLEngineProxy.getInstance().setImplementation(
-                   engineURIField.getText());
+           YAWLEngineProxy.getInstance().setImplementation(engineURIField.getText());
+           if (dataSchema != null) {
+               YAWLEngineProxy.getInstance().setDataTypeSchema(dataSchema);
+           }
            YAWLEditor.setStatusMode("engine", YAWLEngineProxy.getInstance().isConnectable());
 
          SpecificationUndoManager.getInstance().setDirty(true);

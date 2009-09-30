@@ -136,12 +136,17 @@ public class AvailableEngineProxyImplementation implements
       xmlTools = null;
     }
   }
+
+  public String getDataTypeSchema() {
+      String schema = null;
+      if (hasValidDataTypeDefinition()) {
+          schema = xmlTools.getSchemaString();
+      }
+      return schema;
+  }
   
   public boolean hasValidDataTypeDefinition() {
-    if (xmlTools != null) {
-      return true;
-    }
-    return false;
+    return (xmlTools != null) ;
   }
 
   public Set getPrimarySchemaTypeNames() {

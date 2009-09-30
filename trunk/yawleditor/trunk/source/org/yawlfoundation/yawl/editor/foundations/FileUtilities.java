@@ -94,7 +94,7 @@ public class FileUtilities {
   private static final String RELATIVE_PLUGIN_PATH = "YAWLEditorPlugins";
 
   public static final String ABSOLUTE_PLUGIN_DIRECTORY = 
-    USER_DIRECTORY + 
+    HOME_DIR +
     System.getProperty("file.separator") + 
     RELATIVE_PLUGIN_PATH;
 
@@ -108,7 +108,7 @@ public class FileUtilities {
     TASK_ICON_PATH;
   
   public static final String ABSOLUTE_TASK_ICON_PATH = 
-    USER_DIRECTORY + 
+    HOME_DIR +
     System.getProperty("file.separator") + 
     RELATIVE_TASK_ICON_PATH;
 
@@ -154,7 +154,7 @@ public class FileUtilities {
     EXTENDED_ATTRIBUTE_PATH;
 
   public static final String ABSOLUTE_EXTENDED_ATTRIBUTE_PATH = 
-    USER_DIRECTORY + 
+    HOME_DIR + 
     System.getProperty("file.separator") + 
     RELATIVE_EXTENDED_ATTRIBUTE_PATH;
 
@@ -178,6 +178,8 @@ public class FileUtilities {
            VARIABLE_EXTENDED_ATTRIBUTE_PROPERTIES;
   }
 
+
+    // returns the path from which the editor was loaded (ie. the location of the editor jar)
     private static String setHomeDir() {
         String result = "";
         try {
