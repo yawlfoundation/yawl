@@ -70,6 +70,8 @@ public interface YAWLEngineProxyInterface {
   public LinkedList getSchemaValidationResults(String schema);
   
   public void setDataTypeSchema(String schema);
+
+  public String getDataTypeSchema();
   
   public boolean hasValidDataTypeDefinition();
   

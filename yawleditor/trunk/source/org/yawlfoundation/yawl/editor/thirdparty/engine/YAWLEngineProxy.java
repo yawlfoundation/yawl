@@ -118,6 +118,11 @@ public class YAWLEngineProxy implements YAWLEngineProxyInterface {
   public void setDataTypeSchema(String schema) {
     implementation.setDataTypeSchema(schema);
   }
+
+  public String getDataTypeSchema() {
+    return implementation.getDataTypeSchema();
+  }
+
   
   public boolean hasValidDataTypeDefinition() {
     return implementation.hasValidDataTypeDefinition();
