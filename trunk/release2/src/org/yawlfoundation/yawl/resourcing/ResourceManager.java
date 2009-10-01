@@ -3057,7 +3057,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         // now map data values to params
         Element itemData ;
         if (wir.isEdited()) {
-            wir = _workItemCache.get(wir);              // refresh data list if required
+            wir = _workItemCache.get(wir.getID());       // refresh data list if required
             itemData = wir.getUpdatedData() ;
         }
         else
@@ -3156,7 +3156,17 @@ public class ResourceManager extends InterfaceBWebsideController {
         return result ;
     }
 
+    public String getDataSchema(String itemID) {
+        WorkItemRecord wir = _workItemCache.get(itemID);
+        if (wir != null) {
+            YSpecificationID specID = new YSpecificationID(wir.getSpecificationID(),
+                                                           wir.getSpecVersion());
+            return getDataSchema(wir, specID);
+        }
+        else return "<failure>Unknown workitem ID '" + itemID + "'.</failure>";
+    }
 
+    
     public String getDataSchema(WorkItemRecord wir, YSpecificationID specID) {
         String result = null ;
         try {
