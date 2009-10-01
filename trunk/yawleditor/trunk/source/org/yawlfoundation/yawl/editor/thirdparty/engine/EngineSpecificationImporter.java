@@ -296,50 +296,46 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     
     editorDecomposition.getVariables().consolidateInputAndOutputVariables();
   }
-  
-  private static void convertDecompositionInputParameters(YDecomposition engineDecomposition, 
-                                                          Decomposition editorDecomposition) {
-    
-    Iterator inputIterator = 
-      engineDecomposition.getInputParameters().keySet().iterator();
-    
-    while(inputIterator.hasNext()) {
-      
-      YParameter engineParameter = engineDecomposition.getInputParameters().get(inputIterator.next());
-      
-      createEditorVariable(
-          editorDecomposition,
-          DataVariable.USAGE_INPUT_ONLY, 
-          engineParameter.getDataTypeName(),
-          engineParameter.getName(),
-          engineParameter.getInitialValue(),
-          engineParameter.getInitialValue(),
-          engineParameter.getAttributes()
-      );
-      
+
+    private static void convertDecompositionInputParameters(YDecomposition engineDecomposition,
+                                                            Decomposition editorDecomposition) {
+
+        Vector<YParameter> inputParams =
+                new Vector<YParameter>(engineDecomposition.getInputParameters().values());
+        Collections.sort(inputParams);   // sort on ordering
+
+        for (YParameter engineParameter : inputParams) {
+            createEditorVariable(
+                    editorDecomposition,
+                    DataVariable.USAGE_INPUT_ONLY,
+                    engineParameter.getDataTypeName(),
+                    engineParameter.getName(),
+                    engineParameter.getInitialValue(),
+                    engineParameter.getInitialValue(),
+                    engineParameter.getAttributes()
+            );
+        }
     }
-  }
 
-  private static void convertDecompositionOutputParameters(YDecomposition engineDecomposition, 
-                                                           Decomposition editorDecomposition) {
+    private static void convertDecompositionOutputParameters(YDecomposition engineDecomposition,
+                                                             Decomposition editorDecomposition) {
 
-    Iterator outputIterator = engineDecomposition.getOutputParameters().keySet().iterator();
+        Vector<YParameter> outputParams =
+                new Vector<YParameter>(engineDecomposition.getOutputParameters().values());
+        Collections.sort(outputParams);   // sort on ordering
 
-    while (outputIterator.hasNext()) {
-
-      YParameter engineParameter = (YParameter) engineDecomposition.getOutputParameters().get(outputIterator.next());
-
-      createEditorVariable(
-          editorDecomposition, 
-          DataVariable.USAGE_OUTPUT_ONLY,
-          engineParameter.getDataTypeName(), 
-          engineParameter.getName(),
-          engineParameter.getInitialValue(),
-          engineParameter.getDefaultValue(),
-          engineParameter.getAttributes()
-      );
+        for (YParameter engineParameter : outputParams) {
+            createEditorVariable(
+                    editorDecomposition,
+                    DataVariable.USAGE_OUTPUT_ONLY,
+                    engineParameter.getDataTypeName(),
+                    engineParameter.getName(),
+                    engineParameter.getInitialValue(),
+                    engineParameter.getDefaultValue(),
+                    engineParameter.getAttributes()
+            );
+        }
     }
-  }
   
   private static void createEditorVariable(Decomposition editorDecomposition, 
                                            int editorUsage,
