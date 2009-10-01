@@ -37,7 +37,6 @@ public class DataListGenerator {
     }
 
     public String generate(PanelLayout panel) {
- //       return normaliseDataList(generateDataList(panel)) ;
         return generateDataList(panel) ;
     }
 
@@ -129,7 +128,7 @@ public class DataListGenerator {
 
 
     /**
-     * Collects child elements of the same name at the outermost hierarchy and consolidates
+     * Collects child elements of the same name at the outermost hierarchy and
      * consolidates their contents into a single child element
      * @param data the data element to normalise
      * @return the normalised data element
@@ -151,8 +150,6 @@ public class DataListGenerator {
                     for (Object match : matches) {
 
                         // recurse for lower level content
-                 //       Element recursedElem = normaliseDataElement((Element) match);
-                 //       subResult.addContent(recursedElem.cloneContent()) ;
                         Element recursedElem = (Element) match;
                         subResult.addContent(recursedElem.cloneContent()) ;
                     }

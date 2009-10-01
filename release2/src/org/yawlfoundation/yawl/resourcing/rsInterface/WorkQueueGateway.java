@@ -189,6 +189,10 @@ public class WorkQueueGateway extends HttpServlet {
             String itemID = req.getParameter("itemid");
             result = _rm.getTaskParamsAsXML(itemID);  
         }
+        else if (action.equals("getWorkItemDataSchema")) {
+            String itemID = req.getParameter("itemid");
+            result = _rm.getDataSchema(itemID);
+        }
         else if (action.equals("updateWorkItemData")) {
             String itemID = req.getParameter("itemid");
             String data = req.getParameter("data");

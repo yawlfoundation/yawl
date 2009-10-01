@@ -80,8 +80,8 @@ public class YMarshal {
         //next get the version out as text - if possible
         String version = specificationSetEl.getAttributeValue("version");
         if (null == version) {
-            //version attribute was not mandatory in version 2
-            //therefore a missing version number would likely be version 2
+            //version attribute was not mandatory in beta 2
+            //therefore a missing version number would likely be beta 2
             version = YSpecification._Beta2;
         }
 

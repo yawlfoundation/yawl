@@ -250,6 +250,13 @@ public class WorkQueueGatewayClientAdapter {
     }
 
 
+    public String getWorkItemDataSchema(String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.getWorkItemDataSchema(itemID, handle));
+    }
+
+
+
     public boolean synchroniseCaches(String handle) throws IOException {
         return successful(_wqclient.synchroniseCaches(handle));
     }

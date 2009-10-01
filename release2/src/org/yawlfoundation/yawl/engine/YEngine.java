@@ -441,12 +441,13 @@ public class YEngine implements InterfaceADesign,
             throws YStateException, YSchemaBuildingException, YDataStateException,
                     YPersistenceException, YQueryException{
 
-        // check & format case data params (if any)
-        Element data = formatCaseParams(caseParams, specID);
-
         // get the latest loaded spec version
         YSpecification specification = _specifications.getSpecification(specID);
         if (specification != null) {
+
+            // check & format case data params (if any)
+            Element data = formatCaseParams(caseParams, specification);
+            
             YNetRunner runner = new YNetRunner(pmgr, specification.getRootNet(), data, caseID);
             
             // register exception service with the net runner
@@ -501,16 +502,18 @@ public class YEngine implements InterfaceADesign,
         }
     }
 
-    protected Element formatCaseParams(String paramStr, String specID) throws YStateException {
+    protected Element formatCaseParams(String paramStr, YSpecification spec) throws YStateException {
         Element data = null;
         if (paramStr != null && !"".equals(paramStr)) {
             data = JDOMUtil.stringToElement(paramStr);
             if (data == null) {
                 throw new YStateException("Invalid or malformed caseParams.");
             }
-            else if  (! specID.equals(data.getName())) {
+            else if (! (spec.getRootNet().getID().equals(data.getName())) ||
+                       (spec.getID().equals(data.getName()))) {
                 throw new YStateException(
-                        "Invalid caseParams: outermost element name must match specification ID.");
+                        "Invalid caseParams: outermost element name must match " +
+                                "specification or root net ID.");
             }
         }
         return data;
