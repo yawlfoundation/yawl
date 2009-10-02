@@ -576,7 +576,6 @@ public class OfferInteraction extends AbstractInteraction {
                                 "' in dynamic parameter: " + _name );
                 }
             }
-            if (result.isEmpty()) result = null ;
             return result ;
         }
 

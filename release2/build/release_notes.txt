@@ -1,4 +1,4 @@
-                        YAWL Release 2.0 (Final) 22/09/2009
+                        YAWL Release 2.0 (Final) 01/10/2009
                        =====================================
 
 This is the final 2.0 release of the YAWL Environment (the next planned release will
@@ -63,10 +63,11 @@ QUICK START: After installation, start Tomcat and point a browser to
    RSS feeds.
  - fixed a loophole that allowed the definition of duplicated userids, rolenames etc.
  - added several new Interface R & W methods & fixed some related Marshaller issues.
- - updates to the WorkQueue Gateway to better support user logons & password encryption.
+ - updates to the WorkQueueGateway to better support user logons & password encryption.
  - changed access level for WorkQueueGatewayClientAdapter.successcheck() to protected so
    that extending classes can use it.
  - included WorkQueueGateway.getWorkItemParameters() in authorised custom form actions.
+ - added several new WorkQueueGateway methods.
  - added support for the Worklist Visualizer.
  - fixed a potential NPE in the Resource Gateway.
  - added an overloaded WorkQueueGateway.userlogin() method to accommodate pre-encrypted
@@ -74,6 +75,8 @@ QUICK START: After installation, start Tomcat and point a browser to
  - fixed bug that affected the addition of an org group to an empty org database.
  - added the ability to specify static parameters within custom form URLs.
  - fixed a bug that affected the persistence of piled tasks.
+ - fixed a potential exception when an invalid valued is supplied to a dynamic
+   resourcing variable.
  - a number of minor refactorings.
 
 (c) WORKLET SERVICE
@@ -104,6 +107,16 @@ QUICK START: After installation, start Tomcat and point a browser to
  - fixed bug that mangled XML reserved chars that are included in flow labels.
  - explicitly set log & WofYAWL location to editor's home dir rather than CWD.
  - fixed case inconsistencies in some menu itmes.
+ - refactored discovery of home dir so that it can be started from any directory and
+   have plugins (icons & extended attributes) locatable.
+ - fixed bug that prevented eligible net-level resource variables from appearing when
+   a specification is reloaded.
+ - fixed inability to set automated task on Default Engine Worklist if another service
+   was listed before it alphabetically in the Task Decomposition dialog.
+ - fixed bug where user-defined data type definitions were lost from the variable type
+   dropdown in the Edit Variables dialogs when the engine connection was re-established.
+ - fix bug where the ordering of parameters was sometimes being mixed on specification
+   load.   
 
 
                         #############################
