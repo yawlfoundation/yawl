@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XML Spy v4.4 U (http://www.xmlspy.com) by Lachlan Aldred (Queensland University of Technology) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="address">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="number"/>
+				<xs:element name="streetName" type="xs:string"/>
+				<xs:element ref="locality" minOccurs="0"/>
+				<xs:element ref="state"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="number" type="xs:nonNegativeInteger"/>
+	<xs:element name="complexNum" substitutionGroup="number">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="unitTnhse" type="xs:nonNegativeInteger"/>
+				<xs:element ref="streetNumber"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="businessNumber" substitutionGroup="number">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="floor" type="xs:nonNegativeInteger"/>
+				<xs:element name="suiteOrRoom" type="xs:nonNegativeInteger"/>
+				<xs:element ref="streetNumber"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="streetNumber" type="xs:nonNegativeInteger"/>
+	<xs:element name="gpoBoxAddress" substitutionGroup="address">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="number" type="xs:nonNegativeInteger"/>
+				<xs:element ref="locality"/>
+				<xs:element ref="postCode"/>
+				<xs:element ref="state" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="postCode">
+		<xs:simpleType>
+			<xs:restriction base="xs:nonNegativeInteger">
+				<xs:minInclusive value="1000"/>
+				<xs:maxInclusive value="9999"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="state">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="Qld"/>
+				<xs:enumeration value="NSW"/>
+				<xs:enumeration value="Vic"/>
+				<xs:enumeration value="WA"/>
+				<xs:enumeration value="ACT"/>
+				<xs:enumeration value="NT"/>
+				<xs:enumeration value="SA"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="locality" type="xs:string"/>
+</xs:schema>
