@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/schema/YAWL_SchemaBeta7.1.xsd">
+  <specification uri="SendReminder">
+    <metaData>
+      <title>SendReminder</title>
+      <creator>Adams</creator>
+      <description>Simple follow up request after timeout</description>
+      <version>0.1</version>
+    </metaData>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema" />
+    <decomposition id="SendReminder" isRootNet="true" xsi:type="NetFactsType">
+      <inputParam>
+        <name>Paid</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Cost</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Item</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>Paid</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>Cost</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>Item</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <localVariable>
+        <name>time</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>5000</initialValue>
+      </localVariable>
+      <processControlElements>
+        <inputCondition id="InputCondition_1">
+          <flowsInto>
+            <nextElementRef id="Send_Request_4" />
+          </flowsInto>
+        </inputCondition>
+        <task id="Send_Request_4">
+          <flowsInto>
+            <nextElementRef id="Receive_Reply_5" />
+            <predicate>true()</predicate>
+            <isDefaultFlow />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="Wait_3" />
+            <predicate>true()</predicate>
+          </flowsInto>
+          <join code="xor" />
+          <split code="or" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;Cost&gt;{/SendReminder/Cost/text()}&lt;/Cost&gt;" />
+              <mapsTo>Cost</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Item&gt;{/SendReminder/Item/text()}&lt;/Item&gt;" />
+              <mapsTo>Item</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Name&gt;{/SendReminder/Name/text()}&lt;/Name&gt;" />
+              <mapsTo>Name</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;Cost&gt;{/Send_Request/Cost/text()}&lt;/Cost&gt;" />
+              <mapsTo>Cost</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Name&gt;{/Send_Request/Name/text()}&lt;/Name&gt;" />
+              <mapsTo>Name</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Item&gt;{/Send_Request/Item/text()}&lt;/Item&gt;" />
+              <mapsTo>Item</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Send_Request" />
+        </task>
+        <task id="Wait_3">
+          <flowsInto>
+            <nextElementRef id="Archive_20" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;time&gt;{/SendReminder/time/text()}&lt;/time&gt;" />
+              <mapsTo>time</mapsTo>
+            </mapping>
+          </startingMappings>
+          <decomposesTo id="Wait" />
+        </task>
+        <task id="Receive_Reply_5">
+          <flowsInto>
+            <nextElementRef id="Archive_20" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;Paid&gt;{/SendReminder/Paid/text()}&lt;/Paid&gt;" />
+              <mapsTo>Paid</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;Paid&gt;{/Receive_Reply/Paid/text()}&lt;/Paid&gt;" />
+              <mapsTo>Paid</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Receive_Reply" />
+        </task>
+        <task id="Archive_20">
+          <flowsInto>
+            <nextElementRef id="OutputCondition_2" />
+          </flowsInto>
+          <join code="or" />
+          <split code="and" />
+          <decomposesTo id="Archive" />
+        </task>
+        <outputCondition id="OutputCondition_2" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="Wait" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>time</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <yawlService id="http://localhost:8080/timeService/ib" />
+    </decomposition>
+    <decomposition id="Receive_Reply" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>Paid</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>Paid</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+    <decomposition id="Archive" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="Send_Request" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>Cost</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Item</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>Cost</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>Item</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+  </specification>
+</specificationSet>
+
+
