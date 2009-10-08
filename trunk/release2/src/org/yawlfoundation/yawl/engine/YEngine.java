@@ -509,8 +509,8 @@ public class YEngine implements InterfaceADesign,
             if (data == null) {
                 throw new YStateException("Invalid or malformed caseParams.");
             }
-            else if (! (spec.getRootNet().getID().equals(data.getName())) ||
-                       (spec.getID().equals(data.getName()))) {
+            else if (! (spec.getRootNet().getID().equals(data.getName()) ||
+                       (spec.getID().equals(data.getName())))) {
                 throw new YStateException(
                         "Invalid caseParams: outermost element name must match " +
                                 "specification or root net ID.");
