@@ -80,7 +80,8 @@ public class SpecificationBottomPanel extends JTabbedPane implements Specificati
     }
     
     public void selectNotesTab() {
-      setSelectedComponent(designNotesPanel);
+        setSelectedComponent(designNotesPanel);
+        designNotesPanel.setPreferredSize(this.getSize());
     }
     
     public void selectProblemsTab() {

@@ -31,15 +31,23 @@ import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.swing.resourcing.ManageResourcingDialog;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.ServerLookup;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxyInterface;
 import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
+import org.yawlfoundation.yawl.editor.thirdparty.resourcing.UnavailableResourcingServiceProxyImplementation;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.util.prefs.Preferences;
 
 public class ManageResourcingAction extends YAWLSelectedNetAction
                                     implements TooltipTogglingWidget {
   
   private static final long serialVersionUID = 1L;
+
+  private static final Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
+
 
   private YAWLTask task;
   private NetGraph graph;
@@ -61,7 +69,7 @@ public class ManageResourcingAction extends YAWLSelectedNetAction
   }  
 
   public void actionPerformed(ActionEvent event) {
-    if (! isEmptyOrgModel()) {
+    if (checkServiceIsLive() && ! isEmptyOrgModel()) {
         dialog.setTask(task, graph);
         dialog.setVisible(true);
     }
@@ -92,6 +100,48 @@ public class ManageResourcingAction extends YAWLSelectedNetAction
                    "No Available Resources", JOptionPane.WARNING_MESSAGE);
               return true;
           }
+      }
+      return false;
+  }
+
+  // checks that if the Editor thinks the Resource Service is 'live', it is still 'live'
+  private boolean checkServiceIsLive() {
+      if (ResourcingServiceProxy.getInstance().isLiveService()) {
+          String serviceURI = prefs.get("resourcingServiceURI",
+                                ResourcingServiceProxy.DEFAULT_RESOURCING_SERVICE_URI);
+          try {
+              if (ServerLookup.isReachable(serviceURI)) {
+                  return true;
+              }
+          }
+          catch (IOException ioe) {                        // its no longer reachable
+              JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
+                   "The previous connection to the " +
+                   "Resource Service is no longer available.\n" +
+                   "Please reconnect to a running Resource Service via the Tools menu.",
+                   "Service Unavailable", JOptionPane.WARNING_MESSAGE);
+              ResourcingServiceProxy.getInstance().disconnect();
+              ResourcingServiceProxy.getInstance().setImplementation(
+                           new UnavailableResourcingServiceProxyImplementation());
+              YAWLEditor.setStatusMode("resource", false);
+
+              // chances are the engine connection is also no loner reachable
+              String engineURI = prefs.get("engineURI",
+                                      YAWLEngineProxyInterface.DEFAULT_ENGINE_URI);
+              try {
+                  ServerLookup.isReachable(engineURI);
+              }
+              catch (IOException eioe) {                      // its no longer reachable
+                  YAWLEditor.setStatusMode("engine", false);
+              }
+          }
+      }
+      else {
+          JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
+               "A connection to the " +
+               "Resource Service has not been established.\n" +
+               "Please connect to a running Resource Service via the Tools menu.",
+               "Service Unavailable", JOptionPane.WARNING_MESSAGE);
       }
       return false;
   }

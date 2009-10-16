@@ -21,18 +21,14 @@
 
 package org.yawlfoundation.yawl.editor.swing;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
-
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableCellRenderer;
-
 import org.yawlfoundation.yawl.editor.specification.ProblemList;
 import org.yawlfoundation.yawl.editor.specification.ProblemListSubscriber;
+
+import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableCellRenderer;
+import java.awt.*;
+import java.awt.event.MouseEvent;
 
 public class ProblemTable extends JSingleSelectTable {
   
@@ -47,6 +43,7 @@ public class ProblemTable extends JSingleSelectTable {
   
   private void initialise() {
     setModel(new MessageTableModel());
+    setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
   }
   
   public void addMessage(String message) {
@@ -55,6 +52,11 @@ public class ProblemTable extends JSingleSelectTable {
   
   private MessageTableModel getMessageModel() {
     return (MessageTableModel) getModel();
+  }
+
+  public void setWidth() {
+      int widestRow = getMessageModel().getLongestMessageLength() * 8;
+      getColumnModel().getColumn(0).setPreferredWidth(widestRow);
   }
   
   public void reset() {
@@ -69,7 +71,7 @@ public class ProblemTable extends JSingleSelectTable {
     return getFontMetrics(getFont()).getHeight();
   }
   
-  public Dimension getPreferredViewableScrollportSize() {
+  public Dimension getPreferredScrollableViewportSize() {
     Dimension preferredSize = super.getPreferredScrollableViewportSize();
 
     preferredSize.setSize(
@@ -126,6 +128,14 @@ class MessageTableModel extends AbstractTableModel {
 
   public int getColumnCount() {
     return COLUMN_LABELS.length;
+  }
+
+  public int getLongestMessageLength() {
+      int result = 0;
+      for (String msg : messages) {
+          result = Math.max(result, msg.length());
+      }
+      return result;
   }
   
   public void reset() {
