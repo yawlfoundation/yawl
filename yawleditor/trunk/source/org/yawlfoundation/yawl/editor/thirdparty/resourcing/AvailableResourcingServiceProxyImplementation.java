@@ -26,6 +26,7 @@ import org.yawlfoundation.yawl.editor.resourcing.AllocationMechanism;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingFilter;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.ServerLookup;
 import org.yawlfoundation.yawl.resourcing.allocators.AbstractAllocator;
 import org.yawlfoundation.yawl.resourcing.filters.AbstractFilter;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
@@ -100,7 +101,12 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
   
   public void disconnect() {
     if (gateway != null && sessionHandle != null) {
-      gateway.disconnect(sessionHandle);
+      try {
+          if (ServerLookup.isReachable(serviceURI)) gateway.disconnect(sessionHandle);
+      }
+      catch (IOException ioe) {
+          // ignore - service no longer reachable
+      }
       sessionHandle = null;
       gateway = null;
     }

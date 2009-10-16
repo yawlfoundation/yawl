@@ -79,10 +79,14 @@ public class ProblemMessagePanel extends JPanel  implements SpecificationFileMod
   }
   
   private void populateProblemListTable(List problemList) {
-    for(int i = 0; i < problemList.size(); i++) {
-      String problem = (String) problemList.get(i);
-      if (problem != null) problemResultsTable.addMessage(problem.trim());
+    if (! problemList.isEmpty()) {
+        for (int i = 0; i < problemList.size(); i++) {
+            String problem = (String) problemList.get(i);
+             if (problem != null) problemResultsTable.addMessage(problem.trim());
+        }
+        problemResultsTable.setWidth();
     }
+      
   }
 
   public ProblemTable getProblemResultsTable() {

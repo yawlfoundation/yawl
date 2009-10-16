@@ -21,15 +21,14 @@
 
 package org.yawlfoundation.yawl.editor.swing;
 
-import javax.swing.JFormattedTextField;
-import javax.swing.JFormattedTextField.AbstractFormatter;
+import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 
+import javax.swing.*;
+import javax.swing.JFormattedTextField.AbstractFormatter;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultFormatter;
 import javax.swing.text.DocumentFilter;
-
-import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 
 /**
  * This class is an extension of {@link JFormattedSelectField} that allows
@@ -48,6 +47,7 @@ public class JFormattedSafeXMLCharacterField extends JFormattedSelectField {
     super();
     setFormatterFactory(new SafeXMLFormatterFactory());
     setColumns(columns);
+    setMinimumSize(getPreferredSize());  
   }
 }
 

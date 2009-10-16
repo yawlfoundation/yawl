@@ -61,7 +61,7 @@ public class ManageResourcingDialog extends AbstractWizardDialog {
 
     if (! ResourcingServiceProxy.getInstance().isLiveService()) {
       JOptionPane.showMessageDialog(this,
-              "A Connection to a running resource service could not be etablished.\n" +
+              "A Connection to a running resource service could not be established.\n" +
               "Attempting to use a local cache of resource data, if possible.",
               "Resource Service Connection Warning", JOptionPane.WARNING_MESSAGE);
     }
