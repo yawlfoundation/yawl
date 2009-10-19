@@ -26,7 +26,7 @@ import org.jdom.JDOMException;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.reductionrules.*;
 import org.yawlfoundation.yawl.elements.YDecomposition;
-import org.yawlfoundation.yawl.elements.YNet;
+import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.List;
 
 public class YAWLResetAnalyser{
 
@@ -94,6 +95,10 @@ public class YAWLResetAnalyser{
 
 		        decomRootNet = (YNet) decomposition;
 		       //System.out.println(decomRootNet.getID());
+
+                //Added for immutable OR-join message - check for OR-joins before reduction
+		        boolean OriginalYNetContainsORJoins = containsORjoins(decomRootNet);
+
 		        //reduction rules
 		        if (useYAWLReductionRules)
 		        { reducedYNet = reduceNet(decomRootNet);
@@ -184,7 +189,16 @@ public class YAWLResetAnalyser{
 		           	}
 		           	else
 		           	{
+
+                                 //It is possible that YAWL reduction rules were applied first, thus removing OR-joins.
+                                 if (useYAWLReductionRules && OriginalYNetContainsORJoins)
+                                 {
+                                  msgBuffer.append(formatXMLMessage("There are no OR-joins in the reduced net of "+ decomRootNet.getID()+". Please recheck this property without using the YAWL reduction rules.",true));
+                                 }
+		           	 else
+                                 {
 		           	 msgBuffer.append(formatXMLMessage("There are no OR-joins in the net "+decomRootNet.getID()+".",true));
+		           	}
 		           	}
 
 		           }
@@ -224,6 +238,22 @@ public class YAWLResetAnalyser{
 	return formatXMLMessageForEditor(msgBuffer.toString());
     }
     
+
+    //Use to check for OR-joins in YNet
+    private boolean containsORjoins(YNet net)
+    {
+        List tasks = net.getNetTasks();
+        for (Iterator t = tasks.iterator(); t.hasNext();)
+        { 	 YTask task = (YTask) t.next();
+             if (task.getJoinType() == YTask._OR)
+             {
+            	 return true;
+             }
+        }
+        return false;
+
+    }
+
     private YNet reduceNet(YNet originalNet){
 	messageDlg.write("# Elements in the original YAWL net (" + originalNet.getID() + "): "
                    + originalNet.getNetElements().size());
