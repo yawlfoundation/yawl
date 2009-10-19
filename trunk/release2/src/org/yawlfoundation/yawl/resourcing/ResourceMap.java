@@ -278,7 +278,7 @@ public class ResourceMap {
 
 
     private void addToAdminUnofferedQueue(WorkItemRecord wir) {
-        wir.setResourceStatus(WorkItemRecord.statusResourceUnoffered);
+        rm.getWorkItemCache().updateResourceStatus(wir, WorkItemRecord.statusResourceUnoffered);
         ResourceAdministrator.getInstance().addToUnoffered(wir);
     }
 
@@ -318,7 +318,7 @@ public class ResourceMap {
                 rm.announceModifiedQueue(p.getID()) ;
             }
             _offered.put(wir.getID(), pSet) ;
-            wir.setResourceStatus(WorkItemRecord.statusResourceOffered);
+            rm.getWorkItemCache().updateResourceStatus(wir, WorkItemRecord.statusResourceOffered);
         }
         else {
             chosenOne = _allocate.performAllocation(pSet, wir);
@@ -350,7 +350,7 @@ public class ResourceMap {
         // either initiator is 'user' or start was unsuccessful
         if (! started) {
             qs.addToQueue(wir, WorkQueue.ALLOCATED);
-            wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
+            rm.getWorkItemCache().updateResourceStatus(wir, WorkItemRecord.statusResourceAllocated);
         }
     }
 

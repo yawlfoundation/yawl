@@ -774,7 +774,7 @@ public class userWorkQueues extends AbstractPageBean {
             WorkItemRecord newWir = _rm.createNewWorkItemInstance(
                                               _sb.getAddInstanceItemID(), data);
             if (newWir != null) {
-                newWir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
+                _rm.getWorkItemCache().updateResourceStatus(newWir, WorkItemRecord.statusResourceAllocated);
                 _sb.getParticipant().getWorkQueues().addToQueue(newWir, WorkQueue.ALLOCATED);
                 msgPanel.success("New instance successfully created and added to allocate queue.");
             }

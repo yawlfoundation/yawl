@@ -75,14 +75,19 @@ public class WorkItemCache extends HashMap<String, WorkItemRecord> implements Se
         return this.put(wir.getID(), wir) ;
     }
 
+
+    public WorkItemRecord updateResourceStatus(WorkItemRecord wir, String status) {
+        wir.setResourceStatus(status);
+        return this.put(wir.getID(), wir);
+    }
+
     public void restore() {
         if (_persistOn) {
             List wirList = _persister.select("WorkItemRecord") ;
 
             if (wirList != null) {
-                Iterator itr = wirList.iterator();
-                while (itr.hasNext()) {
-                    WorkItemRecord wir = (WorkItemRecord) itr.next() ;
+                for (Object o : wirList) {
+                    WorkItemRecord wir = (WorkItemRecord) o ;
                     wir.restoreDataList();
                     super.put(wir.getID(), wir);
                 }
