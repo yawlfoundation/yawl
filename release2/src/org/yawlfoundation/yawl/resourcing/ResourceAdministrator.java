@@ -43,9 +43,10 @@ public class ResourceAdministrator {
     }
 
     public void addToUnoffered(WorkItemRecord wir) {
-        wir.setResourceStatus(WorkItemRecord.statusResourceUnoffered);
+        ResourceManager rm = ResourceManager.getInstance();
+        rm.getWorkItemCache().updateResourceStatus(wir, WorkItemRecord.statusResourceUnoffered);
         _qSet.addToQueue(wir, WorkQueue.UNOFFERED);
-        ResourceManager.getInstance().announceResourceUnavailable(wir);
+        rm.announceResourceUnavailable(wir);
     }
 
     public void removeFromAllQueues(WorkItemRecord wir) {
@@ -66,7 +67,7 @@ public class ResourceAdministrator {
         WorkQueue unoffered = _qSet.getQueue(WorkQueue.UNOFFERED) ;
         ResourceManager rm = ResourceManager.getInstance();
         if (unoffered != null) {
-            wir.setResourceStatus(WorkItemRecord.statusResourceOffered);
+            rm.getWorkItemCache().updateResourceStatus(wir, WorkItemRecord.statusResourceOffered);
             if (action.equals("Offer")) {
                 p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
                 rm.addToOfferedSet(wir, p);

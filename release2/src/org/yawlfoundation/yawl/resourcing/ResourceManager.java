@@ -352,7 +352,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     // by services other than this one
     public void handleWorkItemStatusChangeEvent(WorkItemRecord wir,
                                                 String oldStatus, String newStatus) {
-        WorkItemRecord cachedWir = getWorkItemCache().get(wir.getID());
+        WorkItemRecord cachedWir = _workItemCache.get(wir.getID());
         if (cachedWir != null) {
 
             // if its a status change this service didn't cause
@@ -1668,6 +1668,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             wir.setResourceStatus(WorkItemRecord.statusResourceUnoffered);
             _resAdmin.addToUnoffered(wir);
         }
+        _workItemCache.update(wir);
         return wir ;
     }
 
@@ -1895,10 +1896,10 @@ public class ResourceManager extends InterfaceBWebsideController {
 
             // replace the parent in the cache with the executing child
             _workItemCache.remove(wir) ;
+            oneToStart.setResourceStatus(WorkItemRecord.statusResourceStarted);
             _workItemCache.add(oneToStart);
 
             p.getWorkQueues().movetoStarted(wir, oneToStart);
-            oneToStart.setResourceStatus(WorkItemRecord.statusResourceStarted);
 
             if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceUnoffered)) {
                 _resAdmin.getWorkQueues().removeFromQueue(wir, WorkQueue.UNOFFERED);
