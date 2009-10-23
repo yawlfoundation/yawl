@@ -8,14 +8,8 @@
 
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
-import com.sun.rave.web.ui.component.Calendar;
-import com.sun.rave.web.ui.component.Checkbox;
-import com.sun.rave.web.ui.component.Label;
-import com.sun.rave.web.ui.component.TextField;
-
 import javax.faces.component.UIComponent;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 
 /**
@@ -32,10 +26,6 @@ public class SubPanelController {
     private long _currOccurs ;            // current display count (min <= curr <= max)
     private int _depthlevel ;            // the nested level of this panel set 
     private String _name;
-
-    // mapping of the tops (y-coords) of the non-panel component members of the subpanels
-    // controlled by this controller
-    private Hashtable<UIComponent, Integer> _contentTops = new Hashtable<UIComponent, Integer>() ;
 
     // the list of subpanel instances (i.e. all instances of the same subpanel)
     private List<SubPanel> _panelList = new ArrayList<SubPanel>();
@@ -88,14 +78,6 @@ public class SubPanelController {
     public List<SubPanel> getSubPanels() { return _panelList; }
     
 
-    public int getTop(UIComponent component) {
-        Integer result = _contentTops.get(component);
-        if (result == null)
-            return 0 ;
-        else
-            return result;
-    }
-
     public boolean hasPanel(SubPanel panel) {
         return _panelList.contains(panel);
     }
@@ -103,24 +85,6 @@ public class SubPanelController {
     /********************************************************************************/
 
     // Private Methods //
-   
-    /**
-     * Sets the top (y-coord) of a component (via its style setting)
-     * @param component the componnt to reposition
-     * @param top the new top value
-     */
-    private void resetTopStyle(UIComponent component, int top) {
-        String style = String.format("top: %dpx", top) ;
-        if (component instanceof Label)
-            ((Label) component).setStyle(style);
-        else if (component instanceof TextField)
-            ((TextField) component).setStyle(style);
-        else if (component instanceof Calendar)
-            ((Calendar) component).setStyle(style);
-        else if (component instanceof Checkbox)
-            ((Checkbox) component).setStyle(style);
-    }
-
 
     /**
      * A recursive method that resizes and repositions all the containing subpanels
@@ -138,7 +102,7 @@ public class SubPanelController {
         UIComponent parentPanel = subPanel.getParent();
         if (parentPanel instanceof SubPanel) {
             SubPanel ancestor = (SubPanel) parentPanel ;
-            ancestor.getController().incComponentTops(top, adjustment);
+            ancestor.incComponentTops(top, adjustment);
             incSiblingSubPanelTops(ancestor, subPanel.getController(), top, adjustment);
             return repositionAncestor(ancestor, adjustment, ancestor.getTop());
         }
@@ -210,23 +174,6 @@ public class SubPanelController {
     }
 
 
-    public void addSimpleContent(DynFormComponentList content, int top) {
-        for (UIComponent component : content) {
-            _contentTops.put(component, top);
-        }        
-    }
-
-    public void addSimpleContent(UIComponent component, int top) {
-        _contentTops.put(component, top);
-    }
-
-    public int adjustTopForChoiceContainer(int top) {
-        if (_contentTops.isEmpty())
-            return top - DynFormFactory.Y_CHOICE_DECREMENT;
-        else
-            return top;
-    }
-
     /**
      * Adds a new, cloned subpanel to this controller
      * 
@@ -245,7 +192,7 @@ public class SubPanelController {
         SubPanel patriarch;
         if (parent instanceof SubPanel) {
             SubPanel parentPanel = (SubPanel) parent;
-            parentPanel.getController().incComponentTops(top, adjustment);            
+            parentPanel.incComponentTops(top, adjustment);
             patriarch = repositionAncestor(parentPanel, adjustment, parentPanel.getTop());
         }
         else
@@ -277,7 +224,7 @@ public class SubPanelController {
         SubPanel patriarch;
         if (parent instanceof SubPanel) {
             SubPanel parentPanel = (SubPanel) parent;
-            parentPanel.getController().incComponentTops(top, adjustment);
+            parentPanel.incComponentTops(top, adjustment);
             patriarch = repositionAncestor(parentPanel, adjustment, parentPanel.getTop());
         }
         else
@@ -300,23 +247,6 @@ public class SubPanelController {
     public void incSubPanelTops(int top, int adjustment) {
         for (SubPanel subPanel : _panelList)
             if (subPanel.getTop() > top) subPanel.incTop(adjustment) ;
-    }
-
-
-    /**
-     * reset the tops of all simple components lower than the top specified
-     * @param top the y-coord below which components should be moved down
-     * @param adjustment how much to move them down by
-     */
-    public void incComponentTops(int top, int adjustment) {
-        for (UIComponent component : _contentTops.keySet()) {
-            int oldTop = _contentTops.get(component);
-            if (oldTop > top) {
-                resetTopStyle(component, oldTop + adjustment);
-                _contentTops.put(component, oldTop + adjustment);
-            }
-        }
-
     }
 
 

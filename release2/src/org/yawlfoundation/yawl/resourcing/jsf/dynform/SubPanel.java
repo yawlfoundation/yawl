@@ -8,8 +8,10 @@
 
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
-import com.sun.rave.web.ui.component.Button;
-import com.sun.rave.web.ui.component.PanelLayout;
+import com.sun.rave.web.ui.component.*;
+
+import javax.faces.component.UIComponent;
+import java.util.Hashtable;
 
 /**
  * a panel layout with a few extra members
@@ -30,6 +32,10 @@ public class SubPanel extends PanelLayout implements Cloneable {
     // 'occurs' buttons
     private Button btnPlus;
     private Button btnMinus;
+
+    // mapping of the tops (y-coords) of the non-panel component members of this subpanel
+    private Hashtable<UIComponent, Integer> _contentTops = new Hashtable<UIComponent, Integer>() ;
+
 
     // Constructor //
     public SubPanel() { super(); }
@@ -77,8 +83,6 @@ public class SubPanel extends PanelLayout implements Cloneable {
 
 
     /***************************************************************************/
-
-    // Public Methods //
 
     /**
      * Calculates the screen co-ords for this panel (relative to the entire form)
@@ -144,6 +148,69 @@ public class SubPanel extends PanelLayout implements Cloneable {
     public void enableOccursButtons(boolean enable) {
         if (btnPlus != null) btnPlus.setDisabled(! enable);
         if (btnMinus != null) btnMinus.setDisabled(! enable);
+    }
+
+    /*********************************************************************/
+
+    public int getTop(UIComponent component) {
+        Integer result = _contentTops.get(component);
+        if (result == null)
+            return 0 ;
+        else
+            return result;
+    }
+
+    public void setContentTops(DynFormComponentList content, int top) {
+        for (UIComponent component : content) {
+            _contentTops.put(component, top);
+        }
+    }
+
+
+    public void setContentTop(UIComponent component, int top) {
+        _contentTops.put(component, top);
+    }
+
+    
+    public int adjustTopForChoiceContainer(int top) {
+        if (_contentTops.isEmpty())
+            return top - DynFormFactory.Y_CHOICE_DECREMENT;
+        else
+            return top;
+    }
+
+    /**
+     * reset the tops of all simple components lower than the top specified
+     * @param top the y-coord below which components should be moved down
+     * @param adjustment how much to move them down by
+     */
+    public void incComponentTops(int top, int adjustment) {
+        for (UIComponent component : _contentTops.keySet()) {
+            int oldTop = _contentTops.get(component);
+            if (oldTop > top) {
+                resetTopStyle(component, oldTop + adjustment);
+                _contentTops.put(component, oldTop + adjustment);
+            }
+        }
+    }
+
+    // Private Methods //
+
+    /**
+     * Sets the top (y-coord) of a component (via its style setting)
+     * @param component the componnt to reposition
+     * @param top the new top value
+     */
+    private void resetTopStyle(UIComponent component, int top) {
+        String style = String.format("top: %dpx", top) ;
+        if (component instanceof Label)
+            ((Label) component).setStyle(style);
+        else if (component instanceof TextField)
+            ((TextField) component).setStyle(style);
+        else if (component instanceof Calendar)
+            ((Calendar) component).setStyle(style);
+        else if (component instanceof Checkbox)
+            ((Checkbox) component).setStyle(style);
     }
 
 }
