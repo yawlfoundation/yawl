@@ -139,7 +139,7 @@ public class SubPanelController {
         if (parentPanel instanceof SubPanel) {
             SubPanel ancestor = (SubPanel) parentPanel ;
             ancestor.getController().incComponentTops(top, adjustment);
-            incSiblingSubPanelTops(ancestor, top, adjustment);
+            incSiblingSubPanelTops(ancestor, subPanel.getController(), top, adjustment);
             return repositionAncestor(ancestor, adjustment, ancestor.getTop());
         }
         else return subPanel ;    // the level 0 'patriarch'
@@ -150,15 +150,19 @@ public class SubPanelController {
      * Increment the relevant subpanel tops for all subpanels at the same depth level
      * that are not ancestors of the subpanel passed
      * @param ancestor an outer subpanel of the one that triggered the repositioning
+     * @param controller the controller of the triggering subpanel
      * @param top the new top position of the triggering subpanel
-     * @param adjustment how much to add to the top of affected subpanels
+     * @param adjustment how much to add to the top of affected sibling subpanels
      */
-    private void incSiblingSubPanelTops(SubPanel ancestor, int top, int adjustment) {
+    private void incSiblingSubPanelTops(SubPanel ancestor, SubPanelController controller,
+                                        int top, int adjustment) {
         List components = ancestor.getChildren() ;
         for (Object component : components) {
-            if ((component instanceof SubPanel) && (component != ancestor)) {
+            if (component instanceof SubPanel) {
                 SubPanel subPanel = (SubPanel) component ;
-                if (subPanel.getTop() > top) subPanel.incTop(adjustment) ;
+                if (! controller.hasPanel(subPanel)) {
+                    if (subPanel.getTop() > top) subPanel.incTop(adjustment) ;
+                }    
             }
         }
     }
@@ -248,7 +252,7 @@ public class SubPanelController {
             patriarch = newPanel ;
 
         newPanel.incTop(adjustment);        
-        _currOccurs += 1;
+        _currOccurs++;
         _panelList.add(newPanel);
 
         // enable/disable buttons as required
@@ -279,7 +283,7 @@ public class SubPanelController {
         else
             patriarch = oldPanel ;
 
-        _currOccurs -= 1;
+        _currOccurs--;
         _panelList.remove(oldPanel);
         setOccursButtonsEnablement();
 

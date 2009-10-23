@@ -697,6 +697,7 @@ public class DynFormFactory extends AbstractSessionBean {
 
     private void removeSubPanel(SubPanel panel) {
         SubPanel level0Container = panel.getController().removeSubPanel(panel);
+        removeOrphanedControllers(panel);
         int adjustment = - (panel.getHeight() + DynFormFactory.Y_PP_INCREMENT);
         adjustLayouts(level0Container, adjustment);
 
@@ -719,6 +720,30 @@ public class DynFormFactory extends AbstractSessionBean {
             }
         }
     }
+
+
+    public void addSubPanelController(SubPanel panel) {
+        _subPanelTable.put(panel.getName(), panel.getController());
+    }
+
+    public void addSubPanelControllerMap(Map<String, SubPanelController> map) {
+        _subPanelTable.putAll(map);
+    }
+
+    public void removeSubPanelController(SubPanel panel) {
+        _subPanelTable.remove(panel.getName());
+    }
+
+    private void removeOrphanedControllers(SubPanel panel) {
+        for (Object o : panel.getChildren()) {
+            if (o instanceof SubPanel) {
+                SubPanel orphan = (SubPanel) o;
+                removeSubPanelController(orphan);
+                removeOrphanedControllers(orphan);  // recurse
+            }
+        }
+    }
+
     
 
     public void addClonedFieldToTable(TextField orig, TextField clone) {
