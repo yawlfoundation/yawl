@@ -41,10 +41,14 @@ public class SubPanelCloner {
         newPanel.setId(_factory.createUniqueID("sub" + name));
 
         // clone panel content
-        List content = cloneContent(panel);
-        if (! content.isEmpty())
+        Hashtable<UIComponent, Integer> tops = new Hashtable<UIComponent, Integer>();
+        List content = cloneContent(panel, tops);
+        if (! content.isEmpty()) {
             newPanel.getChildren().addAll(content) ;
-
+            for (UIComponent component : tops.keySet()) {
+                newPanel.setContentTop(component, tops.get(component));
+            }
+        }
         if (newPanel.getController().canVaryOccurs()) {
             newPanel.addOccursButton(_factory.makeOccursButton(name, "+"));
             newPanel.addOccursButton(_factory.makeOccursButton(name, "-"));
@@ -54,15 +58,21 @@ public class SubPanelCloner {
         return newPanel ;
     }
 
-    private List cloneContent(SubPanel panel) {
+    private List cloneContent(SubPanel panel, Hashtable<UIComponent, Integer> tops) {
         List content = panel.getChildren();
         List result = new ArrayList() ;
         for (Object obj : content) {
             if (obj instanceof SubPanel)
                 result.add(cloneSubPanel((SubPanel) obj)) ;               // recurse
             else if (! (obj instanceof Button))  {
-                List<UIComponent> newContent = cloneSimpleComponent((UIComponent) obj, panel) ;
-                if (newContent != null) result.addAll(newContent) ;
+                UIComponent component = (UIComponent) obj;
+                List<UIComponent> newContent = cloneSimpleComponent(component, panel) ;
+                if (newContent != null) {
+                    for (UIComponent cloned : newContent) {
+                        tops.put(cloned, panel.getTop(component));
+                    }
+                    result.addAll(newContent) ;
+                }
             }
         }
         return result ;
@@ -212,7 +222,7 @@ public class SubPanelCloner {
                     processed.put(name, controller);
                 }
                 controller.storeSubPanel(childPanel);
-                controller.setOccursButtonsEnablement();
+                if (controller.canVaryOccurs()) controller.setOccursButtonsEnablement();
                 childPanel.setController(controller);
                 resolveChildControllers(childPanel);                   // recurse
             }
@@ -220,19 +230,4 @@ public class SubPanelCloner {
         if (! processed.isEmpty()) _factory.addSubPanelControllerMap(processed);
     }
 
-    private int getIndexOf(UIComponent parent, SubPanel panel) {
-        List components = parent.getChildren();
-        for (int i = 0; i < components.size(); i++) {
-            UIComponent component = (UIComponent) components.get(i);
-            if (component == panel) return i;
-        }
-        return -1 ;                 // not found
-    }
-
-    private void insertSubPanel(UIComponent parent, SubPanel panel, int i) {
-        if (i < parent.getChildCount())
-            parent.getChildren().add(i, panel);
-        else
-            parent.getChildren().add(panel);
-    }
 }

@@ -555,7 +555,7 @@ public class DynFormFactory extends AbstractSessionBean {
                 else {
                     innerContent = builder.makeInputField(top, field);
                     if (container != null) {
-                        container.getController().addSimpleContent(innerContent, top);
+                        container.setContentTops(innerContent, top);
                     }
                     else {
                         for (UIComponent component : innerContent)
@@ -727,7 +727,9 @@ public class DynFormFactory extends AbstractSessionBean {
     }
 
     public void addSubPanelControllerMap(Map<String, SubPanelController> map) {
-        _subPanelTable.putAll(map);
+        for (SubPanelController controller : map.values()) {
+             _subPanelTable.put(createUniqueID("clonedGroup"), controller); 
+        }
     }
 
     public void removeSubPanelController(SubPanel panel) {
