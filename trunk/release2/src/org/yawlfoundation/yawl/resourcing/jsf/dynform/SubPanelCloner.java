@@ -12,7 +12,9 @@ import com.sun.rave.web.ui.component.*;
 
 import javax.faces.component.UIComponent;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Author: Michael Adams
@@ -28,10 +30,12 @@ public class SubPanelCloner {
     public SubPanel clone(SubPanel panel, DynFormFactory factory, String id) {
         _factory = factory;
         _rbGroupID = id;
-        return cloneSubPanel(panel);
+        SubPanel cloned = cloneSubPanel(panel);
+        resolveChildControllers(cloned);
+        return cloned;
     }
 
-        private SubPanel cloneSubPanel(SubPanel panel) {
+    private SubPanel cloneSubPanel(SubPanel panel) {
         SubPanel newPanel = panel.clone() ;
         String name = newPanel.getName();
         newPanel.setId(_factory.createUniqueID("sub" + name));
@@ -190,6 +194,31 @@ public class SubPanelCloner {
         return newStatic;
     }
 
+
+    private void resolveChildControllers(SubPanel panel) {
+        Map<String, SubPanelController> processed =
+                new Hashtable<String, SubPanelController>();
+
+        for (Object component : panel.getChildren()) {
+            if (component instanceof SubPanel) {          // child panel
+                SubPanel childPanel = (SubPanel) component;
+                String name = childPanel.getName();
+                SubPanelController controller = processed.get(name);
+                if (controller != null) {
+                    controller = processed.get(name) ;
+                }
+                else {
+                    controller = childPanel.getController().clone();
+                    processed.put(name, controller);
+                }
+                controller.storeSubPanel(childPanel);
+                controller.setOccursButtonsEnablement();
+                childPanel.setController(controller);
+                resolveChildControllers(childPanel);                   // recurse
+            }
+        }
+        if (! processed.isEmpty()) _factory.addSubPanelControllerMap(processed);
+    }
 
     private int getIndexOf(UIComponent parent, SubPanel panel) {
         List components = parent.getChildren();
