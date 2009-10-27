@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
+import org.yawlfoundation.yawl.resourcing.resource.Capability;
 import org.yawlfoundation.yawl.resourcing.util.Docket;
 
 import javax.servlet.ServletContext;
@@ -230,6 +231,16 @@ public class ResourceGateway extends HttpServlet {
            else if (action.equalsIgnoreCase("disconnect")) {
                rm.serviceDisconnect(handle);
            }
+           else if (action.startsWith("add")) {
+               result = doAddResourceAction(req, action);
+           }
+           else if (action.startsWith("update")) {
+               result = doUpdateResourceAction(req, action);
+           }
+           else if (action.startsWith("delete")) {
+               result = doDeleteResourceAction(req, action);
+           }
+
        }
        else throw new IOException("Invalid or disconnected session handle");
 
@@ -239,9 +250,47 @@ public class ResourceGateway extends HttpServlet {
     }
 
 
-
     public void doGet(HttpServletRequest req, HttpServletResponse res)
                                 throws IOException, ServletException {
         doPost(req, res);                                // redirect all GETs to POSTs
     }
+
+
+    public String doAddResourceAction(HttpServletRequest req, String action) {
+        if (action.equalsIgnoreCase("addCapability")) {
+            String name = req.getParameter("name");
+            if (! rm.isKnownCapabilityName(name)) {
+                String desc = req.getParameter("description");
+                Capability cap = new Capability(name, desc);
+                cap.setNotes(req.getParameter("notes"));
+                rm.addCapability(cap);
+            }
+            else return fail("Add", "Capability", name);
+        }
+        return "";
+    }
+                                         
+
+    public String doUpdateResourceAction(HttpServletRequest req, String action) {
+
+        return "";
+    }
+
+    
+    public String doDeleteResourceAction(HttpServletRequest req, String action) {
+
+        return "";
+    }
+
+
+    private String fail(String msg) {
+        return "<failure>" + msg + "</failure>";
+    }
+
+
+    private String fail(String action, String className, String name) {
+        String template = "%s %s unsuccessful: there's already a % with name '%s'." ;
+        return fail(String.format(template, action, className, className, name));
+    }
+
 }

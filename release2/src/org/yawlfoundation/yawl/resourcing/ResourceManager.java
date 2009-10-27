@@ -2800,7 +2800,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
     // A connected external service doesn't have a session with the engine, so this
-    // method swaps service session handles with this classes handle to allow
+    // method swaps service session handles with this class's handle to allow
     // authorised external services to query the engine
     private String getHandleForEngineCall(String handle) {
         return checkServiceConnection(handle) && connected() ?
@@ -3022,6 +3022,32 @@ public class ResourceManager extends InterfaceBWebsideController {
             }
         }
         return "";
+    }
+
+    
+    public String getOutputOnlyTaskParamsAsXML(String itemID) {
+        String result ;
+        WorkItemRecord wir = _workItemCache.get(itemID);
+        if (wir != null) {
+            try {
+                TaskInformation taskInfo = getTaskInformation(
+                    new YSpecificationID(wir.getSpecificationID(),
+                        wir.getSpecVersion()), wir.getTaskID(), _engineSessionHandle
+                );
+                List<YParameter> list = taskInfo.getParamSchema().getOutputOnlyParams();
+                result = "<outputOnlyParameters>\n";
+                for (YParameter param : list) {
+                    result += param.toSummaryXML();
+                }
+                result += "\n</outputOnlyParameters>";
+            }
+            catch (IOException ioe) {
+                result = "<failure>Exception connecting to Engine.</failure>";
+            }
+        }
+        else result = "<failure>Unknown workitem '" + itemID + "'.</failure>";
+
+        return result;
     }
 
     

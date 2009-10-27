@@ -243,12 +243,20 @@ public class WorkQueueGatewayClientAdapter {
         return successCheck(_wqclient.getWorkItem(itemID, handle));
     }
 
+
     public Set<YParameter> getWorkItemParameters(String itemID, String handle)
             throws IOException, ResourceGatewayException {
         String result = successCheck(_wqclient.getWorkItemParameters(itemID, handle));
         return _marshaller.parseWorkItemParams(result);
     }
 
+
+    public Set<YParameter> getWorkItemOutputOnlyParameters(String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        String result = successCheck(_wqclient.getWorkItemOutputOnlyParameters(itemID, handle));
+        return _marshaller.parseWorkItemParams(result);
+    }
+    
 
     public String getWorkItemDataSchema(String itemID, String handle)
             throws IOException, ResourceGatewayException {
