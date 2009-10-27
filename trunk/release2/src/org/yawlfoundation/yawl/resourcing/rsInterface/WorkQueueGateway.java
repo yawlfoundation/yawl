@@ -182,21 +182,20 @@ public class WorkQueueGateway extends HttpServlet {
             result = qSet.toXML() ;                                    // set never null
         }
         else if (action.equals("getWorkItem")) {
-            String itemID = req.getParameter("itemid");
-            result = _rm.getWorkItem(itemID);
+            result = _rm.getWorkItem(itemid);
         }
         else if (action.equals("getWorkItemParameters")) {
-            String itemID = req.getParameter("itemid");
-            result = _rm.getTaskParamsAsXML(itemID);  
+            result = _rm.getTaskParamsAsXML(itemid);
+        }
+        else if (action.equals("getWorkItemOutputOnlyParameters")) {
+            result = _rm.getOutputOnlyTaskParamsAsXML(itemid);
         }
         else if (action.equals("getWorkItemDataSchema")) {
-            String itemID = req.getParameter("itemid");
-            result = _rm.getDataSchema(itemID);
+            result = _rm.getDataSchema(itemid);
         }
         else if (action.equals("updateWorkItemData")) {
-            String itemID = req.getParameter("itemid");
             String data = req.getParameter("data");
-            result = _rm.updateWorkItemData(itemID, data);            
+            result = _rm.updateWorkItemData(itemid, data);
         }
         else if (action.equals("getQueuedWorkItems")) {
             int queueType = getQueueType(req.getParameter("queue")) ;
@@ -362,7 +361,8 @@ public class WorkQueueGateway extends HttpServlet {
     private boolean authorisedCustomFormAction(String action, String handle) {
         if ((action.equals("getWorkItem")) ||
             (action.equals("getWorkItemParameters")) ||    
-            (action.equals("updateWorkItemData"))) {
+            (action.equals("updateWorkItemData")) ||
+            (action.equals("getWorkItemOutputOnlyParameters"))) {
 
             return _rm.isValidUserSession(handle);
         }

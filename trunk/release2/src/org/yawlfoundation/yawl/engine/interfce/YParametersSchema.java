@@ -42,20 +42,50 @@ public class YParametersSchema {
         return list;
     }
 
-    public List<YParameter> getCombinedParams() {
-        List<YParameter> result = getInputParams();
-        int count = result.size();
 
-        // add any output only params to list
-        for (String name : _outputParams.keySet()) {
-            if (!_inputParams.containsKey(name)) {
-                YParameter outputOnlyParam = _outputParams.get(name) ;
-
-                // make sure output only's are listed last
-                outputOnlyParam.setOrdering(count++);
-                result.add(outputOnlyParam);
+    public List<YParameter> getInputOnlyParams() {
+        List<YParameter> inputOnlyList = new ArrayList<YParameter>();
+        for (YParameter param : getInputParams()) {
+             if (! _outputParams.containsKey(param.getName())) {
+                inputOnlyList.add(param);
             }
         }
+        return inputOnlyList;
+    }
+
+
+    public List<YParameter> getOutputOnlyParams() {
+        List<YParameter> outputOnlyList = new ArrayList<YParameter>();
+        for (YParameter param : getOutputParams()) {
+             if (! _inputParams.containsKey(param.getName())) {
+                outputOnlyList.add(param);
+            }
+        }
+        return outputOnlyList;
+    }
+
+
+    public List<YParameter> getInputOutputParams() {
+        List<YParameter> inputOutputList = new ArrayList<YParameter>();
+        for (YParameter param : getInputParams()) {
+             if (_outputParams.containsKey(param.getName())) {
+                inputOutputList.add(param);
+            }
+        }
+        return inputOutputList;
+    }
+
+
+    public List<YParameter> getCombinedParams() {
+        List<YParameter> result = getInputParams();
+        List<YParameter> outputOnlyList = getOutputOnlyParams();
+        int count = result.size();
+
+        // adjust the ordering for the output only's so that they are post-fixed
+        for (YParameter param : outputOnlyList) param.setOrdering(count++);
+
+        // combine and return
+        result.addAll(outputOnlyList);
         return result;
     }
 

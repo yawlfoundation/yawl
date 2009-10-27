@@ -222,7 +222,7 @@ public class WorkQueueGatewayClient extends Interface_Client {
     
     public String getWorkItem(String itemID, String handle) throws IOException {
         params.clear();
-        params.put("itemid", itemID);
+        params.put("workitemid", itemID);
         return performGet("getWorkItem", params, handle);
     }
 
@@ -230,7 +230,7 @@ public class WorkQueueGatewayClient extends Interface_Client {
     public String updateWorkItemData(String itemID, String data, String handle)
             throws IOException {
         params.clear();
-        params.put("itemid", itemID);
+        params.put("workitemid", itemID);
         params.put("data", data);
         return performGet("updateWorkItemData", params, handle);        
     }
@@ -239,7 +239,7 @@ public class WorkQueueGatewayClient extends Interface_Client {
     public String getWorkItemParameters(String itemID, String handle)
             throws IOException {
         params.clear();
-        params.put("itemid", itemID);
+        params.put("workitemid", itemID);
         return performGet("getWorkItemParameters", params, handle);        
     }
 
@@ -247,11 +247,19 @@ public class WorkQueueGatewayClient extends Interface_Client {
     public String getWorkItemDataSchema(String itemID, String handle)
             throws IOException {
         params.clear();
-        params.put("itemid", itemID);
+        params.put("workitemid", itemID);
         return performGet("getWorkItemDataSchema", params, handle);
     }
 
     
+    public String getWorkItemOutputOnlyParameters(String itemID, String handle)
+            throws IOException {
+        params.clear();
+        params.put("workitemid", itemID);
+        return performGet("getWorkItemOutputOnlyParameters", params, handle);
+    }
+
+
     public String synchroniseCaches(String handle) throws IOException {
         return performGet("synchroniseCaches", null, handle) ;
     }
@@ -426,7 +434,7 @@ public class WorkQueueGatewayClient extends Interface_Client {
 
     public String getDecompID(WorkItemRecord wir, String handle) throws IOException {
         params.clear();
-        params.put("itemid", wir.getID()) ;
+        params.put("workitemid", wir.getID()) ;
         return performGet("getDecompID", params, handle) ;
     }
 
