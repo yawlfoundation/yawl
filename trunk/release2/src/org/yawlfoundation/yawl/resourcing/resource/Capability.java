@@ -37,11 +37,15 @@ public class Capability extends AbstractResourceAttribute implements Comparable 
         _persisting = persisting ;
     }
 
+    public Capability(Element e) {
+        super();
+        reconstitute(e);
+    }
+
     public String getCapability() { return _capability; }
 
     public void setCapability(String capability) {
         _capability = capability;
-        updateThis();
     }
 
     public boolean equals(Object o) {

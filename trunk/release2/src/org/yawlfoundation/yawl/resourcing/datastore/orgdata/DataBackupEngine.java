@@ -109,21 +109,26 @@ public class DataBackupEngine {
 
     private String importCapabilities(Element capElem) {
         String result = "Capabilities: 0 in imported file.";
-        int added = 0;
         if (capElem != null) {
-            List children = capElem.getChildren();
-            for (Object o : children) {
-                Element cap = (Element) o;
-                String id = cap.getAttributeValue("id");
-                Capability c = _rm.getCapability(id);
-                if ((c == null) && (! _rm.isKnownCapabilityName(cap.getChildText("name")))) {
-                    c = new Capability();
-                    c.reconstitute(cap);
-                    _rm.importCapability(c);
-                    added++;
+            if (_rm.isDataEditable("Capability")) {
+                int added = 0;
+                List children = capElem.getChildren();
+                for (Object o : children) {
+                    Element cap = (Element) o;
+                    String id = cap.getAttributeValue("id");
+                    Capability c = _rm.getCapability(id);
+                    if ((c == null) && (! _rm.isKnownCapabilityName(cap.getChildText("name")))) {
+                        c = new Capability();
+                        c.reconstitute(cap);
+                        _rm.importCapability(c);
+                        added++;
+                    }
                 }
+                result = String.format("Capabilities: %d/%d imported.", added, children.size());
             }
-            result = String.format("Capabilities: %d/%d imported.", added, children.size());
+            else {
+                result = "Capabilities: could not import, external dataset is read-only.";
+            }
         }
         return result;
     }
@@ -131,67 +136,77 @@ public class DataBackupEngine {
 
     private String importRoles(Element roleElem) {
         String result = "Roles: 0 in imported file.";
-        Hashtable<String, Role> cyclics = new Hashtable<String, Role>();
-        int added = 0;
         if (roleElem != null) {
-            List children = roleElem.getChildren();
-            for (Object o : children) {
-                Element role = (Element) o;
-                String id = role.getAttributeValue("id");
-                Role r = _rm.getRole(id);
-                if ((r == null) && (! _rm.isKnownRoleName(role.getChildText("name")))) {
-                    r = new Role();
+            if (_rm.isDataEditable("Role")) {
+                Hashtable<String, Role> cyclics = new Hashtable<String, Role>();
+                int added = 0;
+                List children = roleElem.getChildren();
+                for (Object o : children) {
+                    Element role = (Element) o;
+                    String id = role.getAttributeValue("id");
+                    Role r = _rm.getRole(id);
+                    if ((r == null) && (! _rm.isKnownRoleName(role.getChildText("name")))) {
+                        r = new Role();
 
-                    // ensure all roles created before cyclic refs are added
-                    Element belongsTo = role.getChild("belongsToID");
-                    if (belongsTo != null) {
-                        cyclics.put(belongsTo.getText(), r);
+                        // ensure all roles created before cyclic refs are added
+                        Element belongsTo = role.getChild("belongsToID");
+                        if (belongsTo != null) {
+                            cyclics.put(belongsTo.getText(), r);
+                        }
+                        r.reconstitute(role);
+                        _rm.importRole(r);
+                        added++;
                     }
-                    r.reconstitute(role);
-                    _rm.importRole(r);
-                    added++;
                 }
+                for (String id : cyclics.keySet()) {
+                    Role r = cyclics.get(id);
+                    r.setOwnerRole(_rm.getRole(id));
+                    _rm.updateRole(r);
+                }
+                result = String.format("Roles: %d/%d imported.", added, children.size());
             }
-            for (String id : cyclics.keySet()) {
-                Role r = cyclics.get(id);
-                r.setOwnerRole(_rm.getRole(id));
-                _rm.updateRole(r);
+            else {
+                result = "Roles: could not import, external dataset is read-only.";
             }
-            result = String.format("Roles: %d/%d imported.", added, children.size());
-        }
+        }    
         return result;
     }
 
 
     private String importOrgGroups(Element ogElem) {
         String result = "OrgGroup: 0 in imported file.";
-        Hashtable<String, OrgGroup> cyclics = new Hashtable<String, OrgGroup>();
-        int added = 0;
         if (ogElem != null) {
-            List children = ogElem.getChildren();
-            for (Object o : children) {
-                Element group = (Element) o;
-                String id = group.getAttributeValue("id");
-                OrgGroup og = _rm.getOrgGroup(id);
-                if ((og == null) && (! _rm.isKnownOrgGroupName(group.getChildText("groupName")))) {
-                    og = new OrgGroup();
+            if (_rm.isDataEditable("OrgGroup")) {
+                Hashtable<String, OrgGroup> cyclics = new Hashtable<String, OrgGroup>();
+                int added = 0;
+                List children = ogElem.getChildren();
+                for (Object o : children) {
+                    Element group = (Element) o;
+                    String id = group.getAttributeValue("id");
+                    OrgGroup og = _rm.getOrgGroup(id);
+                    if ((og == null) && (! _rm.isKnownOrgGroupName(group.getChildText("groupName")))) {
+                        og = new OrgGroup();
 
-                    // ensure all OrgGroups created before cyclic refs are added
-                    Element belongsTo = group.getChild("belongsToID");
-                    if (belongsTo != null) {
-                        cyclics.put(belongsTo.getText(), og);
+                        // ensure all OrgGroups created before cyclic refs are added
+                        Element belongsTo = group.getChild("belongsToID");
+                        if (belongsTo != null) {
+                            cyclics.put(belongsTo.getText(), og);
+                        }
+                        og.reconstitute(group);
+                        _rm.importOrgGroup(og);
+                        added++;
                     }
-                    og.reconstitute(group);
-                    _rm.importOrgGroup(og);
-                    added++;
                 }
+                for (String id : cyclics.keySet()) {
+                    OrgGroup og = cyclics.get(id);
+                    og.setBelongsTo(_rm.getOrgGroup(id));
+                    _rm.updateOrgGroup(og);
+                }
+                result = String.format("OrgGroups: %d/%d imported.", added, children.size());
             }
-            for (String id : cyclics.keySet()) {
-                OrgGroup og = cyclics.get(id);
-                og.setBelongsTo(_rm.getOrgGroup(id));
-                _rm.updateOrgGroup(og);
+            else {
+                result = "OrgGroups: could not import, external dataset is read-only.";
             }
-            result = String.format("OrgGroups: %d/%d imported.", added, children.size());
         }
         return result;
     }
@@ -199,38 +214,43 @@ public class DataBackupEngine {
 
     private String importPositions(Element posElem) {
         String result = "Positions: 0 in imported file.";
-        Hashtable<String, Position> cyclics = new Hashtable<String, Position>();
-        int added = 0;
         if (posElem != null) {
-            List children = posElem.getChildren();
-            for (Object o : children) {
-                Element pos = (Element) o;
-                String id = pos.getAttributeValue("id");
-                Position p = _rm.getPosition(id);
-                if ((p == null) && (! _rm.isKnownPositionName(pos.getChildText("title")))) {
-                    p = new Position();
+            if (_rm.isDataEditable("OrgGroup")) {
+                Hashtable<String, Position> cyclics = new Hashtable<String, Position>();
+                int added = 0;
+                List children = posElem.getChildren();
+                for (Object o : children) {
+                    Element pos = (Element) o;
+                    String id = pos.getAttributeValue("id");
+                    Position p = _rm.getPosition(id);
+                    if ((p == null) && (! _rm.isKnownPositionName(pos.getChildText("title")))) {
+                        p = new Position();
 
-                    // ensure all Positions created before cyclic refs are added
-                    Element reportsTo = pos.getChild("reportstoid");
-                    if (reportsTo != null) {
-                        cyclics.put(reportsTo.getText(), p);
-                    }
-                    p.reconstitute(pos);
+                        // ensure all Positions created before cyclic refs are added
+                        Element reportsTo = pos.getChild("reportstoid");
+                        if (reportsTo != null) {
+                            cyclics.put(reportsTo.getText(), p);
+                        }
+                        p.reconstitute(pos);
 
-                    Element ogElem = pos.getChild("orggroupid");
-                    if (ogElem != null) {
-                        p.setOrgGroup(_rm.getOrgGroup(ogElem.getText()));
+                        Element ogElem = pos.getChild("orggroupid");
+                        if (ogElem != null) {
+                            p.setOrgGroup(_rm.getOrgGroup(ogElem.getText()));
+                        }
+                        _rm.importPosition(p);
+                        added++;
                     }
-                    _rm.importPosition(p);
-                    added++;
                 }
+                for (String id : cyclics.keySet()) {
+                    Position p = cyclics.get(id);
+                    p.setReportsTo(_rm.getPosition(id));
+                    _rm.updatePosition(p);
+                }
+                result = String.format("Positions: %d/%d imported.", added, children.size());
             }
-            for (String id : cyclics.keySet()) {
-                Position p = cyclics.get(id);
-                p.setReportsTo(_rm.getPosition(id));
-                _rm.updatePosition(p);
+            else {
+                result = "Positions: could not import, external dataset is read-only.";
             }
-            result = String.format("Positions: %d/%d imported.", added, children.size());
         }
         return result;
     }
@@ -238,30 +258,34 @@ public class DataBackupEngine {
 
     private String importParticipants(Element pElem) {
         String result = "Participants: 0 in imported file.";
-        Hashtable<String, Participant> cyclics = new Hashtable<String, Participant>();
         int added = 0;
         if (pElem != null) {
-            List children = pElem.getChildren();
-            for (Object o : children) {
-                Element part = (Element) o;
-                String id = part.getAttributeValue("id");
-                Participant p = _rm.getParticipant(id);
-                if ((p == null) && (! _rm.isKnownUserID(part.getChildText("userid")))) {
-                    p = new Participant();
-                    p.reconstitute(part);
-                    p.setPassword(part.getChildText("password"));
-                    p.setAvailable(part.getChildText("isAvailable").equals("true"));
-                    p.setDescription(part.getChildText("description"));
-                    p.setNotes(part.getChildText("notes"));
-                    addParticipantToResourceGroup(p, part, "roles");
-                    addParticipantToResourceGroup(p, part, "positions");
-                    addParticipantToResourceGroup(p, part, "capabilities");
-                    p.getUserPrivileges().setPrivilegesFromBits(part.getChildText("privileges"));
-                    _rm.importParticipant(p);
-                    added++;
+            if (_rm.isDataEditable("Participant")) {
+                List children = pElem.getChildren();
+                for (Object o : children) {
+                    Element part = (Element) o;
+                    String id = part.getAttributeValue("id");
+                    Participant p = _rm.getParticipant(id);
+                    if ((p == null) && (! _rm.isKnownUserID(part.getChildText("userid")))) {
+                        p = new Participant();
+                        p.reconstitute(part);
+                        p.setPassword(part.getChildText("password"));
+                        p.setAvailable(part.getChildText("isAvailable").equals("true"));
+                        p.setDescription(part.getChildText("description"));
+                        p.setNotes(part.getChildText("notes"));
+                        addParticipantToResourceGroup(p, part, "roles");
+                        addParticipantToResourceGroup(p, part, "positions");
+                        addParticipantToResourceGroup(p, part, "capabilities");
+                        p.getUserPrivileges().setPrivilegesFromBits(part.getChildText("privileges"));
+                        _rm.importParticipant(p);
+                        added++;
+                    }
                 }
+                result = String.format("Participants: %d/%d imported.", added, children.size());
             }
-            result = String.format("Participants: %d/%d imported.", added, children.size());
+            else {
+                result = "Positions: could not import, external dataset is read-only.";
+            }
         }
         return result;
     }

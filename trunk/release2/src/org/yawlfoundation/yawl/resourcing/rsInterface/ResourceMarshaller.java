@@ -55,13 +55,11 @@ public class ResourceMarshaller {
         // each child is one Participant (as xml)
         List eList = getChildren(xml);
         if (eList != null) {
-            Iterator itr = eList.iterator();
-            while (itr.hasNext()) {
-                Element e = (Element) itr.next();
+            for (Object o : eList) {
                 Participant p = new Participant();
 
                 // repopulate the members from its xml
-                p.reconstitute(e);
+                p.reconstitute((Element) o);
                 result.add(p);
             }
         }

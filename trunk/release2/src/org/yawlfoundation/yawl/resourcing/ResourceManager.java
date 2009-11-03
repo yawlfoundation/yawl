@@ -115,6 +115,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private Logger _log ;                                 // debug log4j file
     private boolean _persisting ;                         // flag to enable persistence
     private boolean _isNonDefaultOrgDB ;                  // flag for non-yawl org model
+    private boolean _allowExternalOrgDataMods = true;     // is non-def. org data R/W?
     private final Object _mutex = new Object();           // for synchronizing ib events
 
     private Timer _orgDataRefreshTimer;               // if set, reloads db at intervals
@@ -235,6 +236,10 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
     }
 
+
+    public void setAllowExternalOrgDataMods(boolean allow) {
+        _allowExternalOrgDataMods = allow;
+    }
     
     public void initRandomOrgDataGeneration(int count) {
         if (count > 0) {
@@ -526,19 +531,22 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     // ORG DATA METHODS //
 
-    public boolean mayEditDataset(String dsName) {
-       if (dsName.equalsIgnoreCase("participant"))
-           return _dsEditable[ResUnit.Participant.ordinal()] ;
-       else if (dsName.equalsIgnoreCase("role"))
-           return _dsEditable[ResUnit.Role.ordinal()] ;
-       else if (dsName.equalsIgnoreCase("capability"))
-           return _dsEditable[ResUnit.Capability.ordinal()] ;
-       else if (dsName.equalsIgnoreCase("position"))
-           return _dsEditable[ResUnit.Position.ordinal()] ;
-       else if (dsName.equalsIgnoreCase("orggroup"))
-           return _dsEditable[ResUnit.OrgGroup.ordinal()] ;
-       return false ;                                      // should not be reachable
-   }
+
+    public boolean isDataEditable(ResUnit resource) {
+        return _allowExternalOrgDataMods || _dsEditable[resource.ordinal()];
+    }
+
+    public boolean isDataEditable(String resName) {
+        return isDataEditable(getResUnit(resName));
+    }
+
+    public void setDataEditable(ResUnit resource, boolean editable) {
+        _dsEditable[resource.ordinal()] = editable;
+    }
+
+    public ResUnit getResUnit(String name) {
+        return ResUnit.valueOf(name);
+    }
 
 
     public boolean isDefaultOrgDB() {
@@ -664,27 +672,27 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
         else
             // external data - do not allow modify
-            _dsEditable[ResUnit.Participant.ordinal()] = false ;
+            setDataEditable(ResUnit.Participant, false) ;
 
         // check roles
         if (_ds.roleMap.isEmpty())
             _ds.roleMap = yawlDB.loadRoles();
-        else _dsEditable[ResUnit.Role.ordinal()] = false ;
+        else setDataEditable(ResUnit.Role, false) ;
 
         // check capbilities
         if (_ds.capabilityMap.isEmpty())
             _ds.capabilityMap = yawlDB.loadCapabilities();
-        else _dsEditable[ResUnit.Capability.ordinal()] = false ;
+        else setDataEditable(ResUnit.Capability, false) ;
 
         // check orgGroups
         if (_ds.orgGroupMap.isEmpty())
             _ds.orgGroupMap = yawlDB.loadOrgGroups();
-        else _dsEditable[ResUnit.OrgGroup.ordinal()] = false ;
+        else setDataEditable(ResUnit.OrgGroup, false) ;
 
         // check positions
         if (_ds.positionMap.isEmpty())
             _ds.positionMap = yawlDB.loadPositions();
-        else _dsEditable[ResUnit.Position.ordinal()] = false ;
+        else setDataEditable(ResUnit.Position, false) ;
 
         // restore user privileges for each participant
         HashMap<String,UserPrivileges> upMap =
@@ -735,6 +743,9 @@ public class ResourceManager extends InterfaceBWebsideController {
         return _userKeys.containsKey(userid);
     }
 
+    private String fail(String msg) {
+        return "<failure>" + msg + "</failure>";
+    }
 
     // ADD (NEW) ORG DATA OBJECTS //
 
@@ -743,10 +754,13 @@ public class ResourceManager extends InterfaceBWebsideController {
      * @param p the new Participant
      */
     public String addParticipant(Participant p) {
+        if (! isDataEditable(ResUnit.Participant)) {
+            return fail("External Participant dataset is read-only");
+        }
 
         // check for userid uniqueness
         if (isKnownUserID(p.getUserID())) {
-            return "<failure>User id '" + p.getUserID() + "' is already in use.</failure>"; 
+            return fail("User id '" + p.getUserID() + "' is already in use");
         }
 
         // persist it to the data store
@@ -770,31 +784,47 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public void addRole(Role r) {
-        String newID = _orgdb.insert(r) ;             // persist it
-        if (_isNonDefaultOrgDB) r.setID(newID);       // cleanup for non-default db
-        _ds.roleMap.put(newID, r) ;                   // ...and add it to the data set
+    public String addRole(Role r) {
+        if (isDataEditable(ResUnit.Role)) {
+            String newID = _orgdb.insert(r) ;             // persist it
+            if (_isNonDefaultOrgDB) r.setID(newID);       // cleanup for non-default db
+            _ds.roleMap.put(newID, r) ;                   // ...and add it to the data set
+            return newID;
+        }
+        else return fail("External Role dataset is read-only");
     }
 
 
-    public void addCapability(Capability c) {
-        String newID = _orgdb.insert(c) ;             // persist it
-        if (_isNonDefaultOrgDB) c.setID(newID);       // cleanup for non-default db
-        _ds.capabilityMap.put(newID, c) ;             // ...and add it to the data set
+    public String addCapability(Capability c) {
+        if (isDataEditable(ResUnit.Capability)) {
+            String newID = _orgdb.insert(c) ;             // persist it
+            if (_isNonDefaultOrgDB) c.setID(newID);       // cleanup for non-default db
+            _ds.capabilityMap.put(newID, c) ;             // ...and add it to the data set
+            return newID;
+        }
+        else return fail("External Capability dataset is read-only");
     }
 
 
-    public void addPosition(Position p) {
-        String newID = _orgdb.insert(p) ;             // persist it
-        if (_isNonDefaultOrgDB) p.setID(newID);       // cleanup for non-default db
-        _ds.positionMap.put(newID, p) ;               // ...and add it to the data set
+    public String addPosition(Position p) {
+        if (isDataEditable(ResUnit.Position)) {
+            String newID = _orgdb.insert(p) ;             // persist it
+            if (_isNonDefaultOrgDB) p.setID(newID);       // cleanup for non-default db
+            _ds.positionMap.put(newID, p) ;               // ...and add it to the data set
+            return newID;
+        }
+        else return fail("External Position dataset is read-only");
     }
 
 
-    public void addOrgGroup(OrgGroup o) {
-        String newID = _orgdb.insert(o) ;             // persist it
-        if (_isNonDefaultOrgDB) o.setID(newID);       // cleanup for non-default db
-        _ds.orgGroupMap.put(newID, o) ;               // ...and add it to the data set
+    public String addOrgGroup(OrgGroup o) {
+        if (isDataEditable(ResUnit.OrgGroup)) {
+            String newID = _orgdb.insert(o) ;             // persist it
+            if (_isNonDefaultOrgDB) o.setID(newID);       // cleanup for non-default db
+            _ds.orgGroupMap.put(newID, o) ;               // ...and add it to the data set
+            return newID;
+        }
+        else return fail("External OrgGroup dataset is read-only");
     }
 
 
@@ -845,12 +875,14 @@ public class ResourceManager extends InterfaceBWebsideController {
     // UPDATE ORG DATA OBJECTS //
 
     public void updateParticipant(Participant p) {
-        _orgdb.update(p);                              // persist it
-        _ds.participantMap.put(p.getID(), p) ;         // ... and update the data set
-        addUserKey(p);                                 // and the userid--pid map
-        if (_isNonDefaultOrgDB) {
-            _persister.update(p.getUserPrivileges());  // persist other classes
-            _persister.update(p.getWorkQueues());
+        if (isDataEditable(ResUnit.Participant)) {
+            _orgdb.update(p);                              // persist it
+            _ds.participantMap.put(p.getID(), p) ;         // ... and update the data set
+            addUserKey(p);                                 // and the userid--pid map
+            if (_isNonDefaultOrgDB) {
+                _persister.update(p.getUserPrivileges());  // persist other classes
+                _persister.update(p.getWorkQueues());
+            }
         }
     }
 
@@ -862,93 +894,112 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
     public void updateRole(Role r) {
-        _orgdb.update(r) ;                             // persist it
-        _ds.roleMap.put(r.getID(), r) ;                // ... and update the data set
+        if (isDataEditable(ResUnit.Role)) {
+            _orgdb.update(r) ;                             // persist it
+            _ds.roleMap.put(r.getID(), r) ;                // ... and update the data set
+        }
     }
 
 
     public void updateCapability(Capability c) {
-        _orgdb.update(c) ;                             // persist it
-        _ds.capabilityMap.put(c.getID(), c) ;          // ... and update the data set
+        if (isDataEditable(ResUnit.Capability)) {
+            _orgdb.update(c) ;                             // persist it
+            _ds.capabilityMap.put(c.getID(), c) ;          // ... and update the data set
+        }
     }
 
 
     public void updatePosition(Position p) {
-        _orgdb.update(p) ;                             // persist it
-        _ds.positionMap.put(p.getID(), p) ;            // ... and update the data set
+        if (isDataEditable(ResUnit.Position)) {
+            _orgdb.update(p) ;                             // persist it
+            _ds.positionMap.put(p.getID(), p) ;            // ... and update the data set
+        }
     }
 
 
     public void updateOrgGroup(OrgGroup o) {
-        _orgdb.update(o) ;                             // persist it
-        _ds.orgGroupMap.put(o.getID(), o) ;            // ... and update the data set
+        if (isDataEditable(ResUnit.OrgGroup)) {
+            _orgdb.update(o) ;                             // persist it
+            _ds.orgGroupMap.put(o.getID(), o) ;            // ... and update the data set
+        }
     }
 
 
     // REMOVE ORG DATA OBJECTS //
 
     public synchronized void removeParticipant(Participant p) {
-        handleWorkQueuesOnRemoval(p);    
-        p.removeAttributeReferences() ;
-        removeUserKey(p);
-        _orgdb.delete(p);
-        _ds.participantMap.remove(p.getID()) ;
-        if (_isNonDefaultOrgDB) {
-            _persister.delete(p.getUserPrivileges());
-            _persister.delete(p.getWorkQueues());
+        if (isDataEditable(ResUnit.Participant)) {
+            handleWorkQueuesOnRemoval(p);
+            p.removeAttributeReferences() ;
+            removeUserKey(p);
+            _orgdb.delete(p);
+            _ds.participantMap.remove(p.getID()) ;
+            if (_isNonDefaultOrgDB) {
+                _persister.delete(p.getUserPrivileges());
+                _persister.delete(p.getWorkQueues());
+            }
         }
     }
 
     public synchronized void removeRole(Role r) {
-        disconnectResources(r);
-        for (Role role : _ds.roleMap.values()) {
-            Role owner = role.getOwnerRole() ;
-            if ((owner != null) && owner.getID().equals(r.getID())) {
-                role.setOwnerRole(null);
-                _orgdb.update(role);
+        if (isDataEditable(ResUnit.Role)) {
+            disconnectResources(r);
+            for (Role role : _ds.roleMap.values()) {
+                Role owner = role.getOwnerRole() ;
+                if ((owner != null) && owner.getID().equals(r.getID())) {
+                    role.setOwnerRole((Role) null);
+                    _orgdb.update(role);
+                }
             }
+            _ds.roleMap.remove(r.getID());
+            _orgdb.delete(r);
         }
-        _ds.roleMap.remove(r.getID());
-        _orgdb.delete(r);
     }
 
 
     public synchronized void removeCapability(Capability c) {
-        disconnectResources(c);
-        _ds.capabilityMap.remove(c.getID());
-        _orgdb.delete(c);
+        if (isDataEditable(ResUnit.Capability)) {
+            disconnectResources(c);
+            _ds.capabilityMap.remove(c.getID());
+            _orgdb.delete(c);
+        }
     }
 
     public synchronized void removePosition(Position p) {
-        disconnectResources(p);
-        for (Position position : _ds.positionMap.values()) {
-            Position boss = position.getReportsTo();
-            if ((boss != null) && boss.getID().equals(p.getID())) {
-                position.setReportsTo(null);
-                _orgdb.update(position);
+        if (isDataEditable(ResUnit.Position)) {
+            disconnectResources(p);
+            for (Position position : _ds.positionMap.values()) {
+                Position boss = position.getReportsTo();
+                if ((boss != null) && boss.getID().equals(p.getID())) {
+                    position.setReportsTo((Position) null);
+                    _orgdb.update(position);
+                }
             }
+            _ds.positionMap.remove(p.getID());
+            _orgdb.delete(p);
         }
-        _ds.positionMap.remove(p.getID());
-        _orgdb.delete(p);
     }
 
     public synchronized void removeOrgGroup(OrgGroup o) {
-        for (Position position : _ds.positionMap.values()) {
-            OrgGroup group = position.getOrgGroup();
-            if ((group != null) && group.getID().equals(o.getID())) {
-                position.setOrgGroup(null);
-                _orgdb.update(position);
+        if (isDataEditable(ResUnit.OrgGroup)) {
+            for (Position position : _ds.positionMap.values()) {
+                OrgGroup group = position.getOrgGroup();
+                if ((group != null) && group.getID().equals(o.getID())) {
+                    position.setOrgGroup((OrgGroup) null);
+                    _orgdb.update(position);
+                }
             }
-        }
-        for (OrgGroup group : _ds.orgGroupMap.values()) {
-            OrgGroup owner = group.getBelongsTo();
-            if ((owner != null) && owner.getID().equals(o.getID())) {
-                group.setBelongsTo(null);
-                _orgdb.update(group);
+
+            for (OrgGroup group : _ds.orgGroupMap.values()) {
+                OrgGroup owner = group.getBelongsTo();
+                if ((owner != null) && owner.getID().equals(o.getID())) {
+                    group.setBelongsTo((OrgGroup) null);
+                    _orgdb.update(group);
+                }
             }
+            _ds.orgGroupMap.remove(o.getID());
+            _orgdb.delete(o);
         }
-        _ds.orgGroupMap.remove(o.getID());
-        _orgdb.delete(o);
     }
 
     private synchronized void disconnectResources(AbstractResourceAttribute attrib) {
@@ -966,6 +1017,61 @@ public class ResourceManager extends InterfaceBWebsideController {
             else if (attrib instanceof Position) p.removePosition((Position) attrib);
             updateParticipant(p);
         }
+    }
+
+    public boolean removeParticipant(String pid) {
+        if (pid != null) {
+            Participant p = getParticipant(pid);
+            if (p != null) {
+                removeParticipant(p);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean removeRole(String rid) {
+        if (rid != null) {
+            Role role = getRole(rid);
+            if (role != null) {
+                removeRole(role);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean removeCapability(String cid) {
+        if (cid != null) {
+            Capability capability = getCapability(cid);
+            if (capability != null) {
+                removeCapability(capability);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean removePosition(String pid) {
+        if (pid != null) {
+            Position position = getPosition(pid);
+            if (position != null) {
+                removePosition(position);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean removeOrgGroup(String oid) {
+        if (oid != null) {
+            OrgGroup orgGroup = getOrgGroup(oid);
+            if (orgGroup != null) {
+                removeOrgGroup(orgGroup);
+                return true;
+            }
+        }
+        return false;
     }
 
 

@@ -39,7 +39,6 @@ public class Position extends AbstractResourceAttribute implements Comparable {
         _title = title;
     }
 
-
     public Position(String positionID, String title, String desription,
                     OrgGroup orgGroup, Position reportsTo) {
         this(title) ;
@@ -49,6 +48,11 @@ public class Position extends AbstractResourceAttribute implements Comparable {
         _reportsTo = reportsTo;
     }
 
+    public Position(Element e) {
+        super();
+        reconstitute(e);
+    }
+
 
     public String getPositionID() {
         return _positionID;
@@ -56,7 +60,6 @@ public class Position extends AbstractResourceAttribute implements Comparable {
 
     public void setPositionID(String positionID) {
         _positionID = positionID;
-        updateThis();
     }
 
     public String getTitle() {
@@ -65,7 +68,6 @@ public class Position extends AbstractResourceAttribute implements Comparable {
 
     public void setTitle(String title) {
         _title = title;
-        updateThis();
     }
 
 
@@ -75,8 +77,19 @@ public class Position extends AbstractResourceAttribute implements Comparable {
 
     public void setReportsTo(Position reportsTo) {
         _reportsTo = reportsTo;
-        updateThis();
     }
+
+    public boolean setReportsTo(String reportsToID) {
+        if (reportsToID != null) {
+            Position owner = _resMgr.getPosition(reportsToID);
+            if (owner != null) {
+                setReportsTo(owner);
+                return true;
+            }
+        }
+        return false;
+    }
+
 
 
     public OrgGroup getOrgGroup() {
@@ -85,7 +98,17 @@ public class Position extends AbstractResourceAttribute implements Comparable {
 
     public void setOrgGroup(OrgGroup orgGroup) {
         _orgGroup = orgGroup;
-        updateThis();
+    }
+
+    public boolean setOrgGroup(String groupID) {
+        if (groupID != null) {
+            OrgGroup group = _resMgr.getOrgGroup(groupID);
+            if (group != null) {
+                setOrgGroup(group);
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean reportsTo(Position boss) {

@@ -59,7 +59,7 @@ public class ExampleAdapter extends ResourceGatewayClientAdapter {
                     }
                 }
             }
-            catch (IOException ioe) {
+            catch (Exception ioe) {
                 // some problem connecting to service gateway
             }
         }
@@ -82,7 +82,7 @@ public class ExampleAdapter extends ResourceGatewayClientAdapter {
                     }
                 }
             }
-            catch (IOException ioe) {
+            catch (Exception ioe) {
                 // some problem connecting to service gateway
             }
         }
