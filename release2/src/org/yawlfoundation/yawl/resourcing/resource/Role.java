@@ -33,12 +33,16 @@ public class Role extends AbstractResourceAttribute implements Comparable {
         _role = role;
     }
 
+    public Role(Element e) {
+        super();
+        reconstitute(e);
+    }
+
 
     public String getName() { return _role; }
 
     public void setName(String role) {
         _role = role;
-        updateThis();
     }
 
 
@@ -46,7 +50,17 @@ public class Role extends AbstractResourceAttribute implements Comparable {
 
     public void setOwnerRole(Role owner) {
         _belongsTo = owner;
-        updateThis();
+    }
+
+    public boolean setOwnerRole(String ownerRoleID) {
+        if (ownerRoleID != null) {
+            Role ownerRole = _resMgr.getRole(ownerRoleID);
+            if (ownerRole != null) {
+                setOwnerRole(ownerRole);
+                return true;
+            }
+        }
+        return false;
     }
 
 

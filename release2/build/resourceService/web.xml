@@ -96,6 +96,18 @@
     </context-param>
 
     <context-param>
+        <param-name>AllowExternalOrgDataMods</param-name>
+        <param-value>false</param-value>
+        <description>
+            When set to true, will allow an external org data source to be modified via
+            the default worklist and/or service APIs.
+            The default setting, false, means that an external data source is read-only.
+            Either way, this setting only applies to external org data sources and is
+            ignored when the default YAWL org database is used.
+        </description>
+    </context-param>
+
+    <context-param>
 	    <param-name>OrgDataRefreshRate</param-name>
     	<param-value>-1</param-value>
     	<description>

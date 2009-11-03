@@ -34,16 +34,12 @@ public abstract class AbstractResourceAttribute {
     // the set of resources that have this attribute
     protected HashSet<AbstractResource> _resources = new HashSet<AbstractResource>() ;
 
-    private ResourceManager _resMgr = ResourceManager.getInstance() ;
+    protected ResourceManager _resMgr = ResourceManager.getInstance() ;
 
     protected boolean _persisting ;
 
     protected AbstractResourceAttribute() {}
 
-    protected void updateThis() {
-     //   if (_persisting) _resMgr.updateResourceAttribute(this);
-       // _resMgr.updateResourceAttribute(this);
-    }
 
     public void save() { _resMgr.updateResourceAttribute(this); }
 
@@ -63,24 +59,20 @@ public abstract class AbstractResourceAttribute {
 
     public void setNotes(String notes) {
         _notes = notes;
-        updateThis();
     }
 
     public String getDescription() { return _description;  }
 
     public void setDescription(String desc) {
         _description = desc;
-        updateThis();
     }
 
     public void addResource(AbstractResource resource) {
         _resources.add(resource);
-        updateThis();
     }
 
     public void removeResource(AbstractResource resource) {
         _resources.remove(resource);
-        updateThis();
     }
 
     public boolean hasResource(AbstractResource resource) {

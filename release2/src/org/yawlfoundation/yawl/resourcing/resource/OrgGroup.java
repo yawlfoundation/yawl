@@ -54,6 +54,11 @@ public class OrgGroup extends AbstractResourceAttribute implements Comparable {
         _persisting = persisting ;
     }
 
+    public OrgGroup(Element e) {
+        super();
+        reconstitute(e);
+    }
+
 
     public String getGroupName() {
         return _groupName;
@@ -61,16 +66,35 @@ public class OrgGroup extends AbstractResourceAttribute implements Comparable {
 
     public void setGroupName(String groupName) {
         _groupName = groupName;
-        updateThis();
     }
 
     public GroupType getGroupType() {
         return _groupType;
     }
 
+
+    public GroupType getGroupTypeFromString(String name) {
+        GroupType gType = null;
+        try {
+            gType = GroupType.valueOf(name);
+        }
+        catch (Exception e) {
+            // nothing to do - already null
+        }
+        return gType;
+    }
+    
+
     public void setGroupType(GroupType groupType) {
         _groupType = groupType;
-        updateThis();
+    }
+
+
+    public void setGroupType(String groupTypeStr) {
+        GroupType groupType = getGroupTypeFromString(groupTypeStr) ;
+        if (groupType != null) {
+            _groupType = groupType;
+        }    
     }
 
 
@@ -80,9 +104,20 @@ public class OrgGroup extends AbstractResourceAttribute implements Comparable {
 
     public void setBelongsTo(OrgGroup belongsTo) {
         _belongsTo = belongsTo;
-        updateThis();
     }
 
+    public boolean setBelongsTo(String ownerID) {
+        if (ownerID != null) {
+            OrgGroup ownerGroup = _resMgr.getOrgGroup(ownerID);
+            if (ownerGroup != null) {
+                setBelongsTo(ownerGroup);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    
     public boolean hasResourceInHierarchy(AbstractResource resource) {
         return hasResource(resource) ||
                ((_belongsTo != null) && _belongsTo.hasResourceInHierarchy(resource)) ;

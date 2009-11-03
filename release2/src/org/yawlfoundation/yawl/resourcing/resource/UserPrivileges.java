@@ -38,6 +38,7 @@ public class UserPrivileges implements Serializable {
 
     private boolean carteblanche ;                // if true, overrides all privileges
 
+    private static final int PRIV_COUNT = 8;
 
     public UserPrivileges() {}                             // for Hibernate persistence
 
@@ -61,6 +62,10 @@ public class UserPrivileges implements Serializable {
         setCanViewOrgGroupItems(canViewOrgGroupItems);
         setCanChainExecution(canChainExecution) ;
         setCanManageCases(canManageCases) ;
+    }
+
+    public UserPrivileges(Element e) {
+        reconstitute(e);
     }
 
     public UserPrivileges clone() {
@@ -200,6 +205,9 @@ public class UserPrivileges implements Serializable {
 
     public void fromXML(String xml) {
         Element e = JDOMUtil.stringToElement(xml);
+    }
+
+    public void reconstitute(Element e) {
         if (e != null) {
             setID(e.getAttributeValue("participantid"));
             setCanChooseItemToStart(e.getChildText("canChooseItemToStart").equals("true"));
@@ -235,15 +243,17 @@ public class UserPrivileges implements Serializable {
 
 
     public void setPrivilegesFromBits(String bits) {
-        char[] bitArray = bits.toCharArray();
-        canChooseItemToStart = (bitArray[0] == '1');
-        canStartConcurrent = (bitArray[1] == '1');
-        canReorder = (bitArray[2] == '1');
-        canViewTeamItems = (bitArray[3] == '1');
-        canViewOrgGroupItems = (bitArray[4] == '1');
-        canChainExecution = (bitArray[5] == '1');
-        canManageCases = (bitArray[6] == '1');     
-        carteblanche = (bitArray[7] == '1');
+        if (bits.length() >= PRIV_COUNT) {
+            char[] bitArray = bits.toCharArray();
+            canChooseItemToStart = (bitArray[0] == '1');
+            canStartConcurrent = (bitArray[1] == '1');
+            canReorder = (bitArray[2] == '1');
+            canViewTeamItems = (bitArray[3] == '1');
+            canViewOrgGroupItems = (bitArray[4] == '1');
+            canChainExecution = (bitArray[5] == '1');
+            canManageCases = (bitArray[6] == '1');
+            carteblanche = (bitArray[7] == '1');
+        }
     }
 }
 
