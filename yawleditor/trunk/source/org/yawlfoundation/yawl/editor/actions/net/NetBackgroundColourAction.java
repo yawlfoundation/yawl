@@ -37,7 +37,7 @@ public class NetBackgroundColourAction extends YAWLSelectedNetAction {
 
   {
     putValue(Action.SHORT_DESCRIPTION, " Set the net background colour. ");
-    putValue(Action.NAME, "Net Background Colour...");
+    putValue(Action.NAME, "Set Net Background Colour...");
     putValue(Action.LONG_DESCRIPTION, "Set the net background colour.");
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_B));
     putValue(Action.SMALL_ICON, getPNGIcon("color_swatch"));

@@ -562,11 +562,13 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
       DataVariable editorVariable = net.getDecomposition().getVariableWithName(targetParameter);
       
       String engineDataBinding = engineTask.getDataBindingForOutputParam(targetParameter);
-      
-      editorTask.getParameterLists().getOutputParameters().addParameterPair(
-          editorVariable,
-          XMLUtilities.stripOutermostTags(engineDataBinding)
-      );
+
+        if ((editorVariable != null) && (engineDataBinding != null)) {
+            editorTask.getParameterLists().getOutputParameters().addParameterPair(
+                editorVariable,
+                XMLUtilities.stripOutermostTags(engineDataBinding)
+            );
+        }    
     }
   }
 

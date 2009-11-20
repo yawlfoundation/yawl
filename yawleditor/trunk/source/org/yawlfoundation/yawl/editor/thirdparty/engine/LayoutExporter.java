@@ -9,6 +9,7 @@ import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.util.StringUtil;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.Enumeration;
@@ -58,6 +59,11 @@ public class LayoutExporter {
         StringBuilder xml = new StringBuilder(
                 String.format("<net id=\"%s\"%s>", unspace(net.getName()), bgColor));
 
+        ImageIcon bgImage = net.getGraph().getBackgroundImage();
+        if (bgImage != null) {                            // desc contains path to image
+            xml.append(StringUtil.wrap(bgImage.getDescription(), "bgImage"));
+        }
+
         xml.append(getNetDimensions(net.getGraph()));
 
         double scale = net.getGraph().getScale();
@@ -65,6 +71,7 @@ public class LayoutExporter {
             xml.append(StringUtil.wrap(String.format("%.3f",scale), "scale"));
         }
 
+        // if the net currently has a cancellation set showing, remember it
         YAWLTask cancelTask = net.getGraph().getCancellationSetModel().getTriggeringTask();
         if (cancelTask != null) {
             xml.append(StringUtil.wrap(cancelTask.getEngineId(), "cancellationtask"));
@@ -280,9 +287,6 @@ public class LayoutExporter {
                 xml.append(StringUtil.wrap(map.get(o).toString(), attribute));
             }
 
-//            else if (!((cell instanceof YAWLVertex) || (value instanceof Font))) {
-//                xml.append(StringUtil.wrap(map.get(o).toString(), o.toString()));
-//            }
         }
         xml.append("</attributes>");
         return xml.toString();
@@ -299,8 +303,6 @@ public class LayoutExporter {
            return StringUtil.wrap(String.valueOf(color.getRGB()), key);
         }
 
-//        int r = color.getRed(), g = color.getGreen(), b = color.getBlue();
-//        return String.format("<%s r=\"%d\" g=\"%d\" b=\"%d\"/>", key, r, g, b);
     }
 
     private boolean isBlackOrWhite(Color color, boolean black) {

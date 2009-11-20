@@ -227,7 +227,7 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
             try {
                 result = gateway.getCapabilities(sessionHandle);
             }
-            catch (IOException ioe) {
+            catch (Exception ioe) {
                 // do nothing
             }
 
@@ -242,7 +242,7 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
             try {
                 result = gateway.getPositions(sessionHandle);
             }
-            catch (IOException ioe) {
+            catch (Exception ioe) {
                 // do nothing
             }
 
@@ -257,7 +257,7 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
             try {
                 result = gateway.getOrgGroups(sessionHandle);
             }
-            catch (IOException ioe) {
+            catch (Exception ioe) {
                 // do nothing
             }
         }

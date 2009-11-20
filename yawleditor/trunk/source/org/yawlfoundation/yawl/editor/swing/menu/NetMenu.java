@@ -24,18 +24,11 @@
 
 package org.yawlfoundation.yawl.editor.swing.menu;
 
-import java.awt.event.KeyEvent;
-
-import org.yawlfoundation.yawl.editor.actions.net.PrintNetAction;
-import org.yawlfoundation.yawl.editor.actions.net.NetBackgroundColourAction;
-import org.yawlfoundation.yawl.editor.actions.net.RemoveNetAction;
-import org.yawlfoundation.yawl.editor.actions.net.SetStartingNetAction;
-import org.yawlfoundation.yawl.editor.actions.net.ExportNetToPngAction;
-import org.yawlfoundation.yawl.editor.actions.net.NetDecompositionDetailAction;
-
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.actions.net.*;
 import org.yawlfoundation.yawl.editor.actions.specification.CreateNetAction;
 
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import java.awt.event.KeyEvent;
 
 class NetMenu extends YAWLOpenSpecificationMenu {
     
@@ -68,6 +61,7 @@ class NetMenu extends YAWLOpenSpecificationMenu {
     addSeparator();
 
     add(new YAWLMenuItem(new NetBackgroundColourAction()));
+    add(new YAWLMenuItem(new NetBackgroundImageAction()));  
     
     addSeparator();
     

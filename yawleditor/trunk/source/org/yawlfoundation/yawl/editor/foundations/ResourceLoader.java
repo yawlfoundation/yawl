@@ -25,11 +25,9 @@
 package org.yawlfoundation.yawl.editor.foundations;
 
 import javax.swing.*;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
 
 public class ResourceLoader {
-  static final int MAX_IMAGE_SIZE = 131072;
 
   public static JLabel getImageAsJLabel(String imageFile) {
     return new JLabel(getImageAsIcon(imageFile));
@@ -61,21 +59,19 @@ public class ResourceLoader {
     }
   }
 
-  private static byte[] convertToByteArray(final InputStream is) {
-    int       read = 0;
-    int       totalRead = 0;
+  private static byte[] convertToByteArray(final InputStream is) throws IOException {
+      final int BUF_SIZE = 16384;
+      BufferedInputStream inStream = new BufferedInputStream(is);
+      ByteArrayOutputStream outStream = new ByteArrayOutputStream(BUF_SIZE);
+      byte[] buffer = new byte[BUF_SIZE];
 
-    byte[] byteArray        = new byte[MAX_IMAGE_SIZE];
-
-    try {
-      while ((read = is.read(byteArray,totalRead,MAX_IMAGE_SIZE - totalRead)) >= 0) {
-      	totalRead += read;
+      // read chunks from the input stream and write them out
+      int bytesRead = 0;
+      while ((bytesRead = inStream.read(buffer, 0, BUF_SIZE)) > 0) {
+          outStream.write(buffer, 0, bytesRead);
       }
-    } catch (Exception e) { return null; }
-
-    byte[] finalByteArray = new byte[totalRead];
-    System.arraycopy(byteArray,0,finalByteArray,0, totalRead);
-    return finalByteArray;
+      outStream.flush();
+      return outStream.toByteArray();
   }
 }
 

@@ -1,11 +1,9 @@
 /*
- * Created on 05/10/2003
+ * Created on 9/10/2003
  * YAWLEditor v1.0 
  *
  * @author Lindsay Bradford
  * 
- * 
- *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -22,32 +20,35 @@
  *
  */
 
-package org.yawlfoundation.yawl.editor.swing.menu;
+package org.yawlfoundation.yawl.editor.actions;
 
-import org.yawlfoundation.yawl.editor.actions.ShowAboutEditorAction;
-import org.yawlfoundation.yawl.editor.actions.ShowSurveyLinkAction;
+import edu.stanford.ejalbert.BrowserLauncher;
 
 import javax.swing.*;
-import java.awt.event.KeyEvent;
+import java.awt.event.ActionEvent;
 
-class HelpMenu extends JMenu {
 
+public class ShowSurveyLinkAction extends YAWLBaseAction {
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
+  private static final String surveyURL = "http://www.bpm.fit.qut.edu.au/surveys/yawl";  
 
-  public HelpMenu() {
-    super("Help");
-    buildInterface();
+  {
+    putValue(Action.SHORT_DESCRIPTION, "Help us Improve YAWL.");
+    putValue(Action.NAME, "Help us Improve YAWL...");
+    putValue(Action.LONG_DESCRIPTION, "Help us Improve YAWL.");
+    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_I));
   }
-  
-  protected void buildInterface() {
-    setMnemonic(KeyEvent.VK_H);
-//    add(new YAWLMenuItem(new ShowCopyrightDetailAction()));
-//    add(new YAWLMenuItem(new ShowAcknowledgementsAction()));
-    add(new YAWLMenuItem(new ShowAboutEditorAction()));
-      add(new YAWLMenuItem(new ShowSurveyLinkAction()));
 
+  public void actionPerformed(ActionEvent event) {
+      try {
+          BrowserLauncher launcher = new BrowserLauncher();
+          launcher.openURLinBrowser(surveyURL);
+      }
+      catch (Exception e) {
+          //
+      }
   }
 }
