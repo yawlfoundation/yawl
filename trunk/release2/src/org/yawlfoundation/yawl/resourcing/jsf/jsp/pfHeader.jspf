@@ -34,6 +34,15 @@
                     </tr>
                 </tbody>
             </table>
+
+            <!-- Insert in 2.0.1 for the survey -->
+            <p align="right">
+                <a href="http://www.bpm.fit.qut.edu.au/surveys/yawl" target="_blank"
+                   style="font-family:verdana; color: #3277ba">
+                   Help us improve YAWL...
+                </a>
+                &#160;&#160;&#160;
+            </p>
         </f:verbatim>
     </f:subview>
 </div>

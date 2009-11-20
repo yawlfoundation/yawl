@@ -1,3 +1,67 @@
+
+                        YAWL Release 2.0.1  20/11/2009
+                       =====================================
+
+This is the 2.0.1 release of the YAWL Environment. This minor release includes a few
+bug-fixes and enhancements, and adds links to a survey on YAWL usage. Please take the
+time to read the change list below and the previous versions release notes further down
+the page.
+
+
+QUICK START: After installation, start Tomcat and point a browser to
+             http://localhost:8080/resourceService
+
+
+1. MINIMUM REQUIREMENTS
+-----------------------
+  * Tomcat 5.5.25 or higher
+  * Java 5 (1.5) or higher
+
+
+2. CHANGES IN THIS UPDATE
+-------------------------
+(a) ENGINE:
+ - Fixed a bug that caused an exception when launching a case that included case-level
+   input parameters, and their outer data tag matched the specification id and the
+   specification id also matched the root net id.
+ - Fixed a bug in ordering of output-only task parameters for validation, and added a
+   'getWorkItemOutputOnlyParameters' method to the resource gateway API for use by
+   custom forms and other services.
+ - Updated the examples.
+
+(b) RESOURCE SERVICE:
+ - Fixed a bug where workitem resource status changes were not always successfully
+   persisted.
+ - Fixed bugs on dyn forms where (1) the number of enclosed panels of a cloned panel
+   could not be varied; and (2) there was a rendering issue which caused an overlay of
+   components when a panel contained more than one sub-level of enclosed panel and the
+   inner panels were cloned.
+ - Added a host of resource create/update/delete methods, and a few new get___ methods
+   to the Resource Gateway API, so that participants, roles etc. can be maintained via
+   the API.
+ - Added a link to the YAWL User Survey.
+
+(c) EDITOR:
+ - Fixed an issue where the 'Set Label' dialog for tasks and conditions would sometimes
+   show the text entry field truncated to a length of zero.
+ - Fixed an incorrect message when analysing or-joins combined with reduction rules.
+ - Added horizontal scroll bar to the 'Problems' table at the bottom of the screen.
+ - Added a check for valid external connections whenever actions require them.
+ - Added the ability to set a background image for a net.
+ - Added a link to the YAWL User Survey (via the Help menu).
+ - Fixed a couple of typos in messages and dialogs.
+
+
+                        #############################
+
+    Please report any bugs or problems via the YAWL sourceforge page:
+
+                     http://sourceforge.net/projects/yawl
+
+
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
                         YAWL Release 2.0 (Final) 01/10/2009
                        =====================================
 
