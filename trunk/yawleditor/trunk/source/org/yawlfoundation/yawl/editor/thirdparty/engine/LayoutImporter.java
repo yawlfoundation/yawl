@@ -9,9 +9,11 @@ import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.swing.net.YAWLEditorNetPanel;
+import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.text.NumberFormat;
@@ -92,6 +94,15 @@ public class LayoutImporter {
             netModel.getGraph().setBackground(new Color(new Integer(bgColor)));
         }
 
+        String bgImagePath = e.getChildText("bgImage", _ns);
+        if (bgImagePath != null) {
+            ImageIcon bgImage = ResourceLoader.getExternalImageAsIcon(bgImagePath);
+            if (bgImage != null) {
+                bgImage.setDescription(bgImagePath);   // store path
+                netModel.getGraph().setBackgroundImage(bgImage);
+            }    
+        }
+
         String scale = e.getChildText("scale", _ns);
         if (scale != null) {
             netModel.getGraph().setScale(doubleFormat(scale));
@@ -110,20 +121,11 @@ public class LayoutImporter {
         Rectangle graphBounds = createRectangle(e.getChild("bounds", _ns));
         YAWLEditorNetPanel netFrame = netModel.getGraph().getFrame();
 
- //       netFrame.setBounds(frameBounds);
         if (viewportBounds != null) {
             Rectangle x = new Rectangle(-graphBounds.x, -graphBounds.y,
                     viewportBounds.width, viewportBounds.height);
-  //          netModel.getGraph().scrollRectToVisible(x);
             netFrame.getScrollPane().scrollRectToVisible(x);
            netFrame.getScrollPane().revalidate(); 
-//   //         netFrame.setBounds(viewportBounds);
-//            netFrame.scrollToViewport(x);
- //           netFrame.scrollToViewport(viewportBounds);
-        }
-        if (graphBounds != null) {
-//            netModel.getGraph().setBounds(graphBounds);
-//            netModel.getGraph().setPreferredSize(new Dimension(graphBounds.width, graphBounds.height));
         }
     }
 
