@@ -15,7 +15,6 @@ import org.jdom.IllegalAddException;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-import org.yawlfoundation.yawl.authentication.User;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -25,6 +24,8 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
+import org.yawlfoundation.yawl.logging.YLogDataItem;
+import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.worklet.admin.AdminTasksManager;
@@ -124,8 +125,6 @@ public class WorkletService extends InterfaceBWebsideController {
     // required data for interfacing with the engine
     protected String _user = "workletService" ;
     protected String _password = "worklet" ;
-    protected String _adminUser = "admin" ;
-    protected String _adminPassword = "YAWL" ;
     protected String _sessionHandle = null ;
     protected String _engineURI ; 
     protected String _workletURI = null ;
@@ -166,7 +165,7 @@ public class WorkletService extends InterfaceBWebsideController {
     /** the constructor */
     public WorkletService() {
         super();
-        _log = Logger.getLogger("org.yawlfoundation.yawl.worklet.WorkletService");
+        _log = Logger.getLogger("org.yawlfoundation.yawl.worklet.WorkletService"); 
         _me = this ;
     }
 
@@ -384,7 +383,7 @@ public class WorkletService extends InterfaceBWebsideController {
             throws IOException, ServletException{
         response.setContentType("text/html");
         PrintWriter outputWriter = response.getWriter();
-        StringBuffer output = new StringBuffer();
+        StringBuilder output = new StringBuilder();
         String fileName = Library.wsHomeDir + "welcome.htm";
         String welcomePage = StringUtil.fileToString(fileName) ;
 
@@ -420,7 +419,10 @@ public class WorkletService extends InterfaceBWebsideController {
                                      throws IOException {
         if (_workletURI == null) setWorkletURI();
         String obsURI = observer? _workletURI : null ;
-        return _interfaceBClient.launchCase(specID, caseParams, sessionHandle, obsURI);
+        YLogDataItem logData = new YLogDataItem("service", "name", "workletService", "string");
+        YLogDataItemList logDataList = new YLogDataItemList(logData);
+        YSpecificationID ySpecID = new YSpecificationID(specID);
+        return _interfaceBClient.launchCase(ySpecID, caseParams, sessionHandle, logDataList, obsURI);
 
     }
 
@@ -435,7 +437,7 @@ public class WorkletService extends InterfaceBWebsideController {
      *  @param wir - the enabled workitem record
      */
     private void handleWorkletSelection(WorkItemRecord wir) {
-        String specId = wir.getSpecificationID() ;       // info about item
+        String specId = wir.getSpecIdentifier() ;       // info about item
         String taskId = getDecompID(wir) ;
         String itemId = wir.getID() ;
         RdrTree selectionTreeForTask ;                   // rules for task
@@ -1121,7 +1123,7 @@ public class WorkletService extends InterfaceBWebsideController {
                _log.info("Launching new replacement worklet case(s) based on revised ruleset");
 
                // locate rdr ruleset for this task
-               String specId = coci.getItem().getSpecificationID() ;
+               String specId = coci.getItem().getSpecIdentifier() ;
                String taskId = getDecompID(coci.getItem()) ;
 
                // refresh ruleset to pickup newly added rule
@@ -1367,20 +1369,21 @@ public class WorkletService extends InterfaceBWebsideController {
      * @param wir - the workitem to get the decomp id for
      */
      public String getDecompID(WorkItemRecord wir) {
-         return getDecompID(wir.getSpecificationID(), wir.getSpecVersion(), wir.getTaskID());
+        YSpecificationID specID = new YSpecificationID(
+                wir.getSpecIdentifier(), wir.getSpecVersion(), wir.getSpecURI());
+         return getDecompID(specID, wir.getTaskID());
      }
 
   //***************************************************************************//
 
     /**
      *  gets a task's decomposition id
-     *  @param specName - the specification's id
+     *  @param specID - the specification's id
      *  @param taskID - the task's id
      */
-    public String getDecompID(String specName, String version, String taskID) {
+    public String getDecompID(YSpecificationID specID, String taskID) {
 
        try {
-           YSpecificationID specID = new YSpecificationID(specName, version);
            TaskInformation taskinfo = getTaskInformation(specID, taskID, _sessionHandle);
            return taskinfo.getDecompositionID() ;
        }
@@ -1426,7 +1429,7 @@ public class WorkletService extends InterfaceBWebsideController {
    private String getMITaskInfo(WorkItemRecord wir) {
       try {
          return _interfaceBClient.getMITaskAttributes(
-                                  new YSpecificationID(wir.getSpecificationID()),
+                                  new YSpecificationID(wir.getSpecIdentifier()),
                                   wir.getTaskID(), _sessionHandle);
       }
       catch (IOException ioe) {
@@ -1688,7 +1691,7 @@ public class WorkletService extends InterfaceBWebsideController {
         try {
             // if not connected
              if ((_sessionHandle == null) || (!checkConnection(_sessionHandle)))
-                _sessionHandle = connectAsService();
+                _sessionHandle = connect(_user, _password);
         }
         catch (IOException ioe) {
              _log.error("Exception attempting to connect to engine", ioe);
@@ -1698,50 +1701,6 @@ public class WorkletService extends InterfaceBWebsideController {
 
 //***************************************************************************//
 
-    /**
-     * Attempts to logon to the engine using a service id
-     * @return  a sessionHandle for the connection
-     * @throws IOException
-     */
-    private String connectAsService() throws IOException{
-
-        // first connect as default admin user
-        _sessionHandle = connect(_adminUser, _adminPassword);
-
-        // create new user for service if necessary
-        if (! isRegisteredUser(_user))
-           _interfaceAClient.createUser(_user, _password, true, _sessionHandle);
-
-        // logon with service user and return the result
-        return connect(_user, _password);
-    }
-
-//***************************************************************************//
-
-    /**
-     * Checks if a user is currently registered for this session
-     * @param user
-     * @return true if the user is registered in the current session
-     */
-    private boolean isRegisteredUser(String user) {
-
-        // check if service is a registered user
-        try {
-            ArrayList users = (ArrayList) _interfaceAClient.getUsers(_sessionHandle);
-            Iterator itr = users.iterator();
-            while (itr.hasNext()) {
-                User u = (User) itr.next() ;
-                if ( u.getUserID().equals(user) ) return true ;       // user in list
-            }
-            return false;                                             // user not in list
-        }
-        catch (IOException ioe) {
-            return false;                                             // no list 
-        }
-
-    }
-
-//***************************************************************************//
 
     /*******************************
      * 10. ADMIN TASKS MGT METHODS *

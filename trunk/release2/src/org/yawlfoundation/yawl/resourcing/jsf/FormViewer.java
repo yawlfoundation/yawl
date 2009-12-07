@@ -191,7 +191,7 @@ public class FormViewer {
 
 
     private String completeWorkItem(WorkItemRecord wir) {
-        String result = _rm.checkinItem(_sb.getParticipant(), wir, _sb.getSessionhandle());
+        String result = _rm.checkinItem(_sb.getParticipant(), wir);
         return _rm.successful(result) ? "<success/>" : result ;
     }
 

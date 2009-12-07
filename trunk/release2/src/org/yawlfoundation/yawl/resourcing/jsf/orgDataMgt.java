@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataBackupEngine;
+import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.FacesException;
@@ -283,6 +284,7 @@ public class orgDataMgt extends AbstractPageBean {
 
     private SessionBean _sb = getSessionBean();
     private ResourceManager _rm = getApplicationBean().getResourceManager();
+    private ResourceDataSet orgDataSet = _rm.getOrgDataSet();
     private MessagePanel msgPanel = _sb.getMessagePanel() ;
     private pfOrgData innerForm = (pfOrgData) getBean("pfOrgData");
     private Logger _log = Logger.getLogger(this.getClass());
@@ -443,16 +445,15 @@ public class orgDataMgt extends AbstractPageBean {
 
 
     public String btnRemove_action() {
-        ResourceManager rm = getApplicationBean().getResourceManager();
         String id = _sb.getOrgDataChoice();
         if (id != null) {
             AttribType type = getAttribType(_sb.getActiveTab());
             try {
                 switch (type) {
-                    case role       : rm.removeRole(rm.getRole(id)); break ;
-                    case capability : rm.removeCapability(rm.getCapability(id)); break ;
-                    case position   : rm.removePosition(rm.getPosition(id)); break;
-                    case orggroup   : rm.removeOrgGroup(rm.getOrgGroup(id));
+                    case role       : orgDataSet.removeRole(id); break ;
+                    case capability : orgDataSet.removeCapability(id); break ;
+                    case position   : orgDataSet.removePosition(id); break;
+                    case orggroup   : orgDataSet.removeOrgGroup(id);
                 }
                 innerForm.clearFieldsAfterRemove();
                 nullifyChoices();

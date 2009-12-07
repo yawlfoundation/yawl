@@ -10,11 +10,10 @@
 package org.yawlfoundation.yawl.elements.state;
 
 import junit.framework.TestCase;
+import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 
 import java.util.List;
 import java.util.Vector;
-
-import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 
 
 /**
@@ -27,8 +26,8 @@ import org.yawlfoundation.yawl.exceptions.YPersistenceException;
  */
 public class TestYIdentifier extends TestCase {
 	
-	private YIdentifier id1 = new YIdentifier();
-	private YIdentifier id2 = new YIdentifier();
+	private YIdentifier id1 = new YIdentifier(null);
+	private YIdentifier id2 = new YIdentifier(null);
 	
 	
 	/**
@@ -52,7 +51,7 @@ public class TestYIdentifier extends TestCase {
 	
 	public void testCreateChild() throws YPersistenceException
 	{
-		YIdentifier id = new YIdentifier();
+		YIdentifier id = new YIdentifier(null);
 		YIdentifier id3 = id.createChild(null);
 		assertTrue(id3.isImmediateChildOf(id));
 		assertFalse(id3.isImmediateChildOf(id2));
@@ -64,7 +63,7 @@ public class TestYIdentifier extends TestCase {
 	
 	public void testGetChildren() throws YPersistenceException
 	{
-		YIdentifier id  = new YIdentifier();
+		YIdentifier id  = new YIdentifier(null);
 		YIdentifier id3 = id.createChild(null);
 		YIdentifier id4 = id.createChild(null);
 		List children = id.getChildren();
@@ -77,7 +76,7 @@ public class TestYIdentifier extends TestCase {
 	
 	public void testIsChildOf() throws YPersistenceException
 	{
-		YIdentifier parent = new YIdentifier();
+		YIdentifier parent = new YIdentifier(null);
 		YIdentifier child = parent.createChild(null);
 		assertTrue(child.isImmediateChildOf(parent));
 		assertFalse(child.isImmediateChildOf(id1));
@@ -88,7 +87,7 @@ public class TestYIdentifier extends TestCase {
 	public void testGetDescendants() throws YPersistenceException
 	{
 		List descendants = new Vector();
-		YIdentifier parent = new YIdentifier();
+		YIdentifier parent = new YIdentifier(null);
 		descendants.add(parent);
 		YIdentifier child1 = parent.createChild(null);
 		descendants.add(child1);

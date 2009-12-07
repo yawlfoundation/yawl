@@ -122,11 +122,16 @@ public class DynFormComponentBuilder {
 
 
     public Label makeLabel(DynFormField input, int top) {
-        Label label = makeSimpleLabel(input.getName()) ;
+        Label label = makeSimpleLabel(input.getLabelText()) ;
         label.setStyleClass("dynformLabel");
         label.setRequiredIndicator(false);
         label.setStyle(makeTopStyle(top + 5)) ;
-        setMaxLabelChars(label);
+        if (input.isHidden()) {
+            label.setVisible(false);
+        }
+        else {
+            setMaxLabelChars(label);
+        }
         return label;
     }
 
@@ -156,6 +161,7 @@ public class DynFormComponentBuilder {
         cbox.setDisabled(input.isInputOnly());
         cbox.setStyleClass("dynformInput");
         cbox.setStyle(makeTopStyle(top)) ;
+        cbox.setVisible(! input.isHidden());
         return cbox ;
     }
 
@@ -171,6 +177,7 @@ public class DynFormComponentBuilder {
         cal.setColumns(15);
         cal.setStyleClass(getInputStyleClass(input));
         cal.setStyle(makeTopStyle(top)) ;
+        cal.setVisible(! input.isHidden());
         return cal;
     }
 
@@ -189,6 +196,7 @@ public class DynFormComponentBuilder {
         dropdown.setItems(getEnumeratedList(input));
         dropdown.setSelected(input.getValue());
         dropdown.setDisabled(input.isInputOnly());
+        dropdown.setVisible(! input.isHidden());
         return dropdown;
     }
 
@@ -234,7 +242,13 @@ public class DynFormComponentBuilder {
         textField.setStyle(makeTopStyle(top));
         textField.setDisabled(input.isInputOnly());
         textField.setToolTip(input.getToolTip());
-        _componentFieldTable.put(textField, input);        // store for validation later
+        textField.setMaxLength(input.getMaxLength());
+        if (input.isHidden()) {
+            textField.setVisible(false);
+        }
+        else {
+            _componentFieldTable.put(textField, input);     // store for validation later
+        }
         return textField ;
     }
 
@@ -246,7 +260,8 @@ public class DynFormComponentBuilder {
         rb.setName(input.getChoiceID());               // same name means same rb group
         rb.setStyle(makeTopStyle(top));
         rb.setDisabled(input.isInputOnly());
-        rb.setStyleClass("dynformRadioButton");        
+        rb.setStyleClass("dynformRadioButton");
+        rb.setVisible(! input.isHidden());
         return rb;
     }
 
@@ -280,7 +295,7 @@ public class DynFormComponentBuilder {
         else if (input.isRequired()) {
             return "dynformInputRequired";
         }
-        else {
+        else {                                         // read-write and not required
             return "dynformInput";
         }    
     }

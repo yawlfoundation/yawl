@@ -30,12 +30,12 @@ public class TestYInputCondition extends TestCase{
 
     public void setUp(){
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification._Beta2);
+        spec.setVersion(YSpecification.Beta2);
 
         YNet deadNet = new YNet("aNetName", spec);
         _invalidInputCondition = new YInputCondition("ic1", "input", deadNet);
-        _invalidInputCondition.setPostset(new YFlow(_invalidInputCondition, new YCondition("c2", deadNet)));
-        _invalidInputCondition.setPreset(new YFlow(new YAtomicTask("at1", YTask._AND, YTask._AND, deadNet), _invalidInputCondition));
+        _invalidInputCondition.addPostset(new YFlow(_invalidInputCondition, new YCondition("c2", deadNet)));
+        _invalidInputCondition.addPreset(new YFlow(new YAtomicTask("at1", YTask._AND, YTask._AND, deadNet), _invalidInputCondition));
     }
 
     public void testInvalidInputCondition(){

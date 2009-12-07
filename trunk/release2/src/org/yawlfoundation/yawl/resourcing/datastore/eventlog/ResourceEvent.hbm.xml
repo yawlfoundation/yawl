@@ -12,15 +12,22 @@
             <generator class="native"/>
         </id>
 
-        <property name="_specID" column="specID"/>
-        <property name="_specVersion" column="specVersion"/>
+        <component name="_specID"
+                   class="org.yawlfoundation.yawl.engine.YSpecificationID" access="field">
+            <property name="identifier" column="specID"/>
+            <component name="version"
+                       class="org.yawlfoundation.yawl.elements.YSpecVersion">
+                <property name="version" column="specVersion"/>
+            </component>
+            <property name="uri" column="specURI"/>
+        </component>
+
         <property name="_caseID" column="caseID"/>
         <property name="_taskID" column="taskID"/>
         <property name="_itemID" column="itemID"/>
         <property name="_participantID" column="participantID"/>
         <property name="_event" column="event"/>
-        <property name="_timeStamp" column="eventTime" type="long"/>
-       
+        <property name="_timeStamp" column="eventTime" type="long"/>       
      </class>
 	
 </hibernate-mapping>

@@ -74,7 +74,7 @@ SOAPAction: "http://niki-bt.act.cmis.csiro.org/SMSService/SendText"
     }
 
     public static String executePost(String urlStr, String content) {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         try {
             Authentication.doIt();
             URL url = new URL(urlStr);
@@ -122,7 +122,7 @@ System.out.println("got connection ");
 
 
     private static String executeGet(String urlStr) {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         try {
             Authentication.doIt();
             URL url = new URL(urlStr);

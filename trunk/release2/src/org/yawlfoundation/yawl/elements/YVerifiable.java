@@ -9,6 +9,8 @@
 
 package org.yawlfoundation.yawl.elements;
 
+import org.yawlfoundation.yawl.util.YVerificationMessage;
+
 import java.util.List;
 
 /**
@@ -24,5 +26,5 @@ public interface YVerifiable {
      * @see org.yawlfoundation.yawl.util.YVerificationMessage
      * @return List of YVerificationMessage
      */
-    public List verify();
+    public List<YVerificationMessage> verify();
 }

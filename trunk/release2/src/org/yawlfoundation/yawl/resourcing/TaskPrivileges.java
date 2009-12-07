@@ -118,7 +118,7 @@ public class TaskPrivileges {
     }
 
     private void add(HashSet<Participant> set, String pid) {
-        Participant p = ResourceManager.getInstance().getParticipant(pid) ;
+        Participant p = ResourceManager.getInstance().getOrgDataSet().getParticipant(pid) ;
         add(set, p) ;
     }
 
@@ -417,7 +417,7 @@ public class TaskPrivileges {
                     if (eResource.getName().equals("role")) {
                         String rid = eResource.getText();
                         Set<Participant> pSet = ResourceManager.getInstance()
-                                                               .getRoleParticipants(rid) ;
+                                                .getOrgDataSet().getRoleParticipants(rid) ;
                         addSet(privSet, pSet);
 
                         // remember that this set was added as a role

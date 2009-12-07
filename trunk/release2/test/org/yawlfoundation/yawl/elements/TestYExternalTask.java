@@ -58,7 +58,7 @@ public class TestYExternalTask extends TestCase{
 
     public void setUp() throws YPersistenceException {
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification._Beta2);
+        spec.setVersion(YSpecification.Beta2);
         YNet deadNet = new YNet("aNetName", spec);
         YVariable v = new YVariable(null);
         v.setName("stubList");
@@ -71,13 +71,13 @@ public class TestYExternalTask extends TestCase{
         _aCondition = new YCondition("c1", deadNet);
         _validTask = new YAtomicTask("et1", YTask._AND, YTask._OR, deadNet);
         YFlow f = new YFlow(_aCondition, _validTask);
-        _aCondition.setPostset(f);
+        _aCondition.addPostset(f);
         Map map = new HashMap();
         map.put("stub","/data/stubList");
         f = new YFlow(_validTask, _aCondition);
         f.setIsDefaultFlow(true);
         f.setXpathPredicate("random()");
-        _validTask.setPostset(f);
+        _validTask.addPostset(f);
         _validTask.setUpMultipleInstanceAttributes("3","3","3", "static");
 
         YDecomposition descriptor = new YAWLServiceGateway("Wash floor", spec);
@@ -88,20 +88,20 @@ public class TestYExternalTask extends TestCase{
         _validTask.setMultiInstanceInputDataMappings("stub", "for $d in /stubList/* return $d");
         _invalidTask2 = new YAtomicTask("et3", YTask._AND, YTask._XOR, null);
         f = new YFlow(_invalidTask2, _aCondition);
-        _invalidTask2.setPostset(f);
+        _invalidTask2.addPostset(f);
         f= new YFlow(_aCondition, _invalidTask2);
-        _invalidTask2.setPreset(f);
+        _invalidTask2.addPreset(f);
         _needsPredicateString = new YAtomicTask("et3", YAtomicTask._XOR, YAtomicTask._OR, deadNet);
         f= new YFlow(_needsPredicateString, _aCondition);
-        _needsPredicateString.setPostset(f);
+        _needsPredicateString.addPostset(f);
         f = new YFlow(_aCondition, _needsPredicateString);
-        _needsPredicateString.setPreset(f);
+        _needsPredicateString.addPreset(f);
         _needsNoPredicateString = new YAtomicTask("et4", YAtomicTask._AND, YAtomicTask._AND, deadNet);
         f = new YFlow(_needsNoPredicateString, _aCondition);
         f.setXpathPredicate("not valid xpath");
-        _needsNoPredicateString.setPostset(f);
+        _needsNoPredicateString.addPostset(f);
         f = new YFlow(_aCondition, _needsNoPredicateString);
-        _needsNoPredicateString.setPreset(f);
+        _needsNoPredicateString.addPreset(f);
 
     }
 
@@ -132,9 +132,9 @@ public class TestYExternalTask extends TestCase{
         p.setName("fred");
         YParameter q = new YParameter(ysg, YParameter._OUTPUT_PARAM_TYPE);
         q.setName("fred");
-        ysg.setInputParameter(p);
-        ysg.setOutputParameter(q);
-        task.setPreset(new YFlow(task, task));
+        ysg.addInputParameter(p);
+        ysg.addOutputParameter(q);
+        task.addPreset(new YFlow(task, task));
 
         task.setDecompositionPrototype(ysg);
         task.setDataBindingForInputParam("", "fred");
@@ -154,9 +154,9 @@ public class TestYExternalTask extends TestCase{
         p.setName("fred");
         YParameter q = new YParameter(ysg, YParameter._OUTPUT_PARAM_TYPE);
         q.setName("fred");
-        ysg.setInputParameter(p);
-        ysg.setOutputParameter(q);
-        task.setPreset(new YFlow(task, task));
+        ysg.addInputParameter(p);
+        ysg.addOutputParameter(q);
+        task.addPreset(new YFlow(task, task));
 
         task.setDecompositionPrototype(ysg);
         task.setDataBindingForInputParam("dflkjbdfsk;jnbesdlk;", "fred");
@@ -217,7 +217,7 @@ public class TestYExternalTask extends TestCase{
             f= e;
         }
         assertNotNull(f); f= null;
-        _aCondition.add(null, new YIdentifier());
+        _aCondition.add(null, new YIdentifier(null));
         assertTrue(_validTask.t_enabled(null));
         List childIdentifiers = null;
         try {
@@ -252,7 +252,7 @@ public class TestYExternalTask extends TestCase{
         YAtomicTask t1 = new YAtomicTask("1", YAtomicTask._AND, YAtomicTask._XOR, null);
         YAtomicTask t2 = new YAtomicTask("2", YAtomicTask._AND, YAtomicTask._AND, null);
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification._Beta2);
+        spec.setVersion(YSpecification.Beta2);
         t2.setDecompositionPrototype(new YAWLServiceGateway("blah", spec));
 
         YAtomicTask t3 = new YAtomicTask("3", YAtomicTask._AND, YAtomicTask._AND, null);
@@ -273,9 +273,9 @@ public class TestYExternalTask extends TestCase{
         f4.setEvalOrdering(new Integer(2));
 
         YFlow fImp = new YFlow(t2, implicit);
-        t2.setPostset(fImp);
+        t2.addPostset(fImp);
         YFlow f5 = new YFlow(implicit, t1);
-        implicit.setPostset(f5);
+        implicit.addPostset(f5);
         t1.setUpMultipleInstanceAttributes("3", "10", "3", "static");
         t1.setMultiInstanceInputDataMappings("stub", "for $d in /stubList/* return $d");
         t1.setDataBindingForInputParam("/data/stubList", "stub");
@@ -292,10 +292,10 @@ public class TestYExternalTask extends TestCase{
 //        m.put("dumy1", "dummy2");
 //        t2.setDataMappingsForTaskStarting(m);
 //        t2.setDataMappingsForTaskCompletion(m);
-        t1.setPostset(f2);
-        t1.setPostset(f3);
-        t1.setPostset(f4);
-        t1.setPreset(fImp);
+        t1.addPostset(f2);
+        t1.addPostset(f3);
+        t1.addPostset(f4);
+        t1.addPreset(fImp);
 
         assertEquals(
         "<task id=\"1\" xsi:type=\"MultipleInstanceExternalTaskFactsType\" " +
@@ -328,7 +328,7 @@ public class TestYExternalTask extends TestCase{
         YAtomicTask t2 = new YAtomicTask("2", YAtomicTask._AND, YAtomicTask._AND, null);
 
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification._Beta2);
+        spec.setVersion(YSpecification.Beta2);
 
         t2.setDecompositionPrototype(new YAWLServiceGateway("blah2", spec));
         YAtomicTask t3 = new YAtomicTask("3", YAtomicTask._AND, YAtomicTask._AND, null);
@@ -341,9 +341,9 @@ public class TestYExternalTask extends TestCase{
         YFlow f2 = new YFlow(t1, t3);
 
         YFlow f4 = new YFlow(t2, implicit);
-        t2.setPostset(f4);
+        t2.addPostset(f4);
         YFlow f5 = new YFlow(implicit, t1);
-        implicit.setPostset(f5);
+        implicit.addPostset(f5);
         t1.setUpMultipleInstanceAttributes("1", "3", "2", "static");
         List removesList = new ArrayList();
         removesList.add(t1);
@@ -353,9 +353,9 @@ public class TestYExternalTask extends TestCase{
         removesList.add(c2);
         removesList.add(implicit);
         t2.setRemovesTokensFrom(removesList);
-        t1.setPostset(f1);
-        t1.setPostset(f2);
-        t1.setPreset(f4);
+        t1.addPostset(f1);
+        t1.addPostset(f2);
+        t1.addPreset(f4);
         assertEquals(
                 "<task id=\"2\"><flowsInto><nextElementRef id=\"1\"/></flowsInto>" +
                 "<join code=\"and\"/><split code=\"and\"/><removesTokens id=\"1\"/>" +
@@ -393,18 +393,18 @@ public class TestYExternalTask extends TestCase{
 
     public void testSelfCancellation() throws YStateException, YQueryException, YDataStateException, YSchemaBuildingException, YPersistenceException {
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification._Beta2);
+        spec.setVersion(YSpecification.Beta2);
         YNet n = new YNet("", spec);
         YTask t1 = new YAtomicTask("t1", 95, 95, n);
         YCondition c1, c2;
         c1 = new YCondition("c2", null);
-        t1.setPreset(new YFlow(c1, t1));
+        t1.addPreset(new YFlow(c1, t1));
         c2 = new YCondition("c2", null);
-        t1.setPostset(new YFlow(t1, c2));
+        t1.addPostset(new YFlow(t1, c2));
         List l1 = new ArrayList();
         l1.add(t1);
         t1.setRemovesTokensFrom(l1);
-        c1.add(null, new YIdentifier());
+        c1.add(null, new YIdentifier(null));
 
         List kids = null;
         try {

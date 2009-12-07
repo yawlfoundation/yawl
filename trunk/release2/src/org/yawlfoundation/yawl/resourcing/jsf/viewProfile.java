@@ -11,7 +11,9 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.resourcing.resource.Capability;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.Position;
@@ -494,12 +496,9 @@ public class viewProfile extends AbstractPageBean {
 
 
     public String btnUnpile_action() {
-        String piled = (String) lbxPiled.getSelected();
-        if (piled != null) {
-
-            // split into specid, taskid
-            String[] parts = piled.split("::");
-            String result = rm.unpileTask(parts[0], parts[1], participant) ;
+        ResourceMap selected = (ResourceMap) lbxPiled.getSelected();
+        if (selected != null) {
+            String result = rm.unpileTask(selected, participant) ;
             showResult(result);
         }
         else msgPanel.warn("No task selected to unpile");

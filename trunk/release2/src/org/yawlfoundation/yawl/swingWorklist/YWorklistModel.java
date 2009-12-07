@@ -190,7 +190,7 @@ public class YWorklistModel {
             if (item.getCaseID().toString().equals(caseID) &&
                     item.getTaskID().equals(taskID)) {
                 try {
-                    _engineClient.startWorkItem(item, _username);
+                    _engineClient.startWorkItem(item, null);
 
                 } catch (YStateException e) {
                     e.printStackTrace();
@@ -256,7 +256,7 @@ public class YWorklistModel {
                     /**
                      * AJH: Write the output data into test data file
                      */
-                    File testDataDir =  YAdminGUI.getSpecTestDataDirectory(item.getSpecificationID().getSpecName());
+                    File testDataDir =  YAdminGUI.getSpecTestDataDirectory(item.getSpecificationID().getKey());
                     File taskInputData = new File(testDataDir, taskID + ".xml");
                     if (!taskInputData.exists())
                     {
@@ -303,7 +303,7 @@ public class YWorklistModel {
             if (item.getCaseID().toString().equals(caseID) &&
                 item.getTaskID().equals(taskID)) {
                 try {
-                    File testDataDir =  YAdminGUI.getSpecTestDataDirectory(item.getSpecificationID().getSpecName());
+                    File testDataDir =  YAdminGUI.getSpecTestDataDirectory(item.getSpecificationID().getKey());
                     taskInputData = new File(testDataDir, taskID + ".xml");
                     if (taskInputData.exists())
                     {
@@ -334,14 +334,15 @@ public class YWorklistModel {
     }
 
 
-    public void rollBackActiveTask(String caseID, String taskID) throws YPersistenceException {
+    public void rollBackActiveTask(String caseID, String taskID)
+            throws YPersistenceException, YLogException {
         Set workItems = _engineClient.getAllWorkItems();
         for (Iterator iterator = workItems.iterator(); iterator.hasNext();) {
             YWorkItem item = (YWorkItem) iterator.next();
             if (item.getCaseID().toString().equals(caseID) &&
                     item.getTaskID().equals(taskID)) {
                 try {
-                    _engineClient.rollbackWorkItem(item.getIDString(), _username);
+                    _engineClient.rollbackWorkItem(item.getIDString());
                 } catch (YStateException e) {
                     e.printStackTrace();
                 }
@@ -404,7 +405,7 @@ public class YWorklistModel {
             }
 
             if (item.getStatus().equals(YWorkItemStatus.statusExecuting)) {
-                if (item.getUserWhoIsExecutingThisItem().equals(_username)) {
+                if (item.getOwnerService().equals(_username)) {
                     addStartedWorkItem(item, inSequence);
                 }
             }

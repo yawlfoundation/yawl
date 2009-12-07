@@ -54,7 +54,7 @@ public class Role extends AbstractResourceAttribute implements Comparable {
 
     public boolean setOwnerRole(String ownerRoleID) {
         if (ownerRoleID != null) {
-            Role ownerRole = _resMgr.getRole(ownerRoleID);
+            Role ownerRole = _resMgr.getOrgDataSet().getRole(ownerRoleID);
             if (ownerRole != null) {
                 setOwnerRole(ownerRole);
                 return true;

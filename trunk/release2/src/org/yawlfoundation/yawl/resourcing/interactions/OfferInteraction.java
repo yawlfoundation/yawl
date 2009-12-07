@@ -78,7 +78,7 @@ public class OfferInteraction extends AbstractInteraction {
      * @param id - the id of the participant
      */
     public void addParticipant(String id) {
-        Participant p = _rm.getParticipant(id);
+        Participant p = _rm.getOrgDataSet().getParticipant(id);
         if (p != null)
             _participants.add(p);
         else
@@ -96,7 +96,7 @@ public class OfferInteraction extends AbstractInteraction {
      * @param p - the Participant object to add to the initial distribution list
      */
     public void addParticipant(Participant p) {
-        if (_rm.isKnownParticipant(p))
+        if (_rm.getOrgDataSet().isKnownParticipant(p))
            _participants.add(p);
         else
             _log.warn("Could not add unknown Participant to Offer: " + p.getID());
@@ -121,7 +121,7 @@ public class OfferInteraction extends AbstractInteraction {
 
 
     public void addRole(String rid) {
-        Role r = _rm.getRole(rid);  
+        Role r = _rm.getOrgDataSet().getRole(rid);  
         if (r != null)
             _roles.add(r);
         else
@@ -136,7 +136,7 @@ public class OfferInteraction extends AbstractInteraction {
 
 
     public void addRole(Role r) {
-        if (_rm.isKnownRole(r))
+        if (_rm.getOrgDataSet().isKnownRole(r))
             _roles.add(r) ;
         else
             _log.warn("Could not add unknown Role to Offer: " + r.getID());
@@ -229,8 +229,8 @@ public class OfferInteraction extends AbstractInteraction {
 
             // add roles
             for (Role role : _roles) {
-                Set<Participant> pSet = _rm.castToParticipantSet(role.getResources());
-                pSet.addAll(_rm.getParticipantsInDescendantRoles(role));
+                Set<Participant> pSet = _rm.getOrgDataSet().castToParticipantSet(role.getResources());
+                pSet.addAll(_rm.getOrgDataSet().getParticipantsInDescendantRoles(role));
                 for (Participant p : pSet) {
                     addParticipantToDistributionSet(distributionSet, uniqueIDs, p) ;
                 }
@@ -269,7 +269,8 @@ public class OfferInteraction extends AbstractInteraction {
             }
         }
         else
-            _log.warn("Workitem '" + wir.getID() + "' does not have 'Offered' status");
+            _log.warn("Workitem '" + wir.getID() + "' does not have 'Offered' status, " +
+                      "or is no longer active");
     }
 
 
@@ -565,9 +566,9 @@ public class OfferInteraction extends AbstractInteraction {
                                 "' in dynamic parameter: " + _name );
                 }
                 else {
-                    Role r = _rm.getRoleByName(varID) ;
+                    Role r = _rm.getOrgDataSet().getRoleByName(varID) ;
                     if (r != null) {
-                        Set<Participant> rpSet = _rm.getRoleParticipants(r.getID()) ;
+                        Set<Participant> rpSet = _rm.getOrgDataSet().getRoleParticipants(r.getID()) ;
                         if (rpSet != null)
                             result.addAll(rpSet) ;
                     }

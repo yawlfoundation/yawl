@@ -122,7 +122,7 @@ public class DOMUtil
     {
 
         if (node == null || !node.hasChildNodes()) return "";
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
 
         NodeList list = node.getChildNodes();
         for (int i = 0; i < list.getLength(); i++)

@@ -13,6 +13,7 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.logging.YLogDataItemList;
 
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -28,7 +29,7 @@ public class CaseInstance {
     private String caseID;
     private YSpecificationID specID;
     private String caseParams;
-    private String startedBy;
+    private YLogDataItemList logData;
     private long startTime;
     private Map<String, WorkItemInstance> workitems ;
 
@@ -37,13 +38,13 @@ public class CaseInstance {
         workitems = new Hashtable<String, WorkItemInstance>();
     }
 
-    public CaseInstance(String caseID, String specName, String specVersion,
-                        String caseParams, String startedBy) {
+    public CaseInstance(String caseID, YSpecificationID specID,
+                        String caseParams, YLogDataItemList logData) {
         this();
         this.caseID = caseID;
-        this.specID = new YSpecificationID(specName, specVersion);
+        this.specID = specID;
         this.caseParams = caseParams;
-        this.startedBy = startedBy;
+        this.logData = logData;
         this.startTime = System.currentTimeMillis();
     }
 
@@ -67,7 +68,7 @@ public class CaseInstance {
 
     public void setSpecID(YSpecificationID id) { specID = id; }
 
-    public String getSpecName() { return specID.getSpecName(); }
+    public String getSpecName() { return specID.getUri(); }
 
     public String getSpecVersion() { return specID.getVersionAsString(); }
 
@@ -77,9 +78,9 @@ public class CaseInstance {
     public void setCaseParams(String params) { caseParams = params; }
 
 
-    public String getStartedBy() { return startedBy; }
+    public YLogDataItemList getLogData() { return logData; }
 
-    public void setStartedBy(String s) { startedBy = s; }
+    public void setLogData(YLogDataItemList data) { logData = data; }
 
 
     public long getStartTime() { return startTime; }
@@ -161,10 +162,12 @@ public class CaseInstance {
     public String toXML() {
         StringBuilder xml = new StringBuilder("<caseInstance>");
         xml.append(StringUtil.wrap(caseID, "caseid"));
-        xml.append(StringUtil.wrap(specID.getSpecName(), "specname"));
+        xml.append(StringUtil.wrap(specID.getIdentifier(), "specidentifier"));
         xml.append(StringUtil.wrap(specID.getVersionAsString(), "specversion"));
-        xml.append(StringUtil.wrap(startedBy, "startedby"));
+        xml.append(StringUtil.wrap(specID.getUri(), "specuri"));
         xml.append(StringUtil.wrap(String.valueOf(startTime), "starttime"));
+        if (logData != null) xml.append(logData.toXML());
+
         xml.append("</caseInstance>");
         return xml.toString();
     }
@@ -176,12 +179,16 @@ public class CaseInstance {
     public void fromXML(Element instance) {
         if (instance != null) {
             caseID = instance.getChildText("caseid");
-            startedBy = instance.getChildText("startedby");
             String startStr = instance.getChildText("starttime");
             if (startStr != null) startTime = new Long(startStr);
-            String specName = instance.getChildText("specname");
-            String version = instance.getChildText("specversion");
-            specID = new YSpecificationID(specName, version);
+            String specIdentifier = instance.getChildText("specidentifier");
+            String specVersion = instance.getChildText("specversion");
+            String specURI = instance.getChildText("specuri");
+            specID = new YSpecificationID(specIdentifier, specVersion, specURI);
+            Element logDataElem = instance.getChild("logdataitemlist");
+            if (logDataElem != null) {
+                logData = new YLogDataItemList(logDataElem);
+            }    
         }
     }
 }

@@ -76,7 +76,7 @@ public class CPNToolsFixer {
 
     private static String modify(File selectedFile) {
         Set ids = new HashSet();
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         try {
             BufferedReader br = new BufferedReader(new FileReader(selectedFile));
             String line = null;

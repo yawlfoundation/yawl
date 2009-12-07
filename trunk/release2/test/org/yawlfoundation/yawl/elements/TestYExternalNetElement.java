@@ -31,14 +31,14 @@ public class TestYExternalNetElement extends TestCase{
 
     public void setUp(){
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification._Beta2);
+        spec.setVersion(YSpecification.Beta2);
         YNet deadNet = new YNet("aNetName", spec);
         _aCondition = new YCondition("c1", deadNet);
         _aTask = new YAtomicTask("et1", YTask._AND, YTask._AND, deadNet);
         YFlow f= new YFlow(_aCondition, _aTask);
-        _aCondition.setPostset(f);
+        _aCondition.addPostset(f);
         f = new YFlow(_aTask, _aCondition);
-        _aTask.setPostset(f);
+        _aTask.addPostset(f);
     }
 
 

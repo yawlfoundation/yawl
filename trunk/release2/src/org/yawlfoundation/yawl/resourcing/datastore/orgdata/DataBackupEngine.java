@@ -20,6 +20,7 @@ import java.util.List;
 public class DataBackupEngine {
 
     ResourceManager _rm = ResourceManager.getInstance();
+    ResourceDataSet orgDataSet = _rm.getOrgDataSet();
     Logger _log = Logger.getLogger(this.getClass());
 
     public String exportOrgData() {
@@ -53,7 +54,7 @@ public class DataBackupEngine {
 
 
     private String exportParticipants() {
-        HashSet<Participant> pSet = _rm.getParticipants();
+        HashSet<Participant> pSet = orgDataSet.getParticipants();
         if (pSet != null) {
             StringBuilder xml = new StringBuilder("<participants>");
             for (Participant p : pSet) {
@@ -98,29 +99,29 @@ public class DataBackupEngine {
     }
 
 
-    private String exportRoles() { return _rm.getRolesAsXML(); }
+    private String exportRoles() { return orgDataSet.getRolesAsXML(); }
 
-    private String exportPositions() { return _rm.getPositionsAsXML(); }
+    private String exportPositions() { return orgDataSet.getPositionsAsXML(); }
 
-    private String exportCapabilities() { return _rm.getCapabilitiesAsXML(); }
+    private String exportCapabilities() { return orgDataSet.getCapabilitiesAsXML(); }
 
-    private String exportOrgGroups() { return _rm.getOrgGroupsAsXML(); }
+    private String exportOrgGroups() { return orgDataSet.getOrgGroupsAsXML(); }
 
 
     private String importCapabilities(Element capElem) {
         String result = "Capabilities: 0 in imported file.";
         if (capElem != null) {
-            if (_rm.isDataEditable("Capability")) {
+            if (orgDataSet.isDataEditable("Capability")) {
                 int added = 0;
                 List children = capElem.getChildren();
                 for (Object o : children) {
                     Element cap = (Element) o;
                     String id = cap.getAttributeValue("id");
-                    Capability c = _rm.getCapability(id);
-                    if ((c == null) && (! _rm.isKnownCapabilityName(cap.getChildText("name")))) {
+                    Capability c = orgDataSet.getCapability(id);
+                    if ((c == null) && (! orgDataSet.isKnownCapabilityName(cap.getChildText("name")))) {
                         c = new Capability();
                         c.reconstitute(cap);
-                        _rm.importCapability(c);
+                        orgDataSet.importCapability(c);
                         added++;
                     }
                 }
@@ -137,15 +138,15 @@ public class DataBackupEngine {
     private String importRoles(Element roleElem) {
         String result = "Roles: 0 in imported file.";
         if (roleElem != null) {
-            if (_rm.isDataEditable("Role")) {
+            if (orgDataSet.isDataEditable("Role")) {
                 Hashtable<String, Role> cyclics = new Hashtable<String, Role>();
                 int added = 0;
                 List children = roleElem.getChildren();
                 for (Object o : children) {
                     Element role = (Element) o;
                     String id = role.getAttributeValue("id");
-                    Role r = _rm.getRole(id);
-                    if ((r == null) && (! _rm.isKnownRoleName(role.getChildText("name")))) {
+                    Role r = orgDataSet.getRole(id);
+                    if ((r == null) && (! orgDataSet.isKnownRoleName(role.getChildText("name")))) {
                         r = new Role();
 
                         // ensure all roles created before cyclic refs are added
@@ -154,14 +155,14 @@ public class DataBackupEngine {
                             cyclics.put(belongsTo.getText(), r);
                         }
                         r.reconstitute(role);
-                        _rm.importRole(r);
+                        orgDataSet.importRole(r);
                         added++;
                     }
                 }
                 for (String id : cyclics.keySet()) {
                     Role r = cyclics.get(id);
-                    r.setOwnerRole(_rm.getRole(id));
-                    _rm.updateRole(r);
+                    r.setOwnerRole(orgDataSet.getRole(id));
+                    orgDataSet.updateRole(r);
                 }
                 result = String.format("Roles: %d/%d imported.", added, children.size());
             }
@@ -176,15 +177,15 @@ public class DataBackupEngine {
     private String importOrgGroups(Element ogElem) {
         String result = "OrgGroup: 0 in imported file.";
         if (ogElem != null) {
-            if (_rm.isDataEditable("OrgGroup")) {
+            if (orgDataSet.isDataEditable("OrgGroup")) {
                 Hashtable<String, OrgGroup> cyclics = new Hashtable<String, OrgGroup>();
                 int added = 0;
                 List children = ogElem.getChildren();
                 for (Object o : children) {
                     Element group = (Element) o;
                     String id = group.getAttributeValue("id");
-                    OrgGroup og = _rm.getOrgGroup(id);
-                    if ((og == null) && (! _rm.isKnownOrgGroupName(group.getChildText("groupName")))) {
+                    OrgGroup og = orgDataSet.getOrgGroup(id);
+                    if ((og == null) && (! orgDataSet.isKnownOrgGroupName(group.getChildText("groupName")))) {
                         og = new OrgGroup();
 
                         // ensure all OrgGroups created before cyclic refs are added
@@ -193,14 +194,14 @@ public class DataBackupEngine {
                             cyclics.put(belongsTo.getText(), og);
                         }
                         og.reconstitute(group);
-                        _rm.importOrgGroup(og);
+                        orgDataSet.importOrgGroup(og);
                         added++;
                     }
                 }
                 for (String id : cyclics.keySet()) {
                     OrgGroup og = cyclics.get(id);
-                    og.setBelongsTo(_rm.getOrgGroup(id));
-                    _rm.updateOrgGroup(og);
+                    og.setBelongsTo(orgDataSet.getOrgGroup(id));
+                    orgDataSet.updateOrgGroup(og);
                 }
                 result = String.format("OrgGroups: %d/%d imported.", added, children.size());
             }
@@ -215,15 +216,15 @@ public class DataBackupEngine {
     private String importPositions(Element posElem) {
         String result = "Positions: 0 in imported file.";
         if (posElem != null) {
-            if (_rm.isDataEditable("OrgGroup")) {
+            if (orgDataSet.isDataEditable("OrgGroup")) {
                 Hashtable<String, Position> cyclics = new Hashtable<String, Position>();
                 int added = 0;
                 List children = posElem.getChildren();
                 for (Object o : children) {
                     Element pos = (Element) o;
                     String id = pos.getAttributeValue("id");
-                    Position p = _rm.getPosition(id);
-                    if ((p == null) && (! _rm.isKnownPositionName(pos.getChildText("title")))) {
+                    Position p = orgDataSet.getPosition(id);
+                    if ((p == null) && (! orgDataSet.isKnownPositionName(pos.getChildText("title")))) {
                         p = new Position();
 
                         // ensure all Positions created before cyclic refs are added
@@ -235,16 +236,16 @@ public class DataBackupEngine {
 
                         Element ogElem = pos.getChild("orggroupid");
                         if (ogElem != null) {
-                            p.setOrgGroup(_rm.getOrgGroup(ogElem.getText()));
+                            p.setOrgGroup(orgDataSet.getOrgGroup(ogElem.getText()));
                         }
-                        _rm.importPosition(p);
+                        orgDataSet.importPosition(p);
                         added++;
                     }
                 }
                 for (String id : cyclics.keySet()) {
                     Position p = cyclics.get(id);
-                    p.setReportsTo(_rm.getPosition(id));
-                    _rm.updatePosition(p);
+                    p.setReportsTo(orgDataSet.getPosition(id));
+                    orgDataSet.updatePosition(p);
                 }
                 result = String.format("Positions: %d/%d imported.", added, children.size());
             }
@@ -260,12 +261,12 @@ public class DataBackupEngine {
         String result = "Participants: 0 in imported file.";
         int added = 0;
         if (pElem != null) {
-            if (_rm.isDataEditable("Participant")) {
+            if (orgDataSet.isDataEditable("Participant")) {
                 List children = pElem.getChildren();
                 for (Object o : children) {
                     Element part = (Element) o;
                     String id = part.getAttributeValue("id");
-                    Participant p = _rm.getParticipant(id);
+                    Participant p = orgDataSet.getParticipant(id);
                     if ((p == null) && (! _rm.isKnownUserID(part.getChildText("userid")))) {
                         p = new Participant();
                         p.reconstitute(part);

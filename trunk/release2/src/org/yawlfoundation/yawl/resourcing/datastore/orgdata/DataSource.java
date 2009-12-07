@@ -8,9 +8,6 @@
 
 package org.yawlfoundation.yawl.resourcing.datastore.orgdata;
 
-import org.yawlfoundation.yawl.resourcing.resource.*;
-
-import java.util.HashMap;
 import java.util.UUID;
 
 /**
@@ -32,21 +29,21 @@ public abstract class DataSource {
 
     // a structure for passing the entire org data set to the ResourceManager.
     // Each member is a map in the format [object's id, object]
-    public class ResourceDataSet {
-        public HashMap<String,Participant> participantMap ;
-        public HashMap<String,Role> roleMap ;
-        public HashMap<String,Capability> capabilityMap;
-        public HashMap<String,Position> positionMap;
-        public HashMap<String,OrgGroup> orgGroupMap;
-
-        public ResourceDataSet() {
-            participantMap = new HashMap<String,Participant>();
-            roleMap = new HashMap<String,Role>();
-            capabilityMap = new HashMap<String,Capability>();
-            positionMap = new HashMap<String,Position>();
-            orgGroupMap = new HashMap<String,OrgGroup>();              
-        }
-    }
+//    public class ResourceDataSet {
+//        public HashMap<String,Participant> participantMap ;
+//        public HashMap<String,Role> roleMap ;
+//        public HashMap<String,Capability> capabilityMap;
+//        public HashMap<String,Position> positionMap;
+//        public HashMap<String,OrgGroup> orgGroupMap;
+//
+//        public ResourceDataSet() {
+//            participantMap = new HashMap<String,Participant>();
+//            roleMap = new HashMap<String,Role>();
+//            capabilityMap = new HashMap<String,Capability>();
+//            positionMap = new HashMap<String,Position>();
+//            orgGroupMap = new HashMap<String,OrgGroup>();
+//        }
+//    }
 
     /**
      * A default unique ID generator. Must be called from each table's 'insert' method

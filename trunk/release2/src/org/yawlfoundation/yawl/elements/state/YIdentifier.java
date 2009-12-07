@@ -25,13 +25,13 @@ import java.util.Vector;
  * storing an identifer and managing a set of children.
  * @author Lachlan Aldred
  *
- * @author Michael Adams (refactored for v2.0, 06/08)
+ * @author Michael Adams (refactored for v2.0, 06/08 & 04/09)
  * 
  */
 public class YIdentifier {
 
     // a location may be a condition or a task
-    private List _locations = new Vector();
+    private List<YNetElement> _locations = new Vector<YNetElement>();
 
     private List<String> locationNames = new Vector<String>();
     private List<YIdentifier> _children = new Vector<YIdentifier>();
@@ -39,14 +39,14 @@ public class YIdentifier {
     private String id = null;
     private String _idString;
 
+    private long _logKey = -1 ;                    // the FK of the logged task instance
 
-    public YIdentifier() {
-         _idString = YEngine.getInstance().getNextCaseNbr();
-     }
 
-     public YIdentifier(String idString) {
-         _idString = idString;
-     }
+    public YIdentifier() { }                       // only for hibernate
+
+    public YIdentifier(String idString) {
+        _idString = (idString != null) ? idString : YEngine.getInstance().getNextCaseNbr();
+    }
 
     
 
@@ -175,8 +175,7 @@ public class YIdentifier {
     }
 
 
-    public synchronized void addLocation(YPersistenceManager pmgr,
-                                         YConditionInterface condition)
+    public synchronized void addLocation(YPersistenceManager pmgr, YNetElement condition)
             throws YPersistenceException {
         if (condition == null) {
             throw new RuntimeException("Cannot add null condition to this identifier.");
@@ -186,7 +185,8 @@ public class YIdentifier {
         if ((condition instanceof YCondition) && !(condition instanceof YInputCondition)) {
             String locName = condition.toString();
             locationNames.add(locName.substring(locName.indexOf(":") + 1, locName.length()));
-        } else {
+        }
+        else {
             locationNames.add(condition.toString());
         }
 
@@ -206,7 +206,7 @@ public class YIdentifier {
     }
 
 
-    public synchronized void clearLocation(YPersistenceManager pmgr, YConditionInterface condition)
+    public synchronized void clearLocation(YPersistenceManager pmgr, YNetElement condition)
             throws YPersistenceException {
         removeLocation(pmgr, condition);
         if (pmgr != null) {
@@ -216,7 +216,7 @@ public class YIdentifier {
 
 
     public synchronized void removeLocation(YPersistenceManager pmgr,
-                                            YConditionInterface condition)
+                                            YNetElement condition)
             throws YPersistenceException {
         if (condition == null) {
             throw new RuntimeException("Cannot remove null condition from this identifier.");
@@ -227,7 +227,8 @@ public class YIdentifier {
         if (condition instanceof YCondition && !(condition instanceof YInputCondition)) {
             String locName = condition.toString();
             locationNames.remove(locName.substring(locName.indexOf(":") + 1, locName.length()));
-        } else {
+        }
+        else {
             locationNames.remove(condition.toString());
         }
     }
@@ -257,7 +258,7 @@ public class YIdentifier {
     }
 
 
-    public synchronized List getLocations() {
+    public synchronized List<YNetElement> getLocations() {
         return _locations;
     }
 
@@ -272,6 +273,13 @@ public class YIdentifier {
         return (parent != null) ? getRootAncestor(parent) : identifier;
     }
 
+    public long getLogKey() {
+        return _logKey;
+    }
+
+    public void setLogKey(long key) {
+        _logKey = key;
+    }
 
     public boolean equals(Object another) {
         return (another instanceof YIdentifier) &&

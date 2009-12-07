@@ -8,13 +8,16 @@
 
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
-import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
+import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Author: Michael Adams
@@ -365,17 +368,11 @@ public class DynFormFieldAssembler {
     }
 
     private Map<String, String> getAttributeMap(Element data, String name) {
-        Map<String, String> result = new Hashtable<String, String>();
+        YAttributeMap result = new YAttributeMap();
         if (data != null) {
             Element child = data.getChild(name);
             if (child != null) {
-                List attributes = child.getAttributes() ;
-                for (Object o : attributes) {
-                    Attribute attribute = (Attribute) o;
-                    result.put(attribute.getName(), attribute.getValue());
-
-                    // !!! consider passing these as a list of attributes !!! //
-                }
+                result.fromJDOM(child.getAttributes()) ;
             }
         }
         return result;

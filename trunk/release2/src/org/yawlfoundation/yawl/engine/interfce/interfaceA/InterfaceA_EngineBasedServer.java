@@ -71,7 +71,7 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         OutputStreamWriter outputWriter = ServletUtils.prepareResponse(response);
-        StringBuffer output = new StringBuffer();
+        StringBuilder output = new StringBuilder();
         output.append("<response>");
         output.append(processPostQuery(request));
         output.append("</response>");
@@ -90,7 +90,7 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
 
 
     private String processPostQuery(HttpServletRequest request) {
-        StringBuffer msg = new StringBuffer();
+        StringBuilder msg = new StringBuilder();
         String sessionHandle = request.getParameter("sessionHandle");
         String action = request.getParameter("action");
         String userID = request.getParameter("userID");
@@ -112,8 +112,8 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                     String specXML = request.getParameter("specXML");
                     msg.append(_engine.loadSpecification(specXML, sessionHandle));
                 }
-                else if ("getUsers".equals(action)) {
-                    msg.append(_engine.getUsers(sessionHandle));
+                else if ("getAccounts".equals(action)) {
+                    msg.append(_engine.getAccounts(sessionHandle));
                 }
                 else if ("getList".equals(action)) {
                     msg.append(_engine.getSpecificationList(sessionHandle));
@@ -121,12 +121,12 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                 else if ("getYAWLServices".equals(action)) {
                     msg.append(_engine.getYAWLServices(sessionHandle));
                 }
-                else if ("createUser".equals(action) || "createAdmin".equals(action)) {
-                    boolean isAdmin = ("createAdmin".equals(action));
-                    msg.append(_engine.createUser(userID, password, isAdmin, sessionHandle));
+                else if ("createAccount".equals(action)) {
+                    String doco = request.getParameter("doco");
+                    msg.append(_engine.createAccount(userID, password, doco, sessionHandle));
                 }
-                else if ("deleteUser".equals(action)) {
-                    msg.append(_engine.deleteUser(userID, sessionHandle));
+                else if ("deleteAccount".equals(action)) {
+                    msg.append(_engine.deleteAccount(userID, sessionHandle));
                 }
                 else if ("newPassword".equals(action)) {
                     msg.append(_engine.changePassword(password, sessionHandle));
@@ -140,9 +140,11 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                     msg.append(_engine.removeYAWLService(serviceURI, sessionHandle));
                 }
                 else if ("unload".equals(action)) {
-                    String specName = request.getParameter("specID");
-                    String version = request.getParameter("version");
-                    YSpecificationID specID = new YSpecificationID(specName, version);
+                    String specIdentifier = request.getParameter("specidentifier");
+                    String version = request.getParameter("specversion");
+                    String uri = request.getParameter("specuri");
+                    YSpecificationID specID =
+                            new YSpecificationID(specIdentifier, version, uri);
                     msg.append(_engine.unloadSpecification(specID, sessionHandle));
                 }
             }

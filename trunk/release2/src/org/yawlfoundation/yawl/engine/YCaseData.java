@@ -27,7 +27,7 @@ public class YCaseData {
     public static final int SUSPEND_STATUS_SUSPENDED = 2;
 
     /**
-     * Case is resuming execution from a previusly suspended or suspending state.
+     * Case is resuming execution from a previously suspended or suspending state.
      *
      * Note: This state should never be observed via the public API.
      */
@@ -79,4 +79,10 @@ public class YCaseData {
         this.executionState = executionState;
     }
 
+
+    public boolean isSuspending() { return executionState == SUSPEND_STATUS_SUSPENDING; }
+
+    public boolean isSuspended() { return executionState == SUSPEND_STATUS_SUSPENDED; }
+
+    public boolean isInSuspense() { return isSuspending() || isSuspended(); }
 }

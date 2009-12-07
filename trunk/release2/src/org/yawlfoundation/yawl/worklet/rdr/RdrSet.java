@@ -368,7 +368,7 @@ public class RdrSet {
 
 
     public String toString() {
-        StringBuffer s = new StringBuffer("##### RDR SET #####");
+        StringBuilder s = new StringBuilder("##### RDR SET #####");
         s.append(Library.newline);
 
         Library.appendLine(s, "SPECIFICATION ID", _specID);

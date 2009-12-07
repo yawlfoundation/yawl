@@ -93,7 +93,7 @@ public class ResourceAdministrator {
         if (_qSet == null) createWorkQueues(false) ;
         _qSet.purgeQueue(WorkQueue.WORKLISTED);
 
-        HashSet<Participant> pSet = ResourceManager.getInstance().getParticipants();
+        HashSet<Participant> pSet = ResourceManager.getInstance().getOrgDataSet().getParticipants();
         for (Participant p : pSet)
             _qSet.addToQueue(WorkQueue.WORKLISTED, p.getWorkQueues().getWorklistedQueues());
     }

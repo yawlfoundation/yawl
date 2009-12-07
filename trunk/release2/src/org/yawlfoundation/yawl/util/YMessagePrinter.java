@@ -35,7 +35,7 @@ public class YMessagePrinter {
 
 
     public static String getMessageString(List messages) {
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder stringBuffer = new StringBuilder();
         Iterator iter = messages.iterator();
         while (iter.hasNext()) {
             YVerificationMessage message = (YVerificationMessage) iter.next();

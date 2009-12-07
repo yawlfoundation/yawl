@@ -233,14 +233,14 @@ public class teamQueues extends AbstractPageBean {
         Participant p = _sb.getParticipant();
         Set<Participant> underlings = new HashSet<Participant>();
         if (setType == qSet.team) {
-            Set<Participant> reportingTo = _rm.getParticipantsReportingTo(p.getID());
+            Set<Participant> reportingTo = _rm.getOrgDataSet().getParticipantsReportingTo(p.getID());
             if (reportingTo != null)
                 underlings.addAll(reportingTo);
         }
         else {
             Set<Position> posSet = p.getPositions();
             for (Position pos : posSet) {
-                underlings.addAll(_rm.getOrgGroupMembers(pos.getOrgGroup()));
+                underlings.addAll(_rm.getOrgDataSet().getOrgGroupMembers(pos.getOrgGroup()));
             }
         }
 

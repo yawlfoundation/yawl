@@ -103,7 +103,7 @@
 
                                     <h:outputText binding="#{caseMgt.colNameRows}"
                                                   id="colNameRows"
-                                                  value="#{currentRow.ID}"/>
+                                                  value="#{currentRow.specURI}"/>
 
                                 </h:column>
 

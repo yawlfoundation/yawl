@@ -56,10 +56,11 @@ public class YProperties {
 
         for (String text : serviceStrings) {
             String[] parts = text.split(";");
-            if (parts.length == 4) {
+            if (parts.length == 5) {
                 YAWLServiceReference ys = new YAWLServiceReference(parts[1], null);
-                ys.set_serviceName(parts[0]);
-                ys.set_assignable(parts[2].equalsIgnoreCase("true"));
+                ys.setServiceName(parts[0]);
+                ys.setServicePassword(parts[4]);
+                ys.setAssignable(parts[2].equalsIgnoreCase("true"));
                 ys.setDocumentation(parts[3]);
                 result.add(ys);
             }

@@ -57,7 +57,7 @@ public class OrgFilter extends AbstractFilter {
 
         // do posn first as it will usually result in a smaller set
         if (positionTitle != null ) {
-            Position pos = rm.getPositionByLabel(positionTitle) ;
+            Position pos = rm.getOrgDataSet().getPositionByLabel(positionTitle) ;
             if (pos != null) {
                for (Participant p : distSet) {
                    if (pos.hasResource(p)) result.add(p) ;
@@ -67,7 +67,7 @@ public class OrgFilter extends AbstractFilter {
         }
 
         if (orgGroupName != null) {
-            OrgGroup og = rm.getOrgGroupByLabel(orgGroupName) ;
+            OrgGroup og = rm.getOrgDataSet().getOrgGroupByLabel(orgGroupName) ;
             if (og != null) {
                 result = new HashSet<Participant>() ;
                 for (Participant p : distSet) {

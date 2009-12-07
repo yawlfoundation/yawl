@@ -407,7 +407,7 @@ public class ActiveCases extends AbstractPageBean {
 //    private String unloadSpec(SpecificationData spec) {
 //        try {
 //            String handle = _sb.getSessionhandle() ;
-//            return _rm.unloadSpecification(spec.getID(), spec.getSpecVersion(), handle);
+//            return _rm.unloadSpecificationData(spec.getID(), spec.getSpecVersion(), handle);
 //        }
 //        catch (IOException ioe) {
 //            msgPanel.error("IOException when attempting to unload specification") ;

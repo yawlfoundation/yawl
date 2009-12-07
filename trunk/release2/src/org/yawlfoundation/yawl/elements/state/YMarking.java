@@ -9,10 +9,7 @@
 
 package org.yawlfoundation.yawl.elements.state;
 
-import org.yawlfoundation.yawl.elements.YCondition;
-import org.yawlfoundation.yawl.elements.YExternalNetElement;
-import org.yawlfoundation.yawl.elements.YNet;
-import org.yawlfoundation.yawl.elements.YTask;
+import org.yawlfoundation.yawl.elements.*;
 
 import java.util.*;
 
@@ -24,15 +21,15 @@ import java.util.*;
  * 
  */
 public class YMarking {
-    private List _locations;
+    private List<YNetElement> _locations;
 
 
     public YMarking(YIdentifier identifier) {
-        _locations = new Vector(identifier.getLocations());
+        _locations = new Vector<YNetElement>(identifier.getLocations());
     }
 
-    public YMarking(List locations) {
-        _locations = new Vector(locations);
+    public YMarking(List<YNetElement> locations) {
+        _locations = locations;
     }
 
 

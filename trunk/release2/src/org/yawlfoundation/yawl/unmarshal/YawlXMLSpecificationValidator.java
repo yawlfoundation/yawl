@@ -26,7 +26,7 @@ import java.io.StringReader;
  */
 
 public class YawlXMLSpecificationValidator extends DefaultHandler {
-    StringBuffer _errorsString = new StringBuffer("");
+    StringBuilder _errorsString = new StringBuilder("");
     private static YawlXMLSpecificationValidator _myInstance;
 
     private YawlXMLSpecificationValidator() {
@@ -114,22 +114,22 @@ public class YawlXMLSpecificationValidator extends DefaultHandler {
     private XMLReader setUpChecker(String version) throws SAXException {
         XMLReader parser = XMLReaderFactory.createXMLReader(
                 "org.apache.xerces.parsers.SAXParser");
-        if (YSpecification._Beta2.equals(version)) {
+        if (YSpecification.Beta2.equals(version)) {
             parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
                     "http://www.citi.qut.edu.au/yawl " + getClass().getResource("YAWL_Schema.xsd"));
-        } else if (YSpecification._Beta3.equals(version)) {
+        } else if (YSpecification.Beta3.equals(version)) {
             parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
                     "http://www.citi.qut.edu.au/yawl " + getClass().getResource("YAWL_SchemaBeta3.xsd"));
-        } else if (YSpecification._Beta4.equals(version)) {
+        } else if (YSpecification.Beta4.equals(version)) {
             parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
                     "http://www.citi.qut.edu.au/yawl " + getClass().getResource("YAWL_SchemaBeta4.xsd"));
-        } else if (YSpecification._Beta6.equals(version)) {
+        } else if (YSpecification.Beta6.equals(version)) {
             parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
                     "http://www.citi.qut.edu.au/yawl " + getClass().getResource("YAWL_SchemaBeta6.xsd"));
-        } else if (YSpecification._Beta7_1.equals(version)) {
+        } else if (YSpecification.Beta7_1.equals(version)) {
             parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
                     "http://www.citi.qut.edu.au/yawl " + getClass().getResource("YAWL_SchemaBeta7.1.xsd"));
-        } else if (YSpecification._Version2_0.equals(version)) {
+        } else if (YSpecification.Version2_0.equals(version)) {
              parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
                     "http://www.yawlfoundation.org/yawlschema " +
                     getClass().getResource("YAWL_Schema2.0.xsd"));

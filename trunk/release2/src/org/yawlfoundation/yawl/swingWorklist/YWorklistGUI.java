@@ -14,9 +14,7 @@ import org.jdom.input.JDOMParseException;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.gui.YAdminGUI;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
-import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.yawlfoundation.yawl.exceptions.YQueryException;
-import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
+import org.yawlfoundation.yawl.exceptions.*;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -258,6 +256,10 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
                 } catch (YPersistenceException e1) {
                     logError("Failure to create new instance", e1);
                     System.exit(99);
+                }
+                catch (YLogException e2) {
+                logError("Failure to log new instance", e2);
+                //System.exit(99);
                 }
             } else if (command.equals(_viewDataCommand)) {
                 if (rowSel >= 0) {

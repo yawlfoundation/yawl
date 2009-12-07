@@ -124,7 +124,7 @@ public class ResourceMap {
 
     public void setTaskID(String taskID) { _taskID = taskID ; }
 
-    public String getSpecName() { return _specID.getSpecName(); }
+    public String getSpecName() { return _specID.getUri(); }
 
     public YSpecificationID getSpecID() { return _specID; }
 
@@ -171,8 +171,9 @@ public class ResourceMap {
     private ResourceMap getPersistedMap() {
         ResourceMap result = null;
         if (getPersisting()) {
-            String where = String.format("_specID='%s' and _taskID='%s'",
-                                          _specID.toString(), _taskID);
+            String where = String.format(
+              "_specID.identifier='%s' and _specID.version.version='%s' and _taskID='%s'",
+                  _specID.getIdentifier(), _specID.getVersionAsString(), _taskID);
             List map = _persister.selectWhere("ResourceMap", where) ;
             if ((map != null) && (! map.isEmpty())) {
                 result = (ResourceMap) map.iterator().next();
@@ -188,7 +189,7 @@ public class ResourceMap {
         if (map != null) {
             if (rm.isPersistPiling()) {
                 _piledResourceID = map.getPiledResourceID();
-                _piledResource = rm.getParticipant(_piledResourceID) ;
+                _piledResource = rm.getOrgDataSet().getParticipant(_piledResourceID) ;
             }
             else _persister.delete(map);
         }
@@ -426,17 +427,4 @@ public class ResourceMap {
     public long get_id() { return _id; }
 
     public void set_id(long id) { _id = id; }
-
-    private String get_specID() { return _specID.toString(); }
-
-    private void set_specID(String specID) {
-        if (specID != null) {
-            String[] parts = specID.split(" - version ");
-            if (parts.length > 1)
-                _specID = new YSpecificationID(parts[0], parts[1]);
-            else
-                _specID = new YSpecificationID(parts[0]);
-        }
-    }
-
 }

@@ -595,7 +595,7 @@ public class CaseMonitor {
     /********************************************************************************/
 
     public String toString() {
-        StringBuffer s = new StringBuffer("##### CASEMONITOR RECORD #####");
+        StringBuilder s = new StringBuilder("##### CASEMONITOR RECORD #####");
         s.append(Library.newline);
 
         String specID = (_specID == null)? "null" : _specID;

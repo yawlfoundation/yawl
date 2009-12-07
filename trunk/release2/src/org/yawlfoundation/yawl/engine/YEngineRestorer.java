@@ -10,15 +10,15 @@ package org.yawlfoundation.yawl.engine;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.elements.state.YInternalCondition;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.yawlfoundation.yawl.logging.YCaseEvent;
+import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.util.*;
 
@@ -60,10 +60,23 @@ public class YEngineRestorer {
         Query query = _pmgr.createQuery("from YAWLServiceReference");
 
         for (Iterator it = query.iterate(); it.hasNext();) {
-            YAWLServiceReference service = (YAWLServiceReference) it.next();
-            _engine.addYawlService(service);
-            if (service.get_serviceName().equals("resourceService"))
-                _engine.setResourceService(service);
+            _engine.addYawlService((YAWLServiceReference) it.next());
+        }
+        _log.info("Restoring Services - Ends");
+    }
+
+
+    /**
+     * Restores registered external client credentials (eg the editor logon)
+     *
+     * @throws YPersistenceException if there's a problem reading from the tables
+     */
+    public void restoreExternalClients() throws YPersistenceException {
+        _log.info("Restoring Services - Starts");
+        Query query = _pmgr.createQuery("from YExternalClient");
+
+        for (Iterator it = query.iterate(); it.hasNext();) {
+            _engine.addExternalClient((YExternalClient) it.next());
         }
         _log.info("Restoring Services - Ends");
     }
@@ -76,12 +89,9 @@ public class YEngineRestorer {
      */
     public void restoreSpecifications() throws YPersistenceException {
         _log.info("Restoring Specifications - Starts");
-        Query query = _pmgr.createQuery("from YSpecFile");
-
+        Query query = _pmgr.createQuery("from YSpecification");
         for (Iterator it = query.iterate(); it.hasNext();) {
-            YSpecFile spec = (YSpecFile) it.next();
-            _log.debug("Restoring specification " + spec.getSpecid().getId());
-            addSpecifications(spec.getSpecid().getId(), spec.getXML());
+            loadSpecification((YSpecification) it.next());
         }
         _log.info("Restoring Specifications - Ends");
     }
@@ -103,14 +113,13 @@ public class YEngineRestorer {
         else {
 
             // secondary attempt: eg. if there's no case number stored (as will be
-            // the case if this is the first restart after upgrade to v2.0)
-            query = _pmgr.createQuery("from YCaseEvent as yce " +
-                    "where yce._eventName = 'started' order by yce._eventTime desc");
+            // the case if this is the first restart after a database rebuild)
+            query = _pmgr.createQuery("select max(engineInstanceID) from YLogNetInstance") ;
             if ((query != null) && (! query.list().isEmpty())) {
-                YCaseEvent caseEvent = (YCaseEvent) query.iterate().next();
+                String engineID = (String) query.iterate().next();
 
                 // only want integral case numbers
-                caseNbrStore.setCaseNbr(new Double(caseEvent.get_caseID()).intValue());
+                caseNbrStore.setCaseNbr(new Double(engineID).intValue());
             }
         }
 
@@ -182,7 +191,7 @@ public class YEngineRestorer {
             _engine.getInstanceCache().addWorkItem(witem);
 
             // MJF: for any work items with data, restore to netrunner instance
-            witem.restoreDataToNet();
+            witem.restoreDataToNet(_engine.getYAWLServices());
         }
 
         removeWorkItems(toBeRemoved);
@@ -229,8 +238,7 @@ public class YEngineRestorer {
          */
         _log.info("Restarting restored process instances - Starts");
 
-        for (int i = 0; i < _runners.size(); i++) {
-            YNetRunner runner = _runners.get(i);
+        for (YNetRunner runner : _runners) {
             _log.debug("Restarting " + runner.get_caseID());
             try {
                 runner.start(_pmgr);
@@ -246,17 +254,19 @@ public class YEngineRestorer {
     /*****************************************************************************/
 
     private YSpecification getSpecification(YNetRunner runner) {
-        return _engine.getSpecification(runner.getYNetID(), runner.getYNetVersion());
+        return _engine.getSpecification(runner.getSpecificationID());
     }
 
 
-    private List<YSpecificationID> addSpecifications(String specID, String specXML)
-            throws YPersistenceException {
+    private void loadSpecification(YSpecification spec) throws YPersistenceException {
         try {
-            return _engine.addSpecifications(specXML, true, new Vector<YVerificationMessage>());
-        } catch (Exception e) {
-            throw new YPersistenceException("Failure whilst restoring specification [" +
-                    specID + "]", e);
+            long key = spec.getRowKey();
+            spec = YMarshal.unmarshalSpecifications(spec.getRestoredXML()).get(0);
+            spec.setRowKey(key);
+            _engine.loadSpecification(spec);
+        }
+        catch (Exception e) {
+            throw new YPersistenceException("Failure whilst restoring specification", e);
         }
     }
 
@@ -275,8 +285,9 @@ public class YEngineRestorer {
                    specification stored as well. */
                 String msg = String.format("YEngineRestorer: The specification '%s' for" +
                          " active case '%s' is not loaded; the active case cannot" +
-                         " continue and so has been removed", runner.getYNetID(),
-                         runner.get_standin_caseIDForNet().toString());
+                         " continue and so has been removed.",
+                         runner.getSpecificationID().getUri(),
+                         runner.getCaseID().toString());
                 _log.warn(msg);
                 _pmgr.deleteObject(runner);
             }
@@ -297,13 +308,13 @@ public class YEngineRestorer {
                 //This is a root net runner
                 YNet net = (YNet) getSpecification(runner).getRootNet().clone();
                 runner.setNet(net);
-                result.put(runner.get_standin_caseIDForNet().toString(), runner);
+                result.put(runner.getCaseID().toString(), runner);
             }
             else {
 
                 //This is not a root net, but a decomposition
                 // Find the parent runner
-                String runnerID = runner.get_standin_caseIDForNet().toString();
+                String runnerID = runner.getCaseID().toString();
                 String parentID = runnerID.substring(0, runnerID.lastIndexOf("."));
                 YNetRunner parentrunner = result.get(parentID);
                 if (parentrunner != null) {
@@ -320,10 +331,10 @@ public class YEngineRestorer {
                         String msg = String.format("YEngineRestorer: The decomposition" +
                                      "'%s' for  active case '%s' could not be set." +
                                      task.getDecompositionPrototype().getID(),
-                                     runner.get_standin_caseIDForNet().toString());
+                                     runner.getCaseID().toString());
                         throw new YPersistenceException(msg);
                     }
-                    result.put(runner.get_standin_caseIDForNet().toString(), runner);
+                    result.put(runner.getCaseID().toString(), runner);
                 }
             }
         }
@@ -337,31 +348,25 @@ public class YEngineRestorer {
         Hashtable<String, YNetRunner> runnerMap = restoreNets(runners) ;
         for (YNetRunner runner : runners) {
             YNet net = runner.getNet();
-            P_YIdentifier pid = runner.get_standin_caseIDForNet();
-
             if (runner.getContainingTaskID() == null) {
 
                 // This is a root net runner
-                YIdentifier id = restoreYIdentifier(runnerMap, pid, null, net);
-                runner.set_caseIDForNet(id);
+                restoreYIdentifiers(runnerMap, runner.getCaseID(), null, net);
                 _engine.addRunner(runner);
             }
+            else {
+                YWorkItemRepository.getInstance().addNetRunner(runner);   // a subnet
+            }
 
-            YIdentifier yid = new YIdentifier(runner.get_caseID());
-            YWorkItemRepository.getInstance().setNetRunnerToCaseIDBinding(runner, yid);
-
+            // restore enabled and busy tasks
             Set<String> busytasks = runner.getBusyTaskNames();
             for (String busytask : busytasks) {
-                runner.addBusyTask(net.getNetElement(busytask));
+                runner.addBusyTask((YTask) net.getNetElement(busytask));
             }
 
             Set<String> enabledtasks = runner.getEnabledTaskNames();
             for (String enabledtask : enabledtasks) {
-                YExternalNetElement element = net.getNetElement(enabledtask);
-                if (element instanceof YTask) {
-                    YTask externalTask = (YTask) element;
-                    runner.addEnabledTask(externalTask);
-                }
+                runner.addEnabledTask((YTask) net.getNetElement(enabledtask));
             }
 
             // restore case & exception observers (where they exist)
@@ -370,70 +375,73 @@ public class YEngineRestorer {
     }
 
 
-    public YIdentifier restoreYIdentifier(Hashtable<String, YNetRunner> runnermap,
-                                         P_YIdentifier pid, YIdentifier parent, YNet net)
+    public YIdentifier restoreYIdentifiers(Hashtable<String, YNetRunner> runnermap,
+                                         YIdentifier id, YIdentifier parent, YNet net)
             throws YPersistenceException {
 
-        YIdentifier id = new YIdentifier(pid.toString());
         YNet sendnet = net;
         id.set_parent(parent);
-        List list = pid.get_children();
+        List<YIdentifier> children = id.getChildren();
 
-        if (list.size() > 0) {
-            List<YIdentifier> idlist = new Vector<YIdentifier>();
-
-            for (int i = 0; i < list.size(); i++) {
-                P_YIdentifier child = (P_YIdentifier) list.get(i);
-                YNetRunner netRunner = runnermap.get(child.toString());
-                if (netRunner != null) {
-                    sendnet = netRunner.getNet();
-                }
-                YIdentifier caseid = restoreYIdentifier(runnermap, child, id, sendnet);
-
-                if (netRunner != null) {
-                    netRunner.set_caseIDForNet(caseid);
-                }
-                idlist.add(caseid);
+        for (YIdentifier child : children) {
+            YNetRunner netRunner = runnermap.get(child.toString());
+            if (netRunner != null) {
+                sendnet = netRunner.getNet();
             }
-            id.set_children(idlist);
+            YIdentifier caseid = restoreYIdentifiers(runnermap, child, id, sendnet);
+
+            if (netRunner != null) {
+                netRunner.set_caseIDForNet(caseid);
+            }
         }
+        return restoreLocations(runnermap, id, parent, net);
+    }
+
+
+    public YIdentifier restoreLocations(Hashtable<String, YNetRunner> runnermap,
+                                         YIdentifier id, YIdentifier parent, YNet net)
+            throws YPersistenceException {
 
         YTask task;
-        for (int i = 0; i < pid.getLocationNames().size(); i++) {
-            String name = (String) pid.getLocationNames().get(i);
+        YNetRunner runner = null;
+
+        // make external list of locations to avoid concurrency exceptions
+        List<String> locationNames = new ArrayList<String>();
+        for (String x : id.getLocationNames()) locationNames.add(x);
+        id.clearLocations(null);                         // locations are readded below
+
+        for (String name : locationNames) {
             YExternalNetElement element = net.getNetElement(name);
 
             if (element == null) {
                 name = name.substring(0, name.length() - 1);     // remove trailling ']'
                 String[] splitname = name.split(":");
 
+                if (parent != null) {
+                    runner = runnermap.get(parent.toString());
+                }
+
                 // Get the task associated with this condition
                 if (name.indexOf("CompositeTask") != -1) {
-                    YNetRunner runner = runnermap.get(parent.toString());
                     task = (YTask) runner.getNet().getNetElement(splitname[1]);
                 }
                 else {
                     task = (YTask) net.getNetElement(splitname[1]);
-                }
 
-                // Check if we need to find the parent task and post conditions against it
-                if ((task == null) && (parent != null)) {
-                    YNetRunner runner = runnermap.get(parent.toString());
-                    Object obj = runner.getNet().getNetElement(splitname[1]);
-                    if (obj instanceof YTask) {
-                        task = (YTask) obj;
+                    // Check if we need to find the parent task and post conditions against it
+                    if (task == null) {
+                        task = (YTask) runner.getNet().getNetElement(splitname[1]);
                     }
                 }
 
                 postTaskCondition(task, net, splitname[0], id) ;
-
             }
             else {
                 if (element instanceof YTask) {
                     task = (YTask) element;
                     task.setI(id);
                     task.prepareDataDocsForTaskOutput();
-                    id.addLocation(_pmgr, task);
+                    id.addLocation(null, task);
                 }
                 else if (element instanceof YCondition) {
                    ((YConditionInterface) element).add(_pmgr, id);
@@ -466,14 +474,14 @@ public class YEngineRestorer {
             else {
                 _log.error("Unknown YInternalCondition state");
             }
-            if (condition != null) condition.add(_pmgr, id);
+            if (condition != null) condition.add(null, id);
         }
         else {
             if (condName.startsWith("InputCondition")) {
-                net.getInputCondition().add(_pmgr, id);
+                net.getInputCondition().add(null, id);
             }
             else if (condName.startsWith("OutputCondition")) {
-                net.getOutputCondition().add(_pmgr, id);
+                net.getOutputCondition().add(null, id);
             }
         }
     }

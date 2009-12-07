@@ -13,6 +13,7 @@ import com.sun.rave.web.ui.component.Button;
 import com.sun.rave.web.ui.component.PanelLayout;
 import com.sun.rave.web.ui.component.Script;
 import com.sun.rave.web.ui.model.Option;
+import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -20,11 +21,9 @@ import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
-import org.yawlfoundation.yawl.resourcing.jsf.comparator.OptionComparator;
-import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
-import org.yawlfoundation.yawl.resourcing.jsf.comparator.SpecificationDataComparator;
-import org.yawlfoundation.yawl.resourcing.jsf.comparator.YAWLServiceComparator;
+import org.yawlfoundation.yawl.resourcing.jsf.comparator.*;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.resource.*;
@@ -423,8 +422,7 @@ public class SessionBean extends AbstractSessionBean {
     public void setOrgDataGroupChoice(String choice) { orgDataGroupChoice = choice; }
 
     public void setLoadedSpecListChoice(SpecificationData choice) {        
-        loadedSpecListChoice = new YSpecificationID(choice.getID(),
-                                   new YSpecVersion(choice.getSpecVersion())) ;
+        loadedSpecListChoice = choice.getID() ;
     }
 
     /********************************************************************************/
@@ -600,14 +598,20 @@ public class SessionBean extends AbstractSessionBean {
 
     private Option[] getParticipantPiledTasks() {
         Option[] result = null ;
-        Set<String> tasks = _rm.getPiledTasks(participant) ;
-        if (! tasks.isEmpty()) {
-            result = new Option[tasks.size()];
+        Set<ResourceMap> taskMaps = _rm.getPiledTaskMaps(participant) ;
+        if (! taskMaps.isEmpty()) {
+            result = new Option[taskMaps.size()];
             int i = 0;
-            for (String task : tasks)
-                result[i++] = new Option(task);
+            for (ResourceMap map : taskMaps)
+                result[i++] = new Option(map, formatPiledTaskString(map));
         }
         return result;
+    }
+
+    private String formatPiledTaskString(ResourceMap map) {
+        YSpecificationID specID = map.getSpecID();
+        return String.format("%s (%s)::%s", specID.getUri(),
+                      specID.getVersionAsString(), map.getTaskID()) ;
     }
 
     private Option[] getParticipantChainedCases() {
@@ -644,8 +648,7 @@ public class SessionBean extends AbstractSessionBean {
         String result = null;
         try {
             YAWLServiceReference service = registeredServices.get(listIndex);
-            result = _rm.removeRegisteredService(service.get_yawlServiceID(),
-                                                                         sessionhandle);
+            result = _rm.removeRegisteredService(service.getServiceID());
             if (_rm.successful(result)) refreshRegisteredServices();
         }
         catch (IOException ioe) {
@@ -655,12 +658,11 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
-    public String addRegisteredService(String name, String uri, String doco) {
+    public String addRegisteredService(String name, String pw, String uri, String doco) {
         String result = null;
         try {
-            YAWLServiceReference service = new YAWLServiceReference(uri, null, name);
-            service.set_documentation(doco);
-            result = _rm.addRegisteredService(service, sessionhandle);
+            YAWLServiceReference service = new YAWLServiceReference(uri, null, name, pw, doco);
+            result = _rm.addRegisteredService(service);
             if (_rm.successful(result)) refreshRegisteredServices();
         }
         catch (IOException ioe) {
@@ -671,14 +673,12 @@ public class SessionBean extends AbstractSessionBean {
 
     
     public void refreshRegisteredServices() {
-        Set services = _rm.getRegisteredServices(sessionhandle);
+        Set<YAWLServiceReference> services = _rm.getRegisteredServices();
         if (services != null) {
 
             // sort the items
-            List<YAWLServiceReference> servList =
-                    new ArrayList<YAWLServiceReference>();
-            for (Object obj : services) {
-                YAWLServiceReference service = (YAWLServiceReference) obj;
+            List<YAWLServiceReference> servList = new ArrayList<YAWLServiceReference>();
+            for (YAWLServiceReference service : services) {
                 if (service.isAssignable())
                     servList.add(service) ;
             }
@@ -687,6 +687,64 @@ public class SessionBean extends AbstractSessionBean {
         }
         else
             registeredServices = null ;
+    }
+
+
+    /****** This section used by the 'External App Mgt' Page ***************************/
+
+    List<YExternalClient> externalClients;
+
+
+    public List<YExternalClient> getExternalClients() {
+        if (externalClients == null) refreshExternalClients() ;
+
+        return externalClients;
+    }
+
+
+    public void setExternalClients(List<YExternalClient> clients) {
+        externalClients = clients ;
+    }
+
+
+    public String removeExternalClient(int listIndex) {
+        String result = null;
+        try {
+            YExternalClient client = externalClients.get(listIndex);
+            result = _rm.removeExternalClient(client.getUserID());
+            if (_rm.successful(result)) refreshExternalClients();
+        }
+        catch (IOException ioe) {
+            // message ...
+        }
+        return result ;
+    }
+
+
+    public String addExternalClient(String name, String pw, String doco) {
+        String result = null;
+        try {
+            YExternalClient client = new YExternalClient(name, pw, doco);
+            result = _rm.addExternalClient(client);
+            if (_rm.successful(result)) refreshExternalClients();
+        }
+        catch (IOException ioe) {
+            // message ...
+        }
+        return result ;
+    }
+
+
+    public void refreshExternalClients() {
+        try {
+            externalClients = new ArrayList<YExternalClient>(_rm.getExternalClients());
+        }
+        catch (IOException ioe) {
+            externalClients = null; 
+        }
+        if (externalClients != null) {
+            Collections.sort(externalClients, new YExternalClientComparator());
+        }
     }
 
 
@@ -711,7 +769,7 @@ public class SessionBean extends AbstractSessionBean {
     
 
     public void refreshLoadedSpecs() {
-        Set<SpecificationData> specDataSet = _rm.getLoadedSpecs(sessionhandle) ;
+        Set<SpecificationData> specDataSet = _rm.getLoadedSpecs() ;
 
         if (specDataSet != null) {
             loadedSpecs = new ArrayList<SpecificationData>(specDataSet);
@@ -759,8 +817,9 @@ public class SessionBean extends AbstractSessionBean {
 
 
     public String getTaskSchema(WorkItemRecord wir) {
-        YSpecificationID specID = new YSpecificationID(wir.getSpecificationID(),
-                                                       wir.getSpecVersion());
+        YSpecificationID specID = new YSpecificationID(wir.getSpecIdentifier(),
+                                                       wir.getSpecVersion(),
+                                                       wir.getSpecURI());
         return _rm.getDataSchema(wir, specID) ;
     }
 
@@ -923,7 +982,7 @@ public class SessionBean extends AbstractSessionBean {
     }
 
     private HashMap<String, Participant> getParticipantMap() {
-        participantMap = _rm.getParticipantMap();
+        participantMap = _rm.getOrgDataSet().getParticipantMap();
         return participantMap;
     }
 
@@ -1034,17 +1093,17 @@ public class SessionBean extends AbstractSessionBean {
     public Option[] getFullResourceAttributeList(String tab) {
         Option[] options = null;
         if (tab.equals("tabRoles")) {
-            options = getRoleList(_rm.getRoleMap());
+            options = getRoleList(_rm.getOrgDataSet().getRoleMap());
         }
         else if (tab.equals("tabPosition")) {
-            options = getPositionList(_rm.getPositionMap());
+            options = getPositionList(_rm.getOrgDataSet().getPositionMap());
 
         }
         else if (tab.equals("tabCapability"))  {
-            options = getCapabilityList(_rm.getCapabilityMap());
+            options = getCapabilityList(_rm.getOrgDataSet().getCapabilityMap());
         }
         else if (tab.equals("tabOrgGroup")) {
-            options = getOrgGroupList(_rm.getOrgGroupMap());            
+            options = getOrgGroupList(_rm.getOrgDataSet().getOrgGroupMap());
         }
         sortOptions(options);
         availableResourceAttributes = options;
@@ -1220,7 +1279,7 @@ public class SessionBean extends AbstractSessionBean {
     // Methods to initialise page values
 
     public String getInitSpecID() {
-        if (chosenWIR != null) return chosenWIR.getSpecificationID();
+        if (chosenWIR != null) return chosenWIR.getSpecIdentifier();
         return "" ;
     }
 

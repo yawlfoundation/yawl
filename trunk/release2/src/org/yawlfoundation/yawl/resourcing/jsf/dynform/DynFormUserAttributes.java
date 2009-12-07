@@ -1,5 +1,8 @@
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
+import net.sf.saxon.s9api.SaxonApiException;
+import org.yawlfoundation.yawl.util.SaxonUtil;
+
 import java.util.Map;
 
 /**
@@ -12,6 +15,8 @@ import java.util.Map;
 public class DynFormUserAttributes {
 
     private Map<String, String> _attributeMap ;
+
+    public DynFormUserAttributes() { }
 
     public DynFormUserAttributes(Map<String, String> attributeMap) {
         _attributeMap = attributeMap ;
@@ -35,7 +40,67 @@ public class DynFormUserAttributes {
     }
 
 
+    public int getIntegerValue(String attribute) {
+        String value = getValue(attribute);
+        int intValue = -1;                                        // default
+        if (value != null) {
+            try {
+                intValue = new Integer(value);
+            }
+            catch (NumberFormatException nfe) {
+                // nothing to do
+            }
+        }
+        return intValue;
+    }
+
+    // *** the standard attributes ***//
+
     public boolean isReadOnly() {
         return getBooleanValue("readOnly");
     }
+
+
+    public boolean isHidden() {
+        return getBooleanValue("hide");
+    }
+
+
+    public boolean isShowIf() {
+        boolean show = true;
+        String query = getValue("showif");
+        if (query != null) {
+            try {
+                String queryResult = SaxonUtil.evaluateQuery(query, null);
+                show = queryResult.equalsIgnoreCase("true");
+            }
+            catch (SaxonApiException sae) {
+                // nothing to do
+            }
+        }
+        return show;
+    }
+
+
+    public String getAlertText() {
+        return getValue("alert");                        // a validation error message
+    }
+
+
+    public String getLabelText() {
+        return getValue("label");
+    }
+
+
+    public String getToolTipText() {
+        return getValue("tooltip");
+    }
+
+
+    public int getMaxLength() {
+        int max = getIntegerValue("maxlength");
+        if (max == -1) max = Integer.MAX_VALUE;            // default to max if no value
+        return max;
+    }
+
 }

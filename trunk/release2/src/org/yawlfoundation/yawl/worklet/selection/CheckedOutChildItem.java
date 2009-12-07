@@ -96,7 +96,7 @@ public class CheckedOutChildItem extends WorkletRecord {
     /** returns String representation of current CheckedOutChildItem */
     public String toString() {
 
-        StringBuffer s = new StringBuffer("##### CHECKEDOUTCHILDITEM RECORD #####") ;
+        StringBuilder s = new StringBuilder("##### CHECKEDOUTCHILDITEM RECORD #####") ;
         s.append(Library.newline);
         s.append(toStringSub());
 

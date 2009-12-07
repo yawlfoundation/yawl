@@ -1,9 +1,10 @@
 package org.yawlfoundation.yawl.engine.interfce.interfaceE;
 
 import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.yawlfoundation.yawl.logging.YLogManager;
+import org.yawlfoundation.yawl.logging.YLogServer;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -25,7 +26,7 @@ import java.io.PrintWriter;
 public class YLogGateway extends HttpServlet {
 
     private static final Logger _log = Logger.getLogger(YLogGateway.class);
-    private YLogManager _logMgr = YLogManager.getInstance() ;
+    private YLogServer _logMgr = YLogServer.getInstance() ;
     private EngineGatewayImpl _engine ;
 
     private final String _noEngine = "<failure>Not connected to YAWL Engine.</failure>";
@@ -43,15 +44,15 @@ public class YLogGateway extends HttpServlet {
 
     public void doPost(HttpServletRequest req, HttpServletResponse res)
                                throws IOException {
+        String result = "";
+        String action = req.getParameter("action");
+        String handle = req.getParameter("sessionHandle");
+        String key = req.getParameter("key");
 
-       String result = "";
-       String action = req.getParameter("action");
-       String handle = req.getParameter("sessionHandle");
-
-       if (action == null) {
-           throw new IOException("YLogGateway called with null action.");
-       }
-       else if (action.equalsIgnoreCase("connect")) {
+        if (action == null) {
+            throw new IOException("YLogGateway called with null action.");
+        }
+        else if (action.equalsIgnoreCase("connect")) {
            String userid = req.getParameter("userid");
            String password = req.getParameter("password");
            if (_engine != null)
@@ -63,53 +64,75 @@ public class YLogGateway extends HttpServlet {
                result = _engine.checkConnection(handle) ;
            else result = _noEngine ;
        }
-       else if (action.equalsIgnoreCase("checkConnectionForAdmin")) {
-           if (_engine != null)
-               result = _engine.checkConnectionForAdmin(handle) ;
-           else result = _noEngine ;
-       }
        else if (validConnection(handle)) {
-           if (action.equalsIgnoreCase("getCaseEventIDsForSpec")) {
-               String specID = req.getParameter("specid");
-               result = _logMgr.getCaseEventIDsForSpec(specID) ;
+           if (action.equals("getAllSpecifications")) {
+               result = _logMgr.getAllSpecifications();
            }
-           else if (action.equalsIgnoreCase("getParentWorkItemEventsForCase")) {
-               String caseEventID = req.getParameter("eventid") ;
-               result = _logMgr.getParentWorkItemEventsForCase(caseEventID) ;
-           }
-           else if (action.equalsIgnoreCase("getParentWorkItemEventsForCaseID")) {
-               String caseID = req.getParameter("caseid") ;
-               result = _logMgr.getParentWorkItemEventsForCaseID(caseID) ;
-           }
-           else if (action.equalsIgnoreCase("getChildWorkItemEventsForParent")) {
-               String parentEventID = req.getParameter("eventid") ;
-               result = _logMgr.getChildWorkItemEventsForParent(parentEventID) ;
-           }
-           else if (action.equalsIgnoreCase("getCaseEventsForSpec")) {
-               String specID = req.getParameter("specid");
-               result = _logMgr.getCaseEventsForSpec(specID) ;
-           }
-           else if (action.equalsIgnoreCase("getAllSpecIDs")) {
-               result = _logMgr.getAllSpecIDs();
-           }
-           else if (action.equalsIgnoreCase("getAllCaseEventIDs")) {
-               String eventType = req.getParameter("eventtype");
-               result = _logMgr.getAllCaseEventIDs(eventType);
-           }
-           else if (action.equalsIgnoreCase("getCaseEventTime")) {
-               String eventType = req.getParameter("eventtype");
-               if (eventType != null) {
-                   String caseID = req.getParameter("caseid") ;
-                   result = _logMgr.getCaseEventTime(caseID, eventType);
+           else if (action.equals("getNetInstancesOfSpecification")) {
+               if (key != null) {
+                   result = _logMgr.getNetInstancesOfSpecification(new Long(key)) ;
                }
                else {
-                   String caseEventID = req.getParameter("eventid") ;
-                   result = _logMgr.getCaseEventTime(caseEventID);                   
+                   String identifier = req.getParameter("identifier");
+                   String version = req.getParameter("version");
+                   String uri = req.getParameter("uri");
+                   YSpecificationID specID = new YSpecificationID(identifier, version, uri);
+                   result = _logMgr.getNetInstancesOfSpecification(specID) ;
                }
            }
-           else if (action.equalsIgnoreCase("getWorkItemDataForChildWorkItemEventID")) {
-               String childEventID = req.getParameter("eventid") ;
-               result = _logMgr.getChildWorkItemData(childEventID) ;
+           else if (action.equals("getCompleteCaseLogsForSpecification")) {
+               if (key != null) {
+                   result = _logMgr.getCompleteCaseLogsForSpecification(new Long(key)) ;
+               }
+               else {
+                   String identifier = req.getParameter("identifier");
+                   String version = req.getParameter("version");
+                   String uri = req.getParameter("uri");
+                   YSpecificationID specID = new YSpecificationID(identifier, version, uri);
+                   result = _logMgr.getCompleteCaseLogsForSpecification(specID) ;
+               }
+           }           
+           else if (action.equals("getCaseEvents")) {
+               if (key != null) {
+                   result = _logMgr.getCaseEvents(new Long(key));
+               }
+               else {
+                   String caseID = req.getParameter("caseid") ;
+                   result = _logMgr.getCaseEvents(caseID);
+               }
+           }
+           else if (action.equals("getDataForEvent")) {
+               result = _logMgr.getDataForEvent(new Long(key)) ;
+           }
+           else if (action.equals("getDataTypeForDataItem")) {
+               result = _logMgr.getDataTypeForDataItem(new Long(key)) ;
+           }
+           else if (action.equals("getTaskInstancesForCase")) {
+               String caseID = req.getParameter("caseid") ;
+               result = _logMgr.getTaskInstancesForCase(caseID);
+           }
+           else if (action.equals("getTaskInstancesForTask")) {
+               result = _logMgr.getTaskInstancesForTask(new Long(key));
+           }
+           else if (action.equals("getCaseEvent")) {
+               String event = req.getParameter("event");
+               String caseID = req.getParameter("caseid") ;
+               result = _logMgr.getCaseEvent(caseID, event);
+           }
+           else if (action.equals("getAllCasesStartedByService")) {
+               String name = req.getParameter("name") ;
+               result = _logMgr.getAllCasesStartedByService(name) ;
+           }
+           else if (action.equals("getAllCasesCancelledByService")) {
+               String name = req.getParameter("name") ;
+               result = _logMgr.getAllCasesCancelledByService(name) ;
+           }
+           else if (action.equals("getInstanceEvents")) {
+               result = _logMgr.getInstanceEvents(new Long(key)) ;
+           }
+           else if (action.equals("getCompleteCaseLog")) {
+               String caseID = req.getParameter("caseid") ;
+               result = _logMgr.getCompleteCaseLog(caseID) ;
            }
        }
        else throw new IOException("Invalid or disconnected session handle.");
@@ -131,7 +154,12 @@ public class YLogGateway extends HttpServlet {
 
 
     private boolean validConnection(String handle) {
-        String result = _engine.checkConnectionForAdmin(handle) ;
-        return result.equalsIgnoreCase("Permission Granted");
+        try {
+            String result = _engine.checkConnection(handle) ;
+            return result.equals("<success/>");
+        }
+        catch (Exception e) {
+            return false;
+        }
     }
 }

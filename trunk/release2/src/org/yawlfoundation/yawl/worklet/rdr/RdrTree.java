@@ -204,7 +204,7 @@ public class RdrTree {
     
     /** recursively adds each node to a String representation of the tree */
     private String toString(RdrNode root) {
-    	StringBuffer s = new StringBuffer() ;
+    	StringBuilder s = new StringBuilder() ;
     	String n = Library.newline ;
     	
         if ( root != null ) {                                   // base case

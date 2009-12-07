@@ -3,6 +3,7 @@ package org.yawlfoundation.yawl.resourcing.rsInterface;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
@@ -117,8 +118,8 @@ public class ResourceMarshaller {
 
     public String marshallSpecificationData(SpecificationData specData) {
         StringBuilder xml = new StringBuilder("<specificationData>") ;
-        if (specData != null) {
-            xml.append(StringUtil.wrap(specData.getID(), "id"));
+        xml.append(StringUtil.wrap(specData.getID().getIdentifier(), "id"));
+        xml.append(StringUtil.wrap(specData.getID().getUri(), "uri"));
 
             if (specData.getName() != null) {
                 xml.append(StringUtil.wrap(specData.getName(), "name"));
@@ -140,7 +141,7 @@ public class ResourceMarshaller {
             xml.append(StringUtil.wrap(specData.getSchemaVersion(),"version"));
             xml.append(StringUtil.wrap(specData.getSpecVersion(), "specversion"));
             xml.append(StringUtil.wrap(specData.getStatus(), "status"));
-        }
+   
         xml.append("</specificationData>");
         return xml.toString() ;
     }
@@ -161,9 +162,11 @@ public class ResourceMarshaller {
 
     public SpecificationData unmarshallSpecificationData(String xml) {
         SpecificationData result = null;
+        YSpecificationID specID = null;
         if (xml != null) {
             Element specElement = JDOMUtil.stringToElement(xml);
             String id = specElement.getChildText("id");
+            String uri = specElement.getChildText("uri");
             String name = specElement.getChildText("name");
             String doco = specElement.getChildText("documentation");
             String status = specElement.getChildText("status");
@@ -171,7 +174,8 @@ public class ResourceMarshaller {
             String rootNetID = specElement.getChildText("rootNetID");
             String specVersion = specElement.getChildText("specversion");
             if (id != null && status != null) {
-                result = new SpecificationData(id, name, doco, status, version);
+                specID = new YSpecificationID(id, specVersion, uri);
+                result = new SpecificationData(specID, name, doco, status, version);
                 result.setRootNetID(rootNetID);
                 result.setSpecVersion(specVersion);
                 Element inputParams = specElement.getChild("params");

@@ -40,7 +40,7 @@ public class YStateInspector {
             YIdentifier identifier = (YIdentifier) childIter.next();
             allLocations.addAll(identifier.getLocations());
         }
-        StringBuffer stateText = new StringBuffer();
+        StringBuilder stateText = new StringBuilder();
         for (Iterator locationsIter = allLocations.iterator(); locationsIter.hasNext();) {
             YNetElement element = (YNetElement) locationsIter.next();
             if (element instanceof YCondition) {

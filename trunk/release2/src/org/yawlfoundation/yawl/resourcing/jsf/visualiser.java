@@ -230,7 +230,7 @@ public class visualiser extends AbstractPageBean {
 
 
     private void completeWorkItem(WorkItemRecord wir, Participant p) {
-        String result = _rm.checkinItem(p, wir, _sb.getSessionhandle());
+        String result = _rm.checkinItem(p, wir);
         if (_rm.successful(result))
             _sb.removeWarnedForNonEdit(wir.getID());
         else

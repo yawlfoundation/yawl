@@ -311,13 +311,14 @@ public class DynFormValidator {
 
 
     private void addErrorMessage(DynFormField input, String value) {
-        String base = "The value '%s' is not valid for field '%s'. " +
-                      "This field requires a value of '%s' type";
-        String msg = String.format(base, value, input.getName(),
-                                       input.getDataTypeUnprefixed());
-        if (input.hasRestriction())
-            msg += input.getRestriction().getToolTipExtn();
-
+        String msg = input.getAlertText();
+        if (msg == null) {
+            String base = "The value '%s' is not valid for field '%s'. " +
+                          "This field requires a value of '%s' type";
+            msg = String.format(base, value, input.getName(), input.getDataTypeUnprefixed());
+            if (input.hasRestriction())
+                msg += input.getRestriction().getToolTipExtn();
+        }
         _msgPanel.error(msg + ".\n");
     }
 

@@ -9,23 +9,22 @@
 
 package org.yawlfoundation.yawl.elements.state;
 
-import org.yawlfoundation.yawl.elements.*;
-import org.yawlfoundation.yawl.unmarshal.YMarshal;
-import org.yawlfoundation.yawl.exceptions.YSyntaxException;
-import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
-import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.yawlfoundation.yawl.util.StringUtil;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+import org.jdom.JDOMException;
+import org.yawlfoundation.yawl.elements.*;
+import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
+import org.yawlfoundation.yawl.exceptions.YSyntaxException;
+import org.yawlfoundation.yawl.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
-
-import org.jdom.JDOMException;
 
 /**
  * 
@@ -66,12 +65,12 @@ public class TestYMarking extends TestCase{
             _conditionArr[i] = new YCondition("ct"+i, "YConditionInterface " + i, null);
         }
         YIdentifier id1, id2, id3, id4, id5, id6;
-        id1 = new YIdentifier();
-        id2 = new YIdentifier();
-        id3 = new YIdentifier();
-        id4 = new YIdentifier();
-        id5 = new YIdentifier();
-        id6 = new YIdentifier();
+        id1 = new YIdentifier(null);
+        id2 = new YIdentifier(null);
+        id3 = new YIdentifier(null);
+        id4 = new YIdentifier(null);
+        id5 = new YIdentifier(null);
+        id6 = new YIdentifier(null);
 
         id1.addLocation(null, _conditionArr[0]);
         id1.addLocation(null, _conditionArr[1]);
@@ -121,18 +120,18 @@ public class TestYMarking extends TestCase{
         _xorJoinXorSplit = new YAtomicTask("xorXor", xor, xor, null);
         _andJoinOrSplit = new YAtomicTask("andOr", and, or, null);
 
-        YIdentifier id = new YIdentifier();
+        YIdentifier id = new YIdentifier(null);
         _orJoin = new YAtomicTask("orJ", or, and, null);
         for(int i = 0; i < 3; i++){
-            _conditionArr[i].setPostset(new YFlow(_conditionArr[i], _xorJoinAndSplit));
-            _conditionArr[i + 3].setPostset(new YFlow(_conditionArr[i + 3], _orJoin));
-            _conditionArr[i].setPostset(new YFlow(_conditionArr[i], _xorJoinOrSplit));
-            _conditionArr[i].setPostset(new YFlow(_conditionArr[i], _xorJoinXorSplit));
-            _conditionArr[i].setPostset(new YFlow(_conditionArr[i], _andJoinOrSplit));
-            _xorJoinAndSplit.setPostset(new YFlow(_xorJoinAndSplit, _conditionArr[i + 3]));
-            _xorJoinOrSplit .setPostset(new YFlow(_xorJoinOrSplit, _conditionArr[i + 3]));
-            _xorJoinXorSplit.setPostset(new YFlow(_xorJoinXorSplit, _conditionArr[i + 3]));
-            _andJoinOrSplit .setPostset(new YFlow(_andJoinOrSplit, _conditionArr[i + 3]));
+            _conditionArr[i].addPostset(new YFlow(_conditionArr[i], _xorJoinAndSplit));
+            _conditionArr[i + 3].addPostset(new YFlow(_conditionArr[i + 3], _orJoin));
+            _conditionArr[i].addPostset(new YFlow(_conditionArr[i], _xorJoinOrSplit));
+            _conditionArr[i].addPostset(new YFlow(_conditionArr[i], _xorJoinXorSplit));
+            _conditionArr[i].addPostset(new YFlow(_conditionArr[i], _andJoinOrSplit));
+            _xorJoinAndSplit.addPostset(new YFlow(_xorJoinAndSplit, _conditionArr[i + 3]));
+            _xorJoinOrSplit .addPostset(new YFlow(_xorJoinOrSplit, _conditionArr[i + 3]));
+            _xorJoinXorSplit.addPostset(new YFlow(_xorJoinXorSplit, _conditionArr[i + 3]));
+            _andJoinOrSplit .addPostset(new YFlow(_andJoinOrSplit, _conditionArr[i + 3]));
             _conditionArr[i] .add(null, id);
         }
         _marking7 = new YMarking(id);
@@ -143,14 +142,14 @@ public class TestYMarking extends TestCase{
         specification = (YSpecification) YMarshal.
                             unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
         _loopedNet  = specification.getRootNet();
-        id = new YIdentifier();
+        id = new YIdentifier(null);
         id.addLocation(null, (YCondition)_loopedNet.getNetElement("c{w_d}"));
         _marking8 = new YMarking(id);
-        id = new YIdentifier();
+        id = new YIdentifier(null);
         _marking9 = new YMarking(id);
         id.addLocation(null, (YCondition)_loopedNet.getNetElement("cA"));
         _marking10 = new YMarking(id);
-        id = new YIdentifier();
+        id = new YIdentifier(null);
         id.addLocation(null, (YCondition)_loopedNet.getNetElement("i-top"));
         _marking11 = new YMarking(id);
     }

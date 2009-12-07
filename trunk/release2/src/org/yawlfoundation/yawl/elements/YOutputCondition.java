@@ -36,33 +36,16 @@ public final class YOutputCondition extends YCondition {
     }
 
 
-    public List verify() {
-        List messages = new Vector();
-/*        if(_postset.size() > 0 || _preset.size() > 0){
-            if(this._postset.size() != 0){
-                messages.add(new YVerificationMessage(this, this
-                        + " postset must be empty: " + _postset.values()));
-            }
-            messages.addAll(verifyPreset());
+    public List<YVerificationMessage> verify() {
+        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
+
+        if (getPostsetElements().size() != 0) {
+            messages.add(new YVerificationMessage(this, this
+                    + " postset must be empty: " + getPostsetElements(), YVerificationMessage.ERROR_STATUS));
         }
-        else*/{
-            if (getPostsetElements().size() != 0) {
-                messages.add(new YVerificationMessage(this, this
-                        + " postset must be empty: " + getPostsetElements(), YVerificationMessage.ERROR_STATUS));
-            }
-            messages.addAll(verifyPresetFlows());
-        }
+        messages.addAll(verifyPresetFlows());
         return messages;
     }
-
-
-/*    public synchronized void add(YIdentifier identifier){
-        _bag.addIdentifier(identifier);
-/*        YNetRunner netRunner = YWorkItemRepository.getInstance().getNetRunner(identifier);
-        if(netRunner != null){
-            netRunner.completeWorkItemInTask()
-        }* /
-    }*/
 
 
     public Object clone() throws CloneNotSupportedException {
@@ -71,7 +54,7 @@ public final class YOutputCondition extends YCondition {
             return copyContainer.getNetElement(this.getID());
         }
         YOutputCondition copy = (YOutputCondition) super.clone();
-        copy._net.setOutputCondition((YOutputCondition) copy);
+        copy._net.setOutputCondition(copy);
         return copy;
     }
 }

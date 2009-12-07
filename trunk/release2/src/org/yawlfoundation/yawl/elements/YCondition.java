@@ -13,6 +13,7 @@ import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.util.YIdentifierBag;
+import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.util.List;
 
@@ -51,7 +52,7 @@ public class YCondition extends YExternalNetElement implements YConditionInterfa
     }
 
 
-    public List verify() {
+    public List<YVerificationMessage> verify() {
         return super.verify();
     }
 
@@ -77,7 +78,7 @@ public class YCondition extends YExternalNetElement implements YConditionInterfa
         return _bag.getAmount(identifier);
     }
 
-    public List getIdentifiers() {
+    public List<YIdentifier> getIdentifiers() {
         return _bag.getIdentifiers();
     }
 
@@ -115,23 +116,16 @@ public class YCondition extends YExternalNetElement implements YConditionInterfa
 
 
     public String toXML() {
-        StringBuffer xml = new StringBuffer();
+        String tag = "condition";
         if (this instanceof YInputCondition) {
-            xml.append("<inputCondition");
-        } else if (this instanceof YOutputCondition) {
-            xml.append("<outputCondition");
-        } else {
-            xml.append("<condition");
+            tag ="inputCondition";
         }
-        xml.append(" id=\"" + getID() + "\">");
+        else if (this instanceof YOutputCondition) {
+            tag = "outputCondition";
+        }
+        StringBuilder xml = new StringBuilder(String.format("<%s id=\"%s\">", tag, getID()));
         xml.append(super.toXML());
-        if (this instanceof YInputCondition) {
-            xml.append("</inputCondition>");
-        } else if (this instanceof YOutputCondition) {
-            xml.append("</outputCondition>");
-        } else {
-            xml.append("</condition>");
-        }
+        xml.append(String.format("</%s>", tag));
         return xml.toString();
     }
 }

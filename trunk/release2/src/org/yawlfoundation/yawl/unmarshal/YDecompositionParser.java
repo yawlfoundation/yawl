@@ -134,7 +134,7 @@ public class YDecompositionParser {
             YParameter yparameter = new YParameter(_decomposition, YParameter._INPUT_PARAM_TYPE);
             yparameter.setOrdering(i);
             parseParameter(inputParamElem, yparameter, _yawlNS, isBeta2Version());
-            decomposition.setInputParameter(yparameter);
+            decomposition.addInputParameter(yparameter);
         }
         List outputParamElems = decompElem.getChildren("outputParam", _yawlNS);
         for (int i = 0; i < outputParamElems.size(); i++) {
@@ -142,7 +142,7 @@ public class YDecompositionParser {
             YParameter yparameter = new YParameter(_decomposition, YParameter._OUTPUT_PARAM_TYPE);
             yparameter.setOrdering(i);
             parseParameter(outputParamElem, yparameter, _yawlNS, isBeta2Version());
-            decomposition.setOutputParameter(yparameter);
+            decomposition.addOutputParameter(yparameter);
         }
         List outputExpressions = decompElem.getChildren("outputExpression", _yawlNS);
         for (int i = 0; i < outputExpressions.size(); i++) {
@@ -217,7 +217,7 @@ public class YDecompositionParser {
         parseExternalTaskRoles(taskElem, task);
         parseNameAndDocumentation(task, taskElem);
 
-        if ((task != null) && (_version.equals(YSpecification._Version2_0))) {
+        if ((task != null) && (_version.equals(YSpecification.Version2_0))) {
             task.setResourcingSpecs(taskElem.getChild("resourcing", _yawlNS));
             parseTimerParameters(task, taskElem) ;
             parseCustomFormURL(task, taskElem) ;
@@ -546,7 +546,7 @@ public class YDecompositionParser {
      * @return whether this is a a beta 2 specification version or not.
      */
     private boolean isBeta2Version() {
-        return YSpecification._Beta2.equals(_version);
+        return YSpecification.Beta2.equals(_version);
     }
 
 
@@ -573,15 +573,7 @@ public class YDecompositionParser {
         String defaultValue = paramElem.getChildText("defaultValue", ns);
         if (defaultValue != null) parameter.setDefaultValue(defaultValue);
 
-        /**
-         * Store any attributes defined against the parameter
-         */
-        List attrs = paramElem.getAttributes();
-        for(int i=0; i< attrs.size(); i++)
-        {
-            Attribute attr = (Attribute)attrs.get(i);
-            parameter.addAttribute(attr.getName(), attr.getValue());
-        }        
+        parameter.getAttributes().fromJDOM(paramElem.getAttributes());
     }
 
      private void parseExternalInteraction(YDecomposition decomposition,
@@ -631,12 +623,8 @@ public class YDecompositionParser {
                         flow.setEvalOrdering(flowStruct._predicateOrdering);
                         flow.setIsDefaultFlow(flowStruct._isDefaultFlow);
                         flow.setXpathPredicate(flowStruct._flowPredicate);
-
-                        /**
-                         * AJH: Added to support flow/link labels
-                         */
                         flow.setDocumentation(flowStruct._label);
-                        currentNetElement.setPostset(flow);
+                        currentNetElement.addPostset(flow);
                     }
                 }
             }

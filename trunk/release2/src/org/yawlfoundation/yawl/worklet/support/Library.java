@@ -118,7 +118,7 @@ public class Library {
 	
 	/** returns a string of characters of length 'len' */  	
    	public static String getSepChars(int len) {
-   		StringBuffer sb = new StringBuffer(len) ;
+   		StringBuilder sb = new StringBuilder(len) ;
 	    for (int i=0;i<len;i++) sb.append('/') ;
 	    return sb.toString() ;
    	}
@@ -132,7 +132,7 @@ public class Library {
      */ 	
    	public static String FileToString(String fName) {
        String fLine ;
-       StringBuffer result = new StringBuffer();
+       StringBuilder result = new StringBuilder();
 
        try {
        	  if (! fileExists(fName)) return null ;     // don't go further if no file
@@ -181,8 +181,8 @@ public class Library {
 
 //===========================================================================//
 
-    /** appends a formatted line with the passed title and value to the StringBuffer */
-    public static StringBuffer appendLine(StringBuffer s, String title, String item){
+    /** appends a formatted line with the passed title and value to the StringBuilder */
+    public static StringBuilder appendLine(StringBuilder s, String title, String item){
         if (title == null) title = "null" ;
         if (item == null) item = "null" ;
         s.append(title); s.append(": "); s.append(item); s.append(newline);
@@ -191,8 +191,8 @@ public class Library {
 
 //===========================================================================//
 
-    /** appends an XML formatted line with the passed tag and value to the StringBuffer */
-    public static StringBuffer appendXML(StringBuffer s, String tag, String value) {
+    /** appends an XML formatted line with the passed tag and value to the StringBuilder */
+    public static StringBuilder appendXML(StringBuilder s, String tag, String value) {
         String open  = '<' + tag + '>' ;
         String close = "</" + tag + '>';
 

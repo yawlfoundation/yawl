@@ -60,13 +60,17 @@ public class LogMiner {
         String result ;
         List rows ;
         if (_reader != null) {
+            String keyField = (specID.getIdentifier() != null) ? "identifier" : "uri";
             StringBuilder template = new StringBuilder("FROM ResourceEvent AS re ");
-            template.append("WHERE re._specID='%s' AND re._specVersion='%s' ")
-                    .append("AND re._taskID='%s' AND re._participantID='%s' ")
+            template.append("WHERE re._specID.%s='%s' ")
+                    .append("AND re._specID.version.version='%s' ")
+                    .append("AND re._taskID='%s' ")
+                    .append("AND re._participantID='%s' ")
                     .append("ORDER BY re._itemID, re._timeStamp");
 
-            String query = String.format(template.toString(), specID.getSpecName(),
-                                    specID.getVersionAsString(), taskName, participantID);
+            String query = String.format(template.toString(), keyField, specID.getKey(),
+                                   specID.getVersionAsString(), taskName, participantID);
+
             rows = _reader.execQuery(query) ;
             if (rows != null) {
                 StringBuilder xml = new StringBuilder() ;

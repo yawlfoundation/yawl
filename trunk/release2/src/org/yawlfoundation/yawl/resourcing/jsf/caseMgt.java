@@ -373,7 +373,7 @@ public class caseMgt extends AbstractPageBean {
 
         // take postback action on case launch
         if (_sb.isCaseLaunch()) {
-            beginCase(_sb.getLoadedSpecListChoice(), _sb.getSessionhandle());
+            beginCase(_sb.getLoadedSpecListChoice());
         }
         updateRunningCaseList();
         _sb.refreshLoadedSpecs();
@@ -488,7 +488,7 @@ public class caseMgt extends AbstractPageBean {
         if (BOF != -1 && EOF != -1) {
             fileContents = fileContents.substring(BOF, EOF + 19) ;         // trim file
             String handle = _sb.getSessionhandle() ;
-            String result = _rm.uploadSpecification(fileContents, fileName, handle);
+            String result = _rm.uploadSpecification(fileContents, fileName);
             if (! _rm.successful(result)) {
                 if (result.indexOf("<warning>") > -1)
                     msgPanel.warn(msgPanel.format((result)));
@@ -564,8 +564,7 @@ public class caseMgt extends AbstractPageBean {
     private String cancelCase(String caseID) {
         try {
             _sb.setRunningCaseListChoice(null) ;
-            String handle = _sb.getSessionhandle() ;
-            return _rm.cancelCase(caseID, handle);
+            return _rm.cancelCase(caseID);
         }
         catch (IOException ioe) {
             msgPanel.error("IOException when attempting to cancel case") ;
@@ -577,8 +576,7 @@ public class caseMgt extends AbstractPageBean {
     // unloads the chosen spec from the engine
     private String unloadSpec(SpecificationData spec) {
         try {
-            String handle = _sb.getSessionhandle() ;
-            return _rm.unloadSpecification(spec.getID(), spec.getSpecVersion(), handle);
+            return _rm.unloadSpecification(spec.getID());
         }
         catch (IOException ioe) {
             msgPanel.error("IOException when attempting to unload specification") ;
@@ -636,9 +634,7 @@ public class caseMgt extends AbstractPageBean {
             else {
 
                 // no case params to worry about
-                YSpecificationID ySpecID = new YSpecificationID(specData.getID(),
-                                                                specData.getSpecVersion());
-                beginCase(ySpecID, _sb.getSessionhandle());
+                beginCase(specData.getID());
             }
         }
         return null ;
@@ -646,7 +642,7 @@ public class caseMgt extends AbstractPageBean {
 
 
     // starts a new case (either directly from startCase() or via a postback action)
-    private void beginCase(YSpecificationID specID, String handle) {
+    private void beginCase(YSpecificationID specID) {
         String caseData = null ;
         String result ;
         if (_sb.isCaseLaunch()) {
@@ -654,14 +650,14 @@ public class caseMgt extends AbstractPageBean {
             _sb.setCaseLaunch(false);
         }
         try {
-            result = _rm.launchCase(specID, caseData, handle);
+            result = _rm.launchCase(specID, caseData);
             if (_rm.successful(result))
                 updateRunningCaseList();
             else
                 msgPanel.error("Unsuccessful case start:" + msgPanel.format(result)) ;
         }
         catch (IOException ioe) {
-            msgPanel.error("IOException when attempting to unload specification") ;
+            msgPanel.error("IOException when attempting to launch case") ;
         }
     }
 
@@ -669,15 +665,18 @@ public class caseMgt extends AbstractPageBean {
     // refreshes list of running cases
     private void updateRunningCaseList() {
         String handle = _sb.getSessionhandle() ;
-        Set<SpecificationData> specDataSet = _rm.getSpecList(handle) ;
+        Set<SpecificationData> specDataSet = _rm.getSpecList() ;
         if (specDataSet != null) {
             ArrayList<String> caseList = new ArrayList<String>();
             for (SpecificationData specData : specDataSet) {
-                List<String> caseIDs = _rm.getRunningCasesAsList(specData.getSpecID(), handle);
-                for (String caseID : caseIDs) {
-                    String line = String.format("%s: %s (%s)", caseID, specData.getID(),
-                                                specData.getSpecVersion());
-                    caseList.add(line) ;
+                List<String> caseIDs = _rm.getRunningCasesAsList(specData.getID());
+                if (caseIDs != null) {
+                    for (String caseID : caseIDs) {
+                        String line = String.format("%s: %s (%s)", caseID,
+                                                    specData.getID().getUri(),
+                                                    specData.getSpecVersion());
+                        caseList.add(line) ;
+                    }    
                 }
             }
 

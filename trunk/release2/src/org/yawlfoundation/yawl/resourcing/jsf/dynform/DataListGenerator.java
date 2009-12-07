@@ -9,14 +9,11 @@
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
 import com.sun.rave.web.ui.component.*;
-import org.jdom.Element;
-import org.jdom.filter.ElementFilter;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.faces.component.UIComponent;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -36,17 +33,18 @@ public class DataListGenerator {
         _factory = factory;
     }
 
-    public String generate(PanelLayout panel) {
-        return generateDataList(panel) ;
+    
+    public String generate(PanelLayout panel, List<DynFormField> fieldList) {
+        return generateDataList(panel, fieldList) ;
     }
 
     
-    private String generateDataList(PanelLayout panel) {
+    private String generateDataList(PanelLayout panel, List<DynFormField> fieldList) {
         StringBuilder result = new StringBuilder() ;
         List children = panel.getChildren();
         String parentTag = "";
         int start = 1;              // by default ignore first child (static text header)
-        int stop = children.size();               // by default process all components
+        int stop = children.size();                 // by default process all components
 
         // a simpletype choice outer container has a radio button as first child
         Object o = children.get(0);
@@ -72,8 +70,11 @@ public class DataListGenerator {
             UIComponent child = (UIComponent) children.get(i) ;
 
             // if subpanel, build inner output recursively
-            if (child instanceof SubPanel)
-                result.append(generateDataList((PanelLayout) child)) ;
+            if (child instanceof SubPanel) {
+                DynFormField field = getField(child, fieldList);
+                result.append(generateDataList((PanelLayout) child,
+                                 field.getSubFieldList())) ;
+            }
 
             // if a complextype choice, then deal with it
             else if (child instanceof RadioButton) {
@@ -82,8 +83,10 @@ public class DataListGenerator {
             }
 
             // each label is a reference to an input field
-            else if (child instanceof Label)
-                result.append(getFieldValue(panel, (Label) child)) ;
+            else if (child instanceof Label) {
+                DynFormField field = getField(child, fieldList);
+                result.append(getFieldValue(panel, (Label) child, field)) ;
+            }
         }
 
         // close the xml and return
@@ -92,84 +95,65 @@ public class DataListGenerator {
     }
 
 
-    private String getFieldValue(PanelLayout panel, Label label) {
-        String tag = (String) label.getText();
-        tag = tag.trim().replaceFirst(":", "");               // remove prompt
+    private String getFieldValue(PanelLayout panel, Label label, DynFormField field) {
 
         // get the component this label is 'for', then get its value
         String forID = label.getFor();
         String value = "";
-        UIComponent field = panel.findComponent(forID);
-        if (field instanceof TextField)
-            value = JDOMUtil.encodeEscapes((String) ((TextField) field).getValue());
-        else if (field instanceof Checkbox)
-           value =  ((Checkbox) field).getValue().toString();
-        else if (field instanceof Calendar) {
-            Date date = ((Calendar) field).getSelectedDate();
+        UIComponent component = panel.findComponent(forID);
+        if (component instanceof TextField)
+            value = JDOMUtil.encodeEscapes((String) ((TextField) component).getValue());
+        else if (component instanceof Checkbox)
+           value =  ((Checkbox) component).getValue().toString();
+        else if (component instanceof Calendar) {
+            Date date = ((Calendar) component).getSelectedDate();
             if (date != null)
                 value = _sdf.format(date);
             else
                 value = null;
         }
-        else if (field instanceof DropDown)
-            value = (String) ((DropDown) field).getSelected();
+        else if (component instanceof DropDown)
+            value = (String) ((DropDown) component).getSelected();
 
-        return StringUtil.wrap(value, tag);
-
+        return formatField(value, field);
     }
 
 
-    private String normaliseDataList(String dataStr) {
-        if ((dataStr == null) || (dataStr.length() == 0)) return dataStr ;
+    private String formatField(String value, DynFormField field) {
 
-        Element data = JDOMUtil.stringToElement(dataStr);
-        return JDOMUtil.elementToStringDump(normaliseDataElement(data));
-    }
-
-
-    /**
-     * Collects child elements of the same name at the outermost hierarchy and
-     * consolidates their contents into a single child element
-     * @param data the data element to normalise
-     * @return the normalised data element
-     */
-    private Element normaliseDataElement(Element data) {
-        List<String> processedNames = new ArrayList<String>();
-        Element result = new Element(data.getName());
-        List children = data.getChildren();
-
-        // get the child elements (if any)
-        if (children.size() > 0) {
-            for (Object objChild : children) {
-                String name = ((Element) objChild).getName();
-                if (! processedNames.contains(name)) {            // each name once only
-
-                    // get all child elements with matching name
-                    List matches = data.getContent(new ElementFilter(name));
-                    Element subResult = new Element(name);
-                    for (Object match : matches) {
-
-                        // recurse for lower level content
-                        Element recursedElem = (Element) match;
-                        subResult.addContent(recursedElem.cloneContent()) ;
-                    }
-                    processedNames.add(name);
-                    result.addContent(subResult);
-                }
-            }
+        // if no value & minOccurs=0 then don't output anything
+        if (((value == null) || (value.length() == 0)) && field.hasZeroMinimum()) {
+            return "";
         }
-        else result.setText(data.getText());                         // recursion end
-
-        return result;
+        else return StringUtil.wrap(value, field.getName());        
     }
 
 
     private boolean headedPanel(PanelLayout panel) {
         List children = panel.getChildren();
-        if ((children != null) && (! children.isEmpty()))
-            return (children.get(0) instanceof StaticText);
-        else
-            return false;                              // empty subpanel
+        return (children != null) && (! children.isEmpty())
+                && (children.get(0) instanceof StaticText);
+    }
+
+
+    private DynFormField getField(UIComponent component, List<DynFormField> fieldList) {
+        String id;
+        if (component instanceof SubPanel) {
+            id = ((SubPanel) component).getName();
+            for (DynFormField field : fieldList) {
+                if (field.getName().equals(id))
+                    return field;
+            }
+        }
+        else {
+            id = (String) ((Label) component).getText();
+            id = id.replaceAll(":", "").trim();
+            for (DynFormField field : fieldList) {
+                if (field.getLabelText().equals(id))
+                    return field;
+            }
+        }
+        return null;
     }
 
 

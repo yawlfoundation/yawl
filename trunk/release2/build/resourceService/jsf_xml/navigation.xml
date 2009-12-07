@@ -60,6 +60,10 @@
             <to-view-id>/teamQueues.jsp</to-view-id>
         </navigation-case>
         <navigation-case>
+            <from-outcome>showExternalClients</from-outcome>
+            <to-view-id>/externalClients.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
             <from-outcome>showVisualiser</from-outcome>
             <to-view-id>/visualiser.jsp</to-view-id>
         </navigation-case>
@@ -101,6 +105,10 @@
         <navigation-case>
             <from-outcome>showTeamQueues</from-outcome>
             <to-view-id>/teamQueues.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showExternalClients</from-outcome>
+            <to-view-id>/externalClients.jsp</to-view-id>
         </navigation-case>
     </navigation-rule>
     <navigation-rule>
@@ -174,6 +182,10 @@
             <from-outcome>showTeamQueues</from-outcome>
             <to-view-id>/teamQueues.jsp</to-view-id>
         </navigation-case>
+        <navigation-case>
+            <from-outcome>showExternalClients</from-outcome>
+            <to-view-id>/externalClients.jsp</to-view-id>
+        </navigation-case>
     </navigation-rule>
     <navigation-rule>
         <from-view-id>/participantData.jsp</from-view-id>
@@ -208,6 +220,10 @@
         <navigation-case>
             <from-outcome>showTeamQueues</from-outcome>
             <to-view-id>/teamQueues.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showExternalClients</from-outcome>
+            <to-view-id>/externalClients.jsp</to-view-id>
         </navigation-case>
     </navigation-rule>
     <navigation-rule>
@@ -248,6 +264,10 @@
             <from-outcome>showTeamQueues</from-outcome>
             <to-view-id>/teamQueues.jsp</to-view-id>
         </navigation-case>
+        <navigation-case>
+            <from-outcome>showExternalClients</from-outcome>
+            <to-view-id>/externalClients.jsp</to-view-id>
+        </navigation-case>
     </navigation-rule>
     <navigation-rule>
         <from-view-id>/viewProfile.jsp</from-view-id>
@@ -282,6 +302,10 @@
         <navigation-case>
             <from-outcome>showTeamQueues</from-outcome>
             <to-view-id>/teamQueues.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showExternalClients</from-outcome>
+            <to-view-id>/externalClients.jsp</to-view-id>
         </navigation-case>
     </navigation-rule>
     <navigation-rule>
@@ -318,6 +342,10 @@
             <from-outcome>showTeamQueues</from-outcome>
             <to-view-id>/teamQueues.jsp</to-view-id>
         </navigation-case>
+        <navigation-case>
+            <from-outcome>showExternalClients</from-outcome>
+            <to-view-id>/externalClients.jsp</to-view-id>
+        </navigation-case>
     </navigation-rule>
     <navigation-rule>
         <from-view-id>/teamQueues.jsp</from-view-id>
@@ -352,6 +380,49 @@
         <navigation-case>
             <from-outcome>showEditOrgData</from-outcome>
             <to-view-id>/orgDataMgt.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showExternalClients</from-outcome>
+            <to-view-id>/externalClients.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+    <navigation-rule>
+        <from-view-id>/externalClients.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>loginPage</from-outcome>
+            <to-view-id>/Login.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showCaseMgt</from-outcome>
+            <to-view-id>/caseMgt.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showUserQueues</from-outcome>
+            <to-view-id>/userWorkQueues.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showEditUserData</from-outcome>
+            <to-view-id>/participantData.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showAdminQueues</from-outcome>
+            <to-view-id>/adminQueues.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showViewProfile</from-outcome>
+            <to-view-id>/viewProfile.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showEditOrgData</from-outcome>
+            <to-view-id>/orgDataMgt.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showTeamQueues</from-outcome>
+            <to-view-id>/teamQueues.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showServiceMgt</from-outcome>
+            <to-view-id>/customServices.jsp</to-view-id>
         </navigation-case>
     </navigation-rule>
     <navigation-rule>

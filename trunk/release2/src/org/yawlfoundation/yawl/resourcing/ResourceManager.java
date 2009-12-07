@@ -12,9 +12,8 @@ import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
-import org.yawlfoundation.yawl.authentication.User;
+import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
-import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -26,6 +25,8 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_Environment
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
 import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
+import org.yawlfoundation.yawl.logging.YLogDataItem;
+import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.resourcing.allocators.AllocatorFactory;
 import org.yawlfoundation.yawl.resourcing.codelets.AbstractCodelet;
 import org.yawlfoundation.yawl.resourcing.codelets.CodeletExecutionException;
@@ -39,15 +40,15 @@ import org.yawlfoundation.yawl.resourcing.datastore.eventlog.LogMiner;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataSource;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataSourceFactory;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.EmptyDataSource;
-import org.yawlfoundation.yawl.resourcing.datastore.orgdata.HibernateImpl;
+import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.filters.FilterFactory;
 import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
 import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
-import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
-import org.yawlfoundation.yawl.resourcing.resource.*;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ConnectionCache;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayServer;
 import org.yawlfoundation.yawl.resourcing.util.*;
@@ -69,13 +70,13 @@ import java.util.*;
  * of tasks to participants.
  *
  *  @author Michael Adams
- *  v0.1, 03/08/2007
+ *  03/08/2007
  */
 
 public class ResourceManager extends InterfaceBWebsideController {
 
     // store of organisational resources and their attributes
-    private DataSource.ResourceDataSet _ds ;
+    private ResourceDataSet _orgDataSet;
 
     // cache of 'live' workitems
     private WorkItemCache _workItemCache = new WorkItemCache();
@@ -115,7 +116,6 @@ public class ResourceManager extends InterfaceBWebsideController {
     private Logger _log ;                                 // debug log4j file
     private boolean _persisting ;                         // flag to enable persistence
     private boolean _isNonDefaultOrgDB ;                  // flag for non-yawl org model
-    private boolean _allowExternalOrgDataMods = true;     // is non-def. org data R/W?
     private final Object _mutex = new Object();           // for synchronizing ib events
 
     private Timer _orgDataRefreshTimer;               // if set, reloads db at intervals
@@ -129,18 +129,12 @@ public class ResourceManager extends InterfaceBWebsideController {
     private boolean _persistPiling ;
     private boolean _visualiserEnabled;
 
-    // authority for write access to org data entities
-    private enum ResUnit {Participant, Role, Capability, OrgGroup, Position}
-    private boolean[] _dsEditable = {true, true, true, true, true} ;
-
     // Mappings for specid -> version -> taskid <-> resourceMap
     private ResourceMapCache _resMapCache = new ResourceMapCache() ;
 
     // required data members for interfacing with the engine
-    private String _user = "resourceService" ;
+    private String _user = "DefaultWorklist" ;
     private String _password = "resource" ;
-    private String _adminUser = "admin" ;
-    private String _adminPassword = "YAWL" ;
     private String _engineSessionHandle = null ;
     private String _serviceURI = null;
     private String _exceptionServiceURI = null ;
@@ -171,6 +165,10 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
+    /*********************************************************************************/
+
+    // Initialisation methods //
+
     public void initOrgDataSource(String dataSourceClassName, int refreshRate) {
         _log.info("Loading org data...");
 
@@ -194,6 +192,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                       "Check datasource settings in 'web.xml'") ;
     }
 
+    
     public void initInterfaceClients(String engineURI, String exceptionURI) {
         _interfaceAClient = new InterfaceA_EnvironmentBasedClient(
                                                  engineURI.replaceFirst("/ib", "/ia"));
@@ -210,7 +209,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         _serviceURI = "http://localhost:8080/resourceService/ib";         // a default
         if (connected()) {
             Set<YAWLServiceReference> services =
-                    _interfaceAClient.getRegisteredYAWLServices(_engineSessionHandle) ;
+                    _interfaceAClient.getRegisteredYAWLServices(getEngineSessionHandle()) ;
             if (services != null) {
                 for (YAWLServiceReference service : services) {
                     if (service.getURI().indexOf("resourceService") > -1) {
@@ -221,6 +220,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
     }
 
+    
     public String getServiceURI() {
         if (_serviceURI == null) setServiceURI();
         return _serviceURI;
@@ -238,7 +238,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public void setAllowExternalOrgDataMods(boolean allow) {
-        _allowExternalOrgDataMods = allow;
+        _orgDataSet.setAllowExternalOrgDataMods(allow);
     }
     
     public void initRandomOrgDataGeneration(int count) {
@@ -273,6 +273,13 @@ public class ResourceManager extends InterfaceBWebsideController {
         return _exceptionServiceURI;
     }
 
+    public Logger getLogger() { return _log ; }
+
+
+    /*********************************************************************************/
+
+    // Server methods (event announcements) //
+
     public void announceResourceUnavailable(WorkItemRecord wir) {
         try {
             if (_gatewayServer != null) _gatewayServer.announceResourceUnavailable(wir);
@@ -282,7 +289,6 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
     }
 
-    public Logger getLogger() { return _log ; }
 
     /*********************************************************************************/
 
@@ -347,6 +353,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public void handleEngineInitialisationCompletedEvent() {
         if (connected()) {
+            setServiceURI();
             restoreAutoTasks();
             sanitiseCaches();
         }    
@@ -531,38 +538,24 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     // ORG DATA METHODS //
 
-
-    public boolean isDataEditable(ResUnit resource) {
-        return _allowExternalOrgDataMods || _dsEditable[resource.ordinal()];
-    }
-
-    public boolean isDataEditable(String resName) {
-        return isDataEditable(getResUnit(resName));
-    }
-
-    public void setDataEditable(ResUnit resource, boolean editable) {
-        _dsEditable[resource.ordinal()] = editable;
-    }
-
-    public ResUnit getResUnit(String name) {
-        return ResUnit.valueOf(name);
-    }
-
-
     public boolean isDefaultOrgDB() {
         return ! _isNonDefaultOrgDB;
+    }
+
+    public ResourceDataSet getOrgDataSet() {
+        return _orgDataSet;
     }
 
     /** Loads all the org data from db into the ResourceDataSet mappings */
     public void loadResources() {
         if (_orgdb != null) {
-            _ds = _orgdb.loadResources() ;
+            _orgDataSet = _orgdb.loadResources() ;
 
             // complete mappings for non-default org data backends
             if (_isNonDefaultOrgDB) finaliseNonDefaultLoad() ;
 
             // rebuild a work queue set and userid keymap for each participant
-            for (Participant p : _ds.participantMap.values()) {
+            for (Participant p : _orgDataSet.getParticipants()) {
                 p.createQueueSet(_persisting) ;
                 addUserKey(p) ;
             }
@@ -570,7 +563,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             _resAdmin.createWorkQueues(_persisting);   // ... and the administrator
         }
         else {
-            _ds = new EmptyDataSource().getDataSource();
+            _orgDataSet = new EmptyDataSource().getDataSource();
         }
     }
 
@@ -585,7 +578,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         // check local cache = engine records
         try {
             List<WorkItemRecord> engineItems =
-                  _interfaceBClient.getCompleteListOfLiveWorkItems(_engineSessionHandle);
+                  _interfaceBClient.getCompleteListOfLiveWorkItems(getEngineSessionHandle());
             List<String> engineIDs = new ArrayList<String>();
             List<WorkItemRecord> missingParents = new ArrayList<WorkItemRecord>();
 
@@ -611,11 +604,11 @@ public class ResourceManager extends InterfaceBWebsideController {
                 if ((children == null) || (children.isEmpty())) {            // no kids
                     _workItemCache.add(wir);
                     _log.warn("Engine workItem '" + wir.getID() +
-                              "' was missing from local cache and has been added.");                   
+                              "' was missing from local cache and has been added.");
                 }
             }
 
-            // now check each item stored locally is also in engine
+            // now check that each item stored locally is also in engine
             Set<String> missingIDs = new HashSet<String>();
             for (String cachedID : _workItemCache.keySet()) {
                 if (! engineIDs.contains(cachedID))
@@ -635,7 +628,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         cleanseQueues();                       // removed any uncached items from queues
 
         // finally, rebuild all 'offered' datasets
-       for (Participant p : _ds.participantMap.values()) {
+       for (Participant p : _orgDataSet.getParticipants()) {
            QueueSet qSet = p.getWorkQueues();
            if (qSet != null) {
                WorkQueue wq = qSet.getQueue(WorkQueue.OFFERED);
@@ -649,7 +642,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     private void cleanseQueues() {
-        for (Participant p : _ds.participantMap.values()) {
+        for (Participant p : _orgDataSet.getParticipants()) {
             QueueSet qSet = p.getWorkQueues();
             if (qSet != null) {
                 qSet.cleanseAllQueues(_workItemCache);
@@ -661,43 +654,22 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     private void finaliseNonDefaultLoad() {
-        HibernateImpl yawlDB = new HibernateImpl() ;
-        
+
         // for each entity set not supplied by the backend, load the service defaults.
         // At a minimum, the datasource must supply a set of participants
-        if (_ds.participantMap.isEmpty()){
+        if (_orgDataSet.getParticipants().isEmpty()) {
             _log.error("Participant set not loaded - service will disable.") ;
             _serviceEnabled = false ;
             return ;
         }
-        else
-            // external data - do not allow modify
-            setDataEditable(ResUnit.Participant, false) ;
 
-        // check roles
-        if (_ds.roleMap.isEmpty())
-            _ds.roleMap = yawlDB.loadRoles();
-        else setDataEditable(ResUnit.Role, false) ;
-
-        // check capbilities
-        if (_ds.capabilityMap.isEmpty())
-            _ds.capabilityMap = yawlDB.loadCapabilities();
-        else setDataEditable(ResUnit.Capability, false) ;
-
-        // check orgGroups
-        if (_ds.orgGroupMap.isEmpty())
-            _ds.orgGroupMap = yawlDB.loadOrgGroups();
-        else setDataEditable(ResUnit.OrgGroup, false) ;
-
-        // check positions
-        if (_ds.positionMap.isEmpty())
-            _ds.positionMap = yawlDB.loadPositions();
-        else setDataEditable(ResUnit.Position, false) ;
+        // check other entities
+        _orgDataSet.augmentDataSourceAsRequired();
 
         // restore user privileges for each participant
         HashMap<String,UserPrivileges> upMap =
                 _persister.selectMap(HibernateEngine.tblUserPrivileges) ;
-        for (Participant p : _ds.participantMap.values()) {
+        for (Participant p : _orgDataSet.getParticipants()) {
             UserPrivileges up = upMap.get(p.getID());
             if (up != null) p.setUserPrivileges(up);
             else p.setUserPrivileges(new UserPrivileges(p.getID()));
@@ -718,8 +690,8 @@ public class ResourceManager extends InterfaceBWebsideController {
                 if (wq.getOwnerID().equals("admin"))
                     _resAdmin.restoreWorkQueue(wq, _workItemCache, _persisting);
                 else {
-                    if (_ds != null) {
-                        Participant p = _ds.participantMap.get(wq.getOwnerID()) ;
+                    if (_orgDataSet != null) {
+                        Participant p = _orgDataSet.getParticipant(wq.getOwnerID()) ;
                         p.restoreWorkQueue(wq, _workItemCache, _persisting);
                     }
                 }
@@ -754,130 +726,51 @@ public class ResourceManager extends InterfaceBWebsideController {
      * @param p the new Participant
      */
     public String addParticipant(Participant p) {
-        if (! isDataEditable(ResUnit.Participant)) {
-            return fail("External Participant dataset is read-only");
-        }
 
         // check for userid uniqueness
-        if (isKnownUserID(p.getUserID())) {
-            return fail("User id '" + p.getUserID() + "' is already in use");
-        }
+        if (! isKnownUserID(p.getUserID())) {
+            String newID = _orgDataSet.addParticipant(p);
+            if (! newID.startsWith("<fail")) {
+                p.createQueueSet(_persisting) ;
 
-        // persist it to the data store
-        String newID = _orgdb.insert(p) ;
-        p.createQueueSet(_persisting) ;
-
-        // cleanup for non-default db
-        if (_isNonDefaultOrgDB) {
-            p.setID(newID);
-            if (_persisting) {
-                _persister.insert(p.getUserPrivileges());
-                _persister.insert(p.getWorkQueues());
-            }    
-        }
-        else _orgdb.update(p);
-
-        // ...and add it to the data set
-        _ds.participantMap.put(newID, p) ;
-        addUserKey(p);                                       // and the userid--pid map
-        return newID;
-    }
-
-
-    public String addRole(Role r) {
-        if (isDataEditable(ResUnit.Role)) {
-            String newID = _orgdb.insert(r) ;             // persist it
-            if (_isNonDefaultOrgDB) r.setID(newID);       // cleanup for non-default db
-            _ds.roleMap.put(newID, r) ;                   // ...and add it to the data set
+                // cleanup for non-default db
+                if (_isNonDefaultOrgDB) {
+                    p.setID(newID);
+                    if (_persisting) {
+                        _persister.insert(p.getUserPrivileges());
+                        _persister.insert(p.getWorkQueues());
+                    }
+                }
+                else _orgDataSet.updateParticipant(p);
+        
+                addUserKey(p);                                 // and the userid--pid map
+            }
             return newID;
         }
-        else return fail("External Role dataset is read-only");
-    }
-
-
-    public String addCapability(Capability c) {
-        if (isDataEditable(ResUnit.Capability)) {
-            String newID = _orgdb.insert(c) ;             // persist it
-            if (_isNonDefaultOrgDB) c.setID(newID);       // cleanup for non-default db
-            _ds.capabilityMap.put(newID, c) ;             // ...and add it to the data set
-            return newID;
-        }
-        else return fail("External Capability dataset is read-only");
-    }
-
-
-    public String addPosition(Position p) {
-        if (isDataEditable(ResUnit.Position)) {
-            String newID = _orgdb.insert(p) ;             // persist it
-            if (_isNonDefaultOrgDB) p.setID(newID);       // cleanup for non-default db
-            _ds.positionMap.put(newID, p) ;               // ...and add it to the data set
-            return newID;
-        }
-        else return fail("External Position dataset is read-only");
-    }
-
-
-    public String addOrgGroup(OrgGroup o) {
-        if (isDataEditable(ResUnit.OrgGroup)) {
-            String newID = _orgdb.insert(o) ;             // persist it
-            if (_isNonDefaultOrgDB) o.setID(newID);       // cleanup for non-default db
-            _ds.orgGroupMap.put(newID, o) ;               // ...and add it to the data set
-            return newID;
-        }
-        else return fail("External OrgGroup dataset is read-only");
+        else return fail("User id '" + p.getUserID() + "' is already in use");
     }
 
 
     public void importParticipant(Participant p) {
+        if (_orgDataSet.importParticipant(p)) {
+            p.createQueueSet(_persisting) ;
 
-        // persist it to the data store
-        _orgdb.importObj(p) ;
-        p.createQueueSet(_persisting) ;
-
-        // cleanup for non-default db
-        if (_isNonDefaultOrgDB) {
-            if (_persisting) {
-                _persister.insert(p.getUserPrivileges());
-                _persister.insert(p.getWorkQueues());
+            // cleanup for non-default db
+            if (_isNonDefaultOrgDB) {
+                if (_persisting) {
+                    _persister.insert(p.getUserPrivileges());
+                    _persister.insert(p.getWorkQueues());
+                }
             }
+            else _orgdb.update(p);
+
+            addUserKey(p);                              // and the userid--pid map
         }
-        else _orgdb.update(p);
-
-        // ...and add it to the data set
-        _ds.participantMap.put(p.getID(), p) ;
-        addUserKey(p);                                       // and the userid--pid map
     }
 
-    public void importRole(Role r) {
-        _orgdb.importObj(r) ;
-        _ds.roleMap.put(r.getID(), r) ;
-    }
-
-
-    public void importCapability(Capability c) {
-        _orgdb.importObj(c) ;
-        _ds.capabilityMap.put(c.getID(), c) ;
-    }
-
-
-    public void importPosition(Position p) {
-        _orgdb.importObj(p) ;
-        _ds.positionMap.put(p.getID(), p) ;
-    }
-
-
-    public void importOrgGroup(OrgGroup o) {
-        _orgdb.importObj(o) ;
-        _ds.orgGroupMap.put(o.getID(), o) ;
-    }
-
-
-    // UPDATE ORG DATA OBJECTS //
 
     public void updateParticipant(Participant p) {
-        if (isDataEditable(ResUnit.Participant)) {
-            _orgdb.update(p);                              // persist it
-            _ds.participantMap.put(p.getID(), p) ;         // ... and update the data set
+        if (_orgDataSet.updateParticipant(p)) {
             addUserKey(p);                                 // and the userid--pid map
             if (_isNonDefaultOrgDB) {
                 _persister.update(p.getUserPrivileges());  // persist other classes
@@ -886,54 +779,11 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
     }
 
-    public void updateResourceAttribute(Object obj) {
-        if (obj instanceof Role) updateRole((Role) obj);
-        else if (obj instanceof Capability) updateCapability((Capability) obj);
-        else if (obj instanceof Position) updatePosition((Position) obj);
-        else if (obj instanceof OrgGroup) updateOrgGroup((OrgGroup) obj);
-    }
-
-    public void updateRole(Role r) {
-        if (isDataEditable(ResUnit.Role)) {
-            _orgdb.update(r) ;                             // persist it
-            _ds.roleMap.put(r.getID(), r) ;                // ... and update the data set
-        }
-    }
-
-
-    public void updateCapability(Capability c) {
-        if (isDataEditable(ResUnit.Capability)) {
-            _orgdb.update(c) ;                             // persist it
-            _ds.capabilityMap.put(c.getID(), c) ;          // ... and update the data set
-        }
-    }
-
-
-    public void updatePosition(Position p) {
-        if (isDataEditable(ResUnit.Position)) {
-            _orgdb.update(p) ;                             // persist it
-            _ds.positionMap.put(p.getID(), p) ;            // ... and update the data set
-        }
-    }
-
-
-    public void updateOrgGroup(OrgGroup o) {
-        if (isDataEditable(ResUnit.OrgGroup)) {
-            _orgdb.update(o) ;                             // persist it
-            _ds.orgGroupMap.put(o.getID(), o) ;            // ... and update the data set
-        }
-    }
-
-
-    // REMOVE ORG DATA OBJECTS //
 
     public synchronized void removeParticipant(Participant p) {
-        if (isDataEditable(ResUnit.Participant)) {
+        if (_orgDataSet.removeParticipant(p)) {
             handleWorkQueuesOnRemoval(p);
-            p.removeAttributeReferences() ;
             removeUserKey(p);
-            _orgdb.delete(p);
-            _ds.participantMap.remove(p.getID()) ;
             if (_isNonDefaultOrgDB) {
                 _persister.delete(p.getUserPrivileges());
                 _persister.delete(p.getWorkQueues());
@@ -941,133 +791,12 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
     }
 
-    public synchronized void removeRole(Role r) {
-        if (isDataEditable(ResUnit.Role)) {
-            disconnectResources(r);
-            for (Role role : _ds.roleMap.values()) {
-                Role owner = role.getOwnerRole() ;
-                if ((owner != null) && owner.getID().equals(r.getID())) {
-                    role.setOwnerRole((Role) null);
-                    _orgdb.update(role);
-                }
-            }
-            _ds.roleMap.remove(r.getID());
-            _orgdb.delete(r);
-        }
-    }
-
-
-    public synchronized void removeCapability(Capability c) {
-        if (isDataEditable(ResUnit.Capability)) {
-            disconnectResources(c);
-            _ds.capabilityMap.remove(c.getID());
-            _orgdb.delete(c);
-        }
-    }
-
-    public synchronized void removePosition(Position p) {
-        if (isDataEditable(ResUnit.Position)) {
-            disconnectResources(p);
-            for (Position position : _ds.positionMap.values()) {
-                Position boss = position.getReportsTo();
-                if ((boss != null) && boss.getID().equals(p.getID())) {
-                    position.setReportsTo((Position) null);
-                    _orgdb.update(position);
-                }
-            }
-            _ds.positionMap.remove(p.getID());
-            _orgdb.delete(p);
-        }
-    }
-
-    public synchronized void removeOrgGroup(OrgGroup o) {
-        if (isDataEditable(ResUnit.OrgGroup)) {
-            for (Position position : _ds.positionMap.values()) {
-                OrgGroup group = position.getOrgGroup();
-                if ((group != null) && group.getID().equals(o.getID())) {
-                    position.setOrgGroup((OrgGroup) null);
-                    _orgdb.update(position);
-                }
-            }
-
-            for (OrgGroup group : _ds.orgGroupMap.values()) {
-                OrgGroup owner = group.getBelongsTo();
-                if ((owner != null) && owner.getID().equals(o.getID())) {
-                    group.setBelongsTo((OrgGroup) null);
-                    _orgdb.update(group);
-                }
-            }
-            _ds.orgGroupMap.remove(o.getID());
-            _orgdb.delete(o);
-        }
-    }
-
-    private synchronized void disconnectResources(AbstractResourceAttribute attrib) {
-        Set<AbstractResource> resources = attrib.getResources();
-
-        // get ids to avoid ConcurrentModificationException
-        List<String> ids = new ArrayList<String>();
-        for (AbstractResource resource : resources)
-            ids.add(resource.getID());
-
-        for (String id : ids) {
-            Participant p = getParticpant(id);
-            if (attrib instanceof Role) p.removeRole((Role) attrib);
-            else if (attrib instanceof Capability) p.removeCapability((Capability) attrib);
-            else if (attrib instanceof Position) p.removePosition((Position) attrib);
-            updateParticipant(p);
-        }
-    }
 
     public boolean removeParticipant(String pid) {
         if (pid != null) {
-            Participant p = getParticipant(pid);
+            Participant p = _orgDataSet.getParticipant(pid);
             if (p != null) {
                 removeParticipant(p);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean removeRole(String rid) {
-        if (rid != null) {
-            Role role = getRole(rid);
-            if (role != null) {
-                removeRole(role);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean removeCapability(String cid) {
-        if (cid != null) {
-            Capability capability = getCapability(cid);
-            if (capability != null) {
-                removeCapability(capability);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean removePosition(String pid) {
-        if (pid != null) {
-            Position position = getPosition(pid);
-            if (position != null) {
-                removePosition(position);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean removeOrgGroup(String oid) {
-        if (oid != null) {
-            OrgGroup orgGroup = getOrgGroup(oid);
-            if (orgGroup != null) {
-                removeOrgGroup(orgGroup);
                 return true;
             }
         }
@@ -1077,144 +806,12 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     // RETRIEVAL METHODS //
 
-    public String getParticipantsAsXML() {
-        ArrayList<Participant> pList = sortFullParticipantListByName();
-        
-        StringBuilder xml = new StringBuilder("<participants>") ;
-        for (Participant p : pList) xml.append(p.toXML()) ;
-        xml.append("</participants>");
-        return xml.toString() ;
-    }
-
 
     public String getActiveParticipantsAsXML() {
         StringBuilder xml = new StringBuilder("<participants>") ;
         for (Participant p : _liveSessions.values()) xml.append(p.toXML()) ;
         xml.append("</participants>");
         return xml.toString() ;
-    }
-
-    
-    public String getRolesAsXML() {
-        ArrayList<Role> rList = new ArrayList<Role>(_ds.roleMap.values());
-        Collections.sort(rList);
-
-        StringBuilder xml = new StringBuilder("<roles>") ;
-        for (Role r : rList) xml.append(r.toXML()) ;
-        xml.append("</roles>");
-        return xml.toString() ;
-    }
-
-
-    public String getParticipantRolesAsXML(String pid) {
-        Set<Role> roles = getParticipantRoles(pid);
-        if (roles != null) {
-            String header = String.format("<roles participantid=\"%s\">", pid);
-            StringBuilder xml = new StringBuilder(header) ;
-            for (Role r : roles) xml.append(r.toXML()) ;
-            xml.append("</roles>");
-            return xml.toString() ;
-        }
-        else return("<roles/>") ;   
-    }
-
-
-    public String getParticipantCapabilitiesAsXML(String pid) {
-        Set<Capability> capSet = getParticipantCapabilities(pid);
-        if (capSet != null) {
-            String header = String.format("<capabilities participantid=\"%s\">", pid);
-            StringBuilder xml = new StringBuilder(header) ;
-            for (Capability c : capSet) xml.append(c.toXML()) ;
-            xml.append("</capabilities>");
-            return xml.toString() ;
-        }
-        else return("<capabilities/>") ;
-    }
-
-
-    public String getParticipantPositionsAsXML(String pid) {
-        Set<Position> posSet = getParticipantPositions(pid);
-        if (posSet != null) {
-            String header = String.format("<positions participantid=\"%s\">", pid);
-            StringBuilder xml = new StringBuilder(header) ;
-            for (Position p : posSet) xml.append(p.toXML()) ;
-            xml.append("</positions>");
-            return xml.toString() ;
-        }
-        else return("<positions/>") ;   
-    }
-
-
-    public String getCapabilitiesAsXML() {
-        ArrayList<Capability> cList = new ArrayList<Capability>(_ds.capabilityMap.values());
-        Collections.sort(cList);
-
-        StringBuilder xml = new StringBuilder("<capabilities>") ;
-        for (Capability c : cList) xml.append(c.toXML()) ;
-        xml.append("</capabilities>");
-        return xml.toString() ;
-    }
-
-    public String getPositionsAsXML() {
-        ArrayList<Position> pList = new ArrayList<Position>(_ds.positionMap.values());
-        Collections.sort(pList);
-
-        StringBuilder xml = new StringBuilder("<positions>") ;
-        for (Position p : pList) xml.append(p.toXML()) ;
-        xml.append("</positions>");
-        return xml.toString() ;
-    }
-
-    public String getOrgGroupsAsXML() {
-        ArrayList<OrgGroup> oList = new ArrayList<OrgGroup>(_ds.orgGroupMap.values());
-        Collections.sort(oList);
-
-        StringBuilder xml = new StringBuilder("<orggroups>") ;
-        for (OrgGroup o : oList) xml.append(o.toXML()) ;
-        xml.append("</orggroups>");
-        return xml.toString() ;
-    }
-
-    private ArrayList<Participant> sortFullParticipantListByName() {
-        ArrayList<Participant> pList = new ArrayList<Participant>(_ds.participantMap.values());
-        Collections.sort(pList, new ParticipantNameComparator());
-        return pList ;
-    }
-
-
-    /**
-     * @return a csv listing of the full name of each participant
-     */
-    public String getParticipantNames() {
-        ArrayList<Participant> pList = sortFullParticipantListByName();
-        StringBuilder csvList = new StringBuilder() ;
-        for  (Participant p : pList) {
-            if (csvList.length() > 0) csvList.append(",");
-            csvList.append(p.getFullName()) ;
-        }
-        return csvList.toString();
-    }
-
-
-    /**
-     * @return a csv listing of the full name of each participant
-     */
-    public String getRoleNames() {
-        StringBuilder csvList = new StringBuilder() ;
-        for (Role r : _ds.roleMap.values()) {
-            if (csvList.length() > 0) csvList.append(",");
-            csvList.append(r.getName()) ;
-        }
-        return csvList.toString();
-    }
-
-
-    public Role getRoleByName(String roleName) {
-        for (Role r : _ds.roleMap.values()) {
-            if (r.getName().equalsIgnoreCase(roleName))
-                return r ;
-        }
-        return null ;                    // no match
     }
 
 
@@ -1225,9 +822,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public Participant getParticipantFromUserID(String userID) {
         String pid = getParticipantIDFromUserID(userID) ;
-        if (pid != null)
-           return _ds.participantMap.get(pid);
-        else return null ;
+        return _orgDataSet.getParticipant(pid);
     }
 
 
@@ -1249,7 +844,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     public Set<Participant> getParticipantsAssignedWorkItem(String workItemID,
                                                             int queueType) {
         Set<Participant> result = new HashSet<Participant>();
-        for (Participant p : _ds.participantMap.values()) {
+        for (Participant p : _orgDataSet.getParticipants()) {
             QueueSet qSet = p.getWorkQueues();
             if ((qSet != null) && (qSet.hasWorkItemInQueue(workItemID, queueType)))            
                  result.add(p);
@@ -1261,7 +856,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public Set<Participant> getParticipantsAssignedWorkItem(WorkItemRecord wir) {
         Set<Participant> result = new HashSet<Participant>();
-        for (Participant p : _ds.participantMap.values()) {
+        for (Participant p : _orgDataSet.getParticipants()) {
             QueueSet qSet = p.getWorkQueues();
             if ((qSet != null) && (qSet.hasWorkItemInAnyQueue(wir)))
                  result.add(p);
@@ -1274,7 +869,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     public Participant getParticipantAssignedWorkItem(WorkItemRecord wir, int qType) {
         Participant result = null;
         if ((qType > WorkQueue.OFFERED) && (qType <= WorkQueue.SUSPENDED)) {
-            for (Participant p : _ds.participantMap.values()) {
+            for (Participant p : _orgDataSet.getParticipants()) {
                 QueueSet qSet = p.getWorkQueues();
                 if ((qSet != null) && (qSet.hasWorkItemInQueue(wir.getID(), qType))) {
                     result = p;
@@ -1286,455 +881,11 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-
-    public HashSet<Participant> getParticipants() {
-        if (_ds.participantMap == null) return null ;
-        return new HashSet<Participant>(_ds.participantMap.values()) ;
-    }
-
-    public Participant getParticipant(String pid) {
-       return _ds.participantMap.get(pid) ;
-    }
-
-    public boolean isKnownParticipant(Participant p) {
-        return isKnownParticipant(p.getID());
-    }
-
-    public boolean isKnownParticipant(String pid) {
-        return _ds.participantMap.containsKey(pid);
-    }
-    
-    public boolean isKnownRole(Role r) {
-        return isKnownRole(r.getID());
-    }
-
-    public boolean isKnownRole(String rid) {
-        return _ds.roleMap.containsKey(rid);
-    }
-
-    public boolean isKnownCapability(String cid) {
-        return _ds.capabilityMap.containsKey(cid);
-    }
-
-    public boolean isKnownPosition(String pid) {
-        return _ds.positionMap.containsKey(pid);
-    }
-
-    public boolean isKnownOrgGroup(String oid) {
-        return _ds.orgGroupMap.containsKey(oid);
-    }
-
-    public boolean isKnownRoleName(String name) {
-        return getRoleByName(name) != null;
-    }
-
-    public boolean isKnownCapabilityName(String name) {
-        return getCapabilityByLabel(name) != null;
-    }
-
-    public boolean isKnownPositionName(String name) {
-        return getPositionByLabel(name) != null;
-    }
-
-    public boolean isKnownOrgGroupName(String name) {
-        return this.getOrgGroupByLabel(name) != null;
-    }
-
-
     public String getFullNameForUserID(String userID) {
         if (userID.equals("admin")) return "Administrator" ;
 
         Participant p = getParticipantFromUserID(userID) ;
-        if (p != null)
-           return p.getFullName();
-        else
-           return null ;
-    }
-
-    public int getParticipantCount() {
-        return _ds.participantMap.size();
-    }
-
-    public HashMap<String, Participant> getParticipantMap() {
-        return _ds.participantMap ;
-    }
-   
-    public HashMap<String, Role> getRoleMap() {
-        return _ds.roleMap ;
-    }
-
-    public HashMap<String, Position> getPositionMap() {
-        return _ds.positionMap ;
-    }
-
-    public HashMap<String, Capability> getCapabilityMap() {
-        return _ds.capabilityMap ;
-    }
-
-    public HashMap<String, OrgGroup> getOrgGroupMap() {
-        return _ds.orgGroupMap ;
-    }
-
-    public HashSet<Role> getRoles() {
-        if (_ds.roleMap == null) return null ;
-        return new HashSet<Role>(_ds.roleMap.values()) ;
-    }
-
-    public HashSet<Position> getPositions() {
-        if (_ds.positionMap == null) return null ;
-        return new HashSet<Position>(_ds.positionMap.values()) ;
-    }
-
-    public HashSet<Capability> getCapabilities() {
-        if (_ds.capabilityMap == null) return null ;
-        return new HashSet<Capability>(_ds.capabilityMap.values()) ;
-    }
-
-    public HashSet<OrgGroup> getOrgGroups() {
-        if (_ds.orgGroupMap == null) return null ;
-        return new HashSet<OrgGroup>(_ds.orgGroupMap.values()) ;
-    }
-
-    public Set<Participant> getRoleParticipants(String rid) {
-        Role r = _ds.roleMap.get(rid);
-        if (r != null)
-            return castToParticipantSet(r.getResources()) ;
-        else
-            return null ;
-    }
-
-    public Set<Participant> getCapabilityParticipants(String cid) {
-        Capability c = _ds.capabilityMap.get(cid);
-        if (c != null)
-            return castToParticipantSet(c.getResources()) ;
-        else
-            return null ;
-    }
-
-    public Set<Participant> getPositionParticipants(String pid) {
-        Position p = _ds.positionMap.get(pid);
-        if (p != null)
-            return castToParticipantSet(p.getResources());
-        else
-            return null ;
-    }
-
-    public Set<Participant> getParticipantsWithRole(String roleName) {
-        Set<Participant> result = null;
-        if (roleName != null) {
-            Role r = getRoleByName(roleName);
-            if (r != null) {
-                result = getRoleParticipants(r.getID());
-            }
-        }
-        return result;
-    }
-
-    public Set<Participant> getParticipantsWithPosition(String positionName) {
-        Set<Participant> result = null;
-        if (positionName != null) {
-            Position p = this.getPositionByLabel(positionName);
-            if (p != null) {
-                result = getPositionParticipants(p.getID());
-            }
-        }
-        return result;
-    }
-
-    public Set<Participant> getParticipantsWithCapability(String capabilityName) {
-        Set<Participant> result = null;
-        if (capabilityName != null) {
-            Capability c = this.getCapabilityByLabel(capabilityName);
-            if (c != null) {
-                result = getCapabilityParticipants(c.getID());
-            }
-        }
-        return result;
-    }
-
-
-    public String getParticpantsWithRoleAsXML(String roleName) {
-        String result = "<participants/>";
-        if (roleName != null) {
-            Role r = getRoleByName(roleName);
-            if (r != null) {
-                result = getRoleParticipantsAsXML(r.getID());
-            }
-        }
-        return result;
-    }
-
-    public String getRoleParticipantsAsXML(String rid) {
-        Set<Participant> pSet = getRoleParticipants(rid);
-        if (pSet != null) {
-            String header = String.format("<participants roleid=\"%s\">", rid);
-            return participantSetToXML(pSet, header);
-        }
-        else return "<participants/>" ;
-    }
-
-    public String getParticpantsWithPositionAsXML(String positionName) {
-        String result = "<participants/>";
-        if (positionName != null) {
-            Position p = getPositionByLabel(positionName);
-            if (p != null) {
-                result = getPositionParticipantsAsXML(p.getID());
-            }
-        }
-        return result;
-    }
-
-    public String getPositionParticipantsAsXML(String posid) {
-        Set<Participant> pSet = getPositionParticipants(posid);
-        if (pSet != null) {
-            String header = String.format("<participants positionid=\"%s\">", posid);
-            return participantSetToXML(pSet, header);
-        }
-        else return "<participants/>" ;
-    }
-
-    public String getParticpantsWithCapabilityAsXML(String capabilityName) {
-        String result = "<participants/>";
-        if (capabilityName != null) {
-            Capability c = getCapabilityByLabel(capabilityName);
-            if (c != null) {
-                result = getCapabilityParticipantsAsXML(c.getID());
-            }
-        }
-        return result;
-    }
-
-    public String getCapabilityParticipantsAsXML(String cid) {
-        Set<Participant> pSet = getCapabilityParticipants(cid);
-        if (pSet != null) {
-            String header = String.format("<participants positionid=\"%s\">", cid);
-            return participantSetToXML(pSet, header);
-        }
-        else return "<participants/>" ;
-    }
-
-
-    private String participantSetToXML(Set<Participant> pSet, String header) {
-        StringBuilder xml = new StringBuilder(header) ;
-        for (Participant p : pSet) xml.append(p.toXML()) ;
-        xml.append("</participants>");
-        return xml.toString() ;        
-    }
-
-
-    public Set<Participant> castToParticipantSet(Set<AbstractResource> resources) {
-        if (resources == null) return null;
-
-        Set<Participant> result = new HashSet<Participant>();
-        for (AbstractResource resource : resources)
-            result.add((Participant) resource);
-        return result;
-    }
-
-    public Set<Capability> getParticipantCapabilities(String pid) {
-        Participant p = _ds.participantMap.get(pid);
-        if (p != null)
-            return p.getCapabilities() ;
-        else
-            return null ;
-    }
-
-    public Set<Role> getParticipantRoles(String pid) {
-        Participant p = _ds.participantMap.get(pid);
-        if (p != null)
-            return p.getRoles() ;
-        else
-            return null ;
-    }
-
-    public Set<Position> getParticipantPositions(String pid) {
-        Participant p = _ds.participantMap.get(pid);
-        if (p != null)
-            return p.getPositions() ;
-        else
-            return null ;
-    }
-
-
-    public Set<Participant> getOrgGroupMembers(OrgGroup o) {
-        Set<Participant> result = new HashSet<Participant>();
-        for (Participant p : _ds.participantMap.values()) {
-            if (p.isOrgGroupMember(o)) result.add(p);
-        }
-        return result;
-    }
-
-    /**
-     * Gets the complete set of Participants that ultimately report to the
-     * position(s) held by a Participant
-     * @param pid the id of the 'manager' Participant
-     * @return the set of Particpants 'managed' by this Participant
-     */
-    public Set<Participant> getParticipantsReportingTo(String pid) {
-        Set<Participant> result = new HashSet<Participant>() ;
-        Set<Position> posSet = getParticipantPositions(pid) ;
-        for (Position pos : posSet) {
-            result.addAll(getParticipantsReportingToPosition(pos)) ;
-        }
-        if (result.isEmpty()) result = null ;
-        return result ;
-    }
-
-    /**
-     * Gets the set of Participants the ultimately report to the Position passed
-     * @param manager the 'manager' Position
-     * @return the set of Particpants 'managed' by this Position
-     */
-    public Set<Participant> getParticipantsReportingToPosition(Position manager) {
-        Set<Participant> result = new HashSet<Participant>() ;
-        Set<Position> posSet = getPositions();
-        for (Position pos : posSet) {
-            if (pos.ultimatelyReportsTo(manager)) {
-                result.addAll(castToParticipantSet(pos.getResources()));
-            }
-        }
-        return result ;
-    }
-
-
-    public Set<Participant> getParticipantsInDescendantRoles(Role owner) {
-        Set<Participant> result = new HashSet<Participant>();
-        Set<Role> roleSet = getRoles();
-        for (Role role : roleSet) {
-            if (role.ultimatelyBelongsTo(owner)) {
-                result.addAll(castToParticipantSet(role.getResources()));
-            }
-        }
-        return result;
-    }
-
-    
-    public String checkCyclicAttributeReference(AbstractResourceAttribute resource,
-                                                String parentID) {
-        if (resource instanceof Role)
-            return checkCyclicRoleReference((Role) resource, parentID);
-        else if (resource instanceof Position)
-            return checkCyclicPositionReference((Position) resource, parentID);
-        else if (resource instanceof OrgGroup)
-            return checkCyclicOrgGroupReference((OrgGroup) resource, parentID);
-
-        return null;       // should be unreachable
-    }
-
-
-    public String checkCyclicRoleReference(Role role, String refID) {
-        String result = null;
-        List<String> hierarchy = new ArrayList<String>();
-        hierarchy.add(role.getName());
-        Role owner = getRole(refID);
-        String refName = owner.getName();            // name of role attempting to add to
-        while (owner != null) {
-            hierarchy.add(owner.getName());
-            if (owner.equals(role)) {
-                result = constructCyclicAttributeErrorMessage(hierarchy, "role", refName);
-                break;
-            }
-            owner = owner.getOwnerRole();
-        }
-        return result;
-    }
-
-
-    public String checkCyclicPositionReference(Position position, String refID) {
-        String result = null;
-        List<String> hierarchy = new ArrayList<String>();
-        hierarchy.add(position.getTitle());
-        Position owner = getPosition(refID);
-        String refName = owner.getTitle();          // title of posn attempting to add to
-        while (owner != null) {
-            hierarchy.add(owner.getTitle());
-            if (owner.equals(position)) {
-                result = constructCyclicAttributeErrorMessage(hierarchy, "position", refName);
-                break;
-            }
-            owner = owner.getReportsTo();
-        }
-        return result;
-    }
-
-
-    public String checkCyclicOrgGroupReference(OrgGroup orgGroup, String refID) {
-        String result = null;
-        List<String> hierarchy = new ArrayList<String>();
-        hierarchy.add(orgGroup.getGroupName());
-        OrgGroup owner = getOrgGroup(refID);
-        String refName = owner.getGroupName();     // name of group attempting to add to
-        while (owner != null) {
-            hierarchy.add(owner.getGroupName());
-            if (owner.equals(orgGroup)) {
-                result = constructCyclicAttributeErrorMessage(hierarchy, "org group", refName);
-                break;
-            }
-            owner = owner.getBelongsTo();
-        }
-        return result;
-    }
-
-    
-    private String constructCyclicAttributeErrorMessage(List<String> chain, String type,
-                                                        String refName) {
-        String templateMsg = "Cyclic Reference Error: The selected %s cannot %s to %s " +
-                             "'%s' because it references itself in the hierarchy '%s'." ;
-        String refType = (type.equals("position")) ? "report" : "belong";
-
-        StringBuilder chainStr = new StringBuilder(chain.get(0));
-        for (int i=1; i<chain.size(); i++) {
-            chainStr.append(" --> ").append(chain.get(i));
-        }
-        return String.format(templateMsg, type, refType, type, refName, chainStr.toString());
-    }
-
-
-    public Participant getParticpant(String pid) {
-        return _ds.participantMap.get(pid);
-    }
-
-    public Role getRole(String rid) {
-        return _ds.roleMap.get(rid);
-    }
-
-    public Capability getCapability(String cid) {
-        return _ds.capabilityMap.get(cid);
-    }
-
-    public Position getPosition(String pid) {
-        return _ds.positionMap.get(pid);
-    }
-
-    public OrgGroup getOrgGroup(String oid) {
-        return _ds.orgGroupMap.get(oid);
-    }
-
-    public Position getPositionByLabel(String label) {
-        for (Position p : _ds.positionMap.values()) {
-            if (p.getTitle().equals(label)) {
-                return p;
-            }
-        }
-        return null;
-    }
-
-    public OrgGroup getOrgGroupByLabel(String label) {
-        for (OrgGroup o : _ds.orgGroupMap.values()) {
-            if (o.getGroupName().equals(label)) {
-                return o;
-            }
-        }
-        return null;
-    }
-
-    public Capability getCapabilityByLabel(String label) {
-        for (Capability c : _ds.capabilityMap.values()) {
-            if (c.getCapability().equals(label)) {
-                return c;
-            }
-        }
-        return null;
+        return (p != null) ? p.getFullName() : null ;
     }
 
 
@@ -1763,9 +914,9 @@ public class ResourceManager extends InterfaceBWebsideController {
     // WORKITEM ALLOCATION AND WORKQUEUE METHODS //
 
     public WorkItemRecord offerToAll(WorkItemRecord wir) {
-        if (getParticipantCount() > 0) {
+        if (_orgDataSet.getParticipantCount() > 0) {
             wir.setResourceStatus(WorkItemRecord.statusResourceOffered);
-            for (Participant p : _ds.participantMap.values()) {
+            for (Participant p : _orgDataSet.getParticipants()) {
                 p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
                 announceModifiedQueue(p.getID()) ;
             }
@@ -1780,7 +931,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     
     public void withdrawOfferFromAll(WorkItemRecord wir) {
-        for (Participant p : _ds.participantMap.values()) {
+        for (Participant p : _orgDataSet.getParticipants()) {
             p.getWorkQueues().removeFromQueue(wir, WorkQueue.OFFERED);
             announceModifiedQueue(p.getID()) ;
         }
@@ -1788,7 +939,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public void removeFromAll(WorkItemRecord wir) {
-        for (Participant p : _ds.participantMap.values()) {
+        for (Participant p : _orgDataSet.getParticipants()) {
             p.getWorkQueues().removeFromAllQueues(wir);
             announceModifiedQueue(p.getID()) ;
         }
@@ -1797,7 +948,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public void removeCaseFromAllQueues(String caseID) {
-        for (Participant p : _ds.participantMap.values()) {
+        for (Participant p : _orgDataSet.getParticipants()) {
             p.getWorkQueues().removeCaseFromAllQueues(caseID);
             announceModifiedQueue(p.getID()) ;
         }
@@ -1913,7 +1064,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
             // get all items on all offered queues, except this part's queue
             Set<WorkItemRecord> offerSet = new HashSet<WorkItemRecord>();
-            Set<Participant> allParticipants = getParticipants() ;
+            Set<Participant> allParticipants = _orgDataSet.getParticipants() ;
             for (Participant temp : allParticipants) {
                 if (! temp.getID().equals(p.getID())) {
                     WorkQueue q = temp.getWorkQueues().getQueue(WorkQueue.OFFERED) ;
@@ -1944,13 +1095,13 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (qStart != null) {
             Set<WorkItemRecord> startSet = qStart.getAll();
             for (WorkItemRecord wir : startSet)
-                checkinItem(p, wir, _engineSessionHandle);
+                checkinItem(p, wir);
         }
         WorkQueue qSusp = qs.getQueue(WorkQueue.SUSPENDED);
         if (qSusp != null) {
             Set<WorkItemRecord> suspSet = qSusp.getAll();
             for (WorkItemRecord wir : suspSet)
-                checkinItem(p, wir, _engineSessionHandle);
+                checkinItem(p, wir);
         }
     }
 
@@ -1963,10 +1114,9 @@ public class ResourceManager extends InterfaceBWebsideController {
      *
      * @param p the participant starting the workitem
      * @param wir the item to start
-     * @param handle the user's current sessionhandle
      * @return true for a successful workitem start
      */
-    public boolean start(Participant p, WorkItemRecord wir, String handle) {
+    public boolean start(Participant p, WorkItemRecord wir) {
         WorkItemRecord oneToStart ;
 
         // if 'executing', it's already been started so move queues & we're done
@@ -1975,10 +1125,10 @@ public class ResourceManager extends InterfaceBWebsideController {
             return true ;
         }
 
-        if (checkOutWorkItem(wir, handle)) {
+        if (checkOutWorkItem(wir)) {
 
             // get all the child instances of this workitem
-            List children = getChildren(wir.getID());
+            List<WorkItemRecord> children = getChildren(wir.getID());
 
             if (children == null) {
                 _log.error("Checkout of workitem '" + wir.getID() + "' unsuccessful.");
@@ -1994,10 +1144,10 @@ public class ResourceManager extends InterfaceBWebsideController {
                 distributeChildren(oneToStart, children) ;
             }
             else if (children.size() == 0) {                  // a 'fired' workitem
-                oneToStart = refreshWIRFromEngine(wir, handle) ;
+                oneToStart = refreshWIRFromEngine(wir) ;
             }
             else {                                            // exactly one child
-                oneToStart = (WorkItemRecord) children.get(0) ;
+                oneToStart = children.get(0) ;
             }
 
             // replace the parent in the cache with the executing child
@@ -2024,11 +1174,10 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    private void distributeChildren(WorkItemRecord started, List children) {
+    private void distributeChildren(WorkItemRecord started, List<WorkItemRecord> children) {
 
         // list should always have at least one member
-        for (int i = 0; i < children.size(); i++) {
-            WorkItemRecord child = (WorkItemRecord) children.get(i);
+        for (WorkItemRecord child : children) {
 
             // don't distribute the already started child, but only the others
             if (! started.getID().equals(child.getID()))
@@ -2044,7 +1193,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (hasUserTaskPrivilege(p, wir, TaskPrivileges.CAN_SUSPEND)) {
             try {
                 if (successful(
-                    _interfaceBClient.suspendWorkItem(wir.getID(), _engineSessionHandle))) {
+                    _interfaceBClient.suspendWorkItem(wir.getID(), getEngineSessionHandle()))) {
                     wir.setResourceStatus(WorkItemRecord.statusResourceSuspended);
                     p.getWorkQueues().movetoSuspend(wir);
                     _workItemCache.update(wir);
@@ -2065,7 +1214,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         try {
 
             if (successful(
-                _interfaceBClient.unsuspendWorkItem(wir.getID(), _engineSessionHandle))) {
+                _interfaceBClient.unsuspendWorkItem(wir.getID(), getEngineSessionHandle()))) {
                 wir.setResourceStatus(WorkItemRecord.statusResourceStarted);
                 p.getWorkQueues().movetoUnsuspend(wir);
                 _workItemCache.update(wir);
@@ -2125,7 +1274,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                 rMap.distribute(wir);                 // redistribute workitem
             }
             else {                                    // pre version 2.0
-                if (getParticipantCount() > 1) {
+                if (_orgDataSet.getParticipantCount() > 1) {
                     offerToAll(wir);
                     p.getWorkQueues().removeFromQueue(wir, WorkQueue.OFFERED);
                 }
@@ -2151,12 +1300,11 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public boolean skipWorkItem(Participant p, WorkItemRecord wir, String handle) {
+    public boolean skipWorkItem(Participant p, WorkItemRecord wir) {
         String result ;
         if (hasUserTaskPrivilege(p, wir, TaskPrivileges.CAN_SKIP)) {
             try {
-                result = _interfaceBClient.skipWorkItem(wir.getID(),
-                                           getHandleForEngineCall(handle)) ;
+                result = _interfaceBClient.skipWorkItem(wir.getID(), getEngineSessionHandle()) ;
                 if (successful(result)) {
                     p.getWorkQueues().removeFromQueue(wir, WorkQueue.ALLOCATED);
                     EventLogger.log(wir, p.getID(), EventLogger.event.skip);
@@ -2189,15 +1337,10 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public String unpileTask(String specID, String taskID, Participant p) {
-        Set<ResourceMap> mapSet = _resMapCache.getAll(specID, taskID);
-        if (mapSet != null) {
-            for (ResourceMap resMap : mapSet) {
-                if (resMap.getPiledResourceID().equals(p.getID())) {
-                    resMap.removePiledResource();
-                    return "Task successfully unpiled" ;
-                 }
-            }
+    public String unpileTask(ResourceMap resMap, Participant p) {
+        if (resMap.getPiledResourceID().equals(p.getID())) {
+            resMap.removePiledResource();
+            return "Task successfully unpiled" ;
         }
         return "Cannot unpile task - resource settings unavailable";
     }
@@ -2209,25 +1352,18 @@ public class ResourceManager extends InterfaceBWebsideController {
     //        no way around this currently, but will be handled when the engine is
     //        made completely agnostic to resources. 
     public boolean routePiledWorkItem(Participant p, WorkItemRecord wir) {
-        String handle = getSessionHandle(p);
-        if ((handle == null)  && this.isPersistPiling()) {
-            handle = _engineSessionHandle;
-        }
-        return routeWorkItem(p, wir, handle) ;
+        return routeWorkItem(p, wir, getEngineSessionHandle()) ;
     }
 
     // ISSUE: same as that in the method above. Called by this.acceptOffer and
     // ResourceMap.doStart
     public boolean startImmediate(Participant p, WorkItemRecord wir) {
-        String handle = getSessionHandle(p);
-        if (handle == null) handle = _engineSessionHandle;
-
-        return routeWorkItem(p, wir, handle) ;
+        return routeWorkItem(p, wir, getEngineSessionHandle()) ;
     }
 
 
     private boolean routeWorkItem(Participant p, WorkItemRecord wir, String handle) {
-        if (handle != null) start(p, wir, handle) ;
+        if (handle != null) start(p, wir) ;
         return (handle != null);        
     }
 
@@ -2254,6 +1390,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         return _workItemCache.get(itemID);
     }
 
+
     public String updateWorkItemData(String itemID, String data) {
         String result ;
         if ((data != null) && (data.length() > 0)) {
@@ -2265,6 +1402,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                         String validate = checkWorkItemDataAgainstSchema(wir, dataElem);
                         if (validate.startsWith("<success")) {
                             wir.setUpdatedData(dataElem);                  // all's good
+                            _workItemCache.update(wir);
                             result = "<success/>";
                         }
                         else {
@@ -2304,15 +1442,14 @@ public class ResourceManager extends InterfaceBWebsideController {
             );
         }
         else {
-            YSpecificationID specID = new YSpecificationID(wir.getSpecificationID(),
-                    wir.getSpecVersion());
+            YSpecificationID specID = new YSpecificationID(wir);
             SpecificationData specData = getSpecData(specID);
             try {
                 String schema = specData.getSchemaLibrary();
                 YDataValidator validator = new YDataValidator(schema);
                 if (validator.validateSchema()) {
                     TaskInformation taskInfo = getTaskInformation(
-                            specID, wir.getTaskID(), _engineSessionHandle);
+                            specID, wir.getTaskID(), getEngineSessionHandle());
 
                     // a YDataValidationException is thrown here if validation fails
                     validator.validate(taskInfo.getParamSchema().getCombinedParams(), data, "");
@@ -2346,7 +1483,10 @@ public class ResourceManager extends InterfaceBWebsideController {
     public boolean routeChainedWorkItem(Participant p, WorkItemRecord wir) {
 
         // only route if user is still logged on
-        return routeWorkItem(p, wir, getSessionHandle(p)) ;
+        if (getSessionHandle(p) != null) {
+            return routeWorkItem(p, wir, getEngineSessionHandle()) ;
+        }
+        return false;
     }
 
     public String addChain(Participant p, WorkItemRecord wir) {
@@ -2419,7 +1559,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private String getSpecIDForCase(String caseID) {
         for (WorkItemRecord wir : _workItemCache.values()) {
             if (wir.getRootCaseID().equals(caseID))
-                return wir.getSpecificationID();
+                return wir.getSpecIdentifier();
         }
         return "" ;
     }
@@ -2440,25 +1580,25 @@ public class ResourceManager extends InterfaceBWebsideController {
     
 
     /** @return the union of persisted and unpersisted maps */
-    public Set<String> getPiledTasks(Participant p) {
-        Set<String> result = getUnpersistedPiledTasks(p);
+    public Set<ResourceMap> getPiledTaskMaps(Participant p) {
+        Set<ResourceMap> result = getUnpersistedPiledTasks(p);
         if (_persisting) result.addAll(getPersistedPiledTasks(p));
         return result ;
     }
 
-    public Set<String> getUnpersistedPiledTasks(Participant p) {
-        Set<String> result = new HashSet<String>();
+    public Set<ResourceMap> getUnpersistedPiledTasks(Participant p) {
+        Set<ResourceMap> result = new HashSet<ResourceMap>();
         Set<ResourceMap> mapSet = getAllResourceMaps() ;
         for (ResourceMap map : mapSet) {
             Participant piler = map.getPiledResource();
             if ((piler != null) && (piler.getID().equals(p.getID())))
-                result.add(map.getSpecName() + "::" + map.getTaskID());
+                result.add(map);
         }
         return result;
     }
 
-    public Set<String> getPersistedPiledTasks(Participant p) {
-        Set<String> result = new HashSet<String>();
+    public Set<ResourceMap> getPersistedPiledTasks(Participant p) {
+        Set<ResourceMap> result = new HashSet<ResourceMap>();
         List maps = _persister.select("ResourceMap");
         if (maps != null) {
             Iterator itr = maps.iterator();
@@ -2466,7 +1606,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                 ResourceMap map = (ResourceMap) itr.next();
                 String pid = map.getPiledResourceID();
                 if ((pid != null) && (pid.equals(p.getID())))
-                    result.add(map.getSpecName() + "::" + map.getTaskID());
+                    result.add(map);
             }
         }
         return result ;
@@ -2515,11 +1655,8 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public ResourceMap getResourceMap(WorkItemRecord wir) {
-        return getResourceMap(wir.getSpecificationID(), wir.getSpecVersion(), wir.getTaskID()) ;
-    }
-
-    public ResourceMap getResourceMap(String specName, String version, String taskID) {
-        YSpecificationID specID = new YSpecificationID(specName, version);
+        YSpecificationID specID = new YSpecificationID(wir);
+        String taskID = wir.getTaskID();
         ResourceMap result = _resMapCache.get(specID, taskID);
 
         // if we don't have a resource map for the task stored yet, let's make one
@@ -2527,7 +1664,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             if (connected()) {
                 try {
                     Element resElem = getResourcingSpecs(specID, taskID,
-                            _engineSessionHandle) ;
+                            getEngineSessionHandle()) ;
 
                     if ((resElem != null) &&
                          successful(JDOMUtil.elementToString(resElem))) {
@@ -2561,20 +1698,19 @@ public class ResourceManager extends InterfaceBWebsideController {
      * @param wir - the workitem to get the decomp id for
      */
      public String getDecompID(WorkItemRecord wir) {
-         return getDecompID(wir.getSpecificationID(), wir.getSpecVersion(), wir.getTaskID());
+         return getDecompID(new YSpecificationID(wir), wir.getTaskID());
      }
 
   //***************************************************************************//
 
     /**
      *  gets a task's decomposition id
-     *  @param specName - the specification's name
-     *  @param taskID - the task's id
+     *  @param specID the specification id
+     *  @param taskID the task's id
      */
-    public String getDecompID(String specName, String version, String taskID) {
-       YSpecificationID specID = new YSpecificationID(specName, version);
+    public String getDecompID(YSpecificationID specID, String taskID) {
        try {
-           TaskInformation taskinfo = getTaskInformation(specID, taskID, _engineSessionHandle);
+           TaskInformation taskinfo = getTaskInformation(specID, taskID, getEngineSessionHandle());
            return taskinfo.getDecompositionID() ;
        }
        catch (IOException ioe) {
@@ -2589,13 +1725,12 @@ public class ResourceManager extends InterfaceBWebsideController {
     /**
      *  Check the workitem out of the engine
      *  @param wir - the workitem to check out
-     *  @param handle - the user's current sessionhandle
      *  @return true if checkout was successful
      */
-    protected boolean checkOutWorkItem(WorkItemRecord wir, String handle) {
+    protected boolean checkOutWorkItem(WorkItemRecord wir) {
         if (connected()) {
             try {
-                if (null != checkOut(wir.getID(), getHandleForEngineCall(handle))) {
+                if (null != checkOut(wir.getID(), getEngineSessionHandle())) {
                      _log.info("   checkout successful: " + wir.getID());
                      return true ;
                 }
@@ -2637,10 +1772,9 @@ public class ResourceManager extends InterfaceBWebsideController {
      *
      *  @param p - the participant checking in the item
      *  @param wir - workitem to check into the engine
-     *  @param handle - the sessionHandle of the current user
      *  @return true if checkin is successful
      */
-    public String checkinItem(Participant p, WorkItemRecord wir, String handle) {
+    public String checkinItem(Participant p, WorkItemRecord wir) {
         String result = "<failure/>";                              // assume the worst
         try {
             wir = _workItemCache.get(wir.getID()) ;                // refresh wir
@@ -2651,11 +1785,18 @@ public class ResourceManager extends InterfaceBWebsideController {
                 checkCacheForWorkItem(wir);
                 addTaskCompleter(p, wir);
                 result = checkInWorkItem(wir.getID(), wir.getDataList(),
-                                                outData, getHandleForEngineCall(handle)) ;
+                                                outData, getEngineSessionHandle()) ;
                 if (successful(result)) {
-                    p.getWorkQueues().getQueue(WorkQueue.STARTED).remove(wir);
+                    if (p != null) {
+                        QueueSet qSet = p.getWorkQueues();
+                        if (qSet != null) {
+                            WorkQueue queue = qSet.getQueue(WorkQueue.STARTED);
+                            if (queue != null) queue.remove(wir);
+                        }
+                    }    
                     _workItemCache.remove(wir) ;
-                    EventLogger.log(wir, p.getID(), EventLogger.event.complete);
+                    String pid = (p != null) ? p.getID() : "";
+                    EventLogger.log(wir, pid, EventLogger.event.complete);
                 }
                 else removeTaskCompleter(p, wir);
             }
@@ -2714,7 +1855,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
            // if its 'fired' check it out
            if (WorkItemRecord.statusFired.equals(itemRec.getStatus()))
-              checkOutWorkItem(itemRec, null);
+              checkOutWorkItem(itemRec);
         }
 
         // update child item list after checkout (to capture status changes) & return
@@ -2752,14 +1893,19 @@ public class ResourceManager extends InterfaceBWebsideController {
             Participant p = getParticipantFromUserID(userid) ;
             if (p != null) {
                 if (p.getPassword().equals(password)) {
-                    result = connectParticipant(userid, password) ;
-                    if (successful(result)) _liveSessions.put(result, p) ;
+                    result = newSessionHandle();          
+                    _liveSessions.put(result, p) ;
+                    EventLogger.audit(userid, EventLogger.audit.logon);
                 }
-                else
+                else {
                     result = "<failure>Incorrect Password</failure>" ;
+                    EventLogger.audit(userid, EventLogger.audit.invalid);
+                }
             }
-            else
+            else  {
                 result = "<failure>Unknown user name</failure>" ;
+                EventLogger.audit(userid, EventLogger.audit.unknown);
+            }
         }
         else
             result = "<failure>Could not connect to YAWL Engine</failure>" ;
@@ -2767,25 +1913,36 @@ public class ResourceManager extends InterfaceBWebsideController {
         return result ;
     }
 
+
+    private String newSessionHandle() {
+        return UUID.randomUUID().toString();
+    }
+
     
     private String loginAdmin(String password) {
-        String handle ;
-        try {
-            handle = connect("admin", password);
-            if (successful(handle)) _liveAdmins.add(handle) ;
+        String handle;
+        if (password.equals("YAWL")) {
+             handle = newSessionHandle();
+             _liveAdmins.add(handle) ;
+             EventLogger.audit("admin", EventLogger.audit.logon);
         }
-        catch (IOException ioe) {
-            _log.error("IOException trying to connect admin user to engine");
-            handle = "<failure>Failed to connect to YAWL engine</failure>";
+        else {
+            handle = "<failure>Incorrect Password</failure>";
+            EventLogger.audit("admin", EventLogger.audit.invalid);
         }
         return handle ;
     }
 
     // pseudo-logout by removing session handle from map of live users
     public void logout(String handle) {
-        Participant p = removeSession(handle);
+        Participant p = _liveSessions.remove(handle);
         if (p != null) {
-           removeChainedCasesForParticpant(p);
+            removeChainedCasesForParticpant(p);
+            EventLogger.audit(p.getUserID(), EventLogger.audit.logoff);
+        }
+        else if (_liveAdmins.contains(handle)) {         // maybe its admin
+            _liveAdmins.remove(handle);
+            EventLogger.audit("admin", EventLogger.audit.logoff);
         }
     }
 
@@ -2794,9 +1951,17 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public Participant removeSession(String handle) {
-        _liveAdmins.remove(handle);
-        return _liveSessions.remove(handle);
+    public Participant expireSession(String handle) {
+        Participant p = null;
+        if (_liveAdmins.contains(handle)) {
+            _liveAdmins.remove(handle);
+            EventLogger.audit("admin", EventLogger.audit.expired);
+        }
+        else {
+            p = _liveSessions.remove(handle);
+            if (p != null) EventLogger.audit(p.getUserID(), EventLogger.audit.expired);
+        }
+        return p;
     }
 
 
@@ -2804,14 +1969,14 @@ public class ResourceManager extends InterfaceBWebsideController {
      *  if there isn't, attempts to connect
      *  @return true if connected to the engine
      */
-    protected boolean connected() {
+    protected synchronized boolean connected() {
         try {
             // if not connected
-             if ((_engineSessionHandle == null)
-                     || (_engineSessionHandle.length() == 0)
-                     || (! checkConnection(_engineSessionHandle))) {
+             if ((_engineSessionHandle == null) ||
+                 (_engineSessionHandle.length() == 0) ||
+                 (! checkConnection(_engineSessionHandle))) {
 
-                _engineSessionHandle = connectAsService();
+                 _engineSessionHandle = connect(_user, _password);
              }
         }
         catch (IOException ioe) {
@@ -2820,78 +1985,29 @@ public class ResourceManager extends InterfaceBWebsideController {
         return (successful(_engineSessionHandle)) ;
     }
 
-//***************************************************************************//
 
-
-    private String connectParticipant(String userid, String password) {
-        String handle ;
-        String result = "success" ;
-        try {
-            // create new user for user if necessary (only for logging purposes)
-            if (! isRegisteredUser(userid))
-                result = _interfaceAClient.createUser(userid, password, false,
-                                                                   _engineSessionHandle);
-            if (successful(result))
-                handle = connect(userid, password);
-            else
-                handle = result ;
-        }
-        catch (IOException ioe) {
-            _log.error("IOException trying to connect user to engine: " + userid);
-            handle = "<failure>Failed to connect to YAWL engine</failure>";
-        }
-        return handle ;
-    }
-
-
-    /**
-     * Attempts to logon to the engine using a service id
-     * @return  a sessionHandle for the connection
-     * @throws IOException
-     */
-    private String connectAsService() throws IOException{
-
-        // first connect as default admin user
-        _engineSessionHandle = connect(_adminUser, _adminPassword);
-
-        // create new user for service if necessary
-        if (! isRegisteredUser(_user))
-           _interfaceAClient.createUser(_user, _password, true, _engineSessionHandle);
-
-        // logon with service user and return the result
-        return connect(_user, _password);
+    protected String getEngineSessionHandle() {
+        connected();                           // (re)establish connection if required
+        return _engineSessionHandle;
     }
 
 //***************************************************************************//
-
-    /**
-     * Checks if a user is currently registered for this session
-     * @param user
-     * @return true if the user is registered in the current session
-     */
-    private boolean isRegisteredUser(String user) {
-
-        // check if service is a registered user
-        try {
-            ArrayList users = (ArrayList) _interfaceAClient.getUsers(_engineSessionHandle);
-            Iterator itr = users.iterator();
-               while (itr.hasNext()) {
-                   User u = (User) itr.next() ;
-                   if ( u.getUserID().equals(user) ) return true ;    // user in list
-            }
-            return false;                                             // user not in list
-        }
-        catch (IOException ioe) {
-            return false;                                             // no list
-        }
-    }
-
 
     private class OrgDataRefresh extends TimerTask {
         public void run() { loadResources() ; }
     }
 
     /*******************************************************************************/
+
+    public void shutdown() {
+        for (Participant p : _liveSessions.values()) {
+            EventLogger.audit(p.getUserID(), EventLogger.audit.shutdown);
+        }
+        for (String handle : _liveAdmins) {
+            EventLogger.audit("admin", EventLogger.audit.shutdown);
+        }
+        _connections.shutdown();
+    }
 
     public String serviceConnect(String userid, String password) {
         return _connections.connect(userid, password) ;
@@ -2905,14 +2021,6 @@ public class ResourceManager extends InterfaceBWebsideController {
         return _connections.checkConnection(handle);
     }
 
-    // A connected external service doesn't have a session with the engine, so this
-    // method swaps service session handles with this class's handle to allow
-    // authorised external services to query the engine
-    private String getHandleForEngineCall(String handle) {
-        return checkServiceConnection(handle) && connected() ?
-               _engineSessionHandle : handle;
-    }
-
 
     private String getParticipantSessionHandle(Participant p) {
         for (String handle : _liveSessions.keySet()) {
@@ -2923,8 +2031,8 @@ public class ResourceManager extends InterfaceBWebsideController {
         return null;
     }
 
-    public Set<SpecificationData> getLoadedSpecs(String handle) {
-        Set<SpecificationData> result = getSpecList(handle) ;
+    public Set<SpecificationData> getLoadedSpecs() {
+        Set<SpecificationData> result = getSpecList() ;
         if (result != null) {
             for (SpecificationData specData : result) {
                 if (! specData.getStatus().equals(YSpecification._loaded))
@@ -2935,25 +2043,22 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
     
 
-    public Set<SpecificationData> getSpecList(String handle) {
-        Set<SpecificationData> result = new HashSet<SpecificationData>() ;
-        handle = getHandleForEngineCall(handle);
+    public Set<SpecificationData> getSpecList() {
         try {
-            Iterator itr = getSpecificationPrototypesList(handle).iterator() ;
-            while (itr.hasNext()) result.add((SpecificationData) itr.next()) ;
+            return new HashSet<SpecificationData>(
+                    getSpecificationPrototypesList(getEngineSessionHandle()));
         }
         catch (IOException ioe) {
             _log.error("IO Exception retrieving specification list", ioe) ;
-            result = null ;
+            return null ;
         }
-        return result ;
     }
 
-    public SpecificationData getSpecData(YSpecificationID spec, String handle) {
+    public SpecificationData getSpecData(YSpecificationID spec) {
         SpecificationData result = _specCache.get(spec);   
         if (result == null) {
             try {
-                result = getSpecificationData(spec, getHandleForEngineCall(handle)) ;
+                result = getSpecificationData(spec, getEngineSessionHandle()) ;
                 if (result != null) _specCache.add(result) ;
             }
             catch (IOException ioe) {
@@ -2964,17 +2069,13 @@ public class ResourceManager extends InterfaceBWebsideController {
         return result;
     }
 
-    public SpecificationData getSpecData(YSpecificationID specID) {
-        return this.getSpecData(specID, _engineSessionHandle);
-    }
 
     public Set<String> getAllRunningCaseIDs() {
         Set<String> result = new HashSet<String>(); 
-        Set<SpecificationData> specDataSet = getSpecList(_engineSessionHandle) ;
+        Set<SpecificationData> specDataSet = getSpecList() ;
         if (specDataSet != null) {
             for (SpecificationData specData : specDataSet) {
-                List<String> caseIDs = getRunningCasesAsList(specData.getSpecID(),
-                        _engineSessionHandle);
+                List<String> caseIDs = getRunningCasesAsList(specData.getID());
                 if (caseIDs != null)
                     result.addAll(caseIDs) ;
             }
@@ -2983,9 +2084,9 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public List<String> getRunningCasesAsList(YSpecificationID specID, String handle) {
+    public List<String> getRunningCasesAsList(YSpecificationID specID) {
         try {
-            String casesAsXML = _interfaceBClient.getCases(specID, handle);
+            String casesAsXML = _interfaceBClient.getCases(specID, getEngineSessionHandle());
             if (_interfaceBClient.successful(casesAsXML))
                 return Marshaller.unmarshalCaseIDs(casesAsXML);
         }
@@ -2996,15 +2097,14 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public String getRunningCases(YSpecificationID specID, String handle) throws IOException {
-        return _interfaceBClient.getCases(specID, getHandleForEngineCall(handle));
+    public String getRunningCases(YSpecificationID specID) throws IOException {
+        return _interfaceBClient.getCases(specID, getEngineSessionHandle());
     }
 
 
-    public String uploadSpecification(String fileContents, String fileName, String handle) {
+    public String uploadSpecification(String fileContents, String fileName) {
         try {
-            return _interfaceAClient.uploadSpecification(fileContents,
-                    getHandleForEngineCall(handle));
+            return _interfaceAClient.uploadSpecification(fileContents, getEngineSessionHandle());
         }
         catch (IOException ioe) {
             _log.error("IOException uploading specification " + fileName, ioe);
@@ -3018,15 +2118,14 @@ public class ResourceManager extends InterfaceBWebsideController {
      * 'handleCancelledCaseEvent', which is triggered by the call to cancelCase in
      * this method.
      * @param caseID the case to cancel
-     * @param handle a valid session handle with the engine
      * @return a message from the engine indicating success or otherwise
      * @throws IOException if there's trouble talking to the engine
      */
-    public synchronized String cancelCase(String caseID, String handle) throws IOException {
-        List<WorkItemRecord> liveItems = getLiveWorkItemsForCase(caseID, handle) ;
+    public synchronized String cancelCase(String caseID) throws IOException {
+        List<WorkItemRecord> liveItems = getLiveWorkItemsForCase(caseID) ;
 
         // cancel the case in the engine
-        String result = _interfaceBClient.cancelCase(caseID, getHandleForEngineCall(handle));
+        String result = _interfaceBClient.cancelCase(caseID, getEngineSessionHandle());
 
         // remove live items for case from workqueues and cache
         if (successful(result)) {
@@ -3044,12 +2143,12 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    private List<WorkItemRecord> getLiveWorkItemsForCase(String caseID, String handle) {
+    private List<WorkItemRecord> getLiveWorkItemsForCase(String caseID) {
         List<WorkItemRecord> result = null ;
         List<WorkItemRecord> childList = new ArrayList<WorkItemRecord>();
         try {
             result = _interfaceBClient.getLiveWorkItemsForIdentifier("case", caseID,
-                                                         getHandleForEngineCall(handle)) ;
+                                                         getEngineSessionHandle()) ;
             if (result != null) {
 
                 // the above method only gets parents, so get any child items too
@@ -3068,55 +2167,48 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public List<WorkItemRecord> getChildren(String parentID) {
         try {
-            return getChildren(parentID, _engineSessionHandle) ;
+            return getChildren(parentID, getEngineSessionHandle()) ;
         }
         catch (IOException ioe) {
             return null;
         }
     }
 
-    public String unloadSpecification(String specID, String version, String handle) throws IOException {
-        YSpecificationID ySpecID = new YSpecificationID(specID, new YSpecVersion(version));
-        String result = _interfaceAClient.unloadSpecification(ySpecID,
-                                          getHandleForEngineCall(handle));
+    public String unloadSpecification(YSpecificationID specID) throws IOException {
+        String result = _interfaceAClient.unloadSpecification(specID, getEngineSessionHandle());
         if (successful(result)) {
-            _resMapCache.remove(ySpecID);
-            _specCache.remove(ySpecID);
+            _resMapCache.remove(specID);
+            _specCache.remove(specID);
         }
         return result ;
     }
 
 
-    public String launchCase(String specID, String version, String caseData, String handle)
-            throws IOException {
-        YSpecificationID ySpecID = new YSpecificationID(specID, version);
-        return launchCase(ySpecID, caseData, handle);
-    }
-    
-    
-    public String launchCase(YSpecificationID specID, String caseData, String handle)
+    public String launchCase(YSpecificationID specID, String caseData)
             throws IOException {
         if (_serviceURI == null) setServiceURI();
         return _interfaceBClient.launchCase(specID, caseData,
-                       getHandleForEngineCall(handle), _serviceURI) ;
+                       getEngineSessionHandle(), getLogData(), _serviceURI) ;
+    }
+
+
+    private YLogDataItemList getLogData() {
+        return new YLogDataItemList(
+               new YLogDataItem("launched", "name", "resourceService", "string"));
     }
 
 
     public String getTaskParamsAsXML(String itemID) throws IOException {
         WorkItemRecord wir = _workItemCache.get(itemID);
         if (wir != null) {
-            String specName = wir.getSpecificationID();
-            String version = wir.getSpecVersion();
-            return getTaskParamsAsXML(new YSpecificationID(specName, version),
-                                      wir.getTaskID(), _engineSessionHandle);
+            return getTaskParamsAsXML(new YSpecificationID(wir), wir.getTaskID());
         }
         else return "<failure>Unknown workitem: " + itemID + "</failure>";
     }
 
 
-    public String getTaskParamsAsXML(YSpecificationID specID, String taskID,
-                                              String sessionHandle) throws IOException {
-        String xml = _interfaceBClient.getTaskInformationStr(specID, taskID, sessionHandle);
+    public String getTaskParamsAsXML(YSpecificationID specID, String taskID) throws IOException {
+        String xml = _interfaceBClient.getTaskInformationStr(specID, taskID, getEngineSessionHandle());
         if (xml != null) {
             Element response = JDOMUtil.stringToElement(xml);
             if (response != null) {
@@ -3137,8 +2229,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (wir != null) {
             try {
                 TaskInformation taskInfo = getTaskInformation(
-                    new YSpecificationID(wir.getSpecificationID(),
-                        wir.getSpecVersion()), wir.getTaskID(), _engineSessionHandle
+                    new YSpecificationID(wir), wir.getTaskID(), getEngineSessionHandle()
                 );
                 List<YParameter> list = taskInfo.getParamSchema().getOutputOnlyParams();
                 result = "<outputOnlyParameters>\n";
@@ -3158,18 +2249,10 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     
     public Map<String, FormParameter> getWorkItemParamsInfo(WorkItemRecord wir)
-                                                   throws IOException, JDOMException {
-        return getWorkItemParamsInfo(wir, _engineSessionHandle);
-    }
-
-
-    public Map<String, FormParameter> getWorkItemParamsInfo(WorkItemRecord wir, String handle)
            throws IOException, JDOMException {
         Map<String, FormParameter> inputs, outputs;
-        TaskInformation taskInfo = getTaskInformation(
-                new YSpecificationID(wir.getSpecificationID(), wir.getSpecVersion()),
-                wir.getTaskID(), handle);
-
+        TaskInformation taskInfo = getTaskInformation(new YSpecificationID(wir),
+                                                      wir.getTaskID(), getEngineSessionHandle());
         // map the params
         inputs  = mapParamList(taskInfo.getParamSchema().getInputParams()) ;
         outputs = mapParamList(taskInfo.getParamSchema().getOutputParams()) ;
@@ -3219,9 +2302,9 @@ public class ResourceManager extends InterfaceBWebsideController {
         return result ;
     }
 
-    private WorkItemRecord refreshWIRFromEngine(WorkItemRecord wir, String handle) {
+    private WorkItemRecord refreshWIRFromEngine(WorkItemRecord wir) {
         try {
-            wir = getEngineStoredWorkItem(wir.getID(), handle);
+            wir = getEngineStoredWorkItem(wir.getID(), getEngineSessionHandle());
             _workItemCache.update(wir) ;
             return wir ;
         }
@@ -3238,33 +2321,48 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public Set getRegisteredServices(String handle) {
-        return _interfaceAClient.getRegisteredYAWLServices(handle);
+    public Set<YAWLServiceReference> getRegisteredServices() {
+        return _interfaceAClient.getRegisteredYAWLServices(getEngineSessionHandle());
     }
 
-    public String getRegisteredServicesAsXML(String handle) throws IOException {
-        return _interfaceAClient.getRegisteredYAWLServicesAsXML(getHandleForEngineCall(handle));
-    }
-
-
-    public String addRegisteredService(YAWLServiceReference service, String handle)
-                                                                    throws IOException {
-        return _interfaceAClient.setYAWLService(service, getHandleForEngineCall(handle));
+    public String getRegisteredServicesAsXML() throws IOException {
+        return _interfaceAClient.getRegisteredYAWLServicesAsXML(getEngineSessionHandle());
     }
 
 
-    public String removeRegisteredService(String id, String handle) throws IOException {
-        return _interfaceAClient.removeYAWLService(id, getHandleForEngineCall(handle));
+    public String addRegisteredService(YAWLServiceReference service) throws IOException {
+        return _interfaceAClient.addYAWLService(service, getEngineSessionHandle());
     }
 
-    public String getCaseData(String caseID, String handle) throws IOException {
-        return _interfaceBClient.getCaseData(caseID, getHandleForEngineCall(handle)) ;
+
+    public String removeRegisteredService(String id) throws IOException {
+        return _interfaceAClient.removeYAWLService(id, getEngineSessionHandle());
+    }
+
+
+    public Set<YExternalClient> getExternalClients() throws IOException {
+        return _interfaceAClient.getClientAccounts(getEngineSessionHandle());
+    }
+
+
+    public String addExternalClient(YExternalClient client) throws IOException {
+        return _interfaceAClient.addClientAccount(client, getEngineSessionHandle());
+    }
+
+
+    public String removeExternalClient(String id) throws IOException {
+        return _interfaceAClient.removeClientAccount(id, getEngineSessionHandle());
+    }
+
+
+    public String getCaseData(String caseID) throws IOException {
+        return _interfaceBClient.getCaseData(caseID, getEngineSessionHandle()) ;
     }
 
 
     public String getNetParamValue(String caseID, String paramName) throws IOException {
         String result = null;
-        String caseData = getCaseData(caseID, _engineSessionHandle) ;
+        String caseData = getCaseData(caseID) ;
         Element eData = JDOMUtil.stringToElement(caseData);
         if (eData != null)
             result = eData.getChildText(paramName) ;
@@ -3272,15 +2370,15 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public String getSchemaLibrary(YSpecificationID specID, String handle) throws IOException {
-        return _interfaceBClient.getSpecificationDataSchema(specID, handle) ;
+    public String getSchemaLibrary(YSpecificationID specID) throws IOException {
+        return _interfaceBClient.getSpecificationDataSchema(specID, getEngineSessionHandle()) ;
     }
 
     
     public String getDataSchema(YSpecificationID specID) {
         String result = null ;
         try {
-            SpecificationData specData = getSpecData(specID, _engineSessionHandle);
+            SpecificationData specData = getSpecData(specID);
             result = new DataSchemaProcessor().createSchema(specData);
         }
         catch (Exception e) {
@@ -3292,8 +2390,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     public String getDataSchema(String itemID) {
         WorkItemRecord wir = _workItemCache.get(itemID);
         if (wir != null) {
-            YSpecificationID specID = new YSpecificationID(wir.getSpecificationID(),
-                                                           wir.getSpecVersion());
+            YSpecificationID specID = new YSpecificationID(wir);
             return getDataSchema(wir, specID);
         }
         else return "<failure>Unknown workitem ID '" + itemID + "'.</failure>";
@@ -3303,9 +2400,9 @@ public class ResourceManager extends InterfaceBWebsideController {
     public String getDataSchema(WorkItemRecord wir, YSpecificationID specID) {
         String result = null ;
         try {
-            SpecificationData specData = getSpecData(specID, _engineSessionHandle);
+            SpecificationData specData = getSpecData(specID);
             TaskInformation taskInfo = getTaskInformation(specID, wir.getTaskID(),
-                                                          _engineSessionHandle);
+                                                          getEngineSessionHandle());
             result = new DataSchemaProcessor().createSchema(specData, taskInfo);
         }
         catch (Exception e) {
@@ -3343,11 +2440,9 @@ public class ResourceManager extends InterfaceBWebsideController {
     public String getInstanceData(String schema, WorkItemRecord wir) {
         String result = null;
         try {
-            YSpecificationID specID = new YSpecificationID(wir.getSpecificationID(),
-                                                           wir.getSpecVersion());
-            TaskInformation taskInfo = getTaskInformation(specID,
+            TaskInformation taskInfo = getTaskInformation(new YSpecificationID(wir),
                                                           wir.getTaskID(),
-                                                          _engineSessionHandle);
+                                                          getEngineSessionHandle());
             if (taskInfo != null)
                result = new DataSchemaProcessor()
                                 .getInstanceData(schema, taskInfo.getDecompositionID(),
@@ -3364,14 +2459,12 @@ public class ResourceManager extends InterfaceBWebsideController {
                                         String action) {
         boolean result = true ;
         if (wir != null) {
-            Participant p = getParticipant(participantID);
+            Participant p = _orgDataSet.getParticipant(participantID);
             if (action.equals("Start")) {
                 String status = wir.getStatus();
                 if (status.equals(WorkItemRecord.statusEnabled) ||
                     status.equals(WorkItemRecord.statusFired)) {
-                    String handle = getParticipantSessionHandle(p);
-                    if (handle == null) handle = _engineSessionHandle;
-                    result = start(p, wir, handle);
+                    result = start(p, wir);
                 }
                 else {
                     _log.error("Unable to start workitem due to invalid status: " + status);
@@ -3397,7 +2490,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public void reassignWorklistedItem(WorkItemRecord wir, String participantID,
                                                            String action) {
-        Participant p = getParticipant(participantID);
+        Participant p = _orgDataSet.getParticipant(participantID);
         removeFromAll(wir) ;
 
         if (action.equals("Reoffer")) {            
@@ -3418,7 +2511,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
         else if (action.equals("Restart")) {
             if (wir.getStatus().equals(WorkItemRecord.statusEnabled))
-                start(p, wir, _engineSessionHandle);
+                start(p, wir);
             else {
                 p.getWorkQueues().addToQueue(wir, WorkQueue.STARTED);
                 wir.setResourceStatus(WorkItemRecord.statusResourceStarted);
@@ -3434,12 +2527,9 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     private boolean isAutoTask(WorkItemRecord wir) {
-        boolean result = false ;
-        String needsResourcingStr = wir.getRequiresManualResourcing();
-        if (needsResourcingStr != null)
-            result = needsResourcingStr.equalsIgnoreCase("false");
-
-        return result;
+        return ((wir != null) &&
+                (wir.getRequiresManualResourcing() != null) &&
+                (wir.getRequiresManualResourcing().equalsIgnoreCase("false")));
     }
 
 
@@ -3451,7 +2541,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         synchronized(_mutex) {
 
             // check out the auto workitem
-            if (connected() && checkOutWorkItem(wir, _engineSessionHandle)) {
+            if (connected() && checkOutWorkItem(wir)) {
                 List children = getChildren(wir.getID());
 
                 if ((children != null) && (! children.isEmpty())) {
@@ -3479,7 +2569,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             // check item back in
             checkCacheForWorkItem(wir);     // won't be cached if this is a restored item
             String msg = checkInWorkItem(wir.getID(), wir.getDataList(),
-                    outData, _engineSessionHandle) ;
+                    outData, getEngineSessionHandle()) ;
             if (successful(msg)) {
                 if (_persisting) persistAutoTask(wir, false);
                 _log.info("Automated task '" + wir.getID() +
@@ -3530,9 +2620,9 @@ public class ResourceManager extends InterfaceBWebsideController {
                         " workitem " + wir.getID();
         try {
              // get params
-             TaskInformation taskInfo = getTaskInformation(
-                     new YSpecificationID(wir.getSpecificationID(), wir.getSpecVersion()),
-                                          wir.getTaskID(), _engineSessionHandle);
+             TaskInformation taskInfo = getTaskInformation(new YSpecificationID(wir),
+                                                           wir.getTaskID(),
+                                                           getEngineSessionHandle());
              List<YParameter> inputs = taskInfo.getParamSchema().getInputParams() ;
              List<YParameter> outputs = taskInfo.getParamSchema().getOutputParams() ;
 
@@ -3588,11 +2678,10 @@ public class ResourceManager extends InterfaceBWebsideController {
        String result = null;
        try {
            String mayAdd = _interfaceBClient.checkPermissionToAddInstances(
-                                         wir.getID(), _engineSessionHandle);
+                                         wir.getID(), getEngineSessionHandle());
            if (successful(mayAdd)) {
-               TaskInformation taskInfo = getTaskInformation(
-                   new YSpecificationID(wir.getSpecificationID(), wir.getSpecVersion()),
-                                        wir.getTaskID(), _engineSessionHandle);
+               TaskInformation taskInfo = getTaskInformation(new YSpecificationID(wir),
+                                        wir.getTaskID(), getEngineSessionHandle());
                YParameter formalInputParam = taskInfo.getParamSchema().getFormalInputParam();
                if (formalInputParam != null) {
                    result = formalInputParam.getName();
@@ -3609,7 +2698,7 @@ public class ResourceManager extends InterfaceBWebsideController {
    public WorkItemRecord createNewWorkItemInstance(String id, String value) {
        WorkItemRecord result = null;
        try {
-           String xml = _interfaceBClient.createNewInstance(id, value, _engineSessionHandle);
+           String xml = _interfaceBClient.createNewInstance(id, value, getEngineSessionHandle());
            if (successful(xml)) {
                result = Marshaller.unmarshalWorkItem(StringUtil.unwrap(xml));
                _workItemCache.add(result);

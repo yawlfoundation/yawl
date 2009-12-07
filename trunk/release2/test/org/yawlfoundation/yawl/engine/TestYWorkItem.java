@@ -32,7 +32,7 @@ public class TestYWorkItem extends TestCase{
 
 
     public void setUp() throws Exception{
-        _identifier = new YIdentifier();
+        _identifier = new YIdentifier(null);
         _childIdentifier = _identifier.createChild(null);
         _workItemID = new YWorkItemID(_identifier, "task-123");
         _workItem = new YWorkItem(null, new YSpecificationID("ASpecID"), _workItemID, true, false);
@@ -49,7 +49,7 @@ public class TestYWorkItem extends TestCase{
         YIdentifier id = _childIdentifier.createChild(null);
         assertEquals(child.getParent(), _workItem);
         assertNull(child.createChild(null, id));
-        assertNull(_workItem.createChild(null, new YIdentifier()));
+        assertNull(_workItem.createChild(null, new YIdentifier(null)));
         assertNull(child.getChildren());
         assertNull(_workItem.getParent());
         assertEquals(_workItem.getChildren().iterator().next(), child);
@@ -59,7 +59,7 @@ public class TestYWorkItem extends TestCase{
         assertFalse( child.getFiringTime().before(_workItem.getEnablementTime()));
         assertTrue(child.allowsDynamicCreation());
         child.setStatusToStarted(null, "fred");
-        assertEquals(child.getUserWhoIsExecutingThisItem(), "fred");
+        assertEquals(child.getOwnerService(), "fred");
         Exception e = null;
         try{
             _workItem.setStatusToStarted(null, "fred");

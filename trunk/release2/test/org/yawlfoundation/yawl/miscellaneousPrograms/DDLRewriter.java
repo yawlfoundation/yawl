@@ -32,7 +32,7 @@ public class DDLRewriter {
         BufferedReader reader = new BufferedReader(new FileReader(originalFile));
 
         String line = null;
-        StringBuffer newContents = new StringBuffer();
+        StringBuilder newContents = new StringBuilder();
         while((line = reader.readLine() ) != null){
             System.out.println("line = " + line);
             if(line.indexOf("\"") != -1){

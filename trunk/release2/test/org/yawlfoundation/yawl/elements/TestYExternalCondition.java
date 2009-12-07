@@ -43,7 +43,7 @@ public class TestYExternalCondition extends TestCase {
 
     public void setUp() throws YPersistenceException {
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification._Beta2);
+        spec.setVersion(YSpecification.Beta2);
         _net = new YNet("aNetName", spec);
         YVariable v = new YVariable(null);
         v.setName("stubList");
@@ -57,9 +57,9 @@ public class TestYExternalCondition extends TestCase {
         _condition2 = new YCondition("c2", "C2", _net);
         _aTask = new YAtomicTask("at1", YAtomicTask._XOR, YAtomicTask._AND, _net);
         YFlow f = new YFlow(_condition, _aTask);
-        _aTask.setPreset(f);
+        _aTask.addPreset(f);
         f = new YFlow(_aTask, _condition2);
-        _aTask.setPostset(f);
+        _aTask.addPostset(f);
     }
 
 
@@ -71,7 +71,7 @@ public class TestYExternalCondition extends TestCase {
 
 
     public void testMovingIdentifiers() throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
-        YIdentifier id = new YIdentifier();
+        YIdentifier id = new YIdentifier(null);
         assertTrue(id.getLocations().size() == 0);
         assertFalse(id.getLocations().contains(_condition));
         _condition.add(null, id);

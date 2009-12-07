@@ -13,7 +13,7 @@ import com.sun.rave.web.ui.component.*;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
-import org.yawlfoundation.yawl.resourcing.util.PasswordEncryptor;
+import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
 import javax.faces.FacesException;
 import java.io.UnsupportedEncodingException;

@@ -44,14 +44,9 @@ public class YEnabledTransitionSet {
      */
     private List<String> getFlowsFromIDs(YTask task) {
         List<String> result = new ArrayList<String>();
-        Set presets = task.getPresetFlows();
-        if (presets != null) {
-            Iterator itr = presets.iterator();
-            while (itr.hasNext()) {
-                YFlow flow = (YFlow) itr.next();
-                YNetElement prior = flow.getPriorElement();
-                if (prior != null) result.add(prior.getID()) ;
-            }
+        for (YFlow flow : task.getPresetFlows()) {
+            YNetElement prior = flow.getPriorElement();
+            if (prior != null) result.add(prior.getID()) ;
         }
         return result ;
     }
@@ -131,6 +126,24 @@ public class YEnabledTransitionSet {
             for (YTask task : this)
                 if (task instanceof YAtomicTask) result.add((YAtomicTask) task);
             return result;
+        }
+
+
+        /**
+         * If there is more than one task in this group (aka. a deferred choice) and
+         * there's at least one empty task amongst them, then the yawl semantics will
+         * mean that the empty task will 'win' the choice, and the others in the group
+         * will be cancelled. Because timing of the cancellation announcements will
+         * precede that of the enablement of those tasks, it is necessary to preempt
+         * the enablement announcements. This method is called from YNetRunner.fireTasks
+         * so that it knows whether to announce the firings or not.
+         * @return true if the group contains an empty atomic task.
+         */
+        public boolean hasEmptyAtomicTask() {
+            for (YAtomicTask task : getEnabledAtomicTasks()) {
+                if (task.getDecompositionPrototype() == null) return true;
+            }
+            return false;
         }
 
 

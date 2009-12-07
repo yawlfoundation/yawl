@@ -9,9 +9,8 @@
 package org.yawlfoundation.yawl.resourcing.allocators;
 
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
-import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
 import java.util.Iterator;
@@ -51,8 +50,8 @@ public class RoundRobinByLeastFrequency extends AbstractAllocator {
             }
             else {
                 // more than one part. in the set
-                List events = getLoggedEvents(wir);
-                if (events != null) {
+                List events = getLoggedEvents(wir, EventLogger.event.complete);
+                if (! events.isEmpty()) {
                     for (Participant p : participants) {
                         long frequency = getFrequency(events, p);
                         if (frequency == 0) {
@@ -74,20 +73,6 @@ public class RoundRobinByLeastFrequency extends AbstractAllocator {
             }
         }
         return chosen;
-    }
-
-
-    private List getLoggedEvents(WorkItemRecord wir) {
-        Persister persister = Persister.getInstance() ;
-        if (persister != null) {
-            String eventStr = EventLogger.event.complete.name();
-            String specID = wir.getSpecificationID();
-            String taskID = wir.getTaskID();
-            return persister.selectWhere("ResourceEvent",
-                  String.format("_event='%s' and tbl._specID='%s' and tbl._taskID='%s'",
-                                eventStr, specID, taskID)) ;
-        }
-        else return null;
     }
 
 

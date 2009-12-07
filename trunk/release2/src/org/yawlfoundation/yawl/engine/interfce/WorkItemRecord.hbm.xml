@@ -13,8 +13,9 @@
             <generator class="native"/>
         </id>
 
-        <property name="_specificationID" column="specID" access="field"/>
+        <property name="_specIdentifier" column="specID" access="field"/>
         <property name="_specVersion" column="specVersion" access="field"/>        
+        <property name="_specURI" column="specURI" access="field"/>
         <property name="_caseID" column="caseID" access="field"/>
         <property name="_taskID" column="taskID" access="field"/>
         <property name="_uniqueID" column="uniqueID" access="field"/>

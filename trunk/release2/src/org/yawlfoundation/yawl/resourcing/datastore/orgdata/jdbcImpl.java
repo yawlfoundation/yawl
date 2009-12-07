@@ -676,13 +676,13 @@ public class jdbcImpl extends DataSource {
 
                 // add attribute objects
                 ids = selectParticipantAttributeIDs(tbl.rsj_participant_role, pid) ;
-                for (String rid : ids) p.addRole(ds.roleMap.get(rid));
+                for (String rid : ids) p.addRole(ds.getRole(rid));
 
                 ids = selectParticipantAttributeIDs(tbl.rsj_participant_position, pid) ;
-                for (String posid : ids) p.addPosition(ds.positionMap.get(posid));
+                for (String posid : ids) p.addPosition(ds.getPosition(posid));
 
                 ids = selectParticipantAttributeIDs(tbl.rsj_participant_capability, pid) ;
-                for (String cid : ids) p.addCapability(ds.capabilityMap.get(cid));
+                for (String cid : ids) p.addCapability(ds.getCapability(cid));
 
                 // add participant to map
                 map.put(pid, p) ;
@@ -905,22 +905,22 @@ public class jdbcImpl extends DataSource {
 
 
     public ResourceDataSet loadResources() {
-        ResourceDataSet ds = new ResourceDataSet() ;
+        ResourceDataSet ds = new ResourceDataSet(this) ;
 
         // load capabilties first - they have no cyclical dependencies
-        ds.capabilityMap = loadCapabilities() ;
+        ds.setCapabilities(loadCapabilities(), this) ;
 
         // do org groups next (lowest in the hierarchy)
-        ds.orgGroupMap = loadOrgGroups() ;
+        ds.setOrgGroups(loadOrgGroups(), this) ;
 
         // then do Positions using the org group mapping returned above
-        ds.positionMap = loadPositions(ds.orgGroupMap) ;
+        ds.setPositions(loadPositions(ds.getOrgGroupMap()), this);
 
         // roles next
-        ds.roleMap = loadRoles() ;
+        ds.setRoles(loadRoles(), this) ;
 
         // ok, all pre-required maps built, now recreate participants
-        ds.participantMap = loadParticipants(ds) ;
+        ds.setParticipants(loadParticipants(ds), this) ;
 
         return ds ;
     }

@@ -9,6 +9,7 @@
 package org.yawlfoundation.yawl.engine.instance;
 
 import org.jdom.Element;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
@@ -31,7 +32,7 @@ public class WorkItemInstance {
     private String taskID;
     private String id;
     private String status;
-    private String resource;
+    private String resourceName;
     private String timerStatus;
     private long enabledTime;
     private long startTime;
@@ -66,7 +67,7 @@ public class WorkItemInstance {
         taskID = getTaskID();
         id = getID();
         status = getStatus();
-        resource = getResource();
+        resourceName = getResourceName();
         timerStatus = null;         // todo
         enabledTime = getEnabledTime();
         startTime = getStartTime();
@@ -99,12 +100,15 @@ public class WorkItemInstance {
     public void setStatus(String s) { status = s; }
 
 
-    public String getResource() {
-        if (workItem != null) return workItem.getUserWhoIsExecutingThisItem();
-        return resource;
+    public String getResourceName() {
+        if (workItem != null) {
+            YAWLServiceReference service = workItem.getOwnerService();
+            if (service != null) resourceName = service.getServiceName();
+        }
+        return resourceName;
     }
 
-    public void setResource(String s) { resource = s; }
+    public void setResourceName(String s) { resourceName = s; }
 
 
     public String getTimerStatus() {
@@ -206,7 +210,7 @@ public class WorkItemInstance {
         xml.append(StringUtil.wrap(getID(), "id"));
         xml.append(StringUtil.wrap(getTaskID(), "taskid"));
         xml.append(StringUtil.wrap(getStatus(), "status"));
-        xml.append(StringUtil.wrap(getResource(), "resource"));
+        xml.append(StringUtil.wrap(getResourceName(), "resource"));
         xml.append(StringUtil.wrap(getTimerStatus(), "timerStatus"));
         xml.append(StringUtil.wrap(String.valueOf(getEnabledTime()), "enabledtime"));
         xml.append(StringUtil.wrap(String.valueOf(getStartTime()), "starttime"));
@@ -225,7 +229,7 @@ public class WorkItemInstance {
             id = instance.getChildText("id");
             taskID = instance.getChildText("taskid");
             status = instance.getChildText("status");
-            resource = instance.getChildText("resource");
+            resourceName = instance.getChildText("resource");
             timerStatus = instance.getChildText("timerStatus");
             enabledTime = strToLong(instance.getChildText("enabledtime"));
             startTime = strToLong(instance.getChildText("starttime"));
@@ -244,5 +248,5 @@ public class WorkItemInstance {
         }
         return result;
     }
-    
+
 }

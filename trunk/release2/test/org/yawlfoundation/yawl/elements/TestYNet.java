@@ -79,30 +79,30 @@ public class TestYNet extends TestCase {
         specification = (YSpecification) YMarshal.
                         unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
         _loopedNet = specification.getRootNet();
-        _id1 = new YIdentifier();
+        _id1 = new YIdentifier(null);
 
         _id1.addLocation(null, (YCondition) _loopedNet.getNetElement("c{d_f}"));
         _id1.addLocation(null, (YCondition) _loopedNet.getNetElement("c{d_f}"));
         _id1.addLocation(null, (YCondition) _loopedNet.getNetElement("cC"));
-        _id2 = new YIdentifier();
+        _id2 = new YIdentifier(null);
         _id2.addLocation(null, (YCondition) _loopedNet.getNetElement("c{d_f}"));
         _id2.addLocation(null, (YCondition) _loopedNet.getNetElement("cA"));
-        _id3 = new YIdentifier();
+        _id3 = new YIdentifier(null);
         _id3.addLocation(null, (YCondition) _loopedNet.getNetElement("cC"));
-        _id4 = new YIdentifier();
+        _id4 = new YIdentifier(null);
         _id4.addLocation(null, (YCondition) _loopedNet.getNetElement("i-top"));
         _id4.addLocation(null, (YCondition) _loopedNet.getNetElement("c{d_f}"));
-        _id5 = new YIdentifier();
+        _id5 = new YIdentifier(null);
         _id5.addLocation(null, (YCondition) _loopedNet.getNetElement("c{d_f}"));
         _id5.addLocation(null, (YCondition) _loopedNet.getNetElement("c{b_w}"));
-        _id6 = new YIdentifier();
+        _id6 = new YIdentifier(null);
         _id6.addLocation(null, (YTask) _loopedNet.getNetElement("d"));
         _id6.addLocation(null, (YCondition) _loopedNet.getNetElement("c{d_f}"));
-        _id7 = new YIdentifier();
+        _id7 = new YIdentifier(null);
         _id7.addLocation(null, (YCondition) _loopedNet.getNetElement("cA"));
         _id7.addLocation(null, (YCondition) _loopedNet.getNetElement("cB"));
         _id7.addLocation(null, (YCondition) _loopedNet.getNetElement("c{q_f}"));
-        _id8 = new YIdentifier();
+        _id8 = new YIdentifier(null);
         _id8.addLocation(null, (YCondition) _loopedNet.getNetElement("cA"));
         _id8.addLocation(null, (YCondition) _loopedNet.getNetElement("cB"));
         _id8.addLocation(null, (YCondition) _loopedNet.getNetElement("cC"));

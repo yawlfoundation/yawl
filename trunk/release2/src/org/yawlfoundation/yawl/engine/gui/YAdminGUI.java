@@ -11,8 +11,7 @@ package org.yawlfoundation.yawl.engine.gui;
 
 
 import org.apache.log4j.Logger;
-import org.yawlfoundation.yawl.authentication.User;
-import org.yawlfoundation.yawl.authentication.UserList;
+import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
@@ -330,7 +329,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
                 Iterator iter = specs.iterator();
                 while (iter.hasNext()) {
                     YSpecification spec = _engineManagement.getSpecification((YSpecificationID) iter.next());
-                    logger.debug("Loading spec " + spec.getID());
+                    logger.debug("Loading spec " + spec.getURI());
                     _loadedSpecificationsTableModel.addRow(spec.getSpecificationID(), new Object[]{spec.getSpecificationID(), spec.getRootNet().getID()});
 
                     // Load up any active cases
@@ -340,7 +339,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
                     Iterator iterCases = cases.iterator();
                     while (iterCases.hasNext()) {
                         YIdentifier caseID = (YIdentifier) iterCases.next();
-                        addCase(spec.getID(), caseID.get_idString());
+                        addCase(spec.getSpecificationID(), caseID.get_idString());
                     }
                 }
             } catch (YPersistenceException e) {
@@ -362,9 +361,8 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
         {
             try {
                 Set users = _engineManagement.getUsers();
-                Iterator iter = users.iterator();
-                while (iter.hasNext()) {
-                    User user = (User) iter.next();
+                for (Object o : users) {
+                    YExternalClient user = (YExternalClient) o;
                     attemptToCreateWorklist(user.getUserID());
                 }
             } catch (Exception e) {
@@ -562,7 +560,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
         }
 
         if (newSpecIDs.size() == 0 || errorMessages.size() > 0) {
-            StringBuffer errorMessageStr = new StringBuffer();
+            StringBuilder errorMessageStr = new StringBuilder();
 
             Iterator iterator = errorMessages.iterator();
             while (iterator.hasNext()) {
@@ -589,7 +587,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
          */
         try
         {
-            File dataDir = new File(selectedFile.getParentFile().getAbsolutePath() + File.separator + spec.getSpecificationID().getSpecName() + "_DAT");
+            File dataDir = new File(selectedFile.getParentFile().getAbsolutePath() + File.separator + spec.getSpecificationID().getUri() + "_DAT");
             if (!dataDir.exists())
             {
                 if (!dataDir.mkdir())
@@ -603,7 +601,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
             {
                 logger.info("Reading test data files from " + dataDir.getAbsolutePath());
             }
-            specTestDataDirs.put(spec.getSpecificationID().getSpecName(), dataDir);
+            specTestDataDirs.put(spec.getSpecificationID().getUri(), dataDir);
         }
         catch (IOException e)
         {
@@ -618,26 +616,18 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
 
 
     private void attemptToCreateWorklist(String userName) throws YPersistenceException, YAuthenticationException {
-        Set users = _engineManagement.getUsers();
-        User user = null;
-        boolean userfound = false;
-        for (Iterator iterator = users.iterator(); iterator.hasNext();) {
-            user = (User) iterator.next();
-            if (user.getUserID().equals(userName)) {
-                userfound = true;
-            }
+        if (userName == null) {
+            return;  // do nothing - user must have chosen cancel
         }
-        if (!userfound) {
-            user = UserList.getInstance().addUser(userName, "password", false);
-            _engineManagement.storeObject(user);
-        } else if (userName == null) {
-            return;//do nothing - user must have chosen cancel
+        YExternalClient client = _engineManagement.getExternalClient(userName);
+        if (client == null) {
+            client = new YExternalClient(userName, "password", null);
+            _engineManagement.addExternalClient(client);
         }
         {
             YWorklistModel model = new YWorklistModel(userName, _frame);
             YWorklistGUI worklistGUI = model.getGUI();
             _activeWorklistsTableModel.addRow(userName, new Object[]{userName});
-
             _tabbedGUI.addWorklistPanel(userName, worklistGUI);
         }
     }
@@ -686,30 +676,14 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
             YSpecificationID specID = (YSpecificationID) _loadedSpecificationsTable.getValueAt(selectedRow, 0);
             try {
                 //todo AJH - IS this where we pass in the input params ???????
-//                String caseIDStr = _engineClient.startCase(specID).toString();
-                /**
-                 * AJH: If we have a data file defined for the initial net data, get the XML and pass into the
-                 * case launcher
-                 */
-                File initCaseData = new File(getSpecTestDataDirectory(specID.getSpecName()), "starting_net.xml");
-                if (initCaseData.exists())
-                {
-                    logger.info("Loading initial case net data from " + initCaseData.getAbsolutePath());
-                    _engineClient.launchCase("",specID.getSpecName(), StringUtil.fileToString(initCaseData), null);
-                }
-                else
-                {
-                    _engineClient.launchCase("", specID.getSpecName(), "", null);
-                }
+                String caseIDStr = _engineClient.launchCase(specID, "", null, null);
             } catch (Exception e) {
                 logError("Failure to start case", e);
             }
         }
     }
 
-
-
-    public void addCase(String specID, String caseIDStr) {
+    public void addCase(YSpecificationID specID, String caseIDStr) {
         _activeCasesTableModel.addRow(caseIDStr, new Object[]{specID, caseIDStr});
     }
 

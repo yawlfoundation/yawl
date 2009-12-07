@@ -19,7 +19,7 @@ import java.util.Map;
  *  @author Michael Adams
  *  29/10/2007
  *
- *  Last Date: 06/11/2007
+ *  Last Date: 02/12/2009 (for v2.1)
  */
 
 public class YLogGatewayClient extends Interface_Client {
@@ -41,7 +41,7 @@ public class YLogGatewayClient extends Interface_Client {
     // GET METHODS - returning String //
 
     /**
-     * a wrapper for the executeGet method - returns a String
+     * a wrapper for the executeGet method - accepts a String value
      * @param action the name of the gateway method to call
      * @param pName the name of the parameter passed
      * @param pValue the parameter's value
@@ -56,141 +56,237 @@ public class YLogGatewayClient extends Interface_Client {
         return executeGet(_logURI, params);
     }
 
-    /**
-     * Gets all of the CaseEventIDs in the process logs
-     * @param handle an active sessionhandle
-     * @return an XML'd String list of CaseEventIDs
-     * @throws java.io.IOException if there's a problem connecting to the engine
-     */
-    public String getAllCaseEventIDs(String handle) throws IOException  {
-        return performGet("getAllCaseEventIDs", null, null, handle) ;
-    }
 
     /**
-     * Gets all of the CaseEventIDs in the process logs for a particular event type
-     * @param eventType one of "started", "completed" or "cancelled"
+     * a wrapper for the executeGet method - accepts a long value
+     * @param action the name of the gateway method to call
+     * @param pName the name of the parameter passed
+     * @param pValue the parameter's value
      * @param handle an active sessionhandle
-     * @return an XML'd String list of CaseEventIDs for the event type passed
+     * @return the resultant String response (log data or error message)
      * @throws java.io.IOException if there's a problem connecting to the engine
      */
-    public String getAllCaseEventIDs(String eventType, String handle) throws IOException  {
-        return performGet("getAllCaseEventIDs", "eventtype", eventType, handle) ;
-    }
-
-    /**
-     * Gets a list of all distinct spec ids (i.e. spec names) in the process logs
-     * @param handle an active sessionhandle
-     * @return an XML'd String list of specification ids
-     * @throws java.io.IOException if there's a problem connecting to the engine
-     */
-    public String getAllSpecIDs(String handle) throws IOException  {
-        return performGet("getAllSpecIDs", null, null, handle) ;
-    }
-
-    /**
-     * Gets a list of "started" cases for a specification (all log columns)
-     * @param specID the specification id to get the cases for
-     * @param handle an active sessionhandle
-     * @return an XML'd String list of case data for the spec id passed
-     * @throws java.io.IOException if there's a problem connecting to the engine
-     */
-    public String getCaseEventsForSpec(String specID, String handle) throws IOException {
-        return performGet("getCaseEventsForSpec", "specid", specID, handle) ;
-    }
-
-    /**
-     * Gets a list of "started" CaseEventIDs for a specification
-     * @param specID the specification id to get the CaseEventIDs for
-     * @param handle an active sessionhandle
-     * @return an XML'd String list of CaseEventIDs for the spec id passed
-     * @throws java.io.IOException if there's a problem connecting to the engine
-     */
-    public String getCaseEventIDsForSpec(String specID, String handle) throws IOException {
-        return performGet("getCaseEventIDsForSpec", "specid", specID, handle) ;
-    }
-
-    /**
-     * Gets a list of all child workitem data for a particular parent item
-     * @param parentEventID the id of the parent "executing" event
-     * @param handle an active sessionhandle
-     * @return an XML'd String list of child workitem data of the parent
-     * @throws java.io.IOException if there's a problem connecting to the engine
-     */
-    public String getChildWorkItemEventsForParent(String parentEventID, String handle)
+    private String performGet(String action, String pName, long pValue, String handle)
                                                                      throws IOException {
-        return performGet("getChildWorkItemEventsForParent", "eventid", parentEventID,
-                                                                      handle) ;
-    }
-
-    /**
-     * Gets a list of parent workitem data for a particular case
-     * @param caseEventID the id of the "started" case event
-     * @param handle an active sessionhandle
-     * @return an XML'd String list of parent workitem data for the particular case
-     * @throws java.io.IOException if there's a problem connecting to the engine
-     */
-    public String getParentWorkItemEventsForCase(String caseEventID, String handle)
-                                                                     throws IOException {
-        return performGet("getParentWorkItemEventsForCase", "eventid", caseEventID,
-                                                                      handle) ;
-    }
-
-    /**
-     * Gets a list of parent workitem data for a particular case id
-     * @param caseID the id of the "started" case 
-     * @param handle an active sessionhandle
-     * @return an XML'd String list of parent workitem data for the particular case
-     * @throws java.io.IOException if there's a problem connecting to the engine
-     */
-    public String getParentWorkItemEventsForCaseID(String caseID, String handle)
-                                                                     throws IOException {
-        return performGet("getParentWorkItemEventsForCaseID", "caseid", caseID, handle) ;
+        return performGet(action, pName, String.valueOf(pValue), handle);
     }
 
 
     /**
-     * Gets the time of a case event
+     * Gets an summary xml list of all the specifications logged
      * @param handle an active sessionhandle
-     * @param eventID the id of the case event
-     * @return an XML'd String encapsulating the long value of the event timestamp
+     * @return the resultant String response (log data or error message)
      * @throws java.io.IOException if there's a problem connecting to the engine
      */
-    public String getCaseEventTime(String eventID, String handle) throws IOException  {
-        return performGet("getCaseEventTime", "eventid", eventID, handle) ;
+    public String getAllSpecifications(String handle) throws IOException {
+        return performGet("getAllSpecifications", null, null, handle);
     }
 
 
     /**
-     * Gets the time of a case event
+     * Gets all of the net instances (root and sub-net) of all the logged cases
+     * based on the specification details passed
+     * @param identifier the unique identifier of the specification
+     * @param version the specification's version number
+     * @param uri the specification's uri
      * @param handle an active sessionhandle
-     * @param caseID the case id 
-     * @param eventType one of "started", "completed" or "cancelled"
-     * @return an XML'd String encapsulating the long value of the event timestamp
+     * @return the resultant String response (log data or error message)
      * @throws java.io.IOException if there's a problem connecting to the engine
      */
-    public String getCaseEventTime(String caseID, String eventType, String handle)
-                                                                  throws IOException  {
-        Map<String, String> params = prepareParamMap("getCaseEventTime", handle);
-        params.put("caseid", caseID);
-        params.put("eventtype", eventType);
+    public String getNetInstancesOfSpecification(String identifier, String version,
+                                       String uri, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getNetInstancesOfSpecification", handle);
+        params.put("identifier", identifier);
+        params.put("version", version);
+        params.put("uri", uri);
         return executeGet(_logURI, params);
     }
 
 
     /**
-     * Gets the list of input and output parameters and values for a workitem
-     * @param childEventID the workitem instance log id
+     * Gets all of the net instances (root and sub-net) of all the logged cases
+     * based on the specification key passed
+     * @param specKey the primary key identifier of the specification in its log table
      * @param handle an active sessionhandle
-     * @return an XML'd String of the workitem's data
-     * @throws IOException if there's a problem connecting to the engine
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
      */
-    public String getChildWorkItemData(String childEventID, String handle)
-                                                                     throws IOException {
-        return performGet("getWorkItemDataForChildWorkItemEventID", "eventid",
-                             childEventID, handle) ;
-   }
+    public String getNetInstancesOfSpecification(long specKey, String handle) throws IOException {
+        return performGet("getNetInstancesOfSpecification", "key", specKey, handle);
+    }
 
-    
+
+    /**
+     * Gets a complete listing of all the cases launched from the specification data
+     * passed, including all net & task instances, events and data items
+     * @param identifier the unique identifier of the specification
+     * @param version the specification's version number
+     * @param uri the specification's uri
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getCompleteCaseLogsForSpecification(String identifier, String version,
+                                       String uri, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getCompleteCaseLogsForSpecification", handle);
+        params.put("identifier", identifier);
+        params.put("version", version);
+        params.put("uri", uri);
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
+     * Gets a complete listing  of all the cases launched from the specification key
+     * passed, including all net & task instances, events and data items
+     * @param specKey the primary key identifier of the specification in its log table
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getCompleteCaseLogsForSpecification(long specKey, String handle)
+            throws IOException {
+        return performGet("getCompleteCaseLogsForSpecification", "key", specKey, handle);
+    }
+
+
+    /**
+     * Gets all the case level events for the root net key passed
+     * @param rootNetInstanceKey the primary key identifier of the root net instance of
+     * the case
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getCaseEvents(long rootNetInstanceKey, String handle) throws IOException {
+        return performGet("getCaseEvents", "key", rootNetInstanceKey, handle);
+    }
+
+
+    /**
+     * Gets all the case level events for the case id passed
+     * @param caseID the case id of the case to get the events for
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getCaseEvents(String caseID, String handle) throws IOException {
+        return performGet("getCaseEvents", "caseid", caseID, handle);
+    }
+
+
+    /**
+     * Gets all of the data items logged with the event requested
+     * @param eventKey the primary key identifier of the event
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getDataForEvent(long eventKey, String handle) throws IOException {
+        return performGet("getDataForEvent", "key", eventKey, handle);
+    }
+
+
+    /**
+     * Gets all of the net or task instances for the instance key passed
+     * @param instanceKey the primary key identifier of the net or task instance
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getInstanceEvents(long instanceKey, String handle) throws IOException {
+        return performGet("getInstanceEvents", "key",  instanceKey, handle);
+    }
+
+
+    /**
+     * Gets the data type for the key passed
+     * @param dataTypeKey the primary key identifier of the data type
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getDataTypeForDataItem(long dataTypeKey, String handle) throws IOException {
+        return performGet("getDataTypeForDataItem", "key", dataTypeKey, handle);
+    }
+
+
+    /**
+     * Gets a comprehensive listing of all of the data logged for the case passed,
+     * including all net & task instances, events and data items
+     * @param caseID the case id to get the log data for
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getCompleteCaseLog(String caseID, String handle) throws IOException {
+        return performGet("getCompleteCaseLog", "caseid", caseID, handle);                
+    }
+
+
+    /**
+     * Gets a listing of all the task instances (ie work items) created for the case
+     * @param caseID the case id to get the log data for
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getTaskInstancesForCase(String caseID, String handle) throws IOException {
+        return performGet("getTaskInstancesForCase", "caseid", caseID, handle);
+    }
+
+
+    /**
+     * Gets a listing of all the task instances (ie work items) created for the task
+     * @param taskKey the primary key identifier of the task definition
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getTaskInstancesForTask(long taskKey, String handle) throws IOException {
+        return performGet("getTaskInstancesForTask", "key", taskKey, handle);
+    }
+
+
+    /**
+     * Gets the log record of a particular case-level event
+     * @param caseID the case id to get the event for
+     * @param eventType the 'name' of the event (eg 'CaseStart')
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getCaseEvent(String caseID, String eventType, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getCaseEvent", handle);
+        params.put("caseid", caseID);
+        params.put("event", eventType);
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
+     * Gets a list of all of the 'CaseStart' events triggered by the service
+     * @param serviceName the name of the registered service
+     * @param handle an active sessionhandle
+     * @return an XML'd String list of Case Start events triggered by the service
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getAllCasesStartedByService(String serviceName, String handle) throws IOException {
+        return performGet("getAllCasesStartedByService", "name", serviceName, handle);
+    }
+
+
+    /**
+     * Gets a list of all of the 'CaseCancel' events triggered by the service 
+     * @param serviceName the name of the registered service
+     * @param handle an active sessionhandle
+     * @return an XML'd String list of Case Cancellation events triggered by the service
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getAllCasesCancelledByService(String serviceName, String handle) throws IOException {
+        return performGet("getAllCasesCancelledByService", "name", serviceName, handle);
+    }
+
 
     /*****************************************************************************/
 
@@ -219,16 +315,6 @@ public class YLogGatewayClient extends Interface_Client {
      */
     public String checkConnection(String handle) throws IOException {
         return performGet("checkConnection", null, null, handle) ;
-    }
-
-    /**
-     * Checks if a sesionhandle is active and has admin privileges
-     * @param handle the sessionhandle to check
-     * @return true if the session is admin and alive, false if otherwise
-     * @throws java.io.IOException if there's a problem connecting to the engine
-     */
-    public String checkConnectionForAdmin(String handle) throws IOException {
-        return performGet("checkConnectionForAdmin", null, null, handle) ;       
     }
 
 }

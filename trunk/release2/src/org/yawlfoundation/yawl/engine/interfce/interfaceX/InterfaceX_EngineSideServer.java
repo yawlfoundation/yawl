@@ -91,7 +91,7 @@ public class InterfaceX_EngineSideServer extends HttpServlet {
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         OutputStreamWriter outputWriter = ServletUtils.prepareResponse(response);
-        StringBuffer output = new StringBuffer();
+        StringBuilder output = new StringBuilder();
         output.append("<response>");
         output.append(processPostQuery(request));
         output.append("</response>");
@@ -116,7 +116,7 @@ public class InterfaceX_EngineSideServer extends HttpServlet {
     
     // pass the POST request as a method call to the engine
     private String processPostQuery(HttpServletRequest request) {
-        StringBuffer msg = new StringBuffer();
+        StringBuilder msg = new StringBuilder();
 
         // unpack the params
         String action = request.getParameter("action");

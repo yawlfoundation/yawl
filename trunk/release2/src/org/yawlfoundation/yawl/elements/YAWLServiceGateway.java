@@ -12,45 +12,36 @@ package org.yawlfoundation.yawl.elements;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * 
  * @author Lachlan Aldred
  * Date: 25/09/2003
  * Time: 15:45:13
+ * @author Michael Adams (updates for v2.0)
  * 
  */
 public class YAWLServiceGateway extends YDecomposition implements YVerifiable {
-    private Map _yawlServices;
-    private Map _enablementParameters;  //name --> parameter
+    private Map<String, YAWLServiceReference> _yawlServices;
+    private Map<String, YParameter> _enablementParameters;  //name --> parameter
 
     public YAWLServiceGateway(String id, YSpecification specification) {
         super(id, specification);
-        _yawlServices = new HashMap();
-        _enablementParameters = new HashMap();
+        _yawlServices = new HashMap<String, YAWLServiceReference>();
+        _enablementParameters = new HashMap<String, YParameter>();
     }
 
 
-    public List verify() {
-        List messages = new Vector();
+    public List<YVerificationMessage> verify() {
+        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
         messages.addAll(super.verify());
-        for (Iterator iterator = _enablementParameters.values().iterator(); iterator.hasNext();) {
-            YParameter parameter = (YParameter) iterator.next();
+        for (YParameter parameter : _enablementParameters.values()) {
             messages.addAll(parameter.verify());
         }
-        Collection yawlServices = _yawlServices.values();
-        for (Iterator iterator = yawlServices.iterator(); iterator.hasNext();) {
-            YAWLServiceReference yawlService = (YAWLServiceReference) iterator.next();
-            List verificationResult = yawlService.verify();
-            for (int i = 0; i < verificationResult.size(); i++) {
-                YVerificationMessage message = (YVerificationMessage) verificationResult.get(i);
+        for (YAWLServiceReference yawlService : _yawlServices.values()) {
+            List<YVerificationMessage> verificationResult = yawlService.verify();
+            for (YVerificationMessage message : verificationResult) {
                 message.setSource(this);
             }
             messages.addAll(verificationResult);
@@ -60,18 +51,15 @@ public class YAWLServiceGateway extends YDecomposition implements YVerifiable {
 
 
     public String toXML() {
-        StringBuffer xml = new StringBuffer();
+        StringBuilder xml = new StringBuilder();
+
         //just do the decomposition facts (not the surrounding element) - to keep life simple
         xml.append(super.toXML());
 
-        Collection enablementParams = _enablementParameters.values();
-        for (Iterator iterator = enablementParams.iterator(); iterator.hasNext();) {
-            YParameter parameter = (YParameter) iterator.next();
+        for (YParameter parameter : _enablementParameters.values()) {
             xml.append(parameter.toXML());
         }
-        Collection yawlServices = _yawlServices.values();
-        for (Iterator iterator = yawlServices.iterator(); iterator.hasNext();) {
-            YAWLServiceReference service = (YAWLServiceReference) iterator.next();
+        for (YAWLServiceReference service : _yawlServices.values())  {
             xml.append(service.toXML());
         }
         return xml.toString();
@@ -79,12 +67,12 @@ public class YAWLServiceGateway extends YDecomposition implements YVerifiable {
 
 
     public YAWLServiceReference getYawlService(String yawlServiceID) {
-        return (YAWLServiceReference) _yawlServices.get(yawlServiceID);
+        return _yawlServices.get(yawlServiceID);
     }
 
     public YAWLServiceReference getYawlService() {
         if (_yawlServices.values().size() > 0) {
-            return (YAWLServiceReference) _yawlServices.values().iterator().next();
+            return _yawlServices.values().iterator().next();
         }
         return null;
     }
@@ -102,7 +90,7 @@ public class YAWLServiceGateway extends YDecomposition implements YVerifiable {
      * @return a map of the parameters that become available to yawl
      * services when a task is enabled.
      */
-    public Map getEnablementParameters() {
+    public Map<String, YParameter> getEnablementParameters() {
         return _enablementParameters;
     }
 
@@ -110,7 +98,7 @@ public class YAWLServiceGateway extends YDecomposition implements YVerifiable {
      * Returns the parameter names for enablement.
      * @return the set of parameter names.
      */
-    protected Set getEnablementParameterNames() {
+    protected Set<String> getEnablementParameterNames() {
         return _enablementParameters.keySet();
     }
 

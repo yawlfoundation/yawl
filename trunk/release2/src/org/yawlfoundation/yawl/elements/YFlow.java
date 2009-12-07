@@ -9,6 +9,7 @@
 package org.yawlfoundation.yawl.elements;
 
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.util.List;
@@ -28,15 +29,11 @@ public class YFlow implements Comparable {
     private String _xpathPredicate;
     private Integer _evalOrdering;
     private boolean _isDefaultFlow;
-
-    /**
-     * AJH: Added to support flow/link labels
-     */
     private String _documentation;
 
     public YFlow(YExternalNetElement priorElement, YExternalNetElement nextElement) {
-        this._priorElement = priorElement;
-        this._nextElement = nextElement;
+        _priorElement = priorElement;
+        _nextElement = nextElement;
     }
 
 
@@ -78,24 +75,17 @@ public class YFlow implements Comparable {
         _isDefaultFlow = isDefault;
     }
 
-    /**
-     * AJH : Added
-     * @return
-     */
-    public String getDocumentation()
-    {
+
+    public String getDocumentation() {
         return _documentation;
     }
 
-    /**
-     * AJH: Added
-     * @param _documentation
-     */
-    public void setDocumentation(String _documentation)
-    {
-        this._documentation = _documentation;
+
+    public void setDocumentation(String documentation) {
+        _documentation = documentation;
     }
 
+    
     public List<YVerificationMessage> verify(YExternalNetElement caller) {
         List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
         if (_priorElement == null || _nextElement == null) {
@@ -109,7 +99,8 @@ public class YFlow implements Comparable {
                         caller + " [error] null next element",
                         YVerificationMessage.ERROR_STATUS));
             }
-        } else if (_priorElement._net != _nextElement._net) {
+        }
+        else if (_priorElement._net != _nextElement._net) {
             messages.add(new YVerificationMessage(caller, caller
                     + " any flow from any Element (" + _priorElement +
                     ") to any Element (" + _nextElement + ") " +
@@ -133,6 +124,7 @@ public class YFlow implements Comparable {
                             YVerificationMessage.ERROR_STATUS));
                 }
             }
+
             //AND-split or OR-split
             if (priorElementSplitType != YTask._XOR) {
                 if (_evalOrdering != null) {
@@ -142,6 +134,7 @@ public class YFlow implements Comparable {
                             YVerificationMessage.ERROR_STATUS));
                 }
             }
+
             //OR-split or XOR-split
             if (priorElementSplitType != YTask._AND) {
                 //both must have at least one
@@ -151,6 +144,7 @@ public class YFlow implements Comparable {
                             + ") must have either a predicate or be a default flow.",
                             YVerificationMessage.ERROR_STATUS));
                 }
+
                 //check XOR-split
                 if (priorElementSplitType == YTask._XOR) {
                     //has predicate XOR isDefault
@@ -187,7 +181,8 @@ public class YFlow implements Comparable {
                     }
                 }
             }
-        } else {
+        }
+        else {
             if (_xpathPredicate != null) {
                 messages.add(new YVerificationMessage(caller, caller
                         + " [error] any flow from any condition (" + _priorElement
@@ -235,80 +230,43 @@ public class YFlow implements Comparable {
 
 
     public String toXML() {
-        StringBuffer xml = new StringBuffer();
-        xml.append("<flowsInto>" +
-                "<nextElementRef id=\"" + _nextElement.getID() + "\"/>");
+        StringBuilder xml = new StringBuilder("<flowsInto>");
+        xml.append("<nextElementRef id=\"")
+           .append(_nextElement.getID())
+           .append("\"/>");
+
         if (_xpathPredicate != null) {
             xml.append("<predicate");
             if (_evalOrdering != null) {
-                xml.append(" ordering=\"" + _evalOrdering.intValue() + "\"");
+                xml.append(" ordering=\"")
+                   .append(_evalOrdering)
+                   .append("\"");
             }
-            xml.append(">" + JDOMUtil.encodeEscapes(_xpathPredicate) + "</predicate>");
+            xml.append(">")
+               .append(JDOMUtil.encodeEscapes(_xpathPredicate))
+               .append("</predicate>");
         }
-        if (_isDefaultFlow) {
-            xml.append("<isDefaultFlow/>");
-        }
-
-        /**
-         * AJH: Generate documentation element
-         */
+        if (_isDefaultFlow) xml.append("<isDefaultFlow/>");
         if (_documentation != null)
-        {
-            xml.append("<documentation>" + _documentation + "</documentation>");
-        }
+            xml.append(StringUtil.wrap(_documentation, "documentation"));
 
         xml.append("</flowsInto>");
         return xml.toString();
     }
 
 
-    /**
-     * Compares this object with the specified object for order.  Returns a
-     * negative integer, zero, or a positive integer as this object is less
-     * than, equal to, or greater than the specified object.<p>
-     *
-     * In the foregoing description, the notation
-     * <tt>sgn(</tt><i>expression</i><tt>)</tt> designates the mathematical
-     * <i>signum</i> function, which is defined to return one of <tt>-1</tt>,
-     * <tt>0</tt>, or <tt>1</tt> according to whether the value of <i>expression</i>
-     * is negative, zero or positive.
-     *
-     * The implementor must ensure <tt>sgn(x.compareTo(y)) ==
-     * -sgn(y.compareTo(x))</tt> for all <tt>x</tt> and <tt>y</tt>.  (This
-     * implies that <tt>x.compareTo(y)</tt> must throw an exception iff
-     * <tt>y.compareTo(x)</tt> throws an exception.)<p>
-     *
-     * The implementor must also ensure that the relation is transitive:
-     * <tt>(x.compareTo(y)&gt;0 &amp;&amp; y.compareTo(z)&gt;0)</tt> implies
-     * <tt>x.compareTo(z)&gt;0</tt>.<p>
-     *
-     * Finally, the implementer must ensure that <tt>x.compareTo(y)==0</tt>
-     * implies that <tt>sgn(x.compareTo(z)) == sgn(y.compareTo(z))</tt>, for
-     * all <tt>z</tt>.<p>
-     *
-     * It is strongly recommended, but <i>not</i> strictly required that
-     * <tt>(x.compareTo(y)==0) == (x.equals(y))</tt>.  Generally speaking, any
-     * class that implements the <tt>Comparable</tt> interface and violates
-     * this condition should clearly indicate this fact.  The recommended
-     * language is "Note: this class has a natural ordering that is
-     * inconsistent with equals."
-     *
-     * @param   o the Object to be compared.
-     * @return  a negative integer, zero, or a positive integer as this object
-     *		is less than, equal to, or greater than the specified object.
-     *
-     * @throws ClassCastException if the specified object's type prevents it
-     *         from being compared to this Object.
-     */
     public int compareTo(Object o) {
-        YFlow f = (YFlow) o;
-        if (this.getEvalOrdering() != null && f.getEvalOrdering() != null) {
-            return this.getEvalOrdering().compareTo(f.getEvalOrdering());
-        } else if (this.isDefaultFlow() && f.isDefaultFlow()) {
+        YFlow other = (YFlow) o;
+        if (this.getEvalOrdering() != null && other.getEvalOrdering() != null) {
+            return this.getEvalOrdering().compareTo(other.getEvalOrdering());
+        }
+        else if (this.isDefaultFlow() && other.isDefaultFlow()) {
             return 0;
-        } else if (this.isDefaultFlow()) {
+        }
+        else if (this.isDefaultFlow()) {
             return 1;
-        } else if (f.isDefaultFlow()) {
+        }
+        else if (other.isDefaultFlow()) {
             return -1;
         }
         return 0;

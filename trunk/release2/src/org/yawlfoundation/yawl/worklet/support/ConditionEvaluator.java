@@ -65,13 +65,13 @@ public class ConditionEvaluator {
     private String _condition = null ;        // the condition to be evaluated
     private Element _dataList ;               // the list of variables & values
 
-    private static Logger _log = Logger.getLogger("org.yawlfoundation.yawl.worklet.support.ConditionEvaluator");
+    private static Logger _log = Logger.getLogger(ConditionEvaluator.class);
 
     /**
      * CONSTRUCTORS
      */
 
-    public ConditionEvaluator() {
+    public ConditionEvaluator() {   
         _log.setLevel(Level.ERROR);
     }
 
@@ -311,9 +311,9 @@ public class ConditionEvaluator {
     /** @return true if 's' is a member element of array 'a' */
     private boolean isInArray(String s, String[] a) {
 
-          for (int i=0; i < a.length; i++) {
-             if (s.compareTo(a[i]) == 0) return true ;
-          }
+        for (String element : a) {
+            if (s.compareTo(element) == 0) return true;
+        }
           return false ;
     }
 
@@ -357,7 +357,7 @@ public class ConditionEvaluator {
    /** replace ()'s with []'s where they represent function argument delimiters */
     private String maskArgumentDelimiters(String s, int fadPos) {
         int closer = s.indexOf(')', fadPos);
-        StringBuffer result = new StringBuffer(s) ;
+        StringBuilder result = new StringBuilder(s) ;
         result.deleteCharAt(fadPos);
         result.insert(fadPos, '[');
         result.deleteCharAt(closer);
@@ -383,7 +383,7 @@ public class ConditionEvaluator {
     /** replaces all signs fronting numeric values with placeholding '@' 's */
     private String maskUnaryOps(String s) {
 
-       StringBuffer sb = new StringBuffer(s) ;
+       StringBuilder sb = new StringBuilder(s) ;
        String opSet = "*/+-><=", unSet = "+-" ;
        int unPos = -1, j ;
 
@@ -439,7 +439,7 @@ public class ConditionEvaluator {
 
     /** replaces the first instance of "cut" in "s" with "paste" */
     private String replaceStr(String s, String cut, String paste) {
-       StringBuffer b = new StringBuffer(s) ;
+       StringBuilder b = new StringBuilder(s) ;
        int insPos = b.indexOf(cut) ;
        b.delete(insPos, insPos + cut.length()) ;
        b.insert(insPos, paste) ;
@@ -529,7 +529,7 @@ public class ConditionEvaluator {
      *       simple values 	
      */
     private String[] tokenize(String s) throws RdrConditionException {
-        Vector v = new Vector() ;
+        Vector<String> v = new Vector<String>() ;
         int ix = 0, ln = s.length();
         String token ;
         String[] result ;
@@ -547,21 +547,21 @@ public class ConditionEvaluator {
             }
             else if (isDigitOrDot(s.charAt(ix))) {         // literal number
                token = getLiteralNumber(s, ix) ;
-               }
-               else if (isLetterOrUScore(s.charAt(ix))) {      // var or function name
-                  token = getVarName(s, ix) ;
-               }
-               else if (isOperator(s.charAt(ix))) {            // operator
-                  token = getOperator(s, ix) ;
-               }
-               else {
-                   String msg = "Expression contains an invalid token at char "
-                                 + ix;
-                   throw new RdrConditionException(msg) ;
-               }
-               v.addElement(token) ;
-               ix += token.length() ;
+            }
+            else if (isLetterOrUScore(s.charAt(ix))) {      // var or function name
+               token = getVarName(s, ix) ;
+            }
+            else if (isOperator(s.charAt(ix))) {            // operator
+               token = getOperator(s, ix) ;
+            }
+            else {
+                String msg = "Expression contains an invalid token at char " + ix;
+                throw new RdrConditionException(msg) ;
+            }
+            v.addElement(token) ;
+            ix += token.length() ;
         }
+
         result = new String[v.size()] ;
         v.copyInto(result);
 

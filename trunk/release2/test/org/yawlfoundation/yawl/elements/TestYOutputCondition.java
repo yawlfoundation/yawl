@@ -35,11 +35,11 @@ public class TestYOutputCondition extends TestCase{
 
     public void setUp(){
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification._Beta2);
+        spec.setVersion(YSpecification.Beta2);
         YNet deadNet = new YNet("aNetName", spec);
         _invalidOutputCondition = new YOutputCondition("ic1", "input", deadNet);
-        _invalidOutputCondition.setPostset(new YFlow(_invalidOutputCondition, new YCondition("c2", deadNet)));
-        _invalidOutputCondition.setPostset(new YFlow(_invalidOutputCondition, new YAtomicTask("at1", YTask._AND, YTask._AND, deadNet)));
+        _invalidOutputCondition.addPostset(new YFlow(_invalidOutputCondition, new YCondition("c2", deadNet)));
+        _invalidOutputCondition.addPostset(new YFlow(_invalidOutputCondition, new YAtomicTask("at1", YTask._AND, YTask._AND, deadNet)));
     }
 
 

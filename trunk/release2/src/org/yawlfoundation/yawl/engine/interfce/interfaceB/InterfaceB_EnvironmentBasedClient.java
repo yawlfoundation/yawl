@@ -14,10 +14,14 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.*;
+import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An API for custom services to call Engine functionalities regarding workitem
@@ -56,7 +60,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     public String connect(String userID, String password) throws IOException {
         Map<String, String> params = prepareParamMap("connect", null);
         params.put("userid", userID);
-        params.put("password", password);
+        params.put("password", PasswordEncryptor.encrypt(password, null));
         return executePost(_backEndURIStr, params);
     }
 
@@ -227,8 +231,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     public String getSpecification(YSpecificationID specID, String sessionHandle)
                                                                  throws IOException {
         Map<String, String> params = prepareParamMap("getSpecification", sessionHandle);
-        params.put("specID", specID.getSpecName()) ;
-        params.put("version", specID.getVersionAsString());
+        params.putAll(specID.toMap());
         return stripOuterElement(executeGet(_backEndURIStr, params));
     }
 
@@ -258,8 +261,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
                                                                  throws IOException {
         Map<String, String> params = prepareParamMap("getSpecificationDataSchema",
                                                       sessionHandle);
-        params.put("specID", specID.getSpecName()) ;
-        params.put("version", specID.getVersion().toString());
+        params.putAll(specID.toMap());
         return stripOuterElement(executeGet(_backEndURIStr, params));
     }
 
@@ -285,6 +287,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * Gets an XML representation of information the task declaration.
      * This can be parsed into a copy of a YTask
      * @deprecated superseded by getTaskInformationStr(YSpecificationID, String, String)
+     * - this version should be used for pre-2.0 schema-based specifications only
      * @param specID the spec id.
      * @param taskID the task id.
      * @param sessionHandle the session handle
@@ -300,17 +303,16 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     /**
      * Gets an XML representation of information the task declaration.
      * This can be parsed into a copy of a YTask
-     * @param specificationID the spec id.
+     * @param specID the spec id.
      * @param taskID the task id.
      * @param sessionHandle the session handle
      * @return an XML Representation of the task information
      * @throws IOException if the engine can't be found.
      */
-    public String getTaskInformationStr(YSpecificationID specificationID, String taskID,
+    public String getTaskInformationStr(YSpecificationID specID, String taskID,
                                         String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("taskInformation", sessionHandle);
-        params.put("specID", specificationID.getSpecName());
-        params.put("version", specificationID.getVersion().toString());
+        params.putAll(specID.toMap());
         params.put("taskID", taskID);
         return executeGet(_backEndURIStr, params);
     }
@@ -467,7 +469,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      */
     public String launchCase(String specID, String caseParams, String sessionHandle)
             throws IOException {
-        return launchCase(new YSpecificationID(specID), caseParams, sessionHandle);
+        return launchCase(new YSpecificationID(specID), caseParams,
+                              null, sessionHandle);
     }
     
     /**
@@ -485,11 +488,12 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @return returns a diagnostic message in case of failure
      * @throws IOException if engine can't be found
      */
-    public String launchCase(YSpecificationID specID, String caseParams, String sessionHandle)
+    public String launchCase(YSpecificationID specID, String caseParams,
+                             YLogDataItemList logData, String sessionHandle)
             throws IOException {
         Map<String, String> params = prepareParamMap("launchCase", sessionHandle);
-        params.put("specID", specID.getSpecName());
-        params.put("version", specID.getVersionAsString());
+        params.putAll(specID.toMap());
+        if (logData != null) params.put("logData", logData.toXML());
         if (caseParams != null) params.put("caseParams", caseParams);
         return executePost(_backEndURIStr, params);
     }
@@ -508,10 +512,10 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException if engine can't be found
      */
     public String launchCase(String specID, String caseParams, 
-                             String sessionHandle, String completionObserverURI) 
+                             String sessionHandle, String completionObserverURI)
                                      throws IOException {
         return launchCase(new YSpecificationID(specID), caseParams,
-                          sessionHandle, completionObserverURI);
+                          sessionHandle, null, completionObserverURI);
     }
 
 
@@ -527,11 +531,12 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * @throws IOException if engine can't be found
      */
     public String launchCase(YSpecificationID specID, String caseParams,
-                             String sessionHandle, String completionObserverURI)
+                             String sessionHandle, YLogDataItemList logData,
+                             String completionObserverURI)
                                      throws IOException {
         Map<String, String> params = prepareParamMap("launchCase", sessionHandle);
-        params.put("specID", specID.getSpecName());
-        params.put("version", specID.getVersionAsString());
+        params.putAll(specID.toMap());
+        if (logData != null) params.put("logData", logData.toXML());
         if (caseParams != null) params.put("caseParams", caseParams);
         if (completionObserverURI != null)
             params.put("completionObserverURI", completionObserverURI);
@@ -565,8 +570,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
                                                                  throws IOException {
         Map<String, String> params = prepareParamMap("getCasesForSpecification",
                                                       sessionHandle);
-        params.put("specID", specID.getSpecName());
-        params.put("version", specID.getVersionAsString());
+        params.putAll(specID.toMap());
         return executeGet(_backEndURIStr, params);
     }
 
@@ -660,7 +664,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
     /**
      * Gets an XML representation of the attributes of a multi-instance task.
-     * @deprecated superseded by getMITaskAttributes(YSpecificationID, String, String)
+     * @deprecated superseded by getMITaskAttributes(YSpecificationID, String, String) -
+     * this version should be used for pre-2.0 schema-based specifications only
      * @param specID the spec id.
      * @param taskID the task id.
      * @param sessionHandle the session handle
@@ -684,8 +689,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
                                       String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("getMITaskAttributes", sessionHandle);
         params.put("taskID", taskID);
-        params.put("specID", specID.getSpecName());
-        params.put("version", specID.getVersionAsString());
+        params.putAll(specID.toMap());
         return executeGet(_backEndURIStr, params);
     }
 
@@ -701,8 +705,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
                                       String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("getResourcingSpecs", sessionHandle);
         params.put("taskID", taskID);
-        params.put("specID", specID.getSpecName());
-        params.put("version", specID.getVersionAsString());
+        params.putAll(specID.toMap());
         String result = executeGet(_backEndURIStr, params);
         return (successful(result)) ? stripOuterElement(result) : result ;
     }

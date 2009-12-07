@@ -14,6 +14,10 @@ import java.util.Set;
  *         Date: 06/06/2008
  */
 public class YSpecificationTable {
+
+    // A mapping of specification identifiers to a list of versions of that specification
+    // The key used is the spec's unique identifier (introduced in v2.0); for earlier
+    // schema versions, it falls back to the spec's name (uri)
     private Hashtable<String, SpecList> _specs ;
 
 
@@ -21,8 +25,10 @@ public class YSpecificationTable {
         _specs = new Hashtable<String, SpecList>();
     }
 
+
     public boolean loadSpecification(YSpecification spec) {
-        SpecList list = _specs.get(spec.getID());
+        String key = spec.getSpecificationID().getKey();
+        SpecList list = _specs.get(key);
         if (list != null) {
             if (list.getSpecification(spec.getMetaData().getVersion()) != null)
                 return false;
@@ -32,56 +38,57 @@ public class YSpecificationTable {
             }
         }
         else {
-            _specs.put(spec.getID(), new SpecList(spec));
+            _specs.put(key, new SpecList(spec));
             return true;
         }
     }
 
     public void unloadSpecification(YSpecification spec) {
-        SpecList list = _specs.get(spec.getID());
+        String key = spec.getSpecificationID().getKey();
+        SpecList list = _specs.get(key);
         if (list != null) {
             list.remove(spec);
 
-            if (list.isEmpty())                      //just unloaded the only version            
-                _specs.remove(spec.getID());
+            if (list.isEmpty())                      // just unloaded the only version
+                _specs.remove(key);
         }
     }
 
-    public YSpecification getSpecification(String specid) {
-        SpecList list = _specs.get(specid);
+
+    public YSpecification getSpecification(YSpecificationID specid) {
+        SpecList list = _specs.get(specid.getKey());
+        if (list != null)
+           return list.getSpecification(specid.getVersion());
+        else
+           return null ;
+    }
+
+
+    /**
+     * Gets the latest version of the specification with the key passed
+     * @param key either the identifier or uri of the specification
+     * @return
+     */
+    public YSpecification getLatestSpecification(String key) {
+        SpecList list = _specs.get(key);
         if (list != null)
            return list.getLatestVersion();
         else
            return null ;
     }
 
-    public YSpecification getSpecification(String specid, YSpecVersion version) {
-        SpecList list = _specs.get(specid);
-        if (list != null)
-           return list.getSpecification(version);
-        else
-           return null ;
-    }
-
-    public YSpecification getSpecification(YSpecificationID id) {
-        return getSpecification(id.getSpecName(), id.getVersion());
-    }
-
-    public boolean contains(String specid) {
-        return _specs.containsKey(specid);
+    public boolean contains(String key) {
+        return _specs.containsKey(key);
     }
 
     public boolean contains(YSpecification spec) {
-        return contains(spec.getID(), spec.getMetaData().getVersion());
+        return contains(spec.getSpecificationID());
     }
 
     public boolean contains(YSpecificationID specID) {
-        return contains(specID.getSpecName(), specID.getVersion());
+        return getSpecification(specID) != null ;
     }
 
-    public boolean contains(String specid, YSpecVersion version) {
-        return getSpecification(specid, version) != null ;
-    }
 
     public Set<YSpecificationID> getSpecIDs() {
         Set<YSpecificationID> set = new HashSet<YSpecificationID>();
@@ -91,50 +98,47 @@ public class YSpecificationTable {
         return set;
     }
 
+
     /********************************************************************************/
 
     private class SpecList extends ArrayList<YSpecification> {
 
-        private String _specID ;
-
-        // Constructors //
-        public SpecList(String id) {
-            super() ;
-            _specID = id ;
-        }
-
+        // Constructor //
         public SpecList(YSpecification spec) {
-            this(spec.getID());
+            super();
             this.add(spec);
         }
 
-        public String getSpecID() { return _specID ; }
 
         public YSpecification getSpecification(YSpecVersion version) {
             for (YSpecification ySpec : this) {
-                if (ySpec.getMetaData().getVersion().equals(version))
+                if (ySpec.getSpecificationID().getVersion().equals(version))
                     return ySpec ;
             }
             return null ;
         }
 
+
         public Set<YSpecificationID> getSpecificationIDs() {
             Set<YSpecificationID> set = new HashSet<YSpecificationID>();
             for (YSpecification ySpec : this) {
-                set.add(new YSpecificationID(ySpec.getID(),
-                        ySpec.getMetaData().getVersion()));
+                set.add(ySpec.getSpecificationID());
             }
             return set;
         }
 
-        public YSpecification getLatestVersion() {
-            if (this.isEmpty()) return null;
 
-            YSpecification latest = this.get(0);
-            for (YSpecification ySpec : this) {
-                if (ySpec.getMetaData().getVersion().compareTo(
-                    latest.getMetaData().getVersion()) > 0)
-                    latest = ySpec;
+        public YSpecification getLatestVersion() {
+            YSpecification latest = null;                      // default for empty list
+            if (! this.isEmpty()) {
+                latest = this.get(0);                          // at least one
+                if (this.size() > 1) {                         // more than one
+                    for (YSpecification ySpec : this) {
+                        if (ySpec.getSpecificationID().getVersion().compareTo(
+                                latest.getSpecificationID().getVersion()) > 0)
+                            latest = ySpec;
+                    }
+                }
             }
             return latest ;
         }

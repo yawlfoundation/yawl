@@ -92,7 +92,7 @@ public class InterfaceD {
         out.print(data);
         out.flush();
 
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
 
 //retrieve reply
         InputStream inputStr = connection.getInputStream();
@@ -126,7 +126,7 @@ public class InterfaceD {
         out.print("");
         out.flush();
 
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
 
 //retrieve reply
         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));

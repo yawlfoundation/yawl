@@ -44,7 +44,7 @@ public class FileConverter {
 
     private static void convertFile(File file) throws IOException {
 
-            StringBuffer fixedContents = new StringBuffer();
+            StringBuilder fixedContents = new StringBuilder();
             BufferedReader reader = new BufferedReader(new FileReader(file));
             String line = null;
 

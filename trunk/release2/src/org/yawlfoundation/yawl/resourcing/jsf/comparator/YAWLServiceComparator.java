@@ -21,8 +21,8 @@ public class YAWLServiceComparator implements Comparator<YAWLServiceReference> {
         if (service1 == null) return -1;
         if (service2 == null) return 1;
 
-        String id1 = service1.get_serviceName();
-        String id2 = service2.get_serviceName();
+        String id1 = service1.getServiceName();
+        String id2 = service2.getServiceName();
 
         // compare id strings
         return id1.compareTo(id2);

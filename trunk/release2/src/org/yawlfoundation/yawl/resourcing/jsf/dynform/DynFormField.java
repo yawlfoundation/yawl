@@ -15,9 +15,9 @@ import java.util.List;
  * Author: Michael Adams
  * Creation Date: 5/07/2008
  */
-public class DynFormField {
+public class DynFormField implements Cloneable {
 
-    private String _name;
+    private String _name;                               // the parameter name
     private String _datatype;
     private String _value;
     private long _minoccurs = 1;
@@ -35,7 +35,9 @@ public class DynFormField {
     private DynFormFieldRestriction _restriction;
     private DynFormFieldUnion _union;
     private DynFormFieldListFacet _list;
-    private DynFormUserAttributes _attributes;      // the variable's extended attributes
+
+     // the variable's extended attributes
+    private DynFormUserAttributes _attributes = new DynFormUserAttributes();     
 
 
     private List<DynFormField> _subFieldList;
@@ -62,6 +64,16 @@ public class DynFormField {
     }
 
     /******************************************************************************/
+
+    public DynFormField clone() {
+        try {
+            return (DynFormField) super.clone();
+        }
+        catch (CloneNotSupportedException e) {
+            return null;
+        }
+    }
+
 
     // SETTERS & GETTERS //
 
@@ -193,15 +205,6 @@ public class DynFormField {
         _parent = parent;
     }
 
-    public boolean isInputOnly() {
-        return ((_parent != null) && _parent.isInputOnly()) ||
-               (_param != null && (_param.isInputOnly() || _param.isReadOnly())) ||
-               ((_attributes != null) && _attributes.getBooleanValue("readOnly"));
-    }
-
-//    public boolean isRequired() {
-//        return _required;
-//    }
 
     public void setRequired(boolean required) {
         this._required = required;
@@ -223,10 +226,8 @@ public class DynFormField {
 
     public void show() { _hidden = false; }
 
-    public boolean isHidden() { return _hidden; }
 
-
-    private boolean hasZeroMinimum() {
+    public boolean hasZeroMinimum() {
         if (_parent != null) 
             return _parent.hasZeroMinimum() || (_minoccurs == 0);
         else
@@ -281,10 +282,7 @@ public class DynFormField {
     }
 
     public boolean removeSubField(DynFormField field) {
-        if (_subFieldList != null)
-            return _subFieldList.remove(field);
-        else
-            return true;
+        return _subFieldList == null || _subFieldList.remove(field);
     }
     
 
@@ -389,7 +387,56 @@ public class DynFormField {
     }
 
 
+    public boolean equals(DynFormField other) {
+        return (other.getName().equals(this.getName()) &&
+                other.getDatatype().equals(this.getDatatype())); 
+    }
+
+
+    // extended attribute support //
+    
+    public String getAlertText() {
+        return _attributes.getAlertText();
+    }
+
+    
+    public String getLabelText() {
+        String label = _attributes.getLabelText();
+        return (label != null) ? label : _name ;              // default to param name
+    }
+
+
+    public boolean isInputOnly() {
+        return ((_parent != null) && _parent.isInputOnly()) ||
+               (_param != null && (_param.isInputOnly() || _param.isReadOnly())) ||
+               _attributes.isReadOnly();
+    }
+
+
+    public int getMaxLength() {
+        return _attributes.getMaxLength();
+    }
+
+
+    public boolean isHidden() {
+        return ((_parent != null) && _parent.isHidden()) ||
+                _hidden || _attributes.isHidden() ;
+    }
+
+
+    public boolean isShowIf() {
+        return ((_parent != null) && _parent.isShowIf()) ||
+                _attributes.isShowIf() ;
+    }
+
+
     public String getToolTip() {
+        String tip = _attributes.getToolTipText();
+        return (tip != null) ? tip : getDefaultToolTip();
+    }
+
+
+    public String getDefaultToolTip() {
         String type = (_param.getDataTypeName().equals("YTimerType")) ? "Duration or DateTime"
                                                               : getDataTypeUnprefixed();
         String tip = String.format(" Please enter a value of %s type", type);
@@ -400,15 +447,6 @@ public class DynFormField {
 
         return tip + " ";
     }
-
-
-    public boolean equals(DynFormField other) {
-        return (other.getName().equals(this.getName()) &&
-                other.getDatatype().equals(this.getDatatype())); 
-//                &&
-//                other.getValue().equals(this.getValue()));
-    }
-
 
 
 }

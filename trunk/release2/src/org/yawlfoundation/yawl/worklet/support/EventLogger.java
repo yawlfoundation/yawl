@@ -8,13 +8,14 @@
 
 package org.yawlfoundation.yawl.worklet.support;
 
+import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
-import java.io.* ;
-import java.text.SimpleDateFormat ;
-import java.util.Date ;
-
-import org.apache.log4j.Logger ;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /** 
  *  An event log file implementation.
@@ -71,7 +72,7 @@ public class EventLogger {
     /** this version is used to log to a CSV file when persistence is OFF */
     private static void logToCSV(String event, String caseId, String specId,
    	                             String taskId, String parentCaseId, int xType) {
-            StringBuffer s = new StringBuffer() ;
+            StringBuilder s = new StringBuilder() ;
      		s.append(_sdfe.format(new Date())) ; s.append(",") ;
     		s.append(event); s.append(",") ;
         	s.append(caseId); s.append(",") ;
@@ -98,7 +99,7 @@ public class EventLogger {
      *  @param wir - the workitem that triggered the event
      */  
     public static void log(DBManager mgr, String event, WorkItemRecord wir, int xType) {
-    	log(mgr, event, wir.getCaseID(), wir.getSpecificationID(),
+    	log(mgr, event, wir.getCaseID(), wir.getSpecIdentifier(),
     	                     wir.getTaskID(), "", xType);
     }
 

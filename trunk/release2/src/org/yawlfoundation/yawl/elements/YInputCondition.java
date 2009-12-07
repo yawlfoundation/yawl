@@ -43,22 +43,14 @@ public final class YInputCondition extends YCondition {
      * have an empty preset.
      * @return a List of error messages.
      */
-    public List verify() {
-        List messages = new Vector();
-/*        if(_preset.size() > 0 || _postset.size() > 0){
-            if(this._preset.size() != 0){
-                messages.add(new YVerificationMessage(this, this
-                        + " preset must be empty: "+ this._preset.values()));
-            }
-            messages.addAll(verifyPostset());
+    public List<YVerificationMessage> verify() {
+        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
+        if (getPresetElements().size() != 0) {
+            messages.add(new YVerificationMessage(this,
+                         this + " preset must be empty: " + getPresetElements(),
+                         YVerificationMessage.ERROR_STATUS));
         }
-        else*/{
-            if (getPresetElements().size() != 0) {
-                messages.add(new YVerificationMessage(this, this
-                        + " preset must be empty: " + getPresetElements(), YVerificationMessage.ERROR_STATUS));
-            }
-            messages.addAll(verifyPostsetFlows());
-        }
+        messages.addAll(verifyPostsetFlows());
         return messages;
     }
 

@@ -229,7 +229,7 @@ class YSpecificationParser {
      * @return whether this is a a beta 2 specification version or not.
      */
     private boolean isBeta2Version() {
-        return _specification.getBetaVersion().equals(YSpecification._Beta2);
+        return _specification.getBetaVersion().equals(YSpecification.Beta2);
     }
 
 

@@ -34,6 +34,27 @@
         </description>
 	</context-param>
 
+    <context-param>
+        <param-name>DefaultWorklist</param-name>
+        <param-value>http://localhost:8080/resourceService/ib#resource</param-value>
+        <description>
+            The URL and password (separated by a hash) of the default worklist handler
+            (by default set to the Resource Service). This is the service that handles
+            the tasks that are not associated with any other custom service.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>AllowGenericAdminID</param-name>
+        <param-value>true</param-value>
+        <description>
+            When set to 'true', allows services and applications to connect to the
+            YAWL engine using the generic administrator account 'admin', password 'YAWL'.
+            When set to 'false' (the default), each connecting service and application
+            must connect using a unique account previously registered with the engine.
+        </description>
+    </context-param>
+
 	<context-param>
 		<param-name>RMIServerName</param-name>
 		<param-value>//localhost/EngineGateway</param-value>

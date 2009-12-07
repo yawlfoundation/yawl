@@ -30,7 +30,7 @@ import java.net.URL;
  * 
  */
 public class SchemaForSchemaValidator extends DefaultHandler {
-    StringBuffer _errorsString = new StringBuffer("");
+    StringBuilder _errorsString = new StringBuilder("");
     private static SchemaForSchemaValidator _myInstance;
     private SAXBuilder _builder;
     private File _tempSchema;
@@ -187,7 +187,7 @@ public class SchemaForSchemaValidator extends DefaultHandler {
 
 
     private String groomLineNumbers(String result) {
-        StringBuffer bufferedResult = new StringBuffer(result);
+        StringBuilder bufferedResult = new StringBuilder(result);
         int pos = bufferedResult.indexOf("[ln: ", 0);
         while (pos != -1) {
             pos = bufferedResult.indexOf("[ln: ", pos);

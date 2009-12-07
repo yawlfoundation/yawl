@@ -72,9 +72,19 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
             _engine = (EngineGateway) context.getAttribute("engine");
             if (_engine == null) {
                 String persistOn = context.getInitParameter("EnablePersistence");
-                boolean persist = "true".equalsIgnoreCase(persistOn);
+                boolean persist = (persistOn != null) && persistOn.equalsIgnoreCase("true");
                 _engine = new EngineGatewayImpl(persist);
+                _engine.setActualFilePath(context.getRealPath("/"));
                 context.setAttribute("engine", _engine);
+            }
+
+            // add the reference to the default worklist
+            _engine.setDefaultWorklist(context.getInitParameter("DefaultWorklist"));
+
+            // set flag for generic admin account (only if set to true)
+            String allowAdminID = context.getInitParameter("AllowGenericAdminID");
+            if ((allowAdminID != null) && allowAdminID.equalsIgnoreCase("true")) {
+                _engine.setAllowAdminID(true);
             }
 
             // init any 3rd party observer gateways
@@ -138,6 +148,10 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
         }
     }
 
+    public void destroy() {
+        _engine.shutdown();
+    }
+
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         doPost(request, response);                 // redirect all GETs to POSTs
@@ -147,7 +161,7 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         OutputStreamWriter outputWriter = ServletUtils.prepareResponse(response);
-        StringBuffer output = new StringBuffer();
+        StringBuilder output = new StringBuilder();
         output.append("<response>");
         output.append(processPostQuery(request));
         output.append("</response>");
@@ -160,7 +174,8 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
             logger.fatal("Further information may be found within the Tomcat log files.");
             logger.fatal("************************************************************");
             response.sendError(500, "Database persistence failure detected");
-        }        outputWriter.write(output.toString());
+        }
+        outputWriter.write(output.toString());
         outputWriter.flush();
         outputWriter.close();
         //todo find out how to provide a meaningful 500 message in the format of  a fault message.
@@ -172,12 +187,13 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
     //###############################################################################
 
     private String processPostQuery(HttpServletRequest request) {
-        StringBuffer msg = new StringBuffer();
+        StringBuilder msg = new StringBuilder();
         String sessionHandle = request.getParameter("sessionHandle");
         String action = request.getParameter("action");
         String workItemID = request.getParameter("workItemID");
-        String specName = request.getParameter("specID");
-        String version = request.getParameter("version");
+        String specIdentifier = request.getParameter("specidentifier");
+        String specVersion = request.getParameter("specversion");
+        String specURI = request.getParameter("specuri");
         String taskID = request.getParameter("taskID");
 
         try {
@@ -200,17 +216,19 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                             sessionHandle));
                 }
                 else if (action.equals("launchCase")) {
-                    String specID = request.getParameter("specID");
+                    YSpecificationID specID =
+                            new YSpecificationID(specIdentifier, specVersion, specURI);
                     URI completionObserver = getCompletionObserver(request);
                     String caseParams = request.getParameter("caseParams");
+                    String logDataStr = request.getParameter("logData");
                     msg.append(_engine.launchCase(specID, caseParams,
-                            completionObserver, sessionHandle));
+                                    completionObserver, logDataStr, sessionHandle));
                 }
                 else if (action.equals("cancelCase")) {
                     String caseID = request.getParameter("caseID");
                     msg.append(_engine.cancelCase(caseID, sessionHandle));
                 }
-                if (action.equals("details")) {
+                else if (action.equals("details")) {
                     msg.append(_engine.getWorkItemDetails(workItemID, sessionHandle));
                 }
                 else if (action.equals("startOne")) {
@@ -229,15 +247,18 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                     msg.append(_engine.checkConnection(sessionHandle));
                 }
                 else if (action.equals("taskInformation")) {
-                    YSpecificationID specID = new YSpecificationID(specName, version);
+                    YSpecificationID specID =
+                            new YSpecificationID(specIdentifier, specVersion, specURI);
                     msg.append(_engine.getTaskInformation(specID, taskID, sessionHandle));
                 }
                 else if (action.equals("getMITaskAttributes")) {
-                    YSpecificationID specID = new YSpecificationID(specName, version);
+                    YSpecificationID specID =
+                            new YSpecificationID(specIdentifier, specVersion, specURI);
                     msg.append(_engine.getMITaskAttributes(specID, taskID, sessionHandle));
                 }
                 else if (action.equals("getResourcingSpecs")) {
-                    YSpecificationID specID = new YSpecificationID(specName, version);
+                    YSpecificationID specID =
+                            new YSpecificationID(specIdentifier, specVersion, specURI);
                     msg.append(_engine.getResourcingSpecs(specID, taskID, sessionHandle));
                 }
                 else if (action.equals("checkIsAdmin")) {
@@ -251,15 +272,18 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                     msg.append(_engine.getSpecificationList(sessionHandle));
                 }
                 else if (action.equals("getSpecification")) {
-                    YSpecificationID specID = new YSpecificationID(specName, version);
+                    YSpecificationID specID =
+                            new YSpecificationID(specIdentifier, specVersion, specURI);
                     msg.append(_engine.getProcessDefinition(specID, sessionHandle));
                 }
                 else if (action.equals("getSpecificationDataSchema")) {
-                    YSpecificationID specID = new YSpecificationID(specName, version);
+                    YSpecificationID specID =
+                            new YSpecificationID(specIdentifier, specVersion, specURI);
                     msg.append(_engine.getSpecificationDataSchema(specID, sessionHandle));
                 }
                 else if (action.equals("getCasesForSpecification")) {
-                    YSpecificationID specID = new YSpecificationID(specName, version);
+                    YSpecificationID specID =
+                            new YSpecificationID(specIdentifier, specVersion, specURI);
                     msg.append(_engine.getCasesForSpecification(specID, sessionHandle));
                 }
                 else if (action.equals("getCaseState")) {

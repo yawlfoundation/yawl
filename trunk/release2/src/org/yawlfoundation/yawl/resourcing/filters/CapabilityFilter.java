@@ -47,7 +47,7 @@ public class CapabilityFilter extends AbstractFilter {
         Set<Participant> result = new HashSet<Participant>() ;
 
         if (capability != null ) {
-            Capability cap = rm.getCapabilityByLabel(capability) ;
+            Capability cap = rm.getOrgDataSet().getCapabilityByLabel(capability) ;
             for (Participant p : distSet)
                 if (cap.hasResource(p)) result.add(p) ;
         }

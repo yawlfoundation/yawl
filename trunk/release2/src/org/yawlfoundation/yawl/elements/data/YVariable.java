@@ -9,23 +9,23 @@
 
 package org.yawlfoundation.yawl.elements.data;
 
-import org.jdom.input.SAXBuilder;
+import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YVerifiable;
 import org.yawlfoundation.yawl.schema.XMLToolsForYAWL;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
-import java.io.StringReader;
 import java.util.List;
 import java.util.Vector;
 
 /**
- * 
+ *
  * @author Lachlan Aldred
  * Date: 24/09/2003
  * Time: 16:10:14
- * 
+ *
  */
 public class YVariable implements Cloneable, YVerifiable, Comparable{
     protected YDecomposition _parentDecomposition;
@@ -124,6 +124,15 @@ public class YVariable implements Cloneable, YVerifiable, Comparable{
         return _dataTypeName;
     }
 
+    public String getDataTypeNameUnprefixed() {
+        if (_dataTypeName.indexOf(":") < 0) {
+            return _dataTypeName;
+        }
+        else {
+            return _dataTypeName.substring(_dataTypeName.indexOf(":") + 1) ;
+        }
+    }
+
     /**
      * Returns the namespace of the data type.  Expect either null if the type is a custom type
      * or "http://www.w3.org/2001/XMLSchema" if the variable uses a "built in" Schema primitive type.
@@ -140,6 +149,10 @@ public class YVariable implements Cloneable, YVerifiable, Comparable{
 
     public String getName() {
         return _name;
+    }
+
+    public String getPreferredName() {
+        return (_name != null) ? _name : _elementName;
     }
 
     public YDecomposition getParentDecomposition() {
@@ -163,7 +176,7 @@ public class YVariable implements Cloneable, YVerifiable, Comparable{
     }
 
     public String toXML() {
-        StringBuffer xml = new StringBuffer();
+        StringBuilder xml = new StringBuilder();
         xml.append("<localVariable");
         xml.append(toXMLGuts());
         xml.append("</localVariable>");
@@ -171,7 +184,7 @@ public class YVariable implements Cloneable, YVerifiable, Comparable{
     }
 
     protected String toXMLGuts() {
-        StringBuffer xml = new StringBuffer();
+        StringBuilder xml = new StringBuilder();
         xml.append(">");
 
         if (null != _documentation) {
@@ -197,14 +210,10 @@ public class YVariable implements Cloneable, YVerifiable, Comparable{
             xml.append("<element>" + _elementName + "</element>");
         }
         if (_initialValue != null) {
-            xml.append("<initialValue>" +
-                    JDOMUtil.encodeEscapes(_initialValue) +
-                    "</initialValue>");
+            xml.append(StringUtil.wrapEscaped(_initialValue, "initialValue"));
         }
         if (_defaultValue != null) {
-            xml.append("<defaultValue>" +
-                    JDOMUtil.encodeEscapes(_defaultValue) +
-                    "</defaultValue>");
+            xml.append(StringUtil.wrapEscaped(_defaultValue, "defaultValue"));
         }
         return xml.toString();
     }
@@ -222,19 +231,16 @@ public class YVariable implements Cloneable, YVerifiable, Comparable{
     }
 
 
-    public List verify() {
+    public List<YVerificationMessage> verify() {
         List messages = new Vector();
         //check that the intital value if well formed
         if (_initialValue != null && _initialValue.indexOf("<") != -1) {
-            try {
-                SAXBuilder builder = new SAXBuilder();
-                builder.build(new StringReader("<bla>" + _initialValue + "</bla>"));
-            } catch (Exception e) {
+            Element test = JDOMUtil.stringToElement("<bla>" + _initialValue + "</bla>") ;
+            if (test == null) {
                 messages.add(new YVerificationMessage(
                         this,
                         "Problem with InitialValue [" + _initialValue +
-                        "] of " + this +
-                        " " + e.getMessage(),
+                        "] of " + this,
                         YVerificationMessage.ERROR_STATUS));
             }
         }

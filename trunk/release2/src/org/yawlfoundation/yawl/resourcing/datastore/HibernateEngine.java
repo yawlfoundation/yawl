@@ -109,6 +109,8 @@ public class HibernateEngine {
             _cfg.addClass(
                     org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent.class);
             _cfg.addClass(
+                    org.yawlfoundation.yawl.resourcing.datastore.eventlog.AuditEvent.class);
+            _cfg.addClass(
                     org.yawlfoundation.yawl.resourcing.datastore.PersistedAutoTask.class);
 
            // get a session context

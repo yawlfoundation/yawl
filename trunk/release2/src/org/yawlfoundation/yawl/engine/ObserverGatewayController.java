@@ -16,8 +16,8 @@ import org.yawlfoundation.yawl.engine.announcement.Announcements;
 import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
 import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
 
-import java.util.Vector;
 import java.util.Set;
+import java.util.Vector;
 
 /**
  * Class which encapsulates the management and processing of InterfaceBClients.<P>
@@ -128,7 +128,7 @@ public class ObserverGatewayController
     }
 
     /**
-     * Helper method which returns a vactor of gateways which satisfy the requested protocol.<P>
+     * Helper method which returns a vector of gateways which satisfy the requested protocol.<P>
      *
      * @param scheme    The scheme or protocol the gateway needs to support.
      * @return Gateways of protocol scheme

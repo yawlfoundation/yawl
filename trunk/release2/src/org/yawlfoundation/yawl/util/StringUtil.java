@@ -8,6 +8,7 @@
 
 package org.yawlfoundation.yawl.util;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import java.io.*;
@@ -48,7 +49,7 @@ public class StringUtil
          * correctly.
          */
         int old = 0;
-        StringBuffer temp = new StringBuffer();
+        StringBuilder temp = new StringBuilder();
         while (true)
         {
             int pos = buffer.indexOf(fromToken, old);
@@ -189,14 +190,14 @@ public class StringUtil
      */
     public static String formatUIDate(Calendar calendar)
     {
-        String dateTimestamp = null;
         SimpleDateFormat fmt = null;
 
         /**
          * Set format depending upon whether we have a timestamp component to the calendar.
          * Ok, this is slightly flawed as an assumption as we could be bang on midnight.......
          */
-        if ((calendar.get(Calendar.HOUR) == 0) && (calendar.get(Calendar.MINUTE) == 0) && (calendar.get(Calendar.SECOND) == 0))
+        if ((calendar.get(Calendar.HOUR) == 0) && (calendar.get(Calendar.MINUTE) == 0)
+                && (calendar.get(Calendar.SECOND) == 0))
         {
             fmt = new SimpleDateFormat("dd-MMM-yy");
         }
@@ -228,7 +229,7 @@ public class StringUtil
      * @param t Throwable to convert to a String
      * @return String representation of Throwable t
      */
-    public static final String convertThrowableToString(Throwable t)
+    public static String convertThrowableToString(Throwable t)
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintWriter writer = new PrintWriter(baos);
@@ -386,5 +387,10 @@ public class StringUtil
             extracted = m.group();
         }
         return extracted;
+    }
+
+
+    public static String getRandomString(int length) {
+        return RandomStringUtils.random(length);
     }
 }

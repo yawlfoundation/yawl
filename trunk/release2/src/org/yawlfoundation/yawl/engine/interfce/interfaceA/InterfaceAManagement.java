@@ -11,8 +11,8 @@ package org.yawlfoundation.yawl.engine.interfce.interfaceA;
 
 import org.apache.log4j.Logger;
 import org.jdom.JDOMException;
+import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
-import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -71,26 +71,16 @@ public interface InterfaceAManagement {
      *
      * The process must have been loaded into the engine either when it initialised (using persisted specifications
      * held in the database), or specifications added during the lifetime of the current engine instance. Null is
-     * returned if the process ID requested is not found in the engines internal cache. Furhter, this returns the
+     * returned if the process ID requested is not found in the engines internal cache. Further, this returns the
      * newest version of the specification running.
-     * @param specID
+     * @param id
      */
-    YSpecification getSpecification(String specID);
+    YSpecification getLatestSpecification(String id);
 
     YSpecification getSpecification(YSpecificationID specID);
 
     YSpecification getSpecificationForCase(YIdentifier caseID);
 
-    /**
-     * Returns the process specification identified by its ID.<P>
-     *
-     * The process must have been loaded into the engine either when it initialised (using persisted specifications
-     * held in the database), or specifications added during the lifetime of the current engine instance. Null is
-     * returned if the process ID requested is not found in the engines internal cache.
-     * @param specID
-     * @param version Given version of the specification
-     */
-    YSpecification getSpecification(String specID, YSpecVersion version);
 
     /**
      * Unloads a specification from the engine.<P>
@@ -173,6 +163,10 @@ public interface InterfaceAManagement {
      * Returns a set of users currently loaded within the engine.<P>
      */
     Set getUsers();
+
+    YExternalClient getExternalClient(String name);
+
+    boolean addExternalClient(YExternalClient client) throws YPersistenceException ;
 
     YAWLServiceReference getRegisteredYawlService(String yawlServiceID);
 
