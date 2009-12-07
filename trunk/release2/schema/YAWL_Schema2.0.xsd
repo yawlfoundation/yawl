@@ -1009,6 +1009,7 @@
        <xs:element name="bounds" type="yawl:LayoutFrameType"/>
        <xs:element name="frame" type="yawl:LayoutFrameType"/>
        <xs:element name="viewport" type="yawl:LayoutFrameType"/>
+       <xs:element name="bgImage" type="xs:string" minOccurs="0"/>
        <xs:element name="scale" type="xs:string"/>
        <xs:element name="cancellationtask" type="xs:NCName" minOccurs="0"/>      
        <xs:element name="vertex" type="yawl:LayoutVertexFactsType"
