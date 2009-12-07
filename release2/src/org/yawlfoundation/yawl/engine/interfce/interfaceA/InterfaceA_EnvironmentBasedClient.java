@@ -11,12 +11,13 @@ package org.yawlfoundation.yawl.engine.interfce.interfaceA;
 
 import org.jdom.Document;
 import org.jdom.Element;
-import org.yawlfoundation.yawl.authentication.User;
+import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.PasswordEncryptor;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.File;
@@ -31,7 +32,7 @@ import java.util.*;
  * Date: 16/04/2004
  * Time: 16:15:02
  *
- * @author Michael Adams (refactored for v2.0, 06/2008)
+ * @author Michael Adams (refactored for v2.0, 06/2008, and v2.1 11/2009)
  * 
  */
 public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
@@ -50,6 +51,22 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
+     * Creates a user session with the engine. Returns a sessionhandle for use in all
+     * other engine access methods.
+     * @param userID a valid user ID
+     * @param password a valid password
+     * @return the sessionHandle - expires after one hour.
+     * @throws IOException if there's a problem connecting to the engine
+     */
+    public String connect(String userID, String password) throws IOException {
+        Map<String, String> params = prepareParamMap("connect", null);
+        params.put("userID", userID);
+        params.put("password", PasswordEncryptor.encrypt(password, null));
+        return executePost(_backEndURIStr, params);
+    }
+
+
+    /**
      * Checks that a session handle is active
      * @param sessionHandle the handle to check
      * @return true if the handle is active, false if not
@@ -61,49 +78,33 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
     }
 
 
+    /******* SERVICES *************************************************************/
+
     /**
-     * Change the password of a user on the engine, the user being the owner of
-     * the session handle.
-     * @param password the new password
-     * @param sessionHandle an active handle
-     * @return diagnostic string of results from engine.
-     * @throws IOException if there's a problem connecting to the engine
+     * Registers a new custom YAWL service woth the engine.
+     * @param service the service.
+     * @param sessionHandle a valid sessionhandle
+     * @return a diagnostic XML message.
+     * @throws IOException if something goes awry.
      */
-    public String changeUserPassword(String password, String sessionHandle) throws IOException {
-        Map<String, String> params = prepareParamMap("newPassword", sessionHandle);
-        params.put("password", password);
+    public String addYAWLService(YAWLServiceReference service, String sessionHandle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("newYAWLService", sessionHandle);
+        params.put("service", service.toXMLComplete());
         return executePost(_backEndURIStr, params);
     }
 
 
     /**
-     * Delete a user
-     * PREcondition: cannot delete self AND
-     *               must be an Admin sessionHandle
-     * @param username the user to delete
-     * @param sessionHandle an active handle
-     * @return diagnostic string of results from engine.
-     * @throws IOException if there's a problem connecting to the engine
+     * Removes a YAWL service from the engine.
+     * @param serviceURI the service URI.
+     * @param sessionHandle a valid sessionhandle.
+     * @return a diagnostic XML result message.
+     * @throws IOException if bad connection.
      */
-    public String deleteUser(String username, String sessionHandle) throws IOException {
-        Map<String, String> params = prepareParamMap("deleteUser", sessionHandle);
-        params.put("userID", username);
-        return executePost(_backEndURIStr, params);
-    }
-
-
-    /**
-     * Creates a user session with the engine. Returns a sessionhandle for use in all
-     * other engine access methods.
-     * @param userID a valid user ID
-     * @param password a valid password
-     * @return the sessionHandle - expires after one hour.
-     * @throws IOException if there's a problem connecting to the engine
-     */
-    public String connect(String userID, String password) throws IOException {
-        Map<String, String> params = prepareParamMap("connect", null);
-        params.put("userID", userID);
-        params.put("password", password);
+    public String removeYAWLService(String serviceURI, String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("removeYAWLService", sessionHandle);
+        params.put("serviceURI", serviceURI);
         return executePost(_backEndURIStr, params);
     }
 
@@ -144,34 +145,7 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
     }
 
 
-    /**
-     * Registers a new custom YAWL service woth the engine.
-     * @param service the service.
-     * @param sessionHandle a valid sessionhandle
-     * @return a diagnostic XML message.
-     * @throws IOException if something goes awry.
-     */
-    public String setYAWLService(YAWLServiceReference service, String sessionHandle)
-            throws IOException {
-        Map<String, String> params = prepareParamMap("newYAWLService", sessionHandle);
-        params.put("service", service.toXMLComplete());
-        return executePost(_backEndURIStr, params);
-    }
-
-
-    /**
-     * Removes a YAWL service from the engine.
-     * @param serviceURI the service URI.
-     * @param sessionHandle a valid sessionhandle.
-     * @return a diagnostic XML result message.
-     * @throws IOException if bad connection.
-     */
-    public String removeYAWLService(String serviceURI, String sessionHandle) throws IOException {
-        Map<String, String> params = prepareParamMap("removeYAWLService", sessionHandle);
-        params.put("serviceURI", serviceURI);
-        return executePost(_backEndURIStr, params);
-    }
-
+    /******* SPECIFICATIONS ******************************************************/
 
     /**
      * Uploads a specification into the engine.
@@ -221,7 +195,8 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
 
     /**
      * Unloads a loaded specification from the engine
-     * @deprecated superceded by unloadSpecification(YSpecification, String)
+     * @deprecated superceded by unloadSpecification(YSpecificationID, String) - this
+     *             version is appropriate for pre-2.0 schema-based specs only
      * @param specID the id of the specification to unload
      * @param sessionHandle a sessionhandle.
      * @return a diagnostic XML result message.
@@ -241,60 +216,95 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
      */
     public String unloadSpecification(YSpecificationID specID, String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("unload", sessionHandle);
-        params.put("specID", specID.getSpecName());
-        params.put("version", specID.getVersionAsString());
+        params.putAll(specID.toMap());
         return executePost(_backEndURIStr, params);
     }
 
+
+    /******* EXTERNAL ACCOUNTS ****************************************************/
 
     /**
      * Creates a new user inside the engine.
-     * @param userName the new username
+     * @param name the new username
      * @param password the new password
-     * @param isAdmin true if the new user should have admin priviledges.
-     * @param sessionHandle a current valid sessionhandle of an admin type user.
+     * @param documentation some descriptive text about the account
+     * @param sessionHandle a current valid sessionhandle
      * @return a diagnostic XML result message.
      * @throws IOException if bad connection.
      */
-    public String createUser(String userName, String password, boolean isAdmin,
+    public String addClientAccount(String name, String password, String documentation,
                              String sessionHandle) throws IOException {
-        String action = isAdmin ? "createAdmin" :"createUser";
-        Map<String, String> params = prepareParamMap(action, sessionHandle);
-        params.put("userID", userName);
+        Map<String, String> params = prepareParamMap("createAccount", sessionHandle);
+        params.put("userID", name);
         params.put("password", password);
+        params.put("doco", documentation);
         return executePost(_backEndURIStr, params);
     }
 
 
+    public String addClientAccount(YExternalClient client, String sessionHandle)
+            throws IOException {
+        return addClientAccount(client.getUserID(), client.getPassword(),
+                client.getDocumentation(), sessionHandle);
+    }
+
+    
     /**
-     * Gets all the users registered in the engine
+     * Gets all the client accounts registered in the engine
      * @param sessionHandle a current valid sessionhandle of an admin type user.
      * @return a diagnostic XML result message.
      * @throws IOException if bad connection.
      */
-    public List<User> getUsers(String sessionHandle) throws IOException {
-        Map<String, String> params = prepareParamMap("getUsers", sessionHandle);
-        ArrayList<User> users = new ArrayList<User>();
+    public Set<YExternalClient> getClientAccounts(String sessionHandle) throws IOException {
+        Set<YExternalClient> accounts = new HashSet<YExternalClient>();
+        Map<String, String> params = prepareParamMap("getAccounts", sessionHandle);
         String result = executeGet(_backEndURIStr, params);
 
         if (successful(result)) {
             Document doc = JDOMUtil.stringToDocument(result);
             if (doc != null) {
-                List userElems = doc.getRootElement().getChildren();
-                int i = 0;
-                while (i < userElems.size()) {
-                    Element element = (Element) userElems.get(i);
-                    String id = element.getChildText("id");
-                    User u = new User(id, null);
-                    if (element.getChildText("isAdmin").equals("true")) {
-                        u.setAdmin(true);
+                List children = doc.getRootElement().getChildren();
+                for (Object o : children) {
+                    Element clientElem = (Element) o;
+
+                    // add clients, but ignore generic admin user
+                    if (! clientElem.getChildText("username").equals("admin")) {
+                        accounts.add(new YExternalClient((Element) o));
                     }
-                    users.add(u);
-                    i++;
                 }
             }
         }
-        return users;
+        return accounts ;
+    }
+
+
+    /**
+     * Delete an external client account
+     * PREcondition: cannot delete self
+     * @param name the user to delete
+     * @param sessionHandle an active handle
+     * @return diagnostic string of results from engine.
+     * @throws IOException if there's a problem connecting to the engine
+     */
+    public String removeClientAccount(String name, String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("deleteAccount", sessionHandle);
+        params.put("userID", name);
+        return executePost(_backEndURIStr, params);
+    }
+
+    
+    /**
+     * Change the password of a service or client account on the engine, the account
+     * being the owner of the session handle.
+     * @param password the new password
+     * @param sessionHandle an active handle
+     * @return diagnostic string of results from engine.
+     * @throws IOException if there's a problem connecting to the engine
+     */
+    public String changePassword(String password, String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("newPassword", sessionHandle);
+        params.put("password", PasswordEncryptor.encrypt(password, null));
+        return executePost(_backEndURIStr, params);
     }
 
 

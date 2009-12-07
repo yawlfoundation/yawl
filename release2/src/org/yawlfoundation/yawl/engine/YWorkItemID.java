@@ -123,13 +123,11 @@ class UniqueIDGenerator {
         if (aChar == 'z') {
             throw new IllegalArgumentException("Shouldn't be called with 'z'.");
         }
-        char incChar = (++aChar);
-        return incChar;
+        return (++aChar);
     }
 
     private static boolean inRange(char aChar) {
-        boolean inRange = ((int) aChar) < ((int) 'z');
-        return inRange;
+        return ((int) aChar) < ((int) 'z');
     }
 
 }

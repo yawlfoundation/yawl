@@ -36,7 +36,7 @@ public class AuthenticationTestSuite extends TestSuite{
 	 */
     public static Test suite(){
         TestSuite suite = new TestSuite();
-        suite.addTestSuite(TestUserList.class);
+        suite.addTestSuite(TestConnections.class);
         //return
         return suite;
     }

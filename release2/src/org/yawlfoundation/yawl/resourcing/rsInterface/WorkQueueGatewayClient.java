@@ -375,10 +375,9 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
 
-    public String getSpecData(String specID, String version, String handle) throws IOException {
+    public String getSpecData(YSpecificationID specID, String handle) throws IOException {
         params.clear();
-        params.put("specid", specID);
-        params.put("version", version);
+        params.putAll(specID.toMap());
         return performGet("getSpecData", params, handle) ;
     }
 
@@ -392,28 +391,25 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
 
-    public String unloadSpecification(String specID, String version, String handle) throws IOException {
+    public String unloadSpecification(YSpecificationID specID, String handle) throws IOException {
         params.clear();
-        params.put("specid", specID);
-        params.put("version", version);
+        params.putAll(specID.toMap());
         return performPost("unloadSpecification", params, handle);
     }
 
 
-    public String launchCase(String specID, String version, String caseData, String handle)
+    public String launchCase(YSpecificationID specID, String caseData, String handle)
                                                                    throws IOException {
         params.clear();
-        params.put("specid", specID);
+        params.putAll(specID.toMap());
         params.put("casedata", caseData);
-        params.put("version", version);
         return performPost("launchCase", params, handle) ;
     }
 
 
-    public String getRunningCases(String specID, String version, String handle) throws IOException {
+    public String getRunningCases(YSpecificationID specID, String handle) throws IOException {
         params.clear();
-        params.put("specid", specID);
-        params.put("version", version);
+        params.putAll(specID.toMap());
         return performGet("getRunningCases", params, handle) ;
     }
 
@@ -449,8 +445,7 @@ public class WorkQueueGatewayClient extends Interface_Client {
                                            String taskName, String pid, String handle)
                                            throws IOException {
         params.clear();
-        params.put("specname", specID.getSpecName());
-        params.put("version", specID.getVersionAsString());
+        params.putAll(specID.toMap());
         params.put("taskname", taskName);
         params.put("participantid", pid);
         return performGet("getWorkItemDurationsForParticipant", params, handle);

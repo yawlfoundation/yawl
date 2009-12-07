@@ -45,7 +45,7 @@ public class YMetaData {
     private YSpecVersion version = new YSpecVersion(INITIAL_VERSION);
     private String status;
 	  private Boolean persistent;
-    private String uniqueID;
+    private String uniqueID = null;                            // null for pre-2.0 specs
 
     public YMetaData() {
     }
@@ -169,7 +169,7 @@ public class YMetaData {
     }
 
     public String toXML() {
-        StringBuffer mds = new StringBuffer();
+        StringBuilder mds = new StringBuilder();
         mds.append("<metaData>");
         if (this.title != null) {
             mds.append("<title>" + title + "</title>");

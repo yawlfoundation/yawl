@@ -74,44 +74,44 @@ public class customServices extends AbstractPageBean {
     /********************************************************************************/
 
     private Page page1 = new Page();
-    
+
     public Page getPage1() { return page1; }
-    
+
     public void setPage1(Page p) { page1 = p; }
-    
+
 
     private Html html1 = new Html();
-    
+
     public Html getHtml1() { return html1; }
-    
+
     public void setHtml1(Html h) { html1 = h; }
-    
+
 
     private Head head1 = new Head();
-    
+
     public Head getHead1() { return head1; }
-    
+
     public void setHead1(Head h) { head1 = h; }
-    
+
 
     private Link link1 = new Link();
-    
+
     public Link getLink1() { return link1; }
-    
+
     public void setLink1(Link l) { link1 = l; }
-    
+
 
     private Body body1 = new Body();
-    
+
     public Body getBody1() { return body1; }
-    
+
     public void setBody1(Body b) { body1 = b; }
-    
+
 
     private Form form1 = new Form();
-    
+
     public Form getForm1() { return form1; }
-    
+
     public void setForm1(Form f) { form1 = f;}
 
 
@@ -136,6 +136,13 @@ public class customServices extends AbstractPageBean {
     public void setLblName(Label l) { lblName = l; }
 
 
+    private Label lblPassword = new Label();
+
+    public Label getLblPassword() { return lblPassword; }
+
+    public void setLblPassword(Label l) { lblPassword = l; }
+
+
     private Label lblURL = new Label();
 
     public Label getLblURL() { return lblURL; }
@@ -149,12 +156,19 @@ public class customServices extends AbstractPageBean {
 
     public void setLblDesc(Label l) { lblDesc = l; }
 
-       
+
     private TextField txtName = new TextField();
 
     public TextField getTxtName() { return txtName; }
 
     public void setTxtName(TextField tf) { txtName = tf; }
+
+
+    private PasswordField txtPassword ;
+
+    public PasswordField getTxtPassword() { return txtPassword; }
+
+    public void setTxtPassword(PasswordField pw) { txtPassword = pw; }
 
 
     private TextField txtURL = new TextField();
@@ -290,13 +304,6 @@ public class customServices extends AbstractPageBean {
     public void setHdnRowIndex(HiddenField hf) { hdnRowIndex = hf; }
 
 
-    private Script script1 = new Script();
-
-    public Script getScript1() { return script1; }
-
-    public void setScript1(Script s) { script1 = s; }
-
-
     private List<YAWLServiceReference> dataList ;
 
     public List<YAWLServiceReference> getDataList() { return dataList; }
@@ -317,7 +324,7 @@ public class customServices extends AbstractPageBean {
 
     public void setPnlGroup(PanelGroup group) { pnlGroup = group; }
 
-    
+
     /********************************************************************************/
 
     private MessagePanel msgPanel = getSessionBean().getMessagePanel();
@@ -349,16 +356,18 @@ public class customServices extends AbstractPageBean {
         return null;
     }
 
-    
+
     // add a new service to the engine
     public String btnAdd_action() {
         String name = (String) txtName.getText() ;
+        String password = (String) txtPassword.getText();
         String uri = (String) txtURL.getText();
         String doco = (String) txtDescription.getText();
-        if (! (isNullOrEmpty(name) || isNullOrEmpty(uri) || isNullOrEmpty(doco))) {
+        if (! (isNullOrEmpty(name) || isNullOrEmpty(password) ||
+                isNullOrEmpty(uri) || isNullOrEmpty(doco))) {
             String validMsg = HttpURLValidator.validate(uri);
             if (validMsg.startsWith("<success")) {
-                getSessionBean().addRegisteredService(name, uri, doco);
+                getSessionBean().addRegisteredService(name, password, uri, doco);
                 clearInputs();
                 msgPanel.success("Service successfully added.");
             }
@@ -386,6 +395,7 @@ public class customServices extends AbstractPageBean {
     
     private void clearInputs() {
         txtName.setText("");
+        txtPassword.setText("");
         txtURL.setText("");
         txtDescription.setText("");
     }

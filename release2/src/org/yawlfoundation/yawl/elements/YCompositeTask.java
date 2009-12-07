@@ -12,13 +12,10 @@ package org.yawlfoundation.yawl.elements;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.YNetRunner;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
-import org.yawlfoundation.yawl.exceptions.YDataStateException;
-import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.yawlfoundation.yawl.exceptions.YQueryException;
-import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
-import org.yawlfoundation.yawl.exceptions.YStateException;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.logging.YEventLogger;
+import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.util.Iterator;
 import java.util.List;
@@ -68,10 +65,11 @@ public final class YCompositeTask extends YTask {
      * @throws YDataStateException
      * @throws YSchemaBuildingException
      */
-    protected synchronized void startOne(YPersistenceManager pmgr, YIdentifier id) throws YDataStateException, YSchemaBuildingException, YPersistenceException, YQueryException, YStateException {
+    protected synchronized void startOne(YPersistenceManager pmgr, YIdentifier id)
+            throws YDataStateException, YSchemaBuildingException, YPersistenceException,
+                   YQueryException, YStateException {
         _mi_executing.add(pmgr, id);
         _mi_entered.removeOne(pmgr, id);
-        //todo Creating anotehr YNetRunner thread
 
         YNetRunner netRunner = new YNetRunner(pmgr,
                 (YNet) _decompositionPrototype,
@@ -79,15 +77,11 @@ public final class YCompositeTask extends YTask {
                 id,
                 getData(id));
 
-        /*
-          INSERTED FOR PERSISTANCE
-         */
-        //todo AJH Do we actually need this call here ????
-//        YPersistance.getInstance().storeData(netRunner);
-
         // log sub-case start event
-        YEventLogger.getInstance().logSubNetCreated(pmgr, netRunner.getCaseID(), this.getID());
-
+        YSpecificationID specID =
+                _decompositionPrototype.getSpecification().getSpecificationID();
+        YEventLogger.getInstance().logSubNetCreated(specID, netRunner, 
+                                                    this.getID(), null);
 
         netRunner.continueIfPossible(pmgr);
         netRunner.start(pmgr);

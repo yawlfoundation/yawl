@@ -43,7 +43,7 @@ public class ServletUtils {
     }
 
 
-    public static void finalizeResponse(OutputStreamWriter outputWriter, StringBuffer output) throws IOException {
+    public static void finalizeResponse(OutputStreamWriter outputWriter, StringBuilder output) throws IOException {
         finalizeResponse(outputWriter, output.toString());
     }
 

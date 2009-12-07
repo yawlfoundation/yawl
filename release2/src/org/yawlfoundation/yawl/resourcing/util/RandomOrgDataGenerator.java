@@ -1,11 +1,13 @@
 package org.yawlfoundation.yawl.resourcing.util;
 
-import org.yawlfoundation.yawl.resourcing.ResourceManager;
-import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
+import org.yawlfoundation.yawl.resourcing.resource.*;
+import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
-import java.util.Random;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Author: Michael Adams
@@ -33,6 +35,7 @@ public class RandomOrgDataGenerator {
         int HOW_MANY_PARTICIPANTS_TO_CREATE = Math.min(count, 100);
 
         _rm = ResourceManager.getInstance();
+        ResourceDataSet orgDataSet = _rm.getOrgDataSet();
 
         // ensure it is valid to generate dummy data to org tables
         if (okToGenerate()) {
@@ -49,10 +52,10 @@ public class RandomOrgDataGenerator {
                 Role r1 = new Role("apprentice programmer");
                 r1.setPersisting(true);
 
-                _rm.addRole(r1);
-                _rm.addRole(r2);
-                _rm.addRole(r3);
-                _rm.addRole(r4);
+                orgDataSet.addRole(r1);
+                orgDataSet.addRole(r2);
+                orgDataSet.addRole(r3);
+                orgDataSet.addRole(r4);
 
                 r1.setOwnerRole(r2);
                 r2.setOwnerRole(r3);
@@ -64,18 +67,18 @@ public class RandomOrgDataGenerator {
 
                 OrgGroup o1 = new OrgGroup("SoftwareDiv", OrgGroup.GroupType.DIVISION, null,
                         "Software Division", true);
-                _rm.addOrgGroup(o1);
+                orgDataSet.addOrgGroup(o1);
 
                 OrgGroup o2 = new OrgGroup("progDept", OrgGroup.GroupType.DEPARTMENT, o1,
                         "Programming Department", true);
-                _rm.addOrgGroup(o2);
+                orgDataSet.addOrgGroup(o2);
 
                 OrgGroup o3 = new OrgGroup("teamA", OrgGroup.GroupType.TEAM, o2,
                         "Code Team A", true);
                 OrgGroup o4 = new OrgGroup("teamB", OrgGroup.GroupType.TEAM, o2,
                         "Code Team B", true);
-                _rm.addOrgGroup(o3);
-                _rm.addOrgGroup(o4);
+                orgDataSet.addOrgGroup(o3);
+                orgDataSet.addOrgGroup(o4);
 
                 // and some Positions
                 Position p1 = new Position("Vice President");
@@ -87,10 +90,10 @@ public class RandomOrgDataGenerator {
                 Position p4 = new Position("level A");
                 p4.setPersisting(true);
 
-                _rm.addPosition(p1);
-                _rm.addPosition(p2);
-                _rm.addPosition(p3);
-                _rm.addPosition(p4);
+                orgDataSet.addPosition(p1);
+                orgDataSet.addPosition(p2);
+                orgDataSet.addPosition(p3);
+                orgDataSet.addPosition(p4);
 
                 p4.setReportsTo(p3);
                 p3.setReportsTo(p2);
@@ -110,10 +113,10 @@ public class RandomOrgDataGenerator {
                 Capability c2 = new Capability("java", "java programmer", true);
                 Capability c3 = new Capability("forklift", "forklift license", true);
                 Capability c4 = new Capability("mandarin", "mandarin speaker", true);
-                _rm.addCapability(c1);
-                _rm.addCapability(c2);
-                _rm.addCapability(c3);
-                _rm.addCapability(c4);
+                orgDataSet.addCapability(c1);
+                orgDataSet.addCapability(c2);
+                orgDataSet.addCapability(c3);
+                orgDataSet.addCapability(c4);
 
                 Capability[] capabilities = {c1, c2, c3, c4};
 
@@ -160,7 +163,7 @@ public class RandomOrgDataGenerator {
     public boolean okToGenerate() {
         String h = "GENERATE ORG DATA ERROR: ";
         String f = ". Generation of dummy data aborted";
-        if (_rm.getParticipantCount() > 0) {
+        if (_rm.getOrgDataSet().getParticipantCount() > 0) {
             _log.error(h + "Particpant table not empty" + f);
             return false;
         }

@@ -76,7 +76,7 @@ public class YInternalCondition extends YNetElement implements YConditionInterfa
     /**
      * @return a List of the identifiers in the condition numbering 1 or more.
      */
-    public List getIdentifiers() {
+    public List<YIdentifier> getIdentifiers() {
         return _bag.getIdentifiers();
     }
 

@@ -18,11 +18,12 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.resource.OrgGroup;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
 import org.yawlfoundation.yawl.resourcing.util.GadgetFeeder;
-import org.yawlfoundation.yawl.resourcing.util.PasswordEncryptor;
+import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -46,6 +47,7 @@ import java.util.Set;
 public class WorkQueueGateway extends HttpServlet {
 
     private ResourceManager _rm = ResourceManager.getInstance() ;
+    private ResourceDataSet orgDataSet = _rm.getOrgDataSet();
     private ResourceMarshaller _marshaller = new ResourceMarshaller();
     private static final Logger _log = Logger.getLogger(WorkQueueGateway.class);
     private static WorkQueueGateway _me;
@@ -145,7 +147,7 @@ public class WorkQueueGateway extends HttpServlet {
             result = (name != null) ? name : fail("Unknown userid: " + userid) ;
         }
         else if (action.equals("getUserPrivileges")) {
-            Participant p = _rm.getParticipant(pid);
+            Participant p = orgDataSet.getParticipant(pid);
             if (p != null) {
                 UserPrivileges up = p.getUserPrivileges();
                 result = (up != null) ? up.toXML() :
@@ -154,26 +156,25 @@ public class WorkQueueGateway extends HttpServlet {
             else result = fail("Unknown participant id: " + pid);
         }
         else if (action.equals("getParticipantsReportingTo")) {
-            Set<Participant> set = _rm.getParticipantsReportingTo(pid);
+            Set<Participant> set = orgDataSet.getParticipantsReportingTo(pid);
             result = (set != null) ? _marshaller.marshallParticipants(set) :
                      fail("Invalid participant id or no participants reporting to: " + pid);
         }
         else if (action.equals("getOrgGroupMembers")) {
             String groupid = req.getParameter("groupid");
-            OrgGroup og = _rm.getOrgGroup(groupid);
+            OrgGroup og = orgDataSet.getOrgGroup(groupid);
             if (og != null) {
-                Set<Participant> set = _rm.getOrgGroupMembers(og);     // set never null
+                Set<Participant> set = orgDataSet.getOrgGroupMembers(og); // set never null
                 result = _marshaller.marshallParticipants(set) ;
             }
             else result = fail("Unknown org group id: " + groupid);
         }        
         else if (action.equals("getParticipant")) {
-            Participant p = _rm.getParticipant(pid);
-            result = (p != null) ? _rm.getParticipant(pid).toXML() :
-                      fail("Unknown participant id: " + pid);
+            Participant p = orgDataSet.getParticipant(pid);
+            result = (p != null) ? p.toXML() : fail("Unknown participant id: " + pid);
         }
         else if (action.equals("getParticipants")) {
-            Set<Participant> set = _rm.getParticipants();
+            Set<Participant> set = orgDataSet.getParticipants();
             result = (set != null) ? _marshaller.marshallParticipants(set) :
                       fail("No participants found");
         }
@@ -200,7 +201,7 @@ public class WorkQueueGateway extends HttpServlet {
         else if (action.equals("getQueuedWorkItems")) {
             int queueType = getQueueType(req.getParameter("queue")) ;
             if (WorkQueue.isValidQueueType(queueType)) {
-                Participant p = _rm.getParticipant(pid);
+                Participant p = orgDataSet.getParticipant(pid);
                 if (p != null) {
                     QueueSet qSet = p.getWorkQueues();
                     if (qSet != null) {
@@ -222,31 +223,34 @@ public class WorkQueueGateway extends HttpServlet {
             else result = fail("Invalid queue type: " + req.getParameter("queue")) ;
         }
         else if (action.equals("getWorkItemDurationsForParticipant")) {
-            String specName = req.getParameter("specname");
-            String version = req.getParameter("version");
+            String id = req.getParameter("specidentifier") ;
+            String version = req.getParameter("specversion");
+            String uri = req.getParameter("specuri");
             String taskName = req.getParameter("taskname");
-            YSpecificationID specID = new YSpecificationID(specName, version);
+            YSpecificationID specID = new YSpecificationID(id, version, uri);
             result = _rm.getWorkItemDurationsForParticipant(specID, taskName, pid);
         }
         else if (action.equals("getLoadedSpecs")) {
-            Set<SpecificationData> set = _rm.getLoadedSpecs(handle) ;
+            Set<SpecificationData> set = _rm.getLoadedSpecs() ;
             result = _marshaller.marshallSpecificationDataSet(set) ;
         }
         else if (action.equals("getSpecList")) {
-            Set<SpecificationData> set = _rm.getSpecList(handle) ;
+            Set<SpecificationData> set = _rm.getSpecList() ;
             result = _marshaller.marshallSpecificationDataSet(set) ;
         }
         else if (action.equals("getSpecData")) {
-            String specID = req.getParameter("specid") ;
-            String version = req.getParameter("version");
+            String specID = req.getParameter("specidentifier") ;
+            String version = req.getParameter("specversion");
+            String uri = req.getParameter("specuri");
             SpecificationData specData = _rm.getSpecData(
-                    new YSpecificationID(specID, version), handle);
+                    new YSpecificationID(specID, version, uri));
             result = _marshaller.marshallSpecificationData(specData);
         }
         else if (action.equals("getRunningCases")) {
-            String specID = req.getParameter("specid") ;
-            String version = req.getParameter("version");
-            result = _rm.getRunningCases(new YSpecificationID(specID, version), handle) ;
+            String specID = req.getParameter("specidentifier") ;
+            String version = req.getParameter("specversion");
+            String uri = req.getParameter("specuri");
+            result = _rm.getRunningCases(new YSpecificationID(specID, version, uri)) ;
         }
         else if (action.equals("getDecompID")) {
             WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
@@ -255,10 +259,10 @@ public class WorkQueueGateway extends HttpServlet {
         }
         else if (action.equals("getCaseData")) {
             String caseID = req.getParameter("caseid") ;
-            result = _rm.getCaseData(caseID, handle) ;
+            result = _rm.getCaseData(caseID) ;
         }
         else if (action.equals("getRegisteredServices")) {
-            result = _rm.getRegisteredServicesAsXML(handle);
+            result = _rm.getRegisteredServicesAsXML();
         }
         else if (action.equals("disconnect")) {
             _rm.serviceDisconnect(handle);
@@ -320,26 +324,28 @@ public class WorkQueueGateway extends HttpServlet {
         else if (action.equals("uploadSpecification")) {
             String fileContents = req.getParameter("fileContents") ;
             String fileName = req.getParameter("fileName");
-            result = _rm.uploadSpecification(fileContents, fileName, handle) ;
+            result = _rm.uploadSpecification(fileContents, fileName) ;
         }
         else if (action.equals("unloadSpecification")) {
-            String specID = req.getParameter("specid") ;
-            String version = req.getParameter("version");
-            result = _rm.unloadSpecification(specID, version, handle);           
+            String id = req.getParameter("specidentifier") ;
+            String version = req.getParameter("specversion");
+            String uri = req.getParameter("specuri");
+            result = _rm.unloadSpecification(new YSpecificationID(id, version, uri));
         }
         else if (action.equals("launchCase")) {
-            String specID = req.getParameter("specid") ;
             String caseData = req.getParameter("casedata") ;
-            String version = req.getParameter("version");
-            result = _rm.launchCase(specID, version, caseData, handle);
+            String id = req.getParameter("specidentifier") ;
+            String version = req.getParameter("specversion");
+            String uri = req.getParameter("specuri");
+            result = _rm.launchCase(new YSpecificationID(id, version, uri), caseData);
         }
         else if (action.equals("cancelCase")) {
             String caseID = req.getParameter("caseid") ;
-            result = _rm.cancelCase(caseID, handle) ;
+            result = _rm.cancelCase(caseID) ;
         }
         else if (action.equals("removeRegisteredService")) {
             String id = req.getParameter("serviceid");
-            result = _rm.removeRegisteredService(id, handle);
+            result = _rm.removeRegisteredService(id);
         }
         else if (action.equals("addRegisteredService")) {
             String uri = req.getParameter("uri");
@@ -351,7 +357,7 @@ public class WorkQueueGateway extends HttpServlet {
             if (assignable != null) {
                 ysr.set_assignable(assignable.equals("true"));
             }
-            result = _rm.addRegisteredService(ysr, handle);
+            result = _rm.addRegisteredService(ysr);
         }
 
         return result ;
@@ -375,7 +381,7 @@ public class WorkQueueGateway extends HttpServlet {
         String pid = req.getParameter("participantid");
         String itemid = req.getParameter("workitemid");
 
-        Participant p = _rm.getParticipant(pid);
+        Participant p = orgDataSet.getParticipant(pid);
         if (p != null) {
             WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
             if (wir != null) {
@@ -394,9 +400,9 @@ public class WorkQueueGateway extends HttpServlet {
         String pTo = req.getParameter("pto");
         String itemid = req.getParameter("workitemid");
 
-        Participant pOrig = _rm.getParticipant(pFrom);
+        Participant pOrig = orgDataSet.getParticipant(pFrom);
         if (pOrig != null) {
-            Participant pDest = _rm.getParticipant(pTo);
+            Participant pDest = orgDataSet.getParticipant(pTo);
             if (pDest != null) {
                 WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
                 if (wir != null) {
@@ -430,7 +436,7 @@ public class WorkQueueGateway extends HttpServlet {
                 wir.hasResourceStatus(WorkItemRecord.statusResourceOffered) ||
                 wir.hasResourceStatus(WorkItemRecord.statusResourceAllocated)) {
 
-                successful = _rm.start(p, wir, handle);
+                successful = _rm.start(p, wir);
                 result = successful ? success : fail("Could not start workitem: " +
                         wir.getID());
             }
@@ -447,7 +453,7 @@ public class WorkQueueGateway extends HttpServlet {
         }
         else if (action.equals("skipWorkItem")) {
             if (wir.hasResourceStatus(WorkItemRecord.statusResourceAllocated)) {
-                successful = _rm.skipWorkItem(p, wir, handle) ;
+                successful = _rm.skipWorkItem(p, wir) ;
                 result = successful ? success : fail("Could not skip workitem: " + wir.getID());
             }
             else result = fail("Allocated", "skipped", wir.getResourceStatus());
@@ -477,7 +483,7 @@ public class WorkQueueGateway extends HttpServlet {
         }
         else if (action.equals("completeWorkItem")) {
             if (wir.hasResourceStatus(WorkItemRecord.statusResourceStarted)) {
-                result = _rm.checkinItem(p, wir, handle) ;
+                result = _rm.checkinItem(p, wir) ;
             }
             else result = fail("Started", "completed", wir.getResourceStatus());            
         }

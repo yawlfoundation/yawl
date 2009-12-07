@@ -12,7 +12,7 @@ import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import org.yawlfoundation.yawl.monitor.MonitorClient;
 import org.yawlfoundation.yawl.resourcing.jsf.MessagePanel;
-import org.yawlfoundation.yawl.resourcing.util.PasswordEncryptor;
+import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
 import javax.faces.FacesException;
 import java.io.UnsupportedEncodingException;

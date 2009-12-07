@@ -64,13 +64,16 @@ public class TestImproperCompletion extends TestCase{
         else return "";
     }
 
-    public void testImproperCompletion() throws YStateException, YDataStateException, YEngineStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
+    public void testImproperCompletion() throws YStateException, YDataStateException,
+            YEngineStateException, YQueryException, YSchemaBuildingException,
+            YPersistenceException, YLogException {
         EngineClearer.clear(_engine);
         _engine.loadSpecification(_specification);
-        _id = _engine.startCase(null, null, _specification.getID(), null, null);
+        _id = _engine.startCase(null, null, _specification.getURI(), null, null);
         int numIter = 0;
         YSpecVersion version = new YSpecVersion();
-        Set s = _engine.getCasesForSpecification(new YSpecificationID("TestImproperCompletion", version));
+        Set s = _engine.getCasesForSpecification(
+                new YSpecificationID(null, version, "TestImproperCompletion"));
 
         assertTrue("s = " + s, s.contains(_id));
         while (numIter < 10 && (_workItemRepository.getEnabledWorkItems().size() > 0 ||
@@ -97,7 +100,7 @@ public class TestImproperCompletion extends TestCase{
             }
             numIter ++;
         }
-        YSpecificationID ys = new YSpecificationID("TestImproperCompletion", version);
+        YSpecificationID ys = new YSpecificationID(null, version, "TestImproperCompletion");
         s = _engine.getCasesForSpecification(ys);
         assertTrue("s = " + s, s.contains(_id));
         _engine.cancelCase(_id);

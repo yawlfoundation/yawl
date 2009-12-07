@@ -359,9 +359,9 @@ public class WorkQueueGatewayClientAdapter {
     }
 
 
-    public SpecificationData getSpecData(String specID, String version, String handle)
+    public SpecificationData getSpecData(YSpecificationID specID, String handle)
             throws IOException {
-        String xml = _wqclient.getSpecData(specID, version, handle);
+        String xml = _wqclient.getSpecData(specID, handle);
         return _marshaller.unmarshallSpecificationData(xml);
     }
 
@@ -372,20 +372,20 @@ public class WorkQueueGatewayClientAdapter {
     }
 
 
-    public String unloadSpecification(String specID, String version, String handle)
+    public String unloadSpecification(YSpecificationID specID, String handle)
             throws IOException {
-        return _wqclient.unloadSpecification(specID, version, handle) ;
+        return _wqclient.unloadSpecification(specID, handle) ;
     }
 
 
-    public String launchCase(String specID, String version, String caseData, String handle)
+    public String launchCase(YSpecificationID specID, String caseData, String handle)
                                                                     throws IOException {
-        return _wqclient.launchCase(specID, version, caseData, handle);
+        return _wqclient.launchCase(specID, caseData, handle);
     }
 
 
-    public String getRunningCases(String specID, String version, String handle) throws IOException {
-        return _wqclient.getRunningCases(specID, version, handle) ;
+    public String getRunningCases(YSpecificationID specID, String handle) throws IOException {
+        return _wqclient.getRunningCases(specID, handle) ;
     }
 
 

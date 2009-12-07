@@ -34,8 +34,16 @@ public interface EngineGateway extends Remote {
 
     public void registerObserverGateway(ObserverGateway gateway);
 
+    public void setDefaultWorklist(String url);
+
+    public void setAllowAdminID(boolean allow);
+
+    public void shutdown();
+
     public void notifyServletInitialisationComplete();
     
+    public void setActualFilePath(String path);
+
     /**
      *
      * @param sessionHandle
@@ -97,9 +105,9 @@ public interface EngineGateway extends Remote {
 
 
 //	MLR (02/11/07) code merge: added method launchCase which also accepts caseID as second-last param, to comply with the new YEngine (which features two methods launchCase). 
-    public String launchCase(String specID, String caseParams, URI completionObserverURI, String caseID, String sessionHandle) throws RemoteException;    
+    public String launchCase(YSpecificationID specID, String caseParams, URI completionObserverURI, String caseID, String logDataStr, String sessionHandle) throws RemoteException;
     
-    public String launchCase(String specID, String caseParams, URI completionObserverURI, String sessionHandle) throws RemoteException;
+    public String launchCase(YSpecificationID specID, String caseParams, URI completionObserverURI, String logDataStr, String sessionHandle) throws RemoteException;
 
     public String getCasesForSpecification(YSpecificationID specID, String sessionHandle) throws RemoteException;
 
@@ -115,9 +123,9 @@ public interface EngineGateway extends Remote {
 
     public String unloadSpecification(YSpecificationID specID, String sessionHandle) throws RemoteException;
 
-    public String createUser(String userName, String password, boolean isAdmin, String sessionHandle) throws RemoteException;
+    public String createAccount(String userName, String password, String doco, String sessionHandle) throws RemoteException;
 
-    public String getUsers(String sessionHandle) throws RemoteException;
+    public String getAccounts(String sessionHandle) throws RemoteException;
 
     public String getYAWLServices(String sessionHandle) throws RemoteException;
 
@@ -127,7 +135,7 @@ public interface EngineGateway extends Remote {
 
     public String removeYAWLService(String serviceURI, String sessionHandle);
 
-    public String deleteUser(String userName, String sessionHandle) throws RemoteException;
+    public String deleteAccount(String userName, String sessionHandle) throws RemoteException;
 
     public String changePassword(String password, String sessionHandle) throws RemoteException;
 

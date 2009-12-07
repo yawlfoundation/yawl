@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+	<class name="org.yawlfoundation.yawl.elements.YSpecification" table="specifications">
+        <id name="rowKey" type="long">
+            <generator class="native"/>
+        </id>
+
+        <property name="persistedXML" column="specXML" type="text"/>
+	</class>
+	
+</hibernate-mapping>

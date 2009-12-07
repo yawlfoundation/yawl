@@ -46,7 +46,7 @@ public interface YConditionInterface {
     /**
      * @return a List of the identifiers in the condition numbering 1 or more.
      */
-    public List getIdentifiers();
+    public List<YIdentifier> getIdentifiers();
 
     /**
      * Removes one YIdentifier from this condition.  If there are none

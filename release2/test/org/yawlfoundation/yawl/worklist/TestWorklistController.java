@@ -25,7 +25,8 @@ public class TestWorklistController extends TestCase{
 
     public void testGetTaskInformation(){
         String thestring =
-                "<response><taskInfo><specificationID>makeTrip2.xml</specificationID>" +
+                "<response><taskInfo>" +
+                "<specification><identifier/><version>0.1</version><uri>makeTrip2.xml</uri></specification>" +
                 "<taskID>register</taskID><taskName>register</taskName>" +
                 "<params>" +
                 "<inputParam name=\"customer\"><type>xs:string</type><ordering>0</ordering></inputParam>" +

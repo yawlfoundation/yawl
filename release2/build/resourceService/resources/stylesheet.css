@@ -531,6 +531,14 @@
     width: 296px;
 }
 
+.externalClientNameCol {
+    width: 100px;
+}
+
+.externalClientDescCol {
+    width: 526px;
+}
+
 .specsNameCol {
     width: 150px;
 }

@@ -50,7 +50,7 @@ public class TestYAtomicTask extends TestCase{
 
     public void setUp() throws YPersistenceException {
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification._Beta2);
+        spec.setVersion(YSpecification.Beta2);
         YNet deadNet = new YNet("aNet", spec);
         YVariable v = new YVariable(null);
         v.setName("stubList");
@@ -72,19 +72,19 @@ public class TestYAtomicTask extends TestCase{
         YParameter p = new YParameter(null, YParameter._INPUT_PARAM_TYPE);
         p.setName("stub");
         p.setUntyped(true);
-        _ydecomp.setInputParameter(p);
+        _ydecomp.addInputParameter(p);
         YAtomicTask before = new YAtomicTask("before", YAtomicTask._OR, YAtomicTask._AND, deadNet);
         YAtomicTask after = new YAtomicTask("after", YAtomicTask._OR, YAtomicTask._AND, deadNet);
         _c1 = new YCondition("c1", "c1", deadNet);
         YFlow f = new YFlow(_c1, _atomicTask1);
-        _atomicTask1.setPreset(f);
+        _atomicTask1.addPreset(f);
         f = new YFlow(_atomicTask1, _c1);
-        _atomicTask1.setPostset(f);
+        _atomicTask1.addPostset(f);
         _atomicTask2 = new YAtomicTask("at2", YAtomicTask._AND, YAtomicTask._AND, deadNet);
         f = new YFlow(before, _atomicTask2);
-        _atomicTask2.setPreset(f);
+        _atomicTask2.addPreset(f);
         f = new YFlow(_atomicTask2, after);
-        _atomicTask2.setPostset(f);
+        _atomicTask2.addPostset(f);
     }
 
 
@@ -108,7 +108,7 @@ public class TestYAtomicTask extends TestCase{
 
 
     public void testFireAtomicTask() throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
-        _c1.add(null, new YIdentifier());
+        _c1.add(null, new YIdentifier(null));
         List l = null;
         l = _atomicTask1.t_fire(null);
 

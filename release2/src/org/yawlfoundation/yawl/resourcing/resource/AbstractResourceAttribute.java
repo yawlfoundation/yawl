@@ -41,7 +41,7 @@ public abstract class AbstractResourceAttribute {
     protected AbstractResourceAttribute() {}
 
 
-    public void save() { _resMgr.updateResourceAttribute(this); }
+    public void save() { _resMgr.getOrgDataSet().updateResourceAttribute(this); }
 
     public void setPersisting(boolean persisting) {
         _persisting = persisting ;

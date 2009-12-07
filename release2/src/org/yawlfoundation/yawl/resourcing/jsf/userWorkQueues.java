@@ -82,44 +82,44 @@ public class userWorkQueues extends AbstractPageBean {
     // PAGE COMPONENT DECLARATIONS, GETTERS & SETTERS //
 
     private Page page1 = new Page();
-    
+
     public Page getPage1() { return page1; }
-    
+
     public void setPage1(Page p) { page1 = p; }
-    
+
 
     private Html html1 = new Html();
-    
+
     public Html getHtml1() { return html1; }
-    
+
     public void setHtml1(Html h) { html1 = h; }
 
-    
+
     private Head head1 = new Head();
-    
+
     public Head getHead1() { return head1; }
-    
+
     public void setHead1(Head h) { head1 = h; }
-    
+
 
     private Link link1 = new Link();
-    
+
     public Link getLink1() { return link1; }
-    
+
     public void setLink1(Link l) { link1 = l; }
 
-    
+
     private Body body1 = new Body();
-    
+
     public Body getBody1() { return body1; }
-    
+
     public void setBody1(Body b) { body1 = b; }
 
 
     private Form form1 = new Form();
-    
+
     public Form getForm1() { return form1; }
-    
+
     public void setForm1(Form f) { form1 = f; }
 
 
@@ -303,7 +303,7 @@ public class userWorkQueues extends AbstractPageBean {
     public PanelLayout getPnlContainer() { return pnlContainer; }
 
     public void setPnlContainer(PanelLayout pnl) { pnlContainer = pnl; }
-    
+
 
     private Button btnVisualiser = new Button();
 
@@ -353,7 +353,7 @@ public class userWorkQueues extends AbstractPageBean {
             _sb.setSourceTab(null);
         }
 
-        // check flags & take post-roundtrip action if any are set 
+        // check flags & take post-roundtrip action if any are set
         if (_sb.isDelegating()) postDelegate();
         else if (_sb.isReallocating()) postReallocate();
         else if (_sb.isCustomFormPost() || _sb.isWirEdit()) postFormDisplay();
@@ -387,7 +387,7 @@ public class userWorkQueues extends AbstractPageBean {
         }
         else {
             selTab = initDefaultTab();
-        }    
+        }
 
         updateTabHeaders(selTab) ;          // highlight selected tab and update counts
 
@@ -598,7 +598,7 @@ public class userWorkQueues extends AbstractPageBean {
         String pid = _sb.getParticipant().getID();
 
         // participant can only delegate/reallocate to those reporting to he or she
-        Set<Participant> underlings = _rm.getParticipantsReportingTo(pid);
+        Set<Participant> underlings = _rm.getOrgDataSet().getParticipantsReportingTo(pid);
         if (underlings != null) {
 
             // build the option list
@@ -623,18 +623,17 @@ public class userWorkQueues extends AbstractPageBean {
     private String doAction(int queueType, String action) {
         Participant p = _sb.getParticipant();
         WorkItemRecord wir = _sb.getChosenWIR(queueType);
-        String handle = _sb.getSessionhandle() ;
         try {
             if (action.equals("deallocate"))
                 _rm.deallocateWorkItem(p, wir);
             else if (action.equals("skip"))
-                _rm.skipWorkItem(p, wir, handle);
+                _rm.skipWorkItem(p, wir);
             else if (action.equals("start")) {
-                if (! _rm.start(p, wir, handle)) {
+                if (! _rm.start(p, wir)) {
                     msgPanel.error("Could not start workitem '" + wir.getID() +
-                     "'. Please see the log files for details.");   
+                     "'. Please see the log files for details.");
                 }
-            }    
+            }
             else if (action.equals("suspend"))
                 _rm.suspendWorkItem(p, wir);
             else if (action.equals("unsuspend"))
@@ -652,11 +651,11 @@ public class userWorkQueues extends AbstractPageBean {
                     // if the accepted offer has a system-initiated start, it's
                     // already started, so don't do it again
                     if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceAllocated)) {
-                        if (! _rm.start(p, wir, handle)) {
+                        if (! _rm.start(p, wir)) {
                             msgPanel.error("Could not start workitem '" + wir.getID() +
                              "'. Please see the log files for details.");
                         }
-                    }    
+                    }
                 }
                 else
                     msgPanel.info("Another participant has already accepted this offer.");
@@ -686,7 +685,7 @@ public class userWorkQueues extends AbstractPageBean {
                     _sb.setWarnedForNonEdit(wir.getID()) ;
                     return null ;
                 }
-                
+
                 completeWorkItem(wir, p);
             }
         }
@@ -709,7 +708,7 @@ public class userWorkQueues extends AbstractPageBean {
         if (_sb.isReallocating()) {
             Participant pFrom = _sb.getParticipant();
             String userIDTo = _sb.getSelectUserListChoice() ;        // this is the p-id
-            Participant pTo = _rm.getParticipant(userIDTo) ;
+            Participant pTo = _rm.getOrgDataSet().getParticipant(userIDTo) ;
             WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
 
             boolean successful ;
@@ -734,7 +733,7 @@ public class userWorkQueues extends AbstractPageBean {
         if (_sb.isDelegating()) {
             Participant pFrom = _sb.getParticipant();
             String pIDTo = _sb.getSelectUserListChoice() ;        // this is the p-id
-            Participant pTo =  _rm.getParticipant(pIDTo) ;
+            Participant pTo =  _rm.getOrgDataSet().getParticipant(pIDTo) ;
             WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.ALLOCATED);
 
             if (_rm.delegateWorkItem(pFrom, pTo, wir))
@@ -789,7 +788,7 @@ public class userWorkQueues extends AbstractPageBean {
 
 
     private void completeWorkItem(WorkItemRecord wir, Participant p) {
-        String result = _rm.checkinItem(p, wir, _sb.getSessionhandle());
+        String result = _rm.checkinItem(p, wir);
         if (_rm.successful(result))
             _sb.removeWarnedForNonEdit(wir.getID());
         else
@@ -875,7 +874,7 @@ public class userWorkQueues extends AbstractPageBean {
 
             // add items to listbox and get first or selected one in list
             addItemsToListOptions(queue, _sb.getChosenWIR(queueType)) ;
-            WorkItemRecord choice = _sb.getChosenWIR(queueType) ;         
+            WorkItemRecord choice = _sb.getChosenWIR(queueType) ;
             showWorkItem(choice);                                   // show details
             processTaskPrivileges(choice, queueType) ;
             result = queue.size() ;
@@ -939,7 +938,7 @@ public class userWorkQueues extends AbstractPageBean {
             btnStart.setDisabled(suspended);
             btnDeallocate.setDisabled(! _rm.hasUserTaskPrivilege(p, wir,
                                                TaskPrivileges.CAN_DEALLOCATE));
-            btnDelegate.setDisabled(! _rm.hasUserTaskPrivilege(p, wir, 
+            btnDelegate.setDisabled(! _rm.hasUserTaskPrivilege(p, wir,
                                                TaskPrivileges.CAN_DELEGATE));
             btnSkip.setDisabled((! _rm.hasUserTaskPrivilege(p, wir,
                                                TaskPrivileges.CAN_SKIP)) || suspended);

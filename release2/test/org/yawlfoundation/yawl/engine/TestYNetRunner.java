@@ -56,7 +56,7 @@ public class TestYNetRunner extends TestCase {
         YEngine engine2 = YEngine.getInstance();
         EngineClearer.clear(engine2);
         engine2.loadSpecification(specification);
-        _id1 = engine2.startCase(null, null, specification.getID(), null, null);
+        _id1 = engine2.startCase(null, null, specification.getURI(), null, null);
         _netRunner1 = (YNetRunner) engine2._caseIDToNetRunnerMap.get(_id1);
         _d = new Document();
         _d.setRootElement(new Element("data"));

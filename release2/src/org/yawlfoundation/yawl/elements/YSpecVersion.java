@@ -34,6 +34,7 @@ public class YSpecVersion implements Comparable {
 
     // Constructor as string
     public YSpecVersion(String version) {
+        if (version == null) version = "0.1" ;
         setVersion(version);
     }
 

@@ -108,4 +108,33 @@ public class YAWLException extends Exception {
     public void setMessage(String message) {
         _message = message;
     }
+
+
+    /**
+     * A convenience method that effectively rethrows the exceptions listed.
+     * Caveat: ALL 5 exceptions must appear in the throws clause of any methods that
+     * call this method.
+     * @throws YStateException
+     * @throws YDataStateException
+     * @throws YQueryException
+     * @throws YSchemaBuildingException
+     * @throws YPersistenceException
+     */
+
+    public void rethrow() throws YStateException, YDataStateException, YQueryException,
+                                 YSchemaBuildingException, YPersistenceException
+    {
+        if (this instanceof YStateException) {
+            throw (YStateException) this;
+        } else if (this instanceof YDataStateException) {
+            throw (YDataStateException) this;
+        } else if (this instanceof YQueryException) {
+            throw (YQueryException) this;
+        } else if (this instanceof YSchemaBuildingException) {
+            throw (YSchemaBuildingException) this;
+        } else if (this instanceof YPersistenceException) {
+            throw (YPersistenceException) this;
+        }
+
+    }
 }

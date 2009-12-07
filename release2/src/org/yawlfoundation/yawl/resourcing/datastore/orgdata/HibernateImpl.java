@@ -99,22 +99,22 @@ public class HibernateImpl extends DataSource {
 
     public ResourceDataSet loadResources() {
 
-       ResourceDataSet ds = new ResourceDataSet() ;
+       ResourceDataSet ds = new ResourceDataSet(this) ;
 
        List<Capability> cList = _db.getObjectsForClass(_capability) ;
-       for (Capability c : cList) ds.capabilityMap.put(c.getID(), c) ;
+       for (Capability c : cList) ds.putCapability(c) ;
 
        List<OrgGroup> ogList = _db.getObjectsForClass(_orgGroup) ;
-       for (OrgGroup o : ogList) ds.orgGroupMap.put(o.getID(), o) ;
+       for (OrgGroup o : ogList) ds.putOrgGroup(o) ;
 
        List<Position> posList = _db.getObjectsForClass(_position) ;
-       for (Position p : posList) ds.positionMap.put(p.getID(), p) ;
+       for (Position p : posList) ds.putPosition(p) ;
 
        List<Role> roleList = _db.getObjectsForClass(_role) ;
-       for (Role r : roleList) ds.roleMap.put(r.getID(), r) ;
+       for (Role r : roleList) ds.putRole(r) ;
 
        List<Participant> pList = _db.getObjectsForClass(_participant) ;
-       for (Participant par : pList) ds.participantMap.put(par.getID(), par) ;
+       for (Participant par : pList) ds.putParticipant(par) ;
 
        return ds ;
     }

@@ -375,7 +375,7 @@ public class adminQueues extends AbstractPageBean {
             _sb.setSelectUserListChoice(_sb.getParticipant().getID());
         }
         else {
-            if (ResourceManager.getInstance().getParticipantCount() == 0) {
+            if (ResourceManager.getInstance().getOrgDataSet().getParticipantCount() == 0) {
                 _sb.getMessagePanel().error("Unable to assign workitem: " +
                     "Missing or empty organisational database. Please check and, if " +
                     "necessary, add some participants via the 'User Mgt' form, then " +

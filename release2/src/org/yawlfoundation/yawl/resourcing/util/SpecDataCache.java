@@ -23,7 +23,7 @@ public class SpecDataCache {
     }
 
     public boolean add(SpecificationData spec) {
-        SpecList list = _specs.get(spec.getID());
+        SpecList list = _specs.get(spec.getID().getKey());
         if (list != null) {
             if (list.getSpecData(spec.getSpecVersion()) != null)
                 return false;
@@ -33,73 +33,45 @@ public class SpecDataCache {
             }
         }
         else {
-            _specs.put(spec.getID(), new SpecList(spec));
+            _specs.put(spec.getID().getKey(), new SpecList(spec));
             return true;
         }
     }
 
 
-    public void remove(String specID, String version) {
-        SpecList list = _specs.get(specID);
+    public void remove(YSpecificationID specID) {
+        SpecList list = _specs.get(specID.getKey());
         if (list != null) {
-            list.removeVersion(version);
+            list.removeVersion(specID);
 
             if (list.isEmpty())                      //just unloaded the only version
-                _specs.remove(specID);
+                _specs.remove(specID.getKey());
         }
-    }
-
-    public void remove(YSpecificationID spec) {
-        remove(spec.getSpecName(), spec.getVersionAsString());
     }
 
 
     public void remove(SpecificationData spec) {
-        SpecList list = _specs.get(spec.getID());
+        SpecList list = _specs.get(spec.getID().getKey());
         if (list != null) {
             list.remove(spec);
 
             if (list.isEmpty())                      //just unloaded the only version
-                _specs.remove(spec.getID());
+                _specs.remove(spec.getID().getKey());
         }
     }
 
-    public SpecificationData get(String specid) {
-        SpecList list = _specs.get(specid);
+
+    public SpecificationData get(YSpecificationID specID) {
+        SpecList list = _specs.get(specID.getKey());
         if (list != null)
-           return list.getLatestVersion();
+           return list.getSpecData(specID.getVersionAsString());
         else
            return null ;
     }
 
-    public SpecificationData get(String specid, String version) {
-        SpecList list = _specs.get(specid);
-        if (list != null)
-           return list.getSpecData(version);
-        else
-           return null ;
-    }
-    
-    public SpecificationData get(YSpecificationID spec) {
-        return get(spec.getSpecName(), spec.getVersionAsString());
-    }
 
-
-
-    public boolean contains(String specid) {
-        return _specs.containsKey(specid);
-    }
-
-    public boolean contains(SpecificationData spec) {
-        return contains(spec.getID(), spec.getSpecVersion());
-    }
-
-    public boolean contains(String specid, String version) {
-        return get(specid, version) != null ;
-    }
-
-    public Set<String> getSpecIDs() {
-        Set<String> set = new HashSet<String>();
+    public Set<YSpecificationID> getSpecIDs() {
+        Set<YSpecificationID> set = new HashSet<YSpecificationID>();
         for (SpecList list : _specs.values()) {
             set.add(list.getSpecID());
         }
@@ -110,20 +82,15 @@ public class SpecDataCache {
 
     private class SpecList extends ArrayList<SpecificationData> {
 
-        private String _specID ;
+        private YSpecificationID _specID ;
 
-        // Constructors //
-        public SpecList(String id) {
-            super() ;
-            _specID = id ;
-        }
-
+        // Constructor //
         public SpecList(SpecificationData spec) {
-            this(spec.getID());
+            _specID = spec.getID();
             this.add(spec);
         }
 
-        public String getSpecID() { return _specID ; }
+        public YSpecificationID getSpecID() { return _specID ; }
 
         public SpecificationData getSpecData(String version) {
             for (SpecificationData spec : this) {
@@ -135,31 +102,32 @@ public class SpecDataCache {
 
 
         public SpecificationData getLatestVersion() {
-            if (this.isEmpty()) return null;
-
-            SpecificationData latestSpec = this.get(0);
-            YSpecVersion latestVersion = new YSpecVersion(latestSpec.getSpecVersion()); 
-            for (SpecificationData spec : this) {
-                YSpecVersion thisVersion = new YSpecVersion(spec.getSpecVersion());
-                if (thisVersion.compareTo(latestVersion) > 0)
-                    latestSpec = spec;
+            SpecificationData latestSpec = null;
+            if (! this.isEmpty()) {
+                latestSpec = this.get(0);
+                if (this.size() > 1) {
+                    YSpecVersion latestVersion = latestSpec.getID().getVersion();
+                    for (SpecificationData spec : this) {
+                        YSpecVersion thisVersion = spec.getID().getVersion();
+                        if (thisVersion.compareTo(latestVersion) > 0)
+                            latestSpec = spec;
+                    }
+                }
             }
             return latestSpec ;
         }
 
 
-        public boolean removeVersion(String version) {
-            YSpecVersion remVersion = new YSpecVersion(version);
+        public boolean removeVersion(YSpecificationID specID) {
+            YSpecVersion remVersion = specID.getVersion();
 
             for (SpecificationData spec : this) {
-                YSpecVersion thisVersion = new YSpecVersion(spec.getSpecVersion());
+                YSpecVersion thisVersion = spec.getID().getVersion();
                 if (thisVersion.equals(remVersion))
                     return remove(spec);
             }
             return false;            // not found
         }
-
-
 
     }
 

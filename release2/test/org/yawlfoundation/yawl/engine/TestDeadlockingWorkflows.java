@@ -59,7 +59,7 @@ public class TestDeadlockingWorkflows extends TestCase{
         YEngine engine = YEngine.getInstance();
         EngineClearer.clear(engine);
         engine.loadSpecification(specification);
-        _idForTopNet = engine.startCase(null, null, specification.getID(), null, null);
+        _idForTopNet = engine.startCase(null, null, specification.getURI(), null, null);
         YWorkItemRepository repository = YWorkItemRepository.getInstance();
         YNetRunner runner = repository.getNetRunner(_idForTopNet);
         try {

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.yawlfoundation.yawl.logging">
+
+	<class name="org.yawlfoundation.yawl.logging.table.YLogTaskInstance" table="logTaskInstance">
+
+        <id name="taskInstanceID" type="long">
+            <generator class="native"/>
+        </id>
+       
+        <property name="engineInstanceID"     type="string"/>
+    	<property name="taskID"               type="long"/>
+        <property name="parentNetInstanceID"  type="long"/>
+        <property name="parentTaskInstanceID" type="long"/>
+	</class>
+
+</hibernate-mapping>

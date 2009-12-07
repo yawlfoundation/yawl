@@ -59,7 +59,7 @@
         </tr>
         <tr>
             <td height="30" width="180" align="center"><%= wir.getID()%></td>
-            <td  width="180" align="center"><%= wir.getSpecificationID()%></td>
+            <td  width="180" align="center"><%= wir.getSpecIdentifier()%></td>
             <td  width="180" align="center"><%= wir.getCaseID()%></td>
             <td  width="180" align="center"><%= taskName%></td>
         </tr>

@@ -10,11 +10,15 @@ package org.yawlfoundation.yawl.resourcing.allocators;
 
 import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.resourcing.AbstractSelector;
+import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
 import java.util.HashMap;
 import java.util.Set;
+import java.util.List;
 
 /**
  * The base class for all allocators.
@@ -80,6 +84,32 @@ public abstract class AbstractAllocator extends AbstractSelector {
             allocator.setParams(unmarshalParams(eParams));
         return allocator ;
     }
+
+
+    /**
+     * Gets a list of all resource log rows for a given specification + task + event
+     * combination.
+     * @param wir a workitem record which is an instance of the specification+task in
+     * question.
+     * @param event the type of event to get reocrds for
+     * @return the matching list of ResourceEvent objects (each one a row of the log)
+     */
+    protected List getLoggedEvents(WorkItemRecord wir, EventLogger.event event) {
+        Persister persister = Persister.getInstance() ;
+        if (persister != null) {
+            YSpecificationID specID = new YSpecificationID(wir);
+            String keyField = (specID.getIdentifier() != null) ? "identifier" : "uri";
+            String eventStr = event.name();
+            String taskID = wir.getTaskIDForDisplay();
+            return persister.selectWhere("ResourceEvent",
+                  String.format("_event='%s' AND tbl._specID.%s='%s' AND " +
+                                "tbl._specID.version.version='%s' AND tbl._taskID='%s'",
+                                eventStr, keyField, specID.getKey(),
+                                specID.getVersionAsString(), taskID)) ;
+        }
+        else return null;
+    }
+
 
     /*******************************************************************************/
 

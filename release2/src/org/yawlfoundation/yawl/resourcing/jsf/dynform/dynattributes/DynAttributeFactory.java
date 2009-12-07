@@ -33,7 +33,7 @@ import java.util.Set;
 
 public class DynAttributeFactory {
 
-    static String pkg = "org.yawlfoundation.yawl.resourcing.jsf.dynform.dynattributes" ;
+    static String pkg = "org.yawlfoundation.yawl.resourcing.jsf.dynform.dynattributes." ;
     static Logger _log = Logger.getLogger(DynAttributeFactory.class) ;
 
 

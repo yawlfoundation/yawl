@@ -26,7 +26,7 @@ import java.io.IOException;
  */
 
 public class XMLValidator extends DefaultHandler {
-    StringBuffer _errorsString = new StringBuffer("");
+    StringBuilder _errorsString = new StringBuilder("");
     private String _tempDataFileName = "data.xml";
     private String _tempSchemaFileName = "theSchema.xsd";
     private File _tempSchema;

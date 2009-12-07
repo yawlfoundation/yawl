@@ -152,7 +152,7 @@ public class WorkletRecord {
     }
 
     public String getSpecID() {
-        return _wir.getSpecificationID();      // i.e. of the originating workitem
+        return _wir.getSpecIdentifier();      // i.e. of the originating workitem
     }
 
     public int getReasonType() {
@@ -303,7 +303,7 @@ public class WorkletRecord {
 
             //set values for the workitem identifiers
             eId.setText(_wir.getID()) ;
-            eSpecid.setText(_wir.getSpecificationID());
+            eSpecid.setText(_wir.getSpecIdentifier());
             eTaskid.setText(WorkletService.getInstance().getDecompID(_wir));
             eCaseid.setText(_wir.getCaseID());
             eReason.setText(String.valueOf(_reasonType));
@@ -367,7 +367,7 @@ public class WorkletRecord {
         String extn = ".xws";
         String counter = "" ;
         int i = 0 ;
-        StringBuffer fName = new StringBuffer(Library.wsSelectedDir) ;
+        StringBuilder fName = new StringBuilder(Library.wsSelectedDir) ;
         fName.append(getCaseID()) ;                         // begin with caseID
         fName.append("_") ;
         fName.append(getSpecID()) ;                         // then spec id
@@ -392,7 +392,7 @@ public class WorkletRecord {
 
     /** returns a String representation of current WorkletRecord */
     public String toString() {
-        StringBuffer s = new StringBuffer("##### WORKLET RECORD #####") ;
+        StringBuilder s = new StringBuilder("##### WORKLET RECORD #####") ;
         s.append(Library.newline);
         s.append(toStringSub());
 
@@ -400,7 +400,7 @@ public class WorkletRecord {
     }
 
     public String toStringSub() {
-        StringBuffer s = new StringBuffer() ;
+        StringBuilder s = new StringBuilder() ;
         String wirStr = (_wir != null)? _wir.toXML() : "null";
         Library.appendLine(s, "WORKITEM", wirStr);
 

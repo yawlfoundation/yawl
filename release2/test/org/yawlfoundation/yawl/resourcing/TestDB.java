@@ -2,10 +2,8 @@ package org.yawlfoundation.yawl.resourcing;
 
 import junit.framework.TestCase;
 import org.yawlfoundation.yawl.resourcing.resource.*;
-import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataSource;
-import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 
-import java.util.*;
+import java.util.Random;
 
 /**
  *
@@ -21,6 +19,7 @@ public class TestDB extends TestCase {
         int HOW_MANY_PARTICIPANTS_TO_CREATE = 20 ;
 
         ResourceManager rm = ResourceManager.getInstance();
+
         rm.setPersisting(true);
         rm.initOrgDataSource("HibernateImpl", -1) ;
         Random rand = new Random();
@@ -35,30 +34,30 @@ public class TestDB extends TestCase {
         Role r = new Role("a shared role");
         r.setPersisting(true);
 
-        rm.addRole(r2);
-        rm.addRole(r);
+        rm.getOrgDataSet().addRole(r2);
+        rm.getOrgDataSet().addRole(r);
         r.setOwnerRole(r2);
 
         OrgGroup o = new OrgGroup("mega", OrgGroup.GroupType.DIVISION, null, "mega") ;
         o.setPersisting(true);
-        rm.addOrgGroup(o);
+        rm.getOrgDataSet().addOrgGroup(o);
 
         OrgGroup o2 = new OrgGroup("minor", OrgGroup.GroupType.TEAM, o, "minor") ;
         o2.setPersisting(true);
-        rm.addOrgGroup(o2);
+        rm.getOrgDataSet().addOrgGroup(o2);
 
         Position po = new Position("a position");
         po.setPersisting(true);
         Position p2 = new Position("manager") ;
         p2.setPersisting(true);
-        rm.addPosition(p2);
-        rm.addPosition(po);
+        rm.getOrgDataSet().addPosition(p2);
+        rm.getOrgDataSet().addPosition(po);
         po.setReportsTo(p2);
         po.setOrgGroup(o2);
         p2.setOrgGroup(o2);
 
         Capability c = new Capability("a capability", "some description", true) ;
-        rm.addCapability(c);
+        rm.getOrgDataSet().addCapability(c);
 
 
         for (int i=0; i < HOW_MANY_PARTICIPANTS_TO_CREATE; i++) {

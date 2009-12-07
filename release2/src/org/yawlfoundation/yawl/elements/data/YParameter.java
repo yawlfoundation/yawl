@@ -10,11 +10,14 @@
 package org.yawlfoundation.yawl.elements.data;
 
 import org.jdom.Element;
+import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
-import java.util.*;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * 
@@ -24,88 +27,31 @@ import java.util.*;
  * 
  */
 public class YParameter extends YVariable implements Comparable {
-//    private boolean _mandatory = false;
 
-    private int _ordering;
-    private boolean _cutsThroughDecompositionStateSpace;
-
-    private static final String[] _paramTypes = new String[]{"inputParam", "outputParam", "enablementParam"};
     public static final int _INPUT_PARAM_TYPE = 0;
     public static final int _OUTPUT_PARAM_TYPE = 1;
     public static final int _ENABLEMENT_PARAM_TYPE = 2;
-    private String _paramType;
-    private Hashtable attributes;
+
+    private int _ordering;
+    private boolean _cutsThroughDecompositionStateSpace;
+    private int _paramType;
+    private YAttributeMap _attributes = new YAttributeMap();
+//    private boolean _mandatory = false;
 
 
     public YParameter() { }
 
     /**
      * creates a parameter
-     * @param dec the parent decomposition
-     * @param dataType the datatype
-     * @param name the name
-     * @param nameSpaceURI
-     * @param initialValue
-     * @param inputTrueOutputFalse
-     * @deprecated use YParam(dec, type) instead
-     */
-    public YParameter(YDecomposition dec, String dataType, String name, String nameSpaceURI, String initialValue, boolean inputTrueOutputFalse) {
-        super(dec, dataType, name, initialValue, nameSpaceURI);
-        _paramType = inputTrueOutputFalse ?
-                _paramTypes[_INPUT_PARAM_TYPE]
-                :
-                _paramTypes[_OUTPUT_PARAM_TYPE];
-    }
-
-
-    /**
-     * @param dec
-     * @param dataType
-     * @param name
-     * @param namespaceURI
-     * @param mandatory
-     * @param inputTrueOutputFalse
-     * @deprecated use YParam(dec, type) instead
-     */
-    public YParameter(YDecomposition dec, String dataType, String name, String namespaceURI, boolean mandatory, boolean inputTrueOutputFalse) {
-        super(dec, dataType, name, null, namespaceURI);
-//        _mandatory = mandatory;
-        super.setMandatory(mandatory);
-
-        _paramType = inputTrueOutputFalse ?
-                _paramTypes[_INPUT_PARAM_TYPE]
-                :
-                _paramTypes[_OUTPUT_PARAM_TYPE];
-    }
-
-
-    /**
-     * creates a parameter
-     * @param dec the parent decomposition
-     * @param isInputParam if false means is output param
-     * @deprecated use YParam(dec, type) instead
-     */
-    public YParameter(YDecomposition dec, boolean isInputParam){
-        super(dec);
-
-        _paramType = isInputParam ?
-                _paramTypes[_INPUT_PARAM_TYPE]
-                :
-                _paramTypes[_OUTPUT_PARAM_TYPE];
-    }
-
-    /**
-     * creates a parameter
      * @param decomposition the parent decomposition
      * @param type use one of the public static type attributes
      */
-    public YParameter(YDecomposition decomposition, int type){
+    public YParameter(YDecomposition decomposition, int type) {
         super(decomposition);
-        try{
-            _paramType = _paramTypes[type];
-        }catch (ArrayIndexOutOfBoundsException e){
-            throw new IllegalArgumentException("<type> param is not valid.");
+        if (isValidType(type)) {
+           _paramType = type;
         }
+        else throw new IllegalArgumentException("<type> param is not valid.");
     }
 
     /**
@@ -115,11 +61,7 @@ public class YParameter extends YVariable implements Comparable {
      */
     public YParameter(YDecomposition decomposition, String type) {
         super(decomposition);
-        List types = Arrays.asList(_paramTypes);
-        if(! types.contains(type)){
-            throw new IllegalArgumentException("Type (" + type + ") is not valid.");
-        }
-        _paramType = type;
+        _paramType = getParamType(type);
     }
 
 
@@ -140,7 +82,7 @@ public class YParameter extends YVariable implements Comparable {
      * @param isCutThroughParam is yes then true.
      */
     public void setIsCutThroughParam(boolean isCutThroughParam) {
-        if(_paramType.equals(_paramTypes[_OUTPUT_PARAM_TYPE])){
+        if (_paramType == _OUTPUT_PARAM_TYPE) {
             _cutsThroughDecompositionStateSpace = isCutThroughParam;
         }
         else {
@@ -162,31 +104,21 @@ public class YParameter extends YVariable implements Comparable {
 
 
     public String getDirection() {
-        return _paramType;
+        return getParamTypeStr(_paramType);
     }
 
 
     public String toXML() {
-        StringBuffer xml = new StringBuffer();
+        StringBuilder xml = new StringBuilder("<");
+        String type = getParamTypeStr(_paramType);
+        xml.append(type);
 
-        xml.append("<" + _paramType);
-
-        /**
-         * AJH: Output any attributes for this parameter
-         */
-        if ((getAttributes() != null) && (_paramType.equals(_paramTypes[_INPUT_PARAM_TYPE])))
-        {
-            Enumeration enumeration = getAttributes().keys();
-            while(enumeration.hasMoreElements())
-            {
-                String attrName = (String)enumeration.nextElement();
-                xml.append(" " + attrName + "=\"" + (String)getAttributes().get(attrName) + "\"");
-            }
+        if ((getAttributes() != null) && (_paramType == _INPUT_PARAM_TYPE)) {
+            xml.append(getAttributes().toXML());
         }
 
         xml.append(toXMLGuts());
- //       xml.append(StringUtil.wrap(String.valueOf(_ordering), "ordering"));
-        
+
         if (super.isMandatory()) {
             xml.append("<mandatory/>");
         }
@@ -194,10 +126,10 @@ public class YParameter extends YVariable implements Comparable {
             xml.append("<bypassesStatespaceForDecomposition/>");
         }
 
-        xml.append("</" + _paramType + ">");
-
+        xml.append("</").append(type).append(">");
         return xml.toString();
     }
+
 
     public String toSummaryXML() {
         String result = "";
@@ -219,8 +151,8 @@ public class YParameter extends YVariable implements Comparable {
     }
 
 
-    public List verify() {
-        List messages = new Vector();
+    public List<YVerificationMessage> verify() {
+        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
         messages.addAll(super.verify());
         if (super.isMandatory() && _initialValue != null) {
             messages.add(new YVerificationMessage(this,
@@ -232,8 +164,8 @@ public class YParameter extends YVariable implements Comparable {
 
 
     public int compareTo(Object o) {
-        YParameter s = (YParameter) o;
-        return this._ordering - s._ordering;
+        YParameter other = (YParameter) o;
+        return this._ordering - other._ordering;
     }
 
     public boolean isInput() {
@@ -249,7 +181,7 @@ public class YParameter extends YVariable implements Comparable {
     }
 
     private boolean isParamType(int paramType) {
-       return _paramTypes[paramType].equals(_paramType);
+       return _paramType == paramType;
     }
     
     /**
@@ -262,40 +194,60 @@ public class YParameter extends YVariable implements Comparable {
     }
 
     public static String getTypeForInput() {
-        return _paramTypes[_INPUT_PARAM_TYPE];
+        return getParamTypeStr(_INPUT_PARAM_TYPE);
     }
 
     public static String getTypeForOutput() {
-        return _paramTypes[_OUTPUT_PARAM_TYPE];
+        return getParamTypeStr(_OUTPUT_PARAM_TYPE);
     }
 
     public static String getTypeForEnablement() {
-        return _paramTypes[_ENABLEMENT_PARAM_TYPE];
+        return getParamTypeStr(_ENABLEMENT_PARAM_TYPE);
     }
 
-    public String getParamType() { return _paramType; }
+    public String getParamType() { return getParamTypeStr(_paramType); }
+
+    
+    private static int getParamType(String typeStr) {
+        int type;
+        if (typeStr.equals("inputParam")) type = _INPUT_PARAM_TYPE;
+        else if (typeStr.equals("outputParam")) type = _OUTPUT_PARAM_TYPE;
+        else if (typeStr.equals("enablementParam")) type = _ENABLEMENT_PARAM_TYPE;
+        else throw new IllegalArgumentException("Invalid parameter type: " + typeStr);
+        return type;
+    }
+
+
+    private static String getParamTypeStr(int type) {
+        String typeStr;
+        switch (type) {
+            case _INPUT_PARAM_TYPE : typeStr = "inputParam"; break;
+            case _OUTPUT_PARAM_TYPE : typeStr = "outputParam"; break;
+            case _ENABLEMENT_PARAM_TYPE : typeStr = "enablementParam"; break;
+            default : throw new IllegalArgumentException("Invalid parameter type");
+        }
+        return typeStr;
+    }
+
+    private static boolean isValidType(int type) {
+        return (type >= _INPUT_PARAM_TYPE) && (type <= _ENABLEMENT_PARAM_TYPE);
+    }
+
+
     /**
      * Return table of attributes associated with this variable.<P>
-     *
      * Table is keyed by attribute 'name' and contains the string represenation of the XML elements attribute.<P>
-     *
      * @return
      */
-    public Hashtable getAttributes()
-    {
-        return this.attributes;
+    public YAttributeMap getAttributes() {
+        return _attributes;
     }
 
-    public void addAttribute(String id, String value)
-    {
-        if (attributes == null)
-        {
-            attributes = new Hashtable();
-        }
-        attributes.put(id, value);
+    public void addAttribute(String key, String value) {
+        _attributes.put(key, value);
     }
 
-    public void setAttributes(Hashtable attributes) {
-        this.attributes = attributes;
+    public void setAttributes(Hashtable<String, String> attributes) {
+        _attributes.set(attributes);
     }
 }

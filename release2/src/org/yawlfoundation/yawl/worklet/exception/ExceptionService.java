@@ -279,7 +279,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                     for (int i = 0; i < tList.length; i++) {
 
                         // get workitem record for this task & add it to the monitor's data
-                        List wirs = getWorkItemRecordsForTaskInstance(wir.getSpecificationID(), tList[i]);
+                        List wirs = getWorkItemRecordsForTaskInstance(wir.getSpecIdentifier(), tList[i]);
                         if (wirs != null) {
                             handleTimeout((WorkItemRecord) wirs.get(0));
                         }
@@ -1398,7 +1398,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                  while (itr.hasNext()) {
                      WorkItemRecord wir = (WorkItemRecord) itr.next() ;
                      if ((idType.equalsIgnoreCase("spec") &&
-                          wir.getSpecificationID().equals(id)) ||
+                          wir.getSpecIdentifier().equals(id)) ||
                          (idType.equalsIgnoreCase("case") &&
                           wir.getCaseID().equals(id)) ||
                          (idType.equalsIgnoreCase("task") &&
@@ -1434,7 +1434,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             Iterator itr = items.iterator();
             while (itr.hasNext()) {
                 WorkItemRecord wir = (WorkItemRecord) itr.next() ;
-                if (! wir.getSpecificationID().equals(specID))
+                if (! wir.getSpecIdentifier().equals(specID))
                    items.remove(wir);
             }
         }
@@ -1564,7 +1564,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      */
     public List getExternalTriggersForItem(String itemID) {
         WorkItemRecord wir = getWorkItemRecord(itemID);
-        RdrTree tree = getTree(wir.getSpecificationID(), getDecompID(wir),
+        RdrTree tree = getTree(wir.getSpecIdentifier(), getDecompID(wir),
                                XTYPE_ITEM_EXTERNAL_TRIGGER);
         return getExternalTriggers(tree) ;
     }

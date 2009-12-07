@@ -129,6 +129,12 @@
                                       style="left: 12px; top: 40px; position: absolute"
                                       text="Name:"/>                            
 
+                            <ui:label binding="#{customServices.lblPassword}"
+                                      for="txtPassword"
+                                      id="lblPassword"
+                                      style="left: 332px; top: 40px; position: absolute"
+                                      text="Password:"/>
+
                             <ui:label binding="#{customServices.lblURL}"
                                       for="txtURL"
                                       id="lblURL"
@@ -143,7 +149,29 @@
 
                             <ui:textField binding="#{customServices.txtName}"
                                           id="txtName"
-                                          style="left: 100px; top: 40px; width: 500px; position: absolute"/>
+                                          style="left: 100px; top: 40px; width: 200px; position: absolute"/>
+
+                            <!--=====================================================-->
+
+                            <!--The following two fields provide a workaround to the
+                                 firefox 3 and chrome password managers, which insert
+                                 the pw from the login form to the first passwordfield
+                                 on a form and then the userid from the login form to
+                                 the previously occurring text field. The following
+                                 fields will consume the fillins and never display. -->
+
+                             <ui:textField id="ff3workaroundtf"
+                                           label="userid"
+                                           style="display: none" />
+
+                             <ui:passwordField id="ff3workaroundpw"
+                                               style="display: none" />
+
+                            <!--=====================================================-->
+
+                            <ui:passwordField binding="#{customServices.txtPassword}"
+                                          id="txtPassword"
+                                          style="left: 400px; top: 40px; width: 200px; position: absolute"/>
 
                             <ui:textField binding="#{customServices.txtURL}"
                                           id="txtURL"

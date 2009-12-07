@@ -129,7 +129,7 @@ public class AdministrationTask {
     /*******************************************************************************/
 
     public String toString() {
-        StringBuffer s = new StringBuffer() ;
+        StringBuilder s = new StringBuilder() ;
         String ttype = null ;
 
         if (_taskType == TASKTYPE_REJECTED_SELECTION)

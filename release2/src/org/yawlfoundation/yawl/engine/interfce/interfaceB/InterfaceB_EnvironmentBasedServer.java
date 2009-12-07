@@ -104,7 +104,7 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         OutputStreamWriter outputWriter = ServletUtils.prepareResponse(response);
-        StringBuffer output = new StringBuffer();
+        StringBuilder output = new StringBuilder();
         output.append("<response>");
         output.append(processPostQuery(request));
         output.append("</response>");
@@ -163,7 +163,7 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
         }
         else if ("ParameterInfoRequest".equals(action)) {
             YParameter[] params = _controller.describeRequiredParams();
-            StringBuffer output = new StringBuffer();
+            StringBuilder output = new StringBuilder();
             for (YParameter param : params) {
                 output.append(param.toXML());
             }

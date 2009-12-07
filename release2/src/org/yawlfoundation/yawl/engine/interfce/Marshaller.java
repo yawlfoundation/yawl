@@ -9,13 +9,14 @@
 
 package org.yawlfoundation.yawl.engine.interfce;
 
-import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
+import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.unmarshal.YDecompositionParser;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
@@ -35,7 +36,7 @@ public class Marshaller {
 
     public static String getOutputParamsInXML(YParametersSchema paramSchema,
                                               String dataSpaceRootElementNm) {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
 
         result.append("<").append(dataSpaceRootElementNm).append(">");
         if (paramSchema != null) {
@@ -52,7 +53,7 @@ public class Marshaller {
     public static String presentParam(YParameter param) {
 
         boolean typedParam = param.getDataTypeName() != null;
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         result.append("\n  <!--");
         if (typedParam) {
             result.append("Data Type:     " + param.getDataTypeName());
@@ -73,7 +74,7 @@ public class Marshaller {
 
     public static TaskInformation unmarshalTaskInformation(String taskInfoAsXML) {
         YParametersSchema paramsForTaskNCase = new YParametersSchema();
-        HashMap attributemap = new HashMap();
+        YAttributeMap attributemap = new YAttributeMap();
 
         Element taskInfo = JDOMUtil.stringToElement(taskInfoAsXML);
 
@@ -82,12 +83,17 @@ public class Marshaller {
             taskInfo = taskInfo.getChild("taskInfo");
         }
         String taskID = taskInfo.getChildText("taskID");
-        String specificationID = taskInfo.getChildText("specificationID");
         String taskName = taskInfo.getChildText("taskName");
         String taskDocumentation = taskInfo.getChildText("taskDocumentation");
         String decompositionID = taskInfo.getChildText("decompositionID");
         Element yawlService = taskInfo.getChild("yawlService");
-
+    
+        Element specElem = taskInfo.getChild("specification");
+        String specIdentifier = specElem.getChildText("identifier");
+        String specVersion = specElem.getChildText("version");
+        String specURI = specElem.getChildText("uri");
+        YSpecificationID specificationID = new YSpecificationID(specIdentifier, specVersion, specURI);
+    
         Element attributes = taskInfo.getChild("attributes");
         if (attributes != null) {
             List attributelist = attributes.getChildren();
@@ -154,21 +160,20 @@ public class Marshaller {
         for (Object o : specSummaryElements) {
             Element specElement = (Element) o;
             String specID = specElement.getChildText("id");
+            String specURI = specElement.getChildText("uri");
             String specName = specElement.getChildText("name");
             String specDoco = specElement.getChildText("documentation");
             String specStatus = specElement.getChildText("status");
             String version = specElement.getChildText("version");
             String rootNetID = specElement.getChildText("rootNetID");
-
+            String specVersion = specElement.getChildText("specversion");
+            
             if (specID != null && specStatus != null) {
-                SpecificationData specData = new SpecificationData(
-                        specID,
-                        specName,
-                        specDoco,
-                        specStatus,
-                        version);
+                YSpecificationID ySpecID = new YSpecificationID(specID, specVersion, specURI);
+                SpecificationData specData = new SpecificationData(ySpecID,
+                            specName, specDoco, specStatus, version);
+                
                 specData.setRootNetID(rootNetID);
-                specData.setSpecVersion(specElement.getChildText("specversion"));
                 specSummaryList.add(specData);
                 Element inputParams = specElement.getChild("params");
                 if (inputParams != null) {
@@ -202,7 +207,7 @@ public class Marshaller {
         String status = workItemElement.getChildText("status");
         String caseID = workItemElement.getChildText("caseid");
         String taskID = workItemElement.getChildText("taskid");
-        String specID = workItemElement.getChildText("specid");
+        String specID = workItemElement.getChildText("specidentifier");
         String enablementTime = workItemElement.getChildText("enablementTime");
         if (caseID != null && taskID != null && specID != null &&
             enablementTime != null && status != null) {
@@ -219,6 +224,7 @@ public class Marshaller {
             wir.setDeferredChoiceGroupID(workItemElement.getChildText(
                                                               "deferredChoiceGroupid"));
             wir.setSpecVersion(workItemElement.getChildText("specversion"));
+            wir.setSpecURI(workItemElement.getChildText("specuri"));
             wir.setFiringTime(workItemElement.getChildText("firingTime"));
             wir.setStartTime(workItemElement.getChildText("startTime"));
             wir.setCompletionTimeMs(workItemElement.getChildText("completionTime"));
@@ -254,16 +260,8 @@ public class Marshaller {
 
 
     public static Hashtable<String, String> unmarshalWorkItemAttributes(Element item) {
-        Hashtable<String, String> result = null ;
-        List attributes = item.getAttributes();
-        if (attributes != null) {
-            result = new Hashtable<String, String>();
-            Iterator itr = attributes.iterator();
-            while (itr.hasNext()) {
-                Attribute attribute = (Attribute) itr.next();
-                result.put(attribute.getName(), attribute.getValue()) ;
-            }
-        }
+        YAttributeMap result = new YAttributeMap();
+        result.fromJDOM(item.getAttributes());
         return result ;
     }
 
@@ -285,12 +283,12 @@ public class Marshaller {
 
 
     public static String getMergedOutputData(Element inputData, Element outputData) {
-        Document mergedDoc;
         try {
-            mergedDoc = new Document();
-            mergedDoc.setRootElement((Element) inputData.clone());
+            Element merged = (Element) inputData.clone();
+            JDOMUtil.stripAttributes(merged);
+            JDOMUtil.stripAttributes(outputData);
 
-            List children = outputData.getContent();
+            List children = outputData.getChildren();
 
             //iterate through the output vars and add them to the merged doc.
             for (int i = children.size() - 1; i >= 0; i--) {
@@ -298,17 +296,18 @@ public class Marshaller {
                 if (o instanceof Element) {
                     Element child = (Element) o;
                     child.detach();
-                    child.setAttributes(null);
+           //         child.setAttributes(null);
                     //the input data will be removed from the merged doc and
                     //the output data will be added.
-                    mergedDoc.getRootElement().removeChild(child.getName());
-                    mergedDoc.getRootElement().addContent(child);
+                    merged.removeChild(child.getName());
+                    merged.addContent(child);
                 }
             }
-        } catch (Exception e) {
+            return JDOMUtil.elementToString(merged);
+        }
+        catch (Exception e) {
             return "";
         }
-        return new XMLOutputter().outputString(mergedDoc.getRootElement()).trim();
     }
 
     

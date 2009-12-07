@@ -227,7 +227,7 @@ public class AdminTasksManager {
     /******************************************************************************/
 
     public String toString() {
-        StringBuffer s = new StringBuffer() ;
+        StringBuilder s = new StringBuilder() ;
         List tasks = getAllTasksAsList() ;
         Iterator itr = tasks.iterator();
 

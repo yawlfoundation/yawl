@@ -13,17 +13,12 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.schema.YDataValidator;
+import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.unmarshal.YMetaData;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -41,16 +36,28 @@ public final class YSpecification implements Cloneable, YVerifiable {
     private String _documentation;
     private String _version;
     private YDataValidator _dataValidator;
-    public static final String _Beta2 = "Beta 2";
-    public static final String _Beta3 = "Beta 3";
-    public static final String _Beta4 = "Beta 4";
-    public static final String _Beta6 = "Beta 6";
-    public static final String _Beta7_1 = "Beta 7.1"; 
-    public static final String _Version2_0 = "2.0";
-
-    public static String _loaded = "loaded";
-    public static String _unloaded = "unloaded";
     private YMetaData _metaData;
+
+    public static final String Beta2 = "Beta 2";
+    public static final String Beta3 = "Beta 3";
+    public static final String Beta4 = "Beta 4";
+    public static final String Beta6 = "Beta 6";
+    public static final String Beta7_1 = "Beta 7.1";
+    public static final String Version2_0 = "2.0";
+
+    public static final String BetaNS = "http://www.citi.qut.edu.au/yawl";
+    public static final String BetaSchemaLocation = BetaNS +
+            " d:/yawl/schema/YAWL_SchemaBeta7.1.xsd";
+
+    public static final String Version2NS = "http://www.yawlfoundation.org/yawlschema";
+    public static final String Version2SchemaLocation = Version2NS +
+            " http://www.yawlfoundation.org/yawlschema/YAWL_Schema2.0.xsd";
+
+    public static final String _loaded = "loaded";
+    public static final String _unloaded = "unloaded";
+
+
+    public YSpecification() { }
 
     public YSpecification(String specURI) {
         _specURI = specURI;
@@ -63,13 +70,13 @@ public final class YSpecification implements Cloneable, YVerifiable {
 
 
     public void setRootNet(YNet rootNet) {
-        this._rootNet = rootNet;
+        _rootNet = rootNet;
         setDecomposition(rootNet);
     }
 
 
     /**
-     * @deprecated since v2.0: use getVersion() instead
+     * @deprecated since v2.0: use getSchemaVersion() instead
      * Gets the version number of this specification's schema (as opposed to the
      * version number of the specification itself).
      * @return the version of the engine that this specification was first designed for.
@@ -99,13 +106,13 @@ public final class YSpecification implements Cloneable, YVerifiable {
 
     
     public boolean usesSimpleRootData() {
-        return YSpecification._Beta2.equals(_version) ||
-               YSpecification._Beta3.equals(_version);
+        return YSpecification.Beta2.equals(_version) ||
+               YSpecification.Beta3.equals(_version);
     }
 
 
     public boolean isSchemaValidating() {
-        return !YSpecification._Beta2.equals(_version);
+        return ! YSpecification.Beta2.equals(_version);
     }
 
 
@@ -117,16 +124,18 @@ public final class YSpecification implements Cloneable, YVerifiable {
     public void setBetaVersion(String version) { setVersion(version) ; }
 
     public void setVersion(String version) {
-        if (_Beta2.equals(version) ||
-                _Beta3.equals(version) ||
-                _Beta4.equals(version) ||
-                _Beta6.equals(version) ||
-                _Beta7_1.equals(version) ||
-                _Version2_0.equals(version)) {
-            this._version = version;
-        } else if ("beta3".equals(version)) {
-            this._version = _Beta3;
-        } else {
+        if (Beta2.equals(version) ||
+                Beta3.equals(version) ||
+                Beta4.equals(version) ||
+                Beta6.equals(version) ||
+                Beta7_1.equals(version) ||
+                Version2_0.equals(version)) {
+            _version = version;
+        }
+        else if ("beta3".equals(version)) {
+            _version = Beta3;
+        }
+        else {
             throw new IllegalArgumentException("Param version [" +
                     version + "] is not allowed.");
         }
@@ -134,7 +143,7 @@ public final class YSpecification implements Cloneable, YVerifiable {
 
 
     /**
-     * Allows users to add schemas.
+     * Sets the data schema for this specification.
      * @param schemaString
      * @throws YSchemaBuildingException
      */
@@ -142,65 +151,38 @@ public final class YSpecification implements Cloneable, YVerifiable {
         _dataValidator = new YDataValidator(schemaString);
     }
 
-    public YDataValidator getDataValidator()
-    {
+    public YDataValidator getDataValidator() {
         return _dataValidator;
     }
 
 
     public String toXML() {
-        StringBuffer xml = new StringBuffer();
-        xml.append("<specification uri=\"");
-        xml.append(_specURI);
-        xml.append("\">");
-        if (_name != null) {
-            xml.append("<name>").
-                    append(_name).
-                    append("</name>");
-        }
-        if (_documentation != null) {
-            xml.append("<documentation>").
-                    append(_documentation).
-                    append("</documentation>");
-        }
+        StringBuilder xml = new StringBuilder();
+        xml.append(String.format("<specification uri=\"%s\">", _specURI));
+        if (_name != null) xml.append(StringUtil.wrap(_name, "name"));
+        if (_documentation != null) xml.append(StringUtil.wrap(_documentation, "documentation"));
         xml.append(_metaData.toXML());
         xml.append(_dataValidator.getSchema());
-        xml.append("<decomposition id=\"").
-                append(_rootNet.getID()).
-                append("\" isRootNet=\"true\" xsi:type=\"NetFactsType\">");
+        xml.append("<decomposition id=\"")
+           .append(_rootNet.getID())
+           .append("\" isRootNet=\"true\" xsi:type=\"NetFactsType\">");
         xml.append(_rootNet.toXML());
         xml.append("</decomposition>");
-        for (Iterator iterator = _decompositions.values().iterator(); iterator.hasNext();) {
-            YDecomposition decomposition = (YDecomposition) iterator.next();
-            if (!decomposition.getID().equals(_rootNet.getID())) {
-                xml.append("<decomposition id=\"").
-                        append(decomposition.getID()).
-                        append("\"");
-                xml.append(" xsi:type=\"");
-                if (decomposition instanceof YNet) {
-                    xml.append("NetFactsType");
-                } else {
-                    xml.append("WebServiceGatewayFactsType");
-                }
-                xml.append("\"");
 
-                //AJH: Add in any additional attributes
-                for(Enumeration enumeration = decomposition.getAttributes().keys(); enumeration.hasMoreElements();)
-                {
-                    String key = enumeration.nextElement().toString();
-                    xml.append(" ").append(key).append("=\"").
-                            append(decomposition.getAttribute(key)).append("\"");
-                }
-                
-                xml.append(">");
+        for (YDecomposition decomposition : _decompositions.values()) {
+            if (! decomposition.getID().equals(_rootNet.getID())) {
+                String factsType = (decomposition instanceof YNet) ? "NetFactsType" :
+                                                        "WebServiceGatewayFactsType";
+                xml.append(String.format("<decomposition id=\"%s\" xsi:type=\"%s\"%s>",
+                               decomposition.getID(), factsType,
+                               decomposition.getAttributes().toXML()));
+
                 xml.append(decomposition.toXML());
 
                 // set flag for resourcing requirements on task decompositions
                 if (! (decomposition instanceof YNet)) {
                   if (decomposition.getCodelet() != null) {
-                      xml.append("<codelet>")
-                         .append(decomposition.getCodelet())
-                         .append("</codelet>");
+                      xml.append(StringUtil.wrap(decomposition.getCodelet(), "codelet"));
                   }
                   if (! _version.startsWith("Beta")) {
                       xml.append("<externalInteraction>")
@@ -241,10 +223,66 @@ public final class YSpecification implements Cloneable, YVerifiable {
         _decompositions.put(decomposition.getID(), decomposition);
     }
 
+    public Set<YDecomposition> getDecompositions() {
+        return new HashSet<YDecomposition>(_decompositions.values());
+    }
 
-    //#####################################################################################
-    //                              VERIFICATION TASKS
-    //#####################################################################################
+    public String getURI() {
+        return _specURI;
+    }
+
+    public String getID() {
+        return _metaData.getUniqueID();
+    }
+
+
+    public YSpecificationID getSpecificationID() {
+        return new YSpecificationID(_metaData.getUniqueID(), _metaData.getVersion(), _specURI);
+    }
+
+    public void setMetaData(YMetaData metaData) {
+        _metaData = metaData;
+    }
+
+    public YMetaData getMetaData() {
+        return _metaData;
+    }
+
+    /************************************/
+
+    // for hibernate persistence
+
+    private long rowKey ;                                       // PK - auto generated
+    private String persistedXML ;
+
+    private String getPersistedXML() {
+        try {
+            if (persistedXML == null)
+                persistedXML = YMarshal.marshal(this);
+            return persistedXML;
+        }
+        catch (Exception e) {
+            return null;
+        }
+    }
+
+    private void setPersistedXML(String xml) { persistedXML = xml; }
+
+    public long getRowKey() { return rowKey; }
+
+    public void setRowKey(long key) { rowKey = key; }
+
+
+    // for YEngineRestorer
+    
+    public String getRestoredXML() { return persistedXML; }
+
+
+
+    //##################################################################################
+    //                              VERIFICATION TASKS                                //
+    //##################################################################################
+
     public List<YVerificationMessage> verify() {
         List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
         for (YDecomposition decomposition : _decompositions.values()) {
@@ -284,10 +322,10 @@ public final class YSpecification implements Cloneable, YVerifiable {
         List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
         for (YDecomposition decomposition : _decompositions.values()) {
             if (decomposition instanceof YNet) {
-                Set<YCondition> visited = new HashSet<YCondition>();
+                Set<YExternalNetElement> visited = new HashSet<YExternalNetElement>();
                 visited.add(((YNet) decomposition).getInputCondition());
 
-                Set visiting = getEmptyPostsetAtThisLevel(visited);
+                Set<YExternalNetElement> visiting = getEmptyPostsetAtThisLevel(visited);
                 while (visiting.size() > 0) {
                     if (visiting.contains(((YNet) decomposition).getOutputCondition())) {
                         messages.add(new YVerificationMessage(
@@ -306,11 +344,11 @@ public final class YSpecification implements Cloneable, YVerifiable {
         return messages;
     }
 
-    private Set getEmptyPostsetAtThisLevel(Set aSet) {
-        Set elements = YNet.getPostset(aSet);
-        Set resultSet = new HashSet();
-        for (Iterator iterator = elements.iterator(); iterator.hasNext();) {
-            YExternalNetElement element = (YExternalNetElement) iterator.next();
+
+    private Set<YExternalNetElement> getEmptyPostsetAtThisLevel(Set<YExternalNetElement> aSet) {
+        Set<YExternalNetElement> elements = YNet.getPostset(aSet);
+        Set<YExternalNetElement> resultSet = new HashSet<YExternalNetElement>();
+        for (YExternalNetElement element : elements) {
             if (element instanceof YTask && ((YTask) element).getDecompositionPrototype() == null ||
                     element instanceof YCondition) {
                 resultSet.add(element);
@@ -322,16 +360,18 @@ public final class YSpecification implements Cloneable, YVerifiable {
 
     private List<YVerificationMessage> checkForInfiniteLoops() {
         List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
-        //check inifinite loops under rootnet and generate error messages
-        Set relevantNets = new HashSet();
+
+        //check infinite loops under rootnet and generate error messages
+        Set<YDecomposition> relevantNets = new HashSet<YDecomposition>();
         relevantNets.add(_rootNet);
-        Set relevantTasks = selectEmptyAndDecomposedTasks(relevantNets);
+        Set<YExternalNetElement> relevantTasks = selectEmptyAndDecomposedTasks(relevantNets);
         messages.addAll(checkTheseTasksForInfiniteLoops(relevantTasks, false));
         messages.addAll(checkForEmptyTasksWithTimerParams(relevantTasks));
-        //check inifinite loops not under rootnet and generate warning messages
-        Set netsBeingUsed = new HashSet();
+
+        //check infinite loops not under rootnet and generate warning messages
+        Set<YDecomposition> netsBeingUsed = new HashSet<YDecomposition>();
         unfoldNetChildren(_rootNet, netsBeingUsed, null);
-        relevantNets = new HashSet(_decompositions.values());
+        relevantNets = new HashSet<YDecomposition>(_decompositions.values());
         relevantNets.removeAll(netsBeingUsed);
         relevantTasks = selectEmptyAndDecomposedTasks(relevantNets);
         messages.addAll(checkTheseTasksForInfiniteLoops(relevantTasks, true));
@@ -340,19 +380,19 @@ public final class YSpecification implements Cloneable, YVerifiable {
     }
 
 
-    private List<YVerificationMessage> checkTheseTasksForInfiniteLoops(Set relevantTasks, boolean generateWarnings) {
+    private List<YVerificationMessage> checkTheseTasksForInfiniteLoops(
+                Set<YExternalNetElement> relevantTasks, boolean generateWarnings) {
         List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
-        for (Iterator iterator = relevantTasks.iterator(); iterator.hasNext();) {
-            YExternalNetElement q = (YExternalNetElement) iterator.next();
-            Set visited = new HashSet();
-            visited.add(q);
+        for (YExternalNetElement element : relevantTasks) {
+            Set<YExternalNetElement> visited = new HashSet<YExternalNetElement>();
+            visited.add(element);
 
-            Set visiting = getEmptyTasksPostset(visited);
+            Set<YExternalNetElement> visiting = getEmptyTasksPostset(visited);
             while (visiting.size() > 0) {
-                if (visiting.contains(q)) {
+                if (visiting.contains(element)) {
                     messages.add(new YVerificationMessage(
-                            q,
-                            "The element (" + q + ") plays a part in an inifinite " +
+                            element,
+                            "The element (" + element + ") plays a part in an infinite " +
                             "loop/recursion in which no work items may be created.",
                             generateWarnings ?
                             YVerificationMessage.WARNING_STATUS :
@@ -367,16 +407,17 @@ public final class YSpecification implements Cloneable, YVerifiable {
     }
 
 
-    private List<YVerificationMessage> checkForEmptyTasksWithTimerParams(Set relevantTasks) {
+    private List<YVerificationMessage> checkForEmptyTasksWithTimerParams(
+                Set<YExternalNetElement> relevantTasks) {
         List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
-        for (Iterator iterator = relevantTasks.iterator(); iterator.hasNext();) {
-            YTask task = (YTask) iterator.next();
+        for (YExternalNetElement element : relevantTasks) {
+            YTask task = (YTask) element;
             if (task.getDecompositionPrototype() == null) {
                 if (task.getTimeParameters() != null) {
                     messages.add(new YVerificationMessage( task,
                             "The task (" + task + ") has timer settings but no " +
                              "decomposition. The timer settings will be ignored at runtime.",
-                            YVerificationMessage.WARNING_STATUS));
+                             YVerificationMessage.WARNING_STATUS));
                 }
             }
         }
@@ -384,37 +425,40 @@ public final class YSpecification implements Cloneable, YVerifiable {
     }
 
 
-    private Set selectEmptyAndDecomposedTasks(Set relevantNets) {
-        Set relevantTasks = new HashSet();
-        for (Iterator iterator = relevantNets.iterator(); iterator.hasNext();) {
-            YDecomposition decomposition = (YDecomposition) iterator.next();
-            relevantTasks.addAll(unfoldNetChildren(decomposition, new HashSet(), "emptyTasks"));
-            relevantTasks.addAll(unfoldNetChildren(decomposition, new HashSet(), "decomposedTasks"));
+    private Set<YExternalNetElement> selectEmptyAndDecomposedTasks(Set<YDecomposition> relevantNets) {
+        Set<YExternalNetElement> relevantTasks = new HashSet<YExternalNetElement>();
+        for (YDecomposition decomposition : relevantNets) {
+            relevantTasks.addAll(unfoldNetChildren(decomposition,
+                                 new HashSet<YDecomposition>(), "emptyTasks"));
+            relevantTasks.addAll(unfoldNetChildren(decomposition,
+                                 new HashSet<YDecomposition>(), "decomposedTasks"));
         }
         return relevantTasks;
     }
 
 
-    private Set getEmptyTasksPostset(Set set) {
-        Set resultSet = new HashSet();
-        for (Iterator iterator = set.iterator(); iterator.hasNext();) {
-            YTask task = (YTask) iterator.next();
+    private Set<YExternalNetElement> getEmptyTasksPostset(Set<YExternalNetElement> set) {
+        Set<YExternalNetElement> resultSet = new HashSet<YExternalNetElement>();
+        for (YExternalNetElement element : set) {
+            YTask task = (YTask) element;
             if (task.getDecompositionPrototype() instanceof YNet) {
                 YInputCondition input = ((YNet) task.getDecompositionPrototype()).getInputCondition();
-                Set tasks = input.getPostsetElements();
-                for (Iterator iterator2 = tasks.iterator(); iterator2.hasNext();) {
-                    YTask task2 = (YTask) iterator2.next();
-                    if (task2.getDecompositionPrototype() == null || task2.getDecompositionPrototype() instanceof YNet) {
-                        resultSet.add(task2);
+                Set<YExternalNetElement> tasks = input.getPostsetElements();
+                for (YExternalNetElement otherElement : tasks) {
+                    YTask otherTask = (YTask) otherElement;
+                    if (otherTask.getDecompositionPrototype() == null ||
+                        otherTask.getDecompositionPrototype() instanceof YNet) {
+                        resultSet.add(otherTask);
                     }
                 }
-            } else {
-                Set postSet = task.getPostsetElements();
-                Set taskPostSet = YNet.getPostset(postSet);
-                for (Iterator iterator2 = taskPostSet.iterator(); iterator2.hasNext();) {
-                    YTask task2 = (YTask) iterator2.next();
-                    if (task2.getDecompositionPrototype() == null) {
-                        resultSet.add(task2);
+            }
+            else {
+                Set<YExternalNetElement> postSet = task.getPostsetElements();
+                Set<YExternalNetElement> taskPostSet = YNet.getPostset(postSet);
+                for (YExternalNetElement otherElement : taskPostSet) {
+                    YTask otherTask = (YTask) otherElement;
+                    if (otherTask.getDecompositionPrototype() == null) {
+                        resultSet.add(otherTask);
                     }
                 }
             }
@@ -425,38 +469,36 @@ public final class YSpecification implements Cloneable, YVerifiable {
 
     private List<YVerificationMessage> checkDecompositionUsage() {
         List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
-        Set netsBeingUsed = new HashSet();
+        Set<YDecomposition> netsBeingUsed = new HashSet<YDecomposition>();
         unfoldNetChildren(_rootNet, netsBeingUsed, null);
-        Set specifiedDecompositons = new HashSet(_decompositions.values());
-        specifiedDecompositons.removeAll(netsBeingUsed);
+        Set<YDecomposition> specifiedDecompositions =
+                new HashSet<YDecomposition>(_decompositions.values());
+        specifiedDecompositions.removeAll(netsBeingUsed);
 
-        Set decompositionsNotBeingUsed = specifiedDecompositons;
-        if (decompositionsNotBeingUsed.size() > 0) {
-            for (Iterator iterator = decompositionsNotBeingUsed.iterator(); iterator.hasNext();) {
-                YDecomposition decomp = (YDecomposition) iterator.next();
-                messages.add(new YVerificationMessage(decomp, "The decompositon(" + decomp.getID() +
-                        ") is not being used in this specification.", YVerificationMessage.WARNING_STATUS));
-            }
+        for (YDecomposition decomp : specifiedDecompositions) {
+            messages.add(new YVerificationMessage(decomp, "The decomposition(" +
+                    decomp.getID() + ") is not being used in this specification.",
+                    YVerificationMessage.WARNING_STATUS));
         }
         return messages;
     }
 
 
-    private Set unfoldNetChildren(YDecomposition decomposition, Set netsAlreadyExplored, String criterion) {
-        Set resultSet = new HashSet();
+    private Set<YExternalNetElement> unfoldNetChildren(YDecomposition decomposition,
+                                  Set<YDecomposition> netsAlreadyExplored, String criterion) {
+        Set<YExternalNetElement> resultSet = new HashSet<YExternalNetElement>();
         netsAlreadyExplored.add(decomposition);
         if (decomposition instanceof YAWLServiceGateway) {
             return resultSet;
         }
-        Set visited = new HashSet();
-        Set visiting = new HashSet();
+        Set<YExternalNetElement> visited = new HashSet<YExternalNetElement>();
+        Set<YExternalNetElement> visiting = new HashSet<YExternalNetElement>();
         visiting.add(((YNet) decomposition).getInputCondition());
         do {
             visited.addAll(visiting);
             visiting = YNet.getPostset(visiting);
             visiting.removeAll(visited);
-            for (Iterator iterator = visiting.iterator(); iterator.hasNext();) {
-                YExternalNetElement element = (YExternalNetElement) iterator.next();
+            for (YExternalNetElement element : visiting) {
                 if (element instanceof YTask) {
                     YDecomposition decomp = ((YTask) element).getDecompositionPrototype();
                     if (decomp != null) {
@@ -468,10 +510,12 @@ public final class YSpecification implements Cloneable, YVerifiable {
                         if (!netsAlreadyExplored.contains(decomp)) {
                             resultSet.addAll(unfoldNetChildren(decomp, netsAlreadyExplored, criterion));
                         }
-                    } else if ("emptyTasks".equals(criterion)) {
+                    }
+                    else if ("emptyTasks".equals(criterion)) {
                         resultSet.add(element);
                     }
-                } else if (element instanceof YCondition) {
+                }
+                else if (element instanceof YCondition) {
                     if ("allConditions".equals(criterion)) {
                         resultSet.add(element);
                     }
@@ -481,26 +525,4 @@ public final class YSpecification implements Cloneable, YVerifiable {
         return resultSet;
     }
 
-
-    public Set<YDecomposition> getDecompositions() {
-        return new HashSet<YDecomposition>(_decompositions.values());
-    }
-
-    public String getID() {
-        return _specURI;
-    }
-
-
-    public YSpecificationID getSpecificationID()
-    {
-        return new YSpecificationID(_specURI, getMetaData().getVersion());
-    }
-
-    public void setMetaData(YMetaData metaData) {
-        _metaData = metaData;
-    }
-
-    public YMetaData getMetaData() {
-        return _metaData;
-    }
 }

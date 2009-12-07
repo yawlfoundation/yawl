@@ -18,13 +18,13 @@ public class TestHibernate extends TestCase {
         System.out.print("rm is not null: ");
         System.out.println(rm != null) ;
 
-        Set set = rm.getParticipants() ;
+        Set set = rm.getOrgDataSet().getParticipants() ;
 
         System.out.print("set is not null: ");
         System.out.println(set != null) ;
 
 
-        int s = rm.getParticipants().size();
+        int s = rm.getOrgDataSet().getParticipants().size();
 
         System.out.println(s);
 

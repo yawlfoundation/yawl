@@ -34,7 +34,7 @@ import java.util.*;
 
 /**
  * 
- * The implementation of a net in the YAWL paper.   - A container for tasks and conditions.
+ * The implementation of a net in the YAWL paper - A container for tasks and conditions.
  * @author Lachlan Aldred
  * 
  */
@@ -45,7 +45,7 @@ public final class YNet extends YDecomposition {
     private YOutputCondition _outputCondition;
     private Map<String, YExternalNetElement> _netElements =
                                              new HashMap<String, YExternalNetElement>();
-    private Map _localVariables = new HashMap();
+    private Map<String, YVariable> _localVariables = new HashMap<String, YVariable>();
     private YNet _clone;
 
 
@@ -65,54 +65,45 @@ public final class YNet extends YDecomposition {
         _netElements.put(outputCondition.getID(), outputCondition);
     }
 
-    /** This method removes a net element together with preSet, postSet, reset, 
+
+    /** This method removes a net element together with preSet, postSet, reset,
      * cancelledBy sets.
      */
-    public void removeNetElement(YExternalNetElement netElement){
-        
-         Set preSet = netElement.getPresetElements();
-         Iterator presetIter = preSet.iterator();
-         while (presetIter.hasNext())
-         { YExternalNetElement next = (YExternalNetElement) presetIter.next();
-           YFlow flow = new YFlow(next,netElement);              
-           next.removePostsetFlow(flow);
-         }            
-                  
-         Set postSet = netElement.getPostsetElements();
-         Iterator postsetIter = postSet.iterator();
-         while (postsetIter.hasNext())
-         { YExternalNetElement next = (YExternalNetElement) postsetIter.next();
-           YFlow flow = new YFlow(netElement,next);              
-           next.removePresetFlow(flow);
-         }  
-        
-         //Need to remove from removeSet and cancelledBySet as well.          
-         if (netElement instanceof YTask) 
-         { YTask t = (YTask) netElement;
-           Set removeSet = t.getRemoveSet();
-           if (!removeSet.isEmpty()){
-            for (Iterator i = removeSet.iterator(); i.hasNext();) {
-             YExternalNetElement next = (YExternalNetElement) i.next();
-             next.removeFromCancelledBySet(t);
-                        
+    public void removeNetElement(YExternalNetElement netElement) {
+
+        for (YExternalNetElement preset : netElement.getPresetElements()) {
+            YFlow flow = new YFlow(preset, netElement);
+            preset.removePostsetFlow(flow);
+        }
+
+        for (YExternalNetElement postset : netElement.getPostsetElements()) {
+            YFlow flow = new YFlow(netElement, postset);
+            postset.removePresetFlow(flow);
+        }
+
+        // need to remove from removeSet and cancelledBySet as well
+        if (netElement instanceof YTask) {
+            YTask task = (YTask) netElement;
+            Set<YExternalNetElement> removeSet = task.getRemoveSet();
+            if (removeSet != null) {
+                for (YExternalNetElement element : removeSet) {
+                    element.removeFromCancelledBySet(task);
+                 }
             }
-           }          
-         }
-          
-         //Check if a place or condition is part of any cancellation sets
-         Set cancelledBy = netElement.getCancelledBySet();
-         if (!cancelledBy.isEmpty())
-         {
-           for (Iterator i = cancelledBy.iterator(); i.hasNext();) {
-             YTask t = (YTask) i.next();
-             t.removeFromRemoveSet(netElement);
-	       }          	
-         }
-         
-         _netElements.remove(netElement.getID()); 
-         
+        }
+
+        // check if a place or condition is part of any cancellation sets
+        Set<YExternalNetElement> cancelledBy = netElement.getCancelledBySet();
+        if (cancelledBy != null) {
+            for (YExternalNetElement element : cancelledBy) {
+                ((YTask) element).removeFromRemoveSet(netElement);
+            }
+        }
+
+        _netElements.remove(netElement.getID());
     }
-    
+
+
     public void addNetElement(YExternalNetElement netElement) {
         _netElements.put(netElement.getID(), netElement);
     }
@@ -156,7 +147,7 @@ public final class YNet extends YDecomposition {
      * @return YExternalNetElement
      */
     public YExternalNetElement getNetElement(String id) {
-        return (YExternalNetElement) this._netElements.get(id);
+        return _netElements.get(id);
     }
 
 
@@ -164,32 +155,30 @@ public final class YNet extends YDecomposition {
      * Used to verify that the net conforms to syntax of YAWL.
      * @return a List of error messages.
      */
-    public List verify() {
-        List messages = new Vector();
-        messages.addAll(super.verify());
-        if (this._inputCondition == null) {
+    public List<YVerificationMessage> verify() {
+        List<YVerificationMessage> messages = new Vector<YVerificationMessage>(super.verify());
+
+        if (_inputCondition == null) {
             messages.add(new YVerificationMessage(this, this + " must contain input condition.",
                     YVerificationMessage.ERROR_STATUS));
         }
-        if (this._outputCondition == null) {
+        if (_outputCondition == null) {
             messages.add(new YVerificationMessage(this, this + " must contain output condition.",
                     YVerificationMessage.ERROR_STATUS));
         }
-        Iterator netEls = this._netElements.values().iterator();
-        while (netEls.hasNext()) {
-            YExternalNetElement nextElement = (YExternalNetElement) netEls.next();
-            if (nextElement instanceof YInputCondition && !_inputCondition.equals(nextElement)) {
+
+        for (YExternalNetElement element : _netElements.values()) {
+            if (element instanceof YInputCondition && ! _inputCondition.equals(element)) {
                 messages.add(new YVerificationMessage(this, "Only one inputCondition allowed, " +
                         "and it must be _inputCondition.", YVerificationMessage.ERROR_STATUS));
             }
-            if (nextElement instanceof YOutputCondition && !_outputCondition.equals(nextElement)) {
+            if (element instanceof YOutputCondition && !_outputCondition.equals(element)) {
                 messages.add(new YVerificationMessage(this, "Only one outputCondition allowed, " +
                         "and it must be _outputCondition.", YVerificationMessage.ERROR_STATUS));
             }
-            messages.addAll(nextElement.verify());
+            messages.addAll(element.verify());
         }
-        for (Iterator iterator = _localVariables.values().iterator(); iterator.hasNext();) {
-            YVariable var = (YVariable) iterator.next();
+        for (YVariable var : _localVariables.values()) {
             messages.addAll(var.verify());
         }
         //check that all elements in the net are on a directed path from 'i' to 'o'.
@@ -198,8 +187,9 @@ public final class YNet extends YDecomposition {
     }
 
 
-    private List verifyDirectedPath() {
-        List messages = new Vector();
+    private List<YVerificationMessage> verifyDirectedPath() {
+        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
+
         /* Function isValid(YConditionInterface i, YConditionInterface o, Tasks T, Conditions C): Boolean
         BEGIN:
             #Initalize variables:
@@ -207,79 +197,83 @@ public final class YNet extends YDecomposition {
             visitingFw := postset(visitedFw);
             visitedBk := {o};
             visitingBk := preset(visitedBk); */
-        Set visitedFw = new HashSet();
-        Set visitingFw = new HashSet();
+
+        Set<YExternalNetElement> visitedFw = new HashSet<YExternalNetElement>();
+        Set<YExternalNetElement> visitingFw = new HashSet<YExternalNetElement>();
         visitingFw.add(_inputCondition);
-        Set visitedBk = new HashSet();
-        Set visitingBk = new HashSet();
+        Set<YExternalNetElement> visitedBk = new HashSet<YExternalNetElement>();
+        Set<YExternalNetElement> visitingBk = new HashSet<YExternalNetElement>();
         visitingBk.add(_outputCondition);
+
         /*  Begin Loop:
                     visitedFw := visitedFw Union visitingFw;
                     visitingFw := postset(visitingFw) - visitedFw;
             Until: visitingFw = {} */
+
         do {
             visitedFw.addAll(visitingFw);
             visitingFw = getPostset(visitingFw);
             visitingFw.removeAll(visitedFw);
         } while (visitingFw.size() > 0);
+
         /*  Begin Loop:
                     visitedBk := visitedBk Union visitingBk;
                     visitingBk := preset(visitingBk) - visitedBk;
             Until: visitingBk = {} */
+
         do {
             visitedBk.addAll(visitingBk);
             visitingBk = getPreset(visitingBk);
             visitingBk.removeAll(visitedBk);
         } while (visitingBk.size() > 0);
+
         /*  return visitedFw = T U C ^ visitedBk = T U C;
             // returns true iff all t in T are on a directed path from i to o
         END */
+
         int numElements = _netElements.size();
-        Set allElements = new HashSet(_netElements.values());
+        Set<YExternalNetElement> allElements = new HashSet<YExternalNetElement>(_netElements.values());
         allElements.add(_inputCondition);
         allElements.add(_outputCondition);
+        Set<YExternalNetElement> elementsNotInPath;
         if (visitedFw.size() != numElements) {
-            Set elementsNotInPath = new HashSet(allElements);
+            elementsNotInPath = new HashSet<YExternalNetElement>(allElements);
             elementsNotInPath.removeAll(visitedFw);
-            Iterator elementsNotInPathIt = elementsNotInPath.iterator();
-            while (elementsNotInPathIt.hasNext()) {
-                messages.add(new YVerificationMessage(this, elementsNotInPathIt.next() +
-                        " is not on a forward directed path from i to o.", YVerificationMessage.ERROR_STATUS));
+            for (YExternalNetElement element : elementsNotInPath) {
+                messages.add(new YVerificationMessage(this, element +
+                        " is not on a forward directed path from i to o.",
+                        YVerificationMessage.ERROR_STATUS));
             }
         }
         if (visitedBk.size() != numElements) {
-            Set elementsNotInPath = new HashSet(allElements);
+            elementsNotInPath = new HashSet<YExternalNetElement>(allElements);
             elementsNotInPath.removeAll(visitedBk);
-            Iterator elementsNotInPathIt = elementsNotInPath.iterator();
-            while (elementsNotInPathIt.hasNext()) {
-                messages.add(new YVerificationMessage(this, elementsNotInPathIt.next() +
-                        " is not on a backward directed path from i to o.", YVerificationMessage.ERROR_STATUS));
+            for (YExternalNetElement element : elementsNotInPath) {
+                messages.add(new YVerificationMessage(this, element +
+                        " is not on a backward directed path from i to o.",
+                        YVerificationMessage.ERROR_STATUS));
             }
         }
         return messages;
     }
 
 
-    public static Set getPostset(Set elements) {
-        Set postset = new HashSet();
-        Iterator iter = elements.iterator();
-        while (iter.hasNext()) {
-            YNetElement ne = (YNetElement) iter.next();
-            if (!(ne instanceof YOutputCondition) && ne instanceof YExternalNetElement) {
-                postset.addAll(((YExternalNetElement) ne).getPostsetElements());
+    public static Set<YExternalNetElement> getPostset(Set<YExternalNetElement> elements) {
+        Set<YExternalNetElement> postset = new HashSet<YExternalNetElement>();
+        for (YExternalNetElement element : elements) {
+            if (! (element instanceof YOutputCondition)) {
+                postset.addAll(element.getPostsetElements());
             }
         }
         return postset;
     }
 
 
-    public static Set<YExternalNetElement> getPreset(Set elements) {
+    public static Set<YExternalNetElement> getPreset(Set<YExternalNetElement> elements) {
         Set<YExternalNetElement> preset = new HashSet<YExternalNetElement>();
-        for (Object o : elements) {
-            YExternalNetElement ne = (YExternalNetElement) o;
-
-            if (ne != null && !(ne instanceof YInputCondition)) {
-                preset.addAll(ne.getPresetElements());
+        for (YExternalNetElement element : elements) {
+           if (element != null && !(element instanceof YInputCondition)) {
+                preset.addAll(element.getPresetElements());
             }
         }
         return preset;
@@ -289,36 +283,36 @@ public final class YNet extends YDecomposition {
     public Object clone() {
         try {
             _clone = (YNet) super.clone();
-            _clone._netElements = new HashMap();
+            _clone._netElements = new HashMap<String, YExternalNetElement>();
 
-            Set visited = new HashSet();
-            Set visiting = new HashSet();
+            Set<YExternalNetElement> visited = new HashSet<YExternalNetElement>();
+            Set<YExternalNetElement> visiting = new HashSet<YExternalNetElement>();
             visiting.add(_inputCondition);
+
             do {
-                Iterator iter = visiting.iterator();
-                while (iter.hasNext()) {
-                    YExternalNetElement element = (YExternalNetElement) iter.next();
+                for (YExternalNetElement element : visiting) {
                     element.clone();
-                    //_clone.addNetElement(elementCopy);//redundant call see YExternalNetElement.clone
                 }
+
                 //ensure traversal of each element only occurs once
                 visited.addAll(visiting);
                 visiting = getPostset(visiting);
                 visiting.removeAll(visited);
             } while (visiting.size() > 0);
-            _clone._localVariables = new HashMap();
-            Collection params = _localVariables.values();
-            for (Iterator iterator = params.iterator(); iterator.hasNext();) {
-                YVariable variable = (YVariable) iterator.next();
+
+            _clone._localVariables = new HashMap<String, YVariable>();
+            for (YVariable variable : _localVariables.values()) {
                 YVariable copyVar = (YVariable) variable.clone();
                 _clone.setLocalVariable(copyVar);
             }
             _clone._data = (Document) this._data.clone();
+
             //do cleanup of class variable _clone before returning.
             Object temp = _clone;
             _clone = null;
             return temp;
-        } catch (CloneNotSupportedException e) {
+        }
+        catch (CloneNotSupportedException e) {
             e.printStackTrace();
         }
         return null;
@@ -330,30 +324,6 @@ public final class YNet extends YDecomposition {
     }
 
 
-/*
-    public boolean orJoinEnabled(YTask orJoin, YIdentifier caseID) {
-        if (orJoin == null || caseID == null) {
-            throw new RuntimeException("Irrelavant to check the enabledness of an orjoin if " +
-                    "this is called with null params.");
-        }
-        YMarking actualMarking = new YMarking(caseID);
-        YSetOfMarkings setOfMarkings = new YSetOfMarkings();
-        setOfMarkings.addMarking(actualMarking);
-        if (orJoin.getJoinType() != orJoin._OR) {
-            throw new RuntimeException(orJoin + " must be an OR-Join.");
-        }
-        List locations = actualMarking.getLocations();
-        for (Iterator locIter = locations.iterator(); locIter.hasNext();) {
-            YNetElement element = (YNetElement) locIter.next();
-            if (orJoin.getPresetElements().contains(element)) {
-                return determineEnabledness(
-                        orJoin, actualMarking, new YMarking(caseID), setOfMarkings);
-            }
-        }
-        //dont waste time on an orjoin with no tokens in preset
-        return false;
-    }
-*/
     public boolean orJoinEnabled(YTask orJoin, YIdentifier caseID) {
 
         if (orJoin == null || caseID == null) {
@@ -362,7 +332,7 @@ public final class YNet extends YDecomposition {
         }
 
         if (orJoin.getJoinType() != YTask._OR) {
-            throw new RuntimeException(orJoin + " must be an OR-Join.");
+            throw new RuntimeException(orJoin + " is not an OR-Join.");
         }
 
         YMarking actualMarking = new YMarking(caseID);
@@ -457,7 +427,7 @@ public final class YNet extends YDecomposition {
 
 
     public String toXML() {
-        StringBuffer xml = new StringBuffer();
+        StringBuilder xml = new StringBuilder();
         xml.append(super.toXML());
         List variables = new ArrayList(_localVariables.values());
 
@@ -508,7 +478,7 @@ public final class YNet extends YDecomposition {
 
 
     private String produceXMLStringForSet(Collection elementCollection) {
-        StringBuffer xml = new StringBuffer();
+        StringBuilder xml = new StringBuilder();
         for (Iterator iterator = elementCollection.iterator(); iterator.hasNext();) {
             YExternalNetElement element = (YExternalNetElement) iterator.next();
             if (element instanceof YTask) {
@@ -592,33 +562,28 @@ public final class YNet extends YDecomposition {
         }
     }
 
-    public Set getBusyTasks() {
-        Set busyTasks = new HashSet();
-        for (Iterator iterator = _netElements.values().iterator(); iterator.hasNext();) {
-            YExternalNetElement element = (YExternalNetElement) iterator.next();
-            if (element instanceof YTask) {
-                YTask task = (YTask) element;
-                if (task.t_isBusy()) {
-                    busyTasks.add(task);
-                }
-            }
-        }
-        return busyTasks;
+    public Set<YTask> getBusyTasks() {
+        return getActiveTasks(null, "busy") ;
     }
 
-    public Set getEnabledTasks(YIdentifier id) {
-        Set enabledTasks = new HashSet();
-        for (Iterator iterator = _netElements.values().iterator(); iterator.hasNext();) {
-            YExternalNetElement element = (YExternalNetElement) iterator.next();
+    public Set<YTask> getEnabledTasks(YIdentifier id) {
+        return getActiveTasks(id, "enabled") ;
+    }
+
+    public Set<YTask> getActiveTasks(YIdentifier id, String taskType) {
+        Set<YTask> activeTasks = new HashSet<YTask>();
+        for (YExternalNetElement element : _netElements.values()) {
             if (element instanceof YTask) {
                 YTask task = (YTask) element;
-                if (task.t_enabled(id)) {
-                    enabledTasks.add(task);
+                if ((taskType.equals("enabled") && task.t_enabled(id)) ||
+                    (taskType.equals("busy") && task.t_isBusy())) {
+                    activeTasks.add(task);
                 }
             }
         }
-        return enabledTasks;
+        return activeTasks;
     }
+
 
     public boolean usesSimpleRootData() {
         return getRootDataElementName().equals("data");

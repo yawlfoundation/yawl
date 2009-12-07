@@ -8,6 +8,7 @@
 
 package org.yawlfoundation.yawl.resourcing.datastore.eventlog;
 
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
 /**
@@ -19,8 +20,7 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 public class ResourceEvent {
 
     private long _id ;                                           // hibernate PK
-    private String _specID ;
-    private String _specVersion;
+    private YSpecificationID _specID ;
     private String _caseID ;
     private String _taskID ;
     private String _itemID ;
@@ -32,22 +32,20 @@ public class ResourceEvent {
 
 
     public ResourceEvent(WorkItemRecord wir, String pid, EventLogger.event eType) {
-        _specID = wir.getSpecificationID();
-        _specVersion = wir.getSpecVersion();
+        _specID = new YSpecificationID(wir);
         _caseID = wir.getCaseID();
         _taskID = wir.getTaskName(); 
         _itemID = wir.getID();
         _participantID = pid;
         _event = eType.name() ;
         _timeStamp = System.currentTimeMillis();
-
     }
 
     // GETTERS & SETTERS
 
-    public String get_specID() { return _specID; }
+    public YSpecificationID get_specID() { return _specID; }
 
-    public void set_specID(String specID) { _specID = specID; }
+    public void set_specID(YSpecificationID specID) { _specID = specID; }
 
 
     public String get_caseID() { return _caseID; }
@@ -78,11 +76,6 @@ public class ResourceEvent {
     public long get_timeStamp() { return _timeStamp; }
 
     public void set_timeStamp(long timeStamp) { _timeStamp = timeStamp; }
-
-
-    public String get_specVersion() { return _specVersion; }
-
-    public void set_specVersion(String specVersion) { _specVersion = specVersion; }
 
 
     private long get_id() { return _id; }

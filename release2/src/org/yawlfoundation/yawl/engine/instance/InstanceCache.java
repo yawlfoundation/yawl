@@ -13,7 +13,9 @@ import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.elements.state.YInternalCondition;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.YWorkItem;
+import org.yawlfoundation.yawl.logging.YLogDataItemList;
 
 import java.util.Collection;
 import java.util.Hashtable;
@@ -38,11 +40,11 @@ public class InstanceCache extends Hashtable<String, CaseInstance> {
     }
 
 
-    public void addCase(String caseID, String specName, String specVersion,
-                        String caseParams, String startedBy) {
+    public void addCase(String caseID, YSpecificationID specID,
+                        String caseParams, YLogDataItemList logData) {
         if (caseID != null) {
             this.put(caseID,
-                 new CaseInstance(caseID, specName, specVersion, caseParams, startedBy));
+                 new CaseInstance(caseID, specID, caseParams, logData));
         }
     }
 

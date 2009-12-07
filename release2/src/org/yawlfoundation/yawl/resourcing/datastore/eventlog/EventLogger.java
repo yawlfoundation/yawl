@@ -30,6 +30,10 @@ public class EventLogger {
                                reallocate_stateless, reallocate_stateful, skip, pile,
                                cancel, chain, complete, unoffer, unchain, unpile, resume }
 
+    public static enum audit { logon, logoff, invalid, unknown, shutdown, expired,
+                               gwlogon, gwlogoff, gwinvalid, gwunknown, gwexpired}
+
+
     public static void setLogging(boolean flag) {
         _logging = flag;
     }
@@ -68,5 +72,17 @@ public class EventLogger {
             case WorkQueue.UNOFFERED : log(wir, "admin", event.unoffer);
         }
     }
+
+
+    public static void audit(String userid, audit eType) {
+        if (_logging) {
+            AuditEvent auditEvent = new AuditEvent(userid, eType) ;
+            Persister persister = Persister.getInstance() ;
+            if (persister != null) persister.insert(auditEvent);
+        }
+    }
+
+
+
 
 }

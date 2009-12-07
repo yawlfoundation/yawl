@@ -9,11 +9,13 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.engine.ObserverGateway;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.logging.YLogDataItemList;
 
 import java.util.Set;
 import java.net.URI;
@@ -54,13 +56,13 @@ public interface InterfaceBClient {
      */
     public Set getAllWorkItems();
 
-    YWorkItem startWorkItem(YWorkItem workItem, String userID) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException, YEngineStateException;
+    YWorkItem startWorkItem(YWorkItem workItem, YAWLServiceReference service) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException, YEngineStateException;
 
     void completeWorkItem(YWorkItem workItem, String data, boolean force) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException, YEngineStateException;
 
-    void rollbackWorkItem(String workItemID, String userName) throws YStateException, YPersistenceException;
+    void rollbackWorkItem(String workItemID) throws YStateException, YPersistenceException, YLogException;
 
-    YWorkItem suspendWorkItem(String workItemID) throws YStateException, YPersistenceException;
+    YWorkItem suspendWorkItem(String workItemID) throws YStateException, YPersistenceException, YLogException;
 
     YWorkItem getWorkItem(String workItemID);
 
@@ -76,7 +78,6 @@ public interface InterfaceBClient {
     /**
      * Starts an instance of a specification (known as a 'case') within the engine.<P>
      *
-     * @param username the username.
      * @param specID the specification id.
      * @param caseParams the XML string of the case params (can be null).
      * @param completionObserver the observer for completion events (can be null).
@@ -85,12 +86,14 @@ public interface InterfaceBClient {
      * @throws YDataStateException
      * @throws YSchemaBuildingException
      */
-    String launchCase(String username, String specID, String caseParams, URI completionObserver) throws YStateException, YDataStateException, YSchemaBuildingException, YPersistenceException, YEngineStateException;
+    String launchCase(YSpecificationID specID,
+                      String caseParams, URI completionObserver, YLogDataItemList logData)
+            throws YStateException, YDataStateException, YSchemaBuildingException,
+                   YPersistenceException, YEngineStateException, YLogException, YQueryException;
 
     /**
      * Starts an instance of a specification (known as a 'case') within the engine.<P>
      *
-     * @param username the username.
      * @param specID the specification id.
      * @param caseParams the XML string of the case params (can be null).
      * @param completionObserver the observer for completion events (can be null).
@@ -100,7 +103,11 @@ public interface InterfaceBClient {
      * @throws YDataStateException
      * @throws YSchemaBuildingException
      */
-    String launchCase(String username, String specID, String caseParams, URI completionObserver, String caseID) throws YStateException, YDataStateException, YSchemaBuildingException, YPersistenceException, YEngineStateException;
+    String launchCase(YSpecificationID specID, String caseParams,
+                      URI completionObserver, String caseID,
+                      YLogDataItemList logData, String serviceHandle)
+            throws YStateException, YDataStateException, YSchemaBuildingException,
+                   YPersistenceException, YEngineStateException, YLogException, YQueryException;
 
     /**
      * Returns the next available caseID to be used when launching a new case where this is required to be known

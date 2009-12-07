@@ -53,7 +53,6 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     protected static final String ANNOUNCE_CASE_CANCELLED =     "announceCaseCancelled";
     protected static final String ANNOUNCE_ITEM_STATUS =        "announceItemStatus";
 
-
     /**
      * Indicates which protocol this shim services.<P>
      *
@@ -265,6 +264,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         private Document _casedata;
         private String _oldStatus;
         private String _newStatus;
+        private String _seed;
 
         public Handler(YAWLServiceReference yawlService, YWorkItem workItem, String command) {
             _workItem = workItem;
@@ -289,14 +289,20 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
             _casedata = casedata;
         }
 
-        public Handler(YAWLServiceReference yawlService,  String command) {
+        public Handler(YAWLServiceReference yawlService, String command) {
             _yawlService = yawlService;
             _command = command;
         }
 
-        public Handler(YAWLServiceReference yawlService,  YIdentifier id, String command) {
+        public Handler(YAWLServiceReference yawlService, YIdentifier id, String command) {
             _yawlService = yawlService;
             _caseID = id;
+            _command = command;
+        }
+
+        public Handler(YAWLServiceReference yawlService, String seed, String command) {
+            _yawlService = yawlService;
+            _seed = seed;
             _command = command;
         }
 
@@ -367,7 +373,8 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                     paramsMap.put("newStatus", _newStatus);
                     executePost(urlOfYawlService, paramsMap);
                 }
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
 
                 // ignore broadcast announcements for missing services
                 if (! (ANNOUNCE_INIT_ENGINE.equals(_command) ||

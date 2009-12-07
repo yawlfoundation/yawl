@@ -42,7 +42,7 @@ import java.util.List;
 
 public abstract class InterfaceBWebsideController {
     protected InterfaceB_EnvironmentBasedClient _interfaceBClient;
-    protected WorklistModel _model;
+    protected IBControllerCache _model;
     private AuthenticationConfig _authConfig4WS;
     protected String _report;
 
@@ -61,7 +61,7 @@ public abstract class InterfaceBWebsideController {
      * Constructs a controller.
      */
     public InterfaceBWebsideController() {
-        _model = new WorklistModel();
+        _model = new IBControllerCache();
         _authConfig4WS = AuthenticationConfig.getInstance();
     }
 
@@ -185,7 +185,7 @@ public abstract class InterfaceBWebsideController {
 
         response.setContentType("text/html");
         PrintWriter outputWriter = response.getWriter();
-        StringBuffer output = new StringBuffer();
+        StringBuilder output = new StringBuilder();
 
         output.append(
                 "<html><head><title>Your Custom YAWL Service Welcome Page</title>" +
@@ -309,15 +309,18 @@ public abstract class InterfaceBWebsideController {
      * @throws IOException if there is a problem contacting the engine.
      * @throws JDOMException if there is a problem parsing XML of input or output data
      */
-    public String checkInWorkItem(String workItemID, Element inputData, Element outputData, String sessionHandle) throws IOException, JDOMException {
+    public String checkInWorkItem(String workItemID, Element inputData,
+                                  Element outputData, String sessionHandle)
+            throws IOException, JDOMException {
 
         // first merge the input and output data together
         String mergedlOutputData = Marshaller.getMergedOutputData(inputData, outputData);
         String filteredOutputData;
 
         WorkItemRecord workitem = this.getCachedWorkItem(workItemID);
-        YSpecificationID specID = new YSpecificationID(workitem.getSpecificationID(),
-                                                       workitem.getSpecVersion());
+        YSpecificationID specID = new YSpecificationID(workitem.getSpecIdentifier(),
+                                                       workitem.getSpecVersion(),
+                                                       workitem.getSpecURI());
         SpecificationData specData = getSpecificationData(specID, sessionHandle);
 
         // Now if this is beta4 or greater then remove all those input only bits of data
@@ -409,7 +412,7 @@ public abstract class InterfaceBWebsideController {
      * Gets a reference to the local cache
      * @return a reference to the cache
      */
-    public WorklistModel getModel() {
+    public IBControllerCache getModel() {
         return _model;
     }
 
@@ -502,7 +505,7 @@ public abstract class InterfaceBWebsideController {
             throws IOException {
         List<SpecificationData> specs = _interfaceBClient.getSpecificationList(sessionHandle);
         for (SpecificationData data : specs) {
-            if (data.getID().equals(specID.getSpecName())) {
+            if (data.getID().getKey().equals(specID.getKey())) {
                 String specAsXML = data.getAsXML();
                 if (specAsXML == null) {
                     specAsXML = _interfaceBClient.getSpecification(specID, sessionHandle);
@@ -566,8 +569,9 @@ public abstract class InterfaceBWebsideController {
     protected Element prepareReplyRootElement(WorkItemRecord enabledWorkItem, String sessionHandle)
             throws IOException {
         Element replyToEngineRootDataElement;
-        YSpecificationID specID = new YSpecificationID(enabledWorkItem.getSpecificationID(),
-                                                       enabledWorkItem.getSpecVersion());
+        YSpecificationID specID = new YSpecificationID(enabledWorkItem.getSpecIdentifier(),
+                                                       enabledWorkItem.getSpecVersion(),
+                                                       enabledWorkItem.getSpecURI());
 
         //prepare reply root element.
         SpecificationData sdata = getSpecificationData(specID, sessionHandle);

@@ -9,6 +9,8 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
+import org.yawlfoundation.yawl.engine.YSpecificationID;
+
 /**
  * Defines the 'B' interface into the YAWL Engine corresponding to WfMC interfaces 2+3 - Workflow client applications and invoke applications.
  *
@@ -23,7 +25,7 @@ public interface InterfaceBClientObserver
      * @param specID
      * @param caseIDStr
      */
-    void addCase(String specID, String caseIDStr);
+    void addCase(YSpecificationID specID, String caseIDStr);
 
     /**
      * Called by the engine when a previously executing case is removed.<P>

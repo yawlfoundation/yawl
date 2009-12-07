@@ -49,7 +49,7 @@ public class InterfaceD_Client extends Interface_Client{
      * @throws IOException
      */
     public String executePost(String urlStr, Map paramsMap, WorkItemRecord attribute) throws IOException {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         HttpURLConnection connection = null;
 
         URL url = new URL(urlStr);

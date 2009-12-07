@@ -101,12 +101,12 @@ public class YWorkItemTimer implements YTimedObject {
             try {
                 if (item.getStatus().equals(YWorkItemStatus.statusEnabled)) {
                     if (item.requiresManualResourcing())              // not an autotask
-                        engine.skipWorkItem(item, "_timerExpiry") ;
+                        engine.skipWorkItem(item, null) ;
                     engine.announceTimerExpiryEvent(item);
                 }
                 else if (item.hasUnfinishedStatus()) {
                     if (item.requiresManualResourcing())              // not an autotask
-                        engine.completeWorkItem(item, "_timerExpiry", true) ;
+                        engine.completeWorkItem(item, item.getDataString(), true) ;
                     engine.announceTimerExpiryEvent(item);
                 }
             }

@@ -43,7 +43,7 @@ public class ServiceConnection {
 
     private class TimeOut extends TimerTask {
         public void run() {
-            ConnectionCache.getInstance().disconnect(_handle) ;
+            ConnectionCache.getInstance().expire(_handle) ;
         }
     }
 }   

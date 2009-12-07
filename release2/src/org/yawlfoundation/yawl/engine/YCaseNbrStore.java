@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 
 /**
- * Provides for the persistence of the last allocated case ids, and the generation
+ * Provides for the persistence of the last allocated case id, and the generation
  * of new case ids.
  *
  * Author: Michael Adams

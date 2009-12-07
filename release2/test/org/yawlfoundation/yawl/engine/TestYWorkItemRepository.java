@@ -36,7 +36,7 @@ public class TestYWorkItemRepository extends TestCase {
     public void setUp() throws Exception {
         _workitemRepository = YWorkItemRepository.getInstance();
         _workitemRepository.clear();
-        YIdentifier identifier = new YIdentifier();
+        YIdentifier identifier = new YIdentifier(null);
         YWorkItemID workItemID = new YWorkItemID(identifier, "task-123");
         _parentWorkItem = new YWorkItem(null, new YSpecificationID("ASpecID"), workItemID, false, false);
         for (int i = 0; i < 5; i++) {
@@ -47,7 +47,7 @@ public class TestYWorkItemRepository extends TestCase {
 
     public void testGetItem() throws YPersistenceException {
         assertTrue(_workitemRepository.getEnabledWorkItems().size() == 0);
-        new YWorkItem(null, new YSpecificationID("ASpecID"), new YWorkItemID(new YIdentifier(), "task4321"), false, false);
+        new YWorkItem(null, new YSpecificationID("ASpecID"), new YWorkItemID(new YIdentifier(null), "task4321"), false, false);
         assertEquals(
                 _workitemRepository.getWorkItem(
                         _parentWorkItem.getCaseID().toString(), _parentWorkItem.getTaskID()),

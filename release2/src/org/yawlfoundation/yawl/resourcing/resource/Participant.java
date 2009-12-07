@@ -13,7 +13,7 @@ import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
-import org.yawlfoundation.yawl.resourcing.util.PasswordEncryptor;
+import org.yawlfoundation.yawl.util.PasswordEncryptor;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -227,7 +227,7 @@ public class Participant extends AbstractResource implements Serializable {
     }
 
     public void addRole(String rid) {
-        addRole(_resMgr.getRole(rid));
+        addRole(_resMgr.getOrgDataSet().getRole(rid));
     }
 
     public void removeRole(Role role) {
@@ -271,7 +271,7 @@ public class Participant extends AbstractResource implements Serializable {
     }
 
     public void addCapability(String cid) {
-        addCapability(_resMgr.getCapability(cid));
+        addCapability(_resMgr.getOrgDataSet().getCapability(cid));
     }
 
     public void removeCapability(Capability cap) {
@@ -316,7 +316,7 @@ public class Participant extends AbstractResource implements Serializable {
     }
 
     public void addPosition(String pid) {
-        addPosition(_resMgr.getPosition(pid));
+        addPosition(_resMgr.getOrgDataSet().getPosition(pid));
     }
 
 

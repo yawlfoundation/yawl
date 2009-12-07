@@ -31,7 +31,7 @@ public class TestYMultiInstanceAttributes extends TestCase{
 
     public void setUp(){
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification._Beta2);
+        spec.setVersion(YSpecification.Beta2);
 
         YNet deadNet = new YNet("aNet", spec);
         _aTask = new YAtomicTask("et1", YTask._AND, YTask._OR, deadNet);

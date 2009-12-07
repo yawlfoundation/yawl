@@ -7,6 +7,7 @@ import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.WorkItemAgeComparator;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.SortedSet;

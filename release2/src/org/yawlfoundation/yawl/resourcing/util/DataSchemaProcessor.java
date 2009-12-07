@@ -7,7 +7,7 @@ import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
 import org.yawlfoundation.yawl.engine.interfce.YParametersSchema;
 import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
-import org.yawlfoundation.yawl.forms.InstanceBuilder;
+import org.yawlfoundation.yawl.util.InstanceBuilder;
 import org.yawlfoundation.yawl.schema.ElementCreationInstruction;
 import org.yawlfoundation.yawl.schema.ElementReuseInstruction;
 import org.yawlfoundation.yawl.schema.Instruction;

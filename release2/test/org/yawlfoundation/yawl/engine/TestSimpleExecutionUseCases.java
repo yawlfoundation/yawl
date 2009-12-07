@@ -52,7 +52,7 @@ public class TestSimpleExecutionUseCases extends TestCase{
         _engine = YEngine.getInstance();
         EngineClearer.clear(_engine);
         _engine.loadSpecification(specification);
-        _caseId = _engine.startCase(null, null, specification.getID(), null, null);
+        _caseId = _engine.startCase(null, null, specification.getURI(), null, null);
     }
 
 

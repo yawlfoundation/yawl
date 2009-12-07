@@ -273,7 +273,7 @@ public class HandlerRunner extends WorkletRecord {
     }
 
     public String toString() {
-        StringBuffer s = new StringBuffer("HandlerRunner record:") ;
+        StringBuilder s = new StringBuilder("HandlerRunner record:") ;
         s.append(Library.newline);
         s.append(super.toString());
 

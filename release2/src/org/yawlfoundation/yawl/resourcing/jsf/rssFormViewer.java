@@ -285,7 +285,7 @@ public class rssFormViewer extends AbstractPageBean {
                     errMsg = checkParticipantHasQueuedItem(p, wir, WorkQueue.ALLOCATED);
                     if (successful(errMsg)) {
                         errMsg = null;
-                        if (rm.start(p, wir, sb.getSessionhandle())) {
+                        if (rm.start(p, wir)) {
                             startedItem = rm.getExecutingChild(wir);
                         }
                         else {

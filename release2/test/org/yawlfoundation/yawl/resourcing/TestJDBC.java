@@ -19,7 +19,7 @@ public class TestJDBC extends TestCase {
         DataSource db = rm.getOrgDataSource();
 
         // work with some objects
-        Participant p = rm.getParticipant("a0515b67-2435-4f73-a6da-f1bb797aba04");
+        Participant p = rm.getOrgDataSet().getParticipant("a0515b67-2435-4f73-a6da-f1bb797aba04");
 
         // updates tested ok
 //        p.setDescription("updated description");

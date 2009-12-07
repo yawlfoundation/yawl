@@ -118,7 +118,7 @@ System.out.println("marshalledSpecsString = " + marshalledSpecsString);
 
 */
     public void testBothEqual() {
-        assertEquals(_originalSpec.getID(), _copy.getID());
+        assertEquals(_originalSpec.getURI(), _copy.getURI());
         YNet origNet = _originalSpec.getRootNet();
         YNet copyNet = _copy.getRootNet();
         assertEquals(origNet.getInputCondition().toXML(), copyNet.getInputCondition().toXML());

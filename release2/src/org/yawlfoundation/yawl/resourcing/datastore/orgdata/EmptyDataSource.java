@@ -12,7 +12,7 @@ public class EmptyDataSource extends DataSource {
     ResourceDataSet _rds;
 
     public EmptyDataSource() {
-        _rds = new ResourceDataSet();
+        _rds = new ResourceDataSet(this);
     }
 
     public ResourceDataSet getDataSource() {

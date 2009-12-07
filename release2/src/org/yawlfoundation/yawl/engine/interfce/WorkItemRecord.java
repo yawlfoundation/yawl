@@ -50,8 +50,9 @@ public class WorkItemRecord implements Cloneable {
 
     // item identifiers
     private long _id;                                    // hibernate primary key
-    private String _specificationID;
+    private String _specIdentifier;
     private String _specVersion = "0.1" ;
+    private String _specURI;
     private String _caseID;
     private String _taskID;
     private String _uniqueID;                            // used by PDF Forms service
@@ -111,23 +112,23 @@ public class WorkItemRecord implements Cloneable {
     public WorkItemRecord() {}                     // for reflection
 
     // called by Marshaller.unmarshallWorkItem
-    public WorkItemRecord(String caseID, String taskID, String specificationID,
+    public WorkItemRecord(String caseID, String taskID, String specIdentifier,
                           String enablementTime, String status) {
         _taskID = taskID;
         _caseID = caseID;
-        _specificationID = specificationID;
+        _specIdentifier = specIdentifier;
         _enablementTime = enablementTime;
         _status = status;
     }
 
     // full Constructor called by resourceService restore methods
-    public WorkItemRecord(long id, String specID, String specVersion, String caseID, 
+    public WorkItemRecord(long id, String specIdentifier, String specVersion, String caseID,
                           String taskID, String uniqueID, String enablementTime,
                           String firingTime, String startTime, String completionTime,
                           String status, String resourceStatus, String startedBy,
                           String completedBy, String dataListString ) {
         _id = id;
-        _specificationID = specID;
+        _specIdentifier = specIdentifier;
         _specVersion = specVersion ;
         _caseID = caseID;
         _taskID = taskID;
@@ -159,9 +160,11 @@ public class WorkItemRecord implements Cloneable {
 
     // SETTERS //
 
-    public void setSpecificationID(String specID) { _specificationID = specID; }
+    public void setSpecIdentifier(String id) { _specIdentifier = id; }
 
     public void setSpecVersion(String version) { _specVersion = version; }
+
+    public void setSpecURI(String uri) { _specURI = uri; }
 
     public void setCaseID(String caseID) {_caseID = caseID; }
 
@@ -250,9 +253,11 @@ public class WorkItemRecord implements Cloneable {
 
     // GETTERS //
 
-    public String getSpecificationID() { return _specificationID; }
+    public String getSpecIdentifier() { return _specIdentifier; }
 
     public String getSpecVersion() { return _specVersion ; }
+
+    public String getSpecURI() { return _specURI; }
 
     public String getCaseID() { return _caseID; }
 
@@ -353,7 +358,7 @@ public class WorkItemRecord implements Cloneable {
             result = _caseID.split("\\.")[0] ;
         }
         return result ;
-    }
+    }    
 
     public boolean isEdited() { return _edited; }
 
@@ -384,8 +389,9 @@ public class WorkItemRecord implements Cloneable {
         xml.append(_extendedAttributes != null? _extendedAttributes : "")
            .append(">")
            .append(StringUtil.wrap(getID(), "id"))
-           .append(StringUtil.wrap(_specificationID, "specid"))                
+           .append(StringUtil.wrap(_specIdentifier, "specidentifier"))
            .append(StringUtil.wrap(_specVersion, "specversion"))
+           .append(StringUtil.wrap(_specURI, "specuri"))
            .append(StringUtil.wrap(_caseID, "caseid"))
            .append(StringUtil.wrap(_taskID, "taskid"))
            .append(StringUtil.wrap(_uniqueID, "uniqueid"))

@@ -8,13 +8,18 @@
 
 package org.yawlfoundation.yawl.util;
 
-import org.jdom.*;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.*;
-
 import org.apache.log4j.Logger;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
 
 
 /**
@@ -158,6 +163,15 @@ import java.io.*;
 
     public static String formatXMLStringAsElement(String s) {
         return elementToString(stringToElement(s));
+    }
+
+    
+    public static Element stripAttributes(Element e) {
+        e.setAttributes(null);
+        for (Object o: e.getChildren()) {
+            stripAttributes((Element) o);      // recurse
+        }
+        return e;
     }
 
 

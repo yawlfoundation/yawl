@@ -82,7 +82,7 @@ public class CheckedOutItem {
 
     // initialise the data members that are not persisted (after a restore)
     public void initNonPersistedItems() {
-        _specId = _wir.getSpecificationID() ;
+        _specId = _wir.getSpecIdentifier() ;
         _myChildren = new ArrayList() ;
         _me = this ;
         //  _log = Logger.getLogger("org.yawlfoundation.yawl.worklet.selection.CheckedOutItem");
@@ -261,7 +261,7 @@ public class CheckedOutItem {
    
     /** returns String representation of  current CheckedOutItem */  
     public String toString() {
-        StringBuffer s = new StringBuffer("##### CHECKEDOUTITEM RECORD #####") ;
+        StringBuilder s = new StringBuilder("##### CHECKEDOUTITEM RECORD #####") ;
     	String n = Library.newline ;
 
         // write out the parent wir
@@ -283,7 +283,7 @@ public class CheckedOutItem {
 
 
     public String toStringSub() {
-        StringBuffer s = new StringBuffer();
+        StringBuilder s = new StringBuilder();
         s.append(_wir.toXML());
         s.append(Library.newline);
     	return s.toString() ;

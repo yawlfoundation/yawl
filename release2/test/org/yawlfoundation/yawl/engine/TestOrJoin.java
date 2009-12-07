@@ -62,7 +62,7 @@ public class TestOrJoin extends TestCase {
 //todo AJH:Obsoltete ????
 //        String sessionHandle = _engine.connect("admin", "YAWL");
         _engine.loadSpecification(specification);
-        YIdentifier id = _engine.startCase(null, null, specification.getID(), null, null);
+        YIdentifier id = _engine.startCase(null, null, specification.getURI(), null, null);
         {
             YWorkItem itemA = (YWorkItem)_engine.getAvailableWorkItems().iterator().next();
 //            _localWorklist.startOneWorkItemAndSetOthersToFired(
@@ -215,7 +215,7 @@ public class TestOrJoin extends TestCase {
         _engine = YEngine.getInstance();
         EngineClearer.clear(_engine);
         _engine.loadSpecification(specification2);
-        _engine.startCase(null, null, specification2.getID().toString(), null, null);
+        _engine.startCase(null, null, specification2.getURI().toString(), null, null);
         {
 //            YWorkItem itemA = (YWorkItem) _workItemRepository.getEnabledWorkItems().iterator().next();
 //            _localWorklist.startOneWorkItemAndSetOthersToFired(

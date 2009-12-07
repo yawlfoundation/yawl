@@ -225,7 +225,7 @@ public class RdrNode {
     /** returns a String representation of this node */
     public String toString(){
 
-        StringBuffer s = new StringBuffer("RDR NODE RECORD:");
+        StringBuilder s = new StringBuilder("RDR NODE RECORD:");
 
         String par = (parent == null)? "null" : parent.toString();
         String tChild = (trueChild == null)? "null" : trueChild.toString();
@@ -255,7 +255,7 @@ public class RdrNode {
         String conc = (conclusion == null)? "" : JDOMUtil.elementToString(conclusion);
         String corn = (cornerstone == null)? "" : JDOMUtil.elementToString(cornerstone);
 
-        StringBuffer s = new StringBuffer("<ruleNode>");
+        StringBuilder s = new StringBuilder("<ruleNode>");
 
         Library.appendXML(s, "id", getNodeIdAsString());
         Library.appendXML(s, "parent", par);

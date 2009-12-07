@@ -1,5 +1,7 @@
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
+
 import java.util.*;
 
 /**
@@ -37,26 +39,38 @@ public class ConnectionCache extends HashMap<String,ServiceConnection> {
 
     public String connect(String userid, String password) {
         String result ;
-   //     if (! connected(userid)) {
-            if (validUser(userid))  {
-                if (validPassword(userid, password)) {
-                    ServiceConnection con = new ServiceConnection(userid) ;
-                    result = con.getHandle();
-                    this.put(result, con);
-                }
-                else result = failMsg("Incorrect Password");
+        if (validUser(userid))  {
+            if (validPassword(userid, password)) {
+                ServiceConnection con = new ServiceConnection(userid) ;
+                result = con.getHandle();
+                this.put(result, con);
+                EventLogger.audit(userid, EventLogger.audit.gwlogon);
             }
-            else result = failMsg(String.format("Unknown Username: '%s'", userid));
- //       }
- //       else result = failMsg(String.format("User '%s' is already connected", userid));
-        
+            else {
+                result = failMsg("Incorrect Password");
+                EventLogger.audit(userid, EventLogger.audit.gwinvalid);
+            }
+        }
+        else {
+            result = failMsg(String.format("Unknown Username: '%s'", userid));
+            EventLogger.audit(userid, EventLogger.audit.gwunknown);
+        }
+
         return result ;
     }
 
 
     public void disconnect(String handle) {
-        this.remove(handle);
+        ServiceConnection con = this.remove(handle);
+        EventLogger.audit(con.getUserID(), EventLogger.audit.gwlogoff);
     }
+
+
+    public void expire(String handle) {
+        ServiceConnection con = this.remove(handle);
+        EventLogger.audit(con.getUserID(), EventLogger.audit.gwexpired);
+    }
+
 
     public boolean checkConnection(String handle) {
         boolean result = false;
@@ -68,6 +82,13 @@ public class ConnectionCache extends HashMap<String,ServiceConnection> {
             }
         }
         return result ;
+    }
+
+
+    public void shutdown() {
+        for (ServiceConnection con : this.values()) {
+            EventLogger.audit(con.getUserID(), EventLogger.audit.shutdown);            
+        }
     }
 
     /******************************************************************************/

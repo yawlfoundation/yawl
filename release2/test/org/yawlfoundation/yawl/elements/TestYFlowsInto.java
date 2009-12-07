@@ -32,7 +32,7 @@ public class TestYFlowsInto extends TestCase{
 
     public void setUp(){
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification._Beta2);
+        spec.setVersion(YSpecification.Beta2);
 
         YNet net1 = new YNet("net1", spec);
         _XORSplit = new YAtomicTask("XORSplit_1", YTask._AND, YTask._XOR, net1);

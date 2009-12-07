@@ -53,7 +53,7 @@ public class SessionListener implements HttpSessionListener {
     public void handleSessionTimeout(HttpSession session) {
         SessionBean sb = (SessionBean) session.getAttribute("SessionBean");
         if (sb != null) {
-            ResourceManager.getInstance().removeSession(sb.getSessionhandle());
+            ResourceManager.getInstance().expireSession(sb.getSessionhandle());
         }
     }
 

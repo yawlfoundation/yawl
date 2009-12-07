@@ -227,7 +227,7 @@ public class YApplicationXForm extends JDialog implements ActionListener {
             this_windowClosing();
             _worklistGUI.completeWorkItem(_caseID, _taskID);
             } else {
-                StringBuffer errorMessageStr = new StringBuffer();
+                StringBuilder errorMessageStr = new StringBuilder();
                 Iterator iterator = errorMessages.iterator();
                 errorMessageStr.append(iterator.next());
                 while (iterator.hasNext()) {

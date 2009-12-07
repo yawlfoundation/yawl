@@ -124,32 +124,29 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
     }
 
 
-    public List verify() {
-        List messages = new Vector();
-        if (_minInstances != null && _minInstances.intValue() < 1) {
+    public List<YVerificationMessage> verify() {
+        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
+        if (_minInstances != null && _minInstances < 1) {
             messages.add(new YVerificationMessage(_myTask, _myTask
                     + " _minInstances < 1", YVerificationMessage.ERROR_STATUS));
         }
         if (_minInstances != null && _maxInstances != null &&
-                _minInstances.intValue() > _maxInstances.intValue()) {
+                _minInstances > _maxInstances) {
             messages.add(new YVerificationMessage(_myTask, _myTask
                     + "._minInstances > _maxInstances", YVerificationMessage.ERROR_STATUS));
         }
-        if (_maxInstances != null && _maxInstances.intValue() < 1) {
+        if (_maxInstances != null && _maxInstances < 1) {
             messages.add(new YVerificationMessage(_myTask, _myTask
                     + "._maxInstances < 1", YVerificationMessage.ERROR_STATUS));
         }
-/*        if(_threshold != null && _minInstances != null && _threshold.intValue() < _minInstances.intValue()){
-            messages.add(new YVerificationMessage(_myTask, _myTask
-                    + "._threshold < _minInstances"));
-        }*/
-        if (_threshold != null && _threshold.intValue() < 1) {
+        if (_threshold != null && _threshold < 1) {
             messages.add(new YVerificationMessage(_myTask, _myTask
                     + "._threshold < 1", YVerificationMessage.ERROR_STATUS));
         }
         if (!(_creationMode.equalsIgnoreCase("static") || _creationMode.equalsIgnoreCase("dynamic"))) {
             messages.add(new YVerificationMessage(_myTask, _myTask
-                    + "._creationMode does not equal 'static' or 'dynamic'", YVerificationMessage.ERROR_STATUS));
+                    + "._creationMode does not equal 'static' or 'dynamic'",
+                    YVerificationMessage.ERROR_STATUS));
         }
         return messages;
     }
@@ -187,7 +184,7 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
     }
 
     public String toXML() {
-        StringBuffer xml = new StringBuffer();
+        StringBuilder xml = new StringBuilder();
 
         xml.append("<minimum>" + (_minInstances != null ? _minInstances.toString() : JDOMUtil.encodeEscapes(_minInstancesQuery)) + "</minimum>");
         xml.append("<maximum>" + (_maxInstances != null ? _maxInstances.toString() : JDOMUtil.encodeEscapes(_maxInstancesQuery)) + "</maximum>");

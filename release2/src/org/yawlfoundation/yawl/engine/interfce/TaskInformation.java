@@ -6,82 +6,78 @@
  *
  */
 
-
 package org.yawlfoundation.yawl.engine.interfce;
 
-import org.yawlfoundation.yawl.engine.interfce.YParametersSchema;
+import org.yawlfoundation.yawl.elements.YAttributeMap;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 
-import java.util.HashMap;
+import java.util.Hashtable;
 
 /**
  * 
  * @author Lachlan Aldred
  * Date: 26/02/2004
  * Time: 14:54:10
- * 
+ *
+ * @author Michael Adams - reworked for v2.1 Apr-09
  */
 public class TaskInformation {
     private YParametersSchema _paramSchema;
     private String _taskID;
-    private String _specificationID;
+    private YSpecificationID _specificationID;
     private String _taskDocumentation;
     private String _taskName;
     private String _decompositionID;
-    private HashMap attributes;
-    
+    private YAttributeMap _attributes;
+
     public TaskInformation(YParametersSchema paramSchema, String taskID,
-                           String specificationID, String taskName,
+                           YSpecificationID specificationID, String taskName,
                            String taskDocumentation, String decompositionID) {
-        this._paramSchema = paramSchema;
-        this._taskID = taskID;
-        this._taskName = taskName;
-        this._specificationID = specificationID;
-        this._taskDocumentation = taskDocumentation;
-        this._decompositionID = decompositionID;
-	    attributes = new HashMap();
+        _paramSchema = paramSchema;
+        _taskID = taskID;
+        _taskName = taskName;
+        _specificationID = specificationID;
+        _taskDocumentation = taskDocumentation;
+        _decompositionID = decompositionID;
+	      _attributes = new YAttributeMap();
     }
 
-    public void setAttributes(HashMap map) {
-	this.attributes = map;
+
+    public void setAttributes(Hashtable<String, String> map) {
+	      _attributes.set(map);
     }
+
     public void addAttribute(String key, String value) {
-	attributes.put(key,value);
-    }	
-    public HashMap getAttributes() {
-	return attributes;
-    }
-    public String getAttribute(String key) {
-	return (String) attributes.get(key);
+	      _attributes.put(key,value);
     }
 
-    public String getFormType() {
-	return "";
+    public Hashtable<String, String> getAttributes() {
+	      return _attributes;
+    }
+
+    public String getAttribute(String key) {
+	     return _attributes.get(key);
     }
 
     public YParametersSchema getParamSchema() {
         return _paramSchema;
     }
 
-
     public String getTaskID() {
         return _taskID;
     }
 
-
-    public String getSpecificationID() {
+    public YSpecificationID getSpecificationID() {
         return _specificationID;
     }
-
 
     public String getTaskDocumentation() {
         return _taskDocumentation;
     }
 
-
     public String getTaskName() {
         return _taskName;
     }
-
 
     public String getDecompositionID() {
         return _decompositionID;

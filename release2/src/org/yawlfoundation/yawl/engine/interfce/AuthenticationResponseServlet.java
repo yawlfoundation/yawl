@@ -65,7 +65,7 @@ public class AuthenticationResponseServlet extends HttpServlet {
 
         response.setContentType("text/html");
         PrintWriter outputWriter = response.getWriter();
-        StringBuffer output = new StringBuffer();
+        StringBuilder output = new StringBuilder();
 
         output.append(
                 "<html><head><title>Authentication Details</title>" +
@@ -140,7 +140,7 @@ public class AuthenticationResponseServlet extends HttpServlet {
 
         response.setContentType("text/html");
         PrintWriter outputWriter = response.getWriter();
-        StringBuffer output = new StringBuffer();
+        StringBuilder output = new StringBuilder();
 
         output.append("<html><head><title>Authentication Details</title>" +
                 "</head><body>" +

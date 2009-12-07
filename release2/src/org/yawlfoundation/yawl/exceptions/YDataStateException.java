@@ -91,7 +91,7 @@ public class YDataStateException extends YAWLException {
 
 
     protected String toXMLGuts() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(super.toXMLGuts());
         if (null != _queryString) {
             sb.append("<" + QUERYSTRING_NM + ">" + _queryString + "</" + QUERYSTRING_NM + ">");

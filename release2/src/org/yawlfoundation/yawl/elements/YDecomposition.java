@@ -10,8 +10,6 @@ package org.yawlfoundation.yawl.elements;
 
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YCaseData;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
@@ -20,7 +18,6 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
-import java.io.StringReader;
 import java.util.*;
 
 /**
@@ -29,7 +26,7 @@ import java.util.*;
  * Date: 25/09/2003
  * Time: 16:04:21
  *
- * Refactored for 2.0 by Michael Adams 13/05/2008
+ * Refactored for 2.0 by Michael Adams 
  * 
  */
 
@@ -44,7 +41,7 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
     private Set<String> _outputExpressions;
     protected Document _data;
     private YCaseData _casedata = null;
-    private Hashtable<String, String> _attributes;
+    private YAttributeMap _attributes;
 
     // if true, this decomposition requires resourcing decisions made at runtime
     protected boolean _manualInteraction = true;
@@ -62,7 +59,7 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
         _enablementParameters = new HashMap<String, YParameter>();
         _outputExpressions = new HashSet<String>();
         _data = new Document();
-        _attributes = new Hashtable<String, String>();
+        _attributes = new YAttributeMap();
 
         _data.setRootElement(new Element(getRootDataElementName()));
     }
@@ -88,16 +85,7 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
 
     
     public Document getNetDataDocument(String netData) {
-        SAXBuilder builder = new SAXBuilder();
-        Document document = null;
-        try {
-            document = builder.build(new StringReader(netData));
-        } catch (JDOMException je) {
-            je.printStackTrace();
-        } catch (java.io.IOException ioe) {
-            ioe.printStackTrace();
-        }
-        return document;
+        return JDOMUtil.stringToDocument(netData);
     }
 
     /******************************************************************************/
@@ -107,10 +95,10 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
     public String getID() { return _id; }
 
 
-    public Hashtable getAttributes() { return _attributes; }
+    public YAttributeMap getAttributes() { return _attributes; }
 
-    public void setAttributes(Hashtable<String, String> attributes) {
-        _attributes = attributes;
+    public void setAttributes(Map<String, String> attributes) {
+        _attributes.set(attributes);
     }
 
     public String getAttribute(String name) { return _attributes.get(name); }
@@ -138,36 +126,29 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
     public Map<String, YParameter> getOutputParameters() { return _outputParameters; }
 
 
-    public void setInputParameter(YParameter parameter) {
+    public void addInputParameter(YParameter parameter) {
         if (parameter.isInput()) {
-            if (null != parameter.getName()) {
-                _inputParameters.put(parameter.getName(), parameter);
-            } else if (null != parameter.getElementName()) {
-                _inputParameters.put(parameter.getElementName(), parameter);
+            String paramName = parameter.getPreferredName();
+            if (paramName != null) {
+                _inputParameters.put(paramName, parameter);
             }
-        } else {
-            throw new RuntimeException("Can't set an output param as an input param.");
         }
+        else throw new RuntimeException("Can't set an output param as an input param.");
     }
 
 
-    /**
-     * Adds an output parameter to this.
-     * @param parameter the parameter to be added
-     */
-    public void setOutputParameter(YParameter parameter) {
+    public void addOutputParameter(YParameter parameter) {
         if (parameter.isInput()) {
             throw new RuntimeException("Can't set an input param as an output param.");
         }
         if (parameter.isEnablement())
             setEnablementParameter(parameter);
         else {
-            if (null != parameter.getName()) {
-                _outputParameters.put(parameter.getName(), parameter);
-            } else if (null != parameter.getElementName()) {
-                _outputParameters.put(parameter.getElementName(), parameter);
+            String paramName = parameter.getPreferredName();
+            if (paramName != null) {
+                _outputParameters.put(paramName, parameter);
             }
-        }    
+        }
     }
 
 
@@ -175,17 +156,16 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
         if (parameter.isInput()) {
             throw new RuntimeException("Can't set an input param as an enablement param.");
         }
-        if (null != parameter.getName()) {
-            _enablementParameters.put(parameter.getName(), parameter);
-        } else if (null != parameter.getElementName()) {
-            _enablementParameters.put(parameter.getElementName(), parameter);
+        String paramName = parameter.getPreferredName();
+        if (paramName != null) {
+            _enablementParameters.put(paramName, parameter);
         }
     }
 
 
     public void setOutputExpression(String query) { _outputExpressions.add(query); }
 
-    public Set getOutputQueries() { return _outputExpressions; }
+    public Set<String> getOutputQueries() { return _outputExpressions; }
 
 
     // if set to true, any task that decomposes to this will need to have a resourcing
@@ -204,26 +184,20 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
     public void setCodelet(String codelet) { _codelet = codelet ; }
 
     public String toXML() {
+
+        // just do the decomposition facts (not the surrounding element) - to keep life simple
         StringBuilder xml = new StringBuilder();
-        //just do the decomposition facts (not the surrounding element) - to keep life simple
-        if (_name != null) {
-            xml.append("<name>").
-                    append(_name).
-                    append("</name>");
-        }
-        if (_documentation != null) {
-            xml.append("<documentation>").
-                    append(_documentation).
-                    append("</documentation>");
-        }
+        if (_name != null)
+            xml.append(StringUtil.wrap(_name, "name"));
+        if (_documentation != null)
+            xml.append(StringUtil.wrap(_documentation, "documentation"));
 
         xml.append(paramMapToXML(_inputParameters));
 
-        for (Iterator iter = _outputExpressions.iterator(); iter.hasNext();) {
-            String expression = (String) iter.next();
-            xml.append("<outputExpression query=\"").
-                    append(JDOMUtil.encodeEscapes(expression)).
-                    append("\"/>");
+        for (String expression : _outputExpressions) {
+            xml.append("<outputExpression query=\"")
+               .append(JDOMUtil.encodeEscapes(expression))
+               .append("\"/>");
         }
 
         xml.append(paramMapToXML(_outputParameters));
@@ -235,10 +209,9 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
 
     private String paramMapToXML(Map<String, YParameter> paramMap) {
         StringBuilder result = new StringBuilder() ;
-        List parameters = new ArrayList<YParameter>(paramMap.values());
+        List<YParameter> parameters = new ArrayList<YParameter>(paramMap.values());
         Collections.sort(parameters);
-        for (Iterator iterator = parameters.iterator(); iterator.hasNext();) {
-            YParameter parameter = (YParameter) iterator.next();
+        for (YParameter parameter : parameters) {
             result.append(parameter.toXML());
         }
         return result.toString() ;
@@ -261,6 +234,33 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
     }
 
 
+    public Set<String> getInputParameterNames() { return _inputParameters.keySet(); }
+
+    public Set<String> getOutputParameterNames() { return _outputParameters.keySet(); }
+
+
+    /**
+     * Returns a link to the containing specification.
+     * @return the specification containing this decomposition.
+     */
+    public YSpecification getSpecification() { return _specification; }
+
+
+    /**
+     * Gets those params that bypass the decomposition state space.
+     * @return a map of them.
+     */
+    public Map<String, YParameter> getStateSpaceBypassParams() {
+        Map<String, YParameter> result = new HashMap<String, YParameter>();
+        for (YParameter parameter : _outputParameters.values()) {
+            if (parameter.bypassesDecompositionStateSpace()) {
+                result.put(parameter.getPreferredName(), parameter);
+            }
+        }
+        return result;
+    }
+
+
     public String toString() {
         String fullClassName = getClass().getName();
         String shortClassName = fullClassName.substring(fullClassName.lastIndexOf('.') + 1);
@@ -273,7 +273,7 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
         copy._inputParameters = new HashMap<String, YParameter>();
         for (YParameter parameter : _inputParameters.values()) {
             YParameter copyParam = (YParameter) parameter.clone();
-            copy.setInputParameter(copyParam);
+            copy.addInputParameter(copyParam);
         }
         return copy;
     }
@@ -294,24 +294,20 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
      * @return a JDom Document of the output data.
      */
     public Document getOutputData() {
+
         //create a new output document to return
         Document outputDoc = new Document();
-        outputDoc.setRootElement(new Element(_data.getRootElement().getName()));
+        Element root = _data.getRootElement();
+        outputDoc.setRootElement(new Element(root.getName()));
 
         //now prepare a list of output params to iterate over.
         List<YParameter> outputParamsList = new ArrayList<YParameter>(
                                                         getOutputParameters().values());
         Collections.sort(outputParamsList);
 
-        for (Iterator iterator = outputParamsList.iterator(); iterator.hasNext();) {
-            YParameter parameter = (YParameter) iterator.next();
-            String varElementName =
-                    parameter.getName() != null ?
-                    parameter.getName() : parameter.getElementName();
-            Element root = _data.getRootElement();
-            Element child = root.getChild(varElementName);
-            Element clone = (Element) child.clone();
-            outputDoc.getRootElement().addContent(clone);
+        for (YParameter parameter : outputParamsList) {
+            Element child = root.getChild(parameter.getPreferredName());
+            outputDoc.getRootElement().addContent((Element) child.clone());
         }
         return outputDoc;
     }
@@ -352,39 +348,6 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
             addData(pmgr, initialValueXML);
         }
     }
-
-
-    public Set getInputParameterNames() { return _inputParameters.keySet(); }
-
-
-    /**
-     * Returns a link to the containing specification.
-     * @return the specification containing this decomposition.
-     */
-    public YSpecification getSpecification() { return _specification; }
-
-
-    /**
-     * Gets those params that bypass the decomposition state space.
-     * @return a map of them.
-     */
-    public Map getStateSpaceBypassParams() {
-        Map result = new HashMap();
-        Collection ps = _outputParameters.values();
-        for (Iterator iterator = ps.iterator(); iterator.hasNext();) {
-            YParameter parameter = (YParameter) iterator.next();
-            if (parameter.bypassesDecompositionStateSpace()) {
-                result.put(
-                        parameter.getName() != null ?
-                        parameter.getName() : parameter.getElementName(),
-                        parameter);
-            }
-        }
-        return result;
-    }
-
-    
-    public Set getOutputParamNames() { return _outputParameters.keySet(); }
 
 
     public String getRootDataElementName() {

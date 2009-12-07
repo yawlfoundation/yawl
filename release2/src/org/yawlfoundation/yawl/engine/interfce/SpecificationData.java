@@ -18,45 +18,41 @@ import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.net.URL;
 import java.util.*;
 
 
 /**
  *  Just some summary data about a workflow specification.
  *
- * 
  * @author Lachlan Aldred
  * Date: 8/03/2004
  * Time: 12:16:02
- * 
+ *
+ * @author Michael Adams - updated for v2.1
+ *
  */
 public class SpecificationData {
-    private String _specificationID;
+
+    private YSpecificationID _specificationID;
     private String _specificationName;
     private String _documentation;
     private String _status;
     private String _specAsXML;
-    private Map _inputParams = new HashMap();
-    private Map _dataTypes = new HashMap();
-    private String _betaFormat;
+    private Map<String, YParameter> _inputParams = new HashMap<String, YParameter>();
+    private Map<String, String> _dataTypes = new HashMap<String, String>();
+    private String _schemaVersion;
     private String _rootNetID;
     private String _schema ;
-    private String _specVersion = "0.1";
 
 
-    public SpecificationData(String specificationID, String specificationName,
-                             String documentation, String status,
-                             String version) {
-        this._specificationID = specificationID;
-        this._specificationName = specificationName;
-        this._documentation = documentation;
-        this._status = status;
-        this._betaFormat = version;
+    public SpecificationData(YSpecificationID specID, String specificationName,
+                             String documentation, String status, String version) {
+        _specificationID = specID ;
+        _documentation = documentation;
+        _specificationName = specificationName;
+        _status = status;
+        _schemaVersion = version;
     }
 
 
@@ -65,13 +61,8 @@ public class SpecificationData {
     }
 
 
-    public String getID() {
+    public YSpecificationID getID() {
         return _specificationID;
-    }
-
-
-    public YSpecificationID getSpecID() {
-        return new YSpecificationID(_specificationID, _specVersion) ;
     }
 
 
@@ -109,7 +100,7 @@ public class SpecificationData {
 
 
     public List<YParameter> getInputParams() {
-        List<YParameter> params = new ArrayList(_inputParams.values());
+        List<YParameter> params = new ArrayList<YParameter>(_inputParams.values());
         Collections.sort(params);
         return params;
     }
@@ -125,7 +116,7 @@ public class SpecificationData {
 
 
     public String getDataType(String typeName) {
-        return (String) _dataTypes.get(typeName);
+        return _dataTypes.get(typeName);
     }
 
     /**
@@ -137,7 +128,7 @@ public class SpecificationData {
         Document document = JDOMUtil.stringToDocument(_specAsXML);
         Element yawlSpecSetElement = document.getRootElement();
 
-        String ns = _betaFormat.equals("2.0") ?
+        String ns = _schemaVersion.equals("2.0") ?
                 "http://www.yawlfoundation.org/yawlschema" :
                 "http://www.citi.qut.edu.au/yawl" ;
 
@@ -150,44 +141,36 @@ public class SpecificationData {
 
             if (schemaLibraryElement != null) {
                 return JDOMUtil.elementToString(schemaLibraryElement);
-            }    
+            }
         }
         return null;
     }
 
-    public static void main(String args[]) throws Exception {
-        SpecificationData sd = new SpecificationData("specid", "specname", "doco", "ok", "");
-        StringBuffer sb = new StringBuffer();
-        URL url = SpecificationData.class.getResource("MakeRecordings.xml");
-        File f = new File(url.getFile());
-        BufferedReader br = new BufferedReader(new FileReader(f));
-        String line = null;
 
-        while ((line = br.readLine()) != null) {
-            sb.append(line);
-        }
-        sd.setSpecAsXML(sb.toString());
+    public String getSchemaVersion() {
+        return _schemaVersion;
     }
 
 
-    public String getSchemaVersion() {
-        return _betaFormat;
+    public String getSpecURI() {
+        return _specificationID.getUri();
     }
 
 
     public void setSchemaVersion(String version) {
-        this._betaFormat = version;
+        _schemaVersion = version;
     }
 
 
     public String getSpecVersion() {
-         return _specVersion;
+         return _specificationID.getVersionAsString();
      }
 
 
      public void setSpecVersion(String version) {
-         this._specVersion = version;
+         _specificationID.setVersion(version);
      }
+
 
     public String getRootNetID() {
         return this._rootNetID;
@@ -199,8 +182,8 @@ public class SpecificationData {
     }
 
     public boolean usesSimpleRootData() {
-        return YSpecification._Beta2.equals(_betaFormat) ||
-                YSpecification._Beta3.equals(_betaFormat);
+        return YSpecification.Beta2.equals(_schemaVersion) ||
+               YSpecification.Beta3.equals(_schemaVersion);
     }
 
 }
