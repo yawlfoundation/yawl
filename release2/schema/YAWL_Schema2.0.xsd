@@ -965,7 +965,7 @@
 			<xs:element name="country" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
-	<!-- #### TYPE ####  ImportType for importing Schmeas from other documents -->
+	<!-- #### TYPE ####  ImportType for importing Schemas from other documents -->
 	<xs:complexType name="ImportType">
 		<xs:attribute name="namespace" type="xs:anyURI"/>
 		<xs:attribute name="location" type="xs:anyURI"/>

@@ -30,6 +30,7 @@
         </component>
                 
         <property name="_containingTaskID" column="containing_task_id" access="field"/>
+        <property name="_startTime" column="startTime" access="field"/>
         <property name="_caseObserverStr" column="caseObserver"/>
         <property name="_exceptionObserverStr" column="exceptionObserver"/>
 

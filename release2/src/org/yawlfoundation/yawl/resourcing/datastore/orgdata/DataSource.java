@@ -27,30 +27,12 @@ public abstract class DataSource {
     public String getName() { return _name ; }
 
 
-    // a structure for passing the entire org data set to the ResourceManager.
-    // Each member is a map in the format [object's id, object]
-//    public class ResourceDataSet {
-//        public HashMap<String,Participant> participantMap ;
-//        public HashMap<String,Role> roleMap ;
-//        public HashMap<String,Capability> capabilityMap;
-//        public HashMap<String,Position> positionMap;
-//        public HashMap<String,OrgGroup> orgGroupMap;
-//
-//        public ResourceDataSet() {
-//            participantMap = new HashMap<String,Participant>();
-//            roleMap = new HashMap<String,Role>();
-//            capabilityMap = new HashMap<String,Capability>();
-//            positionMap = new HashMap<String,Position>();
-//            orgGroupMap = new HashMap<String,OrgGroup>();
-//        }
-//    }
-
     /**
      * A default unique ID generator. Must be called from each table's 'insert' method
      * to create a new primary key for the row to be inserted. May be overridden by
      * implementations that use a different unique key format (or ignored in favour
      * of some other method that returns a unique ID).
-     * @param prefix some characters to place at the start of the id
+     * @param prefix some (optional) characters to place at the start of the id
      * @return a unique String identitifer
      */
     protected String getNextID(String prefix) {

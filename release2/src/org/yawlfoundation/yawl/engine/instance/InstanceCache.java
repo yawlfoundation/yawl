@@ -41,10 +41,9 @@ public class InstanceCache extends Hashtable<String, CaseInstance> {
 
 
     public void addCase(String caseID, YSpecificationID specID,
-                        String caseParams, YLogDataItemList logData) {
+                        String caseParams, YLogDataItemList logData, long startTime) {
         if (caseID != null) {
-            this.put(caseID,
-                 new CaseInstance(caseID, specID, caseParams, logData));
+            this.put(caseID, new CaseInstance(caseID, specID, caseParams, logData, startTime));
         }
     }
 
@@ -77,7 +76,6 @@ public class InstanceCache extends Hashtable<String, CaseInstance> {
         if (instance != null) {
             instance.addWorkItemInstance(item);
         }
-        
     }
 
 
@@ -87,7 +85,15 @@ public class InstanceCache extends Hashtable<String, CaseInstance> {
             WorkItemInstance workitem = instance.getWorkItemInstance(item.getIDString());
             if (workitem != null) workitem.close();
         }
+    }
 
+
+    public void setTimerExpired(YWorkItem item) {
+        CaseInstance instance = getCase(getRootCaseID(item));
+        if (instance != null) {
+            WorkItemInstance workitem = instance.getWorkItemInstance(item.getIDString());
+            workitem.setTimerExpired();
+        }
     }
 
 
@@ -116,7 +122,7 @@ public class InstanceCache extends Hashtable<String, CaseInstance> {
     public void addParameter(YIdentifier identifier, YParameter parameter,
                              String predicate, Element data) {
 
-        // workitem will always have at lease 2 conditions
+        // workitem will always have at least 2 conditions
         YInternalCondition condition = (YInternalCondition) identifier.getLocations().get(0);
         String itemID = identifier.get_idString() + ":" + condition._myTask.getID();
         WorkItemInstance workitem = getWorkItemInstance(identifier.get_idString(),

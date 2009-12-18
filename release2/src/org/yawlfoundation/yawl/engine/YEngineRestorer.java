@@ -427,11 +427,6 @@ public class YEngineRestorer {
                 }
                 else {
                     task = (YTask) net.getNetElement(splitname[1]);
-
-                    // Check if we need to find the parent task and post conditions against it
-                    if (task == null) {
-                        task = (YTask) runner.getNet().getNetElement(splitname[1]);
-                    }
                 }
 
                 postTaskCondition(task, net, splitname[0], id) ;

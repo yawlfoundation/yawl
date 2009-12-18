@@ -25,6 +25,7 @@ import org.yawlfoundation.yawl.elements.state.YInternalCondition;
 import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.engine.YWorkItemRepository;
+import org.yawlfoundation.yawl.engine.instance.InstanceCache;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.*;
@@ -932,8 +933,8 @@ public abstract class YTask extends YExternalNetElement {
         if (null == getDecompositionPrototype())  return;
 
         Element dataForChildCase = produceDataRootElement();
-//        InstanceCache instanceCache = YEngine.getInstance().getInstanceCache();
-//
+        InstanceCache instanceCache = YEngine.getInstance().getInstanceCache();
+
         List<YParameter> inputParams =
                 new ArrayList<YParameter>(_decompositionPrototype.getInputParameters().values());
         Collections.sort(inputParams);
@@ -954,8 +955,8 @@ public abstract class YTask extends YExternalNetElement {
                         specificMIData.setAttributes(parameter.getAttributes().toJDOM());
                     }
                     dataForChildCase.addContent(specificMIData);
-//                    instanceCache.addParameter(childInstanceID, parameter,
-//                                           expression, specificMIData);
+                    instanceCache.addParameter(childInstanceID, parameter,
+                                               expression, specificMIData);
                }
             }
             else {
@@ -971,8 +972,8 @@ public abstract class YTask extends YExternalNetElement {
                     result.setAttributes(parameter.getAttributes().toJDOM());
                 }
                 dataForChildCase.addContent((Element) result.clone());
-//                instanceCache.addParameter(childInstanceID, parameter,
-//                                           expression, (Element) result.clone());
+                instanceCache.addParameter(childInstanceID, parameter,
+                                           expression, (Element) result.clone());
           }
         }
 

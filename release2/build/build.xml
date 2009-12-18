@@ -489,10 +489,6 @@
             <fileset dir="${classes.dir}${packageRoot}/exceptions"
                      includes="*.class *.hbm.xml"/>
         </copy>
-        <copy todir="${yawl.eng.app.name}${webinf.dir}/jspLibrary">
-            <fileset dir="${classes.dir}${packageRoot}/jspLibrary"
-                     includes="*.jsp"/>
-        </copy>
         <copy todir="${yawl.eng.app.name}${webinf.dir}/logging">
             <fileset dir="${classes.dir}${packageRoot}/logging"
                      includes="*.class *.hbm.xml"/>
@@ -503,10 +499,6 @@
         </copy>
         <copy todir="${yawl.eng.app.name}${webinf.dir}/schema">
             <fileset dir="${classes.dir}${packageRoot}/schema"
-                     includes="*.class"/>
-        </copy>
-        <copy todir="${yawl.eng.app.name}${webinf.dir}/servicePersistence">
-            <fileset dir="${classes.dir}${packageRoot}/servicePersistence"
                      includes="*.class"/>
         </copy>
         <copy todir="${yawl.eng.app.name}${webinf.dir}/unmarshal">
@@ -1026,7 +1018,7 @@
         </copy>
         <copy todir="${yawl.monitor.app.name}${webinf.dir}/elements">
             <fileset dir="${classes.dir}${packageRoot}/elements"
-                     includes="YSpecVersion.class"/>
+                     includes="*.class"/>
         </copy>
         <copy todir="${yawl.monitor.app.name}${webinf.dir}/elements/data">
             <fileset dir="${classes.dir}${packageRoot}/elements/data"
@@ -1042,9 +1034,14 @@
             <fileset dir="${classes.dir}${packageRoot}/elements/state"
                      includes="YIdentifier.class"/>
         </copy>
+        <copy todir="${yawl.monitor.app.name}${webinf.dir}/logging">
+              <fileset dir="${classes.dir}${packageRoot}/logging"
+                       includes="YLogDataItem.class YLogDataItemList.class"/>
+        </copy>
         <copy todir="${yawl.monitor.app.name}${webinf.dir}/util">
               <fileset dir="${classes.dir}${packageRoot}/util"
-                       includes="JDOMUtil.class StringUtil.class CharsetFilter.class"/>
+                       includes="JDOMUtil.class StringUtil.class CharsetFilter.class
+                                 PasswordEncryptor.class"/>
         </copy>
         <copy todir="${yawl.monitor.app.name}${webinf.dir}/engine/interfce">
               <fileset dir="${classes.dir}${packageRoot}/engine/interfce"
@@ -1056,7 +1053,8 @@
         <copy todir="${yawl.monitor.app.name}${webinf.dir}/resourcing/jsf">
               <fileset dir="${classes.dir}${packageRoot}/resourcing/jsf"
                        includes="SessionListener.class SessionTimeoutFilter.class
-                                 CachePhaseListener.class MessagePanel*.class"/>
+                                 CachePhaseListener.class MessagePanel*.class
+                                 FontUtil.class"/>
         </copy>
 
         <!-- 2. copy resourcing classes to relevant dirs -->

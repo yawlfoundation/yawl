@@ -1,7 +1,7 @@
 
 .loginPanel {
     padding: 6px;
-    background-color: #98ccfe;
+    background-color: #dce8cf;
     height: 120px;
     width: 240px;
     top: 50px;
@@ -12,6 +12,13 @@
 .casesContainerPanel {
     height: 580px;
     width: 602px;
+    top: 50px;
+    position:relative;
+}
+
+.itemsContainerPanel {
+    height: 580px;
+    width: 920px;
     top: 50px;
     position:relative;
 }
@@ -48,14 +55,16 @@
 
 .tablePnlGroup {
     position: absolute;
-    left: 12px;
-    top: 40px;
-    height: 170px;
-    width: 567px;
-    /*overflow-x: hidden;*/
-    /*overflow-y: scroll;*/
-    background-color: #f0f0f0;
-    border: 2px solid gray;
+    left: 15px;
+    top: 50px;
+    width: 570px;
+}
+
+.itemsTablePnlGroup {
+    position: absolute;
+    left: 0;
+    top: 50px;
+    width: 920px;
 }
 
 .dataTable {
@@ -63,6 +72,7 @@
     top: 0px! important
     /*height: 152px;*/
     position: absolute;    
+    border: 2px solid gray;
 }
 
 .dataTable tbody {
@@ -96,30 +106,77 @@
   background-color: #e6f0fd;
 }
 
+.dataTableText {
+    font-size: 14px;
+}
+
+.dataTableItemText {
+    font-size: 13px;
+    display: block;
+}
+
+/************************************/
 
 .caseIDCol {
-    width: 80px;
+    width: 15%;
+    text-align: center;
 }
 
 .specNameCol {
-    width: 200px;
+    width: 40%;
 }
 
 .versionCol {
-    width: 60px;
-}
-
-.startedByCol {
-    width: 150px;
+    width: 15%;
+    text-align: center;
 }
 
 .startTimeCol {
-    width: 200px;
+    width: 30%;
+    text-align: right;
 }
 
 .ageCol {
     width: 200px;
 }
+
+/***************************************/
+
+.itemIDCol {
+    width: 75px;
+    text-align: center;
+}
+
+.taskIDCol {
+    width: 180px;
+    text-align: center;
+}
+
+.statusCol {
+    width: 90px;
+    text-align: center;
+}
+
+.serviceCol {
+    width: 120px;
+    text-align: center;
+}
+
+.timeCol {
+    width: 95px;
+    text-align: right;
+}
+
+.timerStatusCol {
+    width: 70px;
+    text-align: center;
+}
+
+.timerExpiryCol {
+    width: 100px;
+    text-align: right;
+}
+
 
 
 /* General Rules used by several pages */
@@ -151,10 +208,28 @@
 }
 
 
-.refreshCasesButton {
+.refreshButton {
   /*  border: 1px solid; */
     left: 577px;
-    top: 2px;
+    top: 5px;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+}
+
+.logoutButton {
+  /*  border: 1px solid; */
+    left: 547px;
+    top: 5px;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+}
+
+.backButton {
+  /*  border: 1px solid; */
+    left: 5px;
+    top: 5px;
     width: 20px;
     height: 20px;
     position: absolute;
@@ -162,11 +237,27 @@
 
 
 
+
 .casesPanel {
    border: 2px solid gray;
-   background-color: #d4e5f6;
+   background-color: #dce8cf;
    position: absolute;
    width: 600px;
+   height: 40px;
+}
+
+.headerButton {
+    font-size: larger;
+    font-weight: bold;
+    position: absolute;
+    height: 25px;
+}
+
+.itemHeaderButton {
+    font-size: 13px;
+    font-weight: bold;
+    position: absolute;
+    height: 25px;
 }
 
 

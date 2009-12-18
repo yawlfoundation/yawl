@@ -39,13 +39,13 @@ public class CaseInstance {
     }
 
     public CaseInstance(String caseID, YSpecificationID specID,
-                        String caseParams, YLogDataItemList logData) {
+                        String caseParams, YLogDataItemList logData, long startTime) {
         this();
         this.caseID = caseID;
         this.specID = specID;
         this.caseParams = caseParams;
         this.logData = logData;
-        this.startTime = System.currentTimeMillis();
+        setStartTime(startTime);
     }
 
     public CaseInstance(String xml) {
@@ -85,6 +85,7 @@ public class CaseInstance {
 
     public long getStartTime() { return startTime; }
 
+
     public String getStartTimeAsDateString() {
         String result = null;
         if (startTime > 0) {
@@ -121,7 +122,10 @@ public class CaseInstance {
     }
 
 
-    public void setStartTime(long time) { startTime = time; }
+    public void setStartTime(long time) {
+        if (time <= 0) time = System.currentTimeMillis();
+        startTime = time;
+    }
 
 
     public Map<String, WorkItemInstance> getWorkitemMap() {
@@ -162,6 +166,7 @@ public class CaseInstance {
     public String toXML() {
         StringBuilder xml = new StringBuilder("<caseInstance>");
         xml.append(StringUtil.wrap(caseID, "caseid"));
+        xml.append(StringUtil.wrapEscaped(caseParams, "caseparams"));
         xml.append(StringUtil.wrap(specID.getIdentifier(), "specidentifier"));
         xml.append(StringUtil.wrap(specID.getVersionAsString(), "specversion"));
         xml.append(StringUtil.wrap(specID.getUri(), "specuri"));
@@ -181,6 +186,8 @@ public class CaseInstance {
             caseID = instance.getChildText("caseid");
             String startStr = instance.getChildText("starttime");
             if (startStr != null) startTime = new Long(startStr);
+            String params = instance.getChildText("caseparams");
+            if (params != null) caseParams = JDOMUtil.decodeEscapes(params);
             String specIdentifier = instance.getChildText("specidentifier");
             String specVersion = instance.getChildText("specversion");
             String specURI = instance.getChildText("specuri");
