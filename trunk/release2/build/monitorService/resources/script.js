@@ -43,6 +43,9 @@ function highlightAndSelectRow(tr) {
 
             // add row index to hidden field 
             document.getElementById('form1:hdnRowIndex').value = trs[i].rowIndex;
+
+            // trigger selection
+            document.getElementById('form1:btnDetails').click();
         }
         else trs[i].bgColor = getBgColorForRow(i);
     }

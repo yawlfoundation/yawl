@@ -35,7 +35,7 @@ public class ParameterInstance {
     public ParameterInstance() {}
 
     public ParameterInstance(YParameter param, String predicate, Element data) {
-        name =  param.getName() != null ? param.getName() : param.getElementName();
+        name =  param.getPreferredName();
         dataType = param.getDataTypeName();
         setUsage(param.getParamType());
         inputPredicate = predicate;

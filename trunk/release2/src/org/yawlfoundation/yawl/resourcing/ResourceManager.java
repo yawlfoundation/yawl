@@ -212,7 +212,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                     _interfaceAClient.getRegisteredYAWLServices(getEngineSessionHandle()) ;
             if (services != null) {
                 for (YAWLServiceReference service : services) {
-                    if (service.getURI().indexOf("resourceService") > -1) {
+                    if (service.getURI().contains("resourceService")) {
                         _serviceURI = service.getURI();
                     }
                 }

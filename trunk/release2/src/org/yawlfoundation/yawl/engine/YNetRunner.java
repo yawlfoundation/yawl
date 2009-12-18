@@ -56,6 +56,7 @@ public class YNetRunner {
     private YCaseData _casedata = null;
     private YAWLServiceReference _caseObserver;
     private InterfaceX_EngineSideClient _exceptionObserver;
+    private long _startTime;
 
     // these members are used to persist observers
     private String _caseObserverStr = null ;
@@ -122,6 +123,7 @@ public class YNetRunner {
         _net.initializeDataStore(pmgr, _casedata);
         _specID = _net.getSpecification().getSpecificationID();
         _engine = YEngine.getInstance();
+        _startTime = System.currentTimeMillis();
         prepare(pmgr);
         if (incomingData != null) _net.setIncomingData(pmgr, incomingData);
     }
@@ -219,10 +221,14 @@ public class YNetRunner {
     public Set<String> getBusyTaskNames() {
         return _busyTaskNames;
     }
+
+
+    public long getStartTime() { return _startTime; }
+
+    public void setStartTime(long time) { _startTime = time ; }
+
+    
     /************************************************/
-
-
-
 
 
     public void start(YPersistenceManager pmgr)

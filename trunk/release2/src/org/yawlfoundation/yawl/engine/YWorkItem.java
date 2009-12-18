@@ -43,7 +43,7 @@ import java.util.*;
  * Date: 28/05/2003
  * Time: 15:29:33
  *
- * Refactored for v2.0 by Michael Adams 11/10/2007
+ * Refactored for v2.0 by Michael Adams 10/2007 - 12/2009
  * 
  */
 public class YWorkItem {
@@ -734,6 +734,12 @@ public class YWorkItem {
     public long getTimerExpiry() { return _timerExpiry; }
 
     public void setTimerExpiry(long time) { _timerExpiry = time; }
+
+    public String getTimerStatus() {
+        if (_timerParameters == null) return "Nil";
+        if (_timerExpiry == 0) return "Dormant";
+        return "Active";
+    }
 
     public boolean allowsDynamicCreation() { return _allowsDynamicCreation; }
 

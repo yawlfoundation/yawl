@@ -17,6 +17,7 @@ import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Hashtable;
@@ -30,6 +31,7 @@ public class WorkItemInstance {
 
     private YWorkItem workItem;
     private String taskID;
+    private String caseID;
     private String id;
     private String status;
     private String resourceName;
@@ -38,9 +40,11 @@ public class WorkItemInstance {
     private long startTime;
     private long completionTime;
     private long timerExpiry;
+    private SimpleDateFormat dateFormatter;
     private Map<String, ParameterInstance> parameters ;
 
     public WorkItemInstance() {
+        dateFormatter = new SimpleDateFormat("yyyy-MM-dd H:mm:ss");
         parameters = new Hashtable<String, ParameterInstance>();
     }
 
@@ -61,26 +65,27 @@ public class WorkItemInstance {
     }
 
 
-
-
     public void close() {
         taskID = getTaskID();
         id = getID();
+        caseID = getCaseID();
         status = getStatus();
         resourceName = getResourceName();
-        timerStatus = null;         // todo
+        timerStatus = (getTimerStatus().equals("Nil")) ? "Nil" : "Closed";
         enabledTime = getEnabledTime();
         startTime = getStartTime();
         timerExpiry = getTimerExpiry();
         if (workItem.hasCompletedStatus()) completionTime = System.currentTimeMillis();
-        workItem = null;
+        workItem = null;                             // deliberately drop the reference
     }
+
 
     public String getTaskID() {
         if (workItem != null) return workItem.getTaskID();
         return taskID;
     }
 
+    
     public void setTaskID(String s) { taskID = s; }
 
 
@@ -91,10 +96,19 @@ public class WorkItemInstance {
 
     public void setID(String s) { id = s; }
 
+    public String getCaseID() {
+        if (workItem != null) return workItem.getCaseID().toString();
+        return caseID;
+    }
+
 
     public String getStatus() {
         if (workItem != null) return workItem.getStatus().name();
         return status;
+    }
+
+    public String getPlainStatus() {
+        return getStatus().replaceFirst("status", "");
     }
 
     public void setStatus(String s) { status = s; }
@@ -112,8 +126,12 @@ public class WorkItemInstance {
 
 
     public String getTimerStatus() {
- //       if (workItem != null) return workItem.getTimerStatus();
+        if (workItem != null) return workItem.getTimerStatus();
         return timerStatus;
+    }
+
+    public void setTimerExpired() {
+        timerStatus = "Expired";
     }
 
     public void setTimerStatus(String s) { timerStatus = s; }
@@ -124,6 +142,11 @@ public class WorkItemInstance {
         return enabledTime;
     }
 
+    public String getEnabledTimeAsDateString() {
+        if (getEnabledTime() == 0) return "";
+        return dateFormatter.format(getEnabledTime());
+    }
+
     public void setEnabledTime(long time) { enabledTime = time; }
 
 
@@ -132,20 +155,56 @@ public class WorkItemInstance {
         return startTime;
     }
 
+    public String getStartTimeAsDateString() {
+        if (getStartTime() == 0) return "";
+        return dateFormatter.format(getStartTime());
+    }
+
     public void setStartTime(long time) { startTime = time; }
 
 
     public long getCompletionTime() { return completionTime; }
+
+    public String getCompletionTimeAsDateString() {
+        if (getCompletionTime() == 0) return "";
+        return dateFormatter.format(getCompletionTime());
+    }
 
     public void setCompletionTime(long time) { completionTime = time; }
 
 
     public long getTimerExpiry() {
         if (workItem != null) return workItem.getTimerExpiry();
-        return timerExpiry;
+        return 0;
     }
 
     public void setTimerExpiry(long expiry) { timerExpiry = expiry; }
+
+    public String getTimerExpiryAsCountdown() {
+        if (getTimerExpiry() == 0) return "";
+        return formatAge(System.currentTimeMillis() - getTimerExpiry());
+    }
+
+        /**
+     * formats a long time value into a string of the form 'ddd:hh:mm:ss'
+     * @param age the time value (in milliseconds)
+     * @return the formatted time string
+     */
+    public String formatAge(long age) {
+        long secsPerHour = 60 * 60 ;
+        long secsPerDay = 24 * secsPerHour ;
+        age = age / 1000 ;                             // ignore the milliseconds
+
+        long days = age / secsPerDay ;
+        age %= secsPerDay ;
+        long hours = age / secsPerHour ;
+        age %= secsPerHour ;
+        long mins = age / 60 ;
+        age %= 60 ;                                    // seconds leftover
+        return String.format("%d:%02d:%02d:%02d", days, hours, mins, age) ;
+    }
+
+
 
 
     public Map<String, ParameterInstance> getParameterMap() {
@@ -209,6 +268,7 @@ public class WorkItemInstance {
         StringBuilder xml = new StringBuilder("<workitemInstance>");
         xml.append(StringUtil.wrap(getID(), "id"));
         xml.append(StringUtil.wrap(getTaskID(), "taskid"));
+        xml.append(StringUtil.wrap(getCaseID(), "caseid"));
         xml.append(StringUtil.wrap(getStatus(), "status"));
         xml.append(StringUtil.wrap(getResourceName(), "resource"));
         xml.append(StringUtil.wrap(getTimerStatus(), "timerStatus"));
@@ -228,6 +288,7 @@ public class WorkItemInstance {
         if (instance != null) {
             id = instance.getChildText("id");
             taskID = instance.getChildText("taskid");
+            caseID = instance.getChildText("caseid");
             status = instance.getChildText("status");
             resourceName = instance.getChildText("resource");
             timerStatus = instance.getChildText("timerStatus");

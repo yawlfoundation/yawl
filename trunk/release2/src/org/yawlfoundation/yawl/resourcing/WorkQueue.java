@@ -61,13 +61,9 @@ public class WorkQueue implements Serializable {
     public WorkQueue() {}
 
     public WorkQueue(String ownerID, int qType, boolean persisting) {
-        if (ownerID != null)
-            _ownerID = ownerID ;
-        else
-            _ownerID = "admin";
-
-        _persisting = persisting ;
+        _ownerID = ownerID != null ? ownerID : "admin";
         _queueType = qType ;
+        _persisting = persisting ;
         if (_persisting) Persister.getInstance().insert(this);
     }
 
@@ -314,10 +310,8 @@ public class WorkQueue implements Serializable {
             _ownerID = element.getChildText("ownerid");
             Element items = element.getChild("workitems");
             if (items != null) {
-               Iterator itr = items.getChildren().iterator();
-                while (itr.hasNext()) {
-                    Element item = (Element) itr.next();
-                    WorkItemRecord wir = Marshaller.unmarshalWorkItem(item) ;
+                for (Object o : items.getChildren()) {
+                    WorkItemRecord wir = Marshaller.unmarshalWorkItem((Element) o) ;
                     _workitems.put(wir.getID(), wir);
                 }
             }

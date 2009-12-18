@@ -12,6 +12,10 @@ import com.sun.rave.web.ui.appbase.AbstractSessionBean;
 import com.sun.rave.web.ui.component.Button;
 import com.sun.rave.web.ui.component.Script;
 import org.yawlfoundation.yawl.engine.instance.CaseInstance;
+import org.yawlfoundation.yawl.engine.instance.WorkItemInstance;
+import org.yawlfoundation.yawl.monitor.sort.CaseOrder;
+import org.yawlfoundation.yawl.monitor.sort.ItemOrder;
+import org.yawlfoundation.yawl.monitor.sort.TableSorter;
 import org.yawlfoundation.yawl.resourcing.jsf.MessagePanel;
 
 import javax.faces.FacesException;
@@ -21,7 +25,6 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -104,6 +107,20 @@ public class SessionBean extends AbstractSessionBean {
     public void setBtnRefresh(Button btn) { btnRefresh = btn; }
 
 
+    private Button btnLogout = new Button();
+
+    public Button getBtnLogout() { return btnLogout; }
+
+    public void setBtnLogout(Button btn) { btnLogout = btn; }
+
+
+    private Button btnBack = new Button();
+
+    public Button getBtnBack() { return btnBack; }
+
+    public void setBtnBack(Button btn) { btnBack = btn; }
+
+
     /******************************************************************************/
 
     // MEMBERS, GETTERS & SETTERS //
@@ -120,16 +137,6 @@ public class SessionBean extends AbstractSessionBean {
     public String getSessionhandle() { return sessionhandle; }
 
     public void setSessionhandle(String handle) { sessionhandle = handle; }
-
-
-//    private Participant participant ;              // logged on participant
-//
-//    public Participant getParticipant() { return participant ; }
-//
-//    public void setParticipant(Participant p) {
-//        participant = p ;
-//
-//    }
 
 
     private String userFullName ;                  // full name of current user
@@ -205,7 +212,6 @@ public class SessionBean extends AbstractSessionBean {
 
     // logs out of session //
     public void doLogout() {
-//        _rm.logout(sessionhandle) ;
         getApplicationBean().removeLiveUser(userid);
 
         FacesContext context = FacesContext.getCurrentInstance();
@@ -274,11 +280,14 @@ public class SessionBean extends AbstractSessionBean {
         this.messagePanel = messagePanel;
     }
 
+    private TableSorter _sorter = new TableSorter();
 
-    private List<CaseInstance> activeCases = new ArrayList<CaseInstance>();
+
+    /*** ACTIVE CASES ***/
+
+    private List<CaseInstance> activeCases = initActiveCases();
 
     public List<CaseInstance> getActiveCases() {
-        refreshActiveCases();
         return activeCases;
     }
 
@@ -286,13 +295,85 @@ public class SessionBean extends AbstractSessionBean {
         activeCases = caseList;
     }
 
-    public void refreshActiveCases() {
+    public List<CaseInstance> refreshActiveCases(boolean sortPending) {
         try {
             activeCases = getApplicationBean().getMonitorClient().getCases();
+            if (! sortPending) activeCases = _sorter.applyCaseOrder(activeCases);
         }
         catch (IOException ioe) {
             activeCases = null;
         }
+        return activeCases;
     }
+
+
+    public void sortActiveCases(TableSorter.CaseColumn column) {
+        refreshActiveCases(true);
+        activeCases = _sorter.sort(activeCases, column);
+    }
+
+
+    public CaseOrder getCurrentCaseOrder() {
+        return _sorter.getCaseOrder();
+    }
+
+
+    private List<CaseInstance> initActiveCases() {
+        refreshActiveCases(true);
+        return _sorter.sort(activeCases, TableSorter.CaseColumn.Case);
+    }
+
+
+    /*** ITEMS FOR CASE ***/
+
+    private CaseInstance selectedCase ;
+
+    public CaseInstance getSelectedCase() { return selectedCase; }
+
+    public void setSelectedCase(CaseInstance caseInstance) {
+        selectedCase = caseInstance;
+        if (getCurrentItemOrder().getColumn() == TableSorter.ItemColumn.Undefined) {
+            sortCaseItems(TableSorter.ItemColumn.ItemID);
+        }
+        else {
+            refreshCaseItems(caseInstance.getCaseID(), false);
+        }    
+    }
+
+    public void setCaseSelection(int index) {
+        setSelectedCase(activeCases.get(index));
+    }
+
+    private List<WorkItemInstance> caseItems;
+
+    public List<WorkItemInstance> getCaseItems() { return caseItems; }
+
+    public void setCaseItems(List<WorkItemInstance> items) { caseItems = items; }
+
+    public List<WorkItemInstance> refreshCaseItems(boolean sortPending) {
+        return refreshCaseItems(selectedCase.getCaseID(), sortPending);
+    }
+
+    public List<WorkItemInstance> refreshCaseItems(String caseID, boolean sortPending) {
+        try {
+            caseItems = getApplicationBean().getMonitorClient().getWorkItems(caseID);
+            if (! sortPending) caseItems = _sorter.applyItemOrder(caseItems);
+        }
+        catch (IOException ioe) {
+            caseItems = null;
+        }
+        return caseItems;
+    }
+
+    public void sortCaseItems(TableSorter.ItemColumn column) {
+        refreshCaseItems(selectedCase.getCaseID(), true);
+        caseItems = _sorter.sort(caseItems, column);
+    }
+
+
+    public ItemOrder getCurrentItemOrder() {
+        return _sorter.getItemOrder();
+    }
+
 
 }

@@ -8,6 +8,7 @@
 
 package org.yawlfoundation.yawl.engine;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
@@ -205,12 +206,21 @@ public class YEngine implements InterfaceADesign,
     }
 
 
+    public void showInfoMsg(String msg) {
+        Level oldLevel = _logger.getLevel();
+        _logger.setLevel(Level.INFO);
+        _logger.info(msg);
+        _logger.setLevel(oldLevel);
+    }
+
+
     /**
      * Restores persisted data when the engine restarts.
      * @throws YPersistenceException when there's a problem with the restore process
      */
     private void restore() throws YPersistenceException {
         _logger.debug("--> restore");
+        showInfoMsg("Restoring persisted cases...");
         _restoring = true;
 
         YPersistenceManager pmgr = new YPersistenceManager(getPMSessionFactory());
@@ -240,7 +250,7 @@ public class YEngine implements InterfaceADesign,
 
             // log result
             if (_logger.isDebugEnabled()) dump();
-            _logger.info("Restore completed OK");
+            showInfoMsg("Restore completed.");
         }
         catch (YPersistenceException e) {
             _logger.fatal("Failure to restart engine from persistence image", e);
@@ -310,9 +320,10 @@ public class YEngine implements InterfaceADesign,
             runner.restoreprepare();
             _caseIDToNetRunnerMap.put(runner.getCaseID(), runner);
             _runningCaseIDToSpecMap.put(runner.getCaseID(), specification);
-            instanceCache.addCase(runner.getCaseID().getId(),
+            instanceCache.addCase(runner.getCaseID().toString(),
                                   specification.getSpecificationID(),
-                                  runner.getCasedata().getData(), null);
+                                  runner.getCasedata().getData(), null,
+                                  runner.getStartTime());
 
             // announce the add
             if (_interfaceBClient != null) {
@@ -488,7 +499,8 @@ public class YEngine implements InterfaceADesign,
             _yawllog.logCaseCreated(specID, runnerCaseID, logData, serviceRef);
 
             // cache instance
-            instanceCache.addCase(runnerCaseID.toString(), specID, caseParams, logData);
+            instanceCache.addCase(runnerCaseID.toString(), specID, caseParams,
+                                  logData, runner.getStartTime());
 
             runner.continueIfPossible(pmgr);
             runner.start(pmgr);
@@ -501,7 +513,8 @@ public class YEngine implements InterfaceADesign,
             }
 
             return runnerCaseID;
-        } else {
+        }
+        else {
             throw new YStateException(
                     "No specification found with ID [" + specID + "]");
         }
@@ -2571,7 +2584,8 @@ public class YEngine implements InterfaceADesign,
 
         if (_exceptionObserver != null) {
             _exceptionObserver.announceTimeOut(item, null);
-        }    
+        }
+        instanceCache.setTimerExpired(item);
     }
 
     /** updates the workitem with the data passed after completion of an exception handler */
