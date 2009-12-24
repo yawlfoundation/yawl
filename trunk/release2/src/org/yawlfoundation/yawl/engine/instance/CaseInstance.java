@@ -24,7 +24,7 @@ import java.util.Map;
  * Author: Michael Adams
  * Creation Date: 11/11/2008
  */
-public class CaseInstance {
+public class CaseInstance implements YInstance {
 
     private String caseID;
     private YSpecificationID specID;

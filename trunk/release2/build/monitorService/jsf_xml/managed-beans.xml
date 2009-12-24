@@ -27,4 +27,9 @@
         <managed-bean-class>org.yawlfoundation.yawl.monitor.jsf.CaseItems</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>
+    <managed-bean>
+        <managed-bean-name>ItemParams</managed-bean-name>
+        <managed-bean-class>org.yawlfoundation.yawl.monitor.jsf.ItemParams</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
 </faces-config>

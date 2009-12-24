@@ -47,7 +47,7 @@
                                         id="btnRefresh"
                                         imageURL="/resources/refresh.png"
                                         styleClass="refreshButton"
-                                        toolTip="Refresh Active Cases"
+                                        toolTip="Refresh Work Items"
                                         text=""/>
 
                              <ui:button binding="#{SessionBean.btnLogout}"

@@ -43,41 +43,30 @@
                                            text="Active Cases"/>
 
 
+                            <ui:button binding="#{SessionBean.btnRefresh}"
+                                        action="#{ActiveCases.btnRefresh_action}"
+                                        id="btnRefresh"
+                                        imageURL="/resources/refresh.png"
+                                        styleClass="refreshButton"
+                                        toolTip="Refresh Active Cases"
+                                        text=""/>
+
+                             <ui:button binding="#{SessionBean.btnLogout}"
+                                        action="#{ActiveCases.btnLogout_action}"
+                                        id="btnLogout"
+                                        imageURL="/resources/logout.png"
+                                        styleClass="logoutButton"
+                                        toolTip="Logout"
+                                        text=""/>
+
+                         </ui:panelLayout>
+
                             <ui:panelGroup binding="#{ActiveCases.pnlGroup}"
                                             id="pnlGroup"
                                             style="position: absolute"
                                             styleClass="tablePnlGroup">
 
-                                <ui:button binding="#{ActiveCases.btnCaseHeader}"
-                                           action="#{ActiveCases.btnCaseHeader_action}"
-                                           id="btnCaseHeader"
-                                           styleClass="headerButton"
-                                           style="left: 0; width: 87px;"
-                                           text="#{ActiveCases.btnCaseHeaderText}"/>
-                                
-                                <ui:button binding="#{ActiveCases.btnSpecNameHeader}"
-                                           action="#{ActiveCases.btnSpecNameHeader_action}"
-                                           id="btnSpecNameHeader"
-                                           styleClass="headerButton"
-                                           style="left: 87px; width: 225px;"
-                                           text="#{ActiveCases.btnSpecNameHeaderText}"/>
-
-                                <ui:button binding="#{ActiveCases.btnSpecVersionHeader}"
-                                           action="#{ActiveCases.btnSpecVersionHeader_action}"
-                                           id="btnSpecVersionHeader"
-                                           styleClass="headerButton"
-                                           style="left: 312px; width: 85px;"
-                                           text="#{ActiveCases.btnSpecVersionHeaderText}"/>
-
-                                <ui:button binding="#{ActiveCases.btnStartTimeHeader}"
-                                           action="#{ActiveCases.btnStartTimeHeader_action}"
-                                           id="btnStartTimeHeader"
-                                           styleClass="headerButton"
-                                           style="left: 397px; width: 171px;"
-                                           text="#{ActiveCases.btnStartTimeHeaderText}"/>
-
-
-                            <h:dataTable binding="#{ActiveCases.dataTable}"
+                             <h:dataTable binding="#{ActiveCases.dataTable}"
                                          headerClass="dataTableHeader"
                                          id="dataTable1"
                                          cellpadding="3"
@@ -93,7 +82,8 @@
                                 <h:column binding="#{ActiveCases.colCaseID}"
                                           id="colCaseID">
                                            <f:facet name="header" >
-                                              <h:outputText value="Case"/>
+                                               <h:commandLink value="#{ActiveCases.caseIDHeaderText}"
+                                                       action="#{ActiveCases.caseIDHeaderClick}"/>
                                            </f:facet>
                                     <h:outputText binding="#{ActiveCases.colCaseIDRows}"
                                                   id="colCaseIDRows"
@@ -104,7 +94,8 @@
                                 <h:column binding="#{ActiveCases.colSpecName}"
                                           id="colSpecName">
                                     <f:facet name="header" >
-                                       <h:outputText value="Spec Name"/>
+                                        <h:commandLink value="#{ActiveCases.specNameHeaderText}"
+                                                action="#{ActiveCases.specNameHeaderClick}"/>
                                     </f:facet>
                                     <h:outputText binding="#{ActiveCases.colSpecNameRows}"
                                                   id="colSpecNameRows"
@@ -115,7 +106,8 @@
                                 <h:column binding="#{ActiveCases.colVersion}"
                                           id="colVersion">
                                     <f:facet name="header" >
-                                       <h:outputText value="Version"/>
+                                        <h:commandLink value="#{ActiveCases.specVersionHeaderText}"
+                                                action="#{ActiveCases.specVersionHeaderClick}"/>
                                     </f:facet>
                                     <h:outputText binding="#{ActiveCases.colVersionRows}"
                                                   id="colVersionRows"
@@ -126,7 +118,8 @@
                                 <h:column binding="#{ActiveCases.colStartTime}"
                                           id="colStartTime">
                                     <f:facet name="header" >
-                                       <h:outputText value="Start Time"/>
+                                        <h:commandLink value="#{ActiveCases.startTimeHeaderText}"
+                                                action="#{ActiveCases.startTimeHeaderClick}"/>
                                     </f:facet>
                                     <h:outputText binding="#{ActiveCases.colStartTimeRows}"
                                                   id="colStartTimeRows"
@@ -135,28 +128,10 @@
                                 </h:column>
 
                             </h:dataTable>
-                            </ui:panelGroup>
+                           </ui:panelGroup>
 
                          </ui:panelLayout>
 
-                            <ui:button binding="#{SessionBean.btnRefresh}"
-                                       action="#{ActiveCases.btnRefresh_action}"
-                                       id="btnRefresh"
-                                       imageURL="/resources/refresh.png"
-                                       styleClass="refreshButton"
-                                       toolTip="Refresh Active Cases"
-                                       text=""/>
-
-                            <ui:button binding="#{SessionBean.btnLogout}"
-                                       action="#{ActiveCases.btnLogout_action}"
-                                       id="btnLogout"
-                                       imageURL="/resources/logout.png"
-                                       styleClass="logoutButton"
-                                       toolTip="Logout"
-                                       text=""/>
-
-
-                        </ui:panelLayout>
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
                                         id="msgPanel"
                                         panelLayout="flow"/>

@@ -12,9 +12,11 @@ import com.sun.rave.web.ui.appbase.AbstractSessionBean;
 import com.sun.rave.web.ui.component.Button;
 import com.sun.rave.web.ui.component.Script;
 import org.yawlfoundation.yawl.engine.instance.CaseInstance;
+import org.yawlfoundation.yawl.engine.instance.ParameterInstance;
 import org.yawlfoundation.yawl.engine.instance.WorkItemInstance;
 import org.yawlfoundation.yawl.monitor.sort.CaseOrder;
 import org.yawlfoundation.yawl.monitor.sort.ItemOrder;
+import org.yawlfoundation.yawl.monitor.sort.ParamOrder;
 import org.yawlfoundation.yawl.monitor.sort.TableSorter;
 import org.yawlfoundation.yawl.resourcing.jsf.MessagePanel;
 
@@ -374,6 +376,60 @@ public class SessionBean extends AbstractSessionBean {
     public ItemOrder getCurrentItemOrder() {
         return _sorter.getItemOrder();
     }
+
+
+    /**** PARAMS FOR WORKITEM ***/
+
+    private WorkItemInstance selectedItem;
+
+    public WorkItemInstance getSelectedItem() { return selectedItem; }
+
+    public void setItemSelection(int index) {
+        setSelectedItem(caseItems.get(index));
+    }
+
+
+    public void setSelectedItem(WorkItemInstance itemInstance) {
+        selectedItem = itemInstance;
+        if (getCurrentParamOrder().getColumn() == TableSorter.ParamColumn.Undefined) {
+            sortItemParams(TableSorter.ParamColumn.Name);
+        }
+        else {
+            refreshItemParams(itemInstance.getID(), false);
+        }
+    }
+
+    public ParamOrder getCurrentParamOrder() {
+        return _sorter.getParamOrder();
+    }
+
+    private List<ParameterInstance> itemParams;
+
+    public List<ParameterInstance> getItemParams() { return itemParams; }
+
+    public void setItemParams(List<ParameterInstance> params) { itemParams = params; }
+
+    public List<ParameterInstance> refreshItemParams(boolean sortPending) {
+        return refreshItemParams(selectedItem.getID(), sortPending);
+    }
+
+    public List<ParameterInstance> refreshItemParams(String itemID, boolean sortPending) {
+        try {
+            itemParams = getApplicationBean().getMonitorClient().getParameters(itemID);
+            if (! sortPending) itemParams = _sorter.applyParamOrder(itemParams);
+        }
+        catch (IOException ioe) {
+            itemParams = null;
+        }
+        return itemParams;
+    }
+
+    public void sortItemParams(TableSorter.ParamColumn column) {
+        refreshItemParams(selectedItem.getID(), true);
+        itemParams = _sorter.sort(itemParams, column);
+    }
+
+
 
 
 }

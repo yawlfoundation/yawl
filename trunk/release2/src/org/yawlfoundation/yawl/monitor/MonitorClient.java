@@ -65,9 +65,10 @@ public class MonitorClient extends InterfaceBWebsideController {
         return itemList;
     }
 
-    public List<ParameterInstance> getParameters(String caseID, String itemID) throws IOException {
+    public List<ParameterInstance> getParameters(String itemID) throws IOException {
         List<ParameterInstance> paramList = null;
         if (connected()) {
+            String caseID = getCaseFromItemID(itemID);
             String xml = _interfaceBClient.getParameterInstanceSummary(caseID, itemID, _sessionHandle);
             Element params = JDOMUtil.stringToElement(xml);
             if (params != null) {
@@ -104,6 +105,12 @@ public class MonitorClient extends InterfaceBWebsideController {
             System.out.println("Problem connecting to engine.");
         }
         return handle;
+    }
+
+    private String getCaseFromItemID(String itemID) {
+        String caseID = itemID.split(":")[0];
+        if (caseID.contains(".")) caseID = caseID.split("\\.")[0];
+        return caseID;
     }
 
 

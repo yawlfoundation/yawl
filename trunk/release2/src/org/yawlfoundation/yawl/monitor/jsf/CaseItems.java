@@ -373,8 +373,10 @@ public class CaseItems extends AbstractPageBean {
 
 
     public String btnDetails_action() {
-   //     return "showWorkItems";
-        return null;
+        Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue()) - 1;
+        System.out.println("Index: " + selectedRowIndex);
+        _sb.setItemSelection(selectedRowIndex);
+        return "showParameters";
     }
 
     public String btnBack_action() {
