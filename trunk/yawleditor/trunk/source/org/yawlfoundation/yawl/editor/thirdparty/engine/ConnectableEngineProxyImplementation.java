@@ -126,7 +126,7 @@ public class ConnectableEngineProxyImplementation extends AvailableEngineProxyIm
       } catch (Exception e) {}
 
         return simplePing != null &&
-               simplePing.trim().equals("<response>Permission Granted</response>");
+               simplePing.trim().equals("<response><success/></response>");
     }
 
 

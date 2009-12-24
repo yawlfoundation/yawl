@@ -57,7 +57,6 @@ public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparabl
     GraphConstants.setLineStyle(map, GraphConstants.STYLE_ORTHOGONAL);
     GraphConstants.setBendable(map, false);
     GraphConstants.setEditable(map, true);
-
     GraphConstants.setDisconnectable(map, true);
     GraphConstants.setConnectable(map, true);
     
@@ -68,23 +67,15 @@ public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparabl
   }
   
   public boolean connectsTwoTasks() {
-    if (isTaskPort(this.getSource()) &&
-        isTaskPort(this.getTarget())) {
-      return true;
-    }
-    return false;
+      return isTaskPort(this.getSource()) &&
+             isTaskPort(this.getTarget());
   }
   
   private boolean isTaskPort(Object port) {
-    if (port == null) {
-      return false;
-    }
-    YAWLPort yawlPort = (YAWLPort) port;
-    if(yawlPort.getParent() instanceof YAWLTask ||
-       yawlPort.getParent() instanceof Decorator) {
-      return true;
-    }
-    return false;
+      YAWLPort yawlPort = (YAWLPort) port;
+      return (port != null) &&
+             (yawlPort.getParent() instanceof YAWLTask ||
+              yawlPort.getParent() instanceof Decorator);
   }
   
   public boolean isRemovable() {
@@ -92,27 +83,18 @@ public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparabl
   }
   
   public boolean isCopyable() {
-    YAWLPort sourcePort = (YAWLPort) this.getSource();
-    YAWLPort targetPort = (YAWLPort) this.getTarget();
-    
-    if (sourcePort == null || targetPort == null) {
-      return false;
-    }
-    if (((YAWLCell) sourcePort.getParent()).isCopyable() &&
-        ((YAWLCell) targetPort.getParent()).isCopyable()) {
-      return true;  
-    }
-    return false;
+      YAWLPort sourcePort = (YAWLPort) this.getSource();
+      YAWLPort targetPort = (YAWLPort) this.getTarget();
+
+      return (! isBroken()) &&
+             ((YAWLCell) sourcePort.getParent()).isCopyable() &&
+             ((YAWLCell) targetPort.getParent()).isCopyable();
   }
   
   public boolean isBroken() {
-    YAWLPort sourcePort = (YAWLPort) this.getSource();
-    YAWLPort targetPort = (YAWLPort) this.getTarget();
-    
-    if (sourcePort == null || targetPort == null) {
-      return true;
-    }
-    return false;
+      YAWLPort sourcePort = (YAWLPort) this.getSource();
+      YAWLPort targetPort = (YAWLPort) this.getTarget();
+      return sourcePort == null || targetPort == null;
   }
   
   public boolean generatesOutgoingFlows() {
@@ -136,7 +118,7 @@ public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparabl
   }
   
   public int getPriority() {
-    return ((Integer) serializationProofAttributeMap.get("priority")).intValue();
+    return (Integer) serializationProofAttributeMap.get("priority");
   }
 
   public String getPredicate() {
@@ -156,15 +138,8 @@ public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparabl
   }
   
   public int compareTo(Object object) throws ClassCastException {
-    YAWLFlowRelation otherFlow = (YAWLFlowRelation) object;
-    if (getPriority() < otherFlow.getPriority()) {
-      return -1;
-    }else if (getPriority() > otherFlow.getPriority()) {
-      return 1;
-    }
-    else { // equal
-      return 0;
-    }
+      YAWLFlowRelation otherFlow = (YAWLFlowRelation) object;
+      return getPriority() - otherFlow.getPriority();
   }
   
   public String getTargetLabel() {
@@ -219,13 +194,8 @@ public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparabl
   }
   
   public boolean connectsTaskToItself() {
-    if (getSourceTask() == null || getTargetTask() == null) {
-      return false;
-    }
-    if (getSourceTask().equals(getTargetTask())) {
-      return true;
-    }
-    return false; 
+      return !(getSourceTask() == null || getTargetTask() == null) &&
+              getSourceTask().equals(getTargetTask());
   }
   
   public YAWLTask getSourceTask() {
@@ -243,10 +213,7 @@ public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparabl
   }
   
   public boolean connectsElements() {
-    if (getSource() != null && getTarget() != null) {
-      return true;
-    }
-    return false;
+      return getSource() != null && getTarget() != null;
   }
   
   public YAWLVertex getSourceVertex() {

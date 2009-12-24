@@ -418,6 +418,7 @@ class EngineDetailDialog extends AbstractDoneDialog {
 //        );
       }
     }
+      testMessage.setVisible(false);    // reset      
     super.setVisible(visible);
   }
   

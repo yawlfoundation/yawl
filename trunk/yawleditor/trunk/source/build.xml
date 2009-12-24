@@ -141,6 +141,7 @@
             <test name="${build.dir}/${package.dir}/Test${root.class.name}" />
             <classpath>
                 <pathelement location="${build.dir}" />
+                <pathelement location="${junit.jar.file}" />
                 <pathelement location="${engine.jar.file}" />
                 <pathelement location="${jcal.jar.file}" />
                 <pathelement location="${servlet.jar.file}" />
