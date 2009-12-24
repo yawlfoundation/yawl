@@ -18,16 +18,13 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Author: Michael Adams
  * Creation Date: 11/11/2008
  */
-public class WorkItemInstance {
+public class WorkItemInstance implements YInstance {
 
     private YWorkItem workItem;
     private String taskID;
@@ -223,8 +220,9 @@ public class WorkItemInstance {
         parameters.put(param.getName(), param);
     }
 
-    public void addParameterInstance(YParameter parameter, String predicate, Element data) {
-        ParameterInstance param = new ParameterInstance(parameter, predicate, data);
+    public void addParameterInstance(YParameter parameter, YTask task,
+                                     ParameterInstance.Usage usage, Element data) {
+        ParameterInstance param = new ParameterInstance(parameter, task, usage, data);
         parameters.put(param.getName(), param);
     }
 
@@ -232,13 +230,20 @@ public class WorkItemInstance {
     public void addParameters(YTask task, Element data) {
         YDecomposition decomp = task.getDecompositionPrototype();
         if (decomp != null) {
-            Map<String, YParameter> paramMap = decomp.getInputParameters();
-            for (String name : paramMap.keySet()) {
-                String predicate = task.getDataBindingForInputParam(name);
-                YParameter param = paramMap.get(name);
-                Element paramData = data.getChild(name);
-                addParameterInstance(param, predicate, paramData);
-            }
+            Map<String, YParameter> inputParams = decomp.getInputParameters();
+            Map<String, YParameter> outputParams = decomp.getOutputParameters();
+            Map<String, YParameter> iandoParams = getIOParameters(inputParams, outputParams);
+            addParameterList(inputParams, task, ParameterInstance.Usage.inputOnly, data);
+            addParameterList(iandoParams, task, ParameterInstance.Usage.inputOutput, data);
+            addParameterList(outputParams, task, ParameterInstance.Usage.outputOnly, data);
+        }
+    }
+
+    private void addParameterList(Map<String, YParameter> paramMap, YTask task,
+                                  ParameterInstance.Usage usage, Element data) {
+        for (YParameter param : paramMap.values()) {
+            Element paramData = data.getChild(param.getPreferredName());
+            addParameterInstance(param, task, usage, paramData);
         }
     }
 
@@ -308,6 +313,26 @@ public class WorkItemInstance {
             catch (NumberFormatException ignore) {}
         }
         return result;
+    }
+
+
+    private Map<String, YParameter> getIOParameters(Map<String, YParameter> inputParams,
+                                                    Map<String, YParameter> outputParams) {
+        Map<String, YParameter> ioParams = new HashMap<String, YParameter>();
+
+        // if input & output param have the same name, then its an I&O param
+        for (String name : inputParams.keySet()) {
+            if (outputParams.containsKey(name)) {
+                ioParams.put(name, inputParams.get(name));
+                outputParams.remove(name);
+            }
+        }
+
+        // now remove the I&O's from the input param set (avoiding a concurrency exception)
+        for (String name : ioParams.keySet()) {
+            inputParams.remove(name);
+        }
+        return ioParams;
     }
 
 }

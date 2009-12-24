@@ -933,7 +933,7 @@ public abstract class YTask extends YExternalNetElement {
         if (null == getDecompositionPrototype())  return;
 
         Element dataForChildCase = produceDataRootElement();
-        InstanceCache instanceCache = YEngine.getInstance().getInstanceCache();
+//       InstanceCache instanceCache = YEngine.getInstance().getInstanceCache();
 
         List<YParameter> inputParams =
                 new ArrayList<YParameter>(_decompositionPrototype.getInputParameters().values());
@@ -955,8 +955,8 @@ public abstract class YTask extends YExternalNetElement {
                         specificMIData.setAttributes(parameter.getAttributes().toJDOM());
                     }
                     dataForChildCase.addContent(specificMIData);
-                    instanceCache.addParameter(childInstanceID, parameter,
-                                               expression, specificMIData);
+       //             instanceCache.addParameter(childInstanceID, parameter,
+     //                                          expression, specificMIData);
                }
             }
             else {
@@ -972,8 +972,8 @@ public abstract class YTask extends YExternalNetElement {
                     result.setAttributes(parameter.getAttributes().toJDOM());
                 }
                 dataForChildCase.addContent((Element) result.clone());
-                instanceCache.addParameter(childInstanceID, parameter,
-                                           expression, (Element) result.clone());
+   //             instanceCache.addParameter(childInstanceID, parameter,
+   //                                        expression, (Element) result.clone());
           }
         }
 

@@ -115,6 +115,12 @@ public class YEventLogger {
     public void disable() { _enabled = false; }
 
 
+    public String getDataSchema(YSpecificationID specID, String dataTypeName) {
+        return XSDType.getInstance().isBuiltInType(dataTypeName) ? dataTypeName :
+                _dataSchemaCache.getSchemaTypeAsString(specID, dataTypeName);
+    }
+
+
     /********************************************************************************/
 
     /**
@@ -788,15 +794,7 @@ public class YEventLogger {
             }
             for (YLogDataItem item : datalist) {
                 String dataTypeName = item.getDataTypeName();
-                String dataTypeDefinition;
-                if (XSDType.getInstance().isBuiltInType(dataTypeName)) {
-                    dataTypeDefinition = dataTypeName ;
-                }
-                else {
-                    dataTypeDefinition =
-                         _dataSchemaCache.getSchemaTypeAsString(specID, dataTypeName);
-                }
-                item.setDataTypeDefinition(dataTypeDefinition);
+                item.setDataTypeDefinition(getDataSchema(specID, dataTypeName));
             }
         }
     }

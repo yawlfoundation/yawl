@@ -1,6 +1,7 @@
 package org.yawlfoundation.yawl.monitor.sort;
 
 import org.yawlfoundation.yawl.engine.instance.CaseInstance;
+import org.yawlfoundation.yawl.engine.instance.ParameterInstance;
 import org.yawlfoundation.yawl.engine.instance.WorkItemInstance;
 
 import java.util.Collections;
@@ -19,12 +20,18 @@ public class TableSorter {
                                     StartTime, CompletionTime, TimerStatus,
                                     TimerExpiry, Undefined }
 
+    public static enum ParamColumn { Name, DataType, DataSchema, Usage, InputPredicate,
+                                     OutputPredicate, OriginalValue, DefaultValue,
+                                     Value, Undefined }
+
     private CaseOrder caseOrder;
     private ItemOrder itemOrder;
+    private ParamOrder paramOrder;
 
     public TableSorter() {
         caseOrder = new CaseOrder(CaseColumn.Undefined);
         itemOrder = new ItemOrder(ItemColumn.Undefined);
+        paramOrder = new ParamOrder(ParamColumn.Undefined);
     }
 
     public List<CaseInstance> sort(List<CaseInstance> caseList, CaseColumn column) {
@@ -60,6 +67,22 @@ public class TableSorter {
         return ItemInstanceComparator.getComparator(itemOrder);
     }
 
+
+    public List<ParameterInstance> sort(List<ParameterInstance> paramList, ParamColumn column) {
+        paramOrder.setOrder(column);
+        return applyParamOrder(paramList);
+    }
+
+    public List<ParameterInstance> applyParamOrder(List<ParameterInstance> paramList) {
+        Collections.sort(paramList, getCurrentParamComparator());
+        return paramList;
+    }
+
+    public ParamOrder getParamOrder() { return paramOrder; }
+
+    private Comparator<ParameterInstance> getCurrentParamComparator() {
+        return ParamInstanceComparator.getComparator(paramOrder);
+    }
 
 
 

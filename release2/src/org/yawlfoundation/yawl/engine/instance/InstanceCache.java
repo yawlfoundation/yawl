@@ -119,18 +119,18 @@ public class InstanceCache extends Hashtable<String, CaseInstance> {
     // Parameters are added when their parent workitem is enabled. Like workitems, there
     // is no remove method - they are discarded when the case completes or cancels.
 
-    public void addParameter(YIdentifier identifier, YParameter parameter,
-                             String predicate, Element data) {
-
-        // workitem will always have at least 2 conditions
-        YInternalCondition condition = (YInternalCondition) identifier.getLocations().get(0);
-        String itemID = identifier.get_idString() + ":" + condition._myTask.getID();
-        WorkItemInstance workitem = getWorkItemInstance(identifier.get_idString(),
-                                                        itemID);
-        if (workitem != null) {
-            workitem.addParameterInstance(parameter, predicate, data);
-        }
-    }
+//    public void addParameter(YIdentifier identifier, YParameter parameter,
+//                             String predicate, Element data) {
+//
+//        // workitem will always have at least 2 conditions
+//        YInternalCondition condition = (YInternalCondition) identifier.getLocations().get(0);
+//        String itemID = identifier.get_idString() + ":" + condition._myTask.getID();
+//        WorkItemInstance workitem = getWorkItemInstance(identifier.get_idString(),
+//                                                        itemID);
+//        if (workitem != null) {
+//            workitem.addParameterInstance(parameter, predicate, data);
+//        }
+//    }
 
     
     public void addParameters(YWorkItem workitem, YTask task, Element data) {

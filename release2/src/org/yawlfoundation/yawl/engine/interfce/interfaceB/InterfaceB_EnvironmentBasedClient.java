@@ -749,7 +749,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
             throws IOException {
         Map<String, String> params = prepareParamMap("getParameterInstanceSummary", sessionHandle);
         params.put("caseID", caseID);
-        params.put("itemID", itemID);
+        params.put("workItemID", itemID);
         return stripOuterElement(executeGet(_backEndURIStr, params));
     }
 

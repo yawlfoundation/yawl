@@ -10,7 +10,6 @@ package org.yawlfoundation.yawl.monitor.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
-import org.yawlfoundation.yawl.monitor.MonitorClient;
 import org.yawlfoundation.yawl.monitor.sort.CaseOrder;
 import org.yawlfoundation.yawl.monitor.sort.TableSorter;
 import org.yawlfoundation.yawl.resourcing.jsf.MessagePanel;
@@ -214,60 +213,32 @@ public class ActiveCases extends AbstractPageBean {
     public void setBtnDetails(Button b) { btnDetails = b; }
 
 
-    private Button btnCaseHeader = new Button();
+    private String caseIDHeaderText = "Case  v" ;
 
-    public Button getBtnCaseHeader() { return btnCaseHeader; }
+    public String getCaseIDHeaderText() { return caseIDHeaderText; }
 
-    public void setBtnCaseHeader(Button b) { btnCaseHeader = b; }
-
-
-    private Button btnSpecNameHeader = new Button();
-
-    public Button getBtnSpecNameHeader() { return btnSpecNameHeader; }
-
-    public void setBtnSpecNameHeader(Button b) { btnSpecNameHeader = b; }
+    public void setCaseIDHeaderText(String s) { caseIDHeaderText = s; }
 
 
-    private Button btnSpecVersionHeader = new Button();
+    private String specNameHeaderText = "Spec Name" ;
 
-    public Button getBtnSpecVersionHeader() { return btnSpecVersionHeader; }
+    public String getSpecNameHeaderText() { return specNameHeaderText; }
 
-    public void setBtnSpecVersionHeader(Button b) { btnSpecVersionHeader = b; }
-
-
-    private Button btnStartTimeHeader = new Button();
-
-    public Button getBtnStartTimeHeader() { return btnStartTimeHeader; }
-
-    public void setBtnStartTimeHeader(Button b) { btnStartTimeHeader = b; }
+    public void setSpecNameHeaderText(String s) { specNameHeaderText = s; }
 
 
-    private String btnCaseHeaderText = "Case  v" ;
+    private String specVersionHeaderText = "Version" ;
 
-    public String getBtnCaseHeaderText() { return btnCaseHeaderText; }
+    public String getSpecVersionHeaderText() { return specVersionHeaderText; }
 
-    public void setBtnCaseHeaderText(String s) { btnCaseHeaderText = s; }
-
-
-    private String btnSpecNameHeaderText = "Spec Name" ;
-
-    public String getBtnSpecNameHeaderText() { return btnSpecNameHeaderText; }
-
-    public void setBtnSpecNameHeaderText(String s) { btnSpecNameHeaderText = s; }
+    public void setSpecVersionHeaderText(String s) { specVersionHeaderText = s; }
 
 
-    private String btnSpecVersionHeaderText = "Version" ;
+    private String startTimeHeaderText = "Start Time" ;
 
-    public String getBtnSpecVersionHeaderText() { return btnSpecVersionHeaderText; }
+    public String getStartTimeHeaderText() { return startTimeHeaderText; }
 
-    public void setBtnSpecVersionHeaderText(String s) { btnSpecVersionHeaderText = s; }
-
-
-    private String btnStartTimeHeaderText = "Start Time" ;
-
-    public String getBtnStartTimeHeaderText() { return btnStartTimeHeaderText; }
-
-    public void setBtnStartTimeHeaderText(String s) { btnStartTimeHeaderText = s; }
+    public void setStartTimeHeaderText(String s) { startTimeHeaderText = s; }
 
 
     /*******************************************************************************/
@@ -303,22 +274,22 @@ public class ActiveCases extends AbstractPageBean {
         return "showWorkItems";
     }
 
-    public String btnCaseHeader_action() {
+    public String caseIDHeaderClick() {
         sortTable(TableSorter.CaseColumn.Case);
         return null ;
     }
 
-    public String btnSpecNameHeader_action() {
+    public String specNameHeaderClick() {
         sortTable(TableSorter.CaseColumn.SpecName);
         return null ;
     }
 
-    public String btnSpecVersionHeader_action() {
+    public String specVersionHeaderClick() {
         sortTable(TableSorter.CaseColumn.Version);
         return null ;
     }
 
-    public String btnStartTimeHeader_action() {
+    public String startTimeHeaderClick() {
         sortTable(TableSorter.CaseColumn.StartTime);
         return null ;
     }
@@ -333,19 +304,19 @@ public class ActiveCases extends AbstractPageBean {
         CaseOrder currentOrder = _sb.getCurrentCaseOrder();
         boolean ascending = currentOrder.isAscending();
         switch (currentOrder.getColumn()) {
-            case Case : btnCaseHeaderText += getOrderIndicator(ascending); break;
-            case SpecName : btnSpecNameHeaderText += getOrderIndicator(ascending); break;
-            case Version : btnSpecVersionHeaderText += getOrderIndicator(ascending); break;
-            case StartTime : btnStartTimeHeaderText += getOrderIndicator(ascending);
+            case Case : caseIDHeaderText += getOrderIndicator(ascending); break;
+            case SpecName : specNameHeaderText += getOrderIndicator(ascending); break;
+            case Version : specVersionHeaderText += getOrderIndicator(ascending); break;
+            case StartTime : startTimeHeaderText += getOrderIndicator(ascending);
         }
 
     }
 
     private void resetHeaderButtons() {
-        btnCaseHeaderText = "Case";
-        btnSpecNameHeaderText = "Spec Name" ;
-        btnSpecVersionHeaderText = "Version" ;
-        btnStartTimeHeaderText = "Start Time" ;
+        caseIDHeaderText = "Case";
+        specNameHeaderText = "Spec Name" ;
+        specVersionHeaderText = "Version" ;
+        startTimeHeaderText = "Start Time" ;
     }
 
 
