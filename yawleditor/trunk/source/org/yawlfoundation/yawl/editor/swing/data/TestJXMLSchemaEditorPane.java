@@ -46,7 +46,7 @@ public class TestJXMLSchemaEditorPane extends TestCase {
   }
 
 	public void testEmptyPane() {
-    assertTrue(testDefinitionPane.isContentValid());
+    assertFalse(testDefinitionPane.isContentValid());
 	}
 
 	public void testValidSchema() {
