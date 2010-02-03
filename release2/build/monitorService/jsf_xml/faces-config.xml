@@ -9,19 +9,9 @@
 -->
 
 <faces-config>
-
-  <!-- Set default locale and add supported locales here... -->
-  <application>
-
-  </application>
-    
   <lifecycle>
       <phase-listener>
-          org.yawlfoundation.yawl.resourcing.jsf.CachePhaseListener
+          org.yawlfoundation.yawl.monitor.jsf.CachePhaseListener
       </phase-listener>
-
-    <!--<phase-listener>org.yawlfoundation.yawl.resourcing.jsf.LifeCycleListener</phase-listener>-->
-
   </lifecycle>
-
 </faces-config>

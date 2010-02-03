@@ -79,4 +79,12 @@ public class ExampleCodelet extends AbstractCodelet {
         // return the Element created in the base class and containing the result.
         return getOutputData();
     }
+
+
+    /**
+     * All codelets must provide a mechanism to handle workitem (or case) cancellation.
+     * In this example nothing need to be done, but in long running codelets some
+     * handling of processes etc. may be required.
+     */
+    public void cancel() {}
 }

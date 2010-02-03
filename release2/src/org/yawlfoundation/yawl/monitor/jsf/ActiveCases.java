@@ -115,6 +115,13 @@ public class ActiveCases extends AbstractPageBean {
     public void setStaticText(StaticText st) { staticText = st; }
 
 
+    private StaticText stUptime = new StaticText();
+
+    public StaticText getStUptime() { return stUptime; }
+
+    public void setStUptime(StaticText st) { stUptime = st; }
+
+
     private PanelLayout layoutPanel = new PanelLayout();
 
     public PanelLayout getLayoutPanel() { return layoutPanel; }
@@ -245,6 +252,7 @@ public class ActiveCases extends AbstractPageBean {
 
     private SessionBean _sb = getSessionBean();
     private MessagePanel msgPanel = _sb.getMessagePanel();
+    private String startUpText = null;
 
 
     /**
@@ -252,6 +260,14 @@ public class ActiveCases extends AbstractPageBean {
      */
     public void prerender() {
         msgPanel.show();
+    }
+
+
+    public String getStartupTime() {
+        if (startUpText == null) {
+            startUpText = "Last Engine Start: " + _sb.getStartupTime();
+        }
+        return startUpText;
     }
 
 
@@ -269,7 +285,6 @@ public class ActiveCases extends AbstractPageBean {
 
     public String btnDetails_action() {
         Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue()) - 1;
-        System.out.println("Index: " + selectedRowIndex);
         _sb.setCaseSelection(selectedRowIndex);
         return "showWorkItems";
     }

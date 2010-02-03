@@ -8,16 +8,6 @@
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>
     <managed-bean>
-        <managed-bean-name>ApplicationBean</managed-bean-name>
-        <managed-bean-class>org.yawlfoundation.yawl.monitor.jsf.ApplicationBean</managed-bean-class>
-        <managed-bean-scope>application</managed-bean-scope>
-    </managed-bean>
-    <managed-bean>
-        <managed-bean-name>SessionBean</managed-bean-name>
-        <managed-bean-class>org.yawlfoundation.yawl.monitor.jsf.SessionBean</managed-bean-class>
-        <managed-bean-scope>session</managed-bean-scope>
-    </managed-bean>
-    <managed-bean>
         <managed-bean-name>ActiveCases</managed-bean-name>
         <managed-bean-class>org.yawlfoundation.yawl.monitor.jsf.ActiveCases</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
@@ -31,5 +21,15 @@
         <managed-bean-name>ItemParams</managed-bean-name>
         <managed-bean-class>org.yawlfoundation.yawl.monitor.jsf.ItemParams</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+    <managed-bean>
+        <managed-bean-name>SessionBean</managed-bean-name>
+        <managed-bean-class>org.yawlfoundation.yawl.monitor.jsf.SessionBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+    <managed-bean>
+        <managed-bean-name>ApplicationBean</managed-bean-name>
+        <managed-bean-class>org.yawlfoundation.yawl.monitor.jsf.ApplicationBean</managed-bean-class>
+        <managed-bean-scope>application</managed-bean-scope>
     </managed-bean>
 </faces-config>

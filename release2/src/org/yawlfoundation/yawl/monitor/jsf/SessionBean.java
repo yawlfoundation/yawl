@@ -11,14 +11,17 @@ package org.yawlfoundation.yawl.monitor.jsf;
 import com.sun.rave.web.ui.appbase.AbstractSessionBean;
 import com.sun.rave.web.ui.component.Button;
 import com.sun.rave.web.ui.component.Script;
+import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.instance.CaseInstance;
 import org.yawlfoundation.yawl.engine.instance.ParameterInstance;
 import org.yawlfoundation.yawl.engine.instance.WorkItemInstance;
+import org.yawlfoundation.yawl.monitor.MonitorClient;
 import org.yawlfoundation.yawl.monitor.sort.CaseOrder;
 import org.yawlfoundation.yawl.monitor.sort.ItemOrder;
 import org.yawlfoundation.yawl.monitor.sort.ParamOrder;
 import org.yawlfoundation.yawl.monitor.sort.TableSorter;
 import org.yawlfoundation.yawl.resourcing.jsf.MessagePanel;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.FacesException;
 import javax.faces.application.Application;
@@ -27,6 +30,8 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /*
@@ -214,8 +219,6 @@ public class SessionBean extends AbstractSessionBean {
 
     // logs out of session //
     public void doLogout() {
-        getApplicationBean().removeLiveUser(userid);
-
         FacesContext context = FacesContext.getCurrentInstance();
         if (context != null) {             // if null, session already destroyed
             HttpSession session = (HttpSession) context.getExternalContext().getSession(false);
@@ -258,20 +261,7 @@ public class SessionBean extends AbstractSessionBean {
 
     /********************************************************************************/
 
-    private String title ;
-
-    public String getTitle() {
-        title = "YAWL 2.0 Worklist :: ";
-        if (activePage == ApplicationBean.PageRef.casesPage)
-             title += "Active Cases" ;
-        return title ;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-
+    private MonitorClient _monClient = getApplicationBean().getMonitorClient();
     private MessagePanel messagePanel = new MessagePanel() ;
 
     public MessagePanel getMessagePanel() {
@@ -286,6 +276,37 @@ public class SessionBean extends AbstractSessionBean {
 
 
     /*** ACTIVE CASES ***/
+
+    private SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd H:mm:ss");
+
+    public String getStartupTime() {
+        long startTime = _monClient.getStartupTime();
+        return (startTime > 0) ? dateFormatter.format(new Date(startTime)) : "Unavailable";
+    }
+
+
+    public String getCaseStartTime() {
+        return (caseStartTime > 0) ? dateFormatter.format(new Date(caseStartTime)) : "Unavailable";
+    }
+
+
+    private String caseData;
+    private String startingServiceName;
+    private String caseStartedByName;
+    private long caseStartTime;
+
+    public String getCaseData() {
+        return caseData;
+    }
+
+    public String getStartingServiceName() {
+        return startingServiceName ;
+    }
+    
+    public String getCaseStartedByName() {
+        return caseStartedByName ;
+    }
+
 
     private List<CaseInstance> activeCases = initActiveCases();
 
@@ -334,12 +355,34 @@ public class SessionBean extends AbstractSessionBean {
 
     public void setSelectedCase(CaseInstance caseInstance) {
         selectedCase = caseInstance;
+        String caseID = caseInstance.getCaseID();
         if (getCurrentItemOrder().getColumn() == TableSorter.ItemColumn.Undefined) {
             sortCaseItems(TableSorter.ItemColumn.ItemID);
         }
         else {
-            refreshCaseItems(caseInstance.getCaseID(), false);
-        }    
+            refreshCaseItems(caseID, false);
+        }
+
+        try {
+            caseData = _monClient.getCaseData(caseID);
+            String caseEvent = _monClient.getCaseEvent(caseID, "CaseStart");
+            if (! caseEvent.startsWith("<fail")) {
+                Element caseElem = JDOMUtil.stringToElement(caseEvent).getChild("event");
+                caseStartTime = new Long(caseElem.getChildText("timestamp"));
+                startingServiceName = _monClient.getServiceName(new Long(caseElem.getChildText("serviceKey")));
+            }
+            else {
+                caseStartTime = 0;
+                startingServiceName = "Unavailable";
+            }
+            caseStartedByName = _monClient.getCaseStartedBy(caseID);
+        }
+        catch (IOException ioe) {
+            caseData =  "Unavailable";
+            caseStartTime = 0;
+            startingServiceName = "Unavailable";
+            caseStartedByName = "Unavailable";
+        }
     }
 
     public void setCaseSelection(int index) {

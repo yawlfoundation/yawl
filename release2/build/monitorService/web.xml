@@ -193,14 +193,14 @@
 
   <listener>
     <listener-class>
-       org.yawlfoundation.yawl.resourcing.jsf.SessionListener
+       org.yawlfoundation.yawl.monitor.jsf.SessionListener
     </listener-class>
   </listener>
 
 <filter>
    <filter-name>SessionTimeoutFilter</filter-name>
    <filter-class>
-       org.yawlfoundation.yawl.resourcing.jsf.SessionTimeoutFilter
+       org.yawlfoundation.yawl.monitor.jsf.SessionTimeoutFilter
    </filter-class>
 </filter>
 

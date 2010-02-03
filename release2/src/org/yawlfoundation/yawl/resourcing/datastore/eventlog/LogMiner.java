@@ -9,8 +9,12 @@
 package org.yawlfoundation.yawl.resourcing.datastore.eventlog;
 
 import org.apache.log4j.Logger;
+import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.util.List;
@@ -104,5 +108,63 @@ public class LogMiner {
     }
 
     /*****************************************************************************/
+
+    /**
+     * @param caseID the case id to get the event for
+     * @param launch true for launch, false for cancel
+     * @return the case event
+     */
+    public String getCaseEvent(String caseID, boolean launch) {
+        String result ;
+        List rows ;
+        if (_reader != null) {
+            String template = "FROM ResourceEvent AS re WHERE re._caseID='%s' AND re._event='%s'";
+            String query = String.format(template, caseID, launch ? "launch_case" : "cancel_case");
+
+            rows = _reader.execQuery(query) ;
+            result = (rows != null) ? eventListToXML(rows) : _noRowsStr;
+        }
+        else result = _pmErrStr ;
+
+        return result ;
+    }
+
+
+    public String getCaseStartedBy(String caseID) {
+        String caseEvent = getCaseEvent(caseID, true);
+        if (successful(caseEvent)) {
+            Element event = JDOMUtil.stringToElement(caseEvent);
+            if (event != null) {
+                Element startEvent = event.getChild("event");
+                if (startEvent != null) {
+                    String pid = startEvent.getChildText("participantid");
+                    if (pid != null) {
+                        if (! pid.equals("admin")) {
+                            Participant p = ResourceManager.getInstance().getOrgDataSet().getParticipant(pid);
+                            if (p != null) return p.getFullName();
+                        }
+                        else return "admin" ;
+                    }
+                }
+            }
+        }
+        return "Unavailable"; 
+    }
+
+    /*****************************************************************************/
+
+    private String eventListToXML(List rows) {
+        StringBuilder xml = new StringBuilder("<events>") ;
+        for (Object o : rows) {
+            ResourceEvent event = (ResourceEvent) o ;
+            xml.append(event.toXML());
+        }
+        xml.append("</events>");
+        return xml.toString();
+    }
+
+    private boolean successful(String s) {
+        return (s != null) && (! s.startsWith("<fail"));
+    }
 
 }

@@ -10,6 +10,7 @@ package org.yawlfoundation.yawl.resourcing.datastore.eventlog;
 
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 /**
  * An object representing one resourcing event for logging.
@@ -30,16 +31,24 @@ public class ResourceEvent {
 
     public ResourceEvent() {}                                    // for reflection
 
-
+    /** Constructor for item level events **/
     public ResourceEvent(WorkItemRecord wir, String pid, EventLogger.event eType) {
-        _specID = new YSpecificationID(wir);
-        _caseID = wir.getCaseID();
+        this(new YSpecificationID(wir), wir.getCaseID(), pid, eType);
         _taskID = wir.getTaskName(); 
         _itemID = wir.getID();
+    }
+
+
+    /** Constrcutor for case level events **/
+    public ResourceEvent(YSpecificationID specID, String caseID, String pid, EventLogger.event eType) {
+        _specID = specID;
+        _caseID = caseID;
         _participantID = pid;
         _event = eType.name() ;
         _timeStamp = System.currentTimeMillis();
     }
+
+
 
     // GETTERS & SETTERS
 
@@ -81,5 +90,19 @@ public class ResourceEvent {
     private long get_id() { return _id; }
 
     private void set_id(long _id) { this._id = _id; }
+
+
+    public String toXML() {
+        StringBuilder xml = new StringBuilder(String.format("<event key=\"%d\">", _id));
+        xml.append(_specID.toXML())
+           .append(StringUtil.wrap(_caseID, "caseid"))
+           .append(StringUtil.wrap(_taskID, "taskid"))
+           .append(StringUtil.wrap(_itemID, "itemid"))
+           .append(StringUtil.wrap(_participantID, "participantid"))
+           .append(StringUtil.wrap(_event, "eventtype"))
+           .append(StringUtil.wrap(String.valueOf(_timeStamp), "timestamp"))
+           .append("</event>") ;
+        return xml.toString();
+    }
 }
 

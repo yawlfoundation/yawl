@@ -68,9 +68,60 @@
 
                          </ui:panelLayout>
 
+                         <ui:panelGroup binding="#{CaseItems.pnlGroupCaseData}"
+                                        id="pnlGroupCaseData"
+                                        styleClass="caseDataPnlGroup">
+
+                            <ui:staticText binding="#{CaseItems.stCaseStart}"
+                                           id="stCaseStart"
+                                           styleClass="pageSubheading"
+                                           style="left: 12px; top: 12px"
+                                           text="Case Start"/>
+
+                             <ui:staticText binding="#{CaseItems.stStartingService}"
+                                            id="stStartingService"
+                                            styleClass="pageSubheading"
+                                            style="left: 12px; top: 52px"
+                                            text="Starting Service"/>
+
+                             <ui:staticText binding="#{CaseItems.stStartedBy}"
+                                            id="stStartedBy"
+                                            styleClass="pageSubheading"
+                                            style="left: 12px; top: 92px"
+                                            text="Started By"/>
+
+                             <ui:staticText binding="#{CaseItems.stCaseStartText}"
+                                            id="stCaseStartText"
+                                            style="left: 12px; top: 30px; position: absolute"
+                                            text="#{SessionBean.caseStartTime}"/>
+
+                             <ui:staticText binding="#{CaseItems.stStartingServiceText}"
+                                            id="stStartingServiceText"
+                                            style="left: 12px; top: 70px; position: absolute"
+                                            text="#{SessionBean.startingServiceName}"/>
+
+                             <ui:staticText binding="#{CaseItems.stStartedByText}"
+                                            id="stStartedByText"
+                                            style="left: 12px; top: 110px; position: absolute"
+                                            text="#{SessionBean.caseStartedByName}"/>
+
+                             <ui:staticText binding="#{CaseItems.stCaseData}"
+                                            id="stCaseData"
+                                            styleClass="pageSubheading"
+                                            style="left: 202px; top: 12px"
+                                            text="Case Data"/>
+
+                            <ui:textArea binding="#{CaseItems.taCaseData}"
+                                         id="txtCaseData"
+                                         styleClass="caseDataTextArea"
+                                         rows="4"
+                                         readOnly="true"
+                                         text="#{SessionBean.caseData}"/>
+                         </ui:panelGroup>    
+
+
                             <ui:panelGroup binding="#{CaseItems.pnlGroup}"
                                             id="pnlGroup"
-                                            style="position: absolute"
                                             styleClass="itemsTablePnlGroup">
 
 

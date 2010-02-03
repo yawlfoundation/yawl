@@ -12,7 +12,6 @@
     String taskName = _exceptionService.getDecompID(wir) ;
 
     String submit = request.getParameter("submit");
-    System.out.println(submit);
     if ((submit != null) && (submit.equals("Cancel"))) {
         response.sendRedirect(response.encodeURL(_worklistURL));
         return;

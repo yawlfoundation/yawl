@@ -303,7 +303,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
         // if conc is null there's no rules defined for this type of constraint
         if (conc == null)
-            _log.info("No time-out exception handler defined for task: " + wir.getTaskID());
+            _log.info("No time-out exception handler defined for task: " + wir.getTaskName());
         else {
             if (! conc.nullConclusion())                 // we have a handler
                 raiseException(monitor, conc, wir, XTYPE_TIMEOUT);
@@ -324,7 +324,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         // if conc is null there's no rules defined for this type of constraint
         if (conc == null)
             _log.info("No resource unavailable exception handler defined for task: " +
-                    wir.getTaskID());
+                    wir.getTaskName());
         else {
             if (! conc.nullConclusion())                 // we have a handler
                 raiseException(monitor, conc, wir, XTYPE_RESOURCE_UNAVAILABLE);
@@ -1549,10 +1549,14 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      * @return the (String) list of triggers
      */
     public List getExternalTriggersForCase(String caseID) {
-        CaseMonitor mon = (CaseMonitor) _monitoredCases.get(getIntegralID(caseID));
-        RdrTree tree = getTree(mon.getSpecID(), null, XTYPE_CASE_EXTERNAL_TRIGGER);
-
-        return getExternalTriggers(tree) ;
+        if (caseID == null) {
+            CaseMonitor mon = (CaseMonitor) _monitoredCases.get(getIntegralID(caseID));
+            if (mon != null) {
+                RdrTree tree = getTree(mon.getSpecID(), null, XTYPE_CASE_EXTERNAL_TRIGGER);
+                return getExternalTriggers(tree) ;
+            }
+        }
+        return null;
     }
 
     //***************************************************************************//
@@ -1563,10 +1567,15 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      * @return the (String) list of triggers
      */
     public List getExternalTriggersForItem(String itemID) {
-        WorkItemRecord wir = getWorkItemRecord(itemID);
-        RdrTree tree = getTree(wir.getSpecIdentifier(), getDecompID(wir),
-                               XTYPE_ITEM_EXTERNAL_TRIGGER);
-        return getExternalTriggers(tree) ;
+        if (itemID != null) {
+            WorkItemRecord wir = getWorkItemRecord(itemID);
+            if (wir != null) {
+                RdrTree tree = getTree(wir.getSpecIdentifier(), getDecompID(wir),
+                                       XTYPE_ITEM_EXTERNAL_TRIGGER);
+                return getExternalTriggers(tree) ;
+            }
+        }
+        return null;
     }
 
     //***************************************************************************//
@@ -1637,8 +1646,8 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             }
             else {                                               // else item level
                 wir = getWorkItemRecord(id);
-                caseID = wir.getCaseID();
-                taskID = wir.getTaskID();
+                caseID = wir.getRootCaseID();
+                taskID = wir.getTaskName();
                 xLevel = XTYPE_ITEM_EXTERNAL_TRIGGER ;
             }
 

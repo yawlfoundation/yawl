@@ -200,8 +200,6 @@ public abstract class InterfaceBWebsideController {
         outputWriter.write(output.toString());
         outputWriter.flush();
         outputWriter.close();
-
-
     }
 
 

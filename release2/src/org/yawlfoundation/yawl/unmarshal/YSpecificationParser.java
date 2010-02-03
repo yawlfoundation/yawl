@@ -146,23 +146,23 @@ class YSpecificationParser {
         metaData.setTitle(metaDataElem.getChildText("title", _yawlNS));
 
         List creators = metaDataElem.getChildren("creator", _yawlNS);
-        for (int i = 0; i < creators.size(); i++) {
-            Element creatorElem = (Element) creators.get(i);
-            metaData.setCreator(creatorElem.getText());
+        for (Object o : creators) {
+            Element creatorElem = (Element) o;
+            metaData.addCreator(creatorElem.getText());
         }
 
         List subjects = metaDataElem.getChildren("subject", _yawlNS);
-        for (int i = 0; i < subjects.size(); i++) {
-            Element subjectElem = (Element) subjects.get(i);
-            metaData.setSubject(subjectElem.getText());
+        for (Object o : subjects) {
+            Element subjectElem = (Element) o;
+            metaData.addSubject(subjectElem.getText());
         }
 
         metaData.setDescription(metaDataElem.getChildText("description", _yawlNS));
 
         List contributors = metaDataElem.getChildren("contributor", _yawlNS);
-        for (int i = 0; i < contributors.size(); i++) {
-            Element contributor = (Element) contributors.get(i);
-            metaData.setContributor(contributor.getText());
+        for (Object o : contributors) {
+            Element contributor = (Element) o;
+            metaData.addContributor(contributor.getText());
         }
 
         metaData.setCoverage(metaDataElem.getChildText("coverage", _yawlNS));
@@ -170,7 +170,7 @@ class YSpecificationParser {
         String validFrom = metaDataElem.getChildText("validFrom", _yawlNS);
         if (validFrom != null) {
             try {
-                metaData.setValidFrom(metaData.dateFormat.parse(validFrom));
+                metaData.setValidFrom(YMetaData.dateFormat.parse(validFrom));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -178,7 +178,7 @@ class YSpecificationParser {
         String validUntil = metaDataElem.getChildText("validUntil", _yawlNS);
         if (validUntil != null) {
             try {
-                metaData.setValidUntil(metaData.dateFormat.parse(validUntil));
+                metaData.setValidUntil(YMetaData.dateFormat.parse(validUntil));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -186,7 +186,7 @@ class YSpecificationParser {
         String created = metaDataElem.getChildText("created", _yawlNS);
         if (created != null) {
             try {
-                metaData.setCreated(metaData.dateFormat.parse(created));
+                metaData.setCreated(YMetaData.dateFormat.parse(created));
             } catch (ParseException e) {
                 e.printStackTrace();
             }

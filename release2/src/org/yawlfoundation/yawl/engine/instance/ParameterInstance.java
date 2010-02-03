@@ -23,7 +23,7 @@ import org.jdom.Element;
  */
 public class ParameterInstance implements YInstance {
 
-    public enum Usage { inputOnly, outputOnly, inputOutput }
+    public enum Usage { inputOnly, outputOnly, inputOutput, undefined }
 
     private String name;
     private String dataType;
@@ -88,10 +88,12 @@ public class ParameterInstance implements YInstance {
     public void setUsage(Usage u) { usage = u; }
 
     public void setUsage(String s) {
-        if (s.equals("inputParam"))
-            usage = Usage.inputOnly;
-        else
-            usage = Usage.outputOnly ;
+        try {
+            usage = Usage.valueOf(s);
+        }
+        catch (Exception e) {
+            usage = Usage.undefined;
+        }
     }
 
 
@@ -122,6 +124,12 @@ public class ParameterInstance implements YInstance {
     public String getValue() { return value; }
 
     public void setValue(String s) { value = s; }
+
+    public void setValue(Element e) {
+        if (e != null) {
+            value = (e.getChildren().isEmpty()) ? e.getText() : JDOMUtil.elementToString(e) ;
+        }    
+    }
 
 
     public String toXML() {

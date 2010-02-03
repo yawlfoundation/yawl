@@ -1263,7 +1263,7 @@ public class YEngine implements InterfaceADesign,
                             _logger.debug("Recalling continue (looping bugfix???)");
                             netRunner.continueIfPossible(pmgr);
                         }
-                        instanceCache.closeWorkItem(workItem);
+                        instanceCache.closeWorkItem(workItem, doc);
 
                         /**
                          * If case is suspending, see if we can progress into a fully suspended state
@@ -2595,8 +2595,10 @@ public class YEngine implements InterfaceADesign,
             if (workItem != null) {
                 try {
                     YPersistenceManager pmgr = getPersistenceSession() ;
-                    workItem.setData(pmgr, JDOMUtil.stringToElement(data));
+                    Element eleData = JDOMUtil.stringToElement(data);
+                    workItem.setData(pmgr, eleData);
                     if (pmgr != null) pmgr.commit();
+                    instanceCache.updateWorkItemData(workItem, eleData);
                     return true ;
                 }
                 catch (YPersistenceException e) {
@@ -2655,7 +2657,7 @@ public class YEngine implements InterfaceADesign,
                        YPersistenceManager pmgr = getPersistenceSession();
                        runner.cancelTask(pmgr, taskID);
                        workItem.setStatusToDeleted(pmgr, statusFail);
-                       instanceCache.closeWorkItem(workItem);
+                       instanceCache.closeWorkItem(workItem, null);
                        runner.continueIfPossible(pmgr);
                        if (pmgr != null) pmgr.commit();
                    }

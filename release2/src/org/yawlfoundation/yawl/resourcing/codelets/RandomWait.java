@@ -82,7 +82,7 @@ public class RandomWait extends AbstractCodelet {
             randomWait *= 3600;                              // seconds -> hours
 
         try {
-            Thread.sleep(randomWait);
+            Thread.currentThread().sleep(randomWait);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -94,6 +94,11 @@ public class RandomWait extends AbstractCodelet {
 
         // return the Element created in the bae class and containing the result.
         return getOutputData();
+    }
+
+
+    public void cancel() {
+        Thread.currentThread().interrupt();
     }
 
 }

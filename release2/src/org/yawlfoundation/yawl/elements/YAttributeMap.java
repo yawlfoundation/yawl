@@ -14,7 +14,7 @@ public class YAttributeMap extends Hashtable<String, String> {
     public YAttributeMap() { }
 
     public YAttributeMap(Map<String, String> attributes) {
-        this.putAll(attributes);
+        if (attributes != null) this.putAll(attributes);
     }
 
     

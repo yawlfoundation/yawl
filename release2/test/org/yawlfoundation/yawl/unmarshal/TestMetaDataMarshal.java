@@ -31,17 +31,17 @@ public class TestMetaDataMarshal extends TestCase{
 
     public void setUp(){
         metaData = new YMetaData();
-        metaData.setContributor("Lachlan Aldred");
-        metaData.setContributor("Arthur ter Hofstede");
-        metaData.setContributor("Lindsay Bradford");
-        metaData.setContributor("Guy Redding");
+        metaData.addContributor("Lachlan Aldred");
+        metaData.addContributor("Arthur ter Hofstede");
+        metaData.addContributor("Lindsay Bradford");
+        metaData.addContributor("Guy Redding");
         metaData.setCoverage("covers this example test");
         metaData.setCreated(new Date());
-        metaData.setCreator("Peter Pan");
+        metaData.addCreator("Peter Pan");
         metaData.setDescription("This tests the metadata class");
         metaData.setStatus("This is not production class meta data");
-        metaData.setSubject("testing");
-        metaData.setSubject("and more testing");
+        metaData.addSubject("testing");
+        metaData.addSubject("and more testing");
         metaData.setTitle("Meta Data Test");
         metaData.setValidFrom(new Date());
         metaData.setValidUntil(new Date(new Date().getTime() + 86400000));
@@ -56,10 +56,10 @@ public class TestMetaDataMarshal extends TestCase{
                 "<subject>testing</subject>" +
                 "<subject>and more testing</subject>" +
                 "<description>This tests the metadata class</description>" +
-                "<contributor>Guy Redding</contributor>" +
-                "<contributor>Lindsay Bradford</contributor>" +
-                "<contributor>Arthur ter Hofstede</contributor>" +
                 "<contributor>Lachlan Aldred</contributor>" +
+                "<contributor>Arthur ter Hofstede</contributor>" +
+                "<contributor>Lindsay Bradford</contributor>" +
+                "<contributor>Guy Redding</contributor>" +
                 "<coverage>covers this example test</coverage>" +
                 "<validFrom>"+df.format(new Date())+"</validFrom>" +
                 "<validUntil>"+df.format(new Date(new Date().getTime() + 86400000))+"</validUntil>" +

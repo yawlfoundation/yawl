@@ -8,6 +8,7 @@
 
 package org.yawlfoundation.yawl.engine.instance;
 
+import org.jdom.Document;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YDecomposition;
@@ -62,7 +63,7 @@ public class WorkItemInstance implements YInstance {
     }
 
 
-    public void close() {
+    public void close(Document completionData) {
         taskID = getTaskID();
         id = getID();
         caseID = getCaseID();
@@ -73,6 +74,7 @@ public class WorkItemInstance implements YInstance {
         startTime = getStartTime();
         timerExpiry = getTimerExpiry();
         if (workItem.hasCompletedStatus()) completionTime = System.currentTimeMillis();
+        updateParameterValues(completionData);
         workItem = null;                             // deliberately drop the reference
     }
 
@@ -232,22 +234,50 @@ public class WorkItemInstance implements YInstance {
         if (decomp != null) {
             Map<String, YParameter> inputParams = decomp.getInputParameters();
             Map<String, YParameter> outputParams = decomp.getOutputParameters();
-            Map<String, YParameter> iandoParams = getIOParameters(inputParams, outputParams);
-            addParameterList(inputParams, task, ParameterInstance.Usage.inputOnly, data);
-            addParameterList(iandoParams, task, ParameterInstance.Usage.inputOutput, data);
-            addParameterList(outputParams, task, ParameterInstance.Usage.outputOnly, data);
-        }
-    }
-
-    private void addParameterList(Map<String, YParameter> paramMap, YTask task,
-                                  ParameterInstance.Usage usage, Element data) {
-        for (YParameter param : paramMap.values()) {
-            Element paramData = data.getChild(param.getPreferredName());
-            addParameterInstance(param, task, usage, paramData);
+            addParameterSets(inputParams, outputParams, task, data);
         }
     }
 
 
+    private void addParameterSets(Map<String, YParameter> inputParams,
+                                   Map<String, YParameter> outputParams,
+                                   YTask task, Element data) {
+        ParameterInstance.Usage usage;
+        for (YParameter param : inputParams.values()) {
+            String name = param.getPreferredName();
+            usage = (outputParams.containsKey(name)) ?
+                    ParameterInstance.Usage.inputOutput : ParameterInstance.Usage.inputOnly;
+            addParameterInstance(param, task, usage, data.getChild(name));
+        }
+
+        usage = ParameterInstance.Usage.outputOnly;
+        for (YParameter param : outputParams.values()) {
+            String name = param.getPreferredName();
+            if (! inputParams.containsKey(name)) {
+                addParameterInstance(param, task, usage, data.getChild(name));
+            }
+        }
+    }
+
+    public void updateParameterValues(Element data) {
+        if (data != null) {
+            updateParameterValues(new Document(data));
+        }
+    }
+
+    private void updateParameterValues(Document dataDoc) {
+         if (dataDoc != null) {
+             Element data = dataDoc.getRootElement();
+             for (ParameterInstance param : parameters.values()) {
+                Element paramData = data.getChild(param.getName()) ;
+                if (paramData != null) {
+                    param.setValue(paramData);
+                }
+            }
+        }
+    }
+
+    
     public ParameterInstance getParameterInstance(String name) {
         return parameters.get(name);
     }
@@ -313,26 +343,6 @@ public class WorkItemInstance implements YInstance {
             catch (NumberFormatException ignore) {}
         }
         return result;
-    }
-
-
-    private Map<String, YParameter> getIOParameters(Map<String, YParameter> inputParams,
-                                                    Map<String, YParameter> outputParams) {
-        Map<String, YParameter> ioParams = new HashMap<String, YParameter>();
-
-        // if input & output param have the same name, then its an I&O param
-        for (String name : inputParams.keySet()) {
-            if (outputParams.containsKey(name)) {
-                ioParams.put(name, inputParams.get(name));
-                outputParams.remove(name);
-            }
-        }
-
-        // now remove the I&O's from the input param set (avoiding a concurrency exception)
-        for (String name : ioParams.keySet()) {
-            inputParams.remove(name);
-        }
-        return ioParams;
     }
 
 }

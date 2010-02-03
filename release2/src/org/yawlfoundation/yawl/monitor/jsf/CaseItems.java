@@ -115,6 +115,62 @@ public class CaseItems extends AbstractPageBean {
     public void setStaticText(StaticText st) { staticText = st; }
 
 
+    private StaticText stCaseData = new StaticText();
+
+    public StaticText getStCaseData() { return stCaseData; }
+
+    public void setStCaseData(StaticText st) { stCaseData = st; }
+
+
+    private StaticText stCaseStart = new StaticText();
+
+    public StaticText getStCaseStart() { return stCaseStart; }
+
+    public void setStCaseStart(StaticText st) { stCaseStart = st; }
+
+
+    private StaticText stCaseStartText = new StaticText();
+
+    public StaticText getStCaseStartText() { return stCaseStartText; }
+
+    public void setStCaseStartText(StaticText st) { stCaseStartText = st; }
+
+
+    private StaticText stStartedBy = new StaticText();
+
+    public StaticText getStStartedBy() { return stStartedBy; }
+
+    public void setStStartedBy(StaticText st) { stStartedBy = st; }
+
+
+    private StaticText stStartedByText = new StaticText();
+
+    public StaticText getStStartedByText() { return stStartedByText; }
+
+    public void setStStartedByText(StaticText st) { stStartedByText = st; }
+
+
+    private StaticText stStartingService = new StaticText();
+
+    public StaticText getStStartingService() { return stStartingService; }
+
+    public void setStStartingService(StaticText st) { stStartingService = st; }
+
+
+    private StaticText stStartingServiceText = new StaticText();
+
+    public StaticText getStStartingServiceText() { return stStartingServiceText; }
+
+    public void setStStartingServiceText(StaticText st) { stStartingServiceText = st; }
+
+
+    private TextArea taCaseData = new TextArea();
+
+    public TextArea getTaCaseData() { return taCaseData; }
+
+    public void setTaCaseData(TextArea ta) { taCaseData = ta; }
+
+
     private PanelLayout layoutPanel = new PanelLayout();
 
     public PanelLayout getLayoutPanel() { return layoutPanel; }
@@ -274,6 +330,13 @@ public class CaseItems extends AbstractPageBean {
     public PanelGroup getPnlGroup() { return pnlGroup; }
 
     public void setPnlGroup(PanelGroup group) { pnlGroup = group; }
+
+
+    private PanelGroup pnlGroupCaseData ;
+
+    public PanelGroup getPnlGroupCaseData() { return pnlGroupCaseData; }
+
+    public void setPnlGroupCaseData(PanelGroup group) { pnlGroupCaseData = group; }
 
 
     private Button btnDetails = new Button();
