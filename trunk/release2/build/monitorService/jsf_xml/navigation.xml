@@ -6,14 +6,14 @@
         <from-view-id>/msLogin.jsp</from-view-id>
         <navigation-case>
             <from-outcome>showCases</from-outcome>
-            <to-view-id>/activeCases.jsp</to-view-id>
+            <to-view-id>/ActiveCases.jsp</to-view-id>
         </navigation-case>
     </navigation-rule>
     <navigation-rule>
-        <from-view-id>/activeCases.jsp</from-view-id>
+        <from-view-id>/ActiveCases.jsp</from-view-id>
         <navigation-case>
             <from-outcome>showWorkItems</from-outcome>
-            <to-view-id>/caseItems.jsp</to-view-id>
+            <to-view-id>/CaseItems.jsp</to-view-id>
         </navigation-case>
         <navigation-case>
             <from-outcome>loginPage</from-outcome>
@@ -21,14 +21,14 @@
         </navigation-case>
     </navigation-rule>
     <navigation-rule>
-        <from-view-id>/caseItems.jsp</from-view-id>
+        <from-view-id>/CaseItems.jsp</from-view-id>
         <navigation-case>
             <from-outcome>showParameters</from-outcome>
-            <to-view-id>/itemParams.jsp</to-view-id>
+            <to-view-id>/ItemParams.jsp</to-view-id>
         </navigation-case>
         <navigation-case>
             <from-outcome>showCases</from-outcome>
-            <to-view-id>/activeCases.jsp</to-view-id>
+            <to-view-id>/ActiveCases.jsp</to-view-id>
         </navigation-case>
         <navigation-case>
             <from-outcome>loginPage</from-outcome>
@@ -36,10 +36,10 @@
         </navigation-case>
     </navigation-rule>
     <navigation-rule>
-        <from-view-id>/itemParams.jsp</from-view-id>
+        <from-view-id>/ItemParams.jsp</from-view-id>
         <navigation-case>
             <from-outcome>showWorkItems</from-outcome>
-            <to-view-id>/caseItems.jsp</to-view-id>
+            <to-view-id>/CaseItems.jsp</to-view-id>
         </navigation-case>
         <navigation-case>
             <from-outcome>loginPage</from-outcome>

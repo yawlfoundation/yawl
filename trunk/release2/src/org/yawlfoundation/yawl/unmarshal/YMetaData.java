@@ -14,10 +14,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Holds the Specification Metadata
@@ -34,17 +31,17 @@ public class YMetaData {
     static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     
     private String title;
-    private Set creators = new HashSet();
-    private Set subjects = new HashSet();
+    private List<String> creators = new ArrayList<String>();
+    private List<String> subjects = new ArrayList<String>();
     private String description;
-    private Set contributors = new HashSet();
+    private List<String> contributors = new ArrayList<String>();
     private String coverage;
     private Date validFrom;
     private Date validUntil;
     private Date created;
     private YSpecVersion version = new YSpecVersion(INITIAL_VERSION);
     private String status;
-	  private Boolean persistent;
+	  private boolean persistent;
     private String uniqueID = null;                            // null for pre-2.0 specs
 
     public YMetaData() {
@@ -114,50 +111,48 @@ public class YMetaData {
         this.status = status;
     }
 
-    public Set getCreators() {
+    public List<String> getCreators() {
         return creators;
     }
 
-    public Set getSubjects() {
+    public List<String> getSubjects() {
         return subjects;
     }
 
-    public Set getContributors() {
+    public List<String> getContributors() {
         return contributors;
     }
 
-    public void setCreators(Set creators) {
+    public void setCreators(List<String> creators) {
         this.creators = creators;
     }
 
-    public void setSubjects(Set subjects) {
+    public void setSubjects(List<String> subjects) {
         this.subjects = subjects;
     }
 
-    public void setContributors(Set contributors) {
+    public void setContributors(List<String> contributors) {
         this.contributors = contributors;
     }
 
-    public void setCreator(String creator) {
+    public void addCreator(String creator) {
         this.creators.add(creator);
     }
 
-    public void setSubject(String subject) {
+    public void addSubject(String subject) {
         this.subjects.add(subject);
     }
 
-    public void setContributor(String contributor) {
+    public void addContributor(String contributor) {
         this.contributors.add(contributor);
     }
 
-    public boolean isPersistent()
-    {
-        return persistent.booleanValue();
+    public boolean isPersistent() {
+        return persistent;
     }
 
-    public void setPersistent(boolean persistent)
-    {
-        this.persistent = Boolean.valueOf(persistent);
+    public void setPersistent(boolean persistent) {
+        this.persistent = persistent;
     }
 
     public String getUniqueID() {
@@ -172,42 +167,41 @@ public class YMetaData {
         StringBuilder mds = new StringBuilder();
         mds.append("<metaData>");
         if (this.title != null) {
-            mds.append("<title>" + title + "</title>");
+            mds.append(StringUtil.wrap(title, "title"));
         }
-        for (Iterator iterator = creators.iterator(); iterator.hasNext();) {
-            mds.append("<creator>" + iterator.next() + "</creator>");
+        for (String creator : creators) {
+            mds.append(StringUtil.wrap(creator, "creator"));
         }
-        for (Iterator iterator = subjects.iterator(); iterator.hasNext();) {
-            mds.append("<subject>" + iterator.next() + "</subject>");
+        for (String subject : subjects) {
+            mds.append(StringUtil.wrap(subject, "subject"));
         }
         if (description != null) {
-            mds.append("<description>" + description + "</description>");
+            mds.append(StringUtil.wrap(description, "description"));
         }
-        for (Iterator iterator = contributors.iterator(); iterator.hasNext();) {
-            mds.append("<contributor>" + iterator.next() + "</contributor>");
+        for (String contributor : contributors) {
+            mds.append(StringUtil.wrap(contributor, "contributor"));
         }
         if (coverage != null) {
-            mds.append("<coverage>" + coverage + "</coverage>");
+            mds.append(StringUtil.wrap(coverage, "coverage"));
         }
         if (validFrom != null) {
-            mds.append("<validFrom>" + dateFormat.format(validFrom) + "</validFrom>");
+            mds.append(StringUtil.wrap(dateFormat.format(validFrom), "validFrom"));
         }
         if (validUntil != null) {
-            mds.append("<validUntil>" + dateFormat.format(validUntil) + "</validUntil>");
+            mds.append(StringUtil.wrap(dateFormat.format(validUntil), "validUntil"));
         }
         if (created != null) {
-            mds.append("<created>" + dateFormat.format(created) + "</created>");
+            mds.append(StringUtil.wrap(dateFormat.format(created), "created"));
         }
 
-        mds.append("<version>" + version.toString() + "</version>");
+        mds.append(StringUtil.wrap(version.toString(), "version"));
 
         if (status != null) {
-            mds.append("<status>" + status + "</status>");
+            mds.append(StringUtil.wrap(status, "status"));
         }
-        if (persistent != null)
-        {
-            mds.append("<persistent>" + persistent.toString() + "</persistent>");
-        }
+
+        mds.append(StringUtil.wrap(String.valueOf(persistent), "persistent"));
+
         if (uniqueID != null) {
             mds.append(StringUtil.wrap(uniqueID, "identifier"));
         }

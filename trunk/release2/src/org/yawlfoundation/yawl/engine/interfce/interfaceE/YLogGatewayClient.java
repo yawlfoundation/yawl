@@ -288,6 +288,20 @@ public class YLogGatewayClient extends Interface_Client {
     }
 
 
+    /**
+     * Gets the name of the service referenced by the key passed
+     * @param serviceKey the primary key identifier of the service
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getServiceName(long serviceKey, String handle) throws IOException {
+        return performGet("getServiceName", "key", serviceKey, handle);
+    }
+
+
+
+
     /*****************************************************************************/
 
     // CONVENIENCE CONNECTION METHODS - ALSO IN INTERFACE A //

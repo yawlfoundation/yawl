@@ -9,6 +9,7 @@
 package org.yawlfoundation.yawl.resourcing.datastore.eventlog;
 
 import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
@@ -28,7 +29,8 @@ public class EventLogger {
 
     public static enum event { offer, allocate, start, suspend, deallocate, delegate,
                                reallocate_stateless, reallocate_stateful, skip, pile,
-                               cancel, chain, complete, unoffer, unchain, unpile, resume }
+                               cancel, chain, complete, unoffer, unchain, unpile, resume,
+                               launch_case, cancel_case}
 
     public static enum audit { logon, logoff, invalid, unknown, shutdown, expired,
                                gwlogon, gwlogoff, gwinvalid, gwunknown, gwexpired}
@@ -45,8 +47,7 @@ public class EventLogger {
     public static void log(WorkItemRecord wir, String pid, event eType) {
         if (_logging) {
             ResourceEvent resEvent = new ResourceEvent(wir, pid, eType);
-            Persister persister = Persister.getInstance() ;
-            if (persister != null) persister.insert(resEvent);
+            insertEvent(resEvent);
         }
     }
 
@@ -74,12 +75,26 @@ public class EventLogger {
     }
 
 
+    public static void log(YSpecificationID specID, String caseID, String pid, boolean launch) {
+        if (_logging) {
+            event eType = launch ? event.launch_case : event.cancel_case;
+            ResourceEvent resEvent = new ResourceEvent(specID, caseID, pid, eType);
+            insertEvent(resEvent);
+        }
+    }
+
+
     public static void audit(String userid, audit eType) {
         if (_logging) {
             AuditEvent auditEvent = new AuditEvent(userid, eType) ;
-            Persister persister = Persister.getInstance() ;
-            if (persister != null) persister.insert(auditEvent);
+            insertEvent(auditEvent);
         }
+    }
+
+
+    private static void insertEvent(Object event) {
+        Persister persister = Persister.getInstance() ;
+        if (persister != null) persister.insert(event);
     }
 
 

@@ -123,7 +123,8 @@ System.out.println("marshalledSpecsString = " + marshalledSpecsString);
         YNet copyNet = _copy.getRootNet();
         assertEquals(origNet.getInputCondition().toXML(), copyNet.getInputCondition().toXML());
         assertEquals(origNet.getOutputCondition().toXML(), copyNet.getOutputCondition().toXML());
-        assertEquals(origNet.getLocalVariables().toString(), copyNet.getLocalVariables().toString());
+        assertEquals(new java.util.TreeMap(origNet.getLocalVariables()).toString(),
+                     new java.util.TreeMap(copyNet.getLocalVariables()).toString());
 //System.out.println("\n\norigXML\n" + _originalXMLString);
 //System.out.println("\n\n_copyXMLString\n" + _copyXMLString);
         assertEquals(_originalXMLString, _copyXMLString);

@@ -604,7 +604,9 @@ public class YWorkItem {
     }
 
     public void setAttributes(Map<String, String> attributes) {
-        _attributes = new YAttributeMap(attributes);
+        if (attributes != null) {
+            _attributes = new YAttributeMap(attributes);
+        }
     }
 
     public boolean requiresManualResourcing() {
@@ -757,6 +759,9 @@ public class YWorkItem {
     public YNetRunner getNetRunner() {
         return _workItemRepository.getNetRunner(_workItemID.getCaseID()) ;
     }
+
+
+    public Element getDataElement() { return _dataList; }
 
 
     public String getDataString() {

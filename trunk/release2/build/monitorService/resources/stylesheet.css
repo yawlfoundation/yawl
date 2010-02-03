@@ -60,11 +60,39 @@
     width: 570px;
 }
 
+.casesTablePnlGroup {
+    position: absolute;
+    left: 15px;
+    top: 80px;
+    width: 570px;
+}
+
 .itemsTablePnlGroup {
     position: absolute;
     left: 0;
-    top: 50px;
+    top: 200px;
     width: 920px;
+}
+
+.caseDataPnlGroup {
+    position: absolute;
+    left: 160px;
+    top: 50px;
+    height: 140px;
+    width: 600px;
+    border: 2px solid gray;
+}
+
+.caseDataTextArea {
+    left: 202px;
+    top: 30px;
+    width: 380px;
+    height: 100px;
+    position: absolute;
+    border: 2px solid gray;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    text-align: left;
 }
 
 .dataTable {
@@ -165,6 +193,10 @@
 .timeCol {
     width: 95px;
     text-align: right;
+}
+
+.dataCol {
+    width: 120px;
 }
 
 .timerStatusCol {

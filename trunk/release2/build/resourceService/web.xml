@@ -252,6 +252,16 @@
     </servlet>
 
 
+    <servlet>
+        <servlet-name>rsLogGateway</servlet-name>
+        <description>
+            Gateway to the service process logs
+        </description>
+        <servlet-class>org.yawlfoundation.yawl.resourcing.rsInterface.ResourceLogGateway</servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+
     <servlet-mapping>
         <servlet-name>InterfaceB_Servlet</servlet-name>
         <url-pattern>/ib</url-pattern>
@@ -272,6 +282,10 @@
         <url-pattern>/workqueuegateway</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>rsLogGateway</servlet-name>
+        <url-pattern>/logGateway</url-pattern>
+    </servlet-mapping>
 
     <!--
         Define the default session timeout for your application,
@@ -417,26 +431,4 @@
     </jsp-property-group>
   </jsp-config>
     
-    <!--
-         THIS SECTION DEFINES RICHFACES
-    -->
-
-    <!--<context-param>-->
-        <!--<param-name>org.richfaces.SKIN</param-name>-->
-        <!--<param-value>blueSky</param-value>-->
-    <!--</context-param>-->
-    <!--<filter>-->
-        <!--<display-name>RichFaces Filter</display-name>-->
-        <!--<filter-name>richfaces</filter-name>-->
-        <!--<filter-class>org.ajax4jsf.Filter</filter-class>-->
-    <!--</filter>-->
-    <!--<filter-mapping>-->
-        <!--<filter-name>richfaces</filter-name>-->
-        <!--<servlet-name>Faces Servlet</servlet-name>-->
-        <!--<dispatcher>REQUEST</dispatcher>-->
-        <!--<dispatcher>FORWARD</dispatcher>-->
-        <!--<dispatcher>INCLUDE</dispatcher>-->
-    <!--</filter-mapping>-->
-
-
 </web-app>

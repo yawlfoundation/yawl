@@ -564,7 +564,7 @@ public class caseMgt extends AbstractPageBean {
     private String cancelCase(String caseID) {
         try {
             _sb.setRunningCaseListChoice(null) ;
-            return _rm.cancelCase(caseID);
+            return _rm.cancelCase(caseID, _sb.getSessionhandle());
         }
         catch (IOException ioe) {
             msgPanel.error("IOException when attempting to cancel case") ;
@@ -650,7 +650,7 @@ public class caseMgt extends AbstractPageBean {
             _sb.setCaseLaunch(false);
         }
         try {
-            result = _rm.launchCase(specID, caseData);
+            result = _rm.launchCase(specID, caseData, _sb.getSessionhandle());
             if (_rm.successful(result))
                 updateRunningCaseList();
             else

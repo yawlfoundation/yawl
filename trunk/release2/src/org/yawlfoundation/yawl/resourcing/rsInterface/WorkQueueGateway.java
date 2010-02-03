@@ -337,11 +337,11 @@ public class WorkQueueGateway extends HttpServlet {
             String id = req.getParameter("specidentifier") ;
             String version = req.getParameter("specversion");
             String uri = req.getParameter("specuri");
-            result = _rm.launchCase(new YSpecificationID(id, version, uri), caseData);
+            result = _rm.launchCase(new YSpecificationID(id, version, uri), caseData, handle);
         }
         else if (action.equals("cancelCase")) {
             String caseID = req.getParameter("caseid") ;
-            result = _rm.cancelCase(caseID) ;
+            result = _rm.cancelCase(caseID, handle) ;
         }
         else if (action.equals("removeRegisteredService")) {
             String id = req.getParameter("serviceid");

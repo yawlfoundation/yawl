@@ -2,6 +2,7 @@ package org.yawlfoundation.yawl.engine;
 
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -116,4 +117,15 @@ public class YSpecificationID implements Comparable<YSpecificationID> {
         result.put("specuri", uri);
         return result;
     }
+
+
+    public String toXML() {
+        StringBuilder xml = new StringBuilder("<specificationid>");
+        xml.append(StringUtil.wrap(identifier, "identifier"))
+           .append(StringUtil.wrap(version.getVersion(), "version"))
+           .append(StringUtil.wrap(uri, "uri"))
+           .append("</specificationid>");
+        return xml.toString();           
+    }
+
 }

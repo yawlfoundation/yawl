@@ -130,6 +130,9 @@ public class YLogGateway extends HttpServlet {
            else if (action.equals("getInstanceEvents")) {
                result = _logMgr.getInstanceEvents(new Long(key)) ;
            }
+           else if (action.equals("getServiceName")) {
+               result = _logMgr.getServiceName(new Long(key)) ;
+           }
            else if (action.equals("getCompleteCaseLog")) {
                String caseID = req.getParameter("caseid") ;
                result = _logMgr.getCompleteCaseLog(caseID) ;

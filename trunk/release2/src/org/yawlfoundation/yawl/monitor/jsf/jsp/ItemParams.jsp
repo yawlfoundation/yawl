@@ -81,13 +81,13 @@
                                          styleClass="dataTable"
                                          columnClasses="itemIDCol,
                                                         taskIDCol,
+                                                        dataCol,
                                                         statusCol,
-                                                        serviceCol,
-                                                        timeCol,
-                                                        timeCol,
-                                                        timeCol,
-                                                        timerStatusCol,
-                                                        timerExpiryCol"
+                                                        dataCol,
+                                                        dataCol,
+                                                        dataCol,
+                                                        dataCol,
+                                                        dataCol"
                                          value="#{SessionBean.itemParams}"
                                          var="currentRow"
                                          width="940">

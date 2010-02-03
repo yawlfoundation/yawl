@@ -15,6 +15,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +39,8 @@ import java.util.Map;
  */
 public class ShellExecution extends AbstractCodelet {
 
+    Process _proc = null;
+
     // Constructor
     public ShellExecution() {
         super();
@@ -58,20 +62,21 @@ public class ShellExecution extends AbstractCodelet {
      */
     public Element execute(Element inData, List<YParameter> inParams,
                            List<YParameter> outParams) throws CodeletExecutionException {
+        final int BUF_SIZE = 8192;
         setInputs(inData, inParams, outParams);
-        String cmd = (String) getParameterValue("command");
-        StringWriter out = new StringWriter(8192);
+        List<String> cmd = createCommandList((String) getParameterValue("command"));
+        StringWriter out = new StringWriter(BUF_SIZE);
         try {
             ProcessBuilder pb = new ProcessBuilder(cmd);
             pb.redirectErrorStream(true);
             handleOptionalParameters(pb, inData);                // env and working dir
 
-            Process proc = pb.start();
+            _proc = pb.start();
 
             // get the result of the process execution
-            InputStream is = proc.getInputStream();
+            InputStream is = _proc.getInputStream();
             InputStreamReader isr = new InputStreamReader(is);
-            char[] buffer = new char[8192];
+            char[] buffer = new char[BUF_SIZE];
             int count;
 
             while ((count = isr.read(buffer)) > 0)
@@ -88,6 +93,13 @@ public class ShellExecution extends AbstractCodelet {
                                    cmd + "': " + e.getMessage());
         }
     }
+
+
+    private List<String> createCommandList(String cmd) {
+        if (cmd == null) return null;
+        return Arrays.asList(cmd.split("\\s+"));
+    }
+
 
 
     /**
@@ -115,6 +127,11 @@ public class ShellExecution extends AbstractCodelet {
         if (dir != null) {
             pb.directory(new File(dir.getText())) ;
         }
+    }
+
+
+    public void cancel() {
+        if (_proc != null) _proc.destroy();
     }
     
 }

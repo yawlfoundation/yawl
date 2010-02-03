@@ -152,4 +152,6 @@ public abstract class AbstractCodelet {
                                     List<YParameter> outParams)
                                     throws CodeletExecutionException;
 
+    public abstract void cancel();
+
 }

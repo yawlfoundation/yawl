@@ -73,4 +73,7 @@ public class XQueryEvaluator extends AbstractCodelet {
                     "Exception in query evaluation: '" + query + "'.");
         }
     }
+
+
+    public void cancel() {}
 }

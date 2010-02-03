@@ -503,6 +503,28 @@ public class YLogServer {
     }
 
 
+    public String getServiceName(long key) {
+        String result;
+        if (_pmgr != null) {
+            try {
+                YLogService service = getService(key);
+                if (service != null) {
+                    return StringUtil.wrap(service.getName(), "service");
+                }
+                else result = String.format(
+                        "<failure>No record of service with key '%d'.</failure>", key) ;
+           }
+           catch (YPersistenceException ype) {
+              result = _exErrStr ;
+           }
+       }
+       else result = _pmErrStr ;
+
+       return result ;
+
+    }
+
+
     private String getFullyPopulatedNetInstance(YLogNetInstance instance, YLogNet net,
                                          boolean root) throws YPersistenceException {
         StringBuilder xml = new StringBuilder();

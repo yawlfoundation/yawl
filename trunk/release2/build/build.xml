@@ -1008,6 +1008,10 @@
         <copy todir="${yawl.monitor.app.name}${webinf.dir}/engine/interfce/interfaceB">
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceB"/>
         </copy>
+
+        <copy todir="${yawl.monitor.app.name}${webinf.dir}/engine/interfce/interfaceE"
+              file="${classes.dir}${packageRoot}/engine/interfce/interfaceE/YLogGatewayClient.class"/>
+
         <copy todir="${yawl.monitor.app.name}${webinf.dir}/engine/instance">
             <fileset dir="${classes.dir}${packageRoot}/engine/instance"
                      excludes="InstanceCache.class"/>
@@ -1052,10 +1056,11 @@
 
         <copy todir="${yawl.monitor.app.name}${webinf.dir}/resourcing/jsf">
               <fileset dir="${classes.dir}${packageRoot}/resourcing/jsf"
-                       includes="SessionListener.class SessionTimeoutFilter.class
-                                 CachePhaseListener.class MessagePanel*.class
-                                 FontUtil.class"/>
+                       includes="MessagePanel*.class FontUtil.class"/>
         </copy>
+
+        <copy todir="${yawl.monitor.app.name}${webinf.dir}/resourcing/rsInterface"
+              file="${classes.dir}${packageRoot}/resourcing/rsInterface/ResourceLogGatewayClient.class"/>
 
         <!-- 2. copy resourcing classes to relevant dirs -->
         <copy todir="${yawl.monitor.app.name}${webinf.dir}/monitor">

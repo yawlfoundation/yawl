@@ -2031,6 +2031,10 @@ public class ResourceManager extends InterfaceBWebsideController {
         return null;
     }
 
+    private Participant getParticipantWithSessionHandle(String handle) {
+        return _liveSessions.get(handle);
+    }
+
     public Set<SpecificationData> getLoadedSpecs() {
         Set<SpecificationData> result = getSpecList() ;
         if (result != null) {
@@ -2121,8 +2125,9 @@ public class ResourceManager extends InterfaceBWebsideController {
      * @return a message from the engine indicating success or otherwise
      * @throws IOException if there's trouble talking to the engine
      */
-    public synchronized String cancelCase(String caseID) throws IOException {
+    public synchronized String cancelCase(String caseID, String userHandle) throws IOException {
         List<WorkItemRecord> liveItems = getLiveWorkItemsForCase(caseID) ;
+        YSpecificationID specID = null;                           // for logging only
 
         // cancel the case in the engine
         String result = _interfaceBClient.cancelCase(caseID, getEngineSessionHandle());
@@ -2131,11 +2136,17 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (successful(result)) {
             if (liveItems != null) {
                 for (WorkItemRecord wir : liveItems) {
+                    if (specID == null) specID = new YSpecificationID(wir);
                     removeFromAll(wir) ;
                     _workItemCache.remove(wir);
                 }
                 _chainedCases.remove(caseID);
-            }    
+            }
+
+            // log the cancellation
+            Participant p = getParticipantWithSessionHandle(userHandle);
+            String pid = (p != null) ? p.getID() : "admin" ;
+            EventLogger.log(specID, caseID, pid, false);
         }
         else _log.error("Error attempting to Cancel Case.") ;
 
@@ -2184,11 +2195,17 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public String launchCase(YSpecificationID specID, String caseData)
+    public String launchCase(YSpecificationID specID, String caseData, String handle)
             throws IOException {
         if (_serviceURI == null) setServiceURI();
-        return _interfaceBClient.launchCase(specID, caseData,
-                       getEngineSessionHandle(), getLogData(), _serviceURI) ;
+        String caseID = _interfaceBClient.launchCase(specID, caseData,
+                          getEngineSessionHandle(), getLogData(), _serviceURI) ;
+        if (successful(caseID)) {
+            Participant p = getParticipantWithSessionHandle(handle);
+            String pid = (p != null) ? p.getID() : "admin" ;
+            EventLogger.log(specID, caseID, pid, true);
+        }
+        return caseID;
     }
 
 
