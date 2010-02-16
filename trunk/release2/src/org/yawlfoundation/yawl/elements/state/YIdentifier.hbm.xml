@@ -5,7 +5,7 @@
 
 <hibernate-mapping>
 
-	<class name="org.yawlfoundation.yawl.elements.state.YIdentifier" table="YIdentifiers">
+	<class name="org.yawlfoundation.yawl.elements.state.YIdentifier" table="YIdentifiers" lazy="false">
 
 	    <id name="_idString" column="idString" type="string">
     		<generator class="assigned"/>

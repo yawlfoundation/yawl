@@ -73,6 +73,7 @@ public class ResourceLogGatewayClient extends Interface_Client {
 
     /**
      * Gets an summary xml list of all the specifications logged
+     * @param caseID the case id
      * @param handle an active sessionhandle
      * @return the resultant String response (log data or error message)
      * @throws java.io.IOException if there's a problem connecting to the engine
@@ -80,6 +81,23 @@ public class ResourceLogGatewayClient extends Interface_Client {
     public String getCaseStartedBy(String caseID, String handle) throws IOException {
         return performGet("getCaseStartedBy", "caseid", caseID, handle);
     }
+
+
+    /**
+     * Gets an summary xml list of all logged events for a workitem
+     * @param itemID the workitem's id string
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getWorkItemEvents(String itemID, boolean fullName, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("getWorkItemEvents", handle);
+        params.put("itemid", itemID);
+        params.put("fullname", String.valueOf(fullName));
+        return executeGet(_logURI, params);
+    }
+
 
 
 //    /**

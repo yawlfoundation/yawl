@@ -1,6 +1,10 @@
 package org.yawlfoundation.yawl.logging.table;
 
+import org.jdom.Element;
 import org.yawlfoundation.yawl.util.StringUtil;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * One row of the logEvent table, representing a single net or task instance runtime event
@@ -26,6 +30,10 @@ public class YLogEvent {
         this.timestamp = timestamp;
         this.serviceID = serviceID;
         this.rootNetInstanceID = rootNetInstanceID;
+    }
+
+    public YLogEvent(Element xml) {
+        fromXML(xml);
     }
 
     public long getEventID() {
@@ -54,6 +62,10 @@ public class YLogEvent {
 
     public long getTimestamp() {
         return timestamp;
+    }
+
+    public String getTimeStampString() {
+        return new SimpleDateFormat("yyyy-MM-dd H:mm:ss").format(new Date(timestamp));        
     }
 
     public void setTimestamp(long timestamp) {
@@ -87,6 +99,26 @@ public class YLogEvent {
         xml.append(StringUtil.wrap(String.valueOf(rootNetInstanceID), "rootNetInstanceKey"));
         xml.append("</event>");
         return xml.toString();
+    }
+
+
+    public void fromXML(Element xml) {
+        eventID = strToLong(xml.getAttributeValue("key"));
+        instanceID = strToLong(xml.getChildText("instanceKey"));
+        descriptor = xml.getChildText("descriptor");
+        timestamp = strToLong(xml.getChildText("timestamp"));
+        serviceID = strToLong(xml.getChildText("serviceKey"));
+        rootNetInstanceID = strToLong(xml.getChildText("rootNetInstanceKey"));
+    }
+
+
+    private long strToLong(String value) {
+        try {
+            return new Long(value);
+        }
+        catch (NumberFormatException nfe) {
+            return -1;
+        }
     }
 
 }

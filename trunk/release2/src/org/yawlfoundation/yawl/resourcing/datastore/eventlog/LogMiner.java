@@ -17,6 +17,8 @@ import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -130,38 +132,107 @@ public class LogMiner {
     }
 
 
+    public String getWorkItemEvents(String itemID, boolean fullName) {
+        List events = getWorkItemEventsList(itemID);
+        if (events != null) {
+            if (containsStartEvent(events)) {
+                String parentID = deriveParentID(itemID);
+                List parentEvents = getWorkItemEventsList(parentID);
+                if (parentEvents != null) {
+                    events.addAll(parentEvents);
+                }
+            }
+            if (fullName) events = replaceParticipantIDsWithNames(events);
+        }
+        return (events != null) ? eventListToXML(events) : _noRowsStr;
+    }
+
+
     public String getCaseStartedBy(String caseID) {
         String caseEvent = getCaseEvent(caseID, true);
         if (successful(caseEvent)) {
-            Element event = JDOMUtil.stringToElement(caseEvent);
-            if (event != null) {
-                Element startEvent = event.getChild("event");
-                if (startEvent != null) {
-                    String pid = startEvent.getChildText("participantid");
-                    if (pid != null) {
-                        if (! pid.equals("admin")) {
-                            Participant p = ResourceManager.getInstance().getOrgDataSet().getParticipant(pid);
-                            if (p != null) return p.getFullName();
-                        }
-                        else return "admin" ;
-                    }
-                }
-            }
+            return getParticipantName(getFieldValue(caseEvent, "participantid"));
         }
-        return "Unavailable"; 
+        else return "Unavailable"; 
     }
 
     /*****************************************************************************/
 
+    private List getWorkItemEventsList(String itemID) {
+        List rows = null;
+        if (_reader != null) {
+            String query = String.format("FROM ResourceEvent AS re WHERE re._itemID='%s'",
+                    itemID);
+            rows = _reader.execQuery(query) ;
+        }
+        return rows;
+    }
+
+
+    private boolean containsStartEvent(List events) {
+        for (Object o : events) {
+            ResourceEvent event = (ResourceEvent) o;
+            if (event.get_event().equals(EventLogger.event.start.name())) {
+               return true;
+            }
+        }
+        return false;
+    }
+
+
+    private String deriveParentID(String itemID) {
+        String[] parts = itemID.split(":");
+        String caseID = parts[0].substring(0, parts[0].lastIndexOf("."));
+        return caseID + ":" + parts[1];
+    }
+
+
+    private List<BaseEvent> replaceParticipantIDsWithNames(List events) {
+        List<BaseEvent> cloneList = new ArrayList<BaseEvent>();
+        for (Object o : events) {
+            ResourceEvent event = ((ResourceEvent) o).clone();
+            event.set_participantID(getParticipantName(event.get_participantID()));
+            cloneList.add(event) ;
+        }
+        return cloneList;
+    }
+
+
+    private String getParticipantName(String pid) {
+        String name = "Unavailable" ;
+        if (pid != null) {
+            if (! pid.equals("admin")) {
+                Participant p = ResourceManager.getInstance().getOrgDataSet().getParticipant(pid);
+                if (p != null) name = p.getFullName();
+            }
+            else name = "admin" ;
+        }
+        return name;
+    }
+
+
     private String eventListToXML(List rows) {
         StringBuilder xml = new StringBuilder("<events>") ;
         for (Object o : rows) {
-            ResourceEvent event = (ResourceEvent) o ;
+            BaseEvent event = (BaseEvent) o ;
             xml.append(event.toXML());
         }
         xml.append("</events>");
         return xml.toString();
     }
+
+
+    private String getFieldValue(String caseEventXML, String fieldname) {
+        Element eventElem = JDOMUtil.stringToElement(caseEventXML);
+        if (eventElem != null) {
+            Element firstEvent = eventElem.getChild("event");
+            if (firstEvent != null) {
+                return firstEvent.getChildText(fieldname);
+            }
+        }
+        return null;
+    }
+
 
     private boolean successful(String s) {
         return (s != null) && (! s.startsWith("<fail"));

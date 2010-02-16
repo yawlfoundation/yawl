@@ -246,6 +246,23 @@ public class ResourceGatewayClientAdapter {
 
 
     /**
+      * Checks the user credentials passed against those stored
+      * @param userid the userid of the Participant
+      * @param password the associated password
+      * @param checkForAdmin when true, also checks that the user has admin privileges
+      * @param handle a valid session handle
+      * @return an XML message of success or an appropriate error message
+      * @throws IOException if the service can't be reached
+      */
+    public String validateUserCredentials(String userid, String password,
+                                          boolean checkForAdmin, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(
+                _rgclient.validateUserCredentials(userid, password, checkForAdmin, handle));
+    }
+
+
+    /**
      * Gets the full name of each participant
      * @param handle the current sessionhandle
      * @return a List of participant full names

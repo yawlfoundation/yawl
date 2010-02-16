@@ -167,6 +167,13 @@ public class ResourceGateway extends HttpServlet {
            else if (action.equalsIgnoreCase("disconnect")) {
                rm.serviceDisconnect(handle);
            }
+           else if (action.equalsIgnoreCase("validateUserCredentials")) {
+               String userid = req.getParameter("userid");
+               String password = req.getParameter("password");
+               String adminStr = req.getParameter("checkForAdmin");
+               boolean admin = "true".equalsIgnoreCase(adminStr);
+               result = rm.validateUserCredentials(userid, password, admin);
+           }
            else if (action.equalsIgnoreCase("refreshOrgDataSet")) {
                rm.loadResources();
            }

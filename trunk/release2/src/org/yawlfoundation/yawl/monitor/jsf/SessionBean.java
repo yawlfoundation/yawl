@@ -15,11 +15,14 @@ import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.instance.CaseInstance;
 import org.yawlfoundation.yawl.engine.instance.ParameterInstance;
 import org.yawlfoundation.yawl.engine.instance.WorkItemInstance;
+import org.yawlfoundation.yawl.logging.table.YLogEvent;
 import org.yawlfoundation.yawl.monitor.MonitorClient;
 import org.yawlfoundation.yawl.monitor.sort.CaseOrder;
 import org.yawlfoundation.yawl.monitor.sort.ItemOrder;
 import org.yawlfoundation.yawl.monitor.sort.ParamOrder;
 import org.yawlfoundation.yawl.monitor.sort.TableSorter;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.BaseEvent;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
 import org.yawlfoundation.yawl.resourcing.jsf.MessagePanel;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
@@ -31,8 +34,7 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /*
  * Session scope data bean for all the worklist and admin pages. Each logged in user
@@ -458,21 +460,75 @@ public class SessionBean extends AbstractSessionBean {
 
     public List<ParameterInstance> refreshItemParams(String itemID, boolean sortPending) {
         try {
-            itemParams = getApplicationBean().getMonitorClient().getParameters(itemID);
+            itemParams = _monClient.getParameters(itemID);
             if (! sortPending) itemParams = _sorter.applyParamOrder(itemParams);
+            refreshItemEngineLogEvents(itemID);
+            refreshItemResourceLogEvents(itemID);
         }
         catch (IOException ioe) {
-            itemParams = null;
+            itemParams = new ArrayList<ParameterInstance>();
         }
         return itemParams;
     }
 
     public void sortItemParams(TableSorter.ParamColumn column) {
         refreshItemParams(selectedItem.getID(), true);
-        itemParams = _sorter.sort(itemParams, column);
+        if (itemParams != null) {
+            itemParams = _sorter.sort(itemParams, column);
+        }    
     }
 
+    public void refreshItemEngineLogEvents(String itemID) {
+        try {
+            itemEngineLogEvents = _monClient.getEventsForWorkItem(itemID);
+        }
+        catch (IOException ioe) {
+            itemEngineLogEvents = new ArrayList<YLogEvent>();
+        }
+        Collections.sort(itemEngineLogEvents, new EngineLogEventTimeComparator());
+    }
+
+    public void refreshItemResourceLogEvents(String itemID) {
+        try {
+            itemResourceLogEvents = _monClient.getResourceEventsForWorkItem(itemID);
+        }
+        catch (IOException ioe) {
+            itemResourceLogEvents = new ArrayList<ResourceEvent>();
+        }
+        Collections.sort(itemResourceLogEvents, new ResourceLogEventTimeComparator());
+    }
+
+    private List<YLogEvent> itemEngineLogEvents = null;
+
+    private List<ResourceEvent> itemResourceLogEvents = null;
 
 
+    public List<YLogEvent> getItemEngineLogEvents() {
+        return (itemEngineLogEvents != null) ? itemEngineLogEvents : new ArrayList<YLogEvent>();
+    }
+
+    public List<ResourceEvent> getItemResourceLogEvents() {
+        return (itemResourceLogEvents != null) ? itemResourceLogEvents : new ArrayList<ResourceEvent>();
+    }
+
+    class EngineLogEventTimeComparator implements Comparator<YLogEvent> {
+
+        public int compare(YLogEvent e1, YLogEvent e2) {
+            long difference = e1.getTimestamp() - e2.getTimestamp();
+
+            // guard against integer overrun
+            return difference > 0 ? 1 : difference < 0 ? -1 : 0;
+        }
+    }
+
+    class ResourceLogEventTimeComparator implements Comparator<BaseEvent> {
+
+        public int compare(BaseEvent e1, BaseEvent e2) {
+            long difference = e1.get_timeStamp() - e2.get_timeStamp();
+
+            // guard against integer overrun
+            return difference > 0 ? 1 : difference < 0 ? -1 : 0;
+        }
+    }
 
 }

@@ -66,6 +66,13 @@ public class ResourceLogGateway extends HttpServlet {
                String caseID = req.getParameter("caseid") ;
                result = _logDB.getCaseStartedBy(caseID);
            }
+           else if (action.equals("getWorkItemEvents")) {
+               String itemID = req.getParameter("itemid") ;
+               String fnStr = req.getParameter("fullname") ;
+               boolean fullName = (fnStr != null) && fnStr.equalsIgnoreCase("true");
+               result = _logDB.getWorkItemEvents(itemID, fullName);
+           }
+
            else result = _noAction; 
        }
        else throw new IOException("Invalid or disconnected session handle.");

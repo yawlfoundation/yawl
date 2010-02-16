@@ -2,10 +2,9 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
-<hibernate-mapping package="org.yawlfoundation.yawl.worklist.model">
+<hibernate-mapping package="org.yawlfoundation.yawl.engine.interfce">
 
-	<class name="org.yawlfoundation.yawl.engine.interfce.WorkItemRecord"
-           table="rs_WorkItemCache">
+	<class name="WorkItemRecord" table="rs_WorkItemCache">
 
         <id name="_id"
             column="wir_id"
@@ -14,12 +13,12 @@
         </id>
 
         <property name="_specIdentifier" column="specID" access="field"/>
-        <property name="_specVersion" column="specVersion" access="field"/>        
+        <property name="_specVersion" column="specVersion" access="field"/>
         <property name="_specURI" column="specURI" access="field"/>
         <property name="_caseID" column="caseID" access="field"/>
         <property name="_taskID" column="taskID" access="field"/>
         <property name="_uniqueID" column="uniqueID" access="field"/>
-        <property name="_extendedAttributes" column="ExtendedAttributes" access="field"/>
+        <property name="_extendedAttributes" column="ExtendedAttributes" access="field" type="text"/>
         <property name="_allowsDynamicCreation" column="canCreate" access="field"/>
         <property name="_codelet" column="codelet" access="field"/>
         <property name="_deferredChoiceGroupID" column="deferredID" access="field"/>

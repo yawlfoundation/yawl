@@ -1950,6 +1950,23 @@ public class ResourceManager extends InterfaceBWebsideController {
         return _liveSessions.containsKey(handle) || _liveAdmins.contains(handle);
     }
 
+    public String validateUserCredentials(String userid, String password, boolean admin) {
+        String result = "<success/>";
+        if (userid.equals(DEFAULT_ENGINE_USERNAME) && password.equals(DEFAULT_ENGINE_PASSWORD)) {
+            return result;
+        }
+        Participant p = getParticipantFromUserID(userid) ;
+        if (p != null) {
+            if (p.getPassword().equals(password)) {
+                if (admin && ! p.isAdministrator()) {
+                    result = "<failure>Administrative privileges required.</failure>" ;
+                }
+            } else result = "<failure>Incorrect Password</failure>" ;
+        } else result = "<failure>Unknown user name</failure>" ;
+
+        return result ;
+    }
+
 
     public Participant expireSession(String handle) {
         Participant p = null;

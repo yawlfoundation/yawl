@@ -1,38 +1,33 @@
 package org.yawlfoundation.yawl.resourcing.datastore.eventlog;
 
+import org.yawlfoundation.yawl.util.StringUtil;
+
 /**
  * Author: Michael Adams
  * Creation Date: 22/10/2009
  */
-public class AuditEvent {
+public class AuditEvent extends BaseEvent {
 
-    private long _id ;                                           // hibernate PK
     private String _userid ;
-    private String _event ;
-    private long _timeStamp ;
 
     public AuditEvent() { }
 
     public AuditEvent(String userid, EventLogger.audit event) {
+        super(event.name());
         _userid = userid;
-        _event = event.name();
-        _timeStamp = System.currentTimeMillis();
     }
-
-    public long get_id() { return _id; }
-
-    public void set_id(long id) { _id = id; }
 
     public String get_userid() { return _userid; }
 
     public void set_userid(String userid) { _userid = userid; }
 
-    public String get_event() { return _event; }
+    public String toXML() {
+        StringBuilder xml = new StringBuilder(String.format("<event key=\"%d\">", _id));
+        xml.append(StringUtil.wrap(_userid, "userid"))
+           .append(super.toXML())
+           .append("</event>") ;
+        return xml.toString();
+    }
 
-    public void set_event(String event) {_event = event; }
-
-    public long get_timeStamp() { return _timeStamp; }
-
-    public void set_timeStamp(long timeStamp) {_timeStamp = timeStamp; }
     
 }
