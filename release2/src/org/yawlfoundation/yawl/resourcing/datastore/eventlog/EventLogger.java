@@ -70,7 +70,7 @@ public class EventLogger {
             case WorkQueue.ALLOCATED : log(wir, pid, event.allocate); break;
             case WorkQueue.STARTED   : log(wir, pid, event.start); break;
             case WorkQueue.SUSPENDED : log(wir, pid, event.suspend); break;
-            case WorkQueue.UNOFFERED : log(wir, "admin", event.unoffer);
+            case WorkQueue.UNOFFERED : log(wir, "system", event.unoffer);
         }
     }
 

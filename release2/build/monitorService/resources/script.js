@@ -30,6 +30,15 @@ function addOnclickToDatatableRows() {
     }
 }
 
+function addBgColorToDatatableRows(dtid) {
+    var trs = document.getElementById(dtid)
+                      .getElementsByTagName('tbody')[0]
+                      .getElementsByTagName('tr');
+    for (var i = 0; i < trs.length; i++) {
+        trs[i].bgColor = getBgColorForRow(i);
+    }
+}
+
 
 // changes the background colour of the currently selected row, and puts the index
 // of the selected row in a hidden form field

@@ -95,6 +95,17 @@
     text-align: left;
 }
 
+.itemLogTablePnlGroup {
+    position: absolute;
+    top: 30px;
+    height: 100px;
+    width: 280px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    background-color: #f0f0f0;
+    border: 1px solid gray;
+}
+
 .dataTable {
     left: 0;
     top: 0px! important
@@ -115,6 +126,11 @@
 .dataTableHeader {
   background-color: #eeeeee;
   font-size: larger;
+  font-weight: bold;
+}
+
+.dataTableSubHeader {
+  background-color: #eeeeee;
   font-weight: bold;
 }
 

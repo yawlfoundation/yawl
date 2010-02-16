@@ -26,7 +26,7 @@ import java.util.Vector;
  * Time: 15:49:36
  * 
  */
-public class YParameter extends YVariable implements Comparable {
+public class YParameter extends YVariable implements Comparable<YVariable> {
 
     public static final int _INPUT_PARAM_TYPE = 0;
     public static final int _OUTPUT_PARAM_TYPE = 1;
@@ -163,9 +163,8 @@ public class YParameter extends YVariable implements Comparable {
     }
 
 
-    public int compareTo(Object o) {
-        YParameter other = (YParameter) o;
-        return this._ordering - other._ordering;
+    public int compareTo(YVariable other) {
+        return this._ordering - ((YParameter) other)._ordering;
     }
 
     public boolean isInput() {

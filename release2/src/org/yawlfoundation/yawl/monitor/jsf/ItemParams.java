@@ -108,6 +108,20 @@ public class ItemParams extends AbstractPageBean {
     public void setForm1(Form f) { form1 = f; }
 
 
+    private StaticText stEngineLogHeading = new StaticText();
+
+    public StaticText getStEngineLogHeading() { return stEngineLogHeading; }
+
+    public void setStEngineLogHeading(StaticText st) { stEngineLogHeading = st; }
+
+
+    private StaticText stResourceLogHeading = new StaticText();
+
+    public StaticText getStResourceLogHeading() { return stResourceLogHeading; }
+
+    public void setStResourceLogHeading(StaticText st) { stResourceLogHeading = st; }
+
+
     private StaticText staticText = new StaticText();
 
     public StaticText getStaticText() { return staticText; }
@@ -255,6 +269,90 @@ public class ItemParams extends AbstractPageBean {
     public void setColValueRows(HtmlOutputText hot) { colValueRows = hot; }
 
 
+    private HtmlDataTable dtabEngineLog = new HtmlDataTable();
+
+    public HtmlDataTable getDtabEngineLog() { return dtabEngineLog; }
+
+    public void setDtabEngineLog(HtmlDataTable hdt) { dtabEngineLog = hdt; }
+
+
+    private UIColumn colEngineEventTime = new UIColumn();
+
+    public UIColumn getColEngineEventTime() { return colEngineEventTime; }
+
+    public void setColEngineEventTime(UIColumn uic) { colEngineEventTime = uic; }
+
+
+    private UIColumn colEngineEvent = new UIColumn();
+
+    public UIColumn getColEngineEvent() { return colEngineEvent; }
+
+    public void setColEngineEvent(UIColumn uic) { colEngineEvent = uic; }
+
+
+    private HtmlOutputText colEngineTimeRows = new HtmlOutputText();
+
+    public HtmlOutputText getColEngineTimeRows() { return colEngineTimeRows; }
+
+    public void setColEngineTimeRows(HtmlOutputText hot) { colEngineTimeRows = hot; }
+
+
+    private HtmlOutputText colEngineEventRows = new HtmlOutputText();
+
+    public HtmlOutputText getColEngineEventRows() { return colEngineEventRows; }
+
+    public void setColEngineEventRows(HtmlOutputText hot) { colEngineEventRows = hot; }
+
+
+    private HtmlDataTable dtabResourceLog = new HtmlDataTable();
+
+    public HtmlDataTable getDtabResourceLog() { return dtabResourceLog; }
+
+    public void setDtabResourceLog(HtmlDataTable hdt) { dtabResourceLog = hdt; }
+
+
+    private UIColumn colResourceEventTime = new UIColumn();
+
+    public UIColumn getColResourceEventTime() { return colResourceEventTime; }
+
+    public void setColResourceEventTime(UIColumn uic) { colResourceEventTime = uic; }
+
+
+    private UIColumn colResourceEvent = new UIColumn();
+
+    public UIColumn getColResourceEvent() { return colResourceEvent; }
+
+    public void setColResourceEvent(UIColumn uic) { colResourceEvent = uic; }
+
+
+    private UIColumn colResourceUser = new UIColumn();
+
+    public UIColumn getColResourceUser() { return colResourceUser; }
+
+    public void setColResourceUser(UIColumn uic) { colResourceUser = uic; }
+
+
+    private HtmlOutputText colResourceTimeRows = new HtmlOutputText();
+
+    public HtmlOutputText getColResourceTimeRows() { return colResourceTimeRows; }
+
+    public void setColResourceTimeRows(HtmlOutputText hot) { colResourceTimeRows = hot; }
+
+
+    private HtmlOutputText colResourceEventRows = new HtmlOutputText();
+
+    public HtmlOutputText getColResourceEventRows() { return colResourceEventRows; }
+
+    public void setColResourceEventRows(HtmlOutputText hot) { colResourceEventRows = hot; }
+
+
+    private HtmlOutputText colResourceUserRows = new HtmlOutputText();
+
+    public HtmlOutputText getColResourceUserRows() { return colResourceUserRows; }
+
+    public void setColResourceUserRows(HtmlOutputText hot) { colResourceUserRows = hot; }
+
+
     private HiddenField hdnRowIndex = new HiddenField();
 
     public HiddenField getHdnRowIndex() { return hdnRowIndex; }
@@ -276,6 +374,27 @@ public class ItemParams extends AbstractPageBean {
     public void setPnlGroup(PanelGroup group) { pnlGroup = group; }
 
 
+    private PanelGroup pnlGroupLogData ;
+
+    public PanelGroup getPnlGroupLogData() { return pnlGroupLogData; }
+
+    public void setPnlGroupLogData(PanelGroup group) { pnlGroupLogData = group; }
+
+
+    private PanelGroup itemResourceLogPnlGroup ;
+
+    public PanelGroup getItemResourceLogPnlGroup() { return itemResourceLogPnlGroup; }
+
+    public void setItemResourceLogPnlGroup(PanelGroup group) { itemResourceLogPnlGroup = group; }
+
+
+    private PanelGroup itemEngineLogPnlGroup ;
+
+    public PanelGroup getItemEngineLogPnlGroup() { return itemEngineLogPnlGroup; }
+
+    public void setItemEngineLogPnlGroup(PanelGroup group) { itemEngineLogPnlGroup = group; }
+
+       
     private Button btnDetails = new Button();
 
     public Button getBtnDetails() { return btnDetails; }
@@ -374,13 +493,11 @@ public class ItemParams extends AbstractPageBean {
 
     public String btnDetails_action() {
         Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue()) - 1;
-        System.out.println("Index: " + selectedRowIndex);
-    //    _sb.setItemSelection(selectedRowIndex);
-   //     return "showParameters";
         return null;
     }
 
     public String btnBack_action() {
+        _sb.refreshCaseItems(false);
         return "showWorkItems";
     }
 

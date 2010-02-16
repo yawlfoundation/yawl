@@ -21,8 +21,8 @@ public class SpecificationDataComparator implements Comparator<SpecificationData
         if (sd1 == null) return -1;
         if (sd2 == null) return 1;
 
-        String id1 = sd1.getID().getKey();
-        String id2 = sd2.getID().getKey();
+        String id1 = sd1.getID().getUri();
+        String id2 = sd2.getID().getUri();
 
         // compare case-insensitive id strings
         return id1.compareToIgnoreCase(id2);

@@ -27,7 +27,7 @@ import java.util.Vector;
  * Time: 16:10:14
  *
  */
-public class YVariable implements Cloneable, YVerifiable, Comparable{
+public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> {
     protected YDecomposition _parentDecomposition;
     protected String _dataTypeName;
     protected String _name;
@@ -338,7 +338,7 @@ public class YVariable implements Cloneable, YVerifiable, Comparable{
         return _dataTypeName != null;
     }
 
-    public int compareTo(Object o) {
+    public int compareTo(YVariable v) {
         return 1;
     }
 

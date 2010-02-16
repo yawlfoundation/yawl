@@ -14,6 +14,7 @@ import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -29,6 +30,7 @@ public class WorkItemInstance implements YInstance {
 
     private YWorkItem workItem;
     private String taskID;
+    private String taskName;
     private String caseID;
     private String id;
     private String status;
@@ -50,6 +52,7 @@ public class WorkItemInstance implements YInstance {
     public WorkItemInstance(YWorkItem item) {
         this();
         workItem = item;
+        taskName = assignTaskName(item);
     }
 
     public WorkItemInstance(String xml) {
@@ -87,6 +90,14 @@ public class WorkItemInstance implements YInstance {
     
     public void setTaskID(String s) { taskID = s; }
 
+
+    public String getTaskName() {
+        return taskName;
+    }
+
+    public void setTaskName(String name) {
+        taskName = name;
+    }
 
     public String getID() {
         if (workItem != null) return workItem.getIDString();
@@ -303,6 +314,7 @@ public class WorkItemInstance implements YInstance {
         StringBuilder xml = new StringBuilder("<workitemInstance>");
         xml.append(StringUtil.wrap(getID(), "id"));
         xml.append(StringUtil.wrap(getTaskID(), "taskid"));
+        xml.append(StringUtil.wrap(getTaskName(), "taskname"));
         xml.append(StringUtil.wrap(getCaseID(), "caseid"));
         xml.append(StringUtil.wrap(getStatus(), "status"));
         xml.append(StringUtil.wrap(getResourceName(), "resource"));
@@ -323,6 +335,7 @@ public class WorkItemInstance implements YInstance {
         if (instance != null) {
             id = instance.getChildText("id");
             taskID = instance.getChildText("taskid");
+            taskName = instance.getChildText("taskname");
             caseID = instance.getChildText("caseid");
             status = instance.getChildText("status");
             resourceName = instance.getChildText("resource");
@@ -343,6 +356,12 @@ public class WorkItemInstance implements YInstance {
             catch (NumberFormatException ignore) {}
         }
         return result;
+    }
+
+
+    private String assignTaskName(YWorkItem item) {
+        YTask task = YEngine.getInstance().getTaskDefinition(item.getSpecificationID(), item.getTaskID());
+        return (task != null) ? task.getName() : null;
     }
 
 }

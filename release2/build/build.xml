@@ -1042,6 +1042,9 @@
               <fileset dir="${classes.dir}${packageRoot}/logging"
                        includes="YLogDataItem.class YLogDataItemList.class"/>
         </copy>
+        <copy todir="${yawl.monitor.app.name}${webinf.dir}/logging/table"
+              file="${classes.dir}${packageRoot}/logging/table/YLogEvent.class"/>
+
         <copy todir="${yawl.monitor.app.name}${webinf.dir}/util">
               <fileset dir="${classes.dir}${packageRoot}/util"
                        includes="JDOMUtil.class StringUtil.class CharsetFilter.class
@@ -1059,9 +1062,23 @@
                        includes="MessagePanel*.class FontUtil.class"/>
         </copy>
 
-        <copy todir="${yawl.monitor.app.name}${webinf.dir}/resourcing/rsInterface"
-              file="${classes.dir}${packageRoot}/resourcing/rsInterface/ResourceLogGatewayClient.class"/>
+        <copy todir="${yawl.monitor.app.name}${webinf.dir}/resourcing/resource">
+              <fileset dir="${classes.dir}${packageRoot}/resourcing/resource"
+                       includes="AbstractResource.class Participant.class UserPrivileges.class"/>
+        </copy>
+        
+        <copy todir="${yawl.monitor.app.name}${webinf.dir}/resourcing/rsInterface">
+              <fileset dir="${classes.dir}${packageRoot}/resourcing/rsInterface"
+                       includes="ResourceGatewayException.class ResourceLogGatewayClient.class
+                                 ResourceMarshaller.class ResourceGatewayClient.class
+                                 ResourceGatewayClientAdapter.class"/>
+        </copy>
 
+        <copy todir="${yawl.monitor.app.name}${webinf.dir}/resourcing/datastore/eventlog">
+              <fileset dir="${classes.dir}${packageRoot}/resourcing/datastore/eventlog"
+                       includes="ResourceEvent.class BaseEvent.class"/>
+        </copy>
+        
         <!-- 2. copy resourcing classes to relevant dirs -->
         <copy todir="${yawl.monitor.app.name}${webinf.dir}/monitor">
             <fileset dir="${classes.dir}${packageRoot}/monitor"

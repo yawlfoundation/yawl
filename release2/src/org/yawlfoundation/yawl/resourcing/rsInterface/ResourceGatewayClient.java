@@ -439,6 +439,25 @@ public class ResourceGatewayClient extends Interface_Client {
 
 
     /**
+     * Checks the user credentials passed against those stored
+     * @param userid the userid of the Participant
+     * @param password the associated password
+     * @param checkForAdmin when true, also checks that the user has admin privileges
+     * @param handle a valid session handle
+     * @return an XML message of success or an appropriate error message
+     * @throws IOException if the service can't be reached
+     */
+    public String validateUserCredentials(String userid, String password,
+                              boolean checkForAdmin, String handle)  throws IOException {
+        Map<String, String> params = prepareParamMap("validateUserCredentials", handle);
+        params.put("userid", userid);
+        params.put("password", password);
+        params.put("checkForAdmin", String.valueOf(checkForAdmin));
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
      * Gets an XML list of the Codelets known to the service
      * @param handle a valid session handle
      * @return the list of codelets as an XML string

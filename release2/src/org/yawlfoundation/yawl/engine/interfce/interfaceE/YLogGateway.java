@@ -137,6 +137,10 @@ public class YLogGateway extends HttpServlet {
                String caseID = req.getParameter("caseid") ;
                result = _logMgr.getCompleteCaseLog(caseID) ;
            }
+           else if (action.equals("getEventsForTaskInstance")) {
+               String itemID = req.getParameter("itemid") ;
+               result = _logMgr.getEventsForTaskInstance(itemID) ;
+           }
        }
        else throw new IOException("Invalid or disconnected session handle.");
 

@@ -9,13 +9,19 @@
 package org.yawlfoundation.yawl.logging;
 
 import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.engine.YWorkItem;
+import org.yawlfoundation.yawl.engine.instance.InstanceCache;
+import org.yawlfoundation.yawl.engine.instance.WorkItemInstance;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.logging.table.*;
 import org.yawlfoundation.yawl.util.StringUtil;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -30,7 +36,8 @@ import java.util.List;
  *  @version 2.0
  */
 
-public class YLogServer {
+public class
+        YLogServer {
 
     private static YLogServer _me ;
     private YPersistenceManager _pmgr ;
@@ -63,7 +70,6 @@ public class YLogServer {
 
 
     /*****************************************************************************/
-     //done //
 
     public String getNetInstancesOfSpecification(YSpecificationID specID) {
         String result ;
@@ -525,6 +531,38 @@ public class YLogServer {
     }
 
 
+    public String getEventsForTaskInstance(String itemID) {
+        String result ;
+        if (itemID != null) {
+            try {
+                YLogTaskInstance itemInstance = getTaskInstance(itemID);
+                if (itemInstance != null) {
+                    StringBuilder xml = new StringBuilder();
+                    xml.append(String.format("<taskevents id=\"%s\">", itemID));
+                    xml.append(getEventListAsXML(itemInstance.getTaskInstanceID()));
+
+                    long parentInstanceID = itemInstance.getParentTaskInstanceID();
+                    if (parentInstanceID > -1) {
+                        xml.append(getEventListAsXML(parentInstanceID));
+                    }
+                    xml.append("</taskevents>");
+                    result = xml.toString();
+                }
+                else result = _noRowsStr ;
+            }
+            catch (YPersistenceException ype) {
+                result = _exErrStr ;
+            }
+        }
+        else result = "<failure>Null item id</failure>" ;
+
+        return result;
+    }
+
+
+
+    /**********************************************************************/
+
     private String getFullyPopulatedNetInstance(YLogNetInstance instance, YLogNet net,
                                          boolean root) throws YPersistenceException {
         StringBuilder xml = new StringBuilder();
@@ -593,6 +631,18 @@ public class YLogServer {
         return xml.toString();
     }
 
+
+    private String getEventListAsXML(long instanceID) throws YPersistenceException {
+        StringBuilder xml = new StringBuilder();
+        List itemEvents = getInstanceEventObjects(instanceID);
+        for (Object o : itemEvents) {
+            YLogEvent event = (YLogEvent) o;
+            xml.append(event.toXML());
+        }
+        return xml.toString();
+    }
+
+
     private YLogSpecification getSpecification(long key) throws YPersistenceException {
         if (_pmgr != null) {
             return (YLogSpecification) _pmgr.selectScalar("YLogSpecification", "rowKey", key);
@@ -630,6 +680,35 @@ public class YLogServer {
             String quotedCaseID = String.format("'%s'", caseID);
             return (YLogNetInstance) _pmgr.selectScalar(
                     "YLogNetInstance", "engineInstanceID", quotedCaseID);
+        }
+        else return null;
+    }
+
+    private YLogTaskInstance getTaskInstance(String itemID) throws YPersistenceException {
+        if ((itemID != null) && (_pmgr != null)) {
+            String caseID = itemID.split(":")[0];
+            String taskName = getTaskNameForWorkItem(caseID, itemID);
+            if (taskName != null) {
+                List result = _pmgr.createQuery(
+                        "from YLogTaskInstance as ti, YLogTask as t where ti.engineInstanceID=:caseID" +
+                        " and t.name=:taskName and t.taskID=ti.taskID")
+                           .setString("caseID", caseID)
+                           .setString("taskName", taskName)
+                           .list();
+
+                if (! result.isEmpty()) {
+                    Object[] rows = (Object[]) result.get(0);
+                    return (YLogTaskInstance) rows[0];
+                }    
+            }
+        }
+        return null;
+    }
+
+    private YLogTaskInstance getTaskInstance(long key) throws YPersistenceException {
+        if (_pmgr != null) {
+             return (YLogTaskInstance) _pmgr.selectScalar(
+                    "YLogTaskInstance", "taskInstanceID", key);
         }
         else return null;
     }
@@ -691,5 +770,14 @@ public class YLogServer {
         }
         else return null;
     }
+
+
+    private String getTaskNameForWorkItem(String caseID, String itemID) {
+        String rootCaseID = caseID.contains(".") ? caseID.substring(0, caseID.indexOf(".")) : caseID;
+        InstanceCache instanceCache = YEngine.getInstance().getInstanceCache();
+        WorkItemInstance itemInstance = instanceCache.getWorkItemInstance(rootCaseID, itemID);
+        return (itemInstance != null) ? itemInstance.getTaskName() : null;
+    }
+
 
 }

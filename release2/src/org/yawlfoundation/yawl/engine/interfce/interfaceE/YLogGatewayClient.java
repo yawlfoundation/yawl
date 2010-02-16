@@ -300,6 +300,18 @@ public class YLogGatewayClient extends Interface_Client {
     }
 
 
+    /**
+     * Gets the set of events for a task instance (workitem)
+     * @param itemID the id of the workitem
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getEventsForTaskInstance(String itemID, String handle) throws IOException {
+        return performGet("getEventsForTaskInstance", "itemid", itemID, handle);
+    }
+
+
 
 
     /*****************************************************************************/

@@ -28,7 +28,7 @@ public class Persister implements Serializable {
 
 
     public Persister() {
-        _db = HibernateEngine.getInstance(true) ;
+        _db = HibernateEngine.getInstance(true) ; 
     }
 
     // only want one persister instance at runtime

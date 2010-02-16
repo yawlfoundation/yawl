@@ -287,7 +287,7 @@ public class MessagePanel extends PanelLayout {
     }
 
     private String getLongestWord(String msg) {
-        if (msg == null) return null;
+        if ((msg == null) || msg.length() == 0) return " ";
         String[] words = msg.split("\\s+");
         String longest = "";
         for (String word : words) {
