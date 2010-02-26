@@ -441,9 +441,13 @@ class TaskTimeoutDialog extends AbstractTaskDoneDialog {
 
       // workaround for too narrow an edit field
       chooser.setDateFormatString("dd/MM/yyyy ");
-      
+      chooser.setMinimumSize(chooser.getPreferredSize());
       dateValueField.add(chooser) ;
-      dateValueField.add(new JTimeSpinner()) ;
+
+      JTimeSpinner spinner = new JTimeSpinner();
+      spinner.setMinimumSize(spinner.getPreferredSize());
+      dateValueField.add(spinner) ;
+      
       return dateValueField ;
     }
 

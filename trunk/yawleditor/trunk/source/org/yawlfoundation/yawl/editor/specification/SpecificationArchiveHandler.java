@@ -104,7 +104,9 @@ public class SpecificationArchiveHandler {
 
   private File getSuggestedFileName() {
       String fileName = SpecificationModel.getInstance().getFileName();
-      if (fileName.equals("")) return null;
+      if (fileName.equals("")) {
+          fileName = SpecificationModel.getInstance().getId() + ".yawl";
+      }
       return new File(fileName.substring(0, fileName.lastIndexOf(".")) + ".yawl");
   }
   
@@ -117,6 +119,9 @@ public class SpecificationArchiveHandler {
     }
 
     File file = SAVE_FILE_CHOOSER.getSelectedFile();
+    if (! file.getName().endsWith(".yawl")) {
+        file = new File(file.getName() + ".yawl");
+    }
 
     if (file.exists() && 
         ! getFullNameFromFile(file, SAVE_SPECIFICATION_FILE_TYPE).equals(

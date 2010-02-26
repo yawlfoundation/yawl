@@ -70,12 +70,7 @@ public class DataVariable implements Serializable, Cloneable {
   public static final String PROPERTY_LOCATION = FileUtilities.getVariablePropertiesExtendedAttributePath();
   
   public DataVariable() {
-    setName("");
-    setDataType(XSDType.getString(DEFAULT_TYPE));
-    setInitialValue(""); 
-    setUsage(USAGE_INPUT_AND_OUTPUT);
-    setUserDefined(true);
-    setAttributes(null);
+    this("", XSDType.getString(DEFAULT_TYPE), "", USAGE_INPUT_AND_OUTPUT);
   }    
 
   public DataVariable(String name, String dataType, String initialValue, int usage) {
@@ -85,6 +80,8 @@ public class DataVariable implements Serializable, Cloneable {
     setUsage(usage);
     setUserDefined(true);
     setAttributes(null);
+    setLogPredicateStarted(null);
+    setLogPredicateCompletion(null);
   }
   
   public void setName(String name) {
@@ -134,17 +131,44 @@ public class DataVariable implements Serializable, Cloneable {
   public boolean getUserDefined() {
     return ((Boolean) serializationProofAttributeMap.get("userDefined")).booleanValue();
   }
+
+
+    public void setLogPredicateStarted(String predicate) {
+        serializationProofAttributeMap.put("logPredicateStarted", predicate);
+    }
+
+    public String getLogPredicateStarted() {
+        return (String) serializationProofAttributeMap.get("logPredicateStarted");
+    }
+
+    public void setLogPredicateCompletion(String predicate) {
+        serializationProofAttributeMap.put("logPredicateCompletion", predicate);
+    }
+
+    public String getLogPredicateCompletion() {
+        return (String) serializationProofAttributeMap.get("logPredicateCompletion");
+    }
+
+
   
   public boolean isSimpleDataType() {
     return isBaseDataType(getDataType());
   }
   
   public boolean isInputVariable() {
-    return getUsage() == USAGE_INPUT_AND_OUTPUT || getUsage() == USAGE_INPUT_ONLY;
+    return isInputUsage(getUsage());
+  }
+
+  public static boolean isInputUsage(int usage) {
+      return usage == USAGE_INPUT_AND_OUTPUT || usage == USAGE_INPUT_ONLY;
   }
 
   public boolean isOutputVariable() {
-    return getUsage() == USAGE_INPUT_AND_OUTPUT || getUsage() == USAGE_OUTPUT_ONLY;
+      return isOutputUsage(getUsage());
+  }
+
+  public static boolean isOutputUsage(int usage) {
+      return usage == USAGE_INPUT_AND_OUTPUT || usage == USAGE_OUTPUT_ONLY;
   }
   
   public boolean isLocalVariable() {

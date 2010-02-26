@@ -42,6 +42,7 @@ import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
+import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
 import org.yawlfoundation.yawl.resourcing.allocators.GenericAllocator;
@@ -271,7 +272,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   private static void generateEngineMetaData(SpecificationModel editorSpec, 
                                              YSpecification engineSpec) {
     
-    engineSpec.setVersion(YSpecification._Version2_0);
+    engineSpec.setVersion(YSpecification.Version2_0);
     
     YMetaData metaData = new YMetaData();
 
@@ -293,11 +294,9 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
     if (editorSpec.getAuthor() != null &&
         !editorSpec.getAuthor().trim().equals("")) {
-      metaData.setCreator(
-          XMLUtilities.quoteSpecialCharacters(
-            editorSpec.getAuthor()
-          )
-      );
+        List<String> authors = new ArrayList<String>();
+        authors.add(XMLUtilities.quoteSpecialCharacters(editorSpec.getAuthor()));
+        metaData.setCreators(authors);
     }
 
     YSpecVersion version = editorSpec.getVersionNumber();
@@ -373,7 +372,12 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     );
     
     establishEngineLocalVariables(engineNet, editorNet);
-    
+
+    YLogPredicate logPredicate = new YLogPredicate();
+    logPredicate.setStartPredicate(editorNet.getDecomposition().getLogPredicateStarted());
+    logPredicate.setCompletionPredicate(editorNet.getDecomposition().getLogPredicateCompletion());
+    engineNet.setLogPredicate(logPredicate);
+      
     return engineNet;
   }
 
@@ -737,7 +741,9 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
           editorInputVariable.getInitialValue(),
           null,  // default value for input params not possible.
           editorInputVariable.getAttributes(),
-          ordering++    
+          editorInputVariable.getLogPredicateStarted(),     
+          editorInputVariable.getLogPredicateCompletion(),
+          ordering++
           
       );
     }  
@@ -750,6 +756,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
                                               String initialValue,
                                               String defaultValue,
                                               Hashtable attributes,
+                                              String logPredicateStarted,
+                                              String logPredicateCompletion,
                                               int ordering) {
 
     YParameter engineParameter = 
@@ -776,6 +784,10 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
        );
     }
 
+    YLogPredicate predicate = new YLogPredicate();
+    predicate.setStartPredicate(logPredicateStarted);
+    predicate.setCompletionPredicate(logPredicateCompletion);
+    engineParameter.setLogPredicate(predicate);
     
     engineParameter.setOrdering(ordering);
     
@@ -801,9 +813,9 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
     
     if (engineParameterType == YParameter._INPUT_PARAM_TYPE) {
-      engineDecomposition.setInputParameter(engineParameter);
+      engineDecomposition.addInputParameter(engineParameter);
     } else {
-      engineDecomposition.setOutputParameter(engineParameter);
+      engineDecomposition.addOutputParameter(engineParameter);
     }
 
     if (dataType.equals(DataVariable.YAWL_SCHEMA_TIMER_TYPE)) {
@@ -838,6 +850,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
           null,  // intial value for output params not possible
           editorOutputVariable.getDefaultValue(),
           editorOutputVariable.getAttributes(),
+          editorOutputVariable.getLogPredicateStarted(),
+          editorOutputVariable.getLogPredicateCompletion(),     
           ordering++
       );
     }
@@ -980,6 +994,9 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     engineTask.getDecompositionPrototype().setCodelet(
             atomicEditorTask.getWSDecomposition().getCodelet()
     );
+
+    populateLogPredicates(engineTask.getDecompositionPrototype(),
+            atomicEditorTask.getWSDecomposition()) ;
 
     ResourceMap engineResourceMapping = new ResourceMap();
 
@@ -1251,6 +1268,18 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
     return true;
   }
+
+
+  private static void populateLogPredicates(YDecomposition engineDecomp,
+                                            WebServiceDecomposition editorDecomp) {
+      if ((editorDecomp.getLogPredicateStarted() != null) ||
+          (editorDecomp.getLogPredicateCompletion() != null)) {
+          YLogPredicate predicate = new YLogPredicate();
+          predicate.setStartPredicate(editorDecomp.getLogPredicateStarted());
+          predicate.setCompletionPredicate(editorDecomp.getLogPredicateCompletion());
+          engineDecomp.setLogPredicate(predicate);
+      }
+  }
   
   private static void populateTaskOutputParameterQueries(YTask engineTask, 
                                                          YAWLTask editorTask) {
@@ -1413,16 +1442,16 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
         firstEngineFlow = new YFlow(engineSource, implicitEngineCondition);
 
-        engineSource.setPostset(firstEngineFlow);
+        engineSource.addPostset(firstEngineFlow);
 
         YFlow secondEngineFlow = new YFlow(implicitEngineCondition, engineTarget);
         
-        implicitEngineCondition.setPostset(secondEngineFlow);
+        implicitEngineCondition.addPostset(secondEngineFlow);
         addFlowConditionMapping(editorFlow, implicitEngineCondition);
         
       } else { // no need for an implicit condition. Phew!
         firstEngineFlow = new YFlow(engineSource, engineTarget);
-        engineSource.setPostset(firstEngineFlow);
+        engineSource.addPostset(firstEngineFlow);
       }
       
       // Pass in data perspective data.

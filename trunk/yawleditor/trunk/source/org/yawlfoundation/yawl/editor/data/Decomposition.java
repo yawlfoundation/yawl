@@ -54,6 +54,8 @@ public class Decomposition implements Serializable {
     setDescription("The default (empty) decomposition");
     setVariables(new DataVariableSet());
     setAttributes(new Hashtable());
+    setLogPredicateStarted(null);
+    setLogPredicateCompletion(null);
   }
 
   public void setLabel(String label) {
@@ -75,6 +77,24 @@ public class Decomposition implements Serializable {
   public String getDescription() {
     return (String) serializationProofAttributeMap.get("description");
   }
+
+    public void setLogPredicateStarted(String predicate) {
+        serializationProofAttributeMap.put("logPredicateStarted", predicate);
+    }
+
+    public String getLogPredicateStarted() {
+        return (String) serializationProofAttributeMap.get("logPredicateStarted");
+    }
+
+    public void setLogPredicateCompletion(String predicate) {
+        serializationProofAttributeMap.put("logPredicateCompletion", predicate);
+    }
+
+    public String getLogPredicateCompletion() {
+        return (String) serializationProofAttributeMap.get("logPredicateCompletion");
+    }
+
+
   
   public DataVariableSet getVariables() {
     return (DataVariableSet) serializationProofAttributeMap.get("variables");

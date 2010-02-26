@@ -55,6 +55,8 @@ public class NetDecompositionUpdateDialog extends AbstractDoneDialog {
   private TitledBorder titledBorder;
   
   private String oldLabel;
+
+  protected LogPredicatesPanel logPredicatesPanel;
   
   public NetDecompositionUpdateDialog(Decomposition decomposition) {
     super("Update Decomposition", false);
@@ -71,7 +73,11 @@ public class NetDecompositionUpdateDialog extends AbstractDoneDialog {
           getDecomposition().setLabel(labelField.getText());
           SpecificationModel.getInstance().propogateDecompositionLabelChange(getDecomposition(), oldLabel);
         }
-        SpecificationUndoManager.getInstance().setDirty(true);                
+
+        getDecomposition().setLogPredicateStarted(logPredicatesPanel.getStartedPredicate());
+        getDecomposition().setLogPredicateCompletion(logPredicatesPanel.getCompletionPredicate());
+
+        SpecificationUndoManager.getInstance().setDirty(true);
       }
     });
     
@@ -93,6 +99,8 @@ public class NetDecompositionUpdateDialog extends AbstractDoneDialog {
   
   protected void setDecomposition(Decomposition decomposition) {
     this.decomposition = decomposition;
+    logPredicatesPanel.setStartedPredicate(decomposition.getLogPredicateStarted());
+    logPredicatesPanel.setCompletionPredicate(decomposition.getLogPredicateCompletion());
   }
   
   protected void setTitle(int scope) {
@@ -118,10 +126,24 @@ public class NetDecompositionUpdateDialog extends AbstractDoneDialog {
   protected JPanel getDecompositionPanel() {
     JPanel panel = new JPanel(new BorderLayout());
 
-    panel.add(getGenericDecompositionPanel(), BorderLayout.CENTER);
+    panel.add(buildBasePanel(), BorderLayout.CENTER);
 
     return panel;
   }
+
+    protected JTabbedPane buildBasePanel() {
+      JTabbedPane pane = new JTabbedPane();
+      pane.setFocusable(false);
+      pane.setBorder(new EmptyBorder(5,5,5,5));
+
+      pane.addTab("Standard", getGenericDecompositionPanel());
+
+      logPredicatesPanel = new LogPredicatesPanel(25, 4, LogPredicatesPanel.Parent.Decomposition);
+      pane.addTab("Log Predicates", logPredicatesPanel);
+
+      return pane;
+    }
+    
   
   private JPanel getGenericDecompositionPanel() {
 
