@@ -64,6 +64,8 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
   protected JPanel attributesPanel; //MLF
   protected ExtendedAttributesTableModel model; //MLF
   protected JTabbedPane pane; //MLF
+
+  protected LogPredicatesPanel logPredicatesPanel;  
   
   protected NetGraph graph;
   
@@ -101,8 +103,14 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
         if (! cbxAutomated.isSelected()) getWebServiceDecomposition().setCodelet(null);
         getWebServiceDecomposition().setVariables(getDataVariablePanel().getVariables());
 
+        String startPredicate = logPredicatesPanel.getStartedPredicate();
+        getWebServiceDecomposition().setLogPredicateStarted(startPredicate);
+
+        String completionPredicate = logPredicatesPanel.getCompletionPredicate();
+        getWebServiceDecomposition().setLogPredicateCompletion(completionPredicate);
       }
-      
+
+        
       private void applyChange() {
         
         getWebServiceDecomposition().setYawlServiceID(
@@ -130,6 +138,7 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
   protected void setDecomposition(Decomposition decomposition) {
     super.setDecomposition(decomposition);
     model.setDecomposition(decomposition);
+    loadLogPredicates(decomposition);
   }
   
   private WebServiceDecomposition getWebServiceDecomposition() {
@@ -154,8 +163,10 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
 
     panel = new JPanel(new BorderLayout()); //MLF
     createAttributePanel(panel); //MLF
-
     pane.addTab("Extended Attributes", panel); //MLF
+
+    logPredicatesPanel = new LogPredicatesPanel(30, 8, LogPredicatesPanel.Parent.Decomposition);
+    pane.addTab("Log Predicates", logPredicatesPanel);
 
     panel = new JPanel(new BorderLayout()); //MLF
     panel.setBorder(new EmptyBorder(5,5,5,5));
@@ -173,6 +184,11 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
     );
 
     return panel;
+  }
+
+  private void loadLogPredicates(Decomposition decomp) {
+      logPredicatesPanel.setStartedPredicate(decomp.getLogPredicateStarted());
+      logPredicatesPanel.setCompletionPredicate(decomp.getLogPredicateCompletion());
   }
 
 

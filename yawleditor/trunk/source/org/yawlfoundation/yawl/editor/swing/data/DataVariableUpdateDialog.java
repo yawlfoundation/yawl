@@ -68,7 +68,9 @@ abstract public class DataVariableUpdateDialog extends AbstractDoneDialog {
   protected JPanel attributesPanel; //MLF
   protected ExtendedAttributesTableModel model; //MLF
   protected JTabbedPane pane; //MLF
-  
+
+  protected LogPredicatesPanel logPredicatesPanel;  
+
   public DataVariableUpdateDialog(AbstractDoneDialog parent) {
     super("Update Variable", true);
     this.parent = parent;
@@ -91,6 +93,13 @@ abstract public class DataVariableUpdateDialog extends AbstractDoneDialog {
           getVariable().setUsage(
               usageComboBox.getSelectedIndex()
           );
+
+          String startPredicate = logPredicatesPanel.getStartedPredicate();
+          getVariable().setLogPredicateStarted(startPredicate);
+
+          String completionPredicate = logPredicatesPanel.getCompletionPredicate();
+          getVariable().setLogPredicateCompletion(completionPredicate);
+
           setVariableValueFromEditorContent();
         }
       }
@@ -123,6 +132,7 @@ abstract public class DataVariableUpdateDialog extends AbstractDoneDialog {
     new ActionAndFocusListener(getUsageComboBox()) {
       protected void process(Object eventSource) {
         enableVariableValueEditorIfAppropriate();
+        setLogPredicateEnablings();
       }
     };
   }
@@ -133,6 +143,7 @@ abstract public class DataVariableUpdateDialog extends AbstractDoneDialog {
     setTitle(
         getVariableScope()
     );
+    setLogPredicates();  
   }
   
   protected void setTitle(int scope) {
@@ -148,6 +159,24 @@ abstract public class DataVariableUpdateDialog extends AbstractDoneDialog {
   public DataVariable getVariable() {
     return this.variable;
   }
+
+  private void setLogPredicates() {
+    logPredicatesPanel.setStartedPredicate(variable.getLogPredicateStarted());
+    logPredicatesPanel.setCompletionPredicate(variable.getLogPredicateCompletion());
+    setLogPredicateEnablings(variable.getUsage());
+  }
+
+  protected void setLogPredicateEnablings(int usage) {
+      logPredicatesPanel.setStartedPredicateEnabled(DataVariable.isInputUsage(usage));
+      logPredicatesPanel.setCompletionPredicateEnabled(DataVariable.isOutputUsage(usage));
+  }
+
+  protected void setLogPredicateEnablings() {
+      if (getUsageComboBox().isEnabled() && getUsageComboBox().getSelectedItem() != null) {
+          setLogPredicateEnablings(getUsageComboBox().getSelectedIndex());
+      }
+  }
+
   
   protected JPanel getVariablePanel() {
     JPanel panel = new JPanel(new BorderLayout());
@@ -160,20 +189,13 @@ abstract public class DataVariableUpdateDialog extends AbstractDoneDialog {
   protected JTabbedPane buildBaseVariablePanel() {
     pane = new JTabbedPane();
     pane.setFocusable(false);
+    pane.setBorder(new EmptyBorder(5,5,5,5));
 
-    pane.setBorder(
-        new EmptyBorder(5,5,5,5)
-    );
-    
-    pane.addTab(
-        "Standard", 
-        buildStandardPanel()
-    );
-    
-    pane.addTab(
-        "Extended Attributes", 
-        createExtendedAttributePanel()
-    );
+    pane.addTab("Standard", buildStandardPanel());
+    pane.addTab("Extended Attributes", createExtendedAttributePanel());
+
+    logPredicatesPanel = new LogPredicatesPanel(40, 4, LogPredicatesPanel.Parent.DataVariable);
+    pane.addTab("Log Predicates", logPredicatesPanel);
 
     return pane;
   }

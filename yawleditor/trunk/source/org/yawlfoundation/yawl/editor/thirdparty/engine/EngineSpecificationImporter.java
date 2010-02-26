@@ -47,6 +47,7 @@ import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
+import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.unmarshal.YMetaData;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -118,8 +119,8 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
 
   public static YSpecification importEngineSpecificationAsEngineObjects(String specXML) {
     try {
-      List specifications = YMarshal.unmarshalSpecifications(specXML, false);
-      return (YSpecification) specifications.get(0); // Engine currently only supplies a single specification per file.
+      List<YSpecification> specifications = YMarshal.unmarshalSpecifications(specXML, false);
+      return specifications.get(0); // Engine currently only supplies a single specification per file.
     } catch (Exception e) {
         LogWriter.error("Error unmarshalling specification from XML.", e);
     }
@@ -141,20 +142,13 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   public static void convertEngineSpecObjectsToEditorObjects(
                           SpecificationModel editorSpec, 
                           YSpecification engineSpec) {
-    initialise();
-    
-    editorSpec.setId(
-      engineSpec.getID()    
-    );
-
+    initialise();    
+    editorSpec.setId(engineSpec.getURI());
     convertEngineMetaData(engineSpec);
     convertEngineDataTypeDefinition(engineSpec);
-
     convertRootNet(engineSpec);
     convertSubNetsAndOtherDecompositions(engineSpec);
-    
     populateEditorNets(engineSpec);
-    
   }
   
   private static void convertEngineMetaData(YSpecification engineSpecification) {
@@ -217,13 +211,13 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   private static void convertRootNet(YSpecification engineSpecification) {
     YNet engineRootNet = engineSpecification.getRootNet();
     
-    NetGraphModel editorNetModel = convertEngineNet(engineSpecification, engineRootNet);
+    NetGraphModel editorNetModel = convertEngineNet(engineRootNet);
     
     editorNetModel.setIsStartingNet(true);
 
   }
   
-  private static NetGraphModel convertEngineNet(YSpecification engineSpecification, YNet engineNet) {
+  private static NetGraphModel convertEngineNet(YNet engineNet) {
 
     NetGraph editorNet = new NetGraph();
     editorNet.setName(engineNet.getID());
@@ -234,6 +228,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     );
 
     convertNetLocalVariables(engineNet, editorNet);
+    convertLogPredicates(engineNet, editorNet.getNetModel().getDecomposition());
 
     SpecificationModel.getInstance().addNetNotUndoable(editorNet.getNetModel());
 
@@ -267,7 +262,8 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
           engineVariable.getName(),
           initialValue,
           engineVariable.getDefaultValue(),
-          new Hashtable()  // LWB: engine local variables do not have extended attributes, apparently.
+          new YLogPredicate(),   // local vars don't have log predicates
+          new Hashtable()      // local vars don't have extended attributes
         );
       }
     }
@@ -312,6 +308,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
                     engineParameter.getName(),
                     engineParameter.getInitialValue(),
                     engineParameter.getInitialValue(),
+                    engineParameter.getLogPredicate(),
                     engineParameter.getAttributes()
             );
         }
@@ -332,6 +329,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
                     engineParameter.getName(),
                     engineParameter.getInitialValue(),
                     engineParameter.getDefaultValue(),
+                    engineParameter.getLogPredicate(),
                     engineParameter.getAttributes()
             );
         }
@@ -343,6 +341,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
                                            String paramName, 
                                            String initialValue,
                                            String defaultValue,
+                                           YLogPredicate logPredicate,
                                            Hashtable attributes) {
     
     DataVariable editorVariable = new DataVariable();
@@ -352,6 +351,8 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     editorVariable.setDataType(dataType);
     editorVariable.setInitialValue(initialValue);
     editorVariable.setUserDefined(true);
+    editorVariable.setLogPredicateStarted(logPredicate.getStartPredicate());
+    editorVariable.setLogPredicateCompletion(logPredicate.getCompletionPredicate());
     editorVariable.setAttributes(attributes);
     
     editorDecomposition.getVariables().add(editorVariable);
@@ -366,7 +367,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
           !engineDecomposition.equals(engineSpecification.getRootNet())) {
         
         YNet engineSubNet = (YNet) engineDecomposition;
-        NetGraphModel editorNetModel = convertEngineNet(engineSpecification, engineSubNet);
+        NetGraphModel editorNetModel = convertEngineNet(engineSubNet);
         
         SpecificationModel.getInstance().addNet(editorNetModel);
         
@@ -394,6 +395,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
 
         convertInteractionSettings(engineDecomposition, editorDecomposition);
         convertExtendedAttributes(engineDecomposition, editorDecomposition);
+        convertLogPredicates(engineDecomposition, editorDecomposition);
 
         SpecificationModel.getInstance().addWebServiceDecomposition(editorDecomposition);
       }
@@ -407,6 +409,15 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
       editorDecomposition.setManualInteraction(engineDecomposition.requiresResourcingDecisions());
   }
 
+
+    private static void convertLogPredicates(YDecomposition engineDecomposition,
+                                             Decomposition editorDecomposition) {
+        YLogPredicate predicate = engineDecomposition.getLogPredicate();
+        if (predicate != null) {
+            editorDecomposition.setLogPredicateStarted(predicate.getStartPredicate());
+            editorDecomposition.setLogPredicateCompletion(predicate.getCompletionPredicate());
+        }
+    }
 
     private static void convertExtendedAttributes(YDecomposition engineDecomposition,
                                                    WebServiceDecomposition editorDecomposition) {
