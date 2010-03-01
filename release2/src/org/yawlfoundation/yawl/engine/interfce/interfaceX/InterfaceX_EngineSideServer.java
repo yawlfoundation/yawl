@@ -141,7 +141,9 @@ public class InterfaceX_EngineSideServer extends HttpServlet {
                 msg.append(_engine.updateCaseData(caseID, data, sessionHandle));
             }
             else if ("completeWorkItem".equals(action)) {
-                msg.append(_engine.completeWorkItem(workitemID, data, true, sessionHandle));
+                String logPredicate = request.getParameter("logPredicate");
+                msg.append(_engine.completeWorkItem(workitemID, data, logPredicate,
+                        true, sessionHandle));
             }
             else if ("continueWorkItem".equals(action)) {
                 msg.append(_engine.startWorkItem(workitemID, sessionHandle));

@@ -3,7 +3,7 @@
 
     <!-- ========================== Properties ================================= -->
 
-    <property name="app.version" value="_2.0.1"/>
+    <property name="app.version" value="_2.1beta"/>
     <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
                                            Mike Fowler, Matt Flaherty et al."/>
 
@@ -520,7 +520,7 @@
         <copy todir="${yawl.eng.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}"
                      includes="${persistence.libs} ${xsd.libs} ${common.libs} ${xerces.libs}
-                     ${jaxenFull} ${jcommon} ${postgres8} ${saxpath} ${saxon.libs}"
+                     ${jaxenFull} ${jcommon} ${postgres8} ${saxpath} ${saxon.libs} ${commonsLang}"
                      excludes="${servlet}"/>
         </copy>
 
@@ -739,6 +739,10 @@
     	   <fileset dir="${classes.dir}${packageRoot}/exceptions"
     	            includes="*.class" />
       	</copy>
+        <copy todir="${yawl.worklet.app.name}${webinf.dir}/logging">
+           <fileset dir="${classes.dir}${packageRoot}/logging"
+                    includes="YLogDataItem.class YLogDataItemList.class YLogPredicate.class" />
+        </copy>
       	<copy todir="${yawl.worklet.app.name}${webinf.dir}/schema">
       	   <fileset dir="${classes.dir}${packageRoot}/schema" includes="*.class" />
       	</copy>
@@ -750,7 +754,8 @@
         </copy>
         <copy todir="${yawl.worklet.app.name}${webinf.dir}/util">
               <fileset dir="${classes.dir}${packageRoot}/util"
-                       includes="JDOMUtil.class StringUtil.class CharsetFilter.class"/>
+                       includes="JDOMUtil.class StringUtil.class
+                                 CharsetFilter.class PasswordEncryptor.class"/>
         </copy>
 
         <!-- 2. copy worklet classes to relevant dirs -->
@@ -820,7 +825,7 @@
       	<copy todir="${yawl.worklet.app.name}/WEB-INF/lib">
     	    <fileset dir="${lib.dir}"
                    includes="${persistence.libs} ${xsd.libs} ${jdom} ${log4j}
-                             ${postgres8} ${saxon.libs}"/>
+                             ${postgres8} ${saxon.libs} ${commonsLang}"/>
         </copy>
 
         <!-- 4. Copy hibernate & postgres files (assumes version 8) -->
@@ -879,7 +884,8 @@
 
         <copy todir="${yawl.resource.app.name}${webinf.dir}/logging">
            <fileset dir="${classes.dir}${packageRoot}/logging"
-                    includes="YLogDataItem.class YLogDataItemList.class" />
+                    includes="YLogDataItem.class YLogDataItemList.class
+                              YLogPredicate.class YLogPredicateParser.class" />
         </copy>
 
         <copy todir="${yawl.resource.app.name}${webinf.dir}/schema">

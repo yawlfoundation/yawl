@@ -12,6 +12,7 @@ package org.yawlfoundation.yawl.elements.data;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YVerifiable;
+import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.schema.XMLToolsForYAWL;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -38,6 +39,7 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
     protected boolean _isUntyped = false;
     private String _documentation;
     private boolean _mandatory;
+    private YLogPredicate _logPredicate;
 
     public boolean isMandatory()
     {
@@ -175,6 +177,14 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
         _defaultValue = value;
     }
 
+    public YLogPredicate getLogPredicate() {
+        return _logPredicate;
+    }
+
+    public void setLogPredicate(YLogPredicate predicate) {
+        _logPredicate = predicate;
+    }
+
     public String toXML() {
         StringBuilder xml = new StringBuilder();
         xml.append("<localVariable");
@@ -188,32 +198,33 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
         xml.append(">");
 
         if (null != _documentation) {
-            xml.append("<documentation>"
-                    + _documentation +
-                    "</documentation>");
+            xml.append(StringUtil.wrap(_documentation, "documentation"));
         }
         if (_isUntyped || null != _name) {
             if (null != _name) {
-                xml.append("<name>" + _name + "</name>");
+                xml.append(StringUtil.wrap(_name, "name"));
                 if (_isUntyped) {
                     xml.append("<isUntyped/>");
-                } else {
-                    xml.append("<type>" + _dataTypeName + "</type>");
+                }
+                else {
+                    xml.append(StringUtil.wrap(_dataTypeName, "type"));
                     if (null != _namespaceURI) {
-                        xml.append("<namespace>" +
-                                _namespaceURI +
-                                "</namespace>");
+                        xml.append(StringUtil.wrap(_namespaceURI, "namespace"));
                     }
                 }
             }
-        } else if (null != _elementName) {
-            xml.append("<element>" + _elementName + "</element>");
+        }
+        else if (null != _elementName) {
+            xml.append(StringUtil.wrap(_elementName, "element"));
         }
         if (_initialValue != null) {
             xml.append(StringUtil.wrapEscaped(_initialValue, "initialValue"));
         }
         if (_defaultValue != null) {
             xml.append(StringUtil.wrapEscaped(_defaultValue, "defaultValue"));
+        }
+        if (_logPredicate != null) {
+            xml.append(_logPredicate.toXML());
         }
         return xml.toString();
     }
@@ -226,25 +237,26 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
 
 
     public Object clone() throws CloneNotSupportedException {
-        YVariable copy = (YVariable) super.clone();
-        return copy;
+        return super.clone();
     }
 
 
     public List<YVerificationMessage> verify() {
-        List messages = new Vector();
-        //check that the intital value if well formed
-        if (_initialValue != null && _initialValue.indexOf("<") != -1) {
-            Element test = JDOMUtil.stringToElement("<bla>" + _initialValue + "</bla>") ;
+        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
+
+        //check that the intital value is well formed
+        if (_initialValue != null && _initialValue.contains("<")) {
+            Element test = JDOMUtil.stringToElement("<dummy>" + _initialValue + "</dummy>") ;
             if (test == null) {
                 messages.add(new YVerificationMessage(
                         this,
-                        "Problem with InitialValue [" + _initialValue +
-                        "] of " + this,
+                        "Problem with InitialValue [" + _initialValue + "] of " + this,
                         YVerificationMessage.ERROR_STATUS));
             }
         }
+
         XMLToolsForYAWL xty = new XMLToolsForYAWL(); //todo MLF: convert to new schema handling
+
         //check schema contains type with typename.
         if (null != _name) {
             boolean isSchemForSchemType =

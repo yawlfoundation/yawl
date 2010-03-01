@@ -82,16 +82,22 @@ public class YSpecificationID implements Comparable<YSpecificationID> {
     
 
     @Override public boolean equals(Object obj) {
+        boolean equalYIDs = false;
         if (obj instanceof YSpecificationID) {
             YSpecificationID id = (YSpecificationID) obj;
 
-            return id.getIdentifier().equals(identifier) &&
-                   id.getVersion().equals(version) &&
-                   id.getUri().equals(uri) ;
+            if ((id.getIdentifier() == null) && (identifier == null)) {  // both pre-2.0
+                equalYIDs = id.getUri().equals(uri) && id.getVersion().equals(version) ;
+            }
+            else {
+
+                // if only one identifier is non-null its no match
+                equalYIDs = (id.getIdentifier() != null) && (identifier != null) &&
+                             id.getIdentifier().equals(identifier) &&
+                             id.getVersion().equals(version);
+            }
         }
-        else {
-            return false;
-        }
+        return equalYIDs;
     }
 
 
@@ -112,7 +118,7 @@ public class YSpecificationID implements Comparable<YSpecificationID> {
     // utility method for bundling up specIDs for passing across the interfaces
     public Map<String,String> toMap() {
         Map<String,String> result = new HashMap<String, String>();
-        result.put("specidentifier", identifier);
+        if (identifier != null) result.put("specidentifier", identifier);
         result.put("specversion", version.getVersion());
         result.put("specuri", uri);
         return result;
@@ -121,8 +127,8 @@ public class YSpecificationID implements Comparable<YSpecificationID> {
 
     public String toXML() {
         StringBuilder xml = new StringBuilder("<specificationid>");
-        xml.append(StringUtil.wrap(identifier, "identifier"))
-           .append(StringUtil.wrap(version.getVersion(), "version"))
+        if (identifier != null) xml.append(StringUtil.wrap(identifier, "identifier"));
+        xml.append(StringUtil.wrap(version.getVersion(), "version"))
            .append(StringUtil.wrap(uri, "uri"))
            .append("</specificationid>");
         return xml.toString();           

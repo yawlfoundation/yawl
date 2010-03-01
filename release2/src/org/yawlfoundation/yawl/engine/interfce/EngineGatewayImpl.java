@@ -310,18 +310,21 @@ public class EngineGatewayImpl implements EngineGateway {
      *
      * @param workItemID work item id
      * @param data data
+     * @param logPredicate a pre-parsed configurable logging string
      * @param sessionHandle  sessionhandle
      * @return result XML message.
      * @throws RemoteException if used in RMI mode
      */
-    public String completeWorkItem(String workItemID, String data, boolean force, String sessionHandle) throws RemoteException {
+
+    public String completeWorkItem(String workItemID, String data, String logPredicate,
+                                   boolean force, String sessionHandle) throws RemoteException {
         String sessionMessage = checkSession(sessionHandle);
         if (isFailureMessage(sessionMessage)) return sessionMessage;
 
         try {
             YWorkItem workItem = _engine.getWorkItem(workItemID);
             if (workItem != null) {
-                _engine.completeWorkItem(workItem, data, force);
+                _engine.completeWorkItem(workItem, data, logPredicate, force);
                 return SUCCESS;
             } else {
                 return failureMessage("WorkItem with ID [" + workItemID + "] not found.");
@@ -1030,9 +1033,11 @@ public class EngineGatewayImpl implements EngineGateway {
         StringBuilder specs = new StringBuilder();
         for (YSpecification spec : specSet) {
             specs.append("<specificationData>");
-            specs.append(StringUtil.wrap(spec.getID(), "id"));
             specs.append(StringUtil.wrap(spec.getURI(), "uri"));
 
+            if (spec.getID() != null) {
+                specs.append(StringUtil.wrap(spec.getID(), "id"));
+            }
             if (spec.getName() != null) {
                 specs.append(StringUtil.wrap(spec.getName(), "name"));
             }

@@ -12,19 +12,14 @@ package org.yawlfoundation.yawl.engine;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.yawlfoundation.yawl.elements.YAWLServiceReference;
-import org.yawlfoundation.yawl.elements.YAtomicTask;
-import org.yawlfoundation.yawl.elements.YAttributeMap;
-import org.yawlfoundation.yawl.elements.YNet;
+import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.yawlfoundation.yawl.logging.YEventLogger;
-import org.yawlfoundation.yawl.logging.YLogDataItem;
-import org.yawlfoundation.yawl.logging.YLogDataItemList;
+import org.yawlfoundation.yawl.logging.*;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -54,6 +49,7 @@ public class YWorkItem {
     private YWorkItemID _workItemID;
     private String _thisID = null;
     private YSpecificationID _specID;
+    private YTask _task;                                // task item is derived from
     private Date _enablementTime;
     private Date _firingTime;
     private Date _startTime;
@@ -79,6 +75,7 @@ public class YWorkItem {
 
     private URL _customFormURL ;
     private String _codelet ;
+    private String _logPredicateCompletion ;               // set by services on checkin
 
     private YEventLogger _eventLog = YEventLogger.getInstance();
     private Logger _log = Logger.getLogger(YWorkItem.class);
@@ -90,7 +87,7 @@ public class YWorkItem {
 
 
     /** Creates an enabled WorkItem */
-    public YWorkItem(YPersistenceManager pmgr, YSpecificationID specID,
+    public YWorkItem(YPersistenceManager pmgr, YSpecificationID specID, YTask task,
                      YWorkItemID workItemID, boolean allowsDynamicCreation,
                      boolean isDeadlocked) throws YPersistenceException {
 
@@ -98,8 +95,9 @@ public class YWorkItem {
 
         createWorkItem(pmgr, specID, workItemID,
                        isDeadlocked ? statusDeadlocked : statusEnabled,
-                       allowsDynamicCreation);
+                       allowsDynamicCreation); 
 
+        _task = task;
         _enablementTime = new Date();
         _eventLog.logWorkItemEvent(this, _status, null);
         if ((pmgr != null) && (! isDeadlocked)) pmgr.storeObject(this);
@@ -285,6 +283,7 @@ public class YWorkItem {
                     _specID, getEnablementTime(), this, _allowsDynamicCreation);
 
             // map relevant (genetic, perhaps?) attributes to child
+            childItem.setTask(getTask());
             childItem.setRequiresManualResourcing(requiresManualResourcing());
             childItem.setAttributes(getAttributes());
             childItem.setTimerParameters(getTimerParameters());
@@ -298,6 +297,10 @@ public class YWorkItem {
         return null;
     }
 
+    // set by custom service on checkin, and immediately before workitem completes 
+    public void setLogPredicateCompletion(String predicate) {
+        _logPredicateCompletion = predicate;
+    }
 
     /** write data input values to event log */
     public void setData(YPersistenceManager pmgr, Element data)
@@ -338,6 +341,10 @@ public class YWorkItem {
                     value = JDOMUtil.elementToString(child);
                 }
                 result.add(new YLogDataItem(descriptor, name, value, dataType));
+
+                // add any configurable logging predicates for this parameter
+                YLogDataItem dataItem = getDataLogPredicate(param, input);
+                if (dataItem != null) result.add(dataItem);
             }
         }
         return result;        
@@ -768,65 +775,119 @@ public class YWorkItem {
         return JDOMUtil.elementToString(_dataList) ;
     }
 
+    public YTask getTask() { return _task; }
+
+    public void setTask(YTask task) { _task = task; }    
 
     public String toXML() {
-        StringBuilder xmlBuff = new StringBuilder("<workItem");
-        if (_attributes != null) xmlBuff.append(_attributes.toXML());
-        xmlBuff.append(">");
-        xmlBuff.append(StringUtil.wrap(getTaskID(), "taskid"));
-        xmlBuff.append(StringUtil.wrap(getCaseID().toString(), "caseid"));
-        xmlBuff.append(StringUtil.wrap(getUniqueID(), "uniqueid"));
-        xmlBuff.append(StringUtil.wrap(_specID.getIdentifier(), "specidentifier"));
-        xmlBuff.append(StringUtil.wrap(String.valueOf(_specID.getVersion()), "specversion"));
-        xmlBuff.append(StringUtil.wrap(_specID.getUri(), "specuri"));
-        xmlBuff.append(StringUtil.wrap(_status.toString(), "status"));
-        xmlBuff.append(StringUtil.wrap(String.valueOf(_allowsDynamicCreation),
+        StringBuilder xml = new StringBuilder("<workItem");
+        if (_attributes != null) xml.append(_attributes.toXML());
+        xml.append(">");
+        xml.append(StringUtil.wrap(getTaskID(), "taskid"));
+        xml.append(StringUtil.wrap(getCaseID().toString(), "caseid"));
+        xml.append(StringUtil.wrap(getUniqueID(), "uniqueid"));
+        if (_specID.getIdentifier() != null)
+            xml.append(StringUtil.wrap(_specID.getIdentifier(), "specidentifier"));
+
+        xml.append(StringUtil.wrap(String.valueOf(_specID.getVersion()), "specversion"));
+        xml.append(StringUtil.wrap(_specID.getUri(), "specuri"));
+        xml.append(StringUtil.wrap(_status.toString(), "status"));
+        xml.append(StringUtil.wrap(String.valueOf(_allowsDynamicCreation),
                                                               "allowsdynamiccreation"));
-        xmlBuff.append(StringUtil.wrap(String.valueOf(_requiresManualResourcing),
+        xml.append(StringUtil.wrap(String.valueOf(_requiresManualResourcing),
                                                               "requiresmanualresourcing"));
-        xmlBuff.append(StringUtil.wrap(_codelet, "codelet"));
+        xml.append(StringUtil.wrap(_codelet, "codelet"));
         if (_deferredChoiceGroupID != null)
-            xmlBuff.append(StringUtil.wrap(_deferredChoiceGroupID, "deferredChoiceGroupID"));
+            xml.append(StringUtil.wrap(_deferredChoiceGroupID, "deferredChoiceGroupID"));
         if (_dataList != null)
-            xmlBuff.append(StringUtil.wrap(getDataString(), "data"));
-        xmlBuff.append(StringUtil.wrap(_df.format(getEnablementTime()), "enablementTime"));
-        xmlBuff.append(StringUtil.wrap(String.valueOf(getEnablementTime().getTime()),
+            xml.append(StringUtil.wrap(getDataString(), "data"));
+        xml.append(StringUtil.wrap(_df.format(getEnablementTime()), "enablementTime"));
+        xml.append(StringUtil.wrap(String.valueOf(getEnablementTime().getTime()),
                        "enablementTimeMs")) ;
         if (getFiringTime() != null) {
-            xmlBuff.append(StringUtil.wrap(_df.format(getFiringTime()), "firingTime"));
-            xmlBuff.append(StringUtil.wrap(String.valueOf(getFiringTime().getTime()),
+            xml.append(StringUtil.wrap(_df.format(getFiringTime()), "firingTime"));
+            xml.append(StringUtil.wrap(String.valueOf(getFiringTime().getTime()),
                        "firingTimeMs")) ;
         }
         if (getStartTime() != null) {
-            xmlBuff.append(StringUtil.wrap(_df.format(getStartTime()), "startTime"));
-            xmlBuff.append(StringUtil.wrap(String.valueOf(getStartTime().getTime()),
+            xml.append(StringUtil.wrap(_df.format(getStartTime()), "startTime"));
+            xml.append(StringUtil.wrap(String.valueOf(getStartTime().getTime()),
                          "startTimeMs")) ;
             if (_ownerService != null) {
-                xmlBuff.append(StringUtil.wrap(_ownerService.getServiceName(), "startedBy"));
+                xml.append(StringUtil.wrap(_ownerService.getServiceName(), "startedBy"));
             }    
         }
         if (_timerParameters != null) {
             YWorkItemTimer.Trigger trigger = (YWorkItemTimer.Trigger) _timerParameters.get("trigger");
             if (trigger != null) {
                 String triggerName = trigger.name();
-                xmlBuff.append(StringUtil.wrap(triggerName, "timertrigger"));
-                xmlBuff.append(StringUtil.wrap(String.valueOf(_timerExpiry), "timerexpiry"));
+                xml.append(StringUtil.wrap(triggerName, "timertrigger"));
+                xml.append(StringUtil.wrap(String.valueOf(_timerExpiry), "timerexpiry"));
             }    
         }
-        if (_customFormURL != null)
-            xmlBuff.append(StringUtil.wrap(_customFormURL.toString(), "customform"));
+        if (_customFormURL != null) {
+            xml.append(StringUtil.wrap(_customFormURL.toString(), "customform"));
+        }
+        YLogPredicate logPredicate = _task.getDecompositionPrototype().getLogPredicate();
+        if (logPredicate != null) {
+            xml.append(logPredicate.toXML());
+        }
 
-        xmlBuff.append("</workItem>");
-        return xmlBuff.toString();
+        xml.append("</workItem>");
+        return xml.toString();
     }
 
     private YLogDataItemList createLogDataList(String tag) {
+        YLogDataItemList itemList = new YLogDataItemList();
         if (_ownerService != null) {
-            YLogDataItem logItem = new YLogDataItem("OwnerService", tag,
-                                       _ownerService.getServiceName(), "string");
-            return new YLogDataItemList(logItem);
+            itemList.add(new YLogDataItem("OwnerService", tag,
+                    _ownerService.getServiceName(), "string"));
         }
-        else return null;
+
+        if (tag.equals(statusExecuting.name()) || tag.equals(statusComplete.name())) {
+            YLogDataItem dataItem = getLogPredicate(YWorkItemStatus.valueOf(tag));
+            if (dataItem != null) itemList.add(dataItem);
+        }
+
+        return (itemList.isEmpty()) ? null : itemList;
+    }
+
+    private YLogDataItem getLogPredicate(YWorkItemStatus itemStatus) {
+        YLogDataItem dataItem = null;
+        YLogPredicate logPredicate = _task.getDecompositionPrototype().getLogPredicate();
+        if (logPredicate != null) {
+            String predicate;
+            if (itemStatus.equals(YWorkItemStatus.statusExecuting)) {
+                predicate = logPredicate.getParsedStartPredicate(this);
+            }
+            else {
+                String rawPredicate;
+                if (_logPredicateCompletion != null) {       // means a service pre-parse
+                    rawPredicate = _logPredicateCompletion;
+                }
+                else {
+                    rawPredicate = logPredicate.getCompletionPredicate();
+                }
+                predicate = new YLogPredicateWorkItemParser(this).parse(rawPredicate);
+            }
+            if (predicate != null) {
+                dataItem = new YLogDataItem("Predicate", itemStatus.name(), predicate, "string");
+            }
+        }
+        return dataItem ;
+    }
+
+    private YLogDataItem getDataLogPredicate(YParameter param, boolean input) {
+        YLogDataItem dataItem = null;
+        YLogPredicate logPredicate = param.getLogPredicate();
+        if (logPredicate != null) {
+            String predicate = input ? logPredicate.getParsedStartPredicate(param) :
+                    logPredicate.getParsedCompletionPredicate(param);
+            if (predicate != null) {
+                dataItem = new YLogDataItem("Predicate", param.getPreferredName(), predicate, "string");
+            }
+        }
+        return dataItem ;
     }
 
 }

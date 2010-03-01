@@ -168,7 +168,7 @@ public class Marshaller {
             String rootNetID = specElement.getChildText("rootNetID");
             String specVersion = specElement.getChildText("specversion");
             
-            if (specID != null && specStatus != null) {
+            if (specURI != null && specStatus != null) {
                 YSpecificationID ySpecID = new YSpecificationID(specID, specVersion, specURI);
                 SpecificationData specData = new SpecificationData(ySpecID,
                             specName, specDoco, specStatus, version);
@@ -207,12 +207,12 @@ public class Marshaller {
         String status = workItemElement.getChildText("status");
         String caseID = workItemElement.getChildText("caseid");
         String taskID = workItemElement.getChildText("taskid");
-        String specID = workItemElement.getChildText("specidentifier");
+        String specURI = workItemElement.getChildText("specuri");
         String enablementTime = workItemElement.getChildText("enablementTime");
-        if (caseID != null && taskID != null && specID != null &&
+        if (caseID != null && taskID != null && specURI != null &&
             enablementTime != null && status != null) {
 
-            wir = new WorkItemRecord(caseID, taskID, specID, enablementTime, status);
+            wir = new WorkItemRecord(caseID, taskID, specURI, enablementTime, status);
 
             wir.setExtendedAttributes(unmarshalWorkItemAttributes(workItemElement));
             wir.setUniqueID(workItemElement.getChildText("uniqueid"));
@@ -224,7 +224,6 @@ public class Marshaller {
             wir.setDeferredChoiceGroupID(workItemElement.getChildText(
                                                               "deferredChoiceGroupid"));
             wir.setSpecVersion(workItemElement.getChildText("specversion"));
-            wir.setSpecURI(workItemElement.getChildText("specuri"));
             wir.setFiringTime(workItemElement.getChildText("firingTime"));
             wir.setStartTime(workItemElement.getChildText("startTime"));
             wir.setCompletionTimeMs(workItemElement.getChildText("completionTime"));
@@ -237,6 +236,9 @@ public class Marshaller {
             wir.setStartedBy(workItemElement.getChildText("startedBy"));
             wir.setTag(workItemElement.getChildText("tag"));
             wir.setCustomFormURL(workItemElement.getChildText("customform"));
+
+            String specid = workItemElement.getChildText("specidentifier") ;
+            if (specid != null) wir.setSpecIdentifier(specid);
 
             String resStatus = workItemElement.getChildText("resourceStatus");
             if (resStatus != null) wir.setResourceStatus(resStatus);
@@ -252,6 +254,12 @@ public class Marshaller {
             Element updateddata = workItemElement.getChild("updateddata");
             if ((null != updateddata) && (updateddata.getContentSize() > 0))
                    wir.setUpdatedData((Element) updateddata.getContent(0));
+
+            Element logPredicate = workItemElement.getChild("logPredicate");
+            if (logPredicate != null) {
+                wir.setLogPredicateStarted(logPredicate.getChildText("start"));
+                wir.setLogPredicateCompletion(logPredicate.getChildText("completion"));
+            }
                         
             return wir;
         }

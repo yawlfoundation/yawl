@@ -37,7 +37,9 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideC
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.logging.YEventLogger;
+import org.yawlfoundation.yawl.logging.YLogDataItem;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
+import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.logging.table.YAuditEvent;
 import org.yawlfoundation.yawl.schema.YDataValidator;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
@@ -252,9 +254,16 @@ public class YEngine implements InterfaceADesign,
             if (_logger.isDebugEnabled()) dump();
             showInfoMsg("Restore completed.");
         }
-        catch (YPersistenceException e) {
-            _logger.fatal("Failure to restart engine from persistence image", e);
+        catch (YPersistenceException ype) {
+            _logger.fatal("Failure to restart engine from persistence image", ype);
             throw new YPersistenceException("Failure to restart engine from persistence image");
+        }
+        catch (Exception e) {
+
+            // a non-YPersistenceException means the restore failed, but the engine is
+            // still operational
+            _logger.error("Persisted state failed to fully restore - engine is " +
+                          "operational but may be in an inconsistent state. Exception: ", e);
         }
         finally {
             _logger.debug("restore -->");
@@ -496,6 +505,13 @@ public class YEngine implements InterfaceADesign,
 
             // log case start event
             YIdentifier runnerCaseID = runner.getCaseID();
+            YLogPredicate logPredicate = runner.getNet().getLogPredicate();
+            if (logPredicate != null) {
+                String predicate = logPredicate.getParsedStartPredicate(runner.getNet());
+                if (predicate != null) {
+                    logData.add(new YLogDataItem("Predicate", "OnLaunch", predicate, "string"));
+                }            
+            }
             _yawllog.logCaseCreated(specID, runnerCaseID, logData, serviceRef);
 
             // cache instance
@@ -1055,7 +1071,7 @@ public class YEngine implements InterfaceADesign,
     /**
      * Starts a work item.  If the workitem param is enabled this method fires the task
      * and returns the first of its child instances in the exectuting state.
-     * Else if the workitem is fired then it moves the state from fired to exectuing.
+     * Else if the workitem is fired then it moves the state from fired to executing.
      * Either way the method returns the resultant work item.
      *
      * @param workItem the enabled, or fired workitem.
@@ -1197,25 +1213,18 @@ public class YEngine implements InterfaceADesign,
         return this.announcementContext;
     }
 
-    // MLR (31/10/07): stub added to keep backwards compatibility with custom services
-    // that do not support the status ForcedComplete
-    public void completeWorkItem(YWorkItem workItem, String data)
-                                     throws YStateException, YDataStateException,
-                                            YQueryException, YSchemaBuildingException,
-                                            YPersistenceException, YEngineStateException {
-	      completeWorkItem(workItem, data, false);
-    }
 
     /**
      * Completes the work item.
      *
      * @param workItem
      * @param data
+     * @param logPredicate - a pre-parse of the completion log predicate for this item
      * @param force - true if this represents a 'forceComplete', false for normal
      *                completion
      * @throws YStateException
      */
-    public void completeWorkItem(YWorkItem workItem, String data, boolean force)
+    public void completeWorkItem(YWorkItem workItem, String data, String logPredicate, boolean force)
             throws YStateException, YDataStateException, YQueryException,
                    YSchemaBuildingException, YPersistenceException, YEngineStateException{
 
@@ -1246,6 +1255,7 @@ public class YEngine implements InterfaceADesign,
                             }
                         }
                         Document doc = JDOMUtil.stringToDocument(data);
+                        workItem.setLogPredicateCompletion(logPredicate);
                         workItem.setStatusToComplete(pmgr, force);
                         workItem.completeData(pmgr, doc);
 
@@ -1321,7 +1331,7 @@ public class YEngine implements InterfaceADesign,
             String data = mapOutputDataForSkippedWorkItem(startedItem) ;
             Set<YWorkItem> children = workItem.getChildren() ;
             for (YWorkItem child : children)
-                completeWorkItem(child, data, false) ;
+                completeWorkItem(child, data, null, false) ;
         }
         else {
             throw new YStateException("Could not skip workitem: " + workItem.getIDString()) ;
@@ -1444,6 +1454,7 @@ public class YEngine implements InterfaceADesign,
             Element paramValue = JDOMUtil.stringToElement(paramValueForMICreation);
             YIdentifier id = netRunner.addNewInstance(pmgr, taskID,
                     workItem.getCaseID(), paramValue);
+            YTask task = getTaskDefinition(workItem.getSpecificationID(), workItem.getTaskID());
             YWorkItem firedItem = workItem.getParent().createChild(pmgr, id);
             if (pmgr != null) pmgr.commit();
             return firedItem;                          //success!!!!

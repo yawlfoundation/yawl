@@ -76,7 +76,7 @@ public interface EngineGateway extends Remote {
 
     public String rollbackWorkItem(String workItemID, String sessionHandle) throws RemoteException;
 
-    public String completeWorkItem(String workItemID, String data, boolean force, String sessionHandle) throws RemoteException;
+    public String completeWorkItem(String workItemID, String data, String logPredicate, boolean force, String sessionHandle) throws RemoteException;
 
     public String startWorkItem(String workItemID, String sessionHandle) throws RemoteException;
 

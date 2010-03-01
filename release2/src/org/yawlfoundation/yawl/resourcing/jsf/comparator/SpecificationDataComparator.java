@@ -21,11 +21,19 @@ public class SpecificationDataComparator implements Comparator<SpecificationData
         if (sd1 == null) return -1;
         if (sd2 == null) return 1;
 
-        String id1 = sd1.getID().getUri();
-        String id2 = sd2.getID().getUri();
+        String uri1 = sd1.getID().getUri();
+        String uri2 = sd2.getID().getUri();
 
-        // compare case-insensitive id strings
-        return id1.compareToIgnoreCase(id2);
+        // compare case-insensitive uri strings
+        int specCompare = uri1.compareToIgnoreCase(uri2);
+
+        if (specCompare == 0) {
+            String version1 = sd1.getID().getVersionAsString();
+            String version2 = sd2.getID().getVersionAsString();
+            specCompare = version1.compareTo(version2);
+        }
+        
+        return specCompare;
 	}
 
 }

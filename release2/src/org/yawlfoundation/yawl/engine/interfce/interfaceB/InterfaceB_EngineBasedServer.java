@@ -212,7 +212,8 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                 }
                 else if (action.equals("checkin")) {
                     String data = request.getParameter("data");
-                    msg.append(_engine.completeWorkItem(workItemID, data, false,
+                    String logPredicate = request.getParameter("logPredicate");
+                    msg.append(_engine.completeWorkItem(workItemID, data, logPredicate, false,
                             sessionHandle));
                 }
                 else if (action.equals("launchCase")) {
