@@ -21,6 +21,9 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideC
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.logging.YEventLogger;
+import org.yawlfoundation.yawl.logging.YLogDataItem;
+import org.yawlfoundation.yawl.logging.YLogDataItemList;
+import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.net.URL;
@@ -262,7 +265,18 @@ public class YNetRunner {
 
                 _logger.debug("Asking engine to finish case");
                 _engine.finishCase(_caseIDForNet);
-                YEventLogger.getInstance().logNetCompleted(_caseIDForNet, null);
+
+                // log it
+                YLogPredicate logPredicate = getNet().getLogPredicate();
+                YLogDataItemList logData = null;
+                if (logPredicate != null) {
+                    String predicate = logPredicate.getParsedCompletionPredicate(getNet());
+                    if (predicate != null) {
+                        logData = new YLogDataItemList(new YLogDataItem("Predicate",
+                                     "OnCompletion", predicate, "string"));
+                    }
+                }                
+                YEventLogger.getInstance().logNetCompleted(_caseIDForNet, logData);
             }
             if (! _cancelling && deadLocked()) notifyDeadLock(pmgr);
             cancel(pmgr);
@@ -318,7 +332,7 @@ public class YNetRunner {
             _deadlockedTasks.add(task);
 
             // create a new deadlocked workitem so that the deadlock can be logged
-            new YWorkItem(pmgr, _net.getSpecification().getSpecificationID(),
+            new YWorkItem(pmgr, _net.getSpecification().getSpecificationID(), task,
                     new YWorkItemID(_caseIDForNet, task.getID()), false, true);
 
             YProblemEvent event  = new YProblemEvent(_net, "Deadlocked",
@@ -359,6 +373,21 @@ public class YNetRunner {
         
         if (busyCompositeTask.t_complete(pmgr, caseIDForSubnet, rawSubnetData)) {
             _busyTasks.remove(busyCompositeTask);
+
+            // log the completing net
+            YLogPredicate logPredicate = busyCompositeTask.getDecompositionPrototype().getLogPredicate();
+            YLogDataItemList logData = null;
+            if (logPredicate != null) {
+                String predicate = logPredicate.getParsedCompletionPredicate(
+                        busyCompositeTask.getDecompositionPrototype());
+                if (predicate != null) {
+                    logData = new YLogDataItemList(new YLogDataItem("Predicate",
+                                 "OnCompletion", predicate, "string"));
+                }
+            }
+
+            YEventLogger.getInstance().logNetCompleted(caseIDForSubnet, logData);
+
 
             //check to see if completing this task resulted in completing the net.
             if (this.isCompleted() && _net.getOutputCondition().getIdentifiers().size() == 1) {
@@ -600,9 +629,8 @@ public class YNetRunner {
             _busyTaskNames.add(task.getID());
             if (pmgr != null) pmgr.updateObject(this);
 
-            Iterator caseIDs = task.t_fire(pmgr).iterator();
-            while (caseIDs.hasNext()) {
-                YIdentifier id = (YIdentifier) caseIDs.next();
+            List<YIdentifier> caseIDs = task.t_fire(pmgr);
+            for (YIdentifier id : caseIDs) {
                 task.t_start(pmgr, id);
             }
         }
@@ -665,7 +693,7 @@ public class YNetRunner {
         //creating a new work item puts it into the work item
         //repository automatically.
         YWorkItem workItem = new YWorkItem(pmgr,
-                atomicTask.getNet().getSpecification().getSpecificationID(),
+                atomicTask.getNet().getSpecification().getSpecificationID(), atomicTask,
                 new YWorkItemID(caseIDForNet, atomicTask.getID()),
                 allowDynamicCreation, false);
 

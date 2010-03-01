@@ -36,7 +36,6 @@ public class YParameter extends YVariable implements Comparable<YVariable> {
     private boolean _cutsThroughDecompositionStateSpace;
     private int _paramType;
     private YAttributeMap _attributes = new YAttributeMap();
-//    private boolean _mandatory = false;
 
 
     public YParameter() { }
@@ -65,17 +64,6 @@ public class YParameter extends YVariable implements Comparable<YVariable> {
     }
 
 
-//    /**
-//     * Establishes whether or not the parameter is meant to be mandatory
-//     * @param isMandatory
-//     */
-//    public void setManadatory(boolean isMandatory){
-//        //todo make this mean something to the engine because at the moment it means nothing
-////        _mandatory = isMandatory;
-//        super.setMandatory(isMandatory);
-//    }
-
-
     /**
      * Set whether the param bypasses the decomposition's state space.  Can only be set
      * on an input param.
@@ -89,11 +77,6 @@ public class YParameter extends YVariable implements Comparable<YVariable> {
             throw new IllegalArgumentException("Cannot be set on input param.");
         }
     }
-
-
-//    public boolean isMandatory() {
-//        return super.isMandatory();
-//    }
 
 
     public void setOrdering(int ordering) {

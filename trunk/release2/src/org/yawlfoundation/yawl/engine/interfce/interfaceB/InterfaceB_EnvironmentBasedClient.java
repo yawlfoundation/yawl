@@ -336,6 +336,28 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * Succesfully doing so will cause the work item to be completed in the engine.
      * @param workItemID the work item id.
      * @param data formated data eg. <data><param1Name>value</param1Name></data>
+     * @param logPredicate configurable logging string to be logged with the checkin
+     * @param sessionHandle the session handle
+     * @return in case success returns the work item as xml. In case of failure
+     * returns the reason for failure.
+     * @throws IOException if engine cannot be found.
+     */
+    public String checkInWorkItem(String workItemID, String data, String logPredicate, String sessionHandle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("checkin", sessionHandle);
+        params.put("data", data);
+        params.put("workItemID", workItemID);
+        params.put("logPredicate", logPredicate);
+        return executePost(_backEndURIStr, params);
+    }
+
+
+    /**
+     * @deprecated since 2.1 - use checkInWorkItem(String, String, String, String) instead
+     * Checks the work item back into the engine once the task is complete.
+     * Succesfully doing so will cause the work item to be completed in the engine.
+     * @param workItemID the work item id.
+     * @param data formated data eg. <data><param1Name>value</param1Name></data>
      * @param sessionHandle the session handle
      * @return in case success returns the work item as xml. In case of failure
      * returns the reason for failure.
@@ -659,7 +681,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     public boolean isAdministrator(String sessionHandle) throws IOException {
         String result = executeGet(_backEndURIStr, prepareParamMap("checkIsAdmin",
                                                                    sessionHandle));
-        return (result.indexOf("Granted") != -1);
+        return (result.contains("Granted"));
     }
 
     /**

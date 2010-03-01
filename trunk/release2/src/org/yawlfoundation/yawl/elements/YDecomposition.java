@@ -14,6 +14,7 @@ import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YCaseData;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
@@ -42,6 +43,7 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
     protected Document _data;
     private YCaseData _casedata = null;
     private YAttributeMap _attributes;
+    private YLogPredicate _logPredicate;
 
     // if true, this decomposition requires resourcing decisions made at runtime
     protected boolean _manualInteraction = true;
@@ -183,6 +185,10 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
 
     public void setCodelet(String codelet) { _codelet = codelet ; }
 
+    public YLogPredicate getLogPredicate() { return _logPredicate; }
+
+    public void setLogPredicate(YLogPredicate predicate) { _logPredicate = predicate; }
+
     public String toXML() {
 
         // just do the decomposition facts (not the surrounding element) - to keep life simple
@@ -202,6 +208,8 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
 
         xml.append(paramMapToXML(_outputParameters));
         xml.append(paramMapToXML(_enablementParameters));
+
+        if (_logPredicate != null) xml.append(_logPredicate.toXML());
 
         return xml.toString();
     }

@@ -15,9 +15,11 @@ import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.logging.YEventLogger;
+import org.yawlfoundation.yawl.logging.YLogDataItem;
+import org.yawlfoundation.yawl.logging.YLogDataItemList;
+import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -80,9 +82,19 @@ public final class YCompositeTask extends YTask {
         // log sub-case start event
         YSpecificationID specID =
                 _decompositionPrototype.getSpecification().getSpecificationID();
-        YEventLogger.getInstance().logSubNetCreated(specID, netRunner, 
-                                                    this.getID(), null);
 
+        YLogPredicate logPredicate = _decompositionPrototype.getLogPredicate();
+        YLogDataItemList logData = null;
+        if (logPredicate != null) {
+            String predicate = logPredicate.getParsedStartPredicate(_decompositionPrototype);
+            if (predicate != null) {
+                logData = new YLogDataItemList(new YLogDataItem("Predicate",
+                             "OnStart", predicate, "string"));
+            }
+        }
+
+        YEventLogger.getInstance().logSubNetCreated(specID, netRunner, 
+                                                    this.getID(), logData);
         netRunner.continueIfPossible(pmgr);
         netRunner.start(pmgr);
     }
@@ -90,10 +102,8 @@ public final class YCompositeTask extends YTask {
 
     public synchronized void cancel(YPersistenceManager pmgr) throws YPersistenceException {
         if (_i != null) {
-            List activeChildIdentifiers = _mi_active.getIdentifiers();
-            Iterator iter = activeChildIdentifiers.iterator();
-            while (iter.hasNext()) {
-                YIdentifier identifier = (YIdentifier) iter.next();
+            List<YIdentifier> activeChildIdentifiers = _mi_active.getIdentifiers();
+            for (YIdentifier identifier : activeChildIdentifiers) {
                 YNetRunner netRunner = _workItemRepository.getNetRunner(identifier);
                 if (netRunner != null) {
                     netRunner.cancel(pmgr);

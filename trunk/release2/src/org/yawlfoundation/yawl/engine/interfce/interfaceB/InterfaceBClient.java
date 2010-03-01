@@ -58,7 +58,7 @@ public interface InterfaceBClient {
 
     YWorkItem startWorkItem(YWorkItem workItem, YAWLServiceReference service) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException, YEngineStateException;
 
-    void completeWorkItem(YWorkItem workItem, String data, boolean force) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException, YEngineStateException;
+    void completeWorkItem(YWorkItem workItem, String data, String logPredicate, boolean force) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException, YEngineStateException;
 
     void rollbackWorkItem(String workItemID) throws YStateException, YPersistenceException, YLogException;
 

@@ -215,10 +215,13 @@ public class ResourceMap {
     }
 
 
-    private TaggedStringList getIgnoredList(String key) {
+    public TaggedStringList getIgnoredList(String key) {
         TaggedStringList result = null;
         for (TaggedStringList list : _ignoreSet) {
-            if (list.getTag().equals(key)) result = list;
+            if (list.getTag().equals(key)) {
+                result = list;
+                break;
+            }
         }
         return result;
     }

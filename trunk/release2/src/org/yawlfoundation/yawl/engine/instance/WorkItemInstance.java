@@ -52,7 +52,6 @@ public class WorkItemInstance implements YInstance {
     public WorkItemInstance(YWorkItem item) {
         this();
         workItem = item;
-        taskName = assignTaskName(item);
     }
 
     public WorkItemInstance(String xml) {
@@ -68,6 +67,7 @@ public class WorkItemInstance implements YInstance {
 
     public void close(Document completionData) {
         taskID = getTaskID();
+        taskName = getTaskName();
         id = getID();
         caseID = getCaseID();
         status = getStatus();
@@ -92,6 +92,7 @@ public class WorkItemInstance implements YInstance {
 
 
     public String getTaskName() {
+        if (workItem != null) return workItem.getTask().getName();
         return taskName;
     }
 
@@ -356,12 +357,6 @@ public class WorkItemInstance implements YInstance {
             catch (NumberFormatException ignore) {}
         }
         return result;
-    }
-
-
-    private String assignTaskName(YWorkItem item) {
-        YTask task = YEngine.getInstance().getTaskDefinition(item.getSpecificationID(), item.getTaskID());
-        return (task != null) ? task.getName() : null;
     }
 
 }

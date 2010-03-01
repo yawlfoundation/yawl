@@ -298,6 +298,7 @@ public abstract class InterfaceBWebsideController {
 
 
     /**
+     * @deprecated since 2.1 - use checkInWorkItem(String, Element, Element, String, String)
      * Checks a work item into the engine.
      * @param workItemID the work item id.
      * @param inputData the input data as an XML String.
@@ -309,6 +310,23 @@ public abstract class InterfaceBWebsideController {
      */
     public String checkInWorkItem(String workItemID, Element inputData,
                                   Element outputData, String sessionHandle)
+            throws IOException, JDOMException {
+        return checkInWorkItem(workItemID, inputData, outputData, null, sessionHandle);
+    }
+
+    /**
+     * Checks a work item into the engine.
+     * @param workItemID the work item id.
+     * @param inputData the input data as an XML String.
+     * @param outputData the output data as an XML String
+     * @param logPredicate a configurable logging string to be logged when the item completes
+     * @param sessionHandle a valid session handle
+     * @return a diagnostic result of the action - in XML.
+     * @throws IOException if there is a problem contacting the engine.
+     * @throws JDOMException if there is a problem parsing XML of input or output data
+     */
+    public String checkInWorkItem(String workItemID, Element inputData,
+                                  Element outputData, String logPredicate, String sessionHandle)
             throws IOException, JDOMException {
 
         // first merge the input and output data together
@@ -334,7 +352,7 @@ public abstract class InterfaceBWebsideController {
             filteredOutputData = mergedlOutputData;
         }
         String result = _interfaceBClient.checkInWorkItem(workItemID, filteredOutputData,
-                                                          sessionHandle);
+                                                          logPredicate, sessionHandle);
         _model.removeRemotelyCachedWorkItem(workItemID);
         return result;
     }

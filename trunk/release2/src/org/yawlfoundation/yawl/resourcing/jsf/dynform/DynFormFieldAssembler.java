@@ -35,12 +35,12 @@ public class DynFormFieldAssembler {
     public DynFormFieldAssembler() { }
 
     public DynFormFieldAssembler(String schemaStr, String dataStr,
-                           Map<String, FormParameter> params) {
+                           Map<String, FormParameter> params) throws DynFormException {
         _params = params;
         buildMap(schemaStr, dataStr);
     }
 
-    private void buildMap(String schemaStr, String dataStr) {
+    private void buildMap(String schemaStr, String dataStr) throws DynFormException {
         Element data = JDOMUtil.stringToElement(dataStr);
         Document doc = JDOMUtil.stringToDocument(schemaStr);
         Element root = doc.getRootElement();                        // schema
@@ -52,7 +52,7 @@ public class DynFormFieldAssembler {
 
 
     private List<DynFormField> createFieldList(Element schema, Element data,
-                                               Namespace ns, int level) {
+                                       Namespace ns, int level) throws DynFormException {
         List<DynFormField> fieldList = null;
         Element next;
 
@@ -64,6 +64,11 @@ public class DynFormFieldAssembler {
         }
         else {
             Element complex = schema.getChild("complexType", ns);
+            if (complex == null) {
+                throw new DynFormException("Malformed data schema, at element: " +
+                        JDOMUtil.elementToString(schema));
+            }
+
             next = complex.getChild("sequence", ns);
             if (next == null) next = complex.getChild("all", ns);
             if (next != null) {
@@ -82,7 +87,7 @@ public class DynFormFieldAssembler {
 
 
     private List<DynFormField> createSequence(Element sequence, Element data,
-                                              Namespace ns, int level) {
+                                      Namespace ns, int level) throws DynFormException {
 
         List<DynFormField> fieldList = new ArrayList<DynFormField>();
 
@@ -99,7 +104,7 @@ public class DynFormFieldAssembler {
 
 
     private List<DynFormField> createChoice(Element parent, Element data,
-                                              Namespace ns, int level) {
+                                      Namespace ns, int level) throws DynFormException {
         List<DynFormField> fieldList = new ArrayList<DynFormField>();
         List<DynFormField> result;
         String choiceID = getNextChoiceID();
@@ -138,7 +143,7 @@ public class DynFormFieldAssembler {
      * @return a list of 'DynFormField'
      */
     private List<DynFormField> createField(Element eField, Element data,
-                                           Namespace ns, int level) {
+                                     Namespace ns, int level) throws DynFormException {
         DynFormField field = null;
         List<DynFormField> result = new ArrayList<DynFormField>() ;
 
@@ -190,7 +195,7 @@ public class DynFormFieldAssembler {
 
     private DynFormField addGroupField(String name, Element eField, Namespace ns,
                                        Element data, String minOccurs, String maxOccurs,
-                                       int level) {
+                                       int level) throws DynFormException {
         DynFormField field ;
         List<DynFormField> simpleContents = new ArrayList<DynFormField>();
         int instances = getInitialInstanceCount(minOccurs, data) ;

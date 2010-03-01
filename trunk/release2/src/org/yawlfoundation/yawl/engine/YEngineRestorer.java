@@ -35,6 +35,7 @@ public class YEngineRestorer {
     private YPersistenceManager _pmgr ;
     private Hashtable<String, YIdentifier> _idLookupTable;
     private Vector<YNetRunner> _runners;
+    private Hashtable<String, YTask> _taskLookupTable;
     private Logger _log;
 
 
@@ -46,6 +47,7 @@ public class YEngineRestorer {
         _engine = engine ;
         _pmgr = pmgr ;
         _idLookupTable = new Hashtable<String, YIdentifier>();
+        _taskLookupTable = new Hashtable<String, YTask>();
         _log = Logger.getLogger(this.getClass());
     }
 
@@ -185,6 +187,8 @@ public class YEngineRestorer {
             } else {
                 witem.setWorkItemID(new YWorkItemID(yCaseID, taskID));
             }
+            
+            witem.setTask(getTaskReference(witem.getSpecificationID(), taskID));
             witem.addToRepository();
 
             // re-add to instance cache
@@ -544,7 +548,25 @@ public class YEngineRestorer {
         catch (YPersistenceException ype) {
             _log.error("Exception removing orphaned workitems from persistence.", ype);
         }
+    }
 
+
+    /**
+     * Gets the YTask for the specification and task id passed. Any new requests are
+     * stored in a lookup table to minimise engine calls for subsequent identical
+     * requests (where many workitems are active for a spec/task combination)
+     * @param specID the spec ID
+     * @param taskID the task ID
+     * @return the task reference
+     */
+    private YTask getTaskReference(YSpecificationID specID, String taskID) {
+        String key = specID.toString() + ":" + taskID;
+        YTask task = _taskLookupTable.get(key);
+        if (task == null) {
+            task = _engine.getTaskDefinition(specID, taskID);
+            _taskLookupTable.put(key, task);
+        }
+        return task;
     }
 
 }

@@ -35,7 +35,7 @@ import java.util.Map;
 class YSpecificationParser {
     private YSpecification _specification;
     private YDecompositionParser[] _decompositionParser;
-    private Map _decompAndTypeMap = new HashMap();
+    private Map<String, String> _decompAndTypeMap = new HashMap<String, String>();
     private Namespace _yawlNS;
     private static final String _defaultSchema =
                            "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"/>";
@@ -64,7 +64,7 @@ class YSpecificationParser {
         for (int i = 0; i < decompositionElems.size(); i++) {
             Element decompositionElem = (Element) decompositionElems.get(i);
             Namespace xsiNameSpc = decompositionElem.getNamespace("xsi");
-            String decompID = decompositionElem.getAttributeValue("id");//, _yawlNS);
+            String decompID = decompositionElem.getAttributeValue("id");
             Attribute type = decompositionElem.getAttribute("type", xsiNameSpc);
             if (type != null) {
                 //todo  fix it so when you load a spec with an empty decompostion JDOM doesn't

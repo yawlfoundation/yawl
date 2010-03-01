@@ -18,6 +18,7 @@ import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
+import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -87,11 +88,10 @@ public class YDecompositionParser {
         if ("NetFactsType".equals(xsiType) || "rootNet".equals(elementName)) {
             _decomposition = new YNet(id, _specificationParser.getSpecification());
             parseNet((YNet) _decomposition, decompElem);
-        } else if ("WebServiceGatewayFactsType".equals(xsiType)) {
+        }
+        else if ("WebServiceGatewayFactsType".equals(xsiType)) {
             _decomposition = new YAWLServiceGateway(id, _specificationParser.getSpecification());
-            parseWebServiceGateway(
-                    (YAWLServiceGateway) _decomposition,
-                    decompElem);
+            parseWebServiceGateway((YAWLServiceGateway) _decomposition, decompElem);
         }
         /**
          * AJH: Added to support XML attribute pass-thru from specification into task output data doclet.
@@ -110,6 +110,7 @@ public class YDecompositionParser {
         }
         
         parseDecompositionRoles(_decomposition, decompElem);
+        _decomposition.setLogPredicate(parseLogPredicate(decompElem, _yawlNS));
 
         // added for resourcing
         parseExternalInteraction(_decomposition, decompElem);
@@ -573,6 +574,7 @@ public class YDecompositionParser {
         String defaultValue = paramElem.getChildText("defaultValue", ns);
         if (defaultValue != null) parameter.setDefaultValue(defaultValue);
 
+        parameter.setLogPredicate(parseLogPredicate(paramElem, ns));
         parameter.getAttributes().fromJDOM(paramElem.getAttributes());
     }
 
@@ -584,10 +586,14 @@ public class YDecompositionParser {
                            interactionStr.equalsIgnoreCase("manual"));
      }
 
-    private void parseCodelet(YDecomposition decomposition,
-                                          Element decompElem){
+    private void parseCodelet(YDecomposition decomposition, Element decompElem){
         String codelet = decompElem.getChildText("codelet", _yawlNS);
         if (codelet != null) decomposition.setCodelet(codelet);
+    }
+
+    private static YLogPredicate parseLogPredicate(Element decompElem, Namespace ns){
+        Element elemLogPredicate = decompElem.getChild("logPredicate", ns);
+        return elemLogPredicate != null ? new YLogPredicate(elemLogPredicate, ns) : null;
     }
 
 

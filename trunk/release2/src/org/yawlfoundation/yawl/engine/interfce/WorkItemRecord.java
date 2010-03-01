@@ -99,6 +99,10 @@ public class WorkItemRecord implements Cloneable {
     private Element _dataListUpdated ;
     private String _dataListUpdatedString ;
 
+    // configurable logging predicates
+    private String _logPredicateStarted;
+    private String _logPredicateCompletion;
+
     private String _customFormURL ;                         // path to alternate jsp
 
     private boolean _edited ;                       // for use on custom service side
@@ -112,36 +116,13 @@ public class WorkItemRecord implements Cloneable {
     public WorkItemRecord() {}                     // for reflection
 
     // called by Marshaller.unmarshallWorkItem
-    public WorkItemRecord(String caseID, String taskID, String specIdentifier,
+    public WorkItemRecord(String caseID, String taskID, String specURI,
                           String enablementTime, String status) {
         _taskID = taskID;
         _caseID = caseID;
-        _specIdentifier = specIdentifier;
+        _specURI = specURI;
         _enablementTime = enablementTime;
         _status = status;
-    }
-
-    // full Constructor called by resourceService restore methods
-    public WorkItemRecord(long id, String specIdentifier, String specVersion, String caseID,
-                          String taskID, String uniqueID, String enablementTime,
-                          String firingTime, String startTime, String completionTime,
-                          String status, String resourceStatus, String startedBy,
-                          String completedBy, String dataListString ) {
-        _id = id;
-        _specIdentifier = specIdentifier;
-        _specVersion = specVersion ;
-        _caseID = caseID;
-        _taskID = taskID;
-        _uniqueID = uniqueID;
-        _enablementTime = enablementTime;
-        _firingTime = firingTime;
-        _startTime = startTime;
-        _completionTime = completionTime;
-        _status = status;
-        _resourceStatus = resourceStatus;
-        _startedBy = startedBy;
-        _completedBy = completedBy;
-        _dataListString = dataListString;
     }
 
     public void restoreDataList() {
@@ -248,6 +229,13 @@ public class WorkItemRecord implements Cloneable {
 
     public void setCustomFormURL(String url) { _customFormURL = url ; }
 
+    public void setLogPredicateStarted(String predicate) {
+        _logPredicateStarted = predicate;
+    }
+
+    public void setLogPredicateCompletion(String predicate) {
+        _logPredicateCompletion = predicate;
+    }
 
     /********************************************************************************/
 
@@ -358,7 +346,12 @@ public class WorkItemRecord implements Cloneable {
             result = _caseID.split("\\.")[0] ;
         }
         return result ;
-    }    
+    }
+
+    public String getLogPredicateStarted() { return _logPredicateStarted; }
+
+    public String getLogPredicateCompletion() { return _logPredicateCompletion; }
+
 
     public boolean isEdited() { return _edited; }
 
@@ -389,7 +382,6 @@ public class WorkItemRecord implements Cloneable {
         xml.append(_extendedAttributes != null? _extendedAttributes : "")
            .append(">")
            .append(StringUtil.wrap(getID(), "id"))
-           .append(StringUtil.wrap(_specIdentifier, "specidentifier"))
            .append(StringUtil.wrap(_specVersion, "specversion"))
            .append(StringUtil.wrap(_specURI, "specuri"))
            .append(StringUtil.wrap(_caseID, "caseid"))
@@ -416,13 +408,20 @@ public class WorkItemRecord implements Cloneable {
            .append(StringUtil.wrap(String.valueOf(_edited), "edited"))
            .append(StringUtil.wrap(String.valueOf(_tag), "tag"))
            .append(StringUtil.wrap(_customFormURL, "customform"))
-           .append("<data>")
+           .append(StringUtil.wrap(_logPredicateStarted, "logPredicateStarted"))
+           .append(StringUtil.wrap(_logPredicateCompletion, "logPredicateCompletion"));
+
+        if (_specIdentifier != null)
+            xml.append(StringUtil.wrap(_specIdentifier, "specidentifier"));
+
+        xml.append("<data>")
            .append(_dataList != null? JDOMUtil.elementToStringDump(_dataList) : "")
            .append("</data>")
            .append("<updateddata>")
            .append(_dataListUpdated != null? JDOMUtil.elementToStringDump(_dataListUpdated) : "")
            .append("</updateddata>")
            .append("</workItemRecord>");
+
         return xml.toString() ;
     }
 

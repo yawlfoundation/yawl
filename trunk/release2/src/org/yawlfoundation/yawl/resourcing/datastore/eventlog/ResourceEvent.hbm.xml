@@ -26,7 +26,7 @@
         <property name="_taskID" column="taskID"/>
         <property name="_itemID" column="itemID"/>
         <property name="_participantID" column="participantID" length="40"/>
-        <property name="_event" column="event" length="15"/>
+        <property name="_event" column="event" length="20"/>
         <property name="_timeStamp" column="eventTime" type="long"/>       
      </class>
 	

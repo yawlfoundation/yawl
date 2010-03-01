@@ -29,28 +29,26 @@ public class YWorkItemID {
 
 
     public YWorkItemID(YIdentifier caseID, String taskID) {
-        _uniqueID = _uniqifier.clone();
-        UniqueIDGenerator.nextInOrder(_uniqifier);
-        _caseID = caseID;
-        _taskID = taskID;
+        this(caseID, taskID, null);
     }
 
-   /**
-    * Constructor accepting uniqueID without using UniqueIDGenerator.
-    * Increments the counter up to the value provided if greater.
-    * @access package
-    */
-    YWorkItemID(YIdentifier caseID, String taskID, String uniqueID) {
-        if (uniqueID == null) 
-            throw new IllegalArgumentException("uniqueID cannot be null");
+    public YWorkItemID(YIdentifier caseID, String taskID, String uniqueID) {
+        _caseID = caseID;
+        _taskID = taskID;
 
-        while (compare(_uniqifier, uniqueID.toCharArray()) > 0) {
+        if (uniqueID != null) {
+
+            // increment counter as required
+            while (compare(_uniqifier, uniqueID.toCharArray()) > 0) {
+                UniqueIDGenerator.nextInOrder(_uniqifier);
+            }
+            _uniqueID = uniqueID.toCharArray();
+        }
+        else {
+            _uniqueID = _uniqifier.clone();
             UniqueIDGenerator.nextInOrder(_uniqifier);
         }
-         _uniqueID = uniqueID.toCharArray();
-         _caseID = caseID;
-         _taskID = taskID;
-     }
+    }
 
 
     public String toString() {

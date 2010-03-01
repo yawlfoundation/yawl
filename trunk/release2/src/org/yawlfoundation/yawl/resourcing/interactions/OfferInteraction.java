@@ -197,6 +197,22 @@ public class OfferInteraction extends AbstractInteraction {
     }
 
 
+    public Set<Participant> getParticipants() { return _participants; }
+
+    public Set<Role> getRoles() { return _roles; }
+
+    public Set<AbstractFilter> getFilters() { return _filters; }
+
+    public Set<AbstractConstraint> getConstraints() { return _constraints; }
+
+    public Set<String> getDynParamNames() {
+        Set<String> names = new HashSet<String>();
+        for (DynParam param : _dynParams) {
+            names.add(param.getName() + "[" + param.getRefersString() + "]");
+        }
+        return names; }
+
+
     /********************************************************************************/
 
     /**

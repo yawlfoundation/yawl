@@ -310,6 +310,7 @@
 					<xs:element name="documentation" type="yawl:DocumentationType" minOccurs="0"/>
 					<xs:element name="inputParam" type="yawl:InputParameterFactsType" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element name="outputParam" type="yawl:OutputParameterFactsType" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="logPredicate" type="yawl:LogPredicateFactsType" minOccurs="0"/>
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
@@ -465,6 +466,15 @@
 		<xs:sequence>
 			<xs:element name="flowSource" type="yawl:ExternalNetElementType"/>
 			<xs:element name="flowDestination" type="yawl:ExternalNetElementType"/>
+		</xs:sequence>
+	</xs:complexType>
+    <!--
+    #### TYPE #### LogPredicateFactsType
+    -->
+    <xs:complexType name="LogPredicateFactsType">
+		<xs:sequence>
+			<xs:element name="start" type="yawl:NameType" minOccurs="0"/>
+			<xs:element name="completion" type="yawl:NameType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 	<!--
@@ -840,7 +850,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 	<!--
-	#### TYPE #### OutputParamaterFactsType
+	#### TYPE #### OutputParameterFactsType
 	-->
 	<xs:complexType name="OutputParameterFactsType">
 		<xs:complexContent>
@@ -849,6 +859,7 @@
                     <xs:element name="defaultValue" minOccurs="0"/>
 					<xs:element name="mandatory" minOccurs="0"/>
 					<xs:element name="isCutThroughParam" minOccurs="0"/>
+                    <xs:element name="logPredicate" type="yawl:LogPredicateFactsType" minOccurs="0"/>
 				</xs:sequence>
 				<!-- Extended Attributes whose validation will be skipped -->
 				<xs:anyAttribute processContents="skip"/>
@@ -856,7 +867,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 	<!--
-	#### TYPE #### ParamaterFactsType
+	#### TYPE #### InputParameterFactsType
 	-->
 	<xs:complexType name="InputParameterFactsType">
 		<xs:complexContent>
@@ -866,12 +877,12 @@
 						<xs:element name="initialValue" type="xs:string" minOccurs="0"/>
 						<xs:element name="mandatory" minOccurs="0"/>
 					</xs:choice>
+                    <xs:element name="logPredicate" type="yawl:LogPredicateFactsType" minOccurs="0"/>
 				</xs:sequence>
                 <!-- Extended Attributes whose validation will be skipped -->
                 <xs:anyAttribute processContents="skip"/>
 			</xs:extension>
-		</xs:complexContent>
-	
+		</xs:complexContent>	
 	</xs:complexType>
 	<!--
 	################################################################################################

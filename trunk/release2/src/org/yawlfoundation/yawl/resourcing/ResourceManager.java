@@ -1784,8 +1784,9 @@ public class ResourceManager extends InterfaceBWebsideController {
                 if (outData == null) outData = wir.getDataList();
                 checkCacheForWorkItem(wir);
                 addTaskCompleter(p, wir);
-                result = checkInWorkItem(wir.getID(), wir.getDataList(),
-                                                outData, getEngineSessionHandle()) ;
+                parseCompletionLogPredicate(p, wir);
+                result = checkInWorkItem(wir.getID(), wir.getDataList(), outData,
+                        wir.getLogPredicateCompletion(), getEngineSessionHandle()) ;
                 if (successful(result)) {
                     if (p != null) {
                         QueueSet qSet = p.getWorkQueues();
@@ -1832,6 +1833,14 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     private void removeCaseFromTaskCompleters(String caseid) {
         _taskCompleters.remove(getRootCaseID(caseid));
+    }
+
+
+    private void parseCompletionLogPredicate(Participant p, WorkItemRecord wir) {
+        String predicate = wir.getLogPredicateCompletion();
+        if (predicate != null) {
+            wir.setLogPredicateCompletion(new LogPredicateParser(p, wir).parse(predicate));
+        }
     }
 
     private String getRootCaseID(String id) {
