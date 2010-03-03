@@ -77,15 +77,12 @@ public class YParametersSchema {
 
 
     public List<YParameter> getCombinedParams() {
-        List<YParameter> result = getInputParams();
+        List<YParameter> result = getInputParams();              // includes I&O params
         List<YParameter> outputOnlyList = getOutputOnlyParams();
-        int count = result.size();
-
-        // adjust the ordering for the output only's so that they are post-fixed
-        for (YParameter param : outputOnlyList) param.setOrdering(count++);
 
         // combine and return
-        result.addAll(outputOnlyList);
+        result.addAll(getOutputOnlyParams());
+        Collections.sort(result);
         return result;
     }
 

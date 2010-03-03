@@ -44,6 +44,7 @@ public final class YSpecification implements Cloneable, YVerifiable {
     public static final String Beta6 = "Beta 6";
     public static final String Beta7_1 = "Beta 7.1";
     public static final String Version2_0 = "2.0";
+    public static final String Version2_1 = "2.1";
 
     public static final String BetaNS = "http://www.citi.qut.edu.au/yawl";
     public static final String BetaSchemaLocation = BetaNS +
@@ -51,7 +52,7 @@ public final class YSpecification implements Cloneable, YVerifiable {
 
     public static final String Version2NS = "http://www.yawlfoundation.org/yawlschema";
     public static final String Version2SchemaLocation = Version2NS +
-            " http://www.yawlfoundation.org/yawlschema/YAWL_Schema2.0.xsd";
+            " http://www.yawlfoundation.org/yawlschema/YAWL_Schema2.1.xsd";
 
     public static final String _loaded = "loaded";
     public static final String _unloaded = "unloaded";
@@ -129,7 +130,8 @@ public final class YSpecification implements Cloneable, YVerifiable {
                 Beta4.equals(version) ||
                 Beta6.equals(version) ||
                 Beta7_1.equals(version) ||
-                Version2_0.equals(version)) {
+                Version2_0.equals(version) ||
+                Version2_1.equals(version)) {
             _version = version;
         }
         else if ("beta3".equals(version)) {

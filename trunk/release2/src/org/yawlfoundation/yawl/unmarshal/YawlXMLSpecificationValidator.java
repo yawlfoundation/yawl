@@ -133,6 +133,10 @@ public class YawlXMLSpecificationValidator extends DefaultHandler {
              parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
                     "http://www.yawlfoundation.org/yawlschema " +
                     getClass().getResource("YAWL_Schema2.0.xsd"));
+        } else if (YSpecification.Version2_1.equals(version)) {
+             parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
+                    "http://www.yawlfoundation.org/yawlschema " +
+                    getClass().getResource("YAWL_Schema2.1.xsd"));
         } else {
             throw new RuntimeException("Version [" + version + "] is not valid version.");
         }

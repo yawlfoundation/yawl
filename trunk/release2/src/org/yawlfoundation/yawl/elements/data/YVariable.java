@@ -37,6 +37,7 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
     protected String _defaultValue;
     protected String _namespaceURI;
     protected boolean _isUntyped = false;
+    protected int _ordering;
     private String _documentation;
     private boolean _mandatory;
     private YLogPredicate _logPredicate;
@@ -185,9 +186,21 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
         _logPredicate = predicate;
     }
 
+    public void setOrdering(int ordering) {
+        _ordering = ordering;
+    }
+
+    public int getOrdering() { return _ordering; }
+    
+
+    public int compareTo(YVariable other) {
+        return this.getOrdering() - other.getOrdering();
+    }
+
+
     public String toXML() {
         StringBuilder xml = new StringBuilder();
-        xml.append("<localVariable");
+        xml.append("<localVariable>");
         xml.append(toXMLGuts());
         xml.append("</localVariable>");
         return xml.toString();
@@ -195,7 +208,8 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
 
     protected String toXMLGuts() {
         StringBuilder xml = new StringBuilder();
-        xml.append(">");
+
+        xml.append(StringUtil.wrap(String.valueOf(_ordering), "index"));
 
         if (null != _documentation) {
             xml.append(StringUtil.wrap(_documentation, "documentation"));
@@ -349,10 +363,5 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
     public boolean usesTypeDeclaration() {
         return _dataTypeName != null;
     }
-
-    public int compareTo(YVariable v) {
-        return 1;
-    }
-
 
 }

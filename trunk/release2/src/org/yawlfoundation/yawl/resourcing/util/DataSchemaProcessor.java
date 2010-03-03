@@ -31,6 +31,7 @@ public class DataSchemaProcessor {
 
     public DataSchemaProcessor() { }
 
+    // creates the required data schema at the net level (at case launch)
     public String createSchema(SpecificationData specData)
                           throws IOException, JDOMException,
                                  YSchemaBuildingException, YSyntaxException {
@@ -42,23 +43,16 @@ public class DataSchemaProcessor {
     }
 
 
+    // creates the required data schema at the task level
     public String createSchema(SpecificationData specData, TaskInformation taskInfo)
             throws IOException, JDOMException, YSchemaBuildingException, YSyntaxException {
 
         // get the parameters signature for the task
         YParametersSchema paramsSignature = taskInfo.getParamSchema();
 
-        // for each input param build an instruction
-        List<YParameter> inputParams = paramsSignature.getInputParams();
-        List<Instruction> inputInstructions = getInstructionList(inputParams);
-
-        // for each output param build an instruction
-        List<YParameter> outputParams = paramsSignature.getOutputParams();
-        List<Instruction> outputInstructions = getInstructionList(outputParams);
-
-        // remove duplicate instructions (i.e. I/O params)
-        List<Instruction> instructions = mergeInstructions(inputInstructions,
-                                                           outputInstructions);
+        // for each param build an instruction
+        List<YParameter> params = paramsSignature.getCombinedParams();
+        List<Instruction> instructions = getInstructionList(params);
 
         return buildSchema(instructions, specData, taskInfo.getDecompositionID()) ;
     }
@@ -74,7 +68,6 @@ public class DataSchemaProcessor {
     private String buildSchema(List<Instruction> instructions, SpecificationData specData,
                                String rootElementName)
              throws IOException, JDOMException, YSchemaBuildingException, YSyntaxException{
- //       Collections.sort(instructions);
 
         XMLToolsForYAWL xmlToolsForYawl = new XMLToolsForYAWL();
         xmlToolsForYawl.setPrimarySchema(specData.getSchemaLibrary());
@@ -95,35 +88,6 @@ public class DataSchemaProcessor {
                                 ! param.isUserDefinedType()));
         }
         return instructions ;
-    }
-
-
-    private List<Instruction> mergeInstructions(List<Instruction> inputs,
-                                                List<Instruction> outputs) {
-
-        // for any inst. in both lists, remove it from inputs
-        for (Instruction instruction : outputs) {
-            Instruction duplicate = getDuplicate(instruction, inputs);
-            if (duplicate != null) inputs.remove(duplicate);
-        }
-
-        // merge the lists
-        outputs.addAll(inputs);
-        return outputs;
-    }
-
-
-    // returns the instruction if it is in the list
-    private Instruction getDuplicate(Instruction instruction,
-                                     List<Instruction> list) {
-        Instruction result = null ;
-        for (Instruction i : list)
-            if (i.getElementName().equals(instruction.getElementName())) {
-                result = i;
-                break ;
-            }
-
-        return result ;
     }
 
 }

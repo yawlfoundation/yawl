@@ -320,8 +320,8 @@ public class StringUtil
     public static boolean isIntegerString(String s) {
         if (s == null) return false;
         char[] digits = s.toCharArray() ;
-        for (int i=0; i < digits.length; i++) {
-            if ((digits[i] < '0') || (digits[i] > '9')) return false;
+        for (char digit : digits) {
+            if ((digit < '0') || (digit > '9')) return false;
         }
         return true;
     }

@@ -421,7 +421,7 @@ public final class YNet extends YDecomposition {
     }
 
 
-    public Map getLocalVariables() {
+    public Map<String, YVariable> getLocalVariables() {
         return _localVariables;
     }
 
@@ -429,7 +429,7 @@ public final class YNet extends YDecomposition {
     public String toXML() {
         StringBuilder xml = new StringBuilder();
         xml.append(super.toXML());
-        List variables = new ArrayList(_localVariables.values());
+        List<YVariable> variables = new ArrayList<YVariable>(_localVariables.values());
 
         Order order = new Order() {
             public boolean lessThan(Object a, Object b) {
@@ -442,11 +442,8 @@ public final class YNet extends YDecomposition {
 
                 if (var1Nm != null && var2Nm != null) {
                     return var1Nm.compareTo(var2Nm) < 0;
-                } else if (var1Nm == null) {
-                    return true;
-                } else {
-                    return false;
                 }
+                else return var1Nm == null;
             }
         };
         Object[] sortedVars = Sorter.sort(order, variables.toArray());

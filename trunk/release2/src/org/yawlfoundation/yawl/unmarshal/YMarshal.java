@@ -135,7 +135,7 @@ public class YMarshal {
                                              YSpecification.BetaSchemaLocation));
         }
         else {                                            // version 2.0 or greater
-            xml.append(String.format(header, YSpecification.Version2_0,
+            xml.append(String.format(header, version,
                                              YSpecification.Version2NS,
                                              YSpecification.Version2SchemaLocation));
         }

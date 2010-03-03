@@ -40,8 +40,7 @@ class YSpecificationParser {
     private static final String _defaultSchema =
                            "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"/>";
 
-  //MLR 22/10/2007 (merge): this is the initial value of a spec's version
-	static final String INITIAL_VERSION = "0.1";
+ 	  static final String INITIAL_VERSION = "0.1";              // initial spec version
 
     /**
      * build a specification object from part of an XML document
@@ -93,7 +92,6 @@ class YSpecificationParser {
         }
 
         // if name and doco fields missing from spec, see if they are in metadata
-        // Added MJA 31/03/2006 
         if (name == null)
             name = _specification.getMetaData().getTitle();
         if (documentation == null)
