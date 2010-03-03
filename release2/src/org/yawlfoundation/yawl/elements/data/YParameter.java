@@ -32,7 +32,6 @@ public class YParameter extends YVariable implements Comparable<YVariable> {
     public static final int _OUTPUT_PARAM_TYPE = 1;
     public static final int _ENABLEMENT_PARAM_TYPE = 2;
 
-    private int _ordering;
     private boolean _cutsThroughDecompositionStateSpace;
     private int _paramType;
     private YAttributeMap _attributes = new YAttributeMap();
@@ -79,13 +78,6 @@ public class YParameter extends YVariable implements Comparable<YVariable> {
     }
 
 
-    public void setOrdering(int ordering) {
-        _ordering = ordering;
-    }
-
-    public int getOrdering() { return _ordering; }
-
-
     public String getDirection() {
         return getParamTypeStr(_paramType);
     }
@@ -99,9 +91,10 @@ public class YParameter extends YVariable implements Comparable<YVariable> {
         if ((getAttributes() != null) && (_paramType == _INPUT_PARAM_TYPE)) {
             xml.append(getAttributes().toXML());
         }
+        xml.append(">");
 
         xml.append(toXMLGuts());
-
+       
         if (super.isMandatory()) {
             xml.append("<mandatory/>");
         }
@@ -145,10 +138,6 @@ public class YParameter extends YVariable implements Comparable<YVariable> {
         return messages;
     }
 
-
-    public int compareTo(YVariable other) {
-        return this._ordering - ((YParameter) other)._ordering;
-    }
 
     public boolean isInput() {
         return isParamType(_INPUT_PARAM_TYPE);

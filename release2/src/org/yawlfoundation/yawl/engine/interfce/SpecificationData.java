@@ -128,7 +128,7 @@ public class SpecificationData {
         Document document = JDOMUtil.stringToDocument(_specAsXML);
         Element yawlSpecSetElement = document.getRootElement();
 
-        String ns = _schemaVersion.equals("2.0") ?
+        String ns = _schemaVersion.startsWith("2.") ?
                 "http://www.yawlfoundation.org/yawlschema" :
                 "http://www.citi.qut.edu.au/yawl" ;
 

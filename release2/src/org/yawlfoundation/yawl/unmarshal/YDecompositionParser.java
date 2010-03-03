@@ -218,7 +218,7 @@ public class YDecompositionParser {
         parseExternalTaskRoles(taskElem, task);
         parseNameAndDocumentation(task, taskElem);
 
-        if ((task != null) && (_version.equals(YSpecification.Version2_0))) {
+        if ((task != null) && (! _version.startsWith("Beta"))) {
             task.setResourcingSpecs(taskElem.getChild("resourcing", _yawlNS));
             parseTimerParameters(task, taskElem) ;
             parseCustomFormURL(task, taskElem) ;
@@ -537,6 +537,14 @@ public class YDecompositionParser {
             String elementName;
             elementName = localVariableElem.getChildText("element", ns);
             variable.setElementName(elementName);
+
+            // set ordering (if schema 2.1 or later)
+            String orderingStr = localVariableElem.getChildText("index", ns);
+            if (StringUtil.isIntegerString(orderingStr)) {
+                variable.setOrdering(new Integer(orderingStr));
+            }
+
+
         }
         //the variable either is data typed xor linked to an element declaration
         variable.setDataTypeAndName(dataType, name, namespace);
