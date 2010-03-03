@@ -73,6 +73,7 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
     super(decomposition);
     this.graph = graph;
     setTitle(DataVariable.SCOPE_TASK);
+    if (pane != null) pane.setSelectedIndex(0);  
     
     getDoneButton().addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -145,8 +146,8 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
     return (WebServiceDecomposition) getDecomposition();
   }
   
-  protected JPanel getDecompositionPanel() {
-    JPanel panel = super.getDecompositionPanel();
+  protected JPanel getDecompositionPanel(int scope) {
+    JPanel panel = super.getDecompositionPanel(DataVariable.SCOPE_TASK);
     
     JPanel innerPanel = new JPanel(new BorderLayout()); //MLF
 

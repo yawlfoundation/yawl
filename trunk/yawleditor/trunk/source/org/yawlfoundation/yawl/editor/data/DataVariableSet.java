@@ -23,13 +23,10 @@
  
 package org.yawlfoundation.yawl.editor.data;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Iterator;
-
 import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
+
+import java.io.Serializable;
+import java.util.*;
 
 public class DataVariableSet implements Serializable, Cloneable {
   
@@ -121,6 +118,7 @@ public class DataVariableSet implements Serializable, Cloneable {
     
     for(DataVariable variable : getVariableSet()) {
       if (variable.isInputVariable()) {
+        variable.setIndex(getVariableSet().indexOf(variable));
         inputVariables.add(variable);
       }
     }
@@ -132,6 +130,7 @@ public class DataVariableSet implements Serializable, Cloneable {
   
     for(DataVariable variable : getVariableSet()) {
       if (variable.isOutputVariable()) {
+        variable.setIndex(getVariableSet().indexOf(variable));
         outputVariables.add(variable);
       }
     }
@@ -143,6 +142,7 @@ public class DataVariableSet implements Serializable, Cloneable {
     
     for(DataVariable variable : getVariableSet()) {
       if (variable.isLocalVariable()) {
+        variable.setIndex(getVariableSet().indexOf(variable));
         localVariables.add(variable);
       }
     }
@@ -326,28 +326,20 @@ public class DataVariableSet implements Serializable, Cloneable {
    * and must be fused for correct editor data variable behaviour.
    */
   public void consolidateInputAndOutputVariables() {
-    
-    Object[] inputVariableArray = getInputVariables().toArray();
-    Object[] outputVariableArray = getOutputVariables().toArray();
-    
-    for(int i = 0; i < inputVariableArray.length; i++) {
-      for(int j = 0; j < outputVariableArray.length; j++) {
-        DataVariable inputVariable = (DataVariable) inputVariableArray[i];
-        DataVariable outputVariable = (DataVariable) outputVariableArray[j];
-        
-        if (inputVariable.getName() != null && outputVariable.getName()!= null && 
-            inputVariable.getName().equals(outputVariable.getName())) {
-          
-          // assumption: same name more than once means that it's two paramaters
-          // of same name and type, one for input and one for output.  That's
-          // a safe assumption for the most part, but the engine DOES allow same
-          // name different types as a possibility. 
-          
-          inputVariable.setUsage(DataVariable.USAGE_INPUT_AND_OUTPUT);
-          this.remove(outputVariable);
-        }
+      List<DataVariable> varSet = getVariableSet();
+      if (! varSet.isEmpty()) {
+          Collections.sort(varSet);
+          DataVariable previousVariable = null;
+          List<DataVariable> toRemove = new ArrayList<DataVariable>();
+          for (DataVariable variable : varSet) {
+              if ((previousVariable != null) &&
+                  (variable.getIndex() == previousVariable.getIndex())) {
+                  toRemove.add(variable);
+                  previousVariable.setUsage(DataVariable.USAGE_INPUT_AND_OUTPUT);
+              }
+              previousVariable = variable;
+          }
+          varSet.removeAll(toRemove);
       }
-    }
-
   }
 }

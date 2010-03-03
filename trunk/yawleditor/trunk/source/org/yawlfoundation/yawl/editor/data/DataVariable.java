@@ -30,7 +30,7 @@ import org.yawlfoundation.yawl.schema.XSDType;
 import java.io.Serializable;
 import java.util.*;
 
-public class DataVariable implements Serializable, Cloneable {
+public class DataVariable implements Serializable, Cloneable, Comparable<DataVariable> {
   
   /* ALL yawl-specific attributes of this object and its descendants 
    * are to be stored in serializationProofAttributeMap, meaning we 
@@ -117,20 +117,28 @@ public class DataVariable implements Serializable, Cloneable {
   }
 
   public void setUsage(int usage) {
-    serializationProofAttributeMap.put("usage",new Integer(usage));
+    serializationProofAttributeMap.put("usage", usage);
   }
   
   public int getUsage() {
-    return ((Integer) serializationProofAttributeMap.get("usage")).intValue();
+    return ((Integer) serializationProofAttributeMap.get("usage"));
   }
 
   public void setUserDefined(boolean userDefined) {
-    serializationProofAttributeMap.put("userDefined",new Boolean(userDefined));
+    serializationProofAttributeMap.put("userDefined",userDefined);
   }
   
   public boolean getUserDefined() {
-    return ((Boolean) serializationProofAttributeMap.get("userDefined")).booleanValue();
+    return ((Boolean) serializationProofAttributeMap.get("userDefined"));
   }
+
+    public void setIndex(int index) {
+      serializationProofAttributeMap.put("index", index);
+    }
+
+    public int getIndex() {
+      return ((Integer) serializationProofAttributeMap.get("index"));
+    }
 
 
     public void setLogPredicateStarted(String predicate) {
@@ -296,6 +304,11 @@ public class DataVariable implements Serializable, Cloneable {
     
     return variable;
   }
+
+    public int compareTo(DataVariable other) {
+        return this.getIndex() - other.getIndex();
+    }
+    
   
   public boolean equals(Object object) {
     return equalsIgnoreUsage(object)  &&

@@ -60,7 +60,7 @@ public class NetDecompositionUpdateDialog extends AbstractDoneDialog {
   
   public NetDecompositionUpdateDialog(Decomposition decomposition) {
     super("Update Decomposition", false);
-    setContentPanel(getDecompositionPanel());
+    setContentPanel(getDecompositionPanel(DataVariable.SCOPE_NET));
     setDecomposition(decomposition);
     
     setTitle(DataVariable.SCOPE_NET);
@@ -74,9 +74,13 @@ public class NetDecompositionUpdateDialog extends AbstractDoneDialog {
           SpecificationModel.getInstance().propogateDecompositionLabelChange(getDecomposition(), oldLabel);
         }
 
-        getDecomposition().setLogPredicateStarted(logPredicatesPanel.getStartedPredicate());
-        getDecomposition().setLogPredicateCompletion(logPredicatesPanel.getCompletionPredicate());
-
+        if (logPredicatesPanel != null) {
+            getDecomposition().setLogPredicateStarted(
+                    logPredicatesPanel.getStartedPredicate());
+            getDecomposition().setLogPredicateCompletion(
+                    logPredicatesPanel.getCompletionPredicate());
+        }
+          
         SpecificationUndoManager.getInstance().setDirty(true);
       }
     });
@@ -99,8 +103,10 @@ public class NetDecompositionUpdateDialog extends AbstractDoneDialog {
   
   protected void setDecomposition(Decomposition decomposition) {
     this.decomposition = decomposition;
-    logPredicatesPanel.setStartedPredicate(decomposition.getLogPredicateStarted());
-    logPredicatesPanel.setCompletionPredicate(decomposition.getLogPredicateCompletion());
+    if (logPredicatesPanel != null) {    // only for net level dialog
+        logPredicatesPanel.setStartedPredicate(decomposition.getLogPredicateStarted());
+        logPredicatesPanel.setCompletionPredicate(decomposition.getLogPredicateCompletion());
+    }    
   }
   
   protected void setTitle(int scope) {
@@ -123,11 +129,14 @@ public class NetDecompositionUpdateDialog extends AbstractDoneDialog {
     return this.decomposition;
   }
   
-  protected JPanel getDecompositionPanel() {
+  protected JPanel getDecompositionPanel(int scope) {
     JPanel panel = new JPanel(new BorderLayout());
-
-    panel.add(buildBasePanel(), BorderLayout.CENTER);
-
+    if (scope == DataVariable.SCOPE_NET) {
+        panel.add(buildBasePanel(), BorderLayout.CENTER);
+    }
+    else {
+        panel.add(getGenericDecompositionPanel(), BorderLayout.CENTER);
+    }
     return panel;
   }
 

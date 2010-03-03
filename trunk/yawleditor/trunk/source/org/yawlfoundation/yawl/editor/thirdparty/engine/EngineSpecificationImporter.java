@@ -242,11 +242,17 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   private static void convertNetLocalVariables(YNet engineNet, 
                                                NetGraph editorNet) {
 
-    Iterator localVariableKeyIterator = engineNet.getLocalVariables().keySet().iterator();
+    List<YVariable> localVarList =
+            new ArrayList<YVariable>(engineNet.getLocalVariables().values()) ;
+    Collections.sort(localVarList);
 
-    while(localVariableKeyIterator.hasNext()) {
-      String variableKey = (String) localVariableKeyIterator.next();
-      YVariable engineVariable = (YVariable) engineNet.getLocalVariables().get(variableKey);
+    for (YVariable engineVariable : localVarList) {  
+
+ //   Iterator localVariableKeyIterator = engineNet.getLocalVariables().keySet().iterator();
+
+//    while(localVariableKeyIterator.hasNext()) {
+//      String variableKey = (String) localVariableKeyIterator.next();
+//      YVariable engineVariable = (YVariable) engineNet.getLocalVariables().get(variableKey);
       DataVariableSet varSet = editorNet.getNetModel().getDecomposition().getVariables();
 
       if (! localVarForOutputOnlyVar(varSet, engineVariable)) {
@@ -258,6 +264,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
         createEditorVariable(
           editorNet.getNetModel().getDecomposition(),
           DataVariable.USAGE_LOCAL, 
+          engineVariable.getOrdering(),
           dataType,
           engineVariable.getName(),
           initialValue,
@@ -304,6 +311,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
             createEditorVariable(
                     editorDecomposition,
                     DataVariable.USAGE_INPUT_ONLY,
+                    engineParameter.getOrdering(),
                     engineParameter.getDataTypeName(),
                     engineParameter.getName(),
                     engineParameter.getInitialValue(),
@@ -325,6 +333,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
             createEditorVariable(
                     editorDecomposition,
                     DataVariable.USAGE_OUTPUT_ONLY,
+                    engineParameter.getOrdering(),
                     engineParameter.getDataTypeName(),
                     engineParameter.getName(),
                     engineParameter.getInitialValue(),
@@ -337,6 +346,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   
   private static void createEditorVariable(Decomposition editorDecomposition, 
                                            int editorUsage,
+                                           int index,
                                            String dataType, 
                                            String paramName, 
                                            String initialValue,
@@ -347,14 +357,18 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     DataVariable editorVariable = new DataVariable();
 
     editorVariable.setName(paramName);
+    editorVariable.setIndex(index);
     editorVariable.setUsage(editorUsage);
     editorVariable.setDataType(dataType);
     editorVariable.setInitialValue(initialValue);
     editorVariable.setUserDefined(true);
-    editorVariable.setLogPredicateStarted(logPredicate.getStartPredicate());
-    editorVariable.setLogPredicateCompletion(logPredicate.getCompletionPredicate());
     editorVariable.setAttributes(attributes);
-    
+
+    if (logPredicate != null) {
+        editorVariable.setLogPredicateStarted(logPredicate.getStartPredicate());
+        editorVariable.setLogPredicateCompletion(logPredicate.getCompletionPredicate());
+    }
+
     editorDecomposition.getVariables().add(editorVariable);
  }
   

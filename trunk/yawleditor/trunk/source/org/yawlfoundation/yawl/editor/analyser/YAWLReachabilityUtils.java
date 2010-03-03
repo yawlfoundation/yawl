@@ -857,11 +857,11 @@ public class YAWLReachabilityUtils{
     	  	  Iterator preFlowIter = preSet.iterator();
               while (preFlowIter.hasNext())
               { YExternalNetElement next = (YExternalNetElement) preFlowIter.next();
-                t_start.setPreset(new YFlow(next,t_start));
+                t_start.addPreset(new YFlow(next,t_start));
                 t.removePresetFlow(new YFlow(next,t));
               }
-              t_start.setPostset(new YFlow(t_start,condition));
-              t.setPreset(new YFlow(condition,t));
+              t_start.addPostset(new YFlow(t_start,condition));
+              t.addPreset(new YFlow(condition,t));
               net.addNetElement(t_start);
               net.addNetElement(condition);
               
