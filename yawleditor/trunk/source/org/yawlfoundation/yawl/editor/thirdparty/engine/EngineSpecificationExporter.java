@@ -272,7 +272,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   private static void generateEngineMetaData(SpecificationModel editorSpec, 
                                              YSpecification engineSpec) {
     
-    engineSpec.setVersion(YSpecification.Version2_0);
+    engineSpec.setVersion(YSpecification.Version2_1);
     
     YMetaData metaData = new YMetaData();
 
@@ -407,7 +407,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       }
 
       engineNetVariable.setInitialValue(initialValue);
-     
+      engineNetVariable.setOrdering(editorNetVariable.getIndex());
       engineNet.setLocalVariable(engineNetVariable);
     }
     
@@ -722,7 +722,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     Iterator inputIterator = 
       editorDecomposition.getVariables().getInputVariables().iterator();
     
-    int ordering = 0;
+//    int ordering = 0;
 
     while(inputIterator.hasNext()) {
       DataVariable editorInputVariable = 
@@ -743,7 +743,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
           editorInputVariable.getAttributes(),
           editorInputVariable.getLogPredicateStarted(),     
           editorInputVariable.getLogPredicateCompletion(),
-          ordering++
+       //   ordering++
+          editorInputVariable.getIndex()
           
       );
     }  
@@ -831,7 +832,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     Iterator outputIterator = 
       editorDecomposition.getVariables().getOutputVariables().iterator();
 
-    int ordering = editorDecomposition.getVariableCount();
+//    int ordering = editorDecomposition.getVariableCount();
 
     while(outputIterator.hasNext()) {
       DataVariable editorOutputVariable = 
@@ -852,7 +853,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
           editorOutputVariable.getAttributes(),
           editorOutputVariable.getLogPredicateStarted(),
           editorOutputVariable.getLogPredicateCompletion(),     
-          ordering++
+    //      ordering++
+          editorOutputVariable.getIndex()
       );
     }
   }
