@@ -344,7 +344,7 @@ public abstract class InterfaceBWebsideController {
         if (!(specData.usesSimpleRootData())) {
             TaskInformation taskInfo = getTaskInformation(specID, workitem.getTaskID(),
                                                           sessionHandle);
-            List outputParams = taskInfo.getParamSchema().getOutputParams();
+            List<YParameter> outputParams = taskInfo.getParamSchema().getOutputParams();
             filteredOutputData = Marshaller.filterDataAgainstOutputParams(
                                                     mergedlOutputData, outputParams);
         }

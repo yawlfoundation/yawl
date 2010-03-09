@@ -507,6 +507,7 @@ public class YDecompositionParser {
         String name;
         String dataType;
         String namespace = null;
+
         //if version is beta 2 vars are stored in different format
         if (version2) {
             name = localVariableElem.getAttributeValue("name");

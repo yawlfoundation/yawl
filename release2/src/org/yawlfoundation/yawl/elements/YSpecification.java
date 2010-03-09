@@ -64,6 +64,12 @@ public final class YSpecification implements Cloneable, YVerifiable {
         _specURI = specURI;
     }
 
+    public static boolean isValidVersion(String version) {
+        return Version2_1.equals(version) || Version2_0.equals(version) ||
+               Beta7_1.equals(version) || Beta6.equals(version) ||
+               Beta4.equals(version) || Beta3.equals(version) || Beta2.equals(version);
+    }
+
 
     public YNet getRootNet() {
         return _rootNet;
