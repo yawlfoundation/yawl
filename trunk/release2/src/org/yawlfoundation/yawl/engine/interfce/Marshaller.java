@@ -9,11 +9,8 @@
 
 package org.yawlfoundation.yawl.engine.interfce;
 
-import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.XMLOutputter;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -21,8 +18,10 @@ import org.yawlfoundation.yawl.unmarshal.YDecompositionParser;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.io.IOException;
-import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Hashtable;
+import java.util.List;
 
 
 /**
@@ -320,31 +319,22 @@ public class Marshaller {
 
     
     public static String filterDataAgainstOutputParams(String mergedOutputData,
-                                                       List outputParams) throws JDOMException, IOException {
-        //build the merged output data document
-        SAXBuilder builder = new SAXBuilder();
-        Document internalDecompDoc = builder.build(new StringReader(mergedOutputData));
+                                                       List<YParameter> outputParams)
+            throws JDOMException, IOException {
 
         //set up output document
-        String rootElemntName = internalDecompDoc.getRootElement().getName();
-        Document outputDoc = new Document();
-        Element rootElement = new Element(rootElemntName);
-        outputDoc.setRootElement(rootElement);
+        Element outputData = JDOMUtil.stringToElement(mergedOutputData);
+        Element filteredData = new Element(outputData.getName());
 
-        Collections.sort(outputParams); //make sure its sorted
-        for (Iterator iterator = outputParams.iterator(); iterator.hasNext();) {
-            YParameter parameter = (YParameter) iterator.next();
-            String varElementName =
-                    parameter.getName() != null ?
-                    parameter.getName() : parameter.getElementName();
-
-            Element child = internalDecompDoc.getRootElement().getChild(varElementName);
+        Collections.sort(outputParams);
+        for (YParameter parameter : outputParams) {
+            Element child = outputData.getChild(parameter.getPreferredName());
             if (null != child) {
                 Element clone = (Element) child.clone();
-                outputDoc.getRootElement().addContent(clone);
+                filteredData.addContent(clone);
             }
         }
-        return new XMLOutputter().outputString(outputDoc);
+        return JDOMUtil.elementToString(filteredData);
     }
 
 

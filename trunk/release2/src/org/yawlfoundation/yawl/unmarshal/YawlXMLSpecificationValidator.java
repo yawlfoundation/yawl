@@ -9,6 +9,7 @@
 
 package org.yawlfoundation.yawl.unmarshal;
 
+import org.apache.commons.lang.StringUtils;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -18,19 +19,22 @@ import org.xml.sax.helpers.XMLReaderFactory;
 import org.yawlfoundation.yawl.elements.YSpecification;
 
 import java.io.StringReader;
+import java.net.URL;
 
 /**
+ * Validates a specification XML against its appropriate schema.
  * 
  * @author Lachlan Aldred
+ * @author Michael Adams (updated for 2.1)
  * 
  */
 
 public class YawlXMLSpecificationValidator extends DefaultHandler {
     StringBuilder _errorsString = new StringBuilder("");
+
     private static YawlXMLSpecificationValidator _myInstance;
 
-    private YawlXMLSpecificationValidator() {
-    }
+    private YawlXMLSpecificationValidator() {}
 
     public static YawlXMLSpecificationValidator getInstance() {
         if (_myInstance == null) {
@@ -57,18 +61,13 @@ public class YawlXMLSpecificationValidator extends DefaultHandler {
 
     private void addMessage(SAXParseException e, String errType) {
         String lineNum = getLineNumber(e);
-        _errorsString.append(errType + "#" + lineNum + "# " + e.getMessage() + '\n');
+        _errorsString.append(String.format("%s#%s#%s\n", errType, lineNum, e.getMessage()));
     }
 
 
     private String getLineNumber(SAXParseException e) {
-        String fileURL = e.getSystemId();
-        if (fileURL != null) {
-            return
-                    //fileURL.substring(fileURL.lastIndexOf("/") + 1) +
-                    "[ln: " + e.getLineNumber() + " col: " + e.getColumnNumber() + "]";
-        }
-        return "";
+        return (e.getSystemId() != null) ?
+               "[ln: " + e.getLineNumber() + " col: " + e.getColumnNumber() + "]" : "";
     }
 
 
@@ -77,7 +76,6 @@ public class YawlXMLSpecificationValidator extends DefaultHandler {
         try {
             XMLReader parser = setUpChecker(version);
             parser.parse(input);
-        } catch (SAXParseException e) {
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -93,15 +91,7 @@ public class YawlXMLSpecificationValidator extends DefaultHandler {
      * a carriage return.
      */
     public String checkSchema(String specStr, String version) {
-        _errorsString.delete(0, _errorsString.length());
-        try {
-            XMLReader parser = setUpChecker(version);
-            parser.parse(new InputSource(new StringReader(specStr)));
-        } catch (SAXParseException e) {
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return _errorsString.toString();
+        return checkSchema(new InputSource(new StringReader(specStr)), version) ;
     }
 
 
@@ -114,30 +104,11 @@ public class YawlXMLSpecificationValidator extends DefaultHandler {
     private XMLReader setUpChecker(String version) throws SAXException {
         XMLReader parser = XMLReaderFactory.createXMLReader(
                 "org.apache.xerces.parsers.SAXParser");
-        if (YSpecification.Beta2.equals(version)) {
+        if (YSpecification.isValidVersion(version)) {
             parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
-                    "http://www.citi.qut.edu.au/yawl " + getClass().getResource("YAWL_Schema.xsd"));
-        } else if (YSpecification.Beta3.equals(version)) {
-            parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
-                    "http://www.citi.qut.edu.au/yawl " + getClass().getResource("YAWL_SchemaBeta3.xsd"));
-        } else if (YSpecification.Beta4.equals(version)) {
-            parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
-                    "http://www.citi.qut.edu.au/yawl " + getClass().getResource("YAWL_SchemaBeta4.xsd"));
-        } else if (YSpecification.Beta6.equals(version)) {
-            parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
-                    "http://www.citi.qut.edu.au/yawl " + getClass().getResource("YAWL_SchemaBeta6.xsd"));
-        } else if (YSpecification.Beta7_1.equals(version)) {
-            parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
-                    "http://www.citi.qut.edu.au/yawl " + getClass().getResource("YAWL_SchemaBeta7.1.xsd"));
-        } else if (YSpecification.Version2_0.equals(version)) {
-             parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
-                    "http://www.yawlfoundation.org/yawlschema " +
-                    getClass().getResource("YAWL_Schema2.0.xsd"));
-        } else if (YSpecification.Version2_1.equals(version)) {
-             parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
-                    "http://www.yawlfoundation.org/yawlschema " +
-                    getClass().getResource("YAWL_Schema2.1.xsd"));
-        } else {
+                                getSchemaLocation(version));
+        }
+        else {
             throw new RuntimeException("Version [" + version + "] is not valid version.");
         }
         parser.setContentHandler(this);
@@ -146,5 +117,22 @@ public class YawlXMLSpecificationValidator extends DefaultHandler {
         parser.setFeature("http://apache.org/xml/features/validation/schema", true);
         parser.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true);
         return parser;
+    }
+
+
+    private String getSchemaLocation(String version) {
+        String namespace = (version.startsWith("2.")) ?
+                           YSpecification.Version2NS : YSpecification.BetaNS;
+        return namespace + " " + getSchemaURL(version);
+    }
+
+    private URL getSchemaURL(String version) {
+        return getClass().getResource(getSchemaFileName(version));
+    }
+
+    private String getSchemaFileName(String version) {
+        String versPart = YSpecification.Beta2.equals(version) ? "" :
+                           StringUtils.deleteWhitespace(version);
+        return String.format("YAWL_Schema%s.xsd", versPart);
     }
 }

@@ -11,6 +11,7 @@ package org.yawlfoundation.yawl.elements.data;
 
 import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.YVerifiable;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.schema.XMLToolsForYAWL;
@@ -209,8 +210,11 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
     protected String toXMLGuts() {
         StringBuilder xml = new StringBuilder();
 
-        xml.append(StringUtil.wrap(String.valueOf(_ordering), "index"));
-
+        // only 2.1 specs get an index element
+        if (_parentDecomposition.getSpecification().getSchemaVersion().equals(YSpecification.Version2_1)) {
+            xml.append(StringUtil.wrap(String.valueOf(_ordering), "index"));
+        }
+        
         if (null != _documentation) {
             xml.append(StringUtil.wrap(_documentation, "documentation"));
         }
