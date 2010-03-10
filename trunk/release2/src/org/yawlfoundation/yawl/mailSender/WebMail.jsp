@@ -47,8 +47,11 @@
 			else {
 			wir = (WorkItemRecord) session.getAttribute("workitem");
 			}
-			String redirectURL = "Send.jsp?workitem=" + wir.toXML();
-        
+            String redirectURL = "Send.jsp?workitem=" ;
+            if (wir != null) {
+                redirectURL += wir.toXML();
+            }
+
  			try{
 
         		
@@ -70,7 +73,7 @@
 
 		  
 				<label id="form1:lblDocument1" for="form1:txtDocument1" class="dynformLabel LblLev2Txt" style="top: 40px">Login :</label>
-				<input type="text" name="Login" class="dynformInput TxtFld" style="top: 40px; left: 125px" value="" size="40" maxlength="40" />
+				<input type="text" name="Login" class="dynformInput TxtFld" style="top: 40px; left: 125px" value="" size="30" maxlength="40" />
 				
 				<label id="form1:lblDocument1" for="form1:txtDocument1" class="dynformLabel LblLev2Txt" style="top: 65px">Password :</label>
 				<input type="password" name="password" class="dynformInput TxtFld" style="top: 65px; left: 125px" value="" size="20" maxlength="20" /></td>
@@ -83,7 +86,7 @@
 			<div class="dynformSubPanelAlt" style="top: 180px; left: 10px; height: 230px; width: 370px" style="position: relative;-rave-layout: grid; top: 30px; left: 10px; height: 110px; width: 270px">
 
 					<label id="form1:lblDocument1" for="form1:txtDocument1" class="dynformLabel LblLev2Txt" style="top:  10px">Send To :</label>
-					<input type="text" name="To" class="dynformInput TxtFld" style="top: 10px; left: 125px" value="" size="40" maxlength="60" />
+					<input type="text" name="To" class="dynformInput TxtFld" style="top: 10px; left: 125px" value="" size="30" maxlength="60" />
 		           
 				    <label id="form1:lblDocument1" for="form1:txtDocument1" class="dynformLabel LblLev2Txt" style="top: 40px">Alias :</label>
 					<input type="text" name="Alias" class="dynformInput TxtFld" style="top: 40px; left: 125px" value="" size="20" maxlength="40" />
@@ -95,7 +98,7 @@
 					<input type="file" name="fileLocation" class="dynformInput TxtFld" style="top: 95px; left: 125px" value="" size="20" maxlength="20" />
 		        
 					<label id="form1:lblDocument1" for="form1:txtDocument1" class="dynformLabel LblLev2Txt" style="top: 125px">Message :</label>
-					<textarea cols="35" rows="5" name="content" class="dynformInput TxtFld" style="top: 125px; left: 125px" ></textarea>
+					<textarea cols="25" rows="5" name="content" class="dynformInput TxtFld" style="top: 125px; left: 125px" ></textarea>
 			</div>
 			<input style="left: 105px ;top: 430px" class="dynformButton Btn2" type="reset" value="Clear" />
 			<input style="left: 205px; top: 430px" class="dynformButton Btn2" type="submit" Value="Send" />

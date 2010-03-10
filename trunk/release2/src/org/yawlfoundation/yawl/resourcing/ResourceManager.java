@@ -1901,7 +1901,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             
             Participant p = getParticipantFromUserID(userid) ;
             if (p != null) {
-                if (p.getPassword().equals(password)) {
+                if (p.isValidPassword(password)) {
                     result = newSessionHandle();          
                     _liveSessions.put(result, p) ;
                     EventLogger.audit(userid, EventLogger.audit.logon);

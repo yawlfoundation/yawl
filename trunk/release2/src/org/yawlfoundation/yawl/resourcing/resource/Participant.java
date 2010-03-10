@@ -192,6 +192,10 @@ public class Participant extends AbstractResource implements Serializable {
         setPassword(pw) ;        
     }
 
+    public boolean isValidPassword(String password) {
+        return getPassword().equals(password);
+    }
+
 
     public boolean isAdministrator() { return _isAdministrator; }
 
@@ -370,7 +374,7 @@ public class Participant extends AbstractResource implements Serializable {
         _qSet = q ;
     }
 
-    /** returns and initialised qSet if init is true */
+    /** returns an initialised qSet if init is true */
     public QueueSet getWorkQueues(boolean init) {
         if (init && _qSet == null) createQueueSet(false);
         return _qSet ;
