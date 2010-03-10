@@ -30,6 +30,8 @@ public abstract class AbstractExternalDBGateway {
      * @param url the database url (e.g. "jdbc:postgresql:yawl")
      * @param username the logon name for the database
      * @param password the logon password
+     * @param classes a list of classes for Hibernate to converse with the underlying
+     * tables (can be null if no classes are involved) 
      */
     protected void configureSession(String dialect, String driver, String url,
                                  String username, String password, List<Class> classes) {
@@ -87,7 +89,8 @@ public abstract class AbstractExternalDBGateway {
      * @param caseData the current set of case variables and values
      */
 
-    public abstract void updateFromTaskCompletion(String paramName, Element outputData, Element caseData);
+    public abstract void updateFromTaskCompletion(String paramName, Element outputData,
+                                                  Element caseData);
 
 
 
