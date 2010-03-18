@@ -5,6 +5,7 @@ import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.Role;
 import org.yawlfoundation.yawl.resourcing.util.Docket;
 import org.yawlfoundation.yawl.util.PasswordEncryptor;
+import org.yawlfoundation.yawl.exceptions.YAuthenticationException;
 
 import javax.naming.*;
 import javax.naming.directory.Attribute;
@@ -23,11 +24,12 @@ public class LDAPSource extends DataSource {
     private Properties _props = null;
     private Hashtable<String, String> _attributeMap = null;
     private Hashtable<String, Object> _environment = null;
+    private Hashtable<String, String> _user2nameMap = null;
     private HashMap<String, Role> _roles = null;
 
     public LDAPSource() {
         loadProperties();
-        _roles = new HashMap<String, Role>();
+        initMaps();
     }
 
     private void loadProperties() {
@@ -41,6 +43,13 @@ public class LDAPSource extends DataSource {
         }
     }
 
+    private void initMaps() {
+        _roles = new HashMap<String, Role>();
+        if (getProperty("delegateauthentication").equalsIgnoreCase("true")) {
+            _user2nameMap = new Hashtable<String, String>();
+        }
+    }
+
     private String getProperty(String key) {
         return _props.getProperty(key);
     }
@@ -49,12 +58,17 @@ public class LDAPSource extends DataSource {
         if (_attributeMap == null) {
             _attributeMap = new Hashtable<String, String>();
             if (_props != null) {
+
+                // these are mandatory
                 _attributeMap.put("userid", getProperty("userid"));
                 _attributeMap.put("firstname", getProperty("firstname"));
                 _attributeMap.put("lastname", getProperty("lastname"));
-                _attributeMap.put("password", getProperty("password"));
 
                 // these are optional
+                String password = getProperty("password");
+                if (isNotNullOrEmpty(password)) {
+                   _attributeMap.put("password", password);
+                }
                 String isAdmin = getProperty("administrator");
                 if (isNotNullOrEmpty(isAdmin)) {
                    _attributeMap.put("isAdmin", isAdmin);
@@ -105,62 +119,95 @@ public class LDAPSource extends DataSource {
     }
 
 
-    private HashMap<String, Participant> loadParticipants() {
+    private HashMap<String, Participant> loadParticipants() throws NamingException {
         HashMap<String, Participant> map = new HashMap<String, Participant>();
         String[] attrIDs = getAttributeIDNames();
-        try {
-            DirContext ctx = new InitialDirContext(getEnvironment());
-            List<String> nameList = getNameList();
-            String binding = getProperty("binding");
-            for (String name : nameList) {
-                Attributes attributes = ctx.getAttributes(name + "," + binding, attrIDs);
-                Participant p = createParticipant(attributes);
-                map.put(p.getID(), p);
-            }
-
-            ctx.close();
+        DirContext ctx = new InitialDirContext(getEnvironment());
+        List<String> nameList = getNameList();
+        String binding = getProperty("binding");
+        for (String name : nameList) {
+            Attributes attributes = ctx.getAttributes(name + "," + binding, attrIDs);
+            Participant p = createParticipant(name, attributes);
+            map.put(p.getID(), p);
         }
-        catch (NamingException e) {
-            System.out.println("List Bindings failed: " + e);
-        }
+        ctx.close();
         return map;
     }
 
-    private Participant createParticipant(Attributes attributes) throws NamingException {
+    private Participant createParticipant(String name, Attributes attributes) throws NamingException {
         String lastname = getStringValue(attributes, "lastname");
         String firstname = getStringValue(attributes, "firstname");
         String userid = getStringValue(attributes, "userid");
         Participant p = new Participant(lastname, firstname, userid);
         p.setID("U_" + userid);
 
-        // password needs a little work
-        String password = new String(getByteValue(attributes, "password"));
-        try {
-            password = PasswordEncryptor.encrypt(password);
+        // if authentication is done via LDAP, keep the LDAP name - userid mapping
+        if (_user2nameMap != null) {
+            _user2nameMap.put(userid, name);
         }
-        catch (Exception e) {
-            // do nothing - just accept plaintext password
+        else {
+            p.setPassword(loadUserPassword(attributes));
         }
-        p.setPassword(password);
-        setRoles(p, getStringValue(attributes, "roles"));
+
+        // set the roles for the particpant - may be enum or csv list
+        if (hasEnumeratedRoles()) {
+            setRoles(p, attributes);
+        }
+        else {
+            setRoles(p, getStringValue(attributes, "roles"));
+        }
+
         return p;
     }
 
-    private void setRoles(Participant p, String roles) {
-        if (isNotNullOrEmpty(roles)) {
-            String[] roleArray = roles.split("\\s*,\\s*");
-            for (String roleName : roleArray) {
-                Role r = _roles.get(roleName);
-                if (r == null) {
-                    r = new Role(roleName);
-                    r.setID(roleName);
-                    _roles.put(roleName, r);
-                }
-                r.addResource(p);
-                p.addRole(r);
+
+    private void setRoles(Participant p, Attributes attributes) throws NamingException {
+        Attribute roles = attributes.get(getProperty("roles"));
+        if (roles != null) {
+            NamingEnumeration e = roles.getAll();
+            while (e.hasMoreElements()) {
+                addToRole(p, String.valueOf(e.next()));
             }
         }
     }
+
+
+    private void setRoles(Participant p, String rolesCSV) {
+        if (isNotNullOrEmpty(rolesCSV)) {
+            String[] roleArray = rolesCSV.split("\\s*,\\s*");
+            for (String roleName : roleArray) {
+                addToRole(p, roleName);
+            }
+        }
+    }
+
+
+    private void addToRole(Participant p, String roleName) {
+        Role r = _roles.get(roleName);
+        if (r == null) {
+            r = new Role(roleName);
+            r.setID(roleName);
+            _roles.put(roleName, r);
+        }
+        r.addResource(p);
+        p.addRole(r);
+    }
+
+
+    private String loadUserPassword(Attributes attributes) {
+        String password = null;
+        if (getAttributeMap().get("password") != null) {
+            try {
+                byte[] pwBytes = getByteValue(attributes, "password");
+                password = PasswordEncryptor.encrypt(new String(pwBytes));
+            }
+            catch (Exception e) {
+                // do nothing - null will be returned
+            }
+        }
+        return password;
+    }
+
 
     private String getStringValue(Attributes attributes, String attributeName)
             throws NamingException {
@@ -184,16 +231,27 @@ public class LDAPSource extends DataSource {
         return (s != null) && (s.length() > 0) ;
     }
 
+    private boolean hasEnumeratedRoles() {
+        String roleFormat = getProperty("roleformat");
+        return (roleFormat != null) && roleFormat.equalsIgnoreCase("enumeration");
+    }
 
-
+    
     // BASE CLASS IMPLEMENTATIONS //
 
     public ResourceDataSet loadResources() {
+        initMaps();                                   // (re)initialise data structures
         ResourceDataSet rds = new ResourceDataSet(this);
         if (_props != null) {
-            rds.setParticipants(loadParticipants(), this);
-            if (! _roles.isEmpty()) {
-                rds.setRoles(_roles, this);
+            try {
+                rds.setParticipants(loadParticipants(), this);
+                if (! _roles.isEmpty()) {
+                    rds.setRoles(_roles, this);
+                }
+            }
+            catch (NamingException ne) {
+                // thrown by loadParticipants(); nothing to do, as an empty rds will
+                // be returned, initialising a controlled service disablement
             }
         }    
         return rds;
@@ -218,4 +276,38 @@ public class LDAPSource extends DataSource {
     public int execUpdate(String query) {
         return -1;
     }
+
+    public boolean authenticate(String userid, String password) throws
+            YAuthenticationException {
+
+        if (_user2nameMap == null) {
+            throw new YAuthenticationException(
+                    "Cannot authenticate user: LDAP Authentication disabled");
+        }
+        if (! _user2nameMap.contains(userid)) {
+            throw new YAuthenticationException("Unknown userid");
+        }
+
+        Hashtable<String,Object> env = getEnvironment() ;
+        String userBinding = _user2nameMap.get(userid) + "," + getProperty("binding");
+        Object prevID = env.put(Context.SECURITY_PRINCIPAL, userBinding);
+        Object prevPW = env.put(Context.SECURITY_CREDENTIALS, password);
+        try {
+            new InitialDirContext(env);     // will throw exception if credentials wrong
+            return true;
+        }
+        catch (AuthenticationException ae) {
+            return false;                       // bad password
+        }
+        catch (NamingException ne) {
+            throw new YAuthenticationException(
+                    "Cannot authenticate user: LDAP Authentication exception.", ne);
+        }
+        finally {
+            env.put(Context.SECURITY_PRINCIPAL, prevID);
+            env.put(Context.SECURITY_CREDENTIALS, prevPW);
+        }
+
+    }
+    
 }

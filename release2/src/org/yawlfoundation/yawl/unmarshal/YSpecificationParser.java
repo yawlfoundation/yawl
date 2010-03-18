@@ -9,13 +9,13 @@
 
 package org.yawlfoundation.yawl.unmarshal;
 
+import org.eclipse.xsd.util.XSDConstants;
 import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
-import org.yawlfoundation.yawl.schema.XMLToolsForYAWL;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.text.ParseException;
@@ -37,10 +37,12 @@ class YSpecificationParser {
     private YDecompositionParser[] _decompositionParser;
     private Map<String, String> _decompAndTypeMap = new HashMap<String, String>();
     private Namespace _yawlNS;
-    private static final String _defaultSchema =
-                           "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"/>";
 
- 	  static final String INITIAL_VERSION = "0.1";              // initial spec version
+    private static final String _schema4SchemaURI = XSDConstants.SCHEMA_FOR_SCHEMA_URI_2001;
+    private static final String _defaultSchema =
+                           "<xs:schema xmlns:xs=\"" + _schema4SchemaURI + "\"/>";
+
+    static final String INITIAL_VERSION = "0.1";              // initial spec version
 
     /**
      * build a specification object from part of an XML document
@@ -79,7 +81,7 @@ class YSpecificationParser {
         String name = specificationElem.getChildText("name", _yawlNS);
         String documentation = specificationElem.getChildText("documentation", _yawlNS);
 
-        Namespace schema4SchemaNS = Namespace.getNamespace(XMLToolsForYAWL.getSchema4SchemaNameSpace());
+        Namespace schema4SchemaNS = Namespace.getNamespace(_schema4SchemaURI);
         Element schemElem = specificationElem.getChild("schema", schema4SchemaNS);
         if (null != schemElem) {
             _specification.setSchema(JDOMUtil.elementToString(schemElem));
@@ -273,36 +275,9 @@ class YSpecificationParser {
     }
 
     public String getDecompositionType(String decomposesToID) {
-        String decoType = null;
-        decoType = (String) _decompAndTypeMap.get(decomposesToID);
-        return decoType;
+        return _decompAndTypeMap.get(decomposesToID);
     }
 
 
 }
 
-/*
-    / **
-     * @deprecated
-     * @return
-     * /
-    private YNet getRootNet()
-    {
-        List allContainers = new Vector();
-        List implementationContainers = new Vector();
-        for(int i = 0; i < _decompositionParser.length; i++)
-        {
-            YNet container = _decompositionParser[i].getNet();
-            allContainers.add(container);
-            Map decomposesToIDs = _decompositionParser[i].getDecomposesToIDs();
-            Iterator compTasksIter = decomposesToIDs.keySet().iterator();
-            while(compTasksIter.hasNext())
-            {
-                YCompositeTask compTask = (YCompositeTask) compTasksIter.next();
-                YNet implementation = (YNet) _decompositionMap.get(decomposesToIDs.get(compTask));
-                implementationContainers.add(implementation);
-            }
-        }
-        allContainers.removeAll(implementationContainers);
-        return (YNet) allContainers.get(0);
-    }*/

@@ -20,7 +20,6 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -218,6 +217,19 @@ public class WorkQueue implements Serializable {
         }    
     }
 
+
+    /**
+     * Removes all the items in the queue passed from this work queue
+     *  (i.e. does not replace the queue)
+     * @param queue the queue of items to remove
+     */
+    public void removeQueue(WorkQueue queue) {
+        for (WorkItemRecord wir : queue.getAll()) {
+            remove(wir);
+        }
+    }
+
+    
 
     /* Removes all workitems from the queue */
     public void clear() {

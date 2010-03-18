@@ -25,9 +25,11 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_Environment
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
 import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
+import org.yawlfoundation.yawl.exceptions.YAuthenticationException;
 import org.yawlfoundation.yawl.logging.YLogDataItem;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.resourcing.allocators.AllocatorFactory;
+import org.yawlfoundation.yawl.resourcing.calendar.ResourceCalendar;
 import org.yawlfoundation.yawl.resourcing.codelets.AbstractCodelet;
 import org.yawlfoundation.yawl.resourcing.codelets.CodeletExecutionException;
 import org.yawlfoundation.yawl.resourcing.codelets.CodeletFactory;
@@ -109,11 +111,16 @@ public class ResourceManager extends InterfaceBWebsideController {
     private Hashtable<String, FourEyesCache> _taskCompleters =
             new Hashtable<String, FourEyesCache>();
 
+    // started workitems that have been restored for a no longer existing participant.
+    // these are force-completed once start-up has completed
+    private List<WorkItemRecord> _orphanedStartedItems ;
+
     private static ResourceManager _me ;                  // instance reference
     private ResourceAdministrator _resAdmin ;             // admin capabilities
     private DataSource _orgdb;                            // the org model db i'face
     private Persister _persister;                         // persist changes to db
     private Logger _log ;                                 // debug log4j file
+    private ResourceCalendar _calendar;                   // resource availability
     private boolean _persisting ;                         // flag to enable persistence
     private boolean _isNonDefaultOrgDB ;                  // flag for non-yawl org model
     private final Object _mutex = new Object();           // for synchronizing ib events
@@ -147,8 +154,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private ResourceGatewayServer _gatewayServer;
 
 
-    // Constructor - initialises references to engine and database(s), and loads org data.
-    // Called exclusively by getInstance()
+    // Constructor - called exclusively by getInstance()
     private ResourceManager() {
         super();
         _resAdmin = ResourceAdministrator.getInstance() ;
@@ -227,18 +233,23 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public void finaliseInitialisation() {
+    public synchronized void finaliseInitialisation() {
         EventLogger.setLogging(
             HibernateEngine.getInstance(false).isAvailable(HibernateEngine.tblEventLog));
         _workItemCache.setPersist(_persisting) ;
         if (_persisting) {
             restoreWorkQueues() ;
         }
+        _calendar = new ResourceCalendar();
     }
 
 
     public void setAllowExternalOrgDataMods(boolean allow) {
         _orgDataSet.setAllowExternalOrgDataMods(allow);
+    }
+
+    public void setExternalUserAuthentication(boolean externalAuth) {
+        _orgDataSet.setExternalUserAuthentication(externalAuth);
     }
     
     public void initRandomOrgDataGeneration(int count) {
@@ -275,6 +286,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public Logger getLogger() { return _log ; }
 
+    public ResourceCalendar getCalendar() { return _calendar ; }
 
     /*********************************************************************************/
 
@@ -356,6 +368,11 @@ public class ResourceManager extends InterfaceBWebsideController {
             setServiceURI();
             restoreAutoTasks();
             sanitiseCaches();
+            if (_orphanedStartedItems != null) {
+                for (WorkItemRecord wir : _orphanedStartedItems) {
+                    this.checkinItem(null, wir);
+                }
+            }
         }    
     }
 
@@ -680,6 +697,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private void restoreWorkQueues() {
         _log.info("Restoring persisted work queue data...");
         _workItemCache.restore() ;
+        List<WorkQueue> orphanedQueues = new ArrayList<WorkQueue>();
 
         // restore the queues to their owners
         List<WorkQueue> qList = _persister.select("WorkQueue") ;
@@ -692,12 +710,38 @@ public class ResourceManager extends InterfaceBWebsideController {
                 else {
                     if (_orgDataSet != null) {
                         Participant p = _orgDataSet.getParticipant(wq.getOwnerID()) ;
-                        p.restoreWorkQueue(wq, _workItemCache, _persisting);
+                        if (p != null) {
+                            p.restoreWorkQueue(wq, _workItemCache, _persisting);
+                        }
+                        else {
+                            orphanedQueues.add(wq);
+                        }
                     }
                 }
             }
+
+            if (! orphanedQueues.isEmpty()) {
+                removeOrphanedQueues(orphanedQueues);
+            }
         }
     }
+
+
+    private void removeOrphanedQueues(List<WorkQueue> orphanedQueues) {
+
+        // have to restore the whole set first to avoid hibernate lazy refreshes
+        for (WorkQueue orphan : orphanedQueues) {
+            orphan.restore(_workItemCache);
+        }
+
+        for (WorkQueue orphan : orphanedQueues) {
+            handleWorkQueueOnRemoval(orphan);
+            orphan.clear();                        // del persisted items
+            _persister.delete(orphan);             // del persisted queue
+        }
+    }
+
+
 
     private void addUserKey(Participant p) {
         _userKeys.put(p.getUserID(), p.getID()) ;
@@ -783,11 +827,13 @@ public class ResourceManager extends InterfaceBWebsideController {
     public synchronized void removeParticipant(Participant p) {
         if (_orgDataSet.removeParticipant(p)) {
             handleWorkQueuesOnRemoval(p);
+            QueueSet qSet = p.getWorkQueues();
+            qSet.purgeAllQueues();
+            for (WorkQueue wq : qSet.getActiveQueues()) {
+                if (wq != null) _persister.delete(wq);
+            }    
+            _persister.delete(p.getUserPrivileges());
             removeUserKey(p);
-            if (_isNonDefaultOrgDB) {
-                _persister.delete(p.getUserPrivileges());
-                _persister.delete(p.getWorkQueues());
-            }
         }
     }
 
@@ -1052,13 +1098,33 @@ public class ResourceManager extends InterfaceBWebsideController {
     //  - Started: forceComplete items (since we need another p. to reallocate to)
     //  - Suspended: same as Started.
     //
-    public synchronized void handleWorkQueuesOnRemoval(Participant p) {
-        QueueSet qs = p.getWorkQueues() ;
 
+    public void handleWorkQueuesOnRemoval(Participant p) {
+        handleWorkQueuesOnRemoval(p, p.getWorkQueues());
+    }
+
+    public synchronized void handleWorkQueuesOnRemoval(Participant p, QueueSet qs) {
         if (qs == null) return ;    // no queues = nothing to do
+        handleOfferedQueueOnRemoval(p, qs.getQueue(WorkQueue.OFFERED));
+        handleAllocatedQueueOnRemoval(qs.getQueue(WorkQueue.ALLOCATED));
+        handleStartedQueuesOnRemoval(p, qs.getQueue(WorkQueue.STARTED));
+        handleStartedQueuesOnRemoval(p, qs.getQueue(WorkQueue.SUSPENDED));
+    }
 
-        // offered queue
-        WorkQueue qOffer = qs.getQueue(WorkQueue.OFFERED);
+
+    public synchronized void handleWorkQueueOnRemoval(WorkQueue wq) {
+        if (wq != null) {
+            wq.setPersisting(false);                    // turn off circular persistence
+            if (wq.getQueueType() == WorkQueue.OFFERED)
+                handleOfferedQueueOnRemoval(null, wq);
+            else if (wq.getQueueType() == WorkQueue.ALLOCATED)
+                handleAllocatedQueueOnRemoval(wq);
+            else handleStartedQueuesOnRemoval(null, wq);
+        }
+    }
+
+       
+    public synchronized void handleOfferedQueueOnRemoval(Participant p, WorkQueue qOffer) {
         if ((qOffer != null) && (! qOffer.isEmpty())) {
             Set<WorkItemRecord> wirSet = qOffer.getAll();
 
@@ -1066,7 +1132,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             Set<WorkItemRecord> offerSet = new HashSet<WorkItemRecord>();
             Set<Participant> allParticipants = _orgDataSet.getParticipants() ;
             for (Participant temp : allParticipants) {
-                if (! temp.getID().equals(p.getID())) {
+                if ((p == null) || (! temp.getID().equals(p.getID()))) {
                     WorkQueue q = temp.getWorkQueues().getQueue(WorkQueue.OFFERED) ;
                     if (q != null) offerSet.addAll(q.getAll());
                 }
@@ -1074,13 +1140,20 @@ public class ResourceManager extends InterfaceBWebsideController {
 
             // compare each item in this part's queue to the complete set
             for (WorkItemRecord wir : wirSet) {
-                 if (! offerSet.contains(wir)) _resAdmin.addToUnoffered(wir);
+                 if (! offerSet.contains(wir)) {
+                     _resAdmin.getWorkQueues().removeFromQueue(wir, WorkQueue.WORKLISTED);
+                     _resAdmin.addToUnoffered(wir);
+                 }
             }
         }
+    }
+
+
+    public synchronized void handleAllocatedQueueOnRemoval(WorkQueue qAlloc) {
 
         // allocated queue - all allocated go back to admin's unoffered
-        WorkQueue qAlloc = qs.getQueue(WorkQueue.ALLOCATED);
         if ((qAlloc != null) && (! qAlloc.isEmpty())) {
+            _resAdmin.getWorkQueues().removeFromQueue(qAlloc, WorkQueue.WORKLISTED);
             _resAdmin.getWorkQueues().addToQueue(WorkQueue.UNOFFERED, qAlloc);
             if (_gatewayServer != null) {
                 Set<WorkItemRecord> wirSet = qAlloc.getAll() ;
@@ -1089,19 +1162,28 @@ public class ResourceManager extends InterfaceBWebsideController {
                 }
             }
         }
+    }
 
-        // started & suspended queues
-        WorkQueue qStart = qs.getQueue(WorkQueue.STARTED);
+
+    // started & suspended queues
+    public synchronized void handleStartedQueuesOnRemoval(Participant p, WorkQueue qStart) {
         if (qStart != null) {
             Set<WorkItemRecord> startSet = qStart.getAll();
-            for (WorkItemRecord wir : startSet)
-                checkinItem(p, wir);
-        }
-        WorkQueue qSusp = qs.getQueue(WorkQueue.SUSPENDED);
-        if (qSusp != null) {
-            Set<WorkItemRecord> suspSet = qSusp.getAll();
-            for (WorkItemRecord wir : suspSet)
-                checkinItem(p, wir);
+
+            // if called during restore, there's no engine available yet, so we have to
+            // save the wir until there is one; otherwise, we can do the checkin now
+            for (WorkItemRecord wir : startSet) {
+                if (serviceInitialised) {
+                    checkinItem(p, wir);
+                }
+                else {
+                    if (_orphanedStartedItems == null) {
+                        _orphanedStartedItems = new ArrayList<WorkItemRecord>();
+                    }    
+                    _orphanedStartedItems.add(wir);
+                }    
+                _resAdmin.getWorkQueues().removeFromQueue(wir, WorkQueue.WORKLISTED);
+            }    
         }
     }
 
@@ -1783,7 +1865,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                 Element outData = wir.getUpdatedData();
                 if (outData == null) outData = wir.getDataList();
                 checkCacheForWorkItem(wir);
-                addTaskCompleter(p, wir);
+                if (p != null) addTaskCompleter(p, wir);
                 parseCompletionLogPredicate(p, wir);
                 result = checkInWorkItem(wir.getID(), wir.getDataList(), outData,
                         wir.getLogPredicateCompletion(), getEngineSessionHandle()) ;
@@ -1901,7 +1983,19 @@ public class ResourceManager extends InterfaceBWebsideController {
             
             Participant p = getParticipantFromUserID(userid) ;
             if (p != null) {
-                if (p.isValidPassword(password)) {
+                boolean validPassword;
+                if (_orgDataSet.isUserAuthenticationExternal()) {
+                    try {
+                        validPassword = _orgdb.authenticate(userid, password);
+                    }
+                    catch (YAuthenticationException yae) {
+                        return StringUtil.wrap(yae.getMessage(), "failure") ;
+                    }
+                }
+                else {
+                    validPassword = p.isValidPassword(password);
+                }
+                if (validPassword) {
                     result = newSessionHandle();          
                     _liveSessions.put(result, p) ;
                     EventLogger.audit(userid, EventLogger.audit.logon);

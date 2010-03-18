@@ -105,6 +105,7 @@ public class HibernateEngine {
             _cfg.addClass(org.yawlfoundation.yawl.resourcing.resource.UserPrivileges.class);
             _cfg.addClass(org.yawlfoundation.yawl.resourcing.WorkQueue.class);
             _cfg.addClass(org.yawlfoundation.yawl.resourcing.ResourceMap.class);
+            _cfg.addClass(org.yawlfoundation.yawl.resourcing.calendar.CalendarEntry.class);
             _cfg.addClass(org.yawlfoundation.yawl.engine.interfce.WorkItemRecord.class);
             _cfg.addClass(
                     org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent.class);
@@ -228,7 +229,20 @@ public class HibernateEngine {
         }
 
         return result;
-     }
+    }
+
+
+    public Query createQuery(String queryString) {
+        try {
+            Session session = _factory.getCurrentSession();
+            return session.createQuery(queryString);
+        }
+        catch (HibernateException he) {
+            _log.error("Caught Exception: Error creating query: " + queryString, he);
+        }
+        return null;
+    }
+
 
 
     /**

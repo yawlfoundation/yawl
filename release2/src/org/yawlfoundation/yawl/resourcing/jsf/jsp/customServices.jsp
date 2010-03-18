@@ -11,7 +11,7 @@
         <ui:page binding="#{customServices.page1}" id="page1">
             <ui:html binding="#{customServices.html1}" id="html1">
                 <ui:head binding="#{customServices.head1}" id="head1"
-                         title="YAWL 2.0 Service Management">
+                         title="YAWL 2.1 Service Management">
                     <ui:link binding="#{customServices.link1}" id="link1"
                              url="/resources/stylesheet.css"/>
 

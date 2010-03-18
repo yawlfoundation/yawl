@@ -118,7 +118,7 @@ public class YEventLogger {
     public String getDataSchema(YSpecificationID specID, String dataTypeName) {
         return XSDType.getInstance().isBuiltInType(dataTypeName) ? dataTypeName :
                 _dataSchemaCache.getSchemaTypeAsString(specID, dataTypeName);
-    }
+    }       
 
 
     /********************************************************************************/
@@ -212,18 +212,17 @@ public class YEventLogger {
         if (loggingEnabled()) {
             try {
                 String event;
-                long rootNetInstanceID;
+                long rootNetInstanceID = getRootNetInstanceID(engineNetID);
+                long netInstanceID = getNetInstanceID(engineNetID);
 
                 // a root net has no parent
                 if (engineNetID.getParent() != null) {
                     event = NET_COMPLETE ;
-                    rootNetInstanceID = getRootNetInstanceID(engineNetID);
                 }
                 else {
                     event = CASE_COMPLETE;
-                    rootNetInstanceID = _caseIDtoRootNetMap.remove(engineNetID.toString()) ;
+                    _caseIDtoRootNetMap.remove(engineNetID.toString()) ;
                 }
-                long netInstanceID = getNetInstanceID(engineNetID);
                 logEvent(netInstanceID, event, datalist, -1, rootNetInstanceID);
             }
             catch (YPersistenceException ype) {
@@ -439,11 +438,15 @@ public class YEventLogger {
      * @param caseID the case id
      * @return the primary key for the root net record
      */
-    private long getRootNetInstanceID(YIdentifier caseID) {
+    private long getRootNetInstanceID(YIdentifier caseID) throws YPersistenceException {
         long result = -1;
         String rootCaseID = caseID.getRootAncestor().toString();
         if (_caseIDtoRootNetMap.containsKey(rootCaseID)) {
             result = _caseIDtoRootNetMap.get(rootCaseID);
+        }
+        else {
+            Long key = getNetInstanceID(caseID.getRootAncestor());
+            if (key != null) result = key;
         }
         return result;
     }

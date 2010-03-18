@@ -24,6 +24,9 @@ public class ResourceDataSet {
     // if true, overrides read-only setting of external data sources (set from web.xml)
     private boolean _allowExternalOrgDataMods = true;
 
+    // if true, delegates user authentication to external data source (set from web.xml)
+    private boolean _externalUserAuthentication = false;
+
     // maps the data source for each org data entity
     private Map<ResUnit, DataSource> sources = new Hashtable<ResUnit, DataSource>();
 
@@ -91,11 +94,10 @@ public class ResourceDataSet {
     // PUBLIC METHODS //
 
     // By default, data loaded from external sources is read-only. This value, set from
-    //web.xml on startup, allows that default to be overridden 
+    // web.xml on startup, allows that default to be overridden 
     public void setAllowExternalOrgDataMods(boolean allow) {
         _allowExternalOrgDataMods = allow;
     }
-    
 
     public boolean isDataEditable(ResUnit resource) {
         return _allowExternalOrgDataMods || hasDefaultDataSource(resource) ;
@@ -104,6 +106,20 @@ public class ResourceDataSet {
     public boolean isDataEditable(String resName) {
         return isDataEditable(getResUnit(resName));
     }
+
+
+    // This value is set from web.xml, and if true allows the delegation of user
+    // authentication to a currently active external data source
+    public void setExternalUserAuthentication(boolean externalAuth) {
+        _externalUserAuthentication = externalAuth;
+    }
+
+    public boolean isUserAuthenticationExternal() {
+        return _externalUserAuthentication && ! hasDefaultDataSource(ResUnit.Participant) ;
+    }
+
+
+
 
     public void setDataSource(ResUnit resource, DataSource source) {
         sources.put(resource, source);

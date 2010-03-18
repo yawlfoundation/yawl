@@ -105,7 +105,7 @@ public class DynFormValidator {
         boolean result;
         String text = (String) field.getText();
         DynFormField input = _componentFieldLookup.get(field);
-        if (input != null) {
+        if ((input != null) && (! input.hasSkipValidationAttribute())) {
             if (isTimerExpiryField(input))
                 result = validateExpiry(input, text);
             else

@@ -83,7 +83,14 @@ public class DynFormComponentBuilder {
 
     public DynFormComponentList makeInputField(int top, DynFormField input) {
         UIComponent field;
+        int startingTop = top;
         DynFormComponentList result = new DynFormComponentList();
+
+        DynFormComponentList preList = makePreComponents(top, input) ;
+        if (! preList.isEmpty()) {
+            result.addAll(preList);      // line, text and/or image before
+            top += preList.getHeight() + 25;
+        }
 
         String type = input.getDataTypeUnprefixed();
 
@@ -107,17 +114,83 @@ public class DynFormComponentBuilder {
         result.add(label);
         result.add(field);
 
+        DynFormComponentList postList = makePostComponents(top, input) ;
+        if (! postList.isEmpty()) {
+            result.addAll(postList);  // line, text and/or image after
+            top += postList.getHeight();
+        }
+        result.setHeight(top - startingTop);
+
         if (! focusSet) focusSet = setFocus(field) ;
 
         return result ;
     }
 
 
-    private String makeTopStyle(int top) {
+    private DynFormComponentList makePreComponents(int top, DynFormField input) {
+        DynFormComponentList list = new DynFormComponentList();
+        String textAbove = input.getTextAbove();
+        if (textAbove != null) {
+            list.add(makeStaticTextBlock(input, top));
+            top += 25;
+        }
+        if (input.isLineAbove()) {
+            list.add(makeFlatPanel(top));
+            top += 25;
+        }
+        String imagePath = input.getImageAbove();
+        if (imagePath != null) {
+            ImageComponent image = makeImageComponent(top, imagePath);
+            list.add(image);
+            top += image.getHeight();
+        }
+        list.setHeight(top);
+        return list;
+    }
+
+
+    private DynFormComponentList makePostComponents(int top, DynFormField input) {
+        DynFormComponentList list = new DynFormComponentList();
+        String textBelow = input.getTextBelow();
+        if (textBelow != null) {
+            list.add(makeStaticTextBlock(input, top));
+            top += 25;
+        }
+        if (input.isLineBelow()) {
+            list.add(makeFlatPanel(top));
+            top += 25;
+        }
+        String imagePath = input.getImageBelow();
+        if (imagePath != null) {
+            ImageComponent image = makeImageComponent(top, imagePath);
+            list.add(image);
+            top += image.getHeight();
+        }
+        list.setHeight(top);
+        return list;
+
+    }
+
+    private String makeStyle(UIComponent field, DynFormField input, int top) {
 
         // increment y-coord for each component's top (relative to current panel)
-        return String.format("top: %dpx", top) ;
+        String style = String.format("top: %dpx%s", top, input.getUserDefinedFontStyle());
 
+        if (field instanceof TextField || field instanceof DropDown) {
+            String justify = input.getTextJusify();
+            if (justify != null) style += ";text-align: " + justify;
+
+        }
+        if (! (field instanceof Label)) {
+            if (input.hasBlackoutAttribute()) {
+               style += ";background-color: black";
+            }
+            else {
+                String bgColour = input.getBackgroundColour();
+                if (bgColour != null) style += ";background-color: " + bgColour;
+            }
+        }
+        return style;
     }
 
 
@@ -125,8 +198,8 @@ public class DynFormComponentBuilder {
         Label label = makeSimpleLabel(input.getLabelText()) ;
         label.setStyleClass("dynformLabel");
         label.setRequiredIndicator(false);
-        label.setStyle(makeTopStyle(top + 5)) ;
-        if (input.isHidden()) {
+        label.setStyle(makeStyle(label, input, top + 5)) ;
+        if (input.hasHideAttribute()) {
             label.setVisible(false);
         }
         else {
@@ -160,8 +233,8 @@ public class DynFormComponentBuilder {
                           input.getValue().equalsIgnoreCase("true")) ;
         cbox.setDisabled(input.isInputOnly());
         cbox.setStyleClass("dynformInput");
-        cbox.setStyle(makeTopStyle(top)) ;
-        cbox.setVisible(! input.isHidden());
+        cbox.setStyle(makeStyle(cbox, input, top)) ;
+        cbox.setVisible(! input.hasHideAttribute());
         return cbox ;
     }
 
@@ -176,8 +249,8 @@ public class DynFormComponentBuilder {
         cal.setMaxDate(getDate(25));
         cal.setColumns(15);
         cal.setStyleClass(getInputStyleClass(input));
-        cal.setStyle(makeTopStyle(top)) ;
-        cal.setVisible(! input.isHidden());
+        cal.setStyle(makeStyle(cal, input, top)) ;
+        cal.setVisible(! input.hasHideAttribute());
         return cal;
     }
 
@@ -192,11 +265,11 @@ public class DynFormComponentBuilder {
         DropDown dropdown = new DropDown();
         dropdown.setId(_factory.createUniqueID("cal" + input.getName()));
         dropdown.setStyleClass(getInputStyleClass(input));
-        dropdown.setStyle(makeTopStyle(top)) ;
+        dropdown.setStyle(makeStyle(dropdown, input, top)) ;
         dropdown.setItems(getEnumeratedList(input));
         dropdown.setSelected(input.getValue());
         dropdown.setDisabled(input.isInputOnly());
-        dropdown.setVisible(! input.isHidden());
+        dropdown.setVisible(! input.hasHideAttribute());
         return dropdown;
     }
 
@@ -210,28 +283,6 @@ public class DynFormComponentBuilder {
         return result;
     }
 
-    /**
-     * Readonly textFields are rendered to look like labels - so this method fakes
-     * a textfield's visuals, but with a grayed background and italic text
-     * @param param the parameter for which the value is being displayed
-     * @param topStyle a setting for the Y-coord
-     * @return the 'faked' readonly textField component (actually a PanelLayout)
-     */
-    public PanelLayout makeReadOnlyTextField(FormParameter param, String topStyle) {
-        PanelLayout panel = new PanelLayout();
-        panel.setId(_factory.createUniqueID("pnl" + param.getName()));
-        panel.setPanelLayout("flow");
-        panel.setStyleClass("dynformReadOnlyPanel");
-        panel.setStyle(topStyle);
-
-        StaticText roText = new StaticText() ;
-        roText.setId(_factory.createUniqueID("stt" + param.getName()));
-        roText.setText(param.getValue());
-        roText.setStyleClass("dynformReadOnlyText") ;
-        panel.getChildren().add(roText) ;
-        return panel ;
-    }
-
 
     public TextField makeTextField(DynFormField input, int top) {
         TextField textField = new TextField() ;
@@ -239,11 +290,11 @@ public class DynFormComponentBuilder {
         textField.setText(JDOMUtil.decodeEscapes(input.getValue()));
         setMaxTextValueChars(input.getValue());
         textField.setStyleClass(getInputStyleClass(input));
-        textField.setStyle(makeTopStyle(top));
+        textField.setStyle(makeStyle(textField, input, top));
         textField.setDisabled(input.isInputOnly());
         textField.setToolTip(input.getToolTip());
         textField.setMaxLength(input.getMaxLength());
-        if (input.isHidden()) {
+        if (input.hasHideAttribute()) {
             textField.setVisible(false);
         }
         else {
@@ -258,13 +309,39 @@ public class DynFormComponentBuilder {
         rb.setId(_factory.createUniqueID("rb" + input.getName()));
         rb.setLabel("");
         rb.setName(input.getChoiceID());               // same name means same rb group
-        rb.setStyle(makeTopStyle(top));
+        rb.setStyle(makeStyle(rb, input, top));
         rb.setDisabled(input.isInputOnly());
         rb.setStyleClass("dynformRadioButton");
-        rb.setVisible(! input.isHidden());
+        rb.setVisible(! input.hasHideAttribute());
         return rb;
     }
 
+
+    private StaticTextBlock makeStaticTextBlock(DynFormField input, int top) {
+        StaticTextBlock block = new StaticTextBlock() ;
+        block.setId(_factory.createUniqueID("stb"));
+        block.setStyle(String.format("position: absolute; left: 5px; top: %dpx%s",
+                top, input.getUserDefinedFontStyle()));
+        return block; 
+    }
+
+
+    private FlatPanel makeFlatPanel(int top) {
+        FlatPanel line = new FlatPanel();
+        line.setId(_factory.createUniqueID("fpl"));
+        line.setStyle(String.format(
+                "position: absolute; border: 2px solid gray; left: 5px; height: 2px; top: %dpx", top));
+        return line;
+    }
+
+
+    private ImageComponent makeImageComponent(int top, String imagePath) {
+        ImageComponent image = new ImageComponent();
+        image.setId(_factory.createUniqueID("img"));
+        image.setUrl(imagePath);
+        image.setStyle(String.format("position: absolute; left: 5px; top: %dpx", top));
+        return image;
+    }
 
     public boolean setFocus(UIComponent component) {
         if (component instanceof PanelLayout) return false ;
@@ -339,6 +416,6 @@ public class DynFormComponentBuilder {
     public Hashtable<TextField, DynFormField> getTextFieldMap() {
         return _componentFieldTable;
     }
-    
+
 
 }

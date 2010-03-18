@@ -67,10 +67,13 @@ public class ResourceGateway extends HttpServlet {
                 }
                 rm.initOrgDataSource(orgDataSource, orgDataRefreshRate);
 
-                // for non-default org data sources, check the allow mods value
+                // for non-default org data sources, check the allow mods &
+                // user authentication values
                 if (! orgDataSource.equals("HibernateImpl")) {
                     String allowMods = context.getInitParameter("AllowExternalOrgDataMods");
                     rm.setAllowExternalOrgDataMods(allowMods.equalsIgnoreCase("TRUE"));
+                    String externalAuth = context.getInitParameter("ExternalUserAuthentication");
+                    rm.setExternalUserAuthentication(externalAuth.equalsIgnoreCase("TRUE"));
                 }
 
                 // enable/disable logging of all offers

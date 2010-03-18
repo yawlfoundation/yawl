@@ -39,10 +39,10 @@ import java.util.*;
 public class YDecompositionParser {
     private Element _decompElem;
     private Postset _postsetIDs;
-    private Map _removeSetIDs;
+    private Map<YTask, List<String>> _removeSetIDs;
     private Namespace _yawlNS;
     private YDecomposition _decomposition;
-    private Map _decomposesToIDs;
+    private Map<YTask, String> _decomposesToIDs;
     private YSpecificationParser _specificationParser;
     Map _removeSetForFlows = new HashMap();
     private String _version;
@@ -70,8 +70,8 @@ public class YDecompositionParser {
         _specificationParser = specificationParser;
         _version = version;
         _postsetIDs = new Postset();
-        _removeSetIDs = new HashMap();
-        _decomposesToIDs = new HashMap();
+        _removeSetIDs = new HashMap<YTask, List<String>>();
+        _decomposesToIDs = new HashMap<YTask, String>();
         _decomposition = createDecomposition(decompElem);
         _postsetIDs.addImplicitConditions();
         linkElements();
@@ -247,7 +247,7 @@ public class YDecompositionParser {
 
 
     private void parseExternalTaskRoles(Element externalTaskElem, YTask externalTask) {
-        List removeSet = parseRemoveSet(externalTaskElem);
+        List<String> removeSet = parseRemoveSet(externalTaskElem);
         this._removeSetIDs.put(externalTask, removeSet);
         List removeSetForFlows = parseRemoveSetFromFlow(externalTaskElem);
         this._removeSetForFlows.put(externalTask, removeSetForFlows);
@@ -327,7 +327,7 @@ public class YDecompositionParser {
 
     private List parseRemoveSet(Element externalTaskElem) {
         List removeSetElems = externalTaskElem.getChildren("removesTokens", _yawlNS);
-        List removeIDs = new Vector();
+        List<String> removeIDs = new Vector<String>();
         for (int i = 0; i < removeSetElems.size(); i++) {
             removeIDs.add(((Element) removeSetElems.get(i)).getAttributeValue("id"));
         }
@@ -616,7 +616,7 @@ public class YDecompositionParser {
     //#################################################################################################
     //                                        Things I NEED TO REUSE
     //#################################################################################################
-    protected Map getDecomposesToIDs() {
+    protected Map<YTask, String> getDecomposesToIDs() {
         return _decomposesToIDs;
     }
 
