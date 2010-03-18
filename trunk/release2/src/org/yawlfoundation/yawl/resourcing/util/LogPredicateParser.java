@@ -35,22 +35,26 @@ public class LogPredicateParser extends YLogPredicateParser {
 
     public String valueOf (String s) {
         if (s.equals("${participant:name}")) {
-            s = _participant.getFullName();
+            if (_participant != null) s = _participant.getFullName();
         }
         else if (s.equals("${participant:userid}")) {
-            s = _participant.getUserID();
+            if (_participant != null) s = _participant.getUserID();
         }
         else if (s.equals("${participant:offeredQueueSize}")) {
-            s = String.valueOf(_participant.getWorkQueues().getQueueSize(WorkQueue.OFFERED));
+            if (_participant != null)
+                s = String.valueOf(_participant.getWorkQueues().getQueueSize(WorkQueue.OFFERED));
         }
         else if (s.equals("${participant:allocateQueueSize}")) {
-            s = String.valueOf(_participant.getWorkQueues().getQueueSize(WorkQueue.ALLOCATED));
+            if (_participant != null)
+                s = String.valueOf(_participant.getWorkQueues().getQueueSize(WorkQueue.ALLOCATED));
         }
         else if (s.equals("${participant:startedQueueSize}")) {
-            s = String.valueOf(_participant.getWorkQueues().getQueueSize(WorkQueue.STARTED));
+            if (_participant != null)
+                s = String.valueOf(_participant.getWorkQueues().getQueueSize(WorkQueue.STARTED));
         }
         else if (s.equals("${participant:suspendededQueueSize}")) {
-            s = String.valueOf(_participant.getWorkQueues().getQueueSize(WorkQueue.SUSPENDED));
+            if (_participant != null)
+                s = String.valueOf(_participant.getWorkQueues().getQueueSize(WorkQueue.SUSPENDED));
         }
         else if (s.equals("${resource:offer:initiator}")) {
             s = _resMap.getOfferInteraction().getInitiatorString();

@@ -10,6 +10,7 @@ package org.yawlfoundation.yawl.resourcing.datastore.orgdata;
 
 import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.resourcing.resource.*;
+import org.yawlfoundation.yawl.exceptions.YAuthenticationException;
 
 import java.sql.*;
 import java.util.*;
@@ -969,5 +970,12 @@ public class jdbcImpl extends DataSource {
         else if (obj instanceof Role) deleteRole((Role) obj);
         else if (obj instanceof Participant) deleteParticipant((Participant) obj);
     }
+
+    
+    public boolean authenticate(String userid, String password) throws
+            YAuthenticationException {
+        return false;
+    }
+
 
 }

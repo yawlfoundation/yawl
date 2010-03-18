@@ -10,7 +10,7 @@
         <ui:page binding="#{teamQueues.page1}" id="page1">
             <ui:html binding="#{teamQueues.html1}" id="html1">
                 <ui:head binding="#{teamQueues.head1}" id="head1"
-                         title="YAWL 2.0: View Team Queues">
+                         title="YAWL 2.1: View Team Queues">
 
                     <ui:link binding="#{teamQueues.link1}" id="link1"
                              url="/resources/stylesheet.css"/>

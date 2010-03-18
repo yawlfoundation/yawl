@@ -1,5 +1,7 @@
 package org.yawlfoundation.yawl.resourcing.datastore.orgdata;
 
+import org.yawlfoundation.yawl.exceptions.YAuthenticationException;
+
 /**
  * This class provides a default DataSource object to the ResourceManager in the event
  * that there is no actual Datasource set and/or initialised.
@@ -33,5 +35,10 @@ public class EmptyDataSource extends DataSource {
 
     public void importObj(Object obj) { }
 
-    public int execUpdate(String query) { return -1; } 
+    public int execUpdate(String query) { return -1; }
+
+    public boolean authenticate(String userid, String password) throws
+            YAuthenticationException {
+        return false;
+    }
 }

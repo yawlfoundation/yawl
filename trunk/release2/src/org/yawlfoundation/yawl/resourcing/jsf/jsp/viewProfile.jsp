@@ -12,7 +12,7 @@
             <ui:html binding="#{viewProfile.html1}" id="html1">
 
                 <ui:head binding="#{viewProfile.head1}" id="head1"
-                         title="YAWL 2.0: View My Profile">
+                         title="YAWL 2.1: View My Profile">
                     <ui:link binding="#{viewProfile.link1}" id="link1"
                              url="/resources/stylesheet.css"/>
 

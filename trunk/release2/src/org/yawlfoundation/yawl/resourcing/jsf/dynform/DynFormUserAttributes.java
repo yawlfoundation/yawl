@@ -66,6 +66,19 @@ public class DynFormUserAttributes {
     }
 
 
+    public boolean isSkipValidation() {
+        return getBooleanValue("skipValidation");
+    }
+
+
+    public boolean isBlackout() {
+        return getBooleanValue("blackout");
+    }
+
+    public boolean isMandatory() {
+        return getBooleanValue("mandatory");
+    }
+
     public boolean isShowIf() {
         boolean show = true;
         String query = getValue("showif");
@@ -101,6 +114,69 @@ public class DynFormUserAttributes {
         int max = getIntegerValue("maxlength");
         if (max == -1) max = Integer.MAX_VALUE;            // default to max if no value
         return max;
+    }
+
+
+    public String getTextJustify() {
+        String justify = getValue("justify");
+        if (justify != null) {
+            String[] validValues = {"center", "right", "left"};
+            for (int i=0; i<3; i++) {
+                if (validValues[i].equals(justify.toLowerCase())) {
+                    return validValues[i];
+                }
+            }
+        }
+        return null;
+    }
+
+
+    public String getBackgroundColour() {
+        return getValue("background-color");         
+    }
+
+
+    public String getUserDefinedFontStyle() {
+        String style = "";
+        String fontColour = getValue("font-color");
+        if ((fontColour != null) && (! isBlackout())) {
+            style += String.format(";color: %s", fontColour);
+        }
+        String fontFamily = getValue("font-family");
+        if (fontFamily != null) style += String.format(";font-family: %s", fontFamily);
+        String fontSize = getValue("font-size");
+        if (fontSize != null) style += String.format(";font-size: %s", fontSize);
+        String fontStyle = getValue("font-style");
+        if (fontStyle != null) {
+            if (fontStyle.contains("bold")) style += ";font-weight: bold";
+            if (fontStyle.contains("italic")) style += ";font-style: italic";
+        }
+        return style;
+    }
+
+
+    public String getImageAbove() {
+        return getValue("image-above");
+    }
+
+    public String getImageBelow() {
+        return getValue("image-below");
+    }
+
+    public boolean isLineAbove() {
+        return getBooleanValue("line-above");
+    }
+
+    public boolean isLineBelow() {
+        return getBooleanValue("line-below");
+    }
+
+    public String getTextAbove() {
+        return getValue("text-above");
+    }
+
+    public String getTextBelow() {
+        return getValue("text-below");
     }
 
 }

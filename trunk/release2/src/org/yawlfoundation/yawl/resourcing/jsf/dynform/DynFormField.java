@@ -39,11 +39,9 @@ public class DynFormField implements Cloneable {
      // the variable's extended attributes
     private DynFormUserAttributes _attributes = new DynFormUserAttributes();     
 
-
     private List<DynFormField> _subFieldList;
     private String _groupID;
     private String _choiceID;
-
 
 
     public DynFormField() {}
@@ -210,14 +208,9 @@ public class DynFormField implements Cloneable {
         this._required = required;
     }
 
-    // treat all non-strings as required pending handling of optional params, because
-    // the engine will validate against schema on the way in and will find any empty
-    // values invalid for non-strings - intended external attribute will override
-    // schema validation
+
     public boolean isRequired() {
-        String simpleTypeName = getDataTypeUnprefixed();
-        boolean nonString = (simpleTypeName != null) && (! simpleTypeName.equals("string"));
-        _required = (! isInputOnly()) && ((! hasZeroMinimum()) || nonString); 
+        _required = (! isInputOnly()) && (! hasZeroMinimum()) && _attributes.isMandatory();
         return _required;
     }
 
@@ -418,14 +411,14 @@ public class DynFormField implements Cloneable {
     }
 
 
-    public boolean isHidden() {
-        return ((_parent != null) && _parent.isHidden()) ||
+    public boolean hasHideAttribute() {
+        return ((_parent != null) && _parent.hasHideAttribute()) ||
                 _hidden || _attributes.isHidden() ;
     }
 
 
-    public boolean isShowIf() {
-        return ((_parent != null) && _parent.isShowIf()) ||
+    public boolean hasShowIfAttribute() {
+        return ((_parent != null) && _parent.hasShowIfAttribute()) ||
                 _attributes.isShowIf() ;
     }
 
@@ -448,5 +441,51 @@ public class DynFormField implements Cloneable {
         return tip + " ";
     }
 
+    public boolean hasSkipValidationAttribute() {
+        return ((_parent != null) && _parent.hasSkipValidationAttribute()) ||
+                _attributes.isSkipValidation() ;
+    }
 
+
+    public String getTextJusify() {
+        return _attributes.getTextJustify();
+    }
+
+    public boolean hasBlackoutAttribute() {
+        return ((_parent != null) && _parent.hasBlackoutAttribute()) ||
+                _attributes.isBlackout() ;
+    }
+
+    public String getUserDefinedFontStyle() {
+        return _attributes.getUserDefinedFontStyle();
+    }
+
+    public String getBackgroundColour() {
+        return _attributes.getBackgroundColour();
+    }
+
+    public String getImageAbove() {
+        return _attributes.getImageAbove();
+    }
+
+    public String getImageBelow() {
+        return _attributes.getImageBelow();
+    }
+
+    public boolean isLineAbove() {
+        return _attributes.isLineAbove();
+    }
+
+    public boolean isLineBelow() {
+        return _attributes.isLineBelow();
+    }
+
+    public String getTextAbove() {
+        return _attributes.getTextAbove();
+    }
+
+    public String getTextBelow() {
+        return _attributes.getTextBelow();
+    }
+    
 }

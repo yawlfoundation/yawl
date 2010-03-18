@@ -1,13 +1,14 @@
 package org.yawlfoundation.yawl.resourcing.datastore.persistence;
 
-import org.yawlfoundation.yawl.resourcing.datastore.HibernateEngine;
-import org.yawlfoundation.yawl.resourcing.resource.*;
-import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.hibernate.Query;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.datastore.HibernateEngine;
+import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
 
-import java.util.List;
-import java.util.HashMap;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  *  This class implements methods for Organisational Data CRUD.
@@ -72,6 +73,14 @@ public class Persister implements Serializable {
 
     public List execQuery(String query) {
         return _db.execQuery(query);
+    }
+
+    public int execUpdate(String statement) {
+        return _db.execUpdate(statement);
+    }
+
+    public Query createQuery(String query) {
+        return _db.createQuery(query);
     }
 
 

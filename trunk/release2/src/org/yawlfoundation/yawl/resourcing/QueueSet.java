@@ -15,6 +15,7 @@ import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -176,6 +177,10 @@ public class QueueSet implements Serializable {
         if (! isNullQueue(queue)) getQueue(queue).remove(wir);
     }
 
+    public void removeFromQueue(WorkQueue queueToRemove, int queue) {
+        if (! isNullQueue(queue)) getQueue(queue).removeQueue(queueToRemove);
+    }
+
 
     public void removeCaseFromQueue(String caseID, int queue) {
         if (! isNullQueue(queue)) getQueue(queue).removeCase(caseID);
@@ -197,6 +202,13 @@ public class QueueSet implements Serializable {
         for (int queue = WorkQueue.OFFERED; queue <= WorkQueue.SUSPENDED; queue++)
             if (! isNullQueue(queue)) result.addQueue(getQueue(queue));
         return result ;
+    }
+
+    public Set<WorkQueue> getActiveQueues() {
+        Set<WorkQueue> activeSet = new HashSet<WorkQueue>();
+        for (int queue = WorkQueue.OFFERED; queue <= WorkQueue.SUSPENDED; queue++)
+            if (! isNullQueue(queue)) activeSet.add(getQueue(queue));
+        return activeSet;
     }
 
     public boolean hasWorkItemInQueue(String itemID, int queue) {

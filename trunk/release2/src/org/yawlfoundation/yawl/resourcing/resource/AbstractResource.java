@@ -8,6 +8,8 @@
 
 package org.yawlfoundation.yawl.resourcing.resource;
 
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
+
 /**
  * An abstract class representing a resource entity.
  *
@@ -31,7 +33,9 @@ public abstract class AbstractResource {
     public void setID(String id) { _resourceID = id ; }      
 
 
-    public boolean isAvailable() { return _isAvailable;  }
+    public boolean isAvailable() {
+        return ResourceManager.getInstance().getCalendar().isAvailable(this);
+    }
 
     public void setAvailable(boolean available) { _isAvailable = available; }
 

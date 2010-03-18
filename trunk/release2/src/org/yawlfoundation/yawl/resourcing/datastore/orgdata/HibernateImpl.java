@@ -10,6 +10,7 @@ package org.yawlfoundation.yawl.resourcing.datastore.orgdata;
 
 import org.yawlfoundation.yawl.resourcing.datastore.HibernateEngine;
 import org.yawlfoundation.yawl.resourcing.resource.*;
+import org.yawlfoundation.yawl.exceptions.YAuthenticationException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -159,6 +160,12 @@ public class HibernateImpl extends DataSource {
     public int execUpdate(String query) {
         return _db.execUpdate(query);
     }
+
+    public boolean authenticate(String userid, String password) throws
+            YAuthenticationException {
+        return false;
+    }
+
 
 }
 

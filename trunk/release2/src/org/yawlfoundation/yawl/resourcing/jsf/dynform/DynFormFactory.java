@@ -570,13 +570,14 @@ public class DynFormFactory extends AbstractSessionBean {
                     field.addSubField(field.clone());
                     subPanel.getChildren().addAll(innerContent);
                     result.add(subPanel);
-                    subPanel.setHeight(Y_SINGLE_ELEM_INCREMENT +
+                    subPanel.setHeight(innerContent.getHeight() + Y_SINGLE_ELEM_INCREMENT +
                                        getNextInc(ComponentType.field, ComponentType.nil)) ;
                     top += subPanel.getHeight() ;
                     prevComponent = ComponentType.panel ;
                 }
                 else {
                     innerContent = builder.makeInputField(top, field);
+                    top += innerContent.getHeight();
                     if (container != null) {
                         container.setContentTops(innerContent, top);
                     }
@@ -588,7 +589,7 @@ public class DynFormFactory extends AbstractSessionBean {
                     prevComponent = ComponentType.field ;
                 }    
             }
-            if (field.isHidden()) top = rollbackTop;
+            if (field.hasHideAttribute()) top = rollbackTop;
         }
         if (container != null)
             container.setHeight(top + getNextInc(prevComponent, ComponentType.nil)) ;

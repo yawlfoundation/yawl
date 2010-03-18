@@ -19,4 +19,9 @@ public class YAuthenticationException extends YAWLException {
     public YAuthenticationException(String message) {
         super(message);
     }
+
+    public YAuthenticationException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
 }

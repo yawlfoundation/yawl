@@ -12,7 +12,7 @@ import javax.faces.component.UIComponent;
 import java.util.ArrayList;
 
 /**
- * Maintains a list of components for a subpanel on a dyn form
+ * Maintains a list of components and their combined height
  *
  * Author: Michael Adams
  * Creation Date: 25/02/2008
@@ -20,15 +20,9 @@ import java.util.ArrayList;
 
 public class DynFormComponentList extends ArrayList<UIComponent> {
 
-    private boolean external;
-
     private int height;
 
     public DynFormComponentList() { super(); }
-
-    public void setExternal(boolean bool) { external = bool; }
-
-    public boolean isExternal() { return external; }
 
     public int getHeight() { return height; }
 

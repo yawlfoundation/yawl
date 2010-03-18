@@ -8,6 +8,8 @@
 
 package org.yawlfoundation.yawl.resourcing.datastore.orgdata;
 
+import org.yawlfoundation.yawl.exceptions.YAuthenticationException;
+
 import java.util.UUID;
 
 /**
@@ -84,7 +86,23 @@ public abstract class DataSource {
     public abstract void importObj(Object obj);
 
 
-    public abstract int execUpdate(String query) ; 
+    /**
+     * Executes an low-level update command
+     * @param query the query to execute
+     * @return the number of rows affected
+     */
+    public abstract int execUpdate(String query) ;
+
+
+    /**
+     * Allows a user/password pair to be passed to an external data source for
+     * validation.
+     * @param userid the userid
+     * @param password the plain-text password
+     * @return the outcome of the authentication
+     */
+    public abstract boolean authenticate(String userid, String password) throws
+            YAuthenticationException;
 
 }
 

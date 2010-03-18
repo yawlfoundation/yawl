@@ -879,7 +879,8 @@
                     includes="YSchemaBuildingException.class YDataStateException.class
                               YSyntaxException.class YAWLException.class
                               YStateException.class YQueryException.class
-                              YPersistenceException.class YDataValidationException.class YLogException.class"/>
+                              YPersistenceException.class YDataValidationException.class
+                              YLogException.class YAuthenticationException.class"/>
         </copy>
 
         <copy todir="${yawl.resource.app.name}${webinf.dir}/logging">
