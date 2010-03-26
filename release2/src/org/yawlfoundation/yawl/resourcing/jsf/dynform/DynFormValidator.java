@@ -8,9 +8,7 @@
 
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
-import com.sun.rave.web.ui.component.PanelLayout;
-import com.sun.rave.web.ui.component.RadioButton;
-import com.sun.rave.web.ui.component.TextField;
+import com.sun.rave.web.ui.component.*;
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
@@ -42,7 +40,7 @@ import java.util.List;
 public class DynFormValidator {
 
     private MessagePanel _msgPanel;
-    private Hashtable<TextField, DynFormField> _componentFieldLookup;
+    private Hashtable<FieldBase, DynFormField> _componentFieldLookup;
 
     public final static String NS_URI = XMLConstants.W3C_XML_SCHEMA_NS_URI;
     public final static String NS_PREFIX = "xsd";
@@ -59,7 +57,7 @@ public class DynFormValidator {
 
     
     public boolean validate(PanelLayout panel,
-                            Hashtable<TextField, DynFormField> componentFieldLookup,
+                            Hashtable<FieldBase, DynFormField> componentFieldLookup,
                             MessagePanel msgPanel) {
 
         _componentFieldLookup = componentFieldLookup;
@@ -87,9 +85,9 @@ public class DynFormValidator {
                     if (component instanceof SubPanel) {
                         subResult = validateInputs((SubPanel) component) ;
                     }
-                    else if (component instanceof TextField) {
-                        TextField field = (TextField) component;
-                        if (!field.isDisabled()) {
+                    else if ((component instanceof TextField) || (component instanceof TextArea)) {
+                        FieldBase field = (FieldBase) component;
+                        if (! field.isDisabled()) {
                             subResult = validateField(field);
                         }
                     }
@@ -101,7 +99,7 @@ public class DynFormValidator {
     }
 
 
-    private boolean validateField(TextField field) {
+    private boolean validateField(FieldBase field) {
         boolean result;
         String text = (String) field.getText();
         DynFormField input = _componentFieldLookup.get(field);

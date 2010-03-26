@@ -10,6 +10,7 @@ package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
 import org.jdom.Element;
 import org.jdom.Namespace;
+import org.yawlfoundation.yawl.schema.XSDType;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class DynFormFieldRestriction {
 
     private DynFormField _owner;
     private Element _baseElement;
+    private boolean _modified;
 
     private String _baseType;
     private String _length;
@@ -60,6 +62,7 @@ public class DynFormFieldRestriction {
     public DynFormFieldRestriction(Element restriction, Namespace ns) {
         _baseElement = restriction;
         parse(restriction, ns);
+        _modified = false;
     }
 
 
@@ -121,17 +124,16 @@ public class DynFormFieldRestriction {
         _owner = owner;
     }
 
+    public void setModifiedFlag() {
+        _modified = true;
+    }
+
     public String getMinLength() {
         return _minLength;
     }
 
     public int getMinLengthValue() {
-        try {
-            return Integer.parseInt(_minLength) ;
-        }
-        catch (NumberFormatException nfe) {
-            return 0;
-        }
+        return getIntValue(_minLength, 0);
     }
 
     public void setMinLength(String minLength) {
@@ -143,12 +145,7 @@ public class DynFormFieldRestriction {
     }
 
     public int getMaxLengthValue() {
-        try {
-            return Integer.parseInt(_maxLength) ;
-        }
-        catch (NumberFormatException nfe) {
-            return Integer.MAX_VALUE;
-        }
+        return getIntValue(_maxLength, Integer.MAX_VALUE);
     }
 
     public void setMaxLength(String maxLength) {
@@ -176,12 +173,7 @@ public class DynFormFieldRestriction {
     }
 
     public int getMinInclusiveValue() {
-        try {
-            return Integer.parseInt(_minInclusive) ;
-        }
-        catch (NumberFormatException nfe) {
-            return 0;
-        }
+        return getIntValue(_minInclusive, 0);
     }
 
     public void setMinInclusive(String minInclusive) {
@@ -193,12 +185,7 @@ public class DynFormFieldRestriction {
     }
 
     public int getMinExclusiveValue() {
-        try {
-            return Integer.parseInt(_minExclusive) ;
-        }
-        catch (NumberFormatException nfe) {
-            return 0;
-        }
+        return getIntValue(_minExclusive, 0);
     }
 
     public void setMinExclusive(String minExclusive) {
@@ -210,12 +197,7 @@ public class DynFormFieldRestriction {
     }
 
     public int getMaxInclusiveValue() {
-        try {
-            return Integer.parseInt(_maxInclusive) ;
-        }
-        catch (NumberFormatException nfe) {
-            return Integer.MAX_VALUE;
-        }
+        return getIntValue(_maxInclusive, Integer.MAX_VALUE);
     }
 
     public void setMaxInclusive(String maxInclusive) {
@@ -227,12 +209,7 @@ public class DynFormFieldRestriction {
     }
 
     public int getMaxExclusiveValue() {
-        try {
-            return Integer.parseInt(_maxExclusive) ;
-        }
-        catch (NumberFormatException nfe) {
-            return Integer.MAX_VALUE;
-        }
+        return getIntValue(_maxExclusive, Integer.MAX_VALUE);
     }
 
     public void setMaxExclusive(String maxExclusive) {
@@ -244,14 +221,8 @@ public class DynFormFieldRestriction {
     }
 
     public int getLengthValue() {
-        try {
-            return Integer.parseInt(_length) ;
-        }
-        catch (NumberFormatException nfe) {
-            return -1;
-        }
+        return getIntValue(_length, -1);
     }
-
 
 
     public void setLength(String length) {
@@ -271,12 +242,7 @@ public class DynFormFieldRestriction {
     }
 
     public int getTotalDigitsValue() {
-        try {
-            return Integer.parseInt(_totalDigits) ;
-        }
-        catch (NumberFormatException nfe) {
-            return -1;
-        }
+        return getIntValue(_totalDigits, -1);
     }
 
 
@@ -289,12 +255,7 @@ public class DynFormFieldRestriction {
     }
 
     public int getFractionDigitsValue() {
-        try {
-            return Integer.parseInt(_fractionDigits) ;
-        }
-        catch (NumberFormatException nfe) {
-            return -1;
-        }
+        return getIntValue(_fractionDigits, -1);
     }
 
 
@@ -309,6 +270,15 @@ public class DynFormFieldRestriction {
         else
             return _baseType ;
 
+    }
+
+    private int getIntValue(String s, int defaultValue) {
+        try {
+            return Integer.parseInt(s) ;
+        }
+        catch (NumberFormatException nfe) {
+            return defaultValue;
+        }
     }
 
 
@@ -378,9 +348,14 @@ public class DynFormFieldRestriction {
 
 
     public String getBaseElement() {
-        String prefix = DynFormValidator.NS_PREFIX;
-        return String.format("<%s:simpleType>%s</%s:simpleType>", prefix,
-                             JDOMUtil.elementToStringDump(_baseElement), prefix);
+        if (_modified) {
+            return rebuildSchema();
+        }
+        else {
+            String prefix = DynFormValidator.NS_PREFIX;
+            return String.format("<%s:simpleType>%s</%s:simpleType>", prefix,
+                                 JDOMUtil.elementToStringDump(_baseElement), prefix);
+        }    
     }
 
     // rebuild the restriction part of the schema
@@ -426,6 +401,23 @@ public class DynFormFieldRestriction {
 
     private String getSchemaTrack(String prefix, String track, String value) {
         return String.format("<%s:%s value=\"%s\"/>", prefix, track, value);
+    }
+
+
+    public void setRestrictionFacet(XSDType.RestrictionFacet facet, String value) {
+        switch (facet) {
+            case minExclusive   : setMinExclusive(value); break;
+            case maxExclusive   : setMaxExclusive(value); break;
+            case minInclusive   : setMinInclusive(value); break;
+            case maxInclusive   : setMaxInclusive(value); break;
+            case minLength      : setMinLength(value); break;
+            case maxLength      : setMaxLength(value); break;
+            case length         : setLength(value); break;
+            case totalDigits    : setTotalDigits(value); break;
+            case fractionDigits : setFractionDigits(value); break;
+            case whiteSpace     : setWhitespace(value); break;
+            case pattern        : setPattern(value); break;
+        }
     }
     
 

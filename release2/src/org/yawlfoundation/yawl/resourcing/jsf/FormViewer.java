@@ -43,10 +43,10 @@ public class FormViewer {
         else {
             _sb.setDynFormType(ApplicationBean.DynFormType.tasklevel);
 
-            DynFormFactory df = _sb.getDynFormFactoryInstance();
-            df.setHeaderText("Edit Work Item: " + wir.getCaseID());
-            df.setDisplayedWIR(wir);
-            if (df.initDynForm("YAWL 2.0 - Edit Work Item")) {
+            DynFormFactory factory = _sb.getDynFormFactoryInstance();
+            factory.setHeaderText("Edit Work Item: " + wir.getCaseID());
+            factory.setDisplayedWIR(wir);
+            if (factory.initDynForm("YAWL 2.1 - Edit Work Item")) {
                 result = "showDynForm" ;
             }
             else {

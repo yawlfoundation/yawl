@@ -303,7 +303,7 @@ public class Marshaller {
                 if (o instanceof Element) {
                     Element child = (Element) o;
                     child.detach();
-           //         child.setAttributes(null);
+
                     //the input data will be removed from the merged doc and
                     //the output data will be added.
                     merged.removeChild(child.getName());

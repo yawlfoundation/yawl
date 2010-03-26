@@ -182,8 +182,8 @@ public class SubPanelController {
      */
     public SubPanel addSubPanel(SubPanel newPanel) {
 
-        // adjust the tops of subsquent panels at the same depth level
-        int adjustment = newPanel.getHeight() + DynFormFactory.Y_PP_INCREMENT;
+        // adjust the tops of subsequent panels at the same depth level
+        int adjustment = newPanel.getHeight() + DynFormFactory.Y_DEF_INCREMENT;
         int top = newPanel.getTop();
         incSubPanelTops(top, adjustment) ;
 
@@ -214,7 +214,7 @@ public class SubPanelController {
      * @return the outermost containing subpanel of the one removed
      */
     public SubPanel removeSubPanel(SubPanel oldPanel) {
-        int adjustment = - (oldPanel.getHeight() + DynFormFactory.Y_PP_INCREMENT);
+        int adjustment = - (oldPanel.getHeight() + DynFormFactory.Y_DEF_INCREMENT);
         int top = oldPanel.getTop();
 
         incSubPanelTops(top, adjustment) ;

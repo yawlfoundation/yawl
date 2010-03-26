@@ -105,6 +105,10 @@ public class YSpecificationID implements Comparable<YSpecificationID> {
         return uri + " - version " + version.toString();
     }
 
+    public String toKeyString() {
+        return getKey() + ":" + version.toString();
+    }
+
 
     public int compareTo(YSpecificationID o) {
         String key = getKey();

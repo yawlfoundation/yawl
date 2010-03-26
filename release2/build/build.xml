@@ -615,9 +615,6 @@
              <fileset dir="${classes.dir}${packageRoot}/exceptions"
                       includes="*.class *.hbm.xml"/>
         </copy>
-        <copy todir="${yawl.webService.app.name}${webinf.dir}/worklist/model">
-             <fileset dir="${classes.dir}${packageRoot}/worklist/model"/>
-        </copy>
 
         <!-- copy all major support classes into webapp -->
         <copy todir="${yawl.webService.app.name}${webinf.dir}/wsif">
@@ -689,9 +686,6 @@
             <fileset dir="${classes.dir}${packageRoot}/smsModule">
                 <include name="*.class"/>
             </fileset>
-        </copy>
-        <copy todir="${yawl.smsService.app.name}${webinf.dir}/worklist/model">
-            <fileset dir="${classes.dir}${packageRoot}/worklist/model"/>
         </copy>
         <copy todir="${yawl.smsService.app.name}${webinf.dir}/exceptions">
             <fileset dir="${classes.dir}${packageRoot}/exceptions"
@@ -904,7 +898,8 @@
               <fileset dir="${classes.dir}${packageRoot}/util"
                        includes="JDOMUtil.class StringUtil.class HttpURLValidator.class
                                  CharsetFilter.class DOMUtil.class SaxonUtil.class
-                                 InstanceBuilder.class PasswordEncryptor.class"/>
+                                 InstanceBuilder.class PasswordEncryptor.class
+                                 XNode.class XNodeParser.class"/>
         </copy>
 
         <!-- 2. copy resourcing classes to relevant dirs -->
@@ -1060,7 +1055,7 @@
         <copy todir="${yawl.monitor.app.name}${webinf.dir}/engine/interfce">
               <fileset dir="${classes.dir}${packageRoot}/engine/interfce"
                        includes="ErrorServlet.class WorkItemRecord.class
-                                 WorklistModel.class AuthenticationConfig.class
+                                 AuthenticationConfig.class
                                  Interface_Client.class ServletUtils.class"/>
         </copy>
 
@@ -1291,9 +1286,6 @@
                     includes="YDecompositionParser.class"/>
                 <fileset dir="${schema.dir}" includes="*.xsd"/>
             </copy>
-            <copy todir="${yawl.digitalSignature.app.name}${webinf.dir}/worklist/model">
-                 <fileset dir="${classes.dir}${packageRoot}/worklist/model"/>
-            </copy>
             <copy todir="${yawl.digitalSignature.app.name}${webinf.dir}/exceptions">
                  <fileset dir="${classes.dir}${packageRoot}/exceptions"
                      includes="YAWLException.class"/>
@@ -1355,9 +1347,6 @@
                     <fileset dir="${classes.dir}${packageRoot}/unmarshal"
                         includes="YDecompositionParser.class"/>
                     <fileset dir="${schema.dir}" includes="*.xsd"/>
-                </copy>
-                <copy todir="${yawl.mailSender.app.name}${webinf.dir}/worklist/model">
-                     <fileset dir="${classes.dir}${packageRoot}/worklist/model"/>
                 </copy>
                 <copy todir="${yawl.mailSender.app.name}${webinf.dir}/exceptions">
                      <fileset dir="${classes.dir}${packageRoot}/exceptions"

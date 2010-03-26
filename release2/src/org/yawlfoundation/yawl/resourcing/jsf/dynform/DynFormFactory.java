@@ -22,6 +22,7 @@ import com.sun.rave.web.ui.component.Calendar;
 import com.sun.rave.web.ui.component.Checkbox;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.component.Label;
+import com.sun.rave.web.ui.component.TextArea;
 import com.sun.rave.web.ui.component.TextField;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
@@ -125,28 +126,27 @@ public class DynFormFactory extends AbstractSessionBean {
             new Hashtable<String, SubPanelController>();
 
     // a map of inputs to the textfields they generated (required for validation)
-    private Hashtable<TextField, DynFormField> _componentFieldTable;
+    private Hashtable<FieldBase, DynFormField> _componentFieldTable;
 
     // a map of the non-panel components of the outermost panel and their y-coords
     private Hashtable<UIComponent, Integer> _outermostTops =
-            new Hashtable<UIComponent, Integer>(); 
+            new Hashtable<UIComponent, Integer>();
 
     // the 'status' of the component add process
-    private enum ComponentType { nil, panel, field, radio }
+    protected enum ComponentType { nil, panel, field, radio, line, textblock, image }
 
     // some constants for layout arithmetic
     static final int Y_NF_INCREMENT = 30 ;      // inc of y coord from start to 1st field
     static final int Y_FN_INCREMENT = 30 ;      // inc of y coord from last field to end
-    static final int Y_PN_INCREMENT = 10 ;      // inc of y coord from last panel to end
     static final int Y_FF_INCREMENT = 25 ;      // inc of y coord between two fields
-    static final int Y_PP_INCREMENT = 10 ;      // inc of y coord between two panels
     static final int Y_PF_INCREMENT = 20 ;      // inc of y coord between panel -> field
     static final int Y_FP_INCREMENT = 30 ;      // inc of y coord between field -> panel
     static final int Y_RF_INCREMENT = 20 ;      // inc of y cood between radio -> field
     static final int Y_RP_INCREMENT = 20 ;      // inc of y cood between radio -> panel
     static final int Y_FR_INCREMENT = 20 ;      // inc of y cood between field -> radio
     static final int Y_PR_INCREMENT = 20 ;      // inc of y cood between field -> panel
-    static final int Y_NR_INCREMENT = 10 ;      // inc of y cood between start -> radio
+    static final int Y_DEF_INCREMENT = 10 ;     // default inc - where others don't apply
+
     static final int Y_CHOICE_DECREMENT = 20;   // dec of y coord for choice container top
     static final int Y_SINGLE_ELEM_INCREMENT = 25;  // inc of y coord for single content box
     static final int SUBPANEL_INSET = 10 ;      // gap between panel side walls
@@ -169,7 +169,7 @@ public class DynFormFactory extends AbstractSessionBean {
     /*********************************************************************************/
 
     /**  a reference to the sessionbean */
-    private SessionBean _sb =  (SessionBean) getBean("SessionBean") ;
+    private SessionBean _sb = (SessionBean) getBean("SessionBean") ;
 
 
     /** the workitem's extended attributes (decomposition level) **/
@@ -229,16 +229,19 @@ public class DynFormFactory extends AbstractSessionBean {
 
     /** @return the instance data for the currently displayed case/workitem */
     private String getInstanceData(String schema) {
-        String result ;
         if (_sb.getDynFormType() == ApplicationBean.DynFormType.netlevel)
-            result = _sb.getInstanceData(schema) ;
+            return _sb.getInstanceData(schema) ;
         else {
-            Element data = (_displayedWIR.getUpdatedData() != null) ?
-                            _displayedWIR.getUpdatedData() :
-                            _displayedWIR.getDataList();
-            result = JDOMUtil.elementToStringDump(data);
+            return getWorkItemData();
         }
-        return result;
+    }
+
+
+    public String getWorkItemData() {
+        Element data = (_displayedWIR.getUpdatedData() != null) ?
+                        _displayedWIR.getUpdatedData() :
+                        _displayedWIR.getDataList();
+        return JDOMUtil.elementToStringDump(data);        
     }
 
 
@@ -264,12 +267,11 @@ public class DynFormFactory extends AbstractSessionBean {
         DynFormComponentBuilder builder = new DynFormComponentBuilder(this);
         List<DynFormField> fieldList = _fieldAssembler.getFieldList();
   //      DynAttributeFactory.adjustFields(fieldList, _displayedWIR, _sb.getParticipant());   // 1st pass
-        DynFormComponentList content = buildInnerForm(null, builder, fieldList) ;
         compPanel.getChildren().add(builder.makeHeaderText(_fieldAssembler.getFormName())) ;
-        compPanel.getChildren().addAll(content) ;
+        compPanel.getChildren().addAll(buildInnerForm(null, builder, fieldList)) ;
    //     DynAttributeFactory.applyAttributes(compPanel, _displayedWIR, _sb.getParticipant());  // 2nd pass
         setBaseWidths(builder);
-        _componentFieldTable = builder.getTextFieldMap();
+        _componentFieldTable = builder.getTextFieldMap(); 
         sizeAndPositionContent(compPanel.getChildren()) ;
     }
 
@@ -282,8 +284,10 @@ public class DynFormFactory extends AbstractSessionBean {
             FIELD_WIDTH = Math.max(FIELD_WIDTH, builder.getMaxFieldWidth());
         
         X_FIELD_OFFSET = Math.max(X_FIELD_OFFSET, labelWidth + (X_LABEL_OFFSET * 2));
-        PANEL_BASE_WIDTH = Math.max(PANEL_BASE_WIDTH,
-                                    labelWidth + FIELD_WIDTH + (X_LABEL_OFFSET * 3));
+        int maxComponentWidth = Math.max(builder.getMaxImageWidth(),
+                labelWidth + FIELD_WIDTH + (X_LABEL_OFFSET * 3));
+
+        PANEL_BASE_WIDTH = Math.max(PANEL_BASE_WIDTH, maxComponentWidth);
     }
 
     
@@ -296,7 +300,7 @@ public class DynFormFactory extends AbstractSessionBean {
 
         for (Object o : content) {
 
-            // ignore labels and buttons 
+            // get height of each component (ignore labels and buttons)
             if (! ((o instanceof Label) || (o instanceof Button))) {
                 if (o instanceof SubPanel) {
                     SubPanel subPanel = (SubPanel) o;
@@ -308,14 +312,26 @@ public class DynFormFactory extends AbstractSessionBean {
                 }
                 else {
                     if (o instanceof StaticText) {
-                        height += getAdjustmentForWrappingHeaders((StaticText) o);
-                        visible = true;                 // headers are never hidden
+                        height += getAdjustmentForWrappingText((StaticText) o);
+                        visible = true;
+                        currComponent = (o instanceof StaticTextBlock) ?
+                                        ComponentType.textblock : ComponentType.field;
                     }
-                    else visible = isComponentVisible(o);
-                    if (visible) currComponent = ComponentType.field;
+                    else if (o instanceof ImageComponent) {
+                        height += ((ImageComponent) o).getHeight();
+                        visible = true;
+                        currComponent = ComponentType.image;
+                    }
+                    else {
+                        if (o instanceof TextArea) {
+                           height += ((TextArea) o).getRows() * 18;
+                        }
+                        visible = isComponentVisible(o);
+                        if (visible) currComponent = ComponentType.field;
+                    }    
                 }
 
-                // add gap between components
+                // add gap between each component
                 if (visible) {
                     lastInc = getNextInc(prevComponent, currComponent);
                     height += lastInc;
@@ -324,32 +340,37 @@ public class DynFormFactory extends AbstractSessionBean {
             }
         }
 
-        height -= (lastInc - getNextInc(prevComponent, ComponentType.nil));                                          // remove final gap
+        height -= (lastInc - getNextInc(prevComponent, ComponentType.nil));  // remove final gap
 
         return height ;
     }
 
 
-    private int getAdjustmentForWrappingHeaders(StaticText statText) {
-        Font headerFont = new Font("Helvetica", Font.BOLD, 14);
-        int textLen = FontUtil.getWidth((String) statText.getText(), headerFont);
+    public int getAdjustmentForWrappingText(StaticText statText) {
+        Font font;
+        if (statText instanceof StaticTextBlock)
+            font = ((StaticTextBlock) statText).getFont();
+        else
+            font = new Font("Helvetica", Font.BOLD, 14);     // default static text font
+
+        int textLen = FontUtil.getWidth((String) statText.getText(), font);
         UIComponent parent = statText.getParent();
         int parentWidth = (parent instanceof SubPanel) ? ((SubPanel) parent).getWidth()
                                                        : PANEL_BASE_WIDTH;
-        return (int) Math.floor(textLen / parentWidth) * HEADERTEXT_HEIGHT ;
+        return (int) Math.floor(textLen / (parentWidth - 20)) * (font.getSize() + 4) ;
     }
 
 
-    private void adjustTopsForWrappingHeaders(List content) {
+    private void adjustTopsForWrappingHeader(List content) {
         StaticText header = getHeaderFromContent(content);
-        int adjustment = getAdjustmentForWrappingHeaders(getHeaderFromContent(content));
+        int adjustment = getAdjustmentForWrappingText(header);
         if (adjustment > 0) {
             for (Object o : content) {
                 if (o instanceof SubPanel) {
                     SubPanel panel = (SubPanel) o;
                     panel.incTop(adjustment);
                     panel.assignStyle(getMaxDepthLevel());
-                    adjustTopsForWrappingHeaders(panel.getChildren());
+                    adjustTopsForWrappingHeader(panel.getChildren());
                 }
                 else if (! (o instanceof StaticText)) {
                     UIComponent component = (UIComponent) o;
@@ -376,6 +397,10 @@ public class DynFormFactory extends AbstractSessionBean {
             style = ((SelectorBase) component).getStyle();
         else if ((component instanceof FieldBase))
             style = ((FieldBase) component).getStyle();
+        else if ((component instanceof FlatPanel))
+            style = ((FlatPanel) component).getStyle();
+        else if ((component instanceof StaticTextBlock))
+            style = ((StaticTextBlock) component).getStyle();
         return style;
     }
 
@@ -387,6 +412,10 @@ public class DynFormFactory extends AbstractSessionBean {
             ((SelectorBase) component).setStyle(style);
         else if ((component instanceof FieldBase))
             ((FieldBase) component).setStyle(style);
+        else if ((component instanceof FlatPanel))
+            ((FlatPanel) component).setStyle(style);
+        else if ((component instanceof StaticTextBlock))
+            ((StaticTextBlock) component).setStyle(style);
     }
 
 
@@ -427,7 +456,7 @@ public class DynFormFactory extends AbstractSessionBean {
     // usually the first component in the list.
     private StaticText getHeaderFromContent(List content) {
         for (Object o : content) {
-            if (o instanceof StaticText) {
+            if ((o instanceof StaticText) && ! (o instanceof StaticTextBlock)) {
                 return (StaticText) o;
             }
         }
@@ -442,9 +471,14 @@ public class DynFormFactory extends AbstractSessionBean {
                 adjustFieldOffsetsAndWidths(((SubPanel) o).getChildren());
             }
             else if (o instanceof TextField) {
-                TextField field = (TextField) o;
+                FieldBase field = (FieldBase) o;
                 field.setStyle(String.format(template, field.getStyle(),
                                              X_FIELD_OFFSET, FIELD_WIDTH));
+            }
+            else if (o instanceof TextArea) {
+                TextArea field = (TextArea) o;
+                field.setStyle(String.format(template, field.getStyle(),
+                                             X_FIELD_OFFSET, FIELD_WIDTH + 6));
             }
             else if (o instanceof DropDown) {
                 DropDown field = (DropDown) o;
@@ -459,7 +493,29 @@ public class DynFormFactory extends AbstractSessionBean {
             else if (o instanceof Checkbox) {
                 Checkbox field = (Checkbox) o;
                 field.setStyle(String.format("%s; left:%dpx;", field.getStyle(),
-                                             X_FIELD_OFFSET));                
+                                             X_FIELD_OFFSET));
+            }
+            else if (o instanceof FlatPanel) {
+                FlatPanel field = (FlatPanel) o;
+                field.setStyle(String.format("%s; width:%dpx;", field.getStyle(),
+                                             getFormWidth() - 20));
+            }
+            else if (o instanceof StaticTextBlock) {
+                StaticTextBlock field = (StaticTextBlock) o;
+                field.setStyle(String.format("%s; width:%dpx;", field.getStyle(),
+                                             getFormWidth() - 20));
+            }
+            else if (o instanceof ImageComponent) {
+                ImageComponent field = (ImageComponent) o;
+                String align = field.getAlign();
+                int left = 10;
+                if (align != null) {
+                    if (align.equals("right"))
+                        left = getFormWidth() - field.getWidth() - 10;
+                    else if (align.equals("center"))
+                        left = (10 + (getFormWidth() - field.getWidth())) / 2;
+                }
+                field.setStyle(String.format("%s; left:%dpx;", field.getStyle(), left));
             }
         }
     }
@@ -478,7 +534,7 @@ public class DynFormFactory extends AbstractSessionBean {
         // position input fields by setting the left coord
         adjustFieldOffsetsAndWidths(content);
 
-        adjustTopsForWrappingHeaders(content);
+        adjustTopsForWrappingHeader(content);
 
         // calc and set height and width of outermost panel
         int height = calcHeight(content) ;
@@ -514,69 +570,47 @@ public class DynFormFactory extends AbstractSessionBean {
                                                 DynFormComponentBuilder builder,
                                                 List<DynFormField> fieldList) {
         DynFormComponentList result = new DynFormComponentList();
+        if (fieldList == null) return result;
+
         DynFormComponentList innerContent ;
-        int top = 0 ;                                  // top (yPos) posn of component
+        int top = 0 ;                                   // top (yPos) posn of component
         int rollbackTop = 0;                            // rollback value if hidden field
         ComponentType prevComponent = ComponentType.nil ;
-
-        if (fieldList == null) return result;
         
         for (DynFormField field : fieldList) {
             rollbackTop = top;
             if (field.isChoiceField()) {
-
-                // complexType choice has a header, simpletype choice does not
-                if ((container != null) && (container.getChildCount() == 1))
-                    top += getNextInc(prevComponent, ComponentType.field);
-                else
-                    top += getNextInc(prevComponent, ComponentType.radio);
-
-                RadioButton rButton = builder.makeRadioButton(field, top);
-                if (prevComponent == ComponentType.nil) rButton.setSelected(true);
-                result.add(rButton);
-                if (container == null) _outermostTops.put(rButton, top);
-                prevComponent = ComponentType.radio ;  
+                innerContent = buildChoiceSelector(container, builder, field, prevComponent, top);
+                top += innerContent.getHeight();
+                prevComponent = innerContent.getLastComponent();
+                result.addAll(innerContent);
             }
 
             if (field.isFieldContainer()) {
 
                 // new complex type - recurse in a new container
-                top += getNextInc(prevComponent, ComponentType.panel);
-                SubPanelController spc = _subPanelTable.get(field.getGroupID());
-                SubPanel subPanel = builder.makeSubPanel(top, field, spc);
-                _subPanelTable.put(field.getGroupID(), subPanel.getController());
-                innerContent = buildInnerForm(subPanel, builder, field.getSubFieldList());
-                subPanel.getChildren().addAll(innerContent);
-                result.add(subPanel);
-                top += subPanel.getHeight() ;
-                prevComponent = ComponentType.panel ;
+                innerContent = buildSubPanel(builder, field, prevComponent, top);
+                top += innerContent.getHeight();
+                prevComponent = innerContent.getLastComponent();
+                result.addAll(innerContent);               
             }
             else  {
 
                 // create the field (inside a panel)
-                if ((container != null) && container.isChoicePanel() && result.isEmpty())
-                    top += Y_NR_INCREMENT;
-                else if (field.getGroupID() != null)
-                    top += getNextInc(prevComponent, ComponentType.panel);
-                else
-                    top += getNextInc(prevComponent, ComponentType.field);
-
+                if (top == 0) {
+                    if ((container != null) && container.isChoicePanel() && result.isEmpty())
+                        top += getNextInc(prevComponent, ComponentType.radio);
+                }
+                
                 // if min and/or max defined at the field level, enclose it in a subpanel
                 if (field.getGroupID() != null) {
-                    SubPanelController spc = _subPanelTable.get(field.getGroupID());
-                    SubPanel subPanel = builder.makeSubPanel(top, field, spc);
-                    _subPanelTable.put(field.getGroupID(), subPanel.getController());
-                    innerContent = builder.makeInputField(Y_SINGLE_ELEM_INCREMENT, field);
-                    field.addSubField(field.clone());
-                    subPanel.getChildren().addAll(innerContent);
-                    result.add(subPanel);
-                    subPanel.setHeight(innerContent.getHeight() + Y_SINGLE_ELEM_INCREMENT +
-                                       getNextInc(ComponentType.field, ComponentType.nil)) ;
-                    top += subPanel.getHeight() ;
-                    prevComponent = ComponentType.panel ;
+                    innerContent = buildSubPanel(builder, field, prevComponent, top);
+                    top += innerContent.getHeight();
+                    prevComponent = innerContent.getLastComponent();
+                    result.addAll(innerContent);                                   
                 }
                 else {
-                    innerContent = builder.makeInputField(top, field);
+                    innerContent = builder.makeInputField(top, field, prevComponent);
                     top += innerContent.getHeight();
                     if (container != null) {
                         container.setContentTops(innerContent, top);
@@ -586,15 +620,82 @@ public class DynFormFactory extends AbstractSessionBean {
                             _outermostTops.put(component, top);
                     }
                     result.addAll(innerContent);
-                    prevComponent = ComponentType.field ;
+                    prevComponent = innerContent.getLastComponent() ;
                 }    
             }
-            if (field.hasHideAttribute()) top = rollbackTop;
+            if (! field.isVisible()) top = rollbackTop;
         }
         if (container != null)
             container.setHeight(top + getNextInc(prevComponent, ComponentType.nil)) ;
 
         return result;
+    }
+
+
+    private DynFormComponentList buildChoiceSelector(SubPanel container,
+                             DynFormComponentBuilder builder, DynFormField field,
+                             ComponentType prevComponent, int top) {
+        int startingTop = top;
+        DynFormComponentList compList = new DynFormComponentList();
+
+        // complexType choice has a header, simpletype choice does not
+        if ((container != null) && (container.getChildCount() == 1))
+           top += getNextInc(prevComponent, ComponentType.field);
+        else
+           top += getNextInc(prevComponent, ComponentType.radio);
+
+        RadioButton rButton = builder.makeRadioButton(field, top);
+        if (prevComponent == ComponentType.nil) rButton.setSelected(true);
+        if (container == null) _outermostTops.put(rButton, top);
+        
+        compList.setLastComponent(ComponentType.radio) ;
+        compList.setHeight(top - startingTop);
+        compList.add(rButton);
+        return compList;
+    }
+
+
+    private DynFormComponentList buildSubPanel(DynFormComponentBuilder builder,
+                         DynFormField field, ComponentType prevComponent, int top) {
+        int startingTop = top;
+        DynFormComponentList compList = new DynFormComponentList();
+        DynFormComponentList preList =
+                        builder.makePeripheralComponents(field, top, true, prevComponent);
+        if (! preList.isEmpty()) {
+            compList.addAll(preList);
+            top += preList.getHeight();
+            prevComponent = preList.getLastComponent();
+        }
+        top += getNextInc(prevComponent, ComponentType.panel);      
+
+        SubPanelController spc = _subPanelTable.get(field.getGroupID());
+        SubPanel subPanel = builder.makeSubPanel(top, field, spc);
+        _subPanelTable.put(field.getGroupID(), subPanel.getController());
+        DynFormComponentList innerContent;
+        if (field.isFieldContainer()) {
+            innerContent = buildInnerForm(subPanel, builder, field.getSubFieldList());
+        }
+        else {
+            innerContent = builder.makeInputField(0, field, prevComponent);
+            field.addSubField(field.clone());
+            subPanel.setHeight(innerContent.getHeight() + getNextInc(
+                    innerContent.getLastComponent(), ComponentType.nil)) ;
+        }
+        subPanel.getChildren().addAll(innerContent);
+        compList.add(subPanel);
+        top += subPanel.getHeight() ;
+        prevComponent = ComponentType.panel ;
+
+        DynFormComponentList postList =
+                      builder.makePeripheralComponents(field, top, false, prevComponent);
+        if (! postList.isEmpty()) {
+            compList.addAll(postList);
+            top += postList.getHeight() ;
+            prevComponent = postList.getLastComponent() ;
+        }
+        compList.setLastComponent(prevComponent) ;
+        compList.setHeight(top - startingTop);
+        return compList;
     }
 
 
@@ -643,43 +744,29 @@ public class DynFormFactory extends AbstractSessionBean {
     }
 
 
-    private int getNextInc(ComponentType prev, ComponentType curr) {
-        int result = Y_NF_INCREMENT;       // default for prev == nil
+    protected int getNextInc(ComponentType prev, ComponentType curr) {
+        int result = Y_DEF_INCREMENT;    // default gap between components
         switch (prev) {
-            case panel: { if (curr == ComponentType.panel)
-                              result = Y_PP_INCREMENT ;
-                          else if (curr == ComponentType.field)
-                              result = Y_PF_INCREMENT ;
-                          else if (curr == ComponentType.radio)
-                              result = Y_PR_INCREMENT;
-                          else
-                              result = Y_PN_INCREMENT ;
-                          break ;
-                        }
+            case panel: switch (curr) {
+                            case field : result = Y_PF_INCREMENT; break;
+                            case radio : result = Y_PR_INCREMENT; break;
+                        } break;
 
-            case field: { if (curr == ComponentType.panel)
-                              result = Y_FP_INCREMENT ;
-                          else if (curr == ComponentType.field)
-                              result = Y_FF_INCREMENT ;
-                          else if (curr == ComponentType.radio)
-                              result = Y_FR_INCREMENT;
-                          else
-                             result = Y_FN_INCREMENT ;
-                          break;
-                        }
+            case field: switch (curr) {
+                            case panel : result = Y_FP_INCREMENT; break;
+                            case field : result = Y_FF_INCREMENT; break;
+                            case radio : result = Y_FR_INCREMENT; break;
+                            case nil   : result = Y_FN_INCREMENT; break;
+                        } break;
 
-            case radio: { if (curr == ComponentType.panel)
-                              result = Y_RP_INCREMENT ;
-                          else if (curr == ComponentType.field)
-                              result = Y_RF_INCREMENT ;
-                          else
-                              result = Y_FN_INCREMENT ;
-                          break;
-                       }
+            case radio: switch (curr) {
+                            case panel : result = Y_RP_INCREMENT; break;
+                            case field : result = Y_RF_INCREMENT; break;
+                        } break;
 
-            case nil:  { if (curr == ComponentType.radio)
-                             result = Y_NR_INCREMENT;
-                       }
+            case nil:   { if (curr != ComponentType.radio)
+                             result = Y_NF_INCREMENT; break;
+                        } 
         }
         return result ;
     }
@@ -695,7 +782,7 @@ public class DynFormFactory extends AbstractSessionBean {
         children.add(children.indexOf(panel) + 1, newPanel);
 
         SubPanel level0Container = panel.getController().addSubPanel(newPanel);
-        int adjustment = newPanel.getHeight() + DynFormFactory.Y_PP_INCREMENT;
+        int adjustment = newPanel.getHeight() + DynFormFactory.Y_DEF_INCREMENT;
         adjustLayouts(level0Container, adjustment);
     }
 
@@ -703,7 +790,7 @@ public class DynFormFactory extends AbstractSessionBean {
     private void removeSubPanel(SubPanel panel) {
         SubPanel level0Container = panel.getController().removeSubPanel(panel);
         removeOrphanedControllers(panel);
-        int adjustment = - (panel.getHeight() + DynFormFactory.Y_PP_INCREMENT);
+        int adjustment = - (panel.getHeight() + DynFormFactory.Y_DEF_INCREMENT);
         adjustLayouts(level0Container, adjustment);
 
         UIComponent parent = panel.getParent();
@@ -835,6 +922,17 @@ public class DynFormFactory extends AbstractSessionBean {
             if (chars[i] == pre) chars[i] = post;
         }
         return new String(chars);
+    }
+
+    public int getLayoutConstant(String constantName) {
+        if (constantName.equals("singleElement")) {
+            return Y_SINGLE_ELEM_INCREMENT;
+        }
+        return 0;
+    }
+
+    public String getFormBackgroundURL() {
+        return getUserAttributes().getValue("background-image");
     }
 
 }

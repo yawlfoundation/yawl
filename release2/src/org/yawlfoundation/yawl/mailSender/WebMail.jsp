@@ -38,19 +38,7 @@
  </p></td></tr></tbody></table></div></div>
  
           <%
- 	    	String workItemXML = request.getParameter("workitem");
-    		WorkItemRecord wir;
-			if (workItemXML != null) {
-        	wir = Marshaller.unmarshalWorkItem(workItemXML) ;
-       	 	session.setAttribute("workitem", wir);                  // save it for the post
-   	 		}
-			else {
-			wir = (WorkItemRecord) session.getAttribute("workitem");
-			}
-            String redirectURL = "Send.jsp?workitem=" ;
-            if (wir != null) {
-                redirectURL += wir.toXML();
-            }
+            String redirectURL = "Send.jsp" ;
 
  			try{
 

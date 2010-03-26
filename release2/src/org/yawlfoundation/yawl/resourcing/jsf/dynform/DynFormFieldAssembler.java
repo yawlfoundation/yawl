@@ -15,7 +15,6 @@ import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -91,10 +90,8 @@ public class DynFormFieldAssembler {
 
         List<DynFormField> fieldList = new ArrayList<DynFormField>();
 
-        List content = sequence.getChildren() ;
-        Iterator itr = content.iterator();
-        while (itr.hasNext()) {
-            Element eField = (Element) itr.next();
+        for (Object o : sequence.getChildren()) {
+            Element eField = (Element) o;
             List<DynFormField> result = createField(eField, data, ns, level);
             setOrderForListItems(result, fieldList.size());
             fieldList.addAll(result);
@@ -109,11 +106,8 @@ public class DynFormFieldAssembler {
         List<DynFormField> result;
         String choiceID = getNextChoiceID();
 
-
-        List content = parent.getChildren() ;
-        Iterator itr = content.iterator();
-        while (itr.hasNext()) {
-            Element eField = (Element) itr.next();
+        for (Object o : parent.getChildren()) {
+            Element eField = (Element) o;
             String eName = eField.getName();
             if (eName.equals("sequence") || eName.equals("all")) {
                 List<DynFormField> subList = createSequence(eField, data, ns, level + 1);
@@ -268,7 +262,7 @@ public class DynFormFieldAssembler {
         input.setMaxoccurs(maxOccurs);
         input.setParam(_currentParam);
         input.setLevel(level);
-        input.setAttributes(new DynFormUserAttributes(getAttributeMap(data, name)));
+        input.setAttributes(new DynFormUserAttributes(getAttributeMap(name)));
     }
 
 
@@ -372,20 +366,12 @@ public class DynFormFieldAssembler {
         return "choice" + String.valueOf(_uniqueSuffix++);
     }
 
-    private Map<String, String> getAttributeMap(Element data, String name) {
-        YAttributeMap result = new YAttributeMap();
-        if (data != null) {
-            Element child = data.getChild(name);
-            if (child != null) {
-                result.fromJDOM(child.getAttributes()) ;
-            }
-        }
-        return result;
+    private YAttributeMap getAttributeMap(String name) {
+        FormParameter param = _params.get(name);
+        return (param != null) ? param.getAttributes() : new YAttributeMap();
     }
 
-
-
-
+    
     public String getFormName() { return _formName ; }
 
     public List<DynFormField> getFieldList() { return _fieldList; }

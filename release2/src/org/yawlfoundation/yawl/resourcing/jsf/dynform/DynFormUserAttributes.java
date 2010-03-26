@@ -1,8 +1,11 @@
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
 import net.sf.saxon.s9api.SaxonApiException;
+import org.jdom.Document;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.SaxonUtil;
 
+import java.awt.*;
 import java.util.Map;
 
 /**
@@ -79,19 +82,24 @@ public class DynFormUserAttributes {
         return getBooleanValue("mandatory");
     }
 
-    public boolean isShowIf() {
-        boolean show = true;
-        String query = getValue("showif");
+    public boolean hasHideIfQuery() {
+        return (hasValue("hideIf"));
+    }
+
+    public boolean isHideIf(String data) {
+        boolean hide = false;
+        String query = getValue("hideIf");
         if (query != null) {
             try {
-                String queryResult = SaxonUtil.evaluateQuery(query, null);
-                show = queryResult.equalsIgnoreCase("true");
+                Document dataDoc = JDOMUtil.stringToDocument(data);
+                String queryResult = SaxonUtil.evaluateQuery(query, dataDoc);
+                hide = queryResult.equalsIgnoreCase("true");
             }
             catch (SaxonApiException sae) {
-                // nothing to do
+                // nothing to do, will default to false
             }
         }
-        return show;
+        return hide;
     }
 
 
@@ -109,11 +117,8 @@ public class DynFormUserAttributes {
         return getValue("tooltip");
     }
 
-
-    public int getMaxLength() {
-        int max = getIntegerValue("maxlength");
-        if (max == -1) max = Integer.MAX_VALUE;            // default to max if no value
-        return max;
+    public boolean isTextArea() {
+        return getBooleanValue("textarea");
     }
 
 
@@ -145,13 +150,33 @@ public class DynFormUserAttributes {
         String fontFamily = getValue("font-family");
         if (fontFamily != null) style += String.format(";font-family: %s", fontFamily);
         String fontSize = getValue("font-size");
-        if (fontSize != null) style += String.format(";font-size: %s", fontSize);
+        if (fontSize != null) style += String.format(";font-size: %spx", fontSize);
         String fontStyle = getValue("font-style");
         if (fontStyle != null) {
             if (fontStyle.contains("bold")) style += ";font-weight: bold";
             if (fontStyle.contains("italic")) style += ";font-style: italic";
         }
         return style;
+    }
+
+    public Font getUserDefinedFont() {
+        String fontFamily = getValue("font-family");
+        String family = (fontFamily != null)  ?  fontFamily : "Helvetica";
+
+        int fontSize = getIntegerValue("font-size");
+        int size = (fontSize > -1) ? fontSize : 12;
+
+        int style = Font.PLAIN;
+        String fontStyle = getValue("font-style");
+        if (fontStyle != null) {
+            if (fontStyle.contains("bold") && fontStyle.contains("italic"))
+                style = Font.BOLD | Font.ITALIC;
+            else if (fontStyle.contains("bold"))
+                style = Font.BOLD;
+            else if (fontStyle.contains("italic"))
+                style = Font.ITALIC;
+        }
+        return new Font(family, style, size);
     }
 
 
@@ -161,6 +186,14 @@ public class DynFormUserAttributes {
 
     public String getImageBelow() {
         return getValue("image-below");
+    }
+
+    public String getImageAboveAlign() {
+        return getValue("image-above-align");
+    }
+
+    public String getImageBelowAlign() {
+        return getValue("image-below-align");
     }
 
     public boolean isLineAbove() {

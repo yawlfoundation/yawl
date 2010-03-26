@@ -8,6 +8,9 @@
 
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
+import org.yawlfoundation.yawl.schema.XSDType;
+
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +33,7 @@ public class DynFormField implements Cloneable {
     private int _order;
     private boolean _required ;
     private boolean _hidden = false;
+    private Boolean _hideApplied = null;               // to avoid double hideIf eval
 
     private DynFormField _parent;
     private DynFormFieldRestriction _restriction;
@@ -327,6 +331,10 @@ public class DynFormField implements Cloneable {
         return _union != null;
     }
 
+    public boolean hasParent() {
+        return _parent != null;
+    }
+
 
     public void setListType(DynFormFieldListFacet list) {
         _list = list;
@@ -389,7 +397,7 @@ public class DynFormField implements Cloneable {
     // extended attribute support //
     
     public String getAlertText() {
-        return _attributes.getAlertText();
+        return hasParent() ? _parent.getAlertText() : _attributes.getAlertText();
     }
 
     
@@ -400,28 +408,33 @@ public class DynFormField implements Cloneable {
 
 
     public boolean isInputOnly() {
-        return ((_parent != null) && _parent.isInputOnly()) ||
+        return (hasParent() && _parent.isInputOnly()) ||
                (_param != null && (_param.isInputOnly() || _param.isReadOnly())) ||
-               _attributes.isReadOnly();
-    }
-
-
-    public int getMaxLength() {
-        return _attributes.getMaxLength();
+               _attributes.isReadOnly() || hasBlackoutAttribute();
     }
 
 
     public boolean hasHideAttribute() {
-        return ((_parent != null) && _parent.hasHideAttribute()) ||
+        return (hasParent() && _parent.hasHideAttribute()) ||
                 _hidden || _attributes.isHidden() ;
     }
 
 
-    public boolean hasShowIfAttribute() {
-        return ((_parent != null) && _parent.hasShowIfAttribute()) ||
-                _attributes.isShowIf() ;
+    public boolean hasHideIfAttribute(String data) {        
+        return (hasParent() && _parent.hasHideIfAttribute(data)) ||
+                _attributes.isHideIf(data);
     }
 
+    public boolean isHidden(String data) {
+        if (_hideApplied == null) {
+            _hideApplied = hasHideAttribute() || hasHideIfAttribute(data);
+        }
+        return _hideApplied;
+    }
+
+    public boolean isVisible() {
+        return (_hideApplied == null) || (! _hideApplied);
+    }
 
     public String getToolTip() {
         String tip = _attributes.getToolTipText();
@@ -430,6 +443,9 @@ public class DynFormField implements Cloneable {
 
 
     public String getDefaultToolTip() {
+        if (hasBlackoutAttribute()) {
+            return " This field is intentionally blacked-out ";
+        }
         String type = (_param.getDataTypeName().equals("YTimerType")) ? "Duration or DateTime"
                                                               : getDataTypeUnprefixed();
         String tip = String.format(" Please enter a value of %s type", type);
@@ -442,26 +458,32 @@ public class DynFormField implements Cloneable {
     }
 
     public boolean hasSkipValidationAttribute() {
-        return ((_parent != null) && _parent.hasSkipValidationAttribute()) ||
+        return (hasParent() && _parent.hasSkipValidationAttribute()) ||
                 _attributes.isSkipValidation() ;
     }
 
 
     public String getTextJusify() {
-        return _attributes.getTextJustify();
+        return hasParent() ? _parent.getTextJusify() : _attributes.getTextJustify();
     }
 
     public boolean hasBlackoutAttribute() {
-        return ((_parent != null) && _parent.hasBlackoutAttribute()) ||
+        return (hasParent() && _parent.hasBlackoutAttribute()) ||
                 _attributes.isBlackout() ;
     }
 
     public String getUserDefinedFontStyle() {
-        return _attributes.getUserDefinedFontStyle();
+        return hasParent() ? _parent.getUserDefinedFontStyle() :
+                _attributes.getUserDefinedFontStyle();
     }
 
     public String getBackgroundColour() {
-        return _attributes.getBackgroundColour();
+        return hasParent() ? _parent.getBackgroundColour() :
+                _attributes.getBackgroundColour();
+    }
+
+    public boolean isTextArea() {
+        return _attributes.isTextArea();
     }
 
     public String getImageAbove() {
@@ -470,6 +492,14 @@ public class DynFormField implements Cloneable {
 
     public String getImageBelow() {
         return _attributes.getImageBelow();
+    }
+
+    public String getImageAboveAlign() {
+        return _attributes.getImageAboveAlign();
+    }
+
+    public String getImageBelowAlign() {
+        return _attributes.getImageBelowAlign();
     }
 
     public boolean isLineAbove() {
@@ -487,5 +517,34 @@ public class DynFormField implements Cloneable {
     public String getTextBelow() {
         return _attributes.getTextBelow();
     }
-    
+
+    public Font getUserDefinedFont() {
+        return hasParent() ? _parent.getUserDefinedFont() :
+                _attributes.getUserDefinedFont();
+    }
+
+    public void setRestrictionAttributes() {
+        XSDType xsdType = XSDType.getInstance();
+        if (xsdType.isBuiltInType(getDataTypeUnprefixed())) {    // base types only
+            char[] validFacetMap = xsdType.getConstrainingFacetMap(getDataTypeUnprefixed());
+            for (XSDType.RestrictionFacet facet : XSDType.RestrictionFacet.values()) {
+                if (validFacetMap[facet.ordinal()] == '1') {
+                    String value = _attributes.getValue(facet.name());
+                    if (value != null) {
+                        getOrCreateRestriction().setRestrictionFacet(facet, value);
+                    }
+                }
+            }
+        }
+    }
+
+    private DynFormFieldRestriction getOrCreateRestriction() {
+        if (! hasRestriction()) {
+            _restriction = new DynFormFieldRestriction(this);
+            _restriction.setBaseType(getDatatype());
+        }
+        _restriction.setModifiedFlag();          // causes a restriction element rebuild
+        return _restriction;
+    }
+
 }

@@ -42,7 +42,7 @@ import java.util.List;
 
 public abstract class InterfaceBWebsideController {
     protected InterfaceB_EnvironmentBasedClient _interfaceBClient;
-    protected IBControllerCache _model;
+    protected IBControllerCache _ibCache;
     private AuthenticationConfig _authConfig4WS;
     protected String _report;
 
@@ -61,7 +61,7 @@ public abstract class InterfaceBWebsideController {
      * Constructs a controller.
      */
     public InterfaceBWebsideController() {
-        _model = new IBControllerCache();
+        _ibCache = new IBControllerCache();
         _authConfig4WS = AuthenticationConfig.getInstance();
     }
 
@@ -246,7 +246,7 @@ public abstract class InterfaceBWebsideController {
                 Document doc = _builder.build(new StringReader(msg));
                 Element workItemElem = doc.getRootElement().getChild("workItem");
                 resultItem = Marshaller.unmarshalWorkItem(workItemElem);
-                _model.addWorkItem(resultItem);
+                _ibCache.addWorkItem(resultItem);
             } catch (JDOMException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -353,7 +353,7 @@ public abstract class InterfaceBWebsideController {
         }
         String result = _interfaceBClient.checkInWorkItem(workItemID, filteredOutputData,
                                                           logPredicate, sessionHandle);
-        _model.removeRemotelyCachedWorkItem(workItemID);
+        _ibCache.removeRemotelyCachedWorkItem(workItemID);
         return result;
     }
 
@@ -364,7 +364,7 @@ public abstract class InterfaceBWebsideController {
      * @return a local (to the custom service) cached copy of the workitem.
      */
     public WorkItemRecord getCachedWorkItem(String workItemID) {
-        return _model.getWorkItem(workItemID);
+        return _ibCache.getWorkItem(workItemID);
     }
 
 
@@ -413,12 +413,12 @@ public abstract class InterfaceBWebsideController {
      */
     public TaskInformation getTaskInformation(YSpecificationID specID, String taskID,
                                               String sessionHandle) throws IOException {
-        TaskInformation taskInfo = _model.getTaskInformation(specID, taskID);
+        TaskInformation taskInfo = _ibCache.getTaskInformation(specID, taskID);
         if (taskInfo == null) {
             String taskInfoASXML = _interfaceBClient.getTaskInformationStr(
                     specID, taskID, sessionHandle);
             taskInfo = _interfaceBClient.parseTaskInformation(taskInfoASXML);
-            _model.setTaskInformation(specID, taskID, taskInfo);
+            _ibCache.setTaskInformation(specID, taskID, taskInfo);
         }
         return taskInfo;
     }
@@ -427,10 +427,16 @@ public abstract class InterfaceBWebsideController {
     /**
      * Gets a reference to the local cache
      * @return a reference to the cache
+     * @deprecated use getIBCache() instead
      */
     public IBControllerCache getModel() {
-        return _model;
+        return _ibCache;
     }
+
+    public IBControllerCache getIBCache() {
+        return _ibCache;
+    }
+
 
 
     /**
@@ -526,7 +532,7 @@ public abstract class InterfaceBWebsideController {
                 if (specAsXML == null) {
                     specAsXML = _interfaceBClient.getSpecification(specID, sessionHandle);
                     data.setSpecAsXML(specAsXML);
-                    _model.setSpecificationData(data);
+                    _ibCache.setSpecificationData(data);
                 }
                 return data;
             }

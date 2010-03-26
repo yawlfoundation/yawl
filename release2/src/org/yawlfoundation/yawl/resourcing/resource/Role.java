@@ -10,7 +10,7 @@ package org.yawlfoundation.yawl.resourcing.resource;
 
 import org.jdom.Element;
 import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.XNode;
 
 /**
  * A role that a resource might perform.
@@ -88,14 +88,12 @@ public class Role extends AbstractResourceAttribute implements Comparable {
    
 
     public String toXML() {
-        StringBuilder xml = new StringBuilder() ;
-        xml.append(String.format("<role id=\"%s\">", _id)) ;
-        xml.append(StringUtil.wrapEscaped(_role, "name"));
-        xml.append(StringUtil.wrapEscaped(_description, "description"));
-        xml.append(StringUtil.wrapEscaped(_notes, "notes"));
-        if (_belongsTo !=null)
-            xml.append(StringUtil.wrap(_belongsTo.getID(), "belongsToID")) ;
-        xml.append("</role>");
+        XNode xml = new XNode("role");
+        xml.addAttribute("id", String.valueOf(_id));
+        xml.addChild("name", _role, true);
+        xml.addChild("description", _description, true);
+        xml.addChild("notes", _notes, true);
+        if (_belongsTo !=null) xml.addChild("belongsToID", _belongsTo.getID());
         return xml.toString() ;
     }
 
