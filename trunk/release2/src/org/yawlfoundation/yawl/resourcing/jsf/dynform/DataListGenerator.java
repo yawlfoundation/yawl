@@ -125,7 +125,9 @@ public class DataListGenerator {
         if (((value == null) || (value.length() == 0)) && field.hasZeroMinimum()) {
             return "";
         }
-        else return StringUtil.wrap(value, field.getName());        
+
+        if (field.hasBlackoutAttribute()) value = field.getValue();
+        return StringUtil.wrap(value, field.getName());
     }
 
 

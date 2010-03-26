@@ -2310,6 +2310,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (successful(result)) {
             _resMapCache.remove(specID);
             _specCache.remove(specID);
+            getIBCache().unloadSpecificationData(specID);
         }
         return result ;
     }

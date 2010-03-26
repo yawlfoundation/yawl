@@ -68,6 +68,11 @@ public class XSDType {
     public static final int ANY_URI              = 44;
 
 
+    public static enum RestrictionFacet { minExclusive, maxExclusive,
+            minInclusive, maxInclusive, minLength, maxLength, length,
+            totalDigits, fractionDigits, whiteSpace, pattern, enumeration }
+
+
     private static XSDType _me;
     private static String[] _simpleYAWLTypes;
     private static List<String> _typeList;
@@ -163,7 +168,7 @@ public class XSDType {
     }
 
     
-    public int getOrdinal(String type) {
+    public static int getOrdinal(String type) {
         return _typeList.indexOf(type);
     }
 
@@ -184,5 +189,72 @@ public class XSDType {
     public String[] getBuiltInTypeArray() {
         return _typeList.toArray(new String[_typeList.size()]);
     }
+
+    public char[] getConstrainingFacetMap(String type) {
+        String vMap;
+        switch (getOrdinal(type)) {
+            case INTEGER:
+            case POSITIVE_INTEGER:
+            case NEGATIVE_INTEGER:
+            case NON_POSITIVE_INTEGER:
+            case NON_NEGATIVE_INTEGER:
+            case INT:
+            case LONG:                 
+            case SHORT:
+            case UNSIGNED_LONG:
+            case UNSIGNED_INT:
+            case UNSIGNED_SHORT:
+            case UNSIGNED_BYTE:        vMap = "111100010111"; break;
+            case STRING:
+            case NORMALIZED_STRING:
+            case TOKEN:
+            case LANGUAGE:
+            case NMTOKEN:
+            case NMTOKENS:
+            case NAME:                 
+            case NCNAME:
+            case ID:
+            case IDREF:                
+            case IDREFS:
+            case ENTITY:               
+            case ENTITIES:
+            case QNAME:
+            case HEX_BINARY:
+            case BASE64_BINARY:
+            case NOTATION:
+            case ANY_URI:              vMap = "000011100111"; break;
+            case DOUBLE:
+            case FLOAT:
+            case DATE:
+            case TIME:                 
+            case DATETIME:
+            case DURATION:           
+            case GDAY:
+            case GMONTH:
+            case GYEAR:
+            case GMONTHDAY:
+            case GYEARMONTH:           vMap = "111100000111"; break;
+            case BOOLEAN:              vMap = "000000000110"; break;
+            case BYTE:                 vMap = "111100110111"; break;
+            case DECIMAL:              vMap = "111100011111"; break;
+            case ANY_TYPE:
+            default:                   vMap = "000000000000"; break;
+        }
+        return vMap.toCharArray() ;
+    }
+
+
+    public boolean isValidFacet(String facetName, String type) {
+        char[] validationMap = getConstrainingFacetMap(type);
+        try {
+            RestrictionFacet facet = RestrictionFacet.valueOf(facetName);
+            int ordinal = facet.ordinal();
+            return validationMap[ordinal] == '1';
+        }
+        catch (IllegalArgumentException iae) {
+            return false;                                  // invalid restriction name
+        }
+    }
+
 
 }

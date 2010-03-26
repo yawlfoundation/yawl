@@ -79,6 +79,7 @@ public class dynForm extends AbstractPageBean {
         getSessionBean().getMessagePanel().show(70, left, "relative");
         getSessionBean().setActivePage(ApplicationBean.PageRef.dynForm);
         setupButtons();
+        loadBackground();
     }
 
     public void destroy() { }
@@ -260,6 +261,8 @@ public class dynForm extends AbstractPageBean {
     }
 
 
+    /********************************************************************************/
+
     private void setupButtons() {
         SessionBean sb = getSessionBean() ;
         if (sb.getDynFormType() == ApplicationBean.DynFormType.netlevel) {
@@ -271,6 +274,12 @@ public class dynForm extends AbstractPageBean {
         }
     }
 
+    private void loadBackground() {
+        String imageURL = getDynFormFactory().getFormBackgroundURL();
+        if (imageURL != null) {
+           body1.setImageURL(imageURL);
+        }
+    }
 
     // adds or substracts an instance of fields for a complex type
     public String btnOccursAction(ActionEvent event) {

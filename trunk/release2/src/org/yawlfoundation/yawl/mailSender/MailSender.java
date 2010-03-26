@@ -96,6 +96,7 @@ public class MailSender extends InterfaceBWebsideController {
          props.setProperty("mail.smtp.port", Port);
          props.setProperty("mail.smtp.auth", "true");
          props.setProperty("mail.debug", "true");
+         props.setProperty("mail.smtp.starttls.enable", "true");
 
         if(Port.compareTo("25") != 0 ){
          props.setProperty("mail.smtp.socketFactory.port", Port);

@@ -9,10 +9,18 @@
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
 import com.sun.rave.web.ui.component.*;
+import com.sun.rave.web.ui.component.Checkbox;
+import com.sun.rave.web.ui.component.Label;
+import com.sun.rave.web.ui.component.TextArea;
+import com.sun.rave.web.ui.component.TextField;
 import com.sun.rave.web.ui.model.Option;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.component.UIComponent;
+import javax.swing.*;
+import java.awt.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -29,23 +37,25 @@ public class DynFormComponentBuilder {
     // for setting focus on first available component
     private boolean focusSet = false ;
     private DynFormFactory _factory ;
-    private Hashtable<TextField, DynFormField> _componentFieldTable;
+    private Hashtable<FieldBase, DynFormField> _componentFieldTable;
 
     private int _maxDropDownChars = 0;
     private int _maxLabelChars = 0;
     private int _maxTextValueChars = 0;
+    private int _maxImageWidth = 0;
     private boolean _hasCheckboxOnly = true;
 
     private final int FONT_WIDTH = 6;
     private final int DROPDOWN_BUTTON_WIDTH = 15;
+    private final int TEXTAREA_ROWS = 4;
     private final SimpleDateFormat _sdf = new SimpleDateFormat("yyyy-MM-dd");
-    
+
 
     public DynFormComponentBuilder() { }
 
     public DynFormComponentBuilder(DynFormFactory factory) {
         _factory = factory;
-        _componentFieldTable = new Hashtable<TextField, DynFormField>();
+        _componentFieldTable = new Hashtable<FieldBase, DynFormField>();
     }
 
 
@@ -81,102 +91,106 @@ public class DynFormComponentBuilder {
     }
 
 
-    public DynFormComponentList makeInputField(int top, DynFormField input) {
+    public DynFormComponentList makeInputField(int top, DynFormField input,
+                                            DynFormFactory.ComponentType prevComponent) {
         UIComponent field;
         int startingTop = top;
-        DynFormComponentList result = new DynFormComponentList();
+        DynFormComponentList fieldList = new DynFormComponentList();
 
-        DynFormComponentList preList = makePreComponents(top, input) ;
+        DynFormComponentList preList = makePeripheralComponents(input, top, true, prevComponent) ;
         if (! preList.isEmpty()) {
-            result.addAll(preList);      // line, text and/or image before
-            top += preList.getHeight() + 25;
+            fieldList.addAll(preList);      // line, text and/or image before
+            top += preList.getHeight();
+            prevComponent = preList.getLastComponent();
         }
-
-        String type = input.getDataTypeUnprefixed();
+        top += _factory.getNextInc(prevComponent, DynFormFactory.ComponentType.field);
 
         // create and add a label for the parameter
         Label label = makeLabel(input, top);
+        fieldList.add(label);
 
+        String type = input.getDataTypeUnprefixed();
         if (type.equals("boolean"))
             field = makeCheckbox(input, top);
         else {
             _hasCheckboxOnly = false;
-            if (type.equals("date"))
+            if (type.equals("date")) {
                 field = makeCalendar(input, top);
-            else if (input.hasEnumeratedValues())
+            }
+            else if (input.hasEnumeratedValues()) {
                 field = makeEnumeratedList(input, top);
-            else
-                field = makeTextField(input, top);
+            }
+            else if (input.isTextArea()) {
+                field = makeTextArea(input, top);
+                top += TEXTAREA_ROWS * 18;
+            }
+            else field = makeTextField(input, top);
         }
-        
+        fieldList.add(field);
         label.setFor(field.getId());
-
-        result.add(label);
-        result.add(field);
-
-        DynFormComponentList postList = makePostComponents(top, input) ;
-        if (! postList.isEmpty()) {
-            result.addAll(postList);  // line, text and/or image after
-            top += postList.getHeight();
-        }
-        result.setHeight(top - startingTop);
-
         if (! focusSet) focusSet = setFocus(field) ;
+        prevComponent = DynFormFactory.ComponentType.field;
 
-        return result ;
+        DynFormComponentList postList = makePeripheralComponents(input, top, false, prevComponent) ;
+        if (! postList.isEmpty()) {
+            fieldList.addAll(postList);  // line, text and/or image after
+            top += postList.getHeight();
+            prevComponent = postList.getLastComponent();
+        }
+        fieldList.setHeight(top - startingTop);
+        fieldList.setLastComponent(prevComponent);
+        return fieldList ;
     }
 
 
-    private DynFormComponentList makePreComponents(int top, DynFormField input) {
+    public DynFormComponentList makePeripheralComponents(DynFormField input, int top,
+                    boolean above, DynFormFactory.ComponentType prevComponent) {
         DynFormComponentList list = new DynFormComponentList();
-        String textAbove = input.getTextAbove();
-        if (textAbove != null) {
-            list.add(makeStaticTextBlock(input, top));
-            top += 25;
+        int startingTop = top;
+        boolean makeLine = above ? input.isLineAbove() : input.isLineBelow() ;
+        if (makeLine) {
+            top += _factory.getNextInc(prevComponent, DynFormFactory.ComponentType.line);
+            FlatPanel line = makeFlatPanel(top);
+            list.add(line);
+            top += line.getHeight() ;
+            prevComponent = DynFormFactory.ComponentType.line;
         }
-        if (input.isLineAbove()) {
-            list.add(makeFlatPanel(top));
-            top += 25;
+        String text = above ? input.getTextAbove() : input.getTextBelow();
+        if (text != null) {
+            top += _factory.getNextInc(prevComponent, DynFormFactory.ComponentType.textblock);
+            StaticTextBlock block = makeStaticTextBlock(input, top, text);
+            list.add(block);
+            top += _factory.getAdjustmentForWrappingText(block);
+            prevComponent = DynFormFactory.ComponentType.textblock;
         }
-        String imagePath = input.getImageAbove();
+        String imagePath = above ? input.getImageAbove() : input.getImageBelow();
         if (imagePath != null) {
+            int preImageTop = top;
+            top += _factory.getNextInc(prevComponent, DynFormFactory.ComponentType.image);            
             ImageComponent image = makeImageComponent(top, imagePath);
-            list.add(image);
-            top += image.getHeight();
+            if (image != null) {
+                String align = above ? input.getImageAboveAlign() : input.getImageBelowAlign();
+                if (align != null) {
+                    image.setAlign(align);
+                }
+                list.add(image);
+                top += image.getHeight();
+                prevComponent = DynFormFactory.ComponentType.image;
+            }
+            else top = preImageTop;   // reset top if image didn't work for any reason
         }
-        list.setHeight(top);
+        list.setHeight(top - startingTop);
+        list.setLastComponent(prevComponent);
         return list;
     }
 
-
-    private DynFormComponentList makePostComponents(int top, DynFormField input) {
-        DynFormComponentList list = new DynFormComponentList();
-        String textBelow = input.getTextBelow();
-        if (textBelow != null) {
-            list.add(makeStaticTextBlock(input, top));
-            top += 25;
-        }
-        if (input.isLineBelow()) {
-            list.add(makeFlatPanel(top));
-            top += 25;
-        }
-        String imagePath = input.getImageBelow();
-        if (imagePath != null) {
-            ImageComponent image = makeImageComponent(top, imagePath);
-            list.add(image);
-            top += image.getHeight();
-        }
-        list.setHeight(top);
-        return list;
-
-    }
 
     private String makeStyle(UIComponent field, DynFormField input, int top) {
 
         // increment y-coord for each component's top (relative to current panel)
         String style = String.format("top: %dpx%s", top, input.getUserDefinedFontStyle());
 
-        if (field instanceof TextField || field instanceof DropDown) {
+        if (field instanceof TextField || field instanceof TextArea || field instanceof DropDown) {
             String justify = input.getTextJusify();
             if (justify != null) style += ";text-align: " + justify;
 
@@ -199,7 +213,7 @@ public class DynFormComponentBuilder {
         label.setStyleClass("dynformLabel");
         label.setRequiredIndicator(false);
         label.setStyle(makeStyle(label, input, top + 5)) ;
-        if (input.hasHideAttribute()) {
+        if (input.isHidden(_factory.getWorkItemData())) {
             label.setVisible(false);
         }
         else {
@@ -211,7 +225,7 @@ public class DynFormComponentBuilder {
 
     public Label makeSimpleLabel(String text) {
         Label label = new Label() ;
-        label.setId(_factory.createUniqueID("lbl" + text));
+        label.setId(_factory.createUniqueID("lbl" + _factory.despace(text)));
         label.setText(text + ": ");
         return label;
     }
@@ -234,7 +248,7 @@ public class DynFormComponentBuilder {
         cbox.setDisabled(input.isInputOnly());
         cbox.setStyleClass("dynformInput");
         cbox.setStyle(makeStyle(cbox, input, top)) ;
-        cbox.setVisible(! input.hasHideAttribute());
+        cbox.setVisible(! input.isHidden(_factory.getWorkItemData()));
         return cbox ;
     }
 
@@ -250,7 +264,7 @@ public class DynFormComponentBuilder {
         cal.setColumns(15);
         cal.setStyleClass(getInputStyleClass(input));
         cal.setStyle(makeStyle(cal, input, top)) ;
-        cal.setVisible(! input.hasHideAttribute());
+        cal.setVisible(! input.isHidden(_factory.getWorkItemData()));
         return cal;
     }
 
@@ -269,7 +283,7 @@ public class DynFormComponentBuilder {
         dropdown.setItems(getEnumeratedList(input));
         dropdown.setSelected(input.getValue());
         dropdown.setDisabled(input.isInputOnly());
-        dropdown.setVisible(! input.hasHideAttribute());
+        dropdown.setVisible(! input.isHidden(_factory.getWorkItemData()));
         return dropdown;
     }
 
@@ -284,22 +298,52 @@ public class DynFormComponentBuilder {
     }
 
 
+    public TextArea makeTextArea(DynFormField input, int top) {
+        TextArea textarea = new TextArea();
+        textarea.setId(_factory.createUniqueID("txa" + input.getName()));
+        textarea.setStyleClass(getInputStyleClass(input));
+        textarea.setStyle(makeStyle(textarea, input, top));
+        textarea.setDisabled(input.isInputOnly()); 
+        textarea.setToolTip(input.getToolTip());
+        textarea.setRows(TEXTAREA_ROWS);
+        if (input.hasBlackoutAttribute()) {
+            textarea.setText("");
+        }
+        else {
+            textarea.setText(JDOMUtil.decodeEscapes(input.getValue()));
+        }
+        if (input.isHidden(_factory.getWorkItemData())) {
+            textarea.setVisible(false);
+        }
+        else {
+            _componentFieldTable.put(textarea, input);     // store for validation later
+        }
+        input.setRestrictionAttributes();
+        return textarea ;
+
+    }
+
     public TextField makeTextField(DynFormField input, int top) {
         TextField textField = new TextField() ;
         textField.setId(_factory.createUniqueID("txt" + input.getName()));
-        textField.setText(JDOMUtil.decodeEscapes(input.getValue()));
-        setMaxTextValueChars(input.getValue());
         textField.setStyleClass(getInputStyleClass(input));
         textField.setStyle(makeStyle(textField, input, top));
         textField.setDisabled(input.isInputOnly());
         textField.setToolTip(input.getToolTip());
-        textField.setMaxLength(input.getMaxLength());
-        if (input.hasHideAttribute()) {
+        if (input.hasBlackoutAttribute()) {
+            textField.setText("");
+        }
+        else {
+            textField.setText(JDOMUtil.decodeEscapes(input.getValue()));
+        }
+        setMaxTextValueChars((String) textField.getText());
+        if (input.isHidden(_factory.getWorkItemData())) {
             textField.setVisible(false);
         }
         else {
             _componentFieldTable.put(textField, input);     // store for validation later
         }
+        input.setRestrictionAttributes();
         return textField ;
     }
 
@@ -312,35 +356,56 @@ public class DynFormComponentBuilder {
         rb.setStyle(makeStyle(rb, input, top));
         rb.setDisabled(input.isInputOnly());
         rb.setStyleClass("dynformRadioButton");
-        rb.setVisible(! input.hasHideAttribute());
+        rb.setVisible(! input.isHidden(_factory.getWorkItemData()));
         return rb;
     }
 
 
-    private StaticTextBlock makeStaticTextBlock(DynFormField input, int top) {
+    private StaticTextBlock makeStaticTextBlock(DynFormField input, int top, String text) {
         StaticTextBlock block = new StaticTextBlock() ;
         block.setId(_factory.createUniqueID("stb"));
-        block.setStyle(String.format("position: absolute; left: 5px; top: %dpx%s",
+        block.setText(text);
+        block.setStyle(String.format("position: absolute; text-align: left; left: 10px; top: %dpx%s",
                 top, input.getUserDefinedFontStyle()));
+        block.setFont(input.getUserDefinedFont());
         return block; 
     }
 
 
     private FlatPanel makeFlatPanel(int top) {
-        FlatPanel line = new FlatPanel();
+        FlatPanel line = new FlatPanel();                                        
         line.setId(_factory.createUniqueID("fpl"));
-        line.setStyle(String.format(
-                "position: absolute; border: 2px solid gray; left: 5px; height: 2px; top: %dpx", top));
+        line.setStyle(String.format("position: absolute; background-color: black; " +
+                "left: 10px; height: 2px; top: %dpx", top));
         return line;
     }
 
 
     private ImageComponent makeImageComponent(int top, String imagePath) {
+        Dimension size = getImageSize(imagePath);
+        if (size.getHeight() < 0) return null;
+       
         ImageComponent image = new ImageComponent();
         image.setId(_factory.createUniqueID("img"));
         image.setUrl(imagePath);
-        image.setStyle(String.format("position: absolute; left: 5px; top: %dpx", top));
+        image.setHeight((int) size.getHeight());
+        image.setWidth((int) size.getWidth());
+        image.setStyle(String.format("position: absolute; width: %dpx; height: %dpx; " +
+              "top: %dpx", image.getWidth(), image.getHeight(), top));
+        setMaxImageWidth(image.getWidth());
         return image;
+    }
+
+
+    private Dimension getImageSize(String imagePath) {
+        try {
+            URL url = new URL(imagePath);
+            ImageIcon image = new ImageIcon(url);
+            return new Dimension(image.getIconWidth(), image.getIconHeight());
+        }
+        catch (MalformedURLException mue) {
+            return new Dimension(-1, -1);           // def size
+        }
     }
 
     public boolean setFocus(UIComponent component) {
@@ -404,6 +469,14 @@ public class DynFormComponentBuilder {
         return _maxTextValueChars * FONT_WIDTH;
     }
 
+    public void setMaxImageWidth(int width) {
+        _maxImageWidth = Math.max(_maxImageWidth, width);
+    }
+
+    public int getMaxImageWidth() {
+        return _maxImageWidth;
+    }
+
     public boolean hasOnlyCheckboxes() {
         return _hasCheckboxOnly ;
     }
@@ -413,7 +486,7 @@ public class DynFormComponentBuilder {
     }
 
 
-    public Hashtable<TextField, DynFormField> getTextFieldMap() {
+    public Hashtable<FieldBase, DynFormField> getTextFieldMap() {
         return _componentFieldTable;
     }
 

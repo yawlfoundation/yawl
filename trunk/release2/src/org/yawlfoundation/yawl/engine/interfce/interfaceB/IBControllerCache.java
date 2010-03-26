@@ -9,11 +9,12 @@
 package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
 import org.yawlfoundation.yawl.engine.YSpecificationID;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
+import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,13 +55,27 @@ public class IBControllerCache {
 
 
     public TaskInformation getTaskInformation(YSpecificationID specID, String taskID) {
-        return _taskInfoCache.get(specID.getKey() + taskID);
+        return _taskInfoCache.get(specID.toKeyString() + ":" + taskID);
     }
 
 
     public void setTaskInformation(YSpecificationID specID, String taskID,
                                    TaskInformation taskInfo) {
-        _taskInfoCache.put(specID.getKey() + taskID, taskInfo);
+        _taskInfoCache.put(specID.toKeyString() + ":" + taskID, taskInfo);
+    }
+
+
+    public void unloadTaskInformation(YSpecificationID specID) {
+        String specKey = specID.toKeyString() + ":";
+        List<String> toRemove = new ArrayList<String>();
+        for (String key : _taskInfoCache.keySet()) {
+            if (key.startsWith(specKey)) {
+                toRemove.add(key);            // avoid concurrency exceptions
+            }
+        }
+        for (String key : toRemove) {
+            _taskInfoCache.remove(key);
+        }
     }
 
 
@@ -99,6 +114,7 @@ public class IBControllerCache {
 
     public void unloadSpecificationData(YSpecificationID specID) throws IOException {
 	      _specDataCache.remove(specID.getKey());
+        unloadTaskInformation(specID);
     }	
 
 

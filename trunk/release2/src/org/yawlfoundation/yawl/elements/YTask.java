@@ -25,7 +25,6 @@ import org.yawlfoundation.yawl.elements.state.YInternalCondition;
 import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.engine.YWorkItemRepository;
-import org.yawlfoundation.yawl.engine.instance.InstanceCache;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.*;
@@ -1411,9 +1410,9 @@ public abstract class YTask extends YExternalNetElement {
 
             YSpecification ySpec = _net.getSpecification();
             result.append("<specification>");
-            StringUtil.wrap(ySpec.getID(), "id");
-            StringUtil.wrap(ySpec.getSpecVersion(), "version");
-            StringUtil.wrap(ySpec.getURI(), "uri");
+            result.append(StringUtil.wrap(ySpec.getID(), "id"));
+            result.append(StringUtil.wrap(ySpec.getSpecVersion(), "version"));
+            result.append(StringUtil.wrap(ySpec.getURI(), "uri"));
             result.append("</specification>");
 
             result.append("<taskID>");
@@ -1456,17 +1455,11 @@ public abstract class YTask extends YExternalNetElement {
                         append(getMultiInstanceAttributes().getMIFormalInputParam()).
                         append("</formalInputParam>");
             }
-            Collection inputParams = gateway.getInputParameters().values();
-            for (Iterator iterator = inputParams.iterator(); iterator.hasNext();) {
-                YParameter parameter = (YParameter) iterator.next();
-                String paramAsXML = parameter.toSummaryXML();
-                result.append(paramAsXML);
+            for (YParameter parameter : gateway.getInputParameters().values()) {
+                result.append(parameter.toSummaryXML());
             }
-            Collection outputParams = gateway.getOutputParameters().values();
-            for (Iterator iterator = outputParams.iterator(); iterator.hasNext();) {
-                YParameter parameter = (YParameter) iterator.next();
-                String paramAsXML = parameter.toSummaryXML();
-                result.append(paramAsXML);
+            for (YParameter parameter : gateway.getOutputParameters().values()) {
+                result.append(parameter.toSummaryXML());
             }
             result.append("</params>");
 

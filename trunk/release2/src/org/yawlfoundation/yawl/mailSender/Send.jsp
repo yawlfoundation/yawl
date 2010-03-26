@@ -29,15 +29,7 @@
 <body>
 <%
 try{ 
-			System.out.println("Send Called");
-			String workItemXML = request.getParameter("workitem");
-			WorkItemRecord wir;
-			if (workItemXML != null) {
-				wir = Marshaller.unmarshalWorkItem(workItemXML) ;
-				session.setAttribute("workitem", wir);                  // save it for the post
-			}   else {wir = (WorkItemRecord) session.getAttribute("workitem");}
-			
-			
+            System.out.println("in send.jsp");
 			String Port = null;
 			String SMTP = null;
             String Login = null;
@@ -106,16 +98,14 @@ try{
 				{
 				  /* The file item contains an uploaded file */
 		  		 if(fileItem.getFieldName().equals("fileLocation")) 
-		  			 if(fileItem.getName().isEmpty());
-		  			 else
-		  			 {
+		  			 if((fileItem.getName() != null) && (fileItem.getName().length() > 0)) {
 		  				fileLocation = FilenameUtils.getName(fileItem.getName());
 				 		System.out.println(fileLocation);
 						String fileName = fileItem.getName();
 						File fullFile = new File(fileName);
 						File savedFile = new File(getServletContext().getRealPath("/files/"), fullFile.getName());
 						fileItem.write(savedFile);
-					};
+					}
 				}
 			  }
 			}
@@ -125,9 +115,11 @@ try{
 		_MailController.SendEmail( SMTP, Port, Login, password, To, Alias, object, content, fileLocation);
 			
 			String redirectURL = "http://localhost:8080/resourceService/" + 
-			"faces/userWorkQueues.jsp?workitem=" + wir.toXML();
+			"faces/userWorkQueues.jsp";
 			response.sendRedirect(response.encodeURL(redirectURL));
-} catch  (Exception e){}
+} catch  (Exception e){
+    e.printStackTrace();
+}
 %>		
 </body>
 </html>

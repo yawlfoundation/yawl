@@ -447,7 +447,7 @@ public class WorkItemRecord implements Cloneable {
 
         Hashtable<String, String> result = new Hashtable<String, String>();
         String attribStr = _extendedAttributes.trim() ;
-        String[] attribs = attribStr.split(" ");
+        String[] attribs = attribStr.split("\\s+");
         for (int i = 0; i < attribs.length; i++) {
             String[] attrib = attribs[0].split("=");
             result.put(attrib[0], attrib[1]);

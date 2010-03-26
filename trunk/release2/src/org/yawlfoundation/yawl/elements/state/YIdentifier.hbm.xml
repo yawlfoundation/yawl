@@ -17,7 +17,7 @@
 	    	<one-to-many class="org.yawlfoundation.yawl.elements.state.YIdentifier"/>
 	    </list>
 
-	    <list name="locationNames" table="LOCATIONS" access="field" lazy="false">
+	    <list name="locationNames" table="YLOCATIONS" access="field" lazy="false">
 	      <key column="id_key"/>
 	      <index column="ix"/>
 	      <element column="loc_condition" type="string"/>
