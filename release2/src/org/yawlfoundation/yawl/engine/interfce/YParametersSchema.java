@@ -14,7 +14,8 @@ import org.yawlfoundation.yawl.elements.data.YParameter;
 import java.util.*;
 
 /**
- * 
+ * A container for the parameters of a task or net.
+ *
  * @author Lachlan Aldred
  * Date: 5/11/2003
  * Time: 12:18:37
@@ -24,6 +25,7 @@ import java.util.*;
  * 
  */
 public class YParametersSchema {
+
     private Map<String, YParameter> _inputParams = new HashMap<String, YParameter>();
     private Map<String, YParameter> _outputParams = new HashMap<String, YParameter>();
     private String _formalInputParam;
@@ -78,7 +80,6 @@ public class YParametersSchema {
 
     public List<YParameter> getCombinedParams() {
         List<YParameter> result = getInputParams();              // includes I&O params
-        List<YParameter> outputOnlyList = getOutputOnlyParams();
 
         // combine and return
         result.addAll(getOutputOnlyParams());
@@ -91,7 +92,10 @@ public class YParametersSchema {
         if (YParameter.getTypeForInput().equals(parameter.getDirection()))
             _inputParams.put(parameter.getName(), parameter);
         else
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(
+                    "Illegal attempt to add an output parameter to the input set: "
+                    + parameter.getPreferredName()
+            );
     }
 
 
@@ -99,7 +103,10 @@ public class YParametersSchema {
         if (YParameter.getTypeForOutput().equals(parameter.getDirection()))
             _outputParams.put(parameter.getName(), parameter);
         else
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(
+                    "Illegal attempt to add an input parameter to the output set: "
+                    + parameter.getPreferredName()
+            );
     }
 
 

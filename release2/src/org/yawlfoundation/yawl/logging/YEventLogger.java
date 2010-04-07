@@ -118,7 +118,11 @@ public class YEventLogger {
     public String getDataSchema(YSpecificationID specID, String dataTypeName) {
         return XSDType.getInstance().isBuiltInType(dataTypeName) ? dataTypeName :
                 _dataSchemaCache.getSchemaTypeAsString(specID, dataTypeName);
-    }       
+    }
+
+    public void removeSpecificationDataSchemas(YSpecificationID specID) {
+        _dataSchemaCache.remove(specID);
+    }
 
 
     /********************************************************************************/

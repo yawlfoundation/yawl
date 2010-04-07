@@ -1,7 +1,7 @@
 package org.yawlfoundation.yawl.resourcing.util;
 
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.logging.YLogPredicateParser;
+import org.yawlfoundation.yawl.util.YPredicateParser;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
@@ -19,7 +19,7 @@ import java.util.Set;
  * Author: Michael Adams
  * Creation Date: 1/03/2010
  */
-public class LogPredicateParser extends YLogPredicateParser {
+public class LogPredicateParser extends YPredicateParser {
 
     private WorkItemRecord _wir ;
     private Participant _participant;

@@ -24,21 +24,26 @@ public class SubPanelController {
     private long _minOccurs ;
     private long _maxOccurs ;
     private long _currOccurs ;            // current display count (min <= curr <= max)
-    private int _depthlevel ;            // the nested level of this panel set 
+    private int _depthlevel ;             // the nested level of this panel set
     private String _name;
+    private String _bgColour;             // user-defined colours via extended attributes
+    private String _altBgColour;
 
     // the list of subpanel instances (i.e. all instances of the same subpanel)
     private List<SubPanel> _panelList = new ArrayList<SubPanel>();
 
     public SubPanelController() {}
 
-    public SubPanelController(SubPanel panel, long minOccurs, long maxOccurs, int level) {
+    public SubPanelController(SubPanel panel, long minOccurs, long maxOccurs, int level,
+                              String udBgColour, String udAltBgColour) {
         _panelList.add(panel);
         _minOccurs = minOccurs;
         _maxOccurs = maxOccurs;
         _depthlevel = level;
         _currOccurs = 1;
         _name = panel.getName();
+        _bgColour = udBgColour;
+        _altBgColour = udAltBgColour;
     }
 
 
@@ -73,6 +78,17 @@ public class SubPanelController {
     public String getName() { return _name; }
 
     public void setName(String name) { _name = name; }
+
+
+    public String getAltBgColour() { return _altBgColour; }
+
+    public void setAltBgColour(String colour) { _altBgColour = colour; }
+
+
+    public String getBgColour() { return _bgColour; }
+
+    public void setBgColour(String colour) { _bgColour = colour; }
+
     
 
     public List<SubPanel> getSubPanels() { return _panelList; }
@@ -156,9 +172,15 @@ public class SubPanelController {
     }
 
 
-    /** @return the appropriate style for this depthlevel */
+    /** @return the appropriate style class for this depthlevel */
     public String getSubPanelStyleClass() {
         return (_depthlevel % 2 == 0) ? "dynformSubPanelAlt" : "dynformSubPanel";
+    }
+
+
+    /** @return the user-defined bg colour (if any) for this depthlevel */
+    public String getUserDefinedBackgroundColour() {
+        return (_depthlevel % 2 == 0) ? _altBgColour : _bgColour;        
     }
 
 

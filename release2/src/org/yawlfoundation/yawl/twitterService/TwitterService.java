@@ -29,7 +29,7 @@ public class TwitterService extends InterfaceBWebsideController {
             wir = checkOut(wir.getID(), _handle);
             String result = updateStatus(wir);
             checkInWorkItem(wir.getID(), wir.getDataList(),
-                            getOutputData(wir.getTaskName(), result), _handle);
+                            getOutputData(wir.getTaskName(), result), null,  _handle);
         }
         catch (Exception ioe) {
             ioe.printStackTrace();

@@ -817,9 +817,7 @@ public class SessionBean extends AbstractSessionBean {
 
 
     public String getTaskSchema(WorkItemRecord wir) {
-        YSpecificationID specID = new YSpecificationID(wir.getSpecIdentifier(),
-                                                       wir.getSpecVersion(),
-                                                       wir.getSpecURI());
+        YSpecificationID specID = new YSpecificationID(wir);
         return _rm.getDataSchema(wir, specID) ;
     }
 

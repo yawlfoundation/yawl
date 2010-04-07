@@ -164,6 +164,12 @@ public class dynForm extends AbstractPageBean {
     public void setPnlContainer(PanelLayout pnl) { pnlContainer = pnl; }
 
 
+    private PanelLayout bottomPanel;
+
+    public PanelLayout getBottomPanel() { return bottomPanel; }
+
+    public void setBottomPanel(PanelLayout pnl) { bottomPanel = pnl; }
+
     /****** Custom Methods ******************************************************/
 
     private SessionBean _sb = getSessionBean();
@@ -275,7 +281,7 @@ public class dynForm extends AbstractPageBean {
     }
 
     private void loadBackground() {
-        String imageURL = getDynFormFactory().getFormBackgroundURL();
+        String imageURL = getDynFormFactory().getPageBackgroundURL();
         if (imageURL != null) {
            body1.setImageURL(imageURL);
         }

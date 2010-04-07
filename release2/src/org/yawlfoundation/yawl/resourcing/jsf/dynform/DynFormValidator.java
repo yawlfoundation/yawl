@@ -40,7 +40,7 @@ import java.util.List;
 public class DynFormValidator {
 
     private MessagePanel _msgPanel;
-    private Hashtable<FieldBase, DynFormField> _componentFieldLookup;
+    private Hashtable<UIComponent, DynFormField> _componentFieldLookup;
 
     public final static String NS_URI = XMLConstants.W3C_XML_SCHEMA_NS_URI;
     public final static String NS_PREFIX = "xsd";
@@ -57,7 +57,7 @@ public class DynFormValidator {
 
     
     public boolean validate(PanelLayout panel,
-                            Hashtable<FieldBase, DynFormField> componentFieldLookup,
+                            Hashtable<UIComponent, DynFormField> componentFieldLookup,
                             MessagePanel msgPanel) {
 
         _componentFieldLookup = componentFieldLookup;

@@ -2,12 +2,13 @@ package org.yawlfoundation.yawl.logging;
 
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.YWorkItem;
+import org.yawlfoundation.yawl.util.YPredicateParser;
 
 /**
  * Author: Michael Adams
  * Creation Date: 1/03/2010
  */
-public class YLogPredicateWorkItemParser extends YLogPredicateParser {
+public class YLogPredicateWorkItemParser extends YPredicateParser {
 
     private YWorkItem _workItem;
 
@@ -86,7 +87,7 @@ public class YLogPredicateWorkItemParser extends YLogPredicateParser {
             s = (value != null) ? value : "n/a";
         }
         else if (s.startsWith("${expression:")) {
-            s = evaluateExpression(s, _workItem.getDataElement());
+            s = evaluateQuery(s, _workItem.getDataElement());
         }
         else {
             s = super.valueOf(s);

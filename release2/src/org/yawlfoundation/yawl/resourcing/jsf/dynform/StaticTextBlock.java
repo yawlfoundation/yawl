@@ -17,7 +17,7 @@ public class StaticTextBlock extends StaticText {
     }
 
     public Font getFont() {
-        if (_font == null) _font = new Font("Helvetica", Font.PLAIN, 12);
+        if (_font == null) _font = DynFormFont._defFormFont;
         return _font;
     }
 

@@ -192,7 +192,7 @@ public class DynFormFieldAssembler {
                                        int level) throws DynFormException {
         DynFormField field ;
         List<DynFormField> simpleContents = new ArrayList<DynFormField>();
-        int instances = getInitialInstanceCount(minOccurs, data) ;
+        int instances = getInitialInstanceCount(minOccurs, data, name) ;
 
         if (instances == 1) {
             field = addField(name, createFieldList(eField, data, ns, level),
@@ -202,7 +202,7 @@ public class DynFormFieldAssembler {
             field = addContainingField(name, minOccurs, maxOccurs, level);
             String subGroupID = getNextGroupID();
             for (int i = 0; i < instances; i++) {
-                Element data4Inst = getIteratedContent(data, i) ;
+                Element data4Inst = getIteratedContent(data, i, name) ;
                 List<DynFormField> subFieldList =
                         createFieldList(eField, data4Inst, ns, level);
                 DynFormField subField = subFieldList.get(0);      // the multi-inst field
@@ -225,10 +225,10 @@ public class DynFormFieldAssembler {
         String groupID = null;
         boolean cloneable = isCloneableField(minOccurs, maxOccurs);
         if (cloneable) groupID = getNextGroupID();
-        int instances = getInitialInstanceCount(minOccurs, data) ;
+        int instances = getInitialInstanceCount(minOccurs, data, name) ;
         
         for (int i = 0; i < instances; i++) {
-            Element data4Inst = (instances > 1) ? getIteratedContent(data, i) : data ;
+            Element data4Inst = (instances > 1) ? getIteratedContent(data, i, name) : data ;
             field = addField(name, type, data4Inst, minOccurs, maxOccurs, level);
             field.setGroupID(groupID);
             field.setOccursCount(instances);
@@ -322,22 +322,22 @@ public class DynFormFieldAssembler {
     }
 
 
-    private int getInitialInstanceCount(String min, Element data) {
+    private int getInitialInstanceCount(String min, Element data, String dataName) {
         int dataCount = 1;
         int minOccurs = Math.max(SubPanelController.convertOccurs(min), 1) ;
         if ((data != null) && (data.getContentSize() > 1)) {
-            String dataName = ((Element) data.getContent(0)).getName();
             dataCount = data.getChildren(dataName).size();
         }
         return Math.max(minOccurs, dataCount) ;
     }
 
 
-    private Element getIteratedContent(Element data, int index) {
+    private Element getIteratedContent(Element data, int index, String name) {
         Element result = null ;
         if ((data != null) && (index < data.getContentSize())) {
+            List relevantChildren = data.getChildren(name);
             result = new Element(data.getName());
-            Element iteratedContent = (Element) data.getContent(index);
+            Element iteratedContent = (Element) relevantChildren.get(index);
             result.addContent((Element) iteratedContent.clone());
         }
         return result ;

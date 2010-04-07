@@ -60,8 +60,15 @@ public class DataListGenerator {
                 start = 0;
             }
             else {
-                // otherwise the first child is the panel heading (and thus the element name)
-                parentTag = _factory.despace((String) ((StaticText) children.get(0)).getValue()) ;
+                // if this is the outermost panel, its title may be user defined, so get
+                // the default form name
+                if (! (panel instanceof SubPanel)) {
+                    parentTag = _factory.getDefaultFormName();
+                }
+                else {
+                    // otherwise the first child is the panel heading (and thus the element name)
+                    parentTag = _factory.despace((String) ((StaticText) children.get(0)).getValue()) ;
+                }
                 result.append("<").append(parentTag).append(">") ;
             }    
         }

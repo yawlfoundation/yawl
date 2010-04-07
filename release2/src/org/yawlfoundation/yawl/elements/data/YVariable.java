@@ -137,6 +137,10 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
         }
     }
 
+    public String getDataTypePrefix() {
+        return _dataTypeName.replaceFirst(getDataTypeNameUnprefixed(), "");
+    }
+
     /**
      * Returns the namespace of the data type.  Expect either null if the type is a custom type
      * or "http://www.w3.org/2001/XMLSchema" if the variable uses a "built in" Schema primitive type.
@@ -211,7 +215,8 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
         StringBuilder xml = new StringBuilder();
 
         // only 2.1 specs get an index element
-        if (_parentDecomposition.getSpecification().getSchemaVersion().equals(YSpecification.Version2_1)) {
+        if ((_parentDecomposition != null) &&
+           (_parentDecomposition.getSpecification().getSchemaVersion().equals(YSpecification.Version2_1))) {
             xml.append(StringUtil.wrap(String.valueOf(_ordering), "index"));
         }
         

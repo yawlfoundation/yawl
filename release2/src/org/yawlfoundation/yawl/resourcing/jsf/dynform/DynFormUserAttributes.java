@@ -142,16 +142,27 @@ public class DynFormUserAttributes {
 
 
     public String getUserDefinedFontStyle() {
+        return getUserDefinedFontStyle(false);
+    }
+
+
+    public Font getUserDefinedFont() {
+        return getUserDefinedFont(false);
+    }
+
+
+    public String getUserDefinedFontStyle(boolean header) {
         String style = "";
-        String fontColour = getValue("font-color");
+        String head = header ? "header-" : "";
+        String fontColour = getValue(head + "font-color");
         if ((fontColour != null) && (! isBlackout())) {
             style += String.format(";color: %s", fontColour);
         }
-        String fontFamily = getValue("font-family");
+        String fontFamily = getValue(head + "font-family");
         if (fontFamily != null) style += String.format(";font-family: %s", fontFamily);
-        String fontSize = getValue("font-size");
+        String fontSize = getValue(head + "font-size");
         if (fontSize != null) style += String.format(";font-size: %spx", fontSize);
-        String fontStyle = getValue("font-style");
+        String fontStyle = getValue(head + "font-style");
         if (fontStyle != null) {
             if (fontStyle.contains("bold")) style += ";font-weight: bold";
             if (fontStyle.contains("italic")) style += ";font-style: italic";
@@ -159,15 +170,19 @@ public class DynFormUserAttributes {
         return style;
     }
 
-    public Font getUserDefinedFont() {
-        String fontFamily = getValue("font-family");
+
+    public Font getUserDefinedFont(boolean header) {
+        if (! hasFontAttributes(header)) return null;
+
+        String head = header ? "header-" : "";
+        String fontFamily = getValue(head + "font-family");
         String family = (fontFamily != null)  ?  fontFamily : "Helvetica";
 
-        int fontSize = getIntegerValue("font-size");
-        int size = (fontSize > -1) ? fontSize : 12;
+        int fontSize = getIntegerValue(head + "font-size");
+        int size = (fontSize > -1) ? fontSize : (header ? 18 : 12) ;
 
         int style = Font.PLAIN;
-        String fontStyle = getValue("font-style");
+        String fontStyle = getValue(head + "font-style");
         if (fontStyle != null) {
             if (fontStyle.contains("bold") && fontStyle.contains("italic"))
                 style = Font.BOLD | Font.ITALIC;
@@ -177,6 +192,16 @@ public class DynFormUserAttributes {
                 style = Font.ITALIC;
         }
         return new Font(family, style, size);
+    }
+
+
+    public String getFormHeaderFontStyle() {
+        return getUserDefinedFontStyle(true);
+    }
+
+
+    public Font getFormHeaderFont() {
+        return getUserDefinedFont(true);
     }
 
 
@@ -212,4 +237,11 @@ public class DynFormUserAttributes {
         return getValue("text-below");
     }
 
+
+    private boolean hasFontAttributes(boolean header) {
+        String head = header ? "header-" : "";
+        return ! ((getValue(head + "font-family") == null) &&
+                  (getValue(head + "font-size") == null) &&
+                  (getValue(head + "font-style") == null));
+    }
 }

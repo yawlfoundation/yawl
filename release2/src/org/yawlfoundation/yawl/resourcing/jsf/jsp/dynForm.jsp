@@ -62,6 +62,12 @@
                                        styleClass="dynformButton"
                                        style="#{DynFormFactory.btnCompleteStyle}"/>
 
+                            <ui:panelLayout binding="#{dynForm.bottomPanel}"
+                                            id="bottomPanel"
+                                            styleClass="dynformBottomPanel"
+                                            style="#{DynFormFactory.bottomPanelStyle}"/>
+
+
                         </ui:panelLayout>
 
                         <ui:panelLayout binding="#{SessionBean.messagePanel}"

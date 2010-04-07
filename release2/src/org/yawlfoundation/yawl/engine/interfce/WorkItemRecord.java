@@ -132,6 +132,10 @@ public class WorkItemRecord implements Cloneable {
             _dataListUpdated = JDOMUtil.stringToElement(_dataListUpdatedString) ;
     }
 
+    public void restoreAttributeTable() {
+        _attributeTable = attributeStringToTable();
+    }
+
     public void resetDataState() {
         _dataListUpdatedString = null;
         _dataListUpdated = null ; 
@@ -167,7 +171,7 @@ public class WorkItemRecord implements Cloneable {
 
     public void setExtendedAttributes(Hashtable<String, String> attribs) {
         _attributeTable = attribs ;
-        _extendedAttributes = attributeTableToXMLString() ;
+        _extendedAttributes = attributeTableToAttributeString() ;
     }
 
     public void setExtendedAttributes(String attribStr) {
@@ -426,7 +430,7 @@ public class WorkItemRecord implements Cloneable {
     }
 
 
-    private String attributeTableToXMLString() {
+    private String attributeTableToAttributeString() {
         if ((_attributeTable == null) || _attributeTable.isEmpty()) return "" ;
         
         StringBuilder xml = new StringBuilder();
@@ -445,14 +449,14 @@ public class WorkItemRecord implements Cloneable {
         if ((_extendedAttributes == null) || (_extendedAttributes.length() == 0))
             return null;
 
-        Hashtable<String, String> result = new Hashtable<String, String>();
-        String attribStr = _extendedAttributes.trim() ;
-        String[] attribs = attribStr.split("\\s+");
-        for (int i = 0; i < attribs.length; i++) {
-            String[] attrib = attribs[0].split("=");
-            result.put(attrib[0], attrib[1]);
+        Hashtable<String, String> table = new Hashtable<String, String>();
+
+        // split into key, value, key, value, ...
+        String[] attributes = _extendedAttributes.split("\\s*=\\s*\"|\\s*\"\\s*");
+        for (int i=0; i < attributes.length - 1; i=i+2) {
+            table.put(attributes[i].trim(), attributes[i+1].trim());
         }
-        return result;
+        return table;
     }
 
 

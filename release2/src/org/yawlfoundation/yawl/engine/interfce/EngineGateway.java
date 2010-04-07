@@ -169,5 +169,5 @@ public interface EngineGateway extends Remote {
     public String getParameterInstanceSummary(String caseID, String itemID, String sessionHandle)
             throws RemoteException ;
 
-
+    public String rejectAnnouncedEnabledTask(String itemID, String sessionHandle) throws RemoteException ;
 }

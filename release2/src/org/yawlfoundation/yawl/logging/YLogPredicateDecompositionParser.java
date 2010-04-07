@@ -1,12 +1,13 @@
 package org.yawlfoundation.yawl.logging;
 
 import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.util.YPredicateParser;
 
 /**
  * Author: Michael Adams
  * Creation Date: 1/03/2010
  */
-public class YLogPredicateDecompositionParser extends YLogPredicateParser {
+public class YLogPredicateDecompositionParser extends YPredicateParser {
 
     private YDecomposition _decomp;
 

@@ -89,6 +89,7 @@ public class WorkItemCache extends HashMap<String, WorkItemRecord> implements Se
                 for (Object o : wirList) {
                     WorkItemRecord wir = (WorkItemRecord) o ;
                     wir.restoreDataList();
+                    wir.restoreAttributeTable();                    
                     super.put(wir.getID(), wir);
                 }
             }

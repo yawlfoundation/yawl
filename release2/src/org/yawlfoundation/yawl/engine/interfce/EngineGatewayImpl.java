@@ -1227,4 +1227,20 @@ public class EngineGatewayImpl implements EngineGateway {
         return _engine.getInstanceCache().marshalParameters(caseID, itemID);
     }
 
+
+    public String rejectAnnouncedEnabledTask(String itemID, String sessionHandle)
+            throws RemoteException {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        YWorkItem item = _engine.getWorkItem(itemID);
+        if (item != null) {
+            _engine.rejectAnnouncedEnabledTask(item);
+            return successMessage("workitem rejection successful");
+        }
+        else return failureMessage("Unknown worklitem: " + itemID);
+
+    }
+
+
 }

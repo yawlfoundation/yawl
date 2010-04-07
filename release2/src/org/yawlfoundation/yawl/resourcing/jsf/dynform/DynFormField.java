@@ -34,6 +34,7 @@ public class DynFormField implements Cloneable {
     private boolean _required ;
     private boolean _hidden = false;
     private Boolean _hideApplied = null;               // to avoid double hideIf eval
+    private Font _font;                                // used for screen arithmetic
 
     private DynFormField _parent;
     private DynFormFieldRestriction _restriction;
@@ -214,7 +215,7 @@ public class DynFormField implements Cloneable {
 
 
     public boolean isRequired() {
-        _required = (! isInputOnly()) && (! hasZeroMinimum()) && _attributes.isMandatory();
+        _required = (! (isInputOnly() || hasZeroMinimum())) || _attributes.isMandatory();
         return _required;
     }
 
@@ -303,6 +304,11 @@ public class DynFormField implements Cloneable {
 
     public boolean isSimpleField() {
         return _subFieldList == null ;
+    }
+
+    public Font getFont() {
+        if (_font == null) _font = getUserDefinedFont();
+        return _font;
     }
 
     public DynFormFieldRestriction getRestriction() {
@@ -426,6 +432,7 @@ public class DynFormField implements Cloneable {
     }
 
     public boolean isHidden(String data) {
+        if (data == null) return false;
         if (_hideApplied == null) {
             _hideApplied = hasHideAttribute() || hasHideIfAttribute(data);
         }
@@ -463,8 +470,8 @@ public class DynFormField implements Cloneable {
     }
 
 
-    public String getTextJusify() {
-        return hasParent() ? _parent.getTextJusify() : _attributes.getTextJustify();
+    public String getTextJustify() {
+        return hasParent() ? _parent.getTextJustify() : _attributes.getTextJustify();
     }
 
     public boolean hasBlackoutAttribute() {

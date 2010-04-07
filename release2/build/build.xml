@@ -94,7 +94,7 @@
     <property name="cglib"                 value="cglib-2.1_3.jar"/>
     <property name="common"                value="common.jar"/>
     <property name="commonsBeanutils"      value="commons-beanutils.jar"/>
-    <property name="commonsCodec"          value="commons-codec-1.3.jar"/>
+    <property name="commonsCodec"          value="commons-codec-1.4.jar"/>
     <property name="commonsCollections"    value="commons-collections-3.2.jar"/>
     <property name="commonsDigester"       value="commons-digester.jar"/>
     <property name="commonsDiscovery"      value="commons-discovery.jar"/>
@@ -520,7 +520,8 @@
         <copy todir="${yawl.eng.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}"
                      includes="${persistence.libs} ${xsd.libs} ${common.libs} ${xerces.libs}
-                     ${jaxenFull} ${jcommon} ${postgres8} ${saxpath} ${saxon.libs} ${commonsLang}"
+                     ${jaxenFull} ${jcommon} ${postgres8} ${saxpath} ${saxon.libs}
+                     ${commonsLang} ${commonsCodec}"
                      excludes="${servlet}"/>
         </copy>
 
@@ -594,7 +595,7 @@
             <fileset dir="${lib.dir}"
                      includes="${wsif.libs} ${apacheSoap} ${axisAnt} ${jdom} ${log4j}
                                ${optional} ${qname} ${soaprmi} ${wsif-j2c} ${xerces}
-                               README.html"/>
+                               ${commonsCodec} README.html"/>
         </copy>
 
         <copy file="${properties.dir}/log4j.properties"
@@ -656,7 +657,7 @@
             <fileset dir="${schema.dir}" includes="*.xsd"/>
         </copy>
         <copy todir="${yawl.smsService.app.name}/WEB-INF/lib">
-            <fileset dir="${lib.dir}" includes="${jdom} ${log4j}"/>
+            <fileset dir="${lib.dir}" includes="${jdom} ${log4j} ${commonsCodec}"/>
         </copy>
 
         <copy file="${properties.dir}/log4j.properties"
@@ -819,7 +820,7 @@
       	<copy todir="${yawl.worklet.app.name}/WEB-INF/lib">
     	    <fileset dir="${lib.dir}"
                    includes="${persistence.libs} ${xsd.libs} ${jdom} ${log4j}
-                             ${postgres8} ${saxon.libs} ${commonsLang}"/>
+                             ${postgres8} ${saxon.libs} ${commonsLang} ${commonsCodec}"/>
         </copy>
 
         <!-- 4. Copy hibernate & postgres files (assumes version 8) -->
@@ -899,7 +900,8 @@
                        includes="JDOMUtil.class StringUtil.class HttpURLValidator.class
                                  CharsetFilter.class DOMUtil.class SaxonUtil.class
                                  InstanceBuilder.class PasswordEncryptor.class
-                                 XNode.class XNodeParser.class"/>
+                                 XNode.class XNodeParser.class YPredicateParser.class
+                                 YDataSchemaCache.class"/>
         </copy>
 
         <!-- 2. copy resourcing classes to relevant dirs -->
@@ -939,7 +941,7 @@
         <copy todir="${yawl.resource.app.name}/WEB-INF/lib">
            <fileset dir="${lib.dir}"
                     includes="${persistence.libs} ${xsd.libs} ${jdom} ${log4j}
-                    ${postgres8} ${jsf.libs} ${commonsLang} ${xerces}
+                    ${postgres8} ${jsf.libs} ${commonsLang} ${commonsCodec} ${xerces}
                     ${saxon.libs}"/>
         </copy>
 
@@ -1106,7 +1108,7 @@
         <copy todir="${yawl.monitor.app.name}/WEB-INF/lib">
            <fileset dir="${lib.dir}"
                     includes="${jdom} ${log4j} ${jsf.libs} ${commonsLang}
-                              ${commonsLogging} ${commonsCollections}"/>
+                              ${commonsLogging} ${commonsCollections} ${commonsCodec}"/>
         </copy>
 
         <copy todir="${yawl.monitor.app.name}/WEB-INF">
@@ -1163,6 +1165,10 @@
         </copy>
         <copy todir="testService${webinf.dir}/schema"
               file="${classes.dir}${packageRoot}/schema/XSDType.class"/>
+        <copy todir="testService${webinf.dir}/logging">
+              <fileset dir="${classes.dir}${packageRoot}/logging"
+                      includes="YLogPredicate.class YLogPredicateParser.class"/>
+        </copy>
         <copy todir="testService${webinf.dir}/exceptions">
            <fileset dir="${classes.dir}${packageRoot}/exceptions"/>
         </copy>
@@ -1192,12 +1198,15 @@
         </copy>
         <copy todir="testService${webinf.dir}/resourcing/util"
               file="${classes.dir}${packageRoot}/util/PasswordEncryptor.class"/>
+        <copy todir="testService${webinf.dir}/resourcing/jsf/dynform"
+               file="${classes.dir}${packageRoot}/resourcing/jsf/dynform/DynTextParser.class"/>
 
         <copy todir="testService${webinf.dir}/util">
             <fileset dir="${classes.dir}${packageRoot}/util"/>
         </copy>
         <copy todir="testService/WEB-INF/lib">
-            <fileset dir="${lib.dir}" includes="${jdom} ${log4j} ${twitter4j}"/>
+            <fileset dir="${lib.dir}" includes="${jdom} ${log4j} ${twitter4j}
+            ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
         </copy>
 
         <copy file="${properties.dir}/log4j.properties"
@@ -1251,7 +1260,7 @@
             <fileset dir="${classes.dir}${packageRoot}/util"/>
         </copy>
         <copy todir="twitterService/WEB-INF/lib">
-            <fileset dir="${lib.dir}" includes="${jdom} ${log4j} ${twitter4j}"/>
+            <fileset dir="${lib.dir}" includes="${jdom} ${log4j} ${twitter4j} ${commonsCodec}"/>
         </copy>
 
         <copy file="${properties.dir}/log4j.properties"

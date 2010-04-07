@@ -590,22 +590,21 @@ public class YEngine implements InterfaceADesign,
         if (_specifications.contains(specID)) {
             YSpecification specToUnload = _specifications.getSpecification(specID);
 
-            // AJH: Reject unload request if we have active cases using it
-            for (YSpecification specInUse : _runningCaseIDToSpecMap.values()) {
-                if (specInUse.equals(specToUnload)) {
-                    if (pmgr != null) pmgr.rollbackTransaction();
-                    throw new YStateException("Cannot unload specification '" + specID +
+            // Reject unload request if we have active cases using it
+            if (_runningCaseIDToSpecMap.values().contains(specToUnload)) {
+                if (pmgr != null) pmgr.rollbackTransaction();
+                throw new YStateException("Cannot unload specification '" + specID +
                             "' as one or more cases are currently active against it.");
-                }
             }
 
             _logger.info("Removing process specification " + specID);
             if (pmgr != null) pmgr.deleteObject(specToUnload);
 
             _specifications.unloadSpecification(specToUnload);
+            _yawllog.removeSpecificationDataSchemas(specID);
         }
         else {
-            // the specs not in the engine
+            // the spec's not in the engine
             if (pmgr != null) pmgr.rollbackTransaction();
             throw new YStateException("Engine contains no such specification with id '"
                     + specID + "'.");
@@ -765,7 +764,7 @@ public class YEngine implements InterfaceADesign,
         }
     }
 
- public synchronized YSpecification getSpecification(YSpecificationID specID) {
+    public synchronized YSpecification getSpecification(YSpecificationID specID) {
             if (specID == null) return null;
             _logger.debug("--> getSpecification: ID=" + specID.toString());
 

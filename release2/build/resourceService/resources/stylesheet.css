@@ -269,11 +269,11 @@
 }
 
 .pageHeading {
-   color: #3277ba; 
-   font-size: 18px; 
-   left: 0; 
-   top: 40px;
-   position: relative;
+    color: #3277ba;
+    font-size: 18px;
+    left: 0;
+    top: 40px;
+    position: relative;
 }
 
 .pageSubheading {
@@ -381,6 +381,12 @@
    position: absolute;
 }
 
+.dynformBottomPanel {
+    position: absolute;
+    height: 20px;
+    width: 76px;
+}
+
 .dynformSubPanel {
     border: 1px solid gray;
     background-color: #97cbfd;
@@ -398,7 +404,6 @@
     height: 30px;
     position: absolute;
     width: 76px;
-    /*top: 80px;*/
 }
 
 .dynformOccursButton {

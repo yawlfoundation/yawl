@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Builds a populated schema for the display of data on dynamic forms.
  *
- * Based on code from WorkItemProcessor (b8.2)
+ * Originally based on code from WorkItemProcessor (b8.2)
  *
  * Author: Michael Adams
  * Creation Date: 14/02/2008
