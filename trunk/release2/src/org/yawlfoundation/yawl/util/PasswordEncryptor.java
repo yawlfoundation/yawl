@@ -1,6 +1,6 @@
 package org.yawlfoundation.yawl.util;
 
-import sun.misc.BASE64Encoder;
+import org.apache.commons.codec.binary.Base64;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -22,7 +22,7 @@ public class PasswordEncryptor {
         MessageDigest md = MessageDigest.getInstance("SHA");
         md.update(text.getBytes("UTF-8"));
         byte raw[] = md.digest();
-        return (new BASE64Encoder()).encode(raw);
+        return new Base64(-1).encodeToString(raw);            // -1 means no line breaks
     }
 
     

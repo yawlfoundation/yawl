@@ -1696,6 +1696,9 @@ public class WorkletService extends InterfaceBWebsideController {
         catch (IOException ioe) {
              _log.error("Exception attempting to connect to engine", ioe);
         }
+        if (! successful(_sessionHandle)) {
+            _log.error(JDOMUtil.strip(_sessionHandle));
+        }
         return (successful(_sessionHandle)) ;
     }
 

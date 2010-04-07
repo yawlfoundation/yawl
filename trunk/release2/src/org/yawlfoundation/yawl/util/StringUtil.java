@@ -393,4 +393,8 @@ public class StringUtil
     public static String getRandomString(int length) {
         return RandomStringUtils.random(length);
     }
+
+    public static boolean isNullOrEmpty(String s) {
+        return (s == null) || (s.length() == 0);
+    }
 }

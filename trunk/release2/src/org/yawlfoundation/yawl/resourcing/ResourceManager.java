@@ -92,6 +92,9 @@ public class ResourceManager extends InterfaceBWebsideController {
     // local cache of specifications: id -> SpecificationData
     private SpecDataCache _specCache = new SpecDataCache();
 
+    // local cache of specification data schemas: id -> [name, schema defn. element]
+    private DataSchemaCache _dataSchemaCache = new DataSchemaCache();
+
     // currently logged on participants: <sessionHandle, Participant>
     private HashMap<String,Participant> _liveSessions =
             new HashMap<String,Participant>();
@@ -2310,6 +2313,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (successful(result)) {
             _resMapCache.remove(specID);
             _specCache.remove(specID);
+            _dataSchemaCache.remove(specID);
             getIBCache().unloadSpecificationData(specID);
         }
         return result ;
@@ -2508,16 +2512,12 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public String getSchemaLibrary(YSpecificationID specID) throws IOException {
-        return _interfaceBClient.getSpecificationDataSchema(specID, getEngineSessionHandle()) ;
-    }
-
-    
     public String getDataSchema(YSpecificationID specID) {
         String result = null ;
         try {
+            Map<String, Element> schemaMap = getSpecificationDataSchema(specID);
             SpecificationData specData = getSpecData(specID);
-            result = new DataSchemaProcessor().createSchema(specData);
+            result = new DataSchemaBuilder(schemaMap).build(specData);
         }
         catch (Exception e) {
             _log.error("Could not retrieve schema for case parameters", e)  ;
@@ -2525,11 +2525,11 @@ public class ResourceManager extends InterfaceBWebsideController {
         return result ;
     }
 
+    
     public String getDataSchema(String itemID) {
         WorkItemRecord wir = _workItemCache.get(itemID);
         if (wir != null) {
-            YSpecificationID specID = new YSpecificationID(wir);
-            return getDataSchema(wir, specID);
+            return getDataSchema(wir, new YSpecificationID(wir));
         }
         else return "<failure>Unknown workitem ID '" + itemID + "'.</failure>";
     }
@@ -2538,10 +2538,10 @@ public class ResourceManager extends InterfaceBWebsideController {
     public String getDataSchema(WorkItemRecord wir, YSpecificationID specID) {
         String result = null ;
         try {
-            SpecificationData specData = getSpecData(specID);
+            Map<String, Element> schemaMap = getSpecificationDataSchema(specID);
             TaskInformation taskInfo = getTaskInformation(specID, wir.getTaskID(),
                                                           getEngineSessionHandle());
-            result = new DataSchemaProcessor().createSchema(specData, taskInfo);
+            result = new DataSchemaBuilder(schemaMap).build(taskInfo);
         }
         catch (Exception e) {
             _log.error("Could not retrieve schema for workitem parameters", e)  ;
@@ -2561,6 +2561,19 @@ public class ResourceManager extends InterfaceBWebsideController {
             }
         }
         return result;
+    }
+
+
+    public Map<String, Element> getSpecificationDataSchema(YSpecificationID specID)
+            throws IOException {
+        if (! _dataSchemaCache.contains(specID)) {
+            String schema = _interfaceBClient.getSpecificationDataSchema(specID,
+                        getEngineSessionHandle());
+            if (schema != null) {
+                _dataSchemaCache.add(specID, schema);
+            }
+        }
+        return _dataSchemaCache.getSchemaMap(specID);
     }
 
 

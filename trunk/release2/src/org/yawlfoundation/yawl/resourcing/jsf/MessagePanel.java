@@ -13,7 +13,6 @@ import com.sun.rave.web.ui.component.PanelLayout;
 import com.sun.rave.web.ui.component.StaticText;
 
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,8 +35,7 @@ public class MessagePanel extends PanelLayout {
     private static final String warnIconURL = "/resources/warn.png" ;
     private static final String successIconURL = "/resources/success.png" ;
 
-    // panel width / font width: 268 / 6
-    private static final int CHARS_PER_LINE = 45;
+    private static final int MIN_PANEL_HEIGHT = 70;
     private static final Font _msgFont = new Font("Helvetica", Font.PLAIN, 12);
 
 
@@ -247,7 +245,8 @@ public class MessagePanel extends PanelLayout {
     private int listMessages(List<String> list, MsgType msgType, int lineCount) {
         if (list != null) {
             for (String message : list) {
-                lineCount += (message.length() / CHARS_PER_LINE) + 1;
+                Dimension bounds = FontUtil.getFontMetrics(message, _msgFont);
+                lineCount += (int) Math.ceil(bounds.getWidth() / _outerWidth);
                 listMessage(message, msgType) ;
             }
             return lineCount;
@@ -271,18 +270,14 @@ public class MessagePanel extends PanelLayout {
     }
 
     private void setHeight(int lineCount) {
-
-        // estimated constants
-        double minHeight = 70.0;
-        double lineHeight = 15.5;
-        double margin = 20.0;
-
-        double height = Math.round(Math.max(minHeight, lineCount * lineHeight + margin));
-        this.setStyle(String.format("%s height: %.0fpx; width: %dpx", _style, height, _outerWidth));
+        double lineHeight = FontUtil.getFontMetrics("dummyText", _msgFont).getHeight() +
+                            (_msgFont.getSize() / 2);
+        int height = (int) Math.max(MIN_PANEL_HEIGHT, lineCount * lineHeight);
+        this.setStyle(String.format("%s height: %dpx; width: %dpx", _style, height, _outerWidth));
     }
 
     private void adjustOuterSize(String msg) {
-        Rectangle2D bounds = FontUtil.getBounds(getLongestWord(msg), _msgFont);
+        Dimension bounds = FontUtil.getFontMetrics(getLongestWord(msg), _msgFont);
         _outerWidth = (int) Math.max(_outerWidth, bounds.getWidth() + 80);
     }
 

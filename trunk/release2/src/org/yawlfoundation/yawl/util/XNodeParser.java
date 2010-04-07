@@ -1,5 +1,7 @@
 package org.yawlfoundation.yawl.util;
 
+import org.jdom.Element;
+
 /**
  * Author: Michael Adams
  * Creation Date: 22/03/2010
@@ -24,6 +26,11 @@ public class XNodeParser {
      */
     public XNode parse(String s) {
         return parse(s, 0);
+    }
+
+
+    public XNode parse(Element e) {
+        return parse(JDOMUtil.elementToString(e), 0);
     }
 
 

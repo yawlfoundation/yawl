@@ -7,6 +7,7 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Author: Michael Adams
@@ -19,7 +20,8 @@ public class YDataSchemaCache extends Hashtable<String, YDataSchemaCache.SchemaM
     }
 
     public void add(YSpecificationID specID) {
-        assembleMap(specID);
+        String schema = YEngine.getInstance().getSpecificationDataSchema(specID);
+        this.put(getKey(specID), assembleMap(schema)) ;        
     }
 
 
@@ -28,23 +30,33 @@ public class YDataSchemaCache extends Hashtable<String, YDataSchemaCache.SchemaM
     }
 
 
+    public SchemaMap remove(YSpecificationID specID) {
+        return this.remove(getKey(specID));
+    }
+
+
     public Element getSchemaType(YSpecificationID specID, String typeName) {
         Element result = null;
-        YDataSchemaCache.SchemaMap map = this.get(getKey(specID));
+        SchemaMap map = this.get(getKey(specID));
         if (map != null) {
             result = map.get(typeName);
         }
         return result;
     }
 
+
+    public Map<String, Element> getSchemaMap(YSpecificationID specID) {
+        return this.get(getKey(specID));
+    }
+
+    
     public String getSchemaTypeAsString(YSpecificationID specID, String typeName) {
         return JDOMUtil.elementToString(getSchemaType(specID, typeName));
     }
 
 
-    private void assembleMap(YSpecificationID specID) {
-        YDataSchemaCache.SchemaMap map = new YDataSchemaCache.SchemaMap();
-        String schema = YEngine.getInstance().getSpecificationDataSchema(specID);
+    protected SchemaMap assembleMap(String schema) {
+        SchemaMap map = new SchemaMap();
         if (schema != null) {
             Element dataSchema = JDOMUtil.stringToElement(schema);
             List list = dataSchema.getChildren();
@@ -55,12 +67,12 @@ public class YDataSchemaCache extends Hashtable<String, YDataSchemaCache.SchemaM
                     map.put(name, child);
                 }    
             }
-            this.put(getKey(specID), map) ;
         }
+        return map;
     }
 
 
-    private String getKey(YSpecificationID specID) {
+    protected String getKey(YSpecificationID specID) {
         return specID.getKey() + specID.getVersionAsString();
     }
 

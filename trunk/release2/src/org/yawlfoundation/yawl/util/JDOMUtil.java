@@ -165,6 +165,13 @@ import java.io.StringReader;
         return elementToString(stringToElement(s));
     }
 
+    public static String strip(String s) {
+        Element e = stringToElement(s);
+        if (e != null) {
+            s = e.getText();
+        }
+        return s;
+    }
     
     public static Element stripAttributes(Element e) {
         e.setAttributes(null);

@@ -21,6 +21,7 @@ import java.util.Map;
 public class XNode {
 
     static final String newline = System.getProperty("line.separator");
+    static final String _header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 
     private XNode _parent;
     private Map<String, XNode> _children;
@@ -29,6 +30,7 @@ public class XNode {
     private String _text;
     private String _comment;
     private int _depth = 0;
+    private String _prefix = "";
     private static int _defTabSize = 2;
 
     public XNode(String name) {
@@ -161,8 +163,20 @@ public class XNode {
         return null;
     }
 
+    public Map<String, String> getAttributes() {
+        return _attributes;
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        _attributes = attributes;
+    }
+
     public String getName() {
         return _name;
+    }
+
+    public void setName(String name) {
+        _name = name;
     }
 
     public void setParent(XNode parent) {
@@ -186,21 +200,71 @@ public class XNode {
     }
 
 
+    public String getPrefix() {
+        return _prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        updatePrefixes(this, _prefix, prefix);
+        _prefix = prefix;
+    }
+
+    private void updatePrefixes(XNode node, String oldFix, String newFix) {
+        if (oldFix.length() > 0) {
+            node.setName(node.getName().replaceFirst(oldFix, newFix));
+        }
+        else {
+            node.setName(newFix + ":" + node.getName());
+        }
+
+        Map<String, String> newAttributes = new LinkedHashMap<String, String>();
+        for (String key : node.getAttributes().keySet()) {
+            String value = node.getAttributeValue(key);
+            if (oldFix.length() > 0) {
+                if (key.startsWith(oldFix)) key = key.replaceFirst(oldFix, newFix);
+                if (value.startsWith(oldFix)) value = value.replaceFirst(oldFix, newFix);
+            }
+            newAttributes.put(key, value);
+        }
+        node.setAttributes(newAttributes);
+
+        for (XNode child : _children.values()) {
+            updatePrefixes(child, oldFix, newFix);
+        }
+    }
+
+
+    /**************************************************************************/
+
+
     public String toString() {
-        return toString(false, _depth, _defTabSize);
+        return toString(false, _depth, _defTabSize, false);
     }
 
     public String toPrettyString() {                           // print with indents
-        return toString(true, _depth, _defTabSize);
+        return toString(true, _depth, _defTabSize, false);
+    }
+
+    public String toString(boolean header) {
+        return toString(false, _depth, _defTabSize, header);
+    }
+
+    public String toPrettyString(boolean header) {                // print with indents
+        return toString(true, _depth, _defTabSize, header);
     }
 
 
     public String toPrettyString(int tabSize) {                    // print with indents
-        return toString(true, _depth, tabSize);
+        return toString(true, _depth, tabSize, false);
     }
 
-    private String toString(boolean pretty, int offset, int tabSize) {
+    public String toPrettyString(boolean header, int tabSize) {     // print with indents
+        return toString(true, _depth, tabSize, false);
+    }
+
+    private String toString(boolean pretty, int offset, int tabSize, boolean header) {
         StringBuilder s = new StringBuilder();
+        if (header) s.append(_header);
         String tabs = getIndent(offset, tabSize);
         if (pretty) s.append(tabs);
         s.append("<").append(_name);
@@ -219,7 +283,7 @@ public class XNode {
             if (_children != null) {
                 if (pretty) s.append(newline);
                 for (XNode child : _children.values()) {
-                    s.append(child.toString(pretty, offset, tabSize));
+                    s.append(child.toString(pretty, offset, tabSize, false));
                 }
                 if (pretty) s.append(tabs);
             }

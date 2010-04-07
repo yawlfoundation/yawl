@@ -216,6 +216,9 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                     msg.append(_engine.completeWorkItem(workItemID, data, logPredicate, false,
                             sessionHandle));
                 }
+                else if (action.equals("rejectAnnouncedEnabledTask")) {
+                    msg.append(_engine.rejectAnnouncedEnabledTask(workItemID, sessionHandle));
+                }
                 else if (action.equals("launchCase")) {
                     YSpecificationID specID =
                             new YSpecificationID(specIdentifier, specVersion, specURI);

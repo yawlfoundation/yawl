@@ -283,6 +283,14 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     }
 
 
+    public String rejectAnnouncedEnabledTask(String workItemID, String sessionHandle) 
+            throws IOException {
+        Map<String, String> params = prepareParamMap("rejectAnnouncedEnabledTask", sessionHandle);
+        params.put("workItemID", workItemID);
+        return executePost(_backEndURIStr, params);
+    }
+
+
     /**
      * Gets an XML representation of information the task declaration.
      * This can be parsed into a copy of a YTask

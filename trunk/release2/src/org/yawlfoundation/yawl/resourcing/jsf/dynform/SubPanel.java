@@ -98,8 +98,12 @@ public class SubPanel extends PanelLayout implements Cloneable {
         String style = String.format("position: absolute; top: %dpx; left: %dpx; height: %dpx; width: %dpx",
                                       top, DynFormFactory.SUBPANEL_INSET, height, width);
 
-        this.setStyle(style);
-        this.setStyleClass(controller.getSubPanelStyleClass());
+        // set user-defined background colour (if given)
+        String backColour = controller.getUserDefinedBackgroundColour();
+        if (backColour != null) style += "; background-color: " + backColour;
+        
+        setStyle(style);
+        setStyleClass(controller.getSubPanelStyleClass());
 
         // set 'occurs' buttons in top right of panel (if they exist)
         if (btnPlus != null) {

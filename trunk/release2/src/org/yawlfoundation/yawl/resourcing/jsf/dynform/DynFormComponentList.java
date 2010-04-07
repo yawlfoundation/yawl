@@ -20,22 +20,16 @@ import java.util.ArrayList;
 
 public class DynFormComponentList extends ArrayList<UIComponent> {
 
-    private int height;
-    private DynFormFactory.ComponentType lastComponent;
+    private int _height;
 
 
-    public DynFormComponentList() { super(); }
+    public DynFormComponentList() {
+        super();
+    }
     
 
-    public int getHeight() { return height; }
+    public int getHeight() { return _height; }
 
-    public void setHeight(int height) { this.height = height; }
+    public void setHeight(int height) { _height = height; }
 
-    public DynFormFactory.ComponentType getLastComponent() {
-        return lastComponent;
-    }
-
-    public void setLastComponent(DynFormFactory.ComponentType lastComponent) {
-        this.lastComponent = lastComponent;
-    }
 }
