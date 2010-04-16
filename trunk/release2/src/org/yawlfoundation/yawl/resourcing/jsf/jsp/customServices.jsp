@@ -115,7 +115,7 @@
                         <ui:panelLayout binding="#{customServices.pnlAddService}"
                                         id="pnlAddService"
                                         styleClass="servicesPanel"
-                                        style="height: 210px; top: 273px">
+                                        style="height: 240px; top: 273px">
 
                             <ui:staticText binding="#{customServices.staticText1}"
                                            id="staticText1"
@@ -132,19 +132,25 @@
                             <ui:label binding="#{customServices.lblPassword}"
                                       for="txtPassword"
                                       id="lblPassword"
-                                      style="left: 332px; top: 40px; position: absolute"
+                                      style="left: 12px; top: 70px; position: absolute"
                                       text="Password:"/>
+
+                            <ui:label binding="#{customServices.lblConfirmPassword}"
+                                      for="txtConfirmPassword"
+                                      id="lblConfirmPassword"
+                                      style="left: 302px; top: 70px; position: absolute"
+                                      text="Confirm Password:"/>
 
                             <ui:label binding="#{customServices.lblURL}"
                                       for="txtURL"
                                       id="lblURL"
-                                      style="left: 12px; top: 70px; position: absolute"
+                                      style="left: 12px; top: 100px; position: absolute"
                                       text="URI:"/>
 
                             <ui:label binding="#{customServices.lblDesc}"
                                       for="txtDescription"
                                       id="lblDesc"
-                                      style="left: 12px; top: 100px; position: absolute"
+                                      style="left: 12px; top: 130px; position: absolute"
                                       text="Description:"/>
 
                             <ui:textField binding="#{customServices.txtName}"
@@ -171,39 +177,44 @@
 
                             <ui:passwordField binding="#{customServices.txtPassword}"
                                           id="txtPassword"
-                                          style="left: 400px; top: 40px; width: 200px; position: absolute"/>
+                                          style="left: 100px; top: 70px; width: 170px; position: absolute"/>
+
+                            <ui:passwordField binding="#{customServices.txtConfirmPassword}"
+                                          id="txtConfirmPassword"
+                                          style="left: 430px; top: 70px; width: 170px; position: absolute"/>
 
                             <ui:textField binding="#{customServices.txtURL}"
                                           id="txtURL"
-                                          style="left: 100px; top: 70px; width: 500px; position: absolute"/>
+                                          style="left: 100px; top: 100px; width: 500px; position: absolute"/>
 
                             <ui:textArea binding="#{customServices.txtDescription}"
                                          id="txtDescription"
-                                         style="height: 50px; left: 100px; top: 100px; width: 505px; position: absolute"/>
+                                         style="height: 50px; left: 100px; top: 130px; width: 505px; position: absolute"/>
 
                             <ui:button action="#{customServices.btnAdd_action}"
                                        binding="#{customServices.btnAdd}"
                                        id="btnAddService"
                                        styleClass="servicesButton"
-                                       style="left: 11px; top: 168px"
+                                       style="left: 11px; top: 198px"
                                        text="Add"/>
 
                             <ui:button action="#{customServices.btnClear_action}"
                                        binding="#{customServices.btnClear}"
                                        id="btnClearService"
                                        styleClass="servicesButton"
-                                       style="left: 119px; top: 168px"
+                                       style="left: 119px; top: 198px"
                                        text="Clear"/>
 
                         </ui:panelLayout>
 
+                            <div><jsp:include page="pfMsgPanel.jspf"/></div>
+
                         </ui:panelLayout>
-                        <ui:panelLayout binding="#{SessionBean.messagePanel}"
-                                        id="msgPanel"
-                                        panelLayout="flow"/>
-                        </center>
+                       </center>
 
                         <ui:hiddenField binding="#{customServices.hdnRowIndex}" id="hdnRowIndex"/>
+
+                        <div><jsp:include page="pfFooter.jspf"/></div>
 
                     </ui:form>
 

@@ -14,15 +14,20 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
+import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
 
 import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Map;
 import java.util.Set;
 
 /**
- * This adapter class adds a layer to the resource gateway client, effectively
- * reconstituting the Strings returned from the gateway into java objects.
+ * This adapter class adds a transformation layer to the resource gateway client,
+ * effectively reconstituting the Strings returned from the gateway into java objects.
  *
  * Author: Michael Adams
  * Date: 26/10/2007
@@ -188,6 +193,57 @@ public class WorkQueueGatewayClientAdapter {
     }
 
 
+    public TaskPrivileges getTaskPrivileges(String itemid, String handle)
+            throws IOException, ResourceGatewayException {
+        String xml = _wqclient.getTaskPrivileges(itemid, handle);
+        XNode root = new XNodeParser().parse(successCheck(xml));
+        XNode specidNode = root.getChild("specid");
+        YSpecificationID specid = new YSpecificationID(specidNode.getChildText("identifier"),
+                specidNode.getChildText("version"), specidNode.getChildText("uri"));
+
+        TaskPrivileges taskPrivileges = new TaskPrivileges(specid, root.getChildText("taskid"));
+
+        for (XNode privilege : root.getChild("privileges").getChildren()) {
+            String name = privilege.getChildText("name");
+            String allowallStr = privilege.getChildText("allowall");
+            if (allowallStr != null) {
+                if (allowallStr.equals("true")) {
+                   taskPrivileges.allowAll(name);
+                }
+                else taskPrivileges.disallowAll(name); 
+            }
+
+            XNode set = privilege.getChild("set");
+            if (set != null) {
+                Map<String, Participant> pMap = new Hashtable<String, Participant>();
+                for (XNode pNode : set.getChildren("participant")) {
+                    String pid = pNode.getText();
+                    Participant p = pMap.get(pid);
+                    if (p == null) {
+                        p = getParticipant(pid, handle);
+                        if (p != null) {
+                            pMap.put(pid, p);
+                        }
+                    }
+                    if (p != null) {
+                        taskPrivileges.grant(name, p);
+                    }
+                }
+                for (XNode rNode : set.getChildren("role")) {
+                    String rid = rNode.getText();
+                    if (rid != null) {
+                        Set<Participant> pSet = getRoleMembers(rid, handle);
+                        if (pSet != null) {
+                            taskPrivileges.grant(name, pSet);
+                        }
+                    }
+                }
+            }
+        }
+        return taskPrivileges;
+    }
+
+
     public Set<Participant> getReportingToParticipant(String pid, String handle)
             throws IOException, ResourceGatewayException {
         String xml = _wqclient.getReportingToParticipant(pid, handle) ;
@@ -198,6 +254,13 @@ public class WorkQueueGatewayClientAdapter {
     public Set<Participant> getOrgGroupMembers(String oid, String handle)
             throws IOException, ResourceGatewayException {
         String xml = _wqclient.getOrgGroupMembers(oid, handle) ;
+        return _marshaller.unmarshallParticipants(successCheck(xml)) ;
+    }
+
+
+    public Set<Participant> getRoleMembers(String rid, String handle)
+            throws IOException, ResourceGatewayException {
+        String xml = _wqclient.getRoleMembers(rid, handle) ;
         return _marshaller.unmarshallParticipants(successCheck(xml)) ;
     }
 
@@ -219,6 +282,13 @@ public class WorkQueueGatewayClientAdapter {
     }
 
 
+    public Set<Participant> getDistributionSet(String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        String xml = _wqclient.getDistributionSet(itemID, handle) ;
+        return _marshaller.unmarshallParticipants(successCheck(xml)) ;
+    }
+
+    
     /*****************************************************************************/
 
     public QueueSet getAdminQueues(String handle)

@@ -345,13 +345,7 @@ public class userWorkQueues extends AbstractPageBean {
             getApplicationBean().redirect("rssFormViewer.jsp");
         }
         _sb.checkLogon();                                  // check session still live
-        msgPanel.show(100, 0, "relative");                 // show msgs (if any)
-
-        // return to same tab on a refresh
-        if (_sb.getSourceTab() != null) {
-            tabSet.setSelected(_sb.getSourceTab());
-            _sb.setSourceTab(null);
-        }
+        _sb.setActivePage(ApplicationBean.PageRef.userWorkQueues);
 
         // check flags & take post-roundtrip action if any are set
         if (_sb.isDelegating()) postDelegate();
@@ -359,6 +353,14 @@ public class userWorkQueues extends AbstractPageBean {
         else if (_sb.isCustomFormPost() || _sb.isWirEdit()) postFormDisplay();
         else if (_sb.isAddInstance()) postAddInstance();
 
+        _sb.showMessagePanel();                                   // show msgs (if any)
+
+        // return to same tab on a refresh
+        if (_sb.getSourceTab() != null) {
+            tabSet.setSelected(_sb.getSourceTab());
+            _sb.setSourceTab(null);
+        }
+        
         // get the last selected tab
         String selTabName = tabSet.getSelected() ;
         Tab selTab = null;
@@ -392,7 +394,6 @@ public class userWorkQueues extends AbstractPageBean {
         updateTabHeaders(selTab) ;          // highlight selected tab and update counts
 
         _sb.setActiveTab(tabSet.getSelected());
-        _sb.setActivePage(ApplicationBean.PageRef.userWorkQueues);
 
         //     setRefreshRate(0) ;               // get default refresh rate from web.xml
     }
@@ -608,6 +609,7 @@ public class userWorkQueues extends AbstractPageBean {
                 options[i++] = new Option(p.getID(), p.getFullName());
             }
             _sb.setSelectUserListOptions(options);
+            _sb.configureSelectUserListBox("delegate");
             _sb.setNavigateTo("showUserQueues");
             result = "userSelect";
         }
@@ -961,14 +963,11 @@ public class userWorkQueues extends AbstractPageBean {
             // set 'New Instance' button (not a task priv but convenient to do it here)
             if (wir != null)  {
                 String canCreate = wir.getAllowsDynamicCreation();
-                btnNewInstance.setDisabled((canCreate != null) &&
-                                            ! canCreate.equalsIgnoreCase("true"));
+                if ((canCreate != null) && canCreate.equalsIgnoreCase("true")) {
+                    btnNewInstance.setDisabled(! _rm.canAddNewInstance(wir));
+                }
             }
         }
-//        else if (qType == WorkQueue.SUSPENDED) {
-//            btnUnsuspend.setDisabled(suspended);
-//        }
-
     }
 
 

@@ -46,7 +46,10 @@ public class DigitalSignature extends InterfaceBWebsideController
     private static String _Password = null;
     private static String _Pathway = System.getenv("CATALINA_HOME") + "/webapps/digitalSignature/files/";
     private static String _Name = null;
-    
+
+    private static final String _engineUser = "digitalSignatureService";
+    private static final String _enginePassword = "yDigitalSignature";
+
     private static String _sessionHandle = null;
     
     private static org.jdom.Document Doc = null;
@@ -58,7 +61,7 @@ public class DigitalSignature extends InterfaceBWebsideController
          {             
 	    	  if(!checkConnection(_sessionHandle))
 	          {
-	               _sessionHandle = connect(DEFAULT_ENGINE_USERNAME, DEFAULT_ENGINE_PASSWORD);
+	               _sessionHandle = connect(_engineUser, _enginePassword);
 	          }
 	          if (successful(_sessionHandle)) 
 	          {

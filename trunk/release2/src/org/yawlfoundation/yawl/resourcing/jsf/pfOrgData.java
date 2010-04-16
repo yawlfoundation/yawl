@@ -62,14 +62,14 @@ public class pfOrgData extends AbstractFragmentBean {
         this.lblAdd = l;
     }
 
-    private TextField txtAdd = new TextField();
+    private TextField txtName = new TextField();
 
-    public TextField getTxtAdd() {
-        return txtAdd;
+    public TextField getTxtName() {
+        return txtName;
     }
 
-    public void setTxtAdd(TextField tf) {
-        this.txtAdd = tf;
+    public void setTxtName(TextField tf) {
+        this.txtName = tf;
     }
 
     private Label lblBelongs = new Label();
@@ -152,6 +152,27 @@ public class pfOrgData extends AbstractFragmentBean {
         this.lblDesc = l;
     }
 
+    private DropDown cbbMembers = new DropDown();
+
+    public DropDown getCbbMembers() {
+        return cbbMembers;
+    }
+
+    public void setCbbMembers(DropDown dd) {
+        this.cbbMembers = dd;
+    }
+
+    private Label lblMembers = new Label();
+
+    public Label getLblMembers() {
+        return lblMembers;
+    }
+
+    public void setLblMembers(Label l) {
+        this.lblMembers = l;
+    }
+
+
     public pfOrgData() {
     }
 
@@ -215,7 +236,13 @@ public class pfOrgData extends AbstractFragmentBean {
         if (attrib != null) {
             txtDesc.setText(attrib.getDescription());
             txtNotes.setText(attrib.getNotes());
-            if (attrib instanceof Role) {
+            int membership = _sb.setOrgDataMembers(attrib);
+            lblMembers.setText("Members (" + membership + ")");
+            if (attrib instanceof Capability) {
+                txtName.setText(((Capability) attrib).getCapability());                
+            }
+            else if (attrib instanceof Role) {
+                txtName.setText(((Role) attrib).getName());
                 _sb.setOrgDataBelongsItems(_sb.getFullResourceAttributeListPlusNil("tabRoles"));
                 Role owner = ((Role) attrib).getOwnerRole();
                 if (owner != null)
@@ -224,6 +251,7 @@ public class pfOrgData extends AbstractFragmentBean {
                     cbbBelongs.setSelected("nil");
             }
             else if (attrib instanceof Position) {
+                txtName.setText(((Position) attrib).getTitle());
                 _sb.setOrgDataBelongsItems(_sb.getFullResourceAttributeListPlusNil("tabPosition"));
                 Position boss = ((Position) attrib).getReportsTo();
                 if (boss != null)
@@ -239,6 +267,7 @@ public class pfOrgData extends AbstractFragmentBean {
                     cbbGroup.setSelected("nil");
             }
             else if (attrib instanceof OrgGroup) {
+                txtName.setText(((OrgGroup) attrib).getGroupName());
                 _sb.setOrgDataBelongsItems(_sb.getFullResourceAttributeListPlusNil("tabOrgGroup"));
                 OrgGroup group = ((OrgGroup) attrib).getBelongsTo();
                 if (group != null)
@@ -255,13 +284,6 @@ public class pfOrgData extends AbstractFragmentBean {
     }
 
     
-    private Option[] optionise(String item) {
-        Option[] result = new Option[1];
-        result[0] = new Option(item);
-        return result;
-    }
-
-
     public void setVisibleComponents(String tabName) {
         if (tabName.equals("tabRoles")) {
             cbbGroup.setVisible(false);
@@ -269,6 +291,8 @@ public class pfOrgData extends AbstractFragmentBean {
             cbbGroup.setItems(null);
             cbbBelongs.setVisible(true);
             lblBelongs.setVisible(true);
+            lblMembers.setVisible(true);
+            cbbMembers.setVisible(true);
             _sb.setOrgDataBelongsLabelText("Belongs To");
         }
         else if (tabName.equals("tabCapability")) {
@@ -278,12 +302,16 @@ public class pfOrgData extends AbstractFragmentBean {
             cbbBelongs.setVisible(false);
             lblBelongs.setVisible(false);
             cbbBelongs.setItems(null);
+            lblMembers.setVisible(true);
+            cbbMembers.setVisible(true);
         }
         else if (tabName.equals("tabPosition")) {
             cbbBelongs.setVisible(true);
             lblBelongs.setVisible(true);
             cbbGroup.setVisible(true);
             lblGroup.setVisible(true);
+            lblMembers.setVisible(true);
+            cbbMembers.setVisible(true);
             _sb.setOrgDataBelongsLabelText("Reports To");
             _sb.setOrgDataGroupLabelText("Org Group");
         }
@@ -293,14 +321,14 @@ public class pfOrgData extends AbstractFragmentBean {
             cbbGroup.setItems(null);
             cbbBelongs.setVisible(true);
             lblBelongs.setVisible(true);
+            lblMembers.setVisible(false);
+            cbbMembers.setVisible(false);
             _sb.setOrgDataBelongsLabelText("Belongs To");
             _sb.setOrgDataGroupLabelText("Group Type");
         }
     }
 
     public void setAddMode(boolean addFlag) {
-        lblAdd.setVisible(addFlag);
-        txtAdd.setVisible(addFlag);
         lbxItems.setDisabled(addFlag);
         if (addFlag) clearTextFields();
     }
@@ -336,11 +364,16 @@ public class pfOrgData extends AbstractFragmentBean {
 
             setCommonFields(attrib);
 
-            if (attrib instanceof Role) {
+            if (attrib instanceof Capability) {
+                ((Capability) attrib).setCapability((String) txtName.getText());
+            }
+            else if (attrib instanceof Role) {
+                ((Role) attrib).setName((String) txtName.getText());
                 Role owner = orgDataSet.getRole(belongsToID) ;
                 ((Role) attrib).setOwnerRole(owner);
             }
             else if (attrib instanceof Position) {
+                ((Position) attrib).setTitle((String) txtName.getText());
                 Position boss = orgDataSet.getPosition(belongsToID);
                 ((Position) attrib).setReportsTo(boss);
 
@@ -349,6 +382,7 @@ public class pfOrgData extends AbstractFragmentBean {
                 ((Position) attrib).setOrgGroup(group);
             }
             else if (attrib instanceof OrgGroup) {
+                ((OrgGroup) attrib).setGroupName((String) txtName.getText());
                 OrgGroup group = orgDataSet.getOrgGroup(belongsToID);
                 ((OrgGroup) attrib).setBelongsTo(group);
                 String groupType = ((String) cbbGroup.getSelected()).toUpperCase();
@@ -391,7 +425,7 @@ public class pfOrgData extends AbstractFragmentBean {
 
 
     public boolean addNewItem(String activeTab) {
-        String newName = (String) txtAdd.getText();
+        String newName = (String) txtName.getText();
         if (newName == null) {
             msgPanel.error("Please enter a name for the new Item");
             return false;
@@ -401,7 +435,7 @@ public class pfOrgData extends AbstractFragmentBean {
 
         if (activeTab.equals("tabRoles")) {
             if (! orgDataSet.isKnownRoleName(newName)) {
-                Role role = new Role((String) txtAdd.getText()) ;
+                Role role = new Role((String) txtName.getText()) ;
                 role.setOwnerRole(orgDataSet.getRole(belongsToID));
                 setCommonFields(role);
                 orgDataSet.addRole(role);
@@ -414,7 +448,7 @@ public class pfOrgData extends AbstractFragmentBean {
         }
         else if (activeTab.equals("tabCapability")) {
             if (! orgDataSet.isKnownCapabilityName(newName)) {
-                Capability capability = new Capability((String) txtAdd.getText(), null);
+                Capability capability = new Capability((String) txtName.getText(), null);
                 setCommonFields(capability);
                 orgDataSet.addCapability(capability);
                 lbxItems.setSelected(capability.getID());
@@ -426,7 +460,7 @@ public class pfOrgData extends AbstractFragmentBean {
         }
         else if (activeTab.equals("tabPosition")) {
             if (! orgDataSet.isKnownPositionName(newName)) {
-                Position position = new Position((String) txtAdd.getText());
+                Position position = new Position((String) txtName.getText());
                 position.setReportsTo(orgDataSet.getPosition(belongsToID));
                 position.setOrgGroup(orgDataSet.getOrgGroup((String) cbbGroup.getSelected()));
                 setCommonFields(position);
@@ -441,7 +475,7 @@ public class pfOrgData extends AbstractFragmentBean {
         else if (activeTab.equals("tabOrgGroup")) {
             if (! orgDataSet.isKnownOrgGroupName(newName)) {
                 OrgGroup orgGroup = new OrgGroup();
-                orgGroup.setGroupName((String) txtAdd.getText());
+                orgGroup.setGroupName((String) txtName.getText());
                 orgGroup.setBelongsTo(orgDataSet.getOrgGroup(belongsToID));
                 orgGroup.set_groupType(((String) cbbGroup.getSelected()).toUpperCase().trim());
                 setCommonFields(orgGroup);
@@ -454,7 +488,7 @@ public class pfOrgData extends AbstractFragmentBean {
             }
         }
 
-        txtAdd.setText("");
+        txtName.setText("");
         return true ;
     }
 

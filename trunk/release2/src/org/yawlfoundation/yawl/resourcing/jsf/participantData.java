@@ -444,34 +444,36 @@ public class participantData extends AbstractPageBean {
 
     private enum Mode {edit, add}
 
-    private SessionBean sb = getSessionBean();
-    private MessagePanel msgPanel = sb.getMessagePanel() ;
+    private SessionBean _sb = getSessionBean();
+    private MessagePanel msgPanel = _sb.getMessagePanel() ;
     
 
     // This method is called immediately before the page is rendered
     public void prerender() {
-        sb.checkLogon();                // check if session still active
+        _sb.checkLogon();                // check if session still active
+        _sb.setActivePage(ApplicationBean.PageRef.participantData);
+        _sb.showMessagePanel();
 
         // a null btnAdd tooltip indicates the first rendering of this page
         if (btnAdd.getToolTip() == null) {
             setMode(Mode.edit);
-            sb.setActiveResourceAttributeTab("tabRoles") ;            
+            _sb.setActiveResourceAttributeTab("tabRoles") ;
         }
 
         // prime the resources listboxes
         Participant p;
         if (getCurrentMode() == Mode.edit) {
-            p = sb.getEditedParticipant();
+            p = _sb.getEditedParticipant();
             if (p != null) {
-                String selTab = sb.getActiveResourceAttributeTab() ;
+                String selTab = _sb.getActiveResourceAttributeTab() ;
                 if (selTab == null) selTab = "tabRoles";
-                sb.getFullResourceAttributeList(selTab) ;
-                sb.getParticipantAttributeList(selTab, p);
+                _sb.getFullResourceAttributeList(selTab) ;
+                _sb.getParticipantAttributeList(selTab, p);
                 enableFields(true);
             }
             else {
-                sb.setAvailableResourceAttributes(null);
-                sb.setOwnedResourceAttributes(null);
+                _sb.setAvailableResourceAttributes(null);
+                _sb.setOwnedResourceAttributes(null);
                 enableFields(false);
             }
         }
@@ -480,20 +482,18 @@ public class participantData extends AbstractPageBean {
         }
 
         // set active page and show any pending messages to user
-        sb.setBlankStartOfParticipantList(true);
-        sb.setActivePage(ApplicationBean.PageRef.participantData);
-        msgPanel.show();
+        _sb.setBlankStartOfParticipantList(true);
     }
 
 
     // respond to a 'save' button click
     public String btnSave_action() {
-        Participant p = sb.getEditedParticipant() ;
+        Participant p = _sb.getEditedParticipant() ;
         if (checkValidPasswordChange(true) && (checkValidUserID(p, true))) {
             boolean nameChange = ! (txtLastName.getText()).equals(p.getLastName());
             saveChanges(p);
-            sb.saveParticipantUpdates(p);
-            if (nameChange) sb.refreshOrgDataParticipantList();
+            _sb.saveParticipantUpdates(p);
+            if (nameChange) _sb.refreshOrgDataParticipantList();
             msgPanel.success("Participant changes successfully saved.");
         }
         return null;
@@ -510,7 +510,7 @@ public class participantData extends AbstractPageBean {
         }
         else {
             // if already in edit mode, discard edits
-            Participant p = sb.resetParticipant();
+            Participant p = _sb.resetParticipant();
             populateFields(p) ;
         }
         return null;   
@@ -519,9 +519,9 @@ public class participantData extends AbstractPageBean {
 
     // delete the selected participant
     public String btnRemove_action() {
-        Participant p = sb.getEditedParticipant() ;
+        Participant p = _sb.getEditedParticipant() ;
         if (p != null) {
-            sb.removeParticipant(p);
+            _sb.removeParticipant(p);
             cbbParticipants.setSelected("");
             clearFields();
             setMode(Mode.edit);
@@ -540,7 +540,7 @@ public class participantData extends AbstractPageBean {
             // we're in add mode - add new participant and go back to edit mode
             if (validateNewData()) {
                 Participant p = createParticipant();
-                String newID = sb.addParticipant(p);
+                String newID = _sb.addParticipant(p);
                 cbbParticipants.setSelected(newID);
                 setMode(Mode.edit);
                 msgPanel.success("New participant added successfully.");
@@ -561,52 +561,52 @@ public class participantData extends AbstractPageBean {
             cbbParticipants.setSelected("");
             cbbParticipants.setDisabled(true);
             tabSetAttributes.setSelected("tabRoles");
-            sb.setActiveResourceAttributeTab("tabRoles") ;
+            _sb.setActiveResourceAttributeTab("tabRoles") ;
             ((pfAddRemove) getBean("pfAddRemove")).clearOwnsList();
             ((pfAddRemove) getBean("pfAddRemove")).populateAvailableList();
-            sb.setAddParticipantMode(true);
-            sb.setAddedParticipant(new Participant());
-            sb.setEditedParticipant((Participant) null);
+            _sb.setAddParticipantMode(true);
+            _sb.setAddedParticipant(new Participant());
+            _sb.setEditedParticipant((Participant) null);
         }
         else {   // edit mode
             btnAdd.setText("New");
             btnAdd.setToolTip("Add a new participant");
             btnReset.setToolTip("Discard changes for the current participant");
-            boolean participantIsNull = (sb.getEditedParticipant() == null);
+            boolean participantIsNull = (_sb.getEditedParticipant() == null);
             btnSave.setDisabled(participantIsNull);
             btnRemove.setDisabled(participantIsNull);
             btnReset.setDisabled(participantIsNull);
             cbbParticipants.setDisabled(false);
             ((pfAddRemove) getBean("pfAddRemove")).clearLists();            
-            sb.setAddParticipantMode(false);
-            sb.setAddedParticipant(null);
+            _sb.setAddParticipantMode(false);
+            _sb.setAddedParticipant(null);
         }
     }
 
     private Mode getCurrentMode() {
-        return sb.isAddParticipantMode() ? Mode.add : Mode.edit ;
+        return _sb.isAddParticipantMode() ? Mode.add : Mode.edit ;
     }
 
     public String tabRoles_action() {
-        Participant p = sb.getParticipantForCurrentMode() ;
+        Participant p = _sb.getParticipantForCurrentMode() ;
         ((pfAddRemove) getBean("pfAddRemove")).populateLists("tabRoles", p);
-        sb.setActiveResourceAttributeTab("tabRoles") ;
+        _sb.setActiveResourceAttributeTab("tabRoles") ;
         return null;
     }
 
 
     public String tabPosition_action() {
-        Participant p = sb.getParticipantForCurrentMode() ;
+        Participant p = _sb.getParticipantForCurrentMode() ;
         ((pfAddRemove) getBean("pfAddRemove")).populateLists("tabPosition", p);
-        sb.setActiveResourceAttributeTab("tabPosition") ;
+        _sb.setActiveResourceAttributeTab("tabPosition") ;
         return null;
     }
 
 
     public String tabCapability_action() {
-        Participant p = sb.getParticipantForCurrentMode() ;
+        Participant p = _sb.getParticipantForCurrentMode() ;
         ((pfAddRemove) getBean("pfAddRemove")).populateLists("tabCapability", p);
-        sb.setActiveResourceAttributeTab("tabCapability") ;
+        _sb.setActiveResourceAttributeTab("tabCapability") ;
         return null;
     }
 
@@ -614,12 +614,12 @@ public class participantData extends AbstractPageBean {
     public void cbbParticipants_processValueChange(ValueChangeEvent event) {
         String pid = (String) event.getNewValue();
         if (pid.length() > 0) {
-            Participant p = sb.setEditedParticipant(pid);
+            Participant p = _sb.setEditedParticipant(pid);
             populateFields(p) ;
         }
         else {
             clearFields();                    // blank (first) option selected
-            sb.setEditedParticipant((Participant) null) ;
+            _sb.setEditedParticipant((Participant) null) ;
         }
         setMode(Mode.edit);
     }
@@ -797,7 +797,7 @@ public class participantData extends AbstractPageBean {
 
     private Participant createParticipant() {
         Participant p = new Participant(true);
-        Participant temp = sb.getAddedParticipant();
+        Participant temp = _sb.getAddedParticipant();
         saveChanges(p);
         p.setRoles(temp.getRoles());
         p.setPositions(temp.getPositions());
@@ -819,7 +819,7 @@ public class participantData extends AbstractPageBean {
             result = false;
 
         // warn if no attributes
-        Participant p = sb.getAddedParticipant();
+        Participant p = _sb.getAddedParticipant();
         if (p.getRoles().isEmpty())
             msgPanel.warn("WARNING: No role specified for participant.") ;
         if (p.getPositions().isEmpty())

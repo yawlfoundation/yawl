@@ -36,27 +36,31 @@
                                                styleClass="pageHeading"
                                                style="top: 0; left: 0"/>
 
+                                <ui:panelLayout binding="#{addInstance.pnlAddInstance}"
+                                                           id="pnlAddInstance"
+                                                           styleClass="addInstancePanel">
+
                                 <ui:staticText binding="#{addInstance.staticText1}"
                                                id="staticText1"
-                                               text="Please enter a unique value for the parameter below"
+                                               text="Please enter a valid data value for the named parameter"
                                                styleClass="pageSubheading"
-                                               style="left: 0; top: 50px"/>
+                                               style="left: 8px; top: 10px"/>
 
                                 <ui:label binding="#{addInstance.lblParam}"
                                           for="txtParamVal"
                                           id="lblParam"
-                                          style="left: 0; top: 100px; position: absolute;"
-                                          text="#{SessionBean.addInstanceParamName}"/>
+                                          styleClass="addInstanceParamLabel"
+                                          text="#{SessionBean.addInstanceParamNameLabelText}"/>
 
                                 <ui:textArea binding="#{addInstance.txtParamVal}"
                                              id="txtParamVal"
-                                             style="left: 0; height: 150px; top: 120px; position: absolute; width: 300px"/>
+                                             styleClass="addInstanceParamValue"/>
 
                                 <ui:button action="#{addInstance.btnOK_action}"
                                            binding="#{addInstance.btnOK}"
                                            id="btnOK"
                                            styleClass="selectUserButton"
-                                           style="left: 177px; top: 300px"
+                                           style="left: 160px; top: 250px"
                                            text="Create"/>
 
                                 <ui:button action="#{addInstance.btnCancel_action}"
@@ -64,10 +68,12 @@
                                            id="btnCancel"
                                            immediate="true"
                                            styleClass="selectUserButton"
-                                           style="left: 53px; top: 300px"
+                                           style="left: 70px; top: 250px"
                                            text="Cancel"/>
+                                </ui:panelLayout>
                             </ui:panelLayout>
                         </center>
+                        <div><jsp:include page="pfFooter.jspf"/></div>
                     </ui:form>
                 </ui:body>
             </ui:html>

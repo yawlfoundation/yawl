@@ -39,10 +39,16 @@ public class WorkQueueGatewayClient extends Interface_Client {
     private Map<String, String> params = new HashMap<String, String>();
 
 
-    /** the only constructor
+    /** empty constructor */
+    public WorkQueueGatewayClient() {
+        super();
+    }
+
+    /** constructor
      * @param uri the uri of the resourceService's workqueue gateway
      */
     public WorkQueueGatewayClient(String uri) {
+        super();
         _serviceURI = uri ;
     }
 
@@ -176,6 +182,13 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
 
+    public String getTaskPrivileges(String itemid, String handle) throws IOException {
+        params.clear();
+        params.put("workitemid", itemid) ;
+        return performGet("getTaskPrivileges", params, handle) ;
+    }
+
+
     public String getReportingToParticipant(String pid, String handle) throws IOException {
         params.clear();
         params.put("participantid", pid) ;
@@ -190,6 +203,13 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
 
+    public String getRoleMembers(String rid, String handle) throws IOException {
+        params.clear();
+        params.put("roleid", rid) ;
+        return performGet("getRoleMembers", params, handle) ;
+    }
+
+
     public String getParticipant(String pid, String handle) throws IOException {
         params.clear();
         params.put("participantid", pid) ;
@@ -201,6 +221,12 @@ public class WorkQueueGatewayClient extends Interface_Client {
         return performGet("getParticipants", handle) ;
     }
 
+
+    public String getDistributionSet(String itemid, String handle) throws IOException {
+        params.clear();
+        params.put("workitemid", itemid) ;
+        return performGet("getDistributionSet", params, handle) ;
+    }
 
     /********************************************************************************/
 

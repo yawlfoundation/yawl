@@ -10,20 +10,27 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractApplicationBean;
 import com.sun.rave.web.ui.component.Link;
+import com.sun.rave.web.ui.component.PanelLayout;
+import com.sun.rave.web.ui.component.StaticText;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
+import org.yawlfoundation.yawl.util.YBuildProperties;
 
 import javax.faces.FacesException;
 import javax.faces.application.Application;
 import javax.faces.application.ViewHandler;
 import javax.faces.component.UIViewRoot;
-import javax.faces.context.FacesContext;
 import javax.faces.context.ExternalContext;
-import java.util.*;
+import javax.faces.context.FacesContext;
 import java.io.IOException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Application scope data bean for the worklist and admin pages.
@@ -331,7 +338,66 @@ public class ApplicationBean extends AbstractApplicationBean {
         }
     }
 
+    /**********************************************************************/
+
+    private PanelLayout footerPanel;
+
+    public PanelLayout getFooterPanel() { return footerPanel; }
+
+    public void setFooterPanel(PanelLayout panel) { footerPanel = panel; }
 
 
+    private PanelLayout footerTextPanel;
+
+    public PanelLayout getFooterTextPanel() { return footerTextPanel; }
+
+    public void setFooterTextPanel(PanelLayout panel) { footerTextPanel = panel; }
+
+
+    private StaticText footerStaticText;
+
+    public StaticText getFooterStaticText() { return footerStaticText; }
+
+    public void setFooterStaticText(StaticText st) { footerStaticText = st; }
+
+
+    private String _footerText = "";
+
+    public String getFooterText() {
+        if (_footerText.length() == 0) {
+            String version = "";
+            String rsBuild = "";
+            String engBuild = "";
+            YBuildProperties buildProps = _rm.getBuildProperties();
+            if (buildProps != null) {
+                version = "YAWL version " + buildProps.getVersion().substring(1);
+                rsBuild = String.format(" / Resource Service build %s (%s)",
+                        formatBuildNumber(buildProps.getVersion(), buildProps.getBuildNumber()),
+                        buildProps.getBuildDate());
+            }
+            String engBuildProps = _rm.getEngineBuildProperties();
+            if (_rm.successful(engBuildProps)) {
+                XNode responseNode = new XNodeParser().parse(engBuildProps);
+                XNode propsNode = responseNode.getChild("buildproperties");
+                engBuild = String.format(" / Engine build %s (%s)",
+                        formatBuildNumber(propsNode.getChildText("Version"),
+                                propsNode.getChildText("BuildNumber")),
+                        propsNode.getChildText("BuildDate"));
+            }
+            _footerText = version + engBuild + rsBuild;
+        }
+        return _footerText;
+    }
+
+
+    private String formatBuildNumber(String version, String buildNumber) {
+        Pattern pattern = Pattern.compile("[\\d|\\.]+");
+        Matcher m = pattern.matcher(version);
+        m.find();
+        return m.group() + "." + buildNumber.replaceAll(",", "");
+    }
+
+
+    /**********************************************************************/
 
 }

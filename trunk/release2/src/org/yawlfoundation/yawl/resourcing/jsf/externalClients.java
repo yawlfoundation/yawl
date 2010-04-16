@@ -139,6 +139,13 @@ public class externalClients extends AbstractPageBean {
     public void setLblPassword(Label l) { lblPassword = l; }
 
 
+    private Label lblConfirmPassword = new Label();
+
+    public Label getLblConfirmPassword() { return lblConfirmPassword; }
+
+    public void setLblConfirmPassword(Label l) { lblConfirmPassword = l; }
+
+
     private Label lblDesc = new Label();
 
     public Label getLblDesc() { return lblDesc; }
@@ -158,6 +165,13 @@ public class externalClients extends AbstractPageBean {
     public PasswordField getTxtPassword() { return txtPassword; }
 
     public void setTxtPassword(PasswordField pw) { txtPassword = pw; }
+
+
+    private PasswordField txtConfirmPassword ;
+
+    public PasswordField getTxtConfirmPassword() { return txtConfirmPassword; }
+
+    public void setTxtConfirmPassword(PasswordField pw) { txtConfirmPassword = pw; }
 
 
     private TextArea txtDescription = new TextArea();
@@ -244,6 +258,13 @@ public class externalClients extends AbstractPageBean {
     public void setBtnRemove(Button b) { btnRemove = b; }
 
 
+    private Button btnEdit = new Button();
+
+    public Button getBtnEdit() { return btnEdit; }
+
+    public void setBtnEdit(Button b) { btnEdit = b; }
+
+
     private Button btnAdd = new Button();
 
     public Button getBtnAdd() { return btnAdd; }
@@ -286,17 +307,41 @@ public class externalClients extends AbstractPageBean {
     public void setPnlGroup(PanelGroup group) { pnlGroup = group; }
 
 
+    private String addPanelHeading = "Add Client Application Account";
+
+    public String getAddPanelHeading() { return addPanelHeading; }
+
+    public void setAddPanelHeading(String heading) { addPanelHeading = heading; }
+
+
+    private String btnAddText = "Add";
+
+    public String getBtnAddText() { return btnAddText; }
+
+    public void setBtnAddText(String text) { btnAddText = text; }
+
+
     /********************************************************************************/
 
-    private MessagePanel msgPanel = getSessionBean().getMessagePanel();
+    private SessionBean _sb = getSessionBean();
+    private MessagePanel msgPanel = _sb.getMessagePanel();
+
+    private enum Mode {Add, Edit}
 
     /**
      * Overridden method that is called immediately before the page is rendered
      */
     public void prerender() {
-        getSessionBean().checkLogon();
-        msgPanel.show();
-        getSessionBean().setActivePage(ApplicationBean.PageRef.externalClients);
+        _sb.checkLogon();
+        _sb.setActivePage(ApplicationBean.PageRef.externalClients);
+        _sb.showMessagePanel();
+
+        if (getMode() == Mode.Edit) {
+            addPanelHeading = "Edit Client Application Account";
+            btnAddText = "Save";
+            btnRemove.setDisabled(true);
+            btnEdit.setDisabled(true);
+        }
     }
 
 
@@ -304,8 +349,11 @@ public class externalClients extends AbstractPageBean {
     public String btnRemove_action() {
         try {
             Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
-            getSessionBean().removeExternalClient(selectedRowIndex);
-            msgPanel.success("Client successfully removed.");
+            String result = _sb.removeExternalClient(selectedRowIndex);
+            if (result.startsWith("<fail")) {
+                msgPanel.error(msgPanel.format(result));
+            }
+            else msgPanel.success("Client successfully removed.");
         }
         catch (NumberFormatException nfe) {
             msgPanel.error("No client selected to remove.");
@@ -323,16 +371,44 @@ public class externalClients extends AbstractPageBean {
         String name = (String) txtName.getText() ;
         String password = (String) txtPassword.getText();
         String doco = (String) txtDescription.getText();
-        if (! (isNullOrEmpty(name) || isNullOrEmpty(password) || isNullOrEmpty(doco))) {
-            getSessionBean().addExternalClient(name, password, doco);
-            clearInputs();
-            msgPanel.success("Client successfully added.");
+        String result;
+        if (inputsValid()) {
+            if (getMode() == Mode.Edit) {
+                result = _sb.updateExternalClient(name, password, doco);
+            }
+            else {
+                result = _sb.addExternalClient(name, password, doco);
+            }
+            if (result.startsWith("Cannot") || result.startsWith("Error")) {
+                msgPanel.error(result);
+            }
+            else {
+                msgPanel.success("Client Account: " + getMode().name() + " successful.");
+                clearInputs();
+            }
         }
-        else
-            msgPanel.warn("Add Client: Please enter values in all fields.");
-
         return null;
     }
+
+
+    public String btnEdit_action() {
+        try {
+            Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
+            YExternalClient client = _sb.getSelectedExternalClient(selectedRowIndex);
+            if (client != null) {
+                addPanelHeading = "Edit Client Application Account";
+                btnAddText = "Save";
+                txtName.setText(client.getUserID());
+                txtDescription.setText(client.getDocumentation());
+                setMode(Mode.Edit);
+            }
+        }
+        catch (NumberFormatException nfe) {
+            msgPanel.warn("Please select an account to edit.");
+        }
+        return null;
+    }
+
 
 
     public boolean isNullOrEmpty(String text) {
@@ -350,6 +426,35 @@ public class externalClients extends AbstractPageBean {
         txtName.setText("");
         txtDescription.setText("");
         txtPassword.setText("");
+        txtConfirmPassword.setText("");
+        setMode(Mode.Add);
+        btnRemove.setDisabled(false);
+        btnEdit.setDisabled(false);
     }
+
+    private Mode getMode() {
+        return _sb.isAddClientAccountMode() ? Mode.Add : Mode.Edit;
+    }
+
+    private void setMode(Mode mode) {
+        _sb.setAddClientAccountMode(mode == Mode.Add) ;
+    }
+
+    private boolean inputsValid() {
+        if (isNullOrEmpty((String) txtName.getText()) ||
+            isNullOrEmpty((String) txtPassword.getText()) ||
+            isNullOrEmpty((String) txtDescription.getText())) {
+
+            msgPanel.warn(getMode().name() + " Client Account: Please enter values in all fields.");
+            return false;
+        }
+        if (! (txtPassword.getText().equals(txtConfirmPassword.getText()))) {
+            msgPanel.error("Password and Confirm Password are different.");
+            return false;
+        }
+        return true;
+    }
+
+
 
 }

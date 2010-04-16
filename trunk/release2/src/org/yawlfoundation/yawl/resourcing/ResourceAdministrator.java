@@ -63,16 +63,22 @@ public class ResourceAdministrator {
     }
 
 
-    public void assignUnofferedItem(WorkItemRecord wir, Participant p, String action) {
+    public void assignUnofferedItem(WorkItemRecord wir, String[] pidList, String action) {
         WorkQueue unoffered = _qSet.getQueue(WorkQueue.UNOFFERED) ;
-        ResourceManager rm = ResourceManager.getInstance();
         if (unoffered != null) {
+            ResourceManager rm = ResourceManager.getInstance();
             rm.getWorkItemCache().updateResourceStatus(wir, WorkItemRecord.statusResourceOffered);
             if (action.equals("Offer")) {
-                p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
-                rm.addToOfferedSet(wir, p);
+
+                // an offer can be made to several participants
+                for (String pid : pidList) {
+                    Participant p = rm.getOrgDataSet().getParticipant(pid);
+                    p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
+                    rm.addToOfferedSet(wir, p);
+                }
             }
             else if (action.equals("Allocate")) {
+                Participant p = rm.getOrgDataSet().getParticipant(pidList[0]);
                 rm.acceptOffer(p, wir);
             }
 

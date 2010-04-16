@@ -14,6 +14,7 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import java.net.URI;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.io.InputStream;
 
 /**
  /**
@@ -39,6 +40,8 @@ public interface EngineGateway extends Remote {
     public void setAllowAdminID(boolean allow);
 
     public void shutdown();
+
+    public void initBuildProperties(InputStream stream);
 
     public void notifyServletInitialisationComplete();
     
@@ -125,7 +128,11 @@ public interface EngineGateway extends Remote {
 
     public String createAccount(String userName, String password, String doco, String sessionHandle) throws RemoteException;
 
+    public String updateAccount(String userName, String password, String doco, String sessionHandle) throws RemoteException;
+
     public String getAccounts(String sessionHandle) throws RemoteException;
+
+    public String getBuildProperties(String sessionHandle) throws RemoteException;
 
     public String getYAWLServices(String sessionHandle) throws RemoteException;
 
@@ -138,6 +145,10 @@ public interface EngineGateway extends Remote {
     public String deleteAccount(String userName, String sessionHandle) throws RemoteException;
 
     public String changePassword(String password, String sessionHandle) throws RemoteException;
+
+    public String getClientAccount(String userID, String sessionHandle) throws RemoteException;
+
+    public String getClientPassword(String userID, String sessionHandle) throws RemoteException;
 
     public String setExceptionObserver(String observerURI) ;
 

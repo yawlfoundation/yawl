@@ -248,6 +248,17 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
                 client.getDocumentation(), sessionHandle);
     }
 
+
+    public String updateClientAccount(String name, String password, String documentation,
+                             String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("updateAccount", sessionHandle);
+        params.put("userID", name);
+        params.put("password", password);
+        params.put("doco", documentation);
+        return executePost(_backEndURIStr, params);
+    }
+
+
     
     /**
      * Gets all the client accounts registered in the engine
@@ -265,17 +276,27 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
             if (doc != null) {
                 List children = doc.getRootElement().getChildren();
                 for (Object o : children) {
-                    Element clientElem = (Element) o;
-
-                    // add clients, but ignore generic admin user
-                    if (! clientElem.getChildText("username").equals("admin")) {
-                        accounts.add(new YExternalClient((Element) o));
-                    }
+                    accounts.add(new YExternalClient((Element) o));
                 }
             }
         }
         return accounts ;
     }
+
+    public YExternalClient getClientAccount(String userID, String sessionHandle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("getClientAccount", sessionHandle);
+        params.put("userID", userID);
+        String result = executeGet(_backEndURIStr, params);
+
+        if (successful(result)) {
+            Element e = JDOMUtil.stringToElement(result);
+            if (e != null) {
+                return new YExternalClient(e);
+            }
+        }
+        return null ;
+     }
 
 
     /**
@@ -307,5 +328,16 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
         return executePost(_backEndURIStr, params);
     }
 
+
+    public String getPassword(String userid, String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("getPassword", sessionHandle);
+        params.put("userID", userid);
+        return executePost(_backEndURIStr, params);
+    }
+
+    public String getBuildProperties(String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("getBuildProperties", sessionHandle);
+        return executeGet(_backEndURIStr, params);
+    }
 
 }

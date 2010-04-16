@@ -38,7 +38,7 @@
                         <center>
                         <ui:panelLayout binding="#{externalClients.pnlContainer}"
                                         id="pnlContainer"
-                                        styleClass="servicesContainerPanel">
+                                        styleClass="externalClientsContainerPanel">
 
                         <!-- Registered Services Panel -->
                         <ui:panelLayout binding="#{externalClients.pnlServices}"
@@ -50,7 +50,7 @@
                                            id="staticText2"
                                            styleClass="pageSubheading"
                                            style="left: 12px; top: 12px"
-                                           text="Registered Client Applications"/>
+                                           text="Registered Client Application Accounts"/>
 
                             <ui:panelGroup binding="#{externalClients.pnlGroup}"
                                             id="cspnlGroup"
@@ -92,16 +92,24 @@
                             </h:dataTable>
                             </ui:panelGroup>
 
-                            <ui:button action="#{externalClients.btnRemove_action}"
-                                       binding="#{externalClients.btnRemove}"
-                                       id="btnRemoveService"
+                            <ui:button action="#{externalClients.btnEdit_action}"
+                                       binding="#{externalClients.btnEdit}"
+                                       id="btnEdit"
                                        styleClass="servicesButton"
                                        style="left: 11px; top: 230px"
+                                       text="Edit"/>
+
+                            <ui:button action="#{externalClients.btnRemove_action}"
+                                       binding="#{externalClients.btnRemove}"
+                                       id="btnRemove"
+                                       styleClass="servicesButton"
+                                       style="left: 119px; top: 230px"
                                        text="Remove"/>
+
                         </ui:panelLayout>
 
 
-                        <!-- Add Service Panel -->
+                        <!-- Add/Edit Account Panel -->
                         <ui:panelLayout binding="#{externalClients.pnlAddService}"
                                         id="pnlAddService"
                                         styleClass="servicesPanel"
@@ -111,7 +119,7 @@
                                            id="staticText1"
                                            styleClass="pageSubheading"
                                            style="left: 12px; top: 12px"
-                                           text="Add Client Application"/>
+                                           text="#{externalClients.addPanelHeading}"/>
 
                             <ui:label binding="#{externalClients.lblName}"
                                       for="txtName"
@@ -122,8 +130,14 @@
                             <ui:label binding="#{externalClients.lblPassword}"
                                       for="txtPassword"
                                       id="lblPassword"
-                                      style="left: 332px; top: 40px; position: absolute"
+                                      style="left: 12px; top: 70px; position: absolute"
                                       text="Password:"/>
+
+                            <ui:label binding="#{externalClients.lblConfirmPassword}"
+                                      for="txtConfirmPassword"
+                                      id="lblConfirmPassword"
+                                      style="left: 302px; top: 70px; position: absolute"
+                                      text="Confirm Password:"/>
 
                             <ui:label binding="#{externalClients.lblDesc}"
                                       for="txtDescription"
@@ -131,10 +145,11 @@
                                       style="left: 12px; top: 100px; position: absolute"
                                       text="Description:"/>
 
+
                             <ui:textField binding="#{externalClients.txtName}"
                                           id="txtName"
                                           style="left: 100px; top: 40px; width: 200px; position: absolute"/>
-
+ 
                             <!--=====================================================-->
 
                             <!--The following two fields provide a workaround to the
@@ -152,10 +167,14 @@
                                                style="display: none" />
 
                             <!--=====================================================-->
-
+                            
                             <ui:passwordField binding="#{externalClients.txtPassword}"
                                           id="txtPassword"
-                                          style="left: 400px; top: 40px; width: 200px; position: absolute"/>
+                                          style="left: 100px; top: 70px; width: 170px; position: absolute"/>
+
+                            <ui:passwordField binding="#{externalClients.txtConfirmPassword}"
+                                           id="txtConfirmPassword"
+                                           style="left: 430px; top: 70px; width: 170px; position: absolute"/>
 
                             <ui:textArea binding="#{externalClients.txtDescription}"
                                          id="txtDescription"
@@ -166,7 +185,7 @@
                                        id="btnAddService"
                                        styleClass="servicesButton"
                                        style="left: 11px; top: 168px"
-                                       text="Add"/>
+                                       text="#{externalClients.btnAddText}"/>
 
                             <ui:button action="#{externalClients.btnClear_action}"
                                        binding="#{externalClients.btnClear}"
@@ -177,13 +196,16 @@
 
                         </ui:panelLayout>
 
+                           <div><jsp:include page="pfMsgPanel.jspf"/></div>
+
                         </ui:panelLayout>
-                        <ui:panelLayout binding="#{SessionBean.messagePanel}"
-                                        id="msgPanel"
-                                        panelLayout="flow"/>
+
+
                         </center>
 
                         <ui:hiddenField binding="#{externalClients.hdnRowIndex}" id="hdnRowIndex"/>
+
+                        <div><jsp:include page="pfFooter.jspf"/></div>
 
                     </ui:form>
 

@@ -5,7 +5,7 @@
 
     <property name="app.version" value="_2.1beta"/>
     <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
-                                           Mike Fowler, Matt Flaherty et al."/>
+                                           Mike Fowler et al."/>
 
     <!-- Tomcat properties -->
     <property name="manager.url" value="http://localhost:8080/manager"/>   <!-- Keep -->
@@ -407,7 +407,7 @@
             <fileset dir="${lib.dir}"
                      includes="${persistence.libs} ${xsd.libs} ${common.libs} ${jcommon}
                                ${jfreechart} ${jaxenFull} ${postgres8} ${saxpath}
-                               ${xml-apis} ${saxon.libs} ${xerces.libs}"
+                               ${xml-apis} ${saxon.libs} ${xerces.libs} ${commonsCodec}"
                      excludes="hibernate.cfg.xml ${servlet}"/>
         </unzip>
 
@@ -901,7 +901,7 @@
                                  CharsetFilter.class DOMUtil.class SaxonUtil.class
                                  InstanceBuilder.class PasswordEncryptor.class
                                  XNode.class XNodeParser.class YPredicateParser.class
-                                 YDataSchemaCache.class"/>
+                                 YDataSchemaCache.class YBuildProperties.class"/>
         </copy>
 
         <!-- 2. copy resourcing classes to relevant dirs -->
@@ -1163,8 +1163,10 @@
         <copy todir="testService${webinf.dir}/engine">
               <fileset dir="${classes.dir}${packageRoot}/engine"/>
         </copy>
-        <copy todir="testService${webinf.dir}/schema"
-              file="${classes.dir}${packageRoot}/schema/XSDType.class"/>
+        <copy todir="testService${webinf.dir}/schema">
+              <fileset dir="${classes.dir}${packageRoot}/schema"
+                      includes="XSDType.class YDataSchemaCache.class"/>
+        </copy>
         <copy todir="testService${webinf.dir}/logging">
               <fileset dir="${classes.dir}${packageRoot}/logging"
                       includes="YLogPredicate.class YLogPredicateParser.class"/>

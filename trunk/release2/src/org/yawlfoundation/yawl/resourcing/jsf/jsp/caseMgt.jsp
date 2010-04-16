@@ -195,13 +195,15 @@
                                            text="Running Cases"/>
                         </ui:panelLayout>
 
+                            <div><jsp:include page="pfMsgPanel.jspf"/></div>
+
                         </ui:panelLayout>
-                        <ui:panelLayout binding="#{SessionBean.messagePanel}"
-                                        id="msgPanel"
-                                        panelLayout="flow"/>
+
                         </center>
 
                         <ui:hiddenField binding="#{caseMgt.hdnRowIndex}" id="hdnRowIndex"/>
+
+                        <div><jsp:include page="pfFooter.jspf"/></div>
 
                     </ui:form>
 

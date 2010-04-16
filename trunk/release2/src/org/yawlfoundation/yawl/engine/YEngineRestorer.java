@@ -119,9 +119,14 @@ public class YEngineRestorer {
             query = _pmgr.createQuery("select max(engineInstanceID) from YLogNetInstance") ;
             if ((query != null) && (! query.list().isEmpty())) {
                 String engineID = (String) query.iterate().next();
-
-                // only want integral case numbers
-                caseNbrStore.setCaseNbr(new Double(engineID).intValue());
+                try {
+                    // only want integral case numbers
+                    caseNbrStore.setCaseNbr(new Double(engineID).intValue());
+                }
+                catch (Exception e) {
+                    // last resort - assumes tables must be empty
+                    caseNbrStore.setCaseNbr(1);
+                }
             }
         }
 

@@ -31,7 +31,7 @@ import java.io.OutputStreamWriter;
 public class ResourceGateway extends HttpServlet {
 
     private ResourceManager rm = ResourceManager.getInstance() ;
-    private ResourceDataSet orgDataSet = rm.getOrgDataSet();
+    private ResourceDataSet orgDataSet;
     private static final String SUCCESS = "<success/>";
     private static final Logger _log = Logger.getLogger(ResourceGateway.class);
 
@@ -90,6 +90,10 @@ public class ResourceGateway extends HttpServlet {
                     rm.setVisualiserEnabled(true);
                 }
 
+                // read the current version properties
+                rm.initBuildProperties(context.getResourceAsStream(
+                                   "/WEB-INF/classes/version.properties"));
+
                 // now that we have all the settings, complete the init
                 rm.finaliseInitialisation() ;
 
@@ -112,6 +116,7 @@ public class ResourceGateway extends HttpServlet {
             }
             finally {
                 ResourceManager.setServiceInitialised();
+                orgDataSet = rm.getOrgDataSet();
             }
         }
     }

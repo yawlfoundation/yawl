@@ -17,135 +17,101 @@ import javax.faces.FacesException;
  * selectUser.java
  *
  * @author:  Michael Adams
- * Date: 08/01/2008
+ * Date: 08/01/2009
  */
 
 public class addInstance extends AbstractPageBean {
+
     private int __placeholder;
 
-    private void _init() throws Exception {
-    }
+    private void _init() throws Exception { }
+
+
+    /****************************************************************************/
 
     private Page page1 = new Page();
 
-    public Page getPage1() {
-        return page1;
-    }
+    public Page getPage1() { return page1; }
 
-    public void setPage1(Page p) {
-        this.page1 = p;
-    }
+    public void setPage1(Page p) { page1 = p; }
+
 
     private Html html1 = new Html();
 
-    public Html getHtml1() {
-        return html1;
-    }
+    public Html getHtml1() { return html1; }
 
-    public void setHtml1(Html h) {
-        this.html1 = h;
-    }
+    public void setHtml1(Html h) { html1 = h; }
+
 
     private Head head1 = new Head();
 
-    public Head getHead1() {
-        return head1;
-    }
+    public Head getHead1() { return head1; }
 
-    public void setHead1(Head h) {
-        this.head1 = h;
-    }
+    public void setHead1(Head h) { head1 = h; }
+
 
     private Link link1 = new Link();
 
-    public Link getLink1() {
-        return link1;
-    }
+    public Link getLink1() { return link1; }
 
-    public void setLink1(Link l) {
-        this.link1 = l;
-    }
+    public void setLink1(Link l) { link1 = l; }
+
 
     private Body body1 = new Body();
 
-    public Body getBody1() {
-        return body1;
-    }
+    public Body getBody1() { return body1; }
 
-    public void setBody1(Body b) {
-        this.body1 = b;
-    }
+    public void setBody1(Body b) { body1 = b; }
+
 
     private Form form1 = new Form();
 
-    public Form getForm1() {
-        return form1;
-    }
+    public Form getForm1() { return form1; }
 
-    public void setForm1(Form f) {
-        this.form1 = f;
-    }
+    public void setForm1(Form f) { form1 = f; }
+
 
     private StaticText staticHeader = new StaticText();
 
-    public StaticText getStaticHeader() {
-        return staticHeader;
-    }
+    public StaticText getStaticHeader() { return staticHeader; }
 
-    public void setStaticHeader(StaticText st) {
-        this.staticHeader = st;
-    }
+    public void setStaticHeader(StaticText st) { staticHeader = st; }
+
 
     private StaticText staticText1 = new StaticText();
 
-    public StaticText getStaticText1() {
-        return staticText1;
-    }
+    public StaticText getStaticText1() { return staticText1; }
 
-    public void setStaticText1(StaticText st) {
-        this.staticText1 = st;
-    }
+    public void setStaticText1(StaticText st) { staticText1 = st; }
     
 
     private Button btnOK = new Button();
 
-    public Button getBtnOK() {
-        return btnOK;
-    }
+    public Button getBtnOK() { return btnOK; }
 
-    public void setBtnOK(Button b) {
-        this.btnOK = b;
-    }
+    public void setBtnOK(Button b) { btnOK = b; }
+
 
     private Button btnCancel = new Button();
 
-    public Button getBtnCancel() {
-        return btnCancel;
-    }
+    public Button getBtnCancel() { return btnCancel; }
 
-    public void setBtnCancel(Button b) {
-        this.btnCancel = b;
-    }
+    public void setBtnCancel(Button b) { btnCancel = b; }
 
-    public TextArea getTxtParamVal() {
-        return txtParamVal;
-    }
-
-    public void setTxtParamVal(TextArea ta) {
-        this.txtParamVal = ta;
-    }
 
     private TextArea txtParamVal = new TextArea();
 
+    public TextArea getTxtParamVal() { return txtParamVal; }
+
+    public void setTxtParamVal(TextArea ta) { txtParamVal = ta; }
+
+
     private Label lblParam = new Label();
 
-    public Label getLblParam() {
-        return lblParam;
-    }
+    public Label getLblParam() { return lblParam; }
 
-    public void setLblParam(Label l) {
-        this.lblParam = l;
-    }
+    public void setLblParam(Label l) { lblParam = l; }
+
 
     private PanelLayout pnlContainer ;
 
@@ -153,13 +119,18 @@ public class addInstance extends AbstractPageBean {
 
     public void setPnlContainer(PanelLayout pnl) { pnlContainer = pnl; }
 
-    
 
-    /**
-     * <p>Construct a new Page bean instance.</p>
-     */
-    public addInstance() {
-    }
+    private PanelLayout pnlAddInstance ;
+
+    public PanelLayout getPnlAddInstance() { return pnlAddInstance; }
+
+    public void setPnlAddInstance(PanelLayout pnl) { pnlAddInstance = pnl; }
+
+
+    /****************************************************************************/
+
+
+    public addInstance() { }
 
     /**
      * <p>Return a reference to the scoped data bean.</p>
@@ -198,17 +169,20 @@ public class addInstance extends AbstractPageBean {
         }
     }
 
-    public void preprocess() {
-    }
+
+    public void preprocess() { }
+
+
+    public void destroy() { }
+
+
+    /****************************************************************************/
 
     public void prerender() {
         getSessionBean().checkLogon();
         getSessionBean().setActivePage(ApplicationBean.PageRef.selectUser);
     }
 
-
-    public void destroy() {
-    }
 
 
     public String btnOK_action() {
@@ -217,7 +191,6 @@ public class addInstance extends AbstractPageBean {
             return "showUserQueues";
         }
         else {
-            // message  - select a user
             return null ;
         }
     }

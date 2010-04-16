@@ -18,6 +18,8 @@ import org.yawlfoundation.yawl.util.PasswordEncryptor;
  * A simple class used to store the credentials of an external application that connects
  * to the Engine via the various interfaces (as opposed to a custom service).
  *
+ * Note that the generic user "admin" is represented by an instance of this class
+ *
  * @author Michael Adams
  * Date: 23/11/2009
  *

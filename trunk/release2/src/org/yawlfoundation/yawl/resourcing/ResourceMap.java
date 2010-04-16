@@ -120,6 +120,11 @@ public class ResourceMap {
         return _privileges ;
     }
 
+    public Set<Participant> getDistributionSet() {
+        return (_offer != null) ? _offer.getDistributionSet() : null;
+    }
+
+
     public String getTaskID() { return _taskID; }
 
     public void setTaskID(String taskID) { _taskID = taskID ; }

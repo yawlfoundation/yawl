@@ -12,6 +12,10 @@ import com.sun.rave.web.ui.component.ImageComponent;
 import com.sun.rave.web.ui.component.PanelLayout;
 import com.sun.rave.web.ui.component.StaticText;
 
+import javax.faces.el.MethodBinding;
+import javax.faces.application.Application;
+import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +39,8 @@ public class MessagePanel extends PanelLayout {
     private static final String warnIconURL = "/resources/warn.png" ;
     private static final String successIconURL = "/resources/success.png" ;
 
-    private static final int MIN_PANEL_HEIGHT = 70;
-    private static final Font _msgFont = new Font("Helvetica", Font.PLAIN, 12);
+    private static final int MIN_PANEL_HEIGHT = 120;
+    private static final Font _msgFont = new Font("Helvetica", Font.PLAIN, 13);
 
 
     // list of messages for each type
@@ -48,17 +52,21 @@ public class MessagePanel extends PanelLayout {
     private int idSuffix = 0 ;                         // used in creation of unique ids
     private String _style = "";
     private int _outerWidth = 350;                     // default width of panel
-
+    private int _parentWidth;                          // width of parent container
 
     private PanelLayout _pnlMessages;
+    private StaticText _title;
     private ImageComponent _imgIcon;
+    private PanelLayout _btnPanel;
 
     public MessagePanel() {
-        this.setId("msgPanel001");
-        this.setStyleClass("messagePanel") ;
-        this.getChildren().add(constructImage());
-        this.getChildren().add(constructMessagesPanel());
-        this.setVisible(false);                                   // hide it initially
+        setId("msgPanel001");
+        setStyleClass("messagePanel") ;
+        getChildren().add(constructTitleBar());
+        getChildren().add(constructImage());
+        getChildren().add(constructMessagesPanel());
+        getChildren().add(constructButtonPanel());
+        setVisible(false);                                   // hide it initially
     }
 
     /* adds an error message */
@@ -104,39 +112,48 @@ public class MessagePanel extends PanelLayout {
 
     /* show the panel */
     public void show() {
-        _style = "top:70px; left:0px; position: relative;";      // default style & posn
+        _style = "top:60px; position:absolute;";      // default style & posn
         showPanel();
+    }
+
+    public void show(int width) {
+        _parentWidth = width;
+        show();
     }
 
     private void showPanel() {
         MsgType msgType = getDominantType() ;
-        if (msgType != null) {                          // if msgs to show
-            _pnlMessages.getChildren().clear();
-            _imgIcon.setUrl(getImageURL(msgType));        
-            setMessages();
-            this.setVisible(true);                     // show the form
+        if (msgType != null) {                         // if msgs to show
+            setupPanel(msgType);
+            setVisible(true);                          // show the panel
             clear();                                   // remove msgs from next rendering
         }
-        else this.setVisible(false);
+        else setVisible(false);
+    }
+
+    private void setupPanel(MsgType msgType) {
+        _pnlMessages.getChildren().clear();
+        _imgIcon.setUrl(getImageURL(msgType));
+        setTitle(msgType);
+        int lines = setMessages();
+        int height = getHeight(lines);
+        setButtonPanelStyle(height);
+        setStyle(height);
     }
 
 
     /* returns strings from inside xml tags */
     private String unwrap(String xml) {
-        String result = null;
         if (xml != null) {
-            int start = xml.indexOf(">") + 1;
-            int finish = xml.lastIndexOf("<");
-            if (start >= 0 && finish >= 0 && finish > start) {
-                result = xml.substring(start, finish);
-            }
+            String[] stripped = xml.split("^\\s*<.*?>|</[^<]*?>\\s*$");
+            return stripped[stripped.length -1];
         }
-        return result;
+        return null;
     }
 
 
     public String format(String xml) {
-        while ((xml != null) && xml.startsWith("<"))
+        while ((xml != null) && xml.trim().startsWith("<"))
             xml = unwrap(xml);
         return xml ;
     }
@@ -145,7 +162,7 @@ public class MessagePanel extends PanelLayout {
     private List<String> addMessage(List<String> list, String message) {
         if (message != null) {
             if (list == null) list = new ArrayList<String>();
-            list.add(message);
+            list.add(format(message));
         }    
         return list ;
     }
@@ -187,7 +204,7 @@ public class MessagePanel extends PanelLayout {
         _imgIcon.setUrl(errorIconURL);
         _imgIcon.setHeight(48);
         _imgIcon.setWidth(48);
-        _imgIcon.setStyle(getPosStyle(10, 10) + "background-color: #f0f0f0; " +
+        _imgIcon.setStyle(getPosStyle(10, 30) + "background-color: #f0f0f0; " +
                                                 "height: 48px; width: 48px;") ;
         return _imgIcon ;
     }
@@ -205,11 +222,50 @@ public class MessagePanel extends PanelLayout {
     }
 
 
+    private PanelLayout constructTitleBar() {
+        PanelLayout titleBar = new PanelLayout() ;
+        titleBar.setId("pnlTitleBar001");
+        titleBar.setStyle("background-color: #b0b0b0; border-bottom: 1px solid black;" +
+                           "width: 100%; height: 18px; text-align:left; font-weight:bold") ;
+        titleBar.setPanelLayout("flow");
+        _title = new StaticText();
+        _title.setId("sttTitleText001");
+        _title.setText("Example Title Bar Text");
+        titleBar.getChildren().add(_title);
+        return titleBar ;
+    }
+
+
+    private PanelLayout constructButtonPanel() {
+        _btnPanel = new PanelLayout() ;
+        _btnPanel.setId("pnlButton001");
+        _btnPanel.setPanelLayout("flow");
+        _btnPanel.getChildren().add(constructOKButton());
+        return _btnPanel ;
+    }
+
+
+    private com.sun.rave.web.ui.component.Button constructOKButton() {
+        com.sun.rave.web.ui.component.Button btnOK = new com.sun.rave.web.ui.component.Button();
+        btnOK.setId("btnOK001");
+        btnOK.setText("OK");
+        btnOK.setActionListener(bindButtonListener());
+        return btnOK;
+    }
+
+    private MethodBinding bindButtonListener() {
+        Application app = FacesContext.getCurrentInstance().getApplication();
+        return app.createMethodBinding("#{SessionBean.messagePanelOKBtnAction}",
+                                         new Class[]{ActionEvent.class});
+    }
+
+
+
     private PanelLayout constructMessagesPanel() {
         _pnlMessages = new PanelLayout() ;
         _pnlMessages.setId("pnlMessages001");
         _pnlMessages.setStyle("background-color: #f0f0f0; " +
-                               getPosStyle(70, 15) + "width: 270px;") ;
+                               getPosStyle(70, 35) + "width: 270px;") ;
         _pnlMessages.setPanelLayout("flow");
         return _pnlMessages ;
     }
@@ -233,13 +289,25 @@ public class MessagePanel extends PanelLayout {
     }
 
 
-    private void setMessages() {
+    private void setTitle(MsgType msgType) {
+        String text = "";
+        switch (msgType) {
+            case error : text = "Error"; break;
+            case warn : text = "Warning"; break;
+            case info : text = "Information"; break;
+            case success : text = "Success"; break;
+        }
+        _title.setText(text);
+    }
+
+
+    private int setMessages() {
         int lineCount = 0;
         lineCount += listMessages(_errorMessage, MsgType.error, lineCount);
         lineCount += listMessages(_warnMessage, MsgType.warn, lineCount);
         lineCount += listMessages(_infoMessage, MsgType.info, lineCount);
         lineCount += listMessages(_successMessage, MsgType.success, lineCount);
-        setHeight(lineCount);
+        return lineCount;
     }
 
     private int listMessages(List<String> list, MsgType msgType, int lineCount) {
@@ -269,11 +337,27 @@ public class MessagePanel extends PanelLayout {
         return ++idSuffix ;
     }
 
-    private void setHeight(int lineCount) {
+    private int getHeight(int lineCount) {
         double lineHeight = FontUtil.getFontMetrics("dummyText", _msgFont).getHeight() +
                             (_msgFont.getSize() / 2);
-        int height = (int) Math.max(MIN_PANEL_HEIGHT, lineCount * lineHeight);
-        this.setStyle(String.format("%s height: %dpx; width: %dpx", _style, height, _outerWidth));
+        return (int) Math.max(MIN_PANEL_HEIGHT, lineCount * lineHeight);
+    }
+
+
+    private void setButtonPanelStyle(int height) {
+        _btnPanel.setStyle("background-color: #f0f0f0; width: 100%; height: 30px;" +
+                           "position: absolute; top:" + (height - 30) + "px;") ;
+
+    }
+
+    private void setStyle(int height) {
+        String style = String.format("%s height: %dpx; width: %dpx;",
+                _style, height, _outerWidth);
+
+        if (_parentWidth > 0) {
+            style += String.format("left: %dpx;", (_parentWidth - _outerWidth) / 2);
+        }
+        setStyle(style);
     }
 
     private void adjustOuterSize(String msg) {

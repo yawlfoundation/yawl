@@ -17,13 +17,12 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
-import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.FacesException;
-import javax.faces.context.FacesContext;
 import javax.faces.component.UIColumn;
 import javax.faces.component.html.HtmlDataTable;
 import javax.faces.component.html.HtmlOutputText;
+import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -369,7 +368,8 @@ public class caseMgt extends AbstractPageBean {
      */
     public void prerender() {
         _sb.checkLogon();
-        msgPanel.show();
+        _sb.setActivePage(ApplicationBean.PageRef.caseMgt);
+        _sb.showMessagePanel();
 
         // take postback action on case launch
         if (_sb.isCaseLaunch()) {
@@ -378,7 +378,6 @@ public class caseMgt extends AbstractPageBean {
         updateRunningCaseList();
         _sb.refreshLoadedSpecs();
         activateButtons();
-        _sb.setActivePage(ApplicationBean.PageRef.caseMgt); 
     }
 
 
@@ -594,9 +593,8 @@ public class caseMgt extends AbstractPageBean {
             SpecificationData spec = _sb.getLoadedSpec(selectedRowIndex);
             if (spec != null) {
                 String result = unloadSpec(spec) ;
-                if (result.indexOf("success") == -1) {
-                    result = JDOMUtil.formatXMLString(result);
-                    msgPanel.error("Could not unload specification.\n\n" + result);
+                if (! result.contains("success")) {
+                    msgPanel.error(result);
                 }
                 else {
                     hdnRowIndex.setValue(null);

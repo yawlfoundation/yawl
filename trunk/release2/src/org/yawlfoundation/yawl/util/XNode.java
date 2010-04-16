@@ -3,7 +3,9 @@ package org.yawlfoundation.yawl.util;
 import org.jdom.Document;
 import org.jdom.Element;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,13 +26,12 @@ public class XNode {
     static final String _header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 
     private XNode _parent;
-    private Map<String, XNode> _children;
+    private List<XNode> _children;
     private Map<String, String> _attributes;
     private String _name;
     private String _text;
     private String _comment;
     private int _depth = 0;
-    private String _prefix = "";
     private static int _defTabSize = 2;
 
     public XNode(String name) {
@@ -89,10 +90,12 @@ public class XNode {
 
 
     public XNode addChild(XNode child) {
-        if (_children == null) _children = new LinkedHashMap<String, XNode>();
-        child.setParent(this);
-        child.setDepth(_depth + 1);
-        _children.put(child.getName(), child);
+        if (child != null) {
+            if (_children == null) _children = new ArrayList<XNode>();
+            child.setParent(this);
+            child.setDepth(_depth + 1);
+            _children.add(child);
+        }
         return child;
     }
 
@@ -151,10 +154,40 @@ public class XNode {
 
     public XNode getChild(String name) {
         if (_children != null) {
-            return _children.get(name);
+            for (XNode child : _children) {
+                if (child.getName().equals(name)) {
+                    return child;
+                }
+            }    
         }
         return null;
     }
+
+    public List<XNode> getChildren() {
+        return (_children != null) ? _children : new ArrayList<XNode>();
+
+    }
+
+    public List<XNode> getChildren(String name) {
+        List<XNode> namedChildren = new ArrayList<XNode>();
+        if (_children != null) {
+            for (XNode child : _children) {
+                if (child.getName().equals(name)) namedChildren.add(child);
+            }
+        }
+        return namedChildren;
+    }
+
+
+    public String getChildText(String name) {
+        XNode child = getChild(name);
+        return (child != null) ? child.getText() : null;
+    }
+
+    public String getText() {
+        return _text;
+    }
+
 
     public String getAttributeValue(String key) {
         if (_attributes != null) {
@@ -193,44 +226,24 @@ public class XNode {
 
     public void setDepth(int depth) {
         _depth = depth;
+        if (hasChildren()) {
+            for (XNode child : _children) {
+                child.setDepth(++depth);
+            }
+        }
     }
 
     public boolean hasChildren() {
         return _children != null;
     }
 
-
-    public String getPrefix() {
-        return _prefix;
+    public boolean hasChildren(String name) {
+        return getChildren(name).size() > 0 ;
     }
 
-    public void setPrefix(String prefix) {
-        updatePrefixes(this, _prefix, prefix);
-        _prefix = prefix;
-    }
 
-    private void updatePrefixes(XNode node, String oldFix, String newFix) {
-        if (oldFix.length() > 0) {
-            node.setName(node.getName().replaceFirst(oldFix, newFix));
-        }
-        else {
-            node.setName(newFix + ":" + node.getName());
-        }
-
-        Map<String, String> newAttributes = new LinkedHashMap<String, String>();
-        for (String key : node.getAttributes().keySet()) {
-            String value = node.getAttributeValue(key);
-            if (oldFix.length() > 0) {
-                if (key.startsWith(oldFix)) key = key.replaceFirst(oldFix, newFix);
-                if (value.startsWith(oldFix)) value = value.replaceFirst(oldFix, newFix);
-            }
-            newAttributes.put(key, value);
-        }
-        node.setAttributes(newAttributes);
-
-        for (XNode child : _children.values()) {
-            updatePrefixes(child, oldFix, newFix);
-        }
+    public int length() {
+        return toString().length();
     }
 
 
@@ -241,30 +254,29 @@ public class XNode {
         return toString(false, _depth, _defTabSize, false);
     }
 
-    public String toPrettyString() {                           // print with indents
-        return toString(true, _depth, _defTabSize, false);
-    }
-
     public String toString(boolean header) {
         return toString(false, _depth, _defTabSize, header);
     }
 
-    public String toPrettyString(boolean header) {                // print with indents
-        return toString(true, _depth, _defTabSize, header);
+    public String toPrettyString() {                               // print with indents
+        return toString(true, _depth, _defTabSize, false);
     }
 
+    public String toPrettyString(boolean header) {                 // print with indents
+        return toString(true, _depth, _defTabSize, header);
+    }
 
     public String toPrettyString(int tabSize) {                    // print with indents
         return toString(true, _depth, tabSize, false);
     }
 
-    public String toPrettyString(boolean header, int tabSize) {     // print with indents
-        return toString(true, _depth, tabSize, false);
+    public String toPrettyString(boolean header, int tabSize) {    // print with indents
+        return toString(true, _depth, tabSize, header);
     }
 
     private String toString(boolean pretty, int offset, int tabSize, boolean header) {
         StringBuilder s = new StringBuilder();
-        if (header) s.append(_header);
+        if (header) s.append(_header).append(newline);
         String tabs = getIndent(offset, tabSize);
         if (pretty) s.append(tabs);
         s.append("<").append(_name);
@@ -282,7 +294,7 @@ public class XNode {
             s.append(">");
             if (_children != null) {
                 if (pretty) s.append(newline);
-                for (XNode child : _children.values()) {
+                for (XNode child : _children) {
                     s.append(child.toString(pretty, offset, tabSize, false));
                 }
                 if (pretty) s.append(tabs);

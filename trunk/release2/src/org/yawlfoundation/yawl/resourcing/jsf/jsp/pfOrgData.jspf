@@ -22,13 +22,24 @@
                   for="txtAdd"
                   id="lblAdd"
                   style="left: 12px; top: 250px; position: absolute"
-                  text="Add New"/>
+                  text="Name"/>
 
-        <ui:textField binding="#{pfOrgData.txtAdd}"
-                      id="txtAdd"
-                      styleClass="queuesTextField"
+        <ui:textField binding="#{pfOrgData.txtName}"
+                      id="txtName"
+                      styleClass="orgDataTextField"
                       style="left: 12px; top: 270px; width: 184px"
                       trim="false"/>
+
+        <ui:label binding="#{pfOrgData.lblMembers}"
+                  for="cbbMembers"
+                  id="lblMembers"
+                  style="top: 250px; left: 230px; position: absolute"/>
+
+        <ui:dropDown binding="#{pfOrgData.cbbMembers}"
+                     id="cbbMembers"
+                     items="#{SessionBean.orgDataMembers}"
+                     forgetValue="true"
+                     style="left: 230px; top: 270px; position: absolute; width: 175px"/>
 
         <ui:label binding="#{pfOrgData.lblBelongs}"
                   for="cbbBelongs"
@@ -39,7 +50,7 @@
         <ui:dropDown binding="#{pfOrgData.cbbBelongs}"
                      id="cbbBelongs"
                      items="#{SessionBean.orgDataBelongsItems}"
-                     style="left: 450px; top: 76px; position: absolute; width: 150px"/>
+                     style="left: 450px; top: 76px; position: absolute; width: 200px"/>
 
         <ui:label binding="#{pfOrgData.lblGroup}"
                   for="cbbGroup"
@@ -50,7 +61,7 @@
         <ui:dropDown binding="#{pfOrgData.cbbGroup}"
                      id="cbbGroup"
                      items="#{SessionBean.orgDataGroupItems}"
-                     style="left: 450px; top: 130px; position: absolute; width: 150px"/>
+                     style="left: 450px; top: 130px; position: absolute; width: 200px"/>
 
         <ui:label binding="#{pfOrgData.lblDesc}"
                   for="txtDesc"
@@ -80,7 +91,7 @@
                    binding="#{orgDataMgt.btnSave}"
                     id="btnSave"
                     styleClass="orgDataButton"
-                    style="left: 450px; top: 170px"
+                    style="left: 450px; top: 210px"
                     toolTip="Save current changes"
                     text="Save"/>
 
@@ -88,21 +99,21 @@
                     binding="#{orgDataMgt.btnAdd}"
                     id="btnAdd"
                     styleClass="orgDataButton"
-                    style="left: 570px; top: 170px"
+                    style="left: 570px; top: 210px"
                     text="New"/>
 
          <ui:button action="#{orgDataMgt.btnReset_action}"
                     binding="#{orgDataMgt.btnReset}"
                     id="btnReset"
                     styleClass="orgDataButton"
-                    style="left:450px; top: 213px"
+                    style="left:450px; top: 253px"
                     text="Reset"/>
 
          <ui:button action="#{orgDataMgt.btnRemove_action}"
                     binding="#{orgDataMgt.btnRemove}"
                     id="btnRemove"
                     styleClass="orgDataButton"
-                    style="left: 570px;top: 213px"
+                    style="left: 570px;top: 253px"
                     toolTip="Permanently remove the selected item"
                     onClick="return confirmDelete()"
                     text="Remove"/>

@@ -226,12 +226,12 @@
                             <jsp:include page="pfQueueUI.jspf"/>
                         </div>
 
+                            <div><jsp:include page="pfMsgPanel.jspf"/></div>
                          </ui:panelLayout>
-                    <ui:panelLayout binding="#{SessionBean.messagePanel}"
-                                    id="msgPanel"
-                                    panelLayout="flow"/>
+
                        </center>
 
+                    <div><jsp:include page="pfFooter.jspf"/></div>
 
                         <ui:meta binding="#{userWorkQueues.metaRefresh}"
                                  httpEquiv="refresh"

@@ -18,8 +18,8 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * This adapter class adds a layer to the resource gateway client, effectively
- * reconstituting the Strings returned from the gateway into java objects.
+ * This adapter class adds a transformation layer to the resource gateway client,
+ * effectively reconstituting the Strings returned from the gateway into java objects.
  *
  * Author: Michael Adams
  * Date: 26/10/2007

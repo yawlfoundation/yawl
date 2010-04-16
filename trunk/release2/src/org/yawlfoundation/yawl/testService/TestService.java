@@ -1,9 +1,11 @@
 package org.yawlfoundation.yawl.testService;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
@@ -21,11 +23,13 @@ import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.AllocateInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.OfferInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
+import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynTextParser;
 import org.yawlfoundation.yawl.resourcing.resource.*;
-import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
-import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayException;
-import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGatewayClientAdapter;
+import org.yawlfoundation.yawl.resourcing.rsInterface.*;
 import org.yawlfoundation.yawl.schema.XSDType;
+import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -62,14 +66,14 @@ public class TestService extends InterfaceBWebsideController {
 
         response.setContentType("text/html");
         PrintWriter outputWriter = response.getWriter();
-        StringBuffer output = new StringBuffer();
+        StringBuilder output = new StringBuilder();
 
         output.append("<html><head><title>YAWL Test Service Welcome Page</title>")
               .append("</head><body><H3>Test Output</H3><p><pre>");
 
    //     output.append(doResourceServiceGatewayTest()) ;
    //    output.append(createDummyOrgData());
-         output.append(doLogGatewayTest()) ;
+    //     output.append(doLogGatewayTest()) ;
      //  output.append(doWorkQueueGatewayTest()) ;
     //    output.append(ibTest());
    //     output.append(doRandomTest()) ;
@@ -83,8 +87,15 @@ public class TestService extends InterfaceBWebsideController {
    //     output.append(getEngineParametersForRegisteredService());
   // output.append(testDynMultiCompTaskNewInst()) ;
   //       output.append(testJU()) ;
-   //     output.append(testGateway());
-
+  //      output.append(testGateway());
+  //      output.append(getTaskParametersInOrder());
+  //      output.append(testClientConnect());
+  //      output.append(testXNode());
+  //      output.append(testXNodeParser());
+   //     output.append(testDynTextParser());
+   //     output.append(testGetSpecID());
+   //     output.append(getTaskPrivileges());
+        output.append(getDistributionSet());
          output.append("</pre></p></body></html>");
          outputWriter.write(output.toString());
          outputWriter.flush();
@@ -92,6 +103,10 @@ public class TestService extends InterfaceBWebsideController {
     }
 
     private void prn(String s) { System.out.println(s) ; }
+
+    private void prnx(String s) { System.out.println(
+            JDOMUtil.formatXMLString(s)) ; }
+
 
     public String execJSP(String urlStr) throws IOException {
 
@@ -130,6 +145,126 @@ private static String getReply(InputStream is) throws IOException {
         return ""; }
     }
 
+
+    public String testXNode() {
+        XNode root = new XNode("toplevel");
+        root.addChild("childwithtext", "the text");
+        root.addChild("emptychild");
+        root.addAttribute("key", "value");
+        root.addAttribute("thing", "other");
+        XNode child = root.addChild("childwithchildren");
+        child.addChild("one", "one text");
+        child.addChild("two", "two text");
+        XNode three = child.addChild("three");
+        three.addAttribute("threes", "thing");
+        System.out.println(root.toString());
+        System.out.println();
+        System.out.println(root.toPrettyString());
+        System.out.println();
+        System.out.println("root depth: " + root.getDepth());
+        System.out.println("child depth: " + child.getDepth());
+        return "success";
+    }
+
+    public String testXNodeParser() {
+        String s = "<thing>the text</thing>";
+        String t = "<single this=\"7\" that=\"banana\"/>";
+        String u = "<single this=\"7\" that=\"banana\">the text</single>";
+        String w = "<very_simple/>";
+        String x = "<root><child>the text</child></root>";
+        String y = "<root><child this=\"7\" that=\"banana\" /></root>";
+        String z = "<root><child /></root>";
+        String a = "<root><child><gc><ggc>the text</ggc></gc></child></root>";
+        XNodeParser xnp = new XNodeParser();
+        XNode node = xnp.parse(s);
+        System.out.println(node.toString());
+        node = xnp.parse(t);
+        System.out.println(node.toString());
+        node = xnp.parse(u);
+        System.out.println(node.toString());
+        node = xnp.parse(w);
+        System.out.println(node.toString());
+        node = xnp.parse(x);
+        System.out.println(node.toString());
+        System.out.println(node.toPrettyString());
+        node = xnp.parse(y);
+        System.out.println(node.toString());
+        node = xnp.parse(z);
+        System.out.println(node.toString());
+        System.out.println(node.toPrettyString());
+        node = xnp.parse(a);
+        System.out.println(node.toString());
+        System.out.println(node.toPrettyString(2));
+        System.out.println(node.getChild("child").toString());
+        System.out.println(node.getChild("child").toPrettyString(2));
+        System.out.println(node.getChild("child").getChild("gc").toString());
+        System.out.println(node.getChild("child").getChild("gc").toPrettyString(1));
+        return "";
+    }
+
+
+    private String testGetSpecID() {
+        YSpecificationID specID = getSpecificationID("842") ;
+        if (specID != null) return specID.toString();
+        return "";
+    }
+
+
+    private YSpecificationID getSpecificationID(String caseID) {
+        String resURL = "http://localhost:8080/resourceService/workqueuegateway";
+        WorkQueueGatewayClientAdapter client = new WorkQueueGatewayClientAdapter(resURL);
+        String engineHandle = client.connect("admin", "YAWL");
+
+        try {
+            Set<SpecificationData> specList = client.getSpecList(engineHandle);
+            for (SpecificationData specData : specList) {
+                YSpecificationID specID = specData.getID();
+                String cases = client.getRunningCases(specID, engineHandle);
+                Element caseElem = JDOMUtil.stringToElement(cases);
+                for (Object child : caseElem.getChildren()) {
+                    String childID = ((Element) child).getText();
+                    if (caseID.equals(childID)) {
+                        return specID;
+                    }
+                }
+            }
+        }
+        catch (IOException ioe) {
+              ioe.printStackTrace();
+        }
+        return null;
+    }
+
+
+    private String getTaskPrivileges() {
+        String resURL = "http://localhost:8080/resourceService/workqueuegateway";
+        WorkQueueGatewayClientAdapter client = new WorkQueueGatewayClientAdapter(resURL);
+        String engineHandle = client.connect("admin", "YAWL");
+
+        try {
+            TaskPrivileges tp = client.getTaskPrivileges("899:T1_3", engineHandle);
+            return tp.toString();
+        }
+        catch (Exception ioe) {
+              ioe.printStackTrace();
+        }
+        return null;
+    }
+
+    private String getDistributionSet() {
+        String resURL = "http://localhost:8080/resourceService/workqueuegateway";
+        WorkQueueGatewayClientAdapter client = new WorkQueueGatewayClientAdapter(resURL);
+        String engineHandle = client.connect("admin", "YAWL");
+
+        try {
+            Set<Participant> set = client.getDistributionSet("918.1:Create_Purchase_Order_104", engineHandle);
+            return set.toString();
+        }
+        catch (Exception ioe) {
+              ioe.printStackTrace();
+        }
+        return null;
+    }
 
     private String testSummaries() {
         String result = "";
@@ -200,6 +335,21 @@ private static String getReply(InputStream is) throws IOException {
     }
 
 
+    private String testDynTextParser() {
+        String dataStr = "<wi><value>true</value></wi>";
+        Element data = JDOMUtil.stringToElement(dataStr);
+        String text = "2 + 3 equals ${2+3}";
+        DynTextParser parser = new DynTextParser(data);
+        String result = parser.parse(text);
+        text = "The meaning of LUE is ${/wi/value/text()}";
+        result += '\n' + parser.parse(text);
+        text = "${if (boolean(/wi/value/text())) then 'it is true' else 'it is false'}";
+        result += '\n' + parser.parse(text);
+        text = "::: this is     a very    strange ..${/wi/value/text()}.@.    string";
+        result += '\n' + parser.parse(text);
+        return result;
+    }
+
     private String testDynMultiCompTaskNewInst() {
         String result = "bad";
         try {
@@ -225,11 +375,62 @@ private static String getReply(InputStream is) throws IOException {
 //        }
 //    }
 
+    public String testClientConnect() {
+        String handle = null;
+        try {
+            handle = this.connect("editor", "YAWL");
+        }
+        catch (IOException ioe) {
+            //
+        }
+        return handle;
+    }
+
+        public synchronized String getTaskParametersInOrder() {
+        String resURL = "http://localhost:8080/resourceService/workqueuegateway";
+        WorkQueueGatewayClientAdapter client = new WorkQueueGatewayClientAdapter(resURL);
+        String engineHandle = client.connect("admin", "YAWL");
+        String workItemRecordId = "596.2:Task2_4";
+        try {
+            List<YParameter> taskParameters =
+                new ArrayList<YParameter>(client.getWorkItemParameters(workItemRecordId, engineHandle));
+            List<YParameter> outputOnlyParams =
+                new ArrayList<YParameter>(client.getWorkItemOutputOnlyParameters(workItemRecordId, engineHandle));
+
+        Collections.sort(taskParameters);
+        Collections.sort(outputOnlyParams);
+
+        taskParameters.addAll(outputOnlyParams);
+
+        //make the order of components
+        String[] components = new String[taskParameters.size()];
+        int order = 0;
+        for (YParameter childParam : taskParameters) {
+            String name = childParam.getName();
+            System.out.println(" The order is " + order + " the name is " + name);
+            components[order++] = name;
+        }//fend
+        }
+        catch (Exception e) {
+            //
+        }
+        return "";
+    }//fend
+
+
     private String testGateway() {
-//        WorkQueueGatewayClientAdapter adapter =
-//               new WorkQueueGatewayClientAdapter("http://localhost:8080/resourceService/workqueuegateway");
-//        String handle = adapter.connect("admin", "YAWL");
-//        try {
+        WorkQueueGatewayClient adapter =
+               new WorkQueueGatewayClient("http://localhost:8080/resourceService/workqueuegateway");
+        try {
+            String handle = adapter.connect("admin", "YAWL");
+            String xml = adapter.getWorkItemParameters("475:thetask_3", handle);
+            Set<YParameter> set = new ResourceMarshaller().parseWorkItemParams(xml);
+            System.out.println(xml);
+        }
+        catch (IOException ioe) {
+          //  return "";
+        }
+
 //            Participant p = adapter.getParticipantFromUserID("th", handle);
 //            QueueSet set = adapter.getAdminQueues(handle);
 //            Set<WorkItemRecord> unofferedItems = set.getQueuedWorkItems(WorkQueue.UNOFFERED);
@@ -255,7 +456,7 @@ private static String getReply(InputStream is) throws IOException {
                 System.out.println(s);
             }
         }
-        catch (IOException ioe) {}
+        catch (Exception ioe) {}
         return "";
     }
 
@@ -322,54 +523,62 @@ c.getQueuedWorkItems(resourceId,WorkQueue.SUSPENDED,handle);
                                          "http://localhost:8080/yawl/logGateway") ;
         String handle = logClient.connect("admin", "YAWL") ;
 
-        prn(logClient.getCaseEventsForSpec("ListBuilder", handle));
-        prn(logClient.getCaseEventsForSpec("ListBuilder", handle));
-        prn(logClient.getCaseEventIDsForSpec("ListBuilder", handle));
-        return "";
-       /*
+//        prnx(logClient.getCompleteCaseLog("579", handle));
+
         // test all methods
-        prn("getAllSpecIDs:");
-        prn(logClient.getAllSpecIDs(handle));
+/*        prn("getAllSpecifications:");
+        prnx(logClient.getAllSpecifications(handle));
 
         prn("");
-        prn("getAllCaseEventIDs");
-        prn(logClient.getAllCaseEventIDs(handle)) ;
+        prn("getNetInstancesOfSpecification - specID:");
+        prnx(logClient.getNetInstancesOfSpecification(
+                "UID_89217a2b-03db-4ac1-82ce-831c12210854", "1.24", "Sample", handle)) ;
 
         prn("");
-        prn("getllCaseEventIDs - started events only:");
-        prn(logClient.getAllCaseEventIDs("started", handle)) ;
+        prn("getNetInstancesOfSpecification - key:");
+        prnx(logClient.getNetInstancesOfSpecification(16690, handle)) ;
+*/
+        prn("");
+        prn("getCompleteCaseLogsForSpecification - key:");
+        prnx(logClient.getCompleteCaseLogsForSpecification(17602, handle)) ;
+
+/*        prn("");
+        prn("getCaseEvents - caseID:");
+        prnx(logClient.getCaseEvents("579", handle)) ;
 
         prn("");
-        prn("getCaseEventIDsForSpec - casualty treatment:") ;
-        prn(logClient.getCaseEventIDsForSpec("Casualty_Treatment", handle)) ;
+        prn("getCaseEvents - key:");
+        prnx(logClient.getCaseEvents(17050, handle)) ;
 
         prn("");
-        prn("getCaseEventsForSpec(Casualty_Treatment):");
-        prn(logClient.getCaseEventsForSpec("Casualty_Treatment", handle));
+        prn("getDataForEvent:") ;
+        prnx(logClient.getDataForEvent(17006, handle)) ;
 
         prn("");
-        prn("getChildWorkItemEventsForParent - 3 events returned:");
-        prn(logClient.getChildWorkItemEventsForParent(
-                          "caa94661-056a-4025-b53a-b50a09f09ea7", handle)) ;
+        prn("getDataTypeForDataItem:");
+        prnx(logClient.getDataTypeForDataItem(16703, handle));
 
         prn("");
-        prn("getParentWorkItemEventsForCase:");
-        prn(logClient.getParentWorkItemEventsForCase(
-                          "2d807928-85c3-41b6-80bf-76ae1de72491", handle)) ;
+        prn("getTaskInstancesForCase:");
+        prnx(logClient.getTaskInstancesForCase("579", handle)) ;
 
         prn("");
-        prn("getParentWorkItemEventsForCaseID - 3:");
-        prn(logClient.getParentWorkItemEventsForCaseID("3", handle)) ;
+        prn("getTaskInstancesForTask:");
+        prnx(logClient.getTaskInstancesForTask(16947, handle)) ;
 
         prn("");
-        prn("getCaseEventTime - caseeventid passed:");
-        prn(logClient.getCaseEventTime("9a81dbb7-85f8-4ae4-a950-e29ca43cdc57", handle)) ;
+        prn("getCaseEvent:");
+        prnx(logClient.getCaseEvent("579", "CaseStart", handle)) ;
 
         prn("");
-        prn("getCaseEventTime - caseid and started passed:");
-        prn(logClient.getCaseEventTime("260", "started", handle)) ;
+        prn("getAllCasesStartedByService:");
+        prnx(logClient.getAllCasesStartedByService(null, handle)) ;
 
-        return "" ;    */
+        prn("");
+        prn("getAllCasesCancelledByService:");
+        prnx(logClient.getAllCasesCancelledByService("DefaultWorklist", handle)) ;  */
+
+        return "" ;
     }
 
 
@@ -415,7 +624,7 @@ c.getQueuedWorkItems(resourceId,WorkQueue.SUSPENDED,handle);
 
         // get full sets of filters, constraints and allocators
         String handle = resClient.connect("admin", "YAWL");
-
+        try {
         // get full sets of Org Data
         List participants = resClient.getParticipants(handle);
         List roles = resClient.getRoles(handle);
@@ -458,7 +667,6 @@ c.getQueuedWorkItems(resourceId,WorkQueue.SUSPENDED,handle);
             System.out.println("DisplayName: " + ac.getDisplayName());
             System.out.println("Desc: " + ac.getDescription());
         }
-
 
 
         // STEP 2: Present data to designer - designer makes choices
@@ -545,8 +753,11 @@ c.getQueuedWorkItems(resourceId,WorkQueue.SUSPENDED,handle);
         // this is here to test the output to a file
        /**  Document doc = JDOMUtil.stringToDocument(xmlout);
          JDOMUtil.documentToFile(doc, "c:/temp/resourcingout.xml"); */
-
-        return rMap.toXML() ;
+            return rMap.toXML() ;
+        }
+        catch (Exception e) {
+            return "";
+        }
     }
         /******* TEST CODE ENDS HERE *************************************************/
 
@@ -569,30 +780,30 @@ c.getQueuedWorkItems(resourceId,WorkQueue.SUSPENDED,handle);
             Role r = new Role("a shared role");
             r.setPersisting(true);
 
-            rm.addRole(r2);
-            rm.addRole(r);
+            rm.getOrgDataSet().addRole(r2);
+            rm.getOrgDataSet().addRole(r);
             r.setOwnerRole(r2);
 
             OrgGroup o = new OrgGroup("mega", OrgGroup.GroupType.DIVISION, null, "mega");
             o.setPersisting(true);
-            rm.addOrgGroup(o);
+            rm.getOrgDataSet().addOrgGroup(o);
 
             OrgGroup o2 = new OrgGroup("minor", OrgGroup.GroupType.TEAM, o, "minor");
             o2.setPersisting(true);
-            rm.addOrgGroup(o2);
+            rm.getOrgDataSet().addOrgGroup(o2);
 
             Position po = new Position("a position");
             po.setPersisting(true);
             Position p2 = new Position("manager");
             p2.setPersisting(true);
-            rm.addPosition(p2);
-            rm.addPosition(po);
+            rm.getOrgDataSet().addPosition(p2);
+            rm.getOrgDataSet().addPosition(po);
             po.setReportsTo(p2);
             po.setOrgGroup(o2);
             p2.setOrgGroup(o2);
 
             Capability c = new Capability("a capability", "some description", true);
-            rm.addCapability(c);
+            rm.getOrgDataSet().addCapability(c);
 
 
             for (int i = 0; i < HOW_MANY_PARTICIPANTS_TO_CREATE; i++) {
@@ -646,7 +857,7 @@ c.getQueuedWorkItems(resourceId,WorkQueue.SUSPENDED,handle);
         String obs = "http://localhost:8080/testService/ib";
         String result;
 
-        _log.setLevel(Level.TRACE);
+    //    _log.setLevel(Level.TRACE);
 
         try {
             String handle = _interfaceBClient.connect("admin", "YAWL");

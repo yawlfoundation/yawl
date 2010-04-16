@@ -50,7 +50,7 @@ public class ResourceMarshaller {
     }
 
 
-    public Set<Participant> unmarshallParticipants(String xml) throws IOException {
+    public Set<Participant> unmarshallParticipants(String xml) {
         Set<Participant> result = new HashSet<Participant>();
 
         // each child is one Participant (as xml)
@@ -80,7 +80,7 @@ public class ResourceMarshaller {
     }
 
 
-    public Set<WorkItemRecord> unmarshallWorkItemRecords(String xml) throws IOException {
+    public Set<WorkItemRecord> unmarshallWorkItemRecords(String xml) {
         Set<WorkItemRecord> result = new HashSet<WorkItemRecord>();
 
         // each child is one WorkItemRecord (as xml)

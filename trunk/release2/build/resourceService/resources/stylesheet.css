@@ -10,11 +10,19 @@
 }
 
 .vpcontainerPanel {
-    height: 372px;
+    height: 377px;
     width: 538px;
     top: 50px;
     position:relative;
-    /*border: 2px solid gray;*/
+}
+
+.selectUserContainerPanel {
+    background-color: #98ccfe;
+    height: 280px;
+    width: 280px;
+    top: 50px;
+    border: 3px ridge black;
+    position:relative;
 }
 
 .addInstanceContainerPanel {
@@ -22,19 +30,25 @@
     width: 306px;
     top: 50px;
     position:relative;
-    border: 2px solid gray;
 }
 
 .servicesContainerPanel {
-    height: 475px;
+    height: 515px;
+    width: 666px;
+    top: 50px;
+    position:relative;
+}
+
+.externalClientsContainerPanel {
+    height: 485px;
     width: 666px;
     top: 50px;
     position:relative;
 }
 
 .adminQueuesContainerPanel {
-    height: 350px;
-    width: 796px;
+    height: 328px;
+    width: 798px;
     top: 50px;
     position:relative;
 }
@@ -47,21 +61,21 @@
 }
 
 .userQueuesContainerPanel {
-    height: 284px;
-    width: 796px;
+    height: 328px;
+    width: 798px;
     top: 50px;
     position:relative;
 }
 
 .caseMgtContainerPanel {
-    height: 580px;
+    height: 590px;
     width: 602px;
     top: 50px;
     position:relative;
 }
 
 .userMgtContainerPanel {
-    height: 563px;
+    height: 543px;
     width: 670px;
     top: 50px;
     position:relative;
@@ -75,8 +89,8 @@
 }
 
 .orgDataMgtContainerPanel {
-    height: 348px;
-    width: 694px;
+    height: 328px;
+    width: 698px;
     top: 50px;
     position:relative;
 }
@@ -85,6 +99,15 @@
     height: 30px;
     width: 110px;
     top: 5px;
+    position:relative;
+}
+
+.addInstancePanel {
+    background-color: #98ccfe;
+    height: 300px;
+    width: 306px;
+    top: 30px;
+    border: 2px solid black;
     position:relative;
 }
 
@@ -101,6 +124,41 @@
     width: 540px;
     top: 50px;
     position:relative;
+}
+
+
+.transPanel {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-color: white;
+    border:1px solid black;
+    /* for IE */
+    filter:alpha(opacity=60);
+    /* CSS3 standard */
+    opacity:0.6;    
+}
+
+
+.footerPanel {
+    top: 80px;
+    height: 100%;
+    width: 100%;
+}
+
+.footerTextPanel {
+    height: 20px;
+    top: 30px;
+    width: 100%;
+}
+
+.footerText {
+    width: 100%;
+    color: gray;
+    text-align: center;
+    top: 5px;
+    font-style: italic;
+    position: absolute;
 }
 
 .loginLabel {
@@ -140,11 +198,18 @@
     left: 0px;
 }
 
+.selectUserListbox {
+    border: 1px solid black;
+    height: 180px;
+    left: 15px;
+    top: 40px; 
+    position: absolute;
+    width: 250px;
+}
+
 .messagePanel {
-    width: 350px;
-    height: 100px;
     background-color: #f0f0f0;
-    border: 2px solid gray;
+    border: 3px solid darkgray;
 }
 
 /* Rules for data tables */
@@ -253,6 +318,21 @@
     border-color: #3277ba;
     top: 0;
     position: absolute;
+}
+
+.addInstanceParamLabel {
+    left: 15px;
+    top: 60px;
+    position: absolute;
+    font-size: 13px;
+}
+
+.addInstanceParamValue {
+    left: 15px;
+    height: 150px;
+    top: 80px;
+    position: absolute;
+    width: 270px
 }
 
 /* General Rules used by several pages */
@@ -561,7 +641,7 @@
 
 .selectUserButton {
     height: 30px;
-    top: 348px;
+    top: 235px;
     position: absolute;
     width: 71px;
 }
@@ -679,6 +759,14 @@
     padding: 2px;
     background-color: white;
     color: rgb(102, 102, 102);
+    position: absolute;
+    width: 136px;
+}
+
+.orgDataTextField {
+    /*border: 2px inset #ccccff;*/
+    /*padding: 2px;*/
+    /*background-color: white;*/
     position: absolute;
     width: 136px;
 }

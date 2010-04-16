@@ -40,6 +40,9 @@ public class WSIFController extends InterfaceBWebsideController {
     private static final String WSDL_PORTNAME_PARAMNAME = "YawlWSInvokerPortName";
     private static final String WSDL_OPERATIONNAME_PARAMNAME = "YawlWSInvokerOperationName";
 
+    private static final String _engineUser = "wsInvokerService";
+    private static final String _enginePassword = "yWSInvoker";
+
 
     /**
      * Implements InterfaceBWebsideController.  It recieves messages from the engine
@@ -51,7 +54,7 @@ public class WSIFController extends InterfaceBWebsideController {
     public void handleEnabledWorkItemEvent(WorkItemRecord enabledWorkItem) {
         try {
             if (!checkConnection(_sessionHandle)) {
-                _sessionHandle = connect(DEFAULT_ENGINE_USERNAME, DEFAULT_ENGINE_PASSWORD);
+                _sessionHandle = connect(_engineUser, _enginePassword);
             }
             if (successful(_sessionHandle)) {
                 List executingChildren = checkOutAllInstancesOfThisTask(enabledWorkItem, _sessionHandle);
