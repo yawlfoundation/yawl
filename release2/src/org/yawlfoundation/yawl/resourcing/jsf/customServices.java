@@ -143,6 +143,13 @@ public class customServices extends AbstractPageBean {
     public void setLblPassword(Label l) { lblPassword = l; }
 
 
+    private Label lblConfirmPassword = new Label();
+
+    public Label getLblConfirmPassword() { return lblConfirmPassword; }
+
+    public void setLblConfirmPassword(Label l) { lblConfirmPassword = l; }
+
+
     private Label lblURL = new Label();
 
     public Label getLblURL() { return lblURL; }
@@ -169,6 +176,13 @@ public class customServices extends AbstractPageBean {
     public PasswordField getTxtPassword() { return txtPassword; }
 
     public void setTxtPassword(PasswordField pw) { txtPassword = pw; }
+
+
+    private PasswordField txtConfirmPassword ;
+
+    public PasswordField getTxtConfirmPassword() { return txtConfirmPassword; }
+
+    public void setTxtConfirmPassword(PasswordField pw) { txtConfirmPassword = pw; }
 
 
     private TextField txtURL = new TextField();
@@ -327,15 +341,16 @@ public class customServices extends AbstractPageBean {
 
     /********************************************************************************/
 
+    private SessionBean _sb = getSessionBean();
     private MessagePanel msgPanel = getSessionBean().getMessagePanel();
 
     /**
      * Overridden method that is called immediately before the page is rendered
      */
     public void prerender() {
-        getSessionBean().checkLogon();
-        msgPanel.show();
-        getSessionBean().setActivePage(ApplicationBean.PageRef.customServices);
+        _sb.checkLogon();
+        _sb.setActivePage(ApplicationBean.PageRef.customServices);
+        _sb.showMessagePanel();
     }
 
 
@@ -343,7 +358,7 @@ public class customServices extends AbstractPageBean {
     public String btnRemove_action() {
         try {
             Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
-            getSessionBean().removeRegisteredService(selectedRowIndex);
+            _sb.removeRegisteredService(selectedRowIndex);
             msgPanel.success("Service successfully removed.");
         }
         catch (NumberFormatException nfe) {
@@ -365,15 +380,20 @@ public class customServices extends AbstractPageBean {
         String doco = (String) txtDescription.getText();
         if (! (isNullOrEmpty(name) || isNullOrEmpty(password) ||
                 isNullOrEmpty(uri) || isNullOrEmpty(doco))) {
-            String validMsg = HttpURLValidator.validate(uri);
-            if (validMsg.startsWith("<success")) {
-                getSessionBean().addRegisteredService(name, password, uri, doco);
-                clearInputs();
-                msgPanel.success("Service successfully added.");
+            if (! password.equals(txtConfirmPassword.getText())) {
+                msgPanel.error("Password and Confirm Password are different.");
             }
             else {
-                msgPanel.error("Invalid URL: " + msgPanel.format(validMsg));
-            }
+                String validMsg = HttpURLValidator.validate(uri);
+                if (validMsg.startsWith("<success")) {
+                    _sb.addRegisteredService(name, password, uri, doco);
+                    clearInputs();
+                    msgPanel.success("Service successfully added.");
+                }
+                else {
+                    msgPanel.error("Invalid URL: " + msgPanel.format(validMsg));
+                }
+            }    
         }
         else
             msgPanel.warn("Add Service: Please enter values in all fields.");
@@ -396,6 +416,7 @@ public class customServices extends AbstractPageBean {
     private void clearInputs() {
         txtName.setText("");
         txtPassword.setText("");
+        txtConfirmPassword.setText("");
         txtURL.setText("");
         txtDescription.setText("");
     }

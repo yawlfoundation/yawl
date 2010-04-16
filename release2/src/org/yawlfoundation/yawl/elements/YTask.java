@@ -410,12 +410,14 @@ public abstract class YTask extends YExternalNetElement {
         int listSize = multiInstanceList.size();
         if (listSize > max || listSize < min) {
             throw new YDataQueryException(
-                    _multiInstAttr.getMISplittingQuery(),
-                    dataToSplit,
-                    this.getID(),
-                    "The number of instances produced by MI split is too " +
-                    (listSize > max ? "large" : "small") +
-                    ".");
+                    _multiInstAttr.getMISplittingQuery(), dataToSplit, this.getID(),
+                    String.format(
+                       "The number of instances produced by MI split (%d) is %s than " +
+                       "the %s instance bound specified (%d).", listSize,
+                       (listSize > max ? "more" : "less"),
+                       (listSize > max ? "maximum" : "minimum"),
+                       (listSize > max ? max : min))
+                    );
         }
         _multiInstanceSpecificParamsIterator = multiInstanceList.iterator();
         return listSize;
@@ -478,6 +480,11 @@ public abstract class YTask extends YExternalNetElement {
                 //debugging method call
                 generateCompletingReport1(query, decompositionOutputData, queryResultElement);
 
+                if (queryResultElement == null) {
+                    throw new YDataQueryException(query, queryResultElement, null, 
+                            "The result of the output query (" + query + ") is null");
+                }
+
                 if (query.equals(getPreJoiningMIQuery())) {
                     _groupedMultiInstanceOutputData.getRootElement().addContent(
                             (Element) queryResultElement.clone());
@@ -492,8 +499,8 @@ public abstract class YTask extends YExternalNetElement {
                 if (_net.getSpecification().isSchemaValidating() &&
                         !query.equals(getPreJoiningMIQuery())) {
                     YVariable var = _net.getLocalVariables().containsKey(localVarThatQueryResultGetsAppliedTo) ?
-                            (YVariable) _net.getLocalVariables().get(localVarThatQueryResultGetsAppliedTo) :
-                            (YVariable) _net.getInputParameters().get(localVarThatQueryResultGetsAppliedTo);
+                             _net.getLocalVariables().get(localVarThatQueryResultGetsAppliedTo) :
+                             _net.getInputParameters().get(localVarThatQueryResultGetsAppliedTo);
                     try {
                         Element tempRoot = new Element(_decompositionPrototype.getID());
                         tempRoot.addContent((Element) queryResultElement.clone());
@@ -953,7 +960,7 @@ public abstract class YTask extends YExternalNetElement {
                         // Add in attributes for input parameter
                         specificMIData.setAttributes(parameter.getAttributes().toJDOM());
                     }
-                    dataForChildCase.addContent(specificMIData);
+                    dataForChildCase.addContent(specificMIData.detach());
        //             instanceCache.addParameter(childInstanceID, parameter,
      //                                          expression, specificMIData);
                }

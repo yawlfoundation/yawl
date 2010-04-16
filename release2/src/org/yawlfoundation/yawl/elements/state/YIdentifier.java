@@ -171,7 +171,7 @@ public class YIdentifier {
 
 
     public String toString() {
-        return this._idString;
+        return _idString;
     }
 
 

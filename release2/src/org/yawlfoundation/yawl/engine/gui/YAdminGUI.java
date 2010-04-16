@@ -518,7 +518,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
         else if (command == _reannounceEnabledWorkItems) {
             try
             {
-                _engineManagement.reannounceEnabledWorkItems();
+                _engineManagement.getAnnouncer().reannounceEnabledWorkItems();
             }
             catch (Exception e2)
             {

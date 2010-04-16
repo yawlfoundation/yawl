@@ -39,6 +39,9 @@ public class OfferInteraction extends AbstractInteraction {
     private HashSet<Role> _roles  = new HashSet<Role>();
     private HashSet<DynParam> _dynParams  = new HashSet<DynParam>();
 
+    // complete distribution set expanded to a set of participants
+    private HashSet<Participant> _distributionSet = new HashSet<Participant>();
+
     private HashSet<AbstractFilter> _filters  = new HashSet<AbstractFilter>();
     private HashSet<AbstractConstraint> _constraints  = new HashSet<AbstractConstraint>();
 
@@ -205,12 +208,16 @@ public class OfferInteraction extends AbstractInteraction {
 
     public Set<AbstractConstraint> getConstraints() { return _constraints; }
 
+    public Set<Participant> getDistributionSet() { return _distributionSet; }
+
+
     public Set<String> getDynParamNames() {
         Set<String> names = new HashSet<String>();
         for (DynParam param : _dynParams) {
             names.add(param.getName() + "[" + param.getRefersString() + "]");
         }
-        return names; }
+        return names;
+    }
 
 
     /********************************************************************************/
@@ -225,13 +232,13 @@ public class OfferInteraction extends AbstractInteraction {
      * @return the final distribution set of Participant objects
      */
     public Set<Participant> performOffer(WorkItemRecord wir) {
-        HashSet<Participant> distributionSet = new HashSet<Participant>();
+        _distributionSet = new HashSet<Participant>();
 
         // if familiar task specified, get the participant(s) who completed that task,
         // & offer this item to them - no more to do
         if (_familiarParticipantTask != null) {
             Set<Participant> pSet = _rm.getWhoCompletedTask(_familiarParticipantTask, wir);
-            if (pSet != null) distributionSet.addAll(pSet) ;
+            if (pSet != null) _distributionSet.addAll(pSet) ;
         }
         else {
             // make sure each participant is added only once
@@ -240,7 +247,7 @@ public class OfferInteraction extends AbstractInteraction {
             // add Participants
             for (Participant p : _participants) {
                 uniqueIDs.add(p.getID()) ;
-                distributionSet.add(p) ;
+                _distributionSet.add(p) ;
             }
 
             // add roles
@@ -248,7 +255,7 @@ public class OfferInteraction extends AbstractInteraction {
                 Set<Participant> pSet = _rm.getOrgDataSet().castToParticipantSet(role.getResources());
                 pSet.addAll(_rm.getOrgDataSet().getParticipantsInDescendantRoles(role));
                 for (Participant p : pSet) {
-                    addParticipantToDistributionSet(distributionSet, uniqueIDs, p) ;
+                    addParticipantToDistributionSet(_distributionSet, uniqueIDs, p) ;
                 }
             }
 
@@ -256,24 +263,24 @@ public class OfferInteraction extends AbstractInteraction {
             for (DynParam param : _dynParams) {
                 Set<Participant> pSet = param.evaluate(wir);
                 for (Participant p : pSet) {
-                    addParticipantToDistributionSet(distributionSet, uniqueIDs, p) ;
+                    addParticipantToDistributionSet(_distributionSet, uniqueIDs, p) ;
                 }
             }
 
             // apply each filter
             for (AbstractFilter filter : _filters)
-                distributionSet =
-                    (HashSet<Participant>) filter.performFilter(distributionSet) ;
+                _distributionSet =
+                    (HashSet<Participant>) filter.performFilter(_distributionSet) ;
 
             // apply each constraint
             for (AbstractConstraint constraint : _constraints)
-                distributionSet =
-                    (HashSet<Participant>) constraint.performConstraint(distributionSet, wir) ;
+                _distributionSet =
+                    (HashSet<Participant>) constraint.performConstraint(_distributionSet, wir) ;
 
         }
 
         // ok - got our final set
-        return distributionSet ;
+        return _distributionSet ;
     }
 
 
@@ -284,9 +291,13 @@ public class OfferInteraction extends AbstractInteraction {
                 _rm.announceModifiedQueue(p.getID()) ;
             }
         }
-        else
+
+        // a fired instance of a multi-instance workitem on the unoffered queue will
+        // never have been offered, so the warning should be suppressed for those
+        else if (! wir.getStatus().equals(WorkItemRecord.statusFired)) {
             _log.warn("Workitem '" + wir.getID() + "' does not have 'Offered' status, " +
                       "or is no longer active");
+        }
     }
 
 

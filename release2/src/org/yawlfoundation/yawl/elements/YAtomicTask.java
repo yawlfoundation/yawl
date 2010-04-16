@@ -140,7 +140,7 @@ public class YAtomicTask extends YTask {
                 Announcements<CancelWorkItemAnnouncement> announcements =
                                          new Announcements<CancelWorkItemAnnouncement>();
                 announcements.addAnnouncement(new CancelWorkItemAnnouncement(ys, workItem));
-                YEngine.getInstance().announceCancellationToEnvironment(announcements);
+                YEngine.getInstance().getAnnouncer().announceCancellationToEnvironment(announcements);
             }
             catch (YStateException e) {
                 logger.error("Failed to announce cancellation of workitem '" +

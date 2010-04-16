@@ -40,7 +40,8 @@ public class Login extends AbstractPageBean {
     public void preprocess() { }
 
     public void prerender() {
-        msgPanel.show();                                  // show messages as required
+        _sb.setActivePage(ApplicationBean.PageRef.Login);
+        _sb.showMessagePanel();
     }
 
     public void destroy() { }
@@ -167,8 +168,8 @@ public class Login extends AbstractPageBean {
     // SPECIFIC DELARATIONS AND METHODS //
 
     private ResourceManager rm = getApplicationBean().getResourceManager();
-    private SessionBean sb = getSessionBean();
-    private MessagePanel msgPanel = sb.getMessagePanel() ;
+    private SessionBean _sb = getSessionBean();
+    private MessagePanel msgPanel = _sb.getMessagePanel() ;
 
     
     /**
@@ -179,8 +180,8 @@ public class Login extends AbstractPageBean {
         String nextPage = null ;
 
         // check if this browser session already has a logged in user
-        if (sb.getUserid() != null) {
-            msgPanel.error("User '" + sb.getUserid() + "' is already logged on in this" +
+        if (_sb.getUserid() != null) {
+            msgPanel.error("User '" + _sb.getUserid() + "' is already logged on in this" +
                            " browser instance. Only one user logon per browser " +
                            " instance is possible. If you wish to logon, please " +
                            " logout the current user first.") ;
@@ -223,7 +224,7 @@ public class Login extends AbstractPageBean {
         if (rm != null) {
             String pEncrypt = p ;                                // default for admin
             boolean externalAuth = rm.getOrgDataSet().isUserAuthenticationExternal();
-            if (! (u.equals("admin") || externalAuth)) {
+            if (! externalAuth) {
                 try {
                     pEncrypt = PasswordEncryptor.encrypt(p) ;
                 }
@@ -262,17 +263,17 @@ public class Login extends AbstractPageBean {
      * @param handle the session handle supplied by the service 
      */
     private void initSession(String userid, String handle) {
-        sb.setSessionhandle(handle);
-        sb.setUserid(userid);
+        _sb.setSessionhandle(handle);
+        _sb.setUserid(userid);
         if (! userid.equals("admin")) {
-            sb.setParticipant(rm.getParticipantFromUserID(userid));
+            _sb.setParticipant(rm.getParticipantFromUserID(userid));
             getApplicationBean().addLiveUser(userid);
 
             // initialise workqueue
-            Set<WorkItemRecord> wirSet = sb.getQueue(WorkQueue.OFFERED);
+            Set<WorkItemRecord> wirSet = _sb.getQueue(WorkQueue.OFFERED);
 
             if ((wirSet != null) && (! wirSet.isEmpty()))
-                sb.setChosenWIR(wirSet.iterator().next());
+                _sb.setChosenWIR(wirSet.iterator().next());
         }
         ((pfMenubar) getBean("pfMenubar")).construct(userid.equals("admin"));     // make the menu bar
     }

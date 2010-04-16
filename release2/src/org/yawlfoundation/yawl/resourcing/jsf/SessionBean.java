@@ -12,6 +12,7 @@ import com.sun.rave.web.ui.appbase.AbstractSessionBean;
 import com.sun.rave.web.ui.component.Button;
 import com.sun.rave.web.ui.component.PanelLayout;
 import com.sun.rave.web.ui.component.Script;
+import com.sun.rave.web.ui.component.Listbox;
 import com.sun.rave.web.ui.model.Option;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
@@ -30,6 +31,7 @@ import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.FacesException;
+import javax.faces.event.ActionEvent;
 import javax.faces.application.Application;
 import javax.faces.application.NavigationHandler;
 import javax.faces.context.ExternalContext;
@@ -266,6 +268,9 @@ public class SessionBean extends AbstractSessionBean {
         if (page != ApplicationBean.PageRef.participantData) {
             setEditedParticipant((Participant) null);
         }
+        if (page != ApplicationBean.PageRef.externalClients) {
+            this.setAddClientAccountMode(true);
+        }
     }
 
 
@@ -423,6 +428,43 @@ public class SessionBean extends AbstractSessionBean {
 
     public void setLoadedSpecListChoice(SpecificationData choice) {        
         loadedSpecListChoice = choice.getID() ;
+    }
+
+    /********************************************************************************/
+
+    private String directToMeChoice;
+
+    public void setDirectToMeChoice(String choice) { directToMeChoice = choice; }
+
+    public String getDirectToMeChoice() { return directToMeChoice; }
+
+
+    private Listbox lbxUserList = new Listbox();
+
+    public Listbox getLbxUserList() { return lbxUserList; }
+
+    public void setLbxUserList(Listbox l) { lbxUserList = l; }
+
+
+    public void configureSelectUserListBox(String action) {
+        if (action.equals("Offer") || action.equals("Reoffer")) {
+            lbxUserList.setMultiple(true);
+            lbxUserList.setSelected(selectUserListChoices);
+        }
+        else {
+            lbxUserList.setMultiple(false);
+            lbxUserList.setSelected(selectUserListChoice);
+        }
+    }
+
+    private ArrayList selectUserListChoices;
+
+    public ArrayList getSelectUserListChoices() {
+        return selectUserListChoices;
+    }
+
+    public void setSelectUserListChoices(ArrayList list) {
+        selectUserListChoices = list;
     }
 
     /********************************************************************************/
@@ -707,29 +749,48 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
+    public YExternalClient getSelectedExternalClient(int listIndex) {
+        return externalClients.get(listIndex);
+    }
+
+
     public String removeExternalClient(int listIndex) {
-        String result = null;
+        String result;
         try {
             YExternalClient client = externalClients.get(listIndex);
             result = _rm.removeExternalClient(client.getUserID());
             if (_rm.successful(result)) refreshExternalClients();
         }
         catch (IOException ioe) {
-            // message ...
+            result = "Error attempting to remove client. Please see the log files for details.";
         }
         return result ;
     }
 
 
-    public String addExternalClient(String name, String pw, String doco) {
-        String result = null;
+    public String updateExternalClient(String name, String pw, String doco) {
         try {
+            return _rm.updateExternalClient(name, pw, doco);
+        }
+        catch (IOException ioe) {
+            return "Error attempting to update client. Please see the log files for details.";
+        }
+    }
+
+
+
+    public String addExternalClient(String name, String pw, String doco) {
+        String result;
+        if (name.equals("admin")) {
+            return "Cannot add client 'admin' because it is a reserved client name.";
+        }
+        try {      
             YExternalClient client = new YExternalClient(name, pw, doco);
             result = _rm.addExternalClient(client);
             if (_rm.successful(result)) refreshExternalClients();
         }
         catch (IOException ioe) {
-            // message ...
+            result = "Error attempting to add new client. Please see the log files for details.";
         }
         return result ;
     }
@@ -924,20 +985,36 @@ public class SessionBean extends AbstractSessionBean {
     }
 
     public boolean performAdminQueueAction(String action) {
-        WorkItemRecord wir ;
-        boolean result = true;
-        String participantID = getSelectUserListChoice() ;            // this is the p-id
-        if (participantID != null) {                       // null if browser-back-btn'ed
+        boolean success = true;
+        WorkItemRecord wir;
+        String[] pidList = null;
+
+        if (directToMeChoice != null) {
+            pidList = new String[] {directToMeChoice};
+        }
+        else {
+            Object selected = getLbxUserList().getSelected();
+            if (selected != null) {                       // null if browser-back-btn'ed
+
+                // If its a multi-select list, selected will be a String[]; if its a
+                // single-select list, selected will be a single String, in which case
+                // we need to create a new String array and add the selected String as
+                // its only member. Each String represents a participant id.
+                pidList = (selected instanceof String[]) ? (String[]) selected :
+                              new String[] {(String) selected};
+            }
+        }
+        if (pidList != null) {
             if (action.startsWith("Re")) {
                 wir = getChosenWIR(WorkQueue.WORKLISTED);
-                _rm.reassignWorklistedItem(wir, participantID, action) ;
+                _rm.reassignWorklistedItem(wir, pidList, action) ;
             }
             else  {
                 wir = getChosenWIR(WorkQueue.UNOFFERED);
-                result = _rm.assignUnofferedItem(wir, participantID, action) ;
+                success = _rm.assignUnofferedItem(wir, pidList, action) ;
             }
         }
-        return result ;
+        return success;
     }
 
 
@@ -1424,14 +1501,16 @@ public class SessionBean extends AbstractSessionBean {
 //        }
     }
 
-    private PanelLayout messageParent = new PanelLayout();
+    /*****************************************************************************/
 
-     public PanelLayout getMessageParent() {
-         return messageParent;
+    private PanelLayout transparentPanel = new PanelLayout();
+
+     public PanelLayout getTransparentPanel() {
+         return transparentPanel;
      }
 
-     public void setMessageParent(PanelLayout messageParent) {
-         this.messageParent = messageParent;
+     public void setTransparentPanel(PanelLayout panel) {
+         transparentPanel = panel;
      }
 
     
@@ -1444,6 +1523,38 @@ public class SessionBean extends AbstractSessionBean {
     public void setMessagePanel(MessagePanel messagePanel) {
         this.messagePanel = messagePanel;
     }
+
+    public void showMessagePanel() {
+        transparentPanel.setVisible(messagePanel.hasMessage());
+        messagePanel.show(getOuterPanelWidth());
+    }
+
+    public String messagePanelOKBtnAction(ActionEvent event) {
+        showMessagePanel();
+        getApplicationBean().refresh();
+        return null;
+    }
+
+
+    private int getOuterPanelWidth() {
+        switch (activePage) {
+            case adminQueues     : return 798;
+            case caseMgt         : return 602;
+            case customServices  : return 666;
+            case Login           : return 240;
+            case orgDataMgt      : return 698;
+            case participantData : return 670;
+            case userWorkQueues  : return 798;
+            case viewProfile     : return 538;
+            case addInstance     : return 306;
+            case teamQueues      : return 796;
+            case externalClients : return 666;
+            default: return -1;
+        }
+    }
+
+    /*****************************************************************************/
+    
 
     private String orgDataListLabelText = "List Label";
 
@@ -1508,6 +1619,10 @@ public class SessionBean extends AbstractSessionBean {
 
     public void setAddInstanceParamName(String name) {
         addInstanceParamName = name;
+    }
+
+    public String getAddInstanceParamNameLabelText() {
+        return addInstanceParamName + ":";
     }
 
     public void clearAddInstanceParam() {
@@ -1664,6 +1779,38 @@ public class SessionBean extends AbstractSessionBean {
     public void setRssFormDisplay(boolean display) {
         rssFormDisplay = display;
     }
+
+    private boolean addClientAccountMode = true ;
+
+    public boolean isAddClientAccountMode() {
+        return addClientAccountMode;
+    }
+
+    public void setAddClientAccountMode(boolean mode) {
+        addClientAccountMode = mode;
+    }
+
+
+    private Option[] orgDataMembers;
+
+    public Option[] getOrgDataMembers() {
+        return orgDataMembers;
+    }
+
+    public int setOrgDataMembers(AbstractResourceAttribute attribute) {
+        int membership = 0;
+        if (attribute != null) {
+            orgDataMembers = new Option[attribute.getResources().size()];
+            int i = 0;
+            for (AbstractResource resource : attribute.getResources()) {
+                Participant p = (Participant) resource;
+                orgDataMembers[i++] = new Option(p.getID(), p.getFullName()) ;
+            }
+            membership = orgDataMembers.length;
+        }
+        return membership;
+    }
+    
 }
 
 

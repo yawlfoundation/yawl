@@ -668,7 +668,7 @@ public class YWorkItem {
 
     public void set_status(YPersistenceManager pmgr, YWorkItemStatus status)
                                                          throws YPersistenceException {
-        YEngine.getInstance().announceWorkItemStatusChange(this, _status, status);
+        YEngine.getInstance().getAnnouncer().announceWorkItemStatusChange(this, _status, status);
         _status = status;
         if (pmgr != null) pmgr.updateObject(this);
     }

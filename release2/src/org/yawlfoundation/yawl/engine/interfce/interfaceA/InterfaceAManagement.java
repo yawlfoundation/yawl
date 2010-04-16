@@ -9,12 +9,12 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceA;
 
-import org.apache.log4j.Logger;
 import org.jdom.JDOMException;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
+import org.yawlfoundation.yawl.engine.YAnnouncer;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.announcement.AnnouncementContext;
@@ -246,12 +246,12 @@ public interface InterfaceAManagement {
      */
     void dump();
 
-    void dump(Logger logger);
-
     void setEngineStatus(int engineStatus);
 
     int getEngineStatus();
 
     AnnouncementContext getAnnouncementContext();
+
+    YAnnouncer getAnnouncer();
 
 }

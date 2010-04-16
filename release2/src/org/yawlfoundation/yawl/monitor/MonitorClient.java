@@ -9,12 +9,9 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideContr
 import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
 import org.yawlfoundation.yawl.logging.table.YLogEvent;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
-import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClient;
-import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceLogGatewayClient;
 import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.util.PasswordEncryptor;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.IOException;
@@ -30,8 +27,8 @@ public class MonitorClient extends InterfaceBWebsideController {
     private ResourceLogGatewayClient _resLogClient = null;
     private long _startupTime ;                         // time the engine started
 
-    private static final String DEFAULT_USERNAME = "admin";
-    private static final String DEFAULT_PASSWORD = "YAWL";
+    private static final String _engineUser = "monitorService";
+    private static final String _enginePassword = "yMonitor";
 
     private MonitorClient() {
         super();
@@ -121,7 +118,7 @@ public class MonitorClient extends InterfaceBWebsideController {
     }
 
     public String connect() {
-        return login(DEFAULT_ENGINE_USERNAME, DEFAULT_ENGINE_PASSWORD);
+        return login(_engineUser, _enginePassword);
     }
 
     private boolean resLogConnected() {
@@ -139,7 +136,7 @@ public class MonitorClient extends InterfaceBWebsideController {
         String handle;
         try {
             String validationMsg = validateUserCredentials(userid, password);
-            handle = successful(validationMsg) ? connect(DEFAULT_USERNAME, DEFAULT_PASSWORD) : validationMsg;
+            handle = successful(validationMsg) ? connect(_engineUser, _enginePassword) : validationMsg;
         }
         catch (IOException ioe) {
             handle = "<failure>Problem connecting to engine.</failure>";

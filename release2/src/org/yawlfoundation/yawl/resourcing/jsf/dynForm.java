@@ -14,11 +14,7 @@ import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.SubPanel;
 
 import javax.faces.FacesException;
-import javax.faces.component.UIComponent;
 import javax.faces.event.ActionEvent;
-import javax.faces.event.ValueChangeEvent;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  *  Backing bean for the dynamic forms.
@@ -75,8 +71,7 @@ public class dynForm extends AbstractPageBean {
 
     public void prerender() {
         getSessionBean().checkLogon();
-        int left = getDynFormFactory().getFormWidth() + 50;
-        getSessionBean().getMessagePanel().show(70, left, "relative");
+        getSessionBean().getMessagePanel().show();
         getSessionBean().setActivePage(ApplicationBean.PageRef.dynForm);
         setupButtons();
         loadBackground();
@@ -244,26 +239,6 @@ public class dynForm extends AbstractPageBean {
             result = "showUserQueues";
         }
         return result;
-    }
-
-    /******************************************************************************/
-
-    // This member and method are used as value change listeners for dynamic
-    // components. They aren't currently called but have been left in case of
-    // future need.
-            
-    private Map<String, String> updateMap = new HashMap<String, String>();
-
-    public void saveValueChange(ValueChangeEvent event) {
-        String value ;
-        UIComponent source = event.getComponent() ;
-
-        if (source instanceof Checkbox)
-            value = event.getNewValue().toString();
-        else
-            value = (String) event.getNewValue() ;
-
-        updateMap.put(source.getId(), value);
     }
 
 

@@ -266,6 +266,7 @@ public class adminQueues extends AbstractPageBean {
      */
     public void prerender() {
         _sb.checkLogon();
+        _sb.setActivePage(ApplicationBean.PageRef.adminQueues);
 
         // hide 'direct to me' checkbox if logged on with 'admin' userid
         cbxDirectToMe.setVisible(_sb.getParticipant() != null);
@@ -275,7 +276,7 @@ public class adminQueues extends AbstractPageBean {
             _sb.getMessagePanel().error("Could not complete workitem action." +
                     " Please see the log files for details.");               
         }
-        _sb.getMessagePanel().show();
+        _sb.showMessagePanel();
 
         // goto last selected tab
         if (_sb.getSourceTab() != null) {
@@ -304,7 +305,6 @@ public class adminQueues extends AbstractPageBean {
         }
         updateTabHeaders(selTab) ;
         _sb.setActiveTab(tabSet.getSelected());
-        _sb.setActivePage(ApplicationBean.PageRef.adminQueues);
     }
 
 
@@ -372,9 +372,10 @@ public class adminQueues extends AbstractPageBean {
         String nextPage = null;
         _sb.setAdminQueueAction(action) ;
         if (cbxDirectToMe.isChecked()) {
-            _sb.setSelectUserListChoice(_sb.getParticipant().getID());
+            _sb.setDirectToMeChoice(_sb.getParticipant().getID());
         }
         else {
+            _sb.setDirectToMeChoice(null);
             if (ResourceManager.getInstance().getOrgDataSet().getParticipantCount() == 0) {
                 _sb.getMessagePanel().error("Unable to assign workitem: " +
                     "Missing or empty organisational database. Please check and, if " +
@@ -384,6 +385,7 @@ public class adminQueues extends AbstractPageBean {
             else {
                 _sb.setBlankStartOfParticipantList(false);
                 _sb.setSelectUserListOptions(_sb.getOrgDataParticipantList());
+                _sb.configureSelectUserListBox(action);
                 _sb.setUserListFormHeaderText(action + " selected workitem(s) to:") ;
                 _sb.setNavigateTo("showAdminQueues");
                 nextPage = "userSelect" ;

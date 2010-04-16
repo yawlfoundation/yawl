@@ -87,6 +87,11 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                 _engine.setAllowAdminID(true);
             }
 
+            // read the current version properties
+            _engine.initBuildProperties(context.getResourceAsStream(
+                               "/WEB-INF/classes/version.properties"));
+
+
             // init any 3rd party observer gateways
             String gatewayStr = context.getInitParameter("ObserverGateway");
             if (gatewayStr != null) {

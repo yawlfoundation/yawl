@@ -289,16 +289,16 @@ public class YNetRunner {
 
     private void announceCaseCompletion() {
         if (_caseObserver != null)
-            _engine.announceCaseCompletionToEnvironment(_caseObserver,
+            _engine.getAnnouncer().announceCaseCompletionToEnvironment(_caseObserver,
                     _caseIDForNet, _net.getOutputData());
         else
-            _engine.announceCaseCompletionToEnvironment(_caseIDForNet,
+            _engine.getAnnouncer().announceCaseCompletionToEnvironment(_caseIDForNet,
                     _net.getOutputData());
 
         // notify exception checkpoint to service if available (post's for case end)
         if (_exceptionObserver != null) {
             Document data = _net.getInternalDataDocument();
-            _engine.announceCheckCaseConstraints(_exceptionObserver, null, _caseID,
+            _engine.getAnnouncer().announceCheckCaseConstraints(null, _caseID,
                     JDOMUtil.documentToString(data), false);
         }
     }
@@ -485,7 +485,7 @@ public class YNetRunner {
 
         // notify exception checkpoint to service if available
         if (_exceptionObserver != null)
-            _engine.announceCheckWorkItemConstraints(_exceptionObserver, workItem, outputData, false);
+            _engine.getAnnouncer().announceCheckWorkItemConstraints(workItem, outputData, false);
 
         _logger.debug("<-- completeWorkItemInTask");
         return success;
@@ -543,7 +543,7 @@ public class YNetRunner {
 
         // announce the cancellations (if any)
         if (announceCancel.size() > 0)
-            _engine.announceCancellationToEnvironment(announceCancel);
+            _engine.getAnnouncer().announceCancellationToEnvironment(announceCancel);
 
         _busyTasks = _net.getBusyTasks();
 
@@ -584,7 +584,7 @@ public class YNetRunner {
                 }
             }
         }
-        if (announceNew.size() > 0) _engine.announceTasks(announceNew);
+        if (announceNew.size() > 0) _engine.getAnnouncer().announceTasks(announceNew);
     }
 
 
@@ -601,10 +601,10 @@ public class YNetRunner {
             YWorkItem item = createEnabledWorkItem(pmgr, _caseIDForNet, task);
             if (groupID != null) item.setDeferredChoiceGroupID(groupID);
 
-            announcement = _engine.createNewWorkItemAnnouncement(wsgw.getYawlService(), item);
+            announcement = _engine.getAnnouncer().createNewWorkItemAnnouncement(wsgw.getYawlService(), item);
 
             if (_exceptionObserver != null)
-                _engine.announceCheckWorkItemConstraints(_exceptionObserver, item,
+                _engine.getAnnouncer().announceCheckWorkItemConstraints(item,
                                                  _net.getInternalDataDocument(), true);
 
             _enabledTasks.add(task);
@@ -790,8 +790,7 @@ public class YNetRunner {
             _busyTaskNames.remove(atomicTask.getID());
 
             if (pmgr != null) {
-                ArrayList liveCases = (ArrayList) _engine.getRunningCaseIDs();
-                if (liveCases.indexOf(_caseIDForNet) > -1) {
+                if (_engine.getRunningCaseIDs().contains(_caseIDForNet)) {
                     pmgr.updateObject(this);
                 }
             }
@@ -924,9 +923,9 @@ public class YNetRunner {
     /** The following methods have been added to support the exception service */
 
     /** sets the IX observer to the specified IX client */
-    public void setExceptionObserver(InterfaceX_EngineSideClient observer){
+    public void setExceptionObserver(InterfaceX_EngineSideClient observer) {
         _exceptionObserver = observer;
-        _exceptionObserverStr = observer.getURI();                  // for persistence
+        if (observer != null) _exceptionObserverStr = observer.getURI();  // for persistence
      }
 
 

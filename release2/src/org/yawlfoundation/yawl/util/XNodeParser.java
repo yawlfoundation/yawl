@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.util;
 
+import org.jdom.Document;
 import org.jdom.Element;
 
 /**
@@ -8,7 +9,7 @@ import org.jdom.Element;
  */
 public class XNodeParser {
 
-    private boolean _check;
+    private boolean _check;                                         // validation flag
 
     public XNodeParser() {
         _check = false;
@@ -25,44 +26,55 @@ public class XNodeParser {
      * @return the root XNode, with contents
      */
     public XNode parse(String s) {
-        return parse(s, 0);
+        if (s == null) return null;
+
+        // remove any header
+        if (s.startsWith("<?xml")) s = s.substring(s.indexOf("?>") + 1);
+
+        // if well-formedness check required use JDOM to check it
+        if (_check && (JDOMUtil.stringToElement(s) == null)) return null;
+        
+        return parse(s, 0, null);
     }
 
 
     public XNode parse(Element e) {
-        return parse(JDOMUtil.elementToString(e), 0);
+        return parse(JDOMUtil.elementToString(e));
+    }
+
+    public XNode parse(Document d) {
+        return parse(JDOMUtil.documentToString(d));
     }
 
 
-    private XNode parse(String s, int depth) {
+    private XNode parse(String s, int depth, XNode parent) {
+         XNode node = null;
 
-        // remove any header
-        if (s.startsWith("<?xml")) s = s.substring(s.indexOf("?>") + 1);
-        
-        // if well-formedness check required use JDOM to check it
-        if (_check && (JDOMUtil.stringToElement(s) == null)) return null;
+        while (s.length() > 0) {
 
-        // get the text inside the opening tag and use it to create a new XNode
-        String tagDef = s.trim().substring(1, s.indexOf('>'));
-        XNode node = newNode(tagDef);
-        node.setDepth(depth);
+            // get the text inside the opening tag and use it to create a new XNode
+            String tagDef = s.trim().substring(1, s.indexOf('>'));
+            node = newNode(tagDef);
+            node.setDepth(depth);
 
-        // if this element is not fully enclosed in a single tag
-        if (! tagDef.endsWith("/")) {                     // '>' is already removed
-            s = s.substring(s.indexOf(">") + 1).trim();   // all after opening tag
+            // if this element is not fully enclosed in a single tag
+            if (! tagDef.endsWith("/")) {                     // '>' is already removed
 
-            // if contents starts with a tag
-            if (s.startsWith("<")) {
+                // get entire inner string to the matching closing tag (exclusive) and the
+                // remaining text (if any)
+                String content = getContent(s, tagDef);
+                s = getSiblingText(s, tagDef, content);
 
-                // get entire inner string to the matching closing tag (exclusive)
-                String childStr = s.substring(0, s.indexOf("</" + node.getName()));
-                node.addChild(parse(childStr, depth + 1));      // recurse
-            }
-            else {
-                node.setText(s.substring(0, s.indexOf("<")));
+                // if contents starts with a tag
+                if (content.startsWith("<")) {
+                    node.addChild(parse(content, depth + 1, node));      // recurse
+                }
+                else {
+                    node.setText(content);
+                }
+                if ((parent != null) && (s.length() > 0)) parent.addChild(node);
             }
         }
-
         return node;
     }
 
@@ -89,5 +101,22 @@ public class XNodeParser {
     
     private String dequote(String s) {
         return s.substring(1, s.lastIndexOf('"'));          // remove surrounding quotes
+    }
+
+
+    private String getContent(String s, String tag) {
+        int start = s.indexOf(makeTag(tag, true)) + 2 + tag.length();
+        int end = s.indexOf(makeTag(tag, false));
+        return s.substring(start, end);
+    }
+
+    private String getSiblingText(String s, String tag, String content) {
+        String del = makeTag(tag, true) + content + makeTag(tag, false);
+        return s.replaceFirst(del, "").trim();
+    }
+
+    private String makeTag(String name, boolean opening) {
+        String start = opening ? "<" : "</";
+        return start + name + ">";
     }
 }

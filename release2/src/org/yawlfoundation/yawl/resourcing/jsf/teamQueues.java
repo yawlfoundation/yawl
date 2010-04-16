@@ -208,7 +208,9 @@ public class teamQueues extends AbstractPageBean {
      */
     public void prerender() {
         _sb.checkLogon();
-        _sb.getMessagePanel().show();
+        _sb.setActivePage(ApplicationBean.PageRef.teamQueues);
+        _sb.showMessagePanel();
+        
         ((pfQueueUI) getBean("pfQueueUI")).clearQueueGUI();
         if (enableRadioButtons()) {
 
@@ -217,7 +219,6 @@ public class teamQueues extends AbstractPageBean {
             WorkItemRecord wir = buildMembersList(set, _sb.getWorklistChoice());
             showWorkItem(wir);
         }
-        _sb.setActivePage(ApplicationBean.PageRef.teamQueues);
     }
 
 

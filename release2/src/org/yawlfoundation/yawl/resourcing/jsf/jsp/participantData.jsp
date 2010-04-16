@@ -311,16 +311,13 @@
                         <div style="position: absolute">
                             <jsp:directive.include file="pfAddRemove.jspf"/>
                         </div>
- 
+
+                        <div><jsp:include page="pfMsgPanel.jspf"/></div>
+
                         </ui:panelLayout>
 
-                        <ui:panelLayout binding="#{SessionBean.messagePanel}"
-                                        id="msgPanel"
-                                        panelLayout="flow"/>
                         </center>
-
-
-
+                        <div><jsp:include page="pfFooter.jspf"/></div>
                     </ui:form>
                 </ui:body>
             </ui:html>

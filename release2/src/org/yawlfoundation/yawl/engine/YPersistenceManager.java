@@ -40,6 +40,11 @@ import java.util.List;
  */
 public class YPersistenceManager {
 
+    // persistence actions
+    public static final int DB_UPDATE = 0;
+    public static final int DB_DELETE = 1;
+    public static final int DB_INSERT = 2;
+    
     private static Class[] persistedClasses = {
             YSpecification.class, YNetRunner.class, YWorkItem.class, YIdentifier.class,
             YCaseData.class, YAWLServiceReference.class, YExternalClient.class,

@@ -57,6 +57,7 @@ import org.yawlfoundation.yawl.resourcing.util.*;
 import org.yawlfoundation.yawl.schema.YDataValidator;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.YBuildProperties;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -64,6 +65,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -124,6 +126,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private Persister _persister;                         // persist changes to db
     private Logger _log ;                                 // debug log4j file
     private ResourceCalendar _calendar;                   // resource availability
+    private YBuildProperties _buildProps;                 // build version info
     private boolean _persisting ;                         // flag to enable persistence
     private boolean _isNonDefaultOrgDB ;                  // flag for non-yawl org model
     private final Object _mutex = new Object();           // for synchronizing ib events
@@ -143,8 +146,8 @@ public class ResourceManager extends InterfaceBWebsideController {
     private ResourceMapCache _resMapCache = new ResourceMapCache() ;
 
     // required data members for interfacing with the engine
-    private String _user = "DefaultWorklist" ;
-    private String _password = "resource" ;
+    private String _engineUser = "DefaultWorklist" ;
+    private String _enginePassword = "resource" ;
     private String _engineSessionHandle = null ;
     private String _serviceURI = null;
     private String _exceptionServiceURI = null ;
@@ -233,6 +236,27 @@ public class ResourceManager extends InterfaceBWebsideController {
     public String getServiceURI() {
         if (_serviceURI == null) setServiceURI();
         return _serviceURI;
+    }
+
+
+    public void initBuildProperties(InputStream stream) {
+        _buildProps = new YBuildProperties();
+        _buildProps.load(stream);
+    }
+
+
+    public YBuildProperties getBuildProperties() {
+        return _buildProps;
+    }
+
+
+    public String getEngineBuildProperties() {
+        try {
+            return _interfaceAClient.getBuildProperties(getEngineSessionHandle());
+        }
+        catch (IOException ioe) {
+            return "<failure>IO Exception retrieving engine build properties.</failure>";
+        }
     }
 
 
@@ -1458,9 +1482,21 @@ public class ResourceManager extends InterfaceBWebsideController {
         // admin access overrides set privileges
         if (p.isAdministrator()) return true ;
 
-        ResourceMap rMap = getResourceMap(wir);
-        return (rMap != null) && (rMap.getTaskPrivileges().hasPrivilege(p, privilege));
+        TaskPrivileges taskPrivileges = getTaskPrivileges(wir);
+        return (taskPrivileges != null) && taskPrivileges.hasPrivilege(p, privilege);
     }
+
+
+    public TaskPrivileges getTaskPrivileges(String itemID) {
+        return getTaskPrivileges(_workItemCache.get(itemID));        
+    }
+
+
+    public TaskPrivileges getTaskPrivileges(WorkItemRecord wir) {
+        ResourceMap rMap = getResourceMap(wir);
+        return (rMap != null) ? rMap.getTaskPrivileges() : null;
+    }
+
 
     public String getWorkItem(String itemID) {
         String result = StringUtil.wrap("Unknown workitem ID", "failure");
@@ -1739,23 +1775,44 @@ public class ResourceManager extends InterfaceBWebsideController {
     public boolean isPersistPiling() { return _persistPiling; }
 
 
-    public ResourceMap getResourceMap(WorkItemRecord wir) {
+    public Set<Participant> getDistributionSet(String itemID) {
+        ResourceMap map = getResourceMap(itemID);
+        return (map != null) ? map.getDistributionSet() : null;
+    }
+
+    public ResourceMap getResourceMap(String itemID) {
+        if (itemID != null) {
+            return getCachedResourceMap(getWorkItemCache().get(itemID));
+        }
+        else return null;
+    }
+
+    public ResourceMap getCachedResourceMap(WorkItemRecord wir) {
+        if (wir == null) return null;
         YSpecificationID specID = new YSpecificationID(wir);
         String taskID = wir.getTaskID();
-        ResourceMap result = _resMapCache.get(specID, taskID);
+        return _resMapCache.get(specID, taskID);
+    }
+
+
+    public ResourceMap getResourceMap(WorkItemRecord wir) {
+        if (wir == null) return null;
+        ResourceMap map = getCachedResourceMap(wir);
 
         // if we don't have a resource map for the task stored yet, let's make one
-        if (result == null) {
+        if (map == null) {
             if (connected()) {
                 try {
+                    YSpecificationID specID = new YSpecificationID(wir);
+                    String taskID = wir.getTaskID();
                     Element resElem = getResourcingSpecs(specID, taskID,
                             getEngineSessionHandle()) ;
 
                     if ((resElem != null) &&
                          successful(JDOMUtil.elementToString(resElem))) {
 
-                        result = new ResourceMap(specID, taskID, resElem, _persisting) ;
-                        _resMapCache.add(specID, taskID, result) ;
+                        map = new ResourceMap(specID, taskID, resElem, _persisting) ;
+                        _resMapCache.add(specID, taskID, map) ;
                     }
                 }
                 catch (IOException ioe) {
@@ -1763,7 +1820,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                 }
             }
         }
-        return result ;            // result = null if no resourcing spec for this task
+        return map;              // map = null if no resourcing spec for this task
     }
 
 
@@ -2024,18 +2081,33 @@ public class ResourceManager extends InterfaceBWebsideController {
         return UUID.randomUUID().toString();
     }
 
+
+    private String getAdminUserPassword() {
+        try {
+            return _interfaceAClient.getPassword("admin", getEngineSessionHandle());
+        }
+        catch (IOException ioe) {
+            return "<failure>Could not connect to YAWL Engine</failure>" ;
+        }
+    }
+
     
     private String loginAdmin(String password) {
-        String handle;
-        if (password.equals("YAWL")) {
-             handle = newSessionHandle();
-             _liveAdmins.add(handle) ;
-             EventLogger.audit("admin", EventLogger.audit.logon);
+        String handle ;
+        String adminPassword = getAdminUserPassword();
+        if (successful(adminPassword)) {
+            if (password.equals(adminPassword)) {
+                handle = newSessionHandle();
+                _liveAdmins.add(handle) ;
+                EventLogger.audit("admin", EventLogger.audit.logon);
+            }
+            else {
+                handle = "<failure>Incorrect Password</failure>";
+                EventLogger.audit("admin", EventLogger.audit.invalid);
+            }
         }
-        else {
-            handle = "<failure>Incorrect Password</failure>";
-            EventLogger.audit("admin", EventLogger.audit.invalid);
-        }
+        else handle = adminPassword;
+
         return handle ;
     }
 
@@ -2058,9 +2130,17 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public String validateUserCredentials(String userid, String password, boolean admin) {
         String result = "<success/>";
-        if (userid.equals(DEFAULT_ENGINE_USERNAME) && password.equals(DEFAULT_ENGINE_PASSWORD)) {
+        if (userid.equals("admin")) {
+            String adminPassword = getAdminUserPassword();
+            if (successful(adminPassword)) {
+                if (! password.equals(adminPassword)) {
+                    result = "<failure>Incorrect Password</failure>" ;
+                }
+            } else result = adminPassword;
+
             return result;
         }
+        
         Participant p = getParticipantFromUserID(userid) ;
         if (p != null) {
             if (p.getPassword().equals(password)) {
@@ -2099,7 +2179,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                  (_engineSessionHandle.length() == 0) ||
                  (! checkConnection(_engineSessionHandle))) {
 
-                 _engineSessionHandle = connect(_user, _password);
+                 _engineSessionHandle = connect(_engineUser, _enginePassword);
              }
         }
         catch (IOException ioe) {
@@ -2123,13 +2203,18 @@ public class ResourceManager extends InterfaceBWebsideController {
     /*******************************************************************************/
 
     public void shutdown() {
-        for (Participant p : _liveSessions.values()) {
-            EventLogger.audit(p.getUserID(), EventLogger.audit.shutdown);
+        try {
+            for (Participant p : _liveSessions.values()) {
+                EventLogger.audit(p.getUserID(), EventLogger.audit.shutdown);
+            }
+            for (String handle : _liveAdmins) {
+                EventLogger.audit("admin", EventLogger.audit.shutdown);
+            }
+            _connections.shutdown();
         }
-        for (String handle : _liveAdmins) {
-            EventLogger.audit("admin", EventLogger.audit.shutdown);
+        catch (Exception e) {
+            _log.error("Unsuccessful audit log update on shutdown.");
         }
-        _connections.shutdown();
     }
 
     public String serviceConnect(String userid, String password) {
@@ -2497,6 +2582,12 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
+    public String updateExternalClient(String id, String password, String doco)
+            throws IOException {
+        return _interfaceAClient.updateClientAccount(id, password, doco, getEngineSessionHandle());
+    }
+
+
     public String getCaseData(String caseID) throws IOException {
         return _interfaceBClient.getCaseData(caseID, getEngineSessionHandle()) ;
     }
@@ -2606,15 +2697,18 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public boolean assignUnofferedItem(WorkItemRecord wir, String participantID,
+    public boolean assignUnofferedItem(WorkItemRecord wir, String[] pidList,
                                         String action) {
         boolean result = true ;
         if (wir != null) {
-            Participant p = _orgDataSet.getParticipant(participantID);
             if (action.equals("Start")) {
+
+                // exactly one participant can have a workitem started 
                 String status = wir.getStatus();
                 if (status.equals(WorkItemRecord.statusEnabled) ||
                     status.equals(WorkItemRecord.statusFired)) {
+
+                    Participant p = _orgDataSet.getParticipant(pidList[0]);
                     result = start(p, wir);
                 }
                 else {
@@ -2626,7 +2720,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                 if (! result) action = "Allocate";
             }
 
-            _resAdmin.assignUnofferedItem(wir, p, action) ;
+            _resAdmin.assignUnofferedItem(wir, pidList, action) ;
         }
         return result;
     }
@@ -2639,33 +2733,43 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public void reassignWorklistedItem(WorkItemRecord wir, String participantID,
+    public void reassignWorklistedItem(WorkItemRecord wir, String[] pidList,
                                                            String action) {
-        Participant p = _orgDataSet.getParticipant(participantID);
         removeFromAll(wir) ;
 
+        // a reoffer can be made to several participants
         if (action.equals("Reoffer")) {            
             ResourceMap rMap = getResourceMap(wir);
             if (rMap != null) {
-                if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceOffered))
+                if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceOffered)) {
                     rMap.withdrawOffer(wir);
-                rMap.addToOfferedSet(wir, p);
+                }    
+                for (String pid : pidList) {
+                    Participant p = _orgDataSet.getParticipant(pid);
+                    if (p != null) {
+                        rMap.addToOfferedSet(wir, p);
+                        p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
+                    }
+                }
             }
             wir.resetDataState();
             wir.setResourceStatus(WorkItemRecord.statusResourceOffered);
-            p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
         }
-        else if (action.equals("Reallocate")) {
-            wir.resetDataState();
-            wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
-            p.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
-        }
-        else if (action.equals("Restart")) {
-            if (wir.getStatus().equals(WorkItemRecord.statusEnabled))
-                start(p, wir);
-            else {
-                p.getWorkQueues().addToQueue(wir, WorkQueue.STARTED);
-                wir.setResourceStatus(WorkItemRecord.statusResourceStarted);
+        else {
+            // a reallocate or restart is made to exactly one participant
+            Participant p = _orgDataSet.getParticipant(pidList[0]);
+            if (action.equals("Reallocate")) {
+                wir.resetDataState();
+                wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
+                p.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
+            }
+            else if (action.equals("Restart")) {
+                if (wir.getStatus().equals(WorkItemRecord.statusEnabled))
+                    start(p, wir);
+                else {
+                    p.getWorkQueues().addToQueue(wir, WorkQueue.STARTED);
+                    wir.setResourceStatus(WorkItemRecord.statusResourceStarted);
+                }
             }
         }
         _workItemCache.update(wir);
@@ -2827,10 +2931,8 @@ public class ResourceManager extends InterfaceBWebsideController {
 
    public String getMIFormalInputParamName(WorkItemRecord wir) {
        String result = null;
-       try {
-           String mayAdd = _interfaceBClient.checkPermissionToAddInstances(
-                                         wir.getID(), getEngineSessionHandle());
-           if (successful(mayAdd)) {
+       if (canAddNewInstance(wir)) {
+           try {
                TaskInformation taskInfo = getTaskInformation(new YSpecificationID(wir),
                                         wir.getTaskID(), getEngineSessionHandle());
                YParameter formalInputParam = taskInfo.getParamSchema().getFormalInputParam();
@@ -2838,11 +2940,22 @@ public class ResourceManager extends InterfaceBWebsideController {
                    result = formalInputParam.getName();
                }
            }
-       }
-       catch (IOException ioe) {
-           // nothing to do
+           catch (IOException ioe) {
+               // nothing to do
+           }
        }
        return result;
+   }
+
+
+   public boolean canAddNewInstance(WorkItemRecord wir) {
+       try {
+           return successful(_interfaceBClient.checkPermissionToAddInstances(
+                                     wir.getID(), getEngineSessionHandle()));
+       }
+       catch (IOException ioe) {
+           return false;
+       }
    }
 
 

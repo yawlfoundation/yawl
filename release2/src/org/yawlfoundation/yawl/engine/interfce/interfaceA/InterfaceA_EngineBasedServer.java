@@ -115,6 +115,9 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                 else if ("getAccounts".equals(action)) {
                     msg.append(_engine.getAccounts(sessionHandle));
                 }
+                else if ("getAccount".equals(action)) {
+                    msg.append(_engine.getClientAccount(userID, sessionHandle));
+                }
                 else if ("getList".equals(action)) {
                     msg.append(_engine.getSpecificationList(sessionHandle));
                 }
@@ -125,11 +128,21 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                     String doco = request.getParameter("doco");
                     msg.append(_engine.createAccount(userID, password, doco, sessionHandle));
                 }
+                else if ("updateAccount".equals(action)) {
+                    String doco = request.getParameter("doco");
+                    msg.append(_engine.updateAccount(userID, password, doco, sessionHandle));
+                }
                 else if ("deleteAccount".equals(action)) {
                     msg.append(_engine.deleteAccount(userID, sessionHandle));
                 }
                 else if ("newPassword".equals(action)) {
                     msg.append(_engine.changePassword(password, sessionHandle));
+                }
+                else if ("getPassword".equals(action)) {
+                    msg.append(_engine.getClientPassword(userID, sessionHandle));
+                }
+                else if ("getBuildProperties".equals(action)) {
+                    msg.append(_engine.getBuildProperties(sessionHandle));
                 }
                 else if ("newYAWLService".equals(action)) {
                     String serviceStr = request.getParameter("service");

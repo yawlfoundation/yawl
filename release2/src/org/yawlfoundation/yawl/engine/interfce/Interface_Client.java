@@ -23,7 +23,7 @@ import java.util.Map;
  * Date: 22/03/2004
  * Time: 17:49:42
  *
- * @author Michael Adams (refactored for v2.0, 06/2008; and again 12/2008)
+ * @author Michael Adams (refactored for v2.0, 06/2008; and again 12/2008 & 04/2010)
  */
 
 public class Interface_Client {
@@ -65,25 +65,22 @@ public class Interface_Client {
      * @return the initialised Map
      */
     protected Map<String, String> prepareParamMap(String action, String handle) {
-        Map<String, String> result = new HashMap<String, String>();
-        result.put("action", action) ;
-        if (handle != null) result.put("sessionHandle", handle) ;
-        return result;
+        Map<String, String> paramMap = new HashMap<String, String>();
+        paramMap.put("action", action) ;
+        if (handle != null) paramMap.put("sessionHandle", handle) ;
+        return paramMap;
     }
 
 
     /**
-     * Removes an outer set of xml tags from an xml string, if possible
+     * Removes the outermost set of xml tags from a string, if any
      * @param inputXML the xml string to strip
      * @return the stripped xml string
      */
     protected String stripOuterElement(String inputXML) {
         if (inputXML != null) {
-            int beginClipping = inputXML.indexOf(">") + 1;
-            int endClipping = inputXML.lastIndexOf("<");
-            if (beginClipping >= 0 && endClipping >= 0 && endClipping > beginClipping) {
-                inputXML = inputXML.substring(beginClipping, endClipping);
-            }
+            String[] stripped = inputXML.split("^\\s*<.*?>|</[^<]*?>\\s*$");
+            return stripped[stripped.length -1];
         }
         return inputXML;
     }
@@ -111,7 +108,7 @@ public class Interface_Client {
      * @param paramsMap a map of atttribute=value pairs representing the data to send
      * @param post true if this was originally a POST request, false if a GET request
      * @return the response from the url
-     * @throws IOException
+     * @throws IOException when there's some kind of communication problem
      */
     private String send(String urlStr, Map<String, String> paramsMap, boolean post)
             throws IOException {
@@ -177,31 +174,32 @@ public class Interface_Client {
             throws IOException {
         OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
         out.write(data);
-        out.flush();
         out.close();
     }
 
 
     /**
      * Receives a reply from a HTTP submission
-     * @param is the InputStream or a URL or Connection object
+     * @param is the InputStream of a URL or Connection object
      * @return the stream's contents (ie. the HTTP reply)
      * @throws IOException when there's some kind of communication problem
      */
     private String getReply(InputStream is) throws IOException {   
         final int BUF_SIZE = 16384;
         
-        // read reply into buffered byte stream - to preserve UTF-8
+        // read reply into a buffered byte stream - to preserve UTF-8
         BufferedInputStream inStream = new BufferedInputStream(is);
         ByteArrayOutputStream outStream = new ByteArrayOutputStream(BUF_SIZE);
         byte[] buffer = new byte[BUF_SIZE];
 
         // read chunks from the input stream and write them out
-        int bytesRead = 0;
+        int bytesRead;
         while ((bytesRead = inStream.read(buffer, 0, BUF_SIZE)) > 0) {
             outStream.write(buffer, 0, bytesRead);
         }
-        outStream.flush();
+
+        outStream.close();
+        inStream.close();
 
         // convert the bytes to a UTF-8 string
         return outStream.toString("UTF-8");

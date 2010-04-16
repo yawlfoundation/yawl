@@ -65,11 +65,9 @@
                                            styleClass="loginButton"
                                            text="Login"/>
 
-                            </ui:panelLayout>
+                                <div><jsp:include page="pfMsgPanel.jspf"/></div>
 
-                            <ui:panelLayout binding="#{SessionBean.messagePanel}"
-                                            id="msgPanel"
-                                            panelLayout="flow"/>
+                            </ui:panelLayout>
                         </center>
                     </ui:form>
                 </ui:body>

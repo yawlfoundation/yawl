@@ -292,8 +292,9 @@ public class orgDataMgt extends AbstractPageBean {
 
     // Callback method that is called just before rendering takes place.
     public void prerender() {
-        getSessionBean().checkLogon();
-        msgPanel.show();
+        _sb.checkLogon();
+        _sb.setActivePage(ApplicationBean.PageRef.orgDataMgt);
+        _sb.showMessagePanel();
 
         String selTabName = tabSet.getSelected() ;
         Tab selTab = null;
@@ -472,28 +473,28 @@ public class orgDataMgt extends AbstractPageBean {
     
     public String tabRoles_action() {
         if (getMode() == SessionBean.Mode.edit) populateForm(AttribType.role);
-        _sb.setOrgDataListLabelText("Role Names");
+        _sb.setOrgDataListLabelText("Roles");
         return null;
     }
 
 
     public String tabCapabilities_action() {
         if (getMode() == SessionBean.Mode.edit) populateForm(AttribType.capability);
-        _sb.setOrgDataListLabelText("Capability Names");
+        _sb.setOrgDataListLabelText("Capabilitys");
         return null;
     }
 
 
     public String tabPositions_action() {
         if (getMode() == SessionBean.Mode.edit) populateForm(AttribType.position);
-        _sb.setOrgDataListLabelText("Position Titles");
+        _sb.setOrgDataListLabelText("Positions");
         return null;
     }
 
 
     public String tabOrgGroups_action() {
         if (getMode() == SessionBean.Mode.edit) populateForm(AttribType.orggroup);
-        _sb.setOrgDataListLabelText("Org Group Titles");
+        _sb.setOrgDataListLabelText("Org Groups");
         return null;
     }
 

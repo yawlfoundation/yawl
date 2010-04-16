@@ -103,6 +103,9 @@
                                    style="top: 5px"
                                    toolTip="Refresh Queues"
                                    text=""/>
+
+                                <div><jsp:include page="pfMsgPanel.jspf"/></div>
+
                             </ui:panelLayout>
 
                         <div>
@@ -110,12 +113,10 @@
                         </div>
 
                      </ui:panelLayout>
-                        <ui:panelLayout binding="#{SessionBean.messagePanel}"
-                                        id="msgPanel"
-                                        panelLayout="flow"/>
 
                         </center>
-
+                        <div><jsp:include page="pfFooter.jspf"/></div>
+   
                        <ui:meta binding="#{teamQueues.metaRefresh}"
                                  httpEquiv="refresh"
                                  id="metaRefresh" />

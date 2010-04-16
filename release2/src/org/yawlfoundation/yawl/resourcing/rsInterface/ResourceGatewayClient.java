@@ -28,10 +28,16 @@ public class ResourceGatewayClient extends Interface_Client {
      */
     private String _serviceURI ;
 
-    /** the only constructor
+    /** empty constructor */
+    public ResourceGatewayClient() {
+        super();
+    }
+
+    /** constructor
      * @param uri the uri of the resourceService's gateway
      */
     public ResourceGatewayClient(String uri) {
+        super();
         _serviceURI = uri ;
     }
 

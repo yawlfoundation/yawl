@@ -11,7 +11,6 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
-import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.resourcing.resource.Capability;
@@ -461,19 +460,23 @@ public class viewProfile extends AbstractPageBean {
 
     public void preprocess() { }
 
+    /**************************************************************************/
+
+    private SessionBean _sb = getSessionBean();
+    private MessagePanel msgPanel = _sb.getMessagePanel() ;
+    private Participant participant = _sb.getParticipant();
+    private ResourceManager rm = getApplicationBean().getResourceManager();
+
+
     public void prerender() {
-        getSessionBean().checkLogon();
+        _sb.checkLogon();
+        _sb.setActivePage(ApplicationBean.PageRef.viewProfile);
+        _sb.showMessagePanel();
         populateFields(participant);
-        getSessionBean().setActivePage(ApplicationBean.PageRef.viewProfile);
-        msgPanel.show();
     }
 
     public void destroy() { }
 
-
-    private MessagePanel msgPanel = getSessionBean().getMessagePanel() ;
-    private Participant participant = getSessionBean().getParticipant();
-    private ResourceManager rm = getApplicationBean().getResourceManager();
 
 
     public String btnSavePassword_action() {
@@ -521,8 +524,8 @@ public class viewProfile extends AbstractPageBean {
             txtConfirmPassword.setPassword("");
 
             // set buttons
-            Option[] piledTasks = getSessionBean().getPiledTasks();
-            Option[] chainedCases = getSessionBean().getChainedCases();
+            Option[] piledTasks = _sb.getPiledTasks();
+            Option[] chainedCases = _sb.getChainedCases();
             btnUnpile.setDisabled((piledTasks == null) || (piledTasks.length == 0));
             btnUnchain.setDisabled((chainedCases == null) || (chainedCases.length == 0));
         }

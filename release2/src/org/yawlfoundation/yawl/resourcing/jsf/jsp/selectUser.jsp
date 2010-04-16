@@ -20,23 +20,28 @@
                         <!-- include banner -->
                         <div><jsp:directive.include file="pfHeader.jspf"/></div>
 
-                        <ui:listbox binding="#{selectUser.lbxUserList}"
+                        <center>
+                            <ui:panelLayout binding="#{selectUser.pnlContainer}"
+                                            id="pnlContainer"
+                                            styleClass="selectUserContainerPanel">
+
+                        <ui:listbox binding="#{SessionBean.lbxUserList}"
                                     id="lbxUserList"
                                     items="#{SessionBean.selectUserListOptions}"
-                                    selected="#{SessionBean.selectUserListChoice}"
-                                    style="border: 2px solid blue; height: 150px; left: 102px; top: 180px; position: absolute; width: 210px"/>
+                                    
+                                    styleClass="selectUserListbox"/>
 
                         <ui:staticText binding="#{selectUser.staticText1}"
                                        id="staticText1"
                                        text="#{SessionBean.userListFormHeaderText}"
                                        styleClass="pageSubheading"
-                                       style="left: 102px; top: 150px"/>
+                                       style="left: 15px; top: 10px"/>
 
                         <ui:button action="#{selectUser.btnOK_action}"
                                    binding="#{selectUser.btnOK}"
                                    id="btnOK"
                                    styleClass="selectUserButton"
-                                   style="left: 215px"
+                                   style="left: 148px"
                                    text="OK"/>
 
                         <ui:button action="#{selectUser.btnCancel_action}"
@@ -44,8 +49,11 @@
                                    id="btnCancel"
                                    immediate="true"
                                    styleClass="selectUserButton"
-                                   style="left: 125px"
+                                   style="left: 58px"
                                    text="Cancel"/>
+
+                              </ui:panelLayout>  <!-- pnlContainer -->
+                            </center>
                     </ui:form>
                 </ui:body>
             </ui:html>

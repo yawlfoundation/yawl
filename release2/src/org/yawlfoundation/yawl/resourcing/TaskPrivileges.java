@@ -10,11 +10,11 @@ package org.yawlfoundation.yawl.resourcing;
 
 import org.jdom.Element;
 import org.jdom.Namespace;
-import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.util.XNode;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -142,7 +142,7 @@ public class TaskPrivileges {
 
     /** returns the relevant privilege set for the privilege string passed */
     private HashSet<Participant> getPrivSet(String privStr) {
-        return getPrivSet(getPriv(privStr)) ;
+        return getPrivSet(getPrivilegeType(privStr)) ;
     }
 
     /** returns the string version of the privilege type */
@@ -160,7 +160,7 @@ public class TaskPrivileges {
     }
 
     /** returns the privilege type for the string version passed */
-    private int getPriv(String privStr) {
+    public int getPrivilegeType(String privStr) {
         if (privStr.equalsIgnoreCase("canSuspend")) return CAN_SUSPEND ;
         if (privStr.equalsIgnoreCase("canReallocateStateless"))
                                                     return CAN_REALLOCATE_STATELESS;
@@ -196,6 +196,11 @@ public class TaskPrivileges {
         if (validPrivilege(priv)) add(getPrivSet(priv), p) ;
     }
 
+    public void grant(String privName, Participant p) {
+        grant(getPrivilegeType(privName), p) ;
+    }
+
+
     /**
      * Grants a privilege to set of Participant
      * @param priv the privilege to grant
@@ -203,6 +208,10 @@ public class TaskPrivileges {
      */
     public void grant(int priv, Set<Participant> pSet) {
         if (validPrivilege(priv)) addSet(getPrivSet(priv), pSet) ; 
+    }
+
+    public void grant(String privName, Set<Participant> pSet) {
+        grant(getPrivilegeType(privName), pSet) ;
     }
 
     /**
@@ -227,10 +236,21 @@ public class TaskPrivileges {
     /** grant a privilege to all Participants */
     public void allowAll(int privilege) { _allowAll[privilege] = true ; }
 
+    public void allowAll(String privilegeStr) {
+        int type = getPrivilegeType(privilegeStr);
+        if (validPrivilege(type)) allowAll(type) ;
+    }
+
+
 
     /** disallow a privilege for all Participants */
     public void disallowAll(int privilege) { _allowAll[privilege] = false ; }
 
+    public void disallowAll(String privilegeStr) {
+        int type = getPrivilegeType(privilegeStr);
+        if (validPrivilege(type)) disallowAll(type) ;
+    }
+    
 
 
     /** grant the privilege to the Participant without checking the validity of the id.
@@ -391,33 +411,31 @@ public class TaskPrivileges {
             // if no privileges element to deal with, we're done
             if (ePrivileges == null) return;
 
-            Iterator itr = ePrivileges.iterator() ;
-            while (itr.hasNext()) {
-                Element ePrivilege = (Element) itr.next();
+            for (Object o : ePrivileges) {
+                Element ePrivilege = (Element) o;
 
                 // get the privilege set we're referring to
-                String privName = ePrivilege.getChildText("name", nsYawl) ;
-                int priv = getPriv(privName) ;
-                HashSet<Participant> privSet = getPrivSet(privName) ;
+                String privName = ePrivilege.getChildText("name", nsYawl);
+                int priv = getPrivilegeType(privName);
+                HashSet<Participant> privSet = getPrivSet(privName);
 
                 // are all allowed?
                 String allowall = ePrivilege.getChildText("allowall", nsYawl);
                 if (allowall != null) {
-                    if (allowall.equalsIgnoreCase("true")) allowAll(priv) ;
+                    if (allowall.equalsIgnoreCase("true")) allowAll(priv);
                     else disallowAll(priv);
                 }
 
                 // get the set of participant and/or role tags for this privilege
                 List eSet = ePrivilege.getChildren();
-                Iterator sitr = eSet.iterator() ;
-                while (sitr.hasNext()) {
-                    Element eResource = (Element) sitr.next();
+                for (Object obj : eSet) {
+                    Element eResource = (Element) obj;
 
                     // if it's a 'role' child, unpack it to a set of participants ...
                     if (eResource.getName().equals("role")) {
                         String rid = eResource.getText();
                         Set<Participant> pSet = ResourceManager.getInstance()
-                                                .getOrgDataSet().getRoleParticipants(rid) ;
+                                .getOrgDataSet().getRoleParticipants(rid);
                         addSet(privSet, pSet);
 
                         // remember that this set was added as a role
@@ -433,54 +451,115 @@ public class TaskPrivileges {
 
     /** creates xml to describe the entire object */
     public String toXML() {
-        StringBuilder xml = new StringBuilder("<privileges>");
+        XNode privileges = buildPrivilegesNode();
 
-        // get the set of participants and roles for each privilege
-        for (int i=CAN_SUSPEND; i<=CAN_PILE; i++)
-           xml.append(buildXMLForPrivilege(i)) ;
+//        // get the set of participants and roles for each privilege
+//        for (int i=CAN_SUSPEND; i<=CAN_PILE; i++)
+//            privileges.addChild(buildXMLForPrivilege(i));
 
-        xml.append("</privileges>");
+//        StringBuilder xml = new StringBuilder("<privileges>");
+//
+//        for (int i=CAN_SUSPEND; i<=CAN_PILE; i++)
+//           xml.append(buildXMLForPrivilege(i)) ;
+//
+//        xml.append("</privileges>");
 
         // output xml only if the element isn't empty 
-        if (xml.length() > 26)
-            return xml.toString();
+        if (privileges.length() > 26)
+            return privileges.toString();
         else
             return "" ;                        // returns "" because null gives "null"
     }
+
+
+    public String toXML(boolean full) {
+        XNode xml = new XNode("taskprivileges");
+        if (full) {
+            XNode specid = xml.addChild("specid");
+            specid.addChild("identifier", _specID.getIdentifier());
+            specid.addChild("uri", _specID.getUri());
+            specid.addChild("version", _specID.getVersionAsString());
+            xml.addChild("taskid", _taskID);
+        }
+        xml.addChild(buildPrivilegesNode());
+        return xml.toString();
+    }
+
+
+    private XNode buildPrivilegesNode() {
+        XNode privileges = new XNode("privileges");
+
+        // get the set of participants and roles for each privilege
+        for (int i=CAN_SUSPEND; i<=CAN_PILE; i++) {
+            privileges.addChild(buildXMLForPrivilege(i));
+        }
+        return privileges;
+    }
     
 
+//    /** creates xml to describe a single privilege */
+//    private String buildXMLForPrivilege(int priv) {
+//
+//        // if anyone has been granted access for this privilege
+//        if (allAllowed(priv) || hasParticipants(priv) || hasRoles(priv)) {
+//            StringBuilder xml = new StringBuilder("<privilege>");
+//            xml.append("<name>").append(getPrivString(priv)).append("</name>");
+//
+//            if (allAllowed(priv))
+//                xml.append("<allowall>").append(true).append("</allowall>");
+//
+//            // individual participants or roles go in the 'set' child
+//            if (hasParticipants(priv) || hasRoles(priv)) {
+//                xml.append("<set>");
+//                HashSet<Participant> pSet = getPrivSet(priv) ;
+//                for (Participant p : pSet) {
+//                    xml.append("<participant>")
+//                       .append(p.getID())
+//                       .append("</participant>");
+//                }
+//
+//                // roleSet stores ids only
+//                if (hasRoles(priv)) {
+//                    for (Iterator itr = _roleSet[priv].iterator() ; itr.hasNext();)
+//                        xml.append("<role>").append(itr.next()).append("</role>");
+//                }
+//                xml.append("</set>");
+//            }
+//            xml.append("</privilege>");
+//            return xml.toString();
+//        }
+//        else return "" ;
+//    }
+
     /** creates xml to describe a single privilege */
-    private String buildXMLForPrivilege(int priv) {
+    private XNode buildXMLForPrivilege(int priv) {
 
         // if anyone has been granted access for this privilege
         if (allAllowed(priv) || hasParticipants(priv) || hasRoles(priv)) {
-            StringBuilder xml = new StringBuilder("<privilege>");
-            xml.append("<name>").append(getPrivString(priv)).append("</name>");
-
-            if (allAllowed(priv))
-                xml.append("<allowall>").append(true).append("</allowall>");
+            XNode privilege = new XNode("privilege");
+            privilege.addChild("name", getPrivString(priv));
+            if (allAllowed(priv)) {
+                privilege.addChild("allowall", "true");
+            }
 
             // individual participants or roles go in the 'set' child
             if (hasParticipants(priv) || hasRoles(priv)) {
-                xml.append("<set>");
+                XNode set = privilege.addChild("set");
                 HashSet<Participant> pSet = getPrivSet(priv) ;
                 for (Participant p : pSet) {
-                    xml.append("<participant>")
-                       .append(p.getID())
-                       .append("</participant>");
+                    set.addChild("participant", p.getID());
                 }
 
                 // roleSet stores ids only
                 if (hasRoles(priv)) {
-                    for (Iterator itr = _roleSet[priv].iterator() ; itr.hasNext();)
-                        xml.append("<role>").append(itr.next()).append("</role>");
+                    for (Object o : _roleSet[priv]) {
+                        set.addChild("role", (String) o);
+                    }
                 }
-                xml.append("</set>");
             }
-            xml.append("</privilege>");
-            return xml.toString();
+            return privilege;
         }
-        else return "" ;
+        else return null ;
     }
 
 }

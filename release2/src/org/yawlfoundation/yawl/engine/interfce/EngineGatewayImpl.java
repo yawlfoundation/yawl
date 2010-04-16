@@ -25,11 +25,9 @@ import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.exceptions.YStateException;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
-import org.yawlfoundation.yawl.util.HttpURLValidator;
-import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
+import org.yawlfoundation.yawl.util.*;
 
+import java.io.InputStream;
 import java.net.URI;
 import java.rmi.RemoteException;
 import java.util.*;
@@ -95,8 +93,6 @@ public class EngineGatewayImpl implements EngineGateway {
         return msg.startsWith("<fail");
     }
 
-
-
     //**************************************************//
     
 
@@ -130,6 +126,11 @@ public class EngineGatewayImpl implements EngineGateway {
     }
 
 
+    public void initBuildProperties(InputStream stream) {
+        _engine.initBuildProperties(stream);
+    }
+
+
     public void shutdown() {
         _engine.shutdown();
     }
@@ -139,7 +140,7 @@ public class EngineGatewayImpl implements EngineGateway {
      * Should only be called from InterfaceB_EngineBasedServer.init()
      */
     public void notifyServletInitialisationComplete() {
-        _engine.announceEngineInitialisationCompletion();
+        _engine.getAnnouncer().announceEngineInitialisationCompletion();
     }
 
     
@@ -684,6 +685,16 @@ public class EngineGatewayImpl implements EngineGateway {
     }
 
 
+    public String getBuildProperties(String sessionHandle) throws RemoteException {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        YBuildProperties props = _engine.getBuildProperties();
+        return (props != null) ? props.toXML() :
+                failureMessage("Unable to retrieve Enigne build properties.");
+    }
+
+
     /**
      * Gets the child work items of a given work item id string.
      * @param workItemID
@@ -859,6 +870,30 @@ public class EngineGatewayImpl implements EngineGateway {
 
 
     /**
+     * Creates a new external client account in the system.
+     * @param userName the name of the user
+     * @param password the users elected password.
+     * @param doco some descriptive text about the account
+     * @param sessionHandle
+     * @return diagnostic XML message.
+     */
+    public String updateAccount(String userName, String password, String doco, String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        try {
+            boolean success = _engine.updateExternalClient(userName, password, doco);
+            if (success)
+                return SUCCESS;
+            else return failureMessage("Unknown account name: " + userName);
+        }
+        catch (YPersistenceException ype) {
+            return failureMessage("Persistence exception attempting to update account");
+        }
+    }
+
+
+    /**
      * Gets the list of external accounts in the system.
      * @param sessionHandle session handle
      * @return an XML message showing each user in the system.
@@ -990,7 +1025,13 @@ public class EngineGatewayImpl implements EngineGateway {
             }
             if (_engine.getExternalClient(client) != null) {
                 try {
-                    _engine.removeExternalClient(client);
+                    if (client.equals("admin")) {
+                        return failureMessage("Removing the generic admin user is not allowed.");
+                    }
+                    YExternalClient removed = _engine.removeExternalClient(client);
+                    if (removed == null) {
+                        return failureMessage("Unable to remove account.");
+                    }
                     return SUCCESS;
                 }
                 catch (YPersistenceException ype) {
@@ -1016,6 +1057,30 @@ public class EngineGatewayImpl implements EngineGateway {
         }
         else return failureMessage("Invalid or expired session handle");
     }
+
+
+    public String getClientPassword(String userID, String sessionHandle) throws RemoteException {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        YExternalClient client = _engine.getExternalClient(userID);
+        if (client != null) {
+            return client.getPassword();
+        }
+        else return failureMessage("Unknown account name: " + userID);
+    }
+
+    public String getClientAccount(String userID, String sessionHandle) throws RemoteException {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        YExternalClient client = _engine.getExternalClient(userID);
+        if (client != null) {
+            return client.toXML();
+        }
+        else return failureMessage("Unknown account name: " + userID);
+    }
+
 
 
     private String describeWorkItems(Set<YWorkItem> workItems) {
@@ -1235,7 +1300,7 @@ public class EngineGatewayImpl implements EngineGateway {
 
         YWorkItem item = _engine.getWorkItem(itemID);
         if (item != null) {
-            _engine.rejectAnnouncedEnabledTask(item);
+            _engine.getAnnouncer().rejectAnnouncedEnabledTask(item);
             return successMessage("workitem rejection successful");
         }
         else return failureMessage("Unknown worklitem: " + itemID);

@@ -215,14 +215,12 @@
 
                                 </ui:panelLayout>
 
+                               <div><jsp:include page="pfMsgPanel.jspf"/></div>
+
                             </ui:panelLayout>  <!-- pnlContainer -->
 
-                            <ui:panelLayout
-                                    binding="#{SessionBean.messagePanel}"
-                                    id="msgPanel"
-                                    panelLayout="flow"/>
-
-                        </center>
+                         </center>
+                        <div><jsp:include page="pfFooter.jspf"/></div>
                     </ui:form>
                 </ui:body>
             </ui:html>

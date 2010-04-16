@@ -17,11 +17,10 @@ import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
-import org.yawlfoundation.yawl.resourcing.resource.OrgGroup;
-import org.yawlfoundation.yawl.resourcing.resource.Participant;
-import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
+import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.util.GadgetFeeder;
 import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
@@ -155,6 +154,11 @@ public class WorkQueueGateway extends HttpServlet {
             }
             else result = fail("Unknown participant id: " + pid);
         }
+        else if (action.equals("getTaskPrivileges")) {
+            TaskPrivileges privileges = _rm.getTaskPrivileges(itemid);
+            result = (privileges != null) ? privileges.toXML(true) :
+                     fail("Unknown workitem id: " + itemid);
+        }
         else if (action.equals("getParticipantsReportingTo")) {
             Set<Participant> set = orgDataSet.getParticipantsReportingTo(pid);
             result = (set != null) ? _marshaller.marshallParticipants(set) :
@@ -169,6 +173,13 @@ public class WorkQueueGateway extends HttpServlet {
             }
             else result = fail("Unknown org group id: " + groupid);
         }        
+        else if (action.equals("getRoleMembers")) {
+            String rid = req.getParameter("roleid");
+            if (orgDataSet.isKnownRole(rid)) {
+                result = orgDataSet.getRoleParticipantsAsXML(rid);
+            }
+            else result = fail("Unknown role id: " + rid);
+        }
         else if (action.equals("getParticipant")) {
             Participant p = orgDataSet.getParticipant(pid);
             result = (p != null) ? p.toXML() : fail("Unknown participant id: " + pid);
@@ -177,6 +188,11 @@ public class WorkQueueGateway extends HttpServlet {
             Set<Participant> set = orgDataSet.getParticipants();
             result = (set != null) ? _marshaller.marshallParticipants(set) :
                       fail("No participants found");
+        }
+        else if (action.equals("getDistributionSet")) {
+            Set<Participant> set = _rm.getDistributionSet(itemid) ;
+            result = (set != null) ? _marshaller.marshallParticipants(set) :
+                      fail("No distribution set found");
         }
         else if (action.equals("getAdminQueues")) {
             QueueSet qSet = _rm.getAdminQueues();
