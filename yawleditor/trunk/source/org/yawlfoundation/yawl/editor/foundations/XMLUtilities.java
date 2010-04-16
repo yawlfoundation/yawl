@@ -278,7 +278,7 @@ public class XMLUtilities {
    * element tags of this variable, just the innards.
    *
    * This expression is expected to be evaluated with a set of 
-   * XML tags, requiring the "{" and "}" characters for approapriate 
+   * XML tags, requiring the "{" and "}" characters for appropriate 
    * scoping.
    * @param variable A data variable in the specification
    * @return An XPath/XQuery expression that will retrieve the 

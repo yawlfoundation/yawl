@@ -19,7 +19,7 @@ public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
   }
   
   public String getWizardStepTitle() {
-    return "Choose Behaviour At Interaction Points";
+    return "Interaction Points";
   }
   
   protected void initialise() {}
@@ -37,18 +37,15 @@ public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
     gbc.fill = GridBagConstraints.BOTH;
     gbc.insets = new Insets(0,0,20,0);
 
-    JLabel discussion = new JLabel(
-        "<html><body>There are three key decision points for managing the resourcing of " +
-        "work items spawned from a task. At each of these <em>interaction points</em>, " +
-        "you may choose to have the system dynamically make a decision on resourcing at each point, " +
-        "or alternately, allow a user to manually make each decision. Each interaction point is " +
-        "briefly described below:<ul><li>Offer: The point at which it is decided that a number of participants " +
-        "<em>could</em> undertake the work item.<li>Allocation: The point at which one of the participants " +
-        "offered the work item is <em>nominated to do</em> that work item." +
-        "<li>Start: The point at which the participant allocated a work item <em>begins</em> working on it." +
-        "</ul></body></html>"
-    );
-    
+    String text = "<html><body>Each task passes through three decisions, or " +
+            "<i>interaction</i> points before a " +
+            "participant begins working on it. For each of the interaction points " +
+            "below, please specify whether the task is to be handled by the " +
+            "<i>System</i> (dynamically, based on the settings chosen later in this " +
+            "wizard), or by the <i>User</i> (manually, by a participant or an " +
+            "administrator), when the task is executed.</body></html>" ;
+
+    JLabel discussion = new JLabel(text);
     add(discussion,gbc);
     
     gbc.gridy++;
@@ -72,7 +69,7 @@ public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
   
   private InteractionPointPanel getOfferPanel() {
     return new InteractionPointPanel(
-        "Offering a work item for this task to a number of participants is to be done by:"
+        "Offer: The task is made available to a number of participants:"
     ) {
       private static final long serialVersionUID = 1L;
 
@@ -92,7 +89,7 @@ public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
 
   private InteractionPointPanel getAllocationPanel() {
     return new InteractionPointPanel(
-        "Allocating a work item for this task to one of the offered participants is to be done by:"
+        "Allocate: The task is assigned to a single participant:"
     ) {
       private static final long serialVersionUID = 1L;
 
@@ -112,7 +109,7 @@ public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
 
   private InteractionPointPanel getStartPanel() {
     return new InteractionPointPanel(
-        "Starting an allocated work item of this task is to be done by:"
+        "Start: Work begins on the task:"
     ) {
       private static final long serialVersionUID = 1L;
 

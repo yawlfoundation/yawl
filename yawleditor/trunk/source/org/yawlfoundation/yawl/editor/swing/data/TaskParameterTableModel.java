@@ -36,7 +36,7 @@ public class TaskParameterTableModel extends AbstractOrderedRowTableModel {
   public static final int VARIABLE_COLUMN = 1;
 
   private static final String[] COLUMN_LABELS = { 
-    "XQuery",
+    "Expression",
     "Variable"
   };
   

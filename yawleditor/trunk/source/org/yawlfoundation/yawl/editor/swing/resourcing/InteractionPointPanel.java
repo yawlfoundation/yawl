@@ -1,17 +1,11 @@
 package org.yawlfoundation.yawl.editor.swing.resourcing;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-
-import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
 
 public abstract class InteractionPointPanel extends JPanel {
 
@@ -33,7 +27,7 @@ public abstract class InteractionPointPanel extends JPanel {
     gbc.gridx = 0;
     gbc.gridy = 0;
     gbc.insets = new Insets(0,0,0,20);
-    gbc.anchor = GridBagConstraints.EAST;
+    gbc.anchor = GridBagConstraints.WEST;
 
     JLabel interactionPointLabel = new JLabel(interactionPointString);
     add(interactionPointLabel, gbc);

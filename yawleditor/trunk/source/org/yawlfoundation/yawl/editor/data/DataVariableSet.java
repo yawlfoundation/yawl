@@ -320,26 +320,32 @@ public class DataVariableSet implements Serializable, Cloneable {
   
   /**
    * A utility function designed to take input parameters and output
-   * parameters of the same name, and replace them with an equivalent
-   * input and output parameter. This is especially needed for engine 
+   * parameters of this set of the same name and datatype, and replace them
+   * with an equivalent input and output parameter. This is used for engine
    * import activities, where the engine parameters come in separately
-   * and must be fused for correct editor data variable behaviour.
+   * and must be fused for correct behaviour.
    */
   public void consolidateInputAndOutputVariables() {
       List<DataVariable> varSet = getVariableSet();
       if (! varSet.isEmpty()) {
-          Collections.sort(varSet);
-          DataVariable previousVariable = null;
-          List<DataVariable> toRemove = new ArrayList<DataVariable>();
+          List<DataVariable> inputList = new ArrayList<DataVariable>();
+          List<DataVariable> outputList = new ArrayList<DataVariable>();
           for (DataVariable variable : varSet) {
-              if ((previousVariable != null) &&
-                  (variable.getIndex() == previousVariable.getIndex())) {
-                  toRemove.add(variable);
-                  previousVariable.setUsage(DataVariable.USAGE_INPUT_AND_OUTPUT);
+              if (variable.getUsage() == DataVariable.USAGE_INPUT_ONLY) {
+                  inputList.add(variable);
               }
-              previousVariable = variable;
+              else {
+                  outputList.add(variable);
+              }
           }
-          varSet.removeAll(toRemove);
+          for (DataVariable inputVar : inputList) {
+              for (DataVariable outputVar : outputList) {
+                   if (inputVar.equalsIgnoreUsage(outputVar)) {
+                       inputVar.setUsage(DataVariable.USAGE_INPUT_AND_OUTPUT);
+                       varSet.remove(outputVar);
+                   }
+              }
+          }
       }
   }
 }

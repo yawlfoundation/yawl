@@ -23,11 +23,11 @@
 
 package org.yawlfoundation.yawl.editor.swing.data;
 
+import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.ActionAndFocusListener;
-import org.yawlfoundation.yawl.editor.YAWLEditor;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -399,11 +399,12 @@ abstract public class DataVariableUpdateDialog extends AbstractDoneDialog {
     };
 
     table.setModel(model);
-    ExtendedAttributeEditor editor = new ExtendedAttributeEditor(this, DialogMode.NET);
+    table.setRowHeight(getFontMetrics(getFont()).getHeight() + (int) (getFont().getSize() *0.75));
+    table.setShowGrid(true);
+    ExtendedAttributeEditor editor = new ExtendedAttributeEditor(this, DialogMode.TASK);
     getDoneButton().addActionListener(editor);
     table.setDefaultEditor(ExtendedAttribute.class, editor);
     table.setDefaultRenderer(ExtendedAttribute.class, new ExtendedAttributeRenderer());
-
     attributesPanel.add(new JScrollPane(table));
     attributesPanel.setVisible(false);
 

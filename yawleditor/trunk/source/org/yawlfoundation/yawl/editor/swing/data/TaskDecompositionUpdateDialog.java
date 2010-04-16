@@ -405,7 +405,7 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
 
     table.setModel(model);
     ExtendedAttributeEditor editor = new ExtendedAttributeEditor(this, DialogMode.TASK);
-    getDoneButton().addActionListener(editor);
+//    getDoneButton().addActionListener(editor);
     table.setDefaultEditor(ExtendedAttribute.class, editor);
     table.setDefaultRenderer(ExtendedAttribute.class, new ExtendedAttributeRenderer());
 

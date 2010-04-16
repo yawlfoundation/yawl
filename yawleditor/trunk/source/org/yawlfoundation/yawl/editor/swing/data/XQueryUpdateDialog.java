@@ -32,6 +32,8 @@ public class XQueryUpdateDialog extends AbstractDoneDialog implements ActionList
     private JButton inputVariableQueryButton;
     protected DataVariableComboBox inputVariableComboBox;
 
+    private String _text;
+
     public XQueryUpdateDialog(AbstractDoneDialog parent, DialogMode mode) {
         super("XQuery", true);
         this.parent = parent;
@@ -43,15 +45,20 @@ public class XQueryUpdateDialog extends AbstractDoneDialog implements ActionList
                     public void actionPerformed(ActionEvent e) {
                         if(useXQuery.isSelected())
                         {
-                            attribute.setValue("${" + xQueryEditor.getText() + "}");
+                            _text = "${" + xQueryEditor.getText() + "}" ;
                         }
                         else
                         {
-                            attribute.setValue(xQueryEditor.getText());
+                            _text = xQueryEditor.getText();
                         }
                     }
                 }
         );
+    }
+
+    public String showDialog() {
+        setVisible(true);
+        return _text;
     }
 
     public void setExtendedAttribute(ExtendedAttribute attribute) {
@@ -72,6 +79,7 @@ public class XQueryUpdateDialog extends AbstractDoneDialog implements ActionList
             xQueryEditor.setValidating(false);
         }
 
+        _text = value;
         xQueryEditor.setText(value);
     }
 
@@ -123,7 +131,7 @@ public class XQueryUpdateDialog extends AbstractDoneDialog implements ActionList
         useXQuery.addActionListener(this);
         panel.add(useXQuery, gbc);
 
-        JLabel inputVariableLabel = new JLabel("Net variable:");
+        JLabel inputVariableLabel = new JLabel("Variable:");
         inputVariableLabel.setHorizontalAlignment(JLabel.RIGHT);
         inputVariableLabel.setDisplayedMnemonic('v');
 
