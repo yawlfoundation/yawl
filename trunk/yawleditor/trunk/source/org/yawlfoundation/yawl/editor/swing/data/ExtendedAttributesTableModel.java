@@ -6,15 +6,13 @@ import org.yawlfoundation.yawl.editor.net.NetGraph;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Vector;
-import java.util.Collections;
 
 /**
  * @author Mike Fowler
@@ -25,42 +23,37 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
     public static final int NUM_COLUMNS = 2;
 
     private Properties props = null;
-
     private DataVariable variable = null;
     private Decomposition decomposition = null;
     private NetGraph graph = null;
 
     private Vector<ExtendedAttribute> rows = new Vector<ExtendedAttribute>();
 
-    public ExtendedAttributesTableModel(DataVariable variable) throws IOException
-    {
+    public ExtendedAttributesTableModel(DataVariable variable) throws IOException {
         this.variable = variable;
-        if(variable !=null && variable.getScope() != null) this.decomposition = variable.getScope().getDecomposition();
+        if (variable !=null && variable.getScope() != null)
+            this.decomposition = variable.getScope().getDecomposition();
         loadDefaultProperties();
-        loadProperties();
+        loadUserDefinedProperties();
         parseProperties();
     }
 
-    public ExtendedAttributesTableModel(Decomposition decomposition, NetGraph graph) throws IOException
-    {
+    public ExtendedAttributesTableModel(Decomposition decomposition, NetGraph graph)
+            throws IOException {
         this.decomposition = decomposition;
         this.graph = graph;
         loadDefaultProperties();
-        loadProperties();
+        loadUserDefinedProperties();
         parseProperties();
     }
 
-    private void loadProperties() throws IOException
-    {
-        InputStream stream;
-        String streamPath = null;
+    private void loadUserDefinedProperties() throws IOException {
+        String streamPath;
 
-        if (variable != null)
-        {
+        if (variable != null) {
             streamPath = DataVariable.PROPERTY_LOCATION;
         }
-        else
-        {
+        else {
             streamPath = Decomposition.PROPERTY_LOCATION;
         }
 
@@ -68,12 +61,11 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
           props = new Properties();
 
           try {
-            stream = new FileInputStream(streamPath);  
-            props.load(stream);
-          } catch (FileNotFoundException fnfe) {
+              props.load(new FileInputStream(streamPath));
+          }
+          catch (FileNotFoundException fnfe) {
             // deliberately does nothing.   
-          };
-
+          }
         }
     }
 
@@ -86,55 +78,54 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
             rows = new DefaultExtendedAttributes(graph, decomposition).getAttributes();
     }
 
-    private void parseProperties()
-    {
-        //todo what about properties that exist in the spec but not in the file? ignore or display? ignoring for now...
+    private void parseProperties() {
+        //todo what about properties that exist in the spec but not in the file?
+        // ignore or display? ignoring for now...
 
-        if (variable != null)
-        {
+        if (variable != null) {
             parseVariableProperties();
         }
-        else
-        {
+        else {
             parseDecompositionProperties();
         }
     }
 
-    private void parseVariableProperties()
-    {
-        if (props != null)
-        {
+    private void parseVariableProperties() {
+        if (props != null) {
             Vector<String> keys = new Vector<String>();
-            for (Enumeration enumer = props.keys(); enumer.hasMoreElements(); keys.add(enumer.nextElement().toString()));
+            for (Enumeration enumer = props.keys(); enumer.hasMoreElements();
+                 keys.add(enumer.nextElement().toString()));
+
             Collections.sort(keys);
-            for (String key : keys)
-            {
+            for (String key : keys) {
                 String type = props.getProperty(key).trim().toLowerCase();
-                ExtendedAttribute att = new ExtendedAttribute(variable, decomposition, key, type, variable == null ? "" :
-                                                                                                  variable.getAttributes().get(key) == null ? "" :
-                                                                                                  variable.getAttributes().get(key).toString());
-                if (att.getAttribute() == ExtendedAttribute.USER_ATTRIBUTE) rows.add(att);
+                ExtendedAttribute att = new ExtendedAttribute(variable, decomposition,
+                        key, type,
+                        variable == null ? "" :
+                        variable.getAttributes().get(key) == null ? "" :
+                        variable.getAttributes().get(key).toString());
+                if (att.getAttributeType() == ExtendedAttribute.USER_ATTRIBUTE) rows.add(att);
             }
         }
     }
 
-    private void parseDecompositionProperties()
-    {
-        if (props != null)
-        {
+    private void parseDecompositionProperties() {
+        if (props != null) {
             rows = new Vector<ExtendedAttribute>();  //clear out old - if any
             Vector<String> keys = new Vector<String>();
-            for (Enumeration enumer = props.keys(); enumer.hasMoreElements(); keys.add(enumer.nextElement().toString()));
-            Collections.sort(keys);
-            for (String key : keys)
-            {
-                String type = props.getProperty(key).trim().toLowerCase();
-                ExtendedAttribute att = new ExtendedAttribute(graph, decomposition, key, type, decomposition == null ? "" :
-                                                                                               decomposition.getAttributes().get(key) == null ? "" :
-                                                                                               decomposition.getAttributes().get(key).toString());
-                if (att.getAttribute() == ExtendedAttribute.USER_ATTRIBUTE) rows.add(att);
-            }
+            for (Enumeration enumer = props.keys(); enumer.hasMoreElements();
+                 keys.add(enumer.nextElement().toString()));
 
+            Collections.sort(keys);
+            for (String key : keys) {
+                String type = props.getProperty(key).trim().toLowerCase();
+                ExtendedAttribute att = new ExtendedAttribute(graph, decomposition,
+                        key, type,
+                        decomposition == null ? "" :
+                        decomposition.getAttributes().get(key) == null ? "" :
+                        decomposition.getAttributes().get(key).toString());
+                if (att.getAttributeType() == ExtendedAttribute.USER_ATTRIBUTE) rows.add(att);
+            }
         }
     }
 
@@ -146,8 +137,7 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
      * @return the number of columns in the model
      * @see #getRowCount
      */
-    public int getColumnCount()
-    {
+    public int getColumnCount() {
         return NUM_COLUMNS;
     }
 
@@ -160,8 +150,7 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
      * @return the number of rows in the model
      * @see #getColumnCount
      */
-    public int getRowCount()
-    {
+    public int getRowCount() {
         return rows.size();
     }
 
@@ -169,16 +158,11 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
      * Returns the value for the cell at <code>columnIndex</code> and
      * <code>rowIndex</code>.
      */
-    public Object getValueAt(int rowIndex, int columnIndex)
-    {
-        switch (columnIndex)
-        {
-            case 0:
-                return rows.get(rowIndex).getName();
-            case 1:
-                return rows.get(rowIndex);
-            default:
-                return ""; //todo exception?
+    public Object getValueAt(int rowIndex, int columnIndex) {
+        switch (columnIndex) {
+            case 0:  return rows.get(rowIndex).getName();
+            case 1:  return rows.get(rowIndex);
+            default: return ""; //todo exception?
         }
     }
 
@@ -187,20 +171,23 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
      * @param rowIndex    row of cell
      * @param columnIndex column of cell
      */
-    public void setValueAt(Object aValue, int rowIndex, int columnIndex)
-    {
-        if (columnIndex == 1)
-        {
-            ExtendedAttribute hint = rows.get(rowIndex);
-            hint.setValue(aValue.toString());
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+        if (columnIndex == 1) {
+            ExtendedAttribute attribute = rows.get(rowIndex);
 
-            if (variable != null)
-            {
-                variable.setAttribute(hint.getName(), hint.getValue());
+            attribute.setValue(aValue.toString());
+
+            if (variable != null) {
+                variable.setAttribute(attribute.getName(), attribute.getValue());
+                if (attribute.getGroup() != null) {
+                    updateGroup(attribute.getGroup());
+                }
             }
-            else
-            {
-                decomposition.setAttribute(hint.getName(), hint.getValue());
+            else {
+                decomposition.setAttribute(attribute.getName(), attribute.getValue());
+                if (attribute.getGroup() != null) {
+                    updateGroup(attribute.getGroup());
+                }
             }
         }
         fireTableChanged(new TableModelEvent(this, rowIndex, rowIndex, columnIndex));
@@ -210,16 +197,11 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
      * @param column the column being queried
      * @return a string containing the default name of <code>column</code>
      */
-    public String getColumnName(int column)
-    {
-        switch (column)
-        {
-            case 0:
-                return "Name";
-            case 1:
-                return "Value";
-            default:
-                return "";
+    public String getColumnName(int column) {
+        switch (column) {
+            case 0: return "Name";
+            case 1: return "Value";
+            default: return "";
         }
     }
 
@@ -227,15 +209,8 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
      * @param columnIndex the column being queried
      * @return the Object.class
      */
-    public Class getColumnClass(int columnIndex)
-    {
-        switch (columnIndex)
-        {
-            case 1:
-                return ExtendedAttribute.class;
-            default:
-                return Object.class;
-        }
+    public Class getColumnClass(int columnIndex) {
+        return (columnIndex == 1) ? ExtendedAttribute.class : Object.class;
     }
 
     /**
@@ -245,41 +220,41 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
      * @param columnIndex the column being queried
      * @return false
      */
-    public boolean isCellEditable(int rowIndex, int columnIndex)
-    {
+    public boolean isCellEditable(int rowIndex, int columnIndex) {
         return columnIndex == 1;
     }
 
-    public void setVariable(DataVariable variable)
-    {
+    public void setVariable(DataVariable variable) {
         this.variable = variable;
         this.decomposition = variable.getScope().getDecomposition();
+        loadAndParseProperties();
+    }
 
+    public void setDecomposition(Decomposition decomposition) {
+        this.decomposition = decomposition;
+        loadAndParseProperties();
+    }
+
+    private void loadAndParseProperties() {
         loadDefaultProperties();
-
-        try
-        {
-            loadProperties();
+        try {
+            loadUserDefinedProperties();
         }
-        catch (IOException e)
-        {
+        catch (IOException e) {
             //todo anything at this exception?
         }
         parseProperties();
     }
 
-    public void setDecomposition(Decomposition decomposition)
-    {
-        this.decomposition = decomposition;
-        loadDefaultProperties();
-        try
-        {
-            loadProperties();
+
+    private void updateGroup(ExtendedAttributeGroup group) {
+        for (ExtendedAttribute attribute : group) {
+            if (variable != null) {
+                variable.setAttribute(attribute.getName(), attribute.getValue());
+            }
+            else {
+                decomposition.setAttribute(attribute.getName(), attribute.getValue());                
+            }
         }
-        catch (IOException e)
-        {
-            //todo anything at this exception?
-        }
-        parseProperties();
     }
 }

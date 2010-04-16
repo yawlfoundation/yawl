@@ -22,46 +22,22 @@
  */
 package org.yawlfoundation.yawl.editor.net.utilities;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-
-import java.awt.Font;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.geom.Line2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.Point2D;
-
-import javax.swing.JViewport;
-
-import org.jgraph.graph.CellView;
-import org.jgraph.graph.EdgeView;
-import org.jgraph.graph.GraphCell;
-import org.jgraph.graph.GraphConstants;
-import org.jgraph.graph.PortView;
-import org.jgraph.graph.VertexView;
-
-
+import org.jgraph.graph.*;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
-import org.yawlfoundation.yawl.editor.elements.model.Decorator;
-import org.yawlfoundation.yawl.editor.elements.model.InputCondition;
-import org.yawlfoundation.yawl.editor.elements.model.OutputCondition;
-import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLCompositeTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLCondition;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLFlowRelation;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLPort;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.elements.model.*;
 import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.util.*;
+import java.util.List;
 
 public class NetCellUtilities {
 
@@ -499,6 +475,17 @@ public class NetCellUtilities {
                             List<DataVariable> inputNetVars,
                             List<DataVariable> outputNetVars) {
     
+      List<DataVariable> inputOutputNetVars = new ArrayList<DataVariable>();
+      for (DataVariable netVariable : inputNetVars) {
+          if (outputNetVars.contains(netVariable)) {
+              inputOutputNetVars.add(netVariable);
+          }
+      }
+      for (DataVariable netVariable : inputOutputNetVars) {
+          inputNetVars.remove(netVariable);
+          outputNetVars.remove(netVariable);
+      }
+
     createTaskDecompParamsToMatchNetParams(
         createDecompositionForAtomicTask(
             net, 
@@ -506,9 +493,11 @@ public class NetCellUtilities {
             decompName
         ),
         inputNetVars,
+        inputOutputNetVars,
         outputNetVars
     );
-    
+
+    inputNetVars.addAll(inputOutputNetVars);
     for (DataVariable inputNetVar : inputNetVars) {
       DataVariable matchingTaskVar = task.getWSDecomposition().getVariableWithName(inputNetVar.getName());
       ((YAWLTask) task).getParameterLists().getInputParameters().addParameterPair(
@@ -516,7 +505,8 @@ public class NetCellUtilities {
           XMLUtilities.getTagEnclosedVariableContentXQuery(inputNetVar)
       );
     }
-    
+
+    outputNetVars.addAll(inputOutputNetVars);  
     for(DataVariable outputNetVar : outputNetVars) {
       DataVariable matchingTaskVar = task.getWSDecomposition().getVariableWithName(outputNetVar.getName());
       ((YAWLTask) task).getParameterLists().getOutputParameters().addParameterPair(
@@ -540,15 +530,24 @@ public class NetCellUtilities {
   public static void createTaskDecompParamsToMatchNetParams(
                            WebServiceDecomposition taskDecomp, 
                            List<DataVariable> inputNetVars,
+                           List<DataVariable> inputOutputNetVars,
                            List<DataVariable> outputNetVars) {
-    
+
     for (DataVariable netVariable : inputNetVars) {
-      taskDecomp.addVariable(
+        taskDecomp.addVariable(
           createMatchingTaskVarForNetVar(
-              netVariable, 
+              netVariable,
               DataVariable.USAGE_INPUT_ONLY
-          )    
-      );
+          )
+        );
+    }
+    for (DataVariable netVariable : inputOutputNetVars) {
+        taskDecomp.addVariable(
+          createMatchingTaskVarForNetVar(
+              netVariable,
+              DataVariable.USAGE_INPUT_AND_OUTPUT
+          )
+        );
     }
 
     for (DataVariable netVariable : outputNetVars) {
@@ -560,7 +559,7 @@ public class NetCellUtilities {
       );
     }
     
-    taskDecomp.getVariables().consolidateInputAndOutputVariables();
+//    taskDecomp.getVariables().consolidateInputAndOutputVariables();
   }
 
   public static DataVariable createMatchingTaskVarForNetVar(DataVariable netVar, int taskUsage) {
@@ -569,7 +568,7 @@ public class NetCellUtilities {
     taskVariable.setName(netVar.getName());
     taskVariable.setDataType(netVar.getDataType());
     taskVariable.setUsage(taskUsage);
-    
+
     return taskVariable;
   }
   

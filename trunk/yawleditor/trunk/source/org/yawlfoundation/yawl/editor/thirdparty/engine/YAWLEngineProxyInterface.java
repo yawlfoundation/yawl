@@ -42,8 +42,8 @@ public interface YAWLEngineProxyInterface {
     public static final String DEFAULT_ENGINE_URI =
     "http://localhost:8080/yawl/ia";
   
-  public static final String DEFAULT_ENGINE_ADMIN_USER = "admin";
-  public static final String DEFAULT_ENGINE_ADMIN_PASSWORD = "YAWL";
+  public static final String DEFAULT_ENGINE_ADMIN_USER = "editor";
+  public static final String DEFAULT_ENGINE_ADMIN_PASSWORD = "yEditor";
   
   public static final int UNRECOGNISED_DATA_TYPE_COMPLEXITY  = 0;
   public static final int SIMPLE_DATA_TYPE_COMPLEXITY        = 1;

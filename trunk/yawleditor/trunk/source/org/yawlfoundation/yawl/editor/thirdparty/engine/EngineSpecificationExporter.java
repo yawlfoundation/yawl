@@ -704,12 +704,10 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     //BEGIN: MLF merge extended decomposition attributes
     for(Enumeration enumer = editorDecomposition.getAttributes().keys(); enumer.hasMoreElements();) {
       String key = enumer.nextElement().toString();
-      engineDecomposition.setAttribute(
-          key, 
-          XMLUtilities.quoteSpecialCharacters(
-              editorDecomposition.getAttribute(key)
-          )
-      );
+      String value = editorDecomposition.getAttribute(key);
+      if (value.length() > 0) {
+          engineDecomposition.setAttribute(key, XMLUtilities.quoteSpecialCharacters(value));
+      }
     }
     //END: MLF
     
@@ -777,12 +775,10 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     for(Enumeration enumer = attributes.keys(); enumer.hasMoreElements();)
     {
       String key = enumer.nextElement().toString();
-      engineParameter.addAttribute(
-          key, 
-          XMLUtilities.quoteSpecialCharacters(
-              attributes.get(key).toString()
-           )
-       );
+      String value =  attributes.get(key).toString();
+      if (value.length() > 0) {
+          engineParameter.addAttribute(key, XMLUtilities.quoteSpecialCharacters(value));
+      }    
     }
 
     YLogPredicate predicate = new YLogPredicate();
