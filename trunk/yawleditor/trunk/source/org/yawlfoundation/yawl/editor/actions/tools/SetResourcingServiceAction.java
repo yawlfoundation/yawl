@@ -81,8 +81,7 @@ class ResourceServiceDialog extends AbstractDoneDialog {
   private JTextField resourcingServiceURIField;
   private JTextField resourcingServiceUserField;
   private JPasswordField resourcingServicePasswordField;
-//  private JPasswordField resourcingServiceVerifyPasswordField;
-  
+
   private JButton testButton;
   private JLabel testMessage = new JLabel();
   
@@ -194,18 +193,9 @@ class ResourceServiceDialog extends AbstractDoneDialog {
 
     gbc.gridx = 0;
     gbc.gridy++;
-//    gbc.anchor = GridBagConstraints.EAST;
-//
-//    JLabel verifyPasswordLabel = new JLabel("Verify Password :");
-//    verifyPasswordLabel.setDisplayedMnemonic('V');
-//    panel.add(verifyPasswordLabel, gbc);
-    
     gbc.gridx++;
     gbc.anchor = GridBagConstraints.WEST;
 
-//    panel.add(getResourcingServiceVerifyPasswordField(), gbc);
-//    verifyPasswordLabel.setLabelFor(resourcingServiceVerifyPasswordField);
-    
     gbc.gridx = 2;
     gbc.gridy = 1;
     gbc.gridheight = 3;
@@ -251,9 +241,6 @@ class ResourceServiceDialog extends AbstractDoneDialog {
           return resourcingServicePasswordField;
         }
         if (aComponent.equals(resourcingServicePasswordField)) {
-//          return resourcingServiceVerifyPasswordField;
-//        }
-//        if (aComponent.equals(resourcingServiceVerifyPasswordField)) {
           return testButton;
         }
         if (aComponent.equals(testButton)) {
@@ -271,9 +258,6 @@ class ResourceServiceDialog extends AbstractDoneDialog {
 
       public Component getComponentBefore(Container focusCycleRoot, Component aComponent) {
         if (aComponent.equals(testButton)) {
-//          return resourcingServiceVerifyPasswordField;
-//        }
-//        if (aComponent.equals(resourcingServiceVerifyPasswordField)) {
           return resourcingServicePasswordField;
         }
         if (aComponent.equals(resourcingServicePasswordField)) {
@@ -319,33 +303,7 @@ class ResourceServiceDialog extends AbstractDoneDialog {
     return resourcingServicePasswordField;
   }
 
-//  private JTextField getResourcingServiceVerifyPasswordField() {
-//    resourcingServiceVerifyPasswordField = new JPasswordField(10);
-//
-//    new ActionAndFocusListener(resourcingServiceVerifyPasswordField) {
-//      public void focusGained(FocusEvent event) {} // don't process on focus gain.
-//
-//      public void process(Object eventSource) {
-//        if (!passwordsMatch(
-//                resourcingServicePasswordField.getPassword(),
-//                resourcingServiceVerifyPasswordField.getPassword()
-//             )) {
-//
-//        JOptionPane.showMessageDialog(
-//            resourcingServiceVerifyPasswordField,
-//            "The password specified does not match it's verification",
-//            "Passwords do not Match",
-//            JOptionPane.ERROR_MESSAGE
-//        );
-//
-//        resourcingServicePasswordField.setText("");
-//        resourcingServiceVerifyPasswordField.setText("");
-//        resourcingServicePasswordField.requestFocus();
-//      }
-//    }};
-//    return resourcingServiceVerifyPasswordField;
-//  }
-  
+
   private JButton getTestConnectionButton() {
    testButton = new JButton("Test Connection"); 
    testButton.setMnemonic('T');

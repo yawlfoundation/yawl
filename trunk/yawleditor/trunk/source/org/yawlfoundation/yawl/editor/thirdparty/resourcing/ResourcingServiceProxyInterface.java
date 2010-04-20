@@ -41,11 +41,9 @@ public interface ResourcingServiceProxyInterface {
   public static final String DEFAULT_RESOURCING_SERVICE_URI = 
     "http://localhost:8080/resourceService/gateway";
 
-  public static final String DEFAULT_RESOURCING_SERVICE_USERID = 
-    "admin";
+  public static final String DEFAULT_RESOURCING_SERVICE_USERID = "editor";
 
-  public static final String DEFAULT_RESOURCING_SERVICE_USER_PASSWORD = 
-    "YAWL";
+  public static final String DEFAULT_RESOURCING_SERVICE_USER_PASSWORD = "yEditor";
   
   public boolean connect();
   public void disconnect();

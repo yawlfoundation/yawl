@@ -26,6 +26,7 @@ package org.yawlfoundation.yawl.editor.swing.menu;
 
 import org.yawlfoundation.yawl.editor.actions.tools.ConfigureAnalysisToolsAction;
 import org.yawlfoundation.yawl.editor.actions.tools.SetEngineDetailAction;
+import org.yawlfoundation.yawl.editor.actions.tools.SetExtendedAttributeFilePathAction;
 import org.yawlfoundation.yawl.editor.actions.tools.SetResourcingServiceAction;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 import org.yawlfoundation.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
@@ -41,7 +42,7 @@ class ToolsMenu extends JMenu {
   private static final long serialVersionUID = 1L;
 
   public ToolsMenu() {
-    super("Tools");
+    super("Settings");
     setMnemonic(KeyEvent.VK_T);
     buildInterface();
   }   
@@ -56,6 +57,7 @@ class ToolsMenu extends JMenu {
     if (YAWLEngineProxy.engineLibrariesAvailable())
       add(new YAWLMenuItem(new ConfigureAnalysisToolsAction()));
 
+      add(new YAWLMenuItem(new SetExtendedAttributeFilePathAction()));      
   }
   
   public static boolean needsToBeAddedToMenus() {

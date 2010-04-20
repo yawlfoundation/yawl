@@ -80,8 +80,7 @@ class EngineDetailDialog extends AbstractDoneDialog {
   private JTextField engineURIField;
   private JTextField engineUserField;
   private JPasswordField enginePasswordField;
-//  private JPasswordField engineVerifyPasswordField;
-  
+
   private JButton testButton;
   private JLabel testMessage = new JLabel();
   
@@ -195,18 +194,9 @@ class EngineDetailDialog extends AbstractDoneDialog {
 
     gbc.gridx = 0;
     gbc.gridy++;
-//    gbc.anchor = GridBagConstraints.EAST;
-//
-//    JLabel verifyPasswordLabel = new JLabel("Verify Password :");
-//    verifyPasswordLabel.setDisplayedMnemonic('V');
-//    panel.add(verifyPasswordLabel, gbc);
-    
     gbc.gridx++;
     gbc.anchor = GridBagConstraints.WEST;
 
-//    panel.add(getEngineVerifyPasswordField(), gbc);
-//    verifyPasswordLabel.setLabelFor(engineVerifyPasswordField);
-    
     gbc.gridx = 2;
     gbc.gridy = 1;
     gbc.gridheight = 3;
@@ -252,9 +242,6 @@ class EngineDetailDialog extends AbstractDoneDialog {
           return enginePasswordField;
         }
         if (aComponent.equals(enginePasswordField)) {
-//          return engineVerifyPasswordField;
-//        }
-//        if (aComponent.equals(engineVerifyPasswordField)) {
           return testButton;
         }
         if (aComponent.equals(testButton)) {
@@ -272,9 +259,6 @@ class EngineDetailDialog extends AbstractDoneDialog {
 
       public Component getComponentBefore(Container focusCycleRoot, Component aComponent) {
         if (aComponent.equals(testButton)) {
-//          return engineVerifyPasswordField;
-//        }
-//        if (aComponent.equals(engineVerifyPasswordField)) {
           return enginePasswordField;
         }
         if (aComponent.equals(enginePasswordField)) {
@@ -320,33 +304,7 @@ class EngineDetailDialog extends AbstractDoneDialog {
     return enginePasswordField;
   }
 
-//  private JTextField getEngineVerifyPasswordField() {
-//    engineVerifyPasswordField = new JPasswordField(10);
-//
-//    new ActionAndFocusListener(engineVerifyPasswordField) {
-//      public void focusGained(FocusEvent event) {} // don't process on focus gain.
-//
-//      public void process(Object eventSource) {
-//        if (!passwordsMatch(
-//                enginePasswordField.getPassword(),
-//                engineVerifyPasswordField.getPassword()
-//             )) {
-//
-//        JOptionPane.showMessageDialog(
-//            engineVerifyPasswordField,
-//            "The password specified does not match it's verification",
-//            "Passwords do not Match",
-//            JOptionPane.ERROR_MESSAGE
-//        );
-//
-//        enginePasswordField.setText("");
-//        engineVerifyPasswordField.setText("");
-//        enginePasswordField.requestFocus();
-//      }
-//    }};
-//    return engineVerifyPasswordField;
-//  }
-  
+
   private JButton getTestConnectionButton() {
    testButton = new JButton("Test Connection"); 
    testButton.setMnemonic('T');
@@ -407,34 +365,17 @@ class EngineDetailDialog extends AbstractDoneDialog {
             YAWLEngineProxy.DEFAULT_ENGINE_ADMIN_USER)
         );
       }
-      if (enginePasswordField.getPassword().equals("")) {
+      if (enginePasswordField.getPassword().length == 0) {
         enginePasswordField.setText(
             prefs.get("engineUserPassword", 
             YAWLEngineProxy.DEFAULT_ENGINE_ADMIN_PASSWORD)
         );
-//        engineVerifyPasswordField.setText(
-//            prefs.get("engineUserPassword",
-//            YAWLEngineProxy.DEFAULT_ENGINE_ADMIN_PASSWORD)
-//        );
       }
     }
       testMessage.setVisible(false);    // reset      
     super.setVisible(visible);
   }
-  
-  private boolean passwordsMatch(char[] password, char[] verifyPassword) {
-    if (password.length != verifyPassword.length) {
-      return false;
-    }
 
-    for(int i = 0; i < password.length; i++) {
-      if (password[i] != verifyPassword[i]) {
-        return false;
-      }
-    }
-
-    return true;
-  }
 
   private boolean hasValidURIPath(String uriStr) {
       try {

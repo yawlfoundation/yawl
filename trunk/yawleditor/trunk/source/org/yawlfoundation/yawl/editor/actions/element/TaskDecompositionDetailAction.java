@@ -25,7 +25,6 @@
 package org.yawlfoundation.yawl.editor.actions.element;
 
 import org.yawlfoundation.yawl.editor.actions.net.YAWLSelectedNetAction;
-import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
@@ -36,7 +35,6 @@ import org.yawlfoundation.yawl.editor.swing.data.TaskDecompositionUpdateDialog;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.HashMap;
 
 public class TaskDecompositionDetailAction extends YAWLSelectedNetAction 
                                            implements TooltipTogglingWidget {
@@ -46,8 +44,6 @@ public class TaskDecompositionDetailAction extends YAWLSelectedNetAction
    */
   private static final long serialVersionUID = 1L;
 
-  private static final HashMap taskDecompositionDialogs = new HashMap();
-  
   private NetGraph graph;
   private YAWLTask task;
   
@@ -75,34 +71,21 @@ public class TaskDecompositionDetailAction extends YAWLSelectedNetAction
   }
 
   public void actionPerformed(ActionEvent event) {
-    NetDecompositionUpdateDialog dialog;
-    if (!invokedAtLeastOnce(task.getDecomposition())) {
+      NetDecompositionUpdateDialog dialog;
       if (task.getDecomposition() instanceof WebServiceDecomposition) {
-        dialog = new TaskDecompositionUpdateDialog(task.getDecomposition(), graph);
-      } else {
+         dialog = new TaskDecompositionUpdateDialog(task.getDecomposition(), graph);
+      }
+      else {
         dialog = new NetDecompositionUpdateDialog(task.getDecomposition());
       }
 
       JUtilities.centreWindowUnderVertex(graph, dialog, task, 10);
-      taskDecompositionDialogs.put(task.getDecomposition(), dialog);
       dialog.setVisible(true);
       graph.clearSelection();
-    } else {
-      ((NetDecompositionUpdateDialog) taskDecompositionDialogs.get(task.getDecomposition())).setVisible(true);
-    }
   }
-  
-  private boolean invokedAtLeastOnce(Decomposition decomposition) {
-    if (taskDecompositionDialogs.containsKey(decomposition)) {
-      return true;
-    }
-    return false;
-  }
-  
+
+    
   public boolean shouldBeEnabled() {
-    if (task.getDecomposition() == null) {
-      return false;
-    }
-    return true;
+    return (task.getDecomposition() != null);
   }
 }

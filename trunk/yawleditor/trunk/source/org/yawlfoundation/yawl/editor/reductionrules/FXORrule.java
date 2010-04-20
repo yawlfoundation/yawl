@@ -23,10 +23,9 @@
 package org.yawlfoundation.yawl.editor.reductionrules;
 
 import org.yawlfoundation.yawl.elements.*;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
+
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Reduction rule for YAWL net: FXOR rule
@@ -74,7 +73,7 @@ public class FXORrule extends YAWLReductionRule{
              Iterator postFlowIter = postSetOfu.iterator();
              while (postFlowIter.hasNext())
              { YExternalNetElement next = (YExternalNetElement) postFlowIter.next();
-               t.setPostset(new YFlow(t,next));
+               t.addPostset(new YFlow(t,next));
                
              }
              t.setSplitType(u.getSplitType());

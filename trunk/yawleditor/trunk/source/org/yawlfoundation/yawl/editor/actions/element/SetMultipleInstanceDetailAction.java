@@ -103,8 +103,8 @@ class InstanceDetailDialog extends AbstractTaskDoneDialog {
    */
   private static final long serialVersionUID = 1L;
   private MultipleInstanceBoundsPanel boundsPanel = new MultipleInstanceBoundsPanel();
-  private MultipleInstanceInstanceParamaterPanel parameterPanel 
-  = new MultipleInstanceInstanceParamaterPanel(this);
+  private MultipleInstanceInstanceParameterPanel parameterPanel
+  = new MultipleInstanceInstanceParameterPanel(this);
   
   public InstanceDetailDialog() {
     super(null, true, true);
@@ -151,7 +151,7 @@ class InstanceDetailDialog extends AbstractTaskDoneDialog {
   }
 }
 
-class MultipleInstanceInstanceParamaterPanel extends JPanel {
+class MultipleInstanceInstanceParameterPanel extends JPanel {
   
   /**
    * 
@@ -176,7 +176,7 @@ class MultipleInstanceInstanceParamaterPanel extends JPanel {
   private final DataVariableUpdateDialog taskVariableUpdateDialog;
   private final DataVariableUpdateDialog netVariableUpdateDialog;
   
-  public MultipleInstanceInstanceParamaterPanel(AbstractTaskDoneDialog dialog) {
+  public MultipleInstanceInstanceParameterPanel(AbstractTaskDoneDialog dialog) {
     super();
     this.dialog = dialog;
     taskVariableUpdateDialog = DataVariableUpdateDialogFactory.getTaskDialog(dialog);
@@ -210,8 +210,8 @@ class MultipleInstanceInstanceParamaterPanel extends JPanel {
       }
     );
   }
-  
-  public void setTask(final YAWLMultipleInstanceTask task, NetGraph graph) {
+
+    public void setTask(final YAWLMultipleInstanceTask task, NetGraph graph) {
     this.task  = task;
     this.graph = graph;
     

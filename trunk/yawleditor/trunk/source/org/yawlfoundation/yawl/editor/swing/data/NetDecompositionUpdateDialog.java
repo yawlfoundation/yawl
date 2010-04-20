@@ -62,7 +62,7 @@ public class NetDecompositionUpdateDialog extends AbstractDoneDialog {
     super("Update Decomposition", false);
     setContentPanel(getDecompositionPanel(DataVariable.SCOPE_NET));
     setDecomposition(decomposition);
-    
+
     setTitle(DataVariable.SCOPE_NET);
     
     getDoneButton().addActionListener(new ActionListener() {
@@ -103,7 +103,7 @@ public class NetDecompositionUpdateDialog extends AbstractDoneDialog {
   
   protected void setDecomposition(Decomposition decomposition) {
     this.decomposition = decomposition;
-    if (logPredicatesPanel != null) {    // only for net level dialog
+    if (logPredicatesPanel != null) {    // only null if net level dialog
         logPredicatesPanel.setStartedPredicate(decomposition.getLogPredicateStarted());
         logPredicatesPanel.setCompletionPredicate(decomposition.getLogPredicateCompletion());
     }    

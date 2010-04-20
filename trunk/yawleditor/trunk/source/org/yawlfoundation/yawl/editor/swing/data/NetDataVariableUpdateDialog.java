@@ -40,7 +40,7 @@ public class NetDataVariableUpdateDialog extends DataVariableUpdateDialog {
 
   protected void enableVariableValueEditorIfAppropriate() {
     if (getUsageComboBox().isEnabled() && getUsageComboBox().getSelectedItem() != null) {
-      if (((String)getUsageComboBox().getSelectedItem()).equals(
+      if (getUsageComboBox().getSelectedItem().equals(
           DataVariable.usageToString(DataVariable.USAGE_LOCAL))) {
         getVariableValueEditor().setEnabled(true);
       } else {

@@ -64,7 +64,6 @@ abstract public class DataVariableUpdateDialog extends AbstractDoneDialog {
   
   private JLabel variableValueEditorLabel;
   
-  protected JButton attributesToggle; //MLF
   protected JPanel attributesPanel; //MLF
   protected ExtendedAttributesTableModel model; //MLF
   protected JTabbedPane pane; //MLF
@@ -192,7 +191,10 @@ abstract public class DataVariableUpdateDialog extends AbstractDoneDialog {
     pane.setBorder(new EmptyBorder(5,5,5,5));
 
     pane.addTab("Standard", buildStandardPanel());
-    pane.addTab("Extended Attributes", createExtendedAttributePanel());
+
+    if (getVariableScope() == DataVariable.SCOPE_TASK) {
+        pane.addTab("Extended Attributes", createExtendedAttributePanel());
+    }    
 
     logPredicatesPanel = new LogPredicatesPanel(40, 4, LogPredicatesPanel.Parent.DataVariable);
     pane.addTab("Log Predicates", logPredicatesPanel);
@@ -399,12 +401,17 @@ abstract public class DataVariableUpdateDialog extends AbstractDoneDialog {
     };
 
     table.setModel(model);
-    table.setRowHeight(getFontMetrics(getFont()).getHeight() + (int) (getFont().getSize() *0.75));
+
+      table.setRowHeight(getFontMetrics(table.getFont()).getHeight() +
+                         (int) (table.getFont().getSize() *0.75));
+
     table.setShowGrid(true);
     ExtendedAttributeEditor editor = new ExtendedAttributeEditor(this, DialogMode.TASK);
     getDoneButton().addActionListener(editor);
     table.setDefaultEditor(ExtendedAttribute.class, editor);
-    table.setDefaultRenderer(ExtendedAttribute.class, new ExtendedAttributeRenderer());
+    ExtendedAttributeRenderer renderer = new ExtendedAttributeRenderer();
+    table.setDefaultRenderer(ExtendedAttribute.class, renderer);
+    table.setDefaultRenderer(String.class, renderer);
     attributesPanel.add(new JScrollPane(table));
     attributesPanel.setVisible(false);
 

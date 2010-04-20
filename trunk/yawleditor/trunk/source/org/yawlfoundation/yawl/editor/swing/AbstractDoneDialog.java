@@ -33,142 +33,157 @@ import java.awt.event.KeyEvent;
 import java.util.LinkedList;
 
 public abstract class AbstractDoneDialog extends JDialog {
-  private JButton doneButton = buildDoneButton();
-  private JButton cancelButton = buildCancelButton();
-  private JPanel buttonPanel;
-  private boolean showCancelButton;
-  
-  public static final int DONE_BUTTON = 0;
-  public static final int CANCEL_BUTTON = 1;
-  
-  private int buttonSelected = CANCEL_BUTTON;
 
-  protected boolean closeCancelled = false;
+//    public static final int DONE_BUTTON = 0;
+//    public static final int CANCEL_BUTTON = 1;
 
-  public AbstractDoneDialog(String title, 
-                            boolean modality,
-                            JPanel contentPanel, 
-                            boolean showCancelButton) {
-    super();
-    this.setTitle(title);
-    this.setModal(modality);
-    this.showCancelButton = showCancelButton;
-    setContentPanel(bindContentAndButton(contentPanel));
-    setUndecorated(false);
-  }
-    
-  public AbstractDoneDialog(String title, boolean modality, boolean showCancelButton) {
-    super();
-    this.setTitle(title);
-    this.setModal(modality);
-    this.showCancelButton = showCancelButton;
-  }
+    private enum ButtonType { Done, Cancel }
 
-  public AbstractDoneDialog(String title, boolean modality) {
-    super();
-    this.setTitle(title);
-    this.setModal(modality);
-    this.showCancelButton = true;
-  }
-  
-  public AbstractDoneDialog() {
-    super();
-  }
-    
-  public void setContentPanel(JPanel contentPanel) {
-    getContentPane().add(
-        bindContentAndButton(contentPanel), 
-        BorderLayout.CENTER
-    );
-    makeLastAdjustments(); 
-  }
-  
-  protected void makeLastAdjustments() {} // override as necessary
+    private JButton _doneButton = buildDoneButton();
+    private JButton _cancelButton = buildCancelButton();
+    private JPanel _buttonPanel;
+    private boolean _showCancelButton;
+    private ButtonType buttonSelected = ButtonType.Cancel;
+    protected boolean closeCancelled = false;
 
-  private JPanel bindContentAndButton(JPanel contentPanel) {
-    JPanel panel = new JPanel(new BorderLayout());
-  
-    panel.add(contentPanel, BorderLayout.CENTER);
-    panel.add(buildButtonPanel(), BorderLayout.SOUTH);
-  
-    return panel;
-  }
 
-  private JButton buildDoneButton() {
-   JButton button = new JButton("Done");
-   button.setMnemonic(KeyEvent.VK_D);
-   button.setMargin(new Insets(2,11,3,12));
-   final JDialog dialog = this;
-   button.addActionListener(new ActionListener(){
-       public void actionPerformed(ActionEvent e) {
-         if (! closeCancelled) dialog.setVisible(false);
-         SpecificationUndoManager.getInstance().setDirty(true);
-         buttonSelected = DONE_BUTTON;
-         closeCancelled = false;            // reset for next time  
-       }
-     }
-   );
-   if (!showCancelButton) {
-     button.setDefaultCapable(true);
-   }
-   return button; 
-  }
+    /***************************************************************/
 
-  private JButton buildCancelButton() {
-    JButton button = new JButton("Cancel");
-    button.setMnemonic(KeyEvent.VK_C);
-    button.setMargin(new Insets(2,11,3,12));
-    final JDialog dialog = this;
-    button.addActionListener(new ActionListener(){
-        public void actionPerformed(ActionEvent e) {
-          dialog.setVisible(false);
-          buttonSelected = CANCEL_BUTTON;
+    public AbstractDoneDialog(String title,
+                              boolean modality,
+                              JPanel contentPanel,
+                              boolean showCancelButton) {
+        super();
+        setTitle(title);
+        setModal(modality);
+        _showCancelButton = showCancelButton;
+        setContentPanel(bindContentAndButton(contentPanel));
+        setUndecorated(false);
+    }
+
+    public AbstractDoneDialog(String title, boolean modality, boolean showCancelButton) {
+        super();
+        setTitle(title);
+        setModal(modality);
+        _showCancelButton = showCancelButton;
+    }
+
+    public AbstractDoneDialog(String title, boolean modality) {
+        super();
+        setTitle(title);
+        setModal(modality);
+        _showCancelButton = true;
+    }
+
+    public AbstractDoneDialog() {
+        super();
+    }
+
+
+    /***************************************************************/
+
+    public void setContentPanel(JPanel contentPanel) {
+        getContentPane().add( bindContentAndButton(contentPanel), BorderLayout.CENTER);
+        makeLastAdjustments();
+    }
+
+
+    public JButton getDoneButton() {
+        return _doneButton;
+    }
+
+
+    public JButton getCancelButton() {
+        return _cancelButton;
+    }
+
+
+    public boolean cancelButtonSelected() {
+        return buttonSelected == ButtonType.Cancel;
+    }
+
+
+    /***************************************************************/
+
+    protected JPanel getButtonPanel() {
+        return _buttonPanel;
+    }
+
+
+    protected void makeLastAdjustments() {} // override as necessary
+
+
+    /***************************************************************/
+
+    private JPanel bindContentAndButton(JPanel contentPanel) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(contentPanel, BorderLayout.CENTER);
+        panel.add(buildButtonPanel(), BorderLayout.SOUTH);
+        return panel;
+    }
+
+
+    private JButton buildDoneButton() {
+        JButton button = new JButton("Done");
+        button.setMnemonic(KeyEvent.VK_D);
+        button.setMargin(new Insets(2,11,3,12));
+
+        final JDialog dialog = this;
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (! closeCancelled) dialog.setVisible(false);
+                SpecificationUndoManager.getInstance().setDirty(true);
+                buttonSelected = ButtonType.Done;
+                closeCancelled = false;            // reset for next time
+            }
+        });
+
+        if (! _showCancelButton) {
+            button.setDefaultCapable(true);
         }
-      }
-    );
-    if (showCancelButton) {
-      button.setDefaultCapable(true);
+        return button;
     }
-    return button; 
-  }
-  
-  public JButton getDoneButton() {
-    return doneButton;
-  }
-  
-  public JButton getCancelButton() {
-    return cancelButton;
-  }
-  
-  private JPanel buildButtonPanel() {
-    buttonPanel = new JPanel();
-    buttonPanel.setBorder(new EmptyBorder(17,12,11,11));
-    buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
-  
-    buttonPanel.add(Box.createHorizontalGlue());
-    buttonPanel.add(doneButton);
 
-    if (showCancelButton) {
-      buttonPanel.add(Box.createHorizontalStrut(10));
-      buttonPanel.add(cancelButton);
 
-      LinkedList<JButton> buttonList = new LinkedList<JButton>();
+    private JButton buildCancelButton() {
+        JButton button = new JButton("Cancel");
+        button.setMnemonic(KeyEvent.VK_C);
+        button.setMargin(new Insets(2,11,3,12));
 
-      buttonList.add(doneButton);
-      buttonList.add(cancelButton);
-      
-      JUtilities.equalizeComponentSizes(buttonList);
+        final JDialog dialog = this;
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                dialog.setVisible(false);
+                buttonSelected = ButtonType.Cancel;
+            }
+        });
+
+        if (_showCancelButton) {
+            button.setDefaultCapable(true);
+        }
+        return button;
     }
-    buttonPanel.add(Box.createHorizontalGlue());
-  
-    return buttonPanel;
-  }
 
-  protected JPanel getButtonPanel() {
-      return buttonPanel;
-  }
 
-  public boolean cancelButtonSelected() {
-    return this.buttonSelected == CANCEL_BUTTON;
-  }
+    private JPanel buildButtonPanel() {
+        _buttonPanel = new JPanel();
+        _buttonPanel.setBorder(new EmptyBorder(17,12,11,11));
+        _buttonPanel.setLayout(new BoxLayout(_buttonPanel, BoxLayout.LINE_AXIS));
+        _buttonPanel.add(Box.createHorizontalGlue());
+        _buttonPanel.add(_doneButton);
+
+        if (_showCancelButton) {
+            _buttonPanel.add(Box.createHorizontalStrut(10));
+            _buttonPanel.add(_cancelButton);
+
+            LinkedList<JButton> buttonList = new LinkedList<JButton>();
+            buttonList.add(_doneButton);
+            buttonList.add(_cancelButton);
+            JUtilities.equalizeComponentSizes(buttonList);
+        }
+        _buttonPanel.add(Box.createHorizontalGlue());
+
+        return _buttonPanel;
+    }
+
 }

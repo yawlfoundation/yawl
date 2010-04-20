@@ -147,7 +147,7 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
   }
   
   protected JPanel getDecompositionPanel(int scope) {
-    JPanel panel = super.getDecompositionPanel(DataVariable.SCOPE_TASK);
+    JPanel panel = super.getDecompositionPanel(DataVariable.SCOPE_TASK);  
     
     JPanel innerPanel = new JPanel(new BorderLayout()); //MLF
 
@@ -387,27 +387,35 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
     attributesPanel = new JPanel(new GridLayout(1,1));
     attributesPanel.setBorder(new EmptyBorder(10,10,10,12));
 
-    JTable table = new JTable() {
-      public Dimension getPreferredScrollableViewportSize() {
-        Dimension defaultPreferredSize = super.getPreferredSize();
-        
-        Dimension preferredSize = new Dimension(
-            (int) defaultPreferredSize.getWidth(),
-            (int) Math.min(
-                defaultPreferredSize.getHeight(),
-                getFontMetrics(getFont()).getHeight() * 10            
-            )
-        );
-        
-        return preferredSize;
-      }
-    };
+    JTable table = new JTable() ;
+//    {
+//      public Dimension getPreferredScrollableViewportSize() {
+//        Dimension defaultPreferredSize = super.getPreferredSize();
+//
+//        Dimension preferredSize = new Dimension(
+//            (int) defaultPreferredSize.getWidth(),
+//            (int) Math.min(
+//                defaultPreferredSize.getHeight(),
+//                getFontMetrics(getFont()).getHeight() * 10
+//            )
+//        );
+//
+//        return preferredSize;
+//      }
+//    };
 
     table.setModel(model);
+
+      table.setRowHeight(getFontMetrics(table.getFont()).getHeight() +
+                         (int) (table.getFont().getSize() *0.75));
+      
+      table.setShowGrid(true);
     ExtendedAttributeEditor editor = new ExtendedAttributeEditor(this, DialogMode.TASK);
-//    getDoneButton().addActionListener(editor);
+    getDoneButton().addActionListener(editor);
     table.setDefaultEditor(ExtendedAttribute.class, editor);
-    table.setDefaultRenderer(ExtendedAttribute.class, new ExtendedAttributeRenderer());
+      ExtendedAttributeRenderer renderer = new ExtendedAttributeRenderer();  
+      table.setDefaultRenderer(ExtendedAttribute.class, renderer);
+      table.setDefaultRenderer(String.class, renderer);
 
     attributesPanel.add(new JScrollPane(table));
     attributesPanel.setVisible(true);

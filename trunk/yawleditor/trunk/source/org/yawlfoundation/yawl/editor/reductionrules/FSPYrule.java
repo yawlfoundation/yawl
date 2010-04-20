@@ -23,10 +23,10 @@
 package org.yawlfoundation.yawl.editor.reductionrules;
 
 import org.yawlfoundation.yawl.elements.*;
-import java.util.Map;
-import java.util.Set;
+
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Reduction rule for YAWL net: FSPY rule
@@ -77,7 +77,7 @@ public class FSPYrule extends YAWLReductionRule{
              Iterator postFlowIter = postSetOfq.iterator();
              while (postFlowIter.hasNext())
              { YExternalNetElement next = (YExternalNetElement) postFlowIter.next();
-               condition.setPostset(new YFlow(condition,next));
+               condition.addPostset(new YFlow(condition,next));
              }
             
              // set preflows from q to p - t
@@ -85,7 +85,7 @@ public class FSPYrule extends YAWLReductionRule{
              Iterator preFlowIter = preSetOfq.iterator();
              while (preFlowIter.hasNext())
              { YExternalNetElement next = (YExternalNetElement) preFlowIter.next();
-               condition.setPreset(new YFlow(next,condition));
+               condition.addPreset(new YFlow(next,condition));
              }
              
              //remove t from postset of condition 

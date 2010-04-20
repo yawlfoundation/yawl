@@ -7,18 +7,20 @@ import java.awt.*;
 /**
  * @author Mike Fowler
  *         Date: Oct 28, 2005
+ * @author Michael Adams for 2.1 04/2010
  */
 public class ExtendedAttributeRenderer extends Component implements TableCellRenderer {
 
     public Component getTableCellRendererComponent(JTable table, Object value,
                                                    boolean isSelected, boolean hasFocus,
                                                    int row, int column) {
+        if (column == 0) {
+            ExtendedAttribute attribute = (ExtendedAttribute) table.getValueAt(row, 1);
+            return renderPlainCell(attribute, (String) value);
+        }
+
         ExtendedAttribute attribute = (ExtendedAttribute) value;
         if (attribute.getType().equals("boolean")) {
-//            JCheckBox box = new JCheckBox() ;
-//            box.setSelected(attribute.getValue().equalsIgnoreCase("true"));
-//            box.setHorizontalAlignment(SwingConstants.CENTER);
-//            return box;
             return attribute.getComponent();
         }
         else if (attribute.getComponent() instanceof JComboBox) {
@@ -27,14 +29,17 @@ public class ExtendedAttributeRenderer extends Component implements TableCellRen
         else if (attribute.getType().equals("color")) {
             return renderColourCell(attribute);
         }
+        else if (attribute.isNumericType()) {
+            return renderNumericCell(attribute);
+        }
         else {
-            return new JLabel(attribute.getValue());
+            return renderPlainCell(attribute, null);
         }
     }
 
 
     private JLabel renderColourCell(ExtendedAttribute attribute) {
-        JLabel label = new JLabel(attribute.getValue());
+        JLabel label = renderPlainCell(attribute, attribute.getValue());
         Color color = attribute.hexToColour(attribute.getValue());
         label.setOpaque(true);
         label.setBackground(color);
@@ -42,6 +47,20 @@ public class ExtendedAttributeRenderer extends Component implements TableCellRen
         label.setToolTipText("RGB value: " + color.getRed() + ", "
                                  + color.getGreen() + ", "
                                  + color.getBlue());
+        return label;
+    }
+
+    private JLabel renderNumericCell(ExtendedAttribute attribute) {
+        JLabel label = renderPlainCell(attribute, attribute.getValue());
+        label.setHorizontalAlignment(SwingConstants.RIGHT);
+        return label;
+    }
+
+    private JLabel renderPlainCell(ExtendedAttribute attribute, String value) {
+        JLabel label = new JLabel(value);
+        if (attribute.getAttributeType() == ExtendedAttribute.USER_ATTRIBUTE) {
+            label.setForeground(Color.BLUE);
+        }
         return label;
     }
 
