@@ -22,10 +22,13 @@
  
 package org.yawlfoundation.yawl.editor.reductionrules;
 
-import org.yawlfoundation.yawl.elements.*;
-import java.util.Map;
-import java.util.Set;
+import org.yawlfoundation.yawl.elements.YExternalNetElement;
+import org.yawlfoundation.yawl.elements.YFlow;
+import org.yawlfoundation.yawl.elements.YNet;
+import org.yawlfoundation.yawl.elements.YTask;
+
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Reduction rule for YAWL net with OR-joins: FOR rule
@@ -67,7 +70,7 @@ public class FORrule extends YAWLReductionRule{
                          while (postFlowIter.hasNext())
                          { YExternalNetElement next = (YExternalNetElement) postFlowIter.next();
                            YFlow postflow = new YFlow(t,next);
-                           t.setPostset(postflow);
+                           t.addPostset(postflow);
                          }
                         
                          // modify the reducedNet

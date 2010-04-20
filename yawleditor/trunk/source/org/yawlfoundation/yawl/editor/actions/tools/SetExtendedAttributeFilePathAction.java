@@ -4,8 +4,6 @@
  *
  * @author Lindsay Bradford
  * 
- * 
- *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -22,36 +20,40 @@
  *
  */
 
-package org.yawlfoundation.yawl.editor.actions.net;
+package org.yawlfoundation.yawl.editor.actions.tools;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.swing.data.NetDecompositionUpdateDialog;
+import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-public class NetDecompositionDetailAction extends YAWLSelectedNetAction {
-
-   /**
-   * 
+public class SetExtendedAttributeFilePathAction extends YAWLBaseAction {
+  /**
+   *
    */
   private static final long serialVersionUID = 1L;
 
-   {
-    putValue(Action.SHORT_DESCRIPTION, " Manage decomposition detail of this Net  ");
-    putValue(Action.NAME, "Update Net Detail...");
-    putValue(Action.LONG_DESCRIPTION, "Manage the decomposition of this net.");
-    putValue(Action.SMALL_ICON, getPNGIcon("chart_organisation"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_D));
-  }
-  
-  public void actionPerformed(ActionEvent event) {
-    NetDecompositionUpdateDialog dialog = new NetDecompositionUpdateDialog(
-          getGraph().getNetModel().getDecomposition()
-      );
+  private static final ExtendedAttributesFilePathsDialog dialog =
+          new ExtendedAttributesFilePathsDialog();
 
-      dialog.setLocationRelativeTo(YAWLEditor.getInstance());
-      dialog.setVisible(true);
+  private boolean invokedAtLeastOnce = false;
+
+  {
+    putValue(Action.SHORT_DESCRIPTION, " Specify the file paths for user-defined extended attributes. ");
+    putValue(Action.NAME, "Extended Attribute File Paths...");
+    putValue(Action.LONG_DESCRIPTION, "Specify the file paths for user-defined extended attributes.");
+    putValue(Action.SMALL_ICON, getPNGIcon("exAttr"));
+    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_F));
   }
-  
+
+  public SetExtendedAttributeFilePathAction() {}
+
+  public void actionPerformed(ActionEvent event) {
+    if (!invokedAtLeastOnce) {
+      invokedAtLeastOnce = true;
+      dialog.setLocationRelativeTo(YAWLEditor.getInstance());
+    }
+    dialog.setVisible(true);
+  }
 }

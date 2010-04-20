@@ -208,6 +208,7 @@
                                ${package.base.dir}/elements/**
                                ${package.base.dir}/engine/**
                                ${package.base.dir}/exceptions/**                              
+                               ${package.base.dir}/logging/**                              
                                ${package.base.dir}/resourcing/**
                                ${package.base.dir}/schema/**
                                ${package.base.dir}/unmarshal/**

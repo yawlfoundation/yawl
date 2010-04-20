@@ -41,13 +41,12 @@ public class ExtendedAttributeEditor extends AbstractCellEditor
         attribute = (ExtendedAttribute) value;
         JComponent component = attribute.getComponent();
 
-        if ((component instanceof JTextField) &&
-            (! attribute.getType().equals("string"))) {
-                return getExtendedField(component);
+        if ((component instanceof JTextField) && (attribute.hasExtendedField())) {
+            return getExtendedField(component);
         }
-
         return component;
     }
+    
 
     public void actionPerformed(ActionEvent actionEvent) {
         if (actionEvent.getActionCommand().equals("EXPAND")) {

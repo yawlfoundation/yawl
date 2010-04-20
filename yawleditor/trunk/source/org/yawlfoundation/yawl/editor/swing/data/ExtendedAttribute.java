@@ -14,9 +14,11 @@ import java.awt.*;
  */
 public class ExtendedAttribute implements Comparable<ExtendedAttribute> {
 
-//    public static final int DEFAULT_ATTRIBUTE = 0;
+    public static final int DEFAULT_ATTRIBUTE = 0;
     public static final int USER_ATTRIBUTE = 1;
     public static final int SYSTEM_ATTRIBUTE = 2;
+
+    protected static final Font componentFont = new Font("SansSerif", Font.PLAIN, 12);
 
     private DataVariable variable;
     private Decomposition decomposition;
@@ -26,7 +28,7 @@ public class ExtendedAttribute implements Comparable<ExtendedAttribute> {
     private String value;
     private JComponent component;
     private ExtendedAttributeGroup group;
-    private int attributeType = USER_ATTRIBUTE;
+    private int attributeType;
 
     /**
      * Constructor for variable level attributes
@@ -87,6 +89,7 @@ public class ExtendedAttribute implements Comparable<ExtendedAttribute> {
 
         type = type.trim();
         if (type.equalsIgnoreCase("colour")) type = "color";
+
         if (type.equalsIgnoreCase("boolean")) {
             JCheckBox box = new JCheckBox();
             box.setSelected(value.trim().equalsIgnoreCase("true"));
@@ -118,22 +121,14 @@ public class ExtendedAttribute implements Comparable<ExtendedAttribute> {
                 decomposition.setAttribute(name, new DynamicValue(property, decomposition));
             }
         }
-//        else if (type.equalsIgnoreCase("text")) {
-//            component = new ExtendedTextField(this);
-//        }
-//        else if (type.equalsIgnoreCase("xquery")) {
-//            component = new ExtendedXQueryField(this);
-//        }
-////        else if (type.equalsIgnoreCase("font")) {
-//        else if (name.startsWith("font")) {
-//            component = new ExtendedField(this);
-//        }
-//        else if (type.equalsIgnoreCase("color")) {
-//            component = new ExtendedColorField(this);
-//        }
+        else if (isNumericType()) {
+            component = makeSpinner();
+        }
         else {
             component = new JTextField(value);
         }
+        if (component != null) component.setFont(componentFont);
+
         return component;
     }
 
@@ -157,8 +152,24 @@ public class ExtendedAttribute implements Comparable<ExtendedAttribute> {
         this.type = type;
     }
 
+    public boolean hasExtendedField() {
+        return ! (type.equals("string") || isNumericType());
+    }
+
+    public boolean isNumericType() {
+        return type.startsWith("integer") || type.startsWith("double");
+    }
+
+
     public int getAttributeType() {
         return attributeType;
+    }
+
+    public void setAttributeType(int type) {
+        attributeType = type;
+        if (type == USER_ATTRIBUTE) {
+            component.setForeground(Color.BLUE);
+        }
     }
 
     public ExtendedAttributeGroup getGroup() {
@@ -172,7 +183,10 @@ public class ExtendedAttribute implements Comparable<ExtendedAttribute> {
     public String getValue() {
         if (component != null) {
             if (component instanceof JTextField) {
-                value = ((JTextField) component).getText();
+                if (isNumericType()) {
+                    value = validateNumeric(((JTextField) component).getText(), value);
+                }
+                else value = ((JTextField) component).getText();
             }
             else if (component instanceof JCheckBox) {
                 value = String.valueOf(((JCheckBox) component).isSelected());
@@ -180,17 +194,13 @@ public class ExtendedAttribute implements Comparable<ExtendedAttribute> {
             else if (component instanceof JComboBox) {
                 value = ((JComboBox) component).getSelectedItem().toString();
             }
+            else if (component instanceof JSpinner) {
+                value = ((JSpinner) component).getValue().toString();
+            }
         }
         return value;
     }
 
-    public void setValue(Color color) {
-        if (component instanceof ColorButton) {
-            component.setBackground(color);
-            value = colourToHex(color);
-            ((ColorButton) component).setText(colourToHex(color));
-        }
-    }
 
     public void setValue(String value) {
         this.value = value;
@@ -216,6 +226,24 @@ public class ExtendedAttribute implements Comparable<ExtendedAttribute> {
         }
     }
 
+
+    private String validateNumeric(String numStr, String fallback) {
+        if (numStr.length() == 0) return numStr;        // if removed accept empty value
+        try {
+            if (type.startsWith("integer")) {
+                new Integer(numStr);
+            }
+            else {
+                new Double(numStr);
+            }
+            return numStr;
+        }
+        catch (NumberFormatException nfe) {
+            return fallback;
+        }
+    }
+
+    
     public int compareTo(ExtendedAttribute other) {
         return name.compareTo(other.getName());
     }
@@ -251,4 +279,43 @@ public class ExtendedAttribute implements Comparable<ExtendedAttribute> {
         if (hex.length() == 1) hex = "0" + hex;
         return hex;
     }
+
+
+    /* if the current value is an empty string, value defaults to min */
+    private JComponent makeSpinner() {
+       boolean intType = type.trim().startsWith("integer");
+       if (type.matches("^.*\\s*\\{.*\\}")) {
+            String[] params = type.split("^.*\\{\\s*|\\s*,\\s*|\\s*\\}\\s*");
+            if (params.length == 4) {
+                SpinnerNumberModel model;
+                if (intType) {
+                    try {
+                        int min = new Integer(params[1]);
+                        int max = new Integer(params[2]);
+                        int step = new Integer(params[3]);
+                        int val = (value.length() == 0) ? min : new Integer(value);
+                        model = new SpinnerNumberModel(val, min, max, step);
+                    }
+                    catch (NumberFormatException nfe) {
+                        return new JTextField(value);
+                    }
+                }
+                else {
+                    try {
+                        double min = new Double(params[0]);
+                        double max = new Double(params[1]);
+                        double step = new Double(params[2]);
+                        double val = (value.length() == 0) ? min : new Double(value);
+                        model = new SpinnerNumberModel(val, min, max, step);
+                    }
+                    catch (NumberFormatException nfe) {
+                        return new JTextField(value);
+                    }
+                }
+                return new JSpinner(model);
+            }
+        }
+        return new JTextField(value);
+    }
+
 }

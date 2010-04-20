@@ -48,7 +48,7 @@ public class DefaultExtendedAttributes {
         addAttribute(decomposition, variable, "background-color", "color");
         addAttribute(decomposition, variable, "font-color", "color");
         addAttribute(decomposition, variable, "font-name", "font", fontGroup);
-        addAttribute(decomposition, variable, "font-size", "string", fontGroup);
+        addAttribute(decomposition, variable, "font-size", "integer", fontGroup);
         addAttribute(decomposition, variable, "font-style",
                 "enumeration{None, Bold, Italic, Bold+Italic}", fontGroup);
         addAttribute(decomposition, variable, "hide", "boolean");
@@ -68,21 +68,20 @@ public class DefaultExtendedAttributes {
         addAttribute(decomposition, variable, "text-below", "text");
         addAttribute(decomposition, variable, "line-above", "boolean");
         addAttribute(decomposition, variable, "line-below", "boolean");
-        addAttribute(decomposition, variable, "minExclusive", "string");
-        addAttribute(decomposition, variable, "maxExclusive", "string");
-        addAttribute(decomposition, variable, "minInclusive", "string");
-        addAttribute(decomposition, variable, "maxInclusive", "string");
-        addAttribute(decomposition, variable, "minLength", "string");
-        addAttribute(decomposition, variable, "maxLength", "string");
-        addAttribute(decomposition, variable, "length", "string");
-        addAttribute(decomposition, variable, "totalDigits", "string");
-        addAttribute(decomposition, variable, "fractionDigits", "string");
+        addAttribute(decomposition, variable, "minExclusive", "integer");
+        addAttribute(decomposition, variable, "maxExclusive", "integer");
+        addAttribute(decomposition, variable, "minInclusive", "integer");
+        addAttribute(decomposition, variable, "maxInclusive", "integer");
+        addAttribute(decomposition, variable, "minLength", "integer");
+        addAttribute(decomposition, variable, "maxLength", "integer");
+        addAttribute(decomposition, variable, "length", "integer");
+        addAttribute(decomposition, variable, "totalDigits", "integer");
+        addAttribute(decomposition, variable, "fractionDigits", "integer");
         addAttribute(decomposition, variable, "pattern", "text");
         addAttribute(decomposition, variable, "whiteSpace",
                 "enumeration{, preserve, replace, collapse}");
 
         Collections.sort(_variableList);
-
     }
 
     private Vector<ExtendedAttribute> getVariableAttributes() {
@@ -90,50 +89,68 @@ public class DefaultExtendedAttributes {
     }
 
     private void buildDecompositionTable(NetGraph graph, Decomposition decomposition) {
-        if (decomposition == null) return;
+//        if (decomposition == null) return;
         _decompositionList = new Vector<ExtendedAttribute>();
 
+        ExtendedAttributeGroup fontGroup = new ExtendedAttributeGroup();
+        ExtendedAttributeGroup headerFontGroup = new ExtendedAttributeGroup();
 
+        addAttribute(graph, decomposition, "page-background-color", "color");
+        addAttribute(graph, decomposition, "page-background-image", "text");
         addAttribute(graph, decomposition, "background-color", "color");
         addAttribute(graph, decomposition, "background-alt-color", "color");
         addAttribute(graph, decomposition, "font-color", "color");
-        addAttribute(graph, decomposition, "font-name", "font");
-        addAttribute(graph, decomposition, "font-size", "string");
+        addAttribute(graph, decomposition, "font-name", "font", fontGroup);
+        addAttribute(graph, decomposition, "font-size", "integer", fontGroup);
         addAttribute(graph, decomposition, "font-style",
-                "enumeration{None, Bold, Italic, Bold+Italic}");
+                "enumeration{None, Bold, Italic, Bold+Italic}", fontGroup);
         addAttribute(graph, decomposition, "header-font-color", "color");
-        addAttribute(graph, decomposition, "header-font-name", "font");
-        addAttribute(graph, decomposition, "header-font-size", "string");
+        addAttribute(graph, decomposition, "header-font-name", "font", headerFontGroup);
+        addAttribute(graph, decomposition, "header-font-size", "integer", headerFontGroup);
         addAttribute(graph, decomposition, "header-font-style",
-                "enumeration{None, Bold, Italic, Bold+Italic}");
+                "enumeration{None, Bold, Italic, Bold+Italic}", headerFontGroup);
         addAttribute(graph, decomposition, "justify", "enumeration{left, center, right}");
         addAttribute(graph, decomposition, "label", "text");
         addAttribute(graph, decomposition, "readOnly", "boolean");
+        addAttribute(graph, decomposition, "title", "text");
+        addAttribute(graph, decomposition, "hideHeader", "boolean");
+
+        Collections.sort(_decompositionList);
     }
 
     private Vector<ExtendedAttribute> getDecompositionAttributes() {
         return _decompositionList;
     }
 
+    /************************************************************************/
 
     private void addAttribute(Decomposition decomposition, DataVariable variable,
                               String name, String type, ExtendedAttributeGroup group) {
         ExtendedAttribute attribute = new ExtendedAttribute(variable, decomposition, name, type,
                                                 variable.getAttribute(name), group);
-        group.add(attribute);
+        if (group != null) group.add(attribute);
+        attribute.setAttributeType(ExtendedAttribute.DEFAULT_ATTRIBUTE);
         _variableList.add(attribute);
     }
 
     private void addAttribute(Decomposition decomposition, DataVariable variable,
                               String name, String type) {
-        _variableList.add(new ExtendedAttribute(variable, decomposition, name, type,
-                                                variable.getAttribute(name)));
+        addAttribute(decomposition, variable, name, type, null);
+    }
+
+
+    private void addAttribute(NetGraph graph, Decomposition decomposition,
+                              String name, String type, ExtendedAttributeGroup group) {
+        ExtendedAttribute attribute = new ExtendedAttribute(graph, decomposition, name, type,
+                                                decomposition.getAttribute(name), group);
+        if (group != null) group.add(attribute);
+        attribute.setAttributeType(ExtendedAttribute.DEFAULT_ATTRIBUTE);
+        _decompositionList.add(attribute);
     }
 
     private void addAttribute(NetGraph graph, Decomposition decomposition,
                               String name, String type) {
-        _decompositionList.add(new ExtendedAttribute(graph, decomposition, name, type,
-                                                decomposition.getAttribute(name)));
+        addAttribute(graph, decomposition, name, type, null);
     }
 
 }

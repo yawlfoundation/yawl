@@ -94,9 +94,7 @@ public class FileUtilities {
   private static final String RELATIVE_PLUGIN_PATH = "YAWLEditorPlugins";
 
   public static final String ABSOLUTE_PLUGIN_DIRECTORY = 
-    HOME_DIR +
-    System.getProperty("file.separator") + 
-    RELATIVE_PLUGIN_PATH;
+    HOME_DIR + RELATIVE_PLUGIN_PATH;
 
   // Task Icon Plugin Utilities
   
@@ -108,9 +106,7 @@ public class FileUtilities {
     TASK_ICON_PATH;
   
   public static final String ABSOLUTE_TASK_ICON_PATH = 
-    HOME_DIR +
-    System.getProperty("file.separator") + 
-    RELATIVE_TASK_ICON_PATH;
+    HOME_DIR + RELATIVE_TASK_ICON_PATH;
 
   /**
    * Given the relative path of an icon, returns the absolute path
@@ -154,9 +150,7 @@ public class FileUtilities {
     EXTENDED_ATTRIBUTE_PATH;
 
   public static final String ABSOLUTE_EXTENDED_ATTRIBUTE_PATH = 
-    HOME_DIR + 
-    System.getProperty("file.separator") + 
-    RELATIVE_EXTENDED_ATTRIBUTE_PATH;
+    HOME_DIR + RELATIVE_EXTENDED_ATTRIBUTE_PATH;
 
   /**
    * Returns the absolute path of the decomposition extended attribute properties plugin file
