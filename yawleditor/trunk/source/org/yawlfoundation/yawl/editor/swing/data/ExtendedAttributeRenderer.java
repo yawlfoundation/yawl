@@ -33,7 +33,7 @@ public class ExtendedAttributeRenderer extends Component implements TableCellRen
             return renderNumericCell(attribute);
         }
         else {
-            return renderPlainCell(attribute, null);
+            return renderPlainCell(attribute, attribute.getValue());
         }
     }
 
@@ -58,6 +58,7 @@ public class ExtendedAttributeRenderer extends Component implements TableCellRen
 
     private JLabel renderPlainCell(ExtendedAttribute attribute, String value) {
         JLabel label = new JLabel(value);
+        label.setFont(ExtendedAttribute.componentFont);
         if (attribute.getAttributeType() == ExtendedAttribute.USER_ATTRIBUTE) {
             label.setForeground(Color.BLUE);
         }

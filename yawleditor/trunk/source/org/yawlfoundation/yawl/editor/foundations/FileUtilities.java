@@ -182,11 +182,15 @@ public class FileUtilities {
             if (source != null) {
                 URL location = source.getLocation();
                 String path = URLDecoder.decode(location.getPath(), "UTF-8");
-                int lastSep = path.lastIndexOf(File.separator) ;
+                if (path.charAt(2) == ':') path = path.substring(1);
+                int lastSep = path.lastIndexOf('/') ;
                 if (lastSep > -1) result = path.substring(0, lastSep + 1) ;
+                if (File.separatorChar != '/')
+                    result = result.replace('/', File.separatorChar);
             }
         }
         catch ( Exception e ) {
+            e.printStackTrace();
             result = System.getProperty("user.dir");   // default to current working dir
         }
         return result;
