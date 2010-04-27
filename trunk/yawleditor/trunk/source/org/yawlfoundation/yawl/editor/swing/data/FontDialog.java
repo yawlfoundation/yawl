@@ -45,7 +45,7 @@ public class FontDialog extends JDialog implements ActionListener, ListSelection
         _previewPane = new JLabel();
 
         _fontSizes.setBorder(BorderFactory.createTitledBorder("Size"));
-        _fontSizes.setPreferredSize(new Dimension(120, 30));
+        _fontSizes.setSize(new Dimension(120, 18));
         _previewPane.setBorder(BorderFactory.createTitledBorder("Preview"));
         _previewPane.setPreferredSize(new Dimension(350, 100));
 
@@ -60,12 +60,14 @@ public class FontDialog extends JDialog implements ActionListener, ListSelection
         _fontNames.addListSelectionListener(this);
         _fontStyles.addListSelectionListener(this);
 
-        JButton btnOK = new JButton("OK");
+        JButton btnOK = new JButton("  OK  ");
         btnOK.setActionCommand("OK");
         btnOK.addActionListener(this);
+        btnOK.setSize(80, 20);
         JButton btnCancel = new JButton("Cancel");
         btnCancel.setActionCommand("Cancel");
         btnCancel.addActionListener(this);
+        btnCancel.setSize(80, 20);
 
         JScrollPane fontNamesPane = new JScrollPane();
         fontNamesPane.setViewportView(_fontNames);
