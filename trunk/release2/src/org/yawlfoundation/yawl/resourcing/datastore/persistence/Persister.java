@@ -4,6 +4,7 @@ import org.hibernate.Query;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.HibernateEngine;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.SpecLog;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
 
 import java.io.Serializable;
@@ -54,6 +55,10 @@ public class Persister implements Serializable {
        else if (className.endsWith("WorkQueue")) {
            List<WorkQueue> wqList = _db.getObjectsForClass(className) ;
            for (WorkQueue wq : wqList) result.put(wq.getID(), wq) ;
+       }
+       else if (className.endsWith("SpecLog")) {
+           List<SpecLog> slList = _db.getObjectsForClass(className) ;
+           for (SpecLog sl : slList) result.put(sl.getSpecID().getKey(), sl) ;
        }
        return result ;
    }

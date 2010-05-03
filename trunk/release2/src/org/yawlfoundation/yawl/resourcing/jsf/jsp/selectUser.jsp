@@ -28,7 +28,6 @@
                         <ui:listbox binding="#{SessionBean.lbxUserList}"
                                     id="lbxUserList"
                                     items="#{SessionBean.selectUserListOptions}"
-                                    
                                     styleClass="selectUserListbox"/>
 
                         <ui:staticText binding="#{selectUser.staticText1}"

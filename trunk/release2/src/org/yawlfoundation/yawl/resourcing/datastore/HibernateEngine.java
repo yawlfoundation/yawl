@@ -60,6 +60,7 @@ public class HibernateEngine {
     public static final String tblUserPrivileges = _pkg + "resource.UserPrivileges";
     public static final String tblWorkQueue = _pkg + "WorkQueue";
     public static final String tblEventLog = _pkg + "datastore.eventlog.ResourceEvent";
+    public static final String tblSpecLog = _pkg + "datastore.eventlog.SpecLog";
 
     /*********************************************************************************/
 
@@ -111,6 +112,8 @@ public class HibernateEngine {
                     org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent.class);
             _cfg.addClass(
                     org.yawlfoundation.yawl.resourcing.datastore.eventlog.AuditEvent.class);
+            _cfg.addClass(
+                    org.yawlfoundation.yawl.resourcing.datastore.eventlog.SpecLog.class);
             _cfg.addClass(
                     org.yawlfoundation.yawl.resourcing.datastore.PersistedAutoTask.class);
 

@@ -79,6 +79,10 @@ public class ResourceMarshaller {
         return xml.toString() ;
     }
 
+    public String marshallWorkItemRecords(List<WorkItemRecord> list) {
+        return marshallWorkItemRecords(new HashSet<WorkItemRecord>(list));
+    }
+
 
     public Set<WorkItemRecord> unmarshallWorkItemRecords(String xml) {
         Set<WorkItemRecord> result = new HashSet<WorkItemRecord>();

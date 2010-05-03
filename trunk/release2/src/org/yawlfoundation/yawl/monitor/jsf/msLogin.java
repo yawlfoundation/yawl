@@ -19,7 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 
 /*
- * The backing bean for the YAWL 2.0 login form
+ * The backing bean for the YAWL Monitor Service login form
  *
  * @author Michael Adams
  * Date: 21/10/2007
@@ -200,7 +200,7 @@ public class msLogin extends AbstractPageBean {
      */
     private boolean validateUser(String u, String p) {
         if ((u == null) || (p == null)) {
-            msgPanel.info("Please enter a valid username and password") ;
+            msgPanel.info("Please enter a valid username and password.") ;
             return false;
         }
 
@@ -228,7 +228,7 @@ public class msLogin extends AbstractPageBean {
                 return true ;
             }
             else {
-                msgPanel.error(msgPanel.format(handle));        // show error msg to user
+                msgPanel.error(handle);        // show error msg to user
                 return false ;
             }
         }
@@ -249,7 +249,6 @@ public class msLogin extends AbstractPageBean {
         sb.setSessionhandle(handle);
         sb.setUserid(userid);
         if (! userid.equals("admin")) {
-   //         sb.setParticipant(mc.getParticipantFromUserID(userid));
             getApplicationBean().addLiveUser(userid);
         }    
     }

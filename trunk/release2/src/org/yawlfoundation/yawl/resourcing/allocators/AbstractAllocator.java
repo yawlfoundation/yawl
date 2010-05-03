@@ -100,12 +100,12 @@ public abstract class AbstractAllocator extends AbstractSelector {
             YSpecificationID specID = new YSpecificationID(wir);
             String keyField = (specID.getIdentifier() != null) ? "identifier" : "uri";
             String eventStr = event.name();
-            String taskID = wir.getTaskIDForDisplay();
+            String taskName = wir.getTaskName();
             return persister.selectWhere("ResourceEvent",
                   String.format("_event='%s' AND tbl._specID.%s='%s' AND " +
                                 "tbl._specID.version.version='%s' AND tbl._taskID='%s'",
                                 eventStr, keyField, specID.getKey(),
-                                specID.getVersionAsString(), taskID)) ;
+                                specID.getVersionAsString(), taskName)) ;
         }
         else return null;
     }

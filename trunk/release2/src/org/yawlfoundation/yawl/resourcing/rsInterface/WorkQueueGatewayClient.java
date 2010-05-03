@@ -11,6 +11,7 @@ package org.yawlfoundation.yawl.resourcing.rsInterface;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -104,7 +105,7 @@ public class WorkQueueGatewayClient extends Interface_Client {
     public String connect(String userID, String password) throws IOException {
         Map<String, String> params = prepareParamMap("connect", null);
         params.put("userid", userID);
-        params.put("password", password);
+        params.put("password", PasswordEncryptor.encrypt(password, null));
         return executeGet(_serviceURI, params);
     }
 
@@ -250,6 +251,13 @@ public class WorkQueueGatewayClient extends Interface_Client {
         params.clear();
         params.put("workitemid", itemID);
         return performGet("getWorkItem", params, handle);
+    }
+
+
+    public String getWorkItemChildren(String itemID, String handle) throws IOException {
+        params.clear();
+        params.put("workitemid", itemID);
+        return performGet("getWorkItemChildren", params, handle);
     }
 
 

@@ -110,7 +110,7 @@ public class QueueSet implements Serializable {
         // explicitly log the resume event
         EventLogger.log(wir, _ownerID, EventLogger.event.resume);
         removeFromQueue(wir, WorkQueue.SUSPENDED);
-        addToQueue(wir, WorkQueue.STARTED);
+        addToQueue(wir, WorkQueue.STARTED, false);              // don't log as a start
     }
 
 
@@ -163,7 +163,13 @@ public class QueueSet implements Serializable {
 
     public void addToQueue(WorkItemRecord wir, int queue) {
         checkQueueExists(queue) ;
-        getQueue(queue).add(wir);
+        getQueue(queue).add(wir, true);
+    }
+
+
+    public void addToQueue(WorkItemRecord wir, int queue, boolean log) {
+        checkQueueExists(queue) ;
+        getQueue(queue).add(wir, log);
     }
 
 

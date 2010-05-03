@@ -446,6 +446,11 @@ public class SessionBean extends AbstractSessionBean {
     public void setLbxUserList(Listbox l) { lbxUserList = l; }
 
 
+    public Object getSelectUserListBoxSelections() {
+        return getLbxUserList().getSelected();
+    }
+
+
     public void configureSelectUserListBox(String action) {
         if (action.equals("Offer") || action.equals("Reoffer")) {
             lbxUserList.setMultiple(true);
@@ -455,7 +460,40 @@ public class SessionBean extends AbstractSessionBean {
             lbxUserList.setMultiple(false);
             lbxUserList.setSelected(selectUserListChoice);
         }
+  //      lbxUserList.setSelected(selectUserListChoices);
     }
+
+
+    private Listbox lbxRunningCases = new Listbox();
+
+    public Listbox getLbxRunningCases() { return lbxRunningCases; }
+
+    public void setLbxRunningCases(Listbox l) { lbxRunningCases = l; }
+
+
+    public Object getRunningCasesListBoxSelections() {
+        return lbxRunningCases.getSelected();
+    }
+
+
+    public void configureRunningCasesListBox() {
+        lbxRunningCases.setMultiple(true);
+        lbxRunningCases.setSelected(runningCaseListChoices);
+    }
+
+
+
+    private Object[] runningCaseListChoices;
+
+    public Object[] getRunningCaseListChoices() {
+        return runningCaseListChoices;
+    }
+
+    public void setRunningCaseListChoices(Object[] list) {
+        runningCaseListChoices = list;
+    }
+
+    /******************************************************************/
 
     private ArrayList selectUserListChoices;
 
@@ -466,6 +504,8 @@ public class SessionBean extends AbstractSessionBean {
     public void setSelectUserListChoices(ArrayList list) {
         selectUserListChoices = list;
     }
+
+
 
     /********************************************************************************/
 
@@ -607,7 +647,7 @@ public class SessionBean extends AbstractSessionBean {
     private String title ;
 
     public String getTitle() {
-        title = "YAWL 2.0 Worklist";
+        title = "YAWL 2.1 Worklist";
         if ((activePage == ApplicationBean.PageRef.userWorkQueues) && (participant != null))
              title += ": " + participant.getFullName() ;
         return title ;
@@ -1525,6 +1565,9 @@ public class SessionBean extends AbstractSessionBean {
     }
 
     public void showMessagePanel() {
+        String style = (activePage != ApplicationBean.PageRef.dynForm) ? null :
+                        "border: none;";
+        transparentPanel.setStyle(style);
         transparentPanel.setVisible(messagePanel.hasMessage());
         messagePanel.show(getOuterPanelWidth());
     }
@@ -1549,9 +1592,21 @@ public class SessionBean extends AbstractSessionBean {
             case addInstance     : return 306;
             case teamQueues      : return 796;
             case externalClients : return 666;
+            case dynForm         : return getDynFormFactoryInstance().getFormWidth();
             default: return -1;
         }
     }
+
+    /*****************************************************************************/
+
+
+//    public void setConnectionTimeout() {
+//        if (! getApplicationBean().isSessionTimeoutSet()) {
+//            int interval = this.getExternalSession().getMaxInactiveInterval();
+//            _rm.setConnectionTimeoutInterval(interval * 1000);      // secs --> msecs
+//            getApplicationBean().setSessionTimeoutSet(true);
+//        }
+//    }
 
     /*****************************************************************************/
     
@@ -1768,6 +1823,7 @@ public class SessionBean extends AbstractSessionBean {
         setWirEdit(false);
         setCompleteAfterEdit(false);
         setCustomFormPost(false);
+        setShowYAWLBanner(true);
     }
 
     private boolean rssFormDisplay = false ;
@@ -1810,6 +1866,13 @@ public class SessionBean extends AbstractSessionBean {
         }
         return membership;
     }
+
+
+    private boolean showYAWLBanner = true;
+
+    public boolean isShowYAWLBanner() { return showYAWLBanner; }
+
+    public void setShowYAWLBanner(boolean show) { showYAWLBanner = show; }
     
 }
 

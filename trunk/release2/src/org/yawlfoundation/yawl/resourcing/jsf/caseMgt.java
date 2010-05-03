@@ -486,13 +486,12 @@ public class caseMgt extends AbstractPageBean {
         int EOF = fileContents.indexOf("</specificationSet>");
         if (BOF != -1 && EOF != -1) {
             fileContents = fileContents.substring(BOF, EOF + 19) ;         // trim file
-            String handle = _sb.getSessionhandle() ;
             String result = _rm.uploadSpecification(fileContents, fileName);
             if (! _rm.successful(result)) {
                 if (result.indexOf("<warning>") > -1)
-                    msgPanel.warn(msgPanel.format((result)));
+                    msgPanel.warn(result);
                 else
-                    msgPanel.error(msgPanel.format((result)));
+                    msgPanel.error(result);
             }
             _sb.refreshLoadedSpecs();
         }
@@ -533,7 +532,7 @@ public class caseMgt extends AbstractPageBean {
     }
 
 
-    // cancels the selected case
+    // cancels the selected cases
     public String btnCancelCase_action() {
 
         // get selected case
@@ -545,6 +544,7 @@ public class caseMgt extends AbstractPageBean {
         }
         else msgPanel.error("No case selected to cancel.");
 
+        _sb.setRunningCaseListChoices(null) ;
         return null;
     }
 
@@ -566,7 +566,7 @@ public class caseMgt extends AbstractPageBean {
             return _rm.cancelCase(caseID, _sb.getSessionhandle());
         }
         catch (IOException ioe) {
-            msgPanel.error("IOException when attempting to cancel case") ;
+            msgPanel.error("IOException when attempting to cancel case.") ;
             return null;
         }
     }
@@ -578,7 +578,7 @@ public class caseMgt extends AbstractPageBean {
             return _rm.unloadSpecification(spec.getID());
         }
         catch (IOException ioe) {
-            msgPanel.error("IOException when attempting to unload specification") ;
+            msgPanel.error("IOException when attempting to unload specification.") ;
             return null ;
         }
     }
@@ -655,14 +655,13 @@ public class caseMgt extends AbstractPageBean {
                 msgPanel.error("Unsuccessful case start:" + msgPanel.format(result)) ;
         }
         catch (IOException ioe) {
-            msgPanel.error("IOException when attempting to launch case") ;
+            msgPanel.error("IOException when attempting to launch case.") ;
         }
     }
 
 
     // refreshes list of running cases
     private void updateRunningCaseList() {
-        String handle = _sb.getSessionhandle() ;
         Set<SpecificationData> specDataSet = _rm.getSpecList() ;
         if (specDataSet != null) {
             ArrayList<String> caseList = new ArrayList<String>();

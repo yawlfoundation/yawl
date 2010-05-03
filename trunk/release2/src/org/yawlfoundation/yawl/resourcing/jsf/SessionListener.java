@@ -51,10 +51,7 @@ public class SessionListener implements HttpSessionListener {
     }
 
     public void handleSessionTimeout(HttpSession session) {
-        SessionBean sb = (SessionBean) session.getAttribute("SessionBean");
-        if (sb != null) {
-            ResourceManager.getInstance().expireSession(sb.getSessionhandle());
-        }
+        ResourceManager.getInstance().expireSession(session.getId());
     }
 
 }

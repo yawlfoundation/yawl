@@ -20,9 +20,12 @@ import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
-import org.yawlfoundation.yawl.resourcing.resource.*;
+import org.yawlfoundation.yawl.resourcing.resource.OrgGroup;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
 import org.yawlfoundation.yawl.resourcing.util.GadgetFeeder;
 import org.yawlfoundation.yawl.util.PasswordEncryptor;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -31,6 +34,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -53,7 +58,8 @@ public class WorkQueueGateway extends HttpServlet {
 
     private static final String success = "<success/>";
 
-
+    private boolean gadgetPostback = false;
+    private Map gadgetParamMap = null;
 
     public static WorkQueueGateway getInstance() {
         if (_me == null) _me = new WorkQueueGateway();
@@ -68,7 +74,13 @@ public class WorkQueueGateway extends HttpServlet {
         String handle = req.getParameter("sessionHandle");
 
         if (action == null) {
-            result = "<html><head>" +
+            if (gadgetPostback) {
+                gadgetPostback = false;
+                gadgetParamMap.putAll(req.getParameterMap());
+                result = (new GadgetFeeder(gadgetParamMap)).getFeed();
+            }
+            else {
+                result = "<html><head>" +
                     "<title>YAWL Resource Service WorkQueue Gateway</title>" +
                     "</head><body>" +
                     "<H3>Welcome to the YAWL Resource Service \"WorkQueue Gateway\"</H3>" +
@@ -76,14 +88,18 @@ public class WorkQueueGateway extends HttpServlet {
                     "Service and a user interface implementation " +
                     "(it isn't meant to be browsed to directly).</p>" +
                     "</body></html>";
+            }
         }
         else if (action.equalsIgnoreCase("getGadgetContent")) {
-            result = (new GadgetFeeder(req)).getFeed();
+            gadgetPostback = true;
+            gadgetParamMap = new HashMap(req.getParameterMap());
+            result = (new GadgetFeeder(gadgetParamMap)).getFeed();
         }
         else if (action.equalsIgnoreCase("connect")) {
             String userid = req.getParameter("userid");
             String password = req.getParameter("password");
-            result = _rm.serviceConnect(userid, password);           // service connect
+            int interval = req.getSession().getMaxInactiveInterval();
+            result = _rm.serviceConnect(userid, password, interval);
         }
         else if (action.equalsIgnoreCase("userlogin")) {
             String userid = req.getParameter("userid");
@@ -97,7 +113,7 @@ public class WorkQueueGateway extends HttpServlet {
                     // nothing to do - call will return 'incorrect password'
                 }
             }
-            result = _rm.login(userid, password);                    // user connect
+            result = _rm.login(userid, password, req.getSession().getId()); // user connect
         }
         else if (action.equalsIgnoreCase("checkConnection")) {
             result = _rm.checkServiceConnection(handle) ? success :
@@ -201,6 +217,11 @@ public class WorkQueueGateway extends HttpServlet {
         else if (action.equals("getWorkItem")) {
             result = _rm.getWorkItem(itemid);
         }
+        else if (action.equals("getWorkItemChildren")) {
+            Set<WorkItemRecord> children = _rm.getChildrenFromCache(itemid);
+            result = (children != null) ? _marshaller.marshallWorkItemRecords(children) :
+                      fail("No child items found for parent: " + itemid);
+        }
         else if (action.equals("getWorkItemParameters")) {
             result = _rm.getTaskParamsAsXML(itemid);
         }
@@ -224,7 +245,7 @@ public class WorkQueueGateway extends HttpServlet {
                        Set<WorkItemRecord> set = qSet.getQueuedWorkItems(queueType);
                        result = _marshaller.marshallWorkItemRecords(set) ;
                     }
-                    else result = _marshaller.marshallWorkItemRecords(null);
+                    else result = _marshaller.marshallWorkItemRecords((Set<WorkItemRecord>) null);
                 }
                 else result = fail("Unknown participant id: " + pid);
             }
@@ -328,7 +349,7 @@ public class WorkQueueGateway extends HttpServlet {
                 _rm.getWorkItemCache().update(wir) ;
                 result = success;
             }
-            else result = fail("Malformed or empty work item XML record");
+            else result = response(fail("Malformed or empty work item XML record"));
         }
         else if (action.equals("synchroniseCaches")) {
             _rm.sanitiseCaches();
@@ -340,7 +361,7 @@ public class WorkQueueGateway extends HttpServlet {
         else if (action.equals("uploadSpecification")) {
             String fileContents = req.getParameter("fileContents") ;
             String fileName = req.getParameter("fileName");
-            result = _rm.uploadSpecification(fileContents, fileName) ;
+            result = response(_rm.uploadSpecification(fileContents, fileName));
         }
         else if (action.equals("unloadSpecification")) {
             String id = req.getParameter("specidentifier") ;
@@ -353,15 +374,16 @@ public class WorkQueueGateway extends HttpServlet {
             String id = req.getParameter("specidentifier") ;
             String version = req.getParameter("specversion");
             String uri = req.getParameter("specuri");
-            result = _rm.launchCase(new YSpecificationID(id, version, uri), caseData, handle);
+            result = response(_rm.launchCase(new YSpecificationID(id, version, uri),
+                    caseData, handle));
         }
         else if (action.equals("cancelCase")) {
             String caseID = req.getParameter("caseid") ;
-            result = _rm.cancelCase(caseID, handle) ;
+            result = response(_rm.cancelCase(caseID, handle)) ;
         }
         else if (action.equals("removeRegisteredService")) {
             String id = req.getParameter("serviceid");
-            result = _rm.removeRegisteredService(id);
+            result = response(_rm.removeRegisteredService(id));
         }
         else if (action.equals("addRegisteredService")) {
             String uri = req.getParameter("uri");
@@ -373,7 +395,7 @@ public class WorkQueueGateway extends HttpServlet {
             if (assignable != null) {
                 ysr.set_assignable(assignable.equals("true"));
             }
-            result = _rm.addRegisteredService(ysr);
+            result = response(_rm.addRegisteredService(ysr));
         }
 
         return result ;
@@ -407,7 +429,7 @@ public class WorkQueueGateway extends HttpServlet {
         }
         else result =  fail("Unknown participant: " + pid);
 
-        return result;
+        return response(result);
     }
 
     private String doResourceMoveAction(HttpServletRequest req, String action) {
@@ -437,7 +459,6 @@ public class WorkQueueGateway extends HttpServlet {
     private String doResourceAction(Participant p, WorkItemRecord wir,
                                     HttpServletRequest req, String action) {
         String result = "<failure/>";
-        String handle = req.getParameter("sessionHandle");
         boolean successful ;
 
         if (action.equals("acceptOffer")) {
@@ -453,8 +474,16 @@ public class WorkQueueGateway extends HttpServlet {
                 wir.hasResourceStatus(WorkItemRecord.statusResourceAllocated)) {
 
                 successful = _rm.start(p, wir);
-                result = successful ? success : fail("Could not start workitem: " +
-                        wir.getID());
+                if (successful) {
+                    WorkItemRecord child = _rm.getExecutingChild(wir);
+                    if (child != null) {
+                        child.setResourceStatus(WorkItemRecord.statusResourceStarted);
+                        result = child.toXML();
+                    }
+                    else result = fail("Workitem '" + wir.getID() +
+                            "' has started, but could not retrieve its executing child.");
+                }
+                else result =  fail("Could not start workitem: " + wir.getID());
             }
             else result = fail("Unoffered', 'Offered' or 'Allocated", "accepted",
                     wir.getResourceStatus());                
@@ -536,7 +565,7 @@ public class WorkQueueGateway extends HttpServlet {
             }
             else result = fail("Started", "reallocated", wir.getResourceStatus());
         }
-        return result;
+        return response(result);
     }
 
 
@@ -560,6 +589,11 @@ public class WorkQueueGateway extends HttpServlet {
            String.format("Only a workitem with '%s' status can be %s. This workitem has '%s' status.",
                    reqStatus, action, hasStatus)
         );
+    }
+
+
+    private String response(String inner) {
+        return StringUtil.wrap(inner, "response");
     }
 
 }

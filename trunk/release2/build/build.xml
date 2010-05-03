@@ -512,8 +512,6 @@
 
         <copy file="${properties.dir}/log4j.properties"
               todir="${yawl.eng.app.name}/WEB-INF/classes"/>
-        <copy file="${properties.dir}/yawl.properties"
-              todir="${yawl.eng.app.name}/WEB-INF/classes"/>
         <copy todir="${yawl.eng.app.name}/WEB-INF"
               file="${build.dir}/engine/web.xml"/>
 
@@ -881,7 +879,8 @@
         <copy todir="${yawl.resource.app.name}${webinf.dir}/logging">
            <fileset dir="${classes.dir}${packageRoot}/logging"
                     includes="YLogDataItem.class YLogDataItemList.class
-                              YLogPredicate.class YLogPredicateParser.class" />
+                              YLogPredicate.class YLogPredicateParser.class
+                              YXESBuilder.class" />
         </copy>
 
         <copy todir="${yawl.resource.app.name}${webinf.dir}/schema">
@@ -900,7 +899,7 @@
                        includes="JDOMUtil.class StringUtil.class HttpURLValidator.class
                                  CharsetFilter.class DOMUtil.class SaxonUtil.class
                                  InstanceBuilder.class PasswordEncryptor.class
-                                 XNode.class XNodeParser.class YPredicateParser.class
+                                 XNode*.class YPredicateParser.class
                                  YDataSchemaCache.class YBuildProperties.class"/>
         </copy>
 
@@ -984,6 +983,12 @@
 
 
     <target name="build_YResourceServiceClient.jar" depends="compile">
+        <tstamp />
+        <mkdir dir="${enumeratedClasses}"/>
+        <unzip dest="${enumeratedClasses}">
+            <fileset dir="${lib.dir}" includes="${commonsCodec}"/>
+        </unzip>
+
         <jar destfile="${output.dir}/YResourceServiceClient.jar" basedir="${classes.dir}"
                 includes="org/yawlfoundation/yawl/resourcing/rsInterface/WorkQueueGatewayClient.class
                           org/yawlfoundation/yawl/resourcing/rsInterface/ResourceGatewayClient.class
@@ -993,10 +998,21 @@
                           org/yawlfoundation/yawl/engine/YSpecificationID.class
                           org/yawlfoundation/yawl/elements/YSpecVersion.class
                           org/yawlfoundation/yawl/util/JDOMUtil.class
-                          org/yawlfoundation/yawl/util/StringUtil.class">
+                          org/yawlfoundation/yawl/util/StringUtil.class
+                          org/yawlfoundation/yawl/util/PasswordEncryptor.class">
 
+            <fileset dir="${enumeratedClasses}"
+                     includes="org/apache/commons/codec/BinaryEncoder.class
+                               org/apache/commons/codec/BinaryDecoder.class
+                               org/apache/commons/codec/Encoder.class
+                               org/apache/commons/codec/Decoder.class
+                               org/apache/commons/codec/EncoderException.class
+                               org/apache/commons/codec/DecoderException.class
+                               org/apache/commons/codec/binary/Base64.class
+                               org/apache/commons/codec/binary/StringUtils.class" />
             <manifest>
                 <attribute name="Created-By" value="${developer.name}"/>
+                <attribute name="Implementation-Version" value="${app.version} ${TODAY}"/>
             </manifest>
         </jar>
         <checksum file="${output.dir}/YResourceServiceClient.jar"/>

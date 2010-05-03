@@ -2,7 +2,9 @@ package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * An extended HashMap to handle connections from external entities (such as the YAWL
@@ -16,13 +18,12 @@ import java.util.*;
  */
 
 
-public class ConnectionCache extends HashMap<String,ServiceConnection> {
+public class ConnectionCache extends Hashtable<String, ServiceConnection> {
 
     private static ConnectionCache _me ;
-    private HashMap<String,String> _userdb ;
+    private Hashtable<String,String> _userdb ;
 
-
-    public ConnectionCache() {
+    private ConnectionCache() {
         super();
         initUserDB() ;
         _me = this ;
@@ -37,11 +38,32 @@ public class ConnectionCache extends HashMap<String,ServiceConnection> {
         return _me ;
     }
 
-    public String connect(String userid, String password) {
+
+    public void addUsers(Map<String, String> users) {
+        _userdb.putAll(users);
+    }
+
+
+    public void addUser(String userid, String password) {
+        _userdb.put(userid, password);
+    }
+
+
+    public void updateUser(String userid, String password) {
+        _userdb.put(userid, password);
+    }
+
+
+    public void deleteUser(String userid) {
+        _userdb.remove(userid);
+    }
+
+    
+    public String connect(String userid, String password, long timeOutSeconds) {
         String result ;
         if (validUser(userid))  {
             if (validPassword(userid, password)) {
-                ServiceConnection con = new ServiceConnection(userid) ;
+                ServiceConnection con = new ServiceConnection(userid, timeOutSeconds) ;
                 result = con.getHandle();
                 this.put(result, con);
                 EventLogger.audit(userid, EventLogger.audit.gwlogon);
@@ -114,11 +136,7 @@ public class ConnectionCache extends HashMap<String,ServiceConnection> {
     }
 
     private void initUserDB() {
-        _userdb = new HashMap<String,String>();
-
-        // insert default users
-        _userdb.put("admin", "YAWL");
-        _userdb.put("editor", "YAWL");
+        _userdb = new Hashtable<String,String>();
     }
 
 

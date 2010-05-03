@@ -178,7 +178,7 @@ public class DynFormValidator {
     private boolean validateRequired(DynFormField input, String value) {
         boolean result = true;
         if (input.isRequired() && isEmptyValue(value)) {
-            _msgPanel.error("Field '" + input.getName() + "' requires a value.\n");
+            _msgPanel.error("Field '" + input.getLabelText() + "' requires a value.\n");
             result = false;
         }
         return result;
@@ -263,7 +263,7 @@ public class DynFormValidator {
     private void addRestrictionErrorMessage(String type, DynFormField input) {
         String msg = null;
         String value = "";
-        String name = input.getName();
+        String name = input.getLabelText();
         if (type.equals("minLength")) {
             value = input.getRestriction().getMinLength();
             msg = "Field '%s' requires a value of at least %s characters.";
@@ -312,8 +312,8 @@ public class DynFormValidator {
         String msg = input.getAlertText();
         if (msg == null) {
             String base = "The value '%s' is not valid for field '%s'. " +
-                          "This field requires a value of '%s' type";
-            msg = String.format(base, value, input.getName(), input.getDataTypeUnprefixed());
+                          "This field requires a value of %s type";
+            msg = String.format(base, value, input.getLabelText(), input.getDataTypeUnprefixed());
             if (input.hasRestriction())
                 msg += input.getRestriction().getToolTipExtn();
         }

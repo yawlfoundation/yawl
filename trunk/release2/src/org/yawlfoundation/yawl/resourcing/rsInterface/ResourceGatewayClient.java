@@ -9,6 +9,7 @@
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
+import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
 import java.io.IOException;
 import java.util.Map;
@@ -551,7 +552,7 @@ public class ResourceGatewayClient extends Interface_Client {
     public String connect(String userID, String password) throws IOException {
         Map<String, String> params = prepareParamMap("connect", null);
         params.put("userid", userID);
-        params.put("password", password);
+        params.put("password", PasswordEncryptor.encrypt(password, null));
         return executeGet(_serviceURI, params) ;
     }
 

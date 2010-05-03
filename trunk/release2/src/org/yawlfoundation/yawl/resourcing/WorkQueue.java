@@ -68,7 +68,7 @@ public class WorkQueue implements Serializable {
 
     public WorkQueue(String ownerID, WorkItemRecord item, int qType, boolean persisting) {
         this(ownerID, qType, persisting) ;
-        add(item) ;
+        add(item, true) ;
     }
 
     public WorkQueue(String ownerID, HashMap<String, WorkItemRecord> items,
@@ -141,10 +141,10 @@ public class WorkQueue implements Serializable {
      * Adds a workitem to the queue
      * @param item the workitem to add
      */
-    public void add(WorkItemRecord item) {
+    public void add(WorkItemRecord item, boolean log) {
         _workitems.put(item.getID(), item) ;
         persistThis() ;
-        logEvent(item);
+        if (log) logEvent(item);
     }
 
     /**

@@ -144,6 +144,7 @@ public class DynFormFactory extends AbstractSessionBean {
     static final int FORM_BUTTON_WIDTH = 76;    // buttons under outer panel
     static final int FORM_BUTTON_HEIGHT = 30;
     static final int FORM_BUTTON_GAP = 15;      // ... and the gap between them
+    static final int BOTTOM_PANEL_HEIGHT = 20;
     static final int X_LABEL_OFFSET = 10;
     static final int DEFAULT_FIELD_OFFSET = 125;
     static final int DEFAULT_PANEL_BASE_WIDTH = 250;         // width of innermost panel
@@ -208,6 +209,7 @@ public class DynFormFactory extends AbstractSessionBean {
                 _userAttributes = getUserAttributes();
                 _fieldAssembler = new DynFormFieldAssembler(schema, data, getParamInfo());
                 setFormFonts();
+                setTitleAndBanner();
                 buildForm();
             }
             return (schema != null);
@@ -282,6 +284,21 @@ public class DynFormFactory extends AbstractSessionBean {
         if (font != null) {
             _formFonts.setUserDefinedFormHeaderFont(font);
             _formFonts.setUserDefinedFormHeaderFontStyle(this.getFormHeaderFontStyle());
+        }
+    }
+
+
+    private void setTitleAndBanner() {
+        if (getAttributes() != null) {                  // if case level, attrs are null
+
+            // set user defined title if any, or a default if not
+            String title = getAttributeValue("title");
+            if (title == null) title = "Edit Work Item: " + _displayedWIR.getCaseID();
+            setHeaderText(title);
+
+            // hide the banner if user requested
+            boolean hide = getAttributes().getBooleanValue("hideBanner");
+            _sb.setShowYAWLBanner(! hide);
         }
     }
 
@@ -550,8 +567,9 @@ public class DynFormFactory extends AbstractSessionBean {
         compPanel.setStyle(outerPanelStyle);
 
         // ...and its container
-        containerStyle = String.format("position: relative; height: 10px; top: 0; width: %dpx",
-                                        width);
+        containerStyle = String.format("position: relative; height: %dpx; top: 0; width: %dpx",
+                top + height + OUTER_PANEL_TO_BUTTONS + FORM_BUTTON_HEIGHT + BOTTOM_PANEL_HEIGHT,
+                width);
     }
 
 
@@ -905,7 +923,11 @@ public class DynFormFactory extends AbstractSessionBean {
     // support for decomposition extended attributes
 
     public String getPageBackgroundURL() {
-        return getAttributeValue("background-image");
+        return getAttributeValue("page-background-image");
+    }
+
+    public String getPageBackgroundColour() {
+        return getAttributeValue("page-background-color");
     }
 
 

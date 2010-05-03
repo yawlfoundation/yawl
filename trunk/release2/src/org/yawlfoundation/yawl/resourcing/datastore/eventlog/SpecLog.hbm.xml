@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.yawlfoundation.yawl.resourcing.datastore.eventlog">
+
+	<class name="SpecLog" table="rs_SpecLog">
+
+        <id name="logID"
+            column="rowid"
+            type="long">
+            <generator class="native"/>
+        </id>
+
+        <component name="specID"
+                   class="org.yawlfoundation.yawl.engine.YSpecificationID" access="field">
+            <property name="identifier" column="specID"/>
+            <component name="version"
+                       class="org.yawlfoundation.yawl.elements.YSpecVersion">
+                <property name="version" column="specVersion"/>
+            </component>
+            <property name="uri" column="specURI"/>
+        </component>
+     
+     </class>
+	
+</hibernate-mapping>

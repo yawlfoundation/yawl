@@ -16,9 +16,9 @@ import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.XNode;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -66,16 +66,14 @@ public class LogMiner {
         String result ;
         List rows ;
         if (_reader != null) {
-            String keyField = (specID.getIdentifier() != null) ? "identifier" : "uri";
+            long specKey = getSpecificationKey(specID);
             StringBuilder template = new StringBuilder("FROM ResourceEvent AS re ");
-            template.append("WHERE re._specID.%s='%s' ")
-                    .append("AND re._specID.version.version='%s' ")
-                    .append("AND re._taskID='%s' ")
+            template.append("WHERE re._taskID='%s' ")
+                    .append("AND re._specKey=%d ")
                     .append("AND re._participantID='%s' ")
                     .append("ORDER BY re._itemID, re._timeStamp");
 
-            String query = String.format(template.toString(), keyField, specID.getKey(),
-                                   specID.getVersionAsString(), taskName, participantID);
+            String query = String.format(template.toString(), taskName, specKey, participantID);
 
             rows = _reader.execQuery(query) ;
             if (rows != null) {
@@ -156,6 +154,26 @@ public class LogMiner {
         else return "Unavailable"; 
     }
 
+
+    public String getSpecificationXESLog(YSpecificationID specid) {
+        XNode cases = getXESLog(specid);
+        if (cases != null) {
+            return new ResourceXESLog().buildLog(specid, cases);
+        }
+        return "";
+    }
+
+    
+    public String getMergedXESLog(YSpecificationID specid) {
+        XNode rsCases = getXESLog(specid);
+        String engCases = ResourceManager.getInstance().getEngineXESLog(specid);
+        if ((rsCases != null) && (engCases != null)) {
+            return new ResourceXESLog().mergeLogs(rsCases, engCases);
+        }
+        return "";
+    }
+
+
     /*****************************************************************************/
 
     private List getWorkItemEventsList(String itemID) {
@@ -233,6 +251,50 @@ public class LogMiner {
         return null;
     }
 
+
+    private long getSpecificationKey(YSpecificationID specID) {
+        return EventLogger.getSpecificationKey(specID);
+    }
+
+
+    private XNode getXESLog(YSpecificationID specID) {
+        XNode cases = new XNode("cases");
+        XNode caseNode = null;
+        long specKey = getSpecificationKey(specID);
+        if (specKey > -1) {
+            StringBuilder query = new StringBuilder(100);
+            query.append("FROM ResourceEvent AS re WHERE re._specKey=")
+                    .append(specKey)
+                    .append(" ORDER BY re._caseID, re._taskID, re._timeStamp");
+
+            List rows = _reader.execQuery(query.toString()) ;
+            String caseID = "-1";
+            for (Object row : rows) {
+                ResourceEvent event = (ResourceEvent) row;
+                if (! sameCase(event.get_caseID(), caseID)) {
+                    caseID = event.get_caseID();
+                    caseNode = cases.addChild("case");
+                    caseNode.addAttribute("id", caseID);
+                }
+                if (event.get_taskID() != null) {            // only want task events
+
+                    XNode eventNode = caseNode.addChild("event");
+                    eventNode.addChild("taskname", event.get_taskID());
+                    eventNode.addChild("descriptor", event.get_event());
+                    eventNode.addChild("timestamp", event.getTimeStampString());
+                    eventNode.addChild("resource", event.get_participantID());
+                }    
+            }
+        }
+        return cases;
+    }
+
+    private boolean sameCase(String eventCaseID, String currentCaseID) {
+        return eventCaseID.equals(currentCaseID) ||
+               eventCaseID.startsWith(currentCaseID + ".");
+    }
+
+    
 
     private boolean successful(String s) {
         return (s != null) && (! s.startsWith("<fail"));

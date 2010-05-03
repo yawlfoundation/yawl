@@ -34,6 +34,7 @@ public class FormViewer {
 
     public String display(WorkItemRecord wir) {
         String result ;
+
         // if there's a custom form for this item, use it
         if (wir.getCustomFormURL() != null) {
             result = showCustomForm(wir) ;
@@ -44,7 +45,6 @@ public class FormViewer {
             _sb.setDynFormType(ApplicationBean.DynFormType.tasklevel);
 
             DynFormFactory factory = _sb.getDynFormFactoryInstance();
-            factory.setHeaderText("Edit Work Item: " + wir.getCaseID());
             factory.setDisplayedWIR(wir);
             if (factory.initDynForm("YAWL 2.1 - Edit Work Item")) {
                 result = "showDynForm" ;

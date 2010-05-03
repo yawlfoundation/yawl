@@ -69,14 +69,6 @@ public class dynForm extends AbstractPageBean {
 
     public void preprocess() { }
 
-    public void prerender() {
-        getSessionBean().checkLogon();
-        getSessionBean().getMessagePanel().show();
-        getSessionBean().setActivePage(ApplicationBean.PageRef.dynForm);
-        setupButtons();
-        loadBackground();
-    }
-
     public void destroy() { }
 
 
@@ -169,6 +161,16 @@ public class dynForm extends AbstractPageBean {
 
     private SessionBean _sb = getSessionBean();
 
+
+    public void prerender() {
+        _sb.checkLogon();
+        _sb.setActivePage(ApplicationBean.PageRef.dynForm);
+        _sb.showMessagePanel();
+        setupButtons();
+        loadBackground();
+    }
+
+
     /**
      * Updates workitem parameters with values added by user
      * @return a reference to the referring page
@@ -245,8 +247,7 @@ public class dynForm extends AbstractPageBean {
     /********************************************************************************/
 
     private void setupButtons() {
-        SessionBean sb = getSessionBean() ;
-        if (sb.getDynFormType() == ApplicationBean.DynFormType.netlevel) {
+        if (getSessionBean().getDynFormType() == ApplicationBean.DynFormType.netlevel) {
             btnOK.setText("Start");                        // start new case
             btnComplete.setVisible(false);                 // hide for case starts
         }
@@ -255,10 +256,19 @@ public class dynForm extends AbstractPageBean {
         }
     }
 
+    /**
+     * Loads the background image or colour for the entire page (not the form within)
+     */
     private void loadBackground() {
         String imageURL = getDynFormFactory().getPageBackgroundURL();
         if (imageURL != null) {
-           body1.setImageURL(imageURL);
+           body1.setImageURL(imageURL);  
+        }
+        else {
+            String bgColor = getDynFormFactory().getPageBackgroundColour();
+            if (bgColor != null) {
+                body1.setStyle("background-color: " + bgColor);
+            }
         }
     }
 

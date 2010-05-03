@@ -10,8 +10,7 @@
 package org.yawlfoundation.yawl.authentication;
 
 import org.jdom.Element;
-import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.util.PasswordEncryptor;
+import org.yawlfoundation.yawl.util.XNode;
 
 
 /**
@@ -36,13 +35,13 @@ public class YExternalClient {
 
     public YExternalClient(String userID, String password, String documentation) {
         _userID = userID;
-        setPassword(password);
+        _password = password;
         _documentation = documentation;
     }
 
     public YExternalClient(Element xml) {
         _userID = xml.getChildText("username");
-        setPassword(xml.getChildText("password"));
+        _password = (xml.getChildText("password"));
         _documentation = xml.getChildText("documentation");
     }
 
@@ -55,7 +54,7 @@ public class YExternalClient {
     public String getPassword() { return _password; }
 
     public void setPassword(String password) {
-        _password = PasswordEncryptor.encrypt(password, null);
+        _password = password;
     }
 
 
@@ -65,12 +64,11 @@ public class YExternalClient {
 
 
     public String toXML() {
-        StringBuilder xml = new StringBuilder("<client>");
-        xml.append(StringUtil.wrap(_userID, "username"))
-           .append(StringUtil.wrap(_password, "password"))
-           .append(StringUtil.wrap(_documentation, "documentation"))
-           .append("</client>");
-        return xml.toString();
+        XNode root = new XNode("client");
+        root.addChild("username", _userID);
+        root.addChild("password", _password);
+        root.addChild("documentation", _documentation);
+        return root.toString();
     }
 
 

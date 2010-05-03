@@ -55,8 +55,10 @@ public class YLogGateway extends HttpServlet {
         else if (action.equalsIgnoreCase("connect")) {
            String userid = req.getParameter("userid");
            String password = req.getParameter("password");
-           if (_engine != null)
-               result = _engine.connect(userid, password);
+           if (_engine != null) {
+               int interval = req.getSession().getMaxInactiveInterval();
+               result = _engine.connect(userid, password, interval);
+           }
            else result = _noEngine ;
        }
        else if (action.equalsIgnoreCase("checkConnection")) {
@@ -140,6 +142,13 @@ public class YLogGateway extends HttpServlet {
            else if (action.equals("getEventsForTaskInstance")) {
                String itemID = req.getParameter("itemid") ;
                result = _logMgr.getEventsForTaskInstance(itemID) ;
+           }
+           else if (action.equals("getSpecificationXESLog")) {
+               String identifier = req.getParameter("identifier");
+               String version = req.getParameter("version");
+               String uri = req.getParameter("uri");
+               YSpecificationID specID = new YSpecificationID(identifier, version, uri);
+               result = _logMgr.getSpecificationXESLog(specID);
            }
        }
        else throw new IOException("Invalid or disconnected session handle.");

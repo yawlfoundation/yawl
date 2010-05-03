@@ -234,7 +234,7 @@ public class visualiser extends AbstractPageBean {
         if (_rm.successful(result))
             _sb.removeWarnedForNonEdit(wir.getID());
         else
-            msgPanel.error(msgPanel.format(result)) ;
+            msgPanel.error(result) ;
     }
 
 

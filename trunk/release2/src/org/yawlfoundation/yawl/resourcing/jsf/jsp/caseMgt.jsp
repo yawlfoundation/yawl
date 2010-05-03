@@ -182,7 +182,7 @@
                                         visible="#{ApplicationBean.exceptionServiceEnabled}"
                                         text="Worklet Admin"/>
 
-                            <ui:listbox binding="#{caseMgt.lbxRunningCases}"
+                            <ui:listbox binding="#{SessionBean.lbxRunningCases}"
                                         id="lbxRunningCases"
                                         items="#{SessionBean.runningCaseListOptions}"
                                         selected="#{SessionBean.runningCaseListChoice}"

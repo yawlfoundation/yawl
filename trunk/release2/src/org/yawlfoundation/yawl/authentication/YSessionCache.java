@@ -32,7 +32,7 @@ public class YSessionCache extends Hashtable<String, YSession> {
     }
 
 
-    public String connect(String name, String password) {
+    public String connect(String name, String password, long timeOutSeconds) {
         if (name == null) return failMsg("Null user name"); 
         String result ;
 
@@ -40,7 +40,7 @@ public class YSessionCache extends Hashtable<String, YSession> {
         YExternalClient client = YEngine.getInstance().getExternalClient(name);
         if (client != null) {
             if (validateCredentials(client, password)) {
-                result = storeSession(new YExternalSession(client));
+                result = storeSession(new YExternalSession(client, timeOutSeconds));
             }
             else result = badPassword(name);
         }
@@ -50,7 +50,7 @@ public class YSessionCache extends Hashtable<String, YSession> {
             YAWLServiceReference service = getService(name);
             if (service != null) {
                 if (validateCredentials(service, password)) {
-                    result = storeSession(new YServiceSession(service));
+                    result = storeSession(new YServiceSession(service, timeOutSeconds));
                 }
                 else result = badPassword(name);
             }

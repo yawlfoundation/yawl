@@ -74,15 +74,18 @@ public class Interface_Client {
 
     /**
      * Removes the outermost set of xml tags from a string, if any
-     * @param inputXML the xml string to strip
+     * @param xml the xml string to strip
      * @return the stripped xml string
      */
-    protected String stripOuterElement(String inputXML) {
-        if (inputXML != null) {
-            String[] stripped = inputXML.split("^\\s*<.*?>|</[^<]*?>\\s*$");
-            return stripped[stripped.length -1];
+    protected String stripOuterElement(String xml) {
+        if (xml != null) {
+            int start = xml.indexOf('>') + 1;
+            int end = xml.lastIndexOf('<');
+            if (end > start) {
+                return xml.substring(start, end);
+            }    
         }
-        return inputXML;
+        return xml;
     }
 
 
@@ -94,7 +97,7 @@ public class Interface_Client {
     public boolean successful(String message) {
         return (message != null)  &&
                (message.length() > 0) &&
-               (message.indexOf("<failure>") == -1) ;
+               (! message.contains("<failure>")) ;
     }
 
 

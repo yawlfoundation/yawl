@@ -53,6 +53,8 @@ import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ConnectionCache;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayServer;
+import org.yawlfoundation.yawl.resourcing.rsInterface.UserConnection;
+import org.yawlfoundation.yawl.resourcing.rsInterface.UserConnectionCache;
 import org.yawlfoundation.yawl.resourcing.util.*;
 import org.yawlfoundation.yawl.schema.YDataValidator;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -88,21 +90,17 @@ public class ResourceManager extends InterfaceBWebsideController {
     // map of userid -> participant id
     private HashMap<String,String> _userKeys = new HashMap<String,String>();
 
-    // a cache of connections directly to the service - not to the engine
+    // a cache of connections directly to the service from client apps & services
     private ConnectionCache _connections = ConnectionCache.getInstance();
+
+    // currently logged on participants
+    private UserConnectionCache _liveSessions = new UserConnectionCache();
 
     // local cache of specifications: id -> SpecificationData
     private SpecDataCache _specCache = new SpecDataCache();
 
     // local cache of specification data schemas: id -> [name, schema defn. element]
     private DataSchemaCache _dataSchemaCache = new DataSchemaCache();
-
-    // currently logged on participants: <sessionHandle, Participant>
-    private HashMap<String,Participant> _liveSessions =
-            new HashMap<String,Participant>();
-
-    // currently logged on 'admin' users (not participants with admin privileges)
-    private ArrayList<String> _liveAdmins = new ArrayList<String>();
 
     // groups of items that are members of a deferred choice offering
     private HashSet<TaggedStringList> _deferredItemGroups =
@@ -238,6 +236,15 @@ public class ResourceManager extends InterfaceBWebsideController {
         return _serviceURI;
     }
 
+
+    public String getEngineXESLog(YSpecificationID specID) {
+        try {
+            return _interfaceEClient.getSpecificationXESLog(specID, getEngineSessionHandle());
+        }
+        catch (IOException ioe) {
+            return null;
+        }
+    }
 
     public void initBuildProperties(InputStream stream) {
         _buildProps = new YBuildProperties();
@@ -395,6 +402,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             setServiceURI();
             restoreAutoTasks();
             sanitiseCaches();
+            setAuthorisedServiceConnections();
             if (_orphanedStartedItems != null) {
                 for (WorkItemRecord wir : _orphanedStartedItems) {
                     this.checkinItem(null, wir);
@@ -882,7 +890,9 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public String getActiveParticipantsAsXML() {
         StringBuilder xml = new StringBuilder("<participants>") ;
-        for (Participant p : _liveSessions.values()) xml.append(p.toXML()) ;
+        for (Participant p : _liveSessions.getActiveParticipants()) {
+            xml.append(p.toXML()) ;
+        }
         xml.append("</participants>");
         return xml.toString() ;
     }
@@ -968,15 +978,10 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public String getSessionHandle(Participant p) {
-        for (String handle : _liveSessions.keySet()) {
-            Participant pLive = _liveSessions.get(handle) ;
-            if (pLive.getID().equals(p.getID())) {
-                return handle;
-            }
-        }
-        return null;
+        return _liveSessions.getSessionHandle(p);
     }
 
+    
     public String getSessionHandle(String userid) {
         return getSessionHandle(getParticipantFromUserID(userid)) ;
     }
@@ -2035,11 +2040,11 @@ public class ResourceManager extends InterfaceBWebsideController {
      * 9. CONNECTION METHODS *
      ************************/
 
-    public String login(String userid, String password) {
+    public String login(String userid, String password, String jSessionID) {
         String result ;
         if (connected()) {
 
-            if (userid.equals("admin")) return loginAdmin(password) ;
+            if (userid.equals("admin")) return loginAdmin(password, jSessionID) ;
             
             Participant p = getParticipantFromUserID(userid) ;
             if (p != null) {
@@ -2057,7 +2062,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                 }
                 if (validPassword) {
                     result = newSessionHandle();          
-                    _liveSessions.put(result, p) ;
+                    _liveSessions.add(result, p, jSessionID) ;
                     EventLogger.audit(userid, EventLogger.audit.logon);
                 }
                 else {
@@ -2092,13 +2097,13 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
     
-    private String loginAdmin(String password) {
+    private String loginAdmin(String password, String jSessionID) {
         String handle ;
         String adminPassword = getAdminUserPassword();
         if (successful(adminPassword)) {
             if (password.equals(adminPassword)) {
                 handle = newSessionHandle();
-                _liveAdmins.add(handle) ;
+                _liveSessions.add(handle, null, jSessionID);
                 EventLogger.audit("admin", EventLogger.audit.logon);
             }
             else {
@@ -2111,21 +2116,21 @@ public class ResourceManager extends InterfaceBWebsideController {
         return handle ;
     }
 
-    // pseudo-logout by removing session handle from map of live users
+    // removes session handle from map of live users
     public void logout(String handle) {
-        Participant p = _liveSessions.remove(handle);
-        if (p != null) {
-            removeChainedCasesForParticpant(p);
-            EventLogger.audit(p.getUserID(), EventLogger.audit.logoff);
-        }
-        else if (_liveAdmins.contains(handle)) {         // maybe its admin
-            _liveAdmins.remove(handle);
-            EventLogger.audit("admin", EventLogger.audit.logoff);
+        UserConnection connection = _liveSessions.removeSessionHandle(handle);
+        if (connection != null) {
+            Participant p = connection.getParticipant();
+            if (p != null) {
+                removeChainedCasesForParticpant(p);
+            }
+            String id = (p != null) ? p.getUserID() : "admin";
+            EventLogger.audit(id, EventLogger.audit.logoff);
         }
     }
 
     public boolean isValidUserSession(String handle) {
-        return _liveSessions.containsKey(handle) || _liveAdmins.contains(handle);
+        return _liveSessions.containsSessionHandle(handle);
     }
 
     public String validateUserCredentials(String userid, String password, boolean admin) {
@@ -2154,15 +2159,13 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public Participant expireSession(String handle) {
+    public Participant expireSession(String jSessionID) {
         Participant p = null;
-        if (_liveAdmins.contains(handle)) {
-            _liveAdmins.remove(handle);
-            EventLogger.audit("admin", EventLogger.audit.expired);
-        }
-        else {
-            p = _liveSessions.remove(handle);
-            if (p != null) EventLogger.audit(p.getUserID(), EventLogger.audit.expired);
+        UserConnection connection = _liveSessions.removeSessionID(jSessionID);
+        if (connection != null) {
+            p = connection.getParticipant();
+            String id = (p != null) ? p.getUserID() : "admin";
+            EventLogger.audit(id, EventLogger.audit.expired);
         }
         return p;
     }
@@ -2204,11 +2207,12 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public void shutdown() {
         try {
-            for (Participant p : _liveSessions.values()) {
-                EventLogger.audit(p.getUserID(), EventLogger.audit.shutdown);
-            }
-            for (String handle : _liveAdmins) {
-                EventLogger.audit("admin", EventLogger.audit.shutdown);
+            for (UserConnection connection : _liveSessions.getAllSessions()) {
+                if (connection != null) {
+                    Participant p = connection.getParticipant();
+                    String id = (p != null) ? p.getUserID() : "admin";
+                    EventLogger.audit(id, EventLogger.audit.shutdown);
+                }
             }
             _connections.shutdown();
         }
@@ -2217,8 +2221,8 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
     }
 
-    public String serviceConnect(String userid, String password) {
-        return _connections.connect(userid, password) ;
+    public String serviceConnect(String userid, String password, long timeOutSeconds) {
+        return _connections.connect(userid, password, timeOutSeconds) ;
     }
 
     public void serviceDisconnect(String handle) {
@@ -2230,17 +2234,8 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    private String getParticipantSessionHandle(Participant p) {
-        for (String handle : _liveSessions.keySet()) {
-            Participant candidate = _liveSessions.get(handle);
-            if (candidate.getID().equals(p.getID()))
-                return handle;
-        }
-        return null;
-    }
-
     private Participant getParticipantWithSessionHandle(String handle) {
-        return _liveSessions.get(handle);
+        return _liveSessions.getParticipantWithSessionHandle(handle);
     }
 
     public Set<SpecificationData> getLoadedSpecs() {
@@ -2391,6 +2386,23 @@ public class ResourceManager extends InterfaceBWebsideController {
         catch (IOException ioe) {
             return null;
         }
+    }
+
+    public Set<WorkItemRecord> getChildrenFromCache(String parentID) {
+        Set<WorkItemRecord> cachedChildren = new HashSet<WorkItemRecord>();
+        List<WorkItemRecord> children = getChildren(parentID);
+        if (children != null) {
+            for (WorkItemRecord child : children) {
+                WorkItemRecord cachedChild = _workItemCache.get(child.getID());
+                if (cachedChild != null) {
+                    cachedChildren.add(cachedChild);
+                }
+                else {
+                    cachedChildren.add(child);
+                }
+            }
+        }
+        return cachedChildren;
     }
 
     public String unloadSpecification(YSpecificationID specID) throws IOException {
@@ -2558,12 +2570,20 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public String addRegisteredService(YAWLServiceReference service) throws IOException {
-        return _interfaceAClient.addYAWLService(service, getEngineSessionHandle());
+        String result = _interfaceAClient.addYAWLService(service, getEngineSessionHandle());
+        if (successful(result)) {
+            _connections.addUser(service.getServiceName(), service.getServicePassword());
+        }
+        return result;
     }
 
 
     public String removeRegisteredService(String id) throws IOException {
-        return _interfaceAClient.removeYAWLService(id, getEngineSessionHandle());
+        String result = _interfaceAClient.removeYAWLService(id, getEngineSessionHandle());
+        if (successful(result)) {
+            _connections.deleteUser(id);
+        }
+        return result;
     }
 
 
@@ -2573,18 +2593,56 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public String addExternalClient(YExternalClient client) throws IOException {
-        return _interfaceAClient.addClientAccount(client, getEngineSessionHandle());
+        String result = _interfaceAClient.addClientAccount(client, getEngineSessionHandle());
+        if (successful(result)) {
+            _connections.addUser(client.getUserID(), client.getPassword());
+        }
+        return result;
     }
 
 
     public String removeExternalClient(String id) throws IOException {
-        return _interfaceAClient.removeClientAccount(id, getEngineSessionHandle());
+        String result = _interfaceAClient.removeClientAccount(id, getEngineSessionHandle());
+        if (successful(result)) {
+            _connections.deleteUser(id);
+        }
+        return result;
     }
 
 
     public String updateExternalClient(String id, String password, String doco)
             throws IOException {
-        return _interfaceAClient.updateClientAccount(id, password, doco, getEngineSessionHandle());
+        String result = _interfaceAClient.updateClientAccount(id, password, doco,
+                getEngineSessionHandle());
+        if (successful(result)) {
+            _connections.updateUser(id, password);
+        }
+        return result;
+    }
+
+
+    // any services or client apps authorised to connect to the engine may connect
+    // to this service too.
+    private void setAuthorisedServiceConnections() {
+        Map<String, String> users = new Hashtable<String,String>();
+        try {
+            Set<YExternalClient> clients = getExternalClients();
+            if (clients != null) {
+                for (YExternalClient client : clients) {
+                    users.put(client.getUserID(), client.getPassword());
+                }
+            }
+            Set<YAWLServiceReference> services = getRegisteredServices();
+            if (services != null) {
+                for (YAWLServiceReference service : services) {
+                    users.put(service.getServiceName(), service.getServicePassword());
+                }
+            }
+            _connections.addUsers(users);
+        }
+        catch (IOException ioe) {
+            _log.error("IO Exception getting valid service-level users from engine.");
+        }
     }
 
 
@@ -2606,9 +2664,10 @@ public class ResourceManager extends InterfaceBWebsideController {
     public String getDataSchema(YSpecificationID specID) {
         String result = null ;
         try {
-            Map<String, Element> schemaMap = getSpecificationDataSchema(specID);
+      //      Map<String, Element> schemaMap = getSpecificationDataSchema(specID);
             SpecificationData specData = getSpecData(specID);
-            result = new DataSchemaBuilder(schemaMap).build(specData);
+     //       result = new DataSchemaBuilder(schemaMap).build(specData);
+                  result = new DataSchemaProcessor().createSchema(specData);
         }
         catch (Exception e) {
             _log.error("Could not retrieve schema for case parameters", e)  ;
@@ -2632,6 +2691,8 @@ public class ResourceManager extends InterfaceBWebsideController {
             Map<String, Element> schemaMap = getSpecificationDataSchema(specID);
             TaskInformation taskInfo = getTaskInformation(specID, wir.getTaskID(),
                                                           getEngineSessionHandle());
+      //      SpecificationData specData = this.getSpecData(specID);
+     //       result = new DataSchemaProcessor().createSchema(specData, taskInfo);
             result = new DataSchemaBuilder(schemaMap).build(taskInfo);
         }
         catch (Exception e) {

@@ -169,8 +169,6 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
             }
             return output.toString();
         }
-        if (_debug) {
-        }
         return "<success/>";
     }
 

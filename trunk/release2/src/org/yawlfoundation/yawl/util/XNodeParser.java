@@ -3,6 +3,11 @@ package org.yawlfoundation.yawl.util;
 import org.jdom.Document;
 import org.jdom.Element;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Author: Michael Adams
  * Creation Date: 22/03/2010
@@ -10,13 +15,22 @@ import org.jdom.Element;
 public class XNodeParser {
 
     private boolean _check;                                         // validation flag
+    private Pattern _commentPattern;
+    private Pattern _commentSplitter;
+    private Pattern _attributeSplitter;
+    private CommentCutter _commentCutter;
 
+    
     public XNodeParser() {
-        _check = false;
+        this(false);
     }
 
     public XNodeParser(boolean check) {
         _check = check;
+        _commentPattern = Pattern.compile("^<!--\\s*.*?\\s*-->");
+        _commentSplitter = Pattern.compile("<!--\\s*|\\s*-->");
+        _attributeSplitter = Pattern.compile("\\s*=\\s*\"|\\s*\"\\s*");
+        _commentCutter = new CommentCutter();
     }
 
 
@@ -29,7 +43,7 @@ public class XNodeParser {
         if (s == null) return null;
 
         // remove any header
-        if (s.startsWith("<?xml")) s = s.substring(s.indexOf("?>") + 1);
+        if (s.startsWith("<?xml")) s = s.substring(s.indexOf("?>") + 2).trim();
 
         // if well-formedness check required use JDOM to check it
         if (_check && (JDOMUtil.stringToElement(s) == null)) return null;
@@ -48,32 +62,39 @@ public class XNodeParser {
 
 
     private XNode parse(String s, int depth, XNode parent) {
-         XNode node = null;
+        XNode node = null;
 
         while (s.length() > 0) {
+            s = s.trim();
+
+            // get any comments above the tag
+            List<String> comments = _commentCutter.cut(s);
+            s = _commentCutter.getText();
 
             // get the text inside the opening tag and use it to create a new XNode
             String tagDef = s.trim().substring(1, s.indexOf('>'));
-            node = newNode(tagDef);
-            node.setDepth(depth);
+            node = newNode(tagDef, depth, comments);
 
             // if this element is not fully enclosed in a single tag
             if (! tagDef.endsWith("/")) {                     // '>' is already removed
 
                 // get entire inner string to the matching closing tag (exclusive) and the
                 // remaining text (if any)
-                String content = getContent(s, tagDef);
-                s = getSiblingText(s, tagDef, content);
+                String content = getContent(s, tagDef, node.getName());
+                s = getSiblingText(s, tagDef, content, node.getName());
 
                 // if contents starts with a tag
-                if (content.startsWith("<")) {
+                if (content.trim().startsWith("<")) {
                     node.addChild(parse(content, depth + 1, node));      // recurse
                 }
                 else {
                     node.setText(content);
                 }
-                if ((parent != null) && (s.length() > 0)) parent.addChild(node);
             }
+            else {
+                s = getSiblingText(s, tagDef, null, node.getName());
+            }
+            if ((parent != null) && (s.length() > 0)) parent.addChild(node);
         }
         return node;
     }
@@ -84,39 +105,87 @@ public class XNodeParser {
      * @param s the inner contents of an opening tag (ie. name + attributes)
      * @return the created node
      */
-    private XNode newNode(String s) {
+    private XNode newNode(String s, int depth, List<String> comments) {
         if (s.endsWith("/")) s = s.substring(0, s.length() - 1);  // lop off '/', if any
 
-        String[] parts = s.split("\\s+");                         // split on whitespace
-        XNode node = new XNode(parts[0]);                  // parts[0] is the tag's name
+        String name = getFirstWord(s.trim());
+        XNode node = new XNode(name);                  // parts[0] is the tag's name
+        node.setDepth(depth);
 
         // if there are any attributes defined, add them to the node
-        for (int i=1; i<parts.length; i++) {
-            String[] attribute = parts[i].split("=");
-            node.addAttribute(attribute[0], dequote(attribute[1]));
+        String attributes = strSubtract(s, name).trim();
+        if (attributes.length() > 0) {
+            String[] attributeParts = _attributeSplitter.split(attributes);
+            for (int i=0; i < attributeParts.length - 1; i=i+2) {
+                node.addAttribute(attributeParts[i].trim(), attributeParts[i+1].trim());
+            }    
         }
+
+        if (comments != null) node.addComments(comments);           // add any comments
+
         return node;
     }
 
-    
-    private String dequote(String s) {
-        return s.substring(1, s.lastIndexOf('"'));          // remove surrounding quotes
+
+    private String getFirstWord(String s) {
+        int firstSpace = s.indexOf(" ");
+        return (firstSpace > -1) ? s.substring(0, firstSpace) : s;
+    }
+
+    private String strSubtract(String subtractee, String subtractor) {
+        int i = subtractee.indexOf(subtractor);
+        return (i > -1) ? subtractee.substring(i + subtractor.length()) : subtractee;
     }
 
 
-    private String getContent(String s, String tag) {
+    private String getContent(String s, String tag, String nodeName) {
         int start = s.indexOf(makeTag(tag, true)) + 2 + tag.length();
-        int end = s.indexOf(makeTag(tag, false));
+        int end = s.indexOf(makeTag(nodeName, false));
         return s.substring(start, end);
     }
 
-    private String getSiblingText(String s, String tag, String content) {
-        String del = makeTag(tag, true) + content + makeTag(tag, false);
-        return s.replaceFirst(del, "").trim();
+    private String getSiblingText(String s, String tag, String content, String nodeName) {
+        String del = (content != null) ?
+                     makeTag(tag, true) + content + makeTag(nodeName, false) :
+                     "<" + tag + ">";
+        return strSubtract(s, del).trim();
     }
 
     private String makeTag(String name, boolean opening) {
         String start = opening ? "<" : "</";
         return start + name + ">";
+    }
+
+
+    class CommentCutter {
+        String cutText = null;
+        List<String> comments = null;
+
+        public CommentCutter() { }
+
+        public List<String> cut(String s) {
+            comments = null;
+            if (s.startsWith("<!--")) {
+                comments = new ArrayList<String>();
+                while (s.startsWith("<!--")) {
+                    Matcher m = _commentPattern.matcher(s);
+                    if (m.find()) {
+                        comments.add(extractComment(m.group()));
+                        s = m.replaceFirst("").trim();
+                    }
+                }
+            }
+            cutText = s;
+
+            return comments;
+        }
+
+        public String getText() { return cutText; }
+
+        public List<String> getComments() { return comments; }
+
+        private String extractComment(String rawComment) {
+            return _commentSplitter.split(rawComment)[1];
+        }
     }
 }

@@ -2,8 +2,6 @@ package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
-import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
-import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.LogMiner;
 
@@ -52,8 +50,10 @@ public class ResourceLogGateway extends HttpServlet {
         else if (action.equalsIgnoreCase("connect")) {
            String userid = req.getParameter("userid");
            String password = req.getParameter("password");
-           if (_rm != null)
-               result = _rm.serviceConnect(userid, password);
+           if (_rm != null) {
+               int interval = req.getSession().getMaxInactiveInterval();
+               result = _rm.serviceConnect(userid, password, interval);
+           }
            else result = _noService;
        }
        else if (action.equalsIgnoreCase("checkConnection")) {
@@ -72,8 +72,21 @@ public class ResourceLogGateway extends HttpServlet {
                boolean fullName = (fnStr != null) && fnStr.equalsIgnoreCase("true");
                result = _logDB.getWorkItemEvents(itemID, fullName);
            }
-
-           else result = _noAction; 
+           else if (action.equals("getSpecificationXESLog")) {
+               String identifier = req.getParameter("identifier") ;
+               String version = req.getParameter("version") ;
+               String uri = req.getParameter("uri") ;
+               YSpecificationID specID = new YSpecificationID(identifier, version, uri);
+               result = _logDB.getSpecificationXESLog(specID);
+           }
+           else if (action.equals("getMergedXESLog")) {
+               String identifier = req.getParameter("identifier") ;
+               String version = req.getParameter("version") ;
+               String uri = req.getParameter("uri") ;
+               YSpecificationID specID = new YSpecificationID(identifier, version, uri);
+               result = _logDB.getMergedXESLog(specID);
+           }
+           else result = _noAction;
        }
        else throw new IOException("Invalid or disconnected session handle.");
 

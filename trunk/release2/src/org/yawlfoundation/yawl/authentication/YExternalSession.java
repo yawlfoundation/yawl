@@ -11,8 +11,8 @@ public class YExternalSession extends YSession {
 
     private YExternalClient _client;                          // the connected client
 
-    public YExternalSession(YExternalClient client) {
-        super();
+    public YExternalSession(YExternalClient client, long timeOutSeconds) {
+        super(timeOutSeconds);
         _client = client ;
     }
 

@@ -12,7 +12,6 @@ import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
-import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
 import javax.faces.FacesException;
 import javax.faces.event.ValueChangeEvent;
@@ -737,7 +736,7 @@ public class participantData extends AbstractPageBean {
         String password = (String) txtNewPassword.getPassword();
         if (password.length() > 0) {
             try {
-                p.setPassword(PasswordEncryptor.encrypt(password));
+                p.setPassword(password, true);
             }
             catch (Exception e) {
                 msgPanel.warn("Could not change password - encryption service unavailable.");
@@ -771,27 +770,11 @@ public class participantData extends AbstractPageBean {
         if (updating && (password.length() == 0) && (confirm.length() == 0))
             return result ;
 
-        if (password.length() == 0) {
-            msgPanel.error("ERROR: No password entered.");
-            result = false ;
+        String errMsg = getApplicationBean().checkPassword(password, confirm);
+        if (errMsg != null) {
+            msgPanel.error("ERROR: " + errMsg);
         }
-        else {
-            if (password.length() < 4) {
-                msgPanel.error("ERROR: Password must contain at least 4 characters.");
-                result = false ;
-            }
-
-            if (password.indexOf(" ") > -1) {
-                msgPanel.error("ERROR: Password cannot contain spaces.");
-                result = false;
-            }
-
-            if (! password.equals(confirm)) {
-                msgPanel.error("ERROR: Password and confirmation are different.");
-                result = false;
-            }
-        }
-        return result ;
+        return (errMsg == null) ;
     }
 
 

@@ -2,7 +2,7 @@
 <div 
      xmlns:f="http://java.sun.com/jsf/core"
      xmlns:ui="http://www.sun.com/web/ui">
-    <f:subview id="pfHeader">
+    <f:subview id="pfHeader" rendered="#{SessionBean.showYAWLBanner}">
         <f:verbatim>
             <table id="form1:headtable1" style="height: 69px" width="100%"
                    cellspacing="0" cellpadding="0">

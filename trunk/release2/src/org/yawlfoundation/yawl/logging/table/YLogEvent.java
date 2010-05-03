@@ -64,8 +64,8 @@ public class YLogEvent {
         return timestamp;
     }
 
-    public String getTimeStampString() {
-        return new SimpleDateFormat("yyyy-MM-dd H:mm:ss").format(new Date(timestamp));        
+    public String getTimestampString() {
+        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date(timestamp));
     }
 
     public void setTimestamp(long timestamp) {
