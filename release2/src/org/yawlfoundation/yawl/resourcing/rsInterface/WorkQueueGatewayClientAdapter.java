@@ -314,6 +314,13 @@ public class WorkQueueGatewayClientAdapter {
     }
 
 
+    public Set<WorkItemRecord> getWorkItemChildren(String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        String xml = _wqclient.getWorkItemChildren(itemID, handle);
+        return _marshaller.unmarshallWorkItemRecords(successCheck(xml));
+    }   
+
+
     public Set<YParameter> getWorkItemParameters(String itemID, String handle)
             throws IOException, ResourceGatewayException {
         String result = successCheck(_wqclient.getWorkItemParameters(itemID, handle));
@@ -361,9 +368,10 @@ public class WorkQueueGatewayClientAdapter {
     }
 
     
-    public String startItem(String pid, String itemID, String handle)
+    public WorkItemRecord startItem(String pid, String itemID, String handle)
             throws IOException, ResourceGatewayException {
-        return successCheck(_wqclient.startItem(pid, itemID, handle));
+        String xml = successCheck(_wqclient.startItem(pid, itemID, handle));
+        return _marshaller.unmarshallWorkItemRecord(xml);
     }
 
 

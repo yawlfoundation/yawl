@@ -220,6 +220,7 @@ public class pfOrgData extends AbstractFragmentBean {
     private ResourceManager _rm = getApplicationBean().getResourceManager() ;
     private ResourceDataSet orgDataSet = _rm.getOrgDataSet();
 
+
     public void lbxItems_processValueChange(ValueChangeEvent event) {
         _sb.setSourceTabAfterListboxSelection();
     }
@@ -358,7 +359,7 @@ public class pfOrgData extends AbstractFragmentBean {
         else if (activeTab.equals("tabOrgGroup"))
             attrib = orgDataSet.getOrgGroup(id);
 
-        if (attrib != null) {
+        if ((attrib != null) && isValidNameChange(attrib)) {
             String belongsToID = (String) cbbBelongs.getSelected();
             if (hasCyclicReferences(attrib, belongsToID)) return false;
 
@@ -427,7 +428,7 @@ public class pfOrgData extends AbstractFragmentBean {
     public boolean addNewItem(String activeTab) {
         String newName = (String) txtName.getText();
         if (newName == null) {
-            msgPanel.error("Please enter a name for the new Item");
+            msgPanel.error("Please enter a name for the new Item.");
             return false;
         }
 
@@ -442,7 +443,7 @@ public class pfOrgData extends AbstractFragmentBean {
                 lbxItems.setSelected(role.getID());
             }
             else {
-                msgPanel.error("There is already a role by that name - please choose another.");
+                addDuplicationError("a Role");
                 return false;
             }
         }
@@ -454,7 +455,7 @@ public class pfOrgData extends AbstractFragmentBean {
                 lbxItems.setSelected(capability.getID());
             }
             else {
-                msgPanel.error("There is already a capability by that name - please choose another.");
+                addDuplicationError("a Capability");
                 return false;
             }
         }
@@ -468,7 +469,7 @@ public class pfOrgData extends AbstractFragmentBean {
                 lbxItems.setSelected(position.getID());
             }
             else {
-                msgPanel.error("There is already a position by that name - please choose another.");
+                addDuplicationError("a Position");
                 return false;
             }
         }
@@ -483,7 +484,7 @@ public class pfOrgData extends AbstractFragmentBean {
                 lbxItems.setSelected(orgGroup.getID());
             }
             else {
-                msgPanel.error("There is already an org group by that name - please choose another.");
+                addDuplicationError("an Org Group");
                 return false;
             }
         }
@@ -493,10 +494,55 @@ public class pfOrgData extends AbstractFragmentBean {
     }
 
 
+    private boolean isValidNameChange(AbstractResourceAttribute attrib) {
+        String name = (String) txtName.getText();
+        if (attrib instanceof Capability) {
+            if (! name.equals(((Capability) attrib).getCapability())) {  // if name changed
+                if (orgDataSet.isKnownCapabilityName(name)) {
+                    addDuplicationError("a Capability") ;
+                    return false;
+                }
+            }
+        }
+        else if (attrib instanceof Role) {
+            if (! name.equals(((Role) attrib).getName())) {
+                if (orgDataSet.isKnownRoleName(name)) {
+                    addDuplicationError("a Role") ;
+                    return false;
+                }
+            }
+        }
+        else if (attrib instanceof Position) {
+            if (! name.equals(((Position) attrib).getTitle())) {
+                if (orgDataSet.isKnownPositionName(name)) {
+                    addDuplicationError("a Position") ;
+                    return false;
+                }
+            }
+        }
+        else if (attrib instanceof OrgGroup) {
+            if (! name.equals(((OrgGroup) attrib).getGroupName())) {
+                if (orgDataSet.isKnownOrgGroupName(name)) {
+                    addDuplicationError("an Org Group") ;
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+
     private void setCommonFields(AbstractResourceAttribute attrib) {
         attrib.setDescription((String) txtDesc.getText());
         attrib.setNotes((String) txtNotes.getText());
     }
+
+
+    private void addDuplicationError(String type) {
+        String dupErrMsg = "There is already %s by that name - please choose another.";
+        msgPanel.error(String.format(dupErrMsg, type)) ;
+    }
+
 
     public void clearTextFields() {
         txtDesc.setText("");

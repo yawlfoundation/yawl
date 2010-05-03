@@ -351,7 +351,7 @@ public class externalClients extends AbstractPageBean {
             Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
             String result = _sb.removeExternalClient(selectedRowIndex);
             if (result.startsWith("<fail")) {
-                msgPanel.error(msgPanel.format(result));
+                msgPanel.error(result);
             }
             else msgPanel.success("Client successfully removed.");
         }
@@ -448,11 +448,11 @@ public class externalClients extends AbstractPageBean {
             msgPanel.warn(getMode().name() + " Client Account: Please enter values in all fields.");
             return false;
         }
-        if (! (txtPassword.getText().equals(txtConfirmPassword.getText()))) {
-            msgPanel.error("Password and Confirm Password are different.");
-            return false;
-        }
-        return true;
+        String errMsg = getApplicationBean().checkPassword((String)txtPassword.getText(),
+                (String) txtConfirmPassword.getText());
+        if (errMsg != null) msgPanel.error(errMsg);
+
+        return (errMsg == null);
     }
 
 

@@ -1,6 +1,5 @@
 package org.yawlfoundation.yawl.resourcing.datastore.eventlog;
 
-import org.jdom.Element;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.text.SimpleDateFormat;
@@ -36,7 +35,7 @@ public abstract class BaseEvent {
     public void set_timeStamp(long timeStamp) {_timeStamp = timeStamp; }
 
     public String getTimeStampString() {
-        return new SimpleDateFormat("yyyy-MM-dd H:mm:ss").format(new Date(_timeStamp));
+        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date(_timeStamp));
     }
 
     

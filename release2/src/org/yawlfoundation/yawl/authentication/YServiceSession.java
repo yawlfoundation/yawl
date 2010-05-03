@@ -14,8 +14,8 @@ public class YServiceSession extends YSession {
 
     private YAWLServiceReference _service;                      // the connected service
 
-    public YServiceSession(YAWLServiceReference service) {
-        super();
+    public YServiceSession(YAWLServiceReference service, long timeOutSeconds) {
+        super(timeOutSeconds);
         _service = service ;
     }
 

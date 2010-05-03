@@ -10,7 +10,7 @@ import java.util.Map;
 
 /**
  * A utility for building xml strings. Handles elements, attributes, comments and text
- * (and that's all - no edge cases).
+ * (and that's all - no edge cases). Comments are printed _above_ the xml tag.
  *
  * NOTE: To keep things simple, while this class allows a node to have both child
  * nodes and text, where both have values set the child nodes have precedence (ie.
@@ -30,7 +30,7 @@ public class XNode {
     private Map<String, String> _attributes;
     private String _name;
     private String _text;
-    private String _comment;
+    private List<String> _comments;
     private int _depth = 0;
     private static int _defTabSize = 2;
 
@@ -114,8 +114,31 @@ public class XNode {
         return addChild(new XNode(name, text));
     }
 
+    public boolean removeChild(XNode child) {
+        return (_children != null) && _children.remove(child);
+    }
+
     /**************************************************************************/
 
+    public void addComment(String comment) {
+        if (_comments == null) _comments = new ArrayList<String>();
+        _comments.add(comment);
+    }
+
+    public void addComments(List<String> comments) {
+        if (_comments == null) _comments = new ArrayList<String>();
+        _comments.addAll(comments);
+    }
+
+    public boolean hasComments() {
+        return (_comments != null);
+    }
+
+    public List<String> getComments() {
+        return _comments;
+    }
+
+    /**************************************************************************/
 
     public void setText(String text) {
         _text = text;
@@ -162,6 +185,15 @@ public class XNode {
         }
         return null;
     }
+
+    /* returns the first child */
+    public XNode getChild() {
+        if ((_children != null) && (_children.size() > 0)) {
+            return _children.get(0);
+        }
+        return null;
+    }
+
 
     public List<XNode> getChildren() {
         return (_children != null) ? _children : new ArrayList<XNode>();
@@ -227,8 +259,9 @@ public class XNode {
     public void setDepth(int depth) {
         _depth = depth;
         if (hasChildren()) {
+            depth++;
             for (XNode child : _children) {
-                child.setDepth(++depth);
+                child.setDepth(depth);
             }
         }
     }
@@ -239,6 +272,22 @@ public class XNode {
 
     public boolean hasChildren(String name) {
         return getChildren(name).size() > 0 ;
+    }
+
+    public int getAttributeCount() {
+        return (_attributes == null) ? 0 : _attributes.size();
+    }
+
+    public int getChildCount() {
+        return (_children == null) ? 0 : _children.size();
+    }
+
+    public int getCommentCount() {
+        return (_comments == null) ? 0 : _comments.size();
+    }
+
+    public int getTextLength() {
+        return (_text == null) ? 0 : _text.length();
     }
 
 
@@ -275,15 +324,17 @@ public class XNode {
     }
 
     private String toString(boolean pretty, int offset, int tabSize, boolean header) {
-        StringBuilder s = new StringBuilder();
+        StringBuilder s = new StringBuilder(getInitialToStringSize());
         if (header) s.append(_header).append(newline);
         String tabs = getIndent(offset, tabSize);
         if (pretty) s.append(tabs);
+        if (hasComments()) s.append(printComments(pretty, tabs));
         s.append("<").append(_name);
 
         if (_attributes != null) {
             for (String key : _attributes.keySet()) {
-                s.append(String.format(" %s=\"%s\"", key, _attributes.get(key)));
+                s.append(" ").append(key).append("=\"");
+                s.append(_attributes.get(key)).append("\"");
             }
         }
 
@@ -311,6 +362,14 @@ public class XNode {
     }
 
 
+    private int getInitialToStringSize() {
+
+        // Estimate after some testing: 15 for tag start & finish (each) + 30 for text +
+        // 20 for each attribute + 100 for each child
+        return 60 + (20 * getAttributeCount()) + (100 * getChildCount());
+    }
+
+
     public Element toElement() {
         return JDOMUtil.stringToElement(toString());
     }
@@ -328,6 +387,20 @@ public class XNode {
             tabs[i] = ' ';
         }
         return new String(tabs);
+    }
+
+
+    private String printComments(boolean pretty, String tabs) {
+        if (hasComments()) {
+            StringBuilder s = new StringBuilder(_comments.size() * 30);
+            for (String comment : _comments) {
+                if (pretty) s.append(tabs);
+                s.append("<!-- ").append(comment).append(" -->");
+                if (pretty) s.append(newline);
+            }
+            return s.toString();
+        }
+        return "";
     }
 
 }

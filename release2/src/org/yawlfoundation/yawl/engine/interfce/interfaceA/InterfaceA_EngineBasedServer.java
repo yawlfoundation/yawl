@@ -103,7 +103,8 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
 
             if (action != null) {
                 if ("connect".equals(action)) {
-                    msg.append(_engine.connect(userID, password));
+                    int interval = request.getSession().getMaxInactiveInterval();
+                    msg.append(_engine.connect(userID, password, interval));
                 }
                 else if ("checkConnection".equals(action)) {
                     msg.append(_engine.checkConnectionForAdmin(sessionHandle));

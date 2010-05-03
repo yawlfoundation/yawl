@@ -18,6 +18,7 @@
         <property name="_caseID" column="caseID" access="field"/>
         <property name="_taskID" column="taskID" access="field"/>
         <property name="_uniqueID" column="uniqueID" access="field"/>
+        <property name="_taskName" column="taskName" access="field"/>
         <property name="_extendedAttributes" column="ExtendedAttributes" access="field" type="text"/>
         <property name="_allowsDynamicCreation" column="canCreate" access="field"/>
         <property name="_codelet" column="codelet" access="field"/>

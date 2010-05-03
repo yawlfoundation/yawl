@@ -165,6 +165,13 @@ public class DataSchemaBuilder {
         Element parent = new Element(typeDefn.getName(), defNS);
         cloneContent(parent, typeDefn, defNS);
         udType.addContent(parent);
+
+        // set min & max occurs for this elements (if defined)
+        String minOccurs = base.getAttributeValue("minOccurs");
+        String maxOccurs = base.getAttributeValue("maxOccurs");
+        if (minOccurs != null) udType.setAttribute("minOccurs", minOccurs);
+        if (maxOccurs != null) udType.setAttribute("maxOccurs", maxOccurs);
+        
         return udType;
     }
 

@@ -215,6 +215,7 @@ public class Marshaller {
 
             wir.setExtendedAttributes(unmarshalWorkItemAttributes(workItemElement));
             wir.setUniqueID(workItemElement.getChildText("uniqueid"));
+            wir.setTaskName(workItemElement.getChildText("taskname"));
             wir.setAllowsDynamicCreation(workItemElement.getChildText(
                                                               "allowsdynamiccreation"));
             wir.setRequiresManualResourcing(workItemElement.getChildText(

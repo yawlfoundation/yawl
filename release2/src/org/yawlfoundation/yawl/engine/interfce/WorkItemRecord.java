@@ -56,6 +56,7 @@ public class WorkItemRecord implements Cloneable {
     private String _caseID;
     private String _taskID;
     private String _uniqueID;                            // used by PDF Forms service
+    private String _taskName;                            // the unmodified task name
     private String _allowsDynamicCreation;
     private String _requiresManualResourcing;
     private String _codelet;
@@ -156,6 +157,8 @@ public class WorkItemRecord implements Cloneable {
     public void setTaskID(String taskID) { _taskID = taskID; }
 
     public void setUniqueID(String uniqueID) { _uniqueID = uniqueID;  }
+
+    public void setTaskName(String name) { _taskName = name;  }
 
     public void setAllowsDynamicCreation(String allows) {
         _allowsDynamicCreation = allows ;
@@ -323,24 +326,11 @@ public class WorkItemRecord implements Cloneable {
     public Element getUpdatedData() { return _dataListUpdated; }
 
     public String getIDForDisplay() {
-        return _caseID + ":" + getTaskIDForDisplay() ;
-    }
-
-    public String getTaskIDForDisplay() {
-        String exSuffix = getTaskName();
-        return exSuffix.replaceAll("_", " ");
+        return _caseID + ":" + _taskName ;
     }
 
     public String getTaskName() {
-        String result;
-        char c = _taskID.charAt(0);
-        if ((c >= '0') && (c <= '9')) {                        // taskid startswith digit
-            result = _taskID.substring(_taskID.indexOf("_") + 1);        // pre b7.1 task
-        }
-        else {
-            result = _taskID.substring(0, _taskID.lastIndexOf("_"));     // post b7.1
-        }
-        return result;
+        return _taskName;
     }
 
     // returns the case id of the root ancestor case
@@ -391,6 +381,7 @@ public class WorkItemRecord implements Cloneable {
            .append(StringUtil.wrap(_caseID, "caseid"))
            .append(StringUtil.wrap(_taskID, "taskid"))
            .append(StringUtil.wrap(_uniqueID, "uniqueid"))
+           .append(StringUtil.wrap(_taskName, "taskname"))
            .append(StringUtil.wrap(_allowsDynamicCreation, "allowsdynamiccreation"))
            .append(StringUtil.wrap(_requiresManualResourcing, "requiresmanualresourcing"))
            .append(StringUtil.wrap(_codelet, "codelet"))

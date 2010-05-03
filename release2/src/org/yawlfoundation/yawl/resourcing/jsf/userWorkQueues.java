@@ -346,6 +346,7 @@ public class userWorkQueues extends AbstractPageBean {
         }
         _sb.checkLogon();                                  // check session still live
         _sb.setActivePage(ApplicationBean.PageRef.userWorkQueues);
+        _sb.showMessagePanel();                                   // show msgs (if any)
 
         // check flags & take post-roundtrip action if any are set
         if (_sb.isDelegating()) postDelegate();
@@ -353,7 +354,6 @@ public class userWorkQueues extends AbstractPageBean {
         else if (_sb.isCustomFormPost() || _sb.isWirEdit()) postFormDisplay();
         else if (_sb.isAddInstance()) postAddInstance();
 
-        _sb.showMessagePanel();                                   // show msgs (if any)
 
         // return to same tab on a refresh
         if (_sb.getSourceTab() != null) {
@@ -461,11 +461,11 @@ public class userWorkQueues extends AbstractPageBean {
             if (paramName != null) {
                 _sb.setAddInstanceParamName(paramName);
                 _sb.setAddInstanceItemID(wir.getID());
-                _sb.setAddInstanceHeader(wir.getTaskIDForDisplay());
+                _sb.setAddInstanceHeader(wir.getTaskName());
                 return "addInstance";
             }
             else
-                msgPanel.error("Could not retrieve task parameter from Engine for new instance creation");
+                msgPanel.error("Could not retrieve task parameter from Engine for new instance creation.");
         }
         return null;
     }
@@ -526,7 +526,7 @@ public class userWorkQueues extends AbstractPageBean {
         // maybe the wir was part of a cancellation set and now it's gone
         if (wir == null) {
             msgPanel.error("Cannot view item contents - it appears that the " +
-                           "selected item has been removed or cancelled. " +
+                           "selected item may have been removed or cancelled. " +
                            "Please see the log files for details.");
             return null;
         }
@@ -535,7 +535,7 @@ public class userWorkQueues extends AbstractPageBean {
         String result = form.display(wir);
         _sb.setFormViewerInstance(form);
         if (result.startsWith("<failure>")) {
-            msgPanel.error(msgPanel.format(result));
+            msgPanel.error(result);
             return null;
         }
         else if (result.startsWith("http")) {                // custom form
@@ -709,7 +709,8 @@ public class userWorkQueues extends AbstractPageBean {
     private void postReallocate() {
         if (_sb.isReallocating()) {
             Participant pFrom = _sb.getParticipant();
-            String userIDTo = _sb.getSelectUserListChoice() ;        // this is the p-id
+            Object selection = _sb.getSelectUserListBoxSelections();
+            String userIDTo = (String) selection;
             Participant pTo = _rm.getOrgDataSet().getParticipant(userIDTo) ;
             WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
 
@@ -725,7 +726,7 @@ public class userWorkQueues extends AbstractPageBean {
                msgPanel.error("Failed to reallocate workitem.");
 
             _sb.setReallocating(false);                              // reset flag
-            forceRefresh() ;                                         // to show message
+            if (msgPanel.hasMessage()) forceRefresh();               // to show message
         }
     }
 
@@ -734,7 +735,7 @@ public class userWorkQueues extends AbstractPageBean {
     private void postDelegate() {
         if (_sb.isDelegating()) {
             Participant pFrom = _sb.getParticipant();
-            String pIDTo = _sb.getSelectUserListChoice() ;        // this is the p-id
+            String pIDTo = (String) _sb.getSelectUserListBoxSelections() ;  // this is the p-id
             Participant pTo =  _rm.getOrgDataSet().getParticipant(pIDTo) ;
             WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.ALLOCATED);
 
@@ -744,7 +745,7 @@ public class userWorkQueues extends AbstractPageBean {
                 msgPanel.error("Failed to delegate workitem");
 
             _sb.setDelegating(false);
-            forceRefresh() ;                                         // to show message
+            if (msgPanel.hasMessage()) forceRefresh();               // to show message
         }
     }
 
@@ -762,9 +763,9 @@ public class userWorkQueues extends AbstractPageBean {
         }
         _sb.resetPostFormDisplay();
         if (! msg.startsWith("<success/>")) {
-            msgPanel.error(msgPanel.format(msg));
-            forceRefresh();
+            msgPanel.error(msg);
         }
+        if (msgPanel.hasMessage()) forceRefresh();
     }
 
 
@@ -786,6 +787,7 @@ public class userWorkQueues extends AbstractPageBean {
                             "Problem reading parameter value from New Instance form.");
 
         _sb.clearAddInstanceParam();
+        if (msgPanel.hasMessage()) forceRefresh();
     }
 
 
@@ -794,7 +796,7 @@ public class userWorkQueues extends AbstractPageBean {
         if (_rm.successful(result))
             _sb.removeWarnedForNonEdit(wir.getID());
         else
-            msgPanel.error(msgPanel.format(result)) ;
+            msgPanel.error(result) ;
     }
 
 

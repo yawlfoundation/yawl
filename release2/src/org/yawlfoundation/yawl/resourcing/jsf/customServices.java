@@ -365,7 +365,7 @@ public class customServices extends AbstractPageBean {
             msgPanel.error("No service selected to remove.");
         }
         catch (Exception e) {
-            msgPanel.error("Could not remove service. See logs for details");
+            msgPanel.error("Could not remove service. See logs for details.");
             e.printStackTrace();
         }
         return null;

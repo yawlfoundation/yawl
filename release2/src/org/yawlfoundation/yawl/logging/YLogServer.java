@@ -9,19 +9,16 @@
 package org.yawlfoundation.yawl.logging;
 
 import org.apache.log4j.Logger;
-import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
-import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.instance.InstanceCache;
 import org.yawlfoundation.yawl.engine.instance.WorkItemInstance;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.logging.table.*;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.XNode;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -36,8 +33,7 @@ import java.util.List;
  *  @version 2.0
  */
 
-public class
-        YLogServer {
+public class YLogServer {
 
     private static YLogServer _me ;
     private YPersistenceManager _pmgr ;
@@ -456,6 +452,62 @@ public class
     }
 
 
+    public XNode getXESLog(YSpecificationID specID) {
+        if (_pmgr != null) {
+            try {
+                YLogSpecification spec = getSpecification(specID);
+                if (spec != null) {
+                    XNode cases = new XNode("cases");
+                    for (Object o : getNetInstanceObjects(spec.getRootNetID())) {
+                        YLogNetInstance logNetInstance = (YLogNetInstance) o;
+                        XNode caseNode = cases.addChild("case");
+                        caseNode.addAttribute("id", logNetInstance.getEngineInstanceID());
+                        addNetInstance(caseNode, logNetInstance);
+                    }
+                    return cases;
+                }    
+            }
+            catch (YPersistenceException ype) {
+               _log.error(ype.getMessage(), ype);
+            }
+        }
+        return null;
+    }
+
+
+    private void addNetInstance(XNode node, YLogNetInstance logNetInstance)
+            throws YPersistenceException {
+
+        XNode netInstance = node.addChild("netinstance");
+
+        // for each task instance in the net
+        for (Object o : getTaskInstanceObjects(logNetInstance.getNetInstanceID())) {
+            YLogTaskInstance logTaskInstance = (YLogTaskInstance) o;
+            YLogTask task = getTask(logTaskInstance.getTaskID());
+            XNode taskInstance = netInstance.addChild("taskinstance");
+            taskInstance.addChild("taskname", task.getName());
+
+            // for each event for the task
+            for (Object o1 : getInstanceEventObjects(logTaskInstance.getTaskInstanceID())) {
+                YLogEvent logEvent = (YLogEvent) o1;
+                if (! logEvent.getDescriptor().equals("DataValueChange")) {
+                    XNode event = new XNode("event");
+                    event.addChild("descriptor", logEvent.getDescriptor());
+                    event.addChild("timestamp", logEvent.getTimestampString());
+                    taskInstance.addChild(event);
+                }
+            }
+
+            // now do any sub-nets
+            YLogNetInstance logSubNetInstance =
+                     getSubNetInstance(logTaskInstance.getTaskInstanceID());
+            if (logSubNetInstance != null) {
+                addNetInstance(node, logSubNetInstance);     // recurse
+            }
+        }
+    }
+
+
     public String getCompleteCaseLogsForSpecification(long specKey) {
         String result ;
          if (_pmgr != null) {
@@ -560,6 +612,13 @@ public class
     }
 
 
+    public String getSpecificationXESLog(YSpecificationID specid) {
+        XNode cases = getXESLog(specid);
+        if (cases != null) {
+            return new YXESBuilder().buildLog(specid, cases);
+        }
+        return "";
+    }
 
     /**********************************************************************/
 
@@ -595,7 +654,7 @@ public class
         // recurse for sub-nets
         if (task.getChildNetID() > -1) {
             YLogNet childNet = getNet(task.getChildNetID());
-            YLogNetInstance childInstance = this.getNetInstance(caseID);
+            YLogNetInstance childInstance = getNetInstance(caseID);
             xml.append(getFullyPopulatedNetInstance(childInstance, childNet, false));
         }
         xml.append("</taskinstance>");
@@ -675,6 +734,16 @@ public class
     }
 
 
+    private List getNets(long specKey) throws YPersistenceException {
+        if (_pmgr != null) {
+            return _pmgr.createQuery("from YLogNet as n where n.specKey=:specKey")
+                    .setLong("specKey", specKey)
+                    .list();
+        }
+        else return null;
+    }
+
+
     private YLogNetInstance getNetInstance(String caseID) throws YPersistenceException {
         if (_pmgr != null) {
             String quotedCaseID = String.format("'%s'", caseID);
@@ -683,6 +752,37 @@ public class
         }
         else return null;
     }
+
+    private YLogNetInstance getNetInstance(long key) throws YPersistenceException {
+        if (_pmgr != null) {
+            return (YLogNetInstance) _pmgr.selectScalar(
+                    "YLogNetInstance", "netID", key);
+        }
+        else return null;
+    }
+
+    private YLogNetInstance getSubNetInstance(long key) throws YPersistenceException {
+        if (_pmgr != null) {
+            return (YLogNetInstance) _pmgr.selectScalar(
+                    "YLogNetInstance", "parentTaskInstanceID", key);
+        }
+        else return null;
+    }
+
+
+    private List getNetInstances(String caseID) throws YPersistenceException {
+        if (_pmgr != null) {
+            return _pmgr.createQuery("from YLogNetInstance as ni where " +
+                "ni.engineInstanceID=:caseid or ni.engineInstanceID like :likeid")
+                .setString("caseid", caseID)
+                .setString("likeid", caseID + ".%")
+                .list();
+        }
+        else return null;
+    }
+
+
+
 
     private YLogTaskInstance getTaskInstance(String itemID) throws YPersistenceException {
         if ((itemID != null) && (_pmgr != null)) {

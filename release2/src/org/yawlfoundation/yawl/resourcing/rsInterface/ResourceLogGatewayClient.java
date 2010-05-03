@@ -9,6 +9,7 @@
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
+import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
 import java.io.IOException;
 import java.util.Map;
@@ -100,27 +101,45 @@ public class ResourceLogGatewayClient extends Interface_Client {
 
 
 
-//    /**
-//     * Gets all of the net instances (root and sub-net) of all the logged cases
-//     * based on the specification details passed
-//     * @param identifier the unique identifier of the specification
-//     * @param version the specification's version number
-//     * @param uri the specification's uri
-//     * @param handle an active sessionhandle
-//     * @return the resultant String response (log data or error message)
-//     * @throws java.io.IOException if there's a problem connecting to the engine
-//     */
-//    public String getNetInstancesOfSpecification(String identifier, String version,
-//                                       String uri, String handle) throws IOException {
-//        Map<String, String> params = prepareParamMap("getNetInstancesOfSpecification", handle);
-//        params.put("identifier", identifier);
-//        params.put("version", version);
-//        params.put("uri", uri);
-//        return executeGet(_logURI, params);
-//    }
-//
-//
- 
+    /**
+     * Gets all events for all cases of the specification passed
+     * @param identifier the unique identifier of the specification
+     * @param version the specification's version number
+     * @param uri the specification's uri
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getSpecificationXESLog(String identifier, String version,
+                                       String uri, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getSpecificationXESLog", handle);
+        params.put("identifier", identifier);
+        params.put("version", version);
+        params.put("uri", uri);
+        return executeGet(_logURI, params);
+    }
+
+    
+    /**
+     * Gets all events for all cases of the specification passed, from both the resource
+     * service and the engine, merged together
+     * @param identifier the unique identifier of the specification
+     * @param version the specification's version number
+     * @param uri the specification's uri
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getMergedXESLog(String identifier, String version,
+                                       String uri, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getMergedXESLog", handle);
+        params.put("identifier", identifier);
+        params.put("version", version);
+        params.put("uri", uri);
+        return executeGet(_logURI, params);
+    }
+
+
     /*****************************************************************************/
 
     // CONVENIENCE CONNECTION METHODS - ALSO IN INTERFACE A //
@@ -135,7 +154,7 @@ public class ResourceLogGatewayClient extends Interface_Client {
     public String connect(String userID, String password) throws IOException {
         Map<String, String> params = prepareParamMap("connect", null);
         params.put("userid", userID);
-        params.put("password", password);
+        params.put("password", PasswordEncryptor.encrypt(password, null));
         return executeGet(_logURI, params);
     }
 

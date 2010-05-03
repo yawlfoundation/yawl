@@ -112,13 +112,6 @@ public class selectUser extends AbstractPageBean {
     public void setForm1(Form f) { form1 = f; }
 
 
-//    private Listbox lbxUserList = new Listbox();
-//
-//    public Listbox getLbxUserList() { return lbxUserList; }
-//
-//    public void setLbxUserList(Listbox l) { lbxUserList = l; }
-//
-//
     private DefaultOptionsList lbxUserListDefaultOptions = new DefaultOptionsList();
 
     public DefaultOptionsList getLbxUserListDefaultOptions() {

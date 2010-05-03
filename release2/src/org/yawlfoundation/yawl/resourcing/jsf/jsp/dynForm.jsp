@@ -27,6 +27,7 @@
 
                         <!-- include banner -->
                         <div><jsp:directive.include file="pfHeader.jspf"/></div>
+                        
                         <center>
                         <ui:panelLayout binding="#{dynForm.pnlContainer}"
                                         id="pnlContainer"
@@ -67,12 +68,10 @@
                                             styleClass="dynformBottomPanel"
                                             style="#{DynFormFactory.bottomPanelStyle}"/>
 
+                            <div><jsp:include page="pfMsgPanel.jspf"/></div>
 
                         </ui:panelLayout>
 
-                        <ui:panelLayout binding="#{SessionBean.messagePanel}"
-                                        id="msgPanel"
-                                        panelLayout="flow"/>
                         </center>
                     </ui:form>
                 </ui:body>

@@ -188,7 +188,7 @@ public class Login extends AbstractPageBean {
         }
 
         // session is free, so if there's a valid org data source --> process the logon
-        else if (rm.hasOrgDataSource()) {
+        else if (rm.hasOrgDataSource() && (rm.getOrgDataSet() != null)) {
             String user = (String) txtUserName.getText() ;
             String pword = (String) txtPassword.getText();
             if (validateUser(user, pword)) {
@@ -216,7 +216,7 @@ public class Login extends AbstractPageBean {
      */
     private boolean validateUser(String u, String p) {
         if ((u == null) || (p == null)) {
-            msgPanel.info("Please enter a valid username and password") ;
+            msgPanel.info("Please enter a valid username and password.") ;
             return false;
         }
 
@@ -238,14 +238,14 @@ public class Login extends AbstractPageBean {
                 }
             }
 
-            String handle = rm.login(u, pEncrypt);
+            String handle = rm.login(u, pEncrypt, _sb.getExternalSessionID());
             if (rm.successful(handle)) {           // successful login
                 initSession(u, handle) ;
                 msgPanel.clear();
                 return true ;
             }
             else {
-                msgPanel.error(msgPanel.format(handle));        // show error msg to user
+                msgPanel.error(handle);        // show error msg to user
                 return false ;
             }    
         }

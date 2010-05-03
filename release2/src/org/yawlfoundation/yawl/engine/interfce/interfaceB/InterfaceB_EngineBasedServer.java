@@ -16,7 +16,6 @@ import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.yawlfoundation.yawl.util.YProperties;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -24,7 +23,8 @@ import javax.servlet.UnavailableException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -51,22 +51,6 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
 
         try {
             ServletContext context = getServletContext();
-
-            // load yawl.properties (if any)
-            StringWriter out = new StringWriter(8192);
-            InputStream in = context.getResourceAsStream(
-                               "/WEB-INF/classes/yawl.properties");
-            if (in != null) {
-                InputStreamReader isr = new InputStreamReader(in);
-                char[] buffer = new char[8192];
-                int count;
-
-                while ((count = isr.read(buffer)) > 0)
-                   out.write(buffer, 0, count);
-
-                isr.close();
-                YProperties.getInstance().setProperties(out.toString());
-            }
 
             // init engine reference
             _engine = (EngineGateway) context.getAttribute("engine");
@@ -102,9 +86,6 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                     registerObserverGateway(gateway);
                 }
             }
-        }
-        catch (IOException ioe) {
-            logger.warn("Could not load static properties from file.");
         }
         catch (YPersistenceException e) {
             logger.fatal("Failure to initialise runtime (persistence failure)", e);
@@ -210,7 +191,8 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                 if (action.equals("connect")) {
                     String userID = request.getParameter("userid");
                     String password = request.getParameter("password");
-                    msg.append(_engine.connect(userID, password));
+                    int interval = request.getSession().getMaxInactiveInterval();
+                    msg.append(_engine.connect(userID, password, interval));
                 }
                 else if (action.equals("checkout")) {
                     msg.append(_engine.startWorkItem(workItemID, sessionHandle));

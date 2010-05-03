@@ -371,7 +371,7 @@ public class ApplicationBean extends AbstractApplicationBean {
             YBuildProperties buildProps = _rm.getBuildProperties();
             if (buildProps != null) {
                 version = "YAWL version " + buildProps.getVersion().substring(1);
-                rsBuild = String.format(" / Resource Service build %s (%s)",
+                rsBuild = String.format(" | Resource Service build %s (%s)",
                         formatBuildNumber(buildProps.getVersion(), buildProps.getBuildNumber()),
                         buildProps.getBuildDate());
             }
@@ -379,7 +379,7 @@ public class ApplicationBean extends AbstractApplicationBean {
             if (_rm.successful(engBuildProps)) {
                 XNode responseNode = new XNodeParser().parse(engBuildProps);
                 XNode propsNode = responseNode.getChild("buildproperties");
-                engBuild = String.format(" / Engine build %s (%s)",
+                engBuild = String.format(" | Engine build %s (%s)",
                         formatBuildNumber(propsNode.getChildText("Version"),
                                 propsNode.getChildText("BuildNumber")),
                         propsNode.getChildText("BuildDate"));
@@ -399,5 +399,26 @@ public class ApplicationBean extends AbstractApplicationBean {
 
 
     /**********************************************************************/
+
+    public String checkPassword(String password, String confirmPassword) {
+        if (password.length() == 0) {
+            return "No password entered.";
+        }
+        else {
+            if (password.length() < 4) {
+                return "Password must contain at least 4 characters.";
+            }
+
+            if (password.contains(" ")) {
+                return "Password cannot contain spaces.";
+            }
+            if (! password.equals(confirmPassword)) {
+                return "Password and confirmation are different.";
+            }
+        }
+        return null;
+    }
+
+    /*************************************************************************/
 
 }

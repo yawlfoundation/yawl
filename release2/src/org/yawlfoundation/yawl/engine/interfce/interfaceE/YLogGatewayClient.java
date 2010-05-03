@@ -8,7 +8,9 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceE;
 
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
+import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
 import java.io.IOException;
 import java.util.Map;
@@ -312,6 +314,41 @@ public class YLogGatewayClient extends Interface_Client {
     }
 
 
+    /**
+     * Gets a complete listing of all the cases launched from the specification data
+     * passed, in OpenXES format
+     * @param identifier the unique identifier of the specification
+     * @param version the specification's version number
+     * @param uri the specification's uri
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     * @see this.getSpecificationXESLog(YSpecificationID, String)
+     */
+    public String getSpecificationXESLog(String identifier, String version,
+                                       String uri, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getSpecificationXESLog", handle);
+        params.put("identifier", identifier);
+        params.put("version", version);
+        params.put("uri", uri);
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
+     * Gets a complete listing of all the cases launched from the specification data
+     * passed, in OpenXES format
+     * @param specID the unique identifier of the specification
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     * @see this.getSpecificationXESLog(String, String, String, String)
+     */
+    public String getSpecificationXESLog(YSpecificationID specID, String handle)
+            throws IOException {
+        return getSpecificationXESLog(specID.getIdentifier(), specID.getVersionAsString(),
+                                      specID.getUri(), handle);
+    }
 
 
     /*****************************************************************************/
@@ -328,7 +365,7 @@ public class YLogGatewayClient extends Interface_Client {
     public String connect(String userID, String password) throws IOException {
         Map<String, String> params = prepareParamMap("connect", null);
         params.put("userid", userID);
-        params.put("password", password);
+        params.put("password", PasswordEncryptor.encrypt(password, null));
         return executeGet(_logURI, params);
     }
 

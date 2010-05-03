@@ -9,8 +9,6 @@
 package org.yawlfoundation.yawl.resourcing.datastore.eventlog;
 
 import org.jdom.Element;
-import org.yawlfoundation.yawl.elements.YSpecVersion;
-import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -22,7 +20,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
  */
 public class ResourceEvent extends BaseEvent implements Cloneable {
 
-    private YSpecificationID _specID ;
+    private long _specKey;                                       // FK to SpecLog table
     private String _caseID ;
     private String _taskID ;
     private String _itemID ;
@@ -32,16 +30,16 @@ public class ResourceEvent extends BaseEvent implements Cloneable {
     public ResourceEvent() {}                                    // for reflection
 
     /** Constructor for item level events **/
-    public ResourceEvent(WorkItemRecord wir, String pid, EventLogger.event eType) {
-        this(new YSpecificationID(wir), wir.getCaseID(), pid, eType);
+    public ResourceEvent(long specKey, WorkItemRecord wir, String pid, EventLogger.event eType) {
+        this(specKey, wir.getCaseID(), pid, eType);
         _taskID = wir.getTaskName(); 
         _itemID = wir.getID();
     }
 
     /** Constrcutor for case level events **/
-    public ResourceEvent(YSpecificationID specID, String caseID, String pid, EventLogger.event eType) {
+    public ResourceEvent(long specKey, String caseID, String pid, EventLogger.event eType) {
         super(eType.name());
-        _specID = specID;
+        _specKey = specKey;
         _caseID = caseID;
         _participantID = pid;
     }
@@ -64,11 +62,6 @@ public class ResourceEvent extends BaseEvent implements Cloneable {
 
     // GETTERS & SETTERS
 
-    public YSpecificationID get_specID() { return _specID; }
-
-    public void set_specID(YSpecificationID specID) { _specID = specID; }
-
-
     public String get_caseID() { return _caseID; }
 
     public void set_caseID(String caseID) { _caseID = caseID; }
@@ -89,9 +82,14 @@ public class ResourceEvent extends BaseEvent implements Cloneable {
     public void set_participantID(String participantID) { _participantID = participantID;}
 
 
+    public long get_specKey() { return _specKey; }
+
+    public void set_specKey(long specKey) { _specKey = specKey; }
+
+
     public String toXML() {
         StringBuilder xml = new StringBuilder(String.format("<event key=\"%d\">", _id));
-        xml.append(_specID.toXML())
+        xml.append(StringUtil.wrap(String.valueOf(_specKey), "speckey"))
            .append(StringUtil.wrap(_caseID, "caseid"))
            .append(StringUtil.wrap(_taskID, "taskid"))
            .append(StringUtil.wrap(_itemID, "itemid"))
@@ -104,19 +102,13 @@ public class ResourceEvent extends BaseEvent implements Cloneable {
 
     public void fromXML(Element xml) {
         _id = strToLong(xml.getAttributeValue("key"));
+        _specKey = strToLong(xml.getChildText("speckey"));
         _caseID = xml.getChildText("caseid");
         _taskID = xml.getChildText("taskid");
         _itemID = xml.getChildText("itemid");
         _participantID = xml.getChildText("participantid");
         _event = xml.getChildText("eventtype") ;
         _timeStamp = strToLong(xml.getChildText("timestamp"));
-
-        Element specid = xml.getChild("specificationid") ;
-        if (specid != null) {
-            _specID = new YSpecificationID(specid.getChildText("identifier"),
-                                           specid.getChildText("version"),
-                                           specid.getChildText("uri"));
-        }
     }
 
 

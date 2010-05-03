@@ -226,7 +226,7 @@ public class pfQueueUI extends AbstractFragmentBean {
     protected void populateTextBoxes(WorkItemRecord wir) {
         txtCaseID.setText(wir.getCaseID());
         txtSpecID.setText(wordWrap(getSpecStr(wir), 20));
-        txtTaskID.setText(wordWrap(wir.getTaskIDForDisplay(), 20));
+        txtTaskID.setText(wordWrap(wir.getTaskName(), 20));
         txtStatus.setText(wir.getStatus());
 
         try {

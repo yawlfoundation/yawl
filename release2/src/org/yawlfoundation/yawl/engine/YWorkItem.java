@@ -556,7 +556,7 @@ public class YWorkItem {
             throws YPersistenceException {
         set_status(pmgr, _prevStatus);
         _prevStatus = null ;
-        _eventLog.logWorkItemEvent(this, _status, createLogDataList(_status.name()));
+        _eventLog.logWorkItemEvent(this, "resume", createLogDataList(_status.name()));
     }
 
 
@@ -786,6 +786,7 @@ public class YWorkItem {
         xml.append(StringUtil.wrap(getTaskID(), "taskid"));
         xml.append(StringUtil.wrap(getCaseID().toString(), "caseid"));
         xml.append(StringUtil.wrap(getUniqueID(), "uniqueid"));
+        xml.append(StringUtil.wrap(_task.getName(), "taskname"));
         if (_specID.getIdentifier() != null)
             xml.append(StringUtil.wrap(_specID.getIdentifier(), "specidentifier"));
 

@@ -474,8 +474,8 @@ public class EngineGatewayImpl implements EngineGateway {
      * @return
      * @throws RemoteException
      */
-    public String connect(String userID, String password) throws RemoteException {
-        return _sessionCache.connect(userID, password);
+    public String connect(String userID, String password, long timeOutSeconds) throws RemoteException {
+        return _sessionCache.connect(userID, password, timeOutSeconds);
     }
 
 

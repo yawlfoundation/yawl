@@ -12,26 +12,26 @@ import com.sun.rave.web.ui.component.ImageComponent;
 import com.sun.rave.web.ui.component.PanelLayout;
 import com.sun.rave.web.ui.component.StaticText;
 
-import javax.faces.el.MethodBinding;
 import javax.faces.application.Application;
 import javax.faces.context.FacesContext;
+import javax.faces.el.MethodBinding;
 import javax.faces.event.ActionEvent;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * A JSF component that is used to display messages to users
  *
  * Author: Michael Adams
  * Creation Date: 28/02/2008
- * Last Date: 26/08/2008
+ * Last Date: 17/04/2010
  */
 
 public class MessagePanel extends PanelLayout {
 
     // types of messages
-    public enum MsgType { error, info, warn, success }
+    public enum MsgType { error, warn, info, success }
 
     // icons corresponding to each message type
     private static final String errorIconURL = "/resources/error.png" ;
@@ -39,19 +39,20 @@ public class MessagePanel extends PanelLayout {
     private static final String warnIconURL = "/resources/warn.png" ;
     private static final String successIconURL = "/resources/success.png" ;
 
+    private static final int TITLEBAR_HEIGHT = 18;
+    private static final int BTNPANEL_HEIGHT = 30;
+    private static final int MIN_MESSAGES_WIDTH = 270;
     private static final int MIN_PANEL_HEIGHT = 120;
+    private static final int NON_MESSAGE_WIDTH = 80;
+    private static final int PANEL_VSPACE = 5;
     private static final Font _msgFont = new Font("Helvetica", Font.PLAIN, 13);
 
 
     // list of messages for each type
-    private List<String> _errorMessage;
-    private List<String> _warnMessage;
-    private List<String> _infoMessage;
-    private List<String> _successMessage;
+    private Map<String, MsgType> _messages;
 
     private int idSuffix = 0 ;                         // used in creation of unique ids
     private String _style = "";
-    private int _outerWidth = 350;                     // default width of panel
     private int _parentWidth;                          // width of parent container
 
     private PanelLayout _pnlMessages;
@@ -59,67 +60,86 @@ public class MessagePanel extends PanelLayout {
     private ImageComponent _imgIcon;
     private PanelLayout _btnPanel;
 
+    //  MESSAGE PANEL LAYOUT:
+    //
+    //   |---------------------|
+    //   | title panel         |
+    //   |---------------------|
+    //   |  image |   messages |
+    //   |  panel |   panel    |
+    //   |--------|            |
+    //   |        |            |
+    //   |---------------------|
+    //   | button panel        |
+    //   |---------------------|
+
     public MessagePanel() {
+        _messages = new Hashtable<String, MsgType>();
         setId("msgPanel001");
         setStyleClass("messagePanel") ;
-        getChildren().add(constructTitleBar());
-        getChildren().add(constructImage());
-        getChildren().add(constructMessagesPanel());
-        getChildren().add(constructButtonPanel());
+        composeContents();
         setVisible(false);                                   // hide it initially
     }
 
+
     /* adds an error message */
     public void error(String message) {
-        _errorMessage = addMessage(_errorMessage, message);
+        _messages.put(format(message), MsgType.error);
     }
 
     /* adds a warning message */
     public void warn(String message) {
-        _warnMessage = addMessage(_warnMessage, message);
+        _messages.put(format(message), MsgType.warn);
     }
 
     /* adds an info message */
     public void info(String message) {
-        _infoMessage = addMessage(_infoMessage, message);
+        _messages.put(format(message), MsgType.info);
     }
 
     /* adds a success message */
     public void success(String message) {
-        _successMessage = addMessage(_successMessage, message);
+        _messages.put(format(message), MsgType.success);
     }
 
     /* removes all messages */
     public void clear() {
-        _errorMessage = null;
-        _infoMessage = null;
-        _warnMessage = null;
-        _successMessage = null;
+        _messages.clear();
     }
     
     public boolean hasMessage() {
-        return (_errorMessage != null) || (_infoMessage != null) ||
-               (_warnMessage != null) || (_successMessage != null);
+        return ! _messages.isEmpty();
     }
 
 
-    /* show the panel in the coords passed - position = absolute or relative */
+    /* show the panel in the coords passed; position = absolute or relative */
     public void show(int top, int left, String position) {
         _style = String.format("top: %dpx; left: %dpx; position: %s;",
                                 top, left, position);
         showPanel();
     }
 
-    /* show the panel */
+    /* show the panel with default settings */
     public void show() {
         _style = "top:60px; position:absolute;";      // default style & posn
         showPanel();
     }
 
+    /* show the panel centered inside its parent */
     public void show(int width) {
         _parentWidth = width;
         show();
     }
+
+    /* removes any surrounding xml tags from text */
+    public String format(String xml) {
+        while ((xml != null) && xml.trim().startsWith("<"))
+            xml = unwrap(xml);
+        return xml ;
+    }
+
+
+    /***************************************************************************/
 
     private void showPanel() {
         MsgType msgType = getDominantType() ;
@@ -131,14 +151,13 @@ public class MessagePanel extends PanelLayout {
         else setVisible(false);
     }
 
+
     private void setupPanel(MsgType msgType) {
-        _pnlMessages.getChildren().clear();
+        _pnlMessages.getChildren().clear();             // clear any previous msgs
         _imgIcon.setUrl(getImageURL(msgType));
         setTitle(msgType);
-        int lines = setMessages();
-        int height = getHeight(lines);
-        setButtonPanelStyle(height);
-        setStyle(height);
+        listMessages();
+        sizeAndPositionContent();
     }
 
 
@@ -149,28 +168,6 @@ public class MessagePanel extends PanelLayout {
             return stripped[stripped.length -1];
         }
         return null;
-    }
-
-
-    public String format(String xml) {
-        while ((xml != null) && xml.trim().startsWith("<"))
-            xml = unwrap(xml);
-        return xml ;
-    }
-
-    /* adds a message to a particular list */
-    private List<String> addMessage(List<String> list, String message) {
-        if (message != null) {
-            if (list == null) list = new ArrayList<String>();
-            list.add(format(message));
-        }    
-        return list ;
-    }
-
-
-    /* not currently used */
-    private String getStyle(int left, int top, int fontSize, MsgType msgType) {
-        return getPosStyle(left, top) + getFontStyle(fontSize, msgType) ;
     }
 
 
@@ -198,6 +195,14 @@ public class MessagePanel extends PanelLayout {
     }
 
 
+    private void composeContents() {
+        getChildren().add(constructTitleBar());
+        getChildren().add(constructImage());
+        getChildren().add(constructMessagesPanel());
+        getChildren().add(constructButtonPanel());
+    }
+   
+
     private ImageComponent constructImage() {
         _imgIcon = new ImageComponent() ;
         _imgIcon.setId("imgIcon001");
@@ -208,7 +213,6 @@ public class MessagePanel extends PanelLayout {
                                                 "height: 48px; width: 48px;") ;
         return _imgIcon ;
     }
-
 
 
     private String getImageURL(MsgType msgType) {
@@ -226,7 +230,8 @@ public class MessagePanel extends PanelLayout {
         PanelLayout titleBar = new PanelLayout() ;
         titleBar.setId("pnlTitleBar001");
         titleBar.setStyle("background-color: #b0b0b0; border-bottom: 1px solid black;" +
-                           "width: 100%; height: 18px; text-align:left; font-weight:bold") ;
+                           "width: 100%; text-align: left; font-weight: bold; " +
+                           "height: " + TITLEBAR_HEIGHT + "px;") ;
         titleBar.setPanelLayout("flow");
         _title = new StaticText();
         _title.setId("sttTitleText001");
@@ -253,6 +258,7 @@ public class MessagePanel extends PanelLayout {
         return btnOK;
     }
 
+
     private MethodBinding bindButtonListener() {
         Application app = FacesContext.getCurrentInstance().getApplication();
         return app.createMethodBinding("#{SessionBean.messagePanelOKBtnAction}",
@@ -260,32 +266,33 @@ public class MessagePanel extends PanelLayout {
     }
 
 
-
     private PanelLayout constructMessagesPanel() {
         _pnlMessages = new PanelLayout() ;
         _pnlMessages.setId("pnlMessages001");
-        _pnlMessages.setStyle("background-color: #f0f0f0; " +
-                               getPosStyle(70, 35) + "width: 270px;") ;
         _pnlMessages.setPanelLayout("flow");
         return _pnlMessages ;
     }
 
 
+    /**
+     * Each message goes inside its own panel, which in turn goes inside _pnlMessages
+     * @return the child panel with a message in it
+     */
     private PanelLayout constructInnerPanel() {
         PanelLayout inner = new PanelLayout() ;
         inner.setId("pnlInner" + getNextIDSuffix());
-        inner.setStyle("background-color: #f0f0f0; width: 268px") ;
+        inner.setStyle("background-color: #f0f0f0; width: 100%; text-align:left") ;
         inner.setPanelLayout("flow");
         return inner ;
     }
 
 
     private MsgType getDominantType() {
-        if (_errorMessage != null) return MsgType.error ;
-        else if (_warnMessage != null) return MsgType.warn ;
-        else if (_infoMessage != null) return MsgType.info ;
-        else if (_successMessage != null) return MsgType.success ;
-        else return null ;
+        if (_messages.containsValue(MsgType.error)) return MsgType.error ;
+        else if (_messages.containsValue(MsgType.warn)) return MsgType.warn ;
+        else if (_messages.containsValue(MsgType.info)) return MsgType.info ;
+        else if (_messages.containsValue(MsgType.success)) return MsgType.success ;
+        else return null ; // should never be reached
     }
 
 
@@ -301,26 +308,14 @@ public class MessagePanel extends PanelLayout {
     }
 
 
-    private int setMessages() {
-        int lineCount = 0;
-        lineCount += listMessages(_errorMessage, MsgType.error, lineCount);
-        lineCount += listMessages(_warnMessage, MsgType.warn, lineCount);
-        lineCount += listMessages(_infoMessage, MsgType.info, lineCount);
-        lineCount += listMessages(_successMessage, MsgType.success, lineCount);
-        return lineCount;
+    private void listMessages() {
+        if (hasMessage()) {
+            for (String message : _messages.keySet()) {
+                listMessage(message, _messages.get(message)) ;
+            }
+        }
     }
 
-    private int listMessages(List<String> list, MsgType msgType, int lineCount) {
-        if (list != null) {
-            for (String message : list) {
-                Dimension bounds = FontUtil.getFontMetrics(message, _msgFont);
-                lineCount += (int) Math.ceil(bounds.getWidth() / _outerWidth);
-                listMessage(message, msgType) ;
-            }
-            return lineCount;
-        }
-        return 0;
-    }
 
     private void listMessage(String message, MsgType msgType) {
         PanelLayout innerPanel = constructInnerPanel();
@@ -330,41 +325,44 @@ public class MessagePanel extends PanelLayout {
         sttMessage.setStyle(getFontStyle(0, msgType));
         innerPanel.getChildren().add(sttMessage) ;
         _pnlMessages.getChildren().add(innerPanel);
-        adjustOuterSize(message);
     }
 
     private int getNextIDSuffix() {
         return ++idSuffix ;
     }
 
-    private int getHeight(int lineCount) {
-        double lineHeight = FontUtil.getFontMetrics("dummyText", _msgFont).getHeight() +
-                            (_msgFont.getSize() / 2);
-        return (int) Math.max(MIN_PANEL_HEIGHT, lineCount * lineHeight);
-    }
-
 
     private void setButtonPanelStyle(int height) {
-        _btnPanel.setStyle("background-color: #f0f0f0; width: 100%; height: 30px;" +
-                           "position: absolute; top:" + (height - 30) + "px;") ;
-
+        _btnPanel.setStyle("background-color: #f0f0f0; width: 100%; height: " +
+                BTNPANEL_HEIGHT + "px; position: absolute; top:" +
+                (height - BTNPANEL_HEIGHT) + "px;") ;
     }
 
-    private void setStyle(int height) {
+    private void setStyle(int width, int height) {
         String style = String.format("%s height: %dpx; width: %dpx;",
-                _style, height, _outerWidth);
+                _style, height, width);
 
         if (_parentWidth > 0) {
-            style += String.format("left: %dpx;", (_parentWidth - _outerWidth) / 2);
+            style += String.format("left: %dpx;", (_parentWidth - width) / 2);
         }
         setStyle(style);
     }
 
-    private void adjustOuterSize(String msg) {
-        Dimension bounds = FontUtil.getFontMetrics(getLongestWord(msg), _msgFont);
-        _outerWidth = (int) Math.max(_outerWidth, bounds.getWidth() + 80);
+
+    private String getLongestWord() {
+        String longest = "";
+        if (hasMessage()) {
+            for (String message : _messages.keySet()) {
+                String subLongest = getLongestWord(message);
+                if (subLongest.length() > longest.length()) {
+                    longest = subLongest;
+                }
+            }
+        }
+        return longest;
     }
 
+    
     private String getLongestWord(String msg) {
         if ((msg == null) || msg.length() == 0) return " ";
         String[] words = msg.split("\\s+");
@@ -375,5 +373,38 @@ public class MessagePanel extends PanelLayout {
             }
         }
         return longest;
+    }
+
+
+    private int getMessagesHeight(int width) {
+        int height = 0;
+        if (hasMessage()) {
+            for (String message : _messages.keySet()) {
+                Dimension bounds = FontUtil.getFontMetrics(message, _msgFont);
+                int lines = (int) Math.ceil(bounds.getWidth() / (width + 30));
+                height += lines * (bounds.getHeight() + (_msgFont.getSize() / 2));
+            }
+        }
+        return height;
+    }
+
+    private void sizeAndPositionContent() {
+
+        // set the width of the panels based on the width of the longest word
+        Dimension bounds = FontUtil.getFontMetrics(getLongestWord(), _msgFont);
+        int width = (int) Math.max(MIN_MESSAGES_WIDTH, bounds.getWidth());
+        int outerWidth = width + NON_MESSAGE_WIDTH;
+
+        // set the width of the inner messages panel
+        _pnlMessages.setStyle(String.format("background-color: #f0f0f0; %s width: %dpx",
+                getPosStyle(70, 35), width));
+
+        // get total height of all panels
+        int messagesHeight = getMessagesHeight(width) + PANEL_VSPACE;
+        int totalHeight = TITLEBAR_HEIGHT + messagesHeight + BTNPANEL_HEIGHT;
+        int outerHeight = Math.max(MIN_PANEL_HEIGHT, totalHeight);
+
+        setButtonPanelStyle(outerHeight);
+        setStyle(outerWidth, outerHeight);
     }
 }

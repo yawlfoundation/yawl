@@ -226,9 +226,9 @@ public class DynFormField implements Cloneable {
 
 
     public boolean hasZeroMinimum() {
-        if (_parent != null) 
-            return _parent.hasZeroMinimum() || (_minoccurs == 0);
-        else
+//        if (_parent != null)
+//            return _parent.hasZeroMinimum() || (_minoccurs == 0);
+//        else
             return (_minoccurs == 0);
     }
     

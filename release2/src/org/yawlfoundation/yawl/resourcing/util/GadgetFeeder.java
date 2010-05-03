@@ -9,7 +9,7 @@ import org.yawlfoundation.yawl.resourcing.jsf.comparator.WorkItemAgeComparator;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -32,6 +32,8 @@ public class GadgetFeeder {
     // these scripts enable a plain html tabset.
     // sourced from: http://phrogz.net/JS/SemanticTabset/semantictabset.html  
     private final String _script =
+            "<script type=\"text/javascript\">if (window.location.hash) { " +
+            "var hash = window.location.hash; window.location.search = \"?\" + hash.substring(1);}</script> " + 
             "<script type=\"text/javascript\" src=\"http://www.yawlfoundation.org/gadgets/addclasskillclass.js\"></script>" +
             "<script type=\"text/javascript\" src=\"http://www.yawlfoundation.org/gadgets/attachevent.js\"></script>" +
             "<script type=\"text/javascript\" src=\"http://www.yawlfoundation.org/gadgets/semantictabset.js\"></script>";
@@ -54,18 +56,38 @@ public class GadgetFeeder {
     private Participant _participant = null;
 
 
-    public GadgetFeeder(HttpServletRequest req) {
-        _userid = req.getParameter("up_yawlUserID");
-        _password = req.getParameter("up_yawlPassword");
-        _rootURI = req.getParameter("up_tomcatHome");
-        _parentURI = req.getParameter("parent");
-        _libs = req.getParameter("libs");
-        _view = req.getParameter("view");
-        String altTabs = req.getParameter("up_altTabs");
+//    public GadgetFeeder(HttpServletRequest req) {
+//        _userid = req.getParameter("up_yawlUserID");
+//        _password = req.getParameter("up_yawlPassword");
+//        _rootURI = req.getParameter("up_tomcatHome");
+//        _parentURI = req.getParameter("parent");
+//        _libs = req.getParameter("libs");
+//        _view = req.getParameter("view");
+//        String altTabs = req.getParameter("up_altTabs");
+//        _altTabNames = (altTabs != null) && altTabs.equals("1") ;
+//        String showSusp = req.getParameter("up_showSusp");
+//        _showSuspended = (showSusp != null) && showSusp.equals("1") ;
+//        _participant = ResourceManager.getInstance().getParticipantFromUserID(_userid);
+    public GadgetFeeder(Map req) {
+        if (req != null) {
+        _userid = getParam(req, "up_yawlUserID");
+        _password = getParam(req, "up_yawlPassword");
+        _rootURI = getParam(req, "up_tomcatHome");
+        _parentURI = getParam(req, "parent");
+        _libs = getParam(req, "libs");
+        _view = getParam(req, "view");
+        String altTabs = getParam(req, "up_altTabs");
         _altTabNames = (altTabs != null) && altTabs.equals("1") ;
-        String showSusp = req.getParameter("up_showSusp");
+        String showSusp = getParam(req, "up_showSusp");
         _showSuspended = (showSusp != null) && showSusp.equals("1") ;
         _participant = ResourceManager.getInstance().getParticipantFromUserID(_userid);
+        }    
+    }
+
+    
+    private String getParam(Map req, String name) {
+        String[] value = (String[]) req.get(name);
+        return (value != null) ? value[0] : null;
     }
 
 

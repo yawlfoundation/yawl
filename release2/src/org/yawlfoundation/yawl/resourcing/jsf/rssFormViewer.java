@@ -238,7 +238,7 @@ public class rssFormViewer extends AbstractPageBean {
                            " settings in the service's web.xml to ensure a valid" +
                            " data source is set.";
             }
-            String handle = rm.login(userid, password);
+            String handle = rm.login(userid, password, sb.getExternalSessionID());
             if (! rm.successful(handle)) {
                 return (msgPanel.format(handle));
            }

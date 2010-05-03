@@ -236,7 +236,7 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
                              String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("createAccount", sessionHandle);
         params.put("userID", name);
-        params.put("password", password);
+        params.put("password", PasswordEncryptor.encrypt(password, null));
         params.put("doco", documentation);
         return executePost(_backEndURIStr, params);
     }
@@ -253,7 +253,7 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
                              String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("updateAccount", sessionHandle);
         params.put("userID", name);
-        params.put("password", password);
+        params.put("password", PasswordEncryptor.encrypt(password, null));
         params.put("doco", documentation);
         return executePost(_backEndURIStr, params);
     }

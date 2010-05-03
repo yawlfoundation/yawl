@@ -242,7 +242,7 @@ public class YEventLogger {
      * @param eventName the event that has occurred
      * @param datalist a list of data entries to log with this event
      */
-    public void logWorkItemEvent(YWorkItem workItem, YWorkItemStatus eventName,
+    public void logWorkItemEvent(YWorkItem workItem, String eventName,
                                  YLogDataItemList datalist) {
         if (loggingEnabled()) {
             try {
@@ -250,15 +250,26 @@ public class YEventLogger {
                 if (taskInstanceID < 0) {
                     taskInstanceID = insertTaskInstance(workItem);
                 }
-                String event = eventName.equals(statusIsParent) ? "Decompose"
-                                                                : eventName.toString();
-                logEvent(taskInstanceID, event, datalist, getServiceID(workItem),
+                logEvent(taskInstanceID, eventName, datalist, getServiceID(workItem),
                         getRootNetInstanceID(workItem.getCaseID()));
             }
             catch (YPersistenceException ype) {
                 _log.error(getWarnMsg("workitem event"), ype);
             }
         }
+    }
+
+
+    /**
+     * Logs a workitem event (change of status).
+     * @param workItem the workitem that triggered the event
+     * @param event the event that has occurred
+     * @param datalist a list of data entries to log with this event
+     */
+    public void logWorkItemEvent(YWorkItem workItem, YWorkItemStatus event,
+                                 YLogDataItemList datalist) {
+        String eventName = event.equals(statusIsParent) ? "Decompose" : event.toString();
+        logWorkItemEvent(workItem, eventName, datalist);
     }
 
 

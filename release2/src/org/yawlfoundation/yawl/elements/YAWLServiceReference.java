@@ -12,7 +12,6 @@ package org.yawlfoundation.yawl.elements;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.util.PasswordEncryptor;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
@@ -84,7 +83,7 @@ public class YAWLServiceReference implements YVerifiable {
     public String getServicePassword() { return _servicePassword; }
 
     public void setServicePassword(String password) {
-        _servicePassword = PasswordEncryptor.encrypt(password, null);
+        _servicePassword = password;
     }
 
     public void setAssignable(boolean b) { _assignable = b ; }

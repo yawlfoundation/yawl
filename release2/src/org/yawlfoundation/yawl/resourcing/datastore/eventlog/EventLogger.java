@@ -11,8 +11,11 @@ package org.yawlfoundation.yawl.resourcing.datastore.eventlog;
 import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
+
+import java.util.Map;
 
 /**
  * Handles the logging of resource 'events'
@@ -24,16 +27,18 @@ public class EventLogger {
 
     private static boolean _logging ;
     private static boolean _logOffers ;
+    private static Persister _persister = Persister.getInstance() ;
 
-    public EventLogger() {}
+
+    public EventLogger() { }
+
 
     public static enum event { offer, allocate, start, suspend, deallocate, delegate,
-                               reallocate_stateless, reallocate_stateful, skip, pile,
-                               cancel, chain, complete, unoffer, unchain, unpile, resume,
-                               launch_case, cancel_case}
+        reallocate_stateless, reallocate_stateful, skip, pile, cancel, chain, complete,
+        unoffer, unchain, unpile, resume, launch_case, cancel_case}
 
     public static enum audit { logon, logoff, invalid, unknown, shutdown, expired,
-                               gwlogon, gwlogoff, gwinvalid, gwunknown, gwexpired}
+        gwlogon, gwlogoff, gwinvalid, gwunknown, gwexpired}
 
 
     public static void setLogging(boolean flag) {
@@ -46,7 +51,8 @@ public class EventLogger {
 
     public static void log(WorkItemRecord wir, String pid, event eType) {
         if (_logging) {
-            ResourceEvent resEvent = new ResourceEvent(wir, pid, eType);
+            long specKey = getSpecificationKey(wir);
+            ResourceEvent resEvent = new ResourceEvent(specKey, wir, pid, eType);
             insertEvent(resEvent);
         }
     }
@@ -59,7 +65,7 @@ public class EventLogger {
         }
         catch (Exception e) {
             Logger.getLogger(EventLogger.class).error("'" + eventString +
-                                                      "' is not a valid event type.");
+                    "' is not a valid event type.");
         }
     }
 
@@ -77,8 +83,9 @@ public class EventLogger {
 
     public static void log(YSpecificationID specID, String caseID, String pid, boolean launch) {
         if (_logging) {
+            long specKey = getSpecificationKey(specID);
             event eType = launch ? event.launch_case : event.cancel_case;
-            ResourceEvent resEvent = new ResourceEvent(specID, caseID, pid, eType);
+            ResourceEvent resEvent = new ResourceEvent(specKey, caseID, pid, eType);
             insertEvent(resEvent);
         }
     }
@@ -93,11 +100,39 @@ public class EventLogger {
 
 
     private static void insertEvent(Object event) {
-        Persister persister = Persister.getInstance() ;
-        if (persister != null) persister.insert(event);
+        if (_persister != null) _persister.insert(event);
     }
 
 
+    /**
+     * Gets the primary key for a specification record, or inserts a new entry if it
+     * doesn't exist and returns its key.
+     * @param ySpecID the identifiers of the specification
+     * @return the primary key for the specification
+     * @throws YPersistenceException if there's a problem with the persistence layer
+     */
+    public static long getSpecificationKey(YSpecificationID ySpecID) {
+        long result = -1;
+        SpecLog specEntry = null;
+        if (_persister != null) {
+            Map rows = _persister.selectMap("SpecLog");            
+            if (! rows.isEmpty()) {
+                specEntry = (SpecLog) rows.get(ySpecID.getKey());
+                if (specEntry != null) {
+                    result = specEntry.getLogID();
+                }
+            }
+            if (specEntry == null) {
+                specEntry = new SpecLog(ySpecID);
+                _persister.insert(specEntry);
+                result = specEntry.getLogID();               
+            }
+        }
+        return result;
+    }
 
+    public static long getSpecificationKey(WorkItemRecord wir) {
+        return getSpecificationKey(new YSpecificationID(wir));
+    }
 
 }
