@@ -413,7 +413,7 @@ abstract public class DataVariableUpdateDialog extends AbstractDoneDialog {
     table.setDefaultRenderer(ExtendedAttribute.class, renderer);
     table.setDefaultRenderer(String.class, renderer);
     attributesPanel.add(new JScrollPane(table));
-    attributesPanel.setVisible(false);
+    attributesPanel.setVisible(true);
 
     return attributesPanel;
   }

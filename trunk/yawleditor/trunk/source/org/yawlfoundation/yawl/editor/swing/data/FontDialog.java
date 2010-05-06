@@ -45,7 +45,7 @@ public class FontDialog extends JDialog implements ActionListener, ListSelection
         _previewPane = new JLabel();
 
         _fontSizes.setBorder(BorderFactory.createTitledBorder("Size"));
-        _fontSizes.setSize(new Dimension(120, 18));
+        _fontSizes.setSize(new Dimension(120, 30));
         _previewPane.setBorder(BorderFactory.createTitledBorder("Preview"));
         _previewPane.setPreferredSize(new Dimension(350, 100));
 

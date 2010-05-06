@@ -416,10 +416,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     // Lachlan assures me that the assignment is automatic so long as the name of the net local variable
     // and the net output parameter are the same. Highly redundant IMO, but it won't work in the engine 
     // without this intermediate variable being used for state transport.
-    
-    Iterator outputVarIterator = editorNet.getDecomposition().getVariables().getOutputVariables().iterator();
-    while (outputVarIterator.hasNext()) {
-      DataVariable editorNetVariable = (DataVariable) outputVarIterator.next();
+    for (DataVariable editorNetVariable : editorNet.getDecomposition().getVariables().getOutputVariables()) {
       if (editorNetVariable.getUsage() != DataVariable.USAGE_OUTPUT_ONLY) {
         continue;
       }

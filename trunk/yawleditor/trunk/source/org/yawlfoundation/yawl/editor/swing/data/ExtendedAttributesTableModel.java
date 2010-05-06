@@ -252,6 +252,9 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
         catch (IOException e) {
             //todo anything at this exception?
         }
+        finally {
+            fireTableDataChanged();
+        }
     }
 
 
