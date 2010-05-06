@@ -129,7 +129,7 @@
     <property name="jsf-webui"             value="webui.jar"/>
     <property name="jta"                   value="jta-1.1.jar"/>
     <property name="junit"                 value="junit-4.5.jar"/>
-    <property name="log4j"                 value="log4j-1.2.14.jar"/>
+    <property name="log4j"                 value="log4j-1.2.16.jar"/>
     <property name="odmg"                  value="odmg-3.0.jar"/>
     <property name="optional"              value="optional-1_5_1.jar"/>
     <property name="postgres7"             value="postgresql-7.4.5.jdbc.jar"/>

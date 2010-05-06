@@ -8,8 +8,7 @@
 
 package org.yawlfoundation.yawl.engine;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.log4j.*;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.jdom.Document;
@@ -193,7 +192,6 @@ public class YEngine implements InterfaceADesign,
      */
     private void restore() throws YPersistenceException {
         _logger.debug("--> restore");
-        showInfoMsg("Restoring persisted cases...");
         _restoring = true;
 
         YPersistenceManager pmgr = new YPersistenceManager(getPMSessionFactory());
@@ -220,7 +218,6 @@ public class YEngine implements InterfaceADesign,
 
             // log result
             if (_logger.isDebugEnabled()) dump();
-            showInfoMsg("Restore completed.");
         }
         catch (YPersistenceException ype) {
             _logger.fatal("Failure to restart engine from persistence image", ype);
@@ -292,13 +289,6 @@ public class YEngine implements InterfaceADesign,
     public void shutdown() {
         _sessionCache.shutdown();
     }
-
-    public void showInfoMsg(String msg) {
-         Level oldLevel = _logger.getLevel();
-         _logger.setLevel(Level.INFO);
-         _logger.info(msg);
-         _logger.setLevel(oldLevel);
-     }
 
 
      public void initBuildProperties(InputStream stream) {

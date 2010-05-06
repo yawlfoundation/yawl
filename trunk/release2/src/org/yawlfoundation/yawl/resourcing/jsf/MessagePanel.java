@@ -8,9 +8,9 @@
 
 package org.yawlfoundation.yawl.resourcing.jsf;
 
-import com.sun.rave.web.ui.component.ImageComponent;
-import com.sun.rave.web.ui.component.PanelLayout;
-import com.sun.rave.web.ui.component.StaticText;
+import com.sun.rave.web.ui.component.Button;
+import com.sun.rave.web.ui.component.*;
+import com.sun.rave.web.ui.component.Label;
 
 import javax.faces.application.Application;
 import javax.faces.context.FacesContext;
@@ -18,6 +18,7 @@ import javax.faces.el.MethodBinding;
 import javax.faces.event.ActionEvent;
 import java.awt.*;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -45,6 +46,7 @@ public class MessagePanel extends PanelLayout {
     private static final int MIN_PANEL_HEIGHT = 120;
     private static final int NON_MESSAGE_WIDTH = 80;
     private static final int PANEL_VSPACE = 5;
+    private static final int MESSAGE_VSPACE = 3;
     private static final Font _msgFont = new Font("Helvetica", Font.PLAIN, 13);
 
 
@@ -54,6 +56,7 @@ public class MessagePanel extends PanelLayout {
     private int idSuffix = 0 ;                         // used in creation of unique ids
     private String _style = "";
     private int _parentWidth;                          // width of parent container
+    private String _titleText;
 
     private PanelLayout _pnlMessages;
     private StaticText _title;
@@ -87,9 +90,17 @@ public class MessagePanel extends PanelLayout {
         _messages.put(format(message), MsgType.error);
     }
 
+    public void error(List<String> msgList) {
+        for (String message : msgList) error(message);
+    }
+
     /* adds a warning message */
     public void warn(String message) {
         _messages.put(format(message), MsgType.warn);
+    }
+
+    public void warn(List<String> msgList) {
+        for (String message : msgList) warn(message);
     }
 
     /* adds an info message */
@@ -105,6 +116,11 @@ public class MessagePanel extends PanelLayout {
     /* removes all messages */
     public void clear() {
         _messages.clear();
+        _titleText = null;
+    }
+
+    public void setTitleText(String text) {
+        _titleText = text;
     }
     
     public boolean hasMessage() {
@@ -164,6 +180,9 @@ public class MessagePanel extends PanelLayout {
     /* returns strings from inside xml tags */
     private String unwrap(String xml) {
         if (xml != null) {
+            if (xml.endsWith("/>")) {
+                return xml.substring(1, xml.length()-2);
+            }
             String[] stripped = xml.split("^\\s*<.*?>|</[^<]*?>\\s*$");
             return stripped[stripped.length -1];
         }
@@ -175,23 +194,6 @@ public class MessagePanel extends PanelLayout {
     private String getPosStyle(int left, int top) {
         return String.format("position: absolute; left: %dpx; top: %dpx;", left, top);
 
-    }
-
-
-    private String getFontColor(MsgType msgType) {
-        switch (msgType) {
-            case error :  return "red" ;
-            case warn : return "orange" ;
-            case info : return "blue" ;
-            case success : return "green" ;
-        }
-        return "black";          // default
-    }
-
-
-    private String getFontStyle(int size, MsgType msgType) {
-        String fontSize = (size > 0) ? String.format("font-size: %dpx;", size) : "";
-        return fontSize + String.format("color: %s;", getFontColor(msgType));
     }
 
 
@@ -251,7 +253,7 @@ public class MessagePanel extends PanelLayout {
 
 
     private com.sun.rave.web.ui.component.Button constructOKButton() {
-        com.sun.rave.web.ui.component.Button btnOK = new com.sun.rave.web.ui.component.Button();
+        Button btnOK = new Button();
         btnOK.setId("btnOK001");
         btnOK.setText("OK");
         btnOK.setActionListener(bindButtonListener());
@@ -292,26 +294,49 @@ public class MessagePanel extends PanelLayout {
         else if (_messages.containsValue(MsgType.warn)) return MsgType.warn ;
         else if (_messages.containsValue(MsgType.info)) return MsgType.info ;
         else if (_messages.containsValue(MsgType.success)) return MsgType.success ;
-        else return null ; // should never be reached
+        else return null ; 
+    }
+
+
+    private String getTitle(MsgType msgType) {
+        switch (msgType) {
+            case error : return "Error";
+            case warn : return "Warning";
+            case info : return "Information";
+            case success : return "Success";
+            default: return "";  // should never be reached
+        }
     }
 
 
     private void setTitle(MsgType msgType) {
-        String text = "";
-        switch (msgType) {
-            case error : text = "Error"; break;
-            case warn : text = "Warning"; break;
-            case info : text = "Information"; break;
-            case success : text = "Success"; break;
-        }
+        String text = getTitle(msgType);
+        if (_titleText != null) text += ": " + _titleText;
         _title.setText(text);
     }
 
 
+    private boolean hasMixedMessages() {
+        if (hasMessage()) {
+            MsgType dominantType = getDominantType();
+            for (MsgType msgType : _messages.values()) {
+                if (msgType != dominantType) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    
     private void listMessages() {
         if (hasMessage()) {
+            boolean mixed = hasMixedMessages();
             for (String message : _messages.keySet()) {
-                listMessage(message, _messages.get(message)) ;
+                String msg = mixed ?
+                             getTitle(_messages.get(message)) + ": " + message : message;
+                listMessage(msg, _messages.get(message)) ;
+                addVSpace();
             }
         }
     }
@@ -322,10 +347,19 @@ public class MessagePanel extends PanelLayout {
         StaticText sttMessage = new StaticText();
         sttMessage.setId("stt" + getNextIDSuffix()) ;
         sttMessage.setText(message);
-        sttMessage.setStyle(getFontStyle(0, msgType));
         innerPanel.getChildren().add(sttMessage) ;
         _pnlMessages.getChildren().add(innerPanel);
     }
+
+
+    private void addVSpace() {
+        Label label = new Label();
+        label.setText("aeiou");                                  // won't be visible
+        label.setId("vsp" + getNextIDSuffix());
+        label.setStyle("color: #f0f0f0;");                       // same as background
+        _pnlMessages.getChildren().add(label);
+    }
+
 
     private int getNextIDSuffix() {
         return ++idSuffix ;
@@ -337,6 +371,7 @@ public class MessagePanel extends PanelLayout {
                 BTNPANEL_HEIGHT + "px; position: absolute; top:" +
                 (height - BTNPANEL_HEIGHT) + "px;") ;
     }
+
 
     private void setStyle(int width, int height) {
         String style = String.format("%s height: %dpx; width: %dpx;",
@@ -383,16 +418,31 @@ public class MessagePanel extends PanelLayout {
                 Dimension bounds = FontUtil.getFontMetrics(message, _msgFont);
                 int lines = (int) Math.ceil(bounds.getWidth() / (width + 30));
                 height += lines * (bounds.getHeight() + (_msgFont.getSize() / 2));
+
+                // add vspace
+                if (_messages.size() > 1) height += MESSAGE_VSPACE;
             }
         }
         return height;
     }
 
+
     private void sizeAndPositionContent() {
+        int width = MIN_MESSAGES_WIDTH;
+        int height = sizeAndPositionContent(width);
+
+        // try and get it all on one screen (up to a max width of 800)
+        while ((height <= 700) && (height > width)) {
+            width += 100;
+            height = sizeAndPositionContent(width);
+        }
+    }
+
+    private int sizeAndPositionContent(int minWidth) {
 
         // set the width of the panels based on the width of the longest word
         Dimension bounds = FontUtil.getFontMetrics(getLongestWord(), _msgFont);
-        int width = (int) Math.max(MIN_MESSAGES_WIDTH, bounds.getWidth());
+        int width = (int) Math.max(minWidth, bounds.getWidth());
         int outerWidth = width + NON_MESSAGE_WIDTH;
 
         // set the width of the inner messages panel
@@ -406,5 +456,7 @@ public class MessagePanel extends PanelLayout {
 
         setButtonPanelStyle(outerHeight);
         setStyle(outerWidth, outerHeight);
+
+        return outerHeight;
     }
 }

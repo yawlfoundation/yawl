@@ -12,11 +12,13 @@ import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
 import com.sun.rave.web.ui.model.UploadedFile;
+import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.FacesException;
 import javax.faces.component.UIColumn;
@@ -487,12 +489,7 @@ public class caseMgt extends AbstractPageBean {
         if (BOF != -1 && EOF != -1) {
             fileContents = fileContents.substring(BOF, EOF + 19) ;         // trim file
             String result = _rm.uploadSpecification(fileContents, fileName);
-            if (! _rm.successful(result)) {
-                if (result.indexOf("<warning>") > -1)
-                    msgPanel.warn(result);
-                else
-                    msgPanel.error(result);
-            }
+            if (! _rm.successful(result)) processErrorMsg(result);
             _sb.refreshLoadedSpecs();
         }
         else msgPanel.error("The file '" + fileName + "' does not appear to be a " +
@@ -696,5 +693,30 @@ public class caseMgt extends AbstractPageBean {
         btnLaunch.setDisabled(noSpecsSelected);
     }
 
+
+    private void processErrorMsg(String msg) {
+        Element root = JDOMUtil.stringToElement(msg);
+        if (root != null) {
+            Element reason = root.getChild("reason");
+            if (reason != null) {
+                List children = reason.getChildren();
+                if (children != null) {
+                    for (Object child : children) {
+                        Element e = (Element) child;
+                        if (e.getName().equals("warning")) {
+                            msgPanel.warn(JDOMUtil.elementToStringDump(e));
+                        }
+                        else if (e.getName().equals("error")) {
+                            msgPanel.error(JDOMUtil.elementToStringDump(e));
+                            msgPanel.setTitleText("Upload Specification Failed");
+                        }
+                        else {
+                            msgPanel.info(JDOMUtil.elementToStringDump(e));
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 

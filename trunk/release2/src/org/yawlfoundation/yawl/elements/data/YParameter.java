@@ -83,13 +83,29 @@ public class YParameter extends YVariable implements Comparable<YVariable> {
     }
 
 
+    public boolean isRequired() {
+        return super.isMandatory() ||
+          (_attributes.containsKey("mandatory") && _attributes.get("mandatory").equals("true"));
+    }
+
+
     public String toXML() {
         StringBuilder xml = new StringBuilder("<");
         String type = getParamTypeStr(_paramType);
         xml.append(type);
 
-        if ((getAttributes() != null) && (_paramType == _INPUT_PARAM_TYPE)) {
-            xml.append(getAttributes().toXML());
+        if (getAttributes() != null) {
+            if (_paramType == _INPUT_PARAM_TYPE) {
+                xml.append(getAttributes().toXML());
+            }
+            else if (_paramType == _OUTPUT_PARAM_TYPE) {
+                if (getAttributes().containsKey("mandatory")) {
+                    xml.append(" mandatory=\"")
+                       .append(getAttributes().get("mandatory"))
+                       .append("\"");     
+                }
+            }
+
         }
         xml.append(">");
 
