@@ -26,6 +26,7 @@ package org.yawlfoundation.yawl.editor.actions.specification;
 
 import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -43,6 +44,7 @@ public class SaveSpecificationAsAction extends YAWLOpenSpecificationAction imple
     putValue(Action.LONG_DESCRIPTION, "Save this specification to a different filename ");
     putValue(Action.SMALL_ICON, getPNGIcon("disk_multiple"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_A));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("shift S"));
   }
   
   public void actionPerformed(ActionEvent event) {

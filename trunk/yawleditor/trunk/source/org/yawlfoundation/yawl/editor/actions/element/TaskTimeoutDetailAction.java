@@ -64,7 +64,7 @@ public class TaskTimeoutDetailAction extends YAWLSelectedNetAction
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Set Task Timer...");
     putValue(Action.LONG_DESCRIPTION, "Manage the timer behaviour of this task. ");
-    putValue(Action.SMALL_ICON, getPNGIcon("hourglass"));
+    putValue(Action.SMALL_ICON, getPNGIcon("clock"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_T));
   }
   

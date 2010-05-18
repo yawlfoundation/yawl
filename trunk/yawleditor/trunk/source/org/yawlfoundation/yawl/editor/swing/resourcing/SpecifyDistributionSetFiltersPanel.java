@@ -7,13 +7,16 @@ import org.yawlfoundation.yawl.editor.swing.JSingleSelectTable;
 import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +59,7 @@ public class SpecifyDistributionSetFiltersPanel extends ResourcingWizardPanel {
   }
 
   public String getWizardStepTitle() {
-    return "Specify Distribution Set Filter(s)";
+    return "System Offer - Filters and Constraints";
   }
   
   private JPanel buildFilterPanel() {
@@ -146,40 +149,43 @@ class RuntimeFiltersPanel extends JPanel implements ListSelectionListener {
   }
 
   private void buildContent() {
-    setBorder(
-        new TitledBorder("Filters")
-    );
+    setBorder(new CompoundBorder(
+        new TitledBorder("Filters"),
+        new EmptyBorder(5, 20, 5, 20)
+    ));
+      setLayout(new BorderLayout(5, 5));
 
-    GridBagLayout gbl = new GridBagLayout();
-    GridBagConstraints gbc = new GridBagConstraints();
-    
-    setLayout(gbl);
-    
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-    gbc.gridwidth = 2;
-    gbc.insets = new Insets(0,5,10,5);
-    gbc.fill = GridBagConstraints.HORIZONTAL;
+//    GridBagLayout gbl = new GridBagLayout();
+//    GridBagConstraints gbc = new GridBagConstraints();
+//
+//    setLayout(gbl);
+//
+//    gbc.gridx = 0;
+//    gbc.gridy = 0;
+//    gbc.gridwidth = 2;
+//    gbc.insets = new Insets(0,5,0,5);
+//    gbc.fill = GridBagConstraints.HORIZONTAL;
 
     add(new JLabel(
-            "<html><body>Select the filters to be applied to the "+
-            "distribution set. Set parameter values for the selected "+
-            "filter as required.</body></html>"
-        ),gbc
+            "<html><body>The resource set specified in Step 2 can be filtered and/or " +
+                    "constrained so that only those resources that meet the criteria " +
+                    "selected below will be offered the task.</body></html>"
+        ), BorderLayout.NORTH
     );
     
-    gbc.gridy++;
-    gbc.fill = GridBagConstraints.BOTH;
-    gbc.insets = new Insets(0,10,0,5);
-    gbc.gridwidth = 1;
-    gbc.weightx = 0.5;
+//    gbc.gridy++;
+//    gbc.fill = GridBagConstraints.BOTH;
+//    gbc.insets = new Insets(0,10,0,5);
+//    gbc.gridwidth = 1;
+//    gbc.weightx = 0.5;
     
-    add(buildFilterTable(), gbc);
+    add(buildFilterTable(), BorderLayout.WEST);
     
-    gbc.gridx++;
+//    gbc.gridx++;
+//
+//    gbc.insets = new Insets(0,5,0,10);
+    add(buildFilterParamTable(), BorderLayout.EAST);
 
-    gbc.insets = new Insets(0,5,0,10);
-    add(buildFilterParamTable(), gbc);
   }
   
   private JScrollPane buildFilterTable() {
@@ -259,7 +265,7 @@ class SelectableFilterTable extends JSingleSelectTable {
   public SelectableFilterTable() {
     super();
     setModel(new SelectableFilterTableModel());
-    this.setPreferredSize(new Dimension(300,80));
+    this.setPreferredSize(new Dimension(300,100));
     this.setRowHeight(25);     
     getColumn("").setPreferredWidth(24);
     getColumn("").setMaxWidth(24);
@@ -483,7 +489,7 @@ class FilterParameterTable extends JSingleSelectTable {
 
   public FilterParameterTable() {
     super();
-    this.setPreferredSize(new Dimension(300,80));
+    this.setPreferredSize(new Dimension(300, 100));
     this.setRowHeight(25);
     setModel(new FilterParameterTableModel(this));
     cbxEditor = new FilterParameterValueComboBoxEditor(this);

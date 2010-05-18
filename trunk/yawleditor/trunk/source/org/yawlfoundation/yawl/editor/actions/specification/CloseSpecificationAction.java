@@ -26,6 +26,7 @@ package org.yawlfoundation.yawl.editor.actions.specification;
 
 import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -42,7 +43,7 @@ public class CloseSpecificationAction extends YAWLOpenSpecificationAction implem
     putValue(Action.LONG_DESCRIPTION, "Clise this specification ");
     putValue(Action.SMALL_ICON, getPNGIcon("page_delete"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_C));
-    putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control W"));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("W"));
   }
   
   public void actionPerformed(ActionEvent event) {

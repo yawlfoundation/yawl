@@ -33,65 +33,62 @@ import java.io.Serializable;
 import java.util.HashSet;
 
 public class CancellationSet implements Serializable, Cloneable {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private YAWLTask triggeringTask;
-  private HashSet  setMembers;
-  
-  public CancellationSet() {
-  	this.triggeringTask = null;
-  	setMembers = new HashSet();
-  }
- 
-  public CancellationSet(YAWLTask triggeringTask) {
-    this.triggeringTask = triggeringTask;
-    setMembers = new HashSet();
-  }
 
-  public YAWLTask getTriggeringTask() {
-    return this.triggeringTask;
-  }
-  
-  public void setTriggeringTask(YAWLTask triggeringTask) {
-  	this.triggeringTask = triggeringTask;
-  }
+    private static final long serialVersionUID = 1L;
+    private YAWLTask triggeringTask;
+    private HashSet<YAWLCell> setMembers;
 
-  public HashSet getSetMembers() {
-    return setMembers;
-  }
-
-  public void setSetMembers(HashSet setMembers) {
-  	this.setMembers = setMembers;
-  }
-
-  public boolean addMember(YAWLCell newSetMember) {
-    if (newSetMember instanceof YAWLTask || newSetMember instanceof Condition || 
-        newSetMember instanceof YAWLFlowRelation) {
-      return setMembers.add(newSetMember);
+    public CancellationSet() {
+        setMembers = new HashSet<YAWLCell>();
     }
-    return false;
-  }
-  
-  public boolean removeMember(YAWLCell oldSetMember) {
-    return setMembers.remove(oldSetMember);
-  }
-  
-  public boolean contains(YAWLCell cell) {
-    return setMembers.contains(cell);
-  }
-  
-  public int size() {
-    return setMembers.size();
-  }
 
-  public boolean hasMembers() {
-      return size() > 0;
-  }
-  
-  public Object clone() {
-    // Cancellation set members will NOT be copied.
-    return new CancellationSet();
-  }
+    public CancellationSet(YAWLTask task) {
+        this();
+        triggeringTask = task;
+    }
+
+    public YAWLTask getTriggeringTask() {
+        return triggeringTask;
+    }
+
+    public void setTriggeringTask(YAWLTask task) {
+        triggeringTask = task;
+    }
+
+    public HashSet<YAWLCell> getSetMembers() {
+        return setMembers;
+    }
+
+    public void setSetMembers(HashSet<YAWLCell> set) {
+        setMembers = set;
+    }
+
+    public boolean addMember(YAWLCell newSetMember) {
+        if (newSetMember instanceof YAWLTask || newSetMember instanceof Condition ||
+                newSetMember instanceof YAWLFlowRelation) {
+            return setMembers.add(newSetMember);
+        }
+        return false;
+    }
+
+    public boolean removeMember(YAWLCell oldSetMember) {
+        return setMembers.remove(oldSetMember);
+    }
+
+    public boolean contains(YAWLCell cell) {
+        return setMembers.contains(cell);
+    }
+
+    public int size() {
+        return setMembers.size();
+    }
+
+    public boolean hasMembers() {
+        return size() > 0;
+    }
+
+    public Object clone() {
+        // Cancellation set members will NOT be copied.
+        return new CancellationSet();
+    }
 }

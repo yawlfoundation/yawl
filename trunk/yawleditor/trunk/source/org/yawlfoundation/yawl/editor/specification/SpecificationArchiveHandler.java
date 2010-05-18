@@ -24,6 +24,7 @@
 package org.yawlfoundation.yawl.editor.specification;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.actions.net.PreviewConfigurationProcessAction;
 import org.yawlfoundation.yawl.editor.actions.specification.OpenRecentSubMenu;
 import org.yawlfoundation.yawl.editor.foundations.ArchivableNetState;
 import org.yawlfoundation.yawl.editor.foundations.ArchivableSpecificationState;
@@ -165,6 +166,14 @@ public class SpecificationArchiveHandler {
   }
 
     public void saveUpdatingGUI(SpecificationModel specification) {
+
+        // if the net has configuration preview on, turn it off temporarily
+        ProcessConfigurationModel.PreviewState previewState =
+                ProcessConfigurationModel.getInstance().getPreviewState();
+        if (previewState != ProcessConfigurationModel.PreviewState.OFF) {
+            PreviewConfigurationProcessAction.getInstance().actionPerformed(null);
+        }
+
       String fullFileName = specification.getFileName();
       if (fullFileName.trim().equals("")) {
         return;
@@ -182,6 +191,11 @@ public class SpecificationArchiveHandler {
           JOptionPane.ERROR_MESSAGE
       );
       LogWriter.error("Error discovered whilst saving specification", e);
+    }
+
+    // put preview state back if necessary    
+    if (previewState != ProcessConfigurationModel.PreviewState.OFF) {
+        PreviewConfigurationProcessAction.getInstance().actionPerformed(null);
     }
   }
   

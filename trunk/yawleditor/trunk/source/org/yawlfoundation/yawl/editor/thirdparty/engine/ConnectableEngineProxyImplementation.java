@@ -6,11 +6,11 @@ import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBasedClient;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Author: Michael Adams - extracted from AvailableEngineProxyImplementation
@@ -127,6 +127,35 @@ public class ConnectableEngineProxyImplementation extends AvailableEngineProxyIm
 
         return simplePing != null &&
                simplePing.trim().equals("<response><success/></response>");
+    }
+
+
+    public Map<String, String> getExternalDataGateways() {
+        Map<String, String> gateways = new Hashtable<String, String>();
+        if(!connected()) {
+          connect();
+        }
+
+        if (connected()) {
+            try {
+                String gatewayXML = clientInterfaceA.getExternalDBGateways(sessionID);
+                if (! gatewayXML.startsWith("<fail")) {
+                    XNode root = new XNodeParser().parse(gatewayXML);      // <response>
+                    if (root != null) {
+                        XNode gatewayNodes = root.getChild();              // <gateways>
+                        for (XNode gateway : gatewayNodes.getChildren()) {
+                            String name = gateway.getChildText("name");
+                            String subName = name.substring(name.lastIndexOf('.') +1);
+                            gateways.put(subName, gateway.getChildText("description"));
+                        }
+                    }
+                }
+            }
+            catch (IOException ioe) {
+                return null;
+            }
+        }
+        return gateways;
     }
 
 

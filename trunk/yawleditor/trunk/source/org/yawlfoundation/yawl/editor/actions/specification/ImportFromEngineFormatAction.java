@@ -26,6 +26,7 @@ package org.yawlfoundation.yawl.editor.actions.specification;
 
 import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -42,7 +43,8 @@ public class ImportFromEngineFormatAction extends YAWLNoOpenSpecificationAction 
     putValue(Action.NAME, "Import from 'YWL' file...");
     putValue(Action.LONG_DESCRIPTION, "Import a 'YWL' specification file to the editor. ");
     putValue(Action.SMALL_ICON, getPNGIcon("page_go"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_M));
+    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_I));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("I"));
   }
   
   public void actionPerformed(ActionEvent event) {

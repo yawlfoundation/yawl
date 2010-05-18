@@ -24,18 +24,15 @@
 
 package org.yawlfoundation.yawl.editor.elements.view;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.util.prefs.Preferences;
-
-import org.jgraph.graph.VertexView;
 import org.jgraph.graph.CellViewRenderer;
-
+import org.jgraph.graph.VertexView;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.elements.model.Decorator;
 import org.yawlfoundation.yawl.editor.elements.model.JoinDecorator;
 import org.yawlfoundation.yawl.editor.elements.model.SplitDecorator;
+
+import java.awt.*;
+import java.util.prefs.Preferences;
 
 public class DecoratorView extends VertexView {
   
@@ -50,7 +47,7 @@ public class DecoratorView extends VertexView {
     }
     if (decorator instanceof SplitDecorator) {
       decoratorRenderer = new SplitDecoratorRenderer((SplitDecorator) decorator);
-    }
+    }      
   }
 
   public CellViewRenderer getRenderer() {
@@ -93,6 +90,10 @@ abstract class DecoratorRenderer extends YAWLVertexRenderer {
   
   public DecoratorRenderer(Decorator decorator) {
     this.decorator = decorator;
+  }
+
+  public boolean isDecoratingConfigurableTask() {
+      return (decorator != null) && decorator.getTask().isConfigurable();
   }
   
   protected void fillVertex(Graphics graphics, Dimension size) {
@@ -276,8 +277,23 @@ abstract class DecoratorRenderer extends YAWLVertexRenderer {
     graphics.drawPolygon(xCoords, yCoords, xCoords.length);
 
     /* draw the border of the decorator */
-    
-    graphics.drawRect(0, 0, size.width - 1, size.height - 1);
+
+    if (isDecoratingConfigurableTask()) {
+        Stroke oldStroke = ((Graphics2D) graphics).getStroke();
+        ((Graphics2D) graphics).setStroke(new BasicStroke(CONFIGURED_TASK_STOKE_WIDTH));
+        int position = decorator.getCardinalPosition();
+        if (position != Decorator.BOTTOM)
+            graphics.drawLine(0, 0, size.width - 1, 0);                              // top
+        if (position != Decorator.TOP)
+            graphics.drawLine(0, size.height - 1, size.width - 1, size.height - 1); // bottom
+        if (position != Decorator.LEFT)
+            graphics.drawLine(size.width - 1, 0, size.width - 1, size.height - 1);  // right
+        if (position != Decorator.RIGHT)
+            graphics.drawLine(0, 0, 0, size.height - 1);                            // left
+        ((Graphics2D) graphics).setStroke(oldStroke);
+    }
+    else graphics.drawRect(0, 0, size.width - 1, size.height - 1);
+
   }
   
   private void drawDownwardTriangle(Graphics graphics,Dimension size, Color backingColor, Color polygonColor) {

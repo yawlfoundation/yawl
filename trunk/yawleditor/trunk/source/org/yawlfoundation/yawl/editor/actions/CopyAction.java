@@ -26,6 +26,7 @@ import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionSubscriber;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -48,7 +49,7 @@ public class CopyAction extends YAWLBaseAction implements TooltipTogglingWidget,
     putValue(Action.LONG_DESCRIPTION, "Copy the selected elements");
     putValue(Action.SMALL_ICON, getPNGIcon("page_copy"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_C));
-    putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control C"));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("C"));
   }
   
   private CopyAction() {

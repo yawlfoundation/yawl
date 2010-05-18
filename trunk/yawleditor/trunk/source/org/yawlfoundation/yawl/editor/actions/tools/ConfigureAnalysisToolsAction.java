@@ -28,6 +28,7 @@ import org.yawlfoundation.yawl.editor.analyser.AnalysisDialog;
 import org.yawlfoundation.yawl.editor.analyser.YAWLResetAnalyser;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
 
 import javax.swing.*;
@@ -51,10 +52,11 @@ public class ConfigureAnalysisToolsAction extends YAWLBaseAction {
   
   {
     putValue(Action.SHORT_DESCRIPTION, " Configure Specification Analysis ");
-    putValue(Action.NAME, "Configure Specification Analysis...");
+    putValue(Action.NAME, "Specification Analysis...");
     putValue(Action.LONG_DESCRIPTION, "Configure Specification Analysis.");
     putValue(Action.SMALL_ICON, getPNGIcon("cog_go"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_C));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("shift N"));
   }
   
   public ConfigureAnalysisToolsAction() {}

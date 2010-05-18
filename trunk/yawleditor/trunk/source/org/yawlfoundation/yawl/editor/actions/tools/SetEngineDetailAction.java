@@ -26,6 +26,7 @@ import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxyInterface;
 
@@ -50,10 +51,11 @@ public class SetEngineDetailAction extends YAWLBaseAction {
   
   {
     putValue(Action.SHORT_DESCRIPTION, " Specify login details for a running YAWL Engine.");
-    putValue(Action.NAME, "Engine Connection Settings...");
+    putValue(Action.NAME, "Engine Connection...");
     putValue(Action.LONG_DESCRIPTION, "Specify login details for a running YAWL Engine.");
     putValue(Action.SMALL_ICON, getPNGIcon("disconnect"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_E));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("shift E"));
   }
   
   public SetEngineDetailAction() {}

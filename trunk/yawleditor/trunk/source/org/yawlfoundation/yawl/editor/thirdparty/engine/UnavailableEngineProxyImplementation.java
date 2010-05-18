@@ -28,10 +28,7 @@ import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.data.AbstractXMLStyledDocument;
 import org.yawlfoundation.yawl.editor.swing.data.ValidityEditorPane;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class UnavailableEngineProxyImplementation implements
     YAWLEngineProxyInterface {
@@ -63,6 +60,11 @@ public class UnavailableEngineProxyImplementation implements
     
     return services;
   }
+
+    public Map<String, String> getExternalDataGateways() {
+        return new Hashtable<String, String>();
+    }
+
   
   public String getRegisteredYAWLServiceFromDescription(String description) {
     return null;

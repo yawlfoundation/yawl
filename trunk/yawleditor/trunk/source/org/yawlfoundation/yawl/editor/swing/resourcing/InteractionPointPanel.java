@@ -30,6 +30,7 @@ public abstract class InteractionPointPanel extends JPanel {
     gbc.anchor = GridBagConstraints.WEST;
 
     JLabel interactionPointLabel = new JLabel(interactionPointString);
+    interactionPointLabel.setHorizontalAlignment(SwingConstants.LEADING);
     add(interactionPointLabel, gbc);
 
     gbc.gridx++;

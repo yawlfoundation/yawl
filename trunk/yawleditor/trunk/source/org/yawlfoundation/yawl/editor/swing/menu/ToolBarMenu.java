@@ -29,18 +29,25 @@ import org.yawlfoundation.yawl.editor.actions.UndoAction;
 import org.yawlfoundation.yawl.editor.actions.net.*;
 import org.yawlfoundation.yawl.editor.actions.specification.*;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.specification.ProcessConfigurationModelListener;
+import org.yawlfoundation.yawl.editor.specification.ProcessConfigurationModel;
 
 import java.awt.*;
 
-public class ToolBarMenu extends YAWLToolBar {
+public class ToolBarMenu extends YAWLToolBar implements ProcessConfigurationModelListener {
 
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
 
+  private YAWLToggleToolBarButton previewProcessConfigurationButton;
+  private YAWLToggleToolBarButton applyProcessConfigurationButton;
+
+
   public ToolBarMenu() {
     super("YAWLEditor ToolBar");
+    ProcessConfigurationModel.getInstance().subscribe(this);
   }
 
   protected void buildInterface() {
@@ -79,9 +86,28 @@ public class ToolBarMenu extends YAWLToolBar {
     add(new YAWLToolBarButton(AddToVisibleCancellationSetAction.getInstance()));
     add(new YAWLToolBarButton(RemoveFromVisibleCancellationSetAction.getInstance()));
     addSeparator();
+    previewProcessConfigurationButton =
+            new YAWLToggleToolBarButton(PreviewConfigurationProcessAction.getInstance());
+    add(previewProcessConfigurationButton);
+    applyProcessConfigurationButton =
+            new YAWLToggleToolBarButton(ApplyProcessConfigurationAction.getInstance());
+    add(applyProcessConfigurationButton);
+    addSeparator();
     add(new YAWLToolBarButton(ZoomActualSizeAction.getInstance()));
     add(new YAWLToolBarButton(ZoomOutAction.getInstance()));
     add(new YAWLToolBarButton(ZoomInAction.getInstance()));
     add(new YAWLToolBarButton(ZoomSelectedElementsAction.getInstance()));
   }
+
+
+    public void processConfigurationModelStateChanged(
+            ProcessConfigurationModel.PreviewState previewState,
+            ProcessConfigurationModel.ApplyState applyState) {
+
+        previewProcessConfigurationButton.setSelected(
+                previewState != ProcessConfigurationModel.PreviewState.OFF);
+
+        applyProcessConfigurationButton.setSelected(
+                applyState == ProcessConfigurationModel.ApplyState.ON);
+    }
 }

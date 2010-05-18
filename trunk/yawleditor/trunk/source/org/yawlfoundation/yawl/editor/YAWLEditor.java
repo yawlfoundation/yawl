@@ -279,7 +279,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
       originalDividerLocation - 20
     );
 
-    pause(200);
+    pause(200); 
 
     splitPane.setDividerLocation(
         originalDividerLocation

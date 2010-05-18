@@ -29,6 +29,7 @@ import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -45,7 +46,7 @@ public class RemoveNetAction extends YAWLSelectedNetAction implements TooltipTog
     putValue(Action.LONG_DESCRIPTION, "Remove the selected net ");
     putValue(Action.SMALL_ICON, getPNGIcon("application_delete"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_R));
-    putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control R"));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("R"));
   }
 
   public void actionPerformed(ActionEvent event) {

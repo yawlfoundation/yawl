@@ -61,7 +61,7 @@ public class DefaultExtendedAttributes {
         addAttribute(decomposition, variable, "image-align", "enumeration{left, center, right}");
         addAttribute(decomposition, variable, "label", "text");
         addAttribute(decomposition, variable, "skipValidation", "boolean");
-        addAttribute(decomposition, variable, "mandatory", "boolean");
+        addAttribute(decomposition, variable, "optional", "boolean");
         addAttribute(decomposition, variable, "image-above", "text");
         addAttribute(decomposition, variable, "image-below", "text");
         addAttribute(decomposition, variable, "text-above", "text");

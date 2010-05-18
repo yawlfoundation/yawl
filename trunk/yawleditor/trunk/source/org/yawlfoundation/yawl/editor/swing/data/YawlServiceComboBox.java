@@ -26,10 +26,7 @@ package org.yawlfoundation.yawl.editor.swing.data;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
 import javax.swing.*;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 
 public class YawlServiceComboBox extends JComboBox {
   
@@ -59,7 +56,7 @@ public class YawlServiceComboBox extends JComboBox {
     if (services == null) {
       return;
     }
-    
+
     LinkedList sortedServices = new LinkedList();
     sortedServices.addAll(services.keySet());
     Collections.sort(sortedServices);

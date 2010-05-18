@@ -38,6 +38,12 @@ import java.util.*;
 
 public abstract class YAWLTask extends YAWLVertex {
 
+   private boolean configurable;
+   private boolean hasBeenConfigureInitialised;
+   private List<CPort> inputCPorts = new ArrayList<CPort>();
+   private List<CPort> outputCPorts = new ArrayList<CPort>();
+   private boolean cancellationSetEnable = true;
+
   /**
    * This constructor is ONLY to be invoked when we are reconstructing a task
    * from saved state. Ports will not be created with this constructor, as they
@@ -47,6 +53,8 @@ public abstract class YAWLTask extends YAWLVertex {
   public YAWLTask() {
     super();
     initialize();
+    this.configurable = false;
+    this.cancellationSetEnable = true;
   }
 
   /**
@@ -387,4 +395,215 @@ public abstract class YAWLTask extends YAWLVertex {
     
     return clone;
   }
+
+  /**
+   * Created by Jingxin Xu 13/01/2010
+   */
+  public List<CPort> getInputCPorts(){
+	  return this.inputCPorts;
+}
+  /**
+   * Created by Jingxin Xu 13/01/2010
+   */
+  public List<CPort> getOutputCPorts(){
+	  return this.outputCPorts;
+  }
+  /**
+   * Created by Jingxin XU 13/01/2010
+   * This method construct the configurable input ports
+   */
+  public void generateInputCPorts(){
+	  int size = this.getIncomingFlowCount();
+	  if((this.hasJoinDecorator())&&
+			  (this.getJoinDecorator().getType()== Decorator.XOR_TYPE)) {
+
+		  	for(int i=0;i<size; i++){
+		  		this.inputCPorts.add(new CPort(this,CPort.INPUTPORT));
+		  	}
+		  	YAWLFlowRelation flows[] = new YAWLFlowRelation[size];
+		  	flows = this.getIncomingFlows().toArray(flows);
+			 for(int i=0; i<size; i++){
+				 HashSet Cflows = new HashSet();
+				 Cflows.add(flows[i]);
+				 this.inputCPorts.get(i).setID(i);
+				 this.inputCPorts.get(i).setFlows(Cflows);
+			 }
+	  }else if(size>0){
+
+		  this.inputCPorts.add(new CPort(this,CPort.INPUTPORT));
+		  this.inputCPorts.get(0).setID(0);
+		  this.inputCPorts.get(0).setFlows(this.getIncomingFlows());
+		  }
+  }
+
+  /**
+   * Created by Jingxin XU 13/01/2010
+   * This method construct the configurable output ports
+   */
+  public void generateOutputCPorts(){
+	  int size = this.getOutgoingFlowCount();
+	  YAWLFlowRelation flows[] = new YAWLFlowRelation[size];
+	  flows = this.getOutgoingFlows().toArray(flows);
+
+	  if((!this.hasSplitDecorator())||
+			  (this.getSplitDecorator().getType()==Decorator.AND_TYPE)){
+
+		  this.outputCPorts.add(new CPort(this,CPort.OUTPUTPORT));
+		  this.outputCPorts.get(0).setID(0);
+		  this.outputCPorts.get(0).setFlows(this.getOutgoingFlows());
+	  }
+    else if(this.getSplitDecorator().getType()== Decorator.XOR_TYPE){
+			 for(int i=0; i<size; i++){
+				 HashSet Cflows = new HashSet();
+				 Cflows.add(flows[i]);
+				 this.outputCPorts.add(new CPort(this,CPort.OUTPUTPORT));
+				 this.outputCPorts.get(i).setID(i);
+				 this.outputCPorts.get(i).setFlows(Cflows);
+			 }
+	  }
+    else if(this.getSplitDecorator().getType()== Decorator.OR_TYPE) {
+        int i = 0;
+        for (Set<YAWLFlowRelation> flowsPowerSet : getPowerSet(getOutgoingFlows())) {
+            if ((flowsPowerSet != null) && (! flowsPowerSet.isEmpty())) {
+                CPort port = new CPort(this, CPort.OUTPUTPORT);
+                port.setFlows(flowsPowerSet);
+                port.setID(i++);
+			          outputCPorts.add(port);
+            }
+	      }
+    }   
+  }
+
+
+
+
+
+  /**
+   * This is the get method of configurable;
+   * Jingxin Xu
+   */
+  public boolean isConfigurable(){
+	  return this.configurable;
+  }
+
+  /**
+   * This is the set method of configurable;
+   */
+  public void setConfigurable(boolean newSetting) {
+      if (configurable != newSetting) {
+          configurable = newSetting;
+          if (configurable && (! hasBeenConfigureInitialised)) {
+              configureInitialise();
+          }
+      }
+  }
+
+    private void configureInitialise() {
+        if (configurable) {
+            inputCPorts.clear();
+            outputCPorts.clear();
+            generateInputCPorts();
+            generateOutputCPorts();
+            if(this instanceof MultipleAtomicTask) {
+                MultipleAtomicTask multipleTask = (MultipleAtomicTask) this;
+                multipleTask.iniConfigure();
+            }
+            else if (this instanceof MultipleCompositeTask) {
+                MultipleCompositeTask multipleTask = (MultipleCompositeTask) this;
+                multipleTask.iniConfigure();
+            }
+            hasBeenConfigureInitialised = true;
+        }
+    }
+    
+
+  public void removeInputPort(CPort port){
+	  this.inputCPorts.remove(port);
+  }
+
+  public void removeOutputPort(CPort port){
+	  this.outputCPorts.remove(port);
+  }
+
+  public void addInputPort(CPort port){
+	  this.inputCPorts.add(port);
+  }
+
+  public void addOutputPort(CPort port){
+	  this.outputCPorts.add(port);
+  }
+
+  /**
+   * After applying configuration, some ports have been removed. Correspondingly the port Id should be reseted.
+   */
+  public void resetCPortsID(){
+	  int i=0;
+	  for(CPort port : this.inputCPorts){
+		port.setID(i);
+		i++;
+	  }
+	  i = 0;
+	  for(CPort port : this.outputCPorts){
+		  port.setID(i);
+		  i++;
+	  }
+  }
+
+public boolean isCancellationSetEnable() {
+	return cancellationSetEnable;
+}
+
+public void setCancellationSetEnable(boolean cancellationSetEnable) {
+	this.cancellationSetEnable = cancellationSetEnable;
+}
+
+public void setInputCPorts(List<CPort> inputCPorts) {
+	this.inputCPorts = inputCPorts;
+}
+
+public void setOutputCPorts(List<CPort> outputCPorts) {
+	this.outputCPorts = outputCPorts;
+}
+
+public boolean hasDefaultInputPorts(){
+	boolean flag = false;
+	for(CPort port : this.getInputCPorts()){
+		if(port.getDefaultValue() != null){
+			flag = true;
+		}
+	}
+	return flag;
+}
+
+
+public boolean hasDefaultOutputPorts(){
+	boolean flag = false;
+	for(CPort port : this.getOutputCPorts()){
+		if(port.getDefaultValue() != null){
+			flag = true;
+		}
+	}
+	return flag;
+}
+
+    // this method accessed on 06/05/2010 from:
+    // http://stackoverflow.com/questions/1670862/obtaining-powerset-of-a-set-in-java
+    public static <T> Set<Set<T>> getPowerSet(Set<T> originalSet) {
+        Set<Set<T>> sets = new HashSet<Set<T>>();
+        if (originalSet.isEmpty()) {
+            sets.add(new HashSet<T>());
+            return sets;
+        }
+        List<T> list = new ArrayList<T>(originalSet);
+        T head = list.get(0);
+        Set<T> rest = new HashSet<T>(list.subList(1, list.size()));
+        for (Set<T> set : getPowerSet(rest)) {
+            Set<T> newSet = new HashSet<T>();
+            newSet.add(head);
+            newSet.addAll(set);
+            sets.add(newSet);
+            sets.add(set);
+        }
+        return sets;
+    }
 }

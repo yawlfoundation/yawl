@@ -27,6 +27,7 @@ package org.yawlfoundation.yawl.editor.actions.specification;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.net.utilities.NetPrintUtilities;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 
 import javax.print.DocFlavor;
 import javax.print.PrintService;
@@ -59,7 +60,7 @@ public class PrintSpecificationAction extends YAWLOpenSpecificationAction {
     putValue(Action.LONG_DESCRIPTION, "Prints this specification");
     putValue(Action.SMALL_ICON, getPNGIcon("printer"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_P));
-    putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control P"));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("P"));
   }
   
   public PrintSpecificationAction() {

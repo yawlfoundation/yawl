@@ -26,6 +26,7 @@ package org.yawlfoundation.yawl.editor.actions.net;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.swing.data.NetDecompositionUpdateDialog;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -43,6 +44,7 @@ public class NetDecompositionDetailAction extends YAWLSelectedNetAction {
     putValue(Action.LONG_DESCRIPTION, "Manage the decomposition of this net.");
     putValue(Action.SMALL_ICON, getPNGIcon("chart_organisation"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_D));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("L"));
   }
   
   public void actionPerformed(ActionEvent event) {

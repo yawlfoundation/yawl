@@ -24,16 +24,16 @@
 
 package org.yawlfoundation.yawl.editor.actions.specification;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-
-import org.yawlfoundation.yawl.editor.actions.specification.YAWLOpenSpecificationAction;
 import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 
-public class ValidateSpecificationAction extends YAWLOpenSpecificationAction implements TooltipTogglingWidget {
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+
+public class ValidateSpecificationAction extends YAWLOpenSpecificationAction
+        implements TooltipTogglingWidget {
   /**
    * 
    */
@@ -45,6 +45,7 @@ public class ValidateSpecificationAction extends YAWLOpenSpecificationAction imp
     putValue(Action.LONG_DESCRIPTION, "Validate this specification.");
     putValue(Action.SMALL_ICON, getIconByName("Validate"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_V));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("shift V"));
   }
   
   public void actionPerformed(ActionEvent event) {

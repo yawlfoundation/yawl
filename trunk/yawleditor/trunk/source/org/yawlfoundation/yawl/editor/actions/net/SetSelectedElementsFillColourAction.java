@@ -33,6 +33,7 @@ import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionSubscriber;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 
 import javax.swing.*;
 import java.awt.*;
@@ -52,6 +53,7 @@ public class SetSelectedElementsFillColourAction extends YAWLSelectedNetAction
     putValue(Action.LONG_DESCRIPTION, "Set the fill colour for the selected elements.");
     putValue(Action.SMALL_ICON, getPNGIcon("color_swatch"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_F));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("F"));
   }
 
   public SetSelectedElementsFillColourAction() {

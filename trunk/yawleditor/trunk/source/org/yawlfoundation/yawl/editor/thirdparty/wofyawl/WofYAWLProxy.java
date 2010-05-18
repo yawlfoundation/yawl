@@ -25,12 +25,16 @@ package org.yawlfoundation.yawl.editor.thirdparty.wofyawl;
 
 import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
 
 import java.io.File;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 public class WofYAWLProxy implements WofYAWLProxyInterface {
-  
+
+  private static final Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
+
   private static final String WOF_YAWL_BINARY = "wofyawl@WofYawlReleaseNumber@.exe";
   
   private transient static final WofYAWLProxy INSTANCE 
@@ -79,6 +83,6 @@ public class WofYAWLProxy implements WofYAWLProxyInterface {
   }
   
   public static String getBinaryExecutableFilePath() {
-    return FileUtilities.getHomeDir() + WOF_YAWL_BINARY;
+    return prefs.get("WofyawlFilePath", FileUtilities.getHomeDir() + WOF_YAWL_BINARY);
   }
 }

@@ -67,5 +67,9 @@ class NetMenu extends YAWLOpenSpecificationMenu {
     
     add(new YAWLMenuItem(new PrintNetAction()));
     YAWLEditor.updateLoadProgress(29);
+
+    addSeparator();
+
+    add(new ProcessConfigurationMenu());
   }
 }

@@ -44,8 +44,8 @@ public class YAWLMenuBar extends JMenuBar {
     YAWLEditor.updateLoadProgress(progress+=10);
     add(new ElementsMenu());
     YAWLEditor.updateLoadProgress(progress+=10);
-    if (ToolsMenu.needsToBeAddedToMenus()) {
-      add(new ToolsMenu());
+    if (SettingsMenu.needsToBeAddedToMenus()) {
+      add(new SettingsMenu());
       YAWLEditor.updateLoadProgress(progress+=10);
     } else {
       progress+=10;

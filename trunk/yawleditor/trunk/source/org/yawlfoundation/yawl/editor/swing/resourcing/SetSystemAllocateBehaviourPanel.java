@@ -38,10 +38,12 @@ public class SetSystemAllocateBehaviourPanel extends ResourcingWizardPanel {
     gbc.insets = new Insets(0,0,20,0);
 
     JLabel discussion = new JLabel(
-        "<html><body>The allocation process involves choosing a single participant, from those " +
-        "who are offered a work item, to actually undertake that work.  As you have specified that the " +
-        "system dynamically do this, you must now select the strategy for doing so. " +
-        "Choose from one of the strategies below.</body></html>"
+        "<html><body>An allocation strategy is a way of dynamically selecting one " +
+                "participant from those resources that have been offered a task, and " +
+                "have the task allocated, or assigned to, the chosen participant. " +
+                "Each allocation strategy uses a different method to choose a " +
+                "participant. Please choose the preferred strategy from those listed " +
+                "below.</body></html>"
     );
     
     add(discussion,gbc);
@@ -53,7 +55,7 @@ public class SetSystemAllocateBehaviourPanel extends ResourcingWizardPanel {
     gbc.weightx = 0.5;
     gbc.anchor = GridBagConstraints.EAST;
     
-    JLabel mechanismLabel = new JLabel("Choose the runtime allocation strategy:");
+    JLabel mechanismLabel = new JLabel("Allocation strategy:");
     mechanismLabel.setDisplayedMnemonic(KeyEvent.VK_A);
     
     add(mechanismLabel, gbc);
@@ -90,7 +92,7 @@ public class SetSystemAllocateBehaviourPanel extends ResourcingWizardPanel {
   }
 
   public String getWizardStepTitle() {
-    return "Specify System Behaviour when Allocating a Work Item";
+    return "System Allocation";
   }
   
   protected void initialise() {

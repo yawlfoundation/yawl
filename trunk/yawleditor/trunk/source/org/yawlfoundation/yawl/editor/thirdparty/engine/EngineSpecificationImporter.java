@@ -114,7 +114,10 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
         }
     }
 
+ //   reset();
+    ConfigurationImporter.ApplyConfiguration();
     reset();
+
   }
 
   public static YSpecification importEngineSpecificationAsEngineObjects(String specXML) {
@@ -526,6 +529,14 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
       setTaskTimers(engineAtomicTask, editorAtomicTask, editorNet);
       setTaskCustomForm(engineAtomicTask, editorAtomicTask);
      
+     if(engineAtomicTask.getConfigurationElement() != null){
+    	 ConfigurationImporter.CTaskList.add((YAWLTask) editorAtomicTask);
+    	 ConfigurationImporter.map.put((YAWLTask) editorAtomicTask,engineAtomicTask.getConfigurationElement() );
+    	 ConfigurationImporter.NetTaskMap.put(editorAtomicTask,editorNet );
+
+     }
+
+
       editorToEngineElementMap.put(
           engineAtomicTask,        
           editorAtomicTask
@@ -719,7 +730,12 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
           engineCompositeTask,        
           editorCompositeTask
       );
-      
+      if(engineCompositeTask.getConfigurationElement() != null){
+     	 ConfigurationImporter.CTaskList.add((YAWLTask) editorCompositeTask);
+     	 ConfigurationImporter.map.put((YAWLTask) editorCompositeTask,engineCompositeTask.getConfigurationElement() );
+     	 ConfigurationImporter.NetTaskMap.put(editorCompositeTask,editorNet );
+
+      }
       setTaskDecorators(engineCompositeTask, (YAWLTask) editorCompositeTask, editorNet);
     }
   }

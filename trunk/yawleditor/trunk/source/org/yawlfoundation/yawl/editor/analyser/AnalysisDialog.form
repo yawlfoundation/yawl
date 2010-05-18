@@ -64,7 +64,7 @@
             </constraints>
             <properties>
               <labelFor value="f53c4"/>
-              <text value="Analysing Specification:"/>
+              <text value=""/>
             </properties>
           </component>
           <scrollpane id="f53c4" binding="scrollpane">

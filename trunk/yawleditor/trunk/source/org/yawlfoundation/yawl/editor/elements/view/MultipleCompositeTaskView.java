@@ -24,12 +24,10 @@
 
 package org.yawlfoundation.yawl.editor.elements.view;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Color;
-
-import org.jgraph.graph.VertexView;
 import org.jgraph.graph.CellViewRenderer;
+import org.jgraph.graph.VertexView;
+
+import java.awt.*;
 
 public class MultipleCompositeTaskView extends VertexView {
 
@@ -89,12 +87,17 @@ class MultipleCompositeTaskRenderer extends
   }
   
   protected void drawVertex(Graphics graphics, Dimension size) {
-    Color drawingColor = graphics.getColor();  
+    Color drawingColor = graphics.getColor();
+
+    // inner rect should always have a pen width of 1, regardless of outer pen width
+    Stroke outerStroke = ((Graphics2D) graphics).getStroke();
+    Stroke innerStroke = new BasicStroke(1);      
 
     graphics.drawRect(horizontalGap, 0,
                       size.width - (1 + horizontalGap), 
                       size.height - (1 + verticalGap));
 
+    ((Graphics2D) graphics).setStroke(innerStroke);
     graphics.drawRect(horizontalGap + innerHorizontalGap, innerVerticalGap,
                       size.width - (1 + horizontalGap + doubleInnerHorizontalGap), 
                       size.height - (1+ verticalGap + doubleInnerVerticalGap));
@@ -105,10 +108,12 @@ class MultipleCompositeTaskRenderer extends
                       size.height - (2 + verticalGap));
     graphics.setColor(drawingColor);
 
+    ((Graphics2D) graphics).setStroke(outerStroke);
     graphics.drawRect(0, verticalGap,
                       size.width - (1 + horizontalGap), 
                       size.height - (1 + verticalGap));
 
+    ((Graphics2D) graphics).setStroke(innerStroke);
     graphics.drawRect(innerHorizontalGap, verticalGap + innerVerticalGap,
                       size.width - (1 + horizontalGap + doubleInnerHorizontalGap), 
                       size.height - (1+ verticalGap + doubleInnerVerticalGap));
