@@ -36,11 +36,16 @@ public class YSessionCache extends Hashtable<String, YSession> {
         if (name == null) return failMsg("Null user name"); 
         String result ;
 
-        // quicker to check if its an external client first
+        // first check if its an external client
         YExternalClient client = YEngine.getInstance().getExternalClient(name);
         if (client != null) {
             if (validateCredentials(client, password)) {
-                result = storeSession(new YExternalSession(client, timeOutSeconds));
+
+                // (an 'admin' is enabled check has already been done in EngineGatewayImpl)
+                YSession session = name.equals("admin") ?
+                        new YSession(client, timeOutSeconds) :
+                        new YExternalSession(client, timeOutSeconds);
+                result = storeSession(session);
             }
             else result = badPassword(name);
         }
@@ -55,8 +60,7 @@ public class YSessionCache extends Hashtable<String, YSession> {
                 else result = badPassword(name);
             }
             else result = unknownUser(name);
-        }    
-
+        }
         return result ;
     }
 
@@ -92,19 +96,19 @@ public class YSessionCache extends Hashtable<String, YSession> {
 
     public void expire(String handle) {
         YSession session = this.remove(handle);
-        if (session != null) audit(session.getName(), YAuditEvent.Action.expired);
+        if (session != null) audit(session.getClient().getUserName(), YAuditEvent.Action.expired);
     }
 
 
     public void disconnect(String handle) {
         YSession session = this.remove(handle);
-        if (session != null) audit(session.getName(), YAuditEvent.Action.logoff);
+        if (session != null) audit(session.getClient().getUserName(), YAuditEvent.Action.logoff);
     }
 
 
     public void shutdown() {
         for (YSession session : this.values()) {
-            audit(session.getName(), YAuditEvent.Action.shutdown);
+            audit(session.getClient().getUserName(), YAuditEvent.Action.shutdown);
         }
     }
 
@@ -139,7 +143,7 @@ public class YSessionCache extends Hashtable<String, YSession> {
     private String storeSession(YSession session) {
         String handle = session.getHandle();
         this.put(handle, session);
-        audit(session.getName(), YAuditEvent.Action.logon);
+        audit(session.getClient().getUserName(), YAuditEvent.Action.logon);
         return handle;        
     }
 

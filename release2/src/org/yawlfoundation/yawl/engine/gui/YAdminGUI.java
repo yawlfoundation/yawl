@@ -363,7 +363,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
                 Set users = _engineManagement.getUsers();
                 for (Object o : users) {
                     YExternalClient user = (YExternalClient) o;
-                    attemptToCreateWorklist(user.getUserID());
+                    attemptToCreateWorklist(user.getUserName());
                 }
             } catch (Exception e) {
                 logError("Failure to load specifications", e);

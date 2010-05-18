@@ -153,6 +153,10 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                     String serviceURI = request.getParameter("serviceURI");
                     msg.append(_engine.removeYAWLService(serviceURI, sessionHandle));
                 }
+                else if ("getExternalDBGateways".equals(action)) {
+                    msg.append(_engine.getExternalDBGateways(sessionHandle));
+                }
+
                 else if ("unload".equals(action)) {
                     String specIdentifier = request.getParameter("specidentifier");
                     String version = request.getParameter("specversion");

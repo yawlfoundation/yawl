@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.authentication;
 
+import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 
 import java.util.Timer;
@@ -12,17 +13,24 @@ import java.util.UUID;
  * Author: Michael Adams
  */
 
-public abstract class YSession {
+public class YSession {
 
     private String _handle ;                                    // the session handle
     private Timer _activityTimer ;
     private long _interval;
+
+    private YClient _client;                      // this is overridden in child classes
 
 
     public YSession(long timeOutSeconds) {
         _handle = UUID.randomUUID().toString();
         setInterval(timeOutSeconds);
         startActivityTimer();
+    }
+
+    public YSession(YClient client, long timeOutSeconds) {
+        this(timeOutSeconds);
+        _client = client;
     }
 
 
@@ -36,14 +44,22 @@ public abstract class YSession {
     }
 
 
-    public abstract String getURI();
+    public String getURI() { return null; }
 
-    public abstract String getName();
+    public String getPassword() { return null; }
 
-    public abstract String getPassword();
+    public void setPassword(String password) throws YPersistenceException {
+        if (_client.getUserName().equals("admin")) {
+            YExternalClient client = YEngine.getInstance().getExternalClient("admin");
+            if (client != null) {
+                client.setPassword(password);
+                YEngine.getInstance().updateObject(client);
+            }
+        }
+    }
 
-    public abstract void setPassword(String password) throws YPersistenceException;
 
+    public YClient getClient() { return _client; }
 
     public String getHandle() { return _handle; }
 

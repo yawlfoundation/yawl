@@ -2595,7 +2595,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     public String addExternalClient(YExternalClient client) throws IOException {
         String result = _interfaceAClient.addClientAccount(client, getEngineSessionHandle());
         if (successful(result)) {
-            _connections.addUser(client.getUserID(), client.getPassword());
+            _connections.addUser(client.getUserName(), client.getPassword());
         }
         return result;
     }
@@ -2629,7 +2629,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             Set<YExternalClient> clients = getExternalClients();
             if (clients != null) {
                 for (YExternalClient client : clients) {
-                    users.put(client.getUserID(), client.getPassword());
+                    users.put(client.getUserName(), client.getPassword());
                 }
             }
             Set<YAWLServiceReference> services = getRegisteredServices();

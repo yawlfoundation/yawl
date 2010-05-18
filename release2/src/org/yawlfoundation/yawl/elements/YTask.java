@@ -86,6 +86,12 @@ public abstract class YTask extends YExternalNetElement {
     // Reset net association
     private E2WFOJNet _resetNet;
 
+    // process configuration
+    private String configuration = null;
+    private String defaultConfiguration = null;
+    private Element configurationElement = null;
+    private Element defaultConfigurationElement = null;
+
     // task resourcing mappings
     private String _resourcingXML = null;        // populated externally (eg. the editor)
     private Element _resourcingSpec = null;      // populated on spec parse
@@ -263,7 +269,7 @@ public abstract class YTask extends YExternalNetElement {
     }
 
 
-    public void setRemovesTokensFrom(List<YExternalNetElement> removeSet) {
+    public void addRemovesTokensFrom(List<YExternalNetElement> removeSet) {
         _removeSet.addAll(removeSet);
 
         //Need to add the task to the CancelledBySet as well
@@ -1206,6 +1212,14 @@ public abstract class YTask extends YExternalNetElement {
         String splitType = decoratorTypeToString(_splitType);
         xml.append("<split code=\"").append(splitType).append("\"/>");
 
+        // adds process configuration information
+        if (getDefaultConfiguration() != null) {
+        	  xml.append(getDefaultConfiguration());
+        }
+        if (getConfiguration() != null) {
+            xml.append(getConfiguration());
+        }
+
         StringBuilder removeTokensFromFlow = new StringBuilder();
         List<YExternalNetElement> removeList = new ArrayList<YExternalNetElement>(_removeSet);
         Collections.sort(removeList);
@@ -1825,4 +1839,38 @@ public abstract class YTask extends YExternalNetElement {
         return xml.toString();
     }
 
+
+    // process configuration setters & getters
+
+    public String getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(String config) {
+        configuration = config;
+    }
+
+    public String getDefaultConfiguration() {
+        return defaultConfiguration;
+    }
+
+    public void setDefaultConfiguration(String defaultConfig) {
+        defaultConfiguration = defaultConfig;
+    }
+
+    public Element getConfigurationElement() {
+        return configurationElement;
+    }
+
+    public void setConfigurationElement(Element configElement) {
+        configurationElement = configElement;
+    }
+
+    public Element getDefaultConfigurationElement() {
+        return defaultConfigurationElement;
+    }
+
+    public void setDefaultConfigurationElement(Element defaultConfigElement) {
+        defaultConfigurationElement = defaultConfigElement;
+    }
 }

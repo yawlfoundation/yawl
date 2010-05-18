@@ -9,10 +9,7 @@
 package org.yawlfoundation.yawl.logging;
 
 import org.apache.log4j.Logger;
-import org.yawlfoundation.yawl.authentication.YExternalClient;
-import org.yawlfoundation.yawl.authentication.YExternalSession;
-import org.yawlfoundation.yawl.authentication.YServiceSession;
-import org.yawlfoundation.yawl.authentication.YSession;
+import org.yawlfoundation.yawl.authentication.*;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.YTask;
@@ -521,12 +518,7 @@ public class YEventLogger {
 
 
     private long getServiceID(YWorkItem item) throws YPersistenceException {
-        long result = -1;
-        YAWLServiceReference service = item.getOwnerService();
-        if (service != null) {
-            result = getServiceID(service.getServiceName(), service.getURI()) ;
-        }
-        return result;
+        return getServiceID(item.getExternalClient());
     }
 
 
@@ -534,17 +526,23 @@ public class YEventLogger {
         long result = -1;
         YSession session = _engine.getSessionCache().getSession(serviceHandle);
         if (session != null) {
-            if (session instanceof YServiceSession) {
-                YAWLServiceReference service = ((YServiceSession) session).getService();
-                result = getServiceID(service.getServiceName(), service.getURI()) ;
-            }
-            else {
-                YExternalClient client = ((YExternalSession) session).getClient();
-                result = getServiceID(client.getUserID(), null) ;
-            }
+            result = getServiceID(session.getClient());
         }
         return result;
     }
+
+
+    private long getServiceID(YClient client) throws YPersistenceException {
+        long result = -1;
+        if (client != null) {
+            String uri = (client instanceof YAWLServiceReference) ?
+                         ((YAWLServiceReference) client).getURI() : null;
+            result = getServiceID(client.getUserName(), uri) ;
+        }
+        return result;
+    }
+
+
 
 
     /**

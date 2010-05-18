@@ -8,12 +8,13 @@
 
 package org.yawlfoundation.yawl.engine;
 
-import org.apache.log4j.*;
+import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.authentication.YSessionCache;
 import org.yawlfoundation.yawl.elements.*;
@@ -1443,14 +1444,13 @@ public class YEngine implements InterfaceADesign,
      * Either way the method returns the resultant work item.
      *
      * @param workItem the enabled, or fired workitem.
-     * @param service the YAWL service starting the workitem
+     * @param client the YAWL external client or service starting the workitem
      * @return the resultant work item in the executing state.
      * @throws YStateException     if the workitem is not in either of these
      *                             states.
      * @throws YDataStateException
      */
-    public synchronized YWorkItem startWorkItem(YWorkItem workItem,
-                                                YAWLServiceReference service)
+    public synchronized YWorkItem startWorkItem(YWorkItem workItem, YClient client)
             throws YStateException, YDataStateException, YQueryException,
                    YSchemaBuildingException, YPersistenceException, YEngineStateException {
 
@@ -1480,7 +1480,7 @@ public class YEngine implements InterfaceADesign,
                             if (i == 0) {
                                 netRunner.startWorkItemInTask(pmgr, nextWorkItem.getCaseID(),
                                         workItem.getTaskID());
-                                nextWorkItem.setStatusToStarted(pmgr, service);
+                                nextWorkItem.setStatusToStarted(pmgr, client);
                                 dataList = task.getData(childID);
                                 nextWorkItem.setData(pmgr, dataList);
                                 resultantItem = nextWorkItem;
@@ -1496,7 +1496,7 @@ public class YEngine implements InterfaceADesign,
                 else if (workItem.getStatus().equals(YWorkItemStatus.statusFired)) {
                     netRunner = _workItemRepository.getNetRunner(workItem.getCaseID().getParent());
                     netRunner.startWorkItemInTask(pmgr, workItem.getCaseID(), workItem.getTaskID());
-                    workItem.setStatusToStarted(pmgr, service);
+                    workItem.setStatusToStarted(pmgr, client);
 
                     // AJH: As the workitem's data is restored courtesy of Hibernate, why
                     // do we need to explicity restore it, get it wrong and subsequently
@@ -1648,13 +1648,13 @@ public class YEngine implements InterfaceADesign,
     }
 
 
-    public YWorkItem skipWorkItem(YWorkItem workItem, YAWLServiceReference service)
+    public YWorkItem skipWorkItem(YWorkItem workItem, YClient client)
             throws YStateException, YDataStateException,
                    YQueryException, YSchemaBuildingException,
                    YPersistenceException, YEngineStateException {
 
         // start item, get output data, get children, complete each child
-        YWorkItem startedItem = startWorkItem(workItem, service) ;
+        YWorkItem startedItem = startWorkItem(workItem, client) ;
         if (startedItem != null) {
             String data = mapOutputDataForSkippedWorkItem(startedItem) ;
             Set<YWorkItem> children = workItem.getChildren() ;
@@ -1979,7 +1979,7 @@ public class YEngine implements InterfaceADesign,
      */
     public synchronized boolean addExternalClient(YExternalClient client)
             throws YPersistenceException {
-        String userID = client.getUserID();
+        String userID = client.getUserName();
         if ((userID != null) && (client.getPassword() != null) &&
             (! _externalClients.containsKey(userID))) {
 

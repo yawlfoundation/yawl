@@ -24,6 +24,11 @@ public class YAttributeMap extends Hashtable<String, String> {
     }
 
 
+    public boolean getBoolean(String key) {
+        return containsKey(key) && get(key).equalsIgnoreCase("true");
+    }
+
+
     public Set<Attribute> toJDOM() {
         Set<Attribute> result = new HashSet<Attribute>();
         for (String key : this.keySet()) {

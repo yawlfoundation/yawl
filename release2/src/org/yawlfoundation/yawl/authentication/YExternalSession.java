@@ -18,11 +18,11 @@ public class YExternalSession extends YSession {
 
 
     public String getURI() {
-        return null;                                     // clients done require a uri
+        return null;                                     // clients don't require a uri
     }
 
     public String getName() {
-        return _client != null ? _client.getUserID() : null;
+        return _client != null ? _client.getUserName() : null;
     }
 
     public String getPassword() {

@@ -9,16 +9,16 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
-import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.elements.YTask;
-import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.engine.ObserverGateway;
-import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.engine.YWorkItem;
+import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
 
-import java.util.Set;
 import java.net.URI;
+import java.util.Set;
 
 /**
  * Defines the 'B' interface into the YAWL Engine corresponding to WfMC interfaces 2+3 - Workflow client applications and invoked applications.
@@ -56,7 +56,7 @@ public interface InterfaceBClient {
      */
     public Set getAllWorkItems();
 
-    YWorkItem startWorkItem(YWorkItem workItem, YAWLServiceReference service) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException, YEngineStateException;
+    YWorkItem startWorkItem(YWorkItem workItem, YClient client) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException, YEngineStateException;
 
     void completeWorkItem(YWorkItem workItem, String data, String logPredicate, boolean force) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException, YEngineStateException;
 

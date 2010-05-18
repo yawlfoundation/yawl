@@ -91,7 +91,7 @@
     <property name="axisAnt"               value="axis-1_1RC2-ant.jar"/>
     <property name="bcmail"                value="bcmail-jdk15-139.jar"/>
     <property name="bcprov"                value="bcprov-jdk15-139.jar"/>
-    <property name="cglib"                 value="cglib-2.1_3.jar"/>
+    <property name="cglib"                 value="cglib-2.2.jar"/>
     <property name="common"                value="common.jar"/>
     <property name="commonsBeanutils"      value="commons-beanutils.jar"/>
     <property name="commonsCodec"          value="commons-codec-1.4.jar"/>
@@ -110,7 +110,7 @@
     <property name="hsql"                  value="hsqldb.jar"/>
     <property name="itext"                 value="itext-1.4.jar"/>
     <property name="jaxenFull"             value="jaxen-full.jar"/>
-    <property name="javaAssist"            value="javassist-3.4.GA.jar"/>
+    <property name="javaAssist"            value="javassist-3.9.0.GA.jar"/>
     <property name="jaxp-api"              value="jaxp-api.jar"/>
     <property name="jaxrpc"                value="jaxrpc.jar"/>
     <property name="jcommon"               value="jcommon-1.0.0-rc1.jar"/>
@@ -147,8 +147,8 @@
     <property name="saxpath"               value="saxpath.jar"/>
     <property name="serializer"            value="serializer.jar"/>
     <property name="servlet"               value="servlet-api.jar"/>
-    <property name="slf4j"                 value="slf4j-api-1.5.6.jar"/>
-    <property name="slf4j-log4j"           value="slf4j-log4j12-1.5.6.jar"/>
+    <property name="slf4j"                 value="slf4j-api-1.6.0.jar"/>
+    <property name="slf4j-log4j"           value="slf4j-log4j12-1.6.0.jar"/>
     <property name="soaprmi"               value="soaprmi-1_1.jar"/>
     <property name="twitter4j"             value="twitter4j-2.0.8.jar"/>
     <property name="wsdl4j"                value="wsdl4j-20030807.jar"/>
@@ -407,7 +407,8 @@
             <fileset dir="${lib.dir}"
                      includes="${persistence.libs} ${xsd.libs} ${common.libs} ${jcommon}
                                ${jfreechart} ${jaxenFull} ${postgres8} ${saxpath}
-                               ${xml-apis} ${saxon.libs} ${xerces.libs} ${commonsCodec}"
+                               ${xml-apis} ${saxon.libs} ${xerces.libs} ${commonsLang}
+                               ${commonsCodec}"
                      excludes="hibernate.cfg.xml ${servlet}"/>
         </unzip>
 
@@ -708,7 +709,7 @@
         <!-- 1. Copy required yawl classes into dir structure -->
         <copy todir="${yawl.worklet.app.name}${webinf.dir}/authentication">
             <fileset dir="${classes.dir}${packageRoot}/authentication"
-                     includes="User.class"/>
+                     includes="YClient.class"/>
         </copy>
         <copy todir="${yawl.worklet.app.name}${webinf.dir}/engine/interfce">
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
@@ -847,7 +848,7 @@
         <!-- 1. Copy required yawl classes into dir structure -->
         <copy todir="${yawl.resource.app.name}${webinf.dir}/authentication">
             <fileset dir="${classes.dir}${packageRoot}/authentication"
-                     includes="YExternalClient.class"/>
+                     includes="YExternalClient.class YClient.class"/>
         </copy>
         <copy todir="${yawl.resource.app.name}${webinf.dir}/engine/interfce">
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>

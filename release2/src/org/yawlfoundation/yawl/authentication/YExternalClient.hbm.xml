@@ -7,7 +7,7 @@
 
     <class name="org.yawlfoundation.yawl.authentication.YExternalClient" table="ClientApps">
 
-        <id name="_userID" column="userID" access="field">
+        <id name="_userName" column="userID" access="field">
             <generator class="assigned"/>
         </id>
 

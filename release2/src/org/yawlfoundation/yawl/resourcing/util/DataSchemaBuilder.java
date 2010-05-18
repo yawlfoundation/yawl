@@ -125,7 +125,7 @@ public class DataSchemaBuilder {
         }
 
         // set default min and max occurs for this parameter
-        element.setAttribute("minOccurs", param.isMandatory() ? "1" : "0");
+        element.setAttribute("minOccurs", param.isOptional() ? "0" : "1");
         element.setAttribute("maxOccurs", "1");
 
         return element;

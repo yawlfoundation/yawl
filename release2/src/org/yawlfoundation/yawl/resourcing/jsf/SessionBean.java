@@ -798,7 +798,7 @@ public class SessionBean extends AbstractSessionBean {
         String result;
         try {
             YExternalClient client = externalClients.get(listIndex);
-            result = _rm.removeExternalClient(client.getUserID());
+            result = _rm.removeExternalClient(client.getUserName());
             if (_rm.successful(result)) refreshExternalClients();
         }
         catch (IOException ioe) {

@@ -21,8 +21,8 @@ public class YExternalClientComparator implements Comparator<YExternalClient> {
         if (client1 == null) return -1;
         if (client2 == null) return 1;
 
-        String id1 = client1.getUserID();
-        String id2 = client2.getUserID();
+        String id1 = client1.getUserName();
+        String id2 = client2.getUserName();
 
         // compare id strings
         return id1.compareTo(id2);

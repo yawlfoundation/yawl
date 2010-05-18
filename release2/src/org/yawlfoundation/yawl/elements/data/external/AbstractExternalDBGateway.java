@@ -5,6 +5,7 @@ import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.util.XNode;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,7 +16,8 @@ import java.util.Properties;
  * Author: Michael Adams
  * Creation Date: 8/07/2009
  */
-public abstract class AbstractExternalDBGateway {
+public abstract class
+        AbstractExternalDBGateway {
 
     protected Logger _log = Logger.getLogger(AbstractExternalDBGateway.class);
 
@@ -30,8 +32,8 @@ public abstract class AbstractExternalDBGateway {
      * @param url the database url (e.g. "jdbc:postgresql:yawl")
      * @param username the logon name for the database
      * @param password the logon password
-     * @param classes a list of classes for Hibernate to converse with the underlying
-     * tables (can be null if no classes are involved) 
+     * @param classes a list of classes for Hibernate to use to converse with the
+     * underlying tables (can be null if no classes are involved) 
      */
     protected void configureSession(String dialect, String driver, String url,
                                  String username, String password, List<Class> classes) {
@@ -55,6 +57,14 @@ public abstract class AbstractExternalDBGateway {
         }
     }
 
+
+    public String toXML() {
+        XNode node = new XNode("ExternalDBGateway");
+        node.addChild("name", getClass().getName());
+        node.addChild("description", getDescription());
+        return node.toString();
+    }
+    
     /********************************************************************************/
     /***** ABSTRACT METHODS *****/
 

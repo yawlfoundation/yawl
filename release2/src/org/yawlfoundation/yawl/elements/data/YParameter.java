@@ -84,8 +84,12 @@ public class YParameter extends YVariable implements Comparable<YVariable> {
 
 
     public boolean isRequired() {
-        return super.isMandatory() ||
-          (_attributes.containsKey("mandatory") && _attributes.get("mandatory").equals("true"));
+        return super.isMandatory() || (! isOptional()) || _attributes.getBoolean("mandatory");
+    }
+
+    public boolean isOptional() {
+        return _attributes.getBoolean("optional");
+
     }
 
 

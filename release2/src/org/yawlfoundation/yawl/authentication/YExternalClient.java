@@ -10,7 +10,6 @@
 package org.yawlfoundation.yawl.authentication;
 
 import org.jdom.Element;
-import org.yawlfoundation.yawl.util.XNode;
 
 
 /**
@@ -24,60 +23,23 @@ import org.yawlfoundation.yawl.util.XNode;
  *
  */
 
-public class YExternalClient {
+public class YExternalClient extends YClient {
 
-    String _userID;
-    String _password;
-    String _documentation;
-
-
-    public YExternalClient() {}
+    public YExternalClient() { super(); }
 
     public YExternalClient(String userID, String password, String documentation) {
-        _userID = userID;
-        _password = password;
-        _documentation = documentation;
+        super(userID, password, documentation);
     }
 
     public YExternalClient(Element xml) {
-        _userID = xml.getChildText("username");
-        _password = (xml.getChildText("password"));
-        _documentation = xml.getChildText("documentation");
-    }
-
-    
-    public String getUserID() { return _userID; }
-
-    public void setUserID(String userID) { _userID = userID; }
-
-
-    public String getPassword() { return _password; }
-
-    public void setPassword(String password) {
-        _password = password;
-    }
-
-
-    public String getDocumentation() { return _documentation; }
-
-    public void setDocumentation(String documentation) { _documentation = documentation; }
-
-
-    public String toXML() {
-        XNode root = new XNode("client");
-        root.addChild("username", _userID);
-        root.addChild("password", _password);
-        root.addChild("documentation", _documentation);
-        return root.toString();
+        super(xml);
     }
 
 
     // For JSF table
 
-    public String get_userid() { return _userID; }
+    public String get_userid() { return _userName; }
 
     public String get_documentation() { return _documentation; }
-
-
 
 }

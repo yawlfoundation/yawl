@@ -285,7 +285,7 @@ public class TestYExternalTask extends TestCase{
         removesList.add(t3);
         removesList.add(t4);
         removesList.add(implicit);
-        t2.setRemovesTokensFrom(removesList);
+        t2.addRemovesTokensFrom(removesList);
         t2.setDataBindingForInputParam("/data/stub", "stub");
 
 //        Map m = new HashMap();
@@ -352,7 +352,7 @@ public class TestYExternalTask extends TestCase{
         removesList.add(c1);
         removesList.add(c2);
         removesList.add(implicit);
-        t2.setRemovesTokensFrom(removesList);
+        t2.addRemovesTokensFrom(removesList);
         t1.addPostset(f1);
         t1.addPostset(f2);
         t1.addPreset(f4);
@@ -403,7 +403,7 @@ public class TestYExternalTask extends TestCase{
         t1.addPostset(new YFlow(t1, c2));
         List l1 = new ArrayList();
         l1.add(t1);
-        t1.setRemovesTokensFrom(l1);
+        t1.addRemovesTokensFrom(l1);
         c1.add(null, new YIdentifier(null));
 
         List kids = null;
