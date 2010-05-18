@@ -872,7 +872,7 @@ public class YAWLReachabilityUtils{
               	  cancelTask.removeFromRemoveSet(t);
               	  List newVector = new LinkedList();
               	  newVector.add(condition);
-              	  cancelTask.setRemovesTokensFrom(newVector); 
+              	  cancelTask.addRemovesTokensFrom(newVector); 
               	}
 
               }

@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionSubscriber;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -48,8 +49,8 @@ public class CutAction extends YAWLBaseAction implements TooltipTogglingWidget, 
     putValue(Action.NAME, "Cut");
     putValue(Action.LONG_DESCRIPTION, "Cut the selected elements");
     putValue(Action.SMALL_ICON, getPNGIcon("cut"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_U));
-    putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control X"));
+    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_T));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("X"));
   }
   
   private CutAction() {

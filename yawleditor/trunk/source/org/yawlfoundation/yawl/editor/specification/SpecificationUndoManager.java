@@ -121,6 +121,10 @@ public class SpecificationUndoManager extends GraphUndoManager {
     }
     setDirty(true);
     refreshButtons();
+
+    ProcessConfigurationModel.getInstance().setApplyState(
+               ProcessConfigurationModel.ApplyState.OFF
+    );
   }
   
   /** 
@@ -168,11 +172,16 @@ public class SpecificationUndoManager extends GraphUndoManager {
     refreshButtons();
   }
 
-  private void refreshButtons() {
+  public void refreshButtons() {
     UndoAction.getInstance().setEnabled(canUndo());
     RedoAction.getInstance().setEnabled(canRedo());
   }
 
+    public void disableButtons() {
+      UndoAction.getInstance().setEnabled(false);
+      RedoAction.getInstance().setEnabled(false);
+    }
+        
   public void startCompoundingEdits() {
     this.startCompoundingEdits(null);
   }
@@ -209,7 +218,7 @@ public class SpecificationUndoManager extends GraphUndoManager {
   }
   
   private boolean acceptingEdits() {
-  	return nonAcceptanceLevel > 0 ? false : true;
+  	return nonAcceptanceLevel <= 0;
   }
   
   private void showFrameOfEdit(UndoableEdit edit) {
@@ -247,6 +256,10 @@ public class SpecificationUndoManager extends GraphUndoManager {
   public void setDirty(boolean newValue) {
     dirty = newValue;
   }
+
+    public void removeLastUndoableEdit() {
+        editToBeUndone().die();
+    }
 
 
   /******************************************************************/

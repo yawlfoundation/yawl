@@ -36,6 +36,7 @@ public class MultipleAtomicTask extends YAWLTask
    * 
    */
   private static final long serialVersionUID = 1L;
+  private MultipleInstanceTaskConfigSet configureSet;
 
   /**
    * This constructor is ONLY to be invoked when we are reconstructing an
@@ -70,6 +71,10 @@ public class MultipleAtomicTask extends YAWLTask
     initialise();
   }
   
+  public void iniConfigure(){
+	  configureSet = new MultipleInstanceTaskConfigSet(this);
+  }
+
   private void initialise() {
     setMinimumInstances(1);
     setMaximumInstances(1);
@@ -206,4 +211,9 @@ public class MultipleAtomicTask extends YAWLTask
   public String getType() {
     return "Multiple Atomic Task";
   }
+
+
+public MultipleInstanceTaskConfigSet getConfigurationInfor() {
+		return this.configureSet;
+}
 }

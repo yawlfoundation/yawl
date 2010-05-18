@@ -103,6 +103,11 @@ public class AvailableEngineProxyImplementation implements
     return new HashMap();
   }
 
+  public Map<String, String> getExternalDataGateways() {
+      return new Hashtable<String, String>();
+  }
+
+
   public boolean connected() {
    return false;
   }

@@ -67,7 +67,7 @@ public class SelectCodeletDialog extends AbstractDoneDialog {
 
 
   private JPanel getCodeletPanel() {
-    codeletTable = new CodeletSelectTable();
+    codeletTable = new CodeletSelectTable(CodeletSelectTable.CODELET);
     JScrollPane jspane =  new JScrollPane(codeletTable);
     JPanel codeletTablePanel = new JPanel();
     codeletTablePanel.setBorder(new EmptyBorder(12,12,0,11));

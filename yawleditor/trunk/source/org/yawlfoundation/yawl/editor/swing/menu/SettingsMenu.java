@@ -24,30 +24,27 @@
 
 package org.yawlfoundation.yawl.editor.swing.menu;
 
-import org.yawlfoundation.yawl.editor.actions.tools.ConfigureAnalysisToolsAction;
-import org.yawlfoundation.yawl.editor.actions.tools.SetEngineDetailAction;
-import org.yawlfoundation.yawl.editor.actions.tools.SetExtendedAttributeFilePathAction;
-import org.yawlfoundation.yawl.editor.actions.tools.SetResourcingServiceAction;
+import org.yawlfoundation.yawl.editor.actions.tools.*;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 import org.yawlfoundation.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 
-class ToolsMenu extends JMenu {
+class SettingsMenu extends JMenu {
     
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
 
-  public ToolsMenu() {
+  public SettingsMenu() {
     super("Settings");
     setMnemonic(KeyEvent.VK_T);
     buildInterface();
-  }   
-  
-  protected void buildInterface() {
+  }
+
+    protected void buildInterface() {
 
     if (YAWLEngineProxy.engineLibrariesAvailable())
       add(new YAWLMenuItem(new SetEngineDetailAction()));
@@ -57,7 +54,8 @@ class ToolsMenu extends JMenu {
     if (YAWLEngineProxy.engineLibrariesAvailable())
       add(new YAWLMenuItem(new ConfigureAnalysisToolsAction()));
 
-      add(new YAWLMenuItem(new SetExtendedAttributeFilePathAction()));      
+      add(new YAWLMenuItem(new SetExternalFilePathsAction()));
+      add(new YAWLMenuItem(new ConfigurationSettingsAction()));
   }
   
   public static boolean needsToBeAddedToMenus() {

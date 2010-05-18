@@ -23,33 +23,35 @@
 package org.yawlfoundation.yawl.editor.actions.tools;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-public class SetExtendedAttributeFilePathAction extends YAWLBaseAction {
+public class SetExternalFilePathsAction extends YAWLBaseAction {
   /**
    *
    */
   private static final long serialVersionUID = 1L;
 
-  private static final ExtendedAttributesFilePathsDialog dialog =
-          new ExtendedAttributesFilePathsDialog();
+  private static final ExternalFilePathsDialog dialog =
+          new ExternalFilePathsDialog();
 
   private boolean invokedAtLeastOnce = false;
 
   {
     putValue(Action.SHORT_DESCRIPTION, " Specify the file paths for user-defined extended attributes. ");
-    putValue(Action.NAME, "Extended Attribute File Paths...");
+    putValue(Action.NAME, "External File Paths...");
     putValue(Action.LONG_DESCRIPTION, "Specify the file paths for user-defined extended attributes.");
-    putValue(Action.SMALL_ICON, getPNGIcon("exAttr"));
+    putValue(Action.SMALL_ICON, getPNGIcon("drive_disk"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_F));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("shift F"));
   }
 
-  public SetExtendedAttributeFilePathAction() {}
+  public SetExternalFilePathsAction() {}
 
-  public void actionPerformed(ActionEvent event) {
+    public void actionPerformed(ActionEvent event) {
     if (!invokedAtLeastOnce) {
       invokedAtLeastOnce = true;
       dialog.setLocationRelativeTo(YAWLEditor.getInstance());

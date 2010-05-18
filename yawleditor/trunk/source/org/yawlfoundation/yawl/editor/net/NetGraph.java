@@ -72,6 +72,13 @@ public class NetGraph extends JGraph {
   private NetSelectionListener selectionListener;
   private CancellationSetModel cancellationSetModel;
 
+  /**
+   * The following fields are added by Jingxin XU
+   */
+  private ConfigurationSettingInfor configurationSettings; //This variable stores all editor settings of a net tp steer configuration opportunities
+
+  private ServiceAutomatonTree serviceAutomaton = null;
+
   public NetGraph() {
     super();
     initialize();
@@ -91,6 +98,11 @@ public class NetGraph extends JGraph {
   
   private void initialize() {
     buildBasicGraphContent();
+    this.configurationSettings = new ConfigurationSettingInfor();
+  }
+
+  public void createServiceAutonomous() {
+	  this.serviceAutomaton = new ServiceAutomatonTree(this);
   }
 
   private void buildBasicGraphContent() {
@@ -130,6 +142,10 @@ public class NetGraph extends JGraph {
     startUndoableEdits();
   }
   
+  public ConfigurationSettingInfor getConfigurationSettings(){
+	  return this.configurationSettings;
+  }
+
   public void buildNewGraphContent(){
     buildNewGraphContent(getDefaultSize());
   }
@@ -233,8 +249,16 @@ public class NetGraph extends JGraph {
         this, 
         new Object[] { element }
     );
+
+    if(element instanceof YAWLTask){
+    	YAWLTask task = (YAWLTask)element;
+    	if(this.configurationSettings.isNewElementsConfigurable()){
+          task.setConfigurable(! task.isConfigurable());
   }
-  
+    }
+
+  }
+
   public Dimension getPreferredSize() {
     Dimension currentPrefferedSize = super.getPreferredSize();
 
@@ -961,6 +985,72 @@ public class NetGraph extends JGraph {
     } catch (Exception e) {}
   }
 
+  /**
+   * Created by Jingxin XU for testing purpose only
+   * @param vertex
+   * @param configureInfor
+   */
+  public void setConfigureInforUpdate(GraphCell vertex, String configureInfor) {
+	    HashSet objectsToInsert = new HashSet();
+	    ParentMap parentMap = new ParentMap();
+	    YAWLVertex element = null;
+
+	    try {
+	      VertexContainer container = null;
+	      if (vertex instanceof VertexContainer) {
+	        container = (VertexContainer) vertex;
+	        element = container.getVertex();
+	      } else {
+	        element = (YAWLVertex) vertex;
+	        container = getNetModel().getVertexContainer(element, objectsToInsert, parentMap);
+	      }
+
+
+
+	      if(configureInfor == null || configureInfor.equals("")) {
+	        return;
+	      }
+
+	      ConfigureInformation config = new ConfigureInformation(element, configureInfor);
+
+	      getNetModel().insert(objectsToInsert.toArray(),null, null, parentMap, null);
+
+	      getGraphLayoutCache().insert(config);
+
+	      // The ordering of the following code is very important for getting the label
+	      // to align correctly with the element (JGraph 5.7.3.1 exhibits this behaviour).
+
+	      // Moving after the insert causes the label to resize to its maximum bounding box.
+
+	      NetCellUtilities.moveViewToLocation(
+	          this,
+	          getVertexViewFor(config),
+	          getVertexViewFor(container).getBounds().getCenterX(),
+	          getVertexViewFor(container).getBounds().getMaxY()
+	      );
+
+	      // Adding the label as a child to the container adds a couple pixels to the
+	      // label width, so we remember the correct label width now.
+
+	      double configWidth = getVertexViewFor(config).getBounds().getWidth();
+
+	      parentMap.addEntry(config, container);
+
+	      getNetModel().edit(null,null, parentMap, null);
+
+	      // Center the label under the element. Rounding was necessary to get
+	      // good placement of the label.
+
+	      NetCellUtilities.translateView(
+	          this,
+	          getVertexViewFor(config),
+	          Math.round(-1.0*(configWidth/2.0)),
+	          0
+	      );
+
+	    } catch (Exception e) {}
+	  }
+
 
   public NetGraphModel getNetModel() {
    return (NetGraphModel) getModel();
@@ -1147,6 +1237,13 @@ public class NetGraph extends JGraph {
     getModel().edit(attributes, null, null, null);
   }
   
+  public  void changeLineWidth(YAWLVertex cell) {
+	    Map attributes = GraphConstants.createAttributes(cell,
+	                                                     GraphConstants.LINEWIDTH,
+	                                                     (float)20.0);
+	    getModel().edit(attributes, null, null, null);
+	  }
+
   public YAWLEditorNetPanel getFrame() {
     return frame;
   }
@@ -1245,6 +1342,13 @@ public class NetGraph extends JGraph {
   public NetMarqueeHandler getNetMarqueeHandler() {
     return (NetMarqueeHandler) getMarqueeHandler();
   }
+
+public ServiceAutomatonTree getServiceAutonomous() {
+	return serviceAutomaton;
+}
+
+public void setServiceAutonomous(ServiceAutomatonTree serviceAutonomous) {
+	this.serviceAutomaton = serviceAutonomous;
 }
 
 
@@ -1274,4 +1378,5 @@ class NetFocusListener implements FocusListener {
       net.getNetMarqueeHandler().connectElementsOrIgnoreFlow();
     } catch (Exception e) {}
   }
+}
 }

@@ -24,14 +24,11 @@
 
 package org.yawlfoundation.yawl.editor.elements.view;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Color;
-
-import javax.swing.Icon;
-
-import org.jgraph.graph.VertexView;
 import org.jgraph.graph.CellViewRenderer;
+import org.jgraph.graph.VertexView;
+
+import javax.swing.*;
+import java.awt.*;
 
 public class MultipleAtomicTaskView extends VertexView {
 
@@ -74,7 +71,7 @@ public class MultipleAtomicTaskView extends VertexView {
   
     protected void drawVertex(Graphics graphics, Dimension size) {
       Color foreground = graphics.getColor();  
-
+      
       graphics.drawRect(horizontalGap, 0,
                         size.width - (1 + horizontalGap), 
                         size.height - (1+verticalGap));

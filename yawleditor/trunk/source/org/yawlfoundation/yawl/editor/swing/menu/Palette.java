@@ -155,6 +155,12 @@ public class Palette extends JPanel implements SpecificationModelListener {
   public String getSelectedAtomicTaskIconPath() {
     return TASK_TEMPLATE_PALETTE.getAtomicTaskIconPath();
   }
+
+  public void updatePluginIcons() {
+      TaskIconTreeModel model =
+              (TaskIconTreeModel) TASK_TEMPLATE_PALETTE.getTaskIconTree().getModel();
+      model.updatePluginIconNodes();
+  }
   
   public void doPostBuildProcessing() {
     SpecificationModel.getInstance().subscribe(this);   
@@ -258,6 +264,10 @@ class TaskTemplatePalette extends JPanel implements ControlFlowPaletteListener, 
   
   public String getAtomicTaskIconPath() {
     return taskTemplateTree.getSelectedAtomicTaskIconPath();
+  }
+
+  protected TaskIconTree getTaskIconTree() {
+      return taskTemplateTree;
   }
   
   private JScrollPane buildTaskTree() {
@@ -507,6 +517,8 @@ class TaskIconTree extends JTree implements SpecificationSelectionSubscriber {
 class TaskIconTreeModel extends DefaultTreeModel {
   
   private static final long serialVersionUID = 1L;
+
+  private TaskIconTreeNode _pluginNode;
   
   /*
    * Recursing through the tree is failing oddly and non-deterministically.  I've decided
@@ -549,7 +561,7 @@ class TaskIconTreeModel extends DefaultTreeModel {
     return getDefaultNode();
   }
 
-  private final DefaultMutableTreeNode buildIconTree() {
+  private DefaultMutableTreeNode buildIconTree() {
     DefaultMutableTreeNode rootIconNode = new DefaultMutableTreeNode("Task Icon");
 
     add(rootIconNode,createNoIconNode());
@@ -633,16 +645,23 @@ class TaskIconTreeModel extends DefaultTreeModel {
 
     return routingNode;
   }
+
+  public void updatePluginIconNodes() {
+      _pluginNode.removeAllChildren();
+      recurseNodeForPluginIcons(_pluginNode,
+              new File(FileUtilities.getAbsoluteTaskIconPath())) ;
+      nodeStructureChanged(_pluginNode);
+  }
   
   private TaskIconTreeNode createPluginIconNodes() {
-    TaskIconTreeNode pluginNode = createInternalIconNode("Plugin", "Plugin");
+    _pluginNode = createInternalIconNode("Plugin", "Plugin");
 
     recurseNodeForPluginIcons(
-        pluginNode, 
-        new File(FileUtilities.ABSOLUTE_TASK_ICON_PATH)
+        _pluginNode,
+        new File(FileUtilities.getAbsoluteTaskIconPath())
     );
     
-    return pluginNode;
+    return _pluginNode;
   }
 
   private void recurseNodeForPluginIcons(TaskIconTreeNode rootNode, File rootDirectory) {
@@ -667,9 +686,9 @@ class TaskIconTreeModel extends DefaultTreeModel {
                  FileUtilities.stripFileExtension(
                      file.getName()
                  ),
-                 FileUtilities.getRelativeTaskIconPath(
+           //      FileUtilities.getRelativeTaskIconPath(
                      file.getPath()
-                 )
+           //      )
              )
          );
        }
@@ -722,9 +741,9 @@ class TaskIconTreeNode extends DefaultMutableTreeNode {
     } else {
       setIcon(
           ResourceLoader.getExternalImageAsIcon(
-              FileUtilities.getAbsoluteTaskIconPath(
+         //     FileUtilities.getAbsoluteTaskIconPath(
                   relativeIconPath
-              )
+        //      )
           )    
       );
     }

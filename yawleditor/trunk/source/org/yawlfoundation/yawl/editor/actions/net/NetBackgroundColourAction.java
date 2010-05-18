@@ -23,6 +23,7 @@
 package org.yawlfoundation.yawl.editor.actions.net;
 
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 
 import javax.swing.*;
 import java.awt.*;
@@ -41,6 +42,7 @@ public class NetBackgroundColourAction extends YAWLSelectedNetAction {
     putValue(Action.LONG_DESCRIPTION, "Set the net background colour.");
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_B));
     putValue(Action.SMALL_ICON, getPNGIcon("color_swatch"));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("B"));
 
   }
 

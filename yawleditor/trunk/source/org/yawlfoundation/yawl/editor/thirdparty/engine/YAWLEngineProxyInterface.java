@@ -28,10 +28,7 @@ import org.yawlfoundation.yawl.editor.swing.data.AbstractXMLStyledDocument;
 import org.yawlfoundation.yawl.editor.swing.data.ValidityEditorPane;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.prefs.Preferences;
 
 public interface YAWLEngineProxyInterface {
@@ -66,6 +63,8 @@ public interface YAWLEngineProxyInterface {
   public boolean isConnectable();
   
   public HashMap getRegisteredYAWLServices();
+
+  public Map<String, String> getExternalDataGateways();
 
   public LinkedList getSchemaValidationResults(String schema);
   

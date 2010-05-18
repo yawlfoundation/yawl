@@ -28,8 +28,8 @@ import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.net.CancellationSetModel;
 import org.yawlfoundation.yawl.editor.net.CancellationSetModelListener;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
-import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
+import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

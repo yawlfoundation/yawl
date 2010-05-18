@@ -39,6 +39,8 @@ import java.awt.*;
 
 abstract class YAWLVertexRenderer extends VertexRenderer {
 
+    protected static final int CONFIGURED_TASK_STOKE_WIDTH = 4;
+
   public void paint(Graphics g) {
     Graphics2D g2 = (Graphics2D) g;
     boolean tmp = selected;
@@ -51,8 +53,9 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
       setBorder(null);
       setOpaque(false);
       selected = false;
-      drawIcon(g, getSize()); 
-      drawVertex(g,getSize());
+      drawIcon(g, getSize());
+      setStroke(g2);
+      drawVertex(g, getSize());
     } finally {
       selected = tmp;
     }
@@ -147,6 +150,12 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
   protected int getIconVerticalOffset(Dimension size, Icon icon) {
     return (size.height - icon.getIconHeight())/2;
   }
+
+    protected void setStroke(Graphics2D g2) {
+        if ((view.getCell() instanceof YAWLTask) && ((YAWLTask) view.getCell()).isConfigurable()) {
+            g2.setStroke(new BasicStroke(CONFIGURED_TASK_STOKE_WIDTH));
+        }
+    }
 
     // these indicator marker graphics are designed to occupy 25% of the width of
     // a task, and 25% of the height, across the top of the task

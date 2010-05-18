@@ -27,6 +27,7 @@ package org.yawlfoundation.yawl.editor.actions.specification;
 import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 
 import javax.swing.*;
@@ -51,7 +52,7 @@ public class SaveSpecificationAction extends YAWLOpenSpecificationAction impleme
     putValue(Action.LONG_DESCRIPTION, "Save this specification");
     putValue(Action.SMALL_ICON, getPNGIcon("disk"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_S));
-    putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control S"));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("S"));
   }
   
   public void actionPerformed(ActionEvent event) {

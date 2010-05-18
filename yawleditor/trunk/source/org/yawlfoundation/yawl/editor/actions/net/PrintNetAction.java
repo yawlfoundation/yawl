@@ -26,6 +26,7 @@ package org.yawlfoundation.yawl.editor.actions.net;
 
 import org.yawlfoundation.yawl.editor.net.utilities.NetPrintUtilities;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 
 import javax.print.DocFlavor;
 import javax.print.PrintService;
@@ -57,6 +58,7 @@ public class PrintNetAction extends YAWLSelectedNetAction {
     putValue(Action.LONG_DESCRIPTION, "Prints the currently active net");
     putValue(Action.SMALL_ICON, getPNGIcon("printer"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_P));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("shift P"));
   }
   
   public PrintNetAction() {

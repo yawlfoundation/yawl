@@ -44,13 +44,15 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
     gbc.insets = new Insets(0,0,15,0);
 
     JLabel discussion = new JLabel(
-        "<html><body>The offer process involves choosing which participants should be " +
-        "informed of the existence of the work item, one of whom will eventually do this " +
-        "work. As you have specified the system manage the offer process, you must now choose " +
-        "who the work item should be offered to. Begin by " +
-        "specifying a set of participants and/or to distribute offers of work to. " +
-        "You may also specify a net parameter which at runtime will contain " +
-        "a participant's userid or the name of a role.</body></html>"
+        "<html><body>A task may be offered to one or more participants and/or roles. " +
+                "Please choose below the participant(s) and/or role(s) the task is to " +
+                "be offered to." +
+                "<br><br>" +
+                "One or more net parameters (if available) may also be chosen below. " +
+                "These are parameters that, at runtime, may contain either a userid " +
+                "(set the 'Refers To' value to 'Participant') or a " +
+                "role name (set to 'Role) that is to be included in the set of resources " +
+                "the task is offered to.</body></html>"
     );
     
     add(discussion,gbc);
@@ -78,7 +80,7 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
   }
 
   public String getWizardStepTitle() {
-    return "Specify System Behaviour when Offering a Work Item";
+    return "System Offer";
   }
   
   private JPanel buildUserPanel() {

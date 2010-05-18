@@ -42,6 +42,9 @@ public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparabl
    * 
    */
   private static final long serialVersionUID = 1L;
+
+  private boolean available = true;
+
   private HashMap serializationProofAttributeMap = new HashMap();
   
   public YAWLFlowRelation() {
@@ -251,14 +254,29 @@ public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparabl
     YAWLFlowRelation clone = (YAWLFlowRelation) super.clone();
 
     Map map = new HashMap();
-
-    getAttributes().applyMap(map);
-    
+    getAttributes().applyMap(map);    
     clone.setSerializationProofAttributeMap(
       (HashMap) getSerializationProofAttributeMap().clone()    
     );
     
     return clone;
   }
+
+/**
+ * Created By Jingxin XU
+ * @return
+ */
+public boolean isAvailable() {
+	return available;
+}
+
+/**
+ * Created By Jingxin XU
+ * @param available
+ */
+public void setAvailable(boolean available) {
+	this.available = available;
+}
+
 
 }

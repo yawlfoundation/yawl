@@ -23,6 +23,7 @@
 package org.yawlfoundation.yawl.editor.actions.net;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 
@@ -45,7 +46,7 @@ public class NetBackgroundImageAction extends YAWLSelectedNetAction {
     putValue(Action.LONG_DESCRIPTION, "Set the net background image.");
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_I));
     putValue(Action.SMALL_ICON, getPNGIcon("picture"));
-
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("shift B"));
   }
 
   public NetBackgroundImageAction() {}

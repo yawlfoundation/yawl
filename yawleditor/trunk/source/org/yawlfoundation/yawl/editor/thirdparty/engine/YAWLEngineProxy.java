@@ -30,10 +30,7 @@ import org.yawlfoundation.yawl.editor.swing.data.ValidityEditorPane;
 import org.yawlfoundation.yawl.editor.swing.specification.ProblemMessagePanel;
 import org.yawlfoundation.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class YAWLEngineProxy implements YAWLEngineProxyInterface {
   
@@ -110,6 +107,11 @@ public class YAWLEngineProxy implements YAWLEngineProxyInterface {
   public HashMap getRegisteredYAWLServices() {
     return implementation.getRegisteredYAWLServices();
   }
+
+    public Map<String, String> getExternalDataGateways() {
+        return implementation.getExternalDataGateways();
+    }
+
   
   public LinkedList getSchemaValidationResults(String schema) {
     return implementation.getSchemaValidationResults(schema);

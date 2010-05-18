@@ -26,6 +26,7 @@ import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxyInterface;
@@ -51,10 +52,11 @@ public class SetResourcingServiceAction extends YAWLBaseAction {
   
   {
     putValue(Action.SHORT_DESCRIPTION, " Specify login details for a running resourcing service. ");
-    putValue(Action.NAME, "Resource Service Connection Settings...");
+    putValue(Action.NAME, "Resource Service Connection...");
     putValue(Action.LONG_DESCRIPTION, "Specify login details for a running resourcing service.");
     putValue(Action.SMALL_ICON, getPNGIcon("user_go"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_R));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("shift R"));
   }
   
   public SetResourcingServiceAction() {}

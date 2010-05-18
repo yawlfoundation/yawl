@@ -24,9 +24,8 @@
 
 package org.yawlfoundation.yawl.editor.swing.menu;
 
-import java.awt.Dimension;
-
-import javax.swing.JToolBar;
+import javax.swing.*;
+import java.awt.*;
 
 abstract class YAWLToolBar extends JToolBar {
   
@@ -34,6 +33,7 @@ abstract class YAWLToolBar extends JToolBar {
     
   public YAWLToolBar(String title) {
     super(title);
+    setRollover(true);  
     buildInterface();
     //setMaximumSize(getPreferredSize());
     doPostBuildProcessing();

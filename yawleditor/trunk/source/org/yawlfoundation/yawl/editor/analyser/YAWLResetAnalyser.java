@@ -84,7 +84,7 @@ public class YAWLResetAnalyser{
 	   YDecomposition decomposition;
 	   YNet decomRootNet,reducedYNet;
 	   ResetWFNet decomResetNet, reducedNet;
-     messageDlg = new AnalysisDialog();
+     messageDlg = new AnalysisDialog("Specification");
 	   	   
 	   Set decompositions = new HashSet(specs.getDecompositions());
 	   if (decompositions.size()>0)

@@ -26,6 +26,7 @@ package org.yawlfoundation.yawl.editor.swing.resourcing;
 import org.yawlfoundation.yawl.editor.resourcing.CodeletData;
 import org.yawlfoundation.yawl.editor.resourcing.CodeletDataMap;
 import org.yawlfoundation.yawl.editor.swing.JOrderedSingleSelectTable;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 
 import javax.swing.*;
@@ -44,13 +45,19 @@ public class CodeletSelectTable extends JOrderedSingleSelectTable {
   private static final long serialVersionUID = 1L;
 
   private static final int MAX_TABLE_HEIGHT = 290;
-  private static final int TABLE_WIDTH = 585;
+  private static final int CODELET_TABLE_WIDTH = 585;
+  private static final int GATEWAY_TABLE_WIDTH = 515;
+
+  public static final int CODELET = 0;
+  public static final int DATA_GATEWAY = 1;  
 
   private List<CodeletData> codeletDataList;
+  private int preferredTableWidth;
 
-  public CodeletSelectTable() {
+    public CodeletSelectTable(int source) {
     super();
-    setModel(new CodeletSelectTableModel(getCodeletDataList()));
+    preferredTableWidth = (source == CODELET) ? CODELET_TABLE_WIDTH : GATEWAY_TABLE_WIDTH;
+    setModel(new CodeletSelectTableModel(getCodeletDataList(source)));
     setFormat();
   }
 
@@ -69,14 +76,14 @@ public class CodeletSelectTable extends JOrderedSingleSelectTable {
     getColumn("Name").setMinWidth(maxNameColWidth);
     getColumn("Name").setPreferredWidth(maxNameColWidth);
 
-    getColumn("Description").setMinWidth(TABLE_WIDTH - maxNameColWidth);
+    getColumn("Description").setMinWidth(preferredTableWidth - maxNameColWidth);
 
   }
 
 
 
   public Dimension getPreferredScrollableViewportSize() {
-    return new Dimension(TABLE_WIDTH, getPreferredViewportHeight());
+    return new Dimension(preferredTableWidth, getPreferredViewportHeight());
   }
 
 
@@ -120,12 +127,18 @@ public class CodeletSelectTable extends JOrderedSingleSelectTable {
     return maxWidth;
   }
 
-  private List<CodeletData> getCodeletDataList() {
-      Map<String, String> codeletMap =
-              ResourcingServiceProxy.getInstance().getRegisteredCodelets();
+  private List<CodeletData> getCodeletDataList(int source) {
+      Map<String, String> dataMap;
 
-      if (codeletMap != null) {
-          return new CodeletDataMap(codeletMap).getCodeletDataAsList();
+      if (source == CODELET) {
+          dataMap = ResourcingServiceProxy.getInstance().getRegisteredCodelets();
+      }
+      else {
+          dataMap = YAWLEngineProxy.getInstance().getExternalDataGateways();
+      }
+
+      if (dataMap != null) {
+          return new CodeletDataMap(dataMap).getCodeletDataAsList();
       }
       return null;
   }

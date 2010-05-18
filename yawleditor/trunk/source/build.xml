@@ -47,6 +47,7 @@
     <property name="forms.jar.file" value="${library.dir}/forms_rt.jar"/>
     <property name="junit.jar.file" value="${tool.dir}/junit-4.4.jar"/>
     <property name="browser.jar.file" value="${library.dir}/BrowserLauncher2-1_3.jar"/>
+    <property name="grouplayout.jar.file" value="${library.dir}/swing-layout-1.0.4.jar"/>
 
     <!-- TARGETS -->
     <target name="initialize"
@@ -107,6 +108,7 @@
                 <pathelement location="${servlet.jar.file}" />
                 <pathelement location="${forms.jar.file}" />
                 <pathelement location="${browser.jar.file}" />
+                <pathelement location="${grouplayout.jar.file}" />
             </classpath>
         </javac>
     
@@ -147,6 +149,7 @@
                 <pathelement location="${servlet.jar.file}" />
                 <pathelement location="${forms.jar.file}" />
                 <pathelement location="${browser.jar.file}" />
+                <pathelement location="${grouplayout.jar.file}" />
            </classpath>
         </junit>
     </target>
@@ -187,7 +190,8 @@
             <fileset file="${jcal.jar.file}"/>
             <fileset file="${servlet.jar.file}"/>
             <fileset file="${forms.jar.file}"/>
-            <fileset file="${browser.jar.file}" />
+            <fileset file="${browser.jar.file}"/>
+            <fileset file="${grouplayout.jar.file}"/>
         </unzip>
     </target>
 
@@ -203,7 +207,7 @@
             <fileset dir="${enumeratedLibraries.dir}"
                      includes="com/toedter/** javax/** net/sf/saxon/** org/apache/**
                                org/dom4j/** org/jdom/** org/eclipse/** com/intellij/**
-                               at/jta/** edu/stanford/** net/sf/wraplog/**
+                               at/jta/** edu/stanford/** net/sf/wraplog/** org/jdesktop/**
                                log4j.properties
                                ${package.base.dir}/elements/**
                                ${package.base.dir}/engine/**

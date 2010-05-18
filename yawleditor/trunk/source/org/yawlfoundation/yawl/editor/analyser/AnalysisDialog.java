@@ -1,14 +1,14 @@
 package org.yawlfoundation.yawl.editor.analyser;
 
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 
 import javax.swing.*;
-import java.awt.event.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.prefs.Preferences;
-
-import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.intellij.uiDesigner.core.GridConstraints;
 
 
 public class AnalysisDialog extends JDialog {
@@ -22,8 +22,9 @@ public class AnalysisDialog extends JDialog {
     private final Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
     public static final String KEEP_OPEN_PREFERENCE = "keepAnalysisDialogOpenWhenDone";
 
-    public AnalysisDialog() {
+    public AnalysisDialog(String title) {
         setContentPane(contentPane);
+        lblHeader.setText("Analysing " + title + ":");
         setModal(false);
         setAlwaysOnTop(true);
         setLocationRelativeTo(YAWLEditor.getInstance());
@@ -109,7 +110,7 @@ public class AnalysisDialog extends JDialog {
         panel3.setLayout(new GridLayoutManager(2, 1, new Insets(10, 10, 0, 10), -1, -1));
         contentPane.add(panel3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(500, 200), null, 0, false));
         lblHeader = new JLabel();
-        lblHeader.setText("Analysing Specification:");
+        lblHeader.setText("");
         panel3.add(lblHeader, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(151, 29), null, 0, false));
         scrollpane = new JScrollPane();
         panel3.add(scrollpane, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(500, 200), null, 0, false));

@@ -31,18 +31,24 @@ import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.JUtilities;
+import org.yawlfoundation.yawl.editor.swing.resourcing.CodeletSelectTable;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-public class ParameterUpdateDialog extends AbstractDoneDialog {
+public class ParameterUpdateDialog extends AbstractDoneDialog
+        implements ListSelectionListener, ChangeListener {
   /**
    * 
    */
@@ -77,7 +83,11 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
   
   private JButton newVariableButton;
   private XQueryEditorPanel xQueryEditorPanel;
-  
+
+  private CodeletSelectTable gatewayTable;
+  private String selectedGateway;
+
+
 //  private XQueryDescriptorLabel xQueryButtonDescriptor;
   
   public ParameterUpdateDialog(AbstractDoneDialog parent, int transitionType) {
@@ -86,18 +96,31 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
 
     this.setAttributesForTransitionType(transitionType);
     this.setTitle("Update " + outputType + " Parameter");
+
+      JTabbedPane pane = new JTabbedPane();
+      pane.setFocusable(false);
+      pane.addTab("XQuery", getVariablePanel());
+      pane.addTab("Data Gateway", getDataGatewayPanel());
+      pane.addChangeListener(this);
+
+      JPanel panel = new JPanel(new BorderLayout());
+      panel.setBorder(new EmptyBorder(20, 20, 20, 20));
+      panel.add(getPopulatesPanel(), BorderLayout.SOUTH);
+      panel.add(pane, BorderLayout.CENTER);
     
-    setContentPanel(getVariablePanel());
-    
+    setContentPanel(panel);
+
     getDoneButton().addActionListener(
       new ActionListener() {
         public void actionPerformed(ActionEvent e) {
-          parameter.setVariable(
-              getVariableWithName(
-                  (String) sinkVariableComboBox.getSelectedItem()
-              )
-          );
-          parameter.setQuery(xQueryEditor.getText());
+            parameter.setVariable(getVariableWithName(
+                    (String) sinkVariableComboBox.getSelectedItem()));
+          if (selectedGateway != null) {
+              parameter.setQuery("#external:" + selectedGateway);
+          }
+          else {
+              parameter.setQuery(xQueryEditor.getText());
+          }    
         }
       }
     );
@@ -116,7 +139,7 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
         inputType = DataVariable.SCOPE_NET;
         outputType = DataVariable.SCOPE_TASK;
         break;
-    };
+    }
   }
 
   protected void makeLastAdjustments() {
@@ -236,8 +259,6 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
     gbc.gridx = 0;
     gbc.gridwidth = 3;
     gbc.insets = new Insets(0,0,5,5);
-    
-//    panel.add(getXQueryButtonDescriptor(), gbc);
 
     gbc.weighty = 1;
     gbc.weightx = 1;
@@ -246,36 +267,69 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
 
     panel.add(getXQueryEditorPanel(),gbc);
 
-    gbc.gridy++;
-    gbc.gridwidth = 1;
-    gbc.weighty = 0;
-    gbc.weightx = 0.333;
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.EAST;
-
-    gbc.insets = new Insets(0,0,5,5);
-    JLabel sinkVariableLabel = 
-      new JLabel("populates the " + 
-          DataVariable.scopeToString(outputType).toLowerCase() + 
-          " variable:"
-      );
-    sinkVariableLabel.setHorizontalAlignment(JLabel.RIGHT);
-    sinkVariableLabel.setDisplayedMnemonic('p');
-
-    panel.add(sinkVariableLabel, gbc);
-
-    gbc.gridx++;
-    gbc.fill = GridBagConstraints.BOTH;
-    gbc.insets = new Insets(0,5,5,5);
-    panel.add(getSinkVariableComboBox(),gbc);
-    sinkVariableLabel.setLabelFor(sinkVariableComboBox);
-    
-    gbc.gridx++;
-    gbc.anchor = GridBagConstraints.CENTER;
-    panel.add(getNewOutputVariableButton(),gbc);
-
     return panel;
   }
+
+
+  private JPanel getPopulatesPanel() {
+      JPanel panel = new JPanel(new BorderLayout(25, 5));
+      panel.setBorder(new EmptyBorder(0,12,0,11));
+      JLabel sinkVariableLabel =
+        new JLabel("populates the " +
+            DataVariable.scopeToString(outputType).toLowerCase() +
+            " variable:"
+        );
+      sinkVariableLabel.setHorizontalAlignment(JLabel.RIGHT);
+      sinkVariableLabel.setDisplayedMnemonic('p');
+
+      panel.add(sinkVariableLabel, BorderLayout.WEST);
+      panel.add(getNewOutputVariableButton(), BorderLayout.EAST);
+      panel.add(getSinkVariableComboBox(), BorderLayout.CENTER);
+      sinkVariableLabel.setLabelFor(sinkVariableComboBox);
+
+      return panel;
+  }
+
+  /*************************************************/
+
+  private JPanel getDataGatewayPanel() {
+      JPanel panel = new JPanel(new BorderLayout());
+      gatewayTable = new CodeletSelectTable(CodeletSelectTable.DATA_GATEWAY);
+      gatewayTable.getSelectionModel().addListSelectionListener(this);
+      gatewayTable.getColumnModel().getSelectionModel().addListSelectionListener(this);
+
+      JScrollPane jspane =  new JScrollPane(gatewayTable);
+
+      panel.setBorder(new EmptyBorder(12,12,0,11));
+      panel.add(jspane, BorderLayout.CENTER);
+      return panel;
+  }
+
+    public void setSelectedGateway(String gatewayName) {
+        if (gatewayName != null) {
+            gatewayTable.setSelectedRowWithName(gatewayName);
+        }
+    }
+
+    public String getSelectedGatewayName() {
+        return gatewayTable.getSelectedCodeletName();
+    }
+
+
+    public void valueChanged(ListSelectionEvent e) {
+        selectedGateway = getSelectedGatewayName();
+        enableDoneButtonIfAppropriate();
+    }
+
+    public void stateChanged(ChangeEvent e) {
+        if (e.getSource() instanceof JTabbedPane) {
+            selectedGateway = null;
+            enableDoneButtonIfAppropriate();
+        }
+    }
+
+
+    /****************************************************/
 
   private void enableElementControls(boolean flag) {
     inputVariableQueryElementButton.setEnabled(flag);
@@ -546,7 +600,14 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
   public void setContent() {
     populateInputVariableComboBox();
     populateOutputVariableComboBox();
-    xQueryEditor.setText(XMLDialogFormatter.format(parameter.getQuery()));
+
+    String query = parameter.getQuery();
+    if (query.startsWith("#external:"))  {
+        setSelectedGateway(query.substring(query.indexOf(':') +1));
+    }
+    else {
+        xQueryEditor.setText(XMLDialogFormatter.format(parameter.getQuery()));
+    }    
     xQueryEditor.setTargetVariableName(
         (String) sinkVariableComboBox.getSelectedItem()
     );
@@ -557,8 +618,8 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
   }
   
   private boolean shouldDoneButtonBeEnabled() {
-    return (!xQueryEditor.getText().equals("") && 
-            sinkVariableComboBox.isEnabled());
+    return  ((selectedGateway != null) || (!xQueryEditor.getText().equals("")))
+            && sinkVariableComboBox.isEnabled();
   }
   
   private void enableDoneButtonIfAppropriate() {
@@ -572,8 +633,8 @@ public class ParameterUpdateDialog extends AbstractDoneDialog {
   class XQueryEditorPanel extends JPanel {
     
     private static final long serialVersionUID = 1L;
-    private JLabel openingSinkTagLabel = new JLabel("<sinkVarible>");
-    private JLabel closingSinkTagLabel = new JLabel("</sinkVarible>");
+    private JLabel openingSinkTagLabel = new JLabel("<sinkVariable>");
+    private JLabel closingSinkTagLabel = new JLabel("</sinkVariable>");
     private JButton btnFormat = new JButton(
               ResourceLoader.getImageAsIcon(
                   "/org/yawlfoundation/yawl/editor/resources/taskicons/AutoFormat.png")

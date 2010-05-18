@@ -37,13 +37,13 @@ public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
     gbc.fill = GridBagConstraints.BOTH;
     gbc.insets = new Insets(0,0,20,0);
 
-    String text = "<html><body>Each task passes through three decisions, or " +
-            "<i>interaction</i> points before a " +
+    String text = "<html><body>Each task passes through three <i>interaction</i>  " +
+            "(or decision) points before a " +
             "participant begins working on it. For each of the interaction points " +
             "below, please specify whether the task is to be handled by the " +
             "<i>System</i> (dynamically, based on the settings chosen later in this " +
-            "wizard), or by the <i>User</i> (manually, by a participant or an " +
-            "administrator), when the task is executed.</body></html>" ;
+            "wizard) or by the <i>User</i> (manually, by a participant or an " +
+            "administrator) when the task is executed.</body></html>" ;
 
     JLabel discussion = new JLabel(text);
     add(discussion,gbc);
@@ -69,7 +69,7 @@ public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
   
   private InteractionPointPanel getOfferPanel() {
     return new InteractionPointPanel(
-        "Offer: The task is made available to a number of participants:"
+        "Offer - The task is made available to a number of participants:"
     ) {
       private static final long serialVersionUID = 1L;
 
@@ -89,7 +89,7 @@ public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
 
   private InteractionPointPanel getAllocationPanel() {
     return new InteractionPointPanel(
-        "Allocate: The task is assigned to a single participant:"
+        "Allocate - The task is assigned to a single participant:"
     ) {
       private static final long serialVersionUID = 1L;
 
@@ -109,7 +109,7 @@ public class SetInteractionPointBehaviourPanel extends ResourcingWizardPanel {
 
   private InteractionPointPanel getStartPanel() {
     return new InteractionPointPanel(
-        "Start: Work begins on the task:"
+        "Start - Work begins on the task:"
     ) {
       private static final long serialVersionUID = 1L;
 

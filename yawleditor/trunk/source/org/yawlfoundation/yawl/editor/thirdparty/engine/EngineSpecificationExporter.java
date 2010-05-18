@@ -563,7 +563,12 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
           editorToEngineSplit(editorTask),   
           engineNet
         );
-      
+     if(editorTask.isConfigurable()){
+    	 DefaultConfigurationExporter defaultConfig = new DefaultConfigurationExporter();
+    	 ConfigurationExporter config= new ConfigurationExporter();
+    	 engineAtomicTask.setConfiguration(config.getTaskConfiguration(editorTask));
+    	 engineAtomicTask.setDefaultConfiguration(defaultConfig.getTaskDefaultConfiguration(editorTask));
+     }
      if (editorTask.hasLabel()) {
        engineAtomicTask.setName(
            XMLUtilities.quoteSpecialCharacters(
@@ -865,7 +870,12 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
           editorToEngineSplit(editorTask),   
         engineNet
       );
-      
+      if(editorTask.isConfigurable()){
+    	 DefaultConfigurationExporter defaultConfig = new DefaultConfigurationExporter();
+     	 ConfigurationExporter config= new ConfigurationExporter();
+     	engineCompositeTask.setConfiguration(config.getTaskConfiguration(editorTask));
+     	engineCompositeTask.setDefaultConfiguration(defaultConfig.getTaskDefaultConfiguration(editorTask));
+      }
       if (editorTask.hasLabel()) {
         engineCompositeTask.setName(
             XMLUtilities.quoteSpecialCharacters(
@@ -917,24 +927,28 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
         if (multiInstanceTask.getMultipleInstanceVariable() != null && 
             !multiInstanceTask.getMultipleInstanceVariable().equals(editorInputParameter.getVariable())) {
 
-          engineTask.setDataBindingForInputParam(
-               XMLUtilities.getTaggedOutputVariableWithContent(
-                   editorInputParameter.getVariable().getName(), 
-                   editorInputParameter.getQuery()
-               ), 
-               editorInputParameter.getVariable().getName()
-          );
+          setDataBindingForParam(engineTask, editorInputParameter, true);
         }
-      } else {
-        engineTask.setDataBindingForInputParam(
-            XMLUtilities.getTaggedOutputVariableWithContent(
-                editorInputParameter.getVariable().getName(), // NPE happening here
-                editorInputParameter.getQuery()
-            ), 
-            editorInputParameter.getVariable().getName()
-        );
+      }
+      else {
+          setDataBindingForParam(engineTask, editorInputParameter, true);
       }
     }
+  }
+
+  private static void setDataBindingForParam(YTask engineTask,
+                                             Parameter editorParameter, boolean input) {
+      String name = editorParameter.getVariable().getName();
+      String query = editorParameter.getQuery();
+      if (! query.startsWith("#external:")) {
+          query = XMLUtilities.getTaggedOutputVariableWithContent(name, query);
+      }
+      if (input) {
+          engineTask.setDataBindingForInputParam(query, name);
+      }
+      else {
+          engineTask.setDataBindingForOutputExpression(query, name);
+      }
   }
 
   private static void setCustomFormDetail(YTask engineTask, YAWLTask editorTask) {
@@ -1290,22 +1304,10 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
         YAWLMultipleInstanceTask multiInstanceTask = (YAWLMultipleInstanceTask) editorTask;
         if (multiInstanceTask.getResultNetVariable() != null &&
             !multiInstanceTask.getResultNetVariable().equals(editorOutputParameter.getVariable())) {
-          engineTask.setDataBindingForOutputExpression(
-              XMLUtilities.getTaggedOutputVariableWithContent(
-                  editorOutputParameter.getVariable().getName(), 
-                  editorOutputParameter.getQuery()
-              ), 
-              editorOutputParameter.getVariable().getName()
-          );
+            setDataBindingForParam(engineTask, editorOutputParameter, false);
         }
       } else {
-        engineTask.setDataBindingForOutputExpression(
-            XMLUtilities.getTaggedOutputVariableWithContent(
-                editorOutputParameter.getVariable().getName(), 
-                editorOutputParameter.getQuery()
-            ), 
-            editorOutputParameter.getVariable().getName()
-        );
+          setDataBindingForParam(engineTask, editorOutputParameter, false);
       }
     }
   }
@@ -1496,7 +1498,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       
       YTask engineTriggerTask = 
         (YTask) editorToEngineElementMap.get(editorTriggerTask);
-      engineTriggerTask.setRemovesTokensFrom(engineCancellationSet); 
+      engineTriggerTask.addRemovesTokensFrom(engineCancellationSet); 
     }
   }
   
@@ -1584,16 +1586,5 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     return (YCondition) editorFlowEngineConditionMap.get(editorFlow);
   }
   
-  
-  /**
-   * This method is a special request from Lachlan to supply the engine with all (') characters
-   * converted to ($apos;) strings. There is a problem in the engine support libraries with 
-   * processing the XQuery string that is really an SQL statement that he won't be investigating 
-   * just yet. This method is a workaround until that issue is resolved.
-   */
-  
-  private static String quoteSQLQueryForEngine(String sqlQuery) {
-    return sqlQuery.replaceAll("\'","\\$apos;");
-  }
 
 }

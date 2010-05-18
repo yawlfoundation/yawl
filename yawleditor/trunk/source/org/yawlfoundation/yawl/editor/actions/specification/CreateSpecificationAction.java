@@ -28,6 +28,7 @@ import org.yawlfoundation.yawl.editor.specification.SpecificationFileModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -41,11 +42,11 @@ public class CreateSpecificationAction extends YAWLNoOpenSpecificationAction
 
   {
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-    putValue(Action.NAME, "Create Specification");
+    putValue(Action.NAME, "New Specification");
     putValue(Action.LONG_DESCRIPTION, "Create a new specification");
     putValue(Action.SMALL_ICON, getPNGIcon("page_add"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_C));
-    putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control S"));
+    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_N));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("N"));
   }
   
   public void actionPerformed(ActionEvent event) {

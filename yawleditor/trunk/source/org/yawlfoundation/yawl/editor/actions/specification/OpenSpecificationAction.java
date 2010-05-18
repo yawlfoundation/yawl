@@ -26,6 +26,7 @@ package org.yawlfoundation.yawl.editor.actions.specification;
 
 import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -43,7 +44,7 @@ public class OpenSpecificationAction extends YAWLNoOpenSpecificationAction imple
     putValue(Action.LONG_DESCRIPTION, "Open an existing specification");
     putValue(Action.SMALL_ICON, getPNGIcon("folder_page"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_O));
-    putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control O"));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("O"));
   }
 
   public void actionPerformed(ActionEvent event) {

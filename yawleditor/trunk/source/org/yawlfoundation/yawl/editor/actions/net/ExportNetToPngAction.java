@@ -27,6 +27,7 @@ package org.yawlfoundation.yawl.editor.actions.net;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.net.utilities.NetPrintUtilities;
 import org.yawlfoundation.yawl.editor.swing.FileChooserFactory;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -50,7 +51,8 @@ public class ExportNetToPngAction extends YAWLSelectedNetAction {
     putValue(Action.NAME, "Export to PNG Image...");
     putValue(Action.LONG_DESCRIPTION, "Export the currently active net to a PNG image");
     putValue(Action.SMALL_ICON, getPNGIcon("photo"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_P));
+    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_E));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("E"));
 
     if (pngFileChooser == null) {
       

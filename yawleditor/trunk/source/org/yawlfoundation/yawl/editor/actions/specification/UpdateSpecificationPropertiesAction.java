@@ -28,6 +28,7 @@ import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.*;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 
 import javax.swing.*;
@@ -58,6 +59,7 @@ public class UpdateSpecificationPropertiesAction extends YAWLOpenSpecificationAc
     putValue(Action.LONG_DESCRIPTION, "Update Specification Properties");
     putValue(Action.SMALL_ICON, getPNGIcon("page_white_gear"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_U));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("U"));
   }
   
   public void actionPerformed(ActionEvent event) {

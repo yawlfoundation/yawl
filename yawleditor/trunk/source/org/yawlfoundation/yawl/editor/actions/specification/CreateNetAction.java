@@ -27,6 +27,7 @@ package org.yawlfoundation.yawl.editor.actions.specification;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -39,11 +40,11 @@ public class CreateNetAction extends YAWLOpenSpecificationAction implements Tool
 
   {
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-    putValue(Action.NAME, "Create Net");
-    putValue(Action.LONG_DESCRIPTION, "Create a new net");
+    putValue(Action.NAME, "Add Net");
+    putValue(Action.LONG_DESCRIPTION, "Add a new net");
     putValue(Action.SMALL_ICON, getPNGIcon("application_add"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_C));
-    putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control N"));
+    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_A));
+    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("A"));
   }
   
   public void actionPerformed(ActionEvent event) {
