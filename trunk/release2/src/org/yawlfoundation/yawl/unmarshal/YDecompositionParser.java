@@ -31,10 +31,8 @@ import java.util.*;
 /**
  * Builds decomposition objects from XML doclets.
  *
- *
- * 
  * @author Lachlan Aldred
- * 
+ * @author Michael Adams refactored for version 2
  */
 public class YDecompositionParser {
     private Element _decompElem;
@@ -44,7 +42,7 @@ public class YDecompositionParser {
     private YDecomposition _decomposition;
     private Map<YTask, String> _decomposesToIDs;
     private YSpecificationParser _specificationParser;
-    Map _removeSetForFlows = new HashMap();
+    Map<YTask, List<Element>> _removeSetForFlows = new HashMap<YTask, List<Element>>();
     private String _version;
 
 
@@ -222,6 +220,7 @@ public class YDecompositionParser {
             task.setResourcingSpecs(taskElem.getChild("resourcing", _yawlNS));
             parseTimerParameters(task, taskElem) ;
             parseCustomFormURL(task, taskElem) ;
+            parseConfiguration(task, taskElem);
         }
         
         return task;
@@ -248,9 +247,9 @@ public class YDecompositionParser {
 
     private void parseExternalTaskRoles(Element externalTaskElem, YTask externalTask) {
         List<String> removeSet = parseRemoveSet(externalTaskElem);
-        this._removeSetIDs.put(externalTask, removeSet);
-        List removeSetForFlows = parseRemoveSetFromFlow(externalTaskElem);
-        this._removeSetForFlows.put(externalTask, removeSetForFlows);
+        _removeSetIDs.put(externalTask, removeSet);
+        List<Element> removeSetForFlows = parseRemoveSetFromFlow(externalTaskElem);
+        _removeSetForFlows.put(externalTask, removeSetForFlows);
         List postsetElements = parsePostset(externalTaskElem);
         this._postsetIDs.add(externalTask.getID(), postsetElements);
         Element startingMappings = externalTaskElem.getChild("startingMappings", _yawlNS);
@@ -297,12 +296,13 @@ public class YDecompositionParser {
     }
 
 
-    private List parseRemoveSetFromFlow(Element externalTaskElem) {
+    private List<Element> parseRemoveSetFromFlow(Element externalTaskElem) {
         List removeSetForFlows = externalTaskElem.getChildren("removesTokensFromFlow", _yawlNS);
-        List removeIDs = new Vector();
-        for (int i = 0; i < removeSetForFlows.size(); i++) {
-            Element removeSetForFlowsElem = (Element) removeSetForFlows.get(i);
-            removeIDs.add(removeSetForFlowsElem);
+        List<Element> removeIDs = new Vector<Element>();
+        if (removeSetForFlows != null) {
+            for (Object o : removeSetForFlows) {
+                removeIDs.add((Element) o);
+            }
         }
         return removeIDs;
     }
@@ -393,6 +393,14 @@ public class YDecompositionParser {
             }
         }
     }
+
+    private void parseConfiguration(YTask task, Element taskElem) {
+         Element configure =  taskElem.getChild("configuration", _yawlNS);
+        if (configure != null) {
+           task.setConfigurationElement(taskElem);
+        }
+    }
+
 
     private void parseTimerParameters(YTask task, Element taskElem) {
         Element timerElem = taskElem.getChild("timer", _yawlNS);
@@ -571,14 +579,13 @@ public class YDecompositionParser {
         String orderStr = paramElem.getChildText("ordering");
         if ((orderStr != null) && (StringUtil.isIntegerString(orderStr))) 
             parameter.setOrdering(Integer.parseInt(orderStr));
-
+        
         boolean isCutThroughParam = paramElem.getChild("isCutThroughParam", ns) != null;
         if (isCutThroughParam) {
             parameter.setIsCutThroughParam(isCutThroughParam);
         }
 
-        boolean mandatory = paramElem.getChild("mandatory", ns) != null;
-        parameter.setMandatory(mandatory);
+        parameter.setMandatory(paramElem.getChild("mandatory", ns) != null);
 
         String defaultValue = paramElem.getChildText("defaultValue", ns);
         if (defaultValue != null) parameter.setDefaultValue(defaultValue);
@@ -587,35 +594,28 @@ public class YDecompositionParser {
         parameter.getAttributes().fromJDOM(paramElem.getAttributes());
     }
 
-     private void parseExternalInteraction(YDecomposition decomposition,
-                                           Element decompElem){
+
+    private void parseExternalInteraction(YDecomposition decomposition,
+                                           Element decompElem) {
          String interactionStr = decompElem.getChildText("externalInteraction", _yawlNS);
          if (interactionStr != null)
              decomposition.setExternalInteraction(
                            interactionStr.equalsIgnoreCase("manual"));
-     }
+    }
+
 
     private void parseCodelet(YDecomposition decomposition, Element decompElem){
         String codelet = decompElem.getChildText("codelet", _yawlNS);
         if (codelet != null) decomposition.setCodelet(codelet);
     }
 
+    
     private static YLogPredicate parseLogPredicate(Element decompElem, Namespace ns){
         Element elemLogPredicate = decompElem.getChild("logPredicate", ns);
         return elemLogPredicate != null ? new YLogPredicate(elemLogPredicate, ns) : null;
     }
 
 
-    //#################################################################################################
-    //                                         ACCESSOR
-    //#################################################################################################
-
-
-
-
-    //#################################################################################################
-    //                                        Things I NEED TO REUSE
-    //#################################################################################################
     protected Map<YTask, String> getDecomposesToIDs() {
         return _decomposesToIDs;
     }
@@ -624,15 +624,10 @@ public class YDecompositionParser {
     private void linkElements() {
         if (_decomposition instanceof YNet) {
             YNet decomposition = (YNet) _decomposition;
-            Iterator netElementIterator = decomposition.getNetElements().values().iterator();
-            while (netElementIterator.hasNext()) {
-                YExternalNetElement currentNetElement =
-                        (YExternalNetElement) netElementIterator.next();
-                List postsetIDs = _postsetIDs.getQPostset(currentNetElement.getID());
+            for (YExternalNetElement currentNetElement : decomposition.getNetElements().values()) {
+                List<FlowStruct> postsetIDs = _postsetIDs.getQPostset(currentNetElement.getID());
                 if (postsetIDs != null) {
-                    Iterator postsetIDsIter = postsetIDs.iterator();
-                    while (postsetIDsIter.hasNext()) {
-                        FlowStruct flowStruct = (FlowStruct) postsetIDsIter.next();
+                    for (FlowStruct flowStruct : _postsetIDs.getQPostset(currentNetElement.getID())) {
                         YExternalNetElement nextElement = decomposition.getNetElement(flowStruct._flowInto);
                         YFlow flow = new YFlow(currentNetElement, nextElement);
                         flow.setEvalOrdering(flowStruct._predicateOrdering);
@@ -643,39 +638,34 @@ public class YDecompositionParser {
                     }
                 }
             }
-            Iterator removeSetIter = _removeSetIDs.keySet().iterator();
-            while (removeSetIter.hasNext()) {
-                YTask externalTask = (YTask) removeSetIter.next();
-                Iterator removeSetForTaskIter = ((List) _removeSetIDs.get(externalTask)).iterator();
-                List removeSetObjects = new Vector();
-                while (removeSetForTaskIter.hasNext()) {
-                    removeSetObjects.add(decomposition.getNetElement((String) removeSetForTaskIter.next()));
+
+            for (YTask externalTask : _removeSetIDs.keySet()) {
+                List<YExternalNetElement> removeSetObjects = new Vector<YExternalNetElement>();
+                for (String id : _removeSetIDs.get(externalTask)) {
+                    removeSetObjects.add(decomposition.getNetElement(id));
                 }
                 if (removeSetObjects.size() > 0) {
-                    externalTask.setRemovesTokensFrom(removeSetObjects);
+                    externalTask.addRemovesTokensFrom(removeSetObjects);
                 }
             }
-            Iterator removeSetFromFlowsIter = _removeSetForFlows.keySet().iterator();
-            while (removeSetFromFlowsIter.hasNext()) {
-                YTask taskWithRemoveSet = (YTask) removeSetFromFlowsIter.next();
-                List removesTokensFromFlow = (List) _removeSetForFlows.get(taskWithRemoveSet);
-                for (int i = 0; i < removesTokensFromFlow.size(); i++) {
-                    Element removesTokensFromFlowElem = (Element) removesTokensFromFlow.get(i);
+
+            for (YTask taskWithRemoveSet : _removeSetForFlows.keySet()) {
+                for (Element removesTokensFromFlowElem : _removeSetForFlows.get(taskWithRemoveSet)) {
                     Element flowSourceElem = removesTokensFromFlowElem.getChild("flowSource", _yawlNS);
                     Element flowDestElem = removesTokensFromFlowElem.getChild("flowDestination", _yawlNS);
                     String flowSourceID = flowSourceElem.getAttributeValue("id");
                     String flowDestID = flowDestElem.getAttributeValue("id");
                     YExternalNetElement flowSource = decomposition.getNetElement(flowSourceID);
                     YExternalNetElement flowDest = decomposition.getNetElement(flowDestID);
-                    for (Iterator iterator = flowSource.getPostsetElements().iterator(); iterator.hasNext();) {
-                        YCondition maybeImplicit = (YCondition) iterator.next();
-                        if (maybeImplicit.isImplicit()) {
-                            Set oneTaskInThisList = maybeImplicit.getPostsetElements();
+                    for (YExternalNetElement maybeImplicit : flowSource.getPostsetElements()) {
+                        if (((YCondition) maybeImplicit).isImplicit()) {
+                            Set<YExternalNetElement> oneTaskInThisList = maybeImplicit.getPostsetElements();
                             YTask taskAfterImplicit = (YTask) oneTaskInThisList.iterator().next();
                             if (taskAfterImplicit.equals(flowDest)) {
-                                List additionalRemoves = new ArrayList();
+                                List<YExternalNetElement> additionalRemoves =
+                                        new ArrayList<YExternalNetElement>();
                                 additionalRemoves.add(maybeImplicit);
-                                taskWithRemoveSet.setRemovesTokensFrom(additionalRemoves);
+                                taskWithRemoveSet.addRemovesTokensFrom(additionalRemoves);
                             }
                         }
                     }
@@ -686,64 +676,70 @@ public class YDecompositionParser {
 
 
     private class Postset {
-        //YNet _parentDecomposition;
-        Map _postsetMap = new HashMap(); // maps a String ID to a List of FlowStruct objects.
 
+        // maps a String ID to a List of FlowStruct objects
+        Map<String, List<FlowStruct>> _postsetMap = new HashMap<String, List<FlowStruct>>();
 
-        public void add(String id, List postsetStruct) {
-            List oldRefIDs = (List) _postsetMap.get(id);
+        public void add(String id, List<FlowStruct> postsetStruct) {
+            List<FlowStruct> oldRefIDs = _postsetMap.get(id);
             if (oldRefIDs == null) {
-                oldRefIDs = new Vector();
+                oldRefIDs = new Vector<FlowStruct>();
             }
             oldRefIDs.addAll(postsetStruct);
             _postsetMap.put(id, oldRefIDs);
         }
 
 
-        public List getQPostset(String id) {
-            return (List) _postsetMap.get(id);
+        public List<FlowStruct> getQPostset(String id) {
+            return _postsetMap.get(id);
         }
 
 
-        public List getPostset(List ids) {
-            List postset = new Vector();
-            Iterator idIter = ids.iterator();
-            while (idIter.hasNext()) {
-                postset.addAll((List) _postsetMap.get(idIter.next()));
+        public List getPostset(List<String> ids) {
+            List<FlowStruct> postset = new Vector<FlowStruct>();
+            for (String id : ids) {
+                postset.addAll(_postsetMap.get(id));
             }
             return postset;
         }
 
 
         public void addImplicitConditions() {
-            List elementIDs = new Vector(_postsetMap.keySet());
-            for (int i = 0; i < elementIDs.size(); i++) {
-                String currentElementID = (String) elementIDs.get(i);
-                YExternalNetElement currentNetElement = ((YNet) _decomposition).getNetElement(currentElementID);
+            List<String> elementIDs = new Vector<String>(_postsetMap.keySet());
+            for (String currentElementID : elementIDs) {
+                YExternalNetElement currentNetElement = getNetElement(currentElementID);
                 if (currentNetElement instanceof YTask) {
-                    List nextElementFlowStructs =
-                            ((List) this._postsetMap.get(currentElementID));
-                    for (int j = 0; j < nextElementFlowStructs.size(); j++) {
-                        FlowStruct flowStruct = (FlowStruct) nextElementFlowStructs.get(j);
-                        YExternalNetElement netElement = ((YNet) _decomposition).getNetElement(flowStruct._flowInto);
+                    for (FlowStruct flowStruct : _postsetMap.get(currentElementID)) {
+                        YExternalNetElement netElement = getNetElement(flowStruct._flowInto);
 
-                        if (netElement instanceof YTask)
-                        /*in other words if one task flows to another task then we create an
-                        anonymous condition and insert it between the two tasks. */ {
-                            String anonID = "c{" + currentNetElement.getID() + "_" + netElement.getID() + "}";
+                        // if one task flows directly to another task then we create an
+                        // anonymous condition and insert it between the two tasks.
+                        if (netElement instanceof YTask) {
+                            String anonID = makeAnonID(currentNetElement.getID(),
+                                                       netElement.getID());
                             YCondition condition =
                                     new YCondition(anonID, (YNet) _decomposition);
                             condition.setImplicit(true);
                             ((YNet) _decomposition).addNetElement(condition);
                             String tempElemID = flowStruct._flowInto;
                             flowStruct._flowInto = condition.getID();
-                            List dom = new Vector();
+                            List<FlowStruct> dom = new Vector<FlowStruct>();
                             dom.add(new FlowStruct(tempElemID, null, null));
                             _postsetMap.put(condition.getID(), dom);
                         }
                     }
                 }
             }
+        }
+
+        private YExternalNetElement getNetElement(String id) {
+            return ((YNet) _decomposition).getNetElement(id);
+        }
+
+        private String makeAnonID(String current, String next) {
+            StringBuilder anonID = new StringBuilder(30);
+            anonID.append("c{").append(current).append("_").append(next).append("}");
+            return anonID.toString();
         }
     }
 
@@ -753,19 +749,12 @@ public class YDecompositionParser {
         String _flowPredicate;
         Integer _predicateOrdering;
         boolean _isDefaultFlow;
-
-        /**
-         * AJH: Label added
-         */
         String _label;
 
-        /**
-         * AJH: LAbel added
-         */
         public FlowStruct(String flowInto, String flowPredicate, String label) {
-            this._flowInto = flowInto;
-            this._flowPredicate = flowPredicate;
-            this._label = label;
+            _flowInto = flowInto;
+            _flowPredicate = flowPredicate;
+            _label = label;
         }
     }
 }

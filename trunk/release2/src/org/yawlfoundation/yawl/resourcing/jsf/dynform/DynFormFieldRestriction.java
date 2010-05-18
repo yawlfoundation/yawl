@@ -68,6 +68,9 @@ public class DynFormFieldRestriction {
 
     private void parse(Element restriction, Namespace ns) {
         _baseType = restriction.getAttributeValue("base");
+        if (_baseType == null) {
+            _baseType = parseSimpleTypeBase(restriction, ns);
+        }
         _enumeration = getEnumeratedValues(restriction, ns);
         _length = getRestrictionValue(restriction, ns, LENGTH);
         _minLength = getRestrictionValue(restriction, ns, MINLENGTH);
@@ -106,6 +109,19 @@ public class DynFormFieldRestriction {
         }
         return result;
     }
+
+    private String parseSimpleTypeBase(Element restriction, Namespace ns) {
+        if (restriction != null) {
+            Element simpleType = restriction.getChild("simpleType", ns);
+            if (simpleType != null) {
+                List children = simpleType.getChildren();
+                Element content = (Element) children.get(0);
+                return content.getAttributeValue("itemType");
+            }
+        }
+        return null;
+    }
+
 
 
     public String getBaseType() {

@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.logging;
 
+import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.util.YPredicateParser;
@@ -37,22 +38,25 @@ public class YLogPredicateWorkItemParser extends YPredicateParser {
             s = _workItem.getSpecificationID().getIdentifier();
         }
         else if (s.equals("${item:handlingService:name}")) {
-            YAWLServiceReference service = _workItem.getOwnerService();
-            s = (service != null) ? service.getServiceName() : "n/a";
+            YClient client = _workItem.getExternalClient();
+            s = (client != null) ? client.getUserName() : "n/a";
         }
         else if (s.equals("${item:handlingService:uri}")) {
-            YAWLServiceReference service = _workItem.getOwnerService();
-            s = (service != null) ? service.getURI() : "n/a";
+            YClient client = _workItem.getExternalClient();
+            if ((client != null) && (client instanceof YAWLServiceReference)) {
+                s = ((YAWLServiceReference) client).getURI();
+            }
+            else s = "n/a";
         }
         else if (s.equals("${item:handlingService:doco}")) {
-            YAWLServiceReference service = _workItem.getOwnerService();
-            s = (service != null) ? service.getDocumentation() : "n/a";
+            YClient client = _workItem.getExternalClient();
+            s = (client != null) ? client.getDocumentation() : "n/a";
         }
         else if (s.equals("${item:codelet}")) {
             s = _workItem.getCodelet();
         }
         else if (s.equals("${item:handlingService:doco}")) {
-            s = _workItem.getOwnerService().getDocumentation();
+            s = _workItem.getExternalClient().getDocumentation();
         }
         else if (s.equals("${item:customForm}")) {
             s = _workItem.getCustomFormURL().toString();

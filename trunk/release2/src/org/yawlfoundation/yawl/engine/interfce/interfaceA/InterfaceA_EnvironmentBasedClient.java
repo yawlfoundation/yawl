@@ -89,6 +89,7 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
      */
     public String addYAWLService(YAWLServiceReference service, String sessionHandle)
             throws IOException {
+        service.setPassword(PasswordEncryptor.encrypt(service.getPassword(), service.getPassword()));
         Map<String, String> params = prepareParamMap("newYAWLService", sessionHandle);
         params.put("service", service.toXMLComplete());
         return executePost(_backEndURIStr, params);
@@ -244,7 +245,7 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
 
     public String addClientAccount(YExternalClient client, String sessionHandle)
             throws IOException {
-        return addClientAccount(client.getUserID(), client.getPassword(),
+        return addClientAccount(client.getUserName(), client.getPassword(),
                 client.getDocumentation(), sessionHandle);
     }
 
@@ -339,5 +340,12 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
         Map<String, String> params = prepareParamMap("getBuildProperties", sessionHandle);
         return executeGet(_backEndURIStr, params);
     }
+
+    public String getExternalDBGateways(String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("getExternalDBGateways", sessionHandle);
+        return executeGet(_backEndURIStr, params);
+    }
+
+
 
 }

@@ -181,4 +181,6 @@ public interface EngineGateway extends Remote {
             throws RemoteException ;
 
     public String rejectAnnouncedEnabledTask(String itemID, String sessionHandle) throws RemoteException ;
+
+    public String getExternalDBGateways(String sessionHandle) throws RemoteException ;
 }

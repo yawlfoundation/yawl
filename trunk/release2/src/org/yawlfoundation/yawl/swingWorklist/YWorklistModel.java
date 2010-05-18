@@ -405,7 +405,7 @@ public class YWorklistModel {
             }
 
             if (item.getStatus().equals(YWorkItemStatus.statusExecuting)) {
-                if (item.getOwnerService().equals(_username)) {
+                if (item.getExternalClient().equals(_username)) {
                     addStartedWorkItem(item, inSequence);
                 }
             }

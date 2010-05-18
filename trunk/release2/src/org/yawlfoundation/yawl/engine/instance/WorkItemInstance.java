@@ -10,17 +10,19 @@ package org.yawlfoundation.yawl.engine.instance;
 
 import org.jdom.Document;
 import org.jdom.Element;
-import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * Author: Michael Adams
@@ -127,8 +129,8 @@ public class WorkItemInstance implements YInstance {
 
     public String getResourceName() {
         if (workItem != null) {
-            YAWLServiceReference service = workItem.getOwnerService();
-            if (service != null) resourceName = service.getServiceName();
+            YClient client = workItem.getExternalClient();
+            if (client != null) resourceName = client.getUserName();
         }
         return resourceName;
     }

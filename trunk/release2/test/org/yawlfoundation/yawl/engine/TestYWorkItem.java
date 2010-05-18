@@ -59,7 +59,7 @@ public class TestYWorkItem extends TestCase{
         assertFalse( child.getFiringTime().before(_workItem.getEnablementTime()));
         assertTrue(child.allowsDynamicCreation());
         child.setStatusToStarted(null, "fred");
-        assertEquals(child.getOwnerService(), "fred");
+        assertEquals(child.getExternalClient(), "fred");
         Exception e = null;
         try{
             _workItem.setStatusToStarted(null, "fred");

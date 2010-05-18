@@ -431,8 +431,8 @@ public class MessagePanel extends PanelLayout {
         int width = MIN_MESSAGES_WIDTH;
         int height = sizeAndPositionContent(width);
 
-        // try and get it all on one screen (up to a max width of 800)
-        while ((height <= 700) && (height > width)) {
+        // try and get it all on one screen (up to a max width of 900)
+        while ((width <= 800) && (height > width)) {
             width += 100;
             height = sizeAndPositionContent(width);
         }

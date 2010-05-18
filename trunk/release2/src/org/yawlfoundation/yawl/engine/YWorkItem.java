@@ -12,6 +12,7 @@ package org.yawlfoundation.yawl.engine;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
@@ -58,8 +59,8 @@ public class YWorkItem {
 
     private YWorkItemStatus _status;
     private YWorkItemStatus _prevStatus = null;             // for worklet service.
-    private YAWLServiceReference _ownerService;              // the 'started by' service
-    private String _ownerServiceStr;                        // for persistence
+    private YClient _externalClient;                     // the 'started by' service/app
+    private String _externalClientStr;                        // for persistence
     private boolean _allowsDynamicCreation;
     private boolean _requiresManualResourcing;
     private YWorkItem _parent;                             // this item's parent (if any)
@@ -370,14 +371,14 @@ public class YWorkItem {
                     throw new YPersistenceException(e);
                 }
             }
-            if (_ownerServiceStr != null) {
-                if (_ownerServiceStr.equals("DefaultWorklist")) {
-                    _ownerService = YEngine.getInstance().getDefaultWorklist();
+            if (_externalClientStr != null) {
+                if (_externalClientStr.equals("DefaultWorklist")) {
+                    _externalClient = YEngine.getInstance().getDefaultWorklist();
                 }
                 else {
                     for (YAWLServiceReference service : services) {
-                        if (service.getServiceName().equals(_ownerServiceStr)) {
-                            _ownerService = service;
+                        if (service.getServiceName().equals(_externalClientStr)) {
+                            _externalClient = service;
                             break;
                         }
                     }
@@ -495,7 +496,7 @@ public class YWorkItem {
 
     // STATUS CHANGE METHODS //
 
-    public void setStatusToStarted(YPersistenceManager pmgr, YAWLServiceReference service)
+    public void setStatusToStarted(YPersistenceManager pmgr, YClient client)
            throws YPersistenceException {
         if (!_status.equals(statusFired)) {
             throw new RuntimeException(this + " [when current status is \""
@@ -504,7 +505,7 @@ public class YWorkItem {
 
         set_status(pmgr, statusExecuting);
         _startTime = new Date();
-        _ownerService = service;
+        _externalClient = client;
         if (! _timerStarted) checkStartTimer(pmgr, null) ;
         if (pmgr != null) pmgr.updateObject(this);
         _eventLog.logWorkItemEvent(this, _status, createLogDataList(_status.name()));
@@ -535,7 +536,7 @@ public class YWorkItem {
         set_status(pmgr, statusFired);
         _eventLog.logWorkItemEvent(this, _status, createLogDataList(_status.name()));
         _startTime = null;
-        _ownerService = null;
+        _externalClient = null;
         if (pmgr != null) pmgr.updateObject(this);
     }
 
@@ -673,11 +674,11 @@ public class YWorkItem {
         if (pmgr != null) pmgr.updateObject(this);
     }
 
-    public String get_ownerService() {
-        return (_ownerService != null) ? _ownerService.getServiceName() : null;
+    public String get_externalClient() {
+        return (_externalClient != null) ? _externalClient.getUserName() : null;
     }
 
-    public void set_ownerService(String owner) { _ownerServiceStr = owner; }
+    public void set_externalClient(String owner) { _externalClientStr = owner; }
 
     public boolean get_allowsDynamicCreation() { return _allowsDynamicCreation; }
 
@@ -759,8 +760,8 @@ public class YWorkItem {
     }
 
 
-    public YAWLServiceReference getOwnerService() {
-            return _ownerService;
+    public YClient getExternalClient() {
+            return _externalClient;
     }
 
     public YNetRunner getNetRunner() {
@@ -814,8 +815,8 @@ public class YWorkItem {
             xml.append(StringUtil.wrap(_df.format(getStartTime()), "startTime"));
             xml.append(StringUtil.wrap(String.valueOf(getStartTime().getTime()),
                          "startTimeMs")) ;
-            if (_ownerService != null) {
-                xml.append(StringUtil.wrap(_ownerService.getServiceName(), "startedBy"));
+            if (_externalClient != null) {
+                xml.append(StringUtil.wrap(_externalClient.getUserName(), "startedBy"));
             }    
         }
         if (_timerParameters != null) {
@@ -840,9 +841,9 @@ public class YWorkItem {
 
     private YLogDataItemList createLogDataList(String tag) {
         YLogDataItemList itemList = new YLogDataItemList();
-        if (_ownerService != null) {
+        if (_externalClient != null) {
             itemList.add(new YLogDataItem("OwnerService", tag,
-                    _ownerService.getServiceName(), "string"));
+                    _externalClient.getUserName(), "string"));
         }
 
         if (tag.equals(statusExecuting.name()) || tag.equals(statusComplete.name())) {

@@ -17,6 +17,8 @@ import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.elements.data.external.AbstractExternalDBGateway;
+import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.*;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
@@ -353,12 +355,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             YWorkItem item = _engine.getWorkItem(workItemID);
             if (item != null) {
-                YAWLServiceReference service = null;
-                YSession session = _sessionCache.getSession(sessionHandle);
-                if (session != null)  {
-                    service = ((YServiceSession) session).getService();
-                }
-                YWorkItem child = _engine.startWorkItem(item, service);
+                YWorkItem child = _engine.startWorkItem(item, getClient(sessionHandle));
                 if( child == null ) {
                 	throw new YAWLException(
                 			"Engine failed to start work item " + item.toString() +
@@ -366,8 +363,9 @@ public class EngineGatewayImpl implements EngineGateway {
                 }
                 return successMessage(child.toXML());
             }
-            return failureMessage("No work item with id = " + workItemID);
-        } catch (YAWLException e) {
+            return failureMessage("No work item found with id = " + workItemID);
+        }
+        catch (YAWLException e) {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
             }
@@ -390,12 +388,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             YWorkItem item = _engine.getWorkItem(workItemID);
             if (item != null) {
-                YAWLServiceReference service = null;
-                YSession session = _sessionCache.getSession(sessionHandle);
-                if (session != null)  {
-                    service = ((YServiceSession) session).getService();
-                }
-                YWorkItem child = _engine.skipWorkItem(item, service);
+                YWorkItem child = _engine.skipWorkItem(item, getClient(sessionHandle));
                 if( child == null ) {
                 	throw new YAWLException(
                 			"Engine failed to skip work item " + item.toString() );
@@ -475,6 +468,9 @@ public class EngineGatewayImpl implements EngineGateway {
      * @throws RemoteException
      */
     public String connect(String userID, String password, long timeOutSeconds) throws RemoteException {
+        if (userID.equals("admin") && (! _engine.isGenericAdminAllowed())) {
+            return failureMessage("The generic 'admin' user has been disabled.");
+        }
         return _sessionCache.connect(userID, password, timeOutSeconds);
     }
 
@@ -1020,7 +1016,8 @@ public class EngineGatewayImpl implements EngineGateway {
     public String deleteAccount(String client, String sessionHandle) throws RemoteException {
         YSession session = _sessionCache.getSession(sessionHandle);
         if (session != null) {
-            if ((session instanceof YExternalSession) && session.getName().equals(client)) {
+            if ((session instanceof YExternalSession) &&
+                    session.getClient().getUserName().equals(client)) {
                 return failureMessage("Deletion of own account not allowed");
             }
             if (_engine.getExternalClient(client) != null) {
@@ -1198,6 +1195,12 @@ public class EngineGatewayImpl implements EngineGateway {
     }
 
 
+    private YClient getClient(String sessionHandle) {
+        YSession session = _sessionCache.getSession(sessionHandle);
+        return (session != null) ? session.getClient() : null;
+    }
+
+
     /***************************************************************************/
 
         /**
@@ -1304,8 +1307,27 @@ public class EngineGatewayImpl implements EngineGateway {
             return successMessage("workitem rejection successful");
         }
         else return failureMessage("Unknown worklitem: " + itemID);
-
     }
+
+
+    public String getExternalDBGateways(String sessionHandle) throws RemoteException {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        Set<AbstractExternalDBGateway> gateways = ExternalDBGatewayFactory.getInstances();
+        if (gateways != null) {
+            StringBuilder s = new StringBuilder("<ExternalDBGateways>");
+            for (AbstractExternalDBGateway gateway : gateways) {
+                s.append(gateway.toXML());
+            }
+            s.append("</ExternalDBGateways>");
+            return s.toString();
+        }
+        else {
+            return failureMessage("Unable to retrieve data gateways");
+        }
+    }
+
 
 
 }

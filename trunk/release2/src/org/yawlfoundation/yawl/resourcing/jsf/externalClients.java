@@ -398,7 +398,7 @@ public class externalClients extends AbstractPageBean {
             if (client != null) {
                 addPanelHeading = "Edit Client Application Account";
                 btnAddText = "Save";
-                txtName.setText(client.getUserID());
+                txtName.setText(client.getUserName());
                 txtDescription.setText(client.getDocumentation());
                 setMode(Mode.Edit);
             }

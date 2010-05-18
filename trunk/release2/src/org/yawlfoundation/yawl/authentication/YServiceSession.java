@@ -44,7 +44,7 @@ public class YServiceSession extends YSession {
         _service = service;
     }
 
-    public YAWLServiceReference getService() {
+    public YAWLServiceReference getClient() {
         return _service;
     }
 }

@@ -437,7 +437,7 @@ public class WorkletService extends InterfaceBWebsideController {
      *  @param wir - the enabled workitem record
      */
     private void handleWorkletSelection(WorkItemRecord wir) {
-        String specId = wir.getSpecIdentifier() ;       // info about item
+        String specId = wir.getSpecURI() ;       // info about item
         String taskId = getDecompID(wir) ;
         String itemId = wir.getID() ;
         RdrTree selectionTreeForTask ;                   // rules for task
@@ -1123,7 +1123,7 @@ public class WorkletService extends InterfaceBWebsideController {
                _log.info("Launching new replacement worklet case(s) based on revised ruleset");
 
                // locate rdr ruleset for this task
-               String specId = coci.getItem().getSpecIdentifier() ;
+               String specId = coci.getItem().getSpecURI() ;
                String taskId = getDecompID(coci.getItem()) ;
 
                // refresh ruleset to pickup newly added rule
@@ -1369,8 +1369,7 @@ public class WorkletService extends InterfaceBWebsideController {
      * @param wir - the workitem to get the decomp id for
      */
      public String getDecompID(WorkItemRecord wir) {
-        YSpecificationID specID = new YSpecificationID(
-                wir.getSpecIdentifier(), wir.getSpecVersion(), wir.getSpecURI());
+        YSpecificationID specID = new YSpecificationID(wir);
          return getDecompID(specID, wir.getTaskID());
      }
 
@@ -1418,7 +1417,7 @@ public class WorkletService extends InterfaceBWebsideController {
         // locate input params for the specified spec id
            for (int i=0;i<_loadedSpecs.size();i++) {
             SpecificationData thisSpec = (SpecificationData) _loadedSpecs.get(i) ;
-            if (specId.equals(thisSpec.getID()))
+            if (specId.equals(thisSpec.getSpecURI()))
                 return (ArrayList) thisSpec.getInputParams() ;
         }
          return null ;
@@ -1429,7 +1428,7 @@ public class WorkletService extends InterfaceBWebsideController {
    private String getMITaskInfo(WorkItemRecord wir) {
       try {
          return _interfaceBClient.getMITaskAttributes(
-                                  new YSpecificationID(wir.getSpecIdentifier()),
+                                  new YSpecificationID(wir),
                                   wir.getTaskID(), _sessionHandle);
       }
       catch (IOException ioe) {
@@ -1469,7 +1468,7 @@ public class WorkletService extends InterfaceBWebsideController {
            while (sitr.hasNext()) {
             SpecificationData spec = (SpecificationData) sitr.next() ;
             ArrayList params = (ArrayList) spec.getInputParams() ;
-            _log.info("Specification " + spec.getID() +
+            _log.info("Specification " + spec.getSpecURI() +
                        " has these input params:");
 
             // and for each param
@@ -1652,7 +1651,7 @@ public class WorkletService extends InterfaceBWebsideController {
          // check if any loaded specids match the worklet spec selected
          for (int i=0;i<_loadedSpecs.size();i++) {
              SpecificationData spec = (SpecificationData) _loadedSpecs.get(i) ;
-             if (workletName.equals(spec.getID())) return true ;
+             if (workletName.equals(spec.getSpecURI())) return true ;
          }
          return false ;                                           // no matches
      }

@@ -26,7 +26,7 @@
         <property name="_startTime" column="start_time" type="timestamp" access="field"/>
         <property name="_status" column="status" type="string"/>
         <property name="_prevStatus" column="prevstatus" type="string"/>
-        <property name="_ownerService" column="ownerService" type="string"/>
+        <property name="_externalClient" column="ownerService" type="string"/>
         <property name="_allowsDynamicCreation" column="allows_dynamic_creation" type="boolean" access="field"/>
         <property name="_requiresManualResourcing" column="requires_manual_resourcing" type="boolean" access="field"/>
         <property name="_dataString" column="data_string" type="text" access="field"/>

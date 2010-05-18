@@ -86,6 +86,11 @@ public class XNode {
         addAttribute(key, String.valueOf(value));
     }
 
+    public void addAttribute(String key, Object o) {
+        addAttribute(key, o.toString());
+    }
+
+
     /**************************************************************************/
 
 
@@ -105,6 +110,38 @@ public class XNode {
 
     public XNode addChild(String name, String text) {
         return addChild(new XNode(name, text));
+    }
+
+    public XNode addChild(String name, boolean b) {
+        return addChild(new XNode(name, String.valueOf(b)));
+    }
+
+    public XNode addChild(String name, long l) {
+        return addChild(new XNode(name, String.valueOf(l)));
+    }
+
+    public XNode addChild(String name, int i) {
+        return addChild(new XNode(name, String.valueOf(i)));
+    }
+
+    public XNode addChild(String name, byte b) {
+        return addChild(new XNode(name, String.valueOf(b)));
+    }
+
+    public XNode addChild(String name, short s) {
+        return addChild(new XNode(name, String.valueOf(s)));
+    }
+
+    public XNode addChild(String name, double d) {
+        return addChild(new XNode(name, String.valueOf(d)));
+    }
+
+    public XNode addChild(String name, float f) {
+        return addChild(new XNode(name, String.valueOf(f)));
+    }
+
+    public XNode addChild(String name, Object o) {
+        return addChild(new XNode(name, o.toString()));
     }
 
     public XNode addChild(String name, String text, boolean escape) {

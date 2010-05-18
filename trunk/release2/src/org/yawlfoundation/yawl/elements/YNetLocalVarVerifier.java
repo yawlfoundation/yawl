@@ -50,7 +50,7 @@ public class YNetLocalVarVerifier {
         // for each affected task, check each of its backward paths to the start
         // condition to see if any tasks on the path output a value to the local var
         for (YTask task : map.getInputTasks()) {
-            messages.addAll(verify(map, task, task, new HashSet<YExternalNetElement>()));
+            messages.addAll(verify(map, task, task, new ArrayList<YExternalNetElement>()));
         }
 
         return messages;
@@ -58,7 +58,7 @@ public class YNetLocalVarVerifier {
 
 
     private List<YVerificationMessage> verify(LocalTaskMap map, YTask subjectTask,
-                       YExternalNetElement baseElement, Set<YExternalNetElement> visited) {
+                       YExternalNetElement baseElement, List<YExternalNetElement> visited) {
         List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
 
         // add the root net element to the set of those visited on this path
@@ -66,6 +66,7 @@ public class YNetLocalVarVerifier {
 
         Set<YExternalNetElement> preSet = baseElement.getPresetElements();
         for (YExternalNetElement preElement : preSet) {
+
             System.out.println("Net: " + _net.getID() + " | Local var: " +
                     map.getLocalVar().getName() +  " | Subject: " + subjectTask.getName() +
                     " | PreElement: " + preElement.toString()) ;
@@ -76,14 +77,19 @@ public class YNetLocalVarVerifier {
 
                 // if we're back to the start of the net, this local var is a problem
                 if (preElement instanceof YInputCondition) {
-                    messages.add(getMessage(map, subjectTask));
+                    visited.add(preElement);
+                    messages.add(getMessage(map, subjectTask, visited));
+                    visited = resetVisited(baseElement);
                 }
                 else if (preElement instanceof YTask) {
                     YTask preTask = (YTask) preElement;
 
                     // if it is mandatory for the task to output a value for this
                     // local var, then this path is ok - otherwise recurse
-                    if (! map.isInitialisingTask(preTask)) {
+                    if (map.isInitialisingTask(preTask)) {
+                        visited = resetVisited(baseElement);                        
+                    }
+                    else {
                         messages.addAll(verify(map, subjectTask, preTask, visited));
                     }
                 }
@@ -128,6 +134,11 @@ public class YNetLocalVarVerifier {
         }
     }
 
+    private List<YExternalNetElement> resetVisited(YExternalNetElement element) {
+        List<YExternalNetElement> newVisited = new ArrayList<YExternalNetElement>();
+        newVisited.add(element);
+        return newVisited;
+    }
 
     private void addTaskIfQueryHasLocalVar(YTask task, String paramName, boolean input) {
         String query = getQueryForParam(task, paramName, input);
@@ -169,32 +180,42 @@ public class YNetLocalVarVerifier {
     }
 
 
-    private YVerificationMessage getMessage(LocalTaskMap map, YTask task) {
+    private YVerificationMessage getMessage(LocalTaskMap map, YTask task,
+                                            List<YExternalNetElement> visited) {
+
         YVariable localVar = map.getLocalVar();
 
         String subMsg;
-        String msgType;
         String postMsg;
         if (localVar.getDataTypeName().equals("string")) {
             subMsg = "contain an empty string value when the mapping occurs";
-            msgType = YVerificationMessage.WARNING_STATUS;
             postMsg = "";
         }
         else {
             subMsg = "be uninitialised when the mapping is attempted";
-            msgType = YVerificationMessage.ERROR_STATUS;
             postMsg = String.format(" Please assign an initial value to '%s' or ensure " +
                     "that a task which precedes task '%s' has a mandatory output " +
                     "mapping to '%s'.", localVar.getName(), task.getName(),
                     localVar.getName() ) ;
         }
 
+        String visitedChain = "[";
+        for (int i = visited.size()-1; i >= 0; i--) {
+            YExternalNetElement element = visited.get(i);
+            if (! ((element instanceof YCondition) && ((YCondition) element).isImplicit())) {
+                if (visitedChain.length() > 1) visitedChain += ", ";
+                visitedChain += visited.get(i).getID();
+            }
+        }
+        visitedChain += "]";
+        
         String msg = String.format("Task '%s' in Net '%s' references Local Variable " +
-                "'%s' via an input mapping, however it is possible for '%s' to %s.%s",
+                "'%s' via an input mapping, however it may be possible for '%s' to %s, via " +
+                "the path %s.%s",
                 task.getName(), _net.getID(), localVar.getName(), localVar.getName(),
-                subMsg, postMsg);
+                subMsg, visitedChain, postMsg);
 
-        return new YVerificationMessage(this, msg, msgType);
+        return new YVerificationMessage(this, msg, YVerificationMessage.WARNING_STATUS);
     }
 
 
@@ -226,23 +247,23 @@ public class YNetLocalVarVerifier {
         public void add(YTask task, boolean input, String paramName) {
             if (! input) {
 
-//                // this format required to please hashtable.put
-//                boolean required = isRequiredParam(task, paramName) ||
-//                                   (task instanceof YCompositeTask);
-//                _outputTasks.put(task, Boolean.valueOf(required));
-                _outputTasks.put(task, Boolean.TRUE);
+                // this format required to please hashtable.put
+                boolean optional = isOptionalParam(task, paramName);
+                _outputTasks.put(task, Boolean.valueOf(! optional));
             }
             else _inputTasks.add(task);
         }
 
 
-        private boolean isRequiredParam(YTask task, String paramName) {
-            YDecomposition decomp = task.getDecompositionPrototype();
-            if (decomp != null) {
-                Map<String, YParameter> paramMap = decomp.getOutputParameters();
-                if (paramMap != null) {
-                    YParameter param = paramMap.get(paramName);
-                    return (param != null) && param.isRequired();
+        private boolean isOptionalParam(YTask task, String paramName) {
+            if (task instanceof YAtomicTask) {
+               YDecomposition decomp = task.getDecompositionPrototype();
+                if (decomp != null) {
+                    Map<String, YParameter> paramMap = decomp.getOutputParameters();
+                    if (paramMap != null) {
+                        YParameter param = paramMap.get(paramName);
+                        return (param != null) && param.isOptional();
+                    }
                 }
             }
             return false;

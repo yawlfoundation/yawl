@@ -183,7 +183,8 @@ public final class YNet extends YDecomposition {
         }
         //check that all elements in the net are on a directed path from 'i' to 'o'.
         messages.addAll(verifyDirectedPath());
-//        messages.addAll(new YNetLocalVarVerifier(this).verify());
+        
+        messages.addAll(new YNetLocalVarVerifier(this).verify());
         return messages;
     }
 

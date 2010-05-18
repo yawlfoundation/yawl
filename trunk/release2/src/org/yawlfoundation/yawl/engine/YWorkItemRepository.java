@@ -219,7 +219,7 @@ public class YWorkItemRepository {
                 YNetRunner runner = _caseToNetRunnerMap.get(caseID.getParent());
                 for (YTask task : runner.getBusyTasks()) {
                     if (task.getID().equals(workitem.getTaskID())) {
-                        if (workitem.getOwnerService().equals(serviceName)) {
+                        if (workitem.getExternalClient().equals(serviceName)) {
                             executingItems.add(workitem);
                         }
                     }
