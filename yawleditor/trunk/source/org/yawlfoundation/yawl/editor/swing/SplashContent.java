@@ -9,7 +9,7 @@ import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 public class SplashContent {
 
     public static String getCopyright() {
-        return "YAWLEditor" + getSizeDistinction() + " v " +
+        return "YAWLEditor" + getSizeDistinction() + " v" +
         getVersionNumber() + " - (c) " + getBuildYear() + " The YAWL Foundation";
     }
 

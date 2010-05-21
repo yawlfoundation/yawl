@@ -1,6 +1,7 @@
 package org.yawlfoundation.yawl.editor.swing.menu;
 
 import org.yawlfoundation.yawl.editor.actions.net.ApplyProcessConfigurationAction;
+import org.yawlfoundation.yawl.editor.actions.net.CheckProcessCorrectness;
 import org.yawlfoundation.yawl.editor.actions.net.PreviewConfigurationProcessAction;
 import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 import org.yawlfoundation.yawl.editor.specification.ProcessConfigurationModel;
@@ -19,7 +20,7 @@ public class ProcessConfigurationMenu extends JMenu
         super("Process Configuration");
         add(new YAWLPopupMenuCheckBoxItem(PreviewConfigurationProcessAction.getInstance()));
         add(new YAWLPopupMenuCheckBoxItem(ApplyProcessConfigurationAction.getInstance()));
-//        add(new YAWLMenuItem(new CheckProcessCorrectness()));
+        add(new YAWLMenuItem(new CheckProcessCorrectness()));
         setIcon(ResourceLoader.getImageAsIcon(
               "/org/yawlfoundation/yawl/editor/resources/menuicons/wrench.png"));
         ProcessConfigurationModel.getInstance().subscribe(this);
