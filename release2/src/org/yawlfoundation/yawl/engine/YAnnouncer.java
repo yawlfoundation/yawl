@@ -365,6 +365,26 @@ public class YAnnouncer {
         _engine.getInstanceCache().setTimerExpired(item);
     }
 
+    public void announceCancelledWorkItem(YWorkItem item) {
+        YAWLServiceGateway wsgw = (YAWLServiceGateway) item.getTask().getDecompositionPrototype();
+        if (wsgw != null) {
+            YAWLServiceReference ys = wsgw.getYawlService();
+            if (ys == null) ys = YEngine.getInstance().getDefaultWorklist();
+
+            try {
+                Announcements<CancelWorkItemAnnouncement> announcements =
+                                         new Announcements<CancelWorkItemAnnouncement>();
+                announcements.addAnnouncement(new CancelWorkItemAnnouncement(ys, item));
+                YEngine.getInstance().getAnnouncer().announceCancellationToEnvironment(announcements);
+            }
+            catch (YStateException e) {
+                Logger.getLogger(this.getClass()).error(
+                        "Failed to announce cancellation of workitem '" +
+                              item.getIDString() + "': ",e);
+            }
+        }
+    }
+
 
     protected void debug(final String... phrases) {
         if (_logger.isDebugEnabled()) {

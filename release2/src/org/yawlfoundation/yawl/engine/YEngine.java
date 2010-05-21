@@ -400,17 +400,15 @@ public class YEngine implements InterfaceADesign,
 
     /**
      * Returns a vector of all net runners for a top level caseID.
-     * @param caseID the id of the case
+     * @param primaryCaseID the id of the case
      * @return Vector of net runners for the case
      */
-    private Vector<YNetRunner> getRunnersForPrimaryCase(YIdentifier caseID) {
+    private Vector<YNetRunner> getRunnersForPrimaryCase(YIdentifier primaryCaseID) {
         Vector<YNetRunner> runners = new Vector<YNetRunner>();
         for (YNetRunner runner : _workItemRepository.getNetRunners().values()) {
-            String thisID = runner.getCaseID().toString();
-            if (runner.getCaseID().toString().contains(".")) {
-                thisID += ".";
-            }
-            if (thisID.startsWith(caseID.toString() + ".")) {
+            if (primaryCaseID.equals(runner.getCaseID()) ||
+                primaryCaseID.isAncestorOf(runner.getCaseID())) {
+
                 runners.add(runner);
             }
         }
@@ -425,7 +423,7 @@ public class YEngine implements InterfaceADesign,
 
         YNetRunner subNetRunner = _workItemRepository.getNetRunner(caseID);
         if (subNetRunner != null) {
-           return subNetRunner.getCasedata().getData();
+            return subNetRunner.getCasedata().getData();
         }
         else {
             throw new YStateException("Received invalid case id '" + caseID + "'.");
@@ -761,7 +759,7 @@ public class YEngine implements InterfaceADesign,
                 _logger.debug("Asking client to add case " + runnerCaseID.toString());
                 _interfaceBClient.addCase(specID, runnerCaseID.toString());
             }
-
+            announceEvents(runner.getCaseID());
             return runnerCaseID;
         }
         else {
@@ -825,12 +823,15 @@ public class YEngine implements InterfaceADesign,
             try {
                 YNetRunner runner = _caseIDToNetRunnerMap.get(caseID);
                 if (_persisting) clearWorkItemsFromPersistence(pmgr, caseID);
-                _workItemRepository.removeWorkItemsForCase(caseID);
+                Set<YWorkItem> removedItems = _workItemRepository.removeWorkItemsForCase(caseID);
                 finishCase(caseID);
                 if (runner != null) runner.cancel(pmgr);
                 clearCase(pmgr, caseID);
                 _announcer.announceCaseCancellationToEnvironment(caseID);
                 _yawllog.logCaseCancelled(caseID, null, serviceHandle);
+                for (YWorkItem item : removedItems) {
+                    _yawllog.logWorkItemEvent(item, YWorkItemStatus.statusCancelledByCase, null);
+                }
 
             } catch (YPersistenceException e) {
                 throw new YPersistenceException(
@@ -1258,6 +1259,7 @@ public class YEngine implements InterfaceADesign,
                }
            }
 
+            announceEvents(id);
            _logger.info("Case " + id + " has resumed execution");
            _announcer.notifyCaseResumption(id);
        }
@@ -1375,6 +1377,15 @@ public class YEngine implements InterfaceADesign,
      }
 
 
+    // anoounces deferred events from all this case's net runners //
+    private void announceEvents(YIdentifier caseID) {
+        YIdentifier rootCaseID = caseID.getRootAncestor();
+        for (YNetRunner runner : getRunnersForPrimaryCase(rootCaseID)) {
+            runner.makeAnnouncements();
+        }
+    }
+
+
     /***************************************************************************/
 
     /**
@@ -1464,7 +1475,7 @@ public class YEngine implements InterfaceADesign,
         YPersistenceManager pmgr = getPersistenceSession();
         YWorkItem resultantItem = null;
         try {
-            YNetRunner netRunner;
+            YNetRunner netRunner = null;
 
             if (workItem != null) {
                 if (workItem.getStatus().equals(YWorkItemStatus.statusEnabled)) {
@@ -1526,6 +1537,7 @@ public class YEngine implements InterfaceADesign,
 
             // COMMIT POINT
             if (pmgr != null) pmgr.commit();
+            if (netRunner != null) announceEvents(netRunner.getCaseID());
 
             _logger.debug("<-- startWorkItem");
         }
@@ -1568,13 +1580,13 @@ public class YEngine implements InterfaceADesign,
                     workItem.getWorkItemID().getUniqueID(), "\nXML = ", data);
 
             YPersistenceManager pmgr = getPersistenceSession();
-
+            YNetRunner netRunner = null;
             try {
                 if (force) data = mapOutputDataForSkippedWorkItem(workItem);
 
                 if (workItem != null) {
                     if (workItem.getStatus().equals(YWorkItemStatus.statusExecuting)) {
-                        YNetRunner netRunner = _workItemRepository.getNetRunner(
+                        netRunner = _workItemRepository.getNetRunner(
                                 workItem.getCaseID().getParent());
 
                         if (_announcer.getExceptionObserver() != null) {
@@ -1621,7 +1633,7 @@ public class YEngine implements InterfaceADesign,
 
                     // COMMIT POINT
                     if (pmgr != null) pmgr.commit();
-
+                    if (netRunner != null) announceEvents(netRunner.getCaseID());
                 }
                 else {
                     if (pmgr != null) pmgr.rollbackTransaction();
@@ -1905,6 +1917,7 @@ public class YEngine implements InterfaceADesign,
                        instanceCache.closeWorkItem(workItem, null);
                        runner.continueIfPossible(pmgr);
                        if (pmgr != null) pmgr.commit();
+                       announceEvents(runner.getCaseID());
                    }
                 }
              }
@@ -2201,7 +2214,7 @@ public class YEngine implements InterfaceADesign,
             try {
                 List<YIdentifier> list = id.get_children();
                 for (YIdentifier child : list) {
-                    clearCaseDelegate(pmgr, child);
+                    if (child != null) clearCaseDelegate(pmgr, child);
                 }
 
                 boolean runnerfound = false;

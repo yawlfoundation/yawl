@@ -1,9 +1,10 @@
 package org.yawlfoundation.yawl.elements;
 
-import org.yawlfoundation.yawl.util.YVerificationMessage;
-import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.elements.data.YVariable;
+import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.elements.data.YVariable;
+import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.util.*;
 
@@ -15,15 +16,17 @@ public class YNetLocalVarVerifier {
 
     private YNet _net;
     private Map<String, LocalTaskMap> _uninitialisedLocalVars;
+    private Logger _log;
 
     public YNetLocalVarVerifier(YNet net) {
         _net = net;
         _uninitialisedLocalVars = new Hashtable<String, LocalTaskMap>();
+        _log = Logger.getLogger(this.getClass());
     }
 
 
     public List<YVerificationMessage> verify() {
-        long time = System.nanoTime();
+        long startTime = System.nanoTime();
 
         List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
 
@@ -38,7 +41,8 @@ public class YNetLocalVarVerifier {
             messages.addAll(verify(localTaskMap));
         }
 
-        System.out.println("Net: " + _net.getID() + " | Duration: " + (System.nanoTime() - time));
+        _log.debug("Net: " + _net.getID() + " | Duration: " +
+                   (System.nanoTime() - startTime) + "nanoseconds.");
 
         return messages;
     }
@@ -67,9 +71,9 @@ public class YNetLocalVarVerifier {
         Set<YExternalNetElement> preSet = baseElement.getPresetElements();
         for (YExternalNetElement preElement : preSet) {
 
-            System.out.println("Net: " + _net.getID() + " | Local var: " +
+            _log.debug("Net: " + _net.getID() + " | Local var: " +
                     map.getLocalVar().getName() +  " | Subject: " + subjectTask.getName() +
-                    " | PreElement: " + preElement.toString()) ;
+                    " | PreElement: " + preElement.toString()); 
 
             // if this element has already been visited on this path,
             // it is a loop so don't go further on it

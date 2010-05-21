@@ -10,9 +10,7 @@
 package org.yawlfoundation.yawl.elements;
 
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.engine.YNetRunner;
-import org.yawlfoundation.yawl.engine.YPersistenceManager;
-import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.engine.*;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.logging.YEventLogger;
 import org.yawlfoundation.yawl.logging.YLogDataItem;
@@ -20,6 +18,7 @@ import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -101,15 +100,36 @@ public final class YCompositeTask extends YTask {
 
 
     public synchronized void cancel(YPersistenceManager pmgr) throws YPersistenceException {
+        List<YNetRunner> cancelledRunners = new ArrayList<YNetRunner>();
+        YIdentifier thisI = _i;
         if (_i != null) {
             List<YIdentifier> activeChildIdentifiers = _mi_active.getIdentifiers();
             for (YIdentifier identifier : activeChildIdentifiers) {
                 YNetRunner netRunner = _workItemRepository.getNetRunner(identifier);
                 if (netRunner != null) {
-                    netRunner.cancel(pmgr);
+                    for (YWorkItem item : netRunner.cancel(pmgr)) {
+                        item.cancel(pmgr);
+                        YEventLogger.getInstance().logWorkItemEvent(item,
+                                YWorkItemStatus.statusDeleted, null);
+                        YEngine.getInstance().getAnnouncer().announceCancelledWorkItem(item);
+
+                    }
+                    cancelledRunners.add(netRunner);
                 }
             }
         }
+
         super.cancel(pmgr);
+
+        for (YNetRunner runner : cancelledRunners) {
+            runner.removeFromPersistence(pmgr);
+        }
+
+        if (thisI != null) {
+            YNetRunner parentRunner = _workItemRepository.getNetRunner(thisI);
+            if (parentRunner != null) {
+                parentRunner.removeActiveTask(pmgr, this);
+            }
+        }
     }
 }

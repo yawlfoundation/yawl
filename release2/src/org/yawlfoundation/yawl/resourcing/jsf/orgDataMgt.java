@@ -240,6 +240,13 @@ public class orgDataMgt extends AbstractPageBean {
     public void setBtnUpload(Button b) { btnUpload = b; }
 
 
+    private Button btnCancelUpload = new Button();
+
+    public Button getBtnCancelUpload() { return btnCancelUpload; }
+
+    public void setBtnCancelUpload(Button b) { btnCancelUpload = b; }
+
+
     private StaticText staticText1 = new StaticText();
 
     public StaticText getStaticText1() { return staticText1; }
@@ -274,7 +281,6 @@ public class orgDataMgt extends AbstractPageBean {
     public PanelLayout getPnlUpload() { return pnlUpload; }
 
     public void setPnlUpload(PanelLayout pnl) { pnlUpload = pnl; }
-
 
 
     /********************************************************************************/
@@ -411,6 +417,12 @@ public class orgDataMgt extends AbstractPageBean {
         _sb.setOrgDataUploadPanelVisible(false);
         return null ;
     }
+
+
+    public String btnCancelUpload_action() {
+        _sb.setOrgDataUploadPanelVisible(false);
+        return null ;
+    }    
 
     
     public String btnSave_action() {

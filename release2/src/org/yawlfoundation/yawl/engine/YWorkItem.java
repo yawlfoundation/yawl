@@ -395,11 +395,21 @@ public class YWorkItem {
             //remove the children first
             Set children = getChildren();
             if (children != null) {
-                for(Object o : getChildren()) pmgr.deleteObject(o);
+                for (Object o : getChildren()) {
+                    deleteWorkItem(pmgr, (YWorkItem) o);
+                }
             }
 
-            pmgr.deleteObject(this);
+            deleteWorkItem(pmgr, this);
         }
+    }
+
+
+    private void deleteWorkItem(YPersistenceManager pmgr, YWorkItem item)
+            throws YPersistenceException {
+        pmgr.deleteObject(item);
+        _eventLog.logWorkItemEvent(item, YWorkItemStatus.statusDeleted,
+                createLogDataList(YWorkItemStatus.statusDeleted.name()));
     }
 
 

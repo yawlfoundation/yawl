@@ -393,15 +393,17 @@ public class YEngineRestorer {
         List<YIdentifier> children = id.getChildren();
 
         for (YIdentifier child : children) {
-            YNetRunner netRunner = runnermap.get(child.toString());
-            if (netRunner != null) {
-                sendnet = netRunner.getNet();
-            }
-            YIdentifier caseid = restoreYIdentifiers(runnermap, child, id, sendnet);
+            if (child != null) {
+                YNetRunner netRunner = runnermap.get(child.toString());
+                if (netRunner != null) {
+                    sendnet = netRunner.getNet();
+                }
+                YIdentifier caseid = restoreYIdentifiers(runnermap, child, id, sendnet);
 
-            if (netRunner != null) {
-                netRunner.set_caseIDForNet(caseid);
-            }
+                if (netRunner != null) {
+                    netRunner.set_caseIDForNet(caseid);
+                }
+            }    
         }
         return restoreLocations(runnermap, id, parent, net);
     }
@@ -416,7 +418,7 @@ public class YEngineRestorer {
 
         // make external list of locations to avoid concurrency exceptions
         List<String> locationNames = new ArrayList<String>();
-        for (String x : id.getLocationNames()) locationNames.add(x);
+        for (String s : id.getLocationNames()) locationNames.add(s);
         id.clearLocations(null);                         // locations are readded below
 
         for (String name : locationNames) {

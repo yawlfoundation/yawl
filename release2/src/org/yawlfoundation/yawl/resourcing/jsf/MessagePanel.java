@@ -57,6 +57,7 @@ public class MessagePanel extends PanelLayout {
     private String _style = "";
     private int _parentWidth;                          // width of parent container
     private String _titleText;
+    private int _height;
 
     private PanelLayout _pnlMessages;
     private StaticText _title;
@@ -153,6 +154,8 @@ public class MessagePanel extends PanelLayout {
             xml = unwrap(xml);
         return xml ;
     }
+
+    public int getHeight() { return _height; }
 
 
     /***************************************************************************/
@@ -429,12 +432,12 @@ public class MessagePanel extends PanelLayout {
 
     private void sizeAndPositionContent() {
         int width = MIN_MESSAGES_WIDTH;
-        int height = sizeAndPositionContent(width);
+        _height = sizeAndPositionContent(width);
 
         // try and get it all on one screen (up to a max width of 900)
-        while ((width <= 800) && (height > width)) {
+        while ((width <= 800) && (_height > width)) {
             width += 100;
-            height = sizeAndPositionContent(width);
+            _height = sizeAndPositionContent(width);
         }
     }
 

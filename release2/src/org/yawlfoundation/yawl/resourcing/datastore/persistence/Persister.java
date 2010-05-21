@@ -58,7 +58,7 @@ public class Persister implements Serializable {
        }
        else if (className.endsWith("SpecLog")) {
            List<SpecLog> slList = _db.getObjectsForClass(className) ;
-           for (SpecLog sl : slList) result.put(sl.getSpecID().getKey(), sl) ;
+           for (SpecLog sl : slList) result.put(sl.getSpecID().getKey() + sl.getVersion(), sl) ;
        }
        return result ;
    }

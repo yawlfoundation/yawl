@@ -60,16 +60,20 @@ public class YWorkItemRepository {
     }
 
 
-    public void removeWorkItemFamily(YWorkItem workItem) {
+    public Set<YWorkItem> removeWorkItemFamily(YWorkItem workItem) {
         logger.debug("--> removeWorkItemFamily: " + workItem.getIDString());
+        Set<YWorkItem> removedSet = new HashSet<YWorkItem>();
         YWorkItem parent = workItem.getParent() != null ? workItem.getParent() : workItem;
         Set<YWorkItem> children = parent.getChildren();
         if (children != null) {
            for (YWorkItem siblingItem : children) {
-                removeWorkItem(siblingItem);
+               removeWorkItem(siblingItem);
+               removedSet.add(siblingItem);
             }
         }
         removeWorkItem(parent);
+        removedSet.add(parent);
+        return removedSet;
     }
 
 
@@ -93,8 +97,9 @@ public class YWorkItemRepository {
      * Cancels the net runner and removes any workitems that belong to it.
      * @param caseIDForNet
      */
-    public void cancelNet(YIdentifier caseIDForNet) {
+    public Set<YWorkItem> cancelNet(YIdentifier caseIDForNet) {
         _caseToNetRunnerMap.remove(caseIDForNet);
+
         Set<String> itemsToRemove = new HashSet<String>();
         for (YWorkItem item : _idStringToWorkItemsMap.values()) {
             YIdentifier identifier = item.getWorkItemID().getCaseID();
@@ -103,7 +108,7 @@ public class YWorkItemRepository {
                 itemsToRemove.add(item.getIDString());
             }
         }
-        removeItems(itemsToRemove);
+        return removeItems(itemsToRemove);
     }
 
 
@@ -135,10 +140,13 @@ public class YWorkItemRepository {
     }
 
 
-    private void removeItems(Set<String> itemsToRemove) {
+    private Set<YWorkItem> removeItems(Set<String> itemsToRemove) {
+        Set<YWorkItem> removedSet = new HashSet<YWorkItem>();
         for (String workItemID : itemsToRemove) {
-            _idStringToWorkItemsMap.remove(workItemID);
+            YWorkItem item = _idStringToWorkItemsMap.remove(workItemID);
+            if (item != null) removedSet.add(item);
         }
+        return removedSet;
     }
 
 
@@ -300,16 +308,19 @@ public class YWorkItemRepository {
     /**
      * Removes all work items for a given case id.  Searches through the work items for
      * ones that are related to the case id and removes them.
-     * @param caseID must be a case id, (not a child of a caseid).
+     * Called by YEngine.cancelCase()
+     * @param caseID must be a case id (not a child of a caseid).
      */
-    public void removeWorkItemsForCase(YIdentifier caseID) {
+    public Set<YWorkItem> removeWorkItemsForCase(YIdentifier caseID) {
         if (caseID == null || caseID.getParent() != null) {
             throw new IllegalArgumentException("the argument <caseID> is not valid.");
         }
 
+        Set<YWorkItem> removedItems = new HashSet<YWorkItem>();
         for (YWorkItem item : getWorkItemsForCase(caseID)) {
-            removeWorkItemFamily(item);
+            removedItems.addAll(removeWorkItemFamily(item));
         }
+        return removedItems;
     }
 
 

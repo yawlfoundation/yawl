@@ -141,7 +141,7 @@
 
 
 .footerPanel {
-    top: 80px;
+    /*top: 80px;*/
     height: 100%;
     width: 100%;
 }
@@ -552,7 +552,7 @@
     position: absolute;
     width: 574px;
     left: 60px;
-    top: 352px;
+    top: 95px;
     height: 120px;
 }
 
