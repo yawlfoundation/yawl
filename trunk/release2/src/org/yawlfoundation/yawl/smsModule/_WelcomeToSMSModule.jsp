@@ -1,5 +1,4 @@
-<%@ page import="org.yawlfoundation.yawl.worklist.model.WorklistController,
-                 org.yawlfoundation.yawl.smsModule.SMSSender"%>
+<%@ page import="org.yawlfoundation.yawl.smsModule.SMSSender"%>
     <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<title>Welcome to the SMS Module for YAWL</title>

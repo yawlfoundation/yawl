@@ -28,17 +28,18 @@ public class EventLogger {
     private static boolean _logging ;
     private static boolean _logOffers ;
     private static Persister _persister = Persister.getInstance() ;
-
-
-    public EventLogger() { }
-
+    private static Map _specMap;
 
     public static enum event { offer, allocate, start, suspend, deallocate, delegate,
         reallocate_stateless, reallocate_stateful, skip, pile, cancel, chain, complete,
-        unoffer, unchain, unpile, resume, launch_case, cancel_case}
+        unoffer, unchain, unpile, resume, timer_expired, launch_case, cancel_case,
+        cancelled_by_case }
 
     public static enum audit { logon, logoff, invalid, unknown, shutdown, expired,
-        gwlogon, gwlogoff, gwinvalid, gwunknown, gwexpired}
+        gwlogon, gwlogoff, gwinvalid, gwunknown, gwexpired }
+
+
+    public EventLogger() { }
 
 
     public static void setLogging(boolean flag) {
@@ -114,10 +115,14 @@ public class EventLogger {
     public static long getSpecificationKey(YSpecificationID ySpecID) {
         long result = -1;
         SpecLog specEntry = null;
+        String key = ySpecID.getKey() + ySpecID.getVersionAsString();
+
         if (_persister != null) {
-            Map rows = _persister.selectMap("SpecLog");            
-            if (! rows.isEmpty()) {
-                specEntry = (SpecLog) rows.get(ySpecID.getKey());
+            if (_specMap == null) {
+                _specMap = _persister.selectMap("SpecLog");
+            }
+            if (! _specMap.isEmpty()) {
+                specEntry = (SpecLog) _specMap.get(key);
                 if (specEntry != null) {
                     result = specEntry.getLogID();
                 }
@@ -125,6 +130,7 @@ public class EventLogger {
             if (specEntry == null) {
                 specEntry = new SpecLog(ySpecID);
                 _persister.insert(specEntry);
+                _specMap.put(key, specEntry);
                 result = specEntry.getLogID();               
             }
         }

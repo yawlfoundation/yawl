@@ -30,9 +30,8 @@ public class YCondition extends YExternalNetElement implements YConditionInterfa
     private boolean _isImplicit;
 
     public YCondition(String id, String label, YNet container) {
-        super(id, container);
+        this(id, container);
         _name = label;
-        _bag = new YIdentifierBag(this);
     }
 
 
@@ -83,7 +82,7 @@ public class YCondition extends YExternalNetElement implements YConditionInterfa
     }
 
     public YIdentifier removeOne(YPersistenceManager pmgr) throws YPersistenceException {
-        YIdentifier identifier = (YIdentifier) getIdentifiers().get(0);
+        YIdentifier identifier = getIdentifiers().get(0);
         _bag.remove(pmgr, identifier, 1);
         return identifier;
     }

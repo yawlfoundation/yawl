@@ -169,7 +169,12 @@ public class YIdentifier {
         return (_parent == identifier);
     }
 
+    public boolean isAncestorOf(YIdentifier identifier) {
+        YIdentifier parent = identifier.getParent();
+        return parent != null && (parent.equals(this) || isAncestorOf(parent));
+    }
 
+    
     public String toString() {
         return _idString;
     }

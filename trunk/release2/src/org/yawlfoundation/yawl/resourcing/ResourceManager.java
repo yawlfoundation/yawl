@@ -365,15 +365,20 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public synchronized void handleCancelledWorkItemEvent(WorkItemRecord wir) {
-        cleanupWorkItemReferences(wir);
+        if (cleanupWorkItemReferences(wir)) {
+            EventLogger.log(wir, null, EventLogger.event.cancel);
+        }    
     }
 
 
     public void handleTimerExpiryEvent(WorkItemRecord wir) {
         if (isAutoTask(wir))
             handleAutoTask(wir, true);
-        else
-            cleanupWorkItemReferences(wir);                // remove from worklists
+        else {
+            if (cleanupWorkItemReferences(wir)) {                // remove from worklists
+                EventLogger.log(wir, null, EventLogger.event.timer_expired); 
+            }
+        }
     }
 
 
@@ -500,13 +505,15 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    private void cleanupWorkItemReferences(WorkItemRecord wir) {
+    private boolean cleanupWorkItemReferences(WorkItemRecord wir) {
+        WorkItemRecord removed = null;
         if (_serviceEnabled) {
             removeFromAll(wir) ;                                      // workqueues
-            _workItemCache.remove(wir);
+            removed = _workItemCache.remove(wir);
             ResourceMap rMap = getResourceMap(wir);
             if (rMap != null) rMap.removeIgnoreList(wir);
         }
+        return (removed != null);
     }
 
 
@@ -1561,7 +1568,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     private String checkWorkItemDataAgainstSchema(WorkItemRecord wir, Element data) {
         String result = "<success/>";
-        if (! data.getName().equals(wir.getTaskName())) {
+        if (! data.getName().equals(wir.getTaskName().replace(' ', '_'))) {
             result = StringUtil.wrap(
                     "Invalid data structure: root element name doesn't match task name",
                     "failure"
@@ -1946,7 +1953,12 @@ public class ResourceManager extends InterfaceBWebsideController {
                     String pid = (p != null) ? p.getID() : "";
                     EventLogger.log(wir, pid, EventLogger.event.complete);
                 }
-                else removeTaskCompleter(p, wir);
+                else {
+                    removeTaskCompleter(p, wir);
+
+                    // trim the error message
+                    result = trimCheckinErrorMessage(result);
+                }
             }
         }
         catch (IOException ioe) {
@@ -1958,6 +1970,16 @@ public class ResourceManager extends InterfaceBWebsideController {
             _log.error(result, jde) ;
         }
         return result ;
+    }
+
+
+    private String trimCheckinErrorMessage(String msg) {
+        int start = msg.indexOf("XQuery [");
+        int end = msg.lastIndexOf("Validation error message");
+        if ((start > -1) && (end > -1)) {
+            msg = msg.substring(0, start) + msg.substring(end);
+        }
+        return msg;
     }
 
 
@@ -2342,6 +2364,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                     if (specID == null) specID = new YSpecificationID(wir);
                     removeFromAll(wir) ;
                     _workItemCache.remove(wir);
+                    EventLogger.log(wir, null, EventLogger.event.cancelled_by_case);
                 }
                 _chainedCases.remove(caseID);
             }

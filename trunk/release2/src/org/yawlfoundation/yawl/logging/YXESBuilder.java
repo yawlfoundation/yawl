@@ -53,8 +53,14 @@ public class YXESBuilder {
         else if (yawlEvent.equals(YEventLogger.NET_COMPLETE)) {
             xesEvent = "complete";
         }
+        else if (yawlEvent.equals(YEventLogger.NET_CANCEL)) {
+            xesEvent = "ate_abort";
+        }
         else if (yawlEvent.equals(YWorkItemStatus.statusDeleted.toString())) {
             xesEvent = "ate_abort";
+        }
+        else if (yawlEvent.equals(YWorkItemStatus.statusCancelledByCase.toString())) {
+            xesEvent = "pi_abort";
         }
         else if (yawlEvent.equals(YWorkItemStatus.statusFailed.toString())) {
             xesEvent = "ate_abort";
@@ -122,7 +128,7 @@ public class YXESBuilder {
 
         XNode gEvent = log.addChild(globalNode("event"));
         gEvent.addChild(stringNode("org:resource", "UNKNOWN"));
-        gEvent.addChild(dateNode("time:timestamp", "0"));
+        gEvent.addChild(dateNode("time:timestamp", "1970-01-01T00:00:00.000+01:00"));
         gEvent.addChild(stringNode("concept:name", "UNKNOWN"));
         gEvent.addChild(stringNode("lifecycle:transition", "UNKNOWN"));
 

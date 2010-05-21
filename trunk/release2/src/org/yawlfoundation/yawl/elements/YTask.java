@@ -635,13 +635,7 @@ public abstract class YTask extends YExternalNetElement {
         }
         //remove tokens from cancellation set
         for (YExternalNetElement netElement : _removeSet) {
-            if (netElement instanceof YAtomicTask) {
-                ((YAtomicTask) netElement).cancel(pmgr);
-            }
-            else if (netElement instanceof YCompositeTask) {
-                ((YCompositeTask) netElement).cancel(pmgr);
-            }
-            else if (netElement instanceof YTask) {  // fall-through for future extenders
+            if (netElement instanceof YTask) {
                 ((YTask) netElement).cancel(pmgr);
             }
             else if (netElement instanceof YCondition) {

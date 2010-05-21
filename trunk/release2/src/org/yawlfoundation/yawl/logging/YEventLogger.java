@@ -233,6 +233,27 @@ public class YEventLogger {
     }
 
 
+     public void logNetCancelled(YSpecificationID ySpecID, YNetRunner runner,
+                                 String engineTaskID, YLogDataItemList datalist) {
+        if (loggingEnabled()) {
+            try {
+                // get the required foreign key values
+                YIdentifier subnetID = runner.getCaseID();
+                long netID = getNetID(ySpecID, runner.getNet().getID());
+                long taskID = getTaskID(ySpecID, engineTaskID, netID);
+                long rootNetInstanceID = getRootNetInstanceID(subnetID);
+
+                // log the composite task cancellation
+                long parentTaskInstanceID = getTaskInstanceID(subnetID, taskID);
+                logEvent(parentTaskInstanceID, NET_CANCEL, datalist, -1, rootNetInstanceID);
+            }
+            catch (YPersistenceException ype) {
+                _log.error(getWarnMsg("sub-net creation"), ype);
+            }
+        }
+    }
+
+
     /**
      * Logs a workitem event (change of status).
      * @param workItem the workitem that triggered the event

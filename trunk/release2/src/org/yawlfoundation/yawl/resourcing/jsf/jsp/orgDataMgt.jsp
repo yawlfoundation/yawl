@@ -118,6 +118,11 @@
                         <div style="position: absolute;">
                             <jsp:directive.include file="pfOrgData.jspf"/>
                         </div>
+                            
+                            <ui:panelLayout binding="#{SessionBean.pnlUploadBlockout}"
+                                            id="uploadBlockoutPanel"
+                                            styleClass="transPanel"
+                                            visible="#{SessionBean.orgDataUploadPanelVisible}" />
 
                             <ui:panelLayout binding="#{orgDataMgt.pnlUpload}"
                                             id="pnlUpload"
@@ -132,7 +137,7 @@
                                                text="Import Org Data"/>
 
                                 <ui:upload binding="#{orgDataMgt.fileUpload}"
-                                           columns="60" id="fileUpload"
+                                           columns="50" id="fileUpload"
                                            styleClass="fileUpload"
                                            style="left: 12px; top: 40px; position: absolute"
                                            immediate="true"
@@ -145,7 +150,15 @@
                                            styleClass="caseMgtButton"
                                            text="Import File"/>
 
+                                <ui:button action="#{orgDataMgt.btnCancelUpload_action}"
+                                           binding="#{orgDataMgt.btnCancelUpload}"
+                                           id="btnCancelUpload"
+                                           style="left: 125px; top: 81px"
+                                           styleClass="caseMgtButton"
+                                           text="Cancel"/>
+
                             </ui:panelLayout>
+
 
                             <div><jsp:include page="pfMsgPanel.jspf"/></div>
                         </ui:panelLayout>

@@ -1597,6 +1597,22 @@ public class SessionBean extends AbstractSessionBean {
         }
     }
 
+    private int getOuterPanelHeight() {
+        switch (activePage) {
+            case adminQueues     : return 328;
+            case caseMgt         : return 590;
+            case customServices  : return 515;
+            case orgDataMgt      : return 328;
+            case participantData : return 543;
+            case userWorkQueues  : return 328;
+            case viewProfile     : return 377;
+            case addInstance     : return 370;
+            case teamQueues      : return 350;
+            case externalClients : return 485;
+            default: return -1;
+        }
+    }
+
     /*****************************************************************************/
 
 
@@ -1756,6 +1772,19 @@ public class SessionBean extends AbstractSessionBean {
         resourceState = state;
     }
 
+
+    private PanelLayout pnlUploadBlockout = new PanelLayout();
+
+     public PanelLayout getPnlUploadBlockout() {
+         return pnlUploadBlockout;
+     }
+
+     public void setPnlUploadBlockout(PanelLayout panel) {
+         pnlUploadBlockout = panel;
+     }
+
+
+
     private boolean orgDataUploadPanelVisible = false;
 
     public boolean isOrgDataUploadPanelVisible() {
@@ -1764,6 +1793,18 @@ public class SessionBean extends AbstractSessionBean {
 
     public void setOrgDataUploadPanelVisible(boolean visible) {
         orgDataUploadPanelVisible = visible;
+    }
+
+    public String getFooterPanelStyle() {
+        String style = "top: %dpx; height:100%%; width:100%%; position:relative;";
+        int top = 80;
+        if (messagePanel.hasMessage()) {
+            int overhang = getOuterPanelHeight() - (messagePanel.getHeight() + 60);
+            if (overhang > 0) {
+                top += overhang;
+            }
+        }
+        return String.format(style, top);
     }
 
     private boolean visualiserReferred = false;

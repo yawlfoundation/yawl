@@ -16,8 +16,6 @@ import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.engine.YWorkItem;
-import org.yawlfoundation.yawl.engine.announcement.Announcements;
-import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
@@ -129,24 +127,7 @@ public class YAtomicTask extends YTask {
             throws YPersistenceException {
         _workItemRepository.removeWorkItemFamily(workItem);
         workItem.cancel(pmgr);
-
-        // if applicable cancel yawl service
-        YAWLServiceGateway wsgw = (YAWLServiceGateway) getDecompositionPrototype();
-        if (wsgw != null) {
-            YAWLServiceReference ys = wsgw.getYawlService();
-            if (ys == null) ys = YEngine.getInstance().getDefaultWorklist();
-
-            try {
-                Announcements<CancelWorkItemAnnouncement> announcements =
-                                         new Announcements<CancelWorkItemAnnouncement>();
-                announcements.addAnnouncement(new CancelWorkItemAnnouncement(ys, workItem));
-                YEngine.getInstance().getAnnouncer().announceCancellationToEnvironment(announcements);
-            }
-            catch (YStateException e) {
-                logger.error("Failed to announce cancellation of workitem '" +
-                              workItem.getIDString() + "': ",e);
-            }
-        }
+        YEngine.getInstance().getAnnouncer().announceCancelledWorkItem(workItem);
     }
 
 

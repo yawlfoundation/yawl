@@ -34,8 +34,7 @@ public class ResourceXESLog extends YXESBuilder {
 
     protected String translateEvent(String yEvent) {
         String xesEvent;
-        EventLogger.event yawlEvent = EventLogger.event.valueOf(yEvent);
-        switch (yawlEvent) {
+        switch (EventLogger.event.valueOf(yEvent)) {
             case allocate             : xesEvent = "assign";     break;
             case start                : xesEvent = "start";      break;
             case complete             : xesEvent = "complete";   break;
@@ -47,7 +46,9 @@ public class ResourceXESLog extends YXESBuilder {
             case skip                 : xesEvent = "manualskip"; break;
             case resume               : xesEvent = "resume";     break;
             case cancel               : xesEvent = "ate_abort";  break;
+            case timer_expired        : xesEvent = "ate_abort";  break;
             case cancel_case          : xesEvent = "pi_abort";   break;
+            case cancelled_by_case    : xesEvent = "pi_abort";   break;
             default                   : xesEvent = "unknown";
         }
         return xesEvent;
@@ -144,13 +145,15 @@ public class ResourceXESLog extends YXESBuilder {
             String transition = getTransition(event);
             if (transition != null) {
 
-                // use rs event for duplicated events, since the resource is included
-                if (replaceableTransition(transition)) {
+                // choose which event to use for duplicated events
+                if (slaveHasPrecedence(transition)) {
                     removeEvent(master, getTaskName(event), transition);
                 }
 
                 // otherwise just add it
-                master.addChild(event);
+                if (! masterHasPrecedence(transition)) {
+                    master.addChild(event);
+                }    
             }
         }
     }
@@ -178,10 +181,18 @@ public class ResourceXESLog extends YXESBuilder {
 
     // These transitions appear in both logs - the resource service will take
     // precedence since it contains the resource that triggered the event
-    private boolean replaceableTransition(String transition) {
+    private boolean slaveHasPrecedence(String transition) {
         return transition.equals("start") || transition.equals("complete") ||
                transition.equals("suspend") || transition.equals("resume");
     }
+
+
+    // These transitions describe cancelled items, so the engine log is used
+    // for completeness
+    private boolean masterHasPrecedence(String transition) {
+        return transition.equals("ate_abort") || transition.equals("pi_abort") ;
+    }
+
 
     private void removeEvent(XNode node, String taskName, String transition) {
         XNode toRemove = null;
