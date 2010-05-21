@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 public class ServiceAutomatonTree {
@@ -82,8 +83,14 @@ public class ServiceAutomatonTree {
             }
 
             //  "/myCommands.bat"
-
-            ProcessBuilder builder = new ProcessBuilder("./commands.sh");
+            List<String> cmd = new ArrayList<String>();
+            cmd.add(path + "/wendy");
+            cmd.add("test.owfn");
+            cmd.add("--verbose");
+            cmd.add("--correctness=livelock");
+            cmd.add("--sa");
+        //    String cmd = "wendy test.owfn --verbose --correctness=livelock --sa";
+            ProcessBuilder builder = new ProcessBuilder(cmd);
             builder.directory(new File(path));
             builder.redirectErrorStream(true);
             Process generate = builder.start();
@@ -105,7 +112,8 @@ public class ServiceAutomatonTree {
             
             // set and return the output
             wendyResult = out.toString();
-            return true;
+       //     return true;
+            return false;  // temp
         }
         catch (IOException e) {
             e.printStackTrace();
