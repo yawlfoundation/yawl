@@ -24,6 +24,8 @@ package org.yawlfoundation.yawl.editor.actions;
 
 import org.jgraph.event.GraphSelectionEvent;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.elements.model.VertexContainer;
+import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionListener;
 import org.yawlfoundation.yawl.editor.specification.SpecificationSelectionSubscriber;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
@@ -69,7 +71,21 @@ public class CutAction extends YAWLBaseAction implements TooltipTogglingWidget, 
   }
   
   public void actionPerformed(ActionEvent event) {
-    YAWLTask task = this.getGraph().viewingCancellationSetOf();
+    NetGraph graph = getGraph();
+    YAWLTask task = graph.viewingCancellationSetOf();
+    boolean cutCellsIncludeCancellationTask = false;
+
+      Object[] selectedCells = graph.getSelectionCells();    // can return null
+      if (selectedCells != null) {
+          for (Object o : selectedCells) {
+              if (o instanceof VertexContainer) {
+                  o = ((VertexContainer) o).getVertex();
+              }              
+              if (task.equals(o)) {
+                  cutCellsIncludeCancellationTask = true;
+              }
+          }
+      }
 
     getGraph().stopUndoableEdits();
     getGraph().changeCancellationSet(null);
@@ -81,9 +97,11 @@ public class CutAction extends YAWLBaseAction implements TooltipTogglingWidget, 
                       event.getActionCommand() ));
     PasteAction.getInstance().setEnabled(true);   
 
-    getGraph().stopUndoableEdits();
-    getGraph().changeCancellationSet(task);
-    getGraph().startUndoableEdits();
+    if (! cutCellsIncludeCancellationTask) {
+        getGraph().stopUndoableEdits();
+        getGraph().changeCancellationSet(task);
+        getGraph().startUndoableEdits();
+    }    
   }
   
   public String getEnabledTooltipText() {

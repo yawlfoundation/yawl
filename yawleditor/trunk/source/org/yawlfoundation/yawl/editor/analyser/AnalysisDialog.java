@@ -43,9 +43,12 @@ public class AnalysisDialog extends JDialog {
     }
 
     public void write(String msg) {
-        String outStr = txtOutput.getText() + msg + '\n';
-        txtOutput.setText(outStr);
-        txtOutput.setCaretPosition(outStr.length());
+        setText(txtOutput.getText() + msg + '\n');
+    }
+
+    public void setText(String msg) {
+        txtOutput.setText(msg);
+        txtOutput.setCaretPosition(msg.length());
     }
 
 

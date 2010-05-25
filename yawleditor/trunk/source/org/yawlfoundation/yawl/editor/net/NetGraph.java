@@ -1087,26 +1087,18 @@ public class NetGraph extends JGraph {
   
   private void hideOldCancellationSet() {
     YAWLTask triggeringTask = cancellationSetModel.getTriggeringTask();
-
     changeVertexBackground(triggeringTask, triggeringTask.getBackgroundColor());
-
-    Object[] setMembers = triggeringTask.getCancellationSet().getSetMembers().toArray();
-    for(int i = 0; i < setMembers.length ; i++) {
-      YAWLCell cell = (YAWLCell) setMembers[i];
-       this.showCellAsNotInCurrentCancellationSet(cell);
+    for (YAWLCell cell : triggeringTask.getCancellationSet().getSetMembers()) {
+       showCellAsNotInCurrentCancellationSet(cell);
     }
   }
   
   private void showCurrentCancellationSet() {
     YAWLTask triggeringTask = cancellationSetModel.getTriggeringTask();
-
     changeVertexBackground(triggeringTask, 
                            CancellationSetModel.CANCELLATION_SET_TRIGGER_BACKGROUND);
-
-    Object[] setMembers = triggeringTask.getCancellationSet().getSetMembers().toArray();
-    for(int i = 0; i < setMembers.length ; i++) {
-      YAWLCell cell = (YAWLCell) setMembers[i];
-       this.showCellAsInCurrentCancellationSet(cell);
+    for (YAWLCell cell : triggeringTask.getCancellationSet().getSetMembers()) {
+       showCellAsInCurrentCancellationSet(cell);
     }
   }
   
