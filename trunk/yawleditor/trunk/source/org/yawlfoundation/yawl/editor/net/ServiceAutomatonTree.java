@@ -22,7 +22,6 @@ public class ServiceAutomatonTree {
     private NetGraph net;
     private String CurrentState = ""; // record the Id of the node with current state
     private String wendyMessage = "";
-    private String wendyResult;
     private AnalysisDialog msgDialog = new AnalysisDialog("Net");
 
 
@@ -72,24 +71,24 @@ public class ServiceAutomatonTree {
     private boolean UsingWendyandConfigurator() throws InterruptedException {
 
         try {
-            long startTime = System.currentTimeMillis();
-            File test_allow = new File(path + "/test_allow.txt");
-            File result = new File(path + "/result.txt");
-            if (test_allow.exists()) {
-                test_allow.delete();
-            }
-            if (result.exists()) {
-                result.delete();
-            }
+            new File(path + "/test_allow.txt").delete();
+            new File(path + "/result.txt").delete();
+//            File test_allow = new File(path + "/test_allow.txt");
+//            File result = new File(path + "/result.txt");
+//            if (test_allow.exists()) {
+//                test_allow.delete();
+//            }
+//            if (result.exists()) {
+//                result.delete();
+//            }
 
-            //  "/myCommands.bat"
+            // String cmd = "wendy test.owfn --verbose --correctness=livelock --sa";
             List<String> cmd = new ArrayList<String>();
             cmd.add(path + "/wendy");
             cmd.add("test.owfn");
             cmd.add("--verbose");
             cmd.add("--correctness=livelock");
             cmd.add("--sa");
-        //    String cmd = "wendy test.owfn --verbose --correctness=livelock --sa";
             ProcessBuilder builder = new ProcessBuilder(cmd);
             builder.directory(new File(path));
             builder.redirectErrorStream(true);
@@ -104,16 +103,14 @@ public class ServiceAutomatonTree {
 
             while ((count = isr.read(buffer)) > 0) {
                out.write(buffer, 0, count);
-               msgDialog.write(out.toString());
+               msgDialog.setText(out.toString());
             }
 
             isr.close();
             msgDialog.finished();
             
             // set and return the output
-            wendyResult = out.toString();
-       //     return true;
-            return false;  // temp
+            return true;
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -186,7 +183,7 @@ public class ServiceAutomatonTree {
                     line = in.readLine();
                     if(line != null){
                         boolean flag = line.contains("->");
-                        while(flag){
+                        while(flag) {
                             int position = line.indexOf("->");
                             String operation = "";
                             String nextID = "";
@@ -197,11 +194,7 @@ public class ServiceAutomatonTree {
                             blockPort.myNode = nextID;
                             node.sucessors.add(blockPort);
                             line = in.readLine();
-                            if(line != null){
-                                flag = line.contains("->");
-                            } else {
-                                flag = false;
-                            }
+                            flag = line != null && line.contains("->");
                         }
                     }
                     this.nodes.add(node);
@@ -230,7 +223,7 @@ public class ServiceAutomatonTree {
 
     public boolean ProcessCorrectnessCheckingForBlock(YAWLTask task, String type, int portID){
         boolean flag = false;
-        Node node = this.nodes.get(this.positionMap.get(this.CurrentState));
+        Node node = nodes.get(positionMap.get(CurrentState));
         String blockPort = "";
         if(task.getDecomposition() == null){
             blockPort = "block_"+task.getEngineId()+type+portID;

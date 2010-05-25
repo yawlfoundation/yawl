@@ -117,7 +117,7 @@ public class OpenRecentSubMenu extends JMenu implements SpecificationFileModelLi
     private void removeRecentFile(int pos) {
         String key = "openRecent" ;
         for (int i=pos; i < 7; i++) {
-            prefs.put(key + i, prefs.get(key + (i+1), null));
+            prefs.put(key + i, prefs.get(key + (i+1), ""));
         }
         prefs.put(key + 7, "");
     }
