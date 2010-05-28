@@ -45,9 +45,6 @@ public class ConfigurationSettingsAction extends YAWLBaseAction
 		 java.awt.EventQueue.invokeLater(new Runnable() {
 	            public void run() {
 	                ConfigurationReferenceJDialog dialog = new ConfigurationReferenceJDialog(new javax.swing.JFrame(), true, net);
-	                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-	                   
-	                });
 	                dialog.setLocationRelativeTo(YAWLEditor.getInstance());
 	                dialog.setVisible(true);
 	            }

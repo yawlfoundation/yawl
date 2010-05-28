@@ -36,15 +36,15 @@ public class PreviewConfigurationProcessAction extends YAWLSelectedNetAction
     private HashSet<YAWLCell> oldElements;
     private boolean selected;
     private boolean disabledViaSettings;
-    private SpecificationModel.State lastPublishedState;
+    private boolean hasOpenNetState;
+    private SpecificationModel.State lastPublishedNetState;
 
 
     // called from getInstance()
     private PreviewConfigurationProcessAction() {
-        oldElements = new HashSet<YAWLCell>();
-        selected = false;
+        init();
         disabledViaSettings = false;
-        lastPublishedState = SpecificationModel.State.NO_NETS_EXIST;
+        lastPublishedNetState = SpecificationModel.State.NO_NETS_EXIST;
         ProcessConfigurationModel.getInstance().subscribe(this);
     }
 
@@ -53,14 +53,21 @@ public class PreviewConfigurationProcessAction extends YAWLSelectedNetAction
         return INSTANCE;
     }
 
+    public void init() {
+        oldElements = new HashSet<YAWLCell>();
+        selected = false;
+    }
+
     
     public void actionPerformed(ActionEvent event) {
         NetGraph net = getGraph();
         net.stopUndoableEdits();
-        net.getModel().beginUpdate();
-        selected = ! selected;
         ConfigureSet configuredElements = new ConfigureSet(net.getNetModel());
         HashSet<YAWLCell> removeSet = configuredElements.getRemoveSetMembers();
+        if (removeSet.isEmpty()) return;
+        
+        net.getModel().beginUpdate();
+        selected = ! selected;
 
         if (selected) {
             for (YAWLCell cell: oldElements){ // trace back the original grey out elements into black first
@@ -99,32 +106,54 @@ public class PreviewConfigurationProcessAction extends YAWLSelectedNetAction
     }
 
     private void publishState() {
-        ProcessConfigurationModel.PreviewState state = selected ?
-                ProcessConfigurationModel.PreviewState.ON :
-                ProcessConfigurationModel.PreviewState.OFF;
-        ProcessConfigurationModel.getInstance().setPreviewState(state);
+        if (! disabledViaSettings) {
+            ProcessConfigurationModel.PreviewState state = selected ?
+                    ProcessConfigurationModel.PreviewState.ON :
+                    ProcessConfigurationModel.PreviewState.OFF;
+            ProcessConfigurationModel.getInstance().setPreviewState(state);
+        }    
     }
 
     public void processConfigurationModelStateChanged(
             ProcessConfigurationModel.PreviewState previewState,
             ProcessConfigurationModel.ApplyState applyState) {
 
-        disabledViaSettings = (previewState == ProcessConfigurationModel.PreviewState.AUTO);
+        if (previewState == ProcessConfigurationModel.PreviewState.AUTO) {
+            if (hasOpenNetState && (! selected)) {
+                actionPerformed(null);
+            }
+            disabledViaSettings = true;
+        }
+        else if (previewState == ProcessConfigurationModel.PreviewState.OFF) {
+            if (hasOpenNetState && (selected)) {
+                actionPerformed(null);
+            }
+            disabledViaSettings = false;
+        }
         setEnabled();
     }
 
     public void receiveSpecificationModelNotification(SpecificationModel.State state) {
-        lastPublishedState = state;
+        lastPublishedNetState = state;
+        hasOpenNetState = checkOpenState();
         if (! disabledViaSettings) {
             super.receiveSpecificationModelNotification(state);
         }
+        else if (lastPublishedNetState == SpecificationModel.State.SOME_NET_SELECTED) {
+            if (! selected) actionPerformed(null);
+        }
+        else if (! hasOpenNetState) {
+            init();
+        }
     }
 
-    public void setEnabled() {
-        boolean hasOpenNetState =
-                ! ((lastPublishedState == SpecificationModel.State.NO_NETS_EXIST) ||
-                        (lastPublishedState == SpecificationModel.State.NO_NET_SELECTED));
+    private boolean checkOpenState() {
+        return ! ((lastPublishedNetState == SpecificationModel.State.NO_NETS_EXIST) ||
+                  (lastPublishedNetState == SpecificationModel.State.NO_NET_SELECTED));
+    }
 
+
+    public void setEnabled() {
         setEnabled((! disabledViaSettings) && hasOpenNetState);
     }
 

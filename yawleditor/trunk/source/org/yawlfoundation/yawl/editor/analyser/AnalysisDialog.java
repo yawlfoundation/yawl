@@ -51,6 +51,10 @@ public class AnalysisDialog extends JDialog {
         txtOutput.setCaretPosition(msg.length());
     }
 
+    public String getText() {
+        return txtOutput.getText();
+    }
+
 
     public void finished() {
         lblHeader.setText(lblHeader.getText() + " Completed.");

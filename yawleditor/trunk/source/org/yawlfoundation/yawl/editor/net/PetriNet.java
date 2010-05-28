@@ -180,7 +180,7 @@ public class PetriNet {
 
     public void saveOWFNfile(){
         try {
-            File file = new File(path + "/test.owfn");
+            File file = new File(path + "/temp.owfn");
             FileWriter out = new FileWriter(file);
             out.write("PLACE\n\n");
 
@@ -206,7 +206,7 @@ public class PetriNet {
             out.append("\n\n");
 
             String initialMarking = "INITIALMARKING ";
-            initialMarking += "p" + initialMarking + ";";
+            initialMarking += "p" + this.initialMarking + ";";
             out.write(initialMarking);
             out.append("\n\n");
 

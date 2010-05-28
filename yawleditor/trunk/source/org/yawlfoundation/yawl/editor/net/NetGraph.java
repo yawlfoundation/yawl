@@ -79,6 +79,8 @@ public class NetGraph extends JGraph {
 
   private ServiceAutomatonTree serviceAutomaton = null;
 
+  /**********/  
+
   public NetGraph() {
     super();
     initialize();

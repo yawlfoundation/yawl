@@ -83,13 +83,15 @@ class AboutEditorDialog extends AbstractDoneDialog {
     );
 
     JLabel message = new JLabel("<html><body>" +
-        "This is version @EditorReleaseNumber@ of the YAWLEditor.<br><br>" +
-        "The editor incorporates and/or uses components of the following tools:" +
+        "This is version @EditorReleaseNumber@ of the YAWL Process Editor.<br><br>" +
+        "The editor uses these tools:" +
         "<ul>" +
             "<li>YAWL Engine @CompatibleEngineReleaseNumber@"+
             "<li>YAWL Resource Service @CompatibleEngineReleaseNumber@"+
             "<li>JGraph @JGraphReleaseNumber@"+
-            "<li>WofYAWL @WofYawlReleaseNumber@</ul>" +
+            "<li>WofYAWL @WofYawlReleaseNumber@" +
+            "<li>Wendy @WendyReleaseNumber@" +
+            "<li>JCalendar @JCalendarReleaseNumber@</ul>" +
 
         "This version of the editor requires:" +
         "<ul>" +

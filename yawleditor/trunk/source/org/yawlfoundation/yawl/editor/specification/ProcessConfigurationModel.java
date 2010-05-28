@@ -12,9 +12,7 @@ public class ProcessConfigurationModel {
 
     private PreviewState previewState;
     private ApplyState applyState;
-
-    private LinkedList<ProcessConfigurationModelListener> subscribers =
-            new LinkedList<ProcessConfigurationModelListener>();
+    private LinkedList<ProcessConfigurationModelListener> subscribers;
 
     private static ProcessConfigurationModel INSTANCE ;
 
@@ -49,6 +47,31 @@ public class ProcessConfigurationModel {
             previewState = state;
             publishState();
         }
+    }
+
+
+    public void togglePreviewState() {
+        if (previewState != PreviewState.OFF) {
+            PreviewState temp = previewState;
+            previewState = PreviewState.OFF;
+            publishState();
+            previewState = temp;
+            publishState();
+        }
+    }
+
+
+    public void reset() {
+        if (previewState != PreviewState.AUTO) previewState = PreviewState.OFF;
+        applyState = ApplyState.OFF;
+        publishState();
+    }
+
+
+    public void refresh() {
+//        PreviewConfigurationProcessAction.getInstance().init();
+//        ApplyProcessConfigurationAction.getInstance().init();
+        publishState();
     }
 
     public PreviewState getPreviewState() { return previewState; }

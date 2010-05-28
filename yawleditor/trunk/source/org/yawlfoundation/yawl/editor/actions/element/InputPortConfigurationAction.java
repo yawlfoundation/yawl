@@ -273,6 +273,7 @@ public class InputPortConfigurationAction extends YAWLBaseAction implements Tool
 	        boolean defaultActivateFlag = true;
 	        boolean blockFlag = true;
 	        boolean activateFlag = true;
+          String s = null;
 	        int length = this.InputPortsConfigurationTable.getSelectedRowCount();
 	        int[] selectedRows = this.InputPortsConfigurationTable.getSelectedRows();
 	        for(int i=0; i<length; i++){
@@ -281,28 +282,40 @@ public class InputPortConfigurationAction extends YAWLBaseAction implements Tool
 	        		defaultFlag = true;
 	        	}
 	        	if(this.net.getServiceAutonomous() != null){
-	        		blockFlag = blockFlag && (this.net.getServiceAutonomous().ProcessCorrectnessCheckingForBlock(task, "INPUT", portId));
+	        		blockFlag = blockFlag && (this.net.getServiceAutonomous().processCorrectnessCheckingForBlock(task, "INPUT", portId));
 	        		if(this.inputPorts.get(portId).getConfigurationSetting().equals(CPort.BLOCKED)){
 	        			activateFlag = activateFlag &&
-	        							(this.net.getServiceAutonomous().ProcessCorrectnessCheckingForActivate(task, "INPUT", portId));
+	        							(this.net.getServiceAutonomous().processCorrectnessCheckingForActivate(task, "INPUT", portId));
 	        		}
 	        		
 	        		if(this.inputPorts.get(portId).getDefaultValue() != null){
 	        			if(this.inputPorts.get(portId).getDefaultValue().equals(CPort.BLOCKED)){
-	        				defaultBlockFlag = defaultBlockFlag && (this.net.getServiceAutonomous().ProcessCorrectnessCheckingForBlock(task, "INPUT", portId));
+	        				defaultBlockFlag = defaultBlockFlag && (this.net.getServiceAutonomous().processCorrectnessCheckingForBlock(task, "INPUT", portId));
 	        			} else if (this.inputPorts.get(portId).getDefaultValue().equals(CPort.ACTIVATED)){
 	        				defaultActivateFlag = defaultActivateFlag &&
-							(this.net.getServiceAutonomous().ProcessCorrectnessCheckingForActivate(task, "INPUT", portId));
+							(this.net.getServiceAutonomous().processCorrectnessCheckingForActivate(task, "INPUT", portId));
 	        			}
 	        		}
 	        		
 	        	}
+            s = (String) InputPortsConfigurationTable.getValueAt(selectedRows[i], 2);
 	        }
 	        this.DefaultButton.setEnabled(defaultFlag && defaultBlockFlag && defaultActivateFlag);
-	        this.BlockButton.setEnabled(blockFlag);
-	        this.AllowButton.setEnabled(activateFlag);
+	        this.BlockButton.setEnabled(blockFlag && ! matchText(s, "blocked"));
+	        this.AllowButton.setEnabled(activateFlag && ! matchText(s, "activated"));
+          HideButton.setEnabled(! matchText(s, "hidden"));
 	    }
 
+      private boolean matchText(String s, String other) {
+          return (s != null) && (s.equals(other));
+      }
+
+
+      private void toggleEnabled(JButton btn) {
+          AllowButton.setEnabled(btn != AllowButton);
+          BlockButton.setEnabled(btn != BlockButton);
+          HideButton.setEnabled(btn != HideButton);
+      }
 
 	    private void AllowButtonActionPerformed(java.awt.event.ActionEvent evt) {                                             
 	        // TODO add your handling code here:
@@ -314,6 +327,7 @@ public class InputPortConfigurationAction extends YAWLBaseAction implements Tool
 	        if(this.net.getConfigurationSettings().isApplyAutoGreyOut()){
 	        	this.simulateAction.actionPerformed(simulateEvent);
 	        }
+          toggleEnabled(AllowButton);
 	    }
 
 		private void ActivateAPort(int[] selectedRows, int i) {
@@ -335,7 +349,7 @@ public class InputPortConfigurationAction extends YAWLBaseAction implements Tool
 	        if(this.net.getConfigurationSettings().isApplyAutoGreyOut()){
 	        	this.simulateAction.actionPerformed(simulateEvent);
 	        }
-	        
+          toggleEnabled(BlockButton);
 	    }
 
 		private void BlockAPort(int[] selectedRows, int i) {
@@ -357,6 +371,7 @@ public class InputPortConfigurationAction extends YAWLBaseAction implements Tool
 	        if(this.net.getConfigurationSettings().isApplyAutoGreyOut()){
 	        	this.simulateAction.actionPerformed(simulateEvent);
 	        }
+          toggleEnabled(HideButton);
 	    }
 
 		private void HideAPort(int[] selectedRows, int i) {
@@ -411,8 +426,8 @@ public class InputPortConfigurationAction extends YAWLBaseAction implements Tool
 	    private javax.swing.JTable InputPortsConfigurationTable;
 	    private javax.swing.JLabel jLabel1;
 	    private javax.swing.JScrollPane jScrollPane1;
-	    
-	}
+
+  }
 	
 	private class SetInputPortDefaultConfigurationJDialog extends javax.swing.JDialog {
 	    
@@ -493,7 +508,15 @@ public class InputPortConfigurationAction extends YAWLBaseAction implements Tool
 	        jScrollPane1.setViewportView(jTable1);
 	        jTable1.getColumnModel().getColumn(0).setPreferredWidth(15);
 	        jTable1.getColumnModel().getColumn(2).setPreferredWidth(50);
-	        
+          jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+              public void mouseReleased(java.awt.event.MouseEvent evt) {
+                  String s = (String) jTable1.getValueAt(jTable1.getSelectedRow(), 2);
+                  AllowButton.setEnabled(! matchText(s, "activated"));
+                  BlockButton.setEnabled(! matchText(s, "blocked"));
+                  HideButton.setEnabled(! matchText(s, "hidden"));
+              }
+          });
+
 	        
 	        AllowButton.setText("Activate");
 	        AllowButton.addActionListener(new java.awt.event.ActionListener() {
@@ -568,6 +591,7 @@ public class InputPortConfigurationAction extends YAWLBaseAction implements Tool
 	        	this.inputPorts.get(portId).setDefaultValue(CPort.ACTIVATED);
 	        	this.jTable1.setValueAt("activated", selectedRows[i], 2);	
 	        }
+      toggleEnabled(AllowButton);
 	}
 
 	private void BlockButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -579,6 +603,7 @@ public class InputPortConfigurationAction extends YAWLBaseAction implements Tool
         	this.inputPorts.get(portId).setDefaultValue(CPort.BLOCKED);
         	this.jTable1.setValueAt(CPort.BLOCKED, selectedRows[i], 2);	
         }
+      toggleEnabled(BlockButton);
 	}
 
 	private void HideButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -590,6 +615,7 @@ public class InputPortConfigurationAction extends YAWLBaseAction implements Tool
 	        	this.inputPorts.get(portId).setDefaultValue(CPort.HIDDEN);
 	        	this.jTable1.setValueAt(CPort.HIDDEN, selectedRows[i], 2);	
 	        }
+      toggleEnabled(HideButton);
 	}
 	    
 	private void EmptyButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -601,7 +627,20 @@ public class InputPortConfigurationAction extends YAWLBaseAction implements Tool
         	this.inputPorts.get(portId).setDefaultValue(null);
         	this.jTable1.setValueAt(null, selectedRows[i], 2);	
         }
-    }  
+      toggleEnabled(EmptyButton);
+    }
+
+      private boolean matchText(String s, String other) {
+          return (s != null) && (s.equals(other));
+      }
+
+
+      private void toggleEnabled(JButton btn) {
+          AllowButton.setEnabled(btn != AllowButton);
+          BlockButton.setEnabled(btn != BlockButton);
+          HideButton.setEnabled(btn != HideButton);
+      }
+      
 	    
 	    // Variables declaration - do not modify
 	    private javax.swing.JButton AllowButton;

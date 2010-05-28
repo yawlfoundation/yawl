@@ -47,7 +47,7 @@ public class CloseSpecificationAction extends YAWLOpenSpecificationAction implem
   }
   
   public void actionPerformed(ActionEvent event) {
-    ArchivingThread.getInstance().close();
+    ArchivingThread.getInstance().close();  
   }
   
   public String getEnabledTooltipText() {

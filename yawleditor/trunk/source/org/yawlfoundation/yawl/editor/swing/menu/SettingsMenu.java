@@ -32,33 +32,33 @@ import javax.swing.*;
 import java.awt.event.KeyEvent;
 
 class SettingsMenu extends JMenu {
-    
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
-  public SettingsMenu() {
-    super("Settings");
-    setMnemonic(KeyEvent.VK_T);
-    buildInterface();
-  }
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
+    public SettingsMenu() {
+        super("Settings");
+        setMnemonic(KeyEvent.VK_T);
+        buildInterface();
+    }
 
     protected void buildInterface() {
 
-    if (YAWLEngineProxy.engineLibrariesAvailable())
-      add(new YAWLMenuItem(new SetEngineDetailAction()));
-    
-    add(new YAWLMenuItem(new SetResourcingServiceAction()));
+        if (YAWLEngineProxy.engineLibrariesAvailable())
+            add(new YAWLMenuItem(new SetEngineDetailAction()));
 
-    if (YAWLEngineProxy.engineLibrariesAvailable())
-      add(new YAWLMenuItem(new ConfigureAnalysisToolsAction()));
+        add(new YAWLMenuItem(new SetResourcingServiceAction()));
 
-      add(new YAWLMenuItem(new SetExternalFilePathsAction()));
-      add(new YAWLMenuItem(new ConfigurationSettingsAction()));
-  }
-  
-  public static boolean needsToBeAddedToMenus() {
-      return YAWLEngineProxy.engineLibrariesAvailable() || WofYAWLProxy.wofYawlAvailable();
-  }
+        if (YAWLEngineProxy.engineLibrariesAvailable())
+            add(new YAWLMenuItem(new ConfigureAnalysisToolsAction()));
+
+        add(new YAWLMenuItem(new ConfigurationSettingsAction()));
+        add(new YAWLMenuItem(new SetExternalFilePathsAction()));
+    }
+
+    public static boolean needsToBeAddedToMenus() {
+        return YAWLEngineProxy.engineLibrariesAvailable() || WofYAWLProxy.wofYawlAvailable();
+    }
 }
