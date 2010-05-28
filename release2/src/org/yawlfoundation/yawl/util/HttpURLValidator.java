@@ -56,4 +56,25 @@ public class HttpURLValidator {
         return StringUtil.wrap(msg, "failure");
     }
 
+
+    public synchronized static String pingUntilAvailable(String urlStr, int timeoutSeconds) {
+        String result = null;
+        int timeoutMsecs = timeoutSeconds * 1000;
+        int expiredMsecs = 0;
+        long period = 100;
+        while (expiredMsecs <= timeoutMsecs) {
+            result = validate(urlStr);
+            if (result.equals("<success/>")) break;
+            try {
+                Thread.sleep(period);
+                expiredMsecs += period;
+            }
+            catch (InterruptedException ie) {
+                result = getErrorMessage("Exception while waiting for URL to be available.");
+                break;
+            }
+        }
+        return result;
+    }
+
 }

@@ -20,6 +20,8 @@ import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
 import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
 import org.yawlfoundation.yawl.engine.time.YTimer;
+import org.yawlfoundation.yawl.engine.time.YTimerVariable;
+import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.logging.YEventLogger;
 import org.yawlfoundation.yawl.logging.YLogDataItem;
@@ -37,6 +39,7 @@ import java.util.*;
  *         Date: 16/04/2003
  *         Time: 16:08:01
  *
+ * @author Michael Adams (for v2)
  */
 public class YNetRunner {
 
@@ -61,6 +64,7 @@ public class YNetRunner {
     private YAWLServiceReference _caseObserver;
     private InterfaceX_EngineSideClient _exceptionObserver;
     private long _startTime;
+    private Map<String, String> _timerStates;
 
     // these members are used to persist observers
     private String _caseObserverStr = null ;
@@ -136,6 +140,7 @@ public class YNetRunner {
         _startTime = System.currentTimeMillis();
         prepare(pmgr);
         if (incomingData != null) _net.setIncomingData(pmgr, incomingData);
+        initTimerStates();
     }
 
 
@@ -773,6 +778,8 @@ public class YNetRunner {
         if (taskExited) {
             if (workItem != null) {
                 _workItemRepository.removeWorkItemFamily(workItem);
+
+                updateTimerState(workItem.getTask(), YWorkItemTimer.State.closed);
             }
 
             // check if completing this task resulted in completing the net.
@@ -1093,6 +1100,50 @@ public class YNetRunner {
         return null ;
     }
 
+    // returns all the tasks in this runner's net that have timers
+    public void initTimerStates() {
+        _timerStates = new Hashtable<String, String>();
+        for (YTask task : getNet().getNetTasks()) {
+            if (task.getTimerVariable() != null) {
+                updateTimerState(task, YWorkItemTimer.State.dormant);
+            }
+        }
+    }
+
+
+    public void restoreTimerStates() {
+        if (! _timerStates.isEmpty()) {
+            List<YTask> tasks = getNet().getNetTasks();
+            for (String taskName : _timerStates.keySet()) {
+                for (YTask task : tasks) {
+                    if (task.getName().equals(taskName)) {
+                        String stateStr = _timerStates.get(taskName);
+                        YTimerVariable timerVar = task.getTimerVariable();
+                        timerVar.setState(YWorkItemTimer.State.valueOf(stateStr), true);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+
+    public void updateTimerState(YTask task, YWorkItemTimer.State state) {
+        YTimerVariable timerVar = task.getTimerVariable();
+        if (timerVar != null) {
+            timerVar.setState(state);
+            _timerStates.put(task.getName(), timerVar.getStateString());
+        }
+    }
+
+    
+    public Map<String, String> get_timerStates() {
+        return _timerStates;
+    }
+
+    public void set_timerStates(Map<String, String> states) {
+        _timerStates = states;
+    }
 
 }
 

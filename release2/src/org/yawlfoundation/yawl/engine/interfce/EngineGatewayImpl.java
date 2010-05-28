@@ -42,6 +42,8 @@ import java.util.*;
  * @author Lachlan Aldred
  * Date: 21/01/2004
  * Time: 11:58:18
+ *
+ * @author Michael Adams (for v2)
  * 
  */
 public class EngineGatewayImpl implements EngineGateway {
@@ -88,7 +90,7 @@ public class EngineGatewayImpl implements EngineGateway {
 
     private String checkSession(String sessionHandle) {
         return _sessionCache.checkConnection(sessionHandle) ? SUCCESS
-                               : failureMessage("Invalid or expired session");
+                               : failureMessage("Invalid or expired session.");
     }
 
     private boolean isFailureMessage(String msg) {

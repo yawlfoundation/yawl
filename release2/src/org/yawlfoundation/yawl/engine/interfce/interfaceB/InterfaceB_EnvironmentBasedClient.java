@@ -36,8 +36,8 @@ import java.util.Map;
  */
 
 public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
-    private String _backEndURIStr;
 
+    private String _backEndURIStr;
 
     /**
      * Constructor.
@@ -48,6 +48,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     public InterfaceB_EnvironmentBasedClient(String backEndURIStr) {
         _backEndURIStr = backEndURIStr;
     }
+
+    public String getBackEndURI() { return _backEndURIStr; }
 
 
     /**

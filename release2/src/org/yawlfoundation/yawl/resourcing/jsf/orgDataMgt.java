@@ -317,8 +317,15 @@ public class orgDataMgt extends AbstractPageBean {
             setVisibleComponents("tabRoles");
         }
         else {
-            if (btnAdd.getText().equals("Add"))
-                ((pfOrgData) getBean("pfOrgData")).setCombosToNil();
+            if (btnAdd.getText().equals("Add")) {
+                innerForm.setCombosToNil();
+                innerForm.getTxtName().setText("");
+                innerForm.getLblMembers().setText("Members (0)");
+                _sb.setOrgDataMembers(null);
+            }
+            else {
+                btnRemove.setDisabled(_sb.getOrgDataOptions().length == 0);                
+            }
             
             if (! _sb.getActiveTab().equals(selTabName)) {
                 nullifyChoices();
@@ -347,8 +354,6 @@ public class orgDataMgt extends AbstractPageBean {
         _sb.setActiveTab(tabSet.getSelected());
         _sb.setActivePage(ApplicationBean.PageRef.orgDataMgt);
 
-        btnRemove.setDisabled(_sb.getOrgDataOptions().length == 0);
-        
         if (_sb.isOrgDataItemRemovedFlag()) {
             btnReset_action();
             _sb.setOrgDataItemRemovedFlag(false) ;
@@ -516,7 +521,6 @@ public class orgDataMgt extends AbstractPageBean {
     }
 
     private void setMode(SessionBean.Mode mode) {
-        pfOrgData innerForm = (pfOrgData) getBean("pfOrgData");
         if (mode == SessionBean.Mode.edit) {
             innerForm.setAddMode(false);
             btnAdd.setText("New");

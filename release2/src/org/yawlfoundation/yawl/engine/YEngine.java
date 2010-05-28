@@ -30,6 +30,7 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBClientObserver;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBInterop;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
+import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.logging.YEventLogger;
@@ -414,6 +415,23 @@ public class YEngine implements InterfaceADesign,
         }
         return runners;
     }
+
+
+    public YNetRunner getNetRunner(YWorkItem workItem) {
+        YNetRunner runner = null;
+        YIdentifier caseID = null;
+        if ((workItem.getStatus() == YWorkItemStatus.statusEnabled) ||
+            (workItem.getStatus() == YWorkItemStatus.statusIsParent)) {
+             caseID = workItem.getCaseID();
+        }
+        else if (workItem.hasLiveStatus()) {
+             caseID = workItem.getCaseID().getParent();
+        }
+        if (caseID != null) {
+            runner = _workItemRepository.getNetRunner(caseID);
+        }
+        return runner;
+    }    
 
 
     public synchronized String getNetData(String caseID) throws YStateException {
@@ -824,6 +842,7 @@ public class YEngine implements InterfaceADesign,
                 YNetRunner runner = _caseIDToNetRunnerMap.get(caseID);
                 if (_persisting) clearWorkItemsFromPersistence(pmgr, caseID);
                 Set<YWorkItem> removedItems = _workItemRepository.removeWorkItemsForCase(caseID);
+                YTimer.getInstance().cancelTimersForCase(caseID.toString());
                 finishCase(caseID);
                 if (runner != null) runner.cancel(pmgr);
                 clearCase(pmgr, caseID);
@@ -1914,6 +1933,9 @@ public class YEngine implements InterfaceADesign,
                        YPersistenceManager pmgr = getPersistenceSession();
                        runner.cancelTask(pmgr, taskID);
                        workItem.setStatusToDeleted(pmgr, statusFail);
+                       if (workItem.hasTimerStarted()) {
+                           YTimer.getInstance().cancelTimerTask(workItem.getIDString());
+                       }
                        instanceCache.closeWorkItem(workItem, null);
                        runner.continueIfPossible(pmgr);
                        if (pmgr != null) pmgr.commit();

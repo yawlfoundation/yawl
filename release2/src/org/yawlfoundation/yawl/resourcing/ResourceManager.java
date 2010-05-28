@@ -57,6 +57,7 @@ import org.yawlfoundation.yawl.resourcing.rsInterface.UserConnection;
 import org.yawlfoundation.yawl.resourcing.rsInterface.UserConnectionCache;
 import org.yawlfoundation.yawl.resourcing.util.*;
 import org.yawlfoundation.yawl.schema.YDataValidator;
+import org.yawlfoundation.yawl.util.HttpURLValidator;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YBuildProperties;
@@ -132,6 +133,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private Timer _orgDataRefreshTimer;               // if set, reloads db at intervals
 
     private boolean _serviceEnabled = true ;          // will disable if no participants
+    private boolean _initCompleted = false;               // guard for restarted engine
     public static boolean serviceInitialised = false ;    // flag for init on restore
 
     private ApplicationBean _jsfApplicationReference ;   // ref to jsf app manager bean
@@ -217,17 +219,26 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     private void setServiceURI() {
         _serviceURI = "http://localhost:8080/resourceService/ib";         // a default
-        if (connected()) {
-            Set<YAWLServiceReference> services =
-                    _interfaceAClient.getRegisteredYAWLServices(getEngineSessionHandle()) ;
-            if (services != null) {
-                for (YAWLServiceReference service : services) {
-                    if (service.getURI().contains("resourceService")) {
-                        _serviceURI = service.getURI();
-                    }
+        Set<YAWLServiceReference> services =
+                _interfaceAClient.getRegisteredYAWLServices(getEngineSessionHandle()) ;
+        if (services != null) {
+            for (YAWLServiceReference service : services) {
+                if (service.getURI().contains("resourceService")) {
+                    _serviceURI = service.getURI();
                 }
             }
         }
+    }
+
+
+    private void reestablishInterfaceClients() {
+        String uriA = _interfaceAClient.getBackEndURI();
+        String uriB = _interfaceBClient.getBackEndURI();
+        String uriE = _interfaceEClient.getBackEndURI();
+        _interfaceAClient = new InterfaceA_EnvironmentBasedClient(uriA);
+        setUpInterfaceBClient(uriB);
+        _interfaceEClient = new YLogGatewayClient(uriE);
+        HttpURLValidator.pingUntilAvailable(uriB, 5);
     }
 
     
@@ -402,17 +413,30 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public void handleEngineInitialisationCompletedEvent() {
-        if (connected()) {
-            setServiceURI();
+    public synchronized void handleEngineInitialisationCompletedEvent() {
+
+        // if the engine has been restarted during this service session
+        if (_initCompleted) {
+            _engineSessionHandle = null;
+            reestablishInterfaceClients();
+        }
+
+        
+
+        setServiceURI();
+        sanitiseCaches();
+        setAuthorisedServiceConnections();
+
+        // if this is the first time the engine has started since service start...
+        // (these things are only to be done once per service start)
+        if (! _initCompleted) {
             restoreAutoTasks();
-            sanitiseCaches();
-            setAuthorisedServiceConnections();
             if (_orphanedStartedItems != null) {
                 for (WorkItemRecord wir : _orphanedStartedItems) {
                     this.checkinItem(null, wir);
                 }
             }
+            _initCompleted = true;
         }    
     }
 
@@ -1813,25 +1837,24 @@ public class ResourceManager extends InterfaceBWebsideController {
 
         // if we don't have a resource map for the task stored yet, let's make one
         if (map == null) {
-            if (connected()) {
-                try {
-                    YSpecificationID specID = new YSpecificationID(wir);
-                    String taskID = wir.getTaskID();
-                    Element resElem = getResourcingSpecs(specID, taskID,
-                            getEngineSessionHandle()) ;
+            try {
+                YSpecificationID specID = new YSpecificationID(wir);
+                String taskID = wir.getTaskID();
+                Element resElem = getResourcingSpecs(specID, taskID,
+                        getEngineSessionHandle()) ;
 
-                    if ((resElem != null) &&
-                         successful(JDOMUtil.elementToString(resElem))) {
+                if ((resElem != null) &&
+                        successful(JDOMUtil.elementToString(resElem))) {
 
-                        map = new ResourceMap(specID, taskID, resElem, _persisting) ;
-                        _resMapCache.add(specID, taskID, map) ;
-                    }
-                }
-                catch (IOException ioe) {
-                    _log.error("Exception getting resource specs from Engine", ioe) ;
+                    map = new ResourceMap(specID, taskID, resElem, _persisting) ;
+                    _resMapCache.add(specID, taskID, map) ;
                 }
             }
+            catch (IOException ioe) {
+                _log.error("Exception getting resource specs from Engine", ioe) ;
+            }
         }
+
         return map;              // map = null if no resourcing spec for this task
     }
 
@@ -1882,29 +1905,24 @@ public class ResourceManager extends InterfaceBWebsideController {
      *  @return true if checkout was successful
      */
     protected boolean checkOutWorkItem(WorkItemRecord wir) {
-        if (connected()) {
-            try {
-                if (null != checkOut(wir.getID(), getEngineSessionHandle())) {
-                     _log.info("   checkout successful: " + wir.getID());
-                     return true ;
-                }
-                else {
-                    _log.info("   checkout unsuccessful: " + wir.getID());
-                    return false;
-                }
+        try {
+            if (null != checkOut(wir.getID(), getEngineSessionHandle())) {
+                _log.info("   checkout successful: " + wir.getID());
+                return true ;
             }
-            catch (YAWLException ye) {
-                _log.error("YAWL Exception with checkout: " + wir.getID(), ye);
-                return false ;
-            }
-            catch (IOException ioe) {
-                _log.error("IO Exception with checkout: " + wir.getID(), ioe);
-                return false ;
+            else {
+                _log.info("   checkout unsuccessful: " + wir.getID());
+                return false;
             }
         }
-        _log.error("Could not connect to Engine to checkout: " + wir.getID());
-        return false ;
-
+        catch (YAWLException ye) {
+            _log.error("YAWL Exception with checkout: " + wir.getID(), ye);
+            return false ;
+        }
+        catch (IOException ioe) {
+            _log.error("IO Exception with checkout: " + wir.getID(), ioe);
+            return false ;
+        }
     }
 
   //***************************************************************************//
@@ -2063,43 +2081,37 @@ public class ResourceManager extends InterfaceBWebsideController {
      ************************/
 
     public String login(String userid, String password, String jSessionID) {
-        String result ;
-        if (connected()) {
+        if (userid.equals("admin")) return loginAdmin(password, jSessionID) ;
 
-            if (userid.equals("admin")) return loginAdmin(password, jSessionID) ;
-            
-            Participant p = getParticipantFromUserID(userid) ;
-            if (p != null) {
-                boolean validPassword;
-                if (_orgDataSet.isUserAuthenticationExternal()) {
-                    try {
-                        validPassword = _orgdb.authenticate(userid, password);
-                    }
-                    catch (YAuthenticationException yae) {
-                        return StringUtil.wrap(yae.getMessage(), "failure") ;
-                    }
+        String result ;
+        Participant p = getParticipantFromUserID(userid) ;
+        if (p != null) {
+            boolean validPassword;
+            if (_orgDataSet.isUserAuthenticationExternal()) {
+                try {
+                    validPassword = _orgdb.authenticate(userid, password);
                 }
-                else {
-                    validPassword = p.isValidPassword(password);
-                }
-                if (validPassword) {
-                    result = newSessionHandle();          
-                    _liveSessions.add(result, p, jSessionID) ;
-                    EventLogger.audit(userid, EventLogger.audit.logon);
-                }
-                else {
-                    result = "<failure>Incorrect Password</failure>" ;
-                    EventLogger.audit(userid, EventLogger.audit.invalid);
+                catch (YAuthenticationException yae) {
+                    return StringUtil.wrap(yae.getMessage(), "failure") ;
                 }
             }
-            else  {
-                result = "<failure>Unknown user name</failure>" ;
-                EventLogger.audit(userid, EventLogger.audit.unknown);
+            else {
+                validPassword = p.isValidPassword(password);
+            }
+            if (validPassword) {
+                result = newSessionHandle();
+                _liveSessions.add(result, p, jSessionID) ;
+                EventLogger.audit(userid, EventLogger.audit.logon);
+            }
+            else {
+                result = "<failure>Incorrect Password</failure>" ;
+                EventLogger.audit(userid, EventLogger.audit.invalid);
             }
         }
-        else
-            result = "<failure>Could not connect to YAWL Engine</failure>" ;
-
+        else {
+            result = "<failure>Unknown user name</failure>" ;
+            EventLogger.audit(userid, EventLogger.audit.unknown);
+        }
         return result ;
     }
 
@@ -2121,7 +2133,10 @@ public class ResourceManager extends InterfaceBWebsideController {
     
     private String loginAdmin(String password, String jSessionID) {
         String handle ;
-        String adminPassword = getAdminUserPassword();
+        String adminPassword = _connections.getPassword("admin");
+        if (adminPassword == null) {
+            adminPassword = getAdminUserPassword();    // from engine
+        }
         if (successful(adminPassword)) {
             if (password.equals(adminPassword)) {
                 handle = newSessionHandle();
@@ -2133,7 +2148,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                 EventLogger.audit("admin", EventLogger.audit.invalid);
             }
         }
-        else handle = adminPassword;
+        else handle = adminPassword;     // an error message
 
         return handle ;
     }
@@ -2199,7 +2214,7 @@ public class ResourceManager extends InterfaceBWebsideController {
      */
     protected synchronized boolean connected() {
         try {
-            // if not connected
+             // if not connected
              if ((_engineSessionHandle == null) ||
                  (_engineSessionHandle.length() == 0) ||
                  (! checkConnection(_engineSessionHandle))) {
@@ -2219,7 +2234,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         return _engineSessionHandle;
     }
 
-//***************************************************************************//
+    //***************************************************************************//
 
     private class OrgDataRefresh extends TimerTask {
         public void run() { loadResources() ; }
@@ -2661,6 +2676,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                     users.put(service.getServiceName(), service.getServicePassword());
                 }
             }
+            _connections.clear();
             _connections.addUsers(users);
         }
         catch (IOException ioe) {
@@ -2880,7 +2896,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         synchronized(_mutex) {
 
             // check out the auto workitem
-            if (connected() && checkOutWorkItem(wir)) {
+            if (checkOutWorkItem(wir)) {
                 List children = getChildren(wir.getID());
 
                 if ((children != null) && (! children.isEmpty())) {
@@ -2888,7 +2904,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                     processAutoTask(wir);
                 }
             }
-            else _log.error("Could not connect to YAWL Engine.");
+            else _log.error("Could not check out automated workitem: " + wir.getID());
         }
     }
 

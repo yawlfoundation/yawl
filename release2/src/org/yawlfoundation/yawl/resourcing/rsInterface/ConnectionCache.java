@@ -58,6 +58,11 @@ public class ConnectionCache extends Hashtable<String, ServiceConnection> {
         _userdb.remove(userid);
     }
 
+
+    public void clearUsers() {
+        _userdb.clear();
+    }
+
     
     public String connect(String userid, String password, long timeOutSeconds) {
         String result ;
@@ -111,6 +116,16 @@ public class ConnectionCache extends Hashtable<String, ServiceConnection> {
         for (ServiceConnection con : this.values()) {
             EventLogger.audit(con.getUserID(), EventLogger.audit.shutdown);            
         }
+    }
+
+
+    public boolean hasUser(String userid) {
+        return _userdb.containsKey(userid);
+    }
+
+    
+    public String getPassword(String userid) {
+        return _userdb.get(userid);
     }
 
     /******************************************************************************/

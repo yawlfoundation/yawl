@@ -1,22 +1,22 @@
 package org.yawlfoundation.yawl.engine;
 
 import org.apache.log4j.Logger;
+import org.jdom.Document;
+import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.elements.YAtomicTask;
+import org.yawlfoundation.yawl.elements.YTask;
+import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.announcement.AnnouncementContext;
-import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
 import org.yawlfoundation.yawl.engine.announcement.Announcements;
 import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
+import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
 import org.yawlfoundation.yawl.exceptions.YStateException;
-import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.elements.YAWLServiceReference;
-import org.yawlfoundation.yawl.elements.YTask;
-import org.yawlfoundation.yawl.elements.YAtomicTask;
-import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
-import org.jdom.Document;
 
-import java.util.Set;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Author: Michael Adams
@@ -224,25 +224,13 @@ public class YAnnouncer {
     {
         debug("--> reannounceWorkItem: WorkitemID=" + workItem.getWorkItemID().getTaskID());
 
-        YNetRunner netRunner;
-
-        if ((workItem.getStatus() == YWorkItemStatus.statusExecuting) ||
-            (workItem.getStatus() == YWorkItemStatus.statusFired)) {
-             netRunner = YEngine.getWorkItemRepository().getNetRunner(workItem.getCaseID().getParent());
-        }
-        else if (workItem.getStatus() == YWorkItemStatus.statusEnabled) {
-             netRunner = YEngine.getWorkItemRepository().getNetRunner(workItem.getCaseID());
-        }
-        else throw new YStateException("Failed to reannounce workitem " + workItem +
-                          " as state " + workItem.getStatus() + " is unsupported");
-
+        YNetRunner netRunner = _engine.getNetRunner(workItem);
         if (netRunner != null) {
             announceToEnvironment(workItem, netRunner.get_caseIDForNet());
         }
 
         debug("<-- reannounceEnabledWorkItem");
     }
-
 
 
     public void announceToEnvironment(YWorkItem workItem, YIdentifier caseID) {
