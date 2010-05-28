@@ -625,6 +625,11 @@ public class userWorkQueues extends AbstractPageBean {
     private String doAction(int queueType, String action) {
         Participant p = _sb.getParticipant();
         WorkItemRecord wir = _sb.getChosenWIR(queueType);
+        if (wir == null) {
+            showNullWIRMessage(action);
+            return null;
+        }
+
         try {
             if (action.equals("deallocate"))
                 _rm.deallocateWorkItem(p, wir);
@@ -633,34 +638,26 @@ public class userWorkQueues extends AbstractPageBean {
             else if (action.equals("start")) {
                 if (! _rm.start(p, wir)) {
                     msgPanel.error("Could not start workitem '" + wir.getID() +
-                     "'. Please see the log files for details.");
+                       "'. Please see the log files for details.");
                 }
             }
             else if (action.equals("suspend"))
                 _rm.suspendWorkItem(p, wir);
             else if (action.equals("unsuspend"))
                 _rm.unsuspendWorkItem(p, wir);
-            else if (action.equals("acceptOffer")) {
-                if (wir != null)
-                    _rm.acceptOffer(p, wir);
-                else
-                    msgPanel.info("Another participant has already accepted this offer.");
-            }
+            else if (action.equals("acceptOffer"))
+                _rm.acceptOffer(p, wir);
             else if (action.equals("acceptStart")) {
-                if (wir != null) {
-                    _rm.acceptOffer(p, wir);
+                _rm.acceptOffer(p, wir);
 
-                    // if the accepted offer has a system-initiated start, it's
-                    // already started, so don't do it again
-                    if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceAllocated)) {
-                        if (! _rm.start(p, wir)) {
-                            msgPanel.error("Could not start workitem '" + wir.getID() +
-                             "'. Please see the log files for details.");
-                        }
+                // if the accepted offer has a system-initiated start, it's
+                // already started, so don't do it again
+                if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceAllocated)) {
+                    if (! _rm.start(p, wir)) {
+                        msgPanel.error("Could not start workitem '" + wir.getID() +
+                         "'. Please see the log files for details.");
                     }
                 }
-                else
-                    msgPanel.info("Another participant has already accepted this offer.");
             }
             else if (action.equals("pile")) {
                 String result = _rm.pileWorkItem(p, wir);
@@ -687,7 +684,6 @@ public class userWorkQueues extends AbstractPageBean {
                     _sb.setWarnedForNonEdit(wir.getID()) ;
                     return null ;
                 }
-
                 completeWorkItem(wir, p);
             }
         }
@@ -700,6 +696,14 @@ public class userWorkQueues extends AbstractPageBean {
     }
 
 
+    private void showNullWIRMessage(String action) {
+        String msgTemplate = "The selected workitem is no longer available. Possible" +
+                " reasons include %s the workitem may have been cancelled by an" +
+                " administrator, or the workitem's timer may have expired.";
+        String insert = action.startsWith("accept") ?
+                "another participant may have already accepted this offer, or" : "";
+        msgPanel.info(String.format(msgTemplate, insert));
+    }
 
     /**********************************************************************************/
 

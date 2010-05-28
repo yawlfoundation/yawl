@@ -19,8 +19,7 @@ import java.util.*;
 public class YTimer extends Timer {
 
     public enum TimeUnit { YEAR, MONTH, WEEK, DAY, HOUR, MIN, SEC, MSEC }
-    public enum TimerType { Duration, Timestamp }
-    
+
     private static YTimer _me;
 
     private Hashtable<String, TimeKeeper> _runners;
@@ -37,6 +36,10 @@ public class YTimer extends Timer {
     }
 
 
+    public boolean hasActiveTimer(String itemID) {
+        return _runners.containsKey(itemID);
+    }
+
     public YTimedObject cancelTimerTask(String itemID) {
         YTimedObject result = null;
         TimeKeeper timer = _runners.get(itemID);
@@ -48,6 +51,19 @@ public class YTimer extends Timer {
         }
         return result;
     }
+
+    public void cancelTimersForCase(String caseID) {
+        Set<String> toRemove = new HashSet<String>();
+        for (String itemID : _runners.keySet()) {
+            if (itemID.startsWith(caseID + ":") || itemID.startsWith(caseID + ".")) {
+                toRemove.add(itemID);
+            }
+        }
+        for (String itemID : toRemove) {
+            cancelTimerTask(itemID);
+        }
+    }
+
 
     // both methods return a long value of the date/time stamp representing
     // the expiry time
@@ -111,8 +127,10 @@ public class YTimer extends Timer {
         public YTimedObject getOwner() { return _owner; }
 
 
-        public void run() {
+        public synchronized void run() {
+            String id = ((YWorkItemTimer) _owner).getOwnerID();
             _owner.handleTimerExpiry();
+            _runners.remove(id);
         }
     }
 }

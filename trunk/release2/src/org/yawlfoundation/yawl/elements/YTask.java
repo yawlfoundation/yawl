@@ -26,6 +26,7 @@ import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.engine.YWorkItemRepository;
 import org.yawlfoundation.yawl.engine.time.YTimer;
+import org.yawlfoundation.yawl.engine.time.YTimerVariable;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
@@ -98,6 +99,7 @@ public abstract class YTask extends YExternalNetElement {
 
     // optional timer params [name, value]
     private Map<String, Object> _timerParams ;
+    private YTimerVariable _timerVariable;
 
     // optional URI to a custom form (rather than inbuilt dynamic form)
     private URL _customFormURL;
@@ -1758,13 +1760,13 @@ public abstract class YTask extends YExternalNetElement {
     /*** TIMER SETTINGS ***/
 
     public void setTimerParameters(String netParamName) {
-        _timerParams = new HashMap<String, Object>() ;
+        initTimerParameters() ;
         _timerParams.put("netparam", netParamName) ;
     }
 
 
     public void setTimerParameters(YWorkItemTimer.Trigger trigger, Date expiryTime) {
-        _timerParams = new HashMap<String, Object>() ;
+        initTimerParameters() ;
         _timerParams.put("trigger", trigger) ;
         _timerParams.put("expiry", expiryTime) ;
     }
@@ -1772,7 +1774,7 @@ public abstract class YTask extends YExternalNetElement {
 
     public void setTimerParameters(YWorkItemTimer.Trigger trigger, long ticks,
                                    YTimer.TimeUnit timeUnit) {
-        _timerParams = new HashMap<String, Object>() ;
+        initTimerParameters() ;
         _timerParams.put("trigger", trigger) ;
         _timerParams.put("ticks", ticks) ;
 
@@ -1782,9 +1784,18 @@ public abstract class YTask extends YExternalNetElement {
     }
 
     public void setTimerParameters(YWorkItemTimer.Trigger trigger, Duration duration) {
-        _timerParams = new HashMap<String, Object>() ;
+        initTimerParameters() ;
         _timerParams.put("trigger", trigger) ;
         _timerParams.put("duration", duration) ;        
+    }
+
+    private void initTimerParameters() {
+        _timerParams = new HashMap<String, Object>() ;
+        _timerVariable = new YTimerVariable(this);
+    }
+
+    public YTimerVariable getTimerVariable() {
+        return _timerVariable;
     }
 
 

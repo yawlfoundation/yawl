@@ -28,6 +28,7 @@ import org.yawlfoundation.yawl.logging.YLogDataItem;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.HttpURLValidator;
 import org.yawlfoundation.yawl.worklet.admin.AdminTasksManager;
 import org.yawlfoundation.yawl.worklet.admin.AdministrationTask;
 import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
@@ -160,6 +161,7 @@ public class WorkletService extends InterfaceBWebsideController {
     private String _workletsDir ;                       // where the worklet specs are
     private static WorkletService _me ;                 // reference to self
     private static ExceptionService _exService ;        // reference to ExceptionService
+    private boolean _initCompleted = false;             // has engine initialised?
     private boolean restored = false;
 
     /** the constructor */
@@ -405,8 +407,16 @@ public class WorkletService extends InterfaceBWebsideController {
     }
 
 
-    public void handleEngineInitialisationCompletedEvent() {
+    public synchronized void handleEngineInitialisationCompletedEvent() {
+        if (_initCompleted) {
+            String uriA = _interfaceAClient.getBackEndURI();
+            String uriB = _interfaceBClient.getBackEndURI();
+            _interfaceAClient = new InterfaceA_EnvironmentBasedClient(uriA);
+            setUpInterfaceBClient(uriB);
+            HttpURLValidator.pingUntilAvailable(uriB, 5);
+        }
         setWorkletURI();
+        _initCompleted = true;
     }
 
  //***************************************************************************//

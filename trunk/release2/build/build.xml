@@ -749,7 +749,8 @@
         <copy todir="${yawl.worklet.app.name}${webinf.dir}/util">
               <fileset dir="${classes.dir}${packageRoot}/util"
                        includes="JDOMUtil.class StringUtil.class
-                                 CharsetFilter.class PasswordEncryptor.class"/>
+                                 CharsetFilter.class PasswordEncryptor.class
+                                 HttpURLValidator"/>
         </copy>
 
         <!-- 2. copy worklet classes to relevant dirs -->

@@ -8,15 +8,18 @@
 
 package org.yawlfoundation.yawl.engine.time;
 
-import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.YEngine;
+import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.YWorkItemStatus;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 
 import javax.xml.datatype.Duration;
 import java.util.Date;
+import java.util.Set;
 
 /**
+ * A timer associated with an Atomic Task.
+ *
  * Author: Michael Adams
  * Creation Date: 31/01/2008
  */
@@ -25,7 +28,7 @@ public class YWorkItemTimer implements YTimedObject {
 
     public enum Trigger { OnEnabled, OnExecuting }
 
-    public enum Status { Dormant, Active, Closed, Expired }
+    public enum State { dormant, active, closed, expired }
 
     private String _ownerID;
     private long _endTime ;
@@ -57,8 +60,8 @@ public class YWorkItemTimer implements YTimedObject {
     }
 
 
-    public YWorkItemTimer(String workItemID, long units,
-                                           YTimer.TimeUnit interval, boolean persisting) {
+    public YWorkItemTimer(String workItemID, long units, YTimer.TimeUnit interval,
+                          boolean persisting) {
         _ownerID = workItemID ;
         _persisting = persisting ;
         _endTime = YTimer.getInstance().schedule(this, units, interval);
@@ -93,11 +96,22 @@ public class YWorkItemTimer implements YTimedObject {
 
             
     public void handleTimerExpiry() {
-
-        // when workitem completes, check if there's a timer for it and if so, cancel it.
         YEngine engine = YEngine.getInstance();
         YWorkItem item = engine.getWorkItem(_ownerID) ;
         if (item != null) {
+
+            // special case: if the workitem timer started on enabled, and the item
+            // has since been started, the ownerID now refers to the parent, and so the
+            // child is needed so it can be expired correctly.
+            if (item.getStatus().equals(YWorkItemStatus.statusIsParent)) {
+                Set<YWorkItem> children = item.getChildren();
+                if ((children != null) && (! children.isEmpty())) {
+                    item = children.iterator().next();          // there will only be 1
+                }
+            }
+            
+            engine.getNetRunner(item).updateTimerState(item.getTask(), State.expired);
+
             try {
                 if (item.getStatus().equals(YWorkItemStatus.statusEnabled)) {
                     if (item.requiresManualResourcing())              // not an autotask
@@ -115,11 +129,10 @@ public class YWorkItemTimer implements YTimedObject {
             }
         }
         persistThis(false) ;                                 // unpersist this timer
-
     }
 
 
-    // do whatever necessary when a timer is cancelled before expiry
+    // unpersist this timer when the workitem is cancelled
     public void cancel() {
         persistThis(false) ;                                
     }

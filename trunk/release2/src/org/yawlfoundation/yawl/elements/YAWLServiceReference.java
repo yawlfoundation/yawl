@@ -137,31 +137,12 @@ public class YAWLServiceReference extends YClient implements YVerifiable {
 
     // called during spec output to xml
     public String toXML() {
-//        StringBuilder result = new StringBuilder();
-//        result.append("<yawlService id=\"").append(_yawlServiceID).append("\">");
-//        if (_documentation != null) {
-//            result.append("<documentation>").append(_documentation)
-//                  .append("</documentation>");
-//        }
-//        result.append("</yawlService>");
         return toBasicXNode().toString();
     }
 
     
     // called when adding, editing, or getting service across interfaces A & B
     public String toXMLComplete() {
-//        String simpleXML = toXML();
-//
-//        // trim off closing tag
-//        simpleXML = simpleXML.substring(0, simpleXML.lastIndexOf("<"));
-//
-//        StringBuilder result = new StringBuilder(simpleXML);
-//        result.append(StringUtil.wrap(_userName, "servicename"));
-//        result.append(StringUtil.wrap(_password, "servicepassword"));
-//        result.append(StringUtil.wrap(String.valueOf(_assignable), "assignable"));
-//        result.append("</yawlService>");
-//   //     return result.toString();
-
         XNode root = toBasicXNode();
         root.addChild("servicename", _userName);
         root.addChild("servicepassword", _password);

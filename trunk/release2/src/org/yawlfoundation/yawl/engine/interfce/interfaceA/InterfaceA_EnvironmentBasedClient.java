@@ -36,6 +36,7 @@ import java.util.*;
  * 
  */
 public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
+
     private String _backEndURIStr;
 
 
@@ -48,6 +49,9 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
     public InterfaceA_EnvironmentBasedClient(String backEndURIStr) {
         _backEndURIStr = backEndURIStr;
     }
+
+
+    public String getBackEndURI() { return _backEndURIStr; }
 
 
     /**

@@ -72,7 +72,8 @@ public class DynFormValidator {
         List components = panel.getChildren();
         if (components != null) {
 
-            // checkboxes, dropdowns & calendars are self validating - only need to do textfields
+            // checkboxes & dropdowns are self validating - only need to do textfields
+            // & calendars (calendars only for non-empty required values)
             for (Object o : components) {
                 UIComponent component = (UIComponent) o;
 
@@ -85,11 +86,21 @@ public class DynFormValidator {
                     if (component instanceof SubPanel) {
                         subResult = validateInputs((SubPanel) component) ;
                     }
-                    else if ((component instanceof TextField) || (component instanceof TextArea)) {
+                    else if ((component instanceof TextField) ||
+                             (component instanceof TextArea)) {
                         FieldBase field = (FieldBase) component;
                         if (! field.isDisabled()) {
                             subResult = validateField(field);
                         }
+                    }
+
+                    // need to check that if its required it has a value
+                    else if ((component instanceof Calendar)) {
+                        Calendar field = (Calendar) component;
+                        if (! field.isDisabled()) {
+                            subResult = validateCalendarField(field);
+                        }
+
                     }
                     finalResult = (finalResult && subResult) ;
                 }    
@@ -128,6 +139,20 @@ public class DynFormValidator {
         if (isValid && (! isEmptyValue(value)))
             isValid = validateAgainstSchema(input, value);
         return isValid;
+    }
+
+
+    private boolean validateCalendarField(Calendar field) {
+        boolean result = true;
+        DynFormField input = _componentFieldLookup.get(field);
+        if ((input != null) && (! input.hasSkipValidationAttribute())) {
+            if (input.isRequired() && (field.getText() == null)) {
+                _msgPanel.error("Field '" + input.getLabelText() + "' requires a value.\n");
+                result = false;
+            }
+        }
+        field.setStyleClass(getStyleClass(input, result));
+        return result;
     }
 
 

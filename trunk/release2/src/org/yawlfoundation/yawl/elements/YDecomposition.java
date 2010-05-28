@@ -13,6 +13,7 @@ import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YCaseData;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
+import org.yawlfoundation.yawl.engine.time.YTimerVariable;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -44,6 +45,7 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
     private YCaseData _casedata = null;
     private YAttributeMap _attributes;
     private YLogPredicate _logPredicate;
+    private Map<YTask, YTimerVariable> _timerVariables;
 
     // if true, this decomposition requires resourcing decisions made at runtime
     protected boolean _manualInteraction = true;
@@ -59,6 +61,7 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
         _inputParameters = new HashMap<String, YParameter>();
         _outputParameters = new HashMap<String, YParameter>();
         _enablementParameters = new HashMap<String, YParameter>();
+        _timerVariables = new Hashtable<YTask, YTimerVariable>();
         _outputExpressions = new HashSet<String>();
         _data = new Document();
         _attributes = new YAttributeMap();
@@ -361,4 +364,30 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
     public String getRootDataElementName() {
         return _specification.usesSimpleRootData() ? "data" : _id;
     }
+
+//
+//    public void addTimerVariable(YTimerVariable var) {
+//        _timerVariables.put(var.getTask(), var);
+//    }
+//
+//    public void addTimerVariable(YTask task) {
+//        _timerVariables.put(task, new YTimerVariable(task));
+//    }
+//
+//
+//    public YTimerVariable getTimerVariable(YTask task) {
+//        return _timerVariables.get(task);
+//    }
+//
+//    public Map<YTask, YTimerVariable> getTimerVariables() {
+//        return _timerVariables;
+//    }
+//
+//    public boolean setTimerVariableState(YTask task, YWorkItemTimer.State state) {
+//        YTimerVariable var = getTimerVariable(task);
+//        if (var != null) {
+//            var.setState(state);
+//        }
+//        return (var != null);
+//    }
 }

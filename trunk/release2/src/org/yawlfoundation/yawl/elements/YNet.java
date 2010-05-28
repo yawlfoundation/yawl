@@ -11,7 +11,6 @@ package org.yawlfoundation.yawl.elements;
 
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.yawlfoundation.yawl.elements.data.YParameter;
@@ -25,11 +24,8 @@ import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.exceptions.YDataStateException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
-import org.yawlfoundation.yawl.util.Order;
-import org.yawlfoundation.yawl.util.Sorter;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
+import org.yawlfoundation.yawl.util.*;
 
-import java.io.StringReader;
 import java.util.*;
 
 /**
@@ -44,7 +40,7 @@ public final class YNet extends YDecomposition {
     private YInputCondition _inputCondition;
     private YOutputCondition _outputCondition;
     private Map<String, YExternalNetElement> _netElements =
-                                             new HashMap<String, YExternalNetElement>();
+            new HashMap<String, YExternalNetElement>();
     private Map<String, YVariable> _localVariables = new HashMap<String, YVariable>();
     private YNet _clone;
 
@@ -437,10 +433,8 @@ public final class YNet extends YDecomposition {
             public boolean lessThan(Object a, Object b) {
                 YVariable var1 = (YVariable) a;
                 YVariable var2 = (YVariable) b;
-                String var1Nm = var1.getName() != null ?
-                        var1.getName() : var1.getElementName();
-                String var2Nm = var2.getName() != null ?
-                        var2.getName() : var2.getElementName();
+                String var1Nm = var1.getPreferredName();
+                String var2Nm = var2.getPreferredName();
 
                 if (var1Nm != null && var2Nm != null) {
                     return var1Nm.compareTo(var2Nm) < 0;
@@ -501,39 +495,22 @@ public final class YNet extends YDecomposition {
      */
     public void initialise(YPersistenceManager pmgr) throws YPersistenceException {
         super.initialise(pmgr);
-        Iterator iter = _localVariables.values().iterator();
-        while (iter.hasNext()) {
-            YVariable variable = (YVariable) iter.next();
-            Element initialValuedXMLDOM = null;
-            String varElementName = variable.getName() != null ?
-                    variable.getName() :
-                    variable.getElementName();
+        for (YVariable variable : _localVariables.values()) {
+            String varElementName = variable.getPreferredName();            
             if (variable.getInitialValue() != null) {
-                String initialValue = variable.getInitialValue();
-
-                initialValue =
-                        "<" + varElementName + ">" +
-                        initialValue +
-                        "</" + varElementName + ">";
-                try {
-                    SAXBuilder builder = new org.jdom.input.SAXBuilder();
-                    Document doc = builder.build(new StringReader(initialValue));
-                    initialValuedXMLDOM = doc.detachRootElement();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else {
-                initialValuedXMLDOM = new Element(varElementName);
+                addData(pmgr, new XNode(varElementName,
+                        variable.getInitialValue()).toElement());
+            } 
+            else {
+                addData(pmgr, new Element(varElementName));
             }
-            addData(pmgr, initialValuedXMLDOM);
         }
     }
 
 
-    public void setIncomingData(YPersistenceManager pmgr, Element incomingData) throws YSchemaBuildingException, YDataStateException, YPersistenceException {
-        Iterator iter = getInputParameters().values().iterator();
-        while (iter.hasNext()) {
-            YParameter parameter = (YParameter) iter.next();
+    public void setIncomingData(YPersistenceManager pmgr, Element incomingData)
+            throws YSchemaBuildingException, YDataStateException, YPersistenceException {
+        for (YParameter parameter : getInputParameters().values()) {
             Element actualParam = incomingData.getChild(parameter.getName());
             if (parameter.isMandatory() && actualParam == null) {
                 throw new IllegalArgumentException("The input data for Net:" + getID() +
@@ -541,6 +518,11 @@ public final class YNet extends YDecomposition {
                         " Alternatively the data is there but the query in the super net produced data with" +
                         " the wrong name(Check your specification). "
                         + new XMLOutputter(Format.getPrettyFormat()).outputString(incomingData).trim());
+            }
+
+            // remove any attributes - not required and cause valiation errors if left
+            if (! actualParam.getAttributes().isEmpty()) {
+                JDOMUtil.stripAttributes(actualParam);
             }
         }
 

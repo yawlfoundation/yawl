@@ -45,8 +45,8 @@ import java.util.*;
 public class YWorkItem {
 
     private static DateFormat _df = new SimpleDateFormat("MMM:dd, yyyy H:mm:ss");
-    private static YWorkItemRepository _workItemRepository =
-                                             YWorkItemRepository.getInstance();
+    private static YEngine _engine = YEngine.getInstance();
+    private static YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
     private YWorkItemID _workItemID;
     private String _thisID = null;
     private YSpecificationID _specID;
@@ -196,7 +196,7 @@ public class YWorkItem {
      */
     private boolean unpackTimerParams(String param, YCaseData data) {
         if (data == null)
-            data = YEngine.getInstance().getCaseData(_workItemID.getCaseID());
+            data = _engine.getCaseData(_workItemID.getCaseID());
 
         if (data == null) return false ;                    // couldn't get case data
 
@@ -327,7 +327,7 @@ public class YWorkItem {
         YLogDataItemList result = new YLogDataItemList();
         if (data != null) {
             Map<String, YParameter> params =
-                    YEngine.getInstance().getParameters(_specID, getTaskID(), input) ;
+                    _engine.getParameters(_specID, getTaskID(), input) ;
             String descriptor = (input ? "Input" : "Output") + "VarAssignment";
             List list = data.getChildren();
             for (Object o : list) {
@@ -373,7 +373,7 @@ public class YWorkItem {
             }
             if (_externalClientStr != null) {
                 if (_externalClientStr.equals("DefaultWorklist")) {
-                    _externalClient = YEngine.getInstance().getDefaultWorklist();
+                    _externalClient = _engine.getDefaultWorklist();
                 }
                 else {
                     for (YAWLServiceReference service : services) {
@@ -460,9 +460,16 @@ public class YWorkItem {
                     }    
                 }
             }
-            if (_timerStarted && (timer != null))
+            if (_timerStarted && (timer != null)) {
                 _timerExpiry = timer.getEndTime();
+                setTimerActive();
+            }
         }
+    }
+
+
+    private void setTimerActive() {
+        _engine.getNetRunner(this).updateTimerState(_task, YWorkItemTimer.State.active);
     }
 
 
@@ -679,7 +686,7 @@ public class YWorkItem {
 
     public void set_status(YPersistenceManager pmgr, YWorkItemStatus status)
                                                          throws YPersistenceException {
-        YEngine.getInstance().getAnnouncer().announceWorkItemStatusChange(this, _status, status);
+        _engine.getAnnouncer().announceWorkItemStatusChange(this, _status, status);
         _status = status;
         if (pmgr != null) pmgr.updateObject(this);
     }
@@ -749,7 +756,10 @@ public class YWorkItem {
 
     public boolean hasTimerStarted() { return _timerStarted; }
 
-    public void setTimerStarted(boolean started) { _timerStarted = started; }
+    public void setTimerStarted(boolean started) {
+        _timerStarted = started;
+        if (started) setTimerActive();
+    }
 
     public long getTimerExpiry() { return _timerExpiry; }
 

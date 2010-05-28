@@ -38,6 +38,10 @@ public class YLogGatewayClient extends Interface_Client {
         _logURI = uri ;
     }
 
+
+    public String getBackEndURI() { return _logURI; }
+
+
     /*******************************************************************************/
 
     // GET METHODS - returning String //

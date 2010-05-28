@@ -178,11 +178,12 @@ public class YEngineRestorer {
             if (data != null) witem.setInitData(JDOMUtil.stringToElement(data));
 
             // reconstruct the caseID-YIdentifier for this item
-            String[] caseTaskSplit = witem.get_thisID().split(":");
-            String[] taskUniqueSplit = caseTaskSplit[1].split("!");
-            String caseID = caseTaskSplit[0];
-            String taskID = taskUniqueSplit[0];
-            String uniqueID = taskUniqueSplit[1];
+            String id = witem.get_thisID();
+            int delim1 = id.indexOf(':');
+            int delim2 = id.indexOf('!');
+            String caseID = id.substring(0, delim1);
+            String taskID = id.substring(delim1 + 1, delim2);
+            String uniqueID = id.substring(delim2 + 1);
 
             YIdentifier yCaseID = _idLookupTable.get(caseID);
 
@@ -222,7 +223,7 @@ public class YEngineRestorer {
             if (witem == null)
                 _engine.deleteObject(witemTimer) ;          // remove from persistence
             else {
-                 long endTime = witemTimer.getEndTime();
+                long endTime = witemTimer.getEndTime();
 
                 // if the deadline has passed, time the workitem out
                 if (endTime < System.currentTimeMillis())
@@ -242,7 +243,7 @@ public class YEngineRestorer {
     public void restartRestoredProcessInstances() throws YPersistenceException {
         /*
           Start net runners. This is a restart of a NetRunner not a clean start,
-          therefore, the net runner should not create any new work items, if they
+          therefore the net runner should not create any new work items, if they
           have already been created.
          */
         _log.info("Restarting restored process instances - Starts");
@@ -378,9 +379,13 @@ public class YEngineRestorer {
                 runner.addEnabledTask((YTask) net.getNetElement(enabledtask));
             }
 
+            // restore any timer variables
+            runner.restoreTimerStates();
+
             // restore case & exception observers (where they exist)
             runner.restoreObservers();
         }
+        removeOrphanedIdentifiers();
     }
 
 
@@ -554,6 +559,40 @@ public class YEngineRestorer {
         }
         catch (YPersistenceException ype) {
             _log.error("Exception removing orphaned workitems from persistence.", ype);
+        }
+    }
+
+
+    /**
+     * Finds and removes any persisted YIdentifiers that refer to
+     * cases that are no longer executing
+     */
+    private void removeOrphanedIdentifiers() {
+        List<YIdentifier> orphaned = new ArrayList<YIdentifier>();
+        List<String> caseIDs = new ArrayList<String>();
+        for (YIdentifier id : _engine.getRunningCaseIDs()) {
+            caseIDs.add(id.toString());
+        }
+
+        try {
+            Query query = _pmgr.createQuery("from YIdentifier");
+            for (Iterator it = query.iterate(); it.hasNext();) {
+                YIdentifier id = (YIdentifier) it.next();
+                String idString = id.toString();
+                if (idString.contains(".")) {
+                    idString = idString.substring(0, idString.indexOf('.'));
+                }
+                if (! caseIDs.contains(idString)) {
+                    orphaned.add(id);
+                }
+            }
+
+            for (YIdentifier id : orphaned) {
+                _pmgr.deleteObject(id);
+            }
+        }
+        catch (YPersistenceException ype) {
+            _log.error("Exception removing orphaned identifiers from persistence.", ype);
         }
     }
 

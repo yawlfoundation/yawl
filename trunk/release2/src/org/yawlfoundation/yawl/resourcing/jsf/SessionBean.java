@@ -1905,6 +1905,9 @@ public class SessionBean extends AbstractSessionBean {
             }
             membership = orgDataMembers.length;
         }
+        else {
+            orgDataMembers = null;
+        }
         return membership;
     }
 

@@ -44,6 +44,12 @@
             <element column="task" type="string"/>
         </set>
 
+         <map name= "_timerStates" table="timerstates">
+            <key column="case_id" not-null="true"/>
+            <index column="taskname" type="string"/>
+            <element column="timerstate" type="string"/>
+         </map>
+
     </class>
 
 </hibernate-mapping>
