@@ -264,6 +264,7 @@ private static final long serialVersionUID = 1L;
 	        if(this.net.getConfigurationSettings().isApplyAutoGreyOut()){
 	        	this.simulateAction.actionPerformed(simulateEvent);
 	        }
+          toggleEnabled(ActivateButton);
 	    }
 
 		private void ActivateAPort(int[] selectedRows, int i) {
@@ -285,7 +286,7 @@ private static final long serialVersionUID = 1L;
 	        if(this.net.getConfigurationSettings().isApplyAutoGreyOut()){
 	        	this.simulateAction.actionPerformed(simulateEvent);
 	        }
-	        
+	        toggleEnabled(BlockButton);
 	    }
 
 		private void BlockAPort(int[] selectedRows, int i) {
@@ -338,6 +339,7 @@ private static final long serialVersionUID = 1L;
 	        boolean defaultActivateFlag = true;
 	        boolean blockFlag = true;
 	        boolean activateFlag = true;
+          String s = null;
 	        int length = this.outputPortsConfigurationTable.getSelectedRowCount();
 	        int[] selectedRows = this.outputPortsConfigurationTable.getSelectedRows();
 	        for(int i=0; i<length; i++){
@@ -346,26 +348,38 @@ private static final long serialVersionUID = 1L;
 	        		DefaultButtonFlag = true;
 	        	}
 	        	if(this.net.getServiceAutonomous() != null){
-	        		blockFlag = blockFlag && (this.net.getServiceAutonomous().ProcessCorrectnessCheckingForBlock(task, "OUTPUT", portId));
+	        		blockFlag = blockFlag && (this.net.getServiceAutonomous().processCorrectnessCheckingForBlock(task, "OUTPUT", portId));
 	        		
 	        		if(this.OutputPorts.get(portId).getConfigurationSetting().equals(CPort.BLOCKED)){
 	        			activateFlag = activateFlag 
-	        							&& (this.net.getServiceAutonomous().ProcessCorrectnessCheckingForActivate(task, "OUTPUT", portId));
+	        							&& (this.net.getServiceAutonomous().processCorrectnessCheckingForActivate(task, "OUTPUT", portId));
 	        		}
 	        		if(this.OutputPorts.get(portId).getDefaultValue() != null){
 	        			if(this.OutputPorts.get(portId).getDefaultValue().equals(CPort.BLOCKED)){
-	        				defaultBlockFlag = defaultBlockFlag && (this.net.getServiceAutonomous().ProcessCorrectnessCheckingForBlock(task, "OUTPUT", portId));
+	        				defaultBlockFlag = defaultBlockFlag && (this.net.getServiceAutonomous().processCorrectnessCheckingForBlock(task, "OUTPUT", portId));
 	        			} else if (this.OutputPorts.get(portId).getDefaultValue().equals(CPort.ACTIVATED)){
 	        				defaultActivateFlag = defaultActivateFlag &&
-							(this.net.getServiceAutonomous().ProcessCorrectnessCheckingForActivate(task, "OUTPUT", portId));
+							(this.net.getServiceAutonomous().processCorrectnessCheckingForActivate(task, "OUTPUT", portId));
 	        			}
 	        		}
 	        	}
+              s = (String) outputPortsConfigurationTable.getValueAt(selectedRows[i], 2);
+
 	        }
 	        this.DefaultButton.setEnabled(DefaultButtonFlag && defaultBlockFlag && defaultActivateFlag);
-	        this.BlockButton.setEnabled(blockFlag);
-	        this.ActivateButton.setEnabled(activateFlag);
+	        this.BlockButton.setEnabled(blockFlag && ! matchText(s, "blocked"));
+	        this.ActivateButton.setEnabled(activateFlag && ! matchText(s, "activated"));
 	    }
+
+      private boolean matchText(String s, String other) {
+          return (s != null) && (s.equals(other));
+      }
+
+
+      private void toggleEnabled(JButton btn) {
+          ActivateButton.setEnabled(btn != ActivateButton);
+          BlockButton.setEnabled(btn != BlockButton);
+      }
 	    
 	    
 	    // Variables declaration - do not modify
@@ -457,7 +471,14 @@ private class SetOutputPortDefaultConfigurationJDialog extends javax.swing.JDial
 	        jScrollPane1.setViewportView(jTable1);
 	        jTable1.getColumnModel().getColumn(0).setPreferredWidth(15);
 	        jTable1.getColumnModel().getColumn(2).setPreferredWidth(50);
-	        
+          jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+              public void mouseReleased(java.awt.event.MouseEvent evt) {
+                  String s = (String) jTable1.getValueAt(jTable1.getSelectedRow(), 2);
+                  AllowButton.setEnabled(! matchText(s, "activated"));
+                  BlockButton.setEnabled(! matchText(s, "blocked"));
+              }
+          });
+
 	        
 	        AllowButton.setText("Activate");
 	        AllowButton.addActionListener(new java.awt.event.ActionListener() {
@@ -525,6 +546,7 @@ private class SetOutputPortDefaultConfigurationJDialog extends javax.swing.JDial
 	        	this.outputPorts.get(portId).setDefaultValue(CPort.ACTIVATED);
 	        	this.jTable1.setValueAt("activated", selectedRows[i], 2);	
 	        }
+      toggleEnabled(AllowButton);
 	}
 
 	private void BlockButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -536,6 +558,7 @@ private class SetOutputPortDefaultConfigurationJDialog extends javax.swing.JDial
         	this.outputPorts.get(portId).setDefaultValue(CPort.BLOCKED);
         	this.jTable1.setValueAt(CPort.BLOCKED, selectedRows[i], 2);	
         }
+      toggleEnabled(BlockButton);
 	}
 
 	 private void EmptyButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -547,7 +570,19 @@ private class SetOutputPortDefaultConfigurationJDialog extends javax.swing.JDial
 	        	this.outputPorts.get(portId).setDefaultValue(null);
 	        	this.jTable1.setValueAt(null, selectedRows[i], 2);	
 	        }
+       toggleEnabled(EmptyButton);
 	    }
+
+      private boolean matchText(String s, String other) {
+          return (s != null) && (s.equals(other));
+      }
+
+
+      private void toggleEnabled(JButton btn) {
+          AllowButton.setEnabled(btn != AllowButton);
+          BlockButton.setEnabled(btn != BlockButton);
+      }
+
 	    // Variables declaration - do not modify
 	    private javax.swing.JButton AllowButton;
 	    private javax.swing.JButton BlockButton;

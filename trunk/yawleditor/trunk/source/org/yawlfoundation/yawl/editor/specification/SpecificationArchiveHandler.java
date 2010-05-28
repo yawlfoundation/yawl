@@ -248,6 +248,7 @@ public class SpecificationArchiveHandler {
   private void doPostSaveClosingWork() {
     YAWLEditorDesktop.getInstance().closeAllNets();
     SpecificationModel.getInstance().reset();
+    ProcessConfigurationModel.getInstance().reset();  
     SpecificationUndoManager.getInstance().discardAllEdits();
     YAWLEditorDesktop.getInstance().setVisible(true);
   }

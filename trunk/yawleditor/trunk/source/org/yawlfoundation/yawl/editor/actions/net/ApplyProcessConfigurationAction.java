@@ -46,6 +46,9 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
         return INSTANCE;
     }
 
+    public void init() {
+        selected = false;        
+    }
 
     public void actionPerformed(ActionEvent event) {
         selected = ! selected;
@@ -443,7 +446,7 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
             targetNames = new ArrayList<List<String>>();
             for (CPort port : task.getInputCPorts()) {
                 inPorts.add((CPort) port.clone());
-                sourceNames.add(getTargetList(port.getFlows()));
+                sourceNames.add(getSourceList(port.getFlows()));
             }
             for (CPort port : task.getOutputCPorts()) {
                 outPorts.add((CPort) port.clone());
@@ -469,7 +472,7 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
             if (hasJoinType(task, Decorator.XOR_TYPE)) {
                 int i=0;
                 for (CPort port: task.getInputCPorts()) {
-                    String sourceID = targetNames.get(i).get(0);
+                    String sourceID = sourceNames.get(i).get(0);
                     Set<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
                     for (YAWLFlowRelation flow : task.getIncomingFlows()) {
                         if (flow.getSourceVertex().getEngineId().equals(sourceID)) {
@@ -522,6 +525,14 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
 
         private boolean hasJoinType(YAWLTask task, int type) {
             return task.hasJoinDecorator() && (task.getJoinDecorator().getType() == type);
+        }
+
+        private List<String> getSourceList(Set<YAWLFlowRelation> flows) {
+            List<String> sources = new ArrayList<String>();
+            for (YAWLFlowRelation flow : flows) {
+                sources.add(flow.getSourceVertex().getEngineId());
+            }
+            return sources;
         }
 
         private List<String> getTargetList(Set<YAWLFlowRelation> flows) {

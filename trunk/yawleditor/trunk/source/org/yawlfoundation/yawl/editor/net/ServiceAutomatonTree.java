@@ -1,61 +1,59 @@
 package org.yawlfoundation.yawl.editor.net;
 
+import org.jdesktop.swingworker.SwingWorker;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.analyser.AnalysisDialog;
 import org.yawlfoundation.yawl.editor.elements.model.CPort;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
+import org.yawlfoundation.yawl.editor.specification.ProcessConfigurationModel;
 
 import javax.swing.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.prefs.Preferences;
 
-public class ServiceAutomatonTree {
-
-    //this map records the position of the node with a specified ID in the array list
-    private HashMap<String, Integer> positionMap = new HashMap<String, Integer>();
-    private ArrayList<Node> nodes = new ArrayList<Node>();
-    private ArrayList<YAWLTask> tasks = new ArrayList<YAWLTask>();
-    private NetGraph net;
-    private String CurrentState = ""; // record the Id of the node with current state
-    private String wendyMessage = "";
-    private AnalysisDialog msgDialog = new AnalysisDialog("Net");
-
+public class ServiceAutomatonTree implements PropertyChangeListener {
 
     private static final Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
-    private String path = prefs.get("WendyFilePath", FileUtilities.getHomeDir() + "wendy");
 
-    public ServiceAutomatonTree(NetGraph net){
-        this.net = net;
+    //this map records the position of the node with a specified ID in the array list
+    private HashMap<String, Integer> positionMap;
+    private ArrayList<Node> nodes;
+    private ArrayList<YAWLTask> tasks;
+    private String currentState;       // record the Id of the node with current state
+    private AnalysisDialog msgDialog;
+    private WendyRunner runner;
+    private String path;
+
+    public ServiceAutomatonTree(NetGraph net) {
+        init();
+        String errMsg = null;
         if (isWendyInstalled()) {
             PetriNet petri = new PetriNet(net.getNetModel(), path);
             tasks = petri.getTasks();
             if (petri.checkValidate()) {
                 petri.saveOWFNfile();
-                try {
-                    if (UsingWendyandConfigurator()) {
-                        generateNodes();
-                    }
-                }
-                catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                runner = new WendyRunner();
+                runner.addPropertyChangeListener(this);
+                runner.execute();
             }
-            else{
-                JOptionPane.showMessageDialog( YAWLEditor.getInstance(),
-                        "Can't convert the diagram into a petri net," +
-                        "because the net contains the following things: 1, OR-join  " +
-                        "2, OR-Split  3, Cancellation Set",
-                    "Check for Correctness Error", JOptionPane.ERROR_MESSAGE);
+            else {
+                errMsg = "Can't convert the diagram into a petri net," +
+                         "because the net contains the following things: 1, OR-join  " +
+                         "2, OR-Split  3, Cancellation Set.";
             }
         }
         else {
-            JOptionPane.showMessageDialog( YAWLEditor.getInstance(),
-                    "Unable to locate installation of Wendy for checking process " +
-                    "configuration correctness.",
+            errMsg = "Unable to locate installation of Wendy for checking process " +
+                     "configuration correctness.";
+        }
+        if (errMsg != null) {
+            JOptionPane.showMessageDialog(YAWLEditor.getInstance(), errMsg,
                     "Check for Correctness Error", JOptionPane.ERROR_MESSAGE);
         }
 
@@ -63,142 +61,66 @@ public class ServiceAutomatonTree {
     }
 
 
+    private void init() {
+        positionMap = new HashMap<String, Integer>();
+        nodes = new ArrayList<Node>();
+        tasks = new ArrayList<YAWLTask>();
+        currentState = "";
+        msgDialog = new AnalysisDialog("Net");
+        msgDialog.setTitle("Check Configuration Correctness");
+        path = prefs.get("WendyFilePath", FileUtilities.getHomeDir() + "wendy");
+    }
+
+
     private boolean isWendyInstalled() {
         return new File(path + "/wendy.conf").exists();
     }
 
-    
-    private boolean UsingWendyandConfigurator() throws InterruptedException {
 
-        try {
-            new File(path + "/test_allow.txt").delete();
-            new File(path + "/result.txt").delete();
-//            File test_allow = new File(path + "/test_allow.txt");
-//            File result = new File(path + "/result.txt");
-//            if (test_allow.exists()) {
-//                test_allow.delete();
-//            }
-//            if (result.exists()) {
-//                result.delete();
-//            }
-
-            // String cmd = "wendy test.owfn --verbose --correctness=livelock --sa";
-            List<String> cmd = new ArrayList<String>();
-            cmd.add(path + "/wendy");
-            cmd.add("test.owfn");
-            cmd.add("--verbose");
-            cmd.add("--correctness=livelock");
-            cmd.add("--sa");
-            ProcessBuilder builder = new ProcessBuilder(cmd);
-            builder.directory(new File(path));
-            builder.redirectErrorStream(true);
-            Process generate = builder.start();
-
-            // get the result of the process execution
-            StringWriter out = new StringWriter(32);
-            InputStream is = generate.getInputStream();
-            InputStreamReader isr = new InputStreamReader(is);
-            char[] buffer = new char[32];
-            int count;
-
-            while ((count = isr.read(buffer)) > 0) {
-               out.write(buffer, 0, count);
-               msgDialog.setText(out.toString());
-            }
-
-            isr.close();
-            msgDialog.finished();
-            
-            // set and return the output
-            return true;
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
+    private boolean checkResult(String output) {
+        return output.contains("net is controllable: YES") ;
     }
 
-    private boolean checkResult(){
-        boolean flag = false;
-        BufferedReader in;
-        try {
-            in = new BufferedReader(new FileReader(path + "/result.txt"));
-            String begin="";
-            begin = in.readLine();
-            while(!begin.contains("wendy: net is controllable:")){
-                if(in.readLine() != null){
-                    begin = in.readLine();
-                } else{
-                    break;
-                }
-            }
-            if(begin.contains("YES")){
-                flag = true;
-            }
-            return flag;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return false;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
 
-    }
     private void generateNodes() {
         try {
-            final int BUF_SIZE = 8192;
-            StringWriter out = new StringWriter(BUF_SIZE);
-            JOptionPane.showMessageDialog( YAWLEditor.getInstance(),"Please wait while Wendy generates the service automaton for this model.");
-            File file = new File(path + "/test_allow.sa");
-            File test = new File(path + "/test.owfn");
-            while(test.exists()){
-            }
-            if(!checkResult()){
-                JOptionPane.showMessageDialog( YAWLEditor.getInstance(),"The correctness of the configuration cannot be checked due to this net not being sound.\n Please correct the net first.");
-                return;
-            }
-            BufferedReader in = new BufferedReader(new FileReader(path + "/test_allow.sa"));
+            BufferedReader in = new BufferedReader(new FileReader(path + "/temp.sa"));
+
             String begin = in.readLine();
-            while(!begin.equals("NODES")){
+            while (! begin.equals("NODES")) {
                 begin = in.readLine();
             }
-            String line = in.readLine();
 
-            while( line != null ){
-                if(!line.contains("->")){
+            String line = in.readLine();
+            while (line != null) {
+                if (! line.contains("->")) {
                     Node node = new Node();
-                    if(line.contains(":")){
-                        int pos = line.indexOf(":");
-                        node.ID = line.substring(2,pos-1);
-                    }else{
-                        node.ID = line.substring(2);
-                    }
-                    if(line.contains("INITIAL")){
+                    node.ID = line.contains(":") ? line.substring(2, line.indexOf(":") -1)
+                                                 : line.substring(2);
+                    if (line.contains("INITIAL")) {
                         node.isInitial = true;
-                        this.CurrentState = node.ID;
-                    }else if(line.contains("FINAL")){
+                        currentState = node.ID;
+                    }
+                    else if (line.contains("FINAL")) {
                         node.isFinal = true;
                     }
+                    
                     line = in.readLine();
-                    if(line != null){
+                    if (line != null) {
                         boolean flag = line.contains("->");
-                        while(flag) {
+                        while (flag) {
                             int position = line.indexOf("->");
-                            String operation = "";
-                            String nextID = "";
-                            operation = line.substring(4,position-1);
-                            nextID = line.substring(position+3);
                             Operation blockPort = new Operation();
-                            blockPort.myOperation = operation;
-                            blockPort.myNode = nextID;
+                            blockPort.myOperation = line.substring(4,position-1);
+                            blockPort.myNode = line.substring(position+3);
                             node.sucessors.add(blockPort);
                             line = in.readLine();
-                            flag = line != null && line.contains("->");
+                            flag = (line != null) && line.contains("->");
                         }
                     }
-                    this.nodes.add(node);
-                } else{
+                    nodes.add(node);
+                }
+                else {
                     line = in.readLine();
                 }
             }
@@ -206,32 +128,29 @@ public class ServiceAutomatonTree {
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
         matchIDs();
         generateFormerOperation();
         generateShortestPathPreceder();
         generateShortestPathSucessor();
+        ProcessConfigurationModel.getInstance().togglePreviewState();
     }
 
     private void matchIDs(){
-        for(int i=0; i< nodes.size(); i++){
-            this.positionMap.put(nodes.get(i).ID,i);
+        for (int i=0; i< nodes.size(); i++) {
+            positionMap.put(nodes.get(i).ID, i);
         }
     }
 
-    public boolean ProcessCorrectnessCheckingForBlock(YAWLTask task, String type, int portID){
+    public boolean processCorrectnessCheckingForBlock(YAWLTask task, String type, int portID){
         boolean flag = false;
-        Node node = nodes.get(positionMap.get(CurrentState));
-        String blockPort = "";
-        if(task.getDecomposition() == null){
-            blockPort = "block_"+task.getEngineId()+type+portID;
-        } else {
-            blockPort = "block_"+task.getDecomposition().getLabel()+type+portID;
-        }
-        for(int i=0; i<node.sucessors.size(); i++){
-            if(node.sucessors.get(i).myOperation.equals(blockPort)){
+        Node node = nodes.get(positionMap.get(currentState));
+        String blockPort =  "block_" + getTaskLabel(task) + type + portID;
+        for (int i=0; i<node.sucessors.size(); i++) {
+            if (node.sucessors.get(i).myOperation.equals(blockPort)) {
                 flag = true;
                 break;
             }
@@ -239,36 +158,32 @@ public class ServiceAutomatonTree {
         return flag;
     }
 
-    public void changeCurrentStateAfterBlock(YAWLTask task, String type, int portID){
 
-        Node node = this.nodes.get(this.positionMap.get(this.CurrentState));
-        String blockPort = "";
-        if(task.getDecomposition() == null){
-            blockPort = "block_"+task.getEngineId()+type+portID;
-        } else {
-            blockPort = "block_"+task.getDecomposition().getLabel()+type+portID;
-        }
-        for(int i=0; i<node.sucessors.size(); i++){
-            if(node.sucessors.get(i).myOperation.equals(blockPort)){
-                this.CurrentState = node.sucessors.get(i).myNode;
-                //System.out.println("the current state is "+this.CurrentState);
+    private String getTaskLabel(YAWLTask task) {
+        return (task.getDecomposition() != null) ? task.getDecomposition().getLabel() :
+                task.getEngineId();
+    }
+
+
+    public void changeCurrentStateAfterBlock(YAWLTask task, String type, int portID){
+        Node node = nodes.get(positionMap.get(currentState));
+        String blockPort =  "block_" + getTaskLabel(task) + type + portID;
+        for (int i=0; i<node.sucessors.size(); i++) {
+            if (node.sucessors.get(i).myOperation.equals(blockPort)) {
+                currentState = node.sucessors.get(i).myNode;
                 break;
             }
         }
-        AutomaticallyBlockOthers();
+        automaticallyBlockOthers();
     }
 
-    public boolean ProcessCorrectnessCheckingForActivate(YAWLTask task, String type, int portID){
+
+    public boolean processCorrectnessCheckingForActivate(YAWLTask task, String type, int portID){
         boolean flag = false;
-        Node node = this.nodes.get(this.positionMap.get(this.CurrentState));
-        String blockPort = "";
-        if(task.getDecomposition() == null){
-            blockPort = "block_"+task.getEngineId()+type+portID;
-        } else {
-            blockPort = "block_"+task.getDecomposition().getLabel()+type+portID;
-        }
+        Node node = nodes.get(positionMap.get(currentState));
+        String blockPort =  "block_" + getTaskLabel(task) + type + portID;
         for(int i=0; i<node.preceders.size(); i++){
-            if(node.preceders.get(i).myOperation.equals(blockPort)){
+            if (node.preceders.get(i).myOperation.equals(blockPort)) {
                 flag = true;
                 break;
             }
@@ -277,66 +192,63 @@ public class ServiceAutomatonTree {
     }
 
     public void changeCurrentStateAfterActivate(YAWLTask task, String type, int portID){
-
-        Node node = this.nodes.get(this.positionMap.get(this.CurrentState));
-        String blockPort = "";
-        if(task.getDecomposition() == null){
-            blockPort = "block_"+task.getEngineId()+type+portID;
-        } else {
-            blockPort = "block_"+task.getDecomposition().getLabel()+type+portID;
-        }
-        for(int i=0; i<node.preceders.size(); i++){
-            if(node.preceders.get(i).myOperation.equals(blockPort)){
-                this.CurrentState = node.preceders.get(i).myNode;
+        Node node = nodes.get(positionMap.get(currentState));
+        String blockPort =  "block_" + getTaskLabel(task) + type + portID;
+        for (int i=0; i<node.preceders.size(); i++) {
+            if (node.preceders.get(i).myOperation.equals(blockPort)) {
+                currentState = node.preceders.get(i).myNode;
                 break;
             }
         }
-        AutomaticallyActivateOthers();
+        automaticallyActivateOthers();
     }
 
 
-    private void AutomaticallyBlockOthers(){
+    private void automaticallyBlockOthers() {
         String message = "";
-        Node node = this.nodes.get(this.positionMap.get(this.CurrentState));
-        while(node.shortestPathSucessor > 0){
-            message = message + BlockAPort(node.preferSucessor.myOperation)+"\n";
-            this.CurrentState = node.preferSucessor.myNode;
-            node = this.nodes.get(this.positionMap.get(this.CurrentState));
+        Node node = nodes.get(positionMap.get(currentState));
+        while (node.shortestPathSucessor > 0) {
+            message = message + blockAPort(node.preferSucessor.myOperation) +"\n";
+            currentState = node.preferSucessor.myNode;
+            node = nodes.get(positionMap.get(currentState));
         }
-        if(message != ""){
-            JOptionPane.showMessageDialog( YAWLEditor.getInstance(),message);
+        if (message.length() > 0) {
+            JOptionPane.showMessageDialog(YAWLEditor.getInstance(), message);
         }
     }
 
-    private void AutomaticallyActivateOthers(){
+
+    private void automaticallyActivateOthers() {
         String message = "";
-        Node node = this.nodes.get(this.positionMap.get(this.CurrentState));
-        while(node.shortestPathPreceder > 0){
-            message = message + ActivateAPort(node.preferPreceder.myOperation)+"\n";
-            this.CurrentState = node.preferPreceder.myNode;
-            node = this.nodes.get(this.positionMap.get(this.CurrentState));
-            //System.out.println("the current state is "+this.CurrentState);
+        Node node = nodes.get(positionMap.get(currentState));
+        while (node.shortestPathPreceder > 0) {
+            message = message + activateAPort(node.preferPreceder.myOperation)+"\n";
+            currentState = node.preferPreceder.myNode;
+            node = nodes.get(positionMap.get(currentState));
         }
-        if(message != ""){
-            JOptionPane.showMessageDialog( YAWLEditor.getInstance(),message);
+        if (message.length() > 0) {
+            JOptionPane.showMessageDialog(YAWLEditor.getInstance(), message);
         }
     }
 
-    private String BlockAPort(String operations) {
+    private String blockAPort(String operations) {
         String message = "";
-        if(operations.contains("INPUT")){
-            String taskID = operations.substring(operations.indexOf("block_")+6, operations.indexOf("INPUT"));
+        if (operations.contains("INPUT")) {
+            String taskID = operations.substring(operations.indexOf("block_") +6,
+                    operations.indexOf("INPUT"));
             int portID = Integer.parseInt(operations.substring(operations.indexOf("INPUT")+5));
             YAWLTask task = getTheTask(taskID);
-            if(task != null){
+            if (task != null) {
                 task.getInputCPorts().get(portID).setConfigurationSetting(CPort.BLOCKED);
             }
             message = "The Task "+ taskID +"'s input port "+portID+" has been automatically blocked";
-        } else if (operations.contains("OUTPUT")){
-            String taskID = operations.substring(operations.indexOf("block_")+6, operations.indexOf("OUTPUT"));
+        }
+        else if (operations.contains("OUTPUT")){
+            String taskID = operations.substring(operations.indexOf("block_")+6,
+                    operations.indexOf("OUTPUT"));
             int portID = Integer.parseInt(operations.substring(operations.indexOf("OUTPUT")+6));
             YAWLTask task = getTheTask(taskID);
-            if(task != null){
+            if (task != null) {
                 task.getOutputCPorts().get(portID).setConfigurationSetting(CPort.BLOCKED);
             }
             message = "The Task "+ taskID +"'s output port "+portID+" has been automatically blocked";
@@ -344,21 +256,24 @@ public class ServiceAutomatonTree {
         return message;
     }
 
-    private String ActivateAPort(String operations) {
+    private String activateAPort(String operations) {
         String message = "";
-        if(operations.contains("INPUT")){
-            String taskID = operations.substring(operations.indexOf("block_")+6, operations.indexOf("INPUT"));
+        if (operations.contains("INPUT")) {
+            String taskID = operations.substring(operations.indexOf("block_")+6,
+                    operations.indexOf("INPUT"));
             int portID = Integer.parseInt(operations.substring(operations.indexOf("INPUT")+5));
             YAWLTask task = getTheTask(taskID);
-            if(task != null){
+            if (task != null) {
                 task.getInputCPorts().get(portID).setConfigurationSetting(CPort.ACTIVATED);
             }
             message = "The Task "+ taskID +"'s input port "+portID+" has been automatically activated";
-        } else if (operations.contains("OUTPUT")){
-            String taskID = operations.substring(operations.indexOf("block_")+6, operations.indexOf("OUTPUT"));
+        }
+        else if (operations.contains("OUTPUT")) {
+            String taskID = operations.substring(operations.indexOf("block_")+6,
+                    operations.indexOf("OUTPUT"));
             int portID = Integer.parseInt(operations.substring(operations.indexOf("OUTPUT")+6));
             YAWLTask task = getTheTask(taskID);
-            if(task != null){
+            if (task != null) {
                 task.getOutputCPorts().get(portID).setConfigurationSetting(CPort.ACTIVATED);
             }
             message = "The Task "+ taskID +"'s output port "+portID+" has been automatically activated";
@@ -367,13 +282,14 @@ public class ServiceAutomatonTree {
     }
 
     private YAWLTask getTheTask(String taskID){
-        for(YAWLTask task : this.tasks ){
-            if(task.getDecomposition() == null){
-                if (task.getEngineId().equals(taskID)){
+        for (YAWLTask task : tasks) {
+            if (task.getDecomposition() == null) {
+                if (task.getEngineId().equals(taskID)) {
                     return task;
                 }
-            } else {
-                if(task.getDecomposition().getLabel().equals(taskID)){
+            }
+            else {
+                if (task.getDecomposition().getLabel().equals(taskID)){
                     return task;
                 }
             }
@@ -382,10 +298,10 @@ public class ServiceAutomatonTree {
     }
 
     public void testGeneratingTree(){
-        for(Node node:nodes){
-            if(node.shortestPathSucessor == -2){
-                System.out.println("ID"+node.ID);
-            }
+//        for(Node node:nodes){
+//            if(node.shortestPathSucessor == -2){
+//                System.out.println("ID"+node.ID);
+//            }
 /*			System.out.println("sucessors");
 			for(int i=0; i< node.sucessors.size();i++){
 				System.out.println(node.sucessors.get(i).myOperation+"->"+node.sucessors.get(i).myNode);
@@ -412,33 +328,33 @@ public class ServiceAutomatonTree {
 			}
 			System.out.println();
 		}*/
-        }
+//        }
     }
 
 
     public String getCurrentState() {
-        return CurrentState;
+        return currentState;
     }
 
     public void setCurrentState(String currentState) {
-        CurrentState = currentState;
+        this.currentState = currentState;
     }
 
-    private void generateFormerOperation(){
-        for(Node node : this.nodes){
-            for(Operation blockPort : node.sucessors){
+    private void generateFormerOperation() {
+        for (Node node : nodes) {
+            for (Operation blockPort : node.sucessors) {
                 Operation formerBlockPort = new Operation();
                 formerBlockPort.myNode = node.ID;
                 formerBlockPort.myOperation = blockPort.myOperation;
-                this.nodes.get(this.positionMap.get(blockPort.myNode)).preceders.add(formerBlockPort);
+                nodes.get(positionMap.get(blockPort.myNode)).preceders.add(formerBlockPort);
             }
         }
     }
 
-    public boolean canApplyConfiguration(){
+    public boolean canApplyConfiguration() {
         boolean flag = false;
-        Node node = this.nodes.get(this.positionMap.get(this.CurrentState));
-        for(Operation element : node.sucessors){
+        Node node = nodes.get(positionMap.get(currentState));
+        for (Operation element : node.sucessors) {
             if (element.myOperation.equals("start")){
                 flag = true;
                 break;
@@ -447,16 +363,15 @@ public class ServiceAutomatonTree {
         return flag;
     }
 
-    private void generateShortestPathSucessor(){
-
+    private void generateShortestPathSucessor() {
         int count = 0;
-
-        for(Node node : this.nodes){
-            if(node.isFinal){
+        for (Node node : nodes) {
+            if (node.isFinal) {
                 count++;
-            } else {
-                for(Operation oper : node.sucessors){
-                    if(oper.myOperation.equals("start")){
+            }
+            else {
+                for (Operation oper : node.sucessors) {
+                    if (oper.myOperation.equals("start")) {
                         node.shortestPathSucessor = 0;
                         count++;
                         break;
@@ -465,23 +380,23 @@ public class ServiceAutomatonTree {
             }
         }
 
-        while(count < this.nodes.size()){
-            for(Node node : this.nodes){
-                if( (!node.isFinal) && node.shortestPathSucessor == -1){
-                    for(Operation oper : node.sucessors){
-                        int i = this.nodes.get(this.positionMap.get(oper.myNode)).shortestPathSucessor;
-                        if(i > -1){
-                            if(node.shortestPathSucessor == -1){
+        while (count < nodes.size()) {
+            for (Node node : nodes) {
+                if((! node.isFinal) && node.shortestPathSucessor == -1) {
+                    for (Operation oper : node.sucessors) {
+                        int i = nodes.get(positionMap.get(oper.myNode)).shortestPathSucessor;
+                        if (i > -1) {
+                            if (node.shortestPathSucessor == -1) {
                                 node.shortestPathSucessor = i+1;
                                 node.preferSucessor = oper;
-                            } else
-                            if( i+1 < node.shortestPathSucessor){
+                            }
+                            else if (i+1 < node.shortestPathSucessor) {
                                 node.shortestPathSucessor = i+1;
                                 node.preferSucessor = oper;
                             }
                         }
                     }
-                    if(node.shortestPathSucessor != -1){
+                    if (node.shortestPathSucessor != -1) {
                         count++;
                     }
                 }
@@ -490,15 +405,14 @@ public class ServiceAutomatonTree {
     }
 
     private void generateShortestPathPreceder(){
-
         int count = 0;
-
-        for(Node node : this.nodes){
-            if(node.isFinal){
+        for (Node node : this.nodes) {
+            if (node.isFinal) {
                 count++;
-            } else {
-                for(Operation oper : node.sucessors){
-                    if(oper.myOperation.equals("start")){
+            }
+            else {
+                for (Operation oper : node.sucessors) {
+                    if (oper.myOperation.equals("start")) {
                         node.shortestPathPreceder = 0;
                         count++;
                         break;
@@ -507,32 +421,31 @@ public class ServiceAutomatonTree {
             }
         }
 
-        while(count < this.nodes.size()){
-            for(Node node : this.nodes){
-                if( (!node.isFinal) && node.shortestPathPreceder == -1){
-                    for(Operation oper : node.preceders){
-                        int i = this.nodes.get(this.positionMap.get(oper.myNode)).shortestPathPreceder;
-                        if(i > -1){
-                            if(node.shortestPathPreceder == -1){
+        while (count < this.nodes.size()) {
+            for (Node node : this.nodes) {
+                if ((!node.isFinal) && node.shortestPathPreceder == -1) {
+                    for (Operation oper : node.preceders) {
+                        int i = nodes.get(positionMap.get(oper.myNode)).shortestPathPreceder;
+                        if (i > -1) {
+                            if (node.shortestPathPreceder == -1) {
                                 node.shortestPathPreceder = i+1;
                                 node.preferPreceder = oper;
-                            } else if( i+1 < node.shortestPathPreceder){
+                            }
+                            else if( i+1 < node.shortestPathPreceder) {
                                 node.shortestPathPreceder = i+1;
                                 node.preferPreceder = oper;
                             }
                         }
                     }
-                    if(node.shortestPathPreceder != -1){
+                    if (node.shortestPathPreceder != -1) {
                         count++;
                     }
                 }
             }
-            System.out.println("the count number : "+count);
         }
     }
 
     private class Node{
-
         public String ID;
         public ArrayList<Operation> preceders = new ArrayList<Operation>();
         public ArrayList<Operation> sucessors = new ArrayList<Operation>();
@@ -544,9 +457,73 @@ public class ServiceAutomatonTree {
         public int shortestPathSucessor = -1; // if it is 0 , it is a state which we can apply configuration
 
     }
+
     public class Operation{
         String myOperation = ""; // the operation
         String myNode = ""; // the node Id
     }
+
+    private class WendyRunner extends SwingWorker<Void, String> {
+
+        protected Void doInBackground() {
+            try {
+                List<String> cmd = new ArrayList<String>();
+                cmd.add(path + "/wendy");
+                cmd.add("temp.owfn");
+                cmd.add("--verbose");
+                cmd.add("--correctness=livelock");
+                cmd.add("--sa");
+                ProcessBuilder builder = new ProcessBuilder(cmd);
+                builder.directory(new File(path));
+                builder.redirectErrorStream(true);
+                Process generate = builder.start();
+
+                StringWriter out = new StringWriter(32);
+                InputStream is = generate.getInputStream();
+                InputStreamReader isr = new InputStreamReader(is);
+                char[] buffer = new char[32];
+                int count;
+
+                while ((count = isr.read(buffer)) > 0) {
+                    out.write(buffer, 0, count);
+                    publish(out.toString());
+                }
+                isr.close();
+            }
+            catch (IOException ioe) {
+                publish("IOException reading Wendy output.");
+            }
+            return null;
+        }
+
+        protected void process(List<String> outList) {
+            String out = outList.get(outList.size() - 1);
+            msgDialog.setText(out);
+        }
+
+        protected void done() {
+            msgDialog.finished();
+        }
+    }
+
+    // listens for progress of the WendyRunner operation (ie. the completion of wendy)
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals("state")) {
+            if (evt.getNewValue() == SwingWorker.StateValue.DONE) {
+                if (checkResult(msgDialog.getText())) {
+                    runner = null;                        // no more events, please
+                    generateNodes();
+                }
+                else {
+                    JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
+                            "The correctness of the configuration cannot be " +
+                            "checked due to this net not being sound.\n " +
+                            "Please correct the net first.",
+                            "Check for Correctness Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+    }
+    
 
 }

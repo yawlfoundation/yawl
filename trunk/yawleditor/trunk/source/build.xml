@@ -11,6 +11,8 @@
     <filter token="CompatibleJavaReleaseNumber" value="${compatible.java.release.number}" />
     <filter token="JGraphReleaseNumber" value="${jgraph.release.number}" />
     <filter token="WofYawlReleaseNumber" value="${wofyawl.release.number}" />
+    <filter token="WendyReleaseNumber" value="${wendy.release.number}" />
+    <filter token="JCalendarReleaseNumber" value="${jcalendar.release.number}" />
 
     <!-- define root class name, path and directories -->
     <property name="root.class.name" value="YAWLEditor" />
@@ -48,6 +50,7 @@
     <property name="junit.jar.file" value="${tool.dir}/junit-4.4.jar"/>
     <property name="browser.jar.file" value="${library.dir}/BrowserLauncher2-1_3.jar"/>
     <property name="grouplayout.jar.file" value="${library.dir}/swing-layout-1.0.4.jar"/>
+    <property name="swingworker.jar.file" value="${library.dir}/swing-worker-1.2.jar"/>
 
     <!-- TARGETS -->
     <target name="initialize"
@@ -109,6 +112,7 @@
                 <pathelement location="${forms.jar.file}" />
                 <pathelement location="${browser.jar.file}" />
                 <pathelement location="${grouplayout.jar.file}" />
+                <pathelement location="${swingworker.jar.file}" />
             </classpath>
         </javac>
     
@@ -150,6 +154,7 @@
                 <pathelement location="${forms.jar.file}" />
                 <pathelement location="${browser.jar.file}" />
                 <pathelement location="${grouplayout.jar.file}" />
+                <pathelement location="${swingworker.jar.file}" />
            </classpath>
         </junit>
     </target>
@@ -192,6 +197,7 @@
             <fileset file="${forms.jar.file}"/>
             <fileset file="${browser.jar.file}"/>
             <fileset file="${grouplayout.jar.file}"/>
+            <fileset file="${swingworker.jar.file}" />
         </unzip>
     </target>
 

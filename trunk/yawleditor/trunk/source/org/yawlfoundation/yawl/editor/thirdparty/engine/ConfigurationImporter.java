@@ -5,6 +5,7 @@ import org.yawlfoundation.yawl.editor.actions.net.ConfigurableTaskAction;
 import org.yawlfoundation.yawl.editor.elements.model.*;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.specification.ProcessConfigurationModel;
 
 import java.awt.event.ActionEvent;
 import java.util.*;
@@ -42,6 +43,7 @@ public class ConfigurationImporter {
 					ApplyDefaultOutputCPorts(task,defaultConfiguration);
 				}
 			}
+        ProcessConfigurationModel.getInstance().refresh();  
 		}
 		
 	}
