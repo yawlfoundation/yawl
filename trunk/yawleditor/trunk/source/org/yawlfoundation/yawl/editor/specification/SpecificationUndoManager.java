@@ -70,6 +70,7 @@ public class SpecificationUndoManager extends GraphUndoManager {
   
   private SpecificationUndoManager() {
     super();
+    setLimit(500);  
   }
 
   /** 
@@ -138,7 +139,12 @@ public class SpecificationUndoManager extends GraphUndoManager {
 
 	public void undo() {
     showFrameOfEdit(editToBeUndone());
-    super.undo();
+    if (canUndo()) { 
+        super.undo();
+    }
+    else {
+        System.out.println("no");
+        }
     refreshButtons();  
   }
 

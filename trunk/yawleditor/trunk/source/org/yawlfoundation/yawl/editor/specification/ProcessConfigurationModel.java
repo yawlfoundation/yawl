@@ -69,8 +69,6 @@ public class ProcessConfigurationModel {
 
 
     public void refresh() {
-//        PreviewConfigurationProcessAction.getInstance().init();
-//        ApplyProcessConfigurationAction.getInstance().init();
         publishState();
     }
 

@@ -376,12 +376,6 @@ class ResourceServiceDialog extends AbstractDoneDialog {
                 ResourcingServiceProxy.DEFAULT_RESOURCING_SERVICE_USER_PASSWORD
             )
         );
-//        resourcingServiceVerifyPasswordField.setText(
-//            prefs.get(
-//                "resourcingServiceUserPassword",
-//                ResourcingServiceProxy.DEFAULT_RESOURCING_SERVICE_USER_PASSWORD
-//            )
-//        );
       }
     }
     super.setVisible(visible);
