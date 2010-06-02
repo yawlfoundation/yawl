@@ -61,11 +61,11 @@ public class PreviewConfigurationProcessAction extends YAWLSelectedNetAction
     
     public void actionPerformed(ActionEvent event) {
         NetGraph net = getGraph();
-        net.stopUndoableEdits();
         ConfigureSet configuredElements = new ConfigureSet(net.getNetModel());
         HashSet<YAWLCell> removeSet = configuredElements.getRemoveSetMembers();
         if (removeSet.isEmpty()) return;
-        
+
+        net.stopUndoableEdits();        
         net.getModel().beginUpdate();
         selected = ! selected;
 

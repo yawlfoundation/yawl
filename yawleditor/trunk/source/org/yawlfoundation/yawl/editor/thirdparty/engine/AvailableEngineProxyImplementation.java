@@ -270,6 +270,12 @@ class XQueryStyledDocument extends AbstractXMLStyledDocument{
         setContentValid(AbstractXMLStyledDocument.Validity.INVALID);
         return;
       }
+
+      if (getEditor().getText().matches(
+              "^\\s*timer\\(\\w+\\)\\s*!?=\\s*'(dormant|active|closed|expired)'\\s*$")) {
+          setContentValid(AbstractXMLStyledDocument.Validity.VALID);
+          return;
+      }
     
       try {
         SaxonUtil.compileXQuery(preEditorText + getEditor().getText() + postEditorText);

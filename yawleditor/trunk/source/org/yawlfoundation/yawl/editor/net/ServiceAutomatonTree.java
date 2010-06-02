@@ -38,6 +38,8 @@ public class ServiceAutomatonTree implements PropertyChangeListener {
             tasks = petri.getTasks();
             if (petri.checkValidate()) {
                 petri.saveOWFNfile();
+                msgDialog = new AnalysisDialog("Net");
+                msgDialog.setTitle("Check Configuration Correctness");
                 runner = new WendyRunner();
                 runner.addPropertyChangeListener(this);
                 runner.execute();
@@ -66,8 +68,6 @@ public class ServiceAutomatonTree implements PropertyChangeListener {
         nodes = new ArrayList<Node>();
         tasks = new ArrayList<YAWLTask>();
         currentState = "";
-        msgDialog = new AnalysisDialog("Net");
-        msgDialog.setTitle("Check Configuration Correctness");
         path = prefs.get("WendyFilePath", FileUtilities.getHomeDir() + "wendy");
     }
 

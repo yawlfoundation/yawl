@@ -43,12 +43,21 @@ public class ExternalFilePathsDialog extends AbstractDoneDialog {
 
         getDoneButton().addActionListener(new ActionListener() {
            public void actionPerformed(ActionEvent e) {
+               String taskIconsPath = checkPath(_fldIcons.getText());
+               String wendyPath = checkPath(_fldWendy.getText());
                prefs.put("ExtendedAttributeDecompositionFilePath", _fldDecomposition.getText());
                prefs.put("ExtendedAttributeVariableFilePath", _fldVariable.getText());
-               prefs.put("TaskIconsFilePath", _fldIcons.getText());
+               prefs.put("TaskIconsFilePath", taskIconsPath);
                prefs.put("WofyawlFilePath", _fldWofyawl.getText());
-               prefs.put("WendyFilePath", _fldWendy.getText());
+               prefs.put("WendyFilePath", wendyPath);
                Palette.getInstance().updatePluginIcons();
+           }
+
+           private String checkPath(String path) {
+               if (path.endsWith("/") || path.endsWith("\\")) {
+                   path = path.substring(0, path.length() - 1);
+               }
+               return path;
            }
         });
     }
@@ -64,11 +73,11 @@ public class ExternalFilePathsDialog extends AbstractDoneDialog {
         JPanel contentPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         contentPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         contentPanel.add(buildFileEntryPanel(_fldDecomposition,
-                "Decomposition Extended Attributes"));
-        contentPanel.add(buildFileEntryPanel(_fldVariable, "Variable Extended Attributes"));
-        contentPanel.add(buildFileEntryPanel(_fldIcons, "Task Icons"));
-        contentPanel.add(buildFileEntryPanel(_fldWofyawl, "WofYAWL Analysis"));
-        contentPanel.add(buildFileEntryPanel(_fldWendy, "Wendy (Process Configuration)"));
+                "Decomposition Extended Attributes File"));
+        contentPanel.add(buildFileEntryPanel(_fldVariable, "Variable Extended Attributes File"));
+        contentPanel.add(buildFileEntryPanel(_fldIcons, "Task Icons Folder"));
+        contentPanel.add(buildFileEntryPanel(_fldWofyawl, "WofYAWL Analysis File"));
+        contentPanel.add(buildFileEntryPanel(_fldWendy, "Wendy (Process Configuration) Folder"));
         return contentPanel;
     }
 

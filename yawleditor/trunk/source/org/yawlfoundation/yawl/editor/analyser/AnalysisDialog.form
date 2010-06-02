@@ -81,6 +81,7 @@
                 <properties>
                   <editable value="false"/>
                   <enabled value="true"/>
+                  <text value=""/>
                 </properties>
               </component>
             </children>

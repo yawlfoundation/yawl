@@ -27,7 +27,6 @@ public class AnalysisDialog extends JDialog {
         lblHeader.setText("Analysing " + title + ":");
         setModal(false);
         setAlwaysOnTop(true);
-        setLocationRelativeTo(YAWLEditor.getInstance());
         getRootPane().setDefaultButton(btnClose);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         setKeepOpenCheckbox();
@@ -39,6 +38,7 @@ public class AnalysisDialog extends JDialog {
         });
 
         pack();
+        position();
         setVisible(true);
     }
 
@@ -71,6 +71,16 @@ public class AnalysisDialog extends JDialog {
 
     private void setKeepOpenPreference() {
         prefs.putBoolean(KEEP_OPEN_PREFERENCE, cbxKeepOpen.isSelected());
+    }
+
+    // put the dialog in bottom right of editor frame
+    private void position() {
+        Point parentLocation = YAWLEditor.getInstance().getLocationOnScreen();
+        Dimension parentSize = YAWLEditor.getInstance().getSize();
+        Dimension dialogSize = this.getSize();
+        int x = parentLocation.x + parentSize.width - dialogSize.width;
+        int y = parentLocation.y + parentSize.height - dialogSize.height;
+        setLocation(x, y);
     }
 
 
@@ -124,6 +134,7 @@ public class AnalysisDialog extends JDialog {
         txtOutput = new JTextPane();
         txtOutput.setEditable(false);
         txtOutput.setEnabled(true);
+        txtOutput.setText("");
         scrollpane.setViewportView(txtOutput);
         lblHeader.setLabelFor(scrollpane);
     }
