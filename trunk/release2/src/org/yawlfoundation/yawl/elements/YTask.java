@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.elements.e2wfoj.E2WFOJNet;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.elements.state.YInternalCondition;
 import org.yawlfoundation.yawl.engine.YEngine;
+import org.yawlfoundation.yawl.engine.YNetRunner;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.engine.YWorkItemRepository;
 import org.yawlfoundation.yawl.engine.time.YTimer;
@@ -631,6 +632,11 @@ public abstract class YTask extends YExternalNetElement {
             throw new RuntimeException(this + "_exit() is not enabled.");
         }
         performDataAssignmentsAccordingToOutputExpressions(pmgr);
+
+        if (getTimerVariable() != null) {
+            getTimerVariable().setState(YWorkItemTimer.State.closed);
+        }
+
         YIdentifier i = _i;
         if (this instanceof YCompositeTask) {
             cancel(pmgr);
@@ -781,80 +787,34 @@ public abstract class YTask extends YExternalNetElement {
                 return;
             }
 
-            // check if this query evaluates to true
-            String xquery = "boolean(" + flow.getXpathPredicate() + ")";
-            try
-            {
-                logger.debug("Evaluating XQuery: " + xquery);
-                String result = SaxonUtil.evaluateQuery(xquery, _net.getInternalDataDocument());
-
-                if (result != null) {
-                    if (result.equalsIgnoreCase("true")) {
-                        logger.debug("XQuery evaluated TRUE.");
-                        ((YCondition) flow.getNextElement()).add(pmgr, tokenToSend);
-                        return;
-                    }
-                    else if (result.equalsIgnoreCase("false")) {
-                        logger.debug("XQuery evaluated FALSE.");
-                    }
-                    else {
-                        logger.error(
-                            "Evaluated XQuery did not return a singular boolean result.");
-                        throw new YQueryException(
-                            "Evaluated XQuery did not return a singular boolean result." +
-                            " Evaluated: '" + xquery + "'");
-                    }
-                }
+            if (evaluateSplitQuery(flow.getXpathPredicate(), tokenToSend)) {
+               ((YCondition) flow.getNextElement()).add(pmgr, tokenToSend);
+               return;
             }
-            catch (SaxonApiException e) {
-                logger.error("Invalid XQuery expression (" + xquery + ").", e);
-                throw new YQueryException("Invalid XQuery expression (" + xquery + ").");
-            }
-        }
+         }
     }
 
 
     private void doOrSplit(YPersistenceManager pmgr, YIdentifier tokenToSend)
             throws YQueryException, YPersistenceException {
-        boolean noTokensOutputted = true;
+        boolean noTokensOutput = true;
 
         logger.debug("Evaluating XQueries against Net: " +
                      JDOMUtil.documentToString(_net.getInternalDataDocument()));
+
+        // get & sort the flows according to their evaluation ordering,
+        // and with the default flow occurring last.
         List<YFlow> flows = new ArrayList<YFlow>(getPostsetFlows());
         Collections.sort(flows);
+
         for (YFlow flow : flows) {
 
-            // check if this query evaluates to true
-            String xquery = "boolean(" + flow.getXpathPredicate() + ")";
-            try
-            {
-                logger.debug("Evaluating XQuery: " + xquery);
-                String result = SaxonUtil.evaluateQuery(xquery, _net.getInternalDataDocument());
+            if (evaluateSplitQuery(flow.getXpathPredicate(), tokenToSend)) {
+               ((YCondition) flow.getNextElement()).add(pmgr, tokenToSend);
+               noTokensOutput = false;
+            }
 
-                if (result != null) {
-                    if (result.equalsIgnoreCase("true")) {
-                        logger.debug("XQuery evaluated TRUE.");
-                        ((YCondition) flow.getNextElement()).add(pmgr, tokenToSend);
-                        noTokensOutputted = false;
-                    }
-                    else if (result.equalsIgnoreCase("false")) {
-                        logger.debug("XQuery evaluated FALSE.");
-                    }
-                    else {
-                        logger.error(
-                            "Evaluated XQuery did not return a singular boolean result.");
-                        throw new YQueryException(
-                            "Evaluated XQuery did not return a singular boolean result." +
-                            " Evaluated: '" + xquery + "'");
-                    }
-                }
-            }
-            catch (SaxonApiException e)
-            {
-                logger.error("Invalid XPath expression (" + xquery + ").", e);
-                throw new YQueryException("Invalid XPath expression (" + xquery + ").");
-            }
-            if (flow.isDefaultFlow() && noTokensOutputted) {
+            if (flow.isDefaultFlow() && noTokensOutput) {
                 ((YCondition) flow.getNextElement()).add(pmgr, tokenToSend);
             }
         }
@@ -870,6 +830,57 @@ public abstract class YTask extends YExternalNetElement {
         }
         else throw new RuntimeException("token is equal to null = " + tokenToSend);
     }
+
+
+    private boolean evaluateSplitQuery(String query, YIdentifier tokenToSend)
+            throws YQueryException {
+
+        // check timer predicates first
+        if (isTimerPredicate(query)) {
+            return evaluateTimerPredicate(query, tokenToSend);
+        }
+
+        // check if this query evaluates to true
+        String xquery = "boolean(" + query + ")";
+        try {
+            logger.debug("Evaluating XQuery: " + xquery);
+            String result = SaxonUtil.evaluateQuery(xquery, _net.getInternalDataDocument());
+
+            if (result != null) {
+                if (result.equalsIgnoreCase("true")) {
+                    logger.debug("XQuery evaluated TRUE.");
+                    return true;
+                }
+                else if (result.equalsIgnoreCase("false")) {
+                    logger.debug("XQuery evaluated FALSE.");
+                    return false;
+                }
+            }
+
+            // either result is null or result is not a boolean string
+           logger.error("Evaluated XQuery did not return a singular boolean result.");
+           throw new YQueryException("Evaluated XQuery did not return a singular " +
+                   "boolean result. Evaluated: '" + xquery + "'");
+        }
+        catch (SaxonApiException e) {
+            logger.error("Invalid XQuery expression (" + xquery + ").", e);
+            throw new YQueryException("Invalid XQuery expression (" + xquery + ").");
+        }
+    }
+
+    private boolean isTimerPredicate(String predicate) {
+        return predicate.trim().startsWith("timer(");
+    }
+
+    private boolean evaluateTimerPredicate(String predicate, YIdentifier token) throws YQueryException {
+        YNetRunner runner = _workItemRepository.getNetRunner(token);
+        if (runner != null) {
+            return runner.evaluateTimerPredicate(predicate);
+        }
+        else throw new YQueryException("Unable to determine current timer status for " +
+                "predicate: " + predicate);
+    }
+
 
 
     public synchronized boolean t_enabled(YIdentifier id) {

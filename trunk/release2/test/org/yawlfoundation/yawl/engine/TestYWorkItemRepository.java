@@ -9,9 +9,11 @@
 
 package org.yawlfoundation.yawl.engine;
 
+import junit.framework.TestCase;
+import org.yawlfoundation.yawl.elements.YAtomicTask;
+import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import junit.framework.TestCase;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -26,7 +28,7 @@ import java.util.Set;
 public class TestYWorkItemRepository extends TestCase {
     private YWorkItemRepository _workitemRepository;
     private YWorkItem _parentWorkItem;
-
+    private YTask _task;
 
     public TestYWorkItemRepository(String name) {
         super(name);
@@ -36,9 +38,10 @@ public class TestYWorkItemRepository extends TestCase {
     public void setUp() throws Exception {
         _workitemRepository = YWorkItemRepository.getInstance();
         _workitemRepository.clear();
+        _task = new YAtomicTask("task-123", YTask._XOR, YTask._AND, null);
         YIdentifier identifier = new YIdentifier(null);
         YWorkItemID workItemID = new YWorkItemID(identifier, "task-123");
-        _parentWorkItem = new YWorkItem(null, new YSpecificationID("ASpecID"), workItemID, false, false);
+        _parentWorkItem = new YWorkItem(null, new YSpecificationID("ASpecID"), _task, workItemID, false, false);
         for (int i = 0; i < 5; i++) {
             _parentWorkItem.createChild(null, identifier.createChild(null));
         }
@@ -47,7 +50,7 @@ public class TestYWorkItemRepository extends TestCase {
 
     public void testGetItem() throws YPersistenceException {
         assertTrue(_workitemRepository.getEnabledWorkItems().size() == 0);
-        new YWorkItem(null, new YSpecificationID("ASpecID"), new YWorkItemID(new YIdentifier(null), "task4321"), false, false);
+        new YWorkItem(null, new YSpecificationID("ASpecID"), _task, new YWorkItemID(new YIdentifier(null), "task4321"), false, false);
         assertEquals(
                 _workitemRepository.getWorkItem(
                         _parentWorkItem.getCaseID().toString(), _parentWorkItem.getTaskID()),

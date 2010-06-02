@@ -118,7 +118,7 @@ public class YEngine implements InterfaceADesign,
         _sessionCache = YSessionCache.getInstance();
         _workItemRepository = YWorkItemRepository.getInstance();
         _caseNbrStore = YCaseNbrStore.getInstance();
-        _announcer = new YAnnouncer(this);         // the pusher of interface events
+        _announcer = new YAnnouncer(this);         // the 'pusher' of interface events
     }
 
 
@@ -150,12 +150,6 @@ public class YEngine implements InterfaceADesign,
             // Init completed - set engine status to up and running
             _logger.info("Marking engine status = RUNNING");
             _thisInstance.setEngineStatus(YEngine.ENGINE_STATUS_RUNNING);
-
-            // Now that the engine's running, process any expired timers
-            if (_expiredTimers != null) {
-                for (YWorkItemTimer timer : _expiredTimers)
-                    timer.handleTimerExpiry();
-            }
         }
         return _thisInstance;
     }
@@ -171,7 +165,7 @@ public class YEngine implements InterfaceADesign,
             try {
                 _thisInstance = getInstance(ENGINE_PERSISTS_BY_DEFAULT);
             } catch (Exception e) {
-                throw new RuntimeException("Failure to instantiate an engine.");
+                throw new RuntimeException("Failure to instantiate the engine.");
             }
         }
         return _thisInstance;
@@ -287,6 +281,15 @@ public class YEngine implements InterfaceADesign,
     }
 
 
+    // called when servlet init() has completed
+    public void initialised() {
+
+        // Now that the engine's running, process any expired timers
+        if (_expiredTimers != null) {
+            for (YWorkItemTimer timer : _expiredTimers)
+                timer.handleTimerExpiry();
+        }
+    }
 
     public void shutdown() {
         _sessionCache.shutdown();
@@ -1634,6 +1637,9 @@ public class YEngine implements InterfaceADesign,
                             netRunner.continueIfPossible(pmgr);
                         }
                         instanceCache.closeWorkItem(workItem, doc);
+
+                        // remove any active timer for this item 
+                        YTimer.getInstance().cancelTimerTask(workItem.getParent().getIDString());
 
                         /**
                          * If case is suspending, see if we can progress into a fully suspended state

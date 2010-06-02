@@ -4,8 +4,7 @@ import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.instance.CaseInstance;
 import org.yawlfoundation.yawl.engine.instance.ParameterInstance;
 import org.yawlfoundation.yawl.engine.instance.WorkItemInstance;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EnvironmentBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
 import org.yawlfoundation.yawl.logging.table.YLogEvent;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
@@ -17,51 +16,64 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-public class MonitorClient extends InterfaceBWebsideController {
+public class MonitorClient {
 
-    private String _sessionHandle = null;
-    private String _resSessionHandle = null;
+    private String _engineHandle;
+    private String _resourceHandle;
     private static MonitorClient _me = null;
-    private YLogGatewayClient _logClient = null;
-    private ResourceLogGatewayClient _resLogClient = null;
+    private YLogGatewayClient _logClient;
+    private ResourceLogGatewayClient _resLogClient;
+    private ResourceGatewayClient _resClient;
+
+    private InterfaceB_EnvironmentBasedClient _interfaceBClient;
     private long _startupTime ;                         // time the engine started
 
     private static final String _engineUser = "monitorService";
     private static final String _enginePassword = "yMonitor";
-
-    private MonitorClient() {
-        super();
-        _logClient = new YLogGatewayClient("http://localhost:8080/yawl/logGateway");
-        _resLogClient = new ResourceLogGatewayClient("http://localhost:8080/resourceService/logGateway");
-    }
 
     public static MonitorClient getInstance() {
         if (_me == null) _me = new MonitorClient();
         return _me;
     }
 
-    // implement abstract methods of super class
-    public void handleEnabledWorkItemEvent(WorkItemRecord enabledWorkItem) {}
-    public void handleCancelledWorkItemEvent(WorkItemRecord workItemRecord) {}
 
-    
+    protected void initInterfaces(Map<String, String> urlMap) {
+        String url = urlMap.get("engineGateway");
+        if (url == null) url = "http://localhost:8080/yawl/ib";
+        _interfaceBClient = new InterfaceB_EnvironmentBasedClient(url);
+
+        url = urlMap.get("engineLogGateway");
+        if (url == null) url = "http://localhost:8080/yawl/logGateway";
+        _logClient = new YLogGatewayClient(url);
+
+        url = urlMap.get("resourceGateway");
+        if (url == null) url = "http://localhost:8080/resourceService/gateway";
+        _resClient = new ResourceGatewayClient(url);
+
+        url = urlMap.get("resourceLogGateway");
+        if (url == null) url = "http://localhost:8080/resourceService/logGateway";
+        _resLogClient = new ResourceLogGatewayClient(url);
+    }
+
+
+    //== ENGINE CALLS =============================================================//
+
     public List<CaseInstance> getCases() throws IOException {
         List<CaseInstance> caseList = null;
-        if (connected()) {
-            String xml = _interfaceBClient.getCaseInstanceSummary(_sessionHandle);
-            Element cases = JDOMUtil.stringToElement(xml);
-            if (cases != null) {
-                caseList = new ArrayList<CaseInstance>();
-                List children = cases.getChildren();
-                for (Object child : children) {
-                    CaseInstance instance = new CaseInstance((Element) child);
-                    caseList.add(instance);
-                }
-                String startTime = cases.getAttributeValue("startuptime");
-                if (startTime != null) {
-                    _startupTime = new Long(startTime);
-                }
+        String xml = _interfaceBClient.getCaseInstanceSummary(getEngineHandle());
+        Element cases = JDOMUtil.stringToElement(xml);
+        if (cases != null) {
+            caseList = new ArrayList<CaseInstance>();
+            List children = cases.getChildren();
+            for (Object child : children) {
+                CaseInstance instance = new CaseInstance((Element) child);
+                caseList.add(instance);
+            }
+            String startTime = cases.getAttributeValue("startuptime");
+            if (startTime != null) {
+                _startupTime = new Long(startTime);
             }
         }
         return caseList;
@@ -69,20 +81,18 @@ public class MonitorClient extends InterfaceBWebsideController {
 
     public List<WorkItemInstance> getWorkItems(String caseID) throws IOException {
         List<WorkItemInstance> itemList = null;
-        if (connected()) {
-            String xml = _interfaceBClient.getWorkItemInstanceSummary(caseID, _sessionHandle);
-            Element items = JDOMUtil.stringToElement(xml);
-            if (items != null) {
-                itemList = new ArrayList<WorkItemInstance>();
-                List children = items.getChildren();
-                for (Object child : children) {
-                    Element eChild = (Element) child;
+        String xml = _interfaceBClient.getWorkItemInstanceSummary(caseID, getEngineHandle());
+        Element items = JDOMUtil.stringToElement(xml);
+        if (items != null) {
+            itemList = new ArrayList<WorkItemInstance>();
+            List children = items.getChildren();
+            for (Object child : children) {
+                Element eChild = (Element) child;
 
-                    // ignore parent workitems
-                    if (! "statusIsParent".equals(eChild.getChildText("status"))) {
-                        WorkItemInstance instance = new WorkItemInstance((Element) child);
-                        itemList.add(instance);
-                    }    
+                // ignore parent workitems
+                if (! "statusIsParent".equals(eChild.getChildText("status"))) {
+                    WorkItemInstance instance = new WorkItemInstance((Element) child);
+                    itemList.add(instance);
                 }
             }
         }
@@ -91,69 +101,89 @@ public class MonitorClient extends InterfaceBWebsideController {
 
     public List<ParameterInstance> getParameters(String itemID) throws IOException {
         List<ParameterInstance> paramList = new ArrayList<ParameterInstance>();
-        if (connected()) {
-            String caseID = getCaseFromItemID(itemID);
-            String xml = _interfaceBClient.getParameterInstanceSummary(caseID, itemID, _sessionHandle);
-            Element params = JDOMUtil.stringToElement(xml);
-            if (params != null) {
-                List children = params.getChildren();
-                for (Object child : children) {
-                    ParameterInstance instance = new ParameterInstance((Element) child);
-                    paramList.add(instance);
-                }
+        String caseID = getCaseFromItemID(itemID);
+        String xml = _interfaceBClient.getParameterInstanceSummary(caseID, itemID, getEngineHandle());
+        Element params = JDOMUtil.stringToElement(xml);
+        if (params != null) {
+            List children = params.getChildren();
+            for (Object child : children) {
+                ParameterInstance instance = new ParameterInstance((Element) child);
+                paramList.add(instance);
             }
         }
         return paramList;
     }
 
+
     public long getStartupTime() { return _startupTime; }
 
 
+    //== LOGIN & SESSION ===================================//
 
-    private boolean connected() {
-        if (_sessionHandle == null) {
-           _sessionHandle = connect();
+    /* tests that a sessionhandle is valid */
+    private boolean connected(String handle) {
+        return successful(handle);
+    }
+
+    /* returns the engine session handle, creating a new one if its invalid */
+    private String getEngineHandle() {
+        if (! connected(_engineHandle)) {
+            try {
+                _engineHandle = _interfaceBClient.connect(_engineUser, _enginePassword);
+            }
+            catch (IOException ioe) {
+                _engineHandle = "<failure>Problem connecting to engine.</failure>";
+            }
         }
-        return (_sessionHandle != null);
+        return _engineHandle;
     }
 
-    public String connect() {
-        return login(_engineUser, _enginePassword);
-    }
 
-    private boolean resLogConnected() {
-        if (_resSessionHandle == null) {
-           _resSessionHandle = resLogConnect();
+    /* returns the resource service session handle, creating a new one if its invalid */
+    private String getResourceHandle() {
+        if (! connected(_resourceHandle)) {
+            try {
+                _resourceHandle = _resLogClient.connect(_engineUser, _enginePassword);
+            }
+            catch (IOException ioe) {
+                _resourceHandle = "<failure>Problem connecting to resource service.</failure>";
+            }
         }
-        return (_resSessionHandle != null);
+        return _resourceHandle;
     }
 
-    public String resLogConnect() {
-        return resLogLogin(DEFAULT_ENGINE_USERNAME, DEFAULT_ENGINE_PASSWORD);
-    }
 
+    /* called from msLogin to log a user with admin credentials into the service */
     public String login(String userid, String password) {
-        String handle;
         try {
             String validationMsg = validateUserCredentials(userid, password);
-            handle = successful(validationMsg) ? connect(_engineUser, _enginePassword) : validationMsg;
+            _engineHandle = successful(validationMsg) ?
+                            _interfaceBClient.connect(_engineUser, _enginePassword) :
+                            validationMsg;
         }
         catch (IOException ioe) {
-            handle = "<failure>Problem connecting to engine.</failure>";
+            _engineHandle = "<failure>Problem connecting to engine.</failure>";
         }
-        return handle;
+        return _engineHandle;
     }
 
-    public String resLogLogin(String userid, String password) {
-        String handle = null;
+
+    private String validateUserCredentials(String userid, String password) {
         try {
-            handle = _resLogClient.connect(userid, password);
+            return _resClient.validateUserCredentials(userid, password, true, getResourceHandle());
         }
         catch (IOException ioe) {
-            handle = "<failure>Problem connecting to resource service.</failure>";
+            return "<failure>Unable to validate user - service unreachable.</failure>";
         }
-        return handle;
     }
+
+
+    public boolean successful(String msg) {
+        return _interfaceBClient.successful(msg);
+    }
+
+
+    //== PRIVATE ===================================//
 
     private String getCaseFromItemID(String itemID) {
         String caseID = itemID.split(":")[0];
@@ -163,62 +193,52 @@ public class MonitorClient extends InterfaceBWebsideController {
 
 
     public String getCaseData(String itemID) throws IOException {
-        if (connected()) {
-            String caseID = getCaseFromItemID(itemID);
-            return _interfaceBClient.getCaseData(caseID, _sessionHandle);
-        }
-        return "";
+        String caseID = getCaseFromItemID(itemID);
+        return _interfaceBClient.getCaseData(caseID, getEngineHandle());
     }
 
 
     public String getCaseEvent(String caseID, String event) throws IOException {
-        if (connected()) {
-            return _logClient.getCaseEvent(caseID, event, _sessionHandle) ;
-        }
-        return "";
+        return _logClient.getCaseEvent(caseID, event, getEngineHandle()) ;
     }
 
 
     public String getServiceName(long key) throws IOException {
-        if (connected()) {
-            String result = _logClient.getServiceName(key, _sessionHandle) ;
-            if (! result.startsWith("<fail")) {
-                return StringUtil.unwrap(result);
-            }
+        String result = _logClient.getServiceName(key, getEngineHandle()) ;
+        if (successful(result)) {
+            return StringUtil.unwrap(result);
         }
-        return "";
+        else throw new IOException(result);
     }
+
 
     public List<YLogEvent> getEventsForWorkItem(String itemID) throws IOException {
         List<YLogEvent> eventList = new ArrayList<YLogEvent>();
-        if (connected()) {
-            String xml = _logClient.getEventsForTaskInstance(itemID, _sessionHandle) ;
-            if (! xml.startsWith("<fail")) {
-                Element events = JDOMUtil.stringToElement(xml);
-                if (events != null) {
-                    List children = events.getChildren();
-                    for (Object child : children) {
-                        YLogEvent event = new YLogEvent((Element) child);
-                        eventList.add(event);
-                    }
+        String xml = _logClient.getEventsForTaskInstance(itemID, getEngineHandle()) ;
+        if (successful(xml)) {
+            Element events = JDOMUtil.stringToElement(xml);
+            if (events != null) {
+                List children = events.getChildren();
+                for (Object child : children) {
+                    YLogEvent event = new YLogEvent((Element) child);
+                    eventList.add(event);
                 }
             }
         }
         return eventList;
     }
 
+
     public List<ResourceEvent> getResourceEventsForWorkItem(String itemID) throws IOException {
         List<ResourceEvent> eventList = new ArrayList<ResourceEvent>();
-        if (resLogConnected()) {
-            String xml = _resLogClient.getWorkItemEvents(itemID, true, _resSessionHandle) ;
-            if (! xml.startsWith("<fail")) {
-                Element events = JDOMUtil.stringToElement(xml);
-                if (events != null) {
-                    List children = events.getChildren();
-                    for (Object child : children) {
-                        ResourceEvent event = new ResourceEvent((Element) child);
-                        eventList.add(event);
-                    }
+        String xml = _resLogClient.getWorkItemEvents(itemID, true, getResourceHandle());
+        if (successful(xml)) {
+            Element events = JDOMUtil.stringToElement(xml);
+            if (events != null) {
+                List children = events.getChildren();
+                for (Object child : children) {
+                    ResourceEvent event = new ResourceEvent((Element) child);
+                    eventList.add(event);
                 }
             }
         }
@@ -227,26 +247,7 @@ public class MonitorClient extends InterfaceBWebsideController {
 
 
     public String getCaseStartedBy(String caseID) throws IOException {
-        if (resLogConnected()) {
-            return _resLogClient.getCaseStartedBy(caseID, _resSessionHandle);
-        }
-        return "Unavailable";
+        return _resLogClient.getCaseStartedBy(caseID, getResourceHandle());
     }
-
-
-    private String validateUserCredentials(String userid, String password) {
-        if (resLogConnected()) {
-            ResourceGatewayClient resClient =
-                    new ResourceGatewayClient("http://localhost:8080/resourceService/gateway");
-            try {
-                return resClient.validateUserCredentials(userid, password, true, _resSessionHandle);
-            }
-            catch (IOException ioe) {
-                // falls through to the return statement below
-            }
-        }
-        return "<failure>Unable to validate user - service unreachable.</failure>";
-    }
-
 
 }

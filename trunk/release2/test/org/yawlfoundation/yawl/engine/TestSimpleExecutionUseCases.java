@@ -69,7 +69,7 @@ public class TestSimpleExecutionUseCases extends TestCase{
                 "b-top");
         Exception f = null;
         try {
-            _engine.startWorkItem(item ,"admin");
+            _engine.startWorkItem(item ,_engine.getExternalClient("admin"));
         } catch (YAWLException e) {
             f =e;
         }
@@ -81,7 +81,7 @@ public class TestSimpleExecutionUseCases extends TestCase{
                 "a-top");
         f = null;
         try {
-            _engine.startWorkItem(item ,"admin");
+            _engine.startWorkItem(item ,_engine.getExternalClient("admin"));
         } catch (YAWLException e) {
             fail(e.getMessage());
         }
@@ -90,7 +90,7 @@ public class TestSimpleExecutionUseCases extends TestCase{
         Set firedWorkItems = _workItemRepository.getFiredWorkItems();
         item = (YWorkItem) firedWorkItems.iterator().next();
         try {
-            _engine.startWorkItem(item, "admin");
+            _engine.startWorkItem(item, _engine.getExternalClient("admin"));
         } catch (YAWLException e) {
             fail(e.getMessage());
         }

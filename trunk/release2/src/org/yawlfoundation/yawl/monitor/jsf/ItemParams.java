@@ -475,7 +475,7 @@ public class ItemParams extends AbstractPageBean {
      * Overridden method that is called immediately before the page is rendered
      */
     public void prerender() {
-        msgPanel.show();
+        _sb.showMessagePanel();
     }
 
 

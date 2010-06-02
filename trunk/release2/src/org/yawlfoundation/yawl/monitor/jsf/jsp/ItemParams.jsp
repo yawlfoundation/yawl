@@ -105,7 +105,7 @@
                                     <h:outputText binding="#{ItemParams.colEngineTimeRows}"
                                                   id="colEngineEventTimeRows"
                                                   styleClass="dataTableItemText"
-                                                  value="#{currentRow.timeStampString}"/>
+                                                  value="#{currentRow.timestampString}"/>
                                 </h:column>
 
                                <h:column binding="#{ItemParams.colEngineEvent}"
@@ -305,11 +305,10 @@
                             </h:dataTable>
                             </ui:panelGroup>
 
+                        <div><jsp:include page="pfMsgPanel.jspf"/></div>
+
                          </ui:panelLayout>
 
-                         <ui:panelLayout binding="#{SessionBean.messagePanel}"
-                                        id="msgPanel"
-                                        panelLayout="flow"/>
                         </center>
 
                         <ui:hiddenField binding="#{ItemParams.hdnRowIndex}" id="hdnRowIndex"/>

@@ -11,7 +11,7 @@
         <ui:page binding="#{msLogin.page}" id="page1">
             <ui:html binding="#{msLogin.html}" id="html1">
                 <ui:head binding="#{msLogin.head}" id="head1"
-                         title="Welcome to YAWL 2.0: Please Login">
+                         title="Welcome to the YAWL 2.1 Monitor Service: Please Login">
                     <ui:link binding="#{msLogin.link}" id="link1"
                              url="/resources/stylesheet.css"/>
                     <ui:link binding="#{ApplicationBean.favIcon}" id="lnkFavIcon"
@@ -65,11 +65,10 @@
                                            styleClass="loginButton"
                                            text="Login"/>
 
+                                <div><jsp:include page="pfMsgPanel.jspf"/></div>
+                                
                             </ui:panelLayout>
 
-                            <ui:panelLayout binding="#{SessionBean.messagePanel}"
-                                            id="msgPanel"
-                                            panelLayout="flow"/>
                         </center>
                     </ui:form>
                 </ui:body>

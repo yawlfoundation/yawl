@@ -73,7 +73,7 @@ public class TestEngineSystem1 extends TestCase {
             Thread.sleep(_sleepTime);
             //fire btop
 //            _localWorklist.startOneWorkItemAndSetOthersToFired(anItem.getCaseID().toString(), anItem.getTaskID());
-            anItem = _engine.startWorkItem(anItem, "admin");
+            anItem = _engine.startWorkItem(anItem, _engine.getExternalClient("admin"));
             currWorkItems = _workItemRepository.getEnabledWorkItems();
             assertTrue(currWorkItems.isEmpty());
             currWorkItems = _workItemRepository.getExecutingWorkItems();
@@ -82,7 +82,7 @@ public class TestEngineSystem1 extends TestCase {
             Thread.sleep(_sleepTime);
             //complete btop
 //            _localWorklist.setWorkItemToComplete(anItem.getCaseID().toString(), anItem.getTaskID(),"<data/>");
-            _engine.completeWorkItem(anItem, "<data/>", false);
+            _engine.completeWorkItem(anItem, "<data/>", null, false);
             //should atumatically fire multi inst comp task ctop
             //get mi attributes of f-leaf-c
             List leafNetRunners = new Vector();
@@ -111,7 +111,7 @@ public class TestEngineSystem1 extends TestCase {
                 assertTrue(anItem.getStatus() == YWorkItemStatus.statusEnabled);
                 //fire e-leaf-c
 //                _localWorklist.startOneWorkItemAndSetOthersToFired(anItem.getCaseID().toString(), anItem.getTaskID());
-                _engine.startWorkItem(anItem, "admin");
+                _engine.startWorkItem(anItem, _engine.getExternalClient("admin"));
                 assertTrue("Item status ("+anItem.getStatus()+") should be is parent."
                         , anItem.getStatus() == YWorkItemStatus.statusIsParent);
                 Set executingChildren = _workItemRepository.getExecutingWorkItems();
@@ -125,7 +125,7 @@ public class TestEngineSystem1 extends TestCase {
                 anItem = (YWorkItem) v.get(temp);
 //                _localWorklist.setWorkItemToComplete(
 //                        anItem.getCaseID().toString(), anItem.getTaskID(),"<data/>");
-                _engine.completeWorkItem(anItem, "<data/>", false);
+                _engine.completeWorkItem(anItem, "<data/>", null, false);
                 assertTrue(_workItemRepository.getWorkItem(
                         anItem.getCaseID().toString(), anItem.getTaskID())
                         == null);
@@ -143,7 +143,7 @@ public class TestEngineSystem1 extends TestCase {
                         || anItem.getTaskID().equals("g-leaf-c"));
 //                _localWorklist.startOneWorkItemAndSetOthersToFired(
 //                        anItem.getCaseID().toString(), anItem.getTaskID());
-                _engine.startWorkItem(anItem, "admin");
+                _engine.startWorkItem(anItem, _engine.getExternalClient("admin"));
                 if (anItem.getTaskID().equals("g-leaf-c")) {
                     assertTrue(anItem.getChildren().size() == 1);
                     assertTrue(((YWorkItem) anItem.getChildren().iterator().next())
@@ -164,7 +164,7 @@ public class TestEngineSystem1 extends TestCase {
                 assertTrue(anItem.getTaskID().equals("f-leaf-c"));
 //                _localWorklist.startOneWorkItemAndSetOthersToFired(
 //                        anItem.getCaseID().toString(), anItem.getTaskID());
-                _engine.startWorkItem(anItem, "admin");
+                _engine.startWorkItem(anItem, _engine.getExternalClient("admin"));
                 assertTrue(anItem.getStatus() == YWorkItemStatus.statusExecuting);
                 assertTrue(_workItemRepository.getWorkItems().contains(anItem));
                 Thread.sleep(_sleepTime);
@@ -177,7 +177,7 @@ public class TestEngineSystem1 extends TestCase {
                 assertTrue(anItem.getTaskID().equals("f-leaf-c")
                         || anItem.getTaskID().equals("g-leaf-c"));
 //                _localWorklist.setWorkItemToComplete(anItem.getCaseID().toString(), anItem.getTaskID(),"<data/>");
-                _engine.completeWorkItem(anItem, "<data/>", false);
+                _engine.completeWorkItem(anItem, "<data/>", null, false);
                 if (anItem.getTaskID().equals("g-leaf-c")) {
                     assertFalse(_workItemRepository.getWorkItems().contains(anItem));
                 }
@@ -190,7 +190,7 @@ public class TestEngineSystem1 extends TestCase {
                 anItem = (YWorkItem) v.get(temp);
                 assertTrue(anItem.getTaskID().equals("h-leaf-c"));
 //                _localWorklist.startOneWorkItemAndSetOthersToFired(anItem.getCaseID().toString(), anItem.getTaskID());
-                _engine.startWorkItem(anItem, "admin");
+                _engine.startWorkItem(anItem, _engine.getExternalClient("admin"));
                 assertTrue(anItem.getChildren().size() == 1);
                 assertTrue(((YWorkItem) anItem.getChildren().iterator().next()).getStatus()
                         == YWorkItemStatus.statusExecuting);
@@ -209,7 +209,7 @@ public class TestEngineSystem1 extends TestCase {
                 anItem = (YWorkItem) v.get(temp);
                 assertTrue(anItem.getTaskID().equals("h-leaf-c"));
 //                _localWorklist.setWorkItemToComplete(anItem.getCaseID().toString(), anItem.getTaskID(),"<data/>");
-                _engine.completeWorkItem(anItem, "<data/>", false);
+                _engine.completeWorkItem(anItem, "<data/>", null, false);
                 assertFalse(_workItemRepository.getWorkItems().contains(anItem));
                 Thread.sleep(_sleepTime);
             }

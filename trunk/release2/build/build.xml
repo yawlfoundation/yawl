@@ -1081,7 +1081,7 @@
 
         <copy todir="${yawl.monitor.app.name}${webinf.dir}/resourcing/jsf">
               <fileset dir="${classes.dir}${packageRoot}/resourcing/jsf"
-                       includes="MessagePanel*.class FontUtil.class"/>
+                       includes="MessagePanel*.class Font*.class"/>
         </copy>
 
         <copy todir="${yawl.monitor.app.name}${webinf.dir}/resourcing/resource">
@@ -1437,7 +1437,10 @@
         build_yawlWSInvoker.war,
         build_workletService.war,
         build_resourceService.war,
-        build_monitorService.war"
+        build_monitorService.war,
+        build_twitterService.war,
+        build_digitalSignature.war,
+        build_mailSender.war"
         description=
         "Builds a distribution version of all
         the YAWL runtime Web apps and copies to the output directory.">
@@ -1556,6 +1559,9 @@
         build_workletService.war,
         build_resourceService.war,
         build_monitorService.war,
+        build_twitterService.war,
+        build_digitalSignature.war,
+        build_mailSender.war,
         javadoc">
     </target>
 
@@ -1588,6 +1594,10 @@
             <classpath refid="cp.wsif"/>
             <classpath refid="cp.xsd"/>
             <classpath refid="cp.persist"/>
+            <classpath refid="cp.apacheCommons"/>
+            <classpath refid="cp.jsf"/>
+            <classpath refid="cp.ds"/>
+            <classpath refid="cp.mail"/>
         </java>
     </target>
 

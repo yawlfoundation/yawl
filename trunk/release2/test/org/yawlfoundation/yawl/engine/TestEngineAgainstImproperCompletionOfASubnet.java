@@ -70,20 +70,20 @@ public class TestEngineAgainstImproperCompletionOfASubnet extends TestCase {
             while (_workItemRepository.getEnabledWorkItems().size() > 0) {
                 item = (YWorkItem) _workItemRepository.getEnabledWorkItems().iterator().next();
 //System.out.println("TestEngine::() item = " + item);
-                engine.startWorkItem(item, "admin");
+                engine.startWorkItem(item, engine.getExternalClient("admin"));
                 try{ Thread.sleep(_sleepTime);}
                 catch(InterruptedException ie){ie.printStackTrace();}
             }
             while (_workItemRepository.getFiredWorkItems().size() > 0) {
                 item = (YWorkItem) _workItemRepository.getFiredWorkItems().iterator().next();
-                engine.startWorkItem(item, "admin");
+                engine.startWorkItem(item, engine.getExternalClient("admin"));
                 try{ Thread.sleep(_sleepTime);}
                 catch(InterruptedException ie){ie.printStackTrace();}
             }
             while (_workItemRepository.getExecutingWorkItems().size() > 0) {
                 item = (YWorkItem) _workItemRepository.getExecutingWorkItems()
                         .iterator().next();
-                engine.completeWorkItem(item, "<data/>",false);
+                engine.completeWorkItem(item, "<data/>", null, false);
                 try{ Thread.sleep(_sleepTime);}
                 catch(InterruptedException ie){ie.printStackTrace();}
             }

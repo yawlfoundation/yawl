@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.logging.YLogDataItemList;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,23 +47,25 @@ public class TestCaseCancellation extends TestCase {
     private List _taskCancellationReceived = new ArrayList();
     private YWorkItemRepository _repository;
     private List _caseCompletionReceived = new ArrayList();
+    private YLogDataItemList _logdata;
 
     public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YStateException, YPersistenceException, YDataStateException, URISyntaxException, YEngineStateException, YQueryException {
         _engine = YEngine.getInstance();
         EngineClearer.clear(_engine);
-
+        _logdata = new YLogDataItemList();
         _repository = YWorkItemRepository.getInstance();
         URL fileURL = getClass().getResource("CaseCancellation.xml");
         File yawlXMLFile = new File(fileURL.getFile());
-        _specification = (YSpecification) YMarshal.
-                    unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
+        _specification = YMarshal.unmarshalSpecifications(
+                StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
 
         _engine.loadSpecification(_specification);
         URI serviceURI = new URI("mock://mockedURL/testingCaseCompletion");
 
         YAWLServiceReference service = new YAWLServiceReference(serviceURI.toString(), null);
         _engine.addYawlService(service);
-        _idForTopNet = _engine.startCase(null, null, _specification.getURI(), null, serviceURI);
+        _idForTopNet = _engine.startCase(null, _specification.getSpecificationID(), null,
+                serviceURI, null, _logdata, service.getServiceName());
 
         ObserverGateway og = new ObserverGateway() {
             public void cancelAllWorkItemsInGroupOf(
@@ -117,7 +120,7 @@ public class TestCaseCancellation extends TestCase {
         for (Iterator iterator = enabledItems.iterator(); iterator.hasNext();) {
             YWorkItem workItem = (YWorkItem) iterator.next();
             if (workItem.getTaskID().equals("register_itinerary_segment")) {
-                _engine.startWorkItem(workItem, "admin");
+                _engine.startWorkItem(workItem, _engine.getExternalClient("admin"));
                 break;
             }
         }
@@ -143,20 +146,20 @@ public class TestCaseCancellation extends TestCase {
         for (Iterator iterator = enabledItems.iterator(); iterator.hasNext();) {
             YWorkItem workItem = (YWorkItem) iterator.next();
             if (workItem.getTaskID().equals(name)) {
-                        _engine.startWorkItem(workItem, "admin");
+                        _engine.startWorkItem(workItem, _engine.getExternalClient("admin"));
                 break;
             }
         }
         firedItems = _repository.getFiredWorkItems();
         for (Iterator iterator = firedItems.iterator(); iterator.hasNext();) {
             YWorkItem workItem = (YWorkItem) iterator.next();
-            _engine.startWorkItem(workItem, "admin");
+            _engine.startWorkItem(workItem, _engine.getExternalClient("admin"));
             break;
         }
         activeItems = _repository.getExecutingWorkItems();
         for (Iterator iterator = activeItems.iterator(); iterator.hasNext();) {
             YWorkItem workItem = (YWorkItem) iterator.next();
-            _engine.completeWorkItem(workItem, "<data/>", false);
+            _engine.completeWorkItem(workItem, "<data/>", null, false);
             break;
         }
     }

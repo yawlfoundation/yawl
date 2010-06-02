@@ -86,13 +86,19 @@ public class YEventLogger {
     public static YEventLogger getInstance(YEngine engine) {
         if (_me == null) _me = new YEventLogger();
         _me._engine = engine;
-        try {
-            _me._pmgr = getPersistenceSession();
+        if (YEngine.isPersisting()) {
+            try {
+                _me._pmgr = getPersistenceSession();
+            }
+            catch (YPersistenceException ype) {
+                _me.disable();
+                _me._log.error("Exception initialising the Process Logging Engine. " +
+                               " Process logging disabled");
+            }
         }
-        catch (YPersistenceException ype) {
+        else {
             _me.disable();
-            _me._log.error("Exception initialising the Process Logging Engine. " +
-                           " Process logging disabled");
+            _me._log.warn("Process logging disabled because Engine persistence is disabled");            
         }
         return _me;
     }

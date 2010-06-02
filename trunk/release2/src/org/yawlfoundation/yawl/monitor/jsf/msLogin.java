@@ -37,10 +37,6 @@ public class msLogin extends AbstractPageBean {
 
     public void preprocess() { }
 
-    public void prerender() {
-        msgPanel.show();                                  // show messages as required
-    }
-
     public void destroy() { }
 
     public void init() {
@@ -163,6 +159,10 @@ public class msLogin extends AbstractPageBean {
     private MonitorClient mc = MonitorClient.getInstance();
     private SessionBean sb = getSessionBean();
     private MessagePanel msgPanel = sb.getMessagePanel() ;
+
+    public void prerender() {
+        sb.showMessagePanel();                           // show messages as required
+    }
 
 
     /**

@@ -35,11 +35,11 @@ public class ExternalDBGatewayFactory {
     public final static String MAPPING_PREFIX = "#external:";
 
     public static boolean isExternalDBMappingExpression(String expression) {
-        return expression.startsWith(MAPPING_PREFIX);
+        return (expression != null) && expression.startsWith(MAPPING_PREFIX);
     }
 
     public static String getMappingClassFromExpression(String expression) {
-        return expression.split(":")[1];
+        return (expression != null) ? expression.split(":")[1] : null;
     }
 
 

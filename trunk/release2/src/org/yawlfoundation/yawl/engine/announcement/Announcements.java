@@ -12,7 +12,10 @@ import org.yawlfoundation.yawl.exceptions.YStateException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
 
 /*
  * A collection like class for containing multiple announcements
