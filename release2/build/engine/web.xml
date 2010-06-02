@@ -50,7 +50,7 @@
         <description>
             When set to 'true', allows services and applications to connect to the
             YAWL engine using the generic administrator account 'admin', password 'YAWL'.
-            When set to 'false' (the default), each connecting service and application
+            When set to 'false' , each connecting service and application
             must connect using a unique account previously registered with the engine.
         </description>
     </context-param>

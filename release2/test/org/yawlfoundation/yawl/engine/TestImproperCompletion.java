@@ -14,10 +14,10 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 import org.jdom.JDOMException;
-import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.exceptions.*;
+import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -69,12 +69,9 @@ public class TestImproperCompletion extends TestCase{
             YPersistenceException, YLogException {
         EngineClearer.clear(_engine);
         _engine.loadSpecification(_specification);
-        _id = _engine.startCase(null, null, _specification.getURI(), null, null);
-        int numIter = 0;
-        YSpecVersion version = new YSpecVersion();
-        Set s = _engine.getCasesForSpecification(
-                new YSpecificationID(null, version, "TestImproperCompletion"));
-
+        _id = _engine.startCase(null, _specification.getSpecificationID(), null, null, new YLogDataItemList());
+           int numIter = 0;
+        Set s = _engine.getCasesForSpecification(_specification.getSpecificationID());
         assertTrue("s = " + s, s.contains(_id));
         while (numIter < 10 && (_workItemRepository.getEnabledWorkItems().size() > 0 ||
                 _workItemRepository.getFiredWorkItems().size() > 0 ||
@@ -100,11 +97,9 @@ public class TestImproperCompletion extends TestCase{
             }
             numIter ++;
         }
-        YSpecificationID ys = new YSpecificationID(null, version, "TestImproperCompletion");
-        s = _engine.getCasesForSpecification(ys);
-        assertTrue("s = " + s, s.contains(_id));
-        _engine.cancelCase(_id);
-        s = _engine.getCasesForSpecification(ys);
+        _engine.cancelCase(_id, null);
+        s = _engine.getCasesForSpecification(_specification.getSpecificationID());
+//        System.out.println("3: " + _id);
         assertFalse("s = " + s, s.contains(_id));
     }
 

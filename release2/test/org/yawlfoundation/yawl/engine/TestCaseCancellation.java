@@ -47,11 +47,13 @@ public class TestCaseCancellation extends TestCase {
     private List _taskCancellationReceived = new ArrayList();
     private YWorkItemRepository _repository;
     private List _caseCompletionReceived = new ArrayList();
+    private List _caseCancellationReceived = new ArrayList();
     private YLogDataItemList _logdata;
 
     public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YStateException, YPersistenceException, YDataStateException, URISyntaxException, YEngineStateException, YQueryException {
         _engine = YEngine.getInstance();
         EngineClearer.clear(_engine);
+        _engine.setDefaultWorklist("http://localhost:8080/resourceService/ib#resource");
         _logdata = new YLogDataItemList();
         _repository = YWorkItemRepository.getInstance();
         URL fileURL = getClass().getResource("CaseCancellation.xml");
@@ -84,7 +86,9 @@ public class TestCaseCancellation extends TestCase {
             public void announceWorkItems(Announcements<NewWorkItemAnnouncement> a) {}
             public void announceTimerExpiry(YAWLServiceReference ys, YWorkItem i) {}
             public void announceEngineInitialised(Set<YAWLServiceReference> ys) {}
-            public void announceCaseCancellation(Set<YAWLServiceReference> ys, YIdentifier i) {}
+            public void announceCaseCancellation(Set<YAWLServiceReference> ys, YIdentifier i) {
+                _caseCancellationReceived.add(i);
+            }
             public void announceCaseSuspended(YIdentifier id) {}
             public void announceCaseSuspending(YIdentifier id) {}
             public void announceCaseResumption(YIdentifier id) {}
@@ -124,8 +128,9 @@ public class TestCaseCancellation extends TestCase {
                 break;
             }
         }
-        _engine.cancelCase(_idForTopNet);
-        assertTrue(_taskCancellationReceived.size() > 0);
+        _engine.cancelCase(_idForTopNet, null);
+        Thread.sleep(400);
+        assertTrue(_caseCancellationReceived.size() > 0);
     }
 
     public void testCaseCompletion() throws YPersistenceException, YEngineStateException, YDataStateException, YSchemaBuildingException, YQueryException, YStateException {

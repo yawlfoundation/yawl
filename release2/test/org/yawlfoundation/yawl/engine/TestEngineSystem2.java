@@ -20,6 +20,7 @@ import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.exceptions.*;
+import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -70,7 +71,7 @@ public class TestEngineSystem2 extends TestCase {
         synchronized(this){
         EngineClearer.clear(_engine);
         _engine.loadSpecification(_specification);
-        YIdentifier id = _engine.startCase(null, null, _specification.getURI(), null, null);
+        YIdentifier id = _engine.startCase(null, _specification.getSpecificationID(), null, null, new YLogDataItemList());
         _netRunner = (YNetRunner) _engine._caseIDToNetRunnerMap.get(id);
         try {
 //            YNetRunner _netRunner = _basicEngine2.getNetRunner();
@@ -172,8 +173,8 @@ public class TestEngineSystem2 extends TestCase {
         synchronized(this){
         EngineClearer.clear(_engine);
         _engine.loadSpecification(_specification);
-        YIdentifier id = _engine.startCase(null, null, _specification.getURI(), null, null);
-        _netRunner = (YNetRunner) _engine._caseIDToNetRunnerMap.get(id);
+            YIdentifier id = _engine.startCase(null, _specification.getSpecificationID(), null, null, new YLogDataItemList());
+           _netRunner = (YNetRunner) _engine._caseIDToNetRunnerMap.get(id);
         try {
 //            YNetRunner _netRunner = _basicEngine2.getNetRunner();
 //            YIdentifier _idForBottomNet;
@@ -270,8 +271,8 @@ public class TestEngineSystem2 extends TestCase {
         _engine = YEngine.getInstance();
         EngineClearer.clear(_engine);
         _engine.loadSpecification(specification);
-        YIdentifier caseID = _engine.startCase(null, null, specification.getURI().toString(), null, null);
-        {
+        YIdentifier caseID = _engine.startCase(null, specification.getSpecificationID(), null, null, new YLogDataItemList());
+           {
             YWorkItem itemA = (YWorkItem) _engine.getAvailableWorkItems().iterator().next();
             _engine.startWorkItem(itemA, _engine.getExternalClient("admin"));
 

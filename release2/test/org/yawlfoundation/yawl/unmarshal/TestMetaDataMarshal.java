@@ -66,6 +66,7 @@ public class TestMetaDataMarshal extends TestCase{
                 "<created>"+df.format(new Date())+"</created>" +
                 "<version>1.1</version>" +
                 "<status>This is not production class meta data</status>" +
+                "<persistent>false</persistent>" +
                 "</metaData>",
                 metaData.toXML());
     }
