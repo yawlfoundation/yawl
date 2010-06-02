@@ -44,23 +44,27 @@ public class YSpecificationTable {
     }
 
     public void unloadSpecification(YSpecification spec) {
-        String key = spec.getSpecificationID().getKey();
-        SpecList list = _specs.get(key);
-        if (list != null) {
-            list.remove(spec);
+        if (spec != null) {
+            String key = spec.getSpecificationID().getKey();
+            SpecList list = _specs.get(key);
+            if (list != null) {
+                list.remove(spec);
 
-            if (list.isEmpty())                      // just unloaded the only version
-                _specs.remove(key);
+                if (list.isEmpty())                    // just unloaded the only version
+                    _specs.remove(key);
+            }    
         }
     }
 
 
     public YSpecification getSpecification(YSpecificationID specid) {
-        SpecList list = _specs.get(specid.getKey());
-        if (list != null)
-           return list.getSpecification(specid.getVersion());
-        else
-           return null ;
+        if (specid != null) {
+            SpecList list = _specs.get(specid.getKey());
+            if (list != null) {
+                return list.getSpecification(specid.getVersion());
+            }
+        }
+        return null ;
     }
 
 

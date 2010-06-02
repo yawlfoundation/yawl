@@ -144,6 +144,7 @@ public class EngineGatewayImpl implements EngineGateway {
      * Should only be called from InterfaceB_EngineBasedServer.init()
      */
     public void notifyServletInitialisationComplete() {
+        _engine.initialised();
         _engine.getAnnouncer().announceEngineInitialisationCompletion();
     }
 

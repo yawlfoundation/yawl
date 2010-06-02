@@ -2,6 +2,7 @@ package org.yawlfoundation.yawl.engine.time;
 
 import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.elements.YTask;
+import org.yawlfoundation.yawl.exceptions.YQueryException;
 
 
 /**
@@ -10,25 +11,15 @@ import org.yawlfoundation.yawl.elements.YTask;
  */
 public class YTimerVariable {
 
-    private String _name;
     private YWorkItemTimer.State _state;
     private YTask _ownerTask;
 
 
-    public YTimerVariable(String name, YTask ownerTask) {
-        _name = name;
+    public YTimerVariable(YTask ownerTask) {
         _ownerTask = ownerTask;
         _state = YWorkItemTimer.State.dormant;
     }
-
-    public YTimerVariable(YTask ownerTask) {
-        this("_" + ownerTask.getName() + "_timer_", ownerTask);
-    }
     
-
-    public String getName() { return _name; }
-
-    public void setName(String name) { _name = name; }
 
     public String getTaskName() { return _ownerTask.getName(); }
 
@@ -52,7 +43,7 @@ public class YTimerVariable {
             _state = state;
         }
         else {
-            Logger.getLogger(this.getClass()).warn("Attempt made to move timer variable state " +
+            Logger.getLogger(this.getClass()).debug("Attempt made to move timer variable state " +
             "for task '" + _ownerTask.getName() + "' from " + _state.name() + " to " + state.name());
         }
     }
@@ -63,6 +54,30 @@ public class YTimerVariable {
     public void setStateClosed() { setState(YWorkItemTimer.State.closed); }
 
     public void setStateExpired() { setState(YWorkItemTimer.State.expired); }
+
+
+    // a timer predicate takes the form "timer(taskname) op 'value'"
+    // op must be "=" or "!="; value must be a valid timer state
+    public boolean evaluatePredicate(String predicate) throws YQueryException {
+        boolean negate;
+        if (predicate.contains("!=")) {
+            negate = true;
+        }
+        else if (predicate.contains("=")) {
+            negate = false;
+        }
+        else throw new YQueryException("Malformed timer predicate: missing " +
+            "or invalid operator; predicate: " + predicate);
+
+        int openQuote = predicate.indexOf("'");
+        int closeQuote = predicate.lastIndexOf("'");
+        if ((openQuote > -1) && (closeQuote > openQuote)) {
+            String queryState = predicate.substring(openQuote+1, closeQuote);
+            return negate ^ queryState.equals(getStateString());     // XOR op & result
+        }
+        else throw new YQueryException("Malformed timer predicate: missing " +
+                "quote(s) around state value; predicate: " + predicate);        
+    }
 
 
     // Since a workitem expires before it is fully completed, this guards

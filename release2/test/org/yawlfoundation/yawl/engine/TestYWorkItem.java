@@ -9,9 +9,12 @@
 
 package org.yawlfoundation.yawl.engine;
 
+import junit.framework.TestCase;
+import org.yawlfoundation.yawl.authentication.YClient;
+import org.yawlfoundation.yawl.elements.YAtomicTask;
+import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import junit.framework.TestCase;
 
 /**
  * 
@@ -23,6 +26,7 @@ import junit.framework.TestCase;
 public class TestYWorkItem extends TestCase{
     private YIdentifier _identifier;
     private YWorkItemID _workItemID;
+    private YTask _task;
     private YWorkItem _workItem;
     private YIdentifier _childIdentifier;
 
@@ -35,7 +39,8 @@ public class TestYWorkItem extends TestCase{
         _identifier = new YIdentifier(null);
         _childIdentifier = _identifier.createChild(null);
         _workItemID = new YWorkItemID(_identifier, "task-123");
-        _workItem = new YWorkItem(null, new YSpecificationID("ASpecID"), _workItemID, true, false);
+        _task = new YAtomicTask("task-123", YTask._XOR, YTask._AND, null);
+        _workItem = new YWorkItem(null, new YSpecificationID("ASpecID"), _task, _workItemID, true, false);
     }
 
 
@@ -58,11 +63,12 @@ public class TestYWorkItem extends TestCase{
         assertEquals(child.getEnablementTime(), _workItem.getEnablementTime());
         assertFalse( child.getFiringTime().before(_workItem.getEnablementTime()));
         assertTrue(child.allowsDynamicCreation());
-        child.setStatusToStarted(null, "fred");
-        assertEquals(child.getExternalClient(), "fred");
+        YClient fred = new YClient("fred", "password", null);
+        child.setStatusToStarted(null, fred);
+        assertEquals(child.getExternalClient().getUserName(), "fred");
         Exception e = null;
         try{
-            _workItem.setStatusToStarted(null, "fred");
+            _workItem.setStatusToStarted(null, fred);
         }catch(Exception f){
             e= f;
         }

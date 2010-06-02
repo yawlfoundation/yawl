@@ -1798,8 +1798,8 @@ public class SessionBean extends AbstractSessionBean {
     public String getFooterPanelStyle() {
         String style = "top: %dpx; height:100%%; width:100%%; position:relative;";
         int top = 80;
-        if (messagePanel.hasMessage()) {
-            int overhang = getOuterPanelHeight() - (messagePanel.getHeight() + 60);
+        if (messagePanel.isVisible()) {
+            int overhang =  (messagePanel.getHeight() + 60) - getOuterPanelHeight();
             if (overhang > 0) {
                 top += overhang;
             }

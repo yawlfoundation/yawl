@@ -213,6 +213,7 @@ public class YEngineRestorer {
     public Set<YWorkItemTimer> restoreWorkItemTimers() throws YPersistenceException {
         _log.info("Restoring work item timers - Starts");
         Set<YWorkItemTimer> expiredTimers = new HashSet<YWorkItemTimer>();
+        Set<YWorkItemTimer> orphanedTimers = new HashSet<YWorkItemTimer>();
         Query query = _pmgr.createQuery("from YWorkItemTimer");
         for (Iterator it = query.iterate(); it.hasNext();) {
             YWorkItemTimer witemTimer = (YWorkItemTimer) it.next();
@@ -221,7 +222,7 @@ public class YEngineRestorer {
             // check to see if workitem still exists
             YWorkItem witem = _engine.getWorkItem(witemTimer.getOwnerID()) ;
             if (witem == null)
-                _engine.deleteObject(witemTimer) ;          // remove from persistence
+                orphanedTimers.add(witemTimer);
             else {
                 long endTime = witemTimer.getEndTime();
 
@@ -235,6 +236,11 @@ public class YEngineRestorer {
                 }
             }
         }
+
+        for (YWorkItemTimer orphan : orphanedTimers) {
+            _pmgr.deleteObject(orphan) ;                   // remove from persistence            
+        }
+
         _log.info("Restoring work item timers - Ends");
         return expiredTimers;
     }

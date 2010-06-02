@@ -27,7 +27,7 @@ import java.util.List;
  * and pass it back as XML.
  *
  * Create Date: 29/10/2007. Last Date: 12/12/2007
- * Completely revised for the new logging schema in v2.1 11-12/09
+ * Completely revised for the new logging schema in v2.1 11/09 - 6/10
  *
  *  @author Michael Adams 
  *  @version 2.0

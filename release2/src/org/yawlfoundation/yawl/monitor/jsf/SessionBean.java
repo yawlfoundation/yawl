@@ -11,6 +11,7 @@ package org.yawlfoundation.yawl.monitor.jsf;
 import com.sun.rave.web.ui.appbase.AbstractSessionBean;
 import com.sun.rave.web.ui.component.Button;
 import com.sun.rave.web.ui.component.Script;
+import com.sun.rave.web.ui.component.PanelLayout;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.instance.CaseInstance;
 import org.yawlfoundation.yawl.engine.instance.ParameterInstance;
@@ -23,10 +24,11 @@ import org.yawlfoundation.yawl.monitor.sort.ParamOrder;
 import org.yawlfoundation.yawl.monitor.sort.TableSorter;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.BaseEvent;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
-import org.yawlfoundation.yawl.resourcing.jsf.MessagePanel;
+import org.yawlfoundation.yawl.resourcing.jsf.*;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.FacesException;
+import javax.faces.event.ActionEvent;
 import javax.faces.application.Application;
 import javax.faces.application.NavigationHandler;
 import javax.faces.context.ExternalContext;
@@ -264,6 +266,18 @@ public class SessionBean extends AbstractSessionBean {
     /********************************************************************************/
 
     private MonitorClient _monClient = getApplicationBean().getMonitorClient();
+
+    private PanelLayout transparentPanel = new PanelLayout();
+
+     public PanelLayout getTransparentPanel() {
+         return transparentPanel;
+     }
+
+     public void setTransparentPanel(PanelLayout panel) {
+         transparentPanel = panel;
+     }
+
+
     private MessagePanel messagePanel = new MessagePanel() ;
 
     public MessagePanel getMessagePanel() {
@@ -273,6 +287,18 @@ public class SessionBean extends AbstractSessionBean {
     public void setMessagePanel(MessagePanel messagePanel) {
         this.messagePanel = messagePanel;
     }
+
+    public void showMessagePanel() {
+        transparentPanel.setVisible(messagePanel.isVisible());
+        messagePanel.show(240);
+    }
+
+    public String messagePanelOKBtnAction(ActionEvent event) {
+        showMessagePanel();
+        getApplicationBean().refresh();
+        return null;
+    }
+
 
     private TableSorter _sorter = new TableSorter();
 

@@ -298,7 +298,10 @@ public class YAnnouncer {
     public NewWorkItemAnnouncement createNewWorkItemAnnouncement(YAWLServiceReference ys,
                                                                  YWorkItem item) {
         if (ys == null) ys = _engine.getDefaultWorklist();
-        return new NewWorkItemAnnouncement(ys, item, getAnnouncementContext());
+        if (ys != null) {
+            return new NewWorkItemAnnouncement(ys, item, getAnnouncementContext());
+        }
+        else return null;
     }
 
 

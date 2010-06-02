@@ -69,14 +69,14 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
                 assertTrue(wiDecideName_Enabled.getTaskID().equals("decideName"));
 
                 YWorkItem wiDecideName_Executing =
-                        _engine.startWorkItem(wiDecideName_Enabled, "admin");
+                        _engine.startWorkItem(wiDecideName_Enabled, _engine.getExternalClient("admin"));
 
                 assertTrue(wiDecideName_Executing.getStatus().equals(YWorkItemStatus.statusExecuting));
 
                 _engine.completeWorkItem(wiDecideName_Executing,
                         "<DecideAlbumName>" +
                         "<nameOfRecord>The Fred experience.</nameOfRecord>" +
-                        "</DecideAlbumName>", false);
+                        "</DecideAlbumName>", null, false);
             }
             {
                 //execute task "decideSongs"
@@ -86,7 +86,7 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
                 assertTrue(wiDecideSongs_Enabled.getTaskID().equals("decideSongs"));
 
                 YWorkItem wiDecideSongs_Executing =
-                        _engine.startWorkItem(wiDecideSongs_Enabled, "admin");
+                        _engine.startWorkItem(wiDecideSongs_Enabled, _engine.getExternalClient("admin"));
 
                 assertTrue(wiDecideSongs_Executing.getStatus().equals(YWorkItemStatus.statusExecuting));
 
@@ -108,7 +108,7 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
                                     "<sequenceNumber>1</sequenceNumber>" +
                                 "</song>" +
                             "</songlist>" +
-                        "</DecideWhichSongsToRecord>", false);
+                        "</DecideWhichSongsToRecord>", null, false);
             }
             {
                 //execute task "prepare" this is the first task of a decomposition
@@ -119,7 +119,7 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
                 assertTrue(wiRecord_Enabled.getTaskID().equals("prepare"));
 
                 YWorkItem wiRecord_Executing =
-                        _engine.startWorkItem(wiRecord_Enabled, "admin");
+                        _engine.startWorkItem(wiRecord_Enabled, _engine.getExternalClient("admin"));
 
                 assertTrue(wiRecord_Executing.getStatus().equals(YWorkItemStatus.statusExecuting));
 

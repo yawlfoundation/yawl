@@ -29,6 +29,7 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
 import org.yawlfoundation.yawl.resourcing.jsf.FontUtil;
 import org.yawlfoundation.yawl.resourcing.jsf.SessionBean;
+import org.yawlfoundation.yawl.resourcing.jsf.dynform.dynattributes.DynAttributeFactory;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -305,10 +306,10 @@ public class DynFormFactory extends AbstractSessionBean {
     private void buildForm() {
         DynFormComponentBuilder builder = new DynFormComponentBuilder(this);
         List<DynFormField> fieldList = _fieldAssembler.getFieldList();
-  //      DynAttributeFactory.adjustFields(fieldList, _displayedWIR, _sb.getParticipant());   // 1st pass
+        DynAttributeFactory.adjustFields(fieldList, _displayedWIR, _sb.getParticipant());   // 1st pass
         compPanel.getChildren().add(builder.makeHeaderText(getTaskLabel(), _fieldAssembler.getFormName())) ;
         compPanel.getChildren().addAll(buildInnerForm(null, builder, fieldList)) ;
-   //     DynAttributeFactory.applyAttributes(compPanel, _displayedWIR, _sb.getParticipant());  // 2nd pass
+        DynAttributeFactory.applyAttributes(compPanel, _displayedWIR, _sb.getParticipant());  // 2nd pass
         _componentFieldTable = builder.getComponentFieldMap();
         setBaseWidths(builder);
         sizeAndPositionContent(compPanel) ;

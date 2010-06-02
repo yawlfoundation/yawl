@@ -23,6 +23,17 @@
     position:relative;
 }
 
+.transPanel {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-color: white;
+    /* for IE */
+    filter:alpha(opacity=60);
+    /* CSS3 standard */
+    opacity:0.6;
+}
+
 
 .loginLabel {
     left:18px;
@@ -93,6 +104,8 @@
     overflow-x: hidden;
     overflow-y: scroll;
     text-align: left;
+    color: black;
+    background-color: white;    
 }
 
 .itemLogTablePnlGroup {

@@ -48,6 +48,7 @@ public class YNetRunner {
 
     protected YNet _net;
 
+    private Set<YTask> _netTasks;
     private Set<YTask> _enabledTasks = new HashSet<YTask>();
     private Set<YTask> _busyTasks = new HashSet<YTask>();
     private Set<YTask> _deadlockedTasks = new HashSet<YTask>();
@@ -135,6 +136,7 @@ public class YNetRunner {
         _casedata = new YCaseData(_caseID);
         _net = (YNet) netPrototype.clone();
         _net.initializeDataStore(pmgr, _casedata);
+        _netTasks = new HashSet<YTask>(_net.getNetTasks());
         _specID = _net.getSpecification().getSpecificationID();
         _engine = YEngine.getInstance();
         _startTime = System.currentTimeMillis();
@@ -175,6 +177,7 @@ public class YNetRunner {
         _net = net;
         _specID = net.getSpecification().getSpecificationID();
         _net.restoreData(_casedata);
+        _netTasks = new HashSet<YTask>(_net.getNetTasks());
     }
 
     public YNet getNet() {
@@ -530,8 +533,8 @@ public class YNetRunner {
         // storage for the running set of enabled tasks
         YEnabledTransitionSet enabledTransitions = new YEnabledTransitionSet();
 
-        // iterate through the full set of elements for the net
-        for (YTask task : _net.getNetTasks()) {
+        // iterate through the full set of tasks for the net
+        for (YTask task : _netTasks) {
 
             // if this task is an enabled 'transition'
             if (task.t_enabled(_caseIDForNet)) {
@@ -588,8 +591,9 @@ public class YNetRunner {
                 for (YAtomicTask atomic : taskList) {
                     if (! enabledTasks.contains(atomic)) {
                         NewWorkItemAnnouncement announcement = fireAtomicTask(atomic, groupID, pmgr) ;
-                        if ((announcement != null) && (! groupHasEmptyTask))
-                        _firedAnnouncements.addAnnouncement(announcement);
+                        if ((announcement != null) && (! groupHasEmptyTask)) {
+                            _firedAnnouncements.addAnnouncement(announcement);
+                        }    
                         enabledTasks.add(atomic) ;
                     }
                 }
@@ -778,7 +782,6 @@ public class YNetRunner {
         if (taskExited) {
             if (workItem != null) {
                 _workItemRepository.removeWorkItemFamily(workItem);
-
                 updateTimerState(workItem.getTask(), YWorkItemTimer.State.closed);
             }
 
@@ -1065,23 +1068,17 @@ public class YNetRunner {
 
     /** returns a list of all workitems executing in parallel to the time-out
         workitem passed (the list includes the time-out task) */
-    public List getTimeOutTaskSet(YWorkItem item) {
+    public List<String> getTimeOutTaskSet(YWorkItem item) {
         YTask timeOutTask = (YTask) getNetElement(item.getTaskID());
         String nextTaskID = getFlowsIntoTaskID(timeOutTask);
-        ArrayList result = new ArrayList() ;
+        ArrayList<String> result = new ArrayList<String>() ;
 
         if (nextTaskID != null) {
-            List netTasks = new ArrayList(getNet().getNetElements().values());
-            Iterator itr = netTasks.iterator();
-            while (itr.hasNext()){
-               YNetElement yne = (YNetElement) itr.next();
-               if (yne instanceof YTask) {
-                   YTask task = (YTask) yne;
-                   String nextTask = getFlowsIntoTaskID(task);
-                   if (nextTask != null) {
-                       if (nextTask.equals(nextTaskID))
-                          result.add(task.getID());
-                   }
+            for (YTask task : _netTasks) {
+               String nextTask = getFlowsIntoTaskID(task);
+               if (nextTask != null) {
+                   if (nextTask.equals(nextTaskID))
+                      result.add(task.getID());
                }
             }
         }
@@ -1100,10 +1097,13 @@ public class YNetRunner {
         return null ;
     }
 
+
+    // **** TIMER STATE VARIABLES **********//
+    
     // returns all the tasks in this runner's net that have timers
     public void initTimerStates() {
         _timerStates = new Hashtable<String, String>();
-        for (YTask task : getNet().getNetTasks()) {
+        for (YTask task : _netTasks) {
             if (task.getTimerVariable() != null) {
                 updateTimerState(task, YWorkItemTimer.State.dormant);
             }
@@ -1113,9 +1113,8 @@ public class YNetRunner {
 
     public void restoreTimerStates() {
         if (! _timerStates.isEmpty()) {
-            List<YTask> tasks = getNet().getNetTasks();
             for (String taskName : _timerStates.keySet()) {
-                for (YTask task : tasks) {
+                for (YTask task : _netTasks) {
                     if (task.getName().equals(taskName)) {
                         String stateStr = _timerStates.get(taskName);
                         YTimerVariable timerVar = task.getTimerVariable();
@@ -1144,6 +1143,32 @@ public class YNetRunner {
     public void set_timerStates(Map<String, String> states) {
         _timerStates = states;
     }
+
+    public boolean evaluateTimerPredicate(String predicate) throws YQueryException {
+        predicate = predicate.trim();
+        int pos = predicate.indexOf(')');
+        if (pos > -1) {
+            String taskName = predicate.substring(6, pos);     // 6 = 'timer('
+            YTimerVariable timerVar = getTimerVariable(taskName);
+            if (timerVar != null) {
+                return timerVar.evaluatePredicate(predicate);
+            }
+            else throw new YQueryException("Unable to find timer state for task named " +
+                        "in predicate: " + predicate);
+        }
+        else throw new YQueryException("Malformed timer predicate: " + predicate);
+    }
+
+
+    private YTimerVariable getTimerVariable(String taskName) {
+        for (YTask task : _netTasks) {
+            if (task.getName().equals(taskName)) {
+                return task.getTimerVariable();
+            }
+        }
+        return null;
+    }
+
 
 }
 

@@ -134,6 +134,8 @@
                             </h:dataTable>
                            </ui:panelGroup>
 
+                            <div><jsp:include page="pfMsgPanel.jspf"/></div>
+
                          </ui:panelLayout>
 
                         <ui:hiddenField binding="#{ActiveCases.hdnRowIndex}" id="hdnRowIndex"/>
@@ -144,9 +146,6 @@
                                    style="display: none"
                                    text=""/>
 
-                        <ui:panelLayout binding="#{SessionBean.messagePanel}"
-                                        id="msgPanel"
-                                        panelLayout="flow"/>
                         </center>
                     </ui:form>
 

@@ -44,10 +44,10 @@ public class TestConnections extends TestCase {
         boolean valid = _sessionCache.checkConnection("gobbledey gook");
         assertFalse(valid);
 
-        String outcome = _sessionCache.connect("fred", "1234");
+        String outcome = _sessionCache.connect("fred", "1234", -1);
         assertTrue(outcome.startsWith("<fail"));
 
-        outcome = _sessionCache.connect("fred", "head");
+        outcome = _sessionCache.connect("fred", "head", 3600);
         assertFalse(outcome.startsWith("<fail"));
 
         _engine.addExternalClient(new YExternalClient("derf", "wert", null));
@@ -76,7 +76,7 @@ public class TestConnections extends TestCase {
         boolean added = _engine.addExternalClient(new YExternalClient(null, null, null));
         assertFalse(added);
 
-        String outcome = _sessionCache.connect(null, null);
+        String outcome = _sessionCache.connect(null, null, -1);
         assertEquals("<failure>Null user name</failure>", outcome);
     }
 
@@ -84,7 +84,7 @@ public class TestConnections extends TestCase {
         clearUsers();
         _engine.addExternalClient(new YExternalClient("fred", "head", "doco"));
 
-        String handle = _sessionCache.connect("fred", "head");
+        String handle = _sessionCache.connect("fred", "head", 120);
 
         _engine.addExternalClient(new YExternalClient("derf", "wert", null));
         _engine.removeExternalClient("derf");
