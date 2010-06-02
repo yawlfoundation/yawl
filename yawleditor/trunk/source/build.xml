@@ -144,7 +144,7 @@
 
         <junit printsummary="true">
             <formatter type="plain" usefile="false" />
-            <test name="${build.dir}/${package.dir}/Test${root.class.name}" />
+            <test name="org.yawlfoundation.yawl.editor.Test${root.class.name}" />
             <classpath>
                 <pathelement location="${build.dir}" />
                 <pathelement location="${junit.jar.file}" />
