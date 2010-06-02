@@ -850,11 +850,13 @@ public class YWorkItem {
         if (_customFormURL != null) {
             xml.append(StringUtil.wrap(_customFormURL.toString(), "customform"));
         }
-        YLogPredicate logPredicate = _task.getDecompositionPrototype().getLogPredicate();
-        if (logPredicate != null) {
-            xml.append(logPredicate.toXML());
+        YDecomposition decomp = _task.getDecompositionPrototype();
+        if (decomp != null) {
+            YLogPredicate logPredicate = decomp.getLogPredicate();
+            if (logPredicate != null) {
+                xml.append(logPredicate.toXML());
+            }
         }
-
         xml.append("</workItem>");
         return xml.toString();
     }
@@ -876,24 +878,28 @@ public class YWorkItem {
 
     private YLogDataItem getLogPredicate(YWorkItemStatus itemStatus) {
         YLogDataItem dataItem = null;
-        YLogPredicate logPredicate = _task.getDecompositionPrototype().getLogPredicate();
-        if (logPredicate != null) {
-            String predicate;
-            if (itemStatus.equals(YWorkItemStatus.statusExecuting)) {
-                predicate = logPredicate.getParsedStartPredicate(this);
-            }
-            else {
-                String rawPredicate;
-                if (_logPredicateCompletion != null) {       // means a service pre-parse
-                    rawPredicate = _logPredicateCompletion;
+        YDecomposition decomp = _task.getDecompositionPrototype();
+        if (decomp != null) {
+            YLogPredicate logPredicate = decomp.getLogPredicate();
+            if (logPredicate != null) {
+                String predicate;
+                if (itemStatus.equals(YWorkItemStatus.statusExecuting)) {
+                    predicate = logPredicate.getParsedStartPredicate(this);
                 }
                 else {
-                    rawPredicate = logPredicate.getCompletionPredicate();
+                    String rawPredicate;
+                    if (_logPredicateCompletion != null) {   // means a service pre-parse
+                        rawPredicate = _logPredicateCompletion;
+                    }
+                    else {
+                        rawPredicate = logPredicate.getCompletionPredicate();
+                    }
+                    predicate = new YLogPredicateWorkItemParser(this).parse(rawPredicate);
                 }
-                predicate = new YLogPredicateWorkItemParser(this).parse(rawPredicate);
-            }
-            if (predicate != null) {
-                dataItem = new YLogDataItem("Predicate", itemStatus.name(), predicate, "string");
+                if (predicate != null) {
+                    dataItem = new YLogDataItem("Predicate", itemStatus.name(),
+                            predicate, "string");
+                }
             }
         }
         return dataItem ;

@@ -2072,13 +2072,16 @@ public class YEngine implements InterfaceADesign,
             throws YPersistenceException {
         if (! clientName.equals("admin")) {
             YExternalClient client = _externalClients.remove(clientName);
-            if ((client != null) && isPersisting()) {
-                try {
-                    deleteObject(client);
-                }
-                catch (YPersistenceException e) {
-                    _logger.fatal("Failure whilst removing YAWL external client", e);
-                    throw e;
+            if (client != null) {
+                _sessionCache.disconnect(client);         // if the client is connected
+                if (isPersisting()) {
+                    try {
+                        deleteObject(client);
+                    }
+                    catch (YPersistenceException e) {
+                        _logger.fatal("Failure whilst removing YAWL external client", e);
+                        throw e;
+                    }
                 }
             }
             return client;

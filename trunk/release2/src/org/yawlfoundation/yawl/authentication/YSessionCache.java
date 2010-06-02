@@ -86,6 +86,14 @@ public class YSessionCache extends Hashtable<String, YSession> {
     }
 
 
+    public boolean isClientConnected(YExternalClient client) {
+        for (YSession session : this.values()) {
+            if (session.getClient() == client) return true ;
+        }
+        return false;
+    }
+
+
     public YSession getSession(String handle) {
         if (handle != null) {
             return this.get(handle);
@@ -99,6 +107,16 @@ public class YSessionCache extends Hashtable<String, YSession> {
         if (session != null) audit(session.getClient().getUserName(), YAuditEvent.Action.expired);
     }
 
+
+    public void disconnect(YClient client) {
+        for (String handle : this.keySet()) {
+            YSession session = this.get(handle);
+            if (session.getClient() == client) {
+                disconnect(handle);
+                break;
+            }
+        }
+    }
 
     public void disconnect(String handle) {
         YSession session = this.remove(handle);

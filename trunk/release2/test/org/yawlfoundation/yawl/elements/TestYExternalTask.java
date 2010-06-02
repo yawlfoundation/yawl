@@ -310,15 +310,14 @@ public class TestYExternalTask extends TestCase{
         "<formalInputParam>stub</formalInputParam></miDataInput></task>",
         t1.toXML());
 
-
         assertEquals(
         "<task id=\"2\"><flowsInto><nextElementRef id=\"1\"/></flowsInto>" +
-        "<join code=\"and\"/><split code=\"and\"/><removesTokens id=\"1\"/>" +
-        "<removesTokens id=\"2\"/><removesTokens id=\"3\"/><removesTokens id=\"4\"/>" +
-        "<removesTokensFromFlow><flowSource id=\"2\"/><flowDestination id=\"1\"/>" +
-        "</removesTokensFromFlow><startingMappings><mapping>" +
-        "<expression query=\"/data/stub\"/><mapsTo>stub</mapsTo></mapping>" +
-        "</startingMappings><decomposesTo id=\"blah\"/></task>",
+        "<flowsInto><nextElementRef id=\"1\"/></flowsInto><join code=\"and\"/>" +
+        "<split code=\"and\"/><removesTokens id=\"1\"/><removesTokens id=\"2\"/>" +
+        "<removesTokens id=\"3\"/><removesTokens id=\"4\"/><removesTokensFromFlow>" +
+        "<flowSource id=\"2\"/><flowDestination id=\"1\"/></removesTokensFromFlow>" +
+        "<startingMappings><mapping><expression query=\"/data/stub\"/><mapsTo>stub</mapsTo>" +
+        "</mapping></startingMappings><decomposesTo id=\"blah\"/></task>",
         t2.toXML());
     }
 
@@ -358,13 +357,12 @@ public class TestYExternalTask extends TestCase{
         t1.addPreset(f4);
         assertEquals(
                 "<task id=\"2\"><flowsInto><nextElementRef id=\"1\"/></flowsInto>" +
-                "<join code=\"and\"/><split code=\"and\"/><removesTokens id=\"1\"/>" +
-                "<removesTokens id=\"2\"/><removesTokens id=\"3\"/>" +
-                "<removesTokens id=\"c1\"/><removesTokens id=\"c2\"/>" +
-                "<removesTokensFromFlow>" +
-                "<flowSource id=\"2\"/><flowDestination id=\"1\"/></removesTokensFromFlow>" +
-                "<decomposesTo id=\"blah2\"/></task>"
-                , t2.toXML());
+                "<flowsInto><nextElementRef id=\"1\"/></flowsInto><join code=\"and\"/>" +
+                "<split code=\"and\"/><removesTokens id=\"1\"/><removesTokens id=\"2\"/>" +
+                "<removesTokens id=\"3\"/><removesTokens id=\"c1\"/>" +
+                "<removesTokens id=\"c2\"/><removesTokensFromFlow><flowSource id=\"2\"/>" +
+                "<flowDestination id=\"1\"/></removesTokensFromFlow><decomposesTo " +
+                "id=\"blah2\"/></task>", t2.toXML());
 
     }
 

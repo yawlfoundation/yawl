@@ -84,10 +84,10 @@ public class TestConnections extends TestCase {
         clearUsers();
         _engine.addExternalClient(new YExternalClient("fred", "head", "doco"));
 
-        String handle = _sessionCache.connect("fred", "head", 120);
+        String handle = _sessionCache.connect("fred", "head", 1200);
 
         _engine.addExternalClient(new YExternalClient("derf", "wert", null));
-        _engine.removeExternalClient("derf");
+        _engine.removeExternalClient("fred");
 
         boolean valid = _sessionCache.checkConnection(handle);
         assertFalse(valid);

@@ -228,12 +228,13 @@ public class TestYMarking extends TestCase{
             YMarking marking = (YMarking) iterator.next();
             List list = marking.getLocations();
 //System.out.println("list is " + list);
-            assertTrue(list.size() == 5);
+            assertTrue(list.size() == 3);
             List conditionsList = new Vector();
             for (int i = 0; i < _conditionArr.length; i++) {
                   conditionsList.add(_conditionArr[i]);
             }
             List visited = new Vector();
+  // System.out.println("conditionsList is " + conditionsList);
             for (Iterator listIter = list.iterator(); listIter.hasNext();) {
                 YCondition  condition = (YCondition) listIter.next();
                 assertTrue(conditionsList.contains(condition));

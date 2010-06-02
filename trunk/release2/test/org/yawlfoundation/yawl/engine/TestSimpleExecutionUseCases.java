@@ -19,6 +19,7 @@ import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.logging.YLogDataItemList;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,7 +53,8 @@ public class TestSimpleExecutionUseCases extends TestCase{
         _engine = YEngine.getInstance();
         EngineClearer.clear(_engine);
         _engine.loadSpecification(specification);
-        _caseId = _engine.startCase(null, null, specification.getURI(), null, null);
+        _caseId =  _engine.startCase(null, specification.getSpecificationID(), null, null, new YLogDataItemList());
+
     }
 
 

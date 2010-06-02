@@ -19,6 +19,7 @@ import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.logging.YLogDataItemList;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,8 +62,8 @@ public class TestOrJoin extends TestCase {
 //todo AJH:Obsoltete ????
 //        String sessionHandle = _engine.connect("admin", "YAWL");
         _engine.loadSpecification(specification);
-        YIdentifier id = _engine.startCase(null, null, specification.getURI(), null, null);
-        {
+        YIdentifier id = _engine.startCase(null, specification.getSpecificationID(), null, null, new YLogDataItemList());
+           {
             YWorkItem itemA = (YWorkItem)_engine.getAvailableWorkItems().iterator().next();
 //            _localWorklist.startOneWorkItemAndSetOthersToFired(
 //                    itemA.getCaseID().toString(), itemA.getTaskID());
@@ -214,8 +215,8 @@ public class TestOrJoin extends TestCase {
         _engine = YEngine.getInstance();
         EngineClearer.clear(_engine);
         _engine.loadSpecification(specification2);
-        _engine.startCase(null, null, specification2.getURI().toString(), null, null);
-        {
+        YIdentifier id = _engine.startCase(null, specification2.getSpecificationID(), null, null, new YLogDataItemList());
+           {
 //            YWorkItem itemA = (YWorkItem) _workItemRepository.getEnabledWorkItems().iterator().next();
 //            _localWorklist.startOneWorkItemAndSetOthersToFired(
 //                    itemA.getCaseID().toString(), itemA.getTaskID());
