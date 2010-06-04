@@ -872,7 +872,7 @@
         <copy todir="${yawl.resource.app.name}${webinf.dir}/exceptions">
            <fileset dir="${classes.dir}${packageRoot}/exceptions"
                     includes="YSchemaBuildingException.class YDataStateException.class
-                              YSyntaxException.class YAWLException.class
+                              YSyntaxException.class YAWLException.class YDataQueryException.class
                               YStateException.class YQueryException.class
                               YPersistenceException.class YDataValidationException.class
                               YLogException.class YAuthenticationException.class"/>
@@ -1562,6 +1562,7 @@
         build_twitterService.war,
         build_digitalSignature.war,
         build_mailSender.war,
+        build_YResourceServiceClient.jar,
         javadoc">
     </target>
 

@@ -357,7 +357,7 @@ public class MessagePanel extends PanelLayout {
 
     private void addVSpace() {
         Label label = new Label();
-        label.setText("aeiou");                                  // won't be visible
+        label.setText("#####");                                  // won't be visible
         label.setId("vsp" + getNextIDSuffix());
         label.setStyle("color: #f0f0f0;");                       // same as background
         _pnlMessages.getChildren().add(label);
