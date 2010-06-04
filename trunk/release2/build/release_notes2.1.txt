@@ -1,5 +1,5 @@
 
-                        YAWL Release 2.1beta  02/06/2010
+                        YAWL Release 2.1beta  04/06/2010
                        ==================================
 
 This is the 2.1 beta release of the YAWL Environment. The release incorporates a number
@@ -18,11 +18,30 @@ QUICK START: After installation, start Tomcat and point a browser to
   * Java 5 (1.5) or higher
 
 
-2. MAJOR CHANGES IN THIS VERSION
+2. SPECIAL INSTRUCTIONS (ENTERPRISE USERS ONLY)
+-----------------------------------------------
+The Enterpise version of YAWL uses PostgreSQL as its database management system, and
+the database tables are constructed on first startup of YAWL (the 4Study versions
+come with a pre-built Apache Derby database). Because the tables don't exist until the
+first time YAWL is started, Enterprise users are required to manually register the
+desired support services and applications with the Engine.
+
+There is a script called 'YAWL_Enterprise_Service_Registration.sql' that can be
+downloaded from the Sourceforge YAWL download page that will install the appropriate
+credentials to the database. To run it (after YAWL's first startup):
+
+ 1. Open the pgAdmin tool, then select the 'yawl' database.
+ 2. Open a Query dialog, thne open the script in the dialog via 'File...Open'.
+ 3. Run the script.
+
+Note again that this procedure is only required for YAWL 2.1beta Enterprise version only.
+
+
+3. MAJOR CHANGES IN THIS VERSION
 ---------------------------------
 
- - The replacement of the process logging framework and its associated interface with a
-   completely new, more efficient and complete one.
+ - The replacement of the entire process logging framework and its associated interface
+   with a completely new, more efficient and complete one.
  - Case histories are now produced by both the Engine and Resource Service in OpenXES
    format for direct import into the ProM process mining tool.
  - The Resource Service's logging framework has also been expanded and improved. The
@@ -32,7 +51,7 @@ QUICK START: After installation, start Tomcat and point a browser to
    to the process logs when cases and/or tasks are started and/or completed. Predicates
    can embed current state values of the case or task via a simple query language.
  - Audit logs for the Engine and Resource Service have been added that record all
-   session events (logon, logoff, expiry, shutdown, etc);   
+   session events (logon, logoff, expiry, shutdown, etc).
  - The Engine is now completely 'agnostic' to users. That is, it has no concept of
    individual users (instead, users are expected to be managed by custom services such as
    the Resource Service). The Engine will only accept connections from registered
@@ -107,13 +126,14 @@ QUICK START: After installation, start Tomcat and point a browser to
    constant throught the life of the case.
  - All services now behave correctly when the engine is restarted independently.
  - A number of 3rd party libraries have been updated.
- - Fixed a bug in the 'Shell Execution' codelet where commands with arguments were not handled correctly.
+ - Fixed a bug in the 'Shell Execution' codelet where commands with arguments were not
+   handled correctly.
  - Fixed a bug when validating mandatory date fields that had no value inserted.
  - Fixed a bug in dynamic forms that only displayed the first of multiple values of
    complex type sub-element in certain scenarios.
  - The Editor now provides support for Process Configuration, as well as support for the
    new Engine functionalities and several usability improvements.
- - and many, many fixes and improvements.
+ - and many, many more smaller fixes, tunings and improvements.
 
                          #############################
 
