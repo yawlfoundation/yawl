@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+	<class name="org.yawlfoundation.yawl.elements.YAWLServiceReference" table="yservices">
+
+        <id name="_yawlServiceID" column="serviceid" type="string">
+   		    <generator class="assigned"/>
+    	</id>
+
+        <property name="_serviceName" column="serviceName" type="string"/>
+        <property name="_servicePassword" column="servicePassword" type="string"/>
+        <property name="_documentation" column="documentation" type="string"/>
+        <property name="_assignable" column="assignable" type="boolean"/>
+
+	</class>
+	
+</hibernate-mapping>

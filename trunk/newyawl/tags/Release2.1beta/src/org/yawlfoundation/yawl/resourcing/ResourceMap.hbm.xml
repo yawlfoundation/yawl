@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.yawlfoundation.yawl.resourcing">
+
+	<class name="ResourceMap" table="rs_PiledTasks">
+
+        <id name="_id" column="p_id" type="long">
+            <generator class="native"/>
+        </id>
+
+        <component name="_specID"
+                   class="org.yawlfoundation.yawl.engine.YSpecificationID" access="field">           
+            <property name="identifier" column="specID"/>
+            <component name="version"
+                       class="org.yawlfoundation.yawl.elements.YSpecVersion">
+                <property name="version" column="specVersion"/>
+            </component>
+            <property name="uri" column="specURI"/>
+        </component>
+
+        <property name="_taskID"          column="taskid"  type="string" access="field"/>
+        <property name="_piledResourceID" column="piledid" type="string" access="field"/>
+
+     </class> 
+	
+</hibernate-mapping>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://www.sun.com/web/ui">
+
+    <!-- this block shows a footer -->
+
+    <f:subview id="pfFooter">
+
+        <ui:panelLayout binding="#{ApplicationBean.footerPanel}"
+                        id="footerPanel"
+                        style="#{SessionBean.footerPanelStyle}">
+
+            <ui:panelLayout binding="#{ApplicationBean.footerTextPanel}"
+                            id="footerTextPanel"
+                            styleClass="footerTextPanel">
+
+                <ui:staticText binding="#{ApplicationBean.footerStaticText}"
+                               id="footerStaticText"
+                               styleClass="footerText"
+                               text="#{ApplicationBean.footerText}"/>
+
+            </ui:panelLayout>
+        </ui:panelLayout>
+    </f:subview>
+</div>

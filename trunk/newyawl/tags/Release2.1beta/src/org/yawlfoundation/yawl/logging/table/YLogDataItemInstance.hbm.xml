@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.yawlfoundation.yawl.logging">
+
+	<class name="org.yawlfoundation.yawl.logging.table.YLogDataItemInstance" table="logDataItem">
+
+        <id name="dataItemID" type="long">
+            <generator class="native"/>
+        </id>
+
+    	<property name="eventID"    type="long"/>
+    	<property name="name"       column="itemName"/>
+    	<property name="value"      column="itemValue" type="text"/>
+        <property name="descriptor" type="string"/>
+        <property name="dataTypeID" type="long"/>
+
+	</class>
+
+</hibernate-mapping>
