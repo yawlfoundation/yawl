@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.yawlfoundation.yawl.resourcing.calendar">
+
+	<class name="CalendarEntry" table="rs_Calendar">
+
+        <id name="entryID" type="long">
+            <generator class="native"/>
+        </id>
+
+    	<property name="resourceID" type="string"/>
+        <property name="startTime"  type="long"/>
+        <property name="endTime"    type="long"/>
+        <property name="comment"    type="string" column="entryComment"/>
+	</class>
+
+</hibernate-mapping>

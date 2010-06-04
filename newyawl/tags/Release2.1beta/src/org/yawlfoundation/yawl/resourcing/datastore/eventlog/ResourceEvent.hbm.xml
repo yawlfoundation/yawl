@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.yawlfoundation.yawl.resourcing.datastore.eventlog">
+
+	<class name="ResourceEvent" table="rs_EventLog">
+
+        <id name="_id"
+            column="rowid"
+            type="long">
+            <generator class="native"/>
+        </id>
+
+        <property name="_caseID" column="caseID"/>
+        <property name="_specKey" column="specKey" type="long"/>
+        <property name="_taskID" column="taskID"/>
+        <property name="_itemID" column="itemID"/>
+        <property name="_participantID" column="participantID" length="40"/>
+        <property name="_event" column="event" length="20"/>
+        <property name="_timeStamp" column="eventTime" type="long"/>       
+     </class>
+	
+</hibernate-mapping>

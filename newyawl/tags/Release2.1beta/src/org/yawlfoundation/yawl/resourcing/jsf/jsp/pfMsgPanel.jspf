@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://www.sun.com/web/ui">
+
+    <!-- this block handles user dialog msgs -->
+
+    <f:subview id="pfMsgPanel">
+
+        <ui:panelLayout binding="#{SessionBean.transparentPanel}"
+                        id="transPanel"
+                        styleClass="transPanel"/>
+        <ui:panelLayout binding="#{SessionBean.messagePanel}"
+                        id="msgPanel"/>
+
+    </f:subview>
+
+</div>
