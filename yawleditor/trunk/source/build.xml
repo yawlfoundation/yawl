@@ -36,7 +36,7 @@
 
     <!-- output file names & paths -->
     <property name="source.zip"
-              value="${distribution.dir}/${root.class.name}${editor.release.number}source.zip" />
+              value="${distribution.dir}/${root.class.name}${editor.release.number}Source.zip" />
     <property name="editor.jar.file"
               value="${distribution.dir}/${root.class.name}${editor.release.number}.jar" />
     <property name="lite.editor.jar.file"
