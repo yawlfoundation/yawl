@@ -134,7 +134,9 @@ public class YNetLocalVarVerifier {
 
     private void populateMapsForTask(YTask task, boolean input) {
         for (String paramName : getParamNamesForTask(task, input)) {
-            addTaskIfQueryHasLocalVar(task, paramName, input);
+            if (paramName != null) {
+                addTaskIfQueryHasLocalVar(task, paramName, input);
+            }    
         }
     }
 
@@ -146,12 +148,14 @@ public class YNetLocalVarVerifier {
 
     private void addTaskIfQueryHasLocalVar(YTask task, String paramName, boolean input) {
         String query = getQueryForParam(task, paramName, input);
-        for (String localVarName : _uninitialisedLocalVars.keySet()) {
+        if (query != null) {
+            for (String localVarName : _uninitialisedLocalVars.keySet()) {
 
-            // if this task has an uninit. local task in its mapping query
-            if (queryReferencesLocalVar(query, localVarName, input)) {
-                LocalTaskMap taskMap = _uninitialisedLocalVars.get(localVarName);
-                taskMap.add(task, input, paramName);
+                // if this task has an uninit. local task in its mapping query
+                if (queryReferencesLocalVar(query, localVarName, input)) {
+                    LocalTaskMap taskMap = _uninitialisedLocalVars.get(localVarName);
+                    taskMap.add(task, input, paramName);
+                }    
             }
         }        
     }

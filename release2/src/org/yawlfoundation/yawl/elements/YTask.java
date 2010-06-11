@@ -440,10 +440,12 @@ public abstract class YTask extends YExternalNetElement {
 
     public String getPreSplittingMIQuery() {
         String miVarNameInDecomposition = _multiInstAttr.getMIFormalInputParam();
-        for (String name : _dataMappingsForTaskStarting.keySet()) {
-            if (miVarNameInDecomposition.equals(name)) {
-                return _dataMappingsForTaskStarting.get(name);
-            }
+        if (miVarNameInDecomposition != null) {
+            for (String name : _dataMappingsForTaskStarting.keySet()) {
+                if (miVarNameInDecomposition.equals(name)) {
+                    return _dataMappingsForTaskStarting.get(name);
+                }
+            }    
         }
         return null;
     }

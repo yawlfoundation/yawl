@@ -26,7 +26,7 @@ public class YClient {
 
     public YClient(Element xml) {
         _userName = xml.getChildText("username");
-        _password = (xml.getChildText("password"));
+        _password = xml.getChildText("password");
         _documentation = xml.getChildText("documentation");
     }
 
