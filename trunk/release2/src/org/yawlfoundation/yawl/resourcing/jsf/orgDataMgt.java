@@ -497,7 +497,7 @@ public class orgDataMgt extends AbstractPageBean {
 
     public String tabCapabilities_action() {
         if (getMode() == SessionBean.Mode.edit) populateForm(AttribType.capability);
-        _sb.setOrgDataListLabelText("Capabilitys");
+        _sb.setOrgDataListLabelText("Capabilities");
         return null;
     }
 
