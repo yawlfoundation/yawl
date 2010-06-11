@@ -433,10 +433,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   }
   
   private static void populateEngineNets(SpecificationModel editorSpec, YSpecification engineSpec) {
-    Iterator netIterator = editorToEngineNetMap.keySet().iterator();
-    while (netIterator.hasNext()) {
-      NetGraphModel editorNet = (NetGraphModel) netIterator.next();
-      populateEngineNetFrom(editorSpec,engineSpec, editorNet);
+    for (Object o : editorToEngineNetMap.keySet()) {
+      populateEngineNetFrom(editorSpec, engineSpec, (NetGraphModel) o);
     }
   }
 
@@ -940,7 +938,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
                                              Parameter editorParameter, boolean input) {
       String name = editorParameter.getVariable().getName();
       String query = editorParameter.getQuery();
-      if (! query.startsWith("#external:")) {
+      if ((query != null) && (! query.startsWith("#external:"))) {
           query = XMLUtilities.getTaggedOutputVariableWithContent(name, query);
       }
       if (input) {
@@ -1338,9 +1336,9 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
     if (editorTaskInstanceVariable != null) {
       taskInstanceVariableName = editorTaskInstanceVariable.getName();
-    } 
+//    }
 
-    HashMap inputMapping = new HashMap();
+    HashMap<String, String> inputMapping = new HashMap<String, String>();
     
     inputMapping.put(
         taskInstanceVariableName,
@@ -1353,7 +1351,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       taskInstanceVariableName,
       editorMultiInstanceTask.getSplitterQuery()
     );
-
+    }
     // data perspective output
 
     DataVariable editorNetResultVariable = 
@@ -1363,9 +1361,9 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
     if (editorNetResultVariable != null) {
       netResultVariableName = editorNetResultVariable.getName();
-    }
+//    }
 
-    HashMap outputMapping = new HashMap();
+    HashMap<String, String> outputMapping = new HashMap<String, String>();
     
     outputMapping.put(
         editorMultiInstanceTask.getInstanceQuery(),
@@ -1387,6 +1385,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
               editorMultiInstanceTask.getAggregateQuery()
           )
       );
+    }
     }
   }
   
