@@ -908,7 +908,7 @@
         <!-- 2. copy resourcing classes to relevant dirs -->
         <copy todir="${yawl.resource.app.name}${webinf.dir}/resourcing">
             <fileset dir="${classes.dir}${packageRoot}/resourcing"
-                     includes="**/*.class **/*.xml **/*.properties"/>
+                     includes="**/*.class **/*.xml **/YawlUI.properties"/>
         </copy>
 
         <!-- 2b. Copy required resourcing support files into dir root -->
@@ -934,9 +934,12 @@
                      includes="*.jsp *.jspf *.html"/>
         </copy>
 
-        <!-- 2e. Copy log4j properties -->
+        <!-- 2e. Copy log4j & LDAP Source properties -->
         <copy file="${properties.dir}/log4j.properties"
               todir="${yawl.resource.app.name}/WEB-INF/classes"/>
+        <copy file="${classes.dir}${packageRoot}/resourcing/datastore/orgdata/LDAPSource.properties"
+              todir="${yawl.resource.app.name}/WEB-INF/classes"/>
+
 
         <!-- 3. Copy required 3rd party libraries into dir structure -->
         <copy todir="${yawl.resource.app.name}/WEB-INF/lib">
