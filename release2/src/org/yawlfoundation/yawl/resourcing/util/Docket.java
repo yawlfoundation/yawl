@@ -19,7 +19,8 @@ package org.yawlfoundation.yawl.resourcing.util;
 public class Docket {
 
     private static String _fileRoot = "";
-    private static String _headPackageDir = "WEB-INF/classes/org/yawlfoundation/yawl/resourcing/";
+    private static String _classesDir = "WEB-INF/classes/";
+    private static String _headPackageDir = _classesDir + "org/yawlfoundation/yawl/resourcing/";
 
     public static void setServiceRootDir(String path) {
        path = path.replace('\\', '/' );             // switch slashes
@@ -32,5 +33,7 @@ public class Docket {
     public static String getPackageFileDir(String pkgName) {
         return _fileRoot + _headPackageDir + pkgName ;
     }
+
+    public static String getPropertiesDir() { return _fileRoot + _classesDir; }
 
 }

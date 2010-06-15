@@ -1,11 +1,12 @@
 package org.yawlfoundation.yawl.resourcing.datastore.orgdata;
 
 
+import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.exceptions.YAuthenticationException;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.Role;
 import org.yawlfoundation.yawl.resourcing.util.Docket;
 import org.yawlfoundation.yawl.util.PasswordEncryptor;
-import org.yawlfoundation.yawl.exceptions.YAuthenticationException;
 
 import javax.naming.*;
 import javax.naming.directory.Attribute;
@@ -26,8 +27,10 @@ public class LDAPSource extends DataSource {
     private Hashtable<String, Object> _environment = null;
     private Hashtable<String, String> _user2nameMap = null;
     private HashMap<String, Role> _roles = null;
+    private Logger _log;
 
     public LDAPSource() {
+        _log = Logger.getLogger(this.getClass());
         loadProperties();
         initMaps();
     }
@@ -35,10 +38,11 @@ public class LDAPSource extends DataSource {
     private void loadProperties() {
         try {
             _props = new Properties();
-            String path = Docket.getPackageFileDir("datastore/orgdata/");
+            String path = Docket.getPropertiesDir();
             _props.load(new FileInputStream(path + "LDAPSource.properties"));
         }
         catch (Exception e) {
+            _log.error("Exception thrown when loading LDAP properties.", e);
             _props = null;           // this will cause a controlled service disablement
         }
     }
@@ -252,6 +256,8 @@ public class LDAPSource extends DataSource {
             catch (NamingException ne) {
                 // thrown by loadParticipants(); nothing to do, as an empty rds will
                 // be returned, initialising a controlled service disablement
+                _log.error(
+                   "Naming Exception thrown when attempting to retrieve org data from LDAP.", ne);
             }
         }    
         return rds;
