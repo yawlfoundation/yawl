@@ -224,7 +224,7 @@ public class Login extends AbstractPageBean {
         if (rm != null) {
             String pEncrypt = p ;                                // default for admin
             boolean externalAuth = rm.getOrgDataSet().isUserAuthenticationExternal();
-            if (! externalAuth) {
+            if (u.equals("admin") || (! externalAuth)) {
                 try {
                     pEncrypt = PasswordEncryptor.encrypt(p) ;
                 }
