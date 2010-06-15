@@ -335,17 +335,19 @@ public class YWorkItem {
                 String name = child.getName();
                 String value = child.getValue();
                 YParameter param = params.get(name);
-                String dataType = param.getDataTypeNameUnprefixed();
+                if (param != null) {
+                    String dataType = param.getDataTypeNameUnprefixed();
 
-                // if a complex type, store the structure with the value
-                if (child.getContentSize() > 1) {
-                    value = JDOMUtil.elementToString(child);
-                }
-                result.add(new YLogDataItem(descriptor, name, value, dataType));
+                    // if a complex type, store the structure with the value
+                    if (child.getContentSize() > 1) {
+                        value = JDOMUtil.elementToString(child);
+                    }
+                    result.add(new YLogDataItem(descriptor, name, value, dataType));
 
-                // add any configurable logging predicates for this parameter
-                YLogDataItem dataItem = getDataLogPredicate(param, input);
-                if (dataItem != null) result.add(dataItem);
+                    // add any configurable logging predicates for this parameter
+                    YLogDataItem dataItem = getDataLogPredicate(param, input);
+                    if (dataItem != null) result.add(dataItem);
+                }    
             }
         }
         return result;        
