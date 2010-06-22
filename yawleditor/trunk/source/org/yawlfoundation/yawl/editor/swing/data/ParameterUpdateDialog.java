@@ -113,10 +113,11 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
     getDoneButton().addActionListener(
       new ActionListener() {
         public void actionPerformed(ActionEvent e) {
-            parameter.setVariable(getVariableWithName(
-                    (String) sinkVariableComboBox.getSelectedItem()));
+            DataVariable variable = getVariableWithName(
+                    (String) sinkVariableComboBox.getSelectedItem());
+            parameter.setVariable(variable);
           if (selectedGateway != null) {
-              parameter.setQuery("#external:" + selectedGateway);
+              parameter.setQuery("#external:" + selectedGateway + ":" + variable.getName());
           }
           else {
               parameter.setQuery(xQueryEditor.getText());

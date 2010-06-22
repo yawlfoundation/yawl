@@ -47,7 +47,7 @@ public class DefaultExtendedAttributes {
         addAttribute(decomposition, variable, "readOnly", "boolean");
         addAttribute(decomposition, variable, "background-color", "color");
         addAttribute(decomposition, variable, "font-color", "color");
-        addAttribute(decomposition, variable, "font-name", "font", fontGroup);
+        addAttribute(decomposition, variable, "font-family", "font", fontGroup);
         addAttribute(decomposition, variable, "font-size", "integer", fontGroup);
         addAttribute(decomposition, variable, "font-style",
                 "enumeration{None, Bold, Italic, Bold+Italic}", fontGroup);
@@ -58,7 +58,8 @@ public class DefaultExtendedAttributes {
         addAttribute(decomposition, variable, "blackout", "boolean");
         addAttribute(decomposition, variable, "textarea", "boolean");
         addAttribute(decomposition, variable, "justify", "enumeration{left, center, right}");
-        addAttribute(decomposition, variable, "image-align", "enumeration{left, center, right}");
+        addAttribute(decomposition, variable, "image-above-align", "enumeration{left, center, right}");
+        addAttribute(decomposition, variable, "image-below-align", "enumeration{left, center, right}");
         addAttribute(decomposition, variable, "label", "text");
         addAttribute(decomposition, variable, "skipValidation", "boolean");
         addAttribute(decomposition, variable, "optional", "boolean");
@@ -100,12 +101,12 @@ public class DefaultExtendedAttributes {
         addAttribute(graph, decomposition, "background-color", "color");
         addAttribute(graph, decomposition, "background-alt-color", "color");
         addAttribute(graph, decomposition, "font-color", "color");
-        addAttribute(graph, decomposition, "font-name", "font", fontGroup);
+        addAttribute(graph, decomposition, "font-family", "font", fontGroup);
         addAttribute(graph, decomposition, "font-size", "integer", fontGroup);
         addAttribute(graph, decomposition, "font-style",
                 "enumeration{None, Bold, Italic, Bold+Italic}", fontGroup);
         addAttribute(graph, decomposition, "header-font-color", "color");
-        addAttribute(graph, decomposition, "header-font-name", "font", headerFontGroup);
+        addAttribute(graph, decomposition, "header-font-family", "font", headerFontGroup);
         addAttribute(graph, decomposition, "header-font-size", "integer", headerFontGroup);
         addAttribute(graph, decomposition, "header-font-style",
                 "enumeration{None, Bold, Italic, Bold+Italic}", headerFontGroup);
@@ -113,7 +114,7 @@ public class DefaultExtendedAttributes {
         addAttribute(graph, decomposition, "label", "text");
         addAttribute(graph, decomposition, "readOnly", "boolean");
         addAttribute(graph, decomposition, "title", "text");
-        addAttribute(graph, decomposition, "hideHeader", "boolean");
+        addAttribute(graph, decomposition, "hideBanner", "boolean");
 
         Collections.sort(_decompositionList);
     }
