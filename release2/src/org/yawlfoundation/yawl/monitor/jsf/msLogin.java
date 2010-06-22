@@ -206,19 +206,17 @@ public class msLogin extends AbstractPageBean {
 
         // attempt to log on (and gain a session) to the service
         if (mc != null) {
-            String pEncrypt = p ;                                // default for admin
-            if (! u.equals("admin")) {
-                try {
-                    pEncrypt = PasswordEncryptor.encrypt(p) ;
-                }
-                catch(NoSuchAlgorithmException nsae) {
-                    msgPanel.error("Password Encryption Algorithm not available. Login failed.");
-                    return false;
-                }
-                catch(UnsupportedEncodingException uee) {
-                    msgPanel.error("Password could not be encrypted. Login failed.");
-                    return false;
-                }
+            String pEncrypt = p ;
+            try {
+                pEncrypt = PasswordEncryptor.encrypt(p) ;
+            }
+            catch(NoSuchAlgorithmException nsae) {
+                msgPanel.error("Password Encryption Algorithm not available. Login failed.");
+                return false;
+            }
+            catch(UnsupportedEncodingException uee) {
+                msgPanel.error("Password could not be encrypted. Login failed.");
+                return false;
             }
 
             String handle = mc.login(u, pEncrypt);
@@ -248,6 +246,7 @@ public class msLogin extends AbstractPageBean {
     private void initSession(String userid, String handle) {
         sb.setSessionhandle(handle);
         sb.setUserid(userid);
+        sb.clearCaches();
         if (! userid.equals("admin")) {
             getApplicationBean().addLiveUser(userid);
         }    

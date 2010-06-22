@@ -44,7 +44,7 @@ public class LogPredicateParser extends YPredicateParser {
             if (_participant != null)
                 s = String.valueOf(_participant.getWorkQueues().getQueueSize(WorkQueue.OFFERED));
         }
-        else if (s.equals("${participant:allocateQueueSize}")) {
+        else if (s.equals("${participant:allocatedQueueSize}")) {
             if (_participant != null)
                 s = String.valueOf(_participant.getWorkQueues().getQueueSize(WorkQueue.ALLOCATED));
         }
@@ -52,20 +52,20 @@ public class LogPredicateParser extends YPredicateParser {
             if (_participant != null)
                 s = String.valueOf(_participant.getWorkQueues().getQueueSize(WorkQueue.STARTED));
         }
-        else if (s.equals("${participant:suspendededQueueSize}")) {
+        else if (s.equals("${participant:suspendedQueueSize}")) {
             if (_participant != null)
                 s = String.valueOf(_participant.getWorkQueues().getQueueSize(WorkQueue.SUSPENDED));
         }
-        else if (s.equals("${resource:offer:initiator}")) {
+        else if (s.equals("${resource:initiator:offer}")) {
             s = _resMap.getOfferInteraction().getInitiatorString();
         }
-        else if (s.equals("${resource:allocate:initiator}")) {
+        else if (s.equals("${resource:initiator:allocate}")) {
             s = _resMap.getAllocateInteraction().getInitiatorString();
         }
-        else if (s.equals("${resource:start:initiator}")) {
+        else if (s.equals("${resource:initiator:start}")) {
             s = _resMap.getStartInteraction().getInitiatorString();
         }
-        else if (s.equals("${resource:offer:set}")) {
+        else if (s.equals("${resource:offerset}")) {
             HashSet<Participant> set = _resMap.getOfferedParticipants(_wir.getID());
             if (set != null) {
                 Set<String> names = new HashSet<String>();

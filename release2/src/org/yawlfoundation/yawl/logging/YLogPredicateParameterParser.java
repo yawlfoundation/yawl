@@ -30,7 +30,7 @@ public class YLogPredicateParameterParser extends YPredicateParser {
         else if (s.equals("${parameter:doco}")) {
             s = _param.getDocumentation();
         }
-        else if (s.equals("${parameter:type}")) {
+        else if (s.equals("${parameter:usage}")) {
             s = _param.getDirection();
         }
         else if (s.equals("${parameter:ordering}")) {
@@ -40,11 +40,11 @@ public class YLogPredicateParameterParser extends YPredicateParser {
             YDecomposition decomposition = _param.getParentDecomposition();
             s = (decomposition != null) ? decomposition.getName() : "n/a";
         }
-        else if (s.equals("${parameter:initialValue}")) {
+        else if (s.equals("${parameter:initialvalue}")) {
             String value = _param.getInitialValue();
             s = (value != null) ? value : "n/a" ;
         }
-        else if (s.equals("${parameter:defaultValue}")) {
+        else if (s.equals("${parameter:defaultvalue}")) {
             String value = _param.getDefaultValue();
             s = (value != null) ? value : "n/a" ;
         }

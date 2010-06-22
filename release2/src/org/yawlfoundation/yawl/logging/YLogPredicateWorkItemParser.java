@@ -55,9 +55,6 @@ public class YLogPredicateWorkItemParser extends YPredicateParser {
         else if (s.equals("${item:codelet}")) {
             s = _workItem.getCodelet();
         }
-        else if (s.equals("${item:handlingService:doco}")) {
-            s = _workItem.getExternalClient().getDocumentation();
-        }
         else if (s.equals("${item:customForm}")) {
             s = _workItem.getCustomFormURL().toString();
         }
@@ -79,10 +76,10 @@ public class YLogPredicateWorkItemParser extends YPredicateParser {
         else if (s.equals("${task:decomposition:name}")) {
             s = _workItem.getTask().getDecompositionPrototype().getName();
         }
-        else if (s.equals("${item:timerStatus}")) {
+        else if (s.equals("${item:timer:status}")) {
             s = _workItem.getTimerStatus();
         }
-        else if (s.equals("${item:timerExpiry}")) {
+        else if (s.equals("${item:timer:expiry}")) {
             long expiry = _workItem.getTimerExpiry();
             s = (expiry > 0) ? dateTimeString(expiry) : "Nil";
         }

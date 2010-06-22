@@ -23,9 +23,9 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import java.util.*;
 
 /**
- * Handles the restoration of persisted objects and data pertaining to the Engine
+ * Handles the restoration of persisted objects and data pertaining to the Engine.
  *
- * @author: Michael Adams
+ * @author Michael Adams
  * Creation Date: 25/06/2008
  */
 
@@ -41,9 +41,9 @@ public class YEngineRestorer {
 
     // CONSTRUCTORS //
 
-    public YEngineRestorer() {}
+    protected YEngineRestorer() {}
 
-    public YEngineRestorer(YEngine engine, YPersistenceManager pmgr) {
+    protected YEngineRestorer(YEngine engine, YPersistenceManager pmgr) {
         _engine = engine ;
         _pmgr = pmgr ;
         _idLookupTable = new Hashtable<String, YIdentifier>();
@@ -57,7 +57,7 @@ public class YEngineRestorer {
      *
      * @throws YPersistenceException if there's a problem reading from the tables
      */
-    public void restoreYAWLServices() throws YPersistenceException {
+    protected void restoreYAWLServices() throws YPersistenceException {
         _log.info("Restoring Services - Starts");
         Query query = _pmgr.createQuery("from YAWLServiceReference");
 
@@ -73,7 +73,7 @@ public class YEngineRestorer {
      *
      * @throws YPersistenceException if there's a problem reading from the tables
      */
-    public void restoreExternalClients() throws YPersistenceException {
+    protected void restoreExternalClients() throws YPersistenceException {
         _log.info("Restoring Services - Starts");
         Query query = _pmgr.createQuery("from YExternalClient");
 
@@ -89,7 +89,7 @@ public class YEngineRestorer {
      *
      * @throws YPersistenceException if there's a problem reading from the tables
      */
-    public void restoreSpecifications() throws YPersistenceException {
+    protected void restoreSpecifications() throws YPersistenceException {
         _log.info("Restoring Specifications - Starts");
         Query query = _pmgr.createQuery("from YSpecification");
         for (Iterator it = query.iterate(); it.hasNext();) {
@@ -105,7 +105,7 @@ public class YEngineRestorer {
      * @return a YCaseNbrStore object initialised to the next available case number
      * @throws YPersistenceException if there's a problem reading from the tables
      */
-    public YCaseNbrStore restoreNextAvailableCaseNumber() throws YPersistenceException {
+    protected YCaseNbrStore restoreNextAvailableCaseNumber() throws YPersistenceException {
         YCaseNbrStore caseNbrStore = YCaseNbrStore.getInstance();
         Query query = _pmgr.createQuery("from YCaseNbrStore");
         if ((query != null) && (! query.list().isEmpty())) {
@@ -137,7 +137,7 @@ public class YEngineRestorer {
     }
 
 
-    public void restoreProcessInstances() throws YPersistenceException {
+    protected void restoreProcessInstances() throws YPersistenceException {
         _log.info("Restoring process instances - Starts");
         Query query = _pmgr.createQuery("from YNetRunner order by case_id");
 
@@ -152,7 +152,7 @@ public class YEngineRestorer {
     }
 
 
-    public void restoreWorkItems() throws YPersistenceException {
+    protected void restoreWorkItems() throws YPersistenceException {
         _log.info("Restoring work items - Starts");
         List<YWorkItem> toBeRestored = new ArrayList<YWorkItem>();
         List<YWorkItem> toBeRemoved = new ArrayList<YWorkItem>();
@@ -210,7 +210,7 @@ public class YEngineRestorer {
     }
 
 
-    public Set<YWorkItemTimer> restoreWorkItemTimers() throws YPersistenceException {
+    protected Set<YWorkItemTimer> restoreWorkItemTimers() throws YPersistenceException {
         _log.info("Restoring work item timers - Starts");
         Set<YWorkItemTimer> expiredTimers = new HashSet<YWorkItemTimer>();
         Set<YWorkItemTimer> orphanedTimers = new HashSet<YWorkItemTimer>();
@@ -246,7 +246,7 @@ public class YEngineRestorer {
     }
 
     
-    public void restartRestoredProcessInstances() throws YPersistenceException {
+    protected void restartRestoredProcessInstances() throws YPersistenceException {
         /*
           Start net runners. This is a restart of a NetRunner not a clean start,
           therefore the net runner should not create any new work items, if they
@@ -395,7 +395,7 @@ public class YEngineRestorer {
     }
 
 
-    public YIdentifier restoreYIdentifiers(Hashtable<String, YNetRunner> runnermap,
+    protected YIdentifier restoreYIdentifiers(Hashtable<String, YNetRunner> runnermap,
                                          YIdentifier id, YIdentifier parent, YNet net)
             throws YPersistenceException {
 
@@ -420,7 +420,7 @@ public class YEngineRestorer {
     }
 
 
-    public YIdentifier restoreLocations(Hashtable<String, YNetRunner> runnermap,
+    protected YIdentifier restoreLocations(Hashtable<String, YNetRunner> runnermap,
                                          YIdentifier id, YIdentifier parent, YNet net)
             throws YPersistenceException {
 
@@ -470,6 +470,8 @@ public class YEngineRestorer {
         return id;
     }
 
+
+    /*******************************************************************************/
 
     private void postTaskCondition(YTask task, YNet net, String condName, YIdentifier id)
             throws YPersistenceException{

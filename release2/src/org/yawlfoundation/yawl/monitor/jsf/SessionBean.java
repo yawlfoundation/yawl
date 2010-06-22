@@ -231,14 +231,6 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
-    // if seesionhandle is invalid, logs out of session //
-//    public void checkLogon() {
-// //       if (! _rm.isValidUserSession(sessionhandle)) {
-//            doLogout();
-//            gotoPage("msLogin");
-////        }
-//    }
-
 
     /**
      * redirects to the specified page
@@ -301,6 +293,10 @@ public class SessionBean extends AbstractSessionBean {
 
 
     private TableSorter _sorter = new TableSorter();
+
+    public void clearCaches() {
+        initActiveCases();
+    }
 
 
     /*** ACTIVE CASES ***/

@@ -61,8 +61,7 @@ public abstract class AbstractInteraction {
 
 
     public String getInitiatorString() {
-        if (isSystemInitiated()) return "system" ;
-        else return "user" ;
+        return isSystemInitiated() ? "system" : "user" ;
     }
 
     public boolean isSystemInitiated() { return _initiator == SYSTEM_INITIATED; }
