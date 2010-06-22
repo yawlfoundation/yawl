@@ -215,7 +215,7 @@
                                org/dom4j/** org/jdom/** org/eclipse/** com/intellij/**
                                at/jta/** edu/stanford/** net/sf/wraplog/** org/jdesktop/**
                                log4j.properties
-                               ${package.base.dir}/authentication/YClient.class
+                               ${package.base.dir}/authentication/*Client.class
                                ${package.base.dir}/elements/**
                                ${package.base.dir}/engine/**
                                ${package.base.dir}/exceptions/**                              
