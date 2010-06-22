@@ -40,7 +40,7 @@ public class TableSorter {
     }
 
     public List<CaseInstance> applyCaseOrder(List<CaseInstance> caseList) {
-        Collections.sort(caseList, getCurrentCaseComparator());
+        if (caseList != null) Collections.sort(caseList, getCurrentCaseComparator());
         return caseList;
     }
 
@@ -57,7 +57,7 @@ public class TableSorter {
     }
 
     public List<WorkItemInstance> applyItemOrder(List<WorkItemInstance> itemList) {
-        Collections.sort(itemList, getCurrentItemComparator());
+        if (itemList != null) Collections.sort(itemList, getCurrentItemComparator());
         return itemList;
     }
 
@@ -74,7 +74,7 @@ public class TableSorter {
     }
 
     public List<ParameterInstance> applyParamOrder(List<ParameterInstance> paramList) {
-        Collections.sort(paramList, getCurrentParamComparator());
+        if (paramList != null) Collections.sort(paramList, getCurrentParamComparator());
         return paramList;
     }
 

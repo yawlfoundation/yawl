@@ -65,11 +65,12 @@ public class MonitorClient {
         String xml = _interfaceBClient.getCaseInstanceSummary(getEngineHandle());
         Element cases = JDOMUtil.stringToElement(xml);
         if (cases != null) {
-            caseList = new ArrayList<CaseInstance>();
             List children = cases.getChildren();
-            for (Object child : children) {
-                CaseInstance instance = new CaseInstance((Element) child);
-                caseList.add(instance);
+            if (! children.isEmpty()) {
+                caseList = new ArrayList<CaseInstance>();
+                for (Object child : children) {
+                    caseList.add(new CaseInstance((Element) child));
+                }
             }
             String startTime = cases.getAttributeValue("startuptime");
             if (startTime != null) {

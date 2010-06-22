@@ -32,7 +32,7 @@ public class YLogPredicateDecompositionParser extends YPredicateParser {
         else if (s.equals("${decomp:doco}")) {
             s = _decomp.getDocumentation();
         }
-        else if (s.startsWith("${parameter:attribute:")) {
+        else if (s.startsWith("${decomp:attribute:")) {
             String value = getAttributeValue(_decomp.getAttributes(), s);
             s = (value != null) ? value : "n/a";
         }
