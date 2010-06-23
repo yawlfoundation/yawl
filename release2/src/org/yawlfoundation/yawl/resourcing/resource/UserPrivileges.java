@@ -204,7 +204,7 @@ public class UserPrivileges implements Serializable {
     }
 
     public void fromXML(String xml) {
-        Element e = JDOMUtil.stringToElement(xml);
+        reconstitute(JDOMUtil.stringToElement(xml));
     }
 
     public void reconstitute(Element e) {
