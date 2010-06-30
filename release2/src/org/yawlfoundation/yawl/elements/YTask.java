@@ -1,11 +1,20 @@
 /*
- * This file is made available under the terms of the LGPL licence.
- * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
- * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a collaboration of
- * individuals and organisations who are committed to improving workflow technology.
+ * Copyright (c) 2004-2010 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
  *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 package org.yawlfoundation.yawl.elements;
 
@@ -42,11 +51,10 @@ import java.net.URL;
 import java.util.*;
 
 /**
- * A superclass of any type of task in the YAWL paper.
- *
+ * A superclass of any type of task in the YAWL language.
  *
  * @author Lachlan Aldred
- *
+ * @author Michael Adams (v2.0 and later) 
  */
 public abstract class YTask extends YExternalNetElement {
 
@@ -564,7 +572,6 @@ public abstract class YTask extends YExternalNetElement {
         Element data = outputData.getRootElement().getChild(paramName);
         Element netData = _net.getInternalDataDocument().getRootElement();
         gateway.updateFromTaskCompletion(paramName, data, netData);
-
     }
 
 

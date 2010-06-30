@@ -441,6 +441,7 @@
 							</xs:sequence>
 						</xs:complexType>
 					</xs:element>
+                    <xs:element name="externalDataGateway" type="yawl:NameType" minOccurs="0"/>
 				</xs:sequence>
 				<xs:attribute name="isRootNet" type="xs:boolean"/>
 			</xs:extension>

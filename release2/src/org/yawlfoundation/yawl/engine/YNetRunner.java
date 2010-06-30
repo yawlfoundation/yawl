@@ -1,11 +1,20 @@
 /*
- * This file is made available under the terms of the LGPL licence.
- * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
- * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a collaboration of
- * individuals and organisations who are committed to improving workflow technology.
+ * Copyright (c) 2004-2010 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
  *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 package org.yawlfoundation.yawl.engine;
 
@@ -98,6 +107,10 @@ public class YNetRunner {
         // initialise and persist case identifier
         _caseIDForNet = new YIdentifier(caseID);  // if caseID is null, a new one is supplied
         if (pmgr != null) pmgr.storeObject(_caseIDForNet);
+
+        // get case data from external data gateway, if set for this specification
+        Element externalData = netPrototype.getCaseDataFromExternal(_caseIDForNet.toString());
+        if (externalData != null) paramsData = externalData;
 
         initialise(pmgr, netPrototype, _caseIDForNet, paramsData) ;
     }
@@ -288,6 +301,9 @@ public class YNetRunner {
                 if (endOfNetReached() && warnIfNetNotEmpty()) {
                     _cancelling = true;                       // flag its not a deadlock                                   
                 }
+
+                // call the external data source, if its set for this specification
+                _net.postCaseDataToExternal(getCaseID().toString());
 
                 _logger.debug("Asking engine to finish case");
                 _engine.finishCase(_caseIDForNet);

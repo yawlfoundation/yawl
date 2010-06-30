@@ -1,11 +1,20 @@
 /*
- * This file is made available under the terms of the LGPL licence.
- * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
- * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a collaboration of
- * individuals and organisations who are committed to improving workflow technology.
+ * Copyright (c) 2004-2010 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
  *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceA;
 
@@ -53,7 +62,7 @@ public interface InterfaceAManagement {
      * @param specificationStr
      * @param ignoreErors
      * @param errorMessages
-     * @return
+     * @return a list of specification ids for the specifications loaded
      * @throws JDOMException
      * @throws IOException
      * @throws YPersistenceException
@@ -104,21 +113,21 @@ public interface InterfaceAManagement {
      * Returns the internal engine identifier for a case.<P>
      *
      * @param caseIDStr
-     * @return
+     * @return the internal engine identifier for a case
      */
     YIdentifier getCaseID(String caseIDStr) throws YPersistenceException;
 
     /**
      * Returns the text description for the state that a case is currently in.<P>
      * @param caseID
-     * @return
+     * @return a text description of the current case state
      */
     String getStateTextForCase(YIdentifier caseID) throws YPersistenceException;
 
     /**
      * Returns the state for a case.<P>
      * @param caseID
-     * @return
+     * @return the current case state
      */
     String getStateForCase(YIdentifier caseID) throws YPersistenceException;
 
@@ -151,7 +160,7 @@ public interface InterfaceAManagement {
      * Returns the execution status of a case.
      *
      * @param id
-     * @return
+     * @return the current case execution state
      * @throws YPersistenceException
      */
     int getCaseExecutionStatus(YIdentifier id) throws YPersistenceException;
@@ -181,7 +190,7 @@ public interface InterfaceAManagement {
      * Removes a YAWL service from the engine.<P>
      *
      * @param serviceURI
-     * @return
+     * @return the removed service
      */
     YAWLServiceReference removeYawlService(String serviceURI) throws YPersistenceException;
 
@@ -190,7 +199,7 @@ public interface InterfaceAManagement {
      *
      *
      * @param specID
-     * @return
+     * @return the current laod status for the specification with the id passed
      */
     String getLoadStatus(YSpecificationID specID);
 
@@ -229,7 +238,7 @@ public interface InterfaceAManagement {
     /**
      * Returns the specification for a loaded specification via the supplied specification ID.<P>
      * @param specID
-     * @return
+     * @return the specification matching the id
      */
     YSpecification getProcessDefinition(YSpecificationID specID);
 
