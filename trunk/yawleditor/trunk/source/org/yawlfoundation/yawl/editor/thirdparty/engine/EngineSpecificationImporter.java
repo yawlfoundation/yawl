@@ -217,6 +217,10 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     NetGraphModel editorNetModel = convertEngineNet(engineRootNet);
     
     editorNetModel.setIsStartingNet(true);
+    String gateway = engineRootNet.getExternalDataGateway();
+    if (gateway != null) {
+        editorNetModel.setExternalDataGateway(gateway);
+    }
 
   }
   
@@ -232,7 +236,6 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
 
     convertNetLocalVariables(engineNet, editorNet);
     convertLogPredicates(engineNet, editorNet.getNetModel().getDecomposition());
-
     SpecificationModel.getInstance().addNetNotUndoable(editorNet.getNetModel());
 
     YAWLEditorDesktop.getInstance().openNet(editorNet);

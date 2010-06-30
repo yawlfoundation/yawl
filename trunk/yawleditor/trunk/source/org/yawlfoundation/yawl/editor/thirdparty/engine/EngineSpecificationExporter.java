@@ -377,6 +377,13 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     logPredicate.setStartPredicate(editorNet.getDecomposition().getLogPredicateStarted());
     logPredicate.setCompletionPredicate(editorNet.getDecomposition().getLogPredicateCompletion());
     engineNet.setLogPredicate(logPredicate);
+
+    if (editorNet.isStartingNet()) {
+        String gateway = editorNet.getExternalDataGateway();
+        if (gateway != null) {
+            engineNet.setExternalDataGateway(gateway);
+        }
+    }
       
     return engineNet;
   }

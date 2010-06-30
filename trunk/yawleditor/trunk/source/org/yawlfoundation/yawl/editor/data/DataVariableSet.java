@@ -346,6 +346,7 @@ public class DataVariableSet implements Serializable, Cloneable {
                    }
               }
           }
+          Collections.sort(varSet);  // put them in index order
       }
   }
 }

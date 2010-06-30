@@ -78,6 +78,15 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable {
   public void setDecomposition(Decomposition decomposition) {
     this.decomposition = decomposition;
   }
+
+  public void setExternalDataGateway(String gateway) {
+      decomposition.setExternalDataGateway(gateway);
+  }
+
+  public String getExternalDataGateway() {
+      return decomposition.getExternalDataGateway();
+  }
+
   
   public DataVariableSet getVariableSet() {
     return decomposition.getVariables();
