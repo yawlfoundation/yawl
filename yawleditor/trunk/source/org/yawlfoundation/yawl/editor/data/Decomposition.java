@@ -56,6 +56,7 @@ public class Decomposition implements Serializable {
     setAttributes(new Hashtable());
     setLogPredicateStarted(null);
     setLogPredicateCompletion(null);
+    setExternalDataGateway(null);  
   }
 
   public void setLabel(String label) {
@@ -95,6 +96,13 @@ public class Decomposition implements Serializable {
     }
 
 
+  public void setExternalDataGateway(String gateway) {
+      serializationProofAttributeMap.put("externalDataGateway", gateway);
+  }
+
+  public String getExternalDataGateway() {
+      return (String) serializationProofAttributeMap.get("externalDataGateway");
+  }
   
   public DataVariableSet getVariables() {
     return (DataVariableSet) serializationProofAttributeMap.get("variables");

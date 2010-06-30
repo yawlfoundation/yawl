@@ -27,10 +27,11 @@ package org.yawlfoundation.yawl.editor.actions.net;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUtilities;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -38,6 +39,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Set;
 
 public class SetStartingNetAction extends YAWLExistingNetAction {
@@ -75,6 +77,8 @@ class StartingNetDialog extends AbstractDoneDialog {
    */
   private static final long serialVersionUID = 1L;
   protected JComboBox netComboBox;
+  protected JComboBox dbGatewayComboBox;
+
   
   public StartingNetDialog() {
     super("Choose Starting Net", true);
@@ -88,10 +92,15 @@ class StartingNetDialog extends AbstractDoneDialog {
                       SpecificationModel.getInstance(),
                       (String) netComboBox.getSelectedItem()
                   )
-              );           
+              ); 
+            }
+              if (dbGatewayComboBox.isEnabled() && (dbGatewayComboBox.getSelectedIndex() > 0)) {
+                  SpecificationModel.getInstance().getStartingNet().setExternalDataGateway(
+                      (String) dbGatewayComboBox.getSelectedItem()
+                  );
+              }
               SpecificationUndoManager.getInstance().setDirty(true);
             }
-          }
         }
     );
   }
@@ -102,17 +111,17 @@ class StartingNetDialog extends AbstractDoneDialog {
   }
 
   public void setVisible(boolean state) {
-    if (state == true) {
-      populateComboBox();
+    if (state) {
+      populateNetComboBox();
+      populateDbGatewayComboBox();
+      pack();
     }
     super.setVisible(state);
   }
   
   private JPanel getStartingNetPanel() {
-
     GridBagLayout gbl = new GridBagLayout();
     GridBagConstraints gbc = new GridBagConstraints();
-
     JPanel panel = new JPanel(gbl);
     panel.setBorder(new EmptyBorder(12,12,0,11));
 
@@ -129,15 +138,28 @@ class StartingNetDialog extends AbstractDoneDialog {
     gbc.anchor = GridBagConstraints.WEST;
 
     netComboBox = new JComboBox();
-
     label.setLabelFor(netComboBox);
-    
     panel.add(netComboBox, gbc);
+
+      gbc.gridx = 0;
+      gbc.gridy++;
+      gbc.anchor = GridBagConstraints.EAST;
+
+      label = new JLabel("External data gateway for case data:");
+      label.setDisplayedMnemonicIndex(9);
+      panel.add(label, gbc);
+
+      gbc.gridx++;
+      gbc.anchor = GridBagConstraints.WEST;
+
+      dbGatewayComboBox = new JComboBox();
+      label.setLabelFor(dbGatewayComboBox);
+      panel.add(dbGatewayComboBox, gbc);
 
     return panel;
   }
   
-  private void populateComboBox() {
+  private void populateNetComboBox() {
     netComboBox.setEnabled(false);
     netComboBox.removeAllItems();
 
@@ -160,6 +182,18 @@ class StartingNetDialog extends AbstractDoneDialog {
       }
     }
     netComboBox.setEnabled(true);
-    pack();
   }
+
+    private void populateDbGatewayComboBox() {
+        dbGatewayComboBox.setEnabled(false);
+        dbGatewayComboBox.removeAllItems();
+        dbGatewayComboBox.addItem("None");
+        Map<String, String> map = YAWLEngineProxy.getInstance().getExternalDataGateways();
+        if (map != null) {
+            for (String name : map.keySet()) {
+                dbGatewayComboBox.addItem(name);
+            }
+            dbGatewayComboBox.setEnabled(true);
+        }
+    }
 }
