@@ -1,9 +1,19 @@
 /*
- * This file is made available under the terms of the LGPL licence.
- * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
- * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a
- * collaboration of individuals and organisations who are committed to improving
- * workflow technology.
+ * Copyright (c) 2004-2010 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package org.yawlfoundation.yawl.elements;
@@ -365,29 +375,4 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
         return _specification.usesSimpleRootData() ? "data" : _id;
     }
 
-//
-//    public void addTimerVariable(YTimerVariable var) {
-//        _timerVariables.put(var.getTask(), var);
-//    }
-//
-//    public void addTimerVariable(YTask task) {
-//        _timerVariables.put(task, new YTimerVariable(task));
-//    }
-//
-//
-//    public YTimerVariable getTimerVariable(YTask task) {
-//        return _timerVariables.get(task);
-//    }
-//
-//    public Map<YTask, YTimerVariable> getTimerVariables() {
-//        return _timerVariables;
-//    }
-//
-//    public boolean setTimerVariableState(YTask task, YWorkItemTimer.State state) {
-//        YTimerVariable var = getTimerVariable(task);
-//        if (var != null) {
-//            var.setState(state);
-//        }
-//        return (var != null);
-//    }
 }

@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2004-2010 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.yawlfoundation.yawl.elements.data.external;
 
 import org.apache.log4j.Logger;
@@ -108,20 +126,22 @@ public abstract class
      * Populates the case data template passed with values selected from a database.
      * Called by the engine to populate the case-level variables when the case starts.
      * @param specID the specification identifier of the case
+     * @param caseID the case identifier
      * @param caseDataTemplate the data structure that requires values
      * @return an Element of the same structure as 'caseDataTemplate', with populated values
      */
-    public abstract Element populateCaseData(YSpecificationID specID, Element caseDataTemplate) ;
+    public abstract Element populateCaseData(YSpecificationID specID, String caseID, Element caseDataTemplate) ;
 
 
     /**
      * Update the database with the case's values. Called by the engine when the
      * case completes.
      * @param specID the specification identifier of the case
+     * @param caseID the case identifier
      * @param updatingData the datalist from which the corresponding database values are
      * to be updated
      */
-    public abstract void updateFromCaseData(YSpecificationID specID, Element updatingData) ;
+    public abstract void updateFromCaseData(YSpecificationID specID, String caseID, Element updatingData) ;
 
 
 }

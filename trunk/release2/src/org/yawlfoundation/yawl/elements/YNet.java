@@ -1,11 +1,20 @@
 /*
- * This file is made available under the terms of the LGPL licence.
- * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
- * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a collaboration of
- * individuals and organisations who are committed to improving workflow technology.
+ * Copyright (c) 2004-2010 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
  *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 package org.yawlfoundation.yawl.elements;
 
@@ -15,6 +24,8 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
+import org.yawlfoundation.yawl.elements.data.external.AbstractExternalDBGateway;
+import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
 import org.yawlfoundation.yawl.elements.e2wfoj.E2WFOJNet;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.elements.state.YMarking;
@@ -30,18 +41,18 @@ import java.util.*;
 
 /**
  * 
- * The implementation of a net in the YAWL paper - A container for tasks and conditions.
+ * The implementation of a net in the YAWL semantics - A container for tasks and conditions.
  * @author Lachlan Aldred
  * 
  */
 public final class YNet extends YDecomposition {
-
 
     private YInputCondition _inputCondition;
     private YOutputCondition _outputCondition;
     private Map<String, YExternalNetElement> _netElements =
             new HashMap<String, YExternalNetElement>();
     private Map<String, YVariable> _localVariables = new HashMap<String, YVariable>();
+    private String _externalDataGateway;
     private YNet _clone;
 
 
@@ -144,6 +155,16 @@ public final class YNet extends YDecomposition {
      */
     public YExternalNetElement getNetElement(String id) {
         return _netElements.get(id);
+    }
+
+
+    public void setExternalDataGateway(String gateway) {
+        _externalDataGateway = gateway;
+    }
+
+
+    public String getExternalDataGateway() {
+        return _externalDataGateway;
     }
 
 
@@ -303,6 +324,7 @@ public final class YNet extends YDecomposition {
                 YVariable copyVar = (YVariable) variable.clone();
                 _clone.setLocalVariable(copyVar);
             }
+            _clone._externalDataGateway = _externalDataGateway;
             _clone._data = (Document) this._data.clone();
 
             //do cleanup of class variable _clone before returning.
@@ -466,6 +488,9 @@ public final class YNet extends YDecomposition {
         xml.append(produceXMLStringForSet(remainingElements));
         xml.append(_outputCondition.toXML());
         xml.append("</processControlElements>");
+        if (_externalDataGateway != null) {
+            xml.append(StringUtil.wrap(_externalDataGateway, "externalDataGateway"));
+        }
         return xml.toString();
     }
 
@@ -521,7 +546,7 @@ public final class YNet extends YDecomposition {
             }
 
             // remove any attributes - not required and cause valiation errors if left
-            if (! actualParam.getAttributes().isEmpty()) {
+            if ((actualParam != null) && ! actualParam.getAttributes().isEmpty()) {
                 JDOMUtil.stripAttributes(actualParam);
             }
         }
@@ -563,6 +588,31 @@ public final class YNet extends YDecomposition {
             }
         }
         return activeTasks;
+    }
+
+    // only called when a case successfully completes
+    public void postCaseDataToExternal(String caseID) {
+        AbstractExternalDBGateway gateway = getInstantiatedExternalDataGateway();
+        if (gateway != null) {
+            gateway.updateFromCaseData(getSpecification().getSpecificationID(),
+                    caseID, _data.getRootElement());
+        }
+    }
+
+    public Element getCaseDataFromExternal(String caseID) {
+        AbstractExternalDBGateway gateway = getInstantiatedExternalDataGateway();
+        if (gateway != null) {
+            return gateway.populateCaseData(getSpecification().getSpecificationID(),
+                    caseID, _data.getRootElement());
+        }
+        else return null;
+    }
+
+    private AbstractExternalDBGateway getInstantiatedExternalDataGateway() {
+        if (_externalDataGateway != null) {
+            return ExternalDBGatewayFactory.getInstance(_externalDataGateway);
+        }
+        else return null;
     }
 
 

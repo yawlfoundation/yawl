@@ -1,11 +1,20 @@
 /*
- * This file is made available under the terms of the LGPL licence.
- * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
- * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a collaboration of
- * individuals and organisations who are committed to improving workflow technology.
+ * Copyright (c) 2004-2010 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
  *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 package org.yawlfoundation.yawl.engine.interfce;
 
@@ -72,7 +81,7 @@ public class EngineGatewayImpl implements EngineGateway {
     /** encases a message in "<failure><reason>...</reason></failure>"
      *
      * @param msg the text to encase
-     * @return the encase message
+     * @return the encased message
      */
     private String failureMessage(String msg) {
         return  StringUtil.wrap(StringUtil.wrap(msg, "reason"), "failure");
@@ -81,7 +90,7 @@ public class EngineGatewayImpl implements EngineGateway {
     /** encases a message in "<success>...</success>
      *
      * @param msg the text to encase
-     * @return the encase message
+     * @return the encased message
      */
     private String successMessage(String msg) {
         return StringUtil.wrap(msg, "success");
@@ -160,7 +169,7 @@ public class EngineGatewayImpl implements EngineGateway {
     /**
      *
      * @param sessionHandle
-     * @return
+     * @return a list of the ids of all currently active workitems
      * @throws RemoteException
      */
     public String getAvailableWorkItemIDs(String sessionHandle) throws RemoteException {
@@ -182,7 +191,7 @@ public class EngineGatewayImpl implements EngineGateway {
      *
      * @param workItemID
      * @param sessionHandle
-     * @return
+     * @return the full work item record of the workitem with the id passed
      * @throws RemoteException
      */
     public String getWorkItemDetails(String workItemID, String sessionHandle) throws RemoteException {
@@ -240,7 +249,7 @@ public class EngineGatewayImpl implements EngineGateway {
      *
      * @param workItemID
      * @param sessionHandle
-     * @return
+     * @return the suspended workitem record
      * @throws RemoteException
      */
     public String suspendWorkItem(String workItemID, String sessionHandle) throws RemoteException {
@@ -266,7 +275,7 @@ public class EngineGatewayImpl implements EngineGateway {
      *
      * @param workItemID
      * @param sessionHandle
-     * @return
+     * @return the resumed workitem record
      * @throws RemoteException
      */
     public String unsuspendWorkItem(String workItemID, String sessionHandle) throws RemoteException {
@@ -293,7 +302,7 @@ public class EngineGatewayImpl implements EngineGateway {
      *
      * @param workItemID
      * @param sessionHandle
-     * @return
+     * @return the rooled back work item record
      * @throws RemoteException
      */
     public String rollbackWorkItem(String workItemID, String sessionHandle) throws RemoteException {
@@ -348,7 +357,7 @@ public class EngineGatewayImpl implements EngineGateway {
      *
      * @param workItemID
      * @param sessionHandle
-     * @return
+     * @return the started child workitem
      * @throws RemoteException
      */
     public String startWorkItem(String workItemID, String sessionHandle) throws RemoteException {
@@ -381,7 +390,7 @@ public class EngineGatewayImpl implements EngineGateway {
      *
      * @param workItemID
      * @param sessionHandle
-     * @return
+     * @return the skipped work item record
      * @throws RemoteException
      */
     public String skipWorkItem(String workItemID, String sessionHandle) throws RemoteException {
@@ -443,7 +452,7 @@ public class EngineGatewayImpl implements EngineGateway {
     /**
      *
      * @param sessionHandle
-     * @return
+     * @return a description (record) of all currently active workitems
      * @throws RemoteException
      */
     public String describeAllWorkItems(String sessionHandle) throws RemoteException {
@@ -467,7 +476,7 @@ public class EngineGatewayImpl implements EngineGateway {
      *
      * @param userID
      * @param password
-     * @return
+     * @return a sessionhandle
      * @throws RemoteException
      */
     public String connect(String userID, String password, long timeOutSeconds) throws RemoteException {
@@ -481,7 +490,7 @@ public class EngineGatewayImpl implements EngineGateway {
     /**
      *
      * @param sessionHandle
-     * @return
+     * @return 'true' if the connection is valid
      * @throws RemoteException
      */
     public String checkConnection(String sessionHandle) throws RemoteException {
@@ -503,7 +512,7 @@ public class EngineGatewayImpl implements EngineGateway {
      * @param specificationID
      * @param taskID
      * @param sessionHandle
-     * @return
+     * @return a task information record
      * @throws RemoteException
      */
     public String getTaskInformation(YSpecificationID specificationID, String taskID,
@@ -542,7 +551,7 @@ public class EngineGatewayImpl implements EngineGateway {
     /**
      * Gets a listing of
      * @param sessionHandle
-     * @return
+     * @return a list of currently loaded specifications
      * @throws RemoteException
      */
     public String getSpecificationList(String sessionHandle) throws RemoteException {
@@ -1013,7 +1022,7 @@ public class EngineGatewayImpl implements EngineGateway {
      * @deprecated The YAWL Engine no longer maintains users directly
      * @param client
      * @param sessionHandle
-     * @return
+     * @return a success or failure message
      * @throws RemoteException
      */
     public String deleteAccount(String client, String sessionHandle) throws RemoteException {
@@ -1125,6 +1134,10 @@ public class EngineGatewayImpl implements EngineGateway {
             specs.append(StringUtil.wrap(_engine.getLoadStatus(spec.getSpecificationID()),
                          "status"));
 
+            String gateway = spec.getRootNet().getExternalDataGateway();
+            if (gateway != null) {
+                specs.append(StringUtil.wrap(gateway, "externalDataGateway"));
+            }
             specs.append("</specificationData>");
         }
         return specs.toString();
@@ -1210,7 +1223,7 @@ public class EngineGatewayImpl implements EngineGateway {
      * @param specificationID
      * @param taskID
      * @param sessionHandle
-     * @return
+     * @return the multiple instance task attributes for the taskid passed
      * @throws RemoteException
      */
     public String getMITaskAttributes(YSpecificationID specificationID, String taskID,

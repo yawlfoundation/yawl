@@ -1,11 +1,20 @@
 /*
- * This file is made available under the terms of the LGPL licence.
- * This licence can be retrieved from http://www.gnu.org/copyleft/lesser.html.
- * The source remains the property of the YAWL Foundation.  The YAWL Foundation is a collaboration of
- * individuals and organisations who are committed to improving workflow technology.
+ * Copyright (c) 2004-2010 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
  *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 package org.yawlfoundation.yawl.schema;
 
@@ -485,8 +494,8 @@ public class XMLToolsForYAWL {
     }
 
     /**
-     * Returns the Schema 4 Schema Namespace (2001).
-     * @return
+     *
+     * @return the Schema 4 Schema Namespace (2001).
      */
     public static String getSchema4SchemaNameSpace() {
         return XSDConstants.SCHEMA_FOR_SCHEMA_URI_2001;
@@ -496,7 +505,7 @@ public class XMLToolsForYAWL {
     /**
      * Returns is schema for schema type
      * @param name
-     * @return
+     * @return true if the name passed is a schema for schema type definition
      */
     public boolean isSchemaForSchemaType(String name) {
         return _xsd4YAWLBuilder.getSchemaForSchemaTypeDef(name) != null;
@@ -508,7 +517,8 @@ public class XMLToolsForYAWL {
      * schema type.
      * @param typename of the type in question
      * @param isSchem4Schema is schema 4 schema type
-     * @return
+     * @return true if typename is a valid type contained by the Schema library or a
+     * valid schema for schema type.
      */
     public boolean isValidType(String typename, boolean isSchem4Schema) {
         if (isSchem4Schema) {
