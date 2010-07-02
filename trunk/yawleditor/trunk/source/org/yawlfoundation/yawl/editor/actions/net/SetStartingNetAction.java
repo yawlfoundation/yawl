@@ -94,11 +94,12 @@ class StartingNetDialog extends AbstractDoneDialog {
                   )
               ); 
             }
+              String gateway = null ;
               if (dbGatewayComboBox.isEnabled() && (dbGatewayComboBox.getSelectedIndex() > 0)) {
-                  SpecificationModel.getInstance().getStartingNet().setExternalDataGateway(
-                      (String) dbGatewayComboBox.getSelectedItem()
-                  );
+                  gateway = (String) dbGatewayComboBox.getSelectedItem(); 
               }
+              SpecificationModel.getInstance().getStartingNet().setExternalDataGateway(gateway);
+              
               SpecificationUndoManager.getInstance().setDirty(true);
             }
         }
