@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.util.XNode;
 
@@ -97,11 +98,11 @@ public abstract class
     /**
      * Populates the task parameter passed with a value selected from a database.
      * Called by the engine to populate a workitem when the workitem starts.
-     * @param task the task template for the starting workitem
-     * @param param the name of the parameter that requires values
-     * @param caseData the current set of case variables and values
+     * @param task the task template for the starting workitem.
+     * @param param the name of the parameter that requires values.
+     * @param caseData the current set of case variables and values.
      * @return an Element named after the param (use param.getName()), populated with 
-     * the appropriate value
+     * the appropriate value.
      */
     public abstract Element populateTaskParameter(YTask task, YParameter param,
                                                   Element caseData);
@@ -111,12 +112,11 @@ public abstract class
     /**
      * Update the database with the workitem's values. Called by the engine when the
      * workitem completes.
-     * @param paramName the name of the task of which this workitem is an instance
+     * @param paramName the name of the task of which this workitem is an instance.
      * @param outputData the datalist from which the corresponding database values are
-     * to be updated
-     * @param caseData the current set of case variables and values
+     * to be updated.
+     * @param caseData the current set of case variables and values.
      */
-
     public abstract void updateFromTaskCompletion(String paramName, Element outputData,
                                                   Element caseData);
 
@@ -125,23 +125,37 @@ public abstract class
     /**
      * Populates the case data template passed with values selected from a database.
      * Called by the engine to populate the case-level variables when the case starts.
-     * @param specID the specification identifier of the case
-     * @param caseID the case identifier
-     * @param caseDataTemplate the data structure that requires values
-     * @return an Element of the same structure as 'caseDataTemplate', with populated values
+     * Note that the the returned Element MUST be correctly populated with a value for
+     * each input parameter. Local variables are passed so that their initial values
+     * may (optionally) be changed, if required; to do so, change the value directly
+     * within each variable - local variable values are NOT to be included in the
+     * returned Element.
+     * @param specID the specification identifier of the case.
+     * @param caseID the case identifier.
+     * @param inputParams the input parameters that require values.
+     * @param localVars the local variables (optionally change their initial values).
+     * @param caseDataTemplate the data structure that requires values.
+     * @return an Element of the same structure as 'caseDataTemplate', with populated values.
      */
-    public abstract Element populateCaseData(YSpecificationID specID, String caseID, Element caseDataTemplate) ;
+    public abstract Element populateCaseData(YSpecificationID specID, String caseID,
+                                             List<YParameter> inputParams,
+                                             List<YVariable> localVars,
+                                             Element caseDataTemplate) ;
 
 
     /**
      * Update the database with the case's values. Called by the engine when the
      * case completes.
-     * @param specID the specification identifier of the case
-     * @param caseID the case identifier
+     * @param specID the specification identifier of the case.
+     * @param caseID the case identifier.
+     * @param outputParams the output parameters for the case.
      * @param updatingData the datalist from which the corresponding database values are
-     * to be updated
+     * to be updated.
      */
-    public abstract void updateFromCaseData(YSpecificationID specID, String caseID, Element updatingData) ;
+    public abstract void updateFromCaseData(YSpecificationID specID,
+                                            String caseID,
+                                            List<YParameter> outputParams,
+                                            Element updatingData) ;
 
 
 }

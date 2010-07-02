@@ -595,15 +595,21 @@ public final class YNet extends YDecomposition {
         AbstractExternalDBGateway gateway = getInstantiatedExternalDataGateway();
         if (gateway != null) {
             gateway.updateFromCaseData(getSpecification().getSpecificationID(),
-                    caseID, _data.getRootElement());
+                      caseID,
+                      new ArrayList<YParameter>(getOutputParameters().values()),
+                      _data.getRootElement());
         }
     }
 
+    // called when a case begins
     public Element getCaseDataFromExternal(String caseID) {
         AbstractExternalDBGateway gateway = getInstantiatedExternalDataGateway();
         if (gateway != null) {
             return gateway.populateCaseData(getSpecification().getSpecificationID(),
-                    caseID, _data.getRootElement());
+                           caseID,
+                           new ArrayList<YParameter>(getInputParameters().values()),
+                           new ArrayList<YVariable>(getLocalVariables().values()),
+                           _data.getRootElement());
         }
         else return null;
     }
