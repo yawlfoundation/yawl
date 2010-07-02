@@ -21,7 +21,10 @@ package org.yawlfoundation.yawl.elements.data.external;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
+
+import java.util.List;
 
 /**
  * Author: Michael Adams
@@ -68,11 +71,15 @@ public class SimpleExternalDBGatewayImpl extends AbstractExternalDBGateway {
     public void updateFromTaskCompletion(String paramName, Element outputData, Element caseData) {}
 
     
-    public Element populateCaseData(YSpecificationID specID, String caseID, Element caseDataTemplate) {
+    public Element populateCaseData(YSpecificationID specID, String caseID,
+                                    List<YParameter> inputParams,
+                                    List<YVariable> localVars, Element caseDataTemplate) {
         return null; 
     }
 
-    public void updateFromCaseData(YSpecificationID specID, String caseID, Element updatingData) {
+    public void updateFromCaseData(YSpecificationID specID, String caseID,
+                                   List<YParameter> outputParams,
+                                   Element updatingData) {
         System.out.println(caseID);        
     }
 

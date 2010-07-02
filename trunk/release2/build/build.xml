@@ -297,7 +297,6 @@
 
     <path id="cp.etc">
             <pathelement location="${lib.dir}/${twitter4j}"/>
-            <pathelement location="${lib.dir}/classmexer.jar"/>
     </path>
 
     <!-- ============================ Targets =================================== -->
@@ -1229,7 +1228,7 @@
             <fileset dir="${classes.dir}${packageRoot}/util"/>
         </copy>
         <copy todir="testService/WEB-INF/lib">
-            <fileset dir="${lib.dir}" includes="${jdom} ${log4j} ${twitter4j} classmexer.jar
+            <fileset dir="${lib.dir}" includes="${jdom} ${log4j} ${twitter4j}
             ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
         </copy>
 
