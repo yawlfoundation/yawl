@@ -583,7 +583,8 @@
               file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
         <copy todir="${yawl.webService.app.name}${webinf.dir}/util">
             <fileset dir="${classes.dir}${packageRoot}/util"
-                     includes="JDOMUtil.class StringUtil.class CharsetFilter.class"/>
+                     includes="JDOMUtil.class StringUtil.class
+                               CharsetFilter.class PasswordEncryptor.class"/>
         </copy>
         <copy todir="${yawl.webService.app.name}${webinf.dir}/unmarshal">
             <fileset dir="${classes.dir}${packageRoot}/unmarshal"
@@ -647,8 +648,11 @@
         </copy>
         <copy todir="${yawl.smsService.app.name}${webinf.dir}/engine"
               file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
-        <copy todir="${yawl.smsService.app.name}${webinf.dir}/util"
-              file="${classes.dir}${packageRoot}/util/CharsetFilter.class"/>        
+        <copy todir="${yawl.smsService.app.name}${webinf.dir}/util">
+            <fileset dir="${classes.dir}${packageRoot}/util"
+                     includes="JDOMUtil.class StringUtil.class
+                               CharsetFilter.class PasswordEncryptor.class"/>
+        </copy>
         <copy todir="${yawl.smsService.app.name}${webinf.dir}/unmarshal">
             <fileset
                 dir="${classes.dir}${packageRoot}/unmarshal"
@@ -750,7 +754,7 @@
               <fileset dir="${classes.dir}${packageRoot}/util"
                        includes="JDOMUtil.class StringUtil.class
                                  CharsetFilter.class PasswordEncryptor.class
-                                 HttpURLValidator"/>
+                                 HttpURLValidator.class"/>
         </copy>
 
         <!-- 2. copy worklet classes to relevant dirs -->
