@@ -25,6 +25,8 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideContr
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
+import java.io.IOException;
+
 /**
  * A simple service that provides for status updates to a Twitter account
  *
@@ -167,8 +169,8 @@ public class TwitterService extends InterfaceBWebsideController {
     }
 
     
-    private boolean connected() {
-        return _handle != null;
+    private boolean connected() throws IOException {
+        return _handle != null && checkConnection(_handle);
     }
 
 
