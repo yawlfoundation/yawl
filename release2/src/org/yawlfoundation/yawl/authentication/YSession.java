@@ -102,28 +102,27 @@ public class YSession {
     public String getHandle() { return _handle; }
 
     /**
-     * Restarts the idle timer for this session.
+     * Resets the idle timer for this session.
      */
     public void refresh() { resetActivityTimer(); }
 
 
     /*****************************************************************/
     
+    // sets secs to msecs, default to 60 mins if 0 seconds passed
     private void setInterval(long seconds) {
-        if (seconds == 0)
-            _interval = 3600000 ;                         // default 60 min in millisecs
-        else if (seconds <= -1)
-            _interval = Long.MAX_VALUE;                   // never time out
-        else
-            _interval = seconds * 1000;                   // secs --> msecs
+        _interval = (seconds == 0) ? 3600000 : seconds * 1000;
     }
 
 
-    // starts a timertask to timeout the connection the specified period of inactivity
+    // starts a timertask to timeout the connection after the specified period of
+    // inactivity - iff the timer interval set is +ve (a -ve interval means never timeout)
     private void startActivityTimer() {
-        _activityTimer = new Timer() ;
-        TimerTask tTask = new TimeOut();
-        _activityTimer.schedule(tTask, _interval);
+        if (_interval > 0) {
+            _activityTimer = new Timer() ;
+            TimerTask tTask = new TimeOut();
+            _activityTimer.schedule(tTask, _interval);
+        }    
     }
 
     // restarts a timer
@@ -132,7 +131,7 @@ public class YSession {
         startActivityTimer();                                 // start new one
     }
 
-    // disables (removes) this active session. Called when a session timer expires.
+    // expires (removes) this active session. Called when a session timer expires.
     private class TimeOut extends TimerTask {
         public void run() {
             YSessionCache.getInstance().expire(_handle) ;
