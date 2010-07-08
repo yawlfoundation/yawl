@@ -47,22 +47,20 @@ public class ServiceConnection {
     public String getUserID() { return _userid; }
 
 
+    // sets secs to msecs, default to 60 mins if 0 seconds passed
     private void setInterval(long seconds) {
-        if (seconds == 0)
-            _interval = 3600000 ;                         // default 60 min in millisecs
-        else if (seconds <= -1)
-            _interval = Long.MAX_VALUE;                   // never time out
-        else
-            _interval = seconds * 1000;                   // secs --> msecs
+        _interval = (seconds == 0) ? 3600000 : seconds * 1000;
     }
 
     /**
      * Starts a timertask to timeout the connection after 'interval' msecs inactivity
      */
     private void startActivityTimer() {
-        _activityTimer = new Timer() ;
-        TimerTask tTask = new TimeOut();
-        _activityTimer.schedule(tTask, _interval);
+        if (_interval > 0) {
+            _activityTimer = new Timer() ;
+            TimerTask tTask = new TimeOut();
+            _activityTimer.schedule(tTask, _interval);
+        }
     }
 
     public void resetActivityTimer() {
