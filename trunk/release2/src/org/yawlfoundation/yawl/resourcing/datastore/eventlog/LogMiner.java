@@ -173,10 +173,16 @@ public class LogMiner {
         return "";
     }
 
-    
+
     public String getMergedXESLog(YSpecificationID specid) {
+        return getMergedXESLog(specid, false);
+    }
+
+
+    
+    public String getMergedXESLog(YSpecificationID specid, boolean withData) {
         XNode rsCases = getXESLog(specid);
-        String engCases = ResourceManager.getInstance().getEngineXESLog(specid);
+        String engCases = ResourceManager.getInstance().getEngineXESLog(specid, withData);
         if ((rsCases != null) && (engCases != null)) {
             return new ResourceXESLog().mergeLogs(rsCases, engCases);
         }

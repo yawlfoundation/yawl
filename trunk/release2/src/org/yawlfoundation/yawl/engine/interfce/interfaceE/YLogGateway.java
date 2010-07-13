@@ -166,7 +166,9 @@ public class YLogGateway extends HttpServlet {
                String version = req.getParameter("version");
                String uri = req.getParameter("uri");
                YSpecificationID specID = new YSpecificationID(identifier, version, uri);
-               result = _logMgr.getSpecificationXESLog(specID);
+               String withDataStr = req.getParameter("withdata");
+               boolean withData = (withDataStr != null) && withDataStr.equalsIgnoreCase("true");
+               result = _logMgr.getSpecificationXESLog(specID, withData);
            }
        }
        else throw new IOException("Invalid or disconnected session handle.");

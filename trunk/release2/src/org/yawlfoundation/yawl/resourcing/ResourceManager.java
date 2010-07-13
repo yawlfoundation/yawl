@@ -258,9 +258,10 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public String getEngineXESLog(YSpecificationID specID) {
+    public String getEngineXESLog(YSpecificationID specID, boolean withData) {
         try {
-            return _interfaceEClient.getSpecificationXESLog(specID, getEngineSessionHandle());
+            return _interfaceEClient.getSpecificationXESLog(specID, withData,
+                                                     getEngineSessionHandle());
         }
         catch (IOException ioe) {
             return null;

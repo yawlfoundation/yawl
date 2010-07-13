@@ -334,6 +334,29 @@ public class YLogGatewayClient extends Interface_Client {
      * @param identifier the unique identifier of the specification
      * @param version the specification's version number
      * @param uri the specification's uri
+     * @param withData if true, all data change events will be included
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     * @see #getSpecificationXESLog(YSpecificationID, boolean, String)
+     */
+    public String getSpecificationXESLog(String identifier, String version,
+                        String uri, boolean withData, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getSpecificationXESLog", handle);
+        params.put("identifier", identifier);
+        params.put("version", version);
+        params.put("uri", uri);
+        params.put("withdata", String.valueOf(withData));
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
+     * Gets a complete listing of all the cases launched from the specification data
+     * passed, in OpenXES format
+     * @param identifier the unique identifier of the specification
+     * @param version the specification's version number
+     * @param uri the specification's uri
      * @param handle an active sessionhandle
      * @return the resultant String response (log data or error message)
      * @throws java.io.IOException if there's a problem connecting to the engine
@@ -341,12 +364,9 @@ public class YLogGatewayClient extends Interface_Client {
      */
     public String getSpecificationXESLog(String identifier, String version,
                                        String uri, String handle) throws IOException {
-        Map<String, String> params = prepareParamMap("getSpecificationXESLog", handle);
-        params.put("identifier", identifier);
-        params.put("version", version);
-        params.put("uri", uri);
-        return executeGet(_logURI, params);
+        return  getSpecificationXESLog(identifier, version, uri, false, handle);
     }
+
 
 
     /**
@@ -361,8 +381,26 @@ public class YLogGatewayClient extends Interface_Client {
     public String getSpecificationXESLog(YSpecificationID specID, String handle)
             throws IOException {
         return getSpecificationXESLog(specID.getIdentifier(), specID.getVersionAsString(),
-                                      specID.getUri(), handle);
+                                      specID.getUri(), false, handle);
     }
+
+
+    /**
+     * Gets a complete listing of all the cases launched from the specification data
+     * passed, in OpenXES format
+     * @param specID the unique identifier of the specification
+     * @param withData if true, all data change events will be included
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     * @see #getSpecificationXESLog(String, String, String, String)
+     */
+    public String getSpecificationXESLog(YSpecificationID specID, boolean withData, String handle)
+            throws IOException {
+        return getSpecificationXESLog(specID.getIdentifier(), specID.getVersionAsString(),
+                                      specID.getUri(), withData, handle);
+    }
+
 
 
     /*****************************************************************************/

@@ -462,7 +462,7 @@ public class YLogServer {
     }
 
 
-    public XNode getXESLog(YSpecificationID specID) {
+    public XNode getXESLog(YSpecificationID specID, boolean withData) {
         if (_pmgr != null) {
             try {
                 YLogSpecification spec = getSpecification(specID);
@@ -472,7 +472,7 @@ public class YLogServer {
                         YLogNetInstance logNetInstance = (YLogNetInstance) o;
                         XNode caseNode = cases.addChild("case");
                         caseNode.addAttribute("id", logNetInstance.getEngineInstanceID());
-                        addNetInstance(caseNode, logNetInstance);
+                        addNetInstance(caseNode, logNetInstance, withData);
                     }
                     return cases;
                 }    
@@ -485,7 +485,7 @@ public class YLogServer {
     }
 
 
-    private void addNetInstance(XNode node, YLogNetInstance logNetInstance)
+    private void addNetInstance(XNode node, YLogNetInstance logNetInstance, boolean withData)
             throws YPersistenceException {
 
         XNode netInstance = node.addChild("netinstance");
@@ -500,10 +500,16 @@ public class YLogServer {
             // for each event for the task
             for (Object o1 : getInstanceEventObjects(logTaskInstance.getTaskInstanceID())) {
                 YLogEvent logEvent = (YLogEvent) o1;
-                if (! logEvent.getDescriptor().equals("DataValueChange")) {
+                String descriptor = logEvent.getDescriptor();
+
+                // don't include data change events if withData is false
+                if (withData || (! descriptor.equals("DataValueChange"))) {
                     XNode event = new XNode("event");
-                    event.addChild("descriptor", logEvent.getDescriptor());
+                    event.addChild("descriptor", descriptor);
                     event.addChild("timestamp", logEvent.getTimestampString());
+                    if (descriptor.equals("DataValueChange")) {
+                       event.addChild(addDataInstances(logEvent.getEventID())); 
+                    }
                     taskInstance.addChild(event);
                 }
             }
@@ -512,9 +518,26 @@ public class YLogServer {
             YLogNetInstance logSubNetInstance =
                      getSubNetInstance(logTaskInstance.getTaskInstanceID());
             if (logSubNetInstance != null) {
-                addNetInstance(node, logSubNetInstance);     // recurse
+                addNetInstance(node, logSubNetInstance, withData);     // recurse
             }
         }
+    }
+
+
+    private XNode addDataInstances(long eventKey) throws YPersistenceException {
+        XNode dataInstances = new XNode("dataItems");
+
+        for (Object o : getDataItemInstanceObjects(eventKey)) {
+            YLogDataItemInstance dataItemInstance = (YLogDataItemInstance) o;
+            YLogDataType dataType = getDataType(dataItemInstance.getDataTypeID());
+            XNode dataItem = dataInstances.addChild("dataItem");
+            dataItem.addChild("descriptor", dataItemInstance.getDescriptor());
+            dataItem.addChild("name", dataItemInstance.getName());
+            dataItem.addChild("value", dataItemInstance.getValue());
+            dataItem.addChild("typeName", dataType.getName());
+            dataItem.addChild("typeDefinition", dataType.getDefinition());
+        }
+        return dataInstances;
     }
 
 
@@ -622,8 +645,8 @@ public class YLogServer {
     }
 
 
-    public String getSpecificationXESLog(YSpecificationID specid) {
-        XNode cases = getXESLog(specid);
+    public String getSpecificationXESLog(YSpecificationID specid, boolean withData) {
+        XNode cases = getXESLog(specid, withData);
         if (cases != null) {
             return new YXESBuilder().buildLog(specid, cases);
         }
@@ -722,15 +745,26 @@ public class YLogServer {
     private YLogSpecification getSpecification(YSpecificationID specID)
             throws YPersistenceException {
         if (_pmgr != null) {
-            Iterator itr = _pmgr.createQuery("from YLogSpecification as s where " +
-                "s.identifier=:id and s.version=:version and s.uri=:uri")
-                .setString("id", specID.getIdentifier())
-                .setString("version", specID.getVersionAsString())
-                .setString("uri", specID.getUri())
-                .iterate();
-             if (itr.hasNext()) {
+            String identifier = specID.getIdentifier();
+            Iterator itr ;
+            if (identifier != null) {
+                itr = _pmgr.createQuery("from YLogSpecification as s where " +
+                      "s.identifier=:id and s.version=:version and s.uri=:uri")
+                      .setString("id", identifier)
+                      .setString("version", specID.getVersionAsString())
+                      .setString("uri", specID.getUri())
+                      .iterate();
+            }
+            else {
+                itr = _pmgr.createQuery("from YLogSpecification as s where " +
+                      "s.version=:version and s.uri=:uri")
+                      .setString("version", specID.getVersionAsString())
+                      .setString("uri", specID.getUri())
+                      .iterate();
+            }
+            if (itr.hasNext()) {
                 return (YLogSpecification) itr.next();
-             }
+            }
         }
         return null;
     }

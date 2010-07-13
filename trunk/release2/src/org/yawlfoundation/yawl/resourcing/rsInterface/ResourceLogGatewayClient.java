@@ -142,10 +142,29 @@ public class ResourceLogGatewayClient extends Interface_Client {
      */
     public String getMergedXESLog(String identifier, String version,
                                        String uri, String handle) throws IOException {
+        return getMergedXESLog(identifier, version, uri, false, handle);
+    }
+
+
+    /**
+     * Gets all events for all cases of the specification passed, from both the resource
+     * service and the engine, merged together, optionally including the data value
+     * changes from the engine's log
+     * @param identifier the unique identifier of the specification
+     * @param version the specification's version number
+     * @param uri the specification's uri
+     * @param withData if true, the data value changes in the engine log are included
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getMergedXESLog(String identifier, String version, String uri,
+                                  boolean withData, String handle) throws IOException {
         Map<String, String> params = prepareParamMap("getMergedXESLog", handle);
         params.put("identifier", identifier);
         params.put("version", version);
         params.put("uri", uri);
+        params.put("withdata", String.valueOf(withData));
         return executeGet(_logURI, params);
     }
 
