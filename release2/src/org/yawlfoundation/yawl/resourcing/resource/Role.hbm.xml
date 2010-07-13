@@ -45,7 +45,7 @@
                      class="Role"
                      access="field" />
 
-        <set name="_resources" table="rs_Participant_Role" inverse="true" cascade="all">
+        <set name="_resources" table="rs_Participant_Role" inverse="true" cascade="all" lazy="false">
             <key column="RoleID"/>
             <many-to-many class="Participant" column="ParticipantID" lazy="false"/>
         </set>

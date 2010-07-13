@@ -28,11 +28,9 @@ import java.util.Map;
  * An extended HashMap to handle connections from external entities (such as the YAWL
  * Editor) and the resource service. The map is of the form [sessionHandle, connection].
  *
- * Author: Michael Adams
- * Date: Oct 24, 2007
- * Time: 9:47:08 AM
- * Version: 0.1
- *
+ * @author Michael Adams
+ * @since 2.0
+ * @date Oct 24, 2007
  */
 
 
@@ -107,13 +105,13 @@ public class ConnectionCache extends Hashtable<String, ServiceConnection> {
 
     public void disconnect(String handle) {
         ServiceConnection con = this.remove(handle);
-        EventLogger.audit(con.getUserID(), EventLogger.audit.gwlogoff);
+        if (con != null) EventLogger.audit(con.getUserID(), EventLogger.audit.gwlogoff);
     }
 
 
     public void expire(String handle) {
         ServiceConnection con = this.remove(handle);
-        EventLogger.audit(con.getUserID(), EventLogger.audit.gwexpired);
+        if (con != null) EventLogger.audit(con.getUserID(), EventLogger.audit.gwexpired);
     }
 
 

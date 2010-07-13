@@ -70,17 +70,17 @@
                   type="boolean"
                   access="field"/>
 
-         <set name="_positions" table="rs_Participant_Position" access="field">
+         <set name="_positions" table="rs_Participant_Position" access="field" lazy="false">
     		 <key column="ParticipantID"/>
              <many-to-many class="Position" column="P_ID" lazy="false"/>
 	     </set>
 
-         <set name="_roles" table="rs_Participant_Role" access="field">
+         <set name="_roles" table="rs_Participant_Role" access="field" lazy="false">
             <key column="ParticipantID"/>
             <many-to-many class="Role" column="RoleID" lazy="false"/>
          </set>
 
-         <set name="_capabilities" table="rs_Participant_Capability" access="field">
+         <set name="_capabilities" table="rs_Participant_Capability" access="field" lazy="false">
             <key column="ParticipantID"/>
             <many-to-many class="Capability" column="CapabilityID" lazy="false"/>
          </set>

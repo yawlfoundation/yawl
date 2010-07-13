@@ -102,7 +102,9 @@ public class ResourceLogGateway extends HttpServlet {
                String version = req.getParameter("version") ;
                String uri = req.getParameter("uri") ;
                YSpecificationID specID = new YSpecificationID(identifier, version, uri);
-               result = _logDB.getMergedXESLog(specID);
+               String withDataStr = req.getParameter("withdata");
+               boolean withData = (withDataStr != null) && withDataStr.equalsIgnoreCase("true");
+               result = _logDB.getMergedXESLog(specID, withData);
            }
            else result = _noAction;
        }
