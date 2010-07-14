@@ -1,7 +1,6 @@
 package org.yawlfoundation.yawl.editor.foundations;
 
 import org.apache.log4j.*;
-import org.yawlfoundation.yawl.editor.YAWLEditor;
 
 import java.io.IOException;
 
@@ -11,7 +10,7 @@ import java.io.IOException;
  */
 public class LogWriter {
 
-    private static Logger _log = Logger.getLogger(YAWLEditor.class) ;
+    private static Logger _log = Logger.getRootLogger() ;
 
     private LogWriter() {
         configure("");
