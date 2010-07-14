@@ -214,7 +214,7 @@
                      includes="com/toedter/** javax/** net/sf/saxon/** org/apache/**
                                org/dom4j/** org/jdom/** org/eclipse/** com/intellij/**
                                at/jta/** edu/stanford/** net/sf/wraplog/** org/jdesktop/**
-                               log4j.properties
+                               org/hibernate/HibernateException.class
                                ${package.base.dir}/authentication/*Client.class
                                ${package.base.dir}/elements/**
                                ${package.base.dir}/engine/**
