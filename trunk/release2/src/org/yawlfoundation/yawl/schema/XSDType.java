@@ -195,6 +195,24 @@ public class XSDType {
         return (ordinal >= INTEGER) && (ordinal <= DECIMAL);
     }
 
+    public boolean isIntegralType(String type) {
+        int ordinal = getOrdinal(type);
+        return (ordinal >= INTEGER) && (ordinal <= UNSIGNED_BYTE);
+    }
+
+    public boolean isFloatType(String type) {
+        int ordinal = getOrdinal(type);
+        return (ordinal >= DOUBLE) && (ordinal <= DECIMAL);        
+    }
+
+    public boolean isBooleanType(String type) {
+        return getOrdinal(type) == BOOLEAN;
+    }
+
+    public boolean isDateType(String type) {
+        int ordinal = getOrdinal(type);
+        return (ordinal >= DATE) && (ordinal <= DATETIME);
+    }
 
     public boolean isStringForType(String s, int type) {
         return getString(type).equals(s);

@@ -429,8 +429,32 @@ public class XNode {
         return JDOMUtil.stringToElement(toString());
     }
 
+
     public Document toDocument() {
         return JDOMUtil.stringToDocument(toString());
+    }
+
+
+    public String toJSON() {
+        StringBuilder s = new StringBuilder(getInitialToStringSize());
+        s.append("{");
+        s.append(quote(_name)).append(":");
+        if (_attributes != null) {
+            s.append("{ ");
+            for (String key : _attributes.keySet()) {
+                s.append(quote(key)).append(":");
+                s.append(quote(_attributes.get(key))).append(",");
+            }
+        }
+
+        if (_children != null) {
+            // do kids
+        }
+        if (_text != null) {
+            s.append(quote(_text));
+        }
+        s.append("}");
+        return s.toString();
     }
 
 
@@ -456,6 +480,12 @@ public class XNode {
             return s.toString();
         }
         return "";
+    }
+
+
+    private String quote(String s) {
+        StringBuilder sb = new StringBuilder(s.length() + 2);
+        return sb.append('\"').append(s).append('\"').toString();
     }
 
 }

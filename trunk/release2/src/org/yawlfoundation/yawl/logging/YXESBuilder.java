@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.logging;
 
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.YWorkItemStatus;
+import org.yawlfoundation.yawl.schema.XSDType;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
@@ -115,9 +116,20 @@ public class YXESBuilder {
     }
 
 
-    protected XNode dataNode(String key, String value) {
-        return entryNode("yawldata", key, value);
+    protected XNode floatNode(String key, String value) {
+        return entryNode("float", key, value);
     }
+
+
+    protected XNode intNode(String key, String value) {
+        return entryNode("int", key, value);
+    }
+
+
+    protected XNode booleanNode(String key, String value) {
+        return entryNode("boolean", key, value);
+    }
+
 
     protected String getComment() {
         SimpleDateFormat df = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
@@ -147,8 +159,6 @@ public class YXESBuilder {
                 "http://code.fluxicon.com/xes/semantic.xesext"));
         log.addChild(extensionNode("Organizational", "org",
                 "http://code.fluxicon.com/xes/org.xesext"));
-        log.addChild(extensionNode("YAWL_Data", "data",
-                "http://www.yawlfoundation.org/yawlschema/yawldata.xesext"));
 
         XNode gTrace = log.addChild(globalNode("trace"));
         gTrace.addChild(stringNode("concept:name", "UNKNOWN"));
@@ -158,8 +168,6 @@ public class YXESBuilder {
         gEvent.addChild(dateNode("time:timestamp", "1970-01-01T00:00:00.000+01:00"));
         gEvent.addChild(stringNode("concept:name", "UNKNOWN"));
         gEvent.addChild(stringNode("lifecycle:transition", "UNKNOWN"));
-        gEvent.addChild(dataNode("data:input", "UNKNOWN"));
-        gEvent.addChild(dataNode("data:output", "UNKNOWN"));
 
         XNode classifier = log.addChild(new XNode("classifier"));
         classifier.addAttribute("name", "Activity classifier");
@@ -209,13 +217,13 @@ public class YXESBuilder {
     private void addDataEvents(XNode dataItems, XNode eventNode) {
         if (dataItems != null) {
             for (XNode dataItem : dataItems.getChildren()) {
-//                String typeDef = dataItem.getChildText("typeDefinition");
-//                if (typeDef.startsWith("<")) {
-//                    processComplexTypeDataEvent(dataItem, eventNode);
-//                }
-//                else {
+                String value = dataItem.getChildText("value");
+                if ((value != null) && value.startsWith("<")) {
+                    processComplexTypeDataEvent(dataItem, eventNode);
+                }
+                else {
                     eventNode.addChild(formatDataNode(dataItem));
-//                }
+                }
             }
         }
     }
@@ -224,25 +232,30 @@ public class YXESBuilder {
     private void processComplexTypeDataEvent(XNode dataItem, XNode eventNode) {
         String typeDef = dataItem.getChildText("typeDefinition");
         Map<String, String> typeMap = parseComplexTypeDefinition(typeDef);
-        String descriptor = dataItem.getChildText("descriptor");
         String rootName = dataItem.getChildText("name");
         XNode valueNode = new XNodeParser().parse(dataItem.getChildText("value"));
-        processComplexTypeDataValues(eventNode, valueNode, typeMap, descriptor, rootName);
+        processComplexTypeDataValues(eventNode, valueNode, typeMap, rootName);
     }
 
 
     private void processComplexTypeDataValues(XNode eventNode, XNode valueNode,
-                      Map<String, String> typeMap, String descriptor, String rootName) {
+                      Map<String, String> typeMap, String rootName) {
         if (valueNode.hasChildren()) {
             for (XNode subValueNode : valueNode.getChildren()) {
                 String subName = rootName + "/" + subValueNode.getName();
                 String subValue = subValueNode.getText();
                 String typeName = typeMap.get(subValueNode.getName());
-                eventNode.addChild(formatDataNode(descriptor, subName, subValue, typeName));
+
+                // a node with no subnodes and no text gets a default value of ""
+                if ((subValue == null) && (! subValueNode.hasChildren())) {
+                    subValue = "";
+                }
+                if (subValue != null) {
+                    eventNode.addChild(formatDataNode(subName, subValue, typeName));
+                }
 
                 // recurse
-                processComplexTypeDataValues(eventNode, subValueNode, typeMap,
-                        descriptor, subName);
+                processComplexTypeDataValues(eventNode, subValueNode, typeMap, subName);
             }
         }        
     }
@@ -269,36 +282,13 @@ public class YXESBuilder {
 
 
     private XNode formatDataNode(XNode node) {
-        String descriptor = node.getChildText("descriptor");
-        return dataNode(formatDataNodeKey(descriptor), formatDataNodeValue(node));
+        return formatDataNode(node.getChildText("name"), node.getChildText("value"),
+                              node.getChildText("typeDefinition"));
     }
 
 
-    private XNode formatDataNode(String descriptor, String name, String value,
-                                 String typeDefinition) {
-        return dataNode(formatDataNodeKey(descriptor),
-                        formatDataNodeValue(name, value, typeDefinition));
-    }
-
-
-    private String formatDataNodeKey(String descriptor) {
-        String key = descriptor.substring(0, descriptor.indexOf("Var")).toLowerCase();
-        return "data:" + key;
-    }
-
-
-    private String formatDataNodeValue(XNode node) {
-        return formatDataNodeValue(node.getChildText("name"), node.getChildText("value"),
-                node.getChildText("typeDefinition"));
-    }
-
-
-    private String formatDataNodeValue(String name, String value, String dataType) {
-        StringBuilder s = new StringBuilder(64);
-        dataType = (dataType != null) ? cdataIfComplex(dataType) : "unknown" ;
-        value = cdataIfComplex(value);
-        s.append(name).append('&').append(value).append('&').append(dataType);
-        return s.toString();
+    private XNode formatDataNode(String name, String value, String typeDefinition) {
+        return entryNode(getTagType(typeDefinition), name, value);
     }
 
 
@@ -307,6 +297,28 @@ public class YXESBuilder {
             return "<![CDATA[" + s + "]]>";
         }
         return s;
+    }
+
+
+    private String getTagType(String typeDef) {
+        if (typeDef == null) return "string";
+        
+        if (typeDef.contains(":")) {
+            typeDef = typeDef.substring(typeDef.indexOf(':') + 1);
+        }
+        if (XSDType.getInstance().isBooleanType(typeDef)) {
+            return "boolean";
+        }
+        else if (XSDType.getInstance().isDateType(typeDef)) {
+            return "date";
+        }
+        else if (XSDType.getInstance().isFloatType(typeDef)) {
+            return "float";
+        }
+        else if (XSDType.getInstance().isIntegralType(typeDef)) {
+            return "int";
+        }
+        else return "string";
     }
 
 
