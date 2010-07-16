@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.util;
 
+import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 
@@ -81,40 +82,45 @@ public class XNodeParser {
 
     private XNode parse(String s, int depth, XNode parent) {
         XNode node = null;
+        try {
+            while (s.length() > 0) {
+                s = s.trim();
 
-        while (s.length() > 0) {
-            s = s.trim();
+                // get any comments above the tag
+                List<String> comments = _commentCutter.cut(s);
+                s = _commentCutter.getText();
 
-            // get any comments above the tag
-            List<String> comments = _commentCutter.cut(s);
-            s = _commentCutter.getText();
+                // get the text inside the opening tag and use it to create a new XNode
+                String tagDef = s.trim().substring(1, s.indexOf('>'));
+                node = newNode(tagDef, depth, comments);
 
-            // get the text inside the opening tag and use it to create a new XNode
-            String tagDef = s.trim().substring(1, s.indexOf('>'));
-            node = newNode(tagDef, depth, comments);
+                // if this element is not fully enclosed in a single tag
+                if (! tagDef.endsWith("/")) {                  // '>' is already removed
 
-            // if this element is not fully enclosed in a single tag
-            if (! tagDef.endsWith("/")) {                     // '>' is already removed
+                    // get entire inner string to the matching closing tag (exclusive)
+                    // and the remaining text (if any)
+                    String content = getContent(s, tagDef, node.getName());
+                    s = getSiblingText(s, tagDef, content, node.getName());
 
-                // get entire inner string to the matching closing tag (exclusive) and the
-                // remaining text (if any)
-                String content = getContent(s, tagDef, node.getName());
-                s = getSiblingText(s, tagDef, content, node.getName());
-
-                // if contents starts with a tag
-                if (content.trim().startsWith("<")) {
-                    node.addChild(parse(content, depth + 1, node));      // recurse
+                    // if contents starts with a tag
+                    if (content.trim().startsWith("<")) {
+                        node.addChild(parse(content, depth + 1, node));      // recurse
+                    }
+                    else {
+                        node.setText(content);
+                    }
                 }
                 else {
-                    node.setText(content);
+                    s = getSiblingText(s, tagDef, null, node.getName());
                 }
+                if ((parent != null) && (s.length() > 0)) parent.addChild(node);
             }
-            else {
-                s = getSiblingText(s, tagDef, null, node.getName());
-            }
-            if ((parent != null) && (s.length() > 0)) parent.addChild(node);
+            return node;
         }
-        return node;
+        catch (Exception e) {
+            Logger.getLogger(this.getClass()).error("Invalid format parsing string: " + s);
+            return null;
+        }
     }
 
 
@@ -157,10 +163,47 @@ public class XNodeParser {
 
 
     private String getContent(String s, String tag, String nodeName) {
-        int start = s.indexOf(makeTag(tag, true)) + 2 + tag.length();
-        int end = s.indexOf(makeTag(nodeName, false));
+        String openingTag = makeTag(tag, true);
+        String closingTag = makeTag(nodeName, false);
+        List<Integer> openers = getIndexList(s, openingTag);
+        List<Integer> closers = getIndexList(s, closingTag);
+        int start = s.indexOf(openingTag) + tag.length() + 2;
+        int end = getCorrespondingCloserPos(openers, closers);
         return s.substring(start, end);
     }
+
+    private List<Integer> getIndexList(String s, String sub) {
+        List<Integer> indexList = new ArrayList<Integer>();
+        int pos = s.indexOf(sub);
+        while (pos > -1) {
+            indexList.add(pos);
+            pos = s.indexOf(sub, pos + 1);
+        }
+        return indexList;
+    }
+
+    private int getCorrespondingCloserPos(List<Integer> openers, List<Integer> closers) {
+        if (openers.size() == 1) return closers.get(0);
+
+        int openIndex = 1;
+        int closeIndex = 0;
+        int accumulator = 1;
+        while (accumulator > 0) {
+            if (openers.get(openIndex) < closers.get(closeIndex)) {
+                accumulator++;
+                openIndex++;
+            }
+            else {
+                accumulator--;
+                if (accumulator > 0) closeIndex++;
+            }
+            if (openIndex == openers.size()) {
+                return closers.get(closers.size() - 1);
+            }
+        }
+        return closers.get(closeIndex);
+    }
+
 
     private String getSiblingText(String s, String tag, String content, String nodeName) {
         String del = (content != null) ?
