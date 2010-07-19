@@ -77,7 +77,7 @@ public class MultipleAtomicTask extends YAWLTask
 
   private void initialise() {
     setMinimumInstances(1);
-    setMaximumInstances(1);
+    setMaximumInstances(2);
     setContinuationThreshold(1);
     setInstanceCreationType(STATIC_INSTANCE_CREATION);
     

@@ -1,22 +1,19 @@
 package org.yawlfoundation.yawl.editor.actions.specification;
 
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.JFormattedAlphaNumericField;
 import org.yawlfoundation.yawl.editor.swing.JFormattedSelectField;
-import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.EngineSpecificationExporter;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.util.prefs.Preferences;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.*;
+import java.awt.event.*;
+import java.util.prefs.Preferences;
 
 /**
  * Author: Michael Adams
@@ -194,6 +191,19 @@ class ExportConfigDialog extends AbstractDoneDialog {
 
     autoIncVersionCheckBox.setText("Auto Increment Minor Version Number");
     autoIncVersionCheckBox.setMnemonic(KeyEvent.VK_I);
+
+    autoIncVersionCheckBox.addItemListener(new ItemListener() {
+        public void itemStateChanged(ItemEvent e) {
+            SpecificationVersionVerifier verifier =
+                    (SpecificationVersionVerifier) versionNumberField.getInputVerifier();
+            if (e.getStateChange() == ItemEvent.DESELECTED) {
+                versionNumberField.setText(verifier.decStartingVersion());
+            }
+            else if (e.getStateChange() == ItemEvent.SELECTED) {
+                versionNumberField.setText(verifier.incStartingVersion());
+            }
+        }
+    });
 
     return autoIncVersionCheckBox;
   }

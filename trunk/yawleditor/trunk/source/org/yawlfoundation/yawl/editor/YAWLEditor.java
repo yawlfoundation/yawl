@@ -138,7 +138,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
   private static void validateParameter(String[] args) {
     if (args.length > 1) {
-      LogWriter.info("Usage: " + System.getProperty("java.class.path") + " [<EditorSaveFile>]");
+      LogWriter.warn("Usage: " + System.getProperty("java.class.path") + " [<EditorSaveFile>]");
       System.exit(1);
     }
 

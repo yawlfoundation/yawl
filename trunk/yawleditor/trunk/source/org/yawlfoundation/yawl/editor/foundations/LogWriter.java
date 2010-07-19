@@ -20,7 +20,7 @@ public class LogWriter {
     
     
     private static void configure(String homeDir) {
-        _log.setLevel(Level.ALL);
+        _log.setLevel(Level.WARN);
 
         PatternLayout layout = new PatternLayout("%d{ISO8601} [%-5p] :- %m%n");
 

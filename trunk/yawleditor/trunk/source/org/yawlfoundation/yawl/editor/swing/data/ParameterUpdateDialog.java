@@ -77,15 +77,21 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
 
   private JButton inputVariableQueryContentButton;
   private JButton inputVariableQueryElementButton;
+  private JLabel sinkVariableLabel;
 
   private JRadioButton rbElement;
   private JRadioButton rbExpression;
   
   private JButton newVariableButton;
   private XQueryEditorPanel xQueryEditorPanel;
+  private JTabbedPane pane;
 
   private CodeletSelectTable gatewayTable;
   private String selectedGateway;
+
+  private ComboBoxModel xQuerySinkComboBoxModel;  
+  private String xQuerySinkLabelText;
+  private final String gatewayFromTaskSinkLabelText = "maps from the task variable:";
 
 
 //  private XQueryDescriptorLabel xQueryButtonDescriptor;
@@ -97,7 +103,7 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
     this.setAttributesForTransitionType(transitionType);
     this.setTitle("Update " + outputType + " Parameter");
 
-      JTabbedPane pane = new JTabbedPane();
+      pane = new JTabbedPane();
       pane.setFocusable(false);
       pane.addTab("XQuery", getVariablePanel());
       pane.addTab("Data Gateway", getDataGatewayPanel());
@@ -114,14 +120,22 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
       new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             DataVariable variable = getVariableWithName(
-                    (String) sinkVariableComboBox.getSelectedItem());
+                        (String) sinkVariableComboBox.getSelectedItem());
+            if (pane.getSelectedIndex() == 0) {
+                parameter.setQuery(xQueryEditor.getText());
+            }
+            else {
+                if (outputType == DataVariable.SCOPE_NET) {
+                    variable = new DataVariable();         // dummy for external gateway
+                }
+                parameter.setQuery("#external:" + selectedGateway + ":" +
+                                    sinkVariableComboBox.getSelectedItem());
+                // reset
+                sinkVariableLabel.setText(xQuerySinkLabelText);
+                sinkVariableComboBox.setModel(xQuerySinkComboBoxModel);
+                pane.setSelectedIndex(0);
+            }
             parameter.setVariable(variable);
-          if (selectedGateway != null) {
-              parameter.setQuery("#external:" + selectedGateway + ":" + variable.getName());
-          }
-          else {
-              parameter.setQuery(xQueryEditor.getText());
-          }    
         }
       }
     );
@@ -275,7 +289,7 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
   private JPanel getPopulatesPanel() {
       JPanel panel = new JPanel(new BorderLayout(25, 5));
       panel.setBorder(new EmptyBorder(0,12,0,11));
-      JLabel sinkVariableLabel =
+      sinkVariableLabel =
         new JLabel("populates the " +
             DataVariable.scopeToString(outputType).toLowerCase() +
             " variable:"
@@ -325,6 +339,19 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
     public void stateChanged(ChangeEvent e) {
         if (e.getSource() instanceof JTabbedPane) {
             selectedGateway = null;
+            if (outputType == DataVariable.SCOPE_NET) {
+                JTabbedPane pane = (JTabbedPane) e.getSource();
+                if (pane.getSelectedIndex() == 1) {              // gateway tab
+                    xQuerySinkLabelText = sinkVariableLabel.getText();
+                    sinkVariableLabel.setText(gatewayFromTaskSinkLabelText);
+                    xQuerySinkComboBoxModel = sinkVariableComboBox.getModel();
+                    sinkVariableComboBox.setModel(sourceVariableComboBox.getModel());
+                }
+                else {
+                    sinkVariableLabel.setText(xQuerySinkLabelText);
+                    sinkVariableComboBox.setModel(xQuerySinkComboBoxModel);
+                }
+            }
             enableDoneButtonIfAppropriate();
         }
     }
@@ -594,6 +621,8 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
       newVariableButton.setSelected(true);
       sinkVariableComboBox.setEnabled(false);
     }
+    xQuerySinkLabelText = sinkVariableLabel.getText();
+    xQuerySinkComboBoxModel = sinkVariableComboBox.getModel();
 
     enableDoneButtonIfAppropriate();  
   }
@@ -603,11 +632,12 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
     populateOutputVariableComboBox();
 
     String query = parameter.getQuery();
-    if (query.startsWith("#external:"))  {
+    if ((query != null) && query.startsWith("#external:"))  {
         setSelectedGateway(query.substring(query.indexOf(':') +1));
+        pane.setSelectedIndex(1);
     }
     else {
-        xQueryEditor.setText(XMLDialogFormatter.format(parameter.getQuery()));
+        xQueryEditor.setText(XMLDialogFormatter.format(query));
     }    
     xQueryEditor.setTargetVariableName(
         (String) sinkVariableComboBox.getSelectedItem()

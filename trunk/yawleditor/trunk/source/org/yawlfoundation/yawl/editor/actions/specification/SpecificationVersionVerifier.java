@@ -20,6 +20,11 @@ public class SpecificationVersionVerifier extends InputVerifier {
       _origVersion = value;
   }
 
+    public String decStartingVersion() { return _origVersion.minorRollback(); }
+
+    public String incStartingVersion() { return _origVersion.minorIncrement(); }
+
+
   public boolean verify(JComponent component) {
     assert component instanceof JFormattedSelectField;
     JFormattedSelectField field = (JFormattedSelectField) component;
