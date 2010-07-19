@@ -943,7 +943,7 @@ public class NetGraph extends JGraph {
         getNetModel().remove(new Object[] { container.getLabel() } ); 
       }
       
-      if(labelString == null || labelString.equals("")) {
+      if(labelString == null || labelString.equals("") || labelString.equals("null")) {
         return;
       }
 

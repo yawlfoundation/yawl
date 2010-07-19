@@ -592,24 +592,27 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     }
   }
 
-  private static void convertTaskOutputParameterQueries(YTask engineTask, YAWLTask editorTask, NetGraphModel net) {
-    Iterator engineOutputParams = engineTask.getParamNamesForTaskCompletion().iterator();
-    
-    while(engineOutputParams.hasNext()) {
-      String targetParameter = (String) engineOutputParams.next();
-      
-      DataVariable editorVariable = net.getDecomposition().getVariableWithName(targetParameter);
-      
-      String engineDataBinding = engineTask.getDataBindingForOutputParam(targetParameter);
+    private static void convertTaskOutputParameterQueries(YTask engineTask, YAWLTask editorTask, NetGraphModel net) {
+        for (String targetParameter : engineTask.getParamNamesForTaskCompletion()) {
+            String engineDataBinding = engineTask.getDataBindingForOutputParam(targetParameter);
 
-        if ((editorVariable != null) && (engineDataBinding != null)) {
-            editorTask.getParameterLists().getOutputParameters().addParameterPair(
-                editorVariable,
-                XMLUtilities.stripOutermostTags(engineDataBinding)
-            );
-        }    
+            DataVariable editorVariable;
+            if ((targetParameter != null) && (targetParameter.length() == 0) &&
+                    engineDataBinding.startsWith("#external:")) {
+                editorVariable = new DataVariable();
+            }
+            else {
+                editorVariable = net.getDecomposition().getVariableWithName(targetParameter);
+            }
+
+            if ((editorVariable != null) && (engineDataBinding != null)) {
+                editorTask.getParameterLists().getOutputParameters().addParameterPair(
+                        editorVariable,
+                        XMLUtilities.stripOutermostTags(engineDataBinding)
+                );
+            }
+        }
     }
-  }
 
   private static AtomicTask generateEditorAtomicTask(YAtomicTask engineAtomicTask, NetGraphModel editorNet) {
     AtomicTask editorAtomicTask = new AtomicTask(DEFAULT_LOCATION);

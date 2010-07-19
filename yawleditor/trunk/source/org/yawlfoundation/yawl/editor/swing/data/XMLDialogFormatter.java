@@ -16,6 +16,7 @@ public class XMLDialogFormatter {
         NIL }
 
     public static String format(String s) {
+        if (s == null) return null;
         if (s.trim().startsWith("<")) {
             String formatted = JDOMUtil.formatXMLString(s);
             if (formatted != null) {
