@@ -360,6 +360,13 @@ public class caseMgt extends AbstractPageBean {
     public void setBtnWorkletAdmin(Button b) { btnWorkletAdmin = b; }
 
 
+    private Button btnGetInfo = new Button();
+
+    public Button getBtnGetInfo() { return btnGetInfo; }
+
+    public void setBtnGetInfo(Button b) { btnGetInfo = b; }
+
+
     /*******************************************************************************/
 
     private ResourceManager _rm = getApplicationBean().getResourceManager() ;
@@ -407,6 +414,12 @@ public class caseMgt extends AbstractPageBean {
 
 
     public String btnRefresh_action() {
+        return null ;
+    }
+
+
+    public String btnGetInfo_action() {
+        showSpecInfo();
         return null ;
     }
 
@@ -693,6 +706,45 @@ public class caseMgt extends AbstractPageBean {
             for (String caseStr : caseTree) options[i++] = new Option(caseStr) ;
             _sb.setRunningCaseListOptions(options);
         }
+    }
+
+
+    private void showSpecInfo() {
+        try {
+            Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
+            SpecificationData spec = _sb.getLoadedSpec(selectedRowIndex);
+
+            if (spec != null) {
+                msgPanel.setTitleText("Specification Meta Data");
+                msgPanel.info("URI: " + spec.getSpecURI());
+                msgPanel.info("VERSION: " + spec.getSpecVersion());
+                msgPanel.info("DESCRIPTION: " + spec.getDocumentation());
+                if (spec.getSpecIdentifier() != null) {
+                    msgPanel.info("IDENTIFIER: " + spec.getSpecIdentifier());
+                }
+                if ((spec.getMetaTitle() != null) && (spec.getMetaTitle().length() > 0)) {
+                    msgPanel.info("META-TITLE: " + spec.getMetaTitle());
+                }
+                if (spec.getSchemaVersion() != null) {
+                    msgPanel.info("SCHEMA VERSION: " + spec.getSchemaVersion());
+                }
+                if (spec.getAuthors() != null) {
+                    msgPanel.info("AUTHOR(S): " + spec.getAuthors());
+                }
+                if (spec.getRootNetID() != null) {
+                    msgPanel.info("ROOT NET: " + spec.getRootNetID());
+                }
+                if (spec.getStatus() != null) {
+                    msgPanel.info("ENGINE STATUS: " + spec.getStatus());
+                }
+                if (spec.getExternalDataGateway() != null) {
+                    msgPanel.info("EXTERNAL DATA GATEWAY: " + spec.getExternalDataGateway());
+                }
+            }
+        }
+        catch (NumberFormatException nfe) {
+            msgPanel.error("Please select a specification to get info for.") ;
+        }        
     }
 
 

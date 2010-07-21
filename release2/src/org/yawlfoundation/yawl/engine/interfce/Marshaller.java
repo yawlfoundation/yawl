@@ -199,6 +199,17 @@ public class Marshaller {
                         specData.addInputParam(param);
                     }
                 }
+
+                specData.setMetaTitle(specElement.getChildText("metaTitle"));
+                Element authors = specElement.getChild("authors");
+                if (authors != null) {
+                    List authorlist = authors.getChildren();
+                    for (Object e : authorlist) {
+                        Element authorElem = (Element) e;
+                        specData.setAuthors(authorElem.getText());
+                    }
+                }
+
             }
         }
         return specSummaryList;

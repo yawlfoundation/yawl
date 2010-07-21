@@ -27,7 +27,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.el.MethodBinding;
 import javax.faces.event.ActionEvent;
 import java.awt.*;
-import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -56,8 +56,8 @@ public class MessagePanel extends PanelLayout {
     private static final int MIN_PANEL_HEIGHT = 120;
     private static final int NON_MESSAGE_WIDTH = 80;
     private static final int PANEL_VSPACE = 5;
-    private static final int MESSAGE_VSPACE = 3;
-    private static final Font _msgFont = new Font("Helvetica", Font.PLAIN, 13);
+    private static final int MESSAGE_VSPACE = 6;
+    private static final Font _msgFont = new Font("SansSerif", Font.PLAIN, 13);
 
 
     // list of messages for each type
@@ -88,7 +88,7 @@ public class MessagePanel extends PanelLayout {
     //   |---------------------|
 
     public MessagePanel() {
-        _messages = new Hashtable<String, MsgType>();
+        _messages = new LinkedHashMap<String, MsgType>();    // keeps insertion order
         setId("msgPanel001");
         setStyleClass("messagePanel") ;
         composeContents();
@@ -296,7 +296,7 @@ public class MessagePanel extends PanelLayout {
     private PanelLayout constructInnerPanel() {
         PanelLayout inner = new PanelLayout() ;
         inner.setId("pnlInner" + getNextIDSuffix());
-        inner.setStyle("background-color: #f0f0f0; width: 100%; text-align:left") ;
+        inner.setStyleClass("msgPanelMessage");
         inner.setPanelLayout("flow");
         return inner ;
     }
@@ -360,6 +360,7 @@ public class MessagePanel extends PanelLayout {
         StaticText sttMessage = new StaticText();
         sttMessage.setId("stt" + getNextIDSuffix()) ;
         sttMessage.setText(message);
+        sttMessage.setStyle("font-family:verdana, sans-serif");
         innerPanel.getChildren().add(sttMessage) ;
         _pnlMessages.getChildren().add(innerPanel);
     }
@@ -369,7 +370,7 @@ public class MessagePanel extends PanelLayout {
         Label label = new Label();
         label.setText("#####");                                  // won't be visible
         label.setId("vsp" + getNextIDSuffix());
-        label.setStyle("color: #f0f0f0;");                       // same as background
+        label.setStyle("color:#f0f0f0; font-size:6px;");    // same colour as background
         _pnlMessages.getChildren().add(label);
     }
 
@@ -430,11 +431,9 @@ public class MessagePanel extends PanelLayout {
             for (String message : _messages.keySet()) {
                 Dimension bounds = FontUtil.getFontMetrics(message, _msgFont);
                 int lines = (int) Math.ceil(bounds.getWidth() / (width + 30));
-                height += lines * (bounds.getHeight() + (_msgFont.getSize() / 2));
-
-                // add vspace
-                if (_messages.size() > 1) height += MESSAGE_VSPACE;
+                height += lines * (bounds.getHeight() + (_msgFont.getSize() / 2) - 2);
             }
+            height += MESSAGE_VSPACE * _messages.size();           // add vspace
         }
         return height;
     }

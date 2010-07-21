@@ -36,6 +36,7 @@ import java.util.*;
  *
  * @author Lachlan Aldred
  * @author Michael Adams (v2.0 and later)
+ * @since 0.1
  */
 public class YAtomicTask extends YTask {
 

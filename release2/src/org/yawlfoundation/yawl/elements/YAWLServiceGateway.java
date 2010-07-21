@@ -24,16 +24,27 @@ import org.yawlfoundation.yawl.util.YVerificationMessage;
 import java.util.*;
 
 /**
- *
+ * A decomposition associated with a Web Service Gateway.
+ * <p/>
+ * A web service gateway contains a reference to a YAWL Service, which represents the
+ * service that will take responsibility for the execution of any task based on this
+ * gateway decomposition.
  * @author Lachlan Aldred
  * @author Michael Adams (updates for v2.0)
  * @since 0.1
  * @date 25/09/2003
  */
 public class YAWLServiceGateway extends YDecomposition implements YVerifiable {
+
     private Map<String, YAWLServiceReference> _yawlServices;
     private Map<String, YParameter> _enablementParameters;  //name --> parameter
 
+
+    /**
+     * Constructs a new web service gateway decomposition.
+     * @param id the service gateway identifier. Typically this is the same as its name.
+     * @param specification the comtaining specification of this service gateway.
+     */
     public YAWLServiceGateway(String id, YSpecification specification) {
         super(id, specification);
         _yawlServices = new HashMap<String, YAWLServiceReference>();
@@ -41,6 +52,11 @@ public class YAWLServiceGateway extends YDecomposition implements YVerifiable {
     }
 
 
+    /**
+     * Verifies this service gateway decomposition against YAWL semantics.
+     * @return a List of error and/or warning messages. An empty list is returned if
+     * the verification is successful.
+     */
     public List<YVerificationMessage> verify() {
         List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
         messages.addAll(super.verify());
@@ -58,6 +74,10 @@ public class YAWLServiceGateway extends YDecomposition implements YVerifiable {
     }
 
 
+    /**
+     * Outputs this service gateway to an XML representation.
+     * @return an XML (String) representation of this service gateway
+     */
     public String toXML() {
         StringBuilder xml = new StringBuilder();
 
@@ -74,10 +94,22 @@ public class YAWLServiceGateway extends YDecomposition implements YVerifiable {
     }
 
 
+    /**
+     * Gets the named YAWL Service associated with this gateway.
+     * @param yawlServiceID the idnetifier of the service.
+     * @return the Service associated with this gateway iff the service matches the id
+     * passed, or null if it doesn't match ori f there is no associated gateway.
+     */
     public YAWLServiceReference getYawlService(String yawlServiceID) {
         return _yawlServices.get(yawlServiceID);
     }
 
+
+    /**
+     * Gets the YAWL Service associated with this gateway.
+     * @return the Service associated with this gateway, or null if there is no
+     * associated gateway.
+     */
     public YAWLServiceReference getYawlService() {
         if (_yawlServices.values().size() > 0) {
             return _yawlServices.values().iterator().next();
@@ -86,6 +118,10 @@ public class YAWLServiceGateway extends YDecomposition implements YVerifiable {
     }
 
 
+    /**
+     * Sets the YAWL Service associated with this gateway.
+     * @param yawlService the Service to associate with this gateway.
+     */
     public void setYawlService(YAWLServiceReference yawlService) {
         if (yawlService != null) {
             _yawlServices.put(yawlService.getURI(), yawlService);
@@ -97,6 +133,7 @@ public class YAWLServiceGateway extends YDecomposition implements YVerifiable {
      * Gets the enablement parameters.
      * @return a map of the parameters that become available to yawl
      * services when a task is enabled.
+     * @deprecated Since 2.0, enablement mappings have no function.
      */
     public Map<String, YParameter> getEnablementParameters() {
         return _enablementParameters;
@@ -105,6 +142,7 @@ public class YAWLServiceGateway extends YDecomposition implements YVerifiable {
     /**
      * Returns the parameter names for enablement.
      * @return the set of parameter names.
+     * @deprecated Since 2.0, enablement mappings have no function.
      */
     protected Set<String> getEnablementParameterNames() {
         return _enablementParameters.keySet();
@@ -113,6 +151,7 @@ public class YAWLServiceGateway extends YDecomposition implements YVerifiable {
     /**
      * These parameters become available to yawl services when a task is enabled.
      * @param parameter the parameter
+     * @deprecated Since 2.0, enablement mappings have no function.
      */
     public void setEnablementParameter(YParameter parameter) {
         if (YParameter.getTypeForEnablement().equals(parameter.getDirection())) {

@@ -31,14 +31,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- /**
- * 
+ * Represents a server-side reference to a YAWL Custom Service.
  * @author Lachlan Aldred
- * Date: 18/03/2004
- * Time: 15:10:09
- *
- * Modified for v2.1 by Michael Adams 04/09 - 05/10
- * 
+ * @author Michael Adams (for 2.0-2.1)
+ * @since 0.1
+ * @date 18/03/2004
  */
 public class YAWLServiceReference extends YClient implements YVerifiable {
 
@@ -48,7 +45,11 @@ public class YAWLServiceReference extends YClient implements YVerifiable {
 
     /********************************************/
 
+    /**
+     * Constructs and empty service reference (default constructor).
+     */
     public YAWLServiceReference() {}
+
 
     public YAWLServiceReference(String serviceID, YAWLServiceGateway webGateway) {
         _yawlServiceID = serviceID;
