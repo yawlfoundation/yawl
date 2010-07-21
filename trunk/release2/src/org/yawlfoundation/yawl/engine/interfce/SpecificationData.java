@@ -53,6 +53,8 @@ public class SpecificationData {
     private String _schemaVersion;
     private String _rootNetID;
     private String _schema ;
+    private String _title;
+    private String _authors;
     private String _externalDataGateway;
 
     public SpecificationData(YSpecificationID specID, String specificationName,
@@ -166,6 +168,11 @@ public class SpecificationData {
     }
 
 
+    public String getSpecIdentifier() {
+        return _specificationID.getIdentifier();
+    }
+
+
     public void setSchemaVersion(String version) {
         _schemaVersion = version;
     }
@@ -193,6 +200,34 @@ public class SpecificationData {
     public boolean usesSimpleRootData() {
         return YSpecification.Beta2.equals(_schemaVersion) ||
                YSpecification.Beta3.equals(_schemaVersion);
+    }
+
+    public String getMetaTitle() {
+        return _title;
+    }
+
+    public void setMetaTitle(String title) {
+        _title = title;
+    }
+
+    public String getAuthors() {
+        return _authors;
+    }
+
+    public void setAuthors(String... authors) {
+        _authors = null;
+        if (authors != null) {
+            for (String author : authors) {
+                addAuthor(author);
+            }
+        }    
+    }
+
+    public void addAuthor(String author) {
+        if (_authors == null)
+            _authors = author;
+        else
+            _authors += ", " + author;
     }
 
     public String getExternalDataGateway() {

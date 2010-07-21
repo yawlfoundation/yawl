@@ -435,27 +435,27 @@ public class XNode {
     }
 
 
-    public String toJSON() {
-        StringBuilder s = new StringBuilder(getInitialToStringSize());
-        s.append("{");
-        s.append(quote(_name)).append(":");
-        if (_attributes != null) {
-            s.append("{ ");
-            for (String key : _attributes.keySet()) {
-                s.append(quote(key)).append(":");
-                s.append(quote(_attributes.get(key))).append(",");
-            }
-        }
-
-        if (_children != null) {
-            // do kids
-        }
-        if (_text != null) {
-            s.append(quote(_text));
-        }
-        s.append("}");
-        return s.toString();
-    }
+//    public String toJSON() {
+//        StringBuilder s = new StringBuilder(getInitialToStringSize());
+//        s.append("{");
+//        s.append(quote(_name)).append(":");
+//        if (_attributes != null) {
+//            s.append("{ ");
+//            for (String key : _attributes.keySet()) {
+//                s.append(quote(key)).append(":");
+//                s.append(quote(_attributes.get(key))).append(",");
+//            }
+//        }
+//
+//        if (_children != null) {
+//            // do kids
+//        }
+//        if (_text != null) {
+//            s.append(quote(_text));
+//        }
+//        s.append("}");
+//        return s.toString();
+//    }
 
 
     private String getIndent(int offset, int tabSize) {

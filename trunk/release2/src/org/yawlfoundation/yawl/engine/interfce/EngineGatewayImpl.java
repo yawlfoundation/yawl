@@ -36,6 +36,7 @@ import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.exceptions.YStateException;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.unmarshal.YMetaData;
 import org.yawlfoundation.yawl.util.*;
 
 import java.io.InputStream;
@@ -1133,7 +1134,18 @@ public class EngineGatewayImpl implements EngineGateway {
             specs.append(StringUtil.wrap(spec.getSpecVersion(), "specversion"));
             specs.append(StringUtil.wrap(_engine.getLoadStatus(spec.getSpecificationID()),
                          "status"));
-
+            YMetaData metadata = spec.getMetaData();
+            if (metadata != null) {
+                specs.append(StringUtil.wrap(metadata.getTitle(), "metaTitle"));
+                List<String> creators = metadata.getCreators();
+                if (creators != null) {
+                    specs.append("<authors>");
+                    for (String author : creators) {
+                        specs.append(StringUtil.wrap(author, "author"));
+                    }
+                    specs.append("</authors>");
+                }
+            }
             String gateway = spec.getRootNet().getExternalDataGateway();
             if (gateway != null) {
                 specs.append(StringUtil.wrap(gateway, "externalDataGateway"));

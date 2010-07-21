@@ -782,7 +782,7 @@ public class participantData extends AbstractPageBean {
 
         String errMsg = getApplicationBean().checkPassword(password, confirm);
         if (errMsg != null) {
-            msgPanel.error("ERROR: " + errMsg);
+            msgPanel.error(errMsg);
         }
         return (errMsg == null) ;
     }
@@ -814,11 +814,11 @@ public class participantData extends AbstractPageBean {
         // warn if no attributes
         Participant p = _sb.getAddedParticipant();
         if (p.getRoles().isEmpty())
-            msgPanel.warn("WARNING: No role specified for participant.") ;
+            msgPanel.warn("No role specified for participant.") ;
         if (p.getPositions().isEmpty())
-            msgPanel.warn("WARNING: No position specified for participant.") ;
+            msgPanel.warn("No position specified for participant.") ;
         if (p.getCapabilities().isEmpty())
-            msgPanel.warn("WARNING: No capability specified for participant.") ;
+            msgPanel.warn("No capability specified for participant.") ;
 
         return result ;
     }
@@ -827,23 +827,23 @@ public class participantData extends AbstractPageBean {
     private boolean checkForRequiredValues() {
         boolean result = true;
         if (! hasText(txtLastName)) {
-            msgPanel.error("ERROR: A last name is required.");
+            msgPanel.error("A last name is required.");
             result = false;
         }
         if (! hasText(txtFirstName)) {
-            msgPanel.error("ERROR: A first name is required.");
+            msgPanel.error("A first name is required.");
             result = false;
         }
         if (! hasText(txtUserID)) {
-            msgPanel.error("ERROR: A userid is required.");
+            msgPanel.error("A userid is required.");
             result = false;
         }
         if (! hasText(txtNewPassword)) {
-            msgPanel.error("ERROR: A password is required.");
+            msgPanel.error("A password is required.");
             result = false;
         }
         if (! hasText(txtConfirmPassword)) {
-            msgPanel.error("ERROR: A 'confirm' password is required.");
+            msgPanel.error("A 'confirm' password is required.");
             result = false;
         }
         return result ;
@@ -863,19 +863,19 @@ public class participantData extends AbstractPageBean {
         if (hasText(txtUserID)) {
             String newUserID = (String) txtUserID.getText();
             if (newUserID.equalsIgnoreCase("admin")) {
-                msgPanel.error("ERROR: 'admin' is a reserved User ID - please try another.");
+                msgPanel.error("'admin' is a reserved User ID - please try another.");
                 result = false;
             }
             else {
                 boolean modified = (! updating) || (! p.getUserID().equals(newUserID)) ;
                 if (modified && (! getApplicationBean().isUniqueUserID(newUserID))) {
-                    msgPanel.error("ERROR: That User ID is already in use - please try another.");
+                    msgPanel.error("That User ID is already in use - please try another.");
                     result = false;
                 }
             }
         }
         else {
-            msgPanel.error("ERROR: Please supply a userid.");
+            msgPanel.error("Please supply a userid.");
             result = false;
         }
         return result;

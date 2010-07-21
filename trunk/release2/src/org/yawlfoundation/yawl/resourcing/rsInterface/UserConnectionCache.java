@@ -109,15 +109,15 @@ public class UserConnectionCache {
 
 
     public boolean containsSessionHandle(String handle) {
-        return _ySessionHandleLookup.get(handle) != null;
+        return (handle != null) && (_ySessionHandleLookup.get(handle) != null);
     }
 
     public boolean containsSessionID(String id) {
-        return _jSessionIDLookup.get(id) != null;
+        return (id != null) && (_jSessionIDLookup.get(id) != null);
     }
 
     public boolean containsParticipant(String pid) {
-        return _participantLookup.get(pid) != null;
+        return (pid != null) && (_participantLookup.get(pid) != null);
     }
 
 

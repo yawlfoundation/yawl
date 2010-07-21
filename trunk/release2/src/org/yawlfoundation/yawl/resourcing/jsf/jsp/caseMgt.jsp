@@ -157,6 +157,13 @@
                                        styleClass="caseMgtButton"
                                        style="left: 129px; top: 230px"
                                        text="Unload Spec"/>
+
+                            <ui:button action="#{caseMgt.btnGetInfo_action}"
+                                       binding="#{caseMgt.btnGetInfo}"
+                                       id="btnGetInfo"
+                                       styleClass="caseMgtButton"
+                                       style="left: 247px; top: 230px"
+                                       text="Get Info"/>
                         </ui:panelLayout>
 
                         <!-- Running Cases Panel -->

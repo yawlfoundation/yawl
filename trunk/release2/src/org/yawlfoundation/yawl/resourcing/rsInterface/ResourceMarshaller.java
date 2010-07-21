@@ -179,7 +179,7 @@ public class ResourceMarshaller {
 
         if (result.isEmpty()) return null;
         return result ;
-    }
+    }                                                                            
 
 
     public SpecificationData unmarshallSpecificationData(String xml) {
@@ -212,6 +212,16 @@ public class ResourceMarshaller {
                         result.addInputParam(param);
                     }
                 }
+                result.setMetaTitle(specElement.getChildText("metaTitle"));
+                Element authors = specElement.getChild("authors");
+                if (authors != null) {
+                    List authorlist = authors.getChildren();
+                    for (Object e : authorlist) {
+                        Element authorElem = (Element) e;
+                        result.setAuthors(authorElem.getText());
+                    }
+                }
+
             }
         }
         return result;
