@@ -29,10 +29,18 @@
        <id name="_id" column="eventid" type="long" access="field">
    		    <generator class="assigned"/>
        </id>
-		
+
+       <component name="_specId"
+                   class="org.yawlfoundation.yawl.engine.YSpecificationID" access="field">
+            <property name="identifier" column="specID"/>
+            <component name="version"
+                       class="org.yawlfoundation.yawl.elements.YSpecVersion">
+                <property name="version" column="specVersion"/>
+            </component>
+            <property name="uri" column="specURI"/>
+       </component>
        <property name="_event"        column="eventName"/>
        <property name="_caseId"       column="caseId"/>
-       <property name="_specId"       column="specId"/>
        <property name="_taskId"       column="taskId"/>
        <property name="_parentCaseId" column="parentCaseId"/>
        <property name="_stamp"        column="tStamp"/>

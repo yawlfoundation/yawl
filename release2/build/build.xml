@@ -102,7 +102,6 @@
     <property name="commonsIO"             value="commons-io-1.1.jar"/>
     <property name="commonsLang"           value="commons-lang-2.3.jar"/>
     <property name="commonsLogging"        value="commons-logging-1.1.jar"/>
-    <property name="dom"                   value="dom.jar"/>
     <property name="dom4j"                 value="dom4j-1.6.1.jar"/>
     <property name="ecore"                 value="ecore.jar"/>
     <property name="ehcache"               value="ehcache-1.3.0.jar"/>
@@ -154,7 +153,6 @@
     <property name="wsdl4j"                value="wsdl4j-20030807.jar"/>
     <property name="wsif"                  value="wsif.jar"/>
     <property name="wsif-j2c"              value="wsif-j2c.jar"/>
-    <property name="xalan"                 value="xalan.jar"/>
     <property name="xerces"                value="xercesImpl.jar"/>
     <property name="xml-apis"              value="xml-apis.jar"/>
     <property name="xmlParserAPIs"         value="xmlParserAPIs-2_2_1.jar"/>

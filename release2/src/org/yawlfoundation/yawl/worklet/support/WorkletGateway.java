@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.worklet.support;
 
 import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.worklet.WorkletService;
 import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
@@ -113,8 +114,10 @@ public class WorkletGateway extends HttpServlet {
             }
             else if (action.equalsIgnoreCase("refresh")) {
                 String specID = req.getParameter("specid");
+                String specVersion = req.getParameter("specversion");
+                String specURI = req.getParameter("specuri");
                 WorkletService ws = WorkletService.getInstance() ;
-                ws.refreshRuleSet(specID);
+                ws.refreshRuleSet(new YSpecificationID(specID, specVersion, specURI));
             }
 
             // generate the output

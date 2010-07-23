@@ -38,7 +38,7 @@ public class EventLogger {
     private static boolean _logging ;
     private static boolean _logOffers ;
     private static Persister _persister = Persister.getInstance() ;
-    private static Map _specMap;
+    private static Map<String, Object> _specMap;
 
     public static enum event { offer, allocate, start, suspend, deallocate, delegate,
         reallocate_stateless, reallocate_stateful, skip, pile, cancel, chain, complete,
@@ -124,6 +124,7 @@ public class EventLogger {
      */
     public static long getSpecificationKey(YSpecificationID ySpecID) {
         long result = -1;
+        if (ySpecID == null) return -1;
         SpecLog specEntry = null;
         String key = ySpecID.getKey() + ySpecID.getVersionAsString();
 

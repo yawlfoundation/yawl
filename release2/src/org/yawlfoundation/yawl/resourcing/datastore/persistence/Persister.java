@@ -28,6 +28,7 @@ import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *  This class implements methods for Organisational Data CRUD.
@@ -60,8 +61,8 @@ public class Persister implements Serializable {
 
    /*******************************************************************************/
 
-   public HashMap selectMap(String className) {
-       HashMap result = new HashMap() ;
+   public Map<String, Object> selectMap(String className) {
+       Map<String, Object> result = new HashMap<String, Object>() ;
        if (className.endsWith("UserPrivileges")) {
            List<UserPrivileges> upList = _db.getObjectsForClass(className) ;
            for (UserPrivileges up : upList) result.put(up.getID(), up) ;

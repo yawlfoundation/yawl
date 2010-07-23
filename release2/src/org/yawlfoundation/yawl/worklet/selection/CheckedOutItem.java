@@ -18,10 +18,14 @@
 
 package org.yawlfoundation.yawl.worklet.selection;
 
-import org.yawlfoundation.yawl.worklet.support.*;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.worklet.support.DBManager;
+import org.yawlfoundation.yawl.worklet.support.Library;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 // import org.apache.log4j.Logger;
 
@@ -43,10 +47,10 @@ import java.util.*;
  */
 
 public class CheckedOutItem {
-	
-	private WorkItemRecord _wir ;          // the id of the 'parent' workitem
-	private ArrayList _myChildren ;        // list of checked out children
-	private String _specId ;               // specification that task is in
+
+    private WorkItemRecord _wir ;          // the id of the 'parent' workitem
+    private ArrayList _myChildren ;        // list of checked out children
+    private YSpecificationID _specId ;               // specification that task is in
     private CheckedOutItem _me ;           // reference to self
     private int _spawnCount ;              // original number of items spawned for task
     private int _miThreshold ;             // Threshold of MI Task (if this is a MI task)
@@ -55,20 +59,20 @@ public class CheckedOutItem {
     private String _persistID ;            // unique id field for persistence
     private String _wirStr ;               // intermediate string needed for persistence
 
- //   private static Logger _log ;                  // log file for debug messages
-	
-	public CheckedOutItem() {}             // required for persistence
+    //   private static Logger _log ;                  // log file for debug messages
+
+    public CheckedOutItem() {}             // required for persistence
 
     /** Constructs a CheckedOutItem
-	 *  @param w - the WorkItemRecord of the 'parent' workitem
-	 */	
-	public CheckedOutItem(WorkItemRecord w) {
- 		  _wir = w ;
-      _persistID = _wir.getID();
+     *  @param w - the WorkItemRecord of the 'parent' workitem
+     */
+    public CheckedOutItem(WorkItemRecord w) {
+        _wir = w ;
+        _persistID = _wir.getID();
 
-      initNonPersistedItems();
-	}
-	
+        initNonPersistedItems();
+    }
+
 //===========================================================================//
 
     // ACCESSORS & MUTATORS NEEDED FOR PERSISTENCE //
@@ -92,7 +96,7 @@ public class CheckedOutItem {
 
     // initialise the data members that are not persisted (after a restore)
     public void initNonPersistedItems() {
-        _specId = _wir.getSpecIdentifier() ;
+        _specId = new YSpecificationID(_wir) ;
         _myChildren = new ArrayList() ;
         _me = this ;
         //  _log = Logger.getLogger("org.yawlfoundation.yawl.worklet.selection.CheckedOutItem");
@@ -102,7 +106,7 @@ public class CheckedOutItem {
     public void persistThis() {
         DBManager dbMgr = DBManager.getInstance(false);
         if ((dbMgr != null) && dbMgr.isPersisting())
-             dbMgr.persist(this, DBManager.DB_UPDATE);
+            dbMgr.persist(this, DBManager.DB_UPDATE);
     }
 
 
@@ -141,73 +145,73 @@ public class CheckedOutItem {
     public boolean thresholdReached() { return _completions == _miThreshold ; }
 
 //===========================================================================//
-	
-	// GETTERS //
-	
-	public WorkItemRecord getItem() {
-		return _wir ;
-	}
-	
 
-	public String getSpecId() {
-		return _specId ;
-	}
-	
-	
-	public List getChildren() {
-		return _myChildren ;
-	}
+    // GETTERS //
+
+    public WorkItemRecord getItem() {
+        return _wir ;
+    }
+
+
+    public YSpecificationID getSpecId() {
+        return _specId ;
+    }
+
+
+    public List getChildren() {
+        return _myChildren ;
+    }
 
 
     public String getParentID() {
-       return _persistID ;
+        return _persistID ;
     }
 
     public int getSpawnCount() {
         return _spawnCount ;
     }
 
-    
+
     public int getThreshold() {
         return _miThreshold ;
     }
 
 
     /** returns the WorkItemRecord of the index childitem */
-	public WorkItemRecord getChildWorkItem(int i) {
-	   if (_myChildren.size() < i) return null ;                  // no kids! 
-	   else {
-	   	  CheckedOutChildItem c = getCheckedOutChildItem(i) ;
-	   	  if (c != null) return c.getItem() ;
-	   	  else return null ;
-	   }	  
-	}
-	
-	/** returns the CheckedOutChildItem object of the index childitem */
-	public CheckedOutChildItem getCheckedOutChildItem(int i) {
-	   if (_myChildren.size() < i) return null ;                  // no kids!       
-	   return (CheckedOutChildItem) _myChildren.get(i) ;
-	}
-	
-	
-	/** returns the CheckedOutChildItem object of the childitem with the id */
-	public CheckedOutChildItem getCheckedOutChildItem(String itemId) {
-	    Iterator itr = _myChildren.iterator();
-	    while (itr.hasNext()) {                              // for each child   
-    		CheckedOutChildItem c = (CheckedOutChildItem) itr.next() ;
-	        if (itemId.equals(c.getItem().getID())) return c ; 
-        }			
+    public WorkItemRecord getChildWorkItem(int i) {
+        if (_myChildren.size() < i) return null ;                  // no kids!
+        else {
+            CheckedOutChildItem c = getCheckedOutChildItem(i) ;
+            if (c != null) return c.getItem() ;
+            else return null ;
+        }
+    }
+
+    /** returns the CheckedOutChildItem object of the index childitem */
+    public CheckedOutChildItem getCheckedOutChildItem(int i) {
+        if (_myChildren.size() < i) return null ;                  // no kids!
+        return (CheckedOutChildItem) _myChildren.get(i) ;
+    }
+
+
+    /** returns the CheckedOutChildItem object of the childitem with the id */
+    public CheckedOutChildItem getCheckedOutChildItem(String itemId) {
+        Iterator itr = _myChildren.iterator();
+        while (itr.hasNext()) {                              // for each child
+            CheckedOutChildItem c = (CheckedOutChildItem) itr.next() ;
+            if (itemId.equals(c.getItem().getID())) return c ;
+        }
         return null ;
-	}
-	
+    }
+
 //===========================================================================//
-		
-	// CHILD MAINTENANCE //
-	
-	/** adds a new child item to this parent */
-	public void addChild(WorkItemRecord w) {
+
+    // CHILD MAINTENANCE //
+
+    /** adds a new child item to this parent */
+    public void addChild(WorkItemRecord w) {
         addChild(new CheckedOutChildItem(w)) ;
-	}
+    }
 
 
     /** adds child from ChildItem (used when restoring from persistence) */
@@ -218,36 +222,36 @@ public class CheckedOutItem {
 
 
     /** returns the number of children of this parent */
-	public int getChildCount() {
-		return _myChildren.size() ;
-	}
-	
-	
-	/** removes the indexed child from the list of children */
-	public void removeChild(int idx) {
-		if (idx < _myChildren.size()) 
-			_myChildren.remove(idx) ;
-	}
-	
-	
-	/** 
-	 *  removes the child referenced by the CheckedOutChildItem passed 
-	 *  @return the (former) index of the removed child 
-	 */	
-	public int removeChild(CheckedOutChildItem childToRemove) {
-		
-		// for each child in list of children
-		for (int i = 0; i < _myChildren.size(); i++) {
-    		CheckedOutChildItem c = (CheckedOutChildItem) _myChildren.get(i) ;
-    		
-    		// if this object matches the one passed, remove it
-	        if (childToRemove.getItem().getID().equals(c.getItem().getID())) {
-	           _myChildren.remove(i) ;
-	           return i ;
-	        }   
+    public int getChildCount() {
+        return _myChildren.size() ;
+    }
+
+
+    /** removes the indexed child from the list of children */
+    public void removeChild(int idx) {
+        if (idx < _myChildren.size())
+            _myChildren.remove(idx) ;
+    }
+
+
+    /**
+     *  removes the child referenced by the CheckedOutChildItem passed
+     *  @return the (former) index of the removed child
+     */
+    public int removeChild(CheckedOutChildItem childToRemove) {
+
+        // for each child in list of children
+        for (int i = 0; i < _myChildren.size(); i++) {
+            CheckedOutChildItem c = (CheckedOutChildItem) _myChildren.get(i) ;
+
+            // if this object matches the one passed, remove it
+            if (childToRemove.getItem().getID().equals(c.getItem().getID())) {
+                _myChildren.remove(i) ;
+                return i ;
+            }
         }
-        return -1 ;		
-	}
+        return -1 ;
+    }
 
     /** removes all child records from this parent */
     public void removeAllChildren() {
@@ -256,39 +260,39 @@ public class CheckedOutItem {
 
 
     /** returns true if this parent has children */
-	public boolean hasCheckedOutChildItems() {   
-		return (_myChildren.size() > 0) ;
-	}
+    public boolean hasCheckedOutChildItems() {
+        return (_myChildren.size() > 0) ;
+    }
 
 
     /** returns true if this parent has the child passed */
     public boolean hasCheckedOutChildItem(CheckedOutChildItem child) {
-       return (_myChildren.contains(child));
+        return (_myChildren.contains(child));
     }
-	
+
 //===========================================================================//
-	
-   
-    /** returns String representation of  current CheckedOutItem */  
+
+
+    /** returns String representation of  current CheckedOutItem */
     public String toString() {
         StringBuilder s = new StringBuilder("##### CHECKEDOUTITEM RECORD #####") ;
-    	String n = Library.newline ;
+        String n = Library.newline ;
 
         // write out the parent wir
         s.append(n);
         Library.appendLine(s, "CHECKED OUT ITEM", toStringSub());
 
-    	// build this toString by calling the toStringSub of each child
-    	s.append("CHILD ITEM(S): ");
+        // build this toString by calling the toStringSub of each child
+        s.append("CHILD ITEM(S): ");
         s.append(n);
-    	Iterator itr = _myChildren.iterator();
-	    while (itr.hasNext()) {
-    		CheckedOutChildItem child = (CheckedOutChildItem) itr.next() ;
-    		s.append(child.toStringSub());
+        Iterator itr = _myChildren.iterator();
+        while (itr.hasNext()) {
+            CheckedOutChildItem child = (CheckedOutChildItem) itr.next() ;
+            s.append(child.toStringSub());
             s.append(n);
         }
 
-    	return s.toString() ;
+        return s.toString() ;
     }
 
 
@@ -296,11 +300,11 @@ public class CheckedOutItem {
         StringBuilder s = new StringBuilder();
         s.append(_wir.toXML());
         s.append(Library.newline);
-    	return s.toString() ;
+        return s.toString() ;
     }
 
 //===========================================================================//
 //===========================================================================//
-   
+
 }
 	

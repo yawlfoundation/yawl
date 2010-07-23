@@ -18,19 +18,26 @@
 
 package org.yawlfoundation.yawl.worklet.support;
 
-import org.yawlfoundation.yawl.worklet.rdr.*;
-import org.yawlfoundation.yawl.worklet.WorkletService;
-
+import org.apache.log4j.Logger;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.IllegalAddException;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.worklet.WorkletService;
+import org.yawlfoundation.yawl.worklet.rdr.RdrNode;
+import org.yawlfoundation.yawl.worklet.rdr.RdrSet;
+import org.yawlfoundation.yawl.worklet.rdr.RdrTree;
 
-import org.jdom.*;
-import org.jdom.output.*;
-
-import org.apache.log4j.Logger;
-
-import java.util.*;
-import java.io.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /** The WorkletRecord class maintains a generic dataset for derived classes
  *  that manage a currently running worklet for a 'parent' process.
@@ -124,11 +131,11 @@ public class WorkletRecord {
         return _runners.getCaseID(wName) ;
     }
 
-    public Set getWorkletList() {
+    public Set<String> getWorkletList() {
         return _runners.getAllWorkletNames() ;
     }
 
-    public HashMap getCaseMapAsCSVList() {
+    public Map<String, String> getCaseMapAsCSVList() {
         return _runners.getCaseMapAsCSVLists();
     }
 
@@ -148,7 +155,7 @@ public class WorkletRecord {
     }
 
 
-    public Set getRunningCaseIds() {
+    public Set<String> getRunningCaseIds() {
         return _runners.getAllCaseIDs() ;                      // the worklet case ids
     }
 
@@ -161,8 +168,8 @@ public class WorkletRecord {
         return _wir.getCaseID();            // the originating workitem's case id
     }
 
-    public String getSpecID() {
-        return _wir.getSpecIdentifier();      // i.e. of the originating workitem
+    public YSpecificationID getSpecID() {
+        return new YSpecificationID(_wir);      // i.e. of the originating workitem
     }
 
     public int getReasonType() {
@@ -196,8 +203,8 @@ public class WorkletRecord {
 
     protected String get_runningCaseIdStr() {
         if (_runners != null) {
-            HashMap cases = _runners.getCaseMapAsCSVLists();
-            _runningCaseIdStr = (String) cases.get("caseIDs");
+            Map<String, String> cases = _runners.getCaseMapAsCSVLists();
+            _runningCaseIdStr = cases.get("caseIDs");
         }
          return _runningCaseIdStr ;
     }
@@ -213,8 +220,8 @@ public class WorkletRecord {
 
     protected String get_runningWorkletStr() {
         if (_runners != null) {
-            HashMap cases = _runners.getCaseMapAsCSVLists();
-            _runningWorkletStr = (String) cases.get("workletNames");
+            Map<String, String> cases = _runners.getCaseMapAsCSVLists();
+            _runningWorkletStr = cases.get("workletNames");
         }
         return _runningWorkletStr ;
     }
@@ -244,7 +251,7 @@ public class WorkletRecord {
     }
 
 
-    public void rebuildSearchPair(String specID, String taskID) {
+    public void rebuildSearchPair(YSpecificationID specID, String taskID) {
 
         RdrSet ruleSet = new RdrSet(specID);                  // make a new set
         RdrTree tree ;
@@ -296,6 +303,8 @@ public class WorkletRecord {
         Element eTested = new Element("tested") ;
         Element eId = new Element("id") ;
         Element eSpecid = new Element("specid") ;
+        Element eSpecVersion = new Element("specversion") ;
+        Element eSpecURI = new Element("specuri") ;
         Element eTaskid = new Element("taskid") ;
         Element eCaseid = new Element("caseid") ;
         Element eCaseData = new Element("casedata") ;
@@ -314,17 +323,17 @@ public class WorkletRecord {
             //set values for the workitem identifiers
             eId.setText(_wir.getID()) ;
             eSpecid.setText(_wir.getSpecIdentifier());
-            eTaskid.setText(WorkletService.getInstance().getDecompID(_wir));
+            eSpecVersion.setText(_wir.getSpecVersion());
+            eSpecURI.setText(_wir.getSpecURI());
+            eTaskid.setText(_wir.getTaskName());
             eCaseid.setText(_wir.getCaseID());
             eReason.setText(String.valueOf(_reasonType));
 
             // add the worklet names and case ids
-            Iterator witr = _runners.getAllWorkletNames().iterator() ;
-            while (witr.hasNext()) {
+            for (String wName : _runners.getAllWorkletNames()) {
                 Element eWorkletName = new Element("workletName") ;
                 Element eRunningCaseId = new Element("runningcaseid") ;
                 Element eWorklet = new Element("worklet");
-                String wName = (String) witr.next();
                 eWorkletName.setText(wName) ;
                 eRunningCaseId.setText(_runners.getCaseID(wName)) ;
                 eWorklet.addContent(eWorkletName);
@@ -342,6 +351,8 @@ public class WorkletRecord {
             Element root = doc.getRootElement();
             root.addContent(eId) ;
             root.addContent(eSpecid);
+            root.addContent(eSpecVersion);
+            root.addContent(eSpecURI);
             root.addContent(eTaskid);
             root.addContent(eCaseid);
             root.addContent(eWorklets) ;

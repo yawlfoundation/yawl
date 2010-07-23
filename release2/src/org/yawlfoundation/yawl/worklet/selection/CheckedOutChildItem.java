@@ -58,7 +58,7 @@ public class CheckedOutChildItem extends WorkletRecord {
         _persistID = _wir.getID();
         _datalist = _wir.getDataList();
         _wirStr = _wir.toXML();
-        _log = Logger.getLogger("org.yawlfoundation.yawl.worklet.selection.CheckedOutChildItem");
+        _log = Logger.getLogger(this.getClass());
     }
 
 //===========================================================================//

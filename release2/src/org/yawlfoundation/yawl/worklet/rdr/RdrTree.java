@@ -18,14 +18,14 @@
 
 package org.yawlfoundation.yawl.worklet.rdr;
 
-import org.yawlfoundation.yawl.worklet.support.*;
-import org.yawlfoundation.yawl.util.JDOMUtil;
-
-import org.jdom.Element ;
 import org.apache.log4j.Logger;
+import org.jdom.Element;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.worklet.support.Library;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 // import org.apache.log4j.Logger;
 
@@ -46,7 +46,7 @@ import java.util.ArrayList;
 
 public class RdrTree {
 
-    private String _specId = null ;                   // spec rules are for
+    private YSpecificationID _specId = null ;           // spec rules are for
     private String _taskId = null ;                   // task rules are for    
     private RdrNode _rootNode = null;
     private RdrNode[] _lastPair = new RdrNode[2];     // see search()
@@ -63,7 +63,7 @@ public class RdrTree {
      *  @param specId - specification the task is a member of
      *  @param taskId - id of task that this tree will support
      */
-     public RdrTree(String specId, String taskId){
+     public RdrTree(YSpecificationID specId, String taskId){
     	_taskId = taskId ;
     	_specId = specId ;
     }
@@ -76,7 +76,7 @@ public class RdrTree {
         return _rootNode;
     }
     
-    public String getSpecId(){
+    public YSpecificationID getSpecId(){
         return _specId;
     }
     
@@ -109,17 +109,17 @@ public class RdrTree {
     }
 
 
-    public List getAllConditions() {
+    public List<String> getAllConditions() {
         return getAllConditions(_rootNode) ;
     }
 
     /** recurses the tree, collecting the condition from each node */
-    public List getAllConditions(RdrNode node) {
-        ArrayList list = new ArrayList();
+    public List<String> getAllConditions(RdrNode node) {
+        List<String> list = new ArrayList<String>();
         if (node != null) {
             list.add(node.getCondition());
-        	list.addAll(getAllConditions(node.getTrueChild())) ;
-        	list.addAll(getAllConditions(node.getFalseChild())) ;
+        	  list.addAll(getAllConditions(node.getTrueChild())) ;
+        	  list.addAll(getAllConditions(node.getFalseChild())) ;
         }
         return list ;
     }
@@ -132,7 +132,7 @@ public class RdrTree {
     	_rootNode = root ;
     }
     
-    public void setSpecId(String id) {
+    public void setSpecId(YSpecificationID id) {
     	_specId = id ;
     }
     

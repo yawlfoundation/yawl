@@ -32,9 +32,8 @@ import java.util.*;
 
 public class CaseMap {
 
-    private HashMap _caseIdToWorkletName = new HashMap();
-    private HashMap _workletNameToCaseId = new HashMap();
-    private String _caseIdsAsCSVList ;
+    private Map<String, String> _caseIdToWorkletName = new Hashtable<String, String>();
+    private Map<String, String> _workletNameToCaseId = new Hashtable<String, String>();
 
 
     public CaseMap() {}
@@ -45,11 +44,11 @@ public class CaseMap {
     }
 
     public String getWorkletName(String caseID) {
-        return (String) _caseIdToWorkletName.get(caseID);
+        return _caseIdToWorkletName.get(caseID);
     }
 
     public String getCaseID(String workletName) {
-        return (String) _workletNameToCaseId.get(workletName);
+        return _workletNameToCaseId.get(workletName);
     }
 
     public void removeCase(String caseID) {
@@ -67,37 +66,39 @@ public class CaseMap {
         _workletNameToCaseId.clear();
     }
 
-    public Set getAllCaseIDs() {
+    public Set<String> getAllCaseIDs() {
         return _caseIdToWorkletName.keySet();
     }
 
-    public Set getAllWorkletNames() {
+    public Set<String> getAllWorkletNames() {
         return _workletNameToCaseId.keySet();
     }
 
-    public ArrayList getCaseIdList() {
-        return new ArrayList(_workletNameToCaseId.values());
+    public List<String> getCaseIdList() {
+        return new ArrayList<String>(_workletNameToCaseId.values());
     }
 
-    public ArrayList getWorkletList() {
-        return new ArrayList(_caseIdToWorkletName.values());
+    public List<String> getWorkletList() {
+        return new ArrayList<String>(_caseIdToWorkletName.values());
     }
 
     public String getWorkletCSVList() {
-        return (String) getCaseMapAsCSVLists().get("workletNames");
+        return getCaseMapAsCSVLists().get("workletNames");
     }
 
 
     public String getCaseIdCSVList() {
-        return (String) getCaseMapAsCSVLists().get("caseIDs");
+        return getCaseMapAsCSVLists().get("caseIDs");
     }
 
 
-    public HashMap getCaseMapAsCSVLists() {
-        HashMap result = new HashMap();
-        ArrayList caseIDs = getCaseIdList();
-        result.put("caseIDs", RdrConversionTools.StringListToString(caseIDs));
-        result.put("workletNames", makeCSVNameList(caseIDs));
+    public Map<String, String> getCaseMapAsCSVLists() {
+        Map<String, String> result = new Hashtable<String, String>();
+        List<String> caseIDs = getCaseIdList();
+        String idcsv = RdrConversionTools.StringListToString(caseIDs);
+        if (idcsv != null) result.put("caseIDs", idcsv);
+        String namecsv = makeCSVNameList(caseIDs);
+        if (namecsv != null) result.put("workletNames", namecsv);
         return result;
     }
 
@@ -125,12 +126,11 @@ public class CaseMap {
 
 
     /** creates an ordered csv list of worklet names from case ids */
-    private String makeCSVNameList(List caseIDs) {
+    private String makeCSVNameList(List<String> caseIDs) {
         String result = "";
-        Iterator itr = caseIDs.iterator();
-        while (itr.hasNext()) {
+        for (String caseID : caseIDs) {
             if (result.length() > 0) result += ",";
-            result += getWorkletName((String) itr.next());
+            result += getWorkletName(caseID);
         }
         if (result.length() == 0) result = null ;
         return result ;

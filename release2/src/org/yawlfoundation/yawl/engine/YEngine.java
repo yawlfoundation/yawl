@@ -1947,7 +1947,7 @@ public class YEngine implements InterfaceADesign,
                        YNetRunner runner = _workItemRepository.getNetRunner(caseID);
                        String taskID = workItem.getTaskID();
                        YPersistenceManager pmgr = getPersistenceSession();
-                       runner.cancelTask(pmgr, taskID);
+                       runner.cancelTask(null, taskID);
                        workItem.setStatusToDeleted(pmgr, statusFail);
                        if (workItem.hasTimerStarted()) {
                            YTimer.getInstance().cancelTimerTask(workItem.getIDString());

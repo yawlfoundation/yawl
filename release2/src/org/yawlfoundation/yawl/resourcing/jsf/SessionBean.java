@@ -914,6 +914,18 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
+    public boolean isLoadedSpec(String uri, String version, String documentation) {
+        for (SpecificationData sd : loadedSpecs) {
+            if (sd.getSpecURI().equals(uri) &&
+                sd.getSpecVersion().equals(version) &&
+                sd.getDocumentation().equals(documentation)) {
+
+                return true;
+            }
+        }
+        return false;
+    }
+
     public String getCaseSchema() {
         return _rm.getDataSchema(getLoadedSpecListChoice()) ;
     }

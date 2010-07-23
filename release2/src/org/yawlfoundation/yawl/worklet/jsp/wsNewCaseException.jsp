@@ -1,4 +1,5 @@
-<%@ page import="org.yawlfoundation.yawl.worklet.admin.AdministrationTask"%>
+<%@ page import="org.yawlfoundation.yawl.engine.YSpecificationID"%>
+<%@ page import="org.yawlfoundation.yawl.worklet.admin.AdministrationTask" %>
 
 <%--
   ~ Copyright (c) 2004-2010 The YAWL Foundation. All rights reserved.
@@ -46,7 +47,7 @@
             return;
         }
     }
-    String specID = _exceptionService.getSpecIDForCaseID(caseID);
+    YSpecificationID specID = _exceptionService.getSpecIDForCaseID(caseID);
 
 %>
 
@@ -75,7 +76,7 @@
             </tr>
             <tr>
                 <td height="30" width="150" align="center"><%= caseID%></td>
-                <td width="180" align="center"><%= specID%></td>
+                <td width="180" align="center"><%= specID.toString()%></td>
                 <td/>
             </tr>
         </table>

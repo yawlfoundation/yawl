@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.worklet.exception;
 
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 
 import org.yawlfoundation.yawl.worklet.support.*;
 import org.yawlfoundation.yawl.worklet.WorkletService;
@@ -43,15 +44,15 @@ import java.util.*;
 
 public class CaseMonitor {
 
-    private String _specID = null;                      // specification id of instance
+    private YSpecificationID _specID = null;            // specification id of instance
     private String _caseID = null ;                     // case id of instance
     private Element _caseData = null ;                  // current case data params
     private Element _netLevelData = null ;              // case-level decl. data params
     private Logger _log ;
-    private HashMap _itemRunners = null ;               // HandlerRunners for workitems
+    private Map<String, HandlerRunner> _itemRunners = null ;    // Runners for workitems
     private HandlerRunner _hrPreCase, _hrPostCase ;     // pre & post case runners
     private HandlerRunner _hrCaseExternal ;             // runner for case-level external
-    private ArrayList _liveItems = new ArrayList();     // list of executing items
+    private List<String> _liveItems = new ArrayList<String>();  // list of executing items
     private boolean _liveCase = false ;                 // is case still executing?
     private boolean _preCaseCancelled = false ;         // has pre-case check killed case
 
@@ -71,13 +72,13 @@ public class CaseMonitor {
      * @param caseID
      * @param data - a string representation of the case data
      */
-    public CaseMonitor(String specID, String caseID, String data) {
-        _log = Logger.getLogger("org.yawlfoundation.yawl.worklet.exception.CaseMonitor");
+    public CaseMonitor(YSpecificationID specID, String caseID, String data) {
+        _log = Logger.getLogger(this.getClass());
         _specID = specID ;
         _caseID = caseID ;
-        _caseData = (data != null) ? JDOMUtil.stringToElement(data) : new Element(specID);
+        _caseData = (data != null) ? JDOMUtil.stringToElement(data) : new Element(specID.getUri());
         _netLevelData = _caseData ;
-        _itemRunners = new HashMap() ;
+        _itemRunners = new Hashtable<String, HandlerRunner>() ;
         _liveCase = true ;
         _caseDataStr = data;
         _netDataStr = data;
@@ -94,7 +95,7 @@ public class CaseMonitor {
     }
 
 
-    public String getSpecID() {
+    public YSpecificationID getSpecID() {
         return _specID ;
     }
 
@@ -135,7 +136,7 @@ public class CaseMonitor {
 
     private String get_liveItemIDs() { return _liveItemIDs; }
 
-    private String get_specID() { return _specID; }
+    private YSpecificationID get_specID() { return _specID; }
 
     private String get_caseID() { return _caseID; }
 
@@ -155,7 +156,7 @@ public class CaseMonitor {
 
     private void set_liveItemIDs(String ids) { _liveItemIDs = ids ;  }
 
-    private void set_specID(String s) { _specID = s; }
+    private void set_specID(YSpecificationID s) { _specID = s; }
 
     private void set_caseID(String s) { _caseID = s; }
 
@@ -172,8 +173,8 @@ public class CaseMonitor {
     public void initNonPersistedItems() {
         _caseData = JDOMUtil.stringToElement(_caseDataStr);
         _netLevelData = JDOMUtil.stringToElement(_netDataStr);
-        _liveItems = (ArrayList) RdrConversionTools.StringToStringList(_liveItemIDs);
-        _log = Logger.getLogger("org.yawlfoundation.yawl.worklet.exception.CaseMonitor");
+        _liveItems = RdrConversionTools.StringToStringList(_liveItemIDs);
+        _log = Logger.getLogger(this.getClass());
     }
 
 
@@ -182,9 +183,9 @@ public class CaseMonitor {
      * @param runnerMap - a set of all the HandlerRunners restored from persistence
      * @return the list of all runners 'claimed' by this CaseMonitor
      */
-    public List restoreRunners(HashMap runnerMap) {
-        ArrayList restored = new ArrayList() ;
-        _itemRunners = new HashMap();               // runners at the workitem level
+    public List<HandlerRunner> restoreRunners(Map<String, HandlerRunner> runnerMap) {
+        List<HandlerRunner> restored = new ArrayList<HandlerRunner>() ;
+        _itemRunners = new Hashtable<String, HandlerRunner>();  // workitem level runners
 
         // restore any case level runners
         _hrPreCase = restoreRunner(_hrPreCaseID, runnerMap) ;
@@ -196,14 +197,11 @@ public class CaseMonitor {
 
         // restore any item level runners
         HandlerRunner runner ;
-        String id ;
 
         // runner ids are a string of ids persisted for this CaseMonitor
-        List runnerIDs = RdrConversionTools.StringToStringList(_itemRunnerIDs);
+        List<String> runnerIDs = RdrConversionTools.StringToStringList(_itemRunnerIDs);
         if (runnerIDs != null) {
-            Iterator itr = runnerIDs.iterator();
-            while (itr.hasNext()) {
-                id = (String) itr.next() ;
+            for (String id : runnerIDs) {
                 runner = restoreRunner(id, runnerMap) ;
                 restored.add(runner);
                 _itemRunners.put(runner.getItemId(), runner);
@@ -221,10 +219,10 @@ public class CaseMonitor {
      * @return the runner that 'owns' the id specified, or null if there is no
      *         runner with that id or the id is null
      */
-    private HandlerRunner restoreRunner(String id, HashMap runnerMap) {
+    private HandlerRunner restoreRunner(String id, Map<String, HandlerRunner>  runnerMap) {
         HandlerRunner result = null ;
         if (id != null) {                                // an actual id has been passed
-            result = (HandlerRunner) runnerMap.get(id);
+            result = runnerMap.get(id);
             if (result != null) {
 
                 // found a runner with this id, so 'reattach' it to this CaseMonitor
@@ -398,10 +396,8 @@ public class CaseMonitor {
 
     /** Stringifies the list of item runner ids (required for persistence) */
     private void updateRunnerIDs() {
-        ArrayList ids = new ArrayList();
-        Iterator itr = new ArrayList(_itemRunners.values()).iterator();
-        while (itr.hasNext()) {
-            HandlerRunner runner = (HandlerRunner) itr.next();
+        List<String> ids = new ArrayList<String>();
+        for (HandlerRunner runner : _itemRunners.values()) {
             ids.add(String.valueOf(runner.get_id()));
         }
         _itemRunnerIDs = RdrConversionTools.StringListToString(ids);
@@ -424,7 +420,7 @@ public class CaseMonitor {
 
     /** retrieves an item-level runner */
     public HandlerRunner getHandlerRunnerForItem(String itemID) {
-        return (HandlerRunner) _itemRunners.get(itemID) ;
+        return _itemRunners.get(itemID) ;
     }
 
 
@@ -446,8 +442,8 @@ public class CaseMonitor {
 
 
     // returns the complete list of all active HandlerRunners for this case
-    public ArrayList getHandlerRunners() {
-        ArrayList list = new ArrayList();
+    public List<HandlerRunner> getHandlerRunners() {
+        List<HandlerRunner> list = new ArrayList<HandlerRunner>();
         list.addAll(_itemRunners.values());
         if (_hrPreCase != null) list.add(_hrPreCase) ;
         if (_hrPostCase != null) list.add(_hrPreCase) ;
@@ -609,7 +605,7 @@ public class CaseMonitor {
         StringBuilder s = new StringBuilder("##### CASEMONITOR RECORD #####");
         s.append(Library.newline);
 
-        String specID = (_specID == null)? "null" : _specID;
+        String specID = (_specID == null)? "null" : _specID.toString();
         String caseID = (_caseID == null)? "null" : _caseID;
         String caseData = (_caseData == null)? "null" : JDOMUtil.elementToString(_caseData);
         String netData = (_netLevelData == null)? "null" : JDOMUtil.elementToString(_netLevelData);              // case-level decl. data params

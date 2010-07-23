@@ -26,6 +26,8 @@ Friend Class frmAddRule
         Public worklets As Hashtable
         Public id As String
         Public specid As String
+        Public specversion As String
+        Public specuri As String
         Public taskid As String
         Public ruleType As String
         Public casedata() As String
@@ -415,6 +417,10 @@ Friend Class frmAddRule
                                 workItem.id = x.Value
                             Case "specid"
                                 workItem.specid = x.Value
+                            Case "specversion"
+                                workItem.specversion = x.Value
+                            Case "specuri"
+                                workItem.specuri = x.Value
                             Case "caseid"
                                 workItem.caseid = x.Value
                             Case "taskid"
@@ -526,6 +532,7 @@ Friend Class frmAddRule
         Dim ruleType As RuleSetMgr.exType
         Dim rTypeStr As String
         Dim result As Boolean
+        Dim specName As String
 
         ' check for matching specid and ruletype
         If wi.ruleType Is Nothing Then
@@ -535,8 +542,13 @@ Friend Class frmAddRule
         End If
         rTypeStr = rsMgr.TreeTypeToString(ruleType)
 
+        specName = wi.specuri
+        If wi.specuri Is Nothing Then
+            specName = wi.specid
+        End If
+
         ' check match on specid and rule type identifiers
-        result = ((rsMgr.SpecName = wi.specid) AndAlso (loadedRuleType = rTypeStr))
+        result = ((rsMgr.SpecName = specName) AndAlso (loadedRuleType = rTypeStr))
 
         ' if it's not a case level rule set then check the task id also
         If Not rsMgr.isCaseLevelTree(ruleType) Then
@@ -549,7 +561,7 @@ Friend Class frmAddRule
             & vbCrLf & vbCrLf & _
             "   File: " & fName & vbCrLf & vbCrLf & _
             "   Current spec           : " & vbTab & rsMgr.SpecName & vbCrLf & _
-            "   Selected file spec     : " & vbTab & wi.specid & vbCrLf & vbCrLf & _
+            "   Selected file spec     : " & vbTab & wi.specuri & vbCrLf & vbCrLf & _
             "   Current rule type      : " & vbTab & loadedRuleType & vbCrLf & _
             "   Selected file rule type: " & vbTab & rTypeStr & vbCrLf & vbCrLf & _
             "   Current task           : " & vbTab & loadedTask & vbCrLf & _

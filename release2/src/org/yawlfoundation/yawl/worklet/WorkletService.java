@@ -19,26 +19,20 @@
 package org.yawlfoundation.yawl.worklet;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.IllegalAddException;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.XMLOutputter;
+import org.jdom.*;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
-import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.logging.YLogDataItem;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
+import org.yawlfoundation.yawl.util.HttpURLValidator;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.util.HttpURLValidator;
 import org.yawlfoundation.yawl.worklet.admin.AdminTasksManager;
 import org.yawlfoundation.yawl.worklet.admin.AdministrationTask;
 import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
@@ -55,7 +49,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.util.*;
 
 
@@ -154,14 +147,19 @@ public class WorkletService extends InterfaceBWebsideController {
      *       - VALUE: [String] id of the child WorkItemRecord the worklet was
      *                launched for (i.e. the key of a corresponding _handledWorkItem)
      *    _ruleSets:
-     *       - KEY: [String] spec id this set of rules applies to
+     *       - KEY: [YSpecificationID] spec id this set of rules applies to
      *       - VALUE: [RdrSet] set of rules for the spec
      */
-    private HashMap _handledParentItems = new HashMap() ; // checked out parents
-    private HashMap _handledWorkItems = new HashMap() ;   // checked out children
-    private HashMap _casesStarted = new HashMap() ;       // running selection worklets
-    private HashMap _ruleSets = new HashMap() ;           // rdrSets for each spec
-    protected ArrayList _loadedSpecs = new ArrayList() ;  // all specs loaded in engine
+    private Map<String, CheckedOutItem> _handledParentItems =
+            new Hashtable<String, CheckedOutItem>() ;        // checked out parents
+    private Map<String, CheckedOutChildItem> _handledWorkItems =
+            new Hashtable<String, CheckedOutChildItem>() ;   // checked out children
+    private Map<String, String> _casesStarted
+            = new Hashtable<String, String>() ;            // running selection worklets
+    private Map<YSpecificationID, RdrSet> _ruleSets =
+            new Hashtable<YSpecificationID, RdrSet>() ;      // rdrSets for each spec
+    protected List<SpecificationData> _loadedSpecs =
+            new ArrayList<SpecificationData>() ;         // all specs loaded in engine
     private AdminTasksManager _adminTasksMgr = new AdminTasksManager() ;   // admin tasks
 
 
@@ -194,8 +192,8 @@ public class WorkletService extends InterfaceBWebsideController {
 
     public void initEngineURI(String uri) {
         _engineURI = uri ;
-        _interfaceAClient = new InterfaceA_EnvironmentBasedClient(
-                                                 _engineURI.replaceFirst("/ib", "/ia"));
+        _interfaceAClient =
+             new InterfaceA_EnvironmentBasedClient(_engineURI.replaceFirst("/ib", "/ia"));
     }
 
 
@@ -206,7 +204,7 @@ public class WorkletService extends InterfaceBWebsideController {
                     _interfaceAClient.getRegisteredYAWLServices(_sessionHandle) ;
             if (services != null) {
                 for (YAWLServiceReference service : services) {
-                    if (service.getURI().indexOf("workletService") > -1) {
+                    if (service.getURI().contains("workletService")) {
                         _workletURI = service.getURI();
                     }
                 }
@@ -286,7 +284,7 @@ public class WorkletService extends InterfaceBWebsideController {
                  _log.info("Connection to engine is active") ;
                   _log.info("ID of cancelled workitem: " + itemId ) ;
 
-                coItem = (CheckedOutChildItem) _handledWorkItems.get(itemId) ;
+                coItem = _handledWorkItems.get(itemId) ;
                 cancelled = cancelWorkletList(coItem);
 
                 if (cancelled) {
@@ -334,7 +332,7 @@ public class WorkletService extends InterfaceBWebsideController {
         _log.info("ID of completed case: " + caseID) ;
 
         // reconstruct casedata to JDOM Element
-        Element cdata = StringToElement(casedata);
+        Element cdata = JDOMUtil.stringToElement(casedata);
 
         if (connected()) {
              _log.info("Connection to engine is active") ;
@@ -434,15 +432,14 @@ public class WorkletService extends InterfaceBWebsideController {
     /** Override of InterfaceB_EnvironmentBasedClient.launchCase() to provide
      *  the ability to send the worklet service as a case completed observer
      */
-    private String launchCase(String specID, String caseParams,
+    private String launchCase(YSpecificationID specID, String caseParams,
                               String sessionHandle, boolean observer)
                                      throws IOException {
         if (_workletURI == null) setWorkletURI();
         String obsURI = observer? _workletURI : null ;
         YLogDataItem logData = new YLogDataItem("service", "name", "workletService", "string");
         YLogDataItemList logDataList = new YLogDataItemList(logData);
-        YSpecificationID ySpecID = new YSpecificationID(specID);
-        return _interfaceBClient.launchCase(ySpecID, caseParams, sessionHandle, logDataList, obsURI);
+        return _interfaceBClient.launchCase(specID, caseParams, sessionHandle, logDataList, obsURI);
 
     }
 
@@ -457,8 +454,8 @@ public class WorkletService extends InterfaceBWebsideController {
      *  @param wir - the enabled workitem record
      */
     private void handleWorkletSelection(WorkItemRecord wir) {
-        String specId = wir.getSpecURI() ;       // info about item
-        String taskId = getDecompID(wir) ;
+        YSpecificationID specId = new YSpecificationID(wir);
+        String taskId = wir.getTaskName() ;
         String itemId = wir.getID() ;
         RdrTree selectionTreeForTask ;                   // rules for task
         CheckedOutItem coParent ;                        // record of item
@@ -527,17 +524,16 @@ public class WorkletService extends InterfaceBWebsideController {
     private void handleCompletingSelectionWorklet(String caseId, Element wlCasedata) {
 
         // get the id of the workitem this worklet was selected for
-        String origWorkItemId = (String) _casesStarted.get(caseId);
+        String origWorkItemId = _casesStarted.get(caseId);
         _log.info("Workitem this worklet case ran in place of is: " +
                     origWorkItemId);
 
         // get the checkedoutchilditem record for the original workitem
-        CheckedOutChildItem cociOrig = (CheckedOutChildItem)
-                                 _handledWorkItems.get(origWorkItemId) ;
+        CheckedOutChildItem cociOrig = _handledWorkItems.get(origWorkItemId) ;
 
         // log the worklet's case completion event
         EventLogger.log(_dbMgr, EventLogger.eComplete, caseId,
-                        cociOrig.getWorkletName(caseId), "",
+                        new YSpecificationID(cociOrig.getItem()), "",
                         cociOrig.getItem().getCaseID(), -1) ;
 
         // clear the worklet case from the coci
@@ -622,9 +618,7 @@ public class WorkletService extends InterfaceBWebsideController {
      */
 
     private void CancelWorkletsForCompletedMITask(WorkItemRecord wir) {
-
-        CheckedOutChildItem coItem = (CheckedOutChildItem)
-                                      _handledWorkItems.get(wir.getID()) ;
+        CheckedOutChildItem coItem = _handledWorkItems.get(wir.getID()) ;
         CancelWorkletsForCompletedMITask(coItem);
     }
 
@@ -684,7 +678,7 @@ public class WorkletService extends InterfaceBWebsideController {
         // if this item is having it's worklet replaced due to an 'add rule',
         // then it's already checked out so don't do it again
            if (_handledParentItems.containsKey(itemId)) {
-               return (CheckedOutItem) _handledParentItems.get(itemId) ;
+               return _handledParentItems.get(itemId) ;
            }
            else {
              CheckedOutItem coItem = checkOutParentItem(wir) ;
@@ -863,7 +857,7 @@ public class WorkletService extends InterfaceBWebsideController {
         try {
             if (getEngineStoredWorkItem(wir.getID(), _sessionHandle) != null) {
                 
-                String result = checkInWorkItem(wir.getID(), in, out,
+                String result = checkInWorkItem(wir.getID(), in, out, null,
                                                           _sessionHandle) ;
                 if (successful(result)) {
 
@@ -935,7 +929,7 @@ public class WorkletService extends InterfaceBWebsideController {
      *  @param workletName - the name of the worklet specification to upload
      *  @return true if upload is successful or spec is already loaded
      */
-    protected boolean uploadWorklet(String specID, String fileName, String workletName) {
+    protected boolean uploadWorklet(YSpecificationID specID, String fileName, String workletName) {
         if (fileName != null) {
             if (isUploaded(specID)) {
                 _log.info("Worklet specification '" + workletName
@@ -986,18 +980,31 @@ public class WorkletService extends InterfaceBWebsideController {
     }
 
 
-    protected String readSpecID(String workletFileName) {
+    protected YSpecificationID getWorkletSpecID(String workletFileName) {
+        YSpecificationID specID = null;
         Document doc = JDOMUtil.fileToDocument(workletFileName);
         if (doc != null) {
             Element root = doc.getRootElement();
             if (root != null) {
-                Element spec = root.getChild("specification", root.getNamespace());
+                String schemaVersion = root.getAttributeValue("version");
+                Namespace ns = root.getNamespace();
+                Element spec = root.getChild("specification", ns);
                 if (spec != null) {
-                    return spec.getAttributeValue("uri");
+                    String uri = spec.getAttributeValue("uri");
+                    String version = "0.1";
+                    String identifier = null;
+                    if (schemaVersion.startsWith("2.")) {
+                        Element metadata = spec.getChild("metaData", ns);
+                        if (metadata != null) {
+                            version = metadata.getChildText("version", ns);
+                            identifier = metadata.getChildText("identifier", ns);
+                        }
+                    }
+                    specID = new YSpecificationID(identifier, version, uri);
                 }
             }
         }
-        return null;
+        return specID;
     }
 
 //***************************************************************************//
@@ -1010,19 +1017,18 @@ public class WorkletService extends InterfaceBWebsideController {
      */
     protected boolean launchWorkletList(WorkletRecord wr, String list) {
         String childId = wr.getItem().getID() ;
-        String[] wNames = list.split(",");
         boolean launchSuccess = false;
 
         // for each worklet listed in the conclusion (in case of multiple worklets)
-        for (int i=0; i < wNames.length; i++) {
+        for (String wName : list.split(",")) {
 
-            String fileName = getWorkletFileName(wNames[i]);
+            String fileName = getWorkletFileName(wName);
             if (fileName != null) {
-                String specID = readSpecID(fileName);
+                YSpecificationID specID = getWorkletSpecID(fileName);
 
                 // load spec & launch case as substitute for checked out workitem
-                if (uploadWorklet(specID, fileName, wNames[i])) {
-                    String caseID = launchWorklet(wr, wNames[i], specID, true) ;
+                if (uploadWorklet(specID, fileName, wName)) {
+                    String caseID = launchWorklet(wr, wName, specID, true) ;
                     if (caseID != null) {
                         _casesStarted.put(caseID, childId) ;
                         launchSuccess = true ;
@@ -1042,12 +1048,9 @@ public class WorkletService extends InterfaceBWebsideController {
      */
     protected boolean cancelWorkletList(WorkletRecord wr) {
         boolean cancelSuccess = false;
-        String caseIdToCancel ;
-        Iterator itr = wr.getRunningCaseIds().iterator();
 
         // cancel each worklet running for the workitem
-        while (itr.hasNext()) {
-            caseIdToCancel = (String) itr.next() ;
+        for (String caseIdToCancel : wr.getRunningCaseIds()) {
             _log.info("Worklet case running for the cancelled workitem " +
                       "has id of: " + caseIdToCancel) ;
             if (cancelWorkletCase(caseIdToCancel, wr)) {
@@ -1055,7 +1058,6 @@ public class WorkletService extends InterfaceBWebsideController {
                 cancelSuccess = true ;
             }
         }
-
         return cancelSuccess ;
     }
 
@@ -1067,16 +1069,15 @@ public class WorkletService extends InterfaceBWebsideController {
      *              to start the worklet for
      *  @return - the case id of the started worklet case
      */
-    protected String launchWorklet(WorkletRecord wr, String wName, String specID, boolean setObserver) {
-
-        String caseId ;
+    protected String launchWorklet(WorkletRecord wr, String wName,
+                                   YSpecificationID specID, boolean setObserver) {
 
         // fill the case params with matching data values from the workitem
-        String caseData = mapItemParamsToWorkletCaseParams(wr, wName);
+        String caseData = mapItemParamsToWorkletCaseParams(wr, wName, specID);
 
         try {
             // launch case (and set completion observer)
-            caseId = launchCase(specID, caseData, _sessionHandle, setObserver);
+            String caseId = launchCase(specID, caseData, _sessionHandle, setObserver);
 
             if (successful(caseId)) {
 
@@ -1084,7 +1085,7 @@ public class WorkletService extends InterfaceBWebsideController {
                 wr.addRunner(caseId, wName);
 
                 // log launch event
-                EventLogger.log(_dbMgr, EventLogger.eLaunch, caseId, wName, "",
+                EventLogger.log(_dbMgr, EventLogger.eLaunch, caseId, specID, "",
                                                 wr.getCaseID(), wr.getReasonType());
                 _log.info("Launched case for worklet " + wName +
                            " with ID: " + caseId) ;
@@ -1127,8 +1128,7 @@ public class WorkletService extends InterfaceBWebsideController {
                _log.info("Itemid received found in handleditems: " + itemid);
 
            // get the checkedout child item record for this workitem
-           CheckedOutChildItem coci =
-                         (CheckedOutChildItem) _handledWorkItems.get(itemid) ;
+           CheckedOutChildItem coci = _handledWorkItems.get(itemid) ;
 
            // cancel the worklet running for the workitem
            result += "Cancelling running worklet case(s) for workitem..." ;
@@ -1143,8 +1143,8 @@ public class WorkletService extends InterfaceBWebsideController {
                _log.info("Launching new replacement worklet case(s) based on revised ruleset");
 
                // locate rdr ruleset for this task
-               String specId = coci.getItem().getSpecURI() ;
-               String taskId = getDecompID(coci.getItem()) ;
+               YSpecificationID specId = new YSpecificationID(coci.getItem());
+               String taskId = coci.getItem().getTaskName() ;
 
                // refresh ruleset to pickup newly added rule
                refreshRuleSet(specId);
@@ -1155,7 +1155,7 @@ public class WorkletService extends InterfaceBWebsideController {
                    _log.info("Ruleset found for workitem: " + coci.getItemId()) ;
                    ProcessWorkItemSubstitution(tree, coci) ;
 
-                   HashMap cases = coci.getCaseMapAsCSVList();
+                   Map<String, String> cases = coci.getCaseMapAsCSVList();
                    result += "done. " + Library.newline +
                        "The worklet(s) '" + cases.get("workletNames") +
                        "' have been launched for workitem '" + itemid + Library.newline +
@@ -1192,14 +1192,14 @@ public class WorkletService extends InterfaceBWebsideController {
      *  @return true if case is successfully cancelled
      */
     private boolean cancelWorkletCase(String caseid, WorkletRecord coci) {
-       String wName = coci.getWorkletName(caseid);
 
        _log.info("Cancelling worklet case: " + caseid) ;
        try {
               _interfaceBClient.cancelCase(caseid, _sessionHandle) ;
 
            // log successful cancellation event
-              EventLogger.log(_dbMgr, EventLogger.eCancel, caseid, wName,
+           YSpecificationID specID = new YSpecificationID(coci.getItem());
+              EventLogger.log(_dbMgr, EventLogger.eCancel, caseid, specID,
                                   "", coci.getItem().getCaseID(), -1) ;
            _log.info("Worklet case successfully cancelled: " + caseid) ;
 
@@ -1237,7 +1237,7 @@ public class WorkletService extends InterfaceBWebsideController {
                 if (resData.getContentSize() > 0) resData.setContent(e.cloneContent()) ;
                 else resData.setText(e.getText());
             }
-            else {              //TODO : this is from the forum - explore all ramifications
+            else {
                 // if the item is not in the 'in' list, add it.
                 result.getChildren().add(e.clone());
             }    
@@ -1259,20 +1259,18 @@ public class WorkletService extends InterfaceBWebsideController {
     *  @return the loaded input params of the new worklet case 
     *          (launchCase() requires the input params as a String)
     */
-   private String mapItemParamsToWorkletCaseParams(WorkletRecord wr, String wlName) {
+   private String mapItemParamsToWorkletCaseParams(WorkletRecord wr, String wlName,
+                                                   YSpecificationID workletSpecID) {
 
-          Element itemData = wr.getDatalist() ;       // get datalist of work item
-          Element wlData = new Element(wlName);       // new datalist for worklet
-
-           ArrayList inParams = getInputParams(wlName) ;  // worklet input params
+       Element itemData = wr.getDatalist() ;       // get datalist of work item
+       Element wlData = new Element(wlName);       // new datalist for worklet
+       List<YParameter> inParams = getInputParams(workletSpecID) ;  // worklet input params
 
         // if worklet has no net-level inputs, or workitem has no datalist, we're done
         if ((inParams == null) || (itemData == null)) return null;
 
         // extract the name of each worklet input param
-        Iterator itr = inParams.iterator();
-        while (itr.hasNext()) {
-           YParameter param = (YParameter) itr.next() ;
+       for (YParameter param : inParams) {
            String paramName = param.getName() ;
 
            // get the data element of the workitem with the same name as
@@ -1282,13 +1280,13 @@ public class WorkletService extends InterfaceBWebsideController {
            try {
                   // if matching element, copy it and add to worklet datalist
                if (wlElem != null) {
-                      Element copy = (Element) wlElem.clone() ;
+                   Element copy = (Element) wlElem.clone() ;
                    wlData.addContent(copy) ;
                }
 
                // no matching data for input param, so add empty element
                else
-                      wlData.addContent(new Element(paramName)) ;
+                   wlData.addContent(new Element(paramName)) ;
               }
               catch (IllegalAddException iae) {
                     _log.error("Exception adding content to worklet data list", iae) ;
@@ -1296,35 +1294,10 @@ public class WorkletService extends InterfaceBWebsideController {
            }
 
            // return the datalist as as string (as required by launchcase)
-        return new XMLOutputter().outputString(wlData) ;
+        return JDOMUtil.elementToString(wlData) ;
    }
 
  //***************************************************************************//
-
-   /**
-    *  Attempts to convert an xml string to a JDOM Element
-    *  @param xmlString - the string to convert
-    *  @return a JDOM Element, or null if there is a conversion problem
-    */
-   private Element StringToElement(String xmlString) {
-
-       if (xmlString == null) return null ;
-       try {
-             SAXBuilder builder = new SAXBuilder();
-             Document doc = builder.build(new StringReader(xmlString));
-             return doc.getRootElement() ;
-        }
-        catch (JDOMException jdx) {
-             _log.error("StringToElement: JDOM Exception parsing String: "+
-                         xmlString, jdx);
-        }
-        catch (IOException iox) {
-            _log.error("StringToElememt: Java IO Exception with String: " +
-                         xmlString, iox);
-        }
-        return null ;
-   }
-
  //***************************************************************************//
 
     /****************************
@@ -1332,14 +1305,14 @@ public class WorkletService extends InterfaceBWebsideController {
      ***************************/
 
     /** returns the rule tree (if any) for the parameters passed */
-     protected RdrTree getTree(String specID, String taskID, int treeType) {
+     protected RdrTree getTree(YSpecificationID specID, String taskID, int treeType) {
 
         RdrSet ruleSet ;
         RdrTree result ;
 
         // if we already have this rdrset loaded
         if (_ruleSets.containsKey(specID))
-           ruleSet = (RdrSet) _ruleSets.get(specID) ;
+           ruleSet = _ruleSets.get(specID) ;
         else {
            ruleSet = new RdrSet(specID);                  // make a new set
            if (ruleSet.hasRules())
@@ -1361,9 +1334,9 @@ public class WorkletService extends InterfaceBWebsideController {
     //***************************************************************************//
 
     /** Reloads the rule set from file (after a rule update) for the spec passed */
-    public void refreshRuleSet(String specID) {
+    public void refreshRuleSet(YSpecificationID specID) {
         if (specID != null) {
-             RdrSet ruleSet = (RdrSet) _ruleSets.get(specID) ;
+             RdrSet ruleSet = _ruleSets.get(specID) ;
              if (ruleSet != null) ruleSet.refresh() ;
         }    
      }
@@ -1371,7 +1344,7 @@ public class WorkletService extends InterfaceBWebsideController {
     //***************************************************************************//
 
     /** loads the rule set for a spec (if not already loaded) */
-    public void loadTree(String specID) {
+    public void loadTree(YSpecificationID specID) {
         if (! _ruleSets.containsKey(specID)) {
             RdrSet ruleSet = new RdrSet(specID);                  // make a new set
             _ruleSets.put(specID, ruleSet) ;                      // & store it
@@ -1384,42 +1357,12 @@ public class WorkletService extends InterfaceBWebsideController {
      * 7. INFORMATIONAL METHODS *
      ***************************/
 
-    /**
-     * get the workitem's (task) decomposition id
-     * @param wir - the workitem to get the decomp id for
-     */
-     public String getDecompID(WorkItemRecord wir) {
-        YSpecificationID specID = new YSpecificationID(wir);
-         return getDecompID(specID, wir.getTaskID());
-     }
-
-  //***************************************************************************//
-
-    /**
-     *  gets a task's decomposition id
-     *  @param specID - the specification's id
-     *  @param taskID - the task's id
-     */
-    public String getDecompID(YSpecificationID specID, String taskID) {
-
-       try {
-           TaskInformation taskinfo = getTaskInformation(specID, taskID, _sessionHandle);
-           return taskinfo.getDecompositionID() ;
-       }
-       catch (IOException ioe) {
-           _log.error("IO Exception in getDecompId ", ioe) ;
-           return null ;
-       }
-    }
-
- //***************************************************************************//
 
     /** fill an array with details of each spec loaded into engine */
     private void getLoadedSpecs() {
 
         try {
-            _loadedSpecs = (ArrayList) _interfaceBClient.getSpecificationList(
-                                          _sessionHandle);
+            _loadedSpecs = _interfaceBClient.getSpecificationList(_sessionHandle);
         }
         catch (IOException ioe) {
             _log.error("IO Exception in getLoadedSpecs", ioe);
@@ -1429,16 +1372,15 @@ public class WorkletService extends InterfaceBWebsideController {
  //***************************************************************************//
 
    /** get the list of input params for a specified specification */
-   private ArrayList getInputParams(String specId) {
+   private List<YParameter> getInputParams(YSpecificationID specId) {
 
           // refresh list of specifications loaded into the engine
         getLoadedSpecs();
 
         // locate input params for the specified spec id
-           for (int i=0;i<_loadedSpecs.size();i++) {
-            SpecificationData thisSpec = (SpecificationData) _loadedSpecs.get(i) ;
-            if (specId.equals(thisSpec.getSpecURI()))
-                return (ArrayList) thisSpec.getInputParams() ;
+           for (SpecificationData thisSpec : _loadedSpecs) {
+            if (specId.equals(thisSpec.getID()))
+                return thisSpec.getInputParams() ;
         }
          return null ;
    }
@@ -1475,30 +1417,30 @@ public class WorkletService extends InterfaceBWebsideController {
 
    //***************************************************************************//
 
-   /**
-    * DEBUG: writes the list of input params to the log for each 
-    * specification loaded 
-    */
-   private void iterateAllSpecsInputParams(){
-
-        ArrayList specs = _loadedSpecs ;
-
-           // for each spec
-        Iterator sitr = specs.iterator();
-           while (sitr.hasNext()) {
-            SpecificationData spec = (SpecificationData) sitr.next() ;
-            ArrayList params = (ArrayList) spec.getInputParams() ;
-            _log.info("Specification " + spec.getSpecURI() +
-                       " has these input params:");
-
-            // and for each param
-             Iterator pitr = params.iterator();
-               while (pitr.hasNext()) {
-               YParameter y = (YParameter) pitr.next() ;
-               _log.info(y.toXML());
-            }
-        }
-   }
+//   /**
+//    * DEBUG: writes the list of input params to the log for each
+//    * specification loaded
+//    */
+//   private void iterateAllSpecsInputParams(){
+//
+//        ArrayList specs = _loadedSpecs ;
+//
+//           // for each spec
+//        Iterator sitr = specs.iterator();
+//           while (sitr.hasNext()) {
+//            SpecificationData spec = (SpecificationData) sitr.next() ;
+//            ArrayList params = (ArrayList) spec.getInputParams() ;
+//            _log.info("Specification " + spec.getSpecURI() +
+//                       " has these input params:");
+//
+//            // and for each param
+//             Iterator pitr = params.iterator();
+//               while (pitr.hasNext()) {
+//               YParameter y = (YParameter) pitr.next() ;
+//               _log.info(y.toXML());
+//            }
+//        }
+//   }
 
  //***************************************************************************//
 
@@ -1529,22 +1471,22 @@ public class WorkletService extends InterfaceBWebsideController {
 
         _log.info("1. Handled Parent Items");
         _log.info("-----------------------");
-        iterateMap(_handledParentItems);
+        iterateMap(new HashMap(_handledParentItems));
         _log.info(" ");
 
         _log.info("2. Handled Child Items");
         _log.info("----------------------");
-        iterateMap(_handledWorkItems);
+        iterateMap(new HashMap(_handledWorkItems));
         _log.info(" ");
 
         _log.info("3. Cases Started");
         _log.info("----------------");
-        iterateMap(_casesStarted);
+        iterateMap(new HashMap(_casesStarted));
         _log.info(" ");
 
         _log.info("4. Rule Sets");
         _log.info("------------");
-        iterateMap(_ruleSets);
+        iterateMap(new HashMap(_ruleSets));
         _log.info(" ");
 
         _log.info("5. Loaded Specs");
@@ -1570,8 +1512,8 @@ public class WorkletService extends InterfaceBWebsideController {
     private void iterateMap(HashMap map) {
 
         if (map != null) {
-            ArrayList keys = new ArrayList(map.keySet());
-            ArrayList values = new ArrayList(map.values());
+            List keys = new ArrayList(map.keySet());
+            List values = new ArrayList(map.values());
             if (keys.isEmpty()) _log.info("No items in list.");
 
             for (int i=0; i < keys.size(); i++) {
@@ -1592,7 +1534,7 @@ public class WorkletService extends InterfaceBWebsideController {
             // if the item is not locally cached, it means a restore has occurred
             // after a checkout & the item is still checked out, so lets put it back
             // so that it can be checked back in
-            getModel().addWorkItem(wir);
+            getIBCache().addWorkItem(wir);
         }
     }
 
@@ -1605,7 +1547,7 @@ public class WorkletService extends InterfaceBWebsideController {
         for (Object o : _handledWorkItems.keySet()) {
             String itemID = (String) o ;
             if (itemID.startsWith(ordinalCaseID)) {
-                result.add((CheckedOutChildItem) _handledWorkItems.get(itemID));
+                result.add(_handledWorkItems.get(itemID));
             }
         }
         return result;
@@ -1659,19 +1601,18 @@ public class WorkletService extends InterfaceBWebsideController {
 
     /** Checks if a worklet spec has already been loaded into engine
      *  @param workletName
-     *  @return true if the specification is alreaded loaded in the engine
+     *  @return true if the specification is already loaded in the engine
      */
-    private boolean isUploaded(String workletName) {
+    private boolean isUploaded(YSpecificationID workletSpec) {
 
-        if (workletName == null) return false;
+        if (workletSpec == null) return false;
 
          // refresh list of specifications loaded into the engine
          getLoadedSpecs();
 
          // check if any loaded specids match the worklet spec selected
-         for (int i=0;i<_loadedSpecs.size();i++) {
-             SpecificationData spec = (SpecificationData) _loadedSpecs.get(i) ;
-             if (workletName.equals(spec.getSpecURI())) return true ;
+         for (SpecificationData spec : _loadedSpecs) {
+             if (workletSpec.equals(spec.getID())) return true ;
          }
          return false ;                                           // no matches
      }
@@ -1802,17 +1743,14 @@ public class WorkletService extends InterfaceBWebsideController {
 //***************************************************************************//
 
     /** restores hashmap of checked out parent workitems from persistence */
-    private HashMap restoreHandledParentItems() {
-        HashMap result = new HashMap();
-        CheckedOutItem coi ;
+    private Map<String, CheckedOutItem> restoreHandledParentItems() {
+        Map<String, CheckedOutItem> result = new Hashtable<String, CheckedOutItem>();
         List items = _dbMgr.getObjectsForClass(CheckedOutItem.class.getName());
 
         if (items != null) {
-           Iterator itr = items.iterator();
-           while (itr.hasNext()) {
-               coi = (CheckedOutItem) itr.next();
+            for (Object o : items) {
+               CheckedOutItem coi = (CheckedOutItem) o;
                coi.setItem(RdrConversionTools.xmlStringtoWIR(coi.get_wirStr()));  // restore wir
- //              coi.initNonPersistedItems();
                loadTree(coi.getSpecId());             // needed when child items restore
                result.put(coi.getParentID(), coi);
            }
@@ -1823,21 +1761,19 @@ public class WorkletService extends InterfaceBWebsideController {
 //***************************************************************************//
 
     /** restores hashmap of checked out child workitems from persistence */
-    private HashMap restoreHandledChildItems() {
-        HashMap result = new HashMap();
+    private Map<String, CheckedOutChildItem> restoreHandledChildItems() {
+        Map<String, CheckedOutChildItem> result = new HashMap<String, CheckedOutChildItem>();
         List items = _dbMgr.getObjectsForClass(CheckedOutChildItem.class.getName());
 
         if (items != null) {
-           Iterator itr = items.iterator();
-           while (itr.hasNext()) {
-               CheckedOutChildItem coci = (CheckedOutChildItem) itr.next();
+            for (Object o : items) {
+               CheckedOutChildItem coci = (CheckedOutChildItem) o;
 
                // reset data list & wir
                coci.initNonPersistedItems();
 
                // restore link child <--> parent
-               CheckedOutItem parent =
-                          (CheckedOutItem) _handledParentItems.get(coci.get_parentID());
+               CheckedOutItem parent = _handledParentItems.get(coci.get_parentID());
                parent.addChild(coci);
 
                // rebuild search pair nodes
@@ -1849,9 +1785,8 @@ public class WorkletService extends InterfaceBWebsideController {
 
                // rebuild cases started data
                String itemID = coci.getItem().getID();
-               Iterator runningIDs = coci.getRunningCaseIds().iterator();
-               while (runningIDs.hasNext()) {
-                   _casesStarted.put(runningIDs.next(), itemID);
+               for (String caseID : coci.getRunningCaseIds()) {
+                   _casesStarted.put(caseID, itemID);
                }
 
                result.put(itemID, coci);
@@ -1865,14 +1800,11 @@ public class WorkletService extends InterfaceBWebsideController {
     /** rebuilds admin task manager from persistence */
     private AdminTasksManager restoreAdminTasksManager() {
         AdminTasksManager result = new AdminTasksManager();
-        AdministrationTask task ;
         List items = _dbMgr.getObjectsForClass(AdministrationTask.class.getName());
 
         if (items != null) {
-            Iterator itr = items.iterator();
-            while (itr.hasNext()) {
-                task = (AdministrationTask) itr.next();
-                result.addTask(task);
+            for (Object o : items) {
+                result.addTask((AdministrationTask) o);
             }
         }
         return result ;

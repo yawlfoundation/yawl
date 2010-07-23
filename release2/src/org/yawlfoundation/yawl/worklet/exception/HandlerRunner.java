@@ -23,6 +23,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.IllegalAddException;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
 import org.yawlfoundation.yawl.worklet.support.Library;
@@ -53,8 +54,8 @@ public class HandlerRunner extends WorkletRecord {
     private int _actionCount = 0 ;                  // number of primitives in set
     private boolean _isItemSuspended;               // has excepted item been suspended?
     private boolean _isCaseSuspended;               // has case been suspended?
-    private List _suspendedItems = null;            // list of suspended items - can be
-                                                    //   child items, or for whole case
+    private List<WorkItemRecord> _suspendedItems = null; // list of suspended items - can
+                                                    // be child items, or for whole case
 
     private String _rdrConcStr = null ;             // required for persistence
     private String _caseID = null ;
@@ -76,7 +77,7 @@ public class HandlerRunner extends WorkletRecord {
         _isItemSuspended = false;
         _isCaseSuspended = false ;
         _searchPair = rdrConc.getLastPair();
-        _log = Logger.getLogger("org.yawlfoundation.yawl.worklet.exception.HandlerRunner");
+        _log = Logger.getLogger(this.getClass());
         initPersistedData() ;
     }
 
@@ -122,7 +123,7 @@ public class HandlerRunner extends WorkletRecord {
     }
 
     /** @return the id of the spec of the case that raised the exception */
-   public String getSpecID() {
+   public YSpecificationID getSpecID() {
        return _parentMonitor.getSpecID();
    }
 
@@ -134,7 +135,7 @@ public class HandlerRunner extends WorkletRecord {
 
 
     /** @return the list of currently suspended workitems for this runner */
-    public List getSuspendedList() {
+    public List<WorkItemRecord> getSuspendedList() {
        return _suspendedItems ;
     }
 
@@ -183,7 +184,7 @@ public class HandlerRunner extends WorkletRecord {
 
 
      /** called when an action suspends the item or parent case of this HandlerRunner */
-    public void setSuspendedList(List items) {
+    public void setSuspendedList(List<WorkItemRecord> items) {
         _suspendedItems = items ;
         _suspList = RdrConversionTools.WIRListToString(items);
          persistThis();
@@ -297,9 +298,8 @@ public class HandlerRunner extends WorkletRecord {
         String caseSusp = String.valueOf(_isCaseSuspended);
         String wirs = "";
         if (_suspendedItems != null) {
-            Iterator itr = _suspendedItems.iterator();
-             while (itr.hasNext()) {
-               wirs += ((WorkItemRecord) itr.next()).toXML() + Library.newline ;
+            for (WorkItemRecord wir : _suspendedItems) {
+               wirs += wir.toXML() + Library.newline ;
             }
         }
 
@@ -329,6 +329,8 @@ public class HandlerRunner extends WorkletRecord {
         Element eTested = new Element("tested") ;
         Element eId = new Element("id") ;
         Element eSpecid = new Element("specid") ;
+        Element eSpecVersion = new Element("specversion") ;
+        Element eSpecURI = new Element("specuri") ;
         Element eTaskid = new Element("taskid") ;
         Element eCaseid = new Element("caseid") ;
         Element eCaseData = new Element("casedata") ;
@@ -345,7 +347,9 @@ public class HandlerRunner extends WorkletRecord {
            }
 
            // set values for case identifiers
-           eSpecid.setText(_parentMonitor.getSpecID());
+           eSpecid.setText(_parentMonitor.getSpecID().getIdentifier());
+           eSpecVersion.setText(_parentMonitor.getSpecID().getVersionAsString());
+           eSpecURI.setText(_parentMonitor.getSpecID().getUri());
            eCaseid.setText(_parentMonitor.getCaseID());
 
            if (_wir != null) {
@@ -380,6 +384,8 @@ public class HandlerRunner extends WorkletRecord {
             Element root = doc.getRootElement();
             root.addContent(eId) ;
             root.addContent(eSpecid);
+            root.addContent(eSpecVersion);
+            root.addContent(eSpecURI);
             root.addContent(eTaskid);
             root.addContent(eCaseid);
             root.addContent(eWorklets) ;

@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.engine.interfce.interfaceX;
 
 import org.yawlfoundation.yawl.engine.YWorkItem;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.jdom.Document;
 
 import java.util.List;
@@ -55,7 +56,8 @@ public interface ExceptionGateway
      * @param data - the case's data
      * @param preCheck - true if before item execution, false if after
      */
-    void announceCheckCaseConstraints(String specID, String caseID, String data, boolean preCheck) ;
+    void announceCheckCaseConstraints(YSpecificationID specID, String caseID,
+                                      String data, boolean preCheck) ;
 
 
     /**
@@ -75,8 +77,6 @@ public interface ExceptionGateway
 
     /************** FOR FUTURE IMPLEMENTATION *************/
     void announceWorkitemAbort(YWorkItem item);
-
-    void announceResourceUnavailable(YWorkItem item);
 
     void announceConstraintViolation(YWorkItem item);
     /******************************************************/

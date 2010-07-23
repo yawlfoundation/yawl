@@ -1,5 +1,6 @@
-<%@ page import="java.util.Iterator" %>
-<%@ page import="java.util.List"%>
+<%@ page import="org.yawlfoundation.yawl.engine.YSpecificationID" %>
+<%@ page import="java.util.Iterator"%>
+<%@ page import="java.util.List" %>
 
 <%--
   ~ Copyright (c) 2004-2010 The YAWL Foundation. All rights reserved.
@@ -25,7 +26,7 @@
 <%
     String caseID = request.getParameter("caseID");
     String triggerID = request.getParameter("trigger");
-    String specID = _exceptionService.getSpecIDForCaseID(caseID);
+    YSpecificationID specID = _exceptionService.getSpecIDForCaseID(caseID);
 
     String submit = request.getParameter("submit");
     if ((submit != null) && (submit.equals("Cancel"))) {
@@ -71,7 +72,7 @@
             </tr>
             <tr>
                 <td height="30" width="150" align="center"><%= caseID%></td>
-                <td width="180" align="center"><%= specID%></td>
+                <td width="180" align="center"><%= specID.toString()%></td>
                 <td/>
             </tr>
         </table>

@@ -25,10 +25,7 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.worklet.rdr.RdrNode;
 import org.yawlfoundation.yawl.worklet.rdr.RdrTree;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *  This class contains some static methods that convert some objects to Strings and
@@ -83,16 +80,13 @@ public class RdrConversionTools {
 
         String status = eWIR.getChildText("status");
         String specID = eWIR.getChildText("specid");
-//        String id = eWIR.getChildText("id");
-//        String[] idSplit = id.split(":");                      // id = taskid:caseid
-
         String caseid = eWIR.getChildText("caseid");
         String taskid = eWIR.getChildText("taskid");
 
         String taskName = Library.getTaskNameFromId(taskid);
 
         // call the wir constructor
-        WorkItemRecord wir = new WorkItemRecord( caseid, taskid, specID,
+        WorkItemRecord wir = new WorkItemRecord(caseid, taskid, specID,
                               null, status);
 
         // add data list if non-parent item
@@ -134,13 +128,11 @@ public class RdrConversionTools {
      * @param s - the string containing the comma separated values
      * @return - the List of values
      */
-    public static List StringToStringList(String s) {
-        List result = new ArrayList() ;
+    public static List<String> StringToStringList(String s) {
+        List<String> result = new ArrayList<String>() ;
 
         if (s != null) {
-           String[] items = s.split(",");
-
-           for (int i=0; i < items.length; i++) result.add(items[i]);
+            result.addAll(Arrays.asList(s.split(",")));
         }
         if (result.isEmpty()) result = null ;
         return result ;
@@ -148,14 +140,11 @@ public class RdrConversionTools {
 
     /******************************************************************************/
 
-    public static String WIRListToString(List items) {
+    public static String WIRListToString(List<WorkItemRecord> items) {
         if (items != null) {
             StringBuilder xml = new StringBuilder("<recordlist>");
-            Iterator itr = items.iterator() ;
-            while (itr.hasNext()) {
-
-                // convert each WIR to XML
-                xml.append(((WorkItemRecord) itr.next()).toXML());
+            for (WorkItemRecord wir : items) {
+                xml.append(wir.toXML());
             }
             xml.append("</recordlist>");
             return xml.toString();

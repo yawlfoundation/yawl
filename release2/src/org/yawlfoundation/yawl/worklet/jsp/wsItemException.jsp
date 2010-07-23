@@ -27,7 +27,7 @@
     String triggerID = request.getParameter("trigger");
     String workItemID  = request.getParameter("workItemID");
     WorkItemRecord wir = _exceptionService.getWorkItemRecord(workItemID);
-    String taskName = _exceptionService.getDecompID(wir) ;
+    String taskName = wir.getTaskName() ;
 
     String submit = request.getParameter("submit");
     if ((submit != null) && (submit.equals("Cancel"))) {
@@ -76,7 +76,7 @@
         </tr>
         <tr>
             <td height="30" width="180" align="center"><%= wir.getID()%></td>
-            <td  width="180" align="center"><%= wir.getSpecIdentifier()%></td>
+            <td  width="180" align="center"><%= wir.getSpecURI()%></td>
             <td  width="180" align="center"><%= wir.getCaseID()%></td>
             <td  width="180" align="center"><%= taskName%></td>
         </tr>
