@@ -288,7 +288,37 @@ public class YXESBuilder {
 
 
     private XNode formatDataNode(String name, String value, String typeDefinition) {
-        return entryNode(getTagType(typeDefinition), name, value);
+        String tag = getTagType(typeDefinition);
+        if (tag.equals("date")) value = formatDateValue(typeDefinition, value);
+        return entryNode(tag, name, value);
+    }
+
+    
+    private String formatDateValue(String type, String value) {
+        if (value == null || value.length() == 0) {
+            return "1970-01-01T00:00:00";
+        }
+        String formattedDateTime = value;                   // default (if datetime)
+        if (type.endsWith("date")) {
+            String blankTime = "T00:00:00";
+
+            // a date type is of the form CCDD-MM-YY - but the year can have more than
+            // 4 chars and may start with '-', while the date may be followed by a Z or
+            // timezone (like '+10:00'). We need to find the insertion position
+            // immediately after the 2 day characters.
+            int insertPos = value.indexOf('-', 4) + 6;
+            if (insertPos == value.length()) {
+                formattedDateTime = value + blankTime;
+            }
+            else {
+                formattedDateTime = value.substring(0, insertPos) + blankTime +
+                                    value.substring(insertPos);
+            }
+        }
+        else if (type.endsWith("time")) {
+            formattedDateTime = "1970-01-01T" + value;
+        }
+        return formattedDateTime;
     }
 
 

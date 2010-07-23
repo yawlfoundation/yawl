@@ -25,7 +25,7 @@
 <%
     String itemID = request.getParameter("itemID");
     WorkItemRecord wir = _exceptionService.getWorkItemRecord(itemID);
-    String taskName = _exceptionService.getDecompID(wir) ;
+    String taskName = wir.getTaskName() ;
     String caseID = wir.getCaseID();
 
     String submit = request.getParameter("submit");
@@ -81,7 +81,7 @@
         </tr>
         <tr>
             <td height="30" width="180" align="center"><%= wir.getID()%></td>
-            <td  width="180" align="center"><%= wir.getSpecIdentifier()%></td>
+            <td  width="180" align="center"><%= wir.getSpecURI()%></td>
             <td  width="180" align="center"><%= wir.getCaseID()%></td>
             <td  width="180" align="center"><%= taskName%></td>
         </tr>

@@ -816,11 +816,11 @@ Friend Class frmEdit
 
         If workitem.id Is Nothing Then                          ' case-level worklet
             question &= " using the new rule?" & vbCrLf & _
-                        vbCrLf & "Parent Spec ID: " & workitem.specid & _
+                        vbCrLf & "Parent Spec ID: " & workitem.specuri & _
                         vbCrLf & "Parent Case ID: " & workitem.caseid
         Else
             question &= " for workitem '" & workitem.id & "' using the new rule?" & vbCrLf & _
-                   vbCrLf & "Workitem Spec ID: " & workitem.specid & _
+                   vbCrLf & "Workitem Spec ID: " & workitem.specuri & _
                    vbCrLf & "Workitem Case ID: " & workitem.caseid & _
                    vbCrLf & "Workitem Task ID: " & workitem.taskid
             queryText &= "&itemID=" & workitem.id

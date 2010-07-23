@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.worklet.rdr;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.worklet.WorkletService;
 import org.yawlfoundation.yawl.worklet.support.Library;
@@ -58,7 +59,7 @@ import java.util.List;
 
 public class RdrSet {
 
-    private String _specID ;
+    private YSpecificationID _specID ;
     private boolean _hasRules = false ;    // some specs will have no rules defined
 
     // Pre & Post case constraints have only one tree each
@@ -66,32 +67,32 @@ public class RdrSet {
     private RdrTree _specPostTree = null;
     private RdrTree _specExternalTree = null;
 
-    // The rest have a tree for each task - so each is an ArrayList of RdrTrees
-    private ArrayList _selectionTrees = null;
-    private ArrayList _preTrees = null ;
-    private ArrayList _postTrees = null ;
-    private ArrayList _abortTrees = null ;
-    private ArrayList _timeoutTrees = null ;
-    private ArrayList _resourceTrees = null ;
-    private ArrayList _violationTrees = null ;
-    private ArrayList _externalTrees = null ;
-
+    // The rest have a tree for each task
+    private List<RdrTree> _selectionTrees = null;
+    private List<RdrTree> _preTrees = null ;
+    private List<RdrTree> _postTrees = null ;
+    private List<RdrTree> _abortTrees = null ;
+    private List<RdrTree> _timeoutTrees = null ;
+    private List<RdrTree> _resourceTrees = null ;
+    private List<RdrTree> _violationTrees = null ;
+    private List<RdrTree> _externalTrees = null ;
 
     private static Logger _log ;
 
+
     /** Default constructor */
-	public RdrSet(String specID) {
-         _specID = specID ;
-        _log = Logger.getLogger("org.yawlfoundation.yawl.worklet.rdr.RdrSet");
+    public RdrSet(YSpecificationID specID) {
+        _specID = specID ;
+        _log = Logger.getLogger(this.getClass());
         _hasRules = loadRules();
     }
 
 //===========================================================================//
-	
-	/** clears the RdrSet for rebuilding */ 
-	public void refresh() {
+
+    /** clears the RdrSet for rebuilding */
+    public void refresh() {
         loadRules();
-	}
+    }
 
 //===========================================================================//
 
@@ -109,13 +110,13 @@ public class RdrSet {
      */
     public RdrTree getTree(int treeType) {
         if (treeType == WorkletService.XTYPE_CASE_PRE_CONSTRAINTS)
-           return _specPreTree ;
+            return _specPreTree ;
         else if (treeType == WorkletService.XTYPE_CASE_POST_CONSTRAINTS)
-           return _specPostTree ;
+            return _specPostTree ;
         else if (treeType == WorkletService.XTYPE_CASE_EXTERNAL_TRIGGER)
-           return _specExternalTree ;
+            return _specExternalTree ;
         else
-           return null ;
+            return null ;
     }
 
 //===========================================================================//
@@ -129,72 +130,68 @@ public class RdrSet {
 
     public RdrTree getTree(int treeType, String taskName) {
 
-        ArrayList trees = null ;
+        List<RdrTree> trees = null ;
 
-         // get the appropriate list of RdrTrees
+        // get the appropriate list of RdrTrees
         switch (treeType) {
             case WorkletService.XTYPE_SELECTION:
-     		     trees = _selectionTrees; break ;
+                trees = _selectionTrees; break ;
             case WorkletService.XTYPE_ITEM_PRE_CONSTRAINTS:
-                 trees = _preTrees; break ;
+                trees = _preTrees; break ;
             case WorkletService.XTYPE_ITEM_POST_CONSTRAINTS:
-                 trees = _postTrees; break ;
+                trees = _postTrees; break ;
             case WorkletService.XTYPE_WORKITEM_ABORT:
-                 trees = _abortTrees; break ;
+                trees = _abortTrees; break ;
             case WorkletService.XTYPE_TIMEOUT:
-                 trees = _timeoutTrees; break ;
+                trees = _timeoutTrees; break ;
             case WorkletService.XTYPE_RESOURCE_UNAVAILABLE:
-                 trees = _resourceTrees; break ;
+                trees = _resourceTrees; break ;
             case WorkletService.XTYPE_CONSTRAINT_VIOLATION:
-                 trees = _violationTrees; break ;
+                trees = _violationTrees; break ;
             case WorkletService.XTYPE_ITEM_EXTERNAL_TRIGGER:
-                 trees = _externalTrees; break ;
+                trees = _externalTrees; break ;
         }
 
         // find the rule set for this task
-		return getTreeForTask(trees, taskName) ;
-	}
-	
-//===========================================================================//
-	
-    /** get the tree for the specified task from the List of trees passed */
-	private RdrTree getTreeForTask(ArrayList list, String task) {
-		if (list == null) return null ;               // no rules for this task
-		
-		// compare the taskId of each tree with the task to find 
-		for (int i=0;i<list.size();i++) {
-			RdrTree tree = (RdrTree) list.get(i) ;
-			if (task.compareTo(tree.getTaskId()) == 0) {
-				return tree ;                         // return the match 
-			}	
-		}
-		return null ;                                 // no matches found
-	}
+        return getTreeForTask(trees, taskName) ;
+    }
 
 //===========================================================================//
-	
+
+    /** get the tree for the specified task from the List of trees passed */
+    private RdrTree getTreeForTask(List<RdrTree> list, String task) {
+        if (list == null) return null ;               // no rules for this task
+
+        // compare the taskId of each tree with the task to find
+        for (RdrTree tree : list) {
+            if (task.compareTo(tree.getTaskId()) == 0) {
+                return tree ;                         // return the match
+            }
+        }
+        return null ;                                 // no matches found
+    }
+
+//===========================================================================//
+
     /** load a set of trees from rules file */
-	private boolean loadRules() {
-		String fileName = _specID + ".xrs" ;               // xrs = Xml Rule Set
+    private boolean loadRules() {
+        String fileName = _specID.getUri() + ".xrs" ;  // xrs = Xml Rule Set
         Document doc ;                                 // doc to hold rules
 
         String rulepath = Library.wsRulesDir + fileName ;
 
         if (Library.fileExists(rulepath))
-           doc = JDOMUtil.fileToDocument(rulepath);
+            doc = JDOMUtil.fileToDocument(rulepath);
         else return false;                           // no such file
 
         if (doc == null) return false ;              // unsuccessful file load
 
         try {
-           Element root = doc.getRootElement();      // spec 
-           
-           List exTypes = root.getChildren();     // these are exception type tags
+            Element root = doc.getRootElement();      // spec
 
-           // extract the rule nodes for each exception type
-            Iterator exTypesItr = exTypes.iterator();
-            while (exTypesItr.hasNext()) {
-                Element e = (Element) exTypesItr.next() ;
+            // extract the rule nodes for each exception type
+            for (Object o : root.getChildren()) {       // these are exception type tags
+                Element e = (Element) o ;
                 String exName = e.getName();
                 if (exName.equalsIgnoreCase("selection")) {
                     _selectionTrees = getRulesFromElement(e);
@@ -227,17 +224,17 @@ public class RdrSet {
             return true ;
         }
         catch (Exception ex) {
-           _log.error("Exception retrieving Element from rules file", ex);
-           return false ;
+            _log.error("Exception retrieving Element from rules file", ex);
+            return false ;
         }
     }
 
 //===========================================================================//
 
-   /** constructs a rule tree for each set of constraint rules in the rules file
-    *  i.e. pre & post constraint rule sets at the case and task levels
-    */
-   private boolean getConstraintRules(Element e) {
+    /** constructs a rule tree for each set of constraint rules in the rules file
+     *  i.e. pre & post constraint rule sets at the case and task levels
+     */
+    private boolean getConstraintRules(Element e) {
 
         List constraintTypes = e.getChildren();
 
@@ -267,20 +264,20 @@ public class RdrSet {
      */
     private boolean getExternalRules(Element e) {
 
-         List levelTypes = e.getChildren();                 // 'case' or 'item'
+        List levelTypes = e.getChildren();                 // 'case' or 'item'
 
-         Iterator levelItr = levelTypes.iterator();
-         while (levelItr.hasNext()) {
-             Element eChild = (Element) levelItr.next() ;
-             String childName = eChild.getName() ;
+        Iterator levelItr = levelTypes.iterator();
+        while (levelItr.hasNext()) {
+            Element eChild = (Element) levelItr.next() ;
+            String childName = eChild.getName() ;
 
-             if (childName.equalsIgnoreCase("case"))
-                 _specExternalTree  = buildTree(eChild) ;
-             else if (childName.equalsIgnoreCase("item"))
-                  _externalTrees = getRulesFromElement(eChild) ;
-         }
-         return true ;
-     }
+            if (childName.equalsIgnoreCase("case"))
+                _specExternalTree  = buildTree(eChild) ;
+            else if (childName.equalsIgnoreCase("item"))
+                _externalTrees = getRulesFromElement(eChild) ;
+        }
+        return true ;
+    }
 
 //===========================================================================//
 
@@ -289,90 +286,82 @@ public class RdrSet {
      * @param e - the Element containing the rules of each task
      * @return the list of trees constructed
      */
-    private ArrayList getRulesFromElement(Element e) {
-
-        ArrayList treeList = new ArrayList() ;
-
-        List tasks = e.getChildren();
-
-        Iterator tasksItr = tasks.iterator();
-        while (tasksItr.hasNext()) {
-            Element eTask = (Element) tasksItr.next() ;
-        	RdrTree tree = buildTree(eTask) ;
-           	treeList.add(tree) ;
+    private List<RdrTree> getRulesFromElement(Element e) {
+        List<RdrTree> treeList = new ArrayList<RdrTree>() ;
+        for (Object o : e.getChildren()) {
+            treeList.add(buildTree((Element) o)) ;
         }
-
         return treeList ;
     }
 
 
 //===========================================================================//
-	
-    /** constructs an RdrTree from the JDOM Element passed */
-	private RdrTree buildTree(Element task) {
-		String taskId = task.getAttributeValue("name");
-		RdrTree result = new RdrTree(_specID, taskId) ;
-		
-		List nodeList = task.getChildren() ;    //the rdr nodes for this task
-	
-	    //get the root node (always stored as node 0)
-	    Element rootNode = (Element) nodeList.get(0) ;
-	    RdrNode root = buildFromNode(rootNode, nodeList) ;  // build from root
-	    
-	    result.setRootNode(root) ;
 
-	    return result ;
-	}
-	
+    /** constructs an RdrTree from the JDOM Element passed */
+    private RdrTree buildTree(Element task) {
+        String taskId = task.getAttributeValue("name");
+        RdrTree result = new RdrTree(_specID, taskId) ;
+
+        List nodeList = task.getChildren() ;    //the rdr nodes for this task
+
+        //get the root node (always stored as node 0)
+        Element rootNode = (Element) nodeList.get(0) ;
+        RdrNode root = buildFromNode(rootNode, nodeList) ;  // build from root
+
+        result.setRootNode(root) ;
+
+        return result ;
+    }
+
 //===========================================================================//
-	
-    /** 
+
+    /**
      *  recursively build a tree from the node and list passed 
-	 *  @param xNode contains the xml elements for a single RDR node definition
-	 *  @param nodeList is the list of all xNodes for a single task 
+     *  @param xNode contains the xml elements for a single RDR node definition
+     *  @param nodeList is the list of all xNodes for a single task
      */
-	private RdrNode buildFromNode(Element xNode, List nodeList) {
-		String childId ;
-		RdrNode rNode = new RdrNode() ;
-		
-		// populate the node
-		rNode.setNodeId(xNode.getChildText("id")) ;
-		rNode.setCondition(xNode.getChildText("condition"));
-		rNode.setConclusion(xNode.getChild("conclusion"));
-		rNode.setCornerStone(xNode.getChild("cornerstone"));
-		
-		// do true branch recursively
-		childId = xNode.getChildText("trueChild") ;
-		if (childId.compareTo("-1") != 0) {
-			Element eTrueChild = getNodeWithId(childId, nodeList) ;
-			rNode.setTrueChild(buildFromNode(eTrueChild, nodeList));
-			rNode.getTrueChild().setParent(rNode) ;
-		}	
-		
-		// do false branch recursively	
-		childId = xNode.getChildText("falseChild") ;
-		if (childId.compareTo("-1") != 0) {
-			Element eFalseChild = getNodeWithId(childId, nodeList) ;
-			rNode.setFalseChild(buildFromNode(eFalseChild, nodeList));
-			rNode.getFalseChild().setParent(rNode) ;
-		}
-		return rNode;
-	}
-	
+    private RdrNode buildFromNode(Element xNode, List nodeList) {
+        String childId ;
+        RdrNode rNode = new RdrNode() ;
+
+        // populate the node
+        rNode.setNodeId(xNode.getChildText("id")) ;
+        rNode.setCondition(xNode.getChildText("condition"));
+        rNode.setConclusion(xNode.getChild("conclusion"));
+        rNode.setCornerStone(xNode.getChild("cornerstone"));
+
+        // do true branch recursively
+        childId = xNode.getChildText("trueChild") ;
+        if (childId.compareTo("-1") != 0) {
+            Element eTrueChild = getNodeWithId(childId, nodeList) ;
+            rNode.setTrueChild(buildFromNode(eTrueChild, nodeList));
+            rNode.getTrueChild().setParent(rNode) ;
+        }
+
+        // do false branch recursively
+        childId = xNode.getChildText("falseChild") ;
+        if (childId.compareTo("-1") != 0) {
+            Element eFalseChild = getNodeWithId(childId, nodeList) ;
+            rNode.setFalseChild(buildFromNode(eFalseChild, nodeList));
+            rNode.getFalseChild().setParent(rNode) ;
+        }
+        return rNode;
+    }
+
 //===========================================================================//
-	
+
     /** find the node with the id passed in the List of xml nodes */
-	private Element getNodeWithId(String id, List nodeList) {
-		String nodeId ;
-		
-       // find the node with this id
-       for (int i=0;i<nodeList.size();i++) {
-       	    Element eNode = (Element) nodeList.get(i) ;
-       	    nodeId = eNode.getChildText("id") ;
-       	    if ((id.compareTo(nodeId) == 0)) return eNode ;
-       }
-       return null ;
-	}
+    private Element getNodeWithId(String id, List nodeList) {
+        String nodeId ;
+
+        // find the node with this id
+        for (int i=0;i<nodeList.size();i++) {
+            Element eNode = (Element) nodeList.get(i) ;
+            nodeId = eNode.getChildText("id") ;
+            if ((id.compareTo(nodeId) == 0)) return eNode ;
+        }
+        return null ;
+    }
 
 //===========================================================================//
 
@@ -381,10 +370,10 @@ public class RdrSet {
         StringBuilder s = new StringBuilder("##### RDR SET #####");
         s.append(Library.newline);
 
-        Library.appendLine(s, "SPECIFICATION ID", _specID);
+        Library.appendLine(s, "SPECIFICATION ID", _specID.toString());
         Library.appendLine(s, "SET HAS RULES", String.valueOf(_hasRules));
         s.append(Library.newline);
- 
+
         String specPreTree = (_specPreTree == null)? "null" : _specPreTree.toString();
         String specPostTree = (_specPostTree == null)? "null" : _specPostTree.toString();
         String specExTree = (_specExternalTree == null)? "null" : _specExternalTree.toString();
@@ -422,7 +411,7 @@ public class RdrSet {
 
         return s.toString();
     }
-	
+
 //===========================================================================//
 //===========================================================================//
 

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <spec>
     <constraints>
         <item>
@@ -56,7 +56,7 @@
                                 <target>ChangeToSmallVenue</target>
                             </_2>
                             <_3>
-                                <action>cancel</action>
+                                <action>remove</action>
                                 <target>case</target>
                             </_3>
                         </conclusion>

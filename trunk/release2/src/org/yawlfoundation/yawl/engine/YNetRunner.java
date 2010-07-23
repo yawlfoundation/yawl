@@ -340,7 +340,7 @@ public class YNetRunner {
         // notify exception checkpoint to service if available (post's for case end)
         if (_exceptionObserver != null) {
             Document data = _net.getInternalDataDocument();
-            _engine.getAnnouncer().announceCheckCaseConstraints(null, _caseID,
+            _engine.getAnnouncer().announceCheckCaseConstraints(_specID, _caseID,
                     JDOMUtil.documentToString(data), false);
         }
     }

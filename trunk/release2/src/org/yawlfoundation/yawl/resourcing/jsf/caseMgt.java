@@ -29,6 +29,8 @@ import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
 
 import javax.faces.FacesException;
 import javax.faces.component.UIColumn;
@@ -511,9 +513,15 @@ public class caseMgt extends AbstractPageBean {
         int EOF = fileContents.indexOf("</specificationSet>");
         if (BOF != -1 && EOF != -1) {
             fileContents = fileContents.substring(BOF, EOF + 19) ;         // trim file
-            String result = _rm.uploadSpecification(fileContents, fileName);
-            if (! _rm.successful(result)) processErrorMsg(result);
-            _sb.refreshLoadedSpecs();
+            if (hasUniqueDescriptors(fileContents)) {
+                String result = _rm.uploadSpecification(fileContents, fileName);
+                if (! _rm.successful(result)) processErrorMsg(result);
+                _sb.refreshLoadedSpecs();
+            }
+            else {
+                msgPanel.error("A specification with the same URI, version and " +
+                    "description as those in the file '" + fileName + "' is already loaded.");    
+            }
         }
         else msgPanel.error("The file '" + fileName + "' does not appear to be a " +
                             "valid YAWL specification description or is malformed. " +
@@ -753,6 +761,27 @@ public class caseMgt extends AbstractPageBean {
         boolean noSpecsSelected = (list == null) || list.isEmpty() ;
         btnUnload.setDisabled(noSpecsSelected);
         btnLaunch.setDisabled(noSpecsSelected);
+    }
+
+
+    private boolean hasUniqueDescriptors(String specxml) {
+        if ((specxml == null) || (specxml.length() == 0)) return false;
+        XNode specNode = new XNodeParser().parse(specxml);
+        String schemaVersion = specNode.getAttributeValue("version");
+        XNode specification = specNode.getChild("specification");
+        String uri = specification.getAttributeValue("uri");
+        String version;
+        String description;
+        if (schemaVersion.startsWith("2.")) {
+            XNode metadata = specification.getChild("metaData");
+            version = metadata.getChildText("version");
+            description = metadata.getChildText("description");
+        }
+        else {
+            version = "0.1";
+            description = specification.getChildText("documentation");
+        }    
+        return ! _sb.isLoadedSpec(uri, version, description);
     }
 
 

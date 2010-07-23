@@ -29,7 +29,16 @@
    		    <generator class="assigned"/>
         </id>
 
-        <property name="_specID"        column="specID"/>
+        <component name="_specID"
+                   class="org.yawlfoundation.yawl.engine.YSpecificationID" access="field">
+            <property name="identifier" column="specID"/>
+            <component name="version"
+                       class="org.yawlfoundation.yawl.elements.YSpecVersion">
+                <property name="version" column="specVersion"/>
+            </component>
+            <property name="uri" column="specURI"/>
+        </component>
+
         <property name="_caseDataStr"   column="caseDataStr"   type="text"/>
         <property name="_netDataStr"    column="netDataStr"    type="text"/>
         <property name="_liveCase"      column="liveCase"      type="boolean"/>

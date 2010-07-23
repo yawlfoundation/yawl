@@ -18,12 +18,12 @@
 
 package org.yawlfoundation.yawl.worklet.rdr;
 
-import org.yawlfoundation.yawl.worklet.support.*;
-import org.yawlfoundation.yawl.util.JDOMUtil;
-
-import java.lang.*;
-import org.jdom.Element ;
 import org.apache.log4j.Logger;
+import org.jdom.Element;
+import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.worklet.support.ConditionEvaluator;
+import org.yawlfoundation.yawl.worklet.support.Library;
+import org.yawlfoundation.yawl.worklet.support.RdrConditionException;
 
 
 /** A Ripple Down Rule Node implementation. 
@@ -52,12 +52,11 @@ public class RdrNode {
     private Element conclusion;
     private Element cornerstone;
     
-    private Logger _log = Logger.getLogger("org.yawlfoundation.yawl.worklet.rdr.RdrNode");
+    private Logger _log = Logger.getLogger(this.getClass());
 
 
     /** Default constructor */
-    public RdrNode(){
-    }
+    public RdrNode(){ }
     
     
 	/** 

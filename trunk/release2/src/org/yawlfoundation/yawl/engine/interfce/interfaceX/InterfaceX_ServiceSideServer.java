@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceX;
 
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
@@ -110,11 +111,15 @@ public class InterfaceX_ServiceSideServer extends HttpServlet {
         String data = request.getParameter("data");
         String caseID = request.getParameter("caseID");
         String specID = request.getParameter("specID");
+        String specVersion = request.getParameter("specVersion");
+        String specURI = request.getParameter("specURI");
         String taskList = request.getParameter("taskList");
 
         switch (actionToNotifyType(request.getParameter("action"))) {
             case InterfaceX_EngineSideClient.NOTIFY_CHECK_CASE_CONSTRAINTS:
-               _controller.handleCheckCaseConstraintEvent(specID, caseID, data, preCheck);
+               _controller.handleCheckCaseConstraintEvent(
+                       new YSpecificationID(specID, specVersion, specURI),
+                       caseID, data, preCheck);
                break;
             case InterfaceX_EngineSideClient.NOTIFY_CHECK_ITEM_CONSTRAINTS:
                 _controller.handleCheckWorkItemConstraintEvent(wir, data, preCheck);

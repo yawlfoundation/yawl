@@ -18,6 +18,8 @@
 
 package org.yawlfoundation.yawl.worklet.support;
 
+import org.yawlfoundation.yawl.engine.YSpecificationID;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -31,7 +33,8 @@ import java.util.Date;
  */
 
 public class WorkletEvent {
-    private String _event, _caseId, _specId, _taskId, _parentCaseId, _stamp;
+    private YSpecificationID _specId;
+    private String _event, _caseId, _taskId, _parentCaseId, _stamp;
     private int _xType;
     private long _id ;
 
@@ -41,7 +44,7 @@ public class WorkletEvent {
     private WorkletEvent() {}                  // empty cons. required for persistence
 
     /** the one and only constructor */
-    public WorkletEvent(String event, String caseId, String specId,
+    public WorkletEvent(String event, String caseId, YSpecificationID specId,
                          String taskId, String parentCaseId, int xType) {
         _event = event;
         _caseId = caseId ;
@@ -56,7 +59,7 @@ public class WorkletEvent {
     /** getters & setters used by persistence */
     private String get_event() { return _event; }
     private String get_caseId() { return _caseId; }
-    private String get_specId() { return _specId; }
+    private YSpecificationID get_specId() { return _specId; }
     private String get_taskId() { return _taskId; }
     private String get_parentCaseId() { return _parentCaseId; }
     private int get_xType() { return _xType; }
@@ -65,7 +68,7 @@ public class WorkletEvent {
 
     private void set_event(String s) { _event = s; }
     private void set_caseId(String s) { _caseId = s; }
-    private void set_specId(String s) { _specId = s; }
+    private void set_specId(YSpecificationID s) { _specId = s; }
     private void set_taskId(String s) { _taskId = s; }
     private void set_parentCaseId(String s) { _parentCaseId = s; }
     private void set_xType(int i) { _xType = i; }

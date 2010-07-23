@@ -49,11 +49,11 @@ Public Class frmAbout
     Friend WithEvents Label4 As System.Windows.Forms.Label
     <System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmAbout))
-        Me.btnOK = New System.Windows.Forms.Button
-        Me.PictureBox1 = New System.Windows.Forms.PictureBox
-        Me.Label3 = New System.Windows.Forms.Label
-        Me.Label1 = New System.Windows.Forms.Label
-        Me.Label4 = New System.Windows.Forms.Label
+        Me.btnOK = New System.Windows.Forms.Button()
+        Me.PictureBox1 = New System.Windows.Forms.PictureBox()
+        Me.Label3 = New System.Windows.Forms.Label()
+        Me.Label1 = New System.Windows.Forms.Label()
+        Me.Label4 = New System.Windows.Forms.Label()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -86,7 +86,7 @@ Public Class frmAbout
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(72, 32)
         Me.Label3.TabIndex = 12
-        Me.Label3.Text = "Version 2.01 03/08/2009"
+        Me.Label3.Text = "Version 2.1 23/07/2010"
         '
         'Label1
         '
@@ -134,4 +134,7 @@ Public Class frmAbout
 
 #End Region
 
+    Private Sub Label3_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Label3.Click
+
+    End Sub
 End Class

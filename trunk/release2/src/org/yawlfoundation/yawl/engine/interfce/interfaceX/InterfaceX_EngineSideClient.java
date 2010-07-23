@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.engine.interfce.interfaceX;
 
 import org.apache.log4j.Logger;
 import org.jdom.Document;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -102,7 +103,7 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
     }
 
 
-    public void announceCheckCaseConstraints(String specID, String caseID,
+    public void announceCheckCaseConstraints(YSpecificationID specID, String caseID,
                                              String data, boolean preCheck) {
         new Handler(_observerURI, specID, caseID, data, preCheck,
                                               NOTIFY_CHECK_CASE_CONSTRAINTS).start();
@@ -114,14 +115,8 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
     }
 
 
-
     public void announceTimeOut(YWorkItem item, List taskList){
        new Handler(_observerURI, item, taskList, NOTIFY_TIMEOUT).start();
-    }
-
-
-    public void announceResourceUnavailable(YWorkItem item){
-        new Handler(_observerURI, item, NOTIFY_RESOURCE_UNAVAILABLE).start();
     }
 
 
@@ -152,7 +147,7 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
         private boolean _preCheck;
         private Document _dataDoc ;
         private String _dataStr ;
-        private String _specID ;
+        private YSpecificationID _specID ;
         private List _taskList ;
 
 
@@ -188,8 +183,8 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
             _dataDoc = data ;
         }
 
-        public Handler(String observerURI, String specID, String caseID, String data,
-                       boolean preCheck, int command) {
+        public Handler(String observerURI, YSpecificationID specID, String caseID,
+                       String data, boolean preCheck, int command) {
             _observerURI = observerURI;
             _specID = specID ;
             _caseID = caseID;
@@ -210,7 +205,9 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
                 // additional params as required
                 switch (_command) {
                     case InterfaceX_EngineSideClient.NOTIFY_CHECK_CASE_CONSTRAINTS:
-                        paramsMap.put("specID", _specID);
+                        paramsMap.put("specID", _specID.getIdentifier());
+                        paramsMap.put("specVersion", _specID.getVersionAsString());
+                        paramsMap.put("specURI", _specID.getUri());
                         paramsMap.put("caseID", _caseID);
                         paramsMap.put("preCheck", String.valueOf(_preCheck));
                         paramsMap.put("data", _dataStr);

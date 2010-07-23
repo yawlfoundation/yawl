@@ -541,11 +541,11 @@ public final class YNet extends YDecomposition {
                 throw new IllegalArgumentException("The input data for Net:" + getID() +
                         " is missing mandatory input data for a parameter (" + parameter.getName() + ").  " +
                         " Alternatively the data is there but the query in the super net produced data with" +
-                        " the wrong name(Check your specification). "
+                        " the wrong name (Check your specification). "
                         + new XMLOutputter(Format.getPrettyFormat()).outputString(incomingData).trim());
             }
 
-            // remove any attributes - not required and cause valiation errors if left
+            // remove any attributes - not required and cause validation errors if left
             if ((actualParam != null) && ! actualParam.getAttributes().isEmpty()) {
                 JDOMUtil.stripAttributes(actualParam);
             }

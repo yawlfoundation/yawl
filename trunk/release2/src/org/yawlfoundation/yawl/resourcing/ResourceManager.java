@@ -452,7 +452,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    // here we are only interested in items the service knows about being updated
+    // here we are only interested in items the service knows about, being updated
     // by services other than this one
     public void handleWorkItemStatusChangeEvent(WorkItemRecord wir,
                                                 String oldStatus, String newStatus) {
@@ -483,7 +483,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                     }
                 }
 
-                // if it has move to started status
+                // if it has moved to started status
                 else if (newStatus.equals(WorkItemRecord.statusExecuting)) {
 
                     // ...and was previously suspended
@@ -761,10 +761,9 @@ public class ResourceManager extends InterfaceBWebsideController {
         _orgDataSet.augmentDataSourceAsRequired();
 
         // restore user privileges for each participant
-        HashMap<String,UserPrivileges> upMap =
-                _persister.selectMap(HibernateEngine.tblUserPrivileges) ;
+        Map<String,Object> upMap = _persister.selectMap(HibernateEngine.tblUserPrivileges);
         for (Participant p : _orgDataSet.getParticipants()) {
-            UserPrivileges up = upMap.get(p.getID());
+            UserPrivileges up = (UserPrivileges) upMap.get(p.getID());
             if (up != null) p.setUserPrivileges(up);
             else p.setUserPrivileges(new UserPrivileges(p.getID()));
         }
@@ -2363,7 +2362,8 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
         catch (IOException ioe) {
             _log.error("IOException uploading specification " + fileName, ioe);
-            return "<failure>IOException uploading specification " + fileName + "</failure>";
+            return "<failure><reason><error>IOException uploading specification " +
+                    fileName + "</error></reason></failure>";
         }
     }
 

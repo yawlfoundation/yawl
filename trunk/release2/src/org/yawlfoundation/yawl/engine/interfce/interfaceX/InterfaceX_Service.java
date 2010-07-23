@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.engine.interfce.interfaceX;
 
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,7 +54,8 @@ import java.io.IOException;
 
 public interface InterfaceX_Service {
 
-     void handleCheckCaseConstraintEvent(String specID, String caseID, String data, boolean precheck);
+     void handleCheckCaseConstraintEvent(YSpecificationID specID, String caseID,
+                                         String data, boolean precheck);
 
      void handleCheckWorkItemConstraintEvent(WorkItemRecord wir, String data, boolean precheck);
 

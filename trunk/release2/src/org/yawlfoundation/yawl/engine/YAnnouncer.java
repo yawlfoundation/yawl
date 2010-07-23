@@ -339,7 +339,7 @@ public class YAnnouncer {
         if (_exceptionObserver != null) {
             debug("Announcing Check Constraints for case ", caseID,
                          " on client ", _exceptionObserver.toString());
-            _exceptionObserver.announceCheckCaseConstraints(specID.getUri(), caseID,
+            _exceptionObserver.announceCheckCaseConstraints(specID, caseID,
                     data, preCheck);
         }
     }
