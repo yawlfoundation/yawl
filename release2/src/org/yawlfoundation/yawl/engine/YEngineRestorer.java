@@ -84,13 +84,13 @@ public class YEngineRestorer {
      * @throws YPersistenceException if there's a problem reading from the tables
      */
     protected void restoreExternalClients() throws YPersistenceException {
-        _log.info("Restoring Services - Starts");
+        _log.info("Restoring External Clients - Starts");
         Query query = _pmgr.createQuery("from YExternalClient");
 
         for (Iterator it = query.iterate(); it.hasNext();) {
             _engine.addExternalClient((YExternalClient) it.next());
         }
-        _log.info("Restoring Services - Ends");
+        _log.info("Restoring External Clients - Ends");
     }
 
 
