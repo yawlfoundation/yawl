@@ -1589,7 +1589,7 @@ public abstract class YTask extends YExternalNetElement {
         for (YExternalNetElement element : _removeSet) {
             if (element == null) {
                 messages.add(new YVerificationMessage(this,
-                        this + " refers to a non existant element in its remove set.",
+                        this + " refers to a non existent element in its remove set.",
                         YVerificationMessage.ERROR_STATUS));
             }
             else if (! element._net.equals(_net)) {
@@ -1638,7 +1638,7 @@ public abstract class YTask extends YExternalNetElement {
             messages.addAll(checkXQuery(nextQuery, netVarNam));
         }
 
-        //check that non existant local variables are not assigned output.
+        //check that non existent local variables are not assigned output.
         for (String localVarName : getLocalVariablesForTaskCompletion()) {
             if (_net.getLocalVariables().get(localVarName) == null &&
                     _net.getInputParameters().get(localVarName) == null) {
