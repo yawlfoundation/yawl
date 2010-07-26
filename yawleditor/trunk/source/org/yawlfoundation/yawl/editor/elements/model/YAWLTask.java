@@ -345,42 +345,40 @@ public abstract class YAWLTask extends YAWLVertex {
     }
     return true;
   }
-  
-  public void removeInvalidParameters() {
-    LinkedList paramsToDelete = new LinkedList();
-    Iterator inputParameters = getParameterLists().getInputParameters().getParameters().iterator();
-    while (inputParameters.hasNext()) {
-      Parameter parameter = (Parameter) inputParameters.next();
-      if (!getDecomposition().hasVariableEqualTo(parameter.getVariable())) {
-        paramsToDelete.add(parameter);
-      }
-    }
-    
-    Iterator oldInputParams = paramsToDelete.iterator();
-    while(oldInputParams.hasNext()) {
-      Parameter param = (Parameter) oldInputParams.next();
-      getParameterLists().getInputParameters().remove(param.getVariable());
-    }
 
-      paramsToDelete.clear();
-      Iterator outputParameters = getParameterLists().getOutputParameters().getParameters().iterator();
-      while (outputParameters.hasNext()) {
-        Parameter parameter = (Parameter) outputParameters.next();
-        if (!getDecomposition().hasVariableEqualTo(parameter.getVariable())) {
-          paramsToDelete.add(parameter);
+    public void removeInvalidParameters() {
+        List<Parameter> paramsToDelete = new LinkedList<Parameter>();
+        Decomposition decomp = getDecomposition();
+        for (Object o : getParameterLists().getInputParameters().getParameters()) {
+            Parameter parameter = (Parameter) o;
+            if (! decomp.hasVariableEqualTo(parameter.getVariable())) {
+                paramsToDelete.add(parameter);
+            }
         }
-      }
+        for (Parameter parameter : paramsToDelete) {
+            getParameterLists().getInputParameters().remove(parameter.getVariable());
+        }
 
-      oldInputParams = paramsToDelete.iterator();
-      while(oldInputParams.hasNext()) {
-        Parameter param = (Parameter) oldInputParams.next();
-        getParameterLists().getOutputParameters().remove(param.getVariable());
-      }
-
-
-    //Output parameters are scoped to something other than the task. Don't need 
-    // to delete them, but perhaps the queries are broken.
-  }
+        paramsToDelete.clear();
+        for (Object o : getParameterLists().getOutputParameters().getParameters()) {
+            Parameter parameter = (Parameter) o;
+            String query = parameter.getQuery();
+            int startPos = query.indexOf("/" + decomp.getLabel() + "/");
+            if (startPos > -1) {
+                startPos += decomp.getLabel().length() + 2;
+                int endPos = query.indexOf('/', startPos + 1);
+                if (endPos > -1) {
+                    String varName = query.substring(startPos, endPos);
+                    if (decomp.getVariableWithName(varName) == null) {
+                        paramsToDelete.add(parameter);
+                    }
+                }
+            }
+        }
+        for (Parameter parameter : paramsToDelete) {
+            getParameterLists().getOutputParameters().remove(parameter.getVariable());
+        }
+    }
   
   public Object clone() {
     YAWLTask clone = (YAWLTask) super.clone();

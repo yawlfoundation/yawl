@@ -35,6 +35,7 @@ class ExportConfigDialog extends AbstractDoneDialog {
   private JCheckBox autoIncVersionCheckBox;
   private JCheckBox backupCheckBox;
   private JLabel idLabel;
+  private boolean initialising;
 
   public ExportConfigDialog() {
     super("Specification File Save Options", true);
@@ -194,13 +195,17 @@ class ExportConfigDialog extends AbstractDoneDialog {
 
     autoIncVersionCheckBox.addItemListener(new ItemListener() {
         public void itemStateChanged(ItemEvent e) {
-            SpecificationVersionVerifier verifier =
+            if (! initialising) {
+                SpecificationVersionVerifier verifier =
                     (SpecificationVersionVerifier) versionNumberField.getInputVerifier();
-            if (e.getStateChange() == ItemEvent.DESELECTED) {
-                versionNumberField.setText(verifier.decStartingVersion());
-            }
-            else if (e.getStateChange() == ItemEvent.SELECTED) {
-                versionNumberField.setText(verifier.incStartingVersion());
+                if (e.getStateChange() == ItemEvent.DESELECTED) {
+                    if (! versionNumberField.getText().equals("0.1")) {
+                        versionNumberField.setText(verifier.decStartingVersion());
+                    }    
+                }
+                else if (e.getStateChange() == ItemEvent.SELECTED) {
+                    versionNumberField.setText(verifier.incStartingVersion());
+                }    
             }
         }
     });
@@ -232,6 +237,7 @@ class ExportConfigDialog extends AbstractDoneDialog {
 
   public void setVisible(boolean visible) {
     if (visible) {
+      initialising = true;
       verificationCheckBox.setSelected(
           prefs.getBoolean(
               EngineSpecificationExporter.VERIFICATION_WITH_EXPORT_PREFERENCE,
@@ -269,6 +275,7 @@ class ExportConfigDialog extends AbstractDoneDialog {
               (SpecificationVersionVerifier) versionNumberField.getInputVerifier();
       svv.setStartingVersion(version);
 
+      initialising = false;
     }
     super.setVisible(visible);
   }

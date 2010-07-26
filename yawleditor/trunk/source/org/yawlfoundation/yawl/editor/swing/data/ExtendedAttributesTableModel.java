@@ -1,18 +1,16 @@
 package org.yawlfoundation.yawl.editor.swing.data;
 
+import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
-import org.yawlfoundation.yawl.editor.YAWLEditor;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Properties;
-import java.util.Vector;
+import java.util.*;
 import java.util.prefs.Preferences;
 
 /**
@@ -37,6 +35,7 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
             this.decomposition = variable.getScope().getDecomposition();
             loadDefaultProperties();
             loadUserDefinedProperties();
+            variable.setAttributes(removeDefunctAttributes(variable.getAttributes()));
         }
     }
 
@@ -47,6 +46,7 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
         if (this.decomposition != null) {
             loadDefaultProperties();
             loadUserDefinedProperties();
+            decomposition.setAttributes(removeDefunctAttributes(decomposition.getAttributes()));
         }
     }
 
@@ -137,6 +137,34 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
             rows.addAll(udAttributes);
         }
     }
+
+
+    private Hashtable removeDefunctAttributes(Hashtable attributes) {
+        List<String> toRemove = new ArrayList<String>();
+        if (attributes != null) {
+            for (Object o : attributes.keySet()) {
+                String key = (String) o;
+                if (! rowsContainsKey(key)) {
+                   toRemove.add(key);
+                }
+            }
+            for (String remKey : toRemove) {
+                attributes.remove(remKey);
+            }
+        }
+        return attributes;
+    }
+
+
+    private boolean rowsContainsKey(String key) {
+        for (ExtendedAttribute exAttr : rows) {
+            if (exAttr.getName().equals(key)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * Returns the number of columns in the model. A
@@ -237,11 +265,17 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
         this.variable = variable;
         this.decomposition = variable.getScope().getDecomposition();
         loadAndParseProperties();
+        if (variable != null) {
+            variable.setAttributes(removeDefunctAttributes(variable.getAttributes()));            
+        }
     }
 
     public void setDecomposition(Decomposition decomposition) {
         this.decomposition = decomposition;
         loadAndParseProperties();
+        if (decomposition != null) {
+            decomposition.setAttributes(removeDefunctAttributes(decomposition.getAttributes()));
+        }
     }
 
     private void loadAndParseProperties() {
