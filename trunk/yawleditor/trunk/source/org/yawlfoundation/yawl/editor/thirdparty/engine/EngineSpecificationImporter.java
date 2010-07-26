@@ -253,12 +253,6 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     Collections.sort(localVarList);
 
     for (YVariable engineVariable : localVarList) {  
-
- //   Iterator localVariableKeyIterator = engineNet.getLocalVariables().keySet().iterator();
-
-//    while(localVariableKeyIterator.hasNext()) {
-//      String variableKey = (String) localVariableKeyIterator.next();
-//      YVariable engineVariable = (YVariable) engineNet.getLocalVariables().get(variableKey);
       DataVariableSet varSet = editorNet.getNetModel().getDecomposition().getVariables();
 
       if (! localVarForOutputOnlyVar(varSet, engineVariable)) {

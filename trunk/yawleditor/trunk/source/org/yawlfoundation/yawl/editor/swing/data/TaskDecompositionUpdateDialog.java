@@ -338,37 +338,34 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
     };
     refreshThread.start();
   }
-  
-  public DataVariableSet generateDataVariablesFromServiceSelection() {
 
-//    DataVariableSet newVariableSet = getDataVariablePanel().getVariables();
-//    if (newVariableSet == null) newVariableSet = new DataVariableSet();
+    public DataVariableSet generateDataVariablesFromServiceSelection() {
 
-      DataVariableSet newVariableSet = new DataVariableSet();
-      newVariableSet.setDecomposition(getDecomposition());
+        DataVariableSet newVariableSet = new DataVariableSet();
+        newVariableSet.setDecomposition(getDecomposition());
 
-    if (yawlServiceComboBox.getSelectedItemID() == null && 
-        cachedYAWLServiceID == null) {
+        if (yawlServiceComboBox.getSelectedItemID() == null &&
+                cachedYAWLServiceID == null) {
 
-      newVariableSet.addVariables(
-          getDataVariablePanel().getVariables().getUserDefinedVariables()
-      );
+            newVariableSet.addVariables(
+                    getDataVariablePanel().getVariables().getUserDefinedVariables()
+            );
 
-      return newVariableSet;
+            return newVariableSet;
+        }
+
+        newVariableSet.addVariables(
+                YAWLEngineProxy.getInstance().getEngineParametersForRegisteredService(
+                        yawlServiceComboBox.getSelectedItemID()
+                )
+        );
+
+        newVariableSet.addVariables(
+                getDataVariablePanel().getVariables().getUserDefinedVariables()
+        );
+
+        return newVariableSet;
     }
-
-    newVariableSet.addVariables(
-      YAWLEngineProxy.getInstance().getEngineParametersForRegisteredService(
-            yawlServiceComboBox.getSelectedItemID()    
-      )
-    );
-    
-    newVariableSet.addVariables(
-        getDataVariablePanel().getVariables().getUserDefinedVariables()
-    );
-
-    return newVariableSet;
-  }
   
   //BEGIN: MLF
   private void createAttributePanel(JPanel panel)
