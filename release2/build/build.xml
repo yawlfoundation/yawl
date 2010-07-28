@@ -3,7 +3,7 @@
 
     <!-- ========================== Properties ================================= -->
 
-    <property name="app.version" value="_2.1beta"/>
+    <property name="app.version" value="_2.1"/>
     <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
                                            Mike Fowler et al."/>
 
@@ -482,7 +482,7 @@
         </copy>
         <copy todir="${yawl.eng.app.name}${webinf.dir}/engine">
             <fileset dir="${classes.dir}${packageRoot}/engine"
-                     includes="**/*.class **/*.hbm.xml"/>
+                     includes="**/*.class **/*.hbm.xml *.properties"/>
         </copy>
         <copy todir="${yawl.eng.app.name}${webinf.dir}/exceptions">
             <fileset dir="${classes.dir}${packageRoot}/exceptions"

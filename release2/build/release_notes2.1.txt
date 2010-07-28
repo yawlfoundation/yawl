@@ -1,4 +1,114 @@
 
+                        YAWL Release 2.1 (final)  27/07/2010
+                       ======================================
+
+This is the 2.1 (final) release of the YAWL Environment. It primarily incorporates
+a number fixes over the 2.1 beta version, and a couple of new functionalities. Please
+take the time to read the change lists below, and refer to the user manual for more
+details.
+
+
+QUICK START: After installation, start Tomcat and point a browser to
+             http://localhost:8080/resourceService
+
+
+1. MINIMUM REQUIREMENTS
+-----------------------
+  * Tomcat 5.5.25 or higher
+  * Java 5 (1.5) or higher
+
+
+2. CHANGES IN THIS VERSION
+---------------------------
+
+(a) ENGINE & CUSTOM SERVICES:
+ * [Enhancement] added a 'Get Info' button to the case mgt form's specification list, to
+   display specification meta data.
+ * [Enhancement] added work item data value changes to XES logs output (Engine and
+   Resource Service).
+ * [Enhancement] the resource service will now block the upload of a specification that
+   matches on name, version and description with one that is already loaded (even if
+   their internal unique identifiers are different).
+ * [Enhancement] added exception logging to LDAPSource.
+ * [Enhancement] moved LDAPSOurce.properties to WEB-INF/classes (with the other
+   properties files).
+ * [Enhancement] automated initialisation of default clients and services within the
+   engine for first time installs.
+ * [Bug fix] improved metrics for the auto-sizing of web form message panels.
+ * [Bug fix] set lazy loading off for all resource collections (was already done at the
+   class level, but extra granularity was required).
+ * [Bug fix] Added commons-codec reference to visualiser applet helper class.
+ * [Bug fix] Cancelling a work item would attempt to remove it twice from persistence.
+ * [Bug fix] exception when using 'admin' user with an external data source.
+ * [Bug fix] several misconstructions in Log Predicate's embedded expressions.
+ * [Bug fix] NPE in Monitor Service when no cases active.
+ * [Bug fix] Monitor Service refresh of active case list on login.
+ * [Bug fix] UserPrivileges.fromXML method not correctly populating fields when called
+   on the client-side.
+ * [Bug fix] completed the missing parts of support for getting/setting case-level data
+   via External Data Gateways.
+ * [Bug fix] smaller custom services were missing PasswordEncryptor.class from their
+   build.
+ * [Bug fix] Session timers failing when the session timeout value was negative
+   (Engine and Resource Service).
+ * [Refactor] added checks for null queries in YNetLocalVarVerifier & YTask.
+ * [Refactor] Small refactor of YClient & AbstractInteraction.
+ * [Refactor] fixed LDAPSource to accommodate max size limits on searches, so that any
+   number of users can be loaded.
+ * [Refactor] plugged potential NPEs in YWorkItem, TableSorter, YNet, Eventlogger,
+   UserConnectionCache & ConnectionCache.
+ * [Refactor] changed YEngineRestorer public methods to protected.
+ * [Refactor] added method to YDecompositionParser to get task name from task id for
+   pre-beta7 specs.
+ * [Refactor] javadocing and license header block change.
+ * [Refactor] small clean of build.xml.
+ * [Refactor] added checkConnection call in TwitterService (to align it with its use as
+   an example in the technical manual).
+ * [Refactor] improved XNode parsing.
+ * [Refactor] added more metadata to SpecificationData objects.
+ * [Refactor] thorough refactor of worklet service to bring it in line with 2.1.
+ * [Refactor] added formatting for data and time types in XES logs.
+ * [Refactor] removed old and unused dom.jar and xalan.jar from project library.
+ * [Typo] text in the Monitor Service's sessiontimeout.html.
+ * [Typo] text in incorrect password message for generic 'admin' user at Monitor Service
+   login form.
+ * [Typo] Label on orgData web form ('Capabilitys').
+ * [Typo] in a YTask verification message.
+ * [Typo] in a YEngineRestorer debug message.
+
+(b) EDITOR:
+ * [Bug fix] null mapping queries were sometimes disallowing file saves.
+ * [Bug fix] fixed inconsistencies between default extended attribute names and the engine
+   definitions of them.
+ * [Bug fix] output of external data expression was missing the parameter name.
+ * [Bug fix] added missing YClient and YExternalClient classes to build.
+ * [Bug fix] completed the missing parts of support for getting/setting case-level data
+   via External Data Gateways.
+ * [Bug fix] fixed logging of external classes to YAWLEditor.log.
+ * [Bug fix] removed default log4j.properties from build.
+ * [Bug fix] incorrect task output mapping expressions for external gateways
+ * [Bug fix] auto-increment on save did not revert to previous version number when
+   deselected.
+ * [Bug fix] reversion of a Multiple Instance task to a Single Instance task definition when
+   default bounds are left unchanged.
+ * [Bug fix] removal of extended attributes that no longer exist from loaded specifications.
+ * [Bug fix] errant removal of task output parameters on changes in task decomposition
+   dialog.
+ * [Refactor] set logging level to warn to avoid debug-level logging generated by embedded
+   engine classes.
+
+
+                         #############################
+
+    Please report any bugs or problems via the YAWL sourceforge page:
+
+                     http://sourceforge.net/projects/yawl
+
+
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
                         YAWL Release 2.1beta  04/06/2010
                        ==================================
 
