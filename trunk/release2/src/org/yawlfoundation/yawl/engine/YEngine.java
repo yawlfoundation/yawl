@@ -201,13 +201,13 @@ public class YEngine implements InterfaceADesign,
         _restoring = true;
 
         YPersistenceManager pmgr = new YPersistenceManager(getPMSessionFactory());
+        YEngineRestorer restorer = new YEngineRestorer(_thisInstance, pmgr);
         try {
             // start persistence session
             pmgr.setRestoring(true);
             pmgr.startTransactionalSession();
 
             // restore data objects from persistence
-            YEngineRestorer restorer = new YEngineRestorer(_thisInstance, pmgr);
             restorer.restoreYAWLServices();
             restorer.restoreExternalClients();
             restorer.restoreSpecifications();
@@ -237,8 +237,9 @@ public class YEngine implements InterfaceADesign,
                           "operational but may be in an inconsistent state. Exception: ", e);
         }
         finally {
-            _logger.debug("restore -->");
+            _logger.debug("restore <---");
             _restoring = false;
+            restorer.persistDefaultClients();
         }
     }
 

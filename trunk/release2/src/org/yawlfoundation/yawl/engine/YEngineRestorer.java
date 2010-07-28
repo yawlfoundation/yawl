@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.engine;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
@@ -29,7 +30,12 @@ import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 
 /**
@@ -46,6 +52,8 @@ public class YEngineRestorer {
     private Hashtable<String, YIdentifier> _idLookupTable;
     private Vector<YNetRunner> _runners;
     private Hashtable<String, YTask> _taskLookupTable;
+    private boolean _hasServices;
+    private Set<YClient> _addedDefaultClients;
     private Logger _log;
 
 
@@ -70,8 +78,9 @@ public class YEngineRestorer {
     protected void restoreYAWLServices() throws YPersistenceException {
         _log.info("Restoring Services - Starts");
         Query query = _pmgr.createQuery("from YAWLServiceReference");
-
-        for (Iterator it = query.iterate(); it.hasNext();) {
+        Iterator it = query.iterate();
+        _hasServices = it.hasNext();
+        while (it.hasNext()) {
             _engine.addYawlService((YAWLServiceReference) it.next());
         }
         _log.info("Restoring Services - Ends");
@@ -86,9 +95,19 @@ public class YEngineRestorer {
     protected void restoreExternalClients() throws YPersistenceException {
         _log.info("Restoring External Clients - Starts");
         Query query = _pmgr.createQuery("from YExternalClient");
+        Iterator it = query.iterate();
+        if (it.hasNext()) {
+            while (it.hasNext()) {
+                _engine.addExternalClient((YExternalClient) it.next());
+            }
+        }
+        else {
+            if (! _hasServices) {
 
-        for (Iterator it = query.iterate(); it.hasNext();) {
-            _engine.addExternalClient((YExternalClient) it.next());
+                // no services and no clientapps indicates a fresh db (there should be at
+                // least a row for the editor user - so needs default rows to be added
+                initDefaultServicesAndApps();
+            }
         }
         _log.info("Restoring External Clients - Ends");
     }
@@ -274,7 +293,20 @@ public class YEngineRestorer {
             }
         }
         _log.info("Restarting restored process instances - Ends");
+    }
 
+
+    protected void persistDefaultClients() {
+        if (_addedDefaultClients != null) {
+            try {
+                for (YClient client : _addedDefaultClients) {
+                    _engine.storeObject(client);
+                }
+            }
+            catch (YPersistenceException ype) {
+                _log.warn("Unable to persist added default clients.", ype);
+            }
+        }
     }
 
     /*****************************************************************************/
@@ -631,6 +663,70 @@ public class YEngineRestorer {
             _taskLookupTable.put(key, task);
         }
         return task;
+    }
+
+
+    private void initDefaultServicesAndApps() {
+        _log.info("Loading default client and service account details - Starts");
+        InputStream in = getClass().getResourceAsStream("defaultServices.properties");
+        if (in != null) {
+            _addedDefaultClients = new HashSet<YClient>();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            try {
+                String line = reader.readLine();
+                while (line != null) {
+                    if (line.startsWith("extClient:")) {
+                        addDefaultExternalClient(line);
+                    }
+                    else if (line.startsWith("service:")) {
+                        addDefaultService(line);
+                    }
+                    line = reader.readLine();
+                }
+            }
+            catch (IOException ioe) {
+                _log.warn("Error loading default client and service account details");
+            }
+        }
+        _log.info("Loading default client and service account details - Ends");
+    }
+
+
+    private void addDefaultExternalClient(String rawLine) {
+        rawLine = rawLine.substring(rawLine.indexOf(':') + 1);   // strip header
+        String[] parts = rawLine.split(",");
+        if (parts.length == 3) {
+            String password = PasswordEncryptor.encrypt(parts[1].trim(), null);
+            YExternalClient client = new YExternalClient(
+                    parts[0].trim(), password, parts[2].trim());
+            try {
+                _engine.addExternalClient(client);
+                _addedDefaultClients.add(client);
+            }
+            catch (YPersistenceException ype) {
+                _log.warn("Could not load default external client: persistence.", ype);
+            }
+        }
+        else _log.warn("Could not load default external client: malformed entry.");
+    }
+
+    private void addDefaultService(String rawLine) {
+        rawLine = rawLine.substring(rawLine.indexOf(':') + 1);   // strip header
+        String[] parts = rawLine.split(",");
+        if (parts.length == 5) {
+            String password = PasswordEncryptor.encrypt(parts[1].trim(), null);
+            YAWLServiceReference service = new YAWLServiceReference(
+                    parts[3].trim(), null, parts[0].trim(), password, parts[2].trim());
+            service.setAssignable(parts[4].trim().equalsIgnoreCase("true"));
+            try {
+                _engine.addYawlService(service);
+                _addedDefaultClients.add(service);
+            }
+            catch (YPersistenceException ype) {
+                _log.warn("Could not load default external client: persistence.", ype);
+            }
+        }
+        else _log.warn("Could not load default external client: malformed entry.");
     }
 
 }
