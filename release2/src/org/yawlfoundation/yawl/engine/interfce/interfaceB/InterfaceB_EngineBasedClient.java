@@ -41,7 +41,7 @@ import java.util.*;
 
 
 /**
- * This interface announces specfic Engine events to listening custom services
+ * This interface announces specific Engine events to listening custom services
  *
  * @author Lachlan Aldred
  * Date: 22/01/2004
@@ -225,6 +225,13 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
             Handler myHandler = new Handler(service, id, ANNOUNCE_CASE_CANCELLED);
             myHandler.start();
         }
+    }
+
+    /**
+     * Called by the engine to announce shutdown of the engine's servlet container
+     */
+    public void shutdown() {
+    	// Nothing to do - Interface B Clients handle shutdown within their own servlet.
     }
 
 

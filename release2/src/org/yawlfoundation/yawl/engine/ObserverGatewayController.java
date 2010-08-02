@@ -315,4 +315,14 @@ public class ObserverGatewayController
         }).start();
     }
 
+    /**
+     * Invoke finalisation processing on all observer gateways (called when
+     * the Engine servlet is being destroyed)
+     */
+    public void shutdownObserverGateways() {
+      	for (ObserverGateway observerGateway : gateways) {
+            observerGateway.shutdown();
+        }
+    }
+
 }

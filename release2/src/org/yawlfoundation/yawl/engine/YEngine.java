@@ -304,6 +304,7 @@ public class YEngine implements InterfaceADesign,
 
     public void shutdown() {
         _sessionCache.shutdown();
+        _announcer.shutdownObserverGateways();
     }
 
 
