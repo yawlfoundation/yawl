@@ -173,13 +173,31 @@ public class XNodeParser {
     }
 
     private List<Integer> getIndexList(String s, String sub) {
+        int breakPos = sub.indexOf(' ');
+        if (breakPos > -1) {                   // tag contains attribute(s)
+            sub = sub.substring(0, breakPos);  // so truncate it
+        }
         List<Integer> indexList = new ArrayList<Integer>();
         int pos = s.indexOf(sub);
         while (pos > -1) {
-            indexList.add(pos);
+            if (! isEnclosedElement(s, pos)) {
+                indexList.add(pos);
+            }
             pos = s.indexOf(sub, pos + 1);
         }
         return indexList;
+    }
+
+    private boolean isEnclosedElement(String s, int start) {
+        for (int i = start + 1; i < s.length(); i++) {
+            if ((s.charAt(i) == '/') && ((i < s.length()-1) && (s.charAt(i+1) == '>'))) {
+                return true;
+            }
+            else if (s.charAt(i) == '>') {
+                return false;
+            }
+        }
+        return false;
     }
 
     private int getCorrespondingCloserPos(List<Integer> openers, List<Integer> closers) {

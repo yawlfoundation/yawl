@@ -16,7 +16,7 @@ QUICK START: After installation, start Tomcat and point a browser to
 -----------------------
   * Tomcat 5.5.25 or higher
   * Java 5 (1.5) or higher
-
+                                                     
 
 2. CHANGES IN THIS VERSION
 ---------------------------
