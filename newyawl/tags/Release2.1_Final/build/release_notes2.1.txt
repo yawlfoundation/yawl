@@ -1,0 +1,255 @@
+
+                        YAWL Release 2.1 (final)  27/07/2010
+                       ======================================
+
+This is the 2.1 (final) release of the YAWL Environment. It primarily incorporates
+a number fixes over the 2.1 beta version, and a couple of new functionalities. Please
+take the time to read the change lists below, and refer to the user manual for more
+details.
+
+
+QUICK START: After installation, start Tomcat and point a browser to
+             http://localhost:8080/resourceService
+
+
+1. MINIMUM REQUIREMENTS
+-----------------------
+  * Tomcat 5.5.25 or higher
+  * Java 5 (1.5) or higher
+                                                     
+
+2. CHANGES IN THIS VERSION
+---------------------------
+
+(a) ENGINE & CUSTOM SERVICES:
+ * [Enhancement] added a 'Get Info' button to the case mgt form's specification list, to
+   display specification meta data.
+ * [Enhancement] added work item data value changes to XES logs output (Engine and
+   Resource Service).
+ * [Enhancement] the resource service will now block the upload of a specification that
+   matches on name, version and description with one that is already loaded (even if
+   their internal unique identifiers are different).
+ * [Enhancement] added exception logging to LDAPSource.
+ * [Enhancement] moved LDAPSOurce.properties to WEB-INF/classes (with the other
+   properties files).
+ * [Enhancement] automated initialisation of default clients and services within the
+   engine for first time installs.
+ * [Bug fix] improved metrics for the auto-sizing of web form message panels.
+ * [Bug fix] set lazy loading off for all resource collections (was already done at the
+   class level, but extra granularity was required).
+ * [Bug fix] Added commons-codec reference to visualiser applet helper class.
+ * [Bug fix] Cancelling a work item would attempt to remove it twice from persistence.
+ * [Bug fix] exception when using 'admin' user with an external data source.
+ * [Bug fix] several misconstructions in Log Predicate's embedded expressions.
+ * [Bug fix] NPE in Monitor Service when no cases active.
+ * [Bug fix] Monitor Service refresh of active case list on login.
+ * [Bug fix] UserPrivileges.fromXML method not correctly populating fields when called
+   on the client-side.
+ * [Bug fix] completed the missing parts of support for getting/setting case-level data
+   via External Data Gateways.
+ * [Bug fix] smaller custom services were missing PasswordEncryptor.class from their
+   build.
+ * [Bug fix] Session timers failing when the session timeout value was negative
+   (Engine and Resource Service).
+ * [Refactor] added checks for null queries in YNetLocalVarVerifier & YTask.
+ * [Refactor] Small refactor of YClient & AbstractInteraction.
+ * [Refactor] fixed LDAPSource to accommodate max size limits on searches, so that any
+   number of users can be loaded.
+ * [Refactor] plugged potential NPEs in YWorkItem, TableSorter, YNet, Eventlogger,
+   UserConnectionCache & ConnectionCache.
+ * [Refactor] changed YEngineRestorer public methods to protected.
+ * [Refactor] added method to YDecompositionParser to get task name from task id for
+   pre-beta7 specs.
+ * [Refactor] javadocing and license header block change.
+ * [Refactor] small clean of build.xml.
+ * [Refactor] added checkConnection call in TwitterService (to align it with its use as
+   an example in the technical manual).
+ * [Refactor] improved XNode parsing.
+ * [Refactor] added more metadata to SpecificationData objects.
+ * [Refactor] thorough refactor of worklet service to bring it in line with 2.1.
+ * [Refactor] added formatting for data and time types in XES logs.
+ * [Refactor] removed old and unused dom.jar and xalan.jar from project library.
+ * [Typo] text in the Monitor Service's sessiontimeout.html.
+ * [Typo] text in incorrect password message for generic 'admin' user at Monitor Service
+   login form.
+ * [Typo] Label on orgData web form ('Capabilitys').
+ * [Typo] in a YTask verification message.
+ * [Typo] in a YEngineRestorer debug message.
+
+(b) EDITOR:
+ * [Bug fix] null mapping queries were sometimes disallowing file saves.
+ * [Bug fix] fixed inconsistencies between default extended attribute names and the engine
+   definitions of them.
+ * [Bug fix] output of external data expression was missing the parameter name.
+ * [Bug fix] added missing YClient and YExternalClient classes to build.
+ * [Bug fix] completed the missing parts of support for getting/setting case-level data
+   via External Data Gateways.
+ * [Bug fix] fixed logging of external classes to YAWLEditor.log.
+ * [Bug fix] removed default log4j.properties from build.
+ * [Bug fix] incorrect task output mapping expressions for external gateways
+ * [Bug fix] auto-increment on save did not revert to previous version number when
+   deselected.
+ * [Bug fix] reversion of a Multiple Instance task to a Single Instance task definition when
+   default bounds are left unchanged.
+ * [Bug fix] removal of extended attributes that no longer exist from loaded specifications.
+ * [Bug fix] errant removal of task output parameters on changes in task decomposition
+   dialog.
+ * [Refactor] set logging level to warn to avoid debug-level logging generated by embedded
+   engine classes.
+
+
+                         #############################
+
+    Please report any bugs or problems via the YAWL sourceforge page:
+
+                     http://sourceforge.net/projects/yawl
+
+
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+                        YAWL Release 2.1beta  04/06/2010
+                       ==================================
+
+This is the 2.1 beta release of the YAWL Environment. The release incorporates a number
+of new functionalities, together with numerous fixes, improvements and refactorings,
+mostly 'under-the-hood'. Please take the time to read the change list below, and refer
+to the upcoming user manual update for details.
+
+
+QUICK START: After installation, start Tomcat and point a browser to
+             http://localhost:8080/resourceService
+
+
+1. MINIMUM REQUIREMENTS
+-----------------------
+  * Tomcat 5.5.25 or higher
+  * Java 5 (1.5) or higher
+
+
+2. SPECIAL INSTRUCTIONS (ENTERPRISE USERS ONLY)
+-----------------------------------------------
+The Enterpise version of YAWL uses PostgreSQL as its database management system, and
+the database tables are constructed on first startup of YAWL (the 4Study versions
+come with a pre-built Apache Derby database). Because the tables don't exist until the
+first time YAWL is started, Enterprise users are required to manually register the
+desired support services and applications with the Engine.
+
+There is a script called 'YAWL_Enterprise_Service_Registration.sql' that can be
+downloaded from the Sourceforge YAWL download page that will install the appropriate
+credentials to the database. To run it (after YAWL's first startup):
+
+ 1. Open the pgAdmin tool, then select the 'yawl' database.
+ 2. Open a Query dialog, thne open the script in the dialog via 'File...Open'.
+ 3. Run the script.
+
+Note again that this procedure is only required for YAWL 2.1beta Enterprise version only.
+
+
+3. MAJOR CHANGES IN THIS VERSION
+---------------------------------
+
+ - The replacement of the entire process logging framework and its associated interface
+   with a completely new, more efficient and complete one.
+ - Case histories are now produced by both the Engine and Resource Service in OpenXES
+   format for direct import into the ProM process mining tool.
+ - The Resource Service's logging framework has also been expanded and improved. The
+   Resource Service also produces a case history log in OpenXES format, and can merge its
+   log with the engine's to produce a complete log of each case.
+ - New 'log predicate' functionality, which provides for freeform messages to be written
+   to the process logs when cases and/or tasks are started and/or completed. Predicates
+   can embed current state values of the case or task via a simple query language.
+ - Audit logs for the Engine and Resource Service have been added that record all
+   session events (logon, logoff, expiry, shutdown, etc).
+ - The Engine is now completely 'agnostic' to users. That is, it has no concept of
+   individual users (instead, users are expected to be managed by custom services such as
+   the Resource Service). The Engine will only accept connections from registered
+   services and client applications (such as the Editor).
+ - As a consequence, each custom service and external application now requires a valid
+   userid and password as part of the registration with the engine before it can connect.
+ - All connection passwords are now hashed on the client side and only hashed values are
+   stored in the database.
+ - When a custom service is registered with the engine, the url entered is now checked to
+   make sure its valid.
+ - Any service or application registered with the Engine may also connect to the
+   Resource Service (that is, the Resource Service recognises the services and
+   applications registered with the Engine).
+ - In previous versions, what signified the completion of a net differed between sub-nets
+   and root nets. A sub-net was considered complete when a token reached the output (end)
+   condition, which is correct in terms of the YAWL language. A root net, on the other
+   hand, would continue after a token reached the output condition if active tokens
+   remained in the net, which indicates an unsound net. In this version, all nets are
+   considered complete when a token reaches the output condition.
+ - Session timeout settings are now fully supported across the entire environment.
+ - The generic 'admin' user can now have its password changed.
+ - The generic 'admin' user can now be configured as disabled (so that the engine will
+   reject connection attempts with the generic 'admin' account).
+ - A new monitor service is available that lists information of all current, active
+   cases, each of its workitems and each variable of each workitem, relevant process log
+   information and updating case data for the life of the case.
+ - An LDAP translation layer has been added so that org data can be loaded directly from
+   an LDAP server.
+ - If an external org data source is enabled, user authentication can now be configured
+   to be passed to the external source (as opposed to loading the user passwords on
+   startup and authenticating within the Resource Service).
+ - Data values for net and task level variables can now be read from and written to
+   external data sources via an interface. The interface is called when a case starts,
+   when eack task starts and completes, and finally when the case completes, so that
+   the desired case/task variables can be populated. It is possible to have a subset
+   of variables populated from external source, while others are populated via the
+   usual mappings (net->task or task->net).
+ - An implicit net level status for each workitem timer started within a net is now
+   available for use in flow expressions. A timer status is one of: dormant, active,
+   closed or expired, so a particular flow expression might look like this:
+   "timer(myTask) != 'expired'".
+ - Much expanded extended attributes, many of which affect the format of dynamic forms.
+   This allows dynamic form display to have much greater flexibility (fonts, colours,
+   images, freeform text etc.).
+ - Extended attributes can be further modified at runtime (immediately before a form is
+   displayed) via an interface to hide fields, modify values etc. depending on the
+   current data and state of a case or task.
+ - Data schema generation for workitem forms has been improved, resulting in a 3X speed
+   increase.
+ - The location of the default worklist (by default the Resource Service) is now a
+   configurable value set in the engine's web.xml, so that a replacement worklist can be 
+   easily inserted.
+ - Handling of user messages in the Resource Service's default worklist has been improved.
+ - The names of resource entities (roles, capabilities, positions, org groups) can now be
+   modified via the 'Org Data Management' form.
+ - The participant members of a resource entity are now listed on the 'Org Data
+   Management' form when the entity is selected.
+ - A new verification check has been added that warns users, when a specification is
+   loaded, if there are any assignments from an unitialised net-level variable to a task
+   variable.
+ - Engine event notification chronology has been refactored so that events are announced
+   after the processing of a 'unit of work' is complete (rather than during the
+   processing).
+ - Added support to the default worklist for the 'worklist visualiser' app.
+ - Each of the Resource Service's interfaces has been extended with new methods.
+ - The deprecated 'YAWLXForms', the services 'worklist' and 'timeService' and several
+   superfluous packages have been removed.
+ - The YSpecificationID object has been upgraded and is used across all interfaces to
+   uniquely identify specifications (as opposed to relying on their names alone)
+ - Refactored process persistence and removed redundant persistence classes.
+ - Parameter ordering improved to ensure the order originally set at design time remains
+   constant throught the life of the case.
+ - All services now behave correctly when the engine is restarted independently.
+ - A number of 3rd party libraries have been updated.
+ - Fixed a bug in the 'Shell Execution' codelet where commands with arguments were not
+   handled correctly.
+ - Fixed a bug when validating mandatory date fields that had no value inserted.
+ - Fixed a bug in dynamic forms that only displayed the first of multiple values of
+   complex type sub-element in certain scenarios.
+ - The Editor now provides support for Process Configuration, as well as support for the
+   new Engine functionalities and several usability improvements.
+ - and many, many more smaller fixes, tunings and improvements.
+
+                         #############################
+
+    Please report any bugs or problems via the YAWL sourceforge page:
+
+                     http://sourceforge.net/projects/yawl
+
+
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl YAWL_Schema.xsd">
+  <specification uri="CantParseThis.xml">
+    <metaData />
+    <rootNet id="top">
+      <processControlElements>
+        <inputCondition id="i-top">
+          <name>i</name>
+          <flowsInto>
+            <nextElementRef id="q-top" />
+          </flowsInto>
+        </inputCondition>
+        <task id="q-top">
+          <flowsInto>
+            <nextElementRef id="c3-top" />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="c1-top" />
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="c2-top" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="A" />
+        </task>
+        <condition id="c3-top">
+          <name>cC</name>
+          <flowsInto>
+            <nextElementRef id="c-top" />
+          </flowsInto>
+        </condition>
+        <task id="a-top">
+          <flowsInto>
+            <nextElementRef id="d-top" />
+          </flowsInto>
+          <join code="or" />
+          <split code="and" />
+          <decomposesTo id="A" />
+        </task>
+        <condition id="c1-top">
+          <name>cB</name>
+          <flowsInto>
+            <nextElementRef id="b-top" />
+          </flowsInto>
+        </condition>
+        <task id="b-top">
+          <flowsInto>
+            <nextElementRef id="d-top" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="B" />
+        </task>
+        <task id="c-top">
+          <flowsInto>
+            <nextElementRef id="o-top" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <decomposesTo id="C" />
+        </task>
+        <condition id="c2-top">
+          <name>cA</name>
+          <flowsInto>
+            <nextElementRef id="a-top" />
+          </flowsInto>
+        </condition>
+        <task id="d-top">
+          <flowsInto>
+            <nextElementRef id="o-top" />
+          </flowsInto>
+          <join code="or" />
+          <split code="and" />
+          <decomposesTo id="D" />
+        </task>
+        <outputCondition id="o-top">
+          <name>o</name>
+        </outputCondition>
+      </processControlElements>
+    </rootNet>
+    <decomposition id="D" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="A" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="C" xsi:type="WebServiceGatewayFactsType" />
+    <decomposition id="B" xsi:type="WebServiceGatewayFactsType" />
+  </specification>
+</specificationSet>
