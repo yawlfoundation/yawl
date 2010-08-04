@@ -271,8 +271,11 @@ public class YXESBuilder {
         if (typeNode.hasChildren()) {
             for (XNode child : typeNode.getChildren()) {
                 if (child.getName().endsWith("element")) {
-                    element2TypeMap.put(child.getAttributeValue("name"),
-                                        child.getAttributeValue("type"));
+                    String name = child.getAttributeValue("name");
+                    String type = child.getAttributeValue("type");
+                    if ((name != null) && (type != null)) {
+                        element2TypeMap.put(name, type);
+                    }
                 }
                 element2TypeMap.putAll(parseComplexTypeDefinition(child));    // recurse
             }
