@@ -102,7 +102,6 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
     public static Color _apiColour = new Color(192, 192, 170);
     private boolean _ignoreErrors = /*true*/false;
     private static boolean _networked;
-//    private YAWLEngine _engine;
     private boolean _oldFormat = true;
     private JFrame _frame;
     private TabbedEngineGUI _tabbedGUI;

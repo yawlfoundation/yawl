@@ -18,17 +18,21 @@
 
 package org.yawlfoundation.yawl.wsif;
 
-import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.apache.log4j.Logger;
 import org.jdom.Element;
+import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.engine.interfce.YParametersSchema;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +48,7 @@ import java.util.Map;
 public class WSIFController extends InterfaceBWebsideController {
 
     private String _sessionHandle = null;
+    private Logger _log = Logger.getLogger(this.getClass());
 
     private static final String WSDL_LOCATION_PARAMNAME = "YawlWSInvokerWSDLLocation";
     private static final String WSDL_PORTNAME_PARAMNAME = "YawlWSInvokerPortName";
@@ -66,10 +71,9 @@ public class WSIFController extends InterfaceBWebsideController {
                 _sessionHandle = connect(_engineUser, _enginePassword);
             }
             if (successful(_sessionHandle)) {
-                List executingChildren = checkOutAllInstancesOfThisTask(enabledWorkItem, _sessionHandle);
-
-                for (int i = 0; i < executingChildren.size(); i++) {
-                    WorkItemRecord itemRecord = (WorkItemRecord) executingChildren.get(i);
+                List<WorkItemRecord> executingChildren =
+                        checkOutAllInstancesOfThisTask(enabledWorkItem, _sessionHandle);
+                for (WorkItemRecord itemRecord : executingChildren) {
                     Element inputData = itemRecord.getDataList();
                     String wsdlLocation = inputData.getChildText(WSDL_LOCATION_PARAMNAME);
                     String portName = inputData.getChildText(WSDL_PORTNAME_PARAMNAME);
@@ -88,17 +92,21 @@ public class WSIFController extends InterfaceBWebsideController {
                                     webServiceArgsData,
                                     getAuthenticationConfig());
 
-                    System.out.println("\n\nReply from Web service being " +
-                            "invoked is :" + replyFromWebServiceBeingInvoked);
+                    _log.warn("\n\nReply from Web service being invoked is :" +
+                            replyFromWebServiceBeingInvoked);
 
                     Element caseDataBoundForEngine = prepareReplyRootElement(enabledWorkItem, _sessionHandle);
+                    Map<String, String> outputDataTypes = getOutputDataTypes(enabledWorkItem);
 
-                    for (Iterator iterator = replyFromWebServiceBeingInvoked.keySet().iterator(); iterator.hasNext();) {
-                        String varName = (String) iterator.next();
+                    for (Object o : replyFromWebServiceBeingInvoked.keySet()) {
+                        String varName = (String) o;
                         Object replyMsg = replyFromWebServiceBeingInvoked.get(varName);
                         System.out.println("replyMsg class = " + replyMsg.getClass().getName());
                         String varVal = replyMsg.toString();
-
+                        String varType = outputDataTypes.get(varName);
+                        if ((varType != null) && (! varType.endsWith("string"))) {
+                            varVal = validateValue(varType, varVal);
+                        }
                         Element content = new Element(varName);
                         content.setText(varVal);
                         caseDataBoundForEngine.addContent(content);
@@ -109,7 +117,7 @@ public class WSIFController extends InterfaceBWebsideController {
                             checkInWorkItem(
                                     itemRecord.getID(),
                                     inputData,
-                                    caseDataBoundForEngine,
+                                    caseDataBoundForEngine, null,
                                     _sessionHandle));
                 }
             }
@@ -119,6 +127,46 @@ public class WSIFController extends InterfaceBWebsideController {
         }
     }
 
+    private Map<String, String> getOutputDataTypes(WorkItemRecord wir) throws IOException {
+        Map<String, String> dataTypes = new Hashtable<String, String>();
+        TaskInformation taskInfo = this.getTaskInformation(
+                new YSpecificationID(wir), wir.getTaskID(), _sessionHandle);
+        if (taskInfo != null) {
+            YParametersSchema schema = taskInfo.getParamSchema();
+            if (schema != null) {
+                for (YParameter param : schema.getOutputParams()) {
+                    dataTypes.put(param.getPreferredName(), param.getDataTypeName());
+                }
+            }
+        }
+        return dataTypes;
+    }
+
+    private String validateValue(String type, String value) {
+        if (type.endsWith("boolean")) {
+            return String.valueOf(value.equalsIgnoreCase("true"));
+        }
+        try {
+            if (type.endsWith("integer")) {
+               return String.valueOf(new Integer(value));
+            }
+            else if (type.endsWith("double")) {
+               return String.valueOf(new Double(value));
+            }
+            else if (type.endsWith("float")) {
+               return String.valueOf(new Float(value));
+            }
+            else return value;    // we tried!
+        }
+        catch (NumberFormatException nfe) {
+            if (type.endsWith("integer")) {
+                return "0";
+            }
+            else {
+                return "0.0";
+            }
+        }
+    }
 
     public void handleCancelledWorkItemEvent(WorkItemRecord workItemRecord) {
 

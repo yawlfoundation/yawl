@@ -227,7 +227,7 @@ public class WSIFInvoker {
                     } else if (c.equals(Integer.TYPE)) {
                         value = new Integer(arg);
                     } else if (c.equals(Boolean.TYPE)) {
-                        value = new Boolean(arg);
+                        value = Boolean.valueOf(arg);
                     } else {
                         throw new RuntimeException("not know how to convert '" + arg + "' into " + c);
                     }
