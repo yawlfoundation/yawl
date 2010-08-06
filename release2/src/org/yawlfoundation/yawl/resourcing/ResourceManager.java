@@ -67,10 +67,7 @@ import org.yawlfoundation.yawl.resourcing.rsInterface.UserConnection;
 import org.yawlfoundation.yawl.resourcing.rsInterface.UserConnectionCache;
 import org.yawlfoundation.yawl.resourcing.util.*;
 import org.yawlfoundation.yawl.schema.YDataValidator;
-import org.yawlfoundation.yawl.util.HttpURLValidator;
-import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.util.YBuildProperties;
+import org.yawlfoundation.yawl.util.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -2664,7 +2661,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         String result = _interfaceAClient.updateClientAccount(id, password, doco,
                 getEngineSessionHandle());
         if (successful(result)) {
-            _connections.updateUser(id, password);
+            _connections.updateUser(id, PasswordEncryptor.encrypt(password, null));
         }
         return result;
     }
