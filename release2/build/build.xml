@@ -529,9 +529,14 @@
             <classpath refid="cp.etc"/>
         </javac>
 
+        <!-- copy in specification schema files -->
+        <copy todir="${classes.dir}${packageRoot}/unmarshal">
+            <fileset dir="${schema.dir}" includes="*.xsd"/>
+        </copy>
+
     	<jar destfile="${output.dir}/yawl-lib-${app.version}.jar">
-        	<fileset dir="${classes.dir}" includes="**/*.class"
-        				excludes="org/yawlfoundation/yawl/engine/gui" />
+        	<fileset dir="${classes.dir}" includes="**/*.class **/unmarshal/*.xsd"
+        	         excludes="org/yawlfoundation/yawl/engine/gui"/>
         	<manifest>
             	<attribute name="Created-By" value="${developer.name}"/>
         	</manifest>
