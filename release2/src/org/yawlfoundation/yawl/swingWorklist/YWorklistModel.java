@@ -414,9 +414,7 @@ public class YWorklistModel {
             }
 
             if (item.getStatus().equals(YWorkItemStatus.statusExecuting)) {
-                if (item.getExternalClient().equals(_username)) {
                     addStartedWorkItem(item, inSequence);
-                }
             }
             if (_paramsDefinitions.getParamsForTask(item.getTaskID()) == null) {
                 YTask task = _engineClient.getTaskDefinition(item.getSpecificationID(), item.getTaskID());

@@ -85,6 +85,7 @@ public class TestCaseCancellation extends TestCase {
             public void announceCaseSuspending(YIdentifier id) {}
             public void announceCaseResumption(YIdentifier id) {}
             public void announceWorkItemStatusChange(YWorkItem item, YWorkItemStatus old, YWorkItemStatus anew) {}
+            public void shutdown() {}
         };
         _engine.registerInterfaceBObserverGateway(og);
     }

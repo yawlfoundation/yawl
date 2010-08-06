@@ -772,7 +772,7 @@ public class caseMgt extends AbstractPageBean {
         String uri = specification.getAttributeValue("uri");
         String version;
         String description;
-        if (schemaVersion.startsWith("2.")) {
+        if ((schemaVersion != null) && schemaVersion.startsWith("2.")) {
             XNode metadata = specification.getChild("metaData");
             version = metadata.getChildText("version");
             description = metadata.getChildText("description");

@@ -12,161 +12,16 @@ hibernate.query.substitutions true 1, false 0, yes 'Y', no 'N'
 ### Platforms ###
 #################
 
-## JNDI Datasource
-
-#hibernate.connection.datasource jdbc/test
-#hibernate.connection.username db2
-#hibernate.connection.password db2
-
-
-## HypersonicSQL
-
-#hibernate.dialect org.hibernate.dialect.HSQLDialect
-#hibernate.connection.driver_class org.hsqldb.jdbcDriver
-#hibernate.connection.username sa
-#hibernate.connection.password
-#hibernate.connection.url jdbc:hsqldb:file:./webapps/yawl/yawl
-
-
-## PostgreSQL
-
-#hibernate.dialect org.hibernate.dialect.PostgreSQLDialect
-#hibernate.connection.driver_class org.postgresql.Driver
-#hibernate.connection.url jdbc:postgresql:yawl
-#hibernate.connection.username postgres
-#hibernate.connection.password yawl
-#hibernate.query.substitutions yes 'Y', no 'N'
-
-
-## DB2
-
-#hibernate.dialect org.hibernate.dialect.DB2Dialect
-#hibernate.connection.driver_class COM.ibm.db2.jdbc.app.DB2Driver
-#hibernate.connection.url jdbc:db2:test
-#hibernate.connection.username db2
-#hibernate.connection.password db2
-
-
-## DB2/400 
-
-#hibernate.dialect org.hibernate.dialect.DB2400Dialect
-#hibernate.connection.username user
-#hibernate.connection.password password 
-
-## Native driver
-#hibernate.connection.driver_class COM.ibm.db2.jdbc.app.DB2Driver 
-#hibernate.connection.url jdbc:db2://systemname
-
-## Toolbox driver
-#hibernate.connection.driver_class com.ibm.as400.access.AS400JDBCDriver 
-#hibernate.connection.url jdbc:as400://systemname
-
-
 ## MySQL
-
-##hibernate.connection.driver_class org.gjt.mm.mysql.Driver
 
 hibernate.dialect org.hibernate.dialect.MySQLDialect
 hibernate.connection.driver_class com.mysql.jdbc.Driver
-hibernate.connection.url jdbc:mysql:///yawl
-hibernate.connection.username root
-hibernate.connection.password 
+hibernate.connection.url jdbc:mysql:@DB_Path@
+hibernate.connection.username @DB_User@
+hibernate.connection.password @DB_Password@
 
-
-## Oracle
-
-#hibernate.dialect org.hibernate.dialect.Oracle9Dialect
-#hibernate.dialect org.hibernate.dialect.OracleDialect
-#hibernate.connection.driver_class oracle.jdbc.driver.OracleDriver
-#hibernate.connection.username ora
-#hibernate.connection.password ora
-#hibernate.connection.url jdbc:oracle:thin:@localhost:1521:test
-
-
-## Sybase
-
-#hibernate.dialect org.hibernate.dialect.SybaseDialect
-#hibernate.connection.driver_class com.sybase.jdbc2.jdbc.SybDriver
-#hibernate.connection.username sa
-#hibernate.connection.password sasasa
-#hibernate.connection.url jdbc:sybase:Tds:co3061835-a:5000/tempdb
-
-
-## Mckoi SQL
-
-#hibernate.dialect org.hibernate.dialect.MckoiDialect
-#hibernate.connection.driver_class com.mckoi.JDBCDriver
-#hibernate.connection.url jdbc:mckoi:///
-#hibernate.connection.url jdbc:mckoi:local://C:/mckoi1.00/db.conf
-#hibernate.connection.username admin
-#hibernate.connection.password nimda
-
-
-## SAP DB
-
-#hibernate.dialect org.hibernate.dialect.SAPDBDialect
-#hibernate.connection.driver_class com.sap.dbtech.jdbc.DriverSapDB
-#hibernate.connection.url jdbc:sapdb://localhost/TST
-#hibernate.connection.username TEST
-#hibernate.connection.password TEST
-#hibernate.query.substitutions yes 'Y', no 'N'
-
-
-## MS SQL Server
-
-#hibernate.dialect org.hibernate.dialect.SQLServerDialect
-#hibernate.connection.username sa
-#hibernate.connection.password sa
-
-## JSQL Driver
-#hibernate.connection.driver_class com.jnetdirect.jsql.JSQLDriver
-#hibernate.connection.url jdbc:JSQLConnect://1E1/test
-
-## JTURBO Driver
-#hibernate.connection.driver_class com.newatlanta.jturbo.driver.Driver
-#hibernate.connection.url jdbc:JTurbo://1E1:1433/test
-
-## WebLogic Driver
-#hibernate.connection.driver_class weblogic.jdbc.mssqlserver4.Driver
-#hibernate.connection.url jdbc:weblogic:mssqlserver4:1E1:1433
-
-## Microsoft Driver (not recommended!)
-#hibernate.connection.driver_class com.microsoft.jdbc.sqlserver.SQLServerDriver
-#hibernate.connection.url jdbc:microsoft:sqlserver://1E1;DatabaseName=test;SelectMethod=cursor
-
-## jTDS
-#hibernate.connection.driver_class net.sourceforge.jtds.jdbc.Driver
-#hibernate.connection.url jdbc:jtds:sqlserver://1E1/test;SelectMethod=cursor
-#hibernate.jdbc.use_scrollable_resultset false
-
-## Interbase
-
-#hibernate.dialect org.hibernate.dialect.InterbaseDialect
-#hibernate.connection.username sysdba
-#hibernate.connection.password masterkey
-
-## DO NOT specify hibernate.connection.sqlDialect
-
-## InterClient
-
-#hibernate.connection.driver_class interbase.interclient.Driver
-#hibernate.connection.url jdbc:interbase://localhost:3060/C:/firebird/test.gdb
-
-## Pure Java
-
-#hibernate.connection.driver_class org.firebirdsql.jdbc.FBDriver
-#hibernate.connection.url jdbc:firebirdsql:localhost/3050:/firebird/test.gdb
-
-
-## Pointbase
-
-#hibernate.dialect org.hibernate.dialect.PointbaseDialect
-#hibernate.connection.driver_class com.pointbase.jdbc.jdbcUniversalDriver
-#hibernate.connection.url jdbc:pointbase:embedded:sample
-#hibernate.connection.username PBPUBLIC
-#hibernate.connection.password PBPUBLIC
-
-
+# URL example:
+# jdbc:mysql:///yawl
 
 #################################
 ### Hibernate Connection Pool ###
