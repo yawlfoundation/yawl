@@ -46,7 +46,7 @@ public class XNodeParser {
 
     public XNodeParser(boolean check) {
         _check = check;
-        _commentPattern = Pattern.compile("^<!--\\s*.*?\\s*-->");
+        _commentPattern = Pattern.compile("^<!--\\s*.*?\\s*-->", Pattern.DOTALL);
         _commentSplitter = Pattern.compile("<!--\\s*|\\s*-->");
         _attributeSplitter = Pattern.compile("\\s*=\\s*\"|\\s*\"\\s*");
         _commentCutter = new CommentCutter();
