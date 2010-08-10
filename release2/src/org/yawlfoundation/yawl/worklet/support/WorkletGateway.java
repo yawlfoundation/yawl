@@ -60,7 +60,11 @@ public class WorkletGateway extends HttpServlet {
 
                  String engineURI = context.getInitParameter("InterfaceB_BackEnd");
                  WorkletService.getInstance().initEngineURI(engineURI) ;
-         
+
+                 String ixStr = context.getInitParameter("EnableExceptionHandling");
+                 WorkletService.getInstance().setExceptionServiceEnabled(
+                       ixStr.equalsIgnoreCase("TRUE"));  
+
                  WorkletService.getInstance().completeInitialisation();
                  ExceptionService.getInst().completeInitialisation();
              }

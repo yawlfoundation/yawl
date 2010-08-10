@@ -33,6 +33,7 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBased
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
 import org.yawlfoundation.yawl.exceptions.YStateException;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -47,7 +48,7 @@ public class YAnnouncer {
     private boolean _itemsAlreadyAnnounced;
     private AnnouncementContext _announcementContext;
     private YEngine _engine;
-    private InterfaceX_EngineSideClient _exceptionObserver ;
+    private Set<InterfaceX_EngineSideClient> _interfaceXListeners;
 
     /**
      * Reannouncement Contexts:
@@ -67,6 +68,8 @@ public class YAnnouncer {
         // Currently the only standard gateway is the HTTP driven Servlet client.        
         _controller = new ObserverGatewayController();
         _controller.addGateway(new InterfaceB_EngineBasedClient());
+
+        _interfaceXListeners = new HashSet<InterfaceX_EngineSideClient>();
     }
 
     public ObserverGatewayController getObserverGatewayController() {
@@ -77,16 +80,30 @@ public class YAnnouncer {
         _controller = controller;
     }
 
-    public InterfaceX_EngineSideClient getExceptionObserver() {
-        return _exceptionObserver;
+
+    public void addInterfaceXListener(InterfaceX_EngineSideClient listener) {
+        _interfaceXListeners.add(listener);
     }
 
-    public void setExceptionObserver(InterfaceX_EngineSideClient exceptionObserver) {
-        _exceptionObserver = exceptionObserver;
+    public void addInterfaceXListener(String uri) {
+        addInterfaceXListener(new InterfaceX_EngineSideClient(uri));
     }
 
-    public void removeExceptionObserver() {
-        _exceptionObserver = null;
+    public boolean removeInterfaceXListener(InterfaceX_EngineSideClient listener) {
+        return _interfaceXListeners.remove(listener);
+    }
+
+    public boolean removeInterfaceXListener(String uri) {
+        for (InterfaceX_EngineSideClient listener : _interfaceXListeners) {
+            if (listener.getURI().equals(uri)) {
+                return removeInterfaceXListener(listener);
+            }
+        }
+        return false;
+    }
+
+    public boolean hasInterfaceXListeners() {
+        return ! _interfaceXListeners.isEmpty();
     }
 
     private void setAnnouncementContext(AnnouncementContext context) {
@@ -174,7 +191,7 @@ public class YAnnouncer {
 
     public void announceCaseCancellationToEnvironment(YIdentifier id) {
         _controller.notifyCaseCancellation(_engine.getYAWLServices(), id);
-        announceCancellationToExceptionService(id);
+        announceCaseCancellationToInterfaceXListeners(id);
     }
 
 
@@ -326,39 +343,38 @@ public class YAnnouncer {
     /** These next four methods announce an exception event to the observer */
     protected void announceCheckWorkItemConstraints(YWorkItem item, Document data,
                                                     boolean preCheck) {
-        if (_exceptionObserver != null) {
+        for (InterfaceX_EngineSideClient listener : _interfaceXListeners) {
             debug("Announcing Check Constraints for task ", item.getIDString(),
-                         " on client ", _exceptionObserver.toString());
-            _exceptionObserver.announceCheckWorkItemConstraints(item, data, preCheck);
+                         " on client ", listener.toString());
+            listener.announceCheckWorkItemConstraints(item, data, preCheck);
         }    
     }
 
 
     protected void announceCheckCaseConstraints(YSpecificationID specID, String caseID,
                                                 String data, boolean preCheck) {
-        if (_exceptionObserver != null) {
+        for (InterfaceX_EngineSideClient listener : _interfaceXListeners) {
             debug("Announcing Check Constraints for case ", caseID,
-                         " on client ", _exceptionObserver.toString());
-            _exceptionObserver.announceCheckCaseConstraints(specID, caseID,
-                    data, preCheck);
+                         " on client ", listener.toString());
+            listener.announceCheckCaseConstraints(specID, caseID, data, preCheck);
         }
     }
 
 
-    public void announceCancellationToExceptionService(YIdentifier caseID) {
-        if (_exceptionObserver != null) {
+    public void announceCaseCancellationToInterfaceXListeners(YIdentifier caseID) {
+        for (InterfaceX_EngineSideClient listener : _interfaceXListeners) {
             debug("Announcing Cancel Case for case ", caseID.toString(),
-                         " on client ",  _exceptionObserver.toString());
-            _exceptionObserver.announceCaseCancellation(caseID.get_idString());
+                         " on client ",  listener.toString());
+            listener.announceCaseCancellation(caseID.get_idString());
         }
     }
 
 
-    public void announceTimeOutToExceptionService(YWorkItem item, List timeOutTaskIds) {
-        if (_exceptionObserver != null) {
+    public void announceTimeServiceExpiry(YWorkItem item, List timeOutTaskIds) {
+        for (InterfaceX_EngineSideClient listener : _interfaceXListeners) {
             debug("Announcing Time Out for item ", item.getWorkItemID().toString(),
-                    " on client ", _exceptionObserver.toString());
-            _exceptionObserver.announceTimeOut(item, timeOutTaskIds);
+                    " on client ", listener.toString());
+            listener.announceTimeOut(item, timeOutTaskIds);
         }
     }
 
@@ -368,8 +384,8 @@ public class YAnnouncer {
         if (defaultWorklist != null)
             _controller.notifyTimerExpiry(defaultWorklist, item);
 
-        if (_exceptionObserver != null) {
-            _exceptionObserver.announceTimeOut(item, null);
+        for (InterfaceX_EngineSideClient listener : _interfaceXListeners) {
+            listener.announceTimeOut(item, null);
         }
         _engine.getInstanceCache().setTimerExpired(item);
     }

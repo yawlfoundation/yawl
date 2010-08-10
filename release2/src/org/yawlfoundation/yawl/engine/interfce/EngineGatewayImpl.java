@@ -1159,17 +1159,15 @@ public class EngineGatewayImpl implements EngineGateway {
 
     /** The following methods are called by an Exception Service via Interface_X */
 
-    public String setExceptionObserver(String observerURI) {
-       if (_engine.setExceptionObserver(observerURI))
-           return SUCCESS;
-       else
-           return failureMessage("setExceptionObserver failed") ;
+    public String addInterfaceXListener(String listenerURI) {
+       return _engine.addInterfaceXListener(listenerURI) ? SUCCESS
+                 : failureMessage("Add InterfaceX Listener failed.") ;
     }
 
 
-    public String removeExceptionObserver() {
-       _engine.removeExceptionObserver();
-        return SUCCESS;
+    public String removeInterfaceXListener(String listenerURI) {
+        return _engine.removeInterfaceXListener(listenerURI) ? SUCCESS
+                : failureMessage("Remove InterfaceX Listener failed - unknown or invalid URI.");
     }
 
 
@@ -1355,7 +1353,6 @@ public class EngineGatewayImpl implements EngineGateway {
             return failureMessage("Unable to retrieve data gateways");
         }
     }
-
 
 
 }

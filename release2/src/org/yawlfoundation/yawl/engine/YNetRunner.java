@@ -27,7 +27,6 @@ import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.announcement.Announcements;
 import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
 import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
-import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YTimerVariable;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
@@ -72,13 +71,11 @@ public class YNetRunner {
     private String _containingTaskID = null;
     private YCaseData _casedata = null;
     private YAWLServiceReference _caseObserver;
-    private InterfaceX_EngineSideClient _exceptionObserver;
     private long _startTime;
     private Map<String, String> _timerStates;
 
     // these members are used to persist observers
     private String _caseObserverStr = null ;
-    private String _exceptionObserverStr = null ;
 
     // stored announcements for items fired or cancelled by this runner
     private Announcements<CancelWorkItemAnnouncement> _cancelAnnouncements =
@@ -337,8 +334,8 @@ public class YNetRunner {
             _engine.getAnnouncer().announceCaseCompletionToEnvironment(_caseIDForNet,
                     _net.getOutputData());
 
-        // notify exception checkpoint to service if available (post's for case end)
-        if (_exceptionObserver != null) {
+        // notify exception checkpoint to listeners if any (post's for case end)
+        if (_engine.getAnnouncer().hasInterfaceXListeners()) {
             Document data = _net.getInternalDataDocument();
             _engine.getAnnouncer().announceCheckCaseConstraints(_specID, _caseID,
                     JDOMUtil.documentToString(data), false);
@@ -523,9 +520,9 @@ public class YNetRunner {
         boolean success = completeTask(pmgr, workItem, task, caseID, outputData);
 
         // notify exception checkpoint to service if available
-        if (_exceptionObserver != null)
+        if (_engine.getAnnouncer().hasInterfaceXListeners()) {
             _engine.getAnnouncer().announceCheckWorkItemConstraints(workItem, outputData, false);
-
+        }
         _logger.debug("<-- completeWorkItemInTask");
         return success;
     }
@@ -634,10 +631,10 @@ public class YNetRunner {
             announcement = _engine.getAnnouncer().createNewWorkItemAnnouncement(
                     wsgw.getYawlService(), item);
 
-            if (_exceptionObserver != null)
+            if (_engine.getAnnouncer().hasInterfaceXListeners()) {
                 _engine.getAnnouncer().announceCheckWorkItemConstraints(item,
                                                  _net.getInternalDataDocument(), true);
-
+            }
             _enabledTasks.add(task);
             _enabledTaskNames.add(task.getID());
             if (pmgr != null)  pmgr.updateObject(this);
@@ -1018,12 +1015,6 @@ public class YNetRunner {
     /***************************************************************************/
     /** The following methods have been added to support the exception service */
 
-    /** sets the IX observer to the specified IX client */
-    public void setExceptionObserver(InterfaceX_EngineSideClient observer) {
-        _exceptionObserver = observer;
-        if (observer != null) _exceptionObserverStr = observer.getURI();  // for persistence
-     }
-
 
     /** restores the IB and IX observers on session startup (via persistence) */
     public void restoreObservers() {
@@ -1032,23 +1023,13 @@ public class YNetRunner {
                                     _engine.getRegisteredYawlService(_caseObserverStr);
             if (caseObserver != null) setObserver(caseObserver);
         }
-        if (_exceptionObserverStr != null) {
-            InterfaceX_EngineSideClient exObserver =
-                                new InterfaceX_EngineSideClient(_exceptionObserverStr);
-            setExceptionObserver(exObserver);
-            _engine.setExceptionObserver(_exceptionObserverStr);
-        }
     }
 
 
    /** these four methods are here to support persistence of the IB and IX Observers */
     private String get_caseObserverStr() { return _caseObserverStr ; }
 
-    private String get_exceptionObserverStr() { return _exceptionObserverStr ; }
-
     private void set_caseObserverStr(String obStr) { _caseObserverStr = obStr ; }
-
-    private void set_exceptionObserverStr(String obStr) { _exceptionObserverStr = obStr ; }
 
 
     /** cancels the specified task */

@@ -39,7 +39,6 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceAManagementOb
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBClientObserver;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBInterop;
-import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.*;
@@ -748,9 +747,8 @@ public class YEngine implements InterfaceADesign,
             YNetRunner runner = new YNetRunner(pmgr, specification.getRootNet(), data, caseID);
             
             // register exception service with the net runner
-            _announcer.announceCheckCaseConstraints(specID,
-                                        runner.getCaseID().toString(), caseParams, true);
-            runner.setExceptionObserver(_announcer.getExceptionObserver());
+            _announcer.announceCheckCaseConstraints(specID, runner.getCaseID().toString(),
+                    caseParams, true);
 
             if (completionObserver != null) {
                 YAWLServiceReference observer =
@@ -1623,10 +1621,10 @@ public class YEngine implements InterfaceADesign,
                         netRunner = _workItemRepository.getNetRunner(
                                 workItem.getCaseID().getParent());
 
-                        if (_announcer.getExceptionObserver() != null) {
+                        if (_announcer.hasInterfaceXListeners()) {
                             if (netRunner.isTimeServiceTask(workItem)) {
                                 List timeOutSet = netRunner.getTimeOutTaskSet(workItem);
-                                _announcer.announceTimeOutToExceptionService(workItem, timeOutSet);
+                                _announcer.announceTimeServiceExpiry(workItem, timeOutSet);
                             }
                         }
                         Document doc = JDOMUtil.stringToDocument(data);
@@ -2339,22 +2337,16 @@ public class YEngine implements InterfaceADesign,
 
 
 
-
-    /**********************************************************/
-    /** Required methods to enable exception handling service */
-    /**********************************************************/
-
-    /** sets the URI passed as an observer of exception events */
-    public boolean setExceptionObserver(String observerURI) {
-        _announcer.setExceptionObserver(new InterfaceX_EngineSideClient(observerURI));
+    /** sets the URI passed as an listener for exception events */
+    public boolean addInterfaceXListener(String observerURI) {
+        _announcer.addInterfaceXListener(observerURI);
         return true;
     }
 
     
-    /** removes the current exception event observer (max of one at any time) */
-    public boolean removeExceptionObserver() {
-        _announcer.removeExceptionObserver();
-        return true ;
+    /** removes an exception event listener */
+    public boolean removeInterfaceXListener(String uri) {
+        return _announcer.removeInterfaceXListener(uri);
     }
 
 

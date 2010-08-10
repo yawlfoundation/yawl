@@ -83,7 +83,6 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     private InterfaceX_ServiceSideClient _ixClient ;    // interface client to engine
     private static ExceptionService _me ;               // reference to self
     private WorkItemConstraintData _pushedItemData;     // see 'pushWIConstraintEvent'
-    private String _exceptionURI = "http://localhost:8080/workletService/ix" ;
     private final Object mutex = new Object();
 
     /**
@@ -1473,13 +1472,14 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     //***************************************************************************//
 
     /** registers this ExceptionService instance with the Engine */
-    private void registerThisAsExceptionObserver() {
+    public void setupInterfaceXListener(String workletURI) {
         try {
-            _ixClient.setExceptionObserver(_exceptionURI);
+            String uri = workletURI.replaceFirst("/ib", "/ix");
+            _ixClient.addInterfaceXListener(uri);
         }
         catch (IOException ioe) {
             _log.error("Error attempting to register worklet service as " +
-                    " an Exception Observer with the engine", ioe);
+                    " an Interface X Listener with the engine", ioe);
         }
     }
 

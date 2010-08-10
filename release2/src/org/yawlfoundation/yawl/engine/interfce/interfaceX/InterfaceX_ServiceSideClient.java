@@ -68,16 +68,17 @@ public class InterfaceX_ServiceSideClient extends Interface_Client {
     }
 
 
-    public String setExceptionObserver(String observerURI) throws IOException {
-        Map<String, String> params = prepareParamMap("setExceptionObserver", null);
-        params.put("observerURI", observerURI);
+    public String addInterfaceXListener(String listenerURI) throws IOException {
+        Map<String, String> params = prepareParamMap("addInterfaceXListener", null);
+        params.put("listenerURI", listenerURI);
         return executePost(_backEndURIStr, params);
     }
 
 
-    public void removeExceptionObserver() throws IOException {
-        Map<String, String> params = prepareParamMap("removeExceptionObserver", null);
-        executePost(_backEndURIStr, params);
+    public String removeInterfaceXListener(String listenerURI) throws IOException {
+        Map<String, String> params = prepareParamMap("removeInterfaceXListener", null);
+        params.put("listenerURI", listenerURI);
+        return executePost(_backEndURIStr, params);
     }
 
 

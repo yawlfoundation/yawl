@@ -90,8 +90,7 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
             if (gatewayStr != null) {
 
                 // split multiples on the semi-colon (if any)
-                String[] gateways = gatewayStr.split(";");
-                for (String gateway : gateways) {
+                for (String gateway : gatewayStr.split(";")) {
                     registerObserverGateway(gateway);
                 }
             }
