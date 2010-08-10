@@ -115,17 +115,19 @@ public class LDAPSource extends DataSource {
      * Gets the list of all entries from the LDAP server corresponding to the binding
      * read from the properties file. The list is retrieved in a single call to the
      * server.
-     * @return a (String) List of entries
+     * @return a (String, String) map of (name, binding) entries
      * @throws NamingException if something goes wrong when reading from the server
      */
-    private List<String> getNameList() throws NamingException {
-        List<String> nameList = new ArrayList<String>();
+    private Map<String, String> getNameBindingMap() throws NamingException {
+        Map<String, String> nameList = new Hashtable<String, String>();
         Context ctx = new InitialContext(getEnvironment());
-        NamingEnumeration list = ctx.list(getProperty("binding"));
 
-        while (list.hasMore()) {
-            NameClassPair nc = (NameClassPair) list.next();
-            nameList.add(nc.getName());
+        for (String binding : getProperty("binding").split(";")) {
+            NamingEnumeration list = ctx.list(binding);
+            while (list.hasMore()) {
+                NameClassPair nc = (NameClassPair) list.next();
+                nameList.put(nc.getName(), binding);
+            }
         }
         ctx.close();
 
@@ -139,37 +141,41 @@ public class LDAPSource extends DataSource {
      * server, each call retrieving maxSize entries (so as not to exceed the max size
      * limit configured on the server).
      * @param maxSize the max size limit configured
-     * @return a (String) List of entries
+     * @return a (String, String) map of (name, binding) entries
      * @throws NamingException if something goes wrong when reading from the server
      * @throws IOException if there's a problem creating the PagedResultsControl
      */
-    private List<String> getControlledNameList(int maxSize) throws NamingException, IOException {
-        List<String> nameList = new ArrayList<String>();
+    private Map<String, String> getControlledNameBindingMap(int maxSize)
+            throws NamingException, IOException {
+
+        Map<String, String> nameList = new Hashtable<String, String>();
         byte[] cookie = null;
         LdapContext ctx = new InitialLdapContext(getEnvironment(), null);
         ctx.setRequestControls(new Control[]{
                 new PagedResultsControl(maxSize, Control.CRITICAL) });
 
-        do {
-            NamingEnumeration controlledList = ctx.list(getProperty("binding"));
-            while (controlledList != null && controlledList.hasMore()) {
-                NameClassPair nc = (NameClassPair) controlledList.next();
-                nameList.add(nc.getName());
-            }
+        for (String binding : getProperty("binding").split(";")) {
+            do {
+                NamingEnumeration controlledList = ctx.list(binding);
+                while (controlledList != null && controlledList.hasMore()) {
+                    NameClassPair nc = (NameClassPair) controlledList.next();
+                    nameList.put(nc.getName(), binding);
+                }
 
-            Control[] controls = ctx.getResponseControls();
-            if (controls != null) {
-                for (Control control : controls) {
-                    if (control instanceof PagedResultsResponseControl) {
-                        PagedResultsResponseControl resp = (PagedResultsResponseControl) control;
-                        cookie = resp.getCookie();
+                Control[] controls = ctx.getResponseControls();
+                if (controls != null) {
+                    for (Control control : controls) {
+                        if (control instanceof PagedResultsResponseControl) {
+                            PagedResultsResponseControl resp = (PagedResultsResponseControl) control;
+                            cookie = resp.getCookie();
+                        }
                     }
                 }
-            }
-            ctx.setRequestControls(new Control[]{
-                    new PagedResultsControl(maxSize, cookie, Control.CRITICAL) });
+                ctx.setRequestControls(new Control[]{
+                        new PagedResultsControl(maxSize, cookie, Control.CRITICAL) });
 
-        } while (cookie != null);
+            } while (cookie != null);
+        }    
 
         ctx.close();
 
@@ -203,6 +209,23 @@ public class LDAPSource extends DataSource {
     }
 
 
+    private boolean matchesObjectClassFilter(DirContext ctx, String entry)  throws NamingException {
+        String filter = getProperty("objectClassFilter");
+        if ((filter == null) || (filter.length() == 0) || filter.equals("*")) {
+            return true;
+        }
+        DirContext classes = ctx.getSchemaClassDefinition(entry);
+        NamingEnumeration names =  classes.search("", null);
+        while (names.hasMore()) {
+            SearchResult result = (SearchResult) names.next();
+            if (result.getName().equals(filter)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     /**
      * Loads org data from LDAP server and uses it to create the corresponding
      * participants.
@@ -217,17 +240,21 @@ public class LDAPSource extends DataSource {
 
         // if a max size limit is set, use it to read entries
         int maxSize = getMaxSizeLimit();
-        List<String> nameList = (maxSize > 0) ? getControlledNameList(maxSize) : getNameList();
+        Map<String, String> nameBindingMap = (maxSize > 0) ?
+                getControlledNameBindingMap(maxSize) : getNameBindingMap();
 
-        String binding = getProperty("binding");
-        for (String name : nameList) {
-            Attributes attributes = ctx.getAttributes(name + "," + binding, attrIDs);
-            Participant p = createParticipant(name, attributes);
-            if (p != null) {
-                map.put(p.getID(), p);
-            }
-            else {
-                _log.error("unable to create participant from LDAP entry: " + name);
+        for (String name : nameBindingMap.keySet()) {
+            String binding = nameBindingMap.get(name);
+            String searchTerm = name + "," + binding;
+            if (matchesObjectClassFilter(ctx, searchTerm)) {
+                Attributes attributes = ctx.getAttributes(searchTerm, attrIDs);
+                Participant p = createParticipant(name, attributes);
+                if (p != null) {
+                    map.put(p.getID(), p);
+                }
+                else {
+                    _log.error("unable to create participant from LDAP entry: " + name);
+                }
             }
         }
         ctx.close();
@@ -471,5 +498,5 @@ public class LDAPSource extends DataSource {
         }
 
     }
-    
+
 }
