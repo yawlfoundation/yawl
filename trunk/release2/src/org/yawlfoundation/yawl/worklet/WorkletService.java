@@ -59,8 +59,8 @@ import java.util.*;
  *  The WorkletService class is the main class for the selection and exception
  *  handling processes. For selection, it receives an enabled workitem from the
  *  engine and attempts to substitute it with a worklet.
- *
- *  Here's the class hierarchy for the selection service (see the ExceptionService
+ */
+ /*  Here's the class hierarchy for the selection service (see the ExceptionService
  *  class for how its hierarchy extends from this service):
  *
  *
@@ -107,7 +107,7 @@ import java.util.*;
  * -------------------------------------------------------------------------- *
  *
  *  @author Michael Adams
- *  v0.8, 09/10/2006
+ *  @version 0.8, 09/10/2006
  */
 
 public class WorkletService extends InterfaceBWebsideController {
@@ -171,6 +171,7 @@ public class WorkletService extends InterfaceBWebsideController {
     private static ExceptionService _exService ;        // reference to ExceptionService
     private boolean _initCompleted = false;             // has engine initialised?
     private boolean restored = false;
+    private boolean _exceptionServiceEnabled = false;
 
     /** the constructor */
     public WorkletService() {
@@ -210,6 +211,11 @@ public class WorkletService extends InterfaceBWebsideController {
                 }
             }
         }
+    }
+
+
+    public void setExceptionServiceEnabled(boolean enable) {
+        _exceptionServiceEnabled = enable;
     }
 
 
@@ -416,7 +422,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
 
     public synchronized void handleEngineInitialisationCompletedEvent() {
-        if (_initCompleted) {
+        if (! _initCompleted) {
             String uriA = _interfaceAClient.getBackEndURI();
             String uriB = _interfaceBClient.getBackEndURI();
             _interfaceAClient = new InterfaceA_EnvironmentBasedClient(uriA);
@@ -424,6 +430,10 @@ public class WorkletService extends InterfaceBWebsideController {
             HttpURLValidator.pingUntilAvailable(uriB, 5);
         }
         setWorkletURI();
+        if (_exceptionServiceEnabled && (_exService != null)) {
+            _exService.setupInterfaceXListener(_workletURI);
+        }
+
         _initCompleted = true;
     }
 

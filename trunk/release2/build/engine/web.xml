@@ -73,27 +73,14 @@
     <!--</context-param>-->
 
 
-
-    <!-- PARAMS FOR EXCEPTION SERVICE -->
-
-    <context-param>
-	<param-name>EnableExceptionService</param-name>
-	<param-value>false</param-value>
-	<description>
-		Set this value to 'true' to enable monitoring by an Exception Service
-		(specified by the URI param below).
-		Set it to 'false' to disable the Exception Service.
-        </description>
-	</context-param>
-
-    <context-param>
-        <param-name>ExceptionObserverURI</param-name>
-        <param-value>http://localhost:8080/workletService/ix</param-value>
-        <description>
-            This value provides the URI of an Exception Service that monitors
-            for process exceptions through Interface X.
-        </description>
-    </context-param>
+    <!--<context-param>-->
+        <!--<param-name>InterfaceXListener</param-name>-->
+        <!--<param-value>http://localhost:8080/workletService/ix</param-value>-->
+        <!--<description>-->
+            <!--This value provides the URI of an Interface X listening service.-->
+            <!--Multiple uris can be specified, separated by semi-colons ';'-->
+        <!--</description>-->
+    <!--</context-param>-->
 
     <!--CharsetFilter -->
 

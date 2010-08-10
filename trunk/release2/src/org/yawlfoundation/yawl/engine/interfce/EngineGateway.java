@@ -160,9 +160,9 @@ public interface EngineGateway extends Remote {
 
     public String getClientPassword(String userID, String sessionHandle) throws RemoteException;
 
-    public String setExceptionObserver(String observerURI) ;
+    public String addInterfaceXListener(String observerURI) ;
 
-    public String removeExceptionObserver() ;
+    public String removeInterfaceXListener(String observerURI) ;
 
     public String updateWorkItemData(String workItemID, String data, String sessionHandle);
 

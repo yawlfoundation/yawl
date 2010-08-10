@@ -91,11 +91,20 @@
     </context-param>
 
     <context-param>
-	<param-name>EnablePersistence</param-name>
-	<param-value>true</param-value>
-	<description>
-		'true' to enable persistence and logging
-		'false' to disable
+        <param-name>EnablePersistence</param-name>
+        <param-value>true</param-value>
+        <description>
+            'true' to enable persistence and logging
+            'false' to disable
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>EnableExceptionHandling</param-name>
+        <param-value>true</param-value>
+        <description>
+            'true' to enable exception handling functionality
+            'false' to disable
         </description>
     </context-param>
 

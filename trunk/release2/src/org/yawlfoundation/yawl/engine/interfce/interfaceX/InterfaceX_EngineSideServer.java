@@ -81,12 +81,14 @@ public class InterfaceX_EngineSideServer extends HttpServlet {
                 _engine = new EngineGatewayImpl(persist);
                 context.setAttribute("engine", _engine);
             }
-            // turn on exception monitoring if required
-            String exServiceOn = context.getInitParameter("EnableExceptionService");
-            if (exServiceOn.equalsIgnoreCase("true")) {
-                String observerURI = context.getInitParameter("ExceptionObserverURI");
-                if (observerURI != null) _engine.setExceptionObserver(observerURI);
+            // add interface X monitoring if required
+            String listenerURI = context.getInitParameter("InterfaceXListener");
+            if (listenerURI != null) {
+                for (String uri : listenerURI.split(";")) {
+                    _engine.addInterfaceXListener(uri);
+                }    
             }
+
         }
         catch (YPersistenceException e) {
             logger.fatal("Failure to initialise runtime (persistence failure)", e);
@@ -137,12 +139,13 @@ public class InterfaceX_EngineSideServer extends HttpServlet {
 
         // call the specified method
         try {
-            if ("setExceptionObserver".equals(action)) {
-                String observerURI = request.getParameter("observerURI");
-                msg.append(_engine.setExceptionObserver(observerURI));
+            if ("addInterfaceXListener".equals(action)) {
+                String listenerURI = request.getParameter("listenerURI");
+                msg.append(_engine.addInterfaceXListener(listenerURI));
             }
-            else if ("removeExceptionObserver".equals(action)) {
-                msg.append(_engine.removeExceptionObserver());
+            else if ("removeInterfaceXListener".equals(action)) {
+                String listenerURI = request.getParameter("listenerURI");
+                msg.append(_engine.removeInterfaceXListener(listenerURI));
             }
             else if ("updateWorkItemData".equals(action)) {
                 msg.append(_engine.updateWorkItemData(workitemID, data, sessionHandle));
