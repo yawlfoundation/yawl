@@ -434,12 +434,92 @@ public class ResourceGatewayClient extends Interface_Client {
      * @return an XML string describing the OrgGroup, or an appropriate error message
      * @throws IOException if the service can't be reached
      */
-    public String getOrgGroupByName(String name, String handle)  throws IOException {
+    public String getOrgGroupByName(String name, String handle) throws IOException {
         Map<String, String> params = prepareParamMap("getOrgGroupByName", handle);
         params.put("name", name);
         return executeGet(_serviceURI, params) ;
     }
 
+
+    /**
+     * Gets the id and chosen identifier of every Participant
+     * @param id a valid ResourceDataSet.Identifier; one of: FullName, ReverseFullName,
+     * LastName or Userid  (0..3)
+     * @param handle a valid session handle
+     * @return an XML string describing the Participant id/name pairs, or an appropriate
+     * error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getParticipantIdentifiers(int id, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getParticipantIdentifiers", handle);
+        params.put("id", String.valueOf(id));
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Gets the id and fullname of every Participant
+     * @param handle a valid session handle
+     * @return an XML string describing the Participant id/name pairs, or an appropriate
+     * error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getParticipantIdentifiers(String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getParticipantIdentifiers", handle);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Gets the id and name of every Role
+     * @param handle a valid session handle
+     * @return an XML string describing the Role id/name pairs, or an appropriate
+     * error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getRoleIdentifiers(String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getRoleIdentifiers", handle);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Gets the id and name of every Position
+     * @param handle a valid session handle
+     * @return an XML string describing the Position id/name pairs, or an appropriate
+     * error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getPositionIdentifiers(String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getPositionIdentifiers", handle);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Gets the id and name of every Capability
+     * @param handle a valid session handle
+     * @return an XML string describing the Capability id/name pairs, or an appropriate
+     * error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getCapabilityIdentifiers(String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getCapabilityIdentifiers", handle);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Gets the id and name of every OrgGroup
+     * @param handle a valid session handle
+     * @return an XML string describing the OrgGroup id/name pairs, or an appropriate
+     * error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getOrgGroupIdentifiers(String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getOrgGroupIdentifiers", handle);
+        return executeGet(_serviceURI, params) ;
+    }
 
     /**
      * Gets the UserPrivileges of the participant with the specified id
