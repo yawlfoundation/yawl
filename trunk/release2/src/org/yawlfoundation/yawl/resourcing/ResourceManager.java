@@ -429,8 +429,6 @@ public class ResourceManager extends InterfaceBWebsideController {
             reestablishInterfaceClients();
         }
 
-        
-
         setServiceURI();
         sanitiseCaches();
         setAuthorisedServiceConnections();

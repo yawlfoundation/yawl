@@ -284,7 +284,7 @@ public class YNetRunner {
      * @param pmgr
      * @throws YPersistenceException
      */
-    public void kick(YPersistenceManager pmgr)
+    public synchronized void kick(YPersistenceManager pmgr)
             throws YPersistenceException, YDataStateException, YSchemaBuildingException,
                    YQueryException, YStateException {
         _logger.debug("--> YNetRunner.kick");
@@ -977,8 +977,8 @@ public class YNetRunner {
                .append("still tokens remaining in the net, within these elements: [");
 
             msg.append(StringUtils.join(haveTokens, ", "));
-            msg.append("], which usually indicates that the net is unsound. Those " +
-                    "tokens were removed when the net completed.");
+            msg.append("], which usually indicates that the net is unsound. Those ")
+               .append("tokens were removed when the net completed.");
             _logger.warn(msg.toString());
         }
         return (! haveTokens.isEmpty());

@@ -20,9 +20,12 @@ package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.jdom.Element;
 import org.yawlfoundation.yawl.resourcing.AbstractSelector;
+import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
 
 import java.io.IOException;
 import java.util.*;
@@ -91,6 +94,25 @@ public class ResourceGatewayClientAdapter {
 
         if (result.isEmpty()) return null;
         return result;
+    }
+
+
+    /**
+     * Converts an XML string into a Map of string key/value pairs. Assumes the xml
+     * contains a set of child items, each with an 'id' attribute and a text value.
+     * @param xml the xml string to parse
+     * @return a Map of String key/value pairs, or null if the string can't be parsed.
+     */
+    private Map<String, String> xmlToStringMap(String xml) {
+        Map<String, String> map = null;
+        XNode mapNode = new XNodeParser().parse(xml);
+        if (mapNode != null) {
+            map = new Hashtable<String, String>();
+            for (XNode item : mapNode.getChildren()) {
+                map.put(item.getAttributeValue("id"), item.getText());
+            }
+        }
+        return map;              
     }
 
 
@@ -754,6 +776,93 @@ public class ResourceGatewayClientAdapter {
             throws IOException, ResourceGatewayException {
         String xml = successCheck(_rgclient.getOrgGroupByName(name, handle));
         return new OrgGroup(JDOMUtil.stringToElement(xml));
+    }
+
+
+    /**
+      * Gets the id and full name of every Participant
+      * @param handle a valid session handle
+      * @return a Map of Participant id/name pairs
+      * @throws IOException if the service can't be reached
+      * @throws ResourceGatewayException if there is some problem getting the Participants
+      */
+     public Map<String, String> getParticipantIdentifiers(String handle)
+             throws IOException, ResourceGatewayException {
+         String xml = successCheck(_rgclient.getParticipantIdentifiers(handle));
+         return xmlToStringMap(xml);
+     }
+
+
+    /**
+      * Gets the id and chosen name value of every Participant
+      * @param handle a valid session handle
+      * @param identifier a valid ResourceDataSet Identifier value
+      * @return a Map of Participant id/name pairs
+      * @throws IOException if the service can't be reached
+      * @throws ResourceGatewayException if there is some problem getting the Participants
+      */
+     public Map<String, String> getParticipantIdentifiers(
+             ResourceDataSet.Identifier identifier, String handle)
+             throws IOException, ResourceGatewayException {
+         String xml = successCheck(_rgclient.getParticipantIdentifiers(
+                 identifier.ordinal(), handle));
+         return xmlToStringMap(xml);
+     }
+
+
+    /**
+     * Gets the id and name of every Role
+     * @param handle a valid session handle
+     * @return a Map of Role id/name pairs
+     * @throws IOException if the service can't be reached
+     * @throws ResourceGatewayException if there is some problem getting the Roles
+     */
+    public Map<String, String> getRoleIdentifiers(String handle)
+            throws IOException, ResourceGatewayException {
+        String xml = successCheck(_rgclient.getRoleIdentifiers(handle));
+        return xmlToStringMap(xml);
+    }
+
+
+    /**
+     * Gets the id and name of every Position
+     * @param handle a valid session handle
+     * @return a Map of Position id/name pairs
+     * @throws IOException if the service can't be reached
+     * @throws ResourceGatewayException if there is some problem getting the Positions
+     */
+    public Map<String, String> getPositionIdentifiers(String handle)
+            throws IOException, ResourceGatewayException {
+        String xml = successCheck(_rgclient.getPositionIdentifiers(handle));
+        return xmlToStringMap(xml);
+    }
+
+
+    /**
+     * Gets the id and name of every Capability
+     * @param handle a valid session handle
+     * @return a Map of Capability id/name pairs
+     * @throws IOException if the service can't be reached
+     * @throws ResourceGatewayException if there is some problem getting the Capabilities
+     */
+    public Map<String, String> getCapabilityIdentifiers(String handle)
+            throws IOException, ResourceGatewayException {
+        String xml = successCheck(_rgclient.getCapabilityIdentifiers(handle));
+        return xmlToStringMap(xml);
+    }
+
+
+    /**
+     * Gets the id and name of every OrgGroup
+     * @param handle a valid session handle
+     * @return a Map of OrgGroup id/name pairs
+     * @throws IOException if the service can't be reached
+     * @throws ResourceGatewayException if there is some problem getting the OrgGroups
+     */
+    public Map<String, String> getOrgGroupIdentifiers(String handle)
+            throws IOException, ResourceGatewayException {
+        String xml = successCheck(_rgclient.getOrgGroupIdentifiers(handle));
+        return xmlToStringMap(xml);
     }
 
 

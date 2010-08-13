@@ -32,6 +32,8 @@ public class ResourceDataSet {
 
     public enum ResUnit {Participant, Role, Capability, OrgGroup, Position}
 
+    public enum Identifier {FullName, ReverseFullName, LastName, Userid}
+
     // Data maps for each of the five resource entities
     private HashMap<String, Participant> participantMap ;
     private HashMap<String, Role> roleMap ;
@@ -135,8 +137,6 @@ public class ResourceDataSet {
     public boolean isUserAuthenticationExternal() {
         return _externalUserAuthentication && ! hasDefaultDataSource(ResUnit.Participant) ;
     }
-
-
 
 
     public void setDataSource(ResUnit resource, DataSource source) {
@@ -557,6 +557,68 @@ public class ResourceDataSet {
 
     public HashMap<String, OrgGroup> getOrgGroupMap() {
         return orgGroupMap ;
+    }
+
+    public Map<String, String> getParticipantIdentifiers() {
+        return getParticipantIdentifiers(Identifier.FullName);
+    }
+
+    // idStr is a integer string 0..3
+    public Map<String, String> getParticipantIdentifiers(String idStr) {
+        Identifier identifier = Identifier.values()[0];              // default
+        if (idStr.equals("1")) identifier = Identifier.values()[1];
+        else if (idStr.equals("2")) identifier = Identifier.values()[2];
+        else if (idStr.equals("3")) identifier = Identifier.values()[3];
+        return getParticipantIdentifiers(identifier);
+    }
+
+
+    public Map<String, String> getParticipantIdentifiers(Identifier idType) {
+        Map<String, String> idMap = new Hashtable<String, String>();
+        for (Participant p : getParticipants()) {
+            String nameValue ;
+            switch (idType) {
+                case FullName : nameValue = p.getFullName(); break;
+                case ReverseFullName :
+                    nameValue = p.getLastName() + ", " + p.getFirstName(); break;
+                case LastName : nameValue = p.getLastName(); break;
+                default : nameValue = p.getUserID();
+            }
+            idMap.put(p.getID(), nameValue);
+        }
+        return idMap;
+    }
+
+    public Map<String, String> getRoleIdentifiers() {
+        Map<String, String> idMap = new Hashtable<String, String>();
+        for (Role r : getRoles()) {
+            idMap.put(r.getID(), r.getName());
+        }
+        return idMap;
+    }
+
+    public Map<String, String> getPositionIdentifiers() {
+        Map<String, String> idMap = new Hashtable<String, String>();
+        for (Position p : getPositions()) {
+            idMap.put(p.getID(), p.getTitle());
+        }
+        return idMap;
+    }
+
+    public Map<String, String> getCapabilityIdentifiers() {
+        Map<String, String> idMap = new Hashtable<String, String>();
+        for (Capability c : getCapabilities()) {
+            idMap.put(c.getID(), c.getCapability());
+        }
+        return idMap;
+    }
+
+    public Map<String, String> getOrgGroupIdentifiers() {
+        Map<String, String> idMap = new Hashtable<String, String>();
+        for (OrgGroup o : getOrgGroups()) {
+            idMap.put(o.getID(), o.getGroupName());
+        }
+        return idMap;
     }
 
     public int getParticipantCount() {

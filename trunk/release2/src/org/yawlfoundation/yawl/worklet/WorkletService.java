@@ -422,7 +422,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
 
     public synchronized void handleEngineInitialisationCompletedEvent() {
-        if (! _initCompleted) {
+        if (_initCompleted) {             // if engine has restarted
             String uriA = _interfaceAClient.getBackEndURI();
             String uriB = _interfaceBClient.getBackEndURI();
             _interfaceAClient = new InterfaceA_EnvironmentBasedClient(uriA);

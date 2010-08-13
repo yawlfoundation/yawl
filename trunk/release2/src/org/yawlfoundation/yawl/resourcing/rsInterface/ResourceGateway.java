@@ -25,6 +25,7 @@ import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.util.Docket;
+import org.yawlfoundation.yawl.util.XNode;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -33,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.Map;
 
 
 /**
@@ -557,6 +559,22 @@ public class ResourceGateway extends HttpServlet {
             OrgGroup group = _orgDataSet.getOrgGroupByLabel(name);
             result = (group != null) ? group.toXML() : fail("Unknown group name: " + id);
         }
+        else if (action.equalsIgnoreCase("getParticipantIdentifiers")) {
+            if (id == null) id = "0";
+            result = stringMapToXML(_orgDataSet.getParticipantIdentifiers(id));
+        }
+        else if (action.equalsIgnoreCase("getRoleIdentifiers")) {
+            result = stringMapToXML(_orgDataSet.getRoleIdentifiers());
+        }
+        else if (action.equalsIgnoreCase("getPositionIdentifiers")) {
+            result = stringMapToXML(_orgDataSet.getPositionIdentifiers());
+        }
+        else if (action.equalsIgnoreCase("getCapabilityIdentifiers")) {
+            result = stringMapToXML(_orgDataSet.getCapabilityIdentifiers());
+        }
+        else if (action.equalsIgnoreCase("getOrgGroupIdentifiers")) {
+            result = stringMapToXML(_orgDataSet.getOrgGroupIdentifiers());
+        }
         else if (action.equals("getUserPrivileges")) {
             Participant p = _orgDataSet.getParticipant(id);
             if (p != null) {
@@ -742,10 +760,21 @@ public class ResourceGateway extends HttpServlet {
 
     
     private String fail(String name, String id) {
-        String onePart = "Unrecognised or null %s id.";
-        String twoPart = "Unrecognised %s id: %s";
-        return (id == null) ? fail(String.format(onePart, name))
-                            : fail(String.format(twoPart, name, id));
+        return (id == null) ? fail(String.format("Unrecognised or null %s id.", name))
+                            : fail(String.format("Unrecognised %s id: %s", name, id));
+    }
+
+
+    private String stringMapToXML(Map<String, String> map) {
+        if (map != null) {
+            XNode node = new XNode("map");
+            for (String key : map.keySet()) {
+                XNode child = node.addChild("item", map.get(key));
+                child.addAttribute("id", key);
+            }
+            return node.toString();
+        }
+        return fail("No values returned.");
     }
 
 }
