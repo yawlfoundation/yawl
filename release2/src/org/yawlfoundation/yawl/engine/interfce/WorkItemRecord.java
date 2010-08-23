@@ -115,8 +115,6 @@ public class WorkItemRecord implements Cloneable {
 
     private String _customFormURL ;                         // path to alternate jsp
 
-    private boolean _edited ;                       // for use on custom service side
-
     private String _tag;                                   // for user-defined values
 
     /********************************************************************************/
@@ -236,8 +234,6 @@ public class WorkItemRecord implements Cloneable {
 
     public void setTag(String tag) { _tag = tag ; }
 
-    public void setEdited(boolean edited) { _edited = edited ; }
-
     public void setUpdatedData(Element dataListUpdated) {
         _dataListUpdated = dataListUpdated;
         _dataListUpdatedString = JDOMUtil.elementToString(dataListUpdated);
@@ -356,7 +352,7 @@ public class WorkItemRecord implements Cloneable {
     public String getLogPredicateCompletion() { return _logPredicateCompletion; }
 
 
-    public boolean isEdited() { return _edited; }
+    public boolean isEdited() { return (_dataListUpdated != null); }
 
     public boolean isDeferredChoiceGroupMember() {
         return (_deferredChoiceGroupID != null) ;
@@ -409,8 +405,7 @@ public class WorkItemRecord implements Cloneable {
            .append(StringUtil.wrap(_resourceStatus, "resourceStatus"))
            .append(StringUtil.wrap(_startedBy, "startedBy"))
            .append(StringUtil.wrap(_completedBy, "completedBy"))
-           .append(StringUtil.wrap(String.valueOf(_edited), "edited"))
-           .append(StringUtil.wrap(String.valueOf(_tag), "tag"))
+           .append(StringUtil.wrap(_tag, "tag"))
            .append(StringUtil.wrap(_customFormURL, "customform"))
            .append(StringUtil.wrap(_logPredicateStarted, "logPredicateStarted"))
            .append(StringUtil.wrap(_logPredicateCompletion, "logPredicateCompletion"));

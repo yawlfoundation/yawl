@@ -81,7 +81,7 @@ public class TwitterService extends InterfaceBWebsideController {
 
         params[3] = new YParameter(null, YParameter._OUTPUT_PARAM_TYPE);
         params[3].setDataTypeAndName("string", "result", XSD_NAMESPACE);
-        params[3].setDocumentation("The status result or error mesage returned from Twitter");
+        params[3].setDocumentation("The status result or error message returned from Twitter");
         return params;
     }
 

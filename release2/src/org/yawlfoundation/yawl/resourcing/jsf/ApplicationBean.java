@@ -380,7 +380,7 @@ public class ApplicationBean extends AbstractApplicationBean {
             String engBuild = "";
             YBuildProperties buildProps = _rm.getBuildProperties();
             if (buildProps != null) {
-                version = "YAWL version " + buildProps.getVersion().substring(1);
+                version = "YAWL version " + buildProps.getVersion();
                 rsBuild = String.format(" | Resource Service build %s (%s)",
                         formatBuildNumber(buildProps.getVersion(), buildProps.getBuildNumber()),
                         buildProps.getBuildDate());

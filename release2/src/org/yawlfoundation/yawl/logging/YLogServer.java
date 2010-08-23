@@ -187,6 +187,43 @@ public class YLogServer {
     }
 
 
+    public String getTaskInstancesForTask(String caseID, String taskName) {
+        String result ;
+        if (_pmgr != null) {
+            try {
+                Iterator itr = _pmgr.createQuery(
+                        "from YLogTaskInstance as ti, YLogTask as t " +
+                        "where (ti.engineInstanceID=:caseID " +
+                        "or ti.engineInstanceID like :caseIDlike) " +
+                        "and ti.taskID=t.taskID " +
+                        "and t.name=:taskName")
+                        .setString("caseID", caseID)
+                        .setString("caseIDlike", caseID + ".%")
+                        .setString("taskName", taskName).iterate();
+                if (itr.hasNext()) {
+                    StringBuilder xml = new StringBuilder();
+                    xml.append(String.format("<taskinstances caseID=\"%s\" taskname=\"%s\">",
+                            caseID, taskName));
+                    while (itr.hasNext()) {
+                        Object[] next = (Object[]) itr.next();
+                        YLogTaskInstance inst = (YLogTaskInstance) next[0];
+                        xml.append(getFullyPopulatedTaskInstance(inst));
+                    }
+                    xml.append("</taskinstances>");
+                    result = xml.toString();
+                }
+                else result = _noRowsStr ;
+            }
+            catch (YPersistenceException ype) {
+               result = _exErrStr ;
+            }
+        }
+        else result = _pmErrStr ;
+
+        return result;
+    }
+
+
     public String getInstanceEvents(long instanceKey) {
         String result ;
         if (_pmgr != null) {

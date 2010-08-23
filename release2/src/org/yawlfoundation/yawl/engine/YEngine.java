@@ -525,9 +525,12 @@ public class YEngine implements InterfaceADesign,
                         result.add(specification.getSpecificationID());
                     }
                     else {
+                        String errDetail = specification.getSchemaVersion().startsWith("2.") ?
+                            "UID: " + specification.getID() : "URI: " + specification.getURI();
+                        errDetail += "- Version: " + specification.getSpecVersion();
                         errorMessages.add(new YVerificationMessage(this,
                                 "There is a specification with an identical id to ["
-                                        + specification.getURI() + "] already loaded into the engine.",
+                                        + errDetail + "] already loaded into the engine.",
                                 YVerificationMessage.ERROR_STATUS));
                     }
                 }
@@ -807,10 +810,10 @@ public class YEngine implements InterfaceADesign,
                 throw new YStateException("Invalid or malformed caseParams.");
             }
             else if (! (spec.getRootNet().getID().equals(data.getName()) ||
-                       (spec.getID().equals(data.getName())))) {
+                       (spec.getURI().equals(data.getName())))) {
                 throw new YStateException(
                         "Invalid caseParams: outermost element name must match " +
-                                "specification or root net ID.");
+                                "specification URI or root net name.");
             }
         }
         return data;
