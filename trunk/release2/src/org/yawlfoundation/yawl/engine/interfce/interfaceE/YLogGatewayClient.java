@@ -265,6 +265,24 @@ public class YLogGatewayClient extends Interface_Client {
 
 
     /**
+     * Gets a listing of all the task instances (ie work items) created for the task
+     * within a specified case
+     * @param rootCaseID the root case id of the case to get the task instances for
+     * @param taskName the primary key identifier of the task definition
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getTaskInstancesForTask(String rootCaseID, String taskName, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("getTaskInstancesForCaseTask", handle);
+        params.put("caseid", rootCaseID);
+        params.put("taskname", taskName);
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
      * Gets the log record of a particular case-level event
      * @param caseID the case id to get the event for
      * @param eventType the 'name' of the event (eg 'CaseStart')

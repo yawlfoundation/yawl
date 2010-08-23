@@ -35,8 +35,7 @@ import java.util.Properties;
  * Author: Michael Adams
  * Creation Date: 8/07/2009
  */
-public abstract class
-        AbstractExternalDBGateway {
+public abstract class AbstractExternalDBGateway {
 
     protected Logger _log = Logger.getLogger(AbstractExternalDBGateway.class);
 

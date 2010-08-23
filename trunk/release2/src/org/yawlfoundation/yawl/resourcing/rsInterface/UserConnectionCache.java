@@ -50,20 +50,26 @@ public class UserConnectionCache {
     }
 
     public UserConnection removeSessionID(String id) {
-        UserConnection connection = _jSessionIDLookup.get(id);
-        if (connection != null) {
-            remove(connection);
+        if (id != null) {
+            UserConnection connection = _jSessionIDLookup.get(id);
+            if (connection != null) {
+                remove(connection);
+            }
+            return connection;
         }
-        return connection;
+        else return null;
     }
 
 
     public UserConnection removeSessionHandle(String id) {
-        UserConnection connection = _ySessionHandleLookup.get(id);
-        if (connection != null) {
-            remove(connection);
+        if (id != null) {
+            UserConnection connection = _ySessionHandleLookup.get(id);
+            if (connection != null) {
+                remove(connection);
+            }
+            return connection;
         }
-        return connection;
+        else return null;
     }
 
 

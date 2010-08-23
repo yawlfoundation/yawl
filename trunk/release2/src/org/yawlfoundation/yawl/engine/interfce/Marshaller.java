@@ -265,10 +265,6 @@ public class Marshaller {
             String resStatus = workItemElement.getChildText("resourceStatus");
             if (resStatus != null) wir.setResourceStatus(resStatus);
             
-            String edited = workItemElement.getChildText("edited") ;
-            if (edited != null)
-                wir.setEdited(edited.equalsIgnoreCase("true"));
-
             Element data = workItemElement.getChild("data");
             if ((null != data) && (data.getContentSize() > 0))
                    wir.setDataList((Element) data.getContent(0));

@@ -161,6 +161,11 @@ public class YLogGateway extends HttpServlet {
                String itemID = req.getParameter("itemid") ;
                result = _logMgr.getEventsForTaskInstance(itemID) ;
            }
+           else if (action.equals("getTaskInstancesForCaseTask")) {
+               String caseID = req.getParameter("caseid") ;
+               String taskName = req.getParameter("taskname") ;
+               result = _logMgr.getTaskInstancesForTask(caseID, taskName);
+           }
            else if (action.equals("getSpecificationXESLog")) {
                String identifier = req.getParameter("identifier");
                String version = req.getParameter("version");

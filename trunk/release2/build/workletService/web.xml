@@ -101,7 +101,7 @@
 
     <context-param>
         <param-name>EnableExceptionHandling</param-name>
-        <param-value>true</param-value>
+        <param-value>false</param-value>
         <description>
             'true' to enable exception handling functionality
             'false' to disable

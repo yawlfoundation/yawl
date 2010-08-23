@@ -18,20 +18,23 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceA;
 
+import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
-import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.PasswordEncryptor;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  /**
@@ -140,8 +143,9 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
                     result.add(YAWLServiceReference.unmarshal(JDOMUtil.elementToString(service)));
                 }
             }
-        } catch (IOException e) {
-            InterfaceBWebsideController.logContactError(e, _backEndURIStr);
+        } catch (IOException ioe) {
+              Logger.getLogger(this.getClass()).error(
+                "Problem contacting YAWL Engine at URI [" + _backEndURIStr + "]", ioe);
         }
         return result;
     }
