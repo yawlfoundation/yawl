@@ -251,6 +251,18 @@ public class ResourceGateway extends HttpServlet {
             }
             else result = fail("Add", "Participant", userid);
         }
+        else if (action.equalsIgnoreCase("addNonHumanResource")) {
+            String name = req.getParameter("name");
+            if ((name != null) && (! _orgDataSet.isKnownNonHumanResourceName(name))) {
+                String category = req.getParameter("category");
+                String subcategory = req.getParameter("subcategory");
+                NonHumanResource resource = new NonHumanResource(name, category, subcategory);
+                resource.setDescription(req.getParameter("description"));
+                resource.setNotes(req.getParameter("notes"));
+                result = _orgDataSet.addNonHumanResource(resource);
+            }
+            else result = fail("Add", "NonHumanResource", name);
+        }        
         else if (action.equalsIgnoreCase("addCapability")) {
             String name = req.getParameter("name");
             if ((name != null) && (! _orgDataSet.isKnownCapabilityName(name))) {
@@ -303,6 +315,32 @@ public class ResourceGateway extends HttpServlet {
         else if (action.equalsIgnoreCase("addParticipantToPosition")) {
             result = addParticipantToResource(req, "position");
         }
+        else if (action.equalsIgnoreCase("addNonHumanResourceCategory")) {
+            String category = req.getParameter("category");
+            long key = _orgDataSet.addNonHumanResourceCategory(category);
+            result = (key > -1) ? "<categoryKey>" + key + "</categoryKey>"
+                                : fail("Category '" + category + "' already exists.");
+        }
+        else if (action.equalsIgnoreCase("addNonHumanResourceSubCategory")) {
+            String category = req.getParameter("category");
+            String subcategory = req.getParameter("subcategory");
+            boolean success;
+            if (category != null) {
+                success = _orgDataSet.addNonHumanResourceSubCategory(category, subcategory);
+            }
+            else {
+                String keyStr = req.getParameter("key");
+                try {
+                    long key = Long.parseLong(keyStr);
+                    success = _orgDataSet.addNonHumanResourceSubCategory(key, subcategory);
+                }
+                catch (NumberFormatException nfe) {
+                    success = false;
+                }
+            }
+            result = success ? "<success/>" : fail("Subcategory '" + subcategory +
+                        "' already exists OR category key is invalid.");
+        }
         return result;
     }
                                          
@@ -341,6 +379,27 @@ public class ResourceGateway extends HttpServlet {
                 else result = fail("participant", pid);
             }
             else result = fail("participant", null);
+        }
+        else if (action.equalsIgnoreCase("updateNonHumanResource")) {
+            String id = req.getParameter("resourceid");
+            if (id != null) {
+                NonHumanResource resource = _orgDataSet.getNonHumanResource(id);
+                if (resource != null) {
+                    String desc = req.getParameter("description");
+                    if (desc != null) resource.setDescription(desc);
+                    String notes = req.getParameter("notes");
+                    if (notes != null) resource.setNotes(notes);
+                    String name = req.getParameter("name");
+                    if (name != null) resource.setName(name);
+                    String category = req.getParameter("category");
+                    if (category != null) resource.setCategory(category);
+                    String subcategory = req.getParameter("subcategory");
+                    if (subcategory != null) resource.setSubCategory(category);
+                    _orgDataSet.updateNonHumanResource(resource);
+                }
+                else result = fail("NonHumanResource", id);
+            }
+            else result = fail("NonHumanResource", null);
         }
         else if (action.equalsIgnoreCase("updateCapability")) {
             String cid = req.getParameter("capabilityid");
@@ -421,6 +480,11 @@ public class ResourceGateway extends HttpServlet {
                 result = fail("participant", null);
             }
         }
+        if (action.equalsIgnoreCase("removeNonHumanResource")) {
+            if (! _orgDataSet.removeNonHumanResource(req.getParameter("resourceid"))) {
+                result = fail("NonHumanResource", null);
+            }
+        }
         else if (action.equalsIgnoreCase("removeCapability")) {
             if (! _orgDataSet.removeCapability(req.getParameter("capabilityid"))) {
                 result = fail("capability", null);
@@ -450,6 +514,45 @@ public class ResourceGateway extends HttpServlet {
         else if (action.equalsIgnoreCase("removeParticipantFromPosition")) {
             result = removeParticipantFromResource(req, "position");
         }
+        else if (action.equalsIgnoreCase("removeNonHumanResourceCategory")) {
+            String category = req.getParameter("category");
+            boolean success;
+            if (category != null) {
+                success = _orgDataSet.removeNonHumanResourceCategory(category);
+            }
+            else {
+                String keyStr = req.getParameter("key");
+                try {
+                    long key = Long.parseLong(keyStr);
+                    success = _orgDataSet.removeNonHumanResourceCategory(key);
+                }
+                catch (NumberFormatException nfe) {
+                    success = false;
+                }
+            }
+            result = success ? "<success/>" : fail("Category '" + category +
+                        "' not found OR category key is invalid.");
+        }
+        else if (action.equalsIgnoreCase("removeNonHumanResourceSubCategory")) {
+            String category = req.getParameter("category");
+            String subcategory = req.getParameter("subcategory");
+            boolean success;
+            if (category != null) {
+                success = _orgDataSet.removeNonHumanResourceSubCategory(category, subcategory);
+            }
+            else {
+                String keyStr = req.getParameter("key");
+                try {
+                    long key = Long.parseLong(keyStr);
+                    success = _orgDataSet.removeNonHumanResourceSubCategory(key, subcategory);
+                }
+                catch (NumberFormatException nfe) {
+                    success = false;
+                }
+            }
+            result = success ? "<success/>" : fail("Subcategory '" + subcategory +
+                        "' not found OR category key is invalid.");
+        }
         return result;
     }
 
@@ -473,6 +576,9 @@ public class ResourceGateway extends HttpServlet {
         else if (action.equalsIgnoreCase("getParticipants")) {
             result = _orgDataSet.getParticipantsAsXML();
         }
+        else if (action.equalsIgnoreCase("getNonHumanResources")) {
+            result = _orgDataSet.getNonHumanResourcesAsXML();
+        }
         else if (action.equalsIgnoreCase("getRoles")) {
             result = _orgDataSet.getRolesAsXML();
         }
@@ -488,12 +594,23 @@ public class ResourceGateway extends HttpServlet {
         else if (action.equalsIgnoreCase("getAllParticipantNames")) {
             result = _orgDataSet.getParticipantNames();
         }
+        else if (action.equalsIgnoreCase("getAllNonHumanResourceNames")) {
+            result = _orgDataSet.getNonHumanResourceNames();
+        }
         else if (action.equalsIgnoreCase("getAllRoleNames")) {
             result = _orgDataSet.getRoleNames();
         }
         else if (action.equalsIgnoreCase("getParticipant")) {
             Participant p = _orgDataSet.getParticipant(id);
             result = (p != null) ? p.toXML() : fail("Unknown participant id: " + id) ;
+        }
+        else if (action.equalsIgnoreCase("getNonHumanResource")) {
+            NonHumanResource r = _orgDataSet.getNonHumanResource(id);
+            result = (r != null) ? r.toXML() : fail("Unknown NonHumanResource id: " + id) ;
+        }
+        else if (action.equalsIgnoreCase("getNonHumanResourceByName")) {
+            NonHumanResource r = _orgDataSet.getNonHumanResourceByName(name);
+            result = (r != null) ? r.toXML() : fail("Unknown NonHumanResource name: " + id) ;
         }
         else if (action.equalsIgnoreCase("getParticipantRoles")) {
             result = _orgDataSet.getParticipantRolesAsXML(id);
@@ -559,9 +676,22 @@ public class ResourceGateway extends HttpServlet {
             OrgGroup group = _orgDataSet.getOrgGroupByLabel(name);
             result = (group != null) ? group.toXML() : fail("Unknown group name: " + id);
         }
+        else if (action.equalsIgnoreCase("getNonHumanResourceCategories")) {
+            result = _orgDataSet.getNonHumanResourceCategoriesAsXML();
+        }
+        else if (action.equalsIgnoreCase("getNonHumanResourceSubCategories")) {
+            String category = req.getParameter("category");
+            result = _orgDataSet.getNonHumanResourceSubCategoriesAsXML(category);
+        }
+        else if (action.equalsIgnoreCase("getNonHumanResourceCategorySet")) {
+            result = _orgDataSet.getNonHumanResourceCategorySet();
+        }
         else if (action.equalsIgnoreCase("getParticipantIdentifiers")) {
             if (id == null) id = "0";
             result = stringMapToXML(_orgDataSet.getParticipantIdentifiers(id));
+        }
+        else if (action.equalsIgnoreCase("getNonHumanResourceIdentifiers")) {
+            result = stringMapToXML(_orgDataSet.getNonHumanResourceIdentifiers());
         }
         else if (action.equalsIgnoreCase("getRoleIdentifiers")) {
             result = stringMapToXML(_orgDataSet.getRoleIdentifiers());
@@ -670,6 +800,9 @@ public class ResourceGateway extends HttpServlet {
         if (id != null) {
             if (action.equalsIgnoreCase("isKnownParticipant")) {
                 result = String.valueOf(_orgDataSet.isKnownParticipant(id)) ;
+            }
+            else if (action.equalsIgnoreCase("isKnownNonHumanResource")) {
+                result = String.valueOf(_orgDataSet.isKnownNonHumanResource(id)) ;
             }
             else if (action.equalsIgnoreCase("isKnownRole")) {
                 result = String.valueOf(_orgDataSet.isKnownRole(id)) ;

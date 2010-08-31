@@ -141,6 +141,17 @@ public class ResourceGatewayClient extends Interface_Client {
 
 
     /**
+     * Gets an XML list of all NonHumanResources known to the service
+     * @param handle a valid session handle
+     * @return the list of NonHumanResources as an XML string
+     * @throws IOException if the service can't be reached
+     */
+    public String getNonHumanResources(String handle) throws IOException {
+        return performGet("getNonHumanResources", handle) ;
+    }
+
+
+    /**
      * Gets an XML list of all Roles known to the service
      * @param handle a valid session handle
      * @return the list of roles as an XML string
@@ -207,6 +218,19 @@ public class ResourceGatewayClient extends Interface_Client {
 
 
     /**
+     * Gets an XML list of the name of each NonHumanResource known to the service
+     * @param handle a valid session handle
+     * @return the list of NonHumanResource names as an XML string
+     * @throws IOException if the service can't be reached
+     */
+    public String getAllNonHumanResourceNames(String handle) throws IOException {
+        return performGet("getAllNonHumanResourceNames", handle) ;
+    }
+
+
+
+
+    /**
      * Gets an XML list of the Participants that are currently logged on to the service
      * @param handle a valid session handle
      * @return the list of participants as an XML string
@@ -226,6 +250,20 @@ public class ResourceGatewayClient extends Interface_Client {
      */
     public String getParticipant(String id, String handle) throws IOException {
         Map<String, String> params = prepareParamMap("getParticipant", handle);
+        params.put("id", id);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Gets a specific NonHumanResource
+     * @param id the id of the NonHumanResource to retrieve
+     * @param handle a valid session handle
+     * @return an XML string describing the NonHumanResource
+     * @throws IOException if the service can't be reached
+     */
+    public String getNonHumanResource(String id, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getNonHumanResource", handle);
         params.put("id", id);
         return executeGet(_serviceURI, params) ;
     }
@@ -442,6 +480,20 @@ public class ResourceGatewayClient extends Interface_Client {
 
 
     /**
+     * Gets the NonHumanResource with the specified name
+     * @param name the name of the NonHumanResource to get
+     * @param handle a valid session handle
+     * @return an XML string describing the NonHumanResource, or an appropriate error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getNonHumanResourceByName(String name, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getNonHumanResourceByName", handle);
+        params.put("name", name);
+        return executeGet(_serviceURI, params) ;
+    }    
+
+
+    /**
      * Gets the id and chosen identifier of every Participant
      * @param id a valid ResourceDataSet.Identifier; one of: FullName, ReverseFullName,
      * LastName or Userid  (0..3)
@@ -466,6 +518,19 @@ public class ResourceGatewayClient extends Interface_Client {
      */
     public String getParticipantIdentifiers(String handle) throws IOException {
         Map<String, String> params = prepareParamMap("getParticipantIdentifiers", handle);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Gets the id and fullname of every NonHumanResource
+     * @param handle a valid session handle
+     * @return an XML string describing the NonHumanResource id/name pairs, or an appropriate
+     * error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getNonHumanResourceIdentifiers(String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getNonHumanResourceIdentifiers", handle);
         return executeGet(_serviceURI, params) ;
     }
 
@@ -528,9 +593,49 @@ public class ResourceGatewayClient extends Interface_Client {
      * @return an XML string describing the UserPrivileges, or an appropriate error message
      * @throws IOException if the service can't be reached
      */
-    public String getUserPrivileges(String id, String handle)  throws IOException {
+    public String getUserPrivileges(String id, String handle) throws IOException {
         Map<String, String> params = prepareParamMap("getUserPrivileges", handle);
         params.put("id", id);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Gets all the NonHumanResource categories known to the service
+     * @param handle a valid session handle
+     * @return an XML string describing the categories, or an appropriate error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getNonHumanResourceCategories(String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getNonHumanResourceCategories", handle);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Gets all the NonHumanResource sub-categories for the specified category
+     * @param category the category to get the sub-categories for 
+     * @param handle a valid session handle
+     * @return an XML string describing the categories, or an appropriate error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getNonHumanResourceSubCategories(String category, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("getNonHumanResourceSubCategories", handle);
+        params.put("category", category);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Gets all the NonHumanResource categories known to the service, together with
+     * each of thier subcategories
+     * @param handle a valid session handle
+     * @return an XML string describing the categories, or an appropriate error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getNonHumanResourceCategorySet(String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getNonHumanResourceCategorySet", handle);
         return executeGet(_serviceURI, params) ;
     }
 
@@ -630,6 +735,18 @@ public class ResourceGatewayClient extends Interface_Client {
     }
 
 
+    /**
+     * Check if the id passed is that of a known NonHumanResource
+     * @param id the id to check
+     * @param handle a valid session handle
+     * @return "true" if the id is valid, "false" if otherwise
+     * @throws IOException if the service can't be reached
+     */
+    public String isKnownNonHumanResource(String id, String handle) throws IOException {
+        return executeBooleanGet("isKnownNonHumanResource", id, handle) ;
+    }
+
+
     /*******************************************************************************/
 
     /**
@@ -697,6 +814,30 @@ public class ResourceGatewayClient extends Interface_Client {
         params.put("lastname", lastname);
         params.put("firstname", firstname);
         params.put("admin", String.valueOf(admin));
+        params.put("description", description);
+        params.put("notes", notes);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Adds a new NonHumanResource to the Resource Service's org data
+     * @param name - must not already exist in the service's org data
+     * @param category
+     * @param subcategory
+     * @param description
+     * @param notes
+     * @param handle a current sessionhandle with admin privileges
+     * @return if successful, the id of the newly added NonHumanResource; if not, an
+     * explanatory error message
+     * @throws IOException if the service can't be reached
+     */
+    public String addNonHumanResource(String name, String category, String subcategory,
+                 String description, String notes, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("addNonHumanResource", handle);
+        params.put("name", name);
+        params.put("category", category);
+        params.put("subcategory", subcategory);
         params.put("description", description);
         params.put("notes", notes);
         return executeGet(_serviceURI, params) ;
@@ -854,6 +995,59 @@ public class ResourceGatewayClient extends Interface_Client {
 
 
     /**
+     * Adds a new category to the set of NonHumanResource categories
+     * @param category the category name to add
+     * @param handle a current sessionhandle with admin privileges
+     * @return a String conversion of the (long) category key value, or
+     * if not successful, an explanatory error message
+     * @throws IOException if the service can't be reached
+     */
+    public String addNonHumanResourceCategory(String category, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("addNonHumanResourceCategory", handle);
+        params.put("category", category);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Adds a new subcategory to the specified NonHumanResource category. If the
+     * category does not exist, it will be created
+     * @param category the (existing) category name
+     * @param subcategory the subcategory name to add
+     * @param handle a current sessionhandle with admin privileges
+     * @return a message indicating success, or if not successful, an
+     * explanatory error message
+     * @throws IOException if the service can't be reached
+     */
+    public String addNonHumanResourceSubCategory(String category, String subcategory,
+                                                 String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("addNonHumanResourceSubCategory", handle);
+        params.put("category", category);
+        params.put("subcategory", subcategory);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Adds a new subcategory to the specified NonHumanResource category
+     * @param categoryKey the key of the (existing) category  
+     * @param subcategory the subcategory name to add
+     * @param handle a current sessionhandle with admin privileges
+     * @return a message indicating success, or if not successful, an
+     * explanatory error message
+     * @throws IOException if the service can't be reached
+     */
+    public String addNonHumanResourceSubCategory(long categoryKey, String subcategory,
+                                                 String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("addNonHumanResourceSubCategory", handle);
+        params.put("key", String.valueOf(categoryKey));
+        params.put("subcategory", subcategory);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
      * Updates a Participant record with the specified values. Note that besides
      * participantid and handle, all other String parameters may be null, which will
      * indicate that the current value for that field is not to be updated (ie. the
@@ -884,6 +1078,34 @@ public class ResourceGatewayClient extends Interface_Client {
         params.put("lastname", lastname);
         params.put("firstname", firstname);
         params.put("admin", String.valueOf(admin));
+        params.put("description", description);
+        params.put("notes", notes);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Updates a NonHumanResource with the specified values. Note that besides
+     * participantid and handle, all other String parameters may be null, which will
+     * indicate that the current value for that field is not to be updated (ie. the
+     * existing value is maintained).
+     * @param name - the (existing) id of the NonHumanResource
+     * @param category
+     * @param subcategory
+     * @param description
+     * @param notes
+     * @param handle a current sessionhandle with admin privileges
+     * @return  a message indicating success, or if not, an explanatory error message
+     * @throws IOException if the service can't be reached
+     */
+    public String updateNonHumanResource(String resourceID, String name, String category,
+                    String subcategory, String description, String notes, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("updateNonHumanResource", handle);
+        params.put("resourceID", resourceID);
+        params.put("name", name);
+        params.put("category", category);
+        params.put("subcategory", subcategory);
         params.put("description", description);
         params.put("notes", notes);
         return executeGet(_serviceURI, params) ;
@@ -1020,6 +1242,22 @@ public class ResourceGatewayClient extends Interface_Client {
 
 
     /**
+     * Removes (deletes) the specified NonHumanResource from the Service's org data
+     * @param resourceID the id of the Participant to remove
+     * @param handle a current sessionhandle with admin privileges
+     * @return a message indicating success, or if not successful, an
+     * explanatory error message
+     * @throws IOException if the service can't be reached
+     */
+    public String removeNonHumanResource(String resourceID, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("removeNonHumanResource", handle);
+        params.put("resourceID", resourceID);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
      * Removes (deletes) the specified Capability from the Service's org data
      * @param capabilityID the id of the Capability to remove
      * @param handle a current sessionhandle with admin privileges
@@ -1136,6 +1374,78 @@ public class ResourceGatewayClient extends Interface_Client {
         Map<String, String> params = prepareParamMap("removeParticipantFromPosition", handle);
         params.put("participantid", participantID);
         params.put("positionid", positionID);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Removes the specified category from the set of NonHumanResource categories; any
+     * sub-categories of the specified categories are also removed.
+     * @param category the name of the category to remove
+     * @param handle a current sessionhandle with admin privileges
+     * @return a message indicating success, or if not successful, an
+     * explanatory error message
+     * @throws IOException if the service can't be reached
+     */
+    public String removeNonHumanResourceCategory(String category, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("removeNonHumanResourceCategory", handle);
+        params.put("category", category);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Removes the specified category from the set of NonHumanResource categories; any
+     * sub-categories of the specified categories are also removed.
+     * @param categoryKey the key of the category to remove
+     * @param handle a current sessionhandle with admin privileges
+     * @return a message indicating success, or if not successful, an
+     * explanatory error message
+     * @throws IOException if the service can't be reached
+     */
+    public String removeNonHumanResourceCategory(long categoryKey, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("removeNonHumanResourceCategory", handle);
+        params.put("key", String.valueOf(categoryKey));
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Removes the specified category from the set of NonHumanResource categories; any
+     * sub-categories of the specified categories are also removed.
+     * @param category the name of the category of which the subcategory is a member
+     * @param subcategory the name of the subcategory to remove
+     * @param handle a current sessionhandle with admin privileges
+     * @return a message indicating success, or if not successful, an
+     * explanatory error message
+     * @throws IOException if the service can't be reached
+     */
+    public String removeNonHumanResourceSubCategory(String category, String subcategory,
+                                                    String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("removeNonHumanResourceSubCategory", handle);
+        params.put("category", category);
+        params.put("subcategory", subcategory);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Removes the specified category from the set of NonHumanResource categories; any
+     * sub-categories of the specified categories are also removed.
+     * @param categoryKey the key of the category of which the subcategory is a member
+     * @param subcategory the name of the subcategory to remove
+     * @param handle a current sessionhandle with admin privileges
+     * @return a message indicating success, or if not successful, an
+     * explanatory error message
+     * @throws IOException if the service can't be reached
+     */
+    public String removeNonHumanResourceSubCategory(long categoryKey, String subcategory,
+                                                    String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("removeNonHumanResourceSubCategory", handle);
+        params.put("key", String.valueOf(categoryKey));
+        params.put("subcategory", subcategory);
         return executeGet(_serviceURI, params) ;
     }
 

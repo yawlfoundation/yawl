@@ -35,6 +35,15 @@ public abstract class AbstractResource {
 
     protected AbstractResource() {}
 
+    public boolean equals(Object o) {
+        return (o != null) && (o instanceof AbstractResource) &&
+               ((AbstractResource) o).getID().equals(_resourceID);
+    }
+
+    public int hashCode() {
+        return _resourceID == null ? 17 * 31 * 31 : 17 * _resourceID.hashCode();
+    }
+
 
     public String getID() { return _resourceID; }
 

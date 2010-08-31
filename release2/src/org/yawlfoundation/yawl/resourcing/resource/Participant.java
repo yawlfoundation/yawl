@@ -401,9 +401,6 @@ public class Participant extends AbstractResource implements Serializable {
         _qSet.restoreWorkQueue(q, cache) ;
     }
 
-    public boolean equals(Object o) {
-        return (o instanceof Participant) && ((Participant) o).getID().equals(_resourceID);
-    }
 
     public String toXML() {
         StringBuilder xml = new StringBuilder() ;
