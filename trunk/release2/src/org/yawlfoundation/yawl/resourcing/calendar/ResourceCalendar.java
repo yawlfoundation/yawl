@@ -29,22 +29,32 @@ import java.util.List;
 /**
  * Maintains the resource calendar. An entry in the calendar denotes that a resource
  * is NOT available between the entry's start and end times. An entry may refer to an
- * individual resource, or all human resources (eg. a public holiday), or all
+ * individual resource (by id), or all human resources (eg. a public holiday), or all
  * non-human resources (eg. an equipment maintenance run) or all resources (both human
- * and non-human)
+ * and non-human).
  *
  * Author: Michael Adams
  * Creation Date: 12/03/2010
  */
 public class ResourceCalendar {
 
+    public static enum Status { Unknown, Available, Unavailable,
+                                Booked, Reserved, Blocked }
+
+    public static enum ResourceGroup { AllResources, HumanResources, NonHumanResources }
+
+    private static ResourceCalendar _me;
     private Persister _persister;
-    private static String _success = "<success/>";
+    private static final String _success = "<success/>";
 
-    public enum Entry { AllResources, HumanResources, NonHumanResources }
 
-    public ResourceCalendar() {
+    private ResourceCalendar() {
         _persister = Persister.getInstance();
+    }
+
+    public static ResourceCalendar getInstance() {
+        if (_me == null) _me = new ResourceCalendar();
+        return _me;
     }
 
 
@@ -53,14 +63,16 @@ public class ResourceCalendar {
      * @param resource the resource to add the entry for 
      * @param startTime the date/time when the resource's unavailability starts
      * @param endTime the date/time when the resource's unavailability ends
+     * @param status the resource's schedule status
      * @param comment an optional comment string
      * @return a success or failure message
      */
-    public String addEntry(AbstractResource resource, long startTime, long endTime, String comment) {
+    public String addEntry(AbstractResource resource, long startTime, long endTime,
+                           Status status, String comment) {
         if (resource == null) {
             return "<failure>Resource is null.</failure>";
         }
-        return addEntry(resource.getID(), startTime, endTime, comment);
+        return addEntry(resource.getID(), startTime, endTime, status, comment);
     }
 
 
@@ -69,11 +81,13 @@ public class ResourceCalendar {
      * @param entry an Entry value (for multiple resources)
      * @param startTime the date/time when the resource's unavailability starts
      * @param endTime the date/time when the resource's unavailability ends
+     * @param status the resource's schedule status
      * @param comment an optional comment string
      * @return a success or failure message
      */
-    public String addEntry(Entry entry, long startTime, long endTime, String comment) {
-        return addEntry(getEntryString(entry), startTime, endTime, comment);
+    public String addEntry(ResourceGroup entry, long startTime, long endTime,
+                           Status status, String comment) {
+        return addEntry(getEntryString(entry), startTime, endTime, status, comment);
     }
 
 
@@ -82,15 +96,17 @@ public class ResourceCalendar {
      * @param id either the resource's id or an Entry value (for multiple resources)
      * @param startTime the date/time when the resource's unavailability starts
      * @param endTime the date/time when the resource's unavailability ends
+     * @param status the resource's schedule status
      * @param comment an optional comment string
      * @return a success or failure message
      */
-    private String addEntry(String id, long startTime, long endTime, String comment) {
+    private String addEntry(String id, long startTime, long endTime,
+                            Status status, String comment) {
         if (endTime < startTime) {
             return "<failure>Invalid times: End time comes before Start time.</failure>";
         }
         else {
-            _persister.insert(new CalendarEntry(id, startTime, endTime, comment));
+            _persister.insert(new CalendarEntry(id, startTime, endTime, status, comment));
             return _success;
         }
     }
@@ -111,7 +127,7 @@ public class ResourceCalendar {
      * @param entry the Entry type
      * @return the list of entries corresponding to the Entry type
      */
-    public List getEntries(Entry entry) {
+    public List getEntries(ResourceGroup entry) {
         return getEntries(getEntryString(entry));
     }
 
@@ -160,6 +176,29 @@ public class ResourceCalendar {
     }
 
 
+    /*
+     * 4 overlap possibilities :
+     *   1. A record's time range is wholly within start <-> end
+     *   2. start <-> end is wholly within a record's time range
+     *   3. start is prior to the record's time range, and end falls within it
+     *   4. end is after the record's time range, and start falls within it
+     */
+    public List getTimeSlotEntries(String id, long start, long end) {
+        return _persister.createQuery(
+                "FROM CalendarEntry AS ce " +
+                "WHERE ce.resourceID = :id " +
+                "AND ( " +
+                   "(:start <= ce.startTime AND :end >= ce.endTime) " +
+                   "OR (:start >= ce.startTime AND :end <= ce.endTime) " +
+                   "OR (ce.startTime <= :end AND :end <= ce.endTime) " +
+                   "OR (ce.startTime <= :start AND :start <= ce.endTime))")
+                .setString("id", id)
+                .setLong("start", start)
+                .setLong("end", end)
+                .list();
+    }
+
+
     /**
      * Creates a list of ids to match against for a query. An entry may match the
      * resource's particular id, or 'AllResources' (applies to all) or all resources
@@ -170,9 +209,10 @@ public class ResourceCalendar {
     private List<String> createIDListForQuery(AbstractResource resource) {
         List<String> idlist = new ArrayList<String>(3);
         idlist.add(resource.getID());
-        idlist.add(getEntryString(Entry.AllResources));
+        idlist.add(getEntryString(ResourceGroup.AllResources));
         idlist.add(getEntryString((resource instanceof Participant) ?
-                                   Entry.HumanResources : Entry.NonHumanResources));
+                                   ResourceGroup.HumanResources :
+                                   ResourceGroup.NonHumanResources));
         return idlist;
     }
 
@@ -183,7 +223,7 @@ public class ResourceCalendar {
      * @return its matching string
      * @pre entry is a valid Entry type
      */
-    private String getEntryString(Entry entry) {
+    private String getEntryString(ResourceGroup entry) {
         switch (entry) {
             case AllResources : return "ALL_RESOURCES";
             case HumanResources : return "ALL_HUMAN_RESOURCES";
@@ -191,4 +231,57 @@ public class ResourceCalendar {
         }
         return "UNDEFINED";
     }
+
+    /***********************************************************************/
+
+    public void makeAvailable(String id, long startTime, long endTime, String comment)
+            throws ScheduleStateException {
+
+        // all trans to available valid
+
+        List entries = getTimeSlotEntries(id, startTime, endTime);
+    }
+
+    public void makeUnavailable(String id, long startTime, long endTime, String comment)
+            throws ScheduleStateException {
+
+        // all trans to unavailable valid
+    }
+
+    public void reserve(String id, long startTime, long endTime, String comment)
+            throws ScheduleStateException {
+
+        // must be currently available
+    }
+
+    public void cancel(String id, long startTime, long endTime, String comment)
+            throws ScheduleStateException {
+
+        // must be currently reserved
+    }
+
+    public void book(String id, long startTime, long endTime, String comment)
+            throws ScheduleStateException {
+
+        // must be currently available
+    }
+
+    public void unbook(String id, long startTime, long endTime, String comment)
+            throws ScheduleStateException {
+
+        // must be currently booked
+    }
+
+    public void confirm(String id, long startTime, long endTime, String comment)
+            throws ScheduleStateException {
+
+        // must be currently booked
+    }
+
+    public void unconfirm(String id, long startTime, long endTime, String comment)
+            throws ScheduleStateException {
+
+        // must be currently reserved
+    }
+
 }

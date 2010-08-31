@@ -288,12 +288,12 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public synchronized void finaliseInitialisation() {
         EventLogger.setLogging(
-            HibernateEngine.getInstance(false).isAvailable(HibernateEngine.tblEventLog));
+            HibernateEngine.getInstance(false).isAvailable("ResourceEvent"));
         _workItemCache.setPersist(_persisting) ;
         if (_persisting) {
             restoreWorkQueues() ;
         }
-        _calendar = new ResourceCalendar();
+        _calendar = ResourceCalendar.getInstance();
     }
 
 
@@ -756,7 +756,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         _orgDataSet.augmentDataSourceAsRequired();
 
         // restore user privileges for each participant
-        Map<String,Object> upMap = _persister.selectMap(HibernateEngine.tblUserPrivileges);
+        Map<String,Object> upMap = _persister.selectMap("UserPrivileges");
         for (Participant p : _orgDataSet.getParticipants()) {
             UserPrivileges up = (UserPrivileges) upMap.get(p.getID());
             if (up != null) p.setUserPrivileges(up);

@@ -29,14 +29,17 @@ public class CalendarEntry {
     private long startTime;
     private long endTime;
     private String comment;
+    private String status;
 
     public CalendarEntry() {}
 
-    public CalendarEntry(String resID, long start, long end, String comment) {
+    public CalendarEntry(String resID, long start, long end,
+                         ResourceCalendar.Status st, String cmt) {
         resourceID = resID;
         startTime = start;
         endTime = end;
-        this.comment = comment;
+        status = st.name();
+        comment = cmt;
     }
 
     public long getEntryID() {
@@ -69,6 +72,14 @@ public class CalendarEntry {
 
     public void setEndTime(long time) {
         endTime = time;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String st) {
+        status = st;
     }
 
     public String getComment() {

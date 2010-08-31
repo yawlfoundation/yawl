@@ -47,7 +47,8 @@ public class HibernateImpl extends DataSource {
     private final String _capability = Capability.class.getName();
     private final String _position = Position.class.getName();
     private final String _orgGroup = OrgGroup.class.getName();
-
+    private final String _nonHumanResource = NonHumanResource.class.getName();
+    
     // the constructor
     public HibernateImpl() {
         _db = HibernateEngine.getInstance(true) ;
@@ -67,12 +68,13 @@ public class HibernateImpl extends DataSource {
         else if (obj instanceof Position) prefix = "PO" ;
         else if (obj instanceof Role) prefix = "RO" ;
         else if (obj instanceof Participant) prefix = "PA";
+        else if (obj instanceof NonHumanResource) prefix = "NH";
 
         return getNextID(prefix);
     }
 
 
-    /** these 4 methods load resource entity sets individually */
+    /** these 5 methods load resource entity sets individually */
 
     public HashMap<String,Capability> loadCapabilities() {
         HashMap<String,Capability> capMap = new HashMap<String,Capability>();
@@ -102,6 +104,13 @@ public class HibernateImpl extends DataSource {
         return orgMap ;
     }             
 
+    public HashMap<String,NonHumanResource> loadNonHumanResources() {
+        HashMap<String,NonHumanResource> nhMap = new HashMap<String,NonHumanResource>();
+        List<NonHumanResource> nhList = _db.getObjectsForClass(_nonHumanResource) ;
+        for (NonHumanResource r : nhList) nhMap.put(r.getID(), r) ;
+        return nhMap ;
+    }
+
 
    /*******************************************************************************/
 
@@ -127,6 +136,9 @@ public class HibernateImpl extends DataSource {
        List<Participant> pList = _db.getObjectsForClass(_participant) ;
        for (Participant par : pList) ds.putParticipant(par) ;
 
+       List<NonHumanResource> resList = _db.getObjectsForClass(_nonHumanResource) ;
+       for (NonHumanResource res : resList) ds.putNonHumanResource(res) ;
+
        return ds ;
     }
 
@@ -141,13 +153,13 @@ public class HibernateImpl extends DataSource {
         String id = getNextID(obj);
 
         // set the newly generated id
-        if (obj instanceof Participant) {
-            Participant p = (Participant) obj ;
-            p.setID(id);
+        if (obj instanceof AbstractResource) {
+            ((AbstractResource) obj).setID(id);
 
-            // pre-insert the participant's user privileges
-            _db.exec(p.getUserPrivileges(), _INSERT);
-
+            // if a Participant, pre-insert the user privileges
+            if (obj instanceof Participant) {
+                _db.exec(((Participant) obj).getUserPrivileges(), _INSERT);
+            }
         }
         else ((AbstractResourceAttribute) obj).setID(id);
 

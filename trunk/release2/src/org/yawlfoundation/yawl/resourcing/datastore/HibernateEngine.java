@@ -23,8 +23,15 @@ import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.exception.JDBCConnectionException;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.resourcing.ResourceMap;
+import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.calendar.CalendarEntry;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.AuditEvent;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.SpecLog;
+import org.yawlfoundation.yawl.resourcing.resource.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -34,7 +41,7 @@ import java.util.List;
  *  @author Michael Adams
  *  v0.1, 03/08/2007
  *
- *  last update: 07/04/2008 (for v2.0)
+ *  last update: 26/08/2010 (for v2.2)
  */
 
 public class HibernateEngine {
@@ -44,33 +51,25 @@ public class HibernateEngine {
     public static final int DB_DELETE = 1;
     public static final int DB_INSERT = 2;
 
-    // bulk transaction options
-    private List bulkInserts = new ArrayList();
-    private List bulkUpdates = new ArrayList();
-    private List bulkDeletes = new ArrayList();
-    private boolean bulkMode = false;
-
     // reference to Hibernate
     private static SessionFactory _factory = null;
 
     // instance reference
     private static HibernateEngine _me;
 
+    // class references for config
+    private static Class[] persistedClasses = {
+            Participant.class, Role.class, Capability.class, Position.class,
+            OrgGroup.class, UserPrivileges.class, NonHumanResource.class,
+            NonHumanResourceCategory.class, WorkQueue.class, ResourceMap.class,
+            CalendarEntry.class, WorkItemRecord.class, ResourceEvent.class,
+            AuditEvent.class, SpecLog.class, PersistedAutoTask.class
+    };
+
+
     private static boolean _persistOn = false;
-    private final Object _mutex = new Object();
     private static final Logger _log = Logger.getLogger(HibernateEngine.class);
 
-    // table name abbreviations
-    private static final String _pkg = "org.yawlfoundation.yawl.resourcing." ;
-    public static final String tblParticipant = _pkg + "resource.Participant";
-    public static final String tblRole = _pkg + "resource.Role";
-    public static final String tblCapability = _pkg + "resource.Capability";
-    public static final String tblPosition = _pkg + "resource.Position";
-    public static final String tblOrgGroup = _pkg + "resource.OrgGroup";
-    public static final String tblUserPrivileges = _pkg + "resource.UserPrivileges";
-    public static final String tblWorkQueue = _pkg + "WorkQueue";
-    public static final String tblEventLog = _pkg + "datastore.eventlog.ResourceEvent";
-    public static final String tblSpecLog = _pkg + "datastore.eventlog.SpecLog";
 
     /*********************************************************************************/
 
@@ -108,24 +107,9 @@ public class HibernateEngine {
             Configuration _cfg = new Configuration();
 
             // add each persisted class to config
-            _cfg.addClass(org.yawlfoundation.yawl.resourcing.resource.Participant.class);
-            _cfg.addClass(org.yawlfoundation.yawl.resourcing.resource.Role.class);
-            _cfg.addClass(org.yawlfoundation.yawl.resourcing.resource.Capability.class);
-            _cfg.addClass(org.yawlfoundation.yawl.resourcing.resource.Position.class);
-            _cfg.addClass(org.yawlfoundation.yawl.resourcing.resource.OrgGroup.class);
-            _cfg.addClass(org.yawlfoundation.yawl.resourcing.resource.UserPrivileges.class);
-            _cfg.addClass(org.yawlfoundation.yawl.resourcing.WorkQueue.class);
-            _cfg.addClass(org.yawlfoundation.yawl.resourcing.ResourceMap.class);
-            _cfg.addClass(org.yawlfoundation.yawl.resourcing.calendar.CalendarEntry.class);
-            _cfg.addClass(org.yawlfoundation.yawl.engine.interfce.WorkItemRecord.class);
-            _cfg.addClass(
-                    org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent.class);
-            _cfg.addClass(
-                    org.yawlfoundation.yawl.resourcing.datastore.eventlog.AuditEvent.class);
-            _cfg.addClass(
-                    org.yawlfoundation.yawl.resourcing.datastore.eventlog.SpecLog.class);
-            _cfg.addClass(
-                    org.yawlfoundation.yawl.resourcing.datastore.PersistedAutoTask.class);
+            for (Class persistedClass : persistedClasses) {
+                _cfg.addClass(persistedClass);
+            }
 
            // get a session context
             _factory = _cfg.buildSessionFactory();
@@ -168,7 +152,6 @@ public class HibernateEngine {
         try {
             Session session = _factory.getCurrentSession();
             tx = session.beginTransaction();
-  //          session.flush();
 
             if (action == DB_INSERT) session.save(obj);
             else if (action == DB_UPDATE) updateOrMerge(session, obj);
@@ -224,13 +207,13 @@ public class HibernateEngine {
 
 
     public int execUpdate(String queryString) {
-
         int result = -1;
         Transaction tx = null;
         try {
             Session session = _factory.getCurrentSession();
             tx = session.beginTransaction();
             result = session.createQuery(queryString).executeUpdate();
+            tx.commit();
         }
         catch (JDBCConnectionException jce) {
             _log.error("Caught Exception: Couldn't connect to datasource - " +
