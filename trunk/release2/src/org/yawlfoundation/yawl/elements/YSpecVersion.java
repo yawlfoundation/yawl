@@ -139,7 +139,13 @@ public class YSpecVersion implements Comparable {
         return this.getMinorVersion() == other.getMinorVersion();
     }
 
-    public boolean equals(YSpecVersion other) {
-        return this.equalsMajorVersion(other) && this.equalsMinorVersion(other);
+    public boolean equals(Object other) {
+        return (other instanceof YSpecVersion) &&
+                this.equalsMajorVersion((YSpecVersion) other) &&
+                this.equalsMinorVersion((YSpecVersion) other);
+    }
+
+    public int hashCode() {
+        return (17 * _major) * (31 * _minor); 
     }
 }

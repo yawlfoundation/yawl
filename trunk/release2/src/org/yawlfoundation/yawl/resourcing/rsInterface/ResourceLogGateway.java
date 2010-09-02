@@ -21,7 +21,10 @@ package org.yawlfoundation.yawl.resourcing.rsInterface;
 import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.LogMiner;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -29,6 +32,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Set;
+import java.util.TreeSet;
 
 
 /**
@@ -46,7 +51,10 @@ public class ResourceLogGateway extends HttpServlet {
     private ResourceManager _rm;
 
     private final String _noService = "<failure>Not connected to Resource Service.</failure>";
-    private final String _noAction = "<failure>Resource Log Gateway called with invalid action.</failure>";
+    private final String _badPre = "<failure>Resource Log Gateway called with invalid";
+    private final String _badAction = _badPre + "action.</failure>";
+    private final String _badEvent = _badPre + "event name.</failure>";
+    private final String _badSpecID = _badPre + "specification ID.</failure>";
 
 
     public void init() {
@@ -60,7 +68,7 @@ public class ResourceLogGateway extends HttpServlet {
         String result = "";
         String action = req.getParameter("action");
         String handle = req.getParameter("sessionHandle");
-        String key = req.getParameter("key");
+        String id = req.getParameter("id") ;
 
         if (action == null) {
             throw new IOException("ResourceLogGateway called with null action.");
@@ -81,32 +89,71 @@ public class ResourceLogGateway extends HttpServlet {
        }
        else if (validConnection(handle)) {
            if (action.equals("getCaseStartedBy")) {
-               String caseID = req.getParameter("caseid") ;
-               result = _logDB.getCaseStartedBy(caseID);
+               result = _logDB.getCaseStartedBy(id);
            }
            else if (action.equals("getWorkItemEvents")) {
-               String itemID = req.getParameter("itemid") ;
                String fnStr = req.getParameter("fullname") ;
                boolean fullName = (fnStr != null) && fnStr.equalsIgnoreCase("true");
-               result = _logDB.getWorkItemEvents(itemID, fullName);
+               result = _logDB.getWorkItemEvents(id, fullName);
+           }
+           else if (action.equals("getParticipantHistory")) {
+               result = _logDB.getParticipantHistory(id);
+           }
+           else if (action.equals("getResourceHistory")) {
+               result = _logDB.getResourceHistory(id);
+           }
+           else if (action.equals("getParticipantHistoryForEvent")) {
+               String eventStr = req.getParameter("eventType");
+               EventLogger.event event = EventLogger.getEventByName(eventStr);
+               if (event != null) {
+                   result = _logDB.getParticipantHistoryForEvent(id, event);
+               }
+               else result = _badEvent;     
+           }
+           else if (action.equals("getResourceHistoryForEvent")) {
+               String eventStr = req.getParameter("eventType");
+               EventLogger.event event = EventLogger.getEventByName(eventStr);
+               if (event != null) {
+                   result = _logDB.getResourceHistoryForEvent(id, event);
+               }
+               else result = _badEvent;
+           }
+           else if (action.equals("getWorkItemOffered")) {
+               result = _logDB.getWorkItemOffered(id);
+           }
+           else if (action.equals("getWorkItemAllocated")) {
+               result = _logDB.getWorkItemAllocated(id);
+           }
+           else if (action.equals("getWorkItemStarted")) {
+               result = _logDB.getWorkItemStarted(id);
+           }
+           else if (action.equals("getCaseHistoryInvolvingParticipant")) {
+               result = _logDB.getCaseHistoryInvolvingParticipant(id);
+           }
+           else if (action.equals("getSpecificationEvents")) {
+               YSpecificationID specID = constructSpecID(req);
+               result = (specID != null) ? _logDB.getSpecificationEvents(specID) : _badSpecID;
+           }
+           else if (action.equals("getSpecificationSetEvents")) {
+               String setXML = req.getParameter("setxml");
+               Set<YSpecificationID> idSet = constructSpecificationIDSet(setXML);
+               result = (idSet != null) ? _logDB.getSpecificationEvents(idSet) : _badSpecID;
+           }
+           else if (action.equals("getSpecificationIdentifiers")) {
+               String key = req.getParameter("key");
+               result = _logDB.getSpecificationIdentifiers(key);
            }
            else if (action.equals("getSpecificationXESLog")) {
-               String identifier = req.getParameter("identifier") ;
-               String version = req.getParameter("version") ;
-               String uri = req.getParameter("uri") ;
-               YSpecificationID specID = new YSpecificationID(identifier, version, uri);
-               result = _logDB.getSpecificationXESLog(specID);
+               YSpecificationID specID = constructSpecID(req);
+               result = (specID != null) ? _logDB.getSpecificationXESLog(specID) : _badSpecID;
            }
            else if (action.equals("getMergedXESLog")) {
-               String identifier = req.getParameter("identifier") ;
-               String version = req.getParameter("version") ;
-               String uri = req.getParameter("uri") ;
-               YSpecificationID specID = new YSpecificationID(identifier, version, uri);
+               YSpecificationID specID = constructSpecID(req);
                String withDataStr = req.getParameter("withdata");
                boolean withData = (withDataStr != null) && withDataStr.equalsIgnoreCase("true");
-               result = _logDB.getMergedXESLog(specID, withData);
+               result = (specID != null) ? _logDB.getMergedXESLog(specID, withData) : _badSpecID;
            }
-           else result = _noAction;
+           else result = _badAction;
        }
        else throw new IOException("Invalid or disconnected session handle.");
 
@@ -134,4 +181,29 @@ public class ResourceLogGateway extends HttpServlet {
             return false;
         }
     }
+
+
+    private YSpecificationID constructSpecID(HttpServletRequest req) {
+        String version = req.getParameter("version") ;
+        String uri = req.getParameter("uri") ;
+        if ((uri != null) && (version != null)) {
+            String identifier = req.getParameter("identifier") ;
+            return new YSpecificationID(identifier, version, uri);
+        }
+        else return null;
+    }
+
+
+    private Set<YSpecificationID> constructSpecificationIDSet(String xml) {
+        Set<YSpecificationID> specSet = new TreeSet<YSpecificationID>();
+        XNode specs = new XNodeParser().parse(xml);
+        if (specs != null) {
+            for (XNode spec : specs.getChildren()) {
+                specSet.add(new YSpecificationID(spec.getChildText("identifier"),
+                        spec.getChildText("version"), spec.getChildText("uri")));
+            }
+        }
+        return specSet;
+    }
+
 }

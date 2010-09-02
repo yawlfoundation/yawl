@@ -118,6 +118,11 @@ public class YSpecificationID implements Comparable<YSpecificationID> {
         return equalYIDs;
     }
 
+    public int hashCode() {
+        int subCode = (identifier != null) ? identifier.hashCode() : uri.hashCode();
+        return 17 * subCode * version.hashCode();
+    }
+
 
     @Override public String toString() {
         return uri + " - version " + version.toString();

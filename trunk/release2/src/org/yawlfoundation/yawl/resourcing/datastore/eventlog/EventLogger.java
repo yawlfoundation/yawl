@@ -152,4 +152,26 @@ public class EventLogger {
         return getSpecificationKey(new YSpecificationID(wir));
     }
 
+
+    public static event getEventByName(String eventName) {
+        return (eventName != null) ? getEnum(event.class, eventName) : null;
+    }
+
+
+    public static audit getAuditEventByName(String eventName) {
+        return (eventName != null) ? getEnum(audit.class, eventName) : null;
+    }
+
+
+    private static <T extends Enum<T>> T getEnum(Class<T> e, String eventName) {
+        if (eventName == null) return null;
+        try {
+            return Enum.valueOf(e, eventName);
+        }
+        catch (IllegalArgumentException iae) {
+            return null;
+        }
+    }
+
+
 }
