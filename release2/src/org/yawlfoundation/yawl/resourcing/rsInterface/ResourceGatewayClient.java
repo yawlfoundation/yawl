@@ -1252,7 +1252,7 @@ public class ResourceGatewayClient extends Interface_Client {
     public String removeNonHumanResource(String resourceID, String handle)
             throws IOException {
         Map<String, String> params = prepareParamMap("removeNonHumanResource", handle);
-        params.put("resourceID", resourceID);
+        params.put("resourceid", resourceID);     
         return executeGet(_serviceURI, params) ;
     }
 
