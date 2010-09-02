@@ -174,18 +174,28 @@ public class XNodeParser {
 
     private List<Integer> getIndexList(String s, String sub) {
         int breakPos = sub.indexOf(' ');
-        if (breakPos > -1) {                   // tag contains attribute(s)
-            sub = sub.substring(0, breakPos);  // so truncate it
+        if (breakPos > -1) {                       // tag contains attribute(s)
+            sub = sub.substring(0, breakPos + 1);  // so truncate it (with space suffix)
         }
         List<Integer> indexList = new ArrayList<Integer>();
         int pos = s.indexOf(sub);
         while (pos > -1) {
-            if (! isEnclosedElement(s, pos)) {
+            if (lastCharDelineatesTag(s, pos + sub.length() - 1) &&
+                    (! isEnclosedElement(s, pos))) {
                 indexList.add(pos);
             }
             pos = s.indexOf(sub, pos + 1);
         }
         return indexList;
+    }
+
+    private boolean lastCharDelineatesTag(String s, int pos) {
+        if (pos >= (s.length() - 1)) {
+            return s.charAt(s.length() - 1) == '>';
+        }
+        else {
+            return (s.charAt(pos) == ' ') || (s.charAt(pos) == '>');
+        }
     }
 
     private boolean isEnclosedElement(String s, int start) {
