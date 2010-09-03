@@ -461,7 +461,7 @@
         <jar destfile="${output.dir}/YAWL_SourceAndTestCode_${app.version}.zip">
             <fileset dir="${output.dir}/engine"/>
         </jar>
-        <checksum file="${output.dir}/YAWL_SourceAndTestCod_${app.version}e.zip"/>
+        <checksum file="${output.dir}/YAWL_SourceAndTestCode_${app.version}.zip"/>
         <delete dir="${output.dir}/engine"/>
     </target>
 
