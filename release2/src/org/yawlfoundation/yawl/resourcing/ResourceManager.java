@@ -41,7 +41,6 @@ import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.resourcing.allocators.AllocatorFactory;
 import org.yawlfoundation.yawl.resourcing.calendar.ResourceCalendar;
 import org.yawlfoundation.yawl.resourcing.codelets.AbstractCodelet;
-import org.yawlfoundation.yawl.resourcing.codelets.CodeletExecutionException;
 import org.yawlfoundation.yawl.resourcing.codelets.CodeletFactory;
 import org.yawlfoundation.yawl.resourcing.constraints.ConstraintFactory;
 import org.yawlfoundation.yawl.resourcing.datastore.HibernateEngine;
@@ -76,6 +75,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -84,7 +84,7 @@ import java.util.*;
  * of tasks to participants.
  *
  *  @author Michael Adams
- *  03/08/2007
+ *  @date 03/08/2007
  */
 
 public class ResourceManager extends InterfaceBWebsideController {
@@ -96,7 +96,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private WorkItemCache _workItemCache = new WorkItemCache();
 
     // map of userid -> participant id
-    private HashMap<String,String> _userKeys = new HashMap<String,String>();
+    private Map<String,String> _userKeys = new Hashtable<String,String>();
 
     // a cache of connections directly to the service from client apps & services
     private ConnectionCache _connections = ConnectionCache.getInstance();
@@ -111,16 +111,18 @@ public class ResourceManager extends InterfaceBWebsideController {
     private DataSchemaCache _dataSchemaCache = new DataSchemaCache();
 
     // groups of items that are members of a deferred choice offering
-    private HashSet<TaggedStringList> _deferredItemGroups =
-            new HashSet<TaggedStringList>();
+    private Set<TaggedStringList> _deferredItemGroups = new HashSet<TaggedStringList>();
 
     // cases that have workitems chained to a participant: <caseid, Participant>
-    private Hashtable<String, Participant> _chainedCases =
-            new Hashtable<String, Participant>();
+    private Map<String, Participant> _chainedCases = new Hashtable<String, Participant>();
 
     // cache of who completed tasks, for four-eyes and retain familiar use <caseid, cache>
-    private Hashtable<String, FourEyesCache> _taskCompleters =
+    private Map<String, FourEyesCache> _taskCompleters =
             new Hashtable<String, FourEyesCache>();
+
+    // map of workitem id -> CodeletRunner running codelet for it
+    private Hashtable<String, CodeletRunner> _codeletRunners =
+            new Hashtable<String, CodeletRunner>(); 
 
     // started workitems that have been restored for a no longer existing participant.
     // these are force-completed once start-up has completed
@@ -405,6 +407,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (_serviceEnabled) {
             removeCaseFromAllQueues(caseID) ;                              // workqueues
             removeCaseFromTaskCompleters(caseID);
+            cancelCodeletRunnersForCase(caseID);
             _workItemCache.removeCase(caseID);
             removeChain(caseID);
         }
@@ -542,6 +545,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             removed = _workItemCache.remove(wir);
             ResourceMap rMap = getResourceMap(wir);
             if (rMap != null) rMap.removeIgnoreList(wir);
+            cancelCodeletRunner(wir.getID());                         // if any
         }
         return (removed != null);
     }
@@ -2043,6 +2047,24 @@ public class ResourceManager extends InterfaceBWebsideController {
             return id;
     }
 
+    private void cancelCodeletRunnersForCase(String caseID) {
+        String rootID = getRootCaseID(caseID);
+        Set<String> toRemove = new HashSet<String>();     // avoid concurrency exception
+        for (String wirID : _codeletRunners.keySet()) {
+             if (wirID.startsWith(rootID + ".")) {
+                 toRemove.add(wirID);
+             }
+        }
+        for (String wirID : toRemove) {
+            cancelCodeletRunner(wirID);
+        }
+    }
+
+    private void cancelCodeletRunner(String wirID) {
+        CodeletRunner runner = _codeletRunners.remove(wirID);
+        if (runner != null) runner.cancel();
+    }
+
 //***************************************************************************//
 
     /**
@@ -2257,6 +2279,10 @@ public class ResourceManager extends InterfaceBWebsideController {
                 }
             }
             _connections.shutdown();
+
+            for (CodeletRunner runner : _codeletRunners.values()) {
+                runner.shutdown();
+            }
         }
         catch (Exception e) {
             _log.error("Unsuccessful audit log update on shutdown.");
@@ -2907,7 +2933,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
                 if ((children != null) && (! children.isEmpty())) {
                     wir = (WorkItemRecord) children.get(0) ;  // get executing child
-                    processAutoTask(wir);
+                    processAutoTask(wir, true);
                 }
             }
             else _log.error("Could not check out automated workitem: " + wir.getID());
@@ -2915,37 +2941,38 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    private void processAutoTask(WorkItemRecord wir) {
-        Element codeletResult = null ;
+    private void processAutoTask(WorkItemRecord wir, boolean init) {
         try {
-            if (_persisting) persistAutoTask(wir, true);
             String codelet = wir.getCodelet();
+
+            // if wir has a codelet, execute it in its own thread
             if ((codelet != null) && (codelet.length() > 0)) {
-                codeletResult = execCodelet(codelet, wir) ;
+                TaskInformation taskInfo = getTaskInformation(new YSpecificationID(wir),
+                                                              wir.getTaskID(),
+                                                              getEngineSessionHandle());
+                if (taskInfo != null) {
+                    CodeletRunner runner = new CodeletRunner(wir, taskInfo, init);
+                    Thread runnerThread = new Thread(runner, wir.getID() + ":codelet");
+                    runnerThread.start();                     // will callback when done
+                    if (_persisting) persistAutoTask(wir, true);
+                    _codeletRunners.put(wir.getID(), runner);
+                }
+                else {
+                    _log.error(MessageFormat.format(
+                            "Could not run codelet ''{0}'' for workitem ''{1}'' - error " +
+                            "getting task information from engine. Codelet ignored.",
+                            codelet, wir.getID()));
+                    checkInAutoTask(wir, wir.getDataList());     // check in immediately
+                }
             }
-
-            Element outData = (codeletResult != null) ? codeletResult
-                    : wir.getDataList();
-
-            // check item back in
-            checkCacheForWorkItem(wir);     // won't be cached if this is a restored item
-            String msg = checkInWorkItem(wir.getID(), wir.getDataList(),
-                    outData, getEngineSessionHandle()) ;
-            if (successful(msg)) {
-                if (_persisting) persistAutoTask(wir, false);
-                _log.info("Automated task '" + wir.getID() +
-                        "' successfully processed and checked back into the engine.");
+            else {
+                checkInAutoTask(wir, wir.getDataList());     // check in immediately
             }
-            else
-                _log.error("Automated task '" + wir.getID() +
-                        " could not be successfully completed. Result " +
-                        " message: " + msg) ;
         }
         catch (Exception e) {
             _log.error("Exception attempting to execute automatic task: " +
                     wir.getID(), e);
         }
-
     }
 
 
@@ -2969,42 +2996,50 @@ public class ResourceManager extends InterfaceBWebsideController {
                 WorkItemRecord wir = task.getWIR();
                 if (wir != null) {
                     persistAutoTask(wir, false);             // remove persisted
-                    processAutoTask(wir);                    // reprocess task
+                    processAutoTask(wir, false);             // resume processing task
                 }
             }
         }
     }
 
-    private Element execCodelet(String clName, WorkItemRecord wir) {
-        Element result = null;
-        String errMsg = " Codelet could not be executed; default value returned for" +
-                        " workitem " + wir.getID();
-        try {
-             // get params
-             TaskInformation taskInfo = getTaskInformation(new YSpecificationID(wir),
-                                                           wir.getTaskID(),
-                                                           getEngineSessionHandle());
-             List<YParameter> inputs = taskInfo.getParamSchema().getInputParams() ;
-             List<YParameter> outputs = taskInfo.getParamSchema().getOutputParams() ;
 
-             // get class instance
-             AbstractCodelet codelet = CodeletFactory.getInstance(clName);
-             if (codelet != null) {
-                result = codelet.execute(wir.getDataList(), inputs, outputs);
-                if (result != null)
-                   result = updateOutputDataList(wir.getDataList(), result);
-             }
-         }
-         catch (CodeletExecutionException e) {
-             _log.error("Exception executing codelet '" + clName + "': " +
-                         e.getMessage() + errMsg);
-         }
-        catch (IOException ioe) {
-            _log.error("Exception retrieving task information for codelet '" + clName +
-                       "'. " + errMsg);
+    // callback method from CodeletRunner when codelet execution completes
+    public void handleCodeletCompletion(WorkItemRecord wir, Element codeletResult) {
+        if (_codeletRunners.remove(wir.getID()) != null) {
+            if (codeletResult != null) {
+                codeletResult = updateOutputDataList(wir.getDataList(), codeletResult);
+            }
+            Element outData = (codeletResult != null) ? codeletResult : wir.getDataList();
+            checkInAutoTask(wir, outData);
         }
-        return result;
+        else {
+            _log.warn("A codelet has completed for a non-existent workitem '" + wir.getID() +
+                      "' - it was most likely cancelled during the codelet's execution.");
+            if (_persisting) persistAutoTask(wir, false);
+        }    
     }
+
+
+    public void checkInAutoTask(WorkItemRecord wir, Element outData) {
+        checkCacheForWorkItem(wir);     // won't be cached if this is a restored item
+        try {
+            if (_persisting) persistAutoTask(wir, false);
+            String msg = checkInWorkItem(wir.getID(), wir.getDataList(),
+                    outData, null, getEngineSessionHandle()) ;
+            if (successful(msg)) {
+                _log.info("Automated task '" + wir.getID() +
+                        "' successfully processed and checked back into the engine.");
+            }
+            else
+                _log.error("Automated task '" + wir.getID() +
+                        "' could not be successfully completed. Result message: " + msg) ;
+        }
+        catch (Exception e) {
+            _log.error("Exception attempting to check-in automatic task: " +
+                    wir.getID(), e);
+        }
+    }
+
 
     /** updates the input datalist with the changed data in the output datalist
      *  @param in - the JDOM Element containing the input params

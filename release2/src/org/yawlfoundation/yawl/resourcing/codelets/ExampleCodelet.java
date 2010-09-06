@@ -40,7 +40,7 @@ import java.util.List;
  * triggering workitem's output parameters. 
  *
  * @author Michael Adams
- * Creation Date: 18/06/2008
+ * @date 18/06/2008
  */
 public class ExampleCodelet extends AbstractCodelet {
 
@@ -90,11 +90,4 @@ public class ExampleCodelet extends AbstractCodelet {
         return getOutputData();
     }
 
-
-    /**
-     * All codelets must provide a mechanism to handle workitem (or case) cancellation.
-     * In this example nothing need to be done, but in long running codelets some
-     * handling of processes etc. may be required.
-     */
-    public void cancel() {}
 }

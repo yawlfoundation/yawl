@@ -45,6 +45,8 @@ import java.util.Random;
  */
 public class RandomWait extends AbstractCodelet {
 
+    private boolean _cancelled = false;
+
     public RandomWait() {
         super();
         setDescription("This codelet is a simple example of codelet construction and<br> " +
@@ -68,6 +70,7 @@ public class RandomWait extends AbstractCodelet {
      */
     public Element execute(Element inData, List<YParameter> inParams,
                            List<YParameter> outParams) throws CodeletExecutionException {
+
         // set the inputs passed in the base class
         setInputs(inData, inParams, outParams);
 
@@ -92,7 +95,11 @@ public class RandomWait extends AbstractCodelet {
             randomWait *= 3600;                              // seconds -> hours
 
         try {
-            Thread.currentThread().sleep(randomWait);
+            long expired = 0;
+            while ((! _cancelled) && (expired <= randomWait)) {
+                Thread.sleep(1000);
+                expired += 1000;
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -102,13 +109,13 @@ public class RandomWait extends AbstractCodelet {
         // set the output result. setParameterValue requires the result to be a String.
         setParameterValue("waitTime", String.valueOf(randomWait));
 
-        // return the Element created in the bae class and containing the result.
+        // return the Element created in the base class and containing the result.
         return getOutputData();
     }
 
 
     public void cancel() {
-        Thread.currentThread().interrupt();
+        _cancelled = true;
     }
 
 }

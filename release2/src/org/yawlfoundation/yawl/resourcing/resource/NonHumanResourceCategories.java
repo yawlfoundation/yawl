@@ -116,6 +116,35 @@ public class NonHumanResourceCategories extends Hashtable<Long, TaggedStringList
     }
 
 
+    public boolean isKnownCategory(String categoryName) {
+        return getCategoryKey(categoryName) > -1;
+    }
+
+
+    public boolean isKnownSubCategory(String categoryName, String subCategoryName) {
+        long key = getCategoryKey(categoryName);
+        return (key > -1) && get(key).contains(subCategoryName);
+    }
+
+
+    public String isValidCategoryPair(String categoryName, String subCategoryName) {
+        if (categoryName == null) {
+            if (subCategoryName == null) {
+                return "<success/>";
+            }
+            else return "<failure>Invalid: null category and non-null subcategory</failure>";           
+        }
+        else if (isKnownCategory(categoryName)) {
+            if ((subCategoryName == null) || isKnownSubCategory(categoryName, subCategoryName)) {
+                return "<success/>";
+            }
+            else return "<failure>Unknown subcategory name '" + subCategoryName +
+                       "' for category '" + categoryName + "'</failure>";
+        }
+        else return "<failure>Unknown category name: " + categoryName + "</failure>";
+    }
+
+
     /*********************************************************************/
 
     private long insert(String categoryName, long parentKey) {
