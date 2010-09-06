@@ -315,6 +315,7 @@ public class ResourceGatewayClientAdapter {
       * @param handle a valid session handle
       * @return an XML message of success or an appropriate error message
       * @throws IOException if the service can't be reached
+      * @throws ResourceGatewayException if there was a problem validating the credentials
       */
     public String validateUserCredentials(String userid, String password,
                                           boolean checkForAdmin, String handle)

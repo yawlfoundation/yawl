@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.resourcing.codelets;
 
 import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -34,6 +35,7 @@ import java.util.List;
 public abstract class AbstractCodelet {
 
     protected String _description ;                // what does it do?
+    private WorkItemRecord _wir;
     private Element _inData;
     private List<YParameter> _inParams;
     private List<YParameter> _outParams;
@@ -46,6 +48,11 @@ public abstract class AbstractCodelet {
     public String getDescription() { return _description; }
     
     public void setDescription(String desc) { _description = desc; }
+
+    public WorkItemRecord getWorkItem() { return _wir; }
+
+    public void setWorkItem(WorkItemRecord wir) { _wir = wir; }
+
 
     protected void setInputs(Element inData, List<YParameter> inParams,
                              List<YParameter> outParams) {
@@ -157,11 +164,20 @@ public abstract class AbstractCodelet {
 
     /********************************************************************************/
 
+    public void init() { }
+
+    public void shutdown() { }
+
+    public void resume() { }
+
+    public void cancel() { }
+
+    /*********************************************************************************/
+
     public abstract Element execute(Element inData,
                                     List<YParameter> inParams,
                                     List<YParameter> outParams)
                                     throws CodeletExecutionException;
 
-    public abstract void cancel();
 
 }

@@ -323,10 +323,15 @@ public class ResourceDataSet {
 
     public String addNonHumanResource(NonHumanResource r) {
         if (isDataEditable(ResUnit.NonHumanResource)) {
-            String newID = getDataSource(ResUnit.NonHumanResource).insert(r) ; // persist it
-            if (! hasDefaultDataSource(ResUnit.NonHumanResource)) r.setID(newID);
-            putNonHumanResource(r) ;                 // ...and add it to the data set
-            return newID;
+            String validationMsg = nonHumanCategories.isValidCategoryPair(
+                    r.getCategory(), r.getSubCategory());
+            if (validationMsg.equals("<success/>")) {
+                String newID = getDataSource(ResUnit.NonHumanResource).insert(r) ; // persist it
+                if (! hasDefaultDataSource(ResUnit.NonHumanResource)) r.setID(newID);
+                putNonHumanResource(r) ;                 // ...and add it to the data set
+                return newID;
+            }
+            else return validationMsg;
         }
         else return fail("External NonHumanResource dataset is read-only");
     }

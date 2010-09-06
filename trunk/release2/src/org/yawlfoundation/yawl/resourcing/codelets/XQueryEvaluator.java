@@ -84,6 +84,4 @@ public class XQueryEvaluator extends AbstractCodelet {
         }
     }
 
-
-    public void cancel() {}
 }
