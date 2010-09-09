@@ -18,6 +18,8 @@
 
 package org.yawlfoundation.yawl.resourcing.util;
 
+import java.io.File;
+
 /**
  * A static "psuedo post-it note" class to store bits 'n' pieces used throughout the
  * service
@@ -31,11 +33,20 @@ public class Docket {
     private static String _fileRoot = "";
     private static String _classesDir = "WEB-INF/classes/";
     private static String _headPackageDir = _classesDir + "org/yawlfoundation/yawl/resourcing/";
+    private static String _pluginsPath;
+
 
     public static void setServiceRootDir(String path) {
        path = path.replace('\\', '/' );             // switch slashes
        if (! path.endsWith("/")) path += "/";       // make sure it has ending slash
        _fileRoot = path ;
+    }
+
+    public static void setExternalPluginsDir(String path) {
+
+        // remove ending slash
+        if (path.endsWith(File.separator)) path = path.substring(0, path.length() - 1);       
+        _pluginsPath = path ;
     }
 
     public static String getServiceRootDir() { return _fileRoot ; }
@@ -45,5 +56,9 @@ public class Docket {
     }
 
     public static String getPropertiesDir() { return _fileRoot + _classesDir; }
+
+    public static String getExternalPluginsDir() { return _pluginsPath; }
+
+
 
 }

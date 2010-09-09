@@ -621,6 +621,39 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
+    public List<YParameter> getCodeletParameters(String packageName, String codeletName) {
+        if (packageName == null) return getCodeletParameters(codeletName);
+        AbstractCodelet codelet = CodeletFactory.getInstance(packageName, codeletName);
+        return (codelet != null) ? codelet.getRequiredParams() : null;
+    }
+
+
+    public List<YParameter> getCodeletParameters(String codeletName) {
+        for (AbstractCodelet codelet : getCodelets()) {
+            if (codelet.getClassName().equals(codeletName)) {
+                return codelet.getRequiredParams();
+            }
+        }
+        return null;
+    }
+
+    public String getCodeletParametersAsXML(String packageName, String codeletName) {
+        if (packageName == null) return getCodeletParametersAsXML(codeletName);
+        AbstractCodelet codelet = CodeletFactory.getInstance(packageName, codeletName);
+        return (codelet != null) ? codelet.getRequiredParamsToXML() :
+                "<failure>Could not locate codelet: '" + packageName + "." +
+                        codeletName + "'.</failure>";
+    }
+
+    public String getCodeletParametersAsXML(String codeletName) {
+        for (AbstractCodelet codelet : getCodelets()) {
+            if (codelet.getClassName().equals(codeletName)) {
+                return codelet.getRequiredParamsToXML();
+            }
+        }
+        return "<failure>Could not locate codelet: '" + codeletName + "'.</failure>";
+    }
+
    /******************************************************************************/
 
     // LOGGING METHODS //
@@ -2954,7 +2987,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                     CodeletRunner runner = new CodeletRunner(wir, taskInfo, init);
                     Thread runnerThread = new Thread(runner, wir.getID() + ":codelet");
                     runnerThread.start();                     // will callback when done
-                    if (_persisting) persistAutoTask(wir, true);
+                    if (_persisting && runner.persist()) persistAutoTask(wir, true);
                     _codeletRunners.put(wir.getID(), runner);
                 }
                 else {

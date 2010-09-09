@@ -69,6 +69,10 @@ public class ResourceGateway extends HttpServlet {
                 _rm.initInterfaceClients(context.getInitParameter("InterfaceB_BackEnd"),
                                         context.getInitParameter("InterfaceX_BackEnd"));
 
+                // set the path to external plugin classes (if any)
+                String pluginDir = context.getInitParameter("ExternalPluginsDir");
+                if (pluginDir != null) Docket.setExternalPluginsDir(pluginDir);
+
                 // enable/or disable persistence
                 String persist = context.getInitParameter("EnablePersistence");
                 _rm.setPersisting(persist.equalsIgnoreCase("TRUE"));
@@ -635,6 +639,10 @@ public class ResourceGateway extends HttpServlet {
         }
         else if (action.equalsIgnoreCase("getCodelets")) {
             result = _rm.getCodeletsAsXML();
+        }
+        else if (action.equalsIgnoreCase("getCodeletParameters")) {
+            String pkg = req.getParameter("pkg");
+            result = _rm.getCodeletParametersAsXML(pkg, name);
         }
         else if (action.equalsIgnoreCase("getParticipantFromUserID")) {
             Participant p = _rm.getParticipantFromUserID(id);

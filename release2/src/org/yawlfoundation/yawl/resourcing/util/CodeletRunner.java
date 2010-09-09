@@ -91,4 +91,8 @@ public class CodeletRunner implements Runnable {
     public void shutdown() {
         if (_codelet != null) _codelet.shutdown();
     }
+
+    public boolean persist() {
+        return (_codelet != null) && _codelet.getPersist() ; 
+    }
 }

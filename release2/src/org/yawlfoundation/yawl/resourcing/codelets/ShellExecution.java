@@ -28,6 +28,7 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 /**
  * A codelet that executes an external program in the client environment. It expects
@@ -141,6 +142,22 @@ public class ShellExecution extends AbstractCodelet {
 
     public void cancel() {
         if (_proc != null) _proc.destroy();
+    }
+
+
+    public List<YParameter> getRequiredParams() {
+        List<YParameter> params = new ArrayList<YParameter>();
+
+        YParameter param = new YParameter(null, YParameter._INPUT_PARAM_TYPE);
+        param.setDataTypeAndName("string", "command", XSD_NAMESPACE);
+        param.setDocumentation("The command line");
+        params.add(param);
+
+        param = new YParameter(null, YParameter._OUTPUT_PARAM_TYPE);
+        param.setDataTypeAndName("string", "result", XSD_NAMESPACE);
+        param.setDocumentation("The result of the command's execution");
+        params.add(param);
+        return params;
     }
     
 }
