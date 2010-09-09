@@ -97,6 +97,14 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
                 getWebServiceDecomposition().setYawlServiceDescription(
                     (String) yawlServiceComboBox.getSelectedItem()
                 );
+                if (getWebServiceDecomposition().getCodelet() != null) {
+                    getDecomposition().setVariables(
+                        generateDataVariablesFromCodeletSelection()
+                    );
+                    SpecificationModel.getInstance().propogateVariableSetChange(
+                        getDecomposition()
+                    );
+                }
             }
         }
 
@@ -238,12 +246,20 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
     yawlServiceComboBox.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent event) {
         if (!yawlServiceComboBox.isEnabled()) {
-          return;
+            return;
+        }
+        cbxAutomated.setEnabled(isDefaultWorklistSelected());
+        if (isDefaultWorklistSelected() &&
+                (getWebServiceDecomposition().getCodelet() != null)) {
+                getDataVariablePanel().setVariables(
+                    generateDataVariablesFromCodeletSelection()
+                );
+             return;
         }
         getDataVariablePanel().setVariables(
-            generateDataVariablesFromServiceSelection()
-        );
-        cbxAutomated.setEnabled(isDefaultWorklistSelected());
+                    generateDataVariablesFromServiceSelection()
+                );
+
       }
     });
     return yawlServiceComboBox;
@@ -269,6 +285,13 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
     cbxAutomated.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
           btnCodelet.setEnabled(cbxAutomated.isSelected());
+          yawlServiceComboBox.setEnabled(! cbxAutomated.isSelected());
+          if (! cbxAutomated.isSelected()) {
+              getWebServiceDecomposition().setCodelet(null);
+              getDataVariablePanel().setVariables(
+                          generateDataVariablesFromServiceSelection()
+                      );
+          }
         }
     });
     result.add(cbxAutomated);
@@ -285,6 +308,12 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
                 codeletDialog.setLocationRelativeTo(YAWLEditor.getInstance());
                 codeletDialog.setSelectedCodelet();
                 codeletDialog.setVisible(true);
+                String codeletName = getWebServiceDecomposition().getCodelet();
+                if (codeletName != null) {
+                    getDataVariablePanel().setVariables(
+                        generateDataVariablesFromCodeletSelection()
+                    );
+                }
             }
             else {
               JOptionPane.showMessageDialog(null,
@@ -339,6 +368,27 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
     refreshThread.start();
   }
 
+
+    public DataVariableSet generateDataVariablesFromCodeletSelection() {
+        DataVariableSet newVariableSet = new DataVariableSet();
+        newVariableSet.setDecomposition(getDecomposition());
+        Decomposition decomp = getDecomposition();
+        if (decomp instanceof WebServiceDecomposition) {
+            String codelet = ((WebServiceDecomposition) decomp).getCodelet();
+            if (codelet != null) {
+                newVariableSet.addVariables(
+                        ResourcingServiceProxy.getInstance()
+                                .getCodeletParameters(null, codelet));
+            }
+        }
+        newVariableSet.addVariables(
+                getDataVariablePanel().getVariables().getUserDefinedVariables()
+        );
+
+        return newVariableSet;
+    }
+
+
     public DataVariableSet generateDataVariablesFromServiceSelection() {
 
         DataVariableSet newVariableSet = new DataVariableSet();
@@ -385,21 +435,6 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
     attributesPanel.setBorder(new EmptyBorder(10,10,10,12));
 
     JTable table = new JTable() ;
-//    {
-//      public Dimension getPreferredScrollableViewportSize() {
-//        Dimension defaultPreferredSize = super.getPreferredSize();
-//
-//        Dimension preferredSize = new Dimension(
-//            (int) defaultPreferredSize.getWidth(),
-//            (int) Math.min(
-//                defaultPreferredSize.getHeight(),
-//                getFontMetrics(getFont()).getHeight() * 10
-//            )
-//        );
-//
-//        return preferredSize;
-//      }
-//    };
 
     table.setModel(model);
 

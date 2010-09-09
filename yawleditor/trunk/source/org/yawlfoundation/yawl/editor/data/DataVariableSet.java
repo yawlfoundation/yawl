@@ -179,8 +179,8 @@ public class DataVariableSet implements Serializable, Cloneable {
   public List<DataVariable> getUserDefinedVariables() {
     LinkedList<DataVariable> userDefinedVariables = new LinkedList<DataVariable>();
 
-    for(DataVariable variable: getVariableSet()) {
-      if (variable.getUserDefined() == true) {
+    for (DataVariable variable : getVariableSet()) {
+      if (variable.getUserDefined()) {
         userDefinedVariables.add(variable);
       }
     }

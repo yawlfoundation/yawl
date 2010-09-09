@@ -23,6 +23,7 @@
 
 package org.yawlfoundation.yawl.editor.thirdparty.resourcing;
 
+import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.resourcing.AllocationMechanism;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingFilter;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
@@ -117,6 +118,10 @@ public class UnavailableResourcingServiceProxyImplementation implements Resourci
 
   public Map<String, String> getRegisteredCodelets() {
     return null ;
+  }
+
+  public List<DataVariable> getCodeletParameters(String pkg, String codeletName) {
+      return null;
   }
 
   public List getCapabilities() { return null; }
