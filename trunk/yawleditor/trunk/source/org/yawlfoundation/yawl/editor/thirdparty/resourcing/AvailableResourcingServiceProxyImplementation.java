@@ -22,11 +22,13 @@
 package org.yawlfoundation.yawl.editor.thirdparty.resourcing;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.resourcing.AllocationMechanism;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingFilter;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.ServerLookup;
+import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.resourcing.allocators.AbstractAllocator;
 import org.yawlfoundation.yawl.resourcing.filters.AbstractFilter;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
@@ -34,10 +36,7 @@ import org.yawlfoundation.yawl.resourcing.resource.Role;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.prefs.Preferences;
 
 public class AvailableResourcingServiceProxyImplementation implements ResourcingServiceProxyInterface {
@@ -277,6 +276,60 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
             }
         }
         return result;
+    }
+
+
+    public List<DataVariable> getCodeletParameters(String pkg, String codeletName) {
+        List<YParameter> params = null;
+        List<DataVariable> varList = new LinkedList<DataVariable>();
+        try {
+            params = gateway.getCodeletParameters(pkg, codeletName, sessionHandle);
+        }
+        catch (Exception e) {
+            // nothing to do
+        }
+        if (params != null) {
+            for (YParameter param : params) {
+                DataVariable editorVariable = new DataVariable();
+                editorVariable.setDataType(param.getDataTypeName());
+                editorVariable.setName(param.getName());
+                if (param.isInput()) {
+                    editorVariable.setUsage(DataVariable.USAGE_INPUT_ONLY);
+                }
+                else if (param.isOutput()) {
+                    editorVariable.setUsage(DataVariable.USAGE_OUTPUT_ONLY);
+                }
+
+                varList.add(editorVariable);
+            }
+
+            if (! varList.isEmpty()) {
+                List<DataVariable> inputList = new ArrayList<DataVariable>();
+                List<DataVariable> outputList = new ArrayList<DataVariable>();
+                for (DataVariable variable : varList) {
+                    if (variable.getUsage() == DataVariable.USAGE_INPUT_ONLY) {
+                        inputList.add(variable);
+                    }
+                    else {
+                        outputList.add(variable);
+                    }
+                }
+                for (DataVariable inputVar : inputList) {
+                    for (DataVariable outputVar : outputList) {
+                        if (inputVar.equalsIgnoreUsage(outputVar)) {
+                            inputVar.setUsage(DataVariable.USAGE_INPUT_AND_OUTPUT);
+                            varList.remove(outputVar);
+                        }
+                    }
+                }
+                int index = 0;
+                for (DataVariable var : varList) {
+                    var.setIndex(index++);
+                    var.setUserDefined(false);
+                }
+            }
+        }
+        return varList;
     }
 
 

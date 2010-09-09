@@ -262,7 +262,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
     splitPane.setDividerSize(10);
     splitPane.setResizeWeight(0);
-//    splitPane.setOneTouchExpandable(true);
+    splitPane.setOneTouchExpandable(true);
 
     return splitPane;
   }

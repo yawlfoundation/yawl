@@ -23,11 +23,12 @@
 
 package org.yawlfoundation.yawl.editor.thirdparty.resourcing;
 
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.resourcing.AllocationMechanism;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingFilter;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
-import org.yawlfoundation.yawl.editor.YAWLEditor;
 
 import java.util.List;
 import java.util.Map;
@@ -66,5 +67,7 @@ public interface ResourcingServiceProxyInterface {
   public List getOrgGroups();
 
   public Map<String, String> getRegisteredCodelets() ;
+
+   public List<DataVariable> getCodeletParameters(String pkg, String codeletName);  
 
 }
