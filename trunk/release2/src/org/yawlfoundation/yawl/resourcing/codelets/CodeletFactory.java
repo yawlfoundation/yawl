@@ -20,10 +20,12 @@ package org.yawlfoundation.yawl.resourcing.codelets;
 
 import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.resourcing.util.Docket;
+import org.yawlfoundation.yawl.resourcing.util.PluginLoader;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -37,7 +39,7 @@ import java.util.Set;
 
 public class CodeletFactory {
 
-    static String pkg = "org.yawlfoundation.yawl.resourcing.codelets." ;
+    static String _pkg = "org.yawlfoundation.yawl.resourcing.codelets." ;
     static Logger _log = Logger.getLogger(CodeletFactory.class);
 
     /**
@@ -47,7 +49,12 @@ public class CodeletFactory {
      * @param codeletName the name of the class to instantiate
      * @return the instantiated class, or null if there was a problem
      */
+
     public static AbstractCodelet getInstance(String codeletName) {
+        return getInstance(_pkg, codeletName);
+    }
+
+    public static AbstractCodelet getInstance(String pkg, String codeletName) {
         try {
             return (AbstractCodelet) Class.forName(pkg + codeletName).newInstance();
         }
@@ -79,17 +86,35 @@ public class CodeletFactory {
      */
     public static Set<AbstractCodelet> getCodelets() {
 
-        HashSet<AbstractCodelet> codelets = new HashSet<AbstractCodelet>();
-
         // retrieve a list of (filtered) class names in this package
         String pkgPath = Docket.getPackageFileDir("codelets") ;
         String[] classes = new File(pkgPath).list(new CodeletClassFileFilter());
+        Set<AbstractCodelet> codelets = getInstances(_pkg, classes);
 
-        for (String aClass : classes) {
+        codelets.addAll(getExternalCodelets());     // add any external plugin codelets
+
+        return codelets;
+    }
+
+
+    private static Set<AbstractCodelet> getExternalCodelets() {
+        Set<AbstractCodelet> codelets = new HashSet<AbstractCodelet>();
+        List<String> plugins = PluginLoader.getPluginNames("codelets");
+        if (plugins != null) {
+            String pkg = plugins.remove(0) + ".";
+            codelets = getInstances(pkg, plugins.toArray(new String[0]));
+        }
+        return codelets;
+    }
+
+
+    private static Set<AbstractCodelet> getInstances(String pkg, String[] classNames) {
+        Set<AbstractCodelet> codelets = new HashSet<AbstractCodelet>();
+        for (String className : classNames) {
 
             // strip off the file extension
-            String sansExtn = aClass.substring(0, aClass.lastIndexOf('.'));
-            AbstractCodelet temp = getInstance(sansExtn);
+            String sansExtn = className.substring(0, className.lastIndexOf('.'));
+            AbstractCodelet temp = getInstance(pkg, sansExtn);
             if (temp != null) codelets.add(temp);
         }
         return codelets;
@@ -104,9 +129,10 @@ public class CodeletFactory {
 
         public boolean accept(File dir, String name) {
             if (( new File(dir, name).isDirectory() ) ||        // ignore dirs
-                (name.startsWith("CodeletFactory")) ||        // and this class
+                (name.startsWith("CodeletFactory")) ||          // and this class
+                (name.startsWith("CodeletInfo")) ||        // and the transporter
                 (name.startsWith("CodeletExecutionException")) ||
-                (name.startsWith("AbstractCodelet")))         // and the base class
+                (name.startsWith("AbstractCodelet")))           // and the base class
                 return false;
 
             return name.toLowerCase().endsWith( ".class" );     // only want .class files

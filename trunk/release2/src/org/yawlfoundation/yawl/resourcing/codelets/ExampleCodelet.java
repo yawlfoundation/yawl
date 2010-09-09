@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.resourcing.codelets;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -88,6 +89,27 @@ public class ExampleCodelet extends AbstractCodelet {
 
         // return the Element created in the base class and containing the result.
         return getOutputData();
+    }
+
+
+    public List<YParameter> getRequiredParams() {
+        List<YParameter> params = new ArrayList<YParameter>();
+
+        YParameter param = new YParameter(null, YParameter._INPUT_PARAM_TYPE);
+        param.setDataTypeAndName("long", "a", XSD_NAMESPACE);
+        param.setDocumentation("The first number to add");
+        params.add(param);
+
+        param = new YParameter(null, YParameter._INPUT_PARAM_TYPE);
+        param.setDataTypeAndName("long", "b", XSD_NAMESPACE);
+        param.setDocumentation("The second number to add");
+        params.add(param);
+
+        param = new YParameter(null, YParameter._OUTPUT_PARAM_TYPE);
+        param.setDataTypeAndName("long", "c", XSD_NAMESPACE);
+        param.setDocumentation("The result of the addition");
+        params.add(param);
+        return params;
     }
 
 }

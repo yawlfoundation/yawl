@@ -271,8 +271,18 @@ public class XNode {
         return (child != null) ? child.getText() : null;
     }
 
+    public String getChildText(String name, boolean escape) {
+        XNode child = getChild(name);
+        return (child != null) ? child.getText(escape) : null;
+    }
+
+
     public String getText() {
         return _text;
+    }
+
+    public String getText(boolean escape) {
+        return escape ? JDOMUtil.decodeEscapes(_text) : _text;
     }
 
 

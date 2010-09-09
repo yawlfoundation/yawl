@@ -191,7 +191,8 @@ public class ResourceCalendar {
                    "(:start <= ce.startTime AND :end >= ce.endTime) " +
                    "OR (:start >= ce.startTime AND :end <= ce.endTime) " +
                    "OR (ce.startTime <= :end AND :end <= ce.endTime) " +
-                   "OR (ce.startTime <= :start AND :start <= ce.endTime))")
+                   "OR (ce.startTime <= :start AND :start <= ce.endTime))" +
+                "ORDER BY ce.startTime")
                 .setString("id", id)
                 .setLong("start", start)
                 .setLong("end", end)
@@ -233,6 +234,17 @@ public class ResourceCalendar {
     }
 
     /***********************************************************************/
+
+    public List<TimeSlot> getAvailability(String id, long startTime, long endTime) {
+        List<TimeSlot> available = new ArrayList<TimeSlot>();
+        long endOfPrevSlot = startTime;
+        for (Object o : getTimeSlotEntries(id, startTime, endTime)) {
+            CalendarEntry entry = (CalendarEntry) o;
+            available.add(new TimeSlot(endOfPrevSlot, entry.getStartTime()));
+            endOfPrevSlot = entry.getEndTime();
+        }
+        return available;
+    }
 
     public void makeAvailable(String id, long startTime, long endTime, String comment)
             throws ScheduleStateException {

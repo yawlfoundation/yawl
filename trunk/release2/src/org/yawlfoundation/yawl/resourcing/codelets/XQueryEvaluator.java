@@ -25,6 +25,7 @@ import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.util.SaxonUtil;
 
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * @author Michael Adams
@@ -83,5 +84,22 @@ public class XQueryEvaluator extends AbstractCodelet {
                     "Exception in query evaluation: '" + query + "'.");
         }
     }
+
+
+    public List<YParameter> getRequiredParams() {
+        List<YParameter> params = new ArrayList<YParameter>();
+
+        YParameter param = new YParameter(null, YParameter._INPUT_PARAM_TYPE);
+        param.setDataTypeAndName("string", "query", XSD_NAMESPACE);
+        param.setDocumentation("The XQuery to evaluate");
+        params.add(param);
+
+        param = new YParameter(null, YParameter._OUTPUT_PARAM_TYPE);
+        param.setDataTypeAndName("string", "result", XSD_NAMESPACE);
+        param.setDocumentation("The result of the evaluation");
+        params.add(param);
+        return params;
+    }
+    
 
 }

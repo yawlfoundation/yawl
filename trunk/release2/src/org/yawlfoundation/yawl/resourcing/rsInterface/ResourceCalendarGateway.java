@@ -20,6 +20,9 @@ package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.calendar.ResourceCalendar;
+import org.yawlfoundation.yawl.resourcing.calendar.TimeSlot;
+import org.yawlfoundation.yawl.util.XNode;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -27,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 
 /**
@@ -41,6 +45,7 @@ public class ResourceCalendarGateway extends HttpServlet {
 
     private static final Logger _log = Logger.getLogger(ResourceCalendarGateway.class);
     private ResourceManager _rm;
+    private ResourceCalendar _calendar;
 
     private final String _noService = "<failure>Not connected to Resource Service.</failure>";
     private final String _noAction =
@@ -49,6 +54,7 @@ public class ResourceCalendarGateway extends HttpServlet {
 
     public void init() {
         _rm = ResourceManager.getInstance();
+        _calendar = ResourceCalendar.getInstance();
     }
 
 
@@ -57,7 +63,7 @@ public class ResourceCalendarGateway extends HttpServlet {
         String result = "";
         String action = req.getParameter("action");
         String handle = req.getParameter("sessionHandle");
-        String key = req.getParameter("key");
+        String id = req.getParameter("id");
 
         if (action == null) {
             throw new IOException("ResourceCalendarGateway called with null action.");
@@ -77,7 +83,14 @@ public class ResourceCalendarGateway extends HttpServlet {
            else result = _noService;
        }
        else if (validConnection(handle)) {
-           if (action.equals("")) {
+           if (action.equals("getResourceAvailability")) {
+               long fromDate = strToLong(req.getParameter("fromDate"));
+               long toDate = strToLong(req.getParameter("toDate"));
+               if ((fromDate > -1) && (toDate > -1)) {
+                   List<TimeSlot> slots = _calendar.getAvailability(id, fromDate, toDate);
+                   result = timeSlotsToXML(id, slots);
+               }
+               else result = fail("Invalid Date values.");
            }
            else result = _noAction;
        }
@@ -107,4 +120,30 @@ public class ResourceCalendarGateway extends HttpServlet {
             return false;
         }
     }
+
+    private long strToLong(String s) {
+        try {
+            return new Long(s);
+        }
+        catch (NumberFormatException nfe) {
+            return -1;
+        }
+    }
+
+    private String timeSlotsToXML(String id, List<TimeSlot> slots) {
+        if (slots == null) return null;
+        XNode node = new XNode("timeslots");
+        node.addAttribute("id", id);
+        for (TimeSlot slot : slots) {
+            XNode slotNode = node.addChild("timeslot");
+            slotNode.addChild("start", slot.getStart());
+            slotNode.addChild("end", slot.getEnd());
+        }
+        return node.toString();
+    }
+
+    private String fail(String msg) {
+        return "<failure>" + msg + "</failure>";
+    }
+
 }

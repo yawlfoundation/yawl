@@ -19,7 +19,9 @@
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.jdom.Element;
+import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.resourcing.AbstractSelector;
+import org.yawlfoundation.yawl.resourcing.codelets.CodeletInfo;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
 import org.yawlfoundation.yawl.resourcing.resource.*;
@@ -520,6 +522,20 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the codelets
      */
+    public List<CodeletInfo> getCodelets(String handle)
+            throws IOException, ResourceGatewayException {
+        List<CodeletInfo> result = new ArrayList<CodeletInfo>();
+        String cStr = successCheck(_rgclient.getCodelets(handle)) ;
+        Element eList = JDOMUtil.stringToElement(cStr);
+        if (eList != null) {
+            for (Object o : eList.getChildren()) {
+                result.add(new CodeletInfo((Element) o));
+            }
+        }
+        return result ;
+
+    }
+
     public Map<String, String> getCodeletMap(String handle)
             throws IOException, ResourceGatewayException {
         Map<String, String> result = new TreeMap<String, String>();
@@ -534,6 +550,14 @@ public class ResourceGatewayClientAdapter {
         }
         return result ;
     }
+
+    public List<YParameter> getCodeletParameters(String packageName, String codeletName,
+              String handle) throws IOException, ResourceGatewayException {
+        String xml = successCheck(
+                _rgclient.getCodeletParameters(packageName, codeletName, handle));
+        return new CodeletInfo().getRequiredParametersFromXML(xml);
+    }
+
 
 
     /**

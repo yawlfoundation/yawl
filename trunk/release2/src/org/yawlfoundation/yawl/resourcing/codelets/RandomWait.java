@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.elements.data.YParameter;
 
 import java.util.List;
 import java.util.Random;
+import java.util.ArrayList;
 
 /**
  * A simple codelet example demonstrating usage. Much of the work is done in the
@@ -116,6 +117,27 @@ public class RandomWait extends AbstractCodelet {
 
     public void cancel() {
         _cancelled = true;
+    }
+
+
+    public List<YParameter> getRequiredParams() {
+        List<YParameter> params = new ArrayList<YParameter>();
+
+        YParameter param = new YParameter(null, YParameter._INPUT_PARAM_TYPE);
+        param.setDataTypeAndName("string", "interval", XSD_NAMESPACE);
+        param.setDocumentation("H, M or S (for hour, minute or second)");
+        params.add(param);
+
+        param = new YParameter(null, YParameter._INPUT_PARAM_TYPE);
+        param.setDataTypeAndName("long", "max", XSD_NAMESPACE);
+        param.setDocumentation("Maximum wait time");
+        params.add(param);
+
+        param = new YParameter(null, YParameter._OUTPUT_PARAM_TYPE);
+        param.setDataTypeAndName("long", "waitTime", XSD_NAMESPACE);
+        param.setDocumentation("The time actually waited");
+        params.add(param);
+        return params;
     }
 
 }

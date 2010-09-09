@@ -40,6 +40,8 @@ public abstract class AbstractCodelet {
     private List<YParameter> _inParams;
     private List<YParameter> _outParams;
     private Element _outData;
+    private boolean _persist = true;
+    protected static final String XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema";
 
     protected AbstractCodelet() {}
 
@@ -52,6 +54,10 @@ public abstract class AbstractCodelet {
     public WorkItemRecord getWorkItem() { return _wir; }
 
     public void setWorkItem(WorkItemRecord wir) { _wir = wir; }
+
+    public boolean getPersist() { return _persist; }
+
+    protected void setPersist(boolean persist) { _persist = persist; }
 
 
     protected void setInputs(Element inData, List<YParameter> inParams,
@@ -151,13 +157,37 @@ public abstract class AbstractCodelet {
     }
 
     public String getClassName() { return this.getClass().getSimpleName(); }
+
+    public String getCanonicalClassName() {
+        return this.getClass().getCanonicalName();
+    }
     
 
     public String toXML() {
         StringBuilder xml = new StringBuilder("<codelet>");
         xml.append(StringUtil.wrap(getClassName(), "name"))
+           .append(StringUtil.wrap(getCanonicalClassName(), "canonicalname"))     
            .append(StringUtil.wrap(JDOMUtil.encodeEscapes(_description), "description"))
+           .append(getRequiredParamsToXML())
            .append("</codelet>");
+        return xml.toString();
+    }
+
+    public String getRequiredParamsToXML() {
+        StringBuilder xml = new StringBuilder("<requiredparams>");
+        List<YParameter> requiredParams = getRequiredParams();
+        if (requiredParams != null) {
+            for (YParameter param : requiredParams) {
+                String paramType = param.getParamType();
+                xml.append("<").append(paramType).append(">")
+                   .append(StringUtil.wrap(param.getPreferredName(), "name"))
+                   .append(StringUtil.wrap(param.getDataTypeName(), "datatype"))
+                   .append(StringUtil.wrap(param.getDataTypeNameSpace(), "namespace"))
+                   .append(StringUtil.wrap(param.getDocumentation(), "documentation"))
+                   .append("</").append(paramType).append(">");
+            }
+        }
+        xml.append("</requiredparams>");
         return xml.toString();
     }
 
@@ -171,6 +201,8 @@ public abstract class AbstractCodelet {
     public void resume() { }
 
     public void cancel() { }
+
+    public List<YParameter> getRequiredParams() { return null; }
 
     /*********************************************************************************/
 
