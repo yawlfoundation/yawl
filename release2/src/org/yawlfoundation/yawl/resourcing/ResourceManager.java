@@ -623,7 +623,9 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public List<YParameter> getCodeletParameters(String packageName, String codeletName) {
         if (packageName == null) return getCodeletParameters(codeletName);
-        AbstractCodelet codelet = CodeletFactory.getInstance(packageName, codeletName);
+        boolean external = ! packageName.startsWith("org.yawlfoundation.yawl");
+        AbstractCodelet codelet = CodeletFactory.getInstance(packageName + ".",
+                codeletName, external);
         return (codelet != null) ? codelet.getRequiredParams() : null;
     }
 
@@ -639,7 +641,9 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public String getCodeletParametersAsXML(String packageName, String codeletName) {
         if (packageName == null) return getCodeletParametersAsXML(codeletName);
-        AbstractCodelet codelet = CodeletFactory.getInstance(packageName, codeletName);
+        boolean external = ! packageName.startsWith("org.yawlfoundation.yawl");
+        AbstractCodelet codelet = CodeletFactory.getInstance(packageName + ".",
+                codeletName, external);
         return (codelet != null) ? codelet.getRequiredParamsToXML() :
                 "<failure>Could not locate codelet: '" + packageName + "." +
                         codeletName + "'.</failure>";

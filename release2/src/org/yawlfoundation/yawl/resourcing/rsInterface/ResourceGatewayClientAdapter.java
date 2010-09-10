@@ -548,7 +548,7 @@ public class ResourceGatewayClientAdapter {
         if (eList != null) {
             for (Object o : eList.getChildren()) {
                 Element codelet = (Element) o;
-                result.put(codelet.getChildText("name"),
+                result.put(codelet.getChildText("canonicalname"),
                        JDOMUtil.decodeEscapes(codelet.getChildText("description")));
             }
         }

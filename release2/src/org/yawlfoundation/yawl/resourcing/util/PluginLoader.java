@@ -20,6 +20,9 @@ package org.yawlfoundation.yawl.resourcing.util;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,7 +36,7 @@ public class PluginLoader {
     public static List<String> getPluginNames(String pluginType) {
         List<String> pluginNames = null;
         String basePath = Docket.getExternalPluginsDir();  
-        if (basePath != null) {            // don't bother if no ext dir set
+        if ((basePath != null) && (basePath.length() > 0)) { // don't bother if no ext dir set
             File dir = locateDir(basePath, pluginType);
             if (dir != null) {
                 pluginNames = new ArrayList<String>();
@@ -45,10 +48,25 @@ public class PluginLoader {
     }
 
 
+    public static Object getInstance(String packageName, String className)
+            throws MalformedURLException, ClassNotFoundException,
+                   InstantiationException, IllegalAccessException {
+        String basePath = Docket.getExternalPluginsDir();
+        if (basePath != null) {
+            if (! basePath.endsWith(File.separator)) basePath += File.separator;
+            ClassLoader primaryLoader = Thread.currentThread().getContextClassLoader();
+            URL[] pluginsDir = new URL[] {new URL("file://" + basePath)};
+            ClassLoader loader = new URLClassLoader(pluginsDir, primaryLoader);
+            return loader.loadClass(packageName + className).newInstance();
+        }
+        else throw new ClassNotFoundException();
+    }
+
+
     /**************************************************************************/
 
     private static File locateDir(String basePath, String dir) {
-       return locateDir(new File(basePath), dir);
+        return locateDir(new File(basePath), dir);
     }
 
 
