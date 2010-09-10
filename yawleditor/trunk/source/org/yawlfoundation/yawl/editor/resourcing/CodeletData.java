@@ -26,6 +26,10 @@ public class CodeletData implements Serializable, Cloneable {
         this.name = name;
     }
 
+    public String getSimpleName() {
+        return name.contains(".") ? name.substring(name.lastIndexOf('.') +1) : name;        
+    }
+
     public String getDescription() {
         return description;
     }
