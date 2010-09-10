@@ -24,6 +24,7 @@ import org.yawlfoundation.yawl.resourcing.util.PluginLoader;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,12 +52,15 @@ public class CodeletFactory {
      */
 
     public static AbstractCodelet getInstance(String codeletName) {
-        return getInstance(_pkg, codeletName);
+        return getInstance(_pkg, codeletName, false);
     }
 
-    public static AbstractCodelet getInstance(String pkg, String codeletName) {
+    public static AbstractCodelet getInstance(String pkg, String codeletName, boolean external) {
         try {
-            return (AbstractCodelet) Class.forName(pkg + codeletName).newInstance();
+            if (external)
+                return (AbstractCodelet) PluginLoader.getInstance(pkg, codeletName);
+            else
+                return (AbstractCodelet) Class.forName(pkg + codeletName).newInstance();
         }
         catch (ClassNotFoundException cnfe) {
             _log.error("CodeletFactory ClassNotFoundException: class '" + codeletName +
@@ -74,6 +78,10 @@ public class CodeletFactory {
             _log.error("CodeletFactory ClassCastException: class '" + codeletName + 
                        "' does not extend AbstractCodelet - class ignored.");
         }
+        catch (MalformedURLException mue) {
+            _log.error("CodeletFactory MalformedURLException: class '" + codeletName +
+                       "' has malformed classpath - class ignored.");
+        }
         return null ;
     }
 
@@ -89,7 +97,7 @@ public class CodeletFactory {
         // retrieve a list of (filtered) class names in this package
         String pkgPath = Docket.getPackageFileDir("codelets") ;
         String[] classes = new File(pkgPath).list(new CodeletClassFileFilter());
-        Set<AbstractCodelet> codelets = getInstances(_pkg, classes);
+        Set<AbstractCodelet> codelets = getInstances(_pkg, classes, false);
 
         codelets.addAll(getExternalCodelets());     // add any external plugin codelets
 
@@ -102,19 +110,20 @@ public class CodeletFactory {
         List<String> plugins = PluginLoader.getPluginNames("codelets");
         if (plugins != null) {
             String pkg = plugins.remove(0) + ".";
-            codelets = getInstances(pkg, plugins.toArray(new String[0]));
+            codelets = getInstances(pkg, plugins.toArray(new String[0]), true);
         }
         return codelets;
     }
 
 
-    private static Set<AbstractCodelet> getInstances(String pkg, String[] classNames) {
+    private static Set<AbstractCodelet> getInstances(String pkg, String[] classNames,
+                                                     boolean external) {
         Set<AbstractCodelet> codelets = new HashSet<AbstractCodelet>();
         for (String className : classNames) {
 
             // strip off the file extension
             String sansExtn = className.substring(0, className.lastIndexOf('.'));
-            AbstractCodelet temp = getInstance(pkg, sansExtn);
+            AbstractCodelet temp = getInstance(pkg, sansExtn, external);
             if (temp != null) codelets.add(temp);
         }
         return codelets;

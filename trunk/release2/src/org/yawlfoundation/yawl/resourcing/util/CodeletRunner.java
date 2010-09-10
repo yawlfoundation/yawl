@@ -45,11 +45,11 @@ public class CodeletRunner implements Runnable {
     private boolean _init;
     private Logger _log = Logger.getLogger(this.getClass());
 
-    public CodeletRunner(WorkItemRecord wir, TaskInformation taskInfo, boolean resume) {
+    public CodeletRunner(WorkItemRecord wir, TaskInformation taskInfo, boolean init) {
         _wir = wir;
         _codeletName = wir.getCodelet();
         _taskInfo = taskInfo;
-        _init = resume;
+        _init = init;
     }
 
 
@@ -63,7 +63,16 @@ public class CodeletRunner implements Runnable {
             List<YParameter> outputs = _taskInfo.getParamSchema().getOutputParams();
 
             // get class instance
-            _codelet = CodeletFactory.getInstance(_codeletName);
+            String pkg = null;
+            String cName = _codeletName;
+            boolean external = false;
+            if (_codeletName.contains(".")) {
+                int lastDot = _codeletName.lastIndexOf('.') + 1;
+                pkg = _codeletName.substring(0, lastDot);
+                cName = _codeletName.substring(lastDot);
+                external = pkg.startsWith("org.yawlfoundation.yawl");
+            }
+            _codelet = CodeletFactory.getInstance(pkg, cName, external);
             if (_codelet != null) {
                 if (_init)
                     _codelet.init();
@@ -74,8 +83,8 @@ public class CodeletRunner implements Runnable {
             }
         }
         catch (CodeletExecutionException e) {
-            _log.error(MessageFormat.format("Exception executing codelet '{0}': {1}. " +
-                    "Codelet could not be executed; default value returned for workitem '{2}'",
+            _log.error(MessageFormat.format("Exception executing codelet ''{0}'': {1}. " +
+                    "Codelet could not be executed; default value returned for workitem ''{2}''",
                     _codeletName, e.getMessage(), _wir.getID()));
         }
 

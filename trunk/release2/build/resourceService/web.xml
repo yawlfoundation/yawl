@@ -183,15 +183,17 @@
 
     <context-param>
         <param-name>ExternalPluginsDir</param-name>
-        <param-value>/Users/adamsmj/Documents/Subversion/release2.1/src</param-value>
+        <param-value></param-value>
         <description>
             Sets the base directory for external 'plugin' classes (i.e. codelets,
-            allocators, filters, constraints, data sources). It is assumed that classes
-            are located in sub-directories matching their package structure, and ending
-            in the 'type' of the plugin. For example, if the 'ExternalPluginsDir' is set
-            as 'C:\yawlplugins' and there is a codelet file called 'MyCodelet.class' and
-            it has a package 'com.example.yawl.codelets' (it must end in 'codelets') then
-            it's file path is 'C:\yawlplugins\com\example\yawl\codelets\MyCodelet.class'.
+            allocators, filters, constraints, data sources). The base directory must
+            refer to a location on the local disk, for example: C:\yawlplugins".
+            The service expects classes to be located in sub-directories matching their
+            package structure, and ending in the 'type' of the plugin. For example, if
+            the 'ExternalPluginsDir' is set "C:\yawlplugins" and there is a codelet file
+            called 'MyCodelet.class' and it has a package 'com.example.yawl.codelets'
+            (since its a codelet, it must end in 'codelets') then it's file path is
+            expected to be 'C:\yawlplugins\com\example\yawl\codelets\MyCodelet.class'.
 
             If there is no external plugins, then this param can be commented out or
             the param-value can be left blank.
