@@ -89,8 +89,12 @@ public class CodeletSelectTableModel extends AbstractOrderedRowTableModel {
   }
 
   public String getNameAt(int row) {
-    return getCodeletAt(row).getName();
+    return getCodeletAt(row).getSimpleName();
   }
+
+    public String getCanonicalNameAt(int row) {
+      return getCodeletAt(row).getName();
+    }
 
   public String getDescriptionAt(int row) {
     return getCodeletAt(row).getDescription();

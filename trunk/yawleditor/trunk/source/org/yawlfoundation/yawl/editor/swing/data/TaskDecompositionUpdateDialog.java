@@ -343,7 +343,8 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
     Thread refreshThread = new Thread(){
       public void run() {
         yawlServiceComboBox.refresh();
-          
+        yawlServiceComboBox.setEnabled(! cbxAutomated.isSelected());
+
           String serviceDescription = getWebServiceDecomposition().getYawlServiceDescription();
 
           // if there's an id (url) but no description it means this is a freshly loaded file,
@@ -376,9 +377,16 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
         if (decomp instanceof WebServiceDecomposition) {
             String codelet = ((WebServiceDecomposition) decomp).getCodelet();
             if (codelet != null) {
+                String pkg = null;
+                String codeletName = codelet;
+                if (codelet.contains(".")) {
+                    int lastDot = codelet.lastIndexOf('.');
+                    pkg = codelet.substring(0, lastDot);
+                    codeletName = codelet.substring(lastDot +1);
+                }
                 newVariableSet.addVariables(
                         ResourcingServiceProxy.getInstance()
-                                .getCodeletParameters(null, codelet));
+                                .getCodeletParameters(pkg, codeletName));
             }
         }
         newVariableSet.addVariables(

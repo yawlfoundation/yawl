@@ -53,6 +53,7 @@ public class CodeletSelectTable extends JOrderedSingleSelectTable {
 
   private List<CodeletData> codeletDataList;
   private int preferredTableWidth;
+  private CodeletDataMap codeletDataMap;
 
     public CodeletSelectTable(int source) {
     super();
@@ -138,7 +139,8 @@ public class CodeletSelectTable extends JOrderedSingleSelectTable {
       }
 
       if (dataMap != null) {
-          return new CodeletDataMap(dataMap).getCodeletDataAsList();
+          codeletDataMap = new CodeletDataMap(dataMap);
+          return codeletDataMap.getCodeletDataAsList();
       }
       return null;
   }
@@ -156,12 +158,16 @@ public class CodeletSelectTable extends JOrderedSingleSelectTable {
     return getCodeletModel().getNameAt(row);
   }
 
+    public String getCanonicalNameAt(int row) {
+      return getCodeletModel().getCanonicalNameAt(row);
+    }
+
   public String getDescriptionAt(int row) {
     return getCodeletModel().getDescriptionAt(row);
   }
 
   public String getSelectedCodeletName() {
-      return (getSelectedRow() > -1) ? getNameAt(getSelectedRow()) : null ;        
+      return (getSelectedRow() > -1) ? getCanonicalNameAt(getSelectedRow()) : null ;
   }
 
   public void setSelectedRowWithName(String codeletName) {
