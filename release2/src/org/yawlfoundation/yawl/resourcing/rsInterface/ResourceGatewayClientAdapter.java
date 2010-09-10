@@ -43,6 +43,10 @@ import java.util.*;
 
 public class ResourceGatewayClientAdapter {
 
+    public static final String XML_FORMAT = "XML";
+    public static final String JSON_FORMAT = "JSON";
+
+
     protected ResourceGatewayClient _rgclient;        // the gateway client
     protected String _uri ;                           // the uri of the service gateway
 
@@ -929,9 +933,22 @@ public class ResourceGatewayClientAdapter {
 
 
     /**
-      * Gets the id and chosen name value of every Participant
+      * Gets the id and full name of every Participant in JSON format
       * @param handle a valid session handle
+      * @return a JSON String of Participant id/name pairs
+      * @throws IOException if the service can't be reached
+      * @throws ResourceGatewayException if there is some problem getting the Participants
+      */
+     public String getParticipantIdentifiersToJSON(String handle)
+             throws IOException, ResourceGatewayException {
+         return successCheck(_rgclient.getParticipantIdentifiers(JSON_FORMAT, handle));
+     }
+
+
+    /**
+      * Gets the id and chosen name value of every Participant
       * @param identifier a valid ResourceDataSet Identifier value
+      * @param handle a valid session handle
       * @return a Map of Participant id/name pairs
       * @throws IOException if the service can't be reached
       * @throws ResourceGatewayException if there is some problem getting the Participants
@@ -942,6 +959,22 @@ public class ResourceGatewayClientAdapter {
          String xml = successCheck(_rgclient.getParticipantIdentifiers(
                  identifier.ordinal(), handle));
          return xmlToStringMap(xml);
+     }
+
+
+    /**
+      * Gets the id and chosen name value of every Participant in JSON format
+      * @param identifier a valid ResourceDataSet Identifier value
+      * @param handle a valid session handle
+      * @return a JSON String of Participant id/name pairs
+      * @throws IOException if the service can't be reached
+      * @throws ResourceGatewayException if there is some problem getting the Participants
+      */
+     public String getParticipantIdentifiersToJSON(
+                 ResourceDataSet.Identifier identifier, String handle)
+             throws IOException, ResourceGatewayException {
+         return successCheck(_rgclient.getParticipantIdentifiers(
+                 identifier.ordinal(), JSON_FORMAT, handle));
      }
 
 
@@ -960,6 +993,19 @@ public class ResourceGatewayClientAdapter {
 
 
     /**
+     * Gets the id and name of every NonHumanResource in JSON format
+     * @param handle a valid session handle
+     * @return a JSON String of NonHumanResource id/name pairs
+     * @throws IOException if the service can't be reached
+     * @throws ResourceGatewayException if there is some problem getting the NonHumanResources
+     */
+    public String getNonHumanResourceIdentifiersToJSON(String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_rgclient.getNonHumanResourceIdentifiers(JSON_FORMAT, handle));
+    }
+
+
+    /**
      * Gets the id and name of every Role
      * @param handle a valid session handle
      * @return a Map of Role id/name pairs
@@ -970,6 +1016,19 @@ public class ResourceGatewayClientAdapter {
             throws IOException, ResourceGatewayException {
         String xml = successCheck(_rgclient.getRoleIdentifiers(handle));
         return xmlToStringMap(xml);
+    }
+
+
+    /**
+     * Gets the id and name of every Role in JSON format
+     * @param handle a valid session handle
+     * @return a JSON String of Role id/name pairs
+     * @throws IOException if the service can't be reached
+     * @throws ResourceGatewayException if there is some problem getting the Roles
+     */
+    public String getRoleIdentifiersToJSON(String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_rgclient.getRoleIdentifiers(JSON_FORMAT, handle));
     }
 
 
@@ -988,6 +1047,19 @@ public class ResourceGatewayClientAdapter {
 
 
     /**
+     * Gets the id and name of every Position in JSON format
+     * @param handle a valid session handle
+     * @return a JSON String of Position id/name pairs
+     * @throws IOException if the service can't be reached
+     * @throws ResourceGatewayException if there is some problem getting the Positions
+     */
+    public String getPositionIdentifiersToJSON(String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_rgclient.getPositionIdentifiers(JSON_FORMAT, handle));
+    }
+
+
+    /**
      * Gets the id and name of every Capability
      * @param handle a valid session handle
      * @return a Map of Capability id/name pairs
@@ -1002,6 +1074,19 @@ public class ResourceGatewayClientAdapter {
 
 
     /**
+     * Gets the id and name of every Capability in JSON format
+     * @param handle a valid session handle
+     * @return a JSON String of Capability id/name pairs
+     * @throws IOException if the service can't be reached
+     * @throws ResourceGatewayException if there is some problem getting the Capabilities
+     */
+    public String getCapabilityIdentifiersToJSON(String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_rgclient.getCapabilityIdentifiers(JSON_FORMAT, handle));
+    }
+
+
+    /**
      * Gets the id and name of every OrgGroup
      * @param handle a valid session handle
      * @return a Map of OrgGroup id/name pairs
@@ -1012,6 +1097,19 @@ public class ResourceGatewayClientAdapter {
             throws IOException, ResourceGatewayException {
         String xml = successCheck(_rgclient.getOrgGroupIdentifiers(handle));
         return xmlToStringMap(xml);
+    }
+
+
+    /**
+     * Gets the id and name of every OrgGroup in JSON format
+     * @param handle a valid session handle
+     * @return a JSON String of OrgGroup id/name pairs
+     * @throws IOException if the service can't be reached
+     * @throws ResourceGatewayException if there is some problem getting the OrgGroups
+     */
+    public String getOrgGroupIdentifiersToJSON(String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_rgclient.getOrgGroupIdentifiers(JSON_FORMAT, handle));
     }
 
 
@@ -1525,6 +1623,19 @@ public class ResourceGatewayClientAdapter {
 
 
     /**
+     * Gets the list of all NonHumanResource category names in JSON format
+     * @param handle the current sessionhandle
+     * @return a JSON String of paired category names
+     * @throws IOException if there was a problem connecting to the resource service
+     * @throws ResourceGatewayException if there was a problem getting the list
+     */
+    public String getNonHumanResourceCategoriesToJSON(String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_rgclient.getNonHumanResourceCategories(JSON_FORMAT, handle));
+    }
+
+
+    /**
      * Gets the list of all the subcategory names of a NonHumanResource category
      * @param category the category names to get the subcategories for
      * @param handle the current sessionhandle
@@ -1536,6 +1647,22 @@ public class ResourceGatewayClientAdapter {
             throws IOException, ResourceGatewayException {
         String xml = successCheck(_rgclient.getNonHumanResourceSubCategories(category, handle));
         return xmlToStringList(xml);
+    }
+
+
+    /**
+     * Gets the list of all the subcategory names of a NonHumanResource category in
+     * JSON format
+     * @param category the category names to get the subcategories for
+     * @param handle the current sessionhandle
+     * @return a JSON String of category name pairs
+     * @throws IOException if there was a problem connecting to the resource service
+     * @throws ResourceGatewayException if there was a problem getting the list
+     */
+    public String getNonHumanResourceSubCategoriesToJSON(String category, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_rgclient.getNonHumanResourceSubCategories(
+                category, JSON_FORMAT, handle));
     }
 
 

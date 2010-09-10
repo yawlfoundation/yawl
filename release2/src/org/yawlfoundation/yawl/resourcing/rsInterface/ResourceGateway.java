@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -685,33 +686,41 @@ public class ResourceGateway extends HttpServlet {
             result = (group != null) ? group.toXML() : fail("Unknown group name: " + id);
         }
         else if (action.equalsIgnoreCase("getNonHumanResourceCategories")) {
-            result = _orgDataSet.getNonHumanResourceCategoriesAsXML();
+            String format = req.getParameter("format");
+            if ((format != null) && format.equals("JSON")) {
+                result = stringSetToJSON(_orgDataSet.getNonHumanResourceCategories());
+            }
+            else result = _orgDataSet.getNonHumanResourceCategoriesAsXML();
         }
         else if (action.equalsIgnoreCase("getNonHumanResourceSubCategories")) {
             String category = req.getParameter("category");
-            result = _orgDataSet.getNonHumanResourceSubCategoriesAsXML(category);
+            String format = req.getParameter("format");
+            if ((format != null) && format.equals("JSON")) {
+                result = stringSetToJSON(_orgDataSet.getNonHumanResourceSubCategories(category));
+            }
+            else result = _orgDataSet.getNonHumanResourceSubCategoriesAsXML(category);
         }
         else if (action.equalsIgnoreCase("getNonHumanResourceCategorySet")) {
             result = _orgDataSet.getNonHumanResourceCategorySet();
         }
         else if (action.equalsIgnoreCase("getParticipantIdentifiers")) {
             if (id == null) id = "0";
-            result = stringMapToXML(_orgDataSet.getParticipantIdentifiers(id));
+            result = reformatMap(_orgDataSet.getParticipantIdentifiers(id), req);
         }
         else if (action.equalsIgnoreCase("getNonHumanResourceIdentifiers")) {
-            result = stringMapToXML(_orgDataSet.getNonHumanResourceIdentifiers());
+            result = reformatMap(_orgDataSet.getNonHumanResourceIdentifiers(), req);
         }
         else if (action.equalsIgnoreCase("getRoleIdentifiers")) {
-            result = stringMapToXML(_orgDataSet.getRoleIdentifiers());
+            result = reformatMap(_orgDataSet.getRoleIdentifiers(), req);
         }
         else if (action.equalsIgnoreCase("getPositionIdentifiers")) {
-            result = stringMapToXML(_orgDataSet.getPositionIdentifiers());
+            result = reformatMap(_orgDataSet.getPositionIdentifiers(), req);
         }
         else if (action.equalsIgnoreCase("getCapabilityIdentifiers")) {
-            result = stringMapToXML(_orgDataSet.getCapabilityIdentifiers());
+            result = reformatMap(_orgDataSet.getCapabilityIdentifiers(), req);
         }
         else if (action.equalsIgnoreCase("getOrgGroupIdentifiers")) {
-            result = stringMapToXML(_orgDataSet.getOrgGroupIdentifiers());
+            result = reformatMap(_orgDataSet.getOrgGroupIdentifiers(), req);
         }
         else if (action.equals("getUserPrivileges")) {
             Participant p = _orgDataSet.getParticipant(id);
@@ -906,6 +915,16 @@ public class ResourceGateway extends HttpServlet {
     }
 
 
+    private String reformatMap(Map<String, String> map, HttpServletRequest req) {
+        String format = req.getParameter("format");
+        if ((format != null) && format.equals("JSON")) {
+            return stringMapToJSON(map);
+        }
+        else {
+            return stringMapToXML(map);
+        }
+    }
+
     private String stringMapToXML(Map<String, String> map) {
         if (map != null) {
             XNode node = new XNode("map");
@@ -916,6 +935,37 @@ public class ResourceGateway extends HttpServlet {
             return node.toString();
         }
         return fail("No values returned.");
+    }
+
+
+    private String stringMapToJSON(Map<String, String> map) {
+        if (map != null) {
+            String s = "{";
+            for (String key : map.keySet()) {
+                if (s.length() > 1) s += ",";
+                s += jsonPair(key, map.get(key));
+            }
+            return s += "}";
+        }
+        return fail("No values returned.");
+    }
+
+
+    private String stringSetToJSON(Set<String> set) {
+        if (set != null) {
+            String s = "{";
+            for (String item : set) {
+                if (s.length() > 1) s += ",";
+                s += jsonPair(item, item);
+            }
+            return s += "}";
+        }
+        return fail("No values returned.");
+    }
+
+
+    private String jsonPair(String key, String value) {
+        return String.format("\"%s\":\"%s\"", key, value);
     }
 
 }

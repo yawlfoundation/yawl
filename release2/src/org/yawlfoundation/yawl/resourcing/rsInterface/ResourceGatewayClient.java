@@ -85,6 +85,24 @@ public class ResourceGatewayClient extends Interface_Client {
 
 
     /**
+     * Gets the id and name of every object of the type specified
+     * @param type the name of the object required
+     * @param format how to format the output; valid values are "XML" or "JSON"
+     * @param handle a valid session handle
+     * @return an XML string describing the OrgGroup id/name pairs, or an appropriate
+     * error message
+     * @throws IOException if the service can't be reached
+     */
+    private String getIdentifiers(String type, String format, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("get" + type + "Identifiers", handle);
+        if (format != null) params.put("format", format);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /***********************************************************************************/
+
+    /**
      * Gets an XML list of all Resource Constraints known to the service
      * @param handle a valid session handle
      * @return the list of constraints as an XML string
@@ -497,15 +515,46 @@ public class ResourceGatewayClient extends Interface_Client {
      * Gets the id and chosen identifier of every Participant
      * @param id a valid ResourceDataSet.Identifier; one of: FullName, ReverseFullName,
      * LastName or Userid  (0..3)
+     * @param format how to format the output; valid values are "XML" or "JSON"
+     * @param handle a valid session handle
+     * @return a string describing the Participant id/name pairs, or an appropriate
+     * error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getParticipantIdentifiers(int id, String format, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("getParticipantIdentifiers", handle);
+        params.put("id", String.valueOf(id));
+        if (format != null) params.put("format", format);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Gets the id and chosen identifier of every Participant
+     * @param format how to format the output; valid values are "XML" or "JSON"
+     * @param handle a valid session handle
+     * @return a string describing the Participant id/name pairs, or an appropriate
+     * error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getParticipantIdentifiers(String format, String handle)
+            throws IOException {
+        return getParticipantIdentifiers(0, format, handle);
+    }
+
+
+    /**
+     * Gets the id and chosen identifier of every Participant
+     * @param id a valid ResourceDataSet.Identifier; one of: FullName, ReverseFullName,
+     * LastName or Userid  (0..3)
      * @param handle a valid session handle
      * @return an XML string describing the Participant id/name pairs, or an appropriate
      * error message
      * @throws IOException if the service can't be reached
      */
     public String getParticipantIdentifiers(int id, String handle) throws IOException {
-        Map<String, String> params = prepareParamMap("getParticipantIdentifiers", handle);
-        params.put("id", String.valueOf(id));
-        return executeGet(_serviceURI, params) ;
+        return getParticipantIdentifiers(id, null, handle);
     }
 
 
@@ -517,21 +566,32 @@ public class ResourceGatewayClient extends Interface_Client {
      * @throws IOException if the service can't be reached
      */
     public String getParticipantIdentifiers(String handle) throws IOException {
-        Map<String, String> params = prepareParamMap("getParticipantIdentifiers", handle);
-        return executeGet(_serviceURI, params) ;
+        return getParticipantIdentifiers(0, null, handle);
     }
 
 
     /**
-     * Gets the id and fullname of every NonHumanResource
+     * Gets the id and name of every NonHumanResource
      * @param handle a valid session handle
      * @return an XML string describing the NonHumanResource id/name pairs, or an appropriate
      * error message
      * @throws IOException if the service can't be reached
      */
     public String getNonHumanResourceIdentifiers(String handle) throws IOException {
-        Map<String, String> params = prepareParamMap("getNonHumanResourceIdentifiers", handle);
-        return executeGet(_serviceURI, params) ;
+        return getNonHumanResourceIdentifiers(null, handle);
+    }
+
+
+    /**
+     * Gets the id and name of every NonHumanResource
+     * @param format how to format the output; valid values are "XML" or "JSON"
+     * @param handle a valid session handle
+     * @return an XML string describing the NonHumanResource id/name pairs, or an appropriate
+     * error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getNonHumanResourceIdentifiers(String format, String handle) throws IOException {
+        return getIdentifiers("NonHumanResource", format, handle);
     }
 
 
@@ -543,8 +603,20 @@ public class ResourceGatewayClient extends Interface_Client {
      * @throws IOException if the service can't be reached
      */
     public String getRoleIdentifiers(String handle) throws IOException {
-        Map<String, String> params = prepareParamMap("getRoleIdentifiers", handle);
-        return executeGet(_serviceURI, params) ;
+        return getRoleIdentifiers(null, handle);
+    }
+
+
+    /**
+     * Gets the id and name of every Role
+     * @param format how to format the output; valid values are "XML" or "JSON"
+     * @param handle a valid session handle
+     * @return an XML string describing the Role id/name pairs, or an appropriate
+     * error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getRoleIdentifiers(String format, String handle) throws IOException {
+        return getIdentifiers("Role", format, handle);
     }
 
 
@@ -556,8 +628,20 @@ public class ResourceGatewayClient extends Interface_Client {
      * @throws IOException if the service can't be reached
      */
     public String getPositionIdentifiers(String handle) throws IOException {
-        Map<String, String> params = prepareParamMap("getPositionIdentifiers", handle);
-        return executeGet(_serviceURI, params) ;
+        return getPositionIdentifiers(null, handle);
+    }
+
+
+    /**
+     * Gets the id and name of every Position
+     * @param format how to format the output; valid values are "XML" or "JSON"
+     * @param handle a valid session handle
+     * @return an XML string describing the Position id/name pairs, or an appropriate
+     * error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getPositionIdentifiers(String format, String handle) throws IOException {
+        return getIdentifiers("Position", format, handle);
     }
 
 
@@ -569,8 +653,20 @@ public class ResourceGatewayClient extends Interface_Client {
      * @throws IOException if the service can't be reached
      */
     public String getCapabilityIdentifiers(String handle) throws IOException {
-        Map<String, String> params = prepareParamMap("getCapabilityIdentifiers", handle);
-        return executeGet(_serviceURI, params) ;
+        return getCapabilityIdentifiers(null, handle);
+    }
+
+
+    /**
+     * Gets the id and name of every Capability
+     * @param format how to format the output; valid values are "XML" or "JSON"
+     * @param handle a valid session handle
+     * @return an XML string describing the Capability id/name pairs, or an appropriate
+     * error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getCapabilityIdentifiers(String format, String handle) throws IOException {
+        return getIdentifiers("Capability", format, handle);
     }
 
 
@@ -582,9 +678,22 @@ public class ResourceGatewayClient extends Interface_Client {
      * @throws IOException if the service can't be reached
      */
     public String getOrgGroupIdentifiers(String handle) throws IOException {
-        Map<String, String> params = prepareParamMap("getOrgGroupIdentifiers", handle);
-        return executeGet(_serviceURI, params) ;
+        return getOrgGroupIdentifiers(null, handle);
     }
+
+
+    /**
+     * Gets the id and name of every OrgGroup
+     * @param format how to format the output; valid values are "XML" or "JSON"
+     * @param handle a valid session handle
+     * @return an XML string describing the OrgGroup id/name pairs, or an appropriate
+     * error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getOrgGroupIdentifiers(String format, String handle) throws IOException {
+        return getIdentifiers("OrgGroup", format, handle);
+    }
+
 
     /**
      * Gets the UserPrivileges of the participant with the specified id
@@ -607,7 +716,20 @@ public class ResourceGatewayClient extends Interface_Client {
      * @throws IOException if the service can't be reached
      */
     public String getNonHumanResourceCategories(String handle) throws IOException {
+        return getNonHumanResourceCategories(null, handle);
+    }
+
+
+    /**
+     * Gets all the NonHumanResource categories known to the service
+     * @param format how to format the output; valid values are "XML" or "JSON"
+     * @param handle a valid session handle
+     * @return an XML string describing the categories, or an appropriate error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getNonHumanResourceCategories(String format, String handle) throws IOException {
         Map<String, String> params = prepareParamMap("getNonHumanResourceCategories", handle);
+        if (format != null) params.put("format", format);
         return executeGet(_serviceURI, params) ;
     }
 
@@ -621,15 +743,30 @@ public class ResourceGatewayClient extends Interface_Client {
      */
     public String getNonHumanResourceSubCategories(String category, String handle)
             throws IOException {
+        return getNonHumanResourceSubCategories(category, null, handle);
+    }
+
+
+    /**
+     * Gets all the NonHumanResource sub-categories for the specified category
+     * @param category the category to get the sub-categories for
+     * @param format how to format the output; valid values are "XML" or "JSON"
+     * @param handle a valid session handle
+     * @return an XML string describing the categories, or an appropriate error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getNonHumanResourceSubCategories(String category, String format, String handle)
+            throws IOException {
         Map<String, String> params = prepareParamMap("getNonHumanResourceSubCategories", handle);
         params.put("category", category);
+        if (format != null) params.put("format", format);
         return executeGet(_serviceURI, params) ;
     }
 
 
     /**
      * Gets all the NonHumanResource categories known to the service, together with
-     * each of thier subcategories
+     * each of their subcategories
      * @param handle a valid session handle
      * @return an XML string describing the categories, or an appropriate error message
      * @throws IOException if the service can't be reached
