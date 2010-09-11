@@ -170,7 +170,8 @@ public class YNetLocalVarVerifier {
             for (String localVarName : _uninitialisedLocalVars.keySet()) {
 
                 // if this task has an uninit. local task in its mapping query
-                if (queryReferencesLocalVar(query, localVarName, input)) {
+                if (queryReferencesLocalVar(query, localVarName, input) ||
+                    miTaskOutputsToLocalVar(task, query, localVarName, input)) {
                     LocalTaskMap taskMap = _uninitialisedLocalVars.get(localVarName);
                     taskMap.add(task, input, paramName);
                 }    
@@ -178,6 +179,14 @@ public class YNetLocalVarVerifier {
         }        
     }
 
+    private boolean miTaskOutputsToLocalVar(YTask task, String query, String localVarName,
+                                            boolean input) {
+        if (task.isMultiInstance() && (! input)) {
+            String outputVar = task.getMIOutputAssignmentVar(query);
+            return (outputVar != null) && outputVar.equals(localVarName);
+        }
+        return false;
+    }
 
     private boolean queryReferencesLocalVar(String query, String localVarName, boolean input) {
         String mask = getVarMask(localVarName, input);
