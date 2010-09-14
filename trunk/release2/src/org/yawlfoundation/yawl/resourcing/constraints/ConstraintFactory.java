@@ -19,19 +19,17 @@
 package org.yawlfoundation.yawl.resourcing.constraints;
 
 import org.apache.log4j.Logger;
-import org.yawlfoundation.yawl.resourcing.util.Docket;
+import org.yawlfoundation.yawl.resourcing.util.PluginLoader;
+import org.yawlfoundation.yawl.resourcing.util.PluginLoaderException;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
  * This factory class creates and instantiates instances of the various constraint
  * classes found in this package.
  *
- *  Create Date: 10/07/2007. Last Date: 12/11/2007
+ *  Create Date: 10/07/2007. Last Date: 14/09/2010
  *
  *  @author Michael Adams (BPM Group, QUT Australia)
  *  @version 2.0
@@ -39,35 +37,25 @@ import java.util.Set;
 
 public class ConstraintFactory {
 
-    static String pkg = "org.yawlfoundation.yawl.resourcing.constraints." ;
-    static Logger _log = Logger.getLogger(ConstraintFactory.class);
+    // don't include instantiations of these classes
+    private static String[] _excludes = { "ConstraintFactory", "AbstractConstraint",
+                                          "Generic" };
+
+    private static String _pkg = "org.yawlfoundation.yawl.resourcing.constraints." ;
+    private static Logger _log = Logger.getLogger(ConstraintFactory.class);
 
     /**
-     * Instantiates a class of the name passed.
-     *
-     * @pre 'constraintName' must be the name of a class in this package
-     * @param constraintName the name of the class to instantiate
-     * @return the instantiated class, or null if there was a problem
+     * Instantiates a single constraint instance
+     * @param constraintName the canonical name of the constraint class (no extension)
+     * deployed within the resource service
+     * @return an instantiated constraint, or null if there was a problem
      */
     public static AbstractConstraint getInstance(String constraintName) {
         try {
-            return (AbstractConstraint) Class.forName(pkg + constraintName).newInstance();
+            return PluginLoader.loadInstance(AbstractConstraint.class, _pkg, constraintName);
         }
-        catch (ClassNotFoundException cnfe) {
-            _log.error("ConstraintFactory ClassNotFoundException: class '" + constraintName +
-                       "' could not be found - class ignored.");
-        }
-        catch (IllegalAccessException iae) {
-            _log.error("ConstraintFactory IllegalAccessException: class '" + constraintName +
-                       "' could not be accessed - class ignored.");
-	    	}
-        catch (InstantiationException ie) {
-            _log.error("ConstraintFactory InstantiationException: class '" + constraintName +
-                       "' could not be instantiated - class ignored.");
-		    }
-        catch (ClassCastException cce) {
-            _log.error("ConstraintFactory ClassCastException: class '" + constraintName +
-                       "' does not extend AbstractConstraint - class ignored.");
+        catch (PluginLoaderException ple) {
+            _log.error("ConstraintFactory " + ple.getMessage());
         }
         return null ;
     }
@@ -78,7 +66,8 @@ public class ConstraintFactory {
      * @param params a Map of parameters required by the class to perform its constraint
      * @return the instantiated class, or null if there was a problem
      */
-    public static AbstractConstraint getInstance(String constraintName, HashMap params) {
+    public static AbstractConstraint getInstance(String constraintName,
+                                                 HashMap<String, String> params) {
         AbstractConstraint newClass = getInstance(constraintName);
         if (newClass != null) newClass.setParams(params);
         return newClass ;
@@ -88,43 +77,10 @@ public class ConstraintFactory {
      * Constructs and returns a list of instantiated constraint objects, one for each
      * of the different constraint classes available in this package
      *
-     * @return a List of instantiated constraint objects
+     * @return a Set of instantiated constraint objects
      */
-    public static Set getConstraints() {
-
-        HashSet constraints = new HashSet();
-
-        // retrieve a list of (filtered) class names in this package
-        String pkgPath = Docket.getPackageFileDir("constraints") ;
-        String[] classes = new File(pkgPath).list(new ConstraintClassFileFilter());
-
-        for (String aClass : classes) {
-
-            // strip off the file extension
-            String sansExtn = aClass.substring(0, aClass.lastIndexOf('.'));
-
-            AbstractConstraint temp = getInstance(sansExtn);
-            
-            if (temp != null) constraints.add(temp);
-        }
-        return constraints;
+    public static Set<AbstractConstraint> getInstances() {
+        return PluginLoader.loadInstances(AbstractConstraint.class, _pkg, _excludes);
     }
 
-
-    /**
-     * This inner class is used by the File.list call in 'getConstraints' so that only
-     * valid class files of this package are included
-     */
-    private static class ConstraintClassFileFilter implements FilenameFilter {
-
-        public boolean accept(File dir, String name) {
-            if (( new File(dir, name).isDirectory() ) ||        // ignore dirs
-                (name.startsWith("ConstraintFactory")) ||       // and this class
-                (name.startsWith("Generic")) ||
-                (name.startsWith("AbstractConstraint")))        // and the base classes
-                return false;
-
-            return name.toLowerCase().endsWith( ".class" );     // only want .class files
-        }
-    }
 }

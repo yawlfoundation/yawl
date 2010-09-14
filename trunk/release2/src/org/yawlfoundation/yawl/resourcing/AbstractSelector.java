@@ -227,6 +227,10 @@ public abstract class AbstractSelector {
         if (_name != null) xml.append(_name);
         xml.append("</name>");
 
+        xml.append("<canonicalname>");
+        xml.append(getClass().getCanonicalName());
+        xml.append("</canonicalname>");
+
         xml.append("<displayname>");
         if (_displayName != null) xml.append(_displayName);
         xml.append("</displayname>");

@@ -99,6 +99,35 @@ public class ResourceLogGatewayClient extends Interface_Client {
 
 
     /**
+     * Gets an summary xml list of all the logged events for a case
+     * @param caseID the case id
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the service
+     */
+    public String getCaseEvents(String caseID, String handle) throws IOException {
+        return performGet("getCaseEvents", "id", caseID, handle);
+    }
+
+
+    /**
+     * Gets an xml record of the logged case launch or cancel event
+     * @param caseID the case id
+     * @param launch true for the launch_case event, false for the cancel_case event
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the service
+     */
+    public String getCaseEvent(String caseID, boolean launch, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("getCaseEvent", handle);
+        params.put("id", caseID);
+        params.put("launch", String.valueOf(launch));
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
      * Gets an summary xml list of all logged events for a workitem
      * @param itemID the workitem's id string
      * @param handle an active sessionhandle

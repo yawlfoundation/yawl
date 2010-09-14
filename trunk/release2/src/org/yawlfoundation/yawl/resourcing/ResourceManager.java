@@ -38,10 +38,12 @@ import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.exceptions.YAuthenticationException;
 import org.yawlfoundation.yawl.logging.YLogDataItem;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
+import org.yawlfoundation.yawl.resourcing.allocators.AbstractAllocator;
 import org.yawlfoundation.yawl.resourcing.allocators.AllocatorFactory;
 import org.yawlfoundation.yawl.resourcing.calendar.ResourceCalendar;
 import org.yawlfoundation.yawl.resourcing.codelets.AbstractCodelet;
 import org.yawlfoundation.yawl.resourcing.codelets.CodeletFactory;
+import org.yawlfoundation.yawl.resourcing.constraints.AbstractConstraint;
 import org.yawlfoundation.yawl.resourcing.constraints.ConstraintFactory;
 import org.yawlfoundation.yawl.resourcing.datastore.HibernateEngine;
 import org.yawlfoundation.yawl.resourcing.datastore.PersistedAutoTask;
@@ -53,6 +55,7 @@ import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataSourceFactory;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.EmptyDataSource;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
+import org.yawlfoundation.yawl.resourcing.filters.AbstractFilter;
 import org.yawlfoundation.yawl.resourcing.filters.FilterFactory;
 import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
@@ -556,16 +559,16 @@ public class ResourceManager extends InterfaceBWebsideController {
     
     // GET SELECTOR METHODS - USED PRIMARILY BY THE RESOURCE GATEWAY //
 
-    public Set getConstraints() {
-        return ConstraintFactory.getConstraints() ;
+    public Set<AbstractConstraint> getConstraints() {
+        return ConstraintFactory.getInstances() ;
     }
 
-    public Set getFilters() {
-        return FilterFactory.getFilters() ;
+    public Set<AbstractFilter> getFilters() {
+        return FilterFactory.getInstances() ;
     }
 
-    public Set getAllocators() {
-        return AllocatorFactory.getAllocators() ;
+    public Set<AbstractAllocator> getAllocators() {
+        return AllocatorFactory.getInstances() ;
     }
 
     public String getConstraintsAsXML() {
@@ -601,9 +604,11 @@ public class ResourceManager extends InterfaceBWebsideController {
         return xml.toString();
     }
 
-    public String getSelectors(Set<AbstractSelector> items, String tag) {
+    public String getSelectors(Set items, String tag) {
         StringBuilder result = new StringBuilder() ;
-        for (AbstractSelector item : items) result.append(item.getInformation(tag));
+        for (Object item : items) {
+            result.append(((AbstractSelector) item).getInformation(tag));
+        }
         return result.toString();
     }
 
@@ -617,46 +622,22 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
     public Set<AbstractCodelet> getCodelets() {
-        return CodeletFactory.getCodelets() ;
-    }
-
-
-    public List<YParameter> getCodeletParameters(String packageName, String codeletName) {
-        if (packageName == null) return getCodeletParameters(codeletName);
-        boolean external = ! packageName.startsWith("org.yawlfoundation.yawl");
-        AbstractCodelet codelet = CodeletFactory.getInstance(packageName + ".",
-                codeletName, external);
-        return (codelet != null) ? codelet.getRequiredParams() : null;
+        return CodeletFactory.getInstances() ;
     }
 
 
     public List<YParameter> getCodeletParameters(String codeletName) {
-        for (AbstractCodelet codelet : getCodelets()) {
-            if (codelet.getClassName().equals(codeletName)) {
-                return codelet.getRequiredParams();
-            }
-        }
-        return null;
+        AbstractCodelet codelet = CodeletFactory.getInstance(codeletName);
+        return (codelet != null) ? codelet.getRequiredParams() : null;
     }
 
-    public String getCodeletParametersAsXML(String packageName, String codeletName) {
-        if (packageName == null) return getCodeletParametersAsXML(codeletName);
-        boolean external = ! packageName.startsWith("org.yawlfoundation.yawl");
-        AbstractCodelet codelet = CodeletFactory.getInstance(packageName + ".",
-                codeletName, external);
-        return (codelet != null) ? codelet.getRequiredParamsToXML() :
-                "<failure>Could not locate codelet: '" + packageName + "." +
-                        codeletName + "'.</failure>";
-    }
 
     public String getCodeletParametersAsXML(String codeletName) {
-        for (AbstractCodelet codelet : getCodelets()) {
-            if (codelet.getClassName().equals(codeletName)) {
-                return codelet.getRequiredParamsToXML();
-            }
-        }
-        return "<failure>Could not locate codelet: '" + codeletName + "'.</failure>";
+        AbstractCodelet codelet = CodeletFactory.getInstance(codeletName);
+        return (codelet != null) ? codelet.getRequiredParamsToXML() :
+                "<failure>Could not locate codelet: '" + codeletName + "'.</failure>";
     }
+
 
    /******************************************************************************/
 
