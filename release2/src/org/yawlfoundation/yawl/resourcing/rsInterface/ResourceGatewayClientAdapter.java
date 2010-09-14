@@ -555,13 +555,12 @@ public class ResourceGatewayClientAdapter {
         return result ;
     }
 
-    public List<YParameter> getCodeletParameters(String packageName, String codeletName,
-              String handle) throws IOException, ResourceGatewayException {
-        String xml = successCheck(
-                _rgclient.getCodeletParameters(packageName, codeletName, handle));
+
+    public List<YParameter> getCodeletParameters(String codeletName, String handle)
+            throws IOException, ResourceGatewayException {
+        String xml = successCheck(_rgclient.getCodeletParameters(codeletName, handle));
         return new CodeletInfo().getRequiredParametersFromXML(xml);
     }
-
 
 
     /**

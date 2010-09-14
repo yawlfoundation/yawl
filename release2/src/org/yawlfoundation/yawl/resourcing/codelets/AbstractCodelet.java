@@ -29,18 +29,21 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
- * Author: Michael Adams
- * Creation Date: 17/06/2008
+ * The base class of all codelets.
+ *
+ * @author Michael Adams
+ * @date 17/06/2008
  */
 public abstract class AbstractCodelet {
 
-    protected String _description ;                // what does it do?
-    private WorkItemRecord _wir;
-    private Element _inData;
-    private List<YParameter> _inParams;
-    private List<YParameter> _outParams;
-    private Element _outData;
-    private boolean _persist = true;
+    protected String _description ;                          // what does it do?
+    private WorkItemRecord _wir;                             // the 'calling' work item
+    private Element _inData;                                 // the item's starting data
+    private List<YParameter> _inParams;                      // its input parameters
+    private List<YParameter> _outParams;                     // its output parameters
+    private Element _outData;                                // the codelet's result
+    private boolean _persist = true;                         // persists it by default
+
     protected static final String XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema";
 
     protected AbstractCodelet() {}
@@ -67,6 +70,16 @@ public abstract class AbstractCodelet {
         _outParams = outParams ;
     }
 
+
+    /**
+     * Converts the string representation of a parameter value to its specified data
+     * type, for the most frequent data types. Implementers may override this method to
+     * handle other data types if required.
+     * @param varName the name of the parameter
+     * @return the appropriately typed value
+     * @throws CodeletExecutionException if the string value can't be converted to the
+     * specified type.
+     */
     protected Object getParameterValue(String varName) throws CodeletExecutionException {
         Object result ;
         YParameter param = getInputParameter(varName);
@@ -95,6 +108,13 @@ public abstract class AbstractCodelet {
         return result ;
     }
 
+
+    /**
+     * Adds a new value to an output parameter, and creates the parameter if it doesn't
+     * already exist
+     * @param varName the name of the parameter
+     * @param value the value to assign to it
+     */
     protected void setParameterValue(String varName, String value) {
         if (_outData == null) _outData = new Element("codelet_output") ;
         Element eParam = _outData.getChild(varName) ;
@@ -112,19 +132,26 @@ public abstract class AbstractCodelet {
 
 
     private YParameter getInputParameter(String paramName)
-                                                      throws CodeletExecutionException {
+            throws CodeletExecutionException {
         return getParameter(paramName, _inParams) ;
     }
 
 
     private YParameter getOutputParameter(String paramName)
-                                                      throws CodeletExecutionException {
+            throws CodeletExecutionException {
         return getParameter(paramName, _outParams) ;
     }
 
 
+    /**
+     * Extracts a parameter from a List of parameters
+     * @param paramName the parameter to extract
+     * @param params the list of parameters containing the parameter
+     * @return the specified parameters
+     * @throws CodeletExecutionException if the requested parameter isn't in the list
+     */
     private YParameter getParameter(String paramName, List<YParameter> params)
-                                                      throws CodeletExecutionException {
+            throws CodeletExecutionException {
         YParameter result = null;
         if (params != null) {
             for (YParameter param : params) {
@@ -143,6 +170,13 @@ public abstract class AbstractCodelet {
     }
 
 
+    /**
+     * Gets the value of a parameter
+     * @param varName the name of the parameter
+     * @return its value
+     * @throws CodeletExecutionException if the parameter doesn't exist in the input
+     * data
+     */
     private String getValue(String varName) throws CodeletExecutionException {
         String result = null ;
         if (_inData != null) {
@@ -156,12 +190,13 @@ public abstract class AbstractCodelet {
                     "the workitem's data.");
     }
 
+
     public String getClassName() { return this.getClass().getSimpleName(); }
+
 
     public String getCanonicalClassName() {
         return this.getClass().getCanonicalName();
     }
-    
 
     public String toXML() {
         StringBuilder xml = new StringBuilder("<codelet>");
@@ -194,18 +229,49 @@ public abstract class AbstractCodelet {
 
     /********************************************************************************/
 
+    /**
+     * This method is called when a codelet first starts. Override to include any
+     * initialisations required.
+     */
     public void init() { }
 
+    /**
+     * This method is called when the server is shutting down. Override to include any
+     * state saving required.
+     */
     public void shutdown() { }
 
+    /**
+     * This method is called when the codelet is resumed after a server shutdown.
+     * Override to include any state restoring required.
+     */
     public void resume() { }
 
+    /**
+     * This method is called when the work item running this codelet is cancelled.
+     * Override to cancel the codelet as required.
+     */
     public void cancel() { }
 
+    /**
+     * This method is called when an external entity (such as the YAWL editor) requests
+     * the list of parameters required by the codelet. Override to populate the list.
+     * Each parameter should include a name, data type and description as a minimum.
+     * @return the List of parameters required by the codelet.
+     */
     public List<YParameter> getRequiredParams() { return null; }
 
     /*********************************************************************************/
 
+    /**
+     * This method must be implemented to do the work of the codelet.
+     * @param inData the work item's input data
+     * @param inParams the work item's input parameters
+     * @param outParams the work item's output parameters
+     * @return a JDOM Element containing the output data generated by this method
+     * @throws CodeletExecutionException if there's any problem getting the required
+     * input data, composing the required output data, or performing the execution.
+     */
     public abstract Element execute(Element inData,
                                     List<YParameter> inParams,
                                     List<YParameter> outParams)

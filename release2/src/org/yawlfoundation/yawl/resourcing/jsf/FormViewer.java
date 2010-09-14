@@ -18,10 +18,12 @@
 
 package org.yawlfoundation.yawl.resourcing.jsf;
 
+import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
+import org.yawlfoundation.yawl.util.HttpURLValidator;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.context.ExternalContext;
@@ -37,8 +39,12 @@ public class FormViewer {
 
     private SessionBean _sb;
     private ResourceManager _rm;
+    private Logger _log;
 
-    public FormViewer() { _rm = ResourceManager.getInstance(); }
+    public FormViewer() {
+        _rm = ResourceManager.getInstance();
+        _log = Logger.getLogger(this.getClass());
+    }
 
     public FormViewer(SessionBean sb) {
         this();
@@ -51,7 +57,7 @@ public class FormViewer {
 
 
     public String display(WorkItemRecord wir) {
-        String result ;
+        String result = null;
 
         // if there's a custom form for this item, use it
         if (wir.getCustomFormURL() != null) {
@@ -59,7 +65,7 @@ public class FormViewer {
         }
 
         // otherwise default to a dynamic form
-        else {
+        if (result == null) {
             _sb.setDynFormType(ApplicationBean.DynFormType.tasklevel);
 
             DynFormFactory factory = _sb.getDynFormFactoryInstance();
@@ -90,24 +96,31 @@ public class FormViewer {
 
     
     private String showCustomForm(WorkItemRecord wir) {
-        String result = "<failure>Unspecified form URI</failure>";
+        String result = null;
         String url = wir.getCustomFormURL();
         if (url != null) {
-            _sb.setCustomFormPost(true);
-            try {
+            String validateMsg = HttpURLValidator.validate(url);
+            if (validateMsg.equals("<success/>")) {
+                _sb.setCustomFormPost(true);
+                try {
 
-                // adjust session timeout value if required
-                adjustSessionTimeout(wir);
+                    // adjust session timeout value if required
+                    adjustSessionTimeout(wir);
 
-                // add params to the custom form url
-                result = buildURI(wir);
+                    // add params to the custom form url
+                    result = buildURI(wir);
+                }
+                catch (Exception e) {
+                    _sb.setCustomFormPost(false);
+                    _log.error("IO Exception attempting to display custom form: " +
+                               e.getMessage() + ". Defaulting to dynamic form.");
+                }
             }
-            catch (Exception e) {
-                _sb.setCustomFormPost(false);
-                result = "<failure>IO Exception attempting to display custom form: " +
-                               e.getMessage() + "</failure>";
-            }
+            else _log.error("Could not locate custom form: '" + url + "', message: " +
+                               validateMsg + ". Defaulting to dynamic form.");
         }
+        else _log.error("Unspecified form URI. Defaulting to dynamic form.");
+
         return result;
     }
 

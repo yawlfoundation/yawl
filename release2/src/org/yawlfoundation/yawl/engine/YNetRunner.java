@@ -292,8 +292,8 @@ public class YNetRunner {
         if (! continueIfPossible(pmgr)) {
             _logger.debug("YNetRunner not able to continue");
 
-            // if net can't continue it means a case completion
-            if (_engine != null) {
+            // if root net can't continue it means a case completion
+            if ((_engine != null) && isRootNet()) {
                 announceCaseCompletion();
                 if (endOfNetReached() && warnIfNetNotEmpty()) {
                     _cancelling = true;                       // flag its not a deadlock                                   
@@ -579,7 +579,7 @@ public class YNetRunner {
         _busyTasks = _net.getBusyTasks();
         _logger.debug("<-- continueIfPossible");
 
-        return _enabledTasks.size() > 0 || _busyTasks.size() > 0;
+        return hasActiveTasks();
     }
 
 
@@ -941,6 +941,10 @@ public class YNetRunner {
         activeTasks.addAll(_busyTasks);
         activeTasks.addAll(_enabledTasks);
         return activeTasks;
+    }
+
+    protected boolean hasActiveTasks() {
+        return _enabledTasks.size() > 0 || _busyTasks.size() > 0;
     }
 
 

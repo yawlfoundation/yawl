@@ -809,8 +809,7 @@ public class ResourceGatewayClient extends Interface_Client {
 
     /**
      * Gets an XML list of the required parameters for the specified codelet
-     * @param codeletName the simple name of the codelet (assumes the codelet name
-     * is unique amongst the set of all codelets known to the service)
+     * @param codeletName the simple name of the codelet
      * @param handle a valid session handle
      * @return the list of the codelet's required parameters as an XML string, or an
      * error message if the codelet could not be found
@@ -818,23 +817,7 @@ public class ResourceGatewayClient extends Interface_Client {
      */
     public String getCodeletParameters(String codeletName, String handle)
             throws IOException {
-        return getCodeletParameters(null, codeletName, handle);
-    }
-
-
-    /**
-     * Gets an XML list of the required parameters for the specified codelet
-     * @param packageName the package name of the codelet
-     * @param codeletName the simple name of the codelet
-     * @param handle a valid session handle
-     * @return the list of the codelet's required parameters as an XML string, or an
-     * error message if the codelet could not be found
-     * @throws IOException if the service can't be reached
-     */
-    public String getCodeletParameters(String packageName, String codeletName, String handle)
-            throws IOException {
         Map<String, String> params = prepareParamMap("getCodeletParameters", handle);
-        if (packageName != null) params.put("pkg", packageName);
         params.put("name", codeletName);
         return executeGet(_serviceURI, params) ;
     }

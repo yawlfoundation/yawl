@@ -45,6 +45,7 @@ public class CodeletRunner implements Runnable {
     private boolean _init;
     private Logger _log = Logger.getLogger(this.getClass());
 
+    
     public CodeletRunner(WorkItemRecord wir, TaskInformation taskInfo, boolean init) {
         _wir = wir;
         _codeletName = wir.getCodelet();
@@ -63,16 +64,7 @@ public class CodeletRunner implements Runnable {
             List<YParameter> outputs = _taskInfo.getParamSchema().getOutputParams();
 
             // get class instance
-            String pkg = null;
-            String cName = _codeletName;
-            boolean external = false;
-            if (_codeletName.contains(".")) {
-                int lastDot = _codeletName.lastIndexOf('.') + 1;
-                pkg = _codeletName.substring(0, lastDot);
-                cName = _codeletName.substring(lastDot);
-                external = pkg.startsWith("org.yawlfoundation.yawl");
-            }
-            _codelet = CodeletFactory.getInstance(pkg, cName, external);
+            _codelet = CodeletFactory.getInstance(_codeletName);
             if (_codelet != null) {
                 if (_init)
                     _codelet.init();

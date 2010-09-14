@@ -642,8 +642,7 @@ public class ResourceGateway extends HttpServlet {
             result = _rm.getCodeletsAsXML();
         }
         else if (action.equalsIgnoreCase("getCodeletParameters")) {
-            String pkg = req.getParameter("pkg");
-            result = _rm.getCodeletParametersAsXML(pkg, name);
+            result = _rm.getCodeletParametersAsXML(name);
         }
         else if (action.equalsIgnoreCase("getParticipantFromUserID")) {
             Participant p = _rm.getParticipantFromUserID(id);
@@ -939,28 +938,26 @@ public class ResourceGateway extends HttpServlet {
 
 
     private String stringMapToJSON(Map<String, String> map) {
+        String s = "{";
         if (map != null) {
-            String s = "{";
-            for (String key : map.keySet()) {
+             for (String key : map.keySet()) {
                 if (s.length() > 1) s += ",";
                 s += jsonPair(key, map.get(key));
             }
-            return s += "}";
         }
-        return fail("No values returned.");
+        return s += "}";
     }
 
 
     private String stringSetToJSON(Set<String> set) {
+        String s = "{";
         if (set != null) {
-            String s = "{";
             for (String item : set) {
                 if (s.length() > 1) s += ",";
                 s += jsonPair(item, item);
             }
-            return s += "}";
         }
-        return fail("No values returned.");
+        return s += "}";
     }
 
 

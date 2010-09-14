@@ -122,24 +122,18 @@ public class LogMiner {
 
     /*****************************************************************************/
 
-    /**
-     * @param caseID the case id to get the event for
-     * @param launch true for launch, false for cancel
-     * @return the case event
-     */
+
+    public String getCaseEvents(String caseID) {
+        List events = getCaseEventList(caseID);
+        return (! events.isEmpty()) ? eventListToXML(events) : _noRowsStr;
+    }
+
+
     public String getCaseEvent(String caseID, boolean launch) {
-        String result ;
-        List rows ;
-        if (_reader != null) {
-            String template = "FROM ResourceEvent AS re WHERE re._caseID='%s' AND re._event='%s'";
-            String query = String.format(template, caseID, launch ? "launch_case" : "cancel_case");
-
-            rows = _reader.execQuery(query) ;
-            result = (rows != null) ? eventListToXML(rows) : _noRowsStr;
-        }
-        else result = _pmErrStr ;
-
-        return result ;
+        EventLogger.event eventType = launch ? EventLogger.event.launch_case :
+                EventLogger.event.cancel_case;
+        ResourceEvent event = getCaseEvent(caseID, eventType);
+        return (event != null) ? event.toXML() : _noRowsStr;
     }
 
 
@@ -160,9 +154,9 @@ public class LogMiner {
 
 
     public String getCaseStartedBy(String caseID) {
-        String caseEvent = getCaseEvent(caseID, true);
-        if (successful(caseEvent)) {
-            return getParticipantName(getFieldValue(caseEvent, "participantid"));
+        ResourceEvent event = getCaseEvent(caseID, EventLogger.event.launch_case);
+        if (event != null) {
+            return getParticipantName(getFieldValue(event.toXML(), "participantid"));
         }
         else return "Unavailable"; 
     }
@@ -225,7 +219,7 @@ public class LogMiner {
             }
 
             for (String caseID : caseIDs) {
-                 allEvents.addAll(getCaseEvents(caseID));
+                 allEvents.addAll(getCaseEventList(caseID));
             }
         }
         return (! allEvents.isEmpty()) ? eventListToXML(allEvents) : _noRowsStr;
@@ -311,7 +305,7 @@ public class LogMiner {
     }
     
 
-    private List getCaseEvents(String caseID) {
+    private List getCaseEventList(String caseID) {
         List rows = null;
         if (_reader != null) {
             String query = String.format(
@@ -383,11 +377,29 @@ public class LogMiner {
 
     }
 
+    /**
+     * @param caseID the case id to get the event for
+     * @param eventType which event to get
+     * @return the case event
+     */
+    private ResourceEvent getCaseEvent(String caseID, EventLogger.event eventType) {
+        String query = String.format(
+                "FROM ResourceEvent AS re WHERE re._caseID='%s' AND re._event='%s'",
+                caseID, eventType.name());
+        return execScalarQuery(query);
+    }
+
+
     private ResourceEvent getWorkItemEvent(String itemID, EventLogger.event eventType) {
+        String query = String.format(
+                "FROM ResourceEvent AS re WHERE re._itemID='%s' AND re._event='%s'",
+                itemID, eventType.name());
+        return execScalarQuery(query);
+    }
+
+
+    private ResourceEvent execScalarQuery(String query) {
         if (_reader != null) {
-            String query = String.format(
-                    "FROM ResourceEvent AS re WHERE re._itemID='%s' AND re._event='%s'",
-                    itemID, eventType.name());
             List rows = _reader.execQuery(query) ;
             if ((rows != null) && (! rows.isEmpty())) {
                 return (ResourceEvent) rows.get(0);

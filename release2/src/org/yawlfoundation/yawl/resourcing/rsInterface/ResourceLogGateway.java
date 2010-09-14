@@ -88,7 +88,15 @@ public class ResourceLogGateway extends HttpServlet {
            else result = _noService;
        }
        else if (validConnection(handle)) {
-           if (action.equals("getCaseStartedBy")) {
+           if (action.equals("getCaseEvent")) {
+               String launchStr = req.getParameter("launch") ;
+               boolean launch = (launchStr != null) && launchStr.equalsIgnoreCase("true");
+               result = _logDB.getCaseEvent(id, launch);
+           }
+           else if (action.equals("getCaseEvents")) {
+               result = _logDB.getCaseEvents(id);
+           }
+           else if (action.equals("getCaseStartedBy")) {
                result = _logDB.getCaseStartedBy(id);
            }
            else if (action.equals("getWorkItemEvents")) {
