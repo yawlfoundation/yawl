@@ -687,7 +687,8 @@ public class ResourceGateway extends HttpServlet {
         else if (action.equalsIgnoreCase("getNonHumanResourceCategories")) {
             String format = req.getParameter("format");
             if ((format != null) && format.equals("JSON")) {
-                result = stringSetToJSON(_orgDataSet.getNonHumanResourceCategories());
+                String callback = req.getParameter("callback");
+                result = stringSetToJSON(_orgDataSet.getNonHumanResourceCategories(), callback);
             }
             else result = _orgDataSet.getNonHumanResourceCategoriesAsXML();
         }
@@ -695,7 +696,9 @@ public class ResourceGateway extends HttpServlet {
             String category = req.getParameter("category");
             String format = req.getParameter("format");
             if ((format != null) && format.equals("JSON")) {
-                result = stringSetToJSON(_orgDataSet.getNonHumanResourceSubCategories(category));
+                String callback = req.getParameter("callback");
+                result = stringSetToJSON(
+                        _orgDataSet.getNonHumanResourceSubCategories(category), callback);
             }
             else result = _orgDataSet.getNonHumanResourceSubCategoriesAsXML(category);
         }
@@ -917,7 +920,8 @@ public class ResourceGateway extends HttpServlet {
     private String reformatMap(Map<String, String> map, HttpServletRequest req) {
         String format = req.getParameter("format");
         if ((format != null) && format.equals("JSON")) {
-            return stringMapToJSON(map);
+            String callback = req.getParameter("callback");
+            return stringMapToJSON(map, callback);
         }
         else {
             return stringMapToXML(map);
@@ -937,7 +941,7 @@ public class ResourceGateway extends HttpServlet {
     }
 
 
-    private String stringMapToJSON(Map<String, String> map) {
+    private String stringMapToJSON(Map<String, String> map, String callback) {
         String s = "{";
         if (map != null) {
              for (String key : map.keySet()) {
@@ -945,11 +949,12 @@ public class ResourceGateway extends HttpServlet {
                 s += jsonPair(key, map.get(key));
             }
         }
-        return s += "}";
+        s += "}";
+        return (callback != null) ? String.format("%s(%s)", callback, s) : s ;
     }
 
 
-    private String stringSetToJSON(Set<String> set) {
+    private String stringSetToJSON(Set<String> set, String callback) {
         String s = "{";
         if (set != null) {
             for (String item : set) {
@@ -957,7 +962,8 @@ public class ResourceGateway extends HttpServlet {
                 s += jsonPair(item, item);
             }
         }
-        return s += "}";
+        s += "}";
+        return (callback != null) ? String.format("%s(%s)", callback, s) : s ;
     }
 
 
