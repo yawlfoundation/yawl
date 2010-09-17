@@ -1130,9 +1130,14 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
   }
 
-  private static void populateOfferFilters(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
+  private static void populateOfferFilters(ResourceMapping editorResourceMapping,
+                                           ResourceMap engineResourceMapping) {
     for(ResourcingFilter editorFilter : editorResourceMapping.getResourcingFilters()) {
-      GenericFilter engineFilter = new GenericFilter(editorFilter.getName());
+      String filterName = editorFilter.getCanonicalName();
+      if (filterName.startsWith("org.yawlfoundation.yawl.")) {
+          filterName = filterName.substring(filterName.lastIndexOf('.') + 1);
+      }
+      GenericFilter engineFilter = new GenericFilter(filterName);
 
       // only want params with non-null values  
       Map<String, String> paramMap = editorFilter.getParameters();
@@ -1149,7 +1154,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   }
 
   
-  private static void populateRuntimeConstraints(ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
+  private static void populateRuntimeConstraints(ResourceMapping editorResourceMapping,
+                                                 ResourceMap engineResourceMapping) {
     if (editorResourceMapping.isPrivilegeEnabled(ResourceMapping.CAN_PILE_PRIVILEGE)) {
        engineResourceMapping.getOfferInteraction().addConstraint(
            new PiledExecution()  
@@ -1193,11 +1199,13 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     );
     
     if (editorResourceMapping.getAllocateInteractionPoint() == ResourceMapping.SYSTEM_INTERACTION_POINT) {
+        String name = editorResourceMapping.getAllocationMechanism().getCanonicalName();
+        if (name.startsWith("org.yawlfoundation.yawl.")) {
+            name = name.substring(name.lastIndexOf('.') + 1);
+        }
+
         engineResourceMapping.getAllocateInteraction().setAllocator(
-          new GenericAllocator(
-            editorResourceMapping.getAllocationMechanism().getName()
-          )    
-      );
+          new GenericAllocator(name));
     }
   }
 

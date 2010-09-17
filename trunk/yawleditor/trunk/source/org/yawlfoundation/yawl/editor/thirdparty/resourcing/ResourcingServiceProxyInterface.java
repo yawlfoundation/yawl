@@ -68,6 +68,6 @@ public interface ResourcingServiceProxyInterface {
 
   public Map<String, String> getRegisteredCodelets() ;
 
-   public List<DataVariable> getCodeletParameters(String pkg, String codeletName);  
+   public List<DataVariable> getCodeletParameters(String codeletName);
 
 }

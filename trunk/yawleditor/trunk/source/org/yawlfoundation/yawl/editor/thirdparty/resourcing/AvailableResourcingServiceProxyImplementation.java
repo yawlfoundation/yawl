@@ -183,6 +183,7 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
                 resultsList.add(
                         new AllocationMechanism(
                                 allocator.getName(),
+                                allocator.getCanonicalName(),
                                 allocator.getDisplayName(),
                                 allocator.getDescription()
                         )
@@ -209,6 +210,7 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
                 resultsList.add(
                         new ResourcingFilter(
                                 filter.getName(),
+                                filter.getCanonicalName(),
                                 filter.getDisplayName(),
                                 filter.getParams()
                         )
@@ -279,11 +281,11 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
     }
 
 
-    public List<DataVariable> getCodeletParameters(String pkg, String codeletName) {
+    public List<DataVariable> getCodeletParameters(String codeletName) {
         List<YParameter> params = null;
         List<DataVariable> varList = new LinkedList<DataVariable>();
         try {
-            params = gateway.getCodeletParameters(pkg, codeletName, sessionHandle);
+            params = gateway.getCodeletParameters(codeletName, sessionHandle);
         }
         catch (Exception e) {
             // nothing to do

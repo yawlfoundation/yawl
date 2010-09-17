@@ -152,8 +152,8 @@ public class ResourcingServiceProxy implements ResourcingServiceProxyInterface {
     return implementation.getRegisteredCodelets();
   }
 
-    public List<DataVariable> getCodeletParameters(String pkg, String codeletName) {
-        return implementation.getCodeletParameters(pkg, codeletName);
+    public List<DataVariable> getCodeletParameters(String codeletName) {
+        return implementation.getCodeletParameters(codeletName);
     }
 
 

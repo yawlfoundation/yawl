@@ -19,14 +19,17 @@ public class ResourcingFilter implements Serializable {
     setParameters(new HashMap<String, String>());
   }
   
-  public ResourcingFilter(String name, String displayName) {
+  public ResourcingFilter(String name, String canonicalName, String displayName) {
     setName(name);
+    setCanonicalName(canonicalName);
     setDisplayName(displayName);
     setParameters(new HashMap<String, String>());
   }
   
-  public ResourcingFilter(String name, String displayName, HashMap<String, String> parameters) {
+  public ResourcingFilter(String name, String canonicalName, String displayName,
+                          HashMap<String, String> parameters) {
     setName(name);
+    setCanonicalName(canonicalName);
     setDisplayName(displayName);
     setParameters(parameters);
   }
@@ -46,6 +49,14 @@ public class ResourcingFilter implements Serializable {
   public String getName() {
     return (String) serializationProofAttributeMap.get("name");
   }
+
+    public void setCanonicalName(String name) {
+      serializationProofAttributeMap.put("canonicalname", name);
+    }
+
+    public String getCanonicalName() {
+      return (String) serializationProofAttributeMap.get("canonicalname");
+    }
 
   public void setDisplayName(String displayName) {
     serializationProofAttributeMap.put("displayName", displayName);
