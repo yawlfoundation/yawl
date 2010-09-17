@@ -431,6 +431,33 @@ public class WorkQueueGatewayClientAdapter {
         return successCheck(_wqclient.completeItem(pid, itemID, handle));
     }
 
+    public String offerItem(Set<String> pid, String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.offerItem(pid, itemID, handle));
+    }
+
+    public String reofferItem(Set<String> pid, String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.reofferItem(pid, itemID, handle));
+    }
+
+    public String allocateItem(String pid, String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.allocateItem(pid, itemID, handle));
+    }
+
+    public String reallocateItem(String pid, String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.reallocateItem(pid, itemID, handle));
+    }
+
+    public String restartItem(String pid, String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.restartItem(pid, itemID, handle));
+    }
+
+
+
     /********************************************************************************/
 
      // SPEC AND INSTANCE ACTIONS //

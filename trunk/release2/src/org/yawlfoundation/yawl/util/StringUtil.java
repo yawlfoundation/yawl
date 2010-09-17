@@ -173,22 +173,15 @@ public class StringUtil
     }
 
     /**
-     * Converts a string to all lower case, and capitailises the first letter of the string
-     * @param string unformated string.
+     * Converts a string to all lower case, and capitalises the first letter of the string
+     * @param s unformated string.
      * @return The formated string.
      */
-    public static String capitalise(String string)
-    {
-        String result = "";
-        StringTokenizer tokens = new StringTokenizer(string.toLowerCase(), " ");
-
-        while (tokens.hasMoreTokens())
-        {
-            String token = tokens.nextToken();
-            result += token.substring(0, 1).toUpperCase() + token.substring(1) + " ";
-        }
-
-        return result;
+    public static String capitalise(String s) {
+        if ((s == null) || (s.length() == 0)) return s;
+        char[] chars = s.toLowerCase().toCharArray();
+        chars[0] = Character.toUpperCase(chars[0]);
+        return String.valueOf(chars);
     }
 
     /**
@@ -234,7 +227,7 @@ public class StringUtil
     }
 
     /**
-     * Converts the throwable object into the standard Java strack trace format.
+     * Converts the throwable object into the standard Java stack trace format.
      *
      * @param t Throwable to convert to a String
      * @return String representation of Throwable t

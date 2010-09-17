@@ -25,7 +25,9 @@ import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  *  The WorkQueue Gateway externalises the full worklist functionality of the
@@ -98,6 +100,28 @@ public class WorkQueueGatewayClient extends Interface_Client {
         Map<String, String> params = prepareParamMap(action, handle);
         if (map != null) params.putAll(map);
         return executePost(_serviceURI, params);
+    }
+
+
+    private String idListToXML(Set<String> idList) {
+        StringBuilder ids = new StringBuilder("<ids>");
+        if (idList != null) {
+            for (String id : idList) {
+                ids.append("<id>").append(id).append("</id>");
+            }
+        }
+        ids.append("</ids>");
+        return ids.toString();
+    }
+
+
+    private String idStringToXML(String id) {
+        if (id != null) {
+            Set<String> set = new HashSet<String>();
+            set.add(id);
+            return idListToXML(set);
+        }
+        else return null;
     }
 
 
@@ -378,14 +402,17 @@ public class WorkQueueGatewayClient extends Interface_Client {
     
     public String reallocateItem(String pFrom, String pTo, String itemID,
                                boolean stateful, String handle) throws IOException {
+        if (pFrom == null) {
+            return reallocateItem(pTo, itemID, handle);    // admin queue realloc
+        }
         params.clear();
         params.put("pfrom", pFrom) ;
         params.put("pto", pTo) ;
         params.put("workitemid", itemID) ;
         if (stateful)
-               return performPost("reallocateStatefulWorkItem", params, handle) ;
+            return performPost("reallocateStatefulWorkItem", params, handle) ;
         else
-               return performPost("reallocateStatelessWorkItem", params, handle) ;
+            return performPost("reallocateStatelessWorkItem", params, handle) ;
     }
 
     
@@ -402,6 +429,46 @@ public class WorkQueueGatewayClient extends Interface_Client {
         params.put("participantid", pid) ;
         params.put("workitemid", itemID) ;
         return performPost("unsuspendWorkItem", params, handle) ;
+    }
+
+
+    public String offerItem(Set<String> pids, String itemID, String handle) throws IOException {
+        params.clear();
+        params.put("participantids", idListToXML(pids)) ;
+        params.put("workitemid", itemID) ;
+        return performPost("offerWorkItem", params, handle) ;
+    }
+
+
+    public String reofferItem(Set<String> pids, String itemID, String handle) throws IOException {
+        params.clear();
+        params.put("participantids", idListToXML(pids)) ;
+        params.put("workitemid", itemID) ;
+        return performPost("reofferWorkItem", params, handle) ;
+    }
+
+
+    public String allocateItem(String pid, String itemID, String handle) throws IOException {
+        params.clear();
+        params.put("participantids", idStringToXML(pid)) ;
+        params.put("workitemid", itemID) ;
+        return performPost("allocateWorkItem", params, handle) ;
+    }
+
+
+    public String reallocateItem(String pid, String itemID, String handle) throws IOException {
+        params.clear();
+        params.put("participantids", idStringToXML(pid)) ;
+        params.put("workitemid", itemID) ;
+        return performPost("reallocateWorkItem", params, handle) ;
+    }
+
+
+    public String restartItem(String pid, String itemID, String handle) throws IOException {
+        params.clear();
+        params.put("participantids", idStringToXML(pid)) ;
+        params.put("workitemid", itemID) ;
+        return performPost("restartWorkItem", params, handle) ;
     }
 
 
