@@ -26,17 +26,20 @@ public class AllocationMechanism implements Serializable {
   
   public static final AllocationMechanism RANDOM_MECHANISM = new AllocationMechanism(
       "RandomChoice",
+      "RandomChoice",
       "Random Choice",
       "Randomly allocate the workitem from the set of participants."
   );
 
   public static final AllocationMechanism ROUND_ROBIN_MECHANISM = new AllocationMechanism(
       "RoundRobin",
+      "RoundRobin",
       "Round-Robin",
       "Allocated based on a round-robin sequence of the participants."
   );
 
   public static final AllocationMechanism SHORTEST_QUEUE_MECHANISM = new AllocationMechanism(
+      "ShortestQueue",
       "ShortestQueue",
       "Shortest-Queue",
       "Allocate based on the participant with the shortest work-list queue."
@@ -46,8 +49,10 @@ public class AllocationMechanism implements Serializable {
   
   public AllocationMechanism() {}
   
-  public AllocationMechanism(String name, String displayName, String description) {
+  public AllocationMechanism(String name, String canonicalName, String displayName,
+                             String description) {
     setName(name);
+    setCanonicalName(canonicalName);
     setDisplayName(displayName);
     setDescription(description);
   }
@@ -67,6 +72,14 @@ public class AllocationMechanism implements Serializable {
   public String getName() {
     return (String) serializationProofAttributeMap.get("name");
   }
+
+    public void setCanonicalName(String name) {
+      serializationProofAttributeMap.put("canonicalname", name);
+    }
+
+    public String getCanonicalName() {
+      return (String) serializationProofAttributeMap.get("canonicalname");
+    }
 
   public void setDisplayName(String displayName) {
     serializationProofAttributeMap.put("displayName", displayName);

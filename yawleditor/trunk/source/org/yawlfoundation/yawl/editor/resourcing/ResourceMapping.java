@@ -470,7 +470,8 @@ public class ResourceMapping implements Serializable, Cloneable  {
                   Element eFilter = (Element) itr.next();
                   String filterName = eFilter.getChildText("name", nsYawl);
                   if (filterName != null) {
-                      result.add(new ResourcingFilter(filterName, null,
+                      String simpleName = filterName.substring(filterName.lastIndexOf('.') + 1);
+                      result.add(new ResourcingFilter(simpleName, filterName, null,
                               (HashMap<String, String>) parseParams(eFilter, nsYawl)));
                   }
               }
@@ -554,7 +555,8 @@ public class ResourceMapping implements Serializable, Cloneable  {
           if (allocator != null) {
               String name = allocator.getChildText("name", nsYawl);
               if (name != null) {
-                  setAllocationMechanism(new AllocationMechanism(name, "", ""));
+                  String simpleName = name.substring(name.lastIndexOf('.') + 1);
+                  setAllocationMechanism(new AllocationMechanism(simpleName, name, "", ""));
                   // allocationmechanism.setParams(parseParams(allocator, nsYawl));
               }
           }

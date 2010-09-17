@@ -120,7 +120,7 @@ public class UnavailableResourcingServiceProxyImplementation implements Resourci
     return null ;
   }
 
-  public List<DataVariable> getCodeletParameters(String pkg, String codeletName) {
+  public List<DataVariable> getCodeletParameters(String codeletName) {
       return null;
   }
 
