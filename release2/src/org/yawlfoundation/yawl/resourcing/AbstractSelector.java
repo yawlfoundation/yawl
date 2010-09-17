@@ -47,7 +47,8 @@ import java.util.Set;
 
 public abstract class AbstractSelector {
 
-    protected String _name ;                       // the (class) name for this selector
+    protected String _name ;                       // the simple class name for this selector
+    protected String _canonicalName ;              // the full class name for this selector
     protected String _displayName ;                // a 'user-friendly' name
     protected String _description ;                // what does it do?
     protected HashMap<String,String> _params =
@@ -107,6 +108,11 @@ public abstract class AbstractSelector {
     /** @return the name of this selector class */
     public String getClassName() { return this.getClass().getSimpleName(); }
 
+    /** @return the full name of this selector class */
+    public String getCanonicalName() {
+        if (_canonicalName != null) return _canonicalName;
+        else return this.getClass().getCanonicalName(); }
+
     /**
      * Retrieves the value of the specified parameter
      * @param key the name of the parameter
@@ -120,6 +126,12 @@ public abstract class AbstractSelector {
      * @param name the name to set
      */
     public void setName(String name) { _name = name ; }
+
+    /**
+     * Stores the full class name of this 'selector'
+     * @param name the name to set
+     */
+    public void setCanonicalName(String name) { _canonicalName = name ; }
 
     /**
      * Sets the user-friendly display name of this 'selector'
@@ -178,7 +190,8 @@ public abstract class AbstractSelector {
      *  build the specification xml */
     protected String toXML() {
         StringBuilder xml = new StringBuilder() ;
-        xml.append("<name>").append(_name).append("</name>");
+        String name = isExternalClass() ? getCanonicalName() : getName();
+        xml.append("<name>").append(name).append("</name>");
         if ((_params != null) && (! _params.isEmpty())) {
             xml.append("<params>");
             String key ;
@@ -195,6 +208,11 @@ public abstract class AbstractSelector {
             xml.append("</params>");
         }
         return xml.toString();
+    }
+
+    private boolean isExternalClass() {
+        String canonicalName = getCanonicalName();
+        return (canonicalName != null) && (! canonicalName.startsWith("org.yawlfoundation"));
     }
 
     /**
@@ -255,6 +273,7 @@ public abstract class AbstractSelector {
      */
     public void reconstitute(Element e) {
         setName(e.getChildText("name"));
+        setCanonicalName(e.getChildText("canonicalname"));
         setDisplayName(e.getChildText("displayname"));
         setDescription(e.getChildText("description"));
         List keys = e.getChild("keys").getChildren();

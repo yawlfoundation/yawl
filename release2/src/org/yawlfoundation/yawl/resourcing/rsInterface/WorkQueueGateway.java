@@ -36,6 +36,8 @@ import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
 import org.yawlfoundation.yawl.resourcing.util.GadgetFeeder;
 import org.yawlfoundation.yawl.util.PasswordEncryptor;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -343,6 +345,21 @@ public class WorkQueueGateway extends HttpServlet {
         else if (action.equals("completeWorkItem")) {
             result = doResourceAction(req, action);
         }
+        else if (action.equals("offerWorkItem")) {
+            result = doAdminQueueAction(req, action);
+        }
+        else if (action.equals("allocateWorkItem")) {
+            result = doAdminQueueAction(req, action);
+        }
+        else if (action.equals("reofferWorkItem")) {
+            result = doAdminQueueAction(req, action);
+        }
+        else if (action.equals("reallocateWorkItem")) {
+            result = doAdminQueueAction(req, action);
+        }
+        else if (action.equals("restartWorkItem")) {
+            result = doAdminQueueAction(req, action);
+        }
         else if (action.equals("delegateWorkItem")) {
             result = doResourceMoveAction(req, action);
         }
@@ -442,6 +459,39 @@ public class WorkQueueGateway extends HttpServlet {
         return response(result);
     }
 
+
+    private String doAdminQueueAction(HttpServletRequest req, String action) {
+        String result;
+        String[] pids = xmlToArray(req.getParameter("participantids"));
+
+        if (pids != null) {
+            String itemid = req.getParameter("workitemid");
+            WorkItemRecord wir = _rm.getWorkItemCache().get(itemid);
+            if (wir != null) {
+                action = StringUtil.capitalise(action.substring(0, action.indexOf('W')));
+                if (action.startsWith("Re")) {
+                    _rm.reassignWorklistedItem(wir, pids, action);
+                    result = success;
+                }
+                else {
+                    if (wir.hasResourceStatus(WorkItemRecord.statusResourceUnoffered)) {
+                        result = _rm.assignUnofferedItem(wir, pids, action) ? success :
+                                fail("Could not " + action + " workitem: " + itemid);
+                    }
+                    else {
+                        action += action.equals("Allocate") ? "d" : "ed";
+                        result = fail("Unoffered", action, wir);
+                    }
+                }
+            }
+            else result = fail("Unknown workitem: " + itemid);
+        }
+        else result =  fail("Missing or empty offer set.");
+
+        return response(result);
+    }
+
+
     private String doResourceMoveAction(HttpServletRequest req, String action) {
         String result;
         String pFrom = req.getParameter("pfrom");
@@ -476,7 +526,7 @@ public class WorkQueueGateway extends HttpServlet {
                 _rm.acceptOffer(p, wir);
                 result = success;
             }
-            else result = fail("Offered", "accepted", wir.getResourceStatus());
+            else result = fail("Offered", "accepted", wir);
         }
         else if (action.equals("startWorkItem")) {
             if (wir.hasResourceStatus(WorkItemRecord.statusResourceUnoffered) ||
@@ -495,8 +545,7 @@ public class WorkQueueGateway extends HttpServlet {
                 }
                 else result =  fail("Could not start workitem: " + wir.getID());
             }
-            else result = fail("Unoffered', 'Offered' or 'Allocated", "accepted",
-                    wir.getResourceStatus());                
+            else result = fail("Unoffered', 'Offered' or 'Allocated", "started", wir);
         }
         else if (action.equals("deallocateWorkItem")) {
             if (wir.hasResourceStatus(WorkItemRecord.statusResourceAllocated)) {
@@ -504,21 +553,21 @@ public class WorkQueueGateway extends HttpServlet {
                 result = successful ? success : fail("Could not deallocate workitem: " +
                          wir.getID());
             }
-            else result = fail("Allocated", "deallocated", wir.getResourceStatus());            
+            else result = fail("Allocated", "deallocated", wir);
         }
         else if (action.equals("skipWorkItem")) {
             if (wir.hasResourceStatus(WorkItemRecord.statusResourceAllocated)) {
                 successful = _rm.skipWorkItem(p, wir) ;
                 result = successful ? success : fail("Could not skip workitem: " + wir.getID());
             }
-            else result = fail("Allocated", "skipped", wir.getResourceStatus());
+            else result = fail("Allocated", "skipped", wir);
         }
         else if (action.equals("pileWorkItem")) {
             if (wir.hasResourceStatus(WorkItemRecord.statusResourceAllocated)) {
                 result = _rm.pileWorkItem(p, wir) ;
                 if (result.startsWith("Cannot")) result = fail(result);
             }
-            else result = fail("Allocated", "piled", wir.getResourceStatus());
+            else result = fail("Allocated", "piled", wir);
         }
         else if (action.equals("suspendWorkItem")) {
             if (wir.hasResourceStatus(WorkItemRecord.statusResourceStarted)) {
@@ -526,7 +575,7 @@ public class WorkQueueGateway extends HttpServlet {
                 result = successful ? success : fail("Could not suspend workitem: " +
                         wir.getID());
             }
-            else result = fail("Started", "suspended", wir.getResourceStatus());            
+            else result = fail("Started", "suspended", wir);
         }
         else if (action.equals("unsuspendWorkItem")) {
             if (wir.hasResourceStatus(WorkItemRecord.statusResourceSuspended)) {
@@ -534,13 +583,13 @@ public class WorkQueueGateway extends HttpServlet {
                 result = successful ? success : fail("Could not unsuspend workitem: " +
                         wir.getID());
             }
-            else result = fail("Suspended", "unsuspended", wir.getResourceStatus());
+            else result = fail("Suspended", "unsuspended", wir);
         }
         else if (action.equals("completeWorkItem")) {
             if (wir.hasResourceStatus(WorkItemRecord.statusResourceStarted)) {
                 result = _rm.checkinItem(p, wir) ;
             }
-            else result = fail("Started", "completed", wir.getResourceStatus());            
+            else result = fail("Started", "completed", wir);
         }
         return result;
     }
@@ -557,7 +606,7 @@ public class WorkQueueGateway extends HttpServlet {
                 result = successful ? success : fail("Could not delegate workitem: " +
                         wir.getID());
             }
-            else result = fail("Allocated", "delegated", wir.getResourceStatus());
+            else result = fail("Allocated", "delegated", wir);
         }
         else if (action.equals("reallocateStatefulWorkItem")) {
             if (wir.hasResourceStatus(WorkItemRecord.statusResourceStarted)) {
@@ -565,7 +614,7 @@ public class WorkQueueGateway extends HttpServlet {
                 result = successful ? success : fail("Could not reallocate workitem: " +
                         wir.getID());
             }
-            else result = fail("Started", "reallocated", wir.getResourceStatus());
+            else result = fail("Started", "reallocated", wir);
         }
         else if (action.equals("reallocateStatelessWorkItem")) {
             if (wir.hasResourceStatus(WorkItemRecord.statusResourceStarted)) {
@@ -573,7 +622,7 @@ public class WorkQueueGateway extends HttpServlet {
                 result = successful ? success : fail("Could not reallocate workitem: " +
                         wir.getID());
             }
-            else result = fail("Started", "reallocated", wir.getResourceStatus());
+            else result = fail("Started", "reallocated", wir);
         }
         return response(result);
     }
@@ -589,16 +638,36 @@ public class WorkQueueGateway extends HttpServlet {
     }
 
 
+    private String[] xmlToArray(String xml) {
+        String[] items = null;
+        if (xml != null) {
+            XNode node = new XNodeParser().parse(xml);
+            if (node != null) {
+                items = new String[node.getChildCount()];
+                int i = 0;
+                for (XNode idNode : node.getChildren()) {
+                     items[i++] = idNode.getText();
+                }
+            }
+        }
+        return items;
+    }
+
+
     private String fail(String msg) {
         return "<failure>" + msg + "</failure>";
     }
 
 
-    private String fail(String reqStatus, String action, String hasStatus) {
-        return fail(
-           String.format("Only a workitem with '%s' status can be %s. This workitem has '%s' status.",
-                   reqStatus, action, hasStatus)
-        );
+    private String fail(String reqStatus, String action, WorkItemRecord wir) {
+        return fail(reqStatus, action, wir.getID(), wir.getResourceStatus());
+    }
+
+
+    private String fail(String reqStatus, String action, String itemid, String hasStatus) {
+        return fail(String.format(
+              "Only a workitem with '%s' status can be %s. Workitem '%s' has '%s' status.",
+                   reqStatus, action, itemid, hasStatus));
     }
 
 
