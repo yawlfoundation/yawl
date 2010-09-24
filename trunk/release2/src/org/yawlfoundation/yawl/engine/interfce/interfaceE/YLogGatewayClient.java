@@ -167,6 +167,55 @@ public class YLogGatewayClient extends Interface_Client {
 
 
     /**
+     * Gets a set of summary statistics for executed instances of the specification
+     * data passed
+     * @param identifier the unique identifier of the specification
+     * @param version the specification's version number
+     * @param uri the specification's uri
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getSpecificationStatistics(String identifier, String version,
+                                       String uri, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getSpecificationStatistics", handle);
+        params.put("identifier", identifier);
+        params.put("version", version);
+        params.put("uri", uri);
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
+      * Gets a set of summary statistics for executed instances of the specification
+      * data passed
+      * @param specID the unique identifier of the specification
+      * @param handle an active sessionhandle
+      * @return the resultant String response (log data or error message)
+      * @throws java.io.IOException if there's a problem connecting to the engine
+      */
+    public String getSpecificationStatistics(YSpecificationID specID, String handle)
+            throws IOException {
+        return getSpecificationStatistics(specID.getIdentifier(),
+                specID.getVersionAsString(), specID.getUri(), handle);
+    }
+    
+
+    /**
+     * Gets a set of summary statistics for executed instances of the specification
+     * key passed
+     * @param specKey the primary key identifier of the specification in its log table
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getSpecificationStatistics(long specKey, String handle)
+            throws IOException {
+        return performGet("getSpecificationStatistics", "key", specKey, handle);
+    }
+
+
+    /**
      * Gets all the case level events for the root net key passed
      * @param rootNetInstanceKey the primary key identifier of the root net instance of
      * the case

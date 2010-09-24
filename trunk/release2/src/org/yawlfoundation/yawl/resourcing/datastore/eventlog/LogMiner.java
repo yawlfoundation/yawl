@@ -50,10 +50,12 @@ public class LogMiner {
     private static final Logger _log = Logger.getLogger(LogMiner.class);
 
     // some error messages
-    private final String _exErrStr = "<failure>Unable to retrieve data.</failure>";
-    private final String _pmErrStr = "<failure>Error connecting to database.</failure>";
-    private final String _noRowsStr = "<failure>No rows returned.</failure>";
-    private final String _badKeyStr = "<failure>Invalid specification key.</failure>";
+    private static final String _exErrStr = "<failure>Unable to retrieve data.</failure>";
+    private static final String _pmErrStr = "<failure>Error connecting to database.</failure>";
+    private static final String _noRowsStr = "<failure>No rows returned.</failure>";
+    private static final String _badKeyStr = "<failure>Invalid specification key.</failure>";
+
+    private static final String _baseQuery = "FROM ResourceEvent AS re";
 
 
     // CONSTRUCTOR - called from getInstance() //
@@ -124,7 +126,14 @@ public class LogMiner {
 
 
     public String getCaseEvents(String caseID) {
-        List events = getCaseEventList(caseID);
+        List events = getCaseEventsList(caseID);
+        return (! events.isEmpty()) ? eventListToXML(events) : _noRowsStr;
+    }
+
+
+    public String getCaseEvents(String caseID, long from, long to) {
+        if ((from < 0) && (to < 0)) return getCaseEvents(caseID);
+        List events = getCaseEventsList(caseID, from, to);
         return (! events.isEmpty()) ? eventListToXML(events) : _noRowsStr;
     }
 
@@ -153,6 +162,23 @@ public class LogMiner {
     }
 
 
+    public String getWorkItemEvents(String itemID, boolean fullName, long from, long to) {
+        if ((from < 0) && (to < 0)) return getWorkItemEvents(itemID, fullName);
+        List events = getWorkItemEventsList(itemID, from, to);
+        if (events != null) {
+            if (containsStartEvent(events)) {
+                String parentID = deriveParentID(itemID);
+                List parentEvents = getWorkItemEventsList(parentID, from, to);
+                if (parentEvents != null) {
+                    events.addAll(parentEvents);
+                }
+            }
+            if (fullName) events = replaceParticipantIDsWithNames(events);
+        }
+        return (events != null) ? eventListToXML(events) : _noRowsStr;
+    }
+
+
     public String getCaseStartedBy(String caseID) {
         ResourceEvent event = getCaseEvent(caseID, EventLogger.event.launch_case);
         if (event != null) {
@@ -167,9 +193,21 @@ public class LogMiner {
     }
 
 
+    public String getParticipantHistory(String pid, long from, long to) {
+        return ((from < 0) && (to < 0)) ? getResourceHistory(pid) :
+                getResourceHistory(pid, from, to);
+    }
+
+
     public String getParticipantHistoryForEvent(String pid, EventLogger.event eventType) {
         return getResourceHistoryForEvent(pid, eventType);
     }
+
+
+    public String getParticipantHistoryForEvent(String pid, EventLogger.event eventType,
+                                                long from, long to) {
+         return getResourceHistoryForEvent(pid, eventType, from, to);
+     }
 
 
     public String getResourceHistory(String id) {
@@ -178,8 +216,22 @@ public class LogMiner {
     }
 
 
+    public String getResourceHistory(String id, long from, long to) {
+        if ((from < 0) && (to < 0)) return getResourceHistory(id);
+        List events = getResourceEventsList(id, from, to);
+        return (events != null) ? eventListToXML(events) : _noRowsStr;
+    }
+
+
     public String getResourceHistoryForEvent(String id, EventLogger.event eventType) {
         List events = getResourceEventsList(id);
+        return getExtractedEvents(events, eventType);
+    }
+
+
+    public String getResourceHistoryForEvent(String id, EventLogger.event eventType,
+                                             long from, long to) {
+        List events = getResourceEventsList(id, from, to);
         return getExtractedEvents(events, eventType);
     }
 
@@ -207,32 +259,33 @@ public class LogMiner {
 
 
     public String getCaseHistoryInvolvingParticipant(String pid) {
-        List participantEvents = getResourceEventsList(pid);
-        List allEvents = new ArrayList();
-        if (participantEvents != null) {
+        return getCaseHistoryForParticipantEvents(getResourceEventsList(pid));
+    }
 
-            // get set of cases involving this participant
-            Set<String> caseIDs = new TreeSet<String>();
-            for (Object o : participantEvents) {
-                ResourceEvent event = (ResourceEvent) o;
-                caseIDs.add(getRootCaseID(event.get_caseID()));
-            }
 
-            for (String caseID : caseIDs) {
-                 allEvents.addAll(getCaseEventList(caseID));
-            }
-        }
-        return (! allEvents.isEmpty()) ? eventListToXML(allEvents) : _noRowsStr;
+    public String getCaseHistoryInvolvingParticipant(String pid, long from, long to) {
+        return ((from < 0) && (to < 0)) ? getCaseHistoryInvolvingParticipant(pid) :
+                getCaseHistoryForParticipantEvents(getResourceEventsList(pid, from, to));
     }
 
 
     public String getSpecificationEvents(Set<YSpecificationID> specIDs) {
         StringBuilder s = new StringBuilder("<SpecificationEvents>");
         for (YSpecificationID specID : specIDs) {
-            s.append("<specification id=\"").append(specID.toString()).append("\">");
             List events = getSpecificationEvents(getSpecificationKey(specID));
-            if (events != null) s.append(eventListToXML(events));
-            s.append("</specification>");
+            if (events != null) s.append(formatSpecificationEvents(specID, events));
+        }
+        s.append("</SpecificationEvents>");
+        return s.toString();
+    }
+
+
+    public String getSpecificationEvents(Set<YSpecificationID> specIDs, long from, long to) {
+        if ((from < 0) && (to < 0)) return getSpecificationEvents(specIDs);
+        StringBuilder s = new StringBuilder("<SpecificationEvents>");
+        for (YSpecificationID specID : specIDs) {
+            List events = getSpecificationEvents(getSpecificationKey(specID), from, to);
+            if (events != null) s.append(formatSpecificationEvents(specID, events));
         }
         s.append("</SpecificationEvents>");
         return s.toString();
@@ -242,6 +295,13 @@ public class LogMiner {
     public String getSpecificationEvents(YSpecificationID specID) {
         List events = getSpecificationEvents(getSpecificationKey(specID));
         return (events != null) ? eventListToXML(events) : _noRowsStr;        
+    }
+
+
+    public String getSpecificationEvents(YSpecificationID specID, long from, long to) {
+        if ((from < 0) && (to < 0)) return getSpecificationEvents(specID);
+        List events = getSpecificationEvents(getSpecificationKey(specID), from, to);
+        return (events != null) ? eventListToXML(events) : _noRowsStr;
     }
 
 
@@ -271,7 +331,6 @@ public class LogMiner {
     }
 
 
-    
     public String getMergedXESLog(YSpecificationID specid, boolean withData) {
         XNode rsCases = getXESLog(specid);
         String engCases = ResourceManager.getInstance().getEngineXESLog(specid, withData);
@@ -281,50 +340,82 @@ public class LogMiner {
         return "";
     }
 
+    
+    public String getSpecificationStatistics(YSpecificationID specID) {
+        return ResourceManager.getInstance().getEngineSpecificationStatistics(specID);
+    }
 
     /*****************************************************************************/
 
-    private List getWorkItemEventsList(String itemID) {
+    private List execQuery(String query) {
         List rows = null;
         if (_reader != null) {
-            String query = String.format("FROM ResourceEvent AS re WHERE re._itemID='%s'",
-                    itemID);
             rows = _reader.execQuery(query) ;
         }
         return rows;
+
+    }
+
+
+    private String getWhereQuery(String field, String value) {
+        return String.format("%s WHERE re.%s='%s'", _baseQuery, field, value);
+    }
+
+
+    private String getWhereQuery(String field, long value) {
+        return String.format("%s WHERE re.%s=%d", _baseQuery, field, value);
+    }
+
+
+    private List getWorkItemEventsList(String itemID) {
+        return execQuery(getWhereQuery("_itemID", itemID));
+    }
+
+
+    private List getWorkItemEventsList(String itemID, long from, long to) {
+        String query = getWhereQuery("_itemID", itemID) + getTimeRangeSubclause(from, to);
+        return execQuery(query) ;
     }
 
 
     private List getSpecificationEvents(long specKey) {
-        List rows = null;
-        if ((_reader != null) && (specKey > -1)) {
-            String query = "FROM ResourceEvent AS re WHERE re._specKey=" + specKey;
-            rows = _reader.execQuery(query) ;
-        }
-        return rows;
+        return (specKey == -1) ? null :
+                execQuery(getWhereQuery("_specKey", specKey));
     }
     
 
-    private List getCaseEventList(String caseID) {
-        List rows = null;
-        if (_reader != null) {
-            String query = String.format(
-                "FROM ResourceEvent AS re WHERE re._caseID='%s' OR re._caseID LIKE '%s%s'",
-                caseID, caseID, ".%");
-            rows = _reader.execQuery(query) ;
-        }
-        return rows;
+    private List getSpecificationEvents(long specKey, long from, long to) {
+        return (specKey == -1) ? null :
+                execQuery(getWhereQuery("_specKey", specKey) +
+                          getTimeRangeSubclause(from, to));
     }
 
 
+    private List getCaseEventsList(String caseID) {
+        String query = String.format(
+                "%s WHERE re._caseID='%s' OR re._caseID LIKE '%s%s'",
+                _baseQuery, caseID, caseID, ".%");
+        return execQuery(query) ;
+    }
+
+
+    private List getCaseEventsList(String caseID, long from, long to) {
+        String query = String.format(
+                "%s WHERE re._caseID='%s' OR re._caseID LIKE '%s%s'",
+                _baseQuery, caseID, caseID, ".%") + getTimeRangeSubclause(from, to);
+        return execQuery(query) ;
+    }
+
+    
     private List getResourceEventsList(String resourceID) {
-        List rows = null;
-        if (_reader != null) {
-            String query = String.format(
-                    "FROM ResourceEvent AS re WHERE re._participantID='%s'", resourceID);
-            rows = _reader.execQuery(query) ;
-        }
-        return rows;
+        return execQuery(getWhereQuery("_participantID", resourceID)) ;
+    }
+
+
+    private List getResourceEventsList(String resourceID, long from, long to) {
+        String query = getWhereQuery("_participantID", resourceID) +
+                getTimeRangeSubclause(from, to);
+        return execQuery(query) ;
     }
 
 
@@ -337,6 +428,18 @@ public class LogMiner {
             }
         }
         return null;
+    }
+
+
+    private String getTimeRangeSubclause(long from, long to) {
+        String subclause = "";
+        if (from > 0) {
+            subclause = " AND re._timeStamp >= " + from;
+        }
+        if (to > 0) {
+            subclause = " AND re._timeStamp <= " + to;
+        }
+        return subclause;
     }
 
 
@@ -368,6 +471,37 @@ public class LogMiner {
     }
 
 
+    private String getCaseHistoryForParticipantEvents(List participantEvents) {
+        List allEvents = new ArrayList();
+        if (participantEvents != null) {
+
+            // get set of cases involving this participant
+            Set<String> caseIDs = new TreeSet<String>();
+            for (Object o : participantEvents) {
+                ResourceEvent event = (ResourceEvent) o;
+                caseIDs.add(getRootCaseID(event.get_caseID()));
+            }
+
+            for (String caseID : caseIDs) {
+                 allEvents.addAll(getCaseEventsList(caseID));
+            }
+        }
+        return (! allEvents.isEmpty()) ? eventListToXML(allEvents) : _noRowsStr;
+    }
+
+
+    private String formatSpecificationEvents(YSpecificationID specID, List events) {
+        StringBuilder s = new StringBuilder("<specification id=\"");
+        s.append(specID.toString()).append("\">");
+        if (events != null) s.append(eventListToXML(events));
+        s.append("</specification>");
+        return s.toString();
+    }
+
+
+
+
+
     private String getExtractedEvents(List events, EventLogger.event eventType) {
         if (events != null) {
             List<ResourceEvent> extracted = extractEvents(events, eventType);
@@ -384,16 +518,16 @@ public class LogMiner {
      */
     private ResourceEvent getCaseEvent(String caseID, EventLogger.event eventType) {
         String query = String.format(
-                "FROM ResourceEvent AS re WHERE re._caseID='%s' AND re._event='%s'",
-                caseID, eventType.name());
+                "%s WHERE re._caseID='%s' AND re._event='%s'",
+                _baseQuery, caseID, eventType.name());
         return execScalarQuery(query);
     }
 
 
     private ResourceEvent getWorkItemEvent(String itemID, EventLogger.event eventType) {
         String query = String.format(
-                "FROM ResourceEvent AS re WHERE re._itemID='%s' AND re._event='%s'",
-                itemID, eventType.name());
+                "%s WHERE re._itemID='%s' AND re._event='%s'",
+                _baseQuery, itemID, eventType.name());
         return execScalarQuery(query);
     }
 
@@ -473,12 +607,11 @@ public class LogMiner {
         XNode caseNode = null;
         long specKey = getSpecificationKey(specID);
         if (specKey > -1) {
-            StringBuilder query = new StringBuilder(100);
-            query.append("FROM ResourceEvent AS re WHERE re._specKey=")
-                    .append(specKey)
-                    .append(" ORDER BY re._caseID, re._taskID, re._timeStamp");
+            String query = String.format(
+                  "%s WHERE re._specKey=%d ORDER BY re._caseID, re._taskID, re._timeStamp",
+                    _baseQuery, specKey);
 
-            List rows = _reader.execQuery(query.toString()) ;
+            List rows = _reader.execQuery(query) ;
             String caseID = "-1";
             for (Object row : rows) {
                 ResourceEvent event = (ResourceEvent) row;

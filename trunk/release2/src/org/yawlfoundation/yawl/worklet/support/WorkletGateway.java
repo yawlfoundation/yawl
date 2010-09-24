@@ -36,7 +36,7 @@ import java.io.OutputStreamWriter;
   *  The WorkletGateway class acts as a gateway between the Worklet Selection
   *  Service and the external RDREditor. It initialises the service with values from
   *  'web.xml' and provides functionality to trigger a running worklet replacement
-  *  due to an addtion to the ruleset (by the editor). Future
+  *  due to an addition to the ruleset (by the editor). Future
   *  implementations may extend this gateway for other purposes.
   *
   *  @author Michael Adams
@@ -63,7 +63,7 @@ public class WorkletGateway extends HttpServlet {
 
                  String ixStr = context.getInitParameter("EnableExceptionHandling");
                  WorkletService.getInstance().setExceptionServiceEnabled(
-                       ixStr.equalsIgnoreCase("TRUE"));  
+                       (ixStr != null) && ixStr.equalsIgnoreCase("TRUE"));  
 
                  WorkletService.getInstance().completeInitialisation();
                  ExceptionService.getInst().completeInitialisation();
