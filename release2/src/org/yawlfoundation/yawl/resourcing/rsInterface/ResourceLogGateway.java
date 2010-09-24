@@ -55,7 +55,8 @@ public class ResourceLogGateway extends HttpServlet {
     private final String _badAction = _badPre + "action.</failure>";
     private final String _badEvent = _badPre + "event name.</failure>";
     private final String _badSpecID = _badPre + "specification ID.</failure>";
-
+    private final String _badTimestamp = _badPre + "timestamp value.</failure>";
+ 
 
     public void init() {
         _logDB = LogMiner.getInstance() ;
@@ -88,13 +89,16 @@ public class ResourceLogGateway extends HttpServlet {
            else result = _noService;
        }
        else if (validConnection(handle)) {
+            long from = getLong(req.getParameter("from"));
+            long to = getLong(req.getParameter("to"));
+
            if (action.equals("getCaseEvent")) {
                String launchStr = req.getParameter("launch") ;
                boolean launch = (launchStr != null) && launchStr.equalsIgnoreCase("true");
                result = _logDB.getCaseEvent(id, launch);
            }
            else if (action.equals("getCaseEvents")) {
-               result = _logDB.getCaseEvents(id);
+               result = _logDB.getCaseEvents(id, from, to);
            }
            else if (action.equals("getCaseStartedBy")) {
                result = _logDB.getCaseStartedBy(id);
@@ -102,19 +106,19 @@ public class ResourceLogGateway extends HttpServlet {
            else if (action.equals("getWorkItemEvents")) {
                String fnStr = req.getParameter("fullname") ;
                boolean fullName = (fnStr != null) && fnStr.equalsIgnoreCase("true");
-               result = _logDB.getWorkItemEvents(id, fullName);
+               result = _logDB.getWorkItemEvents(id, fullName, from, to);
            }
            else if (action.equals("getParticipantHistory")) {
-               result = _logDB.getParticipantHistory(id);
+               result = _logDB.getParticipantHistory(id, from, to);
            }
            else if (action.equals("getResourceHistory")) {
-               result = _logDB.getResourceHistory(id);
+               result = _logDB.getResourceHistory(id, from, to);
            }
            else if (action.equals("getParticipantHistoryForEvent")) {
                String eventStr = req.getParameter("eventType");
                EventLogger.event event = EventLogger.getEventByName(eventStr);
                if (event != null) {
-                   result = _logDB.getParticipantHistoryForEvent(id, event);
+                   result = _logDB.getParticipantHistoryForEvent(id, event, from, to);
                }
                else result = _badEvent;     
            }
@@ -122,7 +126,7 @@ public class ResourceLogGateway extends HttpServlet {
                String eventStr = req.getParameter("eventType");
                EventLogger.event event = EventLogger.getEventByName(eventStr);
                if (event != null) {
-                   result = _logDB.getResourceHistoryForEvent(id, event);
+                   result = _logDB.getResourceHistoryForEvent(id, event, from, to);
                }
                else result = _badEvent;
            }
@@ -136,16 +140,23 @@ public class ResourceLogGateway extends HttpServlet {
                result = _logDB.getWorkItemStarted(id);
            }
            else if (action.equals("getCaseHistoryInvolvingParticipant")) {
-               result = _logDB.getCaseHistoryInvolvingParticipant(id);
+               result = _logDB.getCaseHistoryInvolvingParticipant(id, from, to);
            }
            else if (action.equals("getSpecificationEvents")) {
                YSpecificationID specID = constructSpecID(req);
-               result = (specID != null) ? _logDB.getSpecificationEvents(specID) : _badSpecID;
+               result = (specID != null) ? _logDB.getSpecificationEvents(specID, from, to)
+                                         : _badSpecID;
            }
            else if (action.equals("getSpecificationSetEvents")) {
                String setXML = req.getParameter("setxml");
                Set<YSpecificationID> idSet = constructSpecificationIDSet(setXML);
-               result = (idSet != null) ? _logDB.getSpecificationEvents(idSet) : _badSpecID;
+               result = (idSet != null) ? _logDB.getSpecificationEvents(idSet, from, to)
+                                        : _badSpecID;
+           }
+           else if (action.equals("getSpecificationStatistics")) {
+               YSpecificationID specID = constructSpecID(req);
+               result = (specID != null) ? _logDB.getSpecificationStatistics(specID)
+                                         : _badSpecID;
            }
            else if (action.equals("getSpecificationIdentifiers")) {
                String key = req.getParameter("key");
@@ -187,6 +198,16 @@ public class ResourceLogGateway extends HttpServlet {
         }
         catch (Exception e) {
             return false;
+        }
+    }
+
+
+    private long getLong(String s) {
+        try {
+            return new Long(s);
+        }
+        catch (NumberFormatException nfe) {
+            return -1;
         }
     }
 

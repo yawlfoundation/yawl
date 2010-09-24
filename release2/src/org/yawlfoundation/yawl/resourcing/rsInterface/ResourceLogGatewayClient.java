@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
@@ -84,6 +85,23 @@ public class ResourceLogGatewayClient extends Interface_Client {
     }
 
 
+    private void addTimeRange(Map<String, String> params, long from, long to) {
+        params.put("from", String.valueOf(from));
+        params.put("to", String.valueOf(to));       
+    }
+
+
+    public String specIDsToXML(Set<YSpecificationID> specIDs) {
+        StringBuilder xml = new StringBuilder("<specificationids>");
+        for (YSpecificationID specID : specIDs) {
+            xml.append(specID.toXML());
+        }
+        xml.append("</specificationids>");
+        return xml.toString();
+    }
+
+
+
     /*******************************************************************************/
 
     /**
@@ -107,6 +125,43 @@ public class ResourceLogGatewayClient extends Interface_Client {
      */
     public String getCaseEvents(String caseID, String handle) throws IOException {
         return performGet("getCaseEvents", "id", caseID, handle);
+    }
+
+
+    /**
+     * Gets an summary xml list of all the logged events for a case within the time
+     * range specified
+     * @param caseID the case id
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the service
+     */
+    public String getCaseEvents(String caseID, long from, long to, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("getCaseEvents", handle);
+        params.put("id", caseID);
+        addTimeRange(params, from, to);
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
+     * Gets an summary xml list of all the logged events for a case within the time
+     * range specified
+     * @param caseID the case id
+     * @param dateFrom the lower time range value
+     * @param dateTo the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the service
+     */
+    public String getCaseEvents(String caseID, Date dateFrom, Date dateTo, String handle)
+            throws IOException {
+        long from = (dateFrom != null) ? dateFrom.getTime() : -1;
+        long to = (dateTo != null) ? dateTo.getTime() : -1;
+        return getCaseEvents(caseID, from, to, handle);
     }
 
 
@@ -144,6 +199,44 @@ public class ResourceLogGatewayClient extends Interface_Client {
 
 
     /**
+     * Gets an summary xml list of all logged events for a workitem within the time
+     * range specified
+     * @param itemID the workitem's id string
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the service
+     */
+    public String getWorkItemEvents(String itemID, boolean fullName, long from, long to,
+                                    String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getWorkItemEvents", handle);
+        params.put("id", itemID);
+        params.put("fullname", String.valueOf(fullName));
+        addTimeRange(params, from, to);
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
+     * Gets an summary xml list of all logged events for a workitem within the time
+     * range specified
+     * @param itemID the workitem's id string
+     * @param dateFrom the lower time range value
+     * @param dateTo the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the service
+     */
+    public String getWorkItemEvents(String itemID, boolean fullName, Date dateFrom,
+                                    Date dateTo, String handle) throws IOException {
+        long from = (dateFrom != null) ? dateFrom.getTime() : -1;
+        long to = (dateTo != null) ? dateTo.getTime() : -1;
+        return getWorkItemEvents(itemID, fullName, from, to, handle);
+    }
+
+
+    /**
      * Gets an xml list of all work item events involving the specified participant
      * @param pid the participant identifier
      * @param handle an active sessionhandle
@@ -152,6 +245,43 @@ public class ResourceLogGatewayClient extends Interface_Client {
      */
     public String getParticipantHistory(String pid, String handle) throws IOException {
         return performGet("getParticipantHistory", "id", pid, handle);
+    }
+
+
+    /**
+     * Gets an xml list of all work item events involving the specified participant
+     * within the time range specified
+     * @param pid the participant identifier
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the service
+     */
+    public String getParticipantHistory(String pid, long from, long to, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("getParticipantHistory", handle);
+        params.put("id", pid);
+        addTimeRange(params, from, to);
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
+     * Gets an xml list of all work item events involving the specified participant
+     * within the time range specified
+     * @param pid the participant identifier
+     * @param dateFrom the lower time range value
+     * @param dateTo the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the service
+     */
+    public String getParticipantHistory(String pid, Date dateFrom, Date dateTo,
+                                        String handle) throws IOException {
+        long from = (dateFrom != null) ? dateFrom.getTime() : -1;
+        long to = (dateTo != null) ? dateTo.getTime() : -1;
+        return getParticipantHistory(pid, from, to, handle);        
     }
 
 
@@ -165,6 +295,43 @@ public class ResourceLogGatewayClient extends Interface_Client {
      */
     public String getResourceHistory(String id, String handle) throws IOException {
         return performGet("getResourceHistory", "id", id, handle);        
+    }
+
+
+    /**
+     * Gets an xml list of all work item events involving the specified resource
+     * within the time range specified (can be a Participant or a NonHumanResource)
+     * @param id the resource identifier
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the service
+     */
+    public String getResourceHistory(String id, long from, long to, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("getResourceHistory", handle);
+        params.put("id", id);
+        addTimeRange(params, from, to);
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
+     * Gets an xml list of all work item events involving the specified resource
+     * within the time range specified (can be a Participant or a NonHumanResource)
+     * @param id the resource identifier
+     * @param dateFrom the lower time range value
+     * @param dateTo the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the service
+     */
+    public String getResourceHistory(String id, Date dateFrom, Date dateTo,
+                                        String handle) throws IOException {
+        long from = (dateFrom != null) ? dateFrom.getTime() : -1;
+        long to = (dateTo != null) ? dateTo.getTime() : -1;
+        return getResourceHistory(id, from, to, handle);        
     }
 
 
@@ -189,20 +356,105 @@ public class ResourceLogGatewayClient extends Interface_Client {
 
     /**
      * Gets an xml list of all instances of the specified event involving the
+     * specified participant within the time range specified
+     * @param pid the participant identifier
+     * @param eventName a String matching one of the EventLogger events (offer, allocate,
+     * start, reallocate and so on)
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the service
+     */
+    public String getParticipantHistoryForEvent(String pid, String eventName, long from,
+                                             long to, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getParticipantHistoryForEvent", handle);
+        params.put("id", pid);
+        params.put("eventType", eventName);
+        addTimeRange(params, from, to);
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
+     * Gets an xml list of all instances of the specified event involving the
+     * specified participant within the time range specified
+     * @param pid the participant identifier
+     * @param eventName a String matching one of the EventLogger events (offer, allocate,
+     * start, reallocate and so on)
+     * @param dateFrom the lower time range value
+     * @param dateTo the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the service
+     */
+    public String getParticipantHistoryForEvent(String pid, String eventName, Date dateFrom,
+                                             Date dateTo, String handle) throws IOException {
+        long from = (dateFrom != null) ? dateFrom.getTime() : -1;
+        long to = (dateTo != null) ? dateTo.getTime() : -1;
+        return getParticipantHistoryForEvent(pid, eventName, from, to, handle);        
+    }
+
+
+    /**
+     * Gets an xml list of all instances of the specified event involving the
      * specified resource (can be a Participant or a NonHumanResource)
-     * @param pid the resource identifier
+     * @param id the resource identifier
      * @param eventName a String matching one of the EventLogger events (offer, allocate,
      * start, reallocate and so on)
      * @param handle an active sessionhandle
      * @return the resultant String response (log data or error message)
      * @throws java.io.IOException if there's a problem connecting to the service
      */
-    public String getResourceHistoryForEvent(String pid, String eventName, String handle)
+    public String getResourceHistoryForEvent(String id, String eventName, String handle)
             throws IOException {
         Map<String, String> params = prepareParamMap("getResourceHistoryForEvent", handle);
-        params.put("id", pid);
+        params.put("id", id);
         params.put("eventType", eventName);
         return executeGet(_logURI, params);
+    }
+
+
+    /**
+     * Gets an xml list of all instances of the specified event involving the
+     * specified resource within the time range specified (can be a Participant
+     * or a NonHumanResource)
+     * @param id the resource identifier
+     * @param eventName a String matching one of the EventLogger events (offer, allocate,
+     * start, reallocate and so on)
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the service
+     */
+    public String getResourceHistoryForEvent(String id, String eventName, long from,
+                                             long to, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getResourceHistoryForEvent", handle);
+        params.put("id", id);
+        params.put("eventType", eventName);
+        addTimeRange(params, from, to);
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
+     * Gets an xml list of all instances of the specified event involving the
+     * specified participant within the time range specified
+     * @param id the participant identifier
+     * @param eventName a String matching one of the EventLogger events (offer, allocate,
+     * start, reallocate and so on)
+     * @param dateFrom the lower time range value
+     * @param dateTo the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the service
+     */
+    public String getResourceHistoryForEvent(String id, String eventName, Date dateFrom,
+                                             Date dateTo, String handle) throws IOException {
+        long from = (dateFrom != null) ? dateFrom.getTime() : -1;
+        long to = (dateTo != null) ? dateTo.getTime() : -1;
+        return getResourceHistoryForEvent(id, eventName, from, to, handle);        
     }
 
 
@@ -257,6 +509,44 @@ public class ResourceLogGatewayClient extends Interface_Client {
 
 
     /**
+     * Gets an xml list of all case events for all cases in which the specified
+     * participant had some involvement within the time range specified
+     * @param pid the identifier of the participant
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getCaseHistoryInvolvingParticipant(String pid, long from, long to,
+                                                     String handle) throws IOException {
+        Map<String, String> params = prepareParamMap(
+                "getCaseHistoryInvolvingParticipant", handle);
+        params.put("id", pid);
+        addTimeRange(params, from, to);
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
+     * Gets an xml list of all case events for all cases in which the specified
+     * participant had some involvement within the time range specified
+     * @param pid the identifier of the participant
+     * @param dateFrom the lower time range value
+     * @param dateTo the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getCaseHistoryInvolvingParticipant(String pid, Date dateFrom, Date dateTo,
+                                                     String handle) throws IOException {
+        long from = (dateFrom != null) ? dateFrom.getTime() : -1;
+        long to = (dateTo != null) ? dateTo.getTime() : -1;
+        return getCaseHistoryInvolvingParticipant(pid, from, to, handle);                
+    }
+
+
+    /**
      * Gets an xml list of all case events for all case instances of a specification
      * @param identifier the unique specification identifier
      * @param version the specification version
@@ -267,13 +557,50 @@ public class ResourceLogGatewayClient extends Interface_Client {
      */
     public String getSpecificationEvents(String identifier, String version,
                                        String uri, String handle) throws IOException {
+        return getSpecificationEvents(identifier, version, uri, -1, -1, handle);
+    }
+
+
+    /**
+     * Gets an xml list of all case events for all case instances of a specification
+     * @param identifier the unique specification identifier
+     * @param version the specification version
+     * @param uri the specification uri
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getSpecificationEvents(String identifier, String version,
+                      String uri, long from, long to, String handle) throws IOException {
         Map<String, String> params = prepareParamMap("getSpecificationEvents", handle);
         params.put("identifier", identifier);
         params.put("version", version);
         params.put("uri", uri);
+        addTimeRange(params, from, to);
         return executeGet(_logURI, params);
     }
 
+
+    /**
+     * Gets an xml list of all case events for all case instances of a specification
+     * @param identifier the unique specification identifier
+     * @param version the specification version
+     * @param uri the specification uri
+     * @param dateFrom the lower time range value
+     * @param dateTo the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getSpecificationEvents(String identifier, String version,
+              String uri, Date dateFrom, Date dateTo, String handle) throws IOException {
+        long from = (dateFrom != null) ? dateFrom.getTime() : -1;
+        long to = (dateTo != null) ? dateTo.getTime() : -1;
+        return getSpecificationEvents(identifier, version, uri, from, to, handle);
+    }
+    
 
     /**
      * Gets an xml list of all case events for all case instances of a specification
@@ -290,6 +617,38 @@ public class ResourceLogGatewayClient extends Interface_Client {
 
 
     /**
+     * Gets an xml list of all case events for all case instances of a specification
+     * @param specID the specification identifier
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getSpecificationEvents(YSpecificationID specID, long from, long to,
+                                         String handle) throws IOException {
+        return getSpecificationEvents(specID.getIdentifier(), specID.getVersionAsString(),
+                specID.getUri(), from, to, handle);
+    }
+
+
+    /**
+     * Gets an xml list of all case events for all case instances of a specification
+     * @param specID the specification identifier
+     * @param dateFrom the lower time range value
+     * @param dateTo the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getSpecificationEvents(YSpecificationID specID, Date dateFrom, Date dateTo,
+                                         String handle) throws IOException {
+        return getSpecificationEvents(specID.getIdentifier(), specID.getVersionAsString(),
+                specID.getUri(), dateFrom, dateTo, handle);
+    }
+
+
+    /**
      * Gets an xml list of all case events for all case instances of all the
      * specifications in a Set
      * @param specIDs the set of specification identifiers
@@ -299,12 +658,80 @@ public class ResourceLogGatewayClient extends Interface_Client {
      */
     public String getSpecificationEvents(Set<YSpecificationID> specIDs, String handle)
             throws IOException {
-        StringBuilder xml = new StringBuilder("<specificationids>");
-        for (YSpecificationID specID : specIDs) {
-            xml.append(specID.toXML());
-        }
-        xml.append("</specificationids>");
-        return performGet("getSpecificationSetEvents", "setxml", xml.toString(), handle);
+        return performGet("getSpecificationSetEvents", "setxml", specIDsToXML(specIDs), handle);
+    }
+
+
+    /**
+     * Gets an xml list of all case events for all case instances of all the
+     * specifications in a Set
+     * @param specIDs the set of specification identifiers
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getSpecificationEvents(Set<YSpecificationID> specIDs, long from,
+                                         long to, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getSpecificationSetEvents", handle);
+        params.put("setxml", specIDsToXML(specIDs));
+        addTimeRange(params, from, to);
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
+     * Gets an xml list of all case events for all case instances of all the
+     * specifications in a Set
+     * @param specIDs the set of specification identifiers
+     * @param dateFrom the lower time range value
+     * @param dateTo the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getSpecificationEvents(Set<YSpecificationID> specIDs, Date dateFrom,
+                                         Date dateTo, String handle) throws IOException {
+        long from = (dateFrom != null) ? dateFrom.getTime() : -1;
+        long to = (dateTo != null) ? dateTo.getTime() : -1;
+        return getSpecificationEvents(specIDs, from, to, handle);       
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all case instances of a specification
+     * @param specID the specification identifier
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getSpecificationStatistics(YSpecificationID specID, String handle)
+            throws IOException {
+        return getSpecificationStatistics(specID.getIdentifier(), specID.getVersionAsString(),
+                specID.getUri(), -1, -1, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all case instances of a specification
+     * @param identifier the unique specification identifier
+     * @param version the specification version
+     * @param uri the specification uri
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getSpecificationStatistics(String identifier, String version,
+                      String uri, long from, long to, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getSpecificationEvents", handle);
+        params.put("identifier", identifier);
+        params.put("version", version);
+        params.put("uri", uri);
+        addTimeRange(params, from, to);
+        return executeGet(_logURI, params);
     }
 
 

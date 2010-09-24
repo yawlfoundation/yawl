@@ -270,6 +270,16 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
     }
 
+    public String getEngineSpecificationStatistics(YSpecificationID specID) {
+        try {
+            return _interfaceEClient.getSpecificationStatistics(specID,
+                                                     getEngineSessionHandle());
+        }
+        catch (IOException ioe) {
+            return null;
+        }
+    }
+
     public void initBuildProperties(InputStream stream) {
         _buildProps = new YBuildProperties();
         _buildProps.load(stream);

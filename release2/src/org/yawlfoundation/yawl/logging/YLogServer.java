@@ -499,6 +499,114 @@ public class YLogServer {
     }
 
 
+    public String getSpecificationStatistics(YSpecificationID specID) {
+        return getSpecificationStatistics(specID, -1, Long.MAX_VALUE);
+    }
+
+    public String getSpecificationStatistics(YSpecificationID specID, long from, long to) {
+        String result ;
+        if (_pmgr != null) {
+            try {
+                YLogSpecification spec = getSpecification(specID);
+                if (spec != null) {
+                    result = getSpecificationStatistics(spec.getRowKey(), from, to);
+                }
+                else result = "<failure>No records for specification '" +
+                              specID.toString() + "'.</failure>" ;
+            }
+            catch (YPersistenceException ype) {
+               result = _exErrStr ;
+            }
+        }
+        else result = _pmErrStr ;
+
+        return result;
+    }
+
+
+    public String getSpecificationStatistics(long specKey) {
+        return getSpecificationStatistics(specKey, -1, Long.MAX_VALUE);
+    }
+
+    public String getSpecificationStatistics(long specKey, long from, long to) {
+        String result ;
+         if (_pmgr != null) {
+             try {
+                 YLogSpecification spec = getSpecification(specKey);
+                 int casesStarted = 0;
+                 int casesCompleted = 0;
+                 int casesCancelled = 0;
+                 long maxCompletedTime = 0;
+                 long minCompletedTime = Long.MAX_VALUE;
+                 double totalCompletedTime = 0;
+                 long maxCancelledTime = 0;
+                 long minCancelledTime = Long.MAX_VALUE;
+                 double totalCancelledTime = 0;
+                 if (to == -1) to = Long.MAX_VALUE;
+                 List instances = getNetInstanceObjects(spec.getRootNetID());
+                 for (Object o : instances) {
+                     YLogNetInstance instance = (YLogNetInstance) o;
+                     List events = getInstanceEventObjects(instance.getNetInstanceID());
+                     long startTime = 0;
+                     long completeTime = 0;
+                     long cancelTime = 0;
+                     for (Object obj : events) {
+                         YLogEvent event = (YLogEvent) obj;
+                         if ((event.getTimestamp() >= from) && (event.getTimestamp() <= to)) {
+                             String eventLabel = event.getDescriptor();
+                             if (eventLabel.equals("CaseStart")) {
+                                 casesStarted++;
+                                 startTime = event.getTimestamp();
+                             }
+                             else if (eventLabel.equals("CaseComplete")) {
+                                 casesCompleted++;
+                                 completeTime = event.getTimestamp();
+                             }
+                             else if (eventLabel.equals("CaseCancel")) {
+                                 casesCancelled++;
+                                 cancelTime = event.getTimestamp();
+                             }
+                         }
+                     }
+                     if (completeTime > 0) {
+                         long expiredTime = completeTime - startTime;
+                         maxCompletedTime = Math.max(maxCompletedTime, expiredTime);
+                         minCompletedTime = Math.min(minCompletedTime, expiredTime);
+                         totalCompletedTime += expiredTime;
+                     }
+                     else if (cancelTime > 0) {
+                         long expiredTime = cancelTime - startTime;
+                         maxCancelledTime = Math.max(maxCancelledTime, expiredTime);
+                         minCancelledTime = Math.min(minCancelledTime, expiredTime);
+                         totalCancelledTime += expiredTime;
+                     }
+                 }
+                 XNode node = new XNode("specification");
+                 node.addAttribute("id", spec.getUri() + " - " + spec.getVersion());
+                 node.addAttribute("key", specKey);
+                 node.addChild("started", casesStarted);
+                 node.addChild("completed", casesCompleted);
+                 node.addChild("cancelled", casesCancelled);
+                 node.addChild("completionMaxtime", StringUtil.formatTime(maxCompletedTime));
+                 node.addChild("completionMintime", StringUtil.formatTime(minCompletedTime));
+                 node.addChild("completionAvgtime",
+                         StringUtil.formatTime((long) totalCompletedTime / casesCompleted));
+                 node.addChild("cancelledMaxtime", StringUtil.formatTime(maxCancelledTime));
+                 node.addChild("cancelledMintime", StringUtil.formatTime(minCancelledTime));
+                 node.addChild("cancelledAvgtime",
+                         StringUtil.formatTime((long) totalCancelledTime / casesCancelled));
+                 result = node.toString();
+             }
+             catch (YPersistenceException ype) {
+                result = _exErrStr ;
+             }
+         }
+         else result = _pmErrStr ;
+
+         return result ;
+     }
+
+
     public XNode getXESLog(YSpecificationID specID, boolean withData) {
         if (_pmgr != null) {
             try {

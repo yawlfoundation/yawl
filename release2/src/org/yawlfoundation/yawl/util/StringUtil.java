@@ -226,6 +226,28 @@ public class StringUtil
         return currency.getSymbol() + fmt.format(value);
     }
 
+
+    /**
+     * formats a long time value into a string of the form 'ddd:hh:mm:ss'
+     * @param time the time value (in milliseconds)
+     * @return the formatted time string
+     */
+    public static String formatTime(long time) {
+        long secsPerHour = 60 * 60 ;
+        long secsPerDay = 24 * secsPerHour ;
+
+        long millis = time % 1000;
+        time /= 1000;
+        long days = time / secsPerDay ;
+        time %= secsPerDay ;
+        long hours = time / secsPerHour ;
+        time %= secsPerHour ;
+        long mins = time / 60 ;
+        time %= 60 ;
+
+        return String.format("%d:%02d:%02d:%02d.%04d", days, hours, mins, time, millis) ;
+    }
+
     /**
      * Converts the throwable object into the standard Java stack trace format.
      *

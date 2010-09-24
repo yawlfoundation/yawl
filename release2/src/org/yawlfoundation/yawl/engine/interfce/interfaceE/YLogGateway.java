@@ -111,7 +111,19 @@ public class YLogGateway extends HttpServlet {
                    YSpecificationID specID = new YSpecificationID(identifier, version, uri);
                    result = _logMgr.getCompleteCaseLogsForSpecification(specID) ;
                }
-           }           
+           }
+           else if (action.equals("getSpecificationStatistics")) {
+               if (key != null) {
+                   result = _logMgr.getSpecificationStatistics(new Long(key)) ;
+               }
+               else {
+                   String identifier = req.getParameter("identifier");
+                   String version = req.getParameter("version");
+                   String uri = req.getParameter("uri");
+                   YSpecificationID specID = new YSpecificationID(identifier, version, uri);
+                   result = _logMgr.getSpecificationStatistics(specID) ;
+               }
+           }
            else if (action.equals("getCaseEvents")) {
                if (key != null) {
                    result = _logMgr.getCaseEvents(new Long(key));
