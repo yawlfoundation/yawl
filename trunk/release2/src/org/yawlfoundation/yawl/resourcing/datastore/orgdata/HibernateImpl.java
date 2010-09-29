@@ -122,22 +122,22 @@ public class HibernateImpl extends DataSource {
        ResourceDataSet ds = new ResourceDataSet(this) ;
 
        List<Capability> cList = _db.getObjectsForClass(_capability) ;
-       for (Capability c : cList) ds.putCapability(c) ;
+       if (cList != null) for (Capability c : cList) ds.putCapability(c) ;
 
        List<OrgGroup> ogList = _db.getObjectsForClass(_orgGroup) ;
-       for (OrgGroup o : ogList) ds.putOrgGroup(o) ;
+       if (ogList != null) for (OrgGroup o : ogList) ds.putOrgGroup(o) ;
 
        List<Position> posList = _db.getObjectsForClass(_position) ;
-       for (Position p : posList) ds.putPosition(p) ;
+       if (posList != null) for (Position p : posList) ds.putPosition(p) ;
 
        List<Role> roleList = _db.getObjectsForClass(_role) ;
-       for (Role r : roleList) ds.putRole(r) ;
+       if (roleList != null) for (Role r : roleList) ds.putRole(r) ;
 
        List<Participant> pList = _db.getObjectsForClass(_participant) ;
-       for (Participant par : pList) ds.putParticipant(par) ;
+       if (pList != null) for (Participant par : pList) ds.putParticipant(par) ;
 
        List<NonHumanResource> resList = _db.getObjectsForClass(_nonHumanResource) ;
-       for (NonHumanResource res : resList) ds.putNonHumanResource(res) ;
+       if (resList != null) for (NonHumanResource res : resList) ds.putNonHumanResource(res) ;
 
        return ds ;
     }

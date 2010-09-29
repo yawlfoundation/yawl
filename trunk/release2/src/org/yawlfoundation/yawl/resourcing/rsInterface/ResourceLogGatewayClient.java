@@ -700,6 +700,78 @@ public class ResourceLogGatewayClient extends Interface_Client {
 
 
     /**
+     * Gets a summary set of statistics for all instances of a specified task
+     * @param specID the specification identifier that contains the task
+     * @param taskName the name of the task
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatistics(YSpecificationID specID, String taskName, String handle)
+            throws IOException {
+        return getTaskStatistics(specID.getIdentifier(), specID.getVersionAsString(),
+                specID.getUri(), taskName, -1, -1, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all instances of a specified task
+     * @param specID the specification identifier that contains the task
+     * @param taskName the name of the task
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatistics(YSpecificationID specID, String taskName, long from,
+                                    long to, String handle) throws IOException {
+        return getTaskStatistics(specID.getIdentifier(), specID.getVersionAsString(),
+                specID.getUri(), taskName, from, to, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all instances of a specified task
+     * @param identifier the unique specification identifier
+     * @param version the specification version
+     * @param uri the specification uri
+     * @param taskName the name of the task
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatistics(String identifier, String version,
+                      String uri, String taskName, String handle) throws IOException {
+        return getTaskStatistics(identifier, version, uri, taskName, -1, -1, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all instances of a specified task
+     * @param identifier the unique specification identifier
+     * @param version the specification version
+     * @param uri the specification uri
+     * @param taskName the name of the task
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatistics(String identifier, String version, String uri,
+                 String taskName, long from, long to, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getTaskStatistics", handle);
+        params.put("identifier", identifier);
+        params.put("version", version);
+        params.put("uri", uri);
+        params.put("taskname", taskName);
+        addTimeRange(params, from, to);
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
      * Gets a summary set of statistics for all case instances of a specification
      * @param specID the specification identifier
      * @param handle an active sessionhandle
@@ -710,6 +782,37 @@ public class ResourceLogGatewayClient extends Interface_Client {
             throws IOException {
         return getSpecificationStatistics(specID.getIdentifier(), specID.getVersionAsString(),
                 specID.getUri(), -1, -1, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all case instances of a specification
+     * @param specID the specification identifier
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getSpecificationStatistics(YSpecificationID specID, long from, long to,
+                                             String handle) throws IOException {
+        return getSpecificationStatistics(specID.getIdentifier(), specID.getVersionAsString(),
+                specID.getUri(), from, to, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all case instances of a specification
+     * @param identifier the unique specification identifier
+     * @param version the specification version
+     * @param uri the specification uri
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getSpecificationStatistics(String identifier, String version,
+                      String uri, String handle) throws IOException {
+        return getSpecificationStatistics(identifier, version, uri, -1, -1, handle);
     }
 
 
@@ -747,7 +850,6 @@ public class ResourceLogGatewayClient extends Interface_Client {
             throws IOException {
         return performGet("getSpecificationIdentifiers", "key", key, handle);
     }
-
 
     /**
      * Gets all events for all cases of the specification passed
