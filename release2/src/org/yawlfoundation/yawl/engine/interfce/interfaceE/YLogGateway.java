@@ -120,8 +120,10 @@ public class YLogGateway extends HttpServlet {
                    String identifier = req.getParameter("identifier");
                    String version = req.getParameter("version");
                    String uri = req.getParameter("uri");
+                   long from = strToLong(req.getParameter("from"));
+                   long to = strToLong(req.getParameter("to"));
                    YSpecificationID specID = new YSpecificationID(identifier, version, uri);
-                   result = _logMgr.getSpecificationStatistics(specID) ;
+                   result = _logMgr.getSpecificationStatistics(specID, from, to) ;
                }
            }
            else if (action.equals("getCaseEvents")) {
@@ -213,6 +215,16 @@ public class YLogGateway extends HttpServlet {
         }
         catch (Exception e) {
             return false;
+        }
+    }
+
+
+    private long strToLong(String s) {
+        try {
+            return new Long(s);
+        }
+        catch (NumberFormatException nfe) {
+            return -1;
         }
     }
 }

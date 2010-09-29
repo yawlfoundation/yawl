@@ -155,7 +155,13 @@ public class ResourceLogGateway extends HttpServlet {
            }
            else if (action.equals("getSpecificationStatistics")) {
                YSpecificationID specID = constructSpecID(req);
-               result = (specID != null) ? _logDB.getSpecificationStatistics(specID)
+               result = (specID != null) ? _logDB.getSpecificationStatistics(specID, from, to)
+                                         : _badSpecID;
+           }
+           else if (action.equals("getTaskStatistics")) {
+               YSpecificationID specID = constructSpecID(req);
+               String taskName = req.getParameter("taskname");
+               result = (specID != null) ? _logDB.getTaskStatistics(specID, taskName, from, to)
                                          : _badSpecID;
            }
            else if (action.equals("getSpecificationIdentifiers")) {

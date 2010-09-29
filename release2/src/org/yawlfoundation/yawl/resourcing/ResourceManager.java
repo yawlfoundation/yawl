@@ -270,9 +270,10 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
     }
 
-    public String getEngineSpecificationStatistics(YSpecificationID specID) {
+    public String getEngineSpecificationStatistics(YSpecificationID specID,
+                                                   long from, long to) {
         try {
-            return _interfaceEClient.getSpecificationStatistics(specID,
+            return _interfaceEClient.getSpecificationStatistics(specID, from, to,
                                                      getEngineSessionHandle());
         }
         catch (IOException ioe) {
@@ -1971,7 +1972,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             // if the item is not locally cached, it means a restore has occurred
             // after a checkout & the item is still checked out, so lets put it back
             // so that it can be checked back in
-            getModel().addWorkItem(wir);
+            getIBCache().addWorkItem(wir);
         }
     }
 

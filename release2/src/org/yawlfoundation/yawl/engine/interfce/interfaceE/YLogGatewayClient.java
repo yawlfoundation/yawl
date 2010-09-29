@@ -172,18 +172,40 @@ public class YLogGatewayClient extends Interface_Client {
      * @param identifier the unique identifier of the specification
      * @param version the specification's version number
      * @param uri the specification's uri
+     * @param from the start of the range of timestamps to include
+     * @param to the end of the range of timestamps to include
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getSpecificationStatistics(String identifier, String version,
+                                       String uri, long from, long to, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("getSpecificationStatistics", handle);
+        params.put("identifier", identifier);
+        params.put("version", version);
+        params.put("uri", uri);
+        params.put("from", String.valueOf(from));
+        params.put("to", String.valueOf(to));
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
+     * Gets a set of summary statistics for executed instances of the specification
+     * data passed
+     * @param identifier the unique identifier of the specification
+     * @param version the specification's version number
+     * @param uri the specification's uri
      * @param handle an active sessionhandle
      * @return the resultant String response (log data or error message)
      * @throws java.io.IOException if there's a problem connecting to the engine
      */
     public String getSpecificationStatistics(String identifier, String version,
                                        String uri, String handle) throws IOException {
-        Map<String, String> params = prepareParamMap("getSpecificationStatistics", handle);
-        params.put("identifier", identifier);
-        params.put("version", version);
-        params.put("uri", uri);
-        return executeGet(_logURI, params);
+        return getSpecificationStatistics(identifier, version, uri, -1, -1, handle);
     }
+
 
 
     /**
@@ -197,9 +219,26 @@ public class YLogGatewayClient extends Interface_Client {
     public String getSpecificationStatistics(YSpecificationID specID, String handle)
             throws IOException {
         return getSpecificationStatistics(specID.getIdentifier(),
-                specID.getVersionAsString(), specID.getUri(), handle);
+                specID.getVersionAsString(), specID.getUri(), -1, -1, handle);
     }
     
+
+    /**
+      * Gets a set of summary statistics for executed instances of the specification
+      * data passed
+      * @param specID the unique identifier of the specification
+      * @param from the start of the range of timestamps to include
+      * @param to the end of the range of timestamps to include
+      * @param handle an active sessionhandle
+      * @return the resultant String response (log data or error message)
+      * @throws java.io.IOException if there's a problem connecting to the engine
+      */
+    public String getSpecificationStatistics(YSpecificationID specID, long from, long to,
+                                             String handle) throws IOException {
+        return getSpecificationStatistics(specID.getIdentifier(),
+                specID.getVersionAsString(), specID.getUri(), from, to, handle);
+    }
+
 
     /**
      * Gets a set of summary statistics for executed instances of the specification

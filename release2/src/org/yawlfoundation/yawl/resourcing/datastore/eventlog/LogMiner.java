@@ -28,10 +28,7 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * An API to retrieve data from the resource service's event logs
@@ -143,6 +140,29 @@ public class LogMiner {
                 EventLogger.event.cancel_case;
         ResourceEvent event = getCaseEvent(caseID, eventType);
         return (event != null) ? event.toXML() : _noRowsStr;
+    }
+
+
+    public String getTaskEvents(long specKey, String taskName, long from, long to) {
+        if ((from < 0) && (to < 0)) return getTaskEvents(specKey, taskName);
+        List events = getTaskEventsList(specKey, taskName, from, to);
+        return (! events.isEmpty()) ? eventListToXML(events) : _noRowsStr;
+    }
+
+
+    public String getTaskEvents(long specKey, String taskName) {
+        List events = getTaskEventsList(specKey, taskName);
+        return (! events.isEmpty()) ? eventListToXML(events) : _noRowsStr;
+    }
+
+
+    public String getTaskEvents(YSpecificationID specID, String taskName, long from, long to) {
+        return getTaskEvents(getSpecificationKey(specID), taskName, from, to);
+    }
+
+
+    public String getTaskEvents(YSpecificationID specID, String taskName) {
+        return getTaskEvents(getSpecificationKey(specID), taskName);
     }
 
 
@@ -342,8 +362,36 @@ public class LogMiner {
 
     
     public String getSpecificationStatistics(YSpecificationID specID) {
-        return ResourceManager.getInstance().getEngineSpecificationStatistics(specID);
+        return getSpecificationStatistics(specID, -1, -1);
     }
+
+    
+    public String getSpecificationStatistics(YSpecificationID specID, long from, long to) {
+        return ResourceManager.getInstance().getEngineSpecificationStatistics(specID, from, to);
+    }
+
+
+    public String getTaskStatistics(long specKey, String taskName) {
+        return getTaskStatistics(specKey, taskName, -1, -1);
+    }
+
+
+    public String getTaskStatistics(long specKey, String taskName, long from, long to) {
+        List taskEvents = getTaskEventsList(specKey, taskName, from, to);
+        return (taskEvents != null) ?
+                new TaskStatistics(taskEvents, taskName).generate() : null;
+    }
+
+
+    public String getTaskStatistics(YSpecificationID specID, String taskName) {
+        return getTaskStatistics(getSpecificationKey(specID), taskName, -1, -1);
+    }
+
+
+    public String getTaskStatistics(YSpecificationID specID, String taskName, long from, long to) {
+        return getTaskStatistics(getSpecificationKey(specID), taskName, from, to);
+    }
+
 
     /*****************************************************************************/
 
@@ -374,6 +422,20 @@ public class LogMiner {
 
     private List getWorkItemEventsList(String itemID, long from, long to) {
         String query = getWhereQuery("_itemID", itemID) + getTimeRangeSubclause(from, to);
+        return execQuery(query) ;
+    }
+
+
+    private List getTaskEventsList(long specKey, String taskName) {
+        String query = getWhereQuery("_taskID", massageTaskName(taskName)) +
+                " AND _specKey=" + specKey;
+        return execQuery(query);
+    }
+
+
+    private List getTaskEventsList(long specKey, String taskName, long from, long to) {
+        String query = getWhereQuery("_taskID", massageTaskName(taskName)) +
+                " AND _specKey=" + specKey + getTimeRangeSubclause(from, to);
         return execQuery(query) ;
     }
 
@@ -633,6 +695,20 @@ public class LogMiner {
         return cases;
     }
 
+
+    private String massageTaskName(String taskName) {
+        if ((taskName == null) || (! taskName.contains("_"))) return taskName;
+        char firstChar = taskName.charAt(0);
+        char lastChar = taskName.charAt(taskName.length() -1);
+        if ((firstChar >= '0') && (firstChar <= '9')) {           // pre-beta 7
+            return taskName.substring(taskName.indexOf('_') + 1);
+        }
+        else if ((lastChar >= '0') && (lastChar <= '9')) {      // post-beta 7
+            taskName = taskName.substring(0, taskName.lastIndexOf('_'));
+        }
+        return taskName.replace('_', ' ');
+    }
+    
 
     private boolean sameCase(String eventCaseID, String currentCaseID) {
         return eventCaseID.equals(currentCaseID) ||
