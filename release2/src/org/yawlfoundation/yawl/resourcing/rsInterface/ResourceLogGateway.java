@@ -153,10 +153,37 @@ public class ResourceLogGateway extends HttpServlet {
                result = (idSet != null) ? _logDB.getSpecificationEvents(idSet, from, to)
                                         : _badSpecID;
            }
+           else if (action.equals("getSpecificationEventsByURI")) {
+               result = _logDB.getSpecificationEventsByURI(id, from, to);
+           }
+           else if (action.equals("getSpecificationEventsByID")) {
+               result = _logDB.getSpecificationEventsByID(id, from, to);
+           }
            else if (action.equals("getSpecificationStatistics")) {
                YSpecificationID specID = constructSpecID(req);
                result = (specID != null) ? _logDB.getSpecificationStatistics(specID, from, to)
                                          : _badSpecID;
+           }
+           else if (action.equals("getTaskStatisticsForCase")) {
+               result = _logDB.getTaskStatisticsForCase(id, from, to);
+           }
+           else if (action.equals("getTaskStatisticsForSpecification")) {
+               YSpecificationID specID = constructSpecID(req);
+               result = (specID != null) ?
+                       _logDB.getTaskStatisticsForSpecification(specID, from, to) : _badSpecID;
+           }
+           else if (action.equals("getTaskStatisticsForSpecificationSet")) {
+               String setXML = req.getParameter("setxml");
+               Set<YSpecificationID> idSet = constructSpecificationIDSet(setXML);
+               result = (idSet != null) ?
+                       _logDB.getTaskStatisticsForSpecificationSet(idSet, from, to) :
+                       _badSpecID;
+           }
+           else if (action.equals("getTaskStatisticsForSpecificationURI")) {
+               result = _logDB.getTaskStatisticsForSpecificationURI(id, from, to);
+           }
+           else if (action.equals("getTaskStatisticsForSpecificationUID")) {
+               result = _logDB.getTaskStatisticsForSpecificationUID(id, from, to);
            }
            else if (action.equals("getTaskStatistics")) {
                YSpecificationID specID = constructSpecID(req);

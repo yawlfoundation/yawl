@@ -289,6 +289,16 @@ public class LogMiner {
     }
 
 
+    public String getSpecificationEventsByURI(String uri, long from, long to) {
+        return getSpecificationEvents(getSpecIDs(uri, true), from, to);
+    }
+
+
+    public String getSpecificationEventsByID(String id, long from, long to) {
+        return getSpecificationEvents(getSpecIDs(id, false), from, to);
+    }
+    
+
     public String getSpecificationEvents(Set<YSpecificationID> specIDs) {
         StringBuilder s = new StringBuilder("<SpecificationEvents>");
         for (YSpecificationID specID : specIDs) {
@@ -379,7 +389,7 @@ public class LogMiner {
     public String getTaskStatistics(long specKey, String taskName, long from, long to) {
         List taskEvents = getTaskEventsList(specKey, taskName, from, to);
         return (taskEvents != null) ?
-                new TaskStatistics(taskEvents, taskName).generate() : null;
+                new TaskStatistics(taskEvents, taskName).generate() : _noRowsStr;
     }
 
 
@@ -393,6 +403,55 @@ public class LogMiner {
     }
 
 
+    public String getTaskStatisticsForCase(String caseID) {
+        return getTaskStatisticsForCase(caseID, -1, -1);
+    }
+
+
+    public String getTaskStatisticsForCase(String caseID, long from, long to) {
+        List events = getCaseEventsList(caseID, from, to);
+        return (events != null) ? getTaskStatisticsForCase(caseID, events) : _noRowsStr;
+    }
+
+
+    public String getTaskStatisticsForSpecification(YSpecificationID specID) {
+        return getTaskStatisticsForSpecification(specID, -1, -1);
+    }
+
+
+    public String getTaskStatisticsForSpecification(YSpecificationID specID, long from, long to) {
+        long key = getSpecificationKey(specID);
+        List events = getSpecificationEvents(key, from, to);
+        return (events != null) ? getTaskStatisticsForSpecification(specID, events) : _noRowsStr;
+    }
+
+
+    public String getTaskStatisticsForSpecificationURI(String uri, long from, long to) {
+        return getTaskStatisticsForSpecificationSet(getSpecIDs(uri, true), from, to);
+    }
+
+
+    public String getTaskStatisticsForSpecificationUID(String id, long from, long to) {
+        return getTaskStatisticsForSpecificationSet(getSpecIDs(id, false), from, to);
+    }
+
+
+    public String getTaskStatisticsForSpecificationSet(Set<YSpecificationID> specIDs,
+                                                       long from, long to) {
+        StringBuilder s = new StringBuilder("<taskStatisticsForSpecifications>");
+        for (YSpecificationID specID : specIDs) {
+            s.append(getTaskStatisticsForSpecification(specID, from, to));
+        }
+        s.append("</taskStatisticsForSpecifications>");
+        return s.toString();
+    }
+
+
+    public String getTaskStatisticsForSpecificationSet(Set<YSpecificationID> specIDs) {
+        return getTaskStatisticsForSpecificationSet(specIDs, -1, -1);
+    }
+
+
     /*****************************************************************************/
 
     private List execQuery(String query) {
@@ -401,7 +460,6 @@ public class LogMiner {
             rows = _reader.execQuery(query) ;
         }
         return rows;
-
     }
 
 
@@ -561,9 +619,6 @@ public class LogMiner {
     }
 
 
-
-
-
     private String getExtractedEvents(List events, EventLogger.event eventType) {
         if (events != null) {
             List<ResourceEvent> extracted = extractEvents(events, eventType);
@@ -571,6 +626,62 @@ public class LogMiner {
         }
         return _noRowsStr;
 
+    }
+
+    
+    private String getTaskStatisticsForCase(String caseID, List events) {
+        Map<String, List<ResourceEvent>> taskLists = collateTaskEvents(events);
+        if (taskLists != null) {
+            XNode node = new XNode("taskStatisticsForCase");
+            node.addAttribute("case", caseID);
+            node.addChildren(getTaskStatisticsSet(taskLists));
+            return node.toString();
+        }
+        else return _noRowsStr;
+    }
+
+
+    private String getTaskStatisticsForSpecification(YSpecificationID specID, List events) {
+        Map<String, List<ResourceEvent>> taskLists = collateTaskEvents(events);
+        if (taskLists != null) {
+            XNode node = new XNode("taskStatisticsForSpecification");
+            node.addAttribute("id", specID.toString());
+            node.addChildren(getTaskStatisticsSet(taskLists));
+            return node.toString();
+        }
+        else return _noRowsStr;
+    }
+
+
+    private List<XNode> getTaskStatisticsSet(Map<String, List<ResourceEvent>> taskLists) {
+        XNode node = new XNode("tasks");
+        for (String taskName : taskLists.keySet()) {
+            if (taskName != null) {
+                node.addChild(
+                    new TaskStatistics(taskLists.get(taskName), taskName).generateXNode()
+                );
+            }
+        }
+        return node.getChildren();        
+    }
+
+
+    private Map<String, List<ResourceEvent>> collateTaskEvents(List events) {
+        Map<String, List<ResourceEvent>> collated = null;
+        if (events != null) {
+            collated = new LinkedHashMap<String, List<ResourceEvent>>();
+            for (Object o : events) {
+                ResourceEvent event = (ResourceEvent) o;
+                String taskName = event.get_taskID();
+                List<ResourceEvent> subList = collated.get(taskName);
+                if (subList == null) {
+                    subList = new ArrayList<ResourceEvent>();
+                    collated.put(taskName, subList);
+                }
+                subList.add(event);
+            }
+        }
+        return collated;
     }
 
     /**
@@ -661,6 +772,20 @@ public class LogMiner {
 
     private long getSpecificationKey(YSpecificationID specID) {
         return EventLogger.getSpecificationKey(specID);
+    }
+
+
+    private Set<YSpecificationID> getSpecIDs(String s, boolean uri) {
+        if (s == null) return null;
+        Set<YSpecificationID> specSet = new HashSet<YSpecificationID>();
+        String query = String.format("FROM SpecLog as sl WHERE sl.specID.%s='%s'",
+                uri ? "uri" : "identifier", s);
+        List rows = _reader.execQuery(query) ;
+        for (Object row : rows) {
+            SpecLog spec = (SpecLog) row;
+            specSet.add(spec.getSpecID());
+        }
+        return specSet;
     }
 
 
