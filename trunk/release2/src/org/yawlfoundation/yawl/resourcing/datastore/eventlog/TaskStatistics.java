@@ -31,6 +31,12 @@ import java.util.*;
  */
 public class TaskStatistics {
 
+    private enum Counter { unofferToCancel, unofferToOffer, offerToAllocate, offerToStart,
+            unofferToAllocate, unofferToStart, allocateToStart, startToComplete,
+            startToReallocate, offerToCancel, allocateToCancel, startToCancel,
+            totalDuration, unofferToTimeout, offerToTimeout, allocateToTimeout,
+            startToTimeout }
+
     private List _taskEvents;
     private String _taskName;
 
@@ -41,7 +47,12 @@ public class TaskStatistics {
 
 
     public String generate() {
-        return outputXML(generateSummaries(), initTallies());
+        return generateXNode().toString();
+    }
+    
+
+    public XNode generateXNode() {
+        return outputXML(generateSummaries());
     }
 
 
@@ -53,36 +64,47 @@ public class TaskStatistics {
             ResourceEvent event = (ResourceEvent) o;
             if (event.get_event().equals("offer")) {
                 key = event.get_itemID();
-                stat = table.containsKey(key) ? table.get(key) : new TaskSummary(key);
+                stat = getTaskSummary(table, key);
                 if (stat.getOfferCount() == 0) stat.setOfferTime(event.get_timeStamp());
                 stat.addOffer(event.get_participantID());
             }
             else if (event.get_event().equals("unoffer")) {
                 key = event.get_itemID();
-                stat = table.containsKey(key) ? table.get(key) : new TaskSummary(key);
+                stat = getTaskSummary(table, key);
                 stat.setUnofferTime(event.get_timeStamp());
             }
             else if (event.get_event().equals("allocate")) {
                 key = event.get_itemID();
-                stat = table.containsKey(key) ? table.get(key) : new TaskSummary(key);
+                stat = getTaskSummary(table, key);
                 stat.setAllocTime(event.get_timeStamp());
                 stat.setAllocateID(event.get_participantID());
             }
             else if (event.get_event().equals("start")) {
                 key = getRootItemID(event.get_itemID());
-                stat = table.containsKey(key) ? table.get(key) : new TaskSummary(key);
+                stat = getTaskSummary(table, key);
                 stat.setStartTime(event.get_timeStamp());
                 stat.setStartID(event.get_participantID());
             }
             else if (event.get_event().equals("complete")) {
                 key = getRootItemID(event.get_itemID());
-                stat = table.containsKey(key) ? table.get(key) : new TaskSummary(key);
+                stat = getTaskSummary(table, key);
                 stat.setCompleteTime(event.get_timeStamp());
+                stat.setCompleteID(event.get_participantID());
             }
-            else if (event.get_event().startsWith("cancelled")) {
-                key = getRootItemID(event.get_itemID());
-                stat = table.containsKey(key) ? table.get(key) : new TaskSummary(key);
+            else if (event.get_event().startsWith("cancel")) {
+                key = getReferenceItemID(table, event.get_itemID());
+                stat = getTaskSummary(table, key);
                 stat.setCancelTime(event.get_timeStamp());
+            }
+            else if (event.get_event().startsWith("timer")) {
+                key = getReferenceItemID(table, event.get_itemID());
+                stat = getTaskSummary(table, key);
+                stat.setTimeout(event.get_timeStamp());
+            }
+            else if (event.get_event().startsWith("realloc")) {
+                key = getRootItemID(event.get_itemID());
+                stat = getTaskSummary(table, key);
+                stat.setReallocTime(event.get_timeStamp());
             }
             if (key != null) table.put(key, stat);
         }
@@ -90,85 +112,53 @@ public class TaskStatistics {
     }
 
 
-    private String outputXML(Map<String, TaskSummary> table, List<TaskSubTally> tallies) {
-        Map<String, Integer> offers = new Hashtable<String, Integer>();
-        Map<String, Integer> allocs = new Hashtable<String, Integer>();
-        Map<String, Integer> starts = new Hashtable<String, Integer>();
+    private XNode outputXML(Map<String, TaskSummary> table) {
+        Map<String, TaskSubTallyList> offers = new Hashtable<String, TaskSubTallyList>();
+        Map<String, TaskSubTallyList> allocs = new Hashtable<String, TaskSubTallyList>();
+        Map<String, TaskSubTallyList> starts = new Hashtable<String, TaskSubTallyList>();
+        Map<String, TaskSubTallyList> completes = new Hashtable<String, TaskSubTallyList>();
+        Map<String, TaskSubTallyList> totals = new Hashtable<String, TaskSubTallyList>();
+        Map<String, TaskSubTallyList> timeouts = new Hashtable<String, TaskSubTallyList>();
+        TaskSubTallyList cancels = new TaskSubTallyList();
+        TaskSubTallyList overall = new TaskSubTallyList();
         for (TaskSummary ts : table.values()) {
-            int i = 0;
-            tallies.get(i++).add(ts.getUnofferToOffer());
-            tallies.get(i++).add(ts.getOfferToAlloc());
-            tallies.get(i++).add(ts.getOfferToStart());
-            tallies.get(i++).add(ts.getUnofferToAlloc());
-            tallies.get(i++).add(ts.getUnofferToStart());
-            tallies.get(i++).add(ts.getAllocToStart());
-            tallies.get(i++).add(ts.getStartToComplete());
-            tallies.get(i++).add(ts.getOfferToCancel());
-            tallies.get(i++).add(ts.getAllocToCancel());
-            tallies.get(i++).add(ts.getStartToCancel());
-            tallies.get(i).add(ts.getTotalTime());
+            accumulateAll(ts, overall);
 
             for (String offerTo : ts.getOfferSet()) {
-                if (offerTo != null) {
-                    int oCount = offers.containsKey(offerTo) ? offers.get(offerTo) : 0;
-                    offers.put(offerTo, ++oCount);
-                }
+                accumulate(offers, ts, offerTo, getOfferCounters());
             }
-            String allocBy = ts.getAllocateID();
-            if (allocBy != null) {
-                int aCount = allocs.containsKey(allocBy) ? allocs.get(allocBy) : 0;
-                allocs.put(allocBy, ++aCount);
-            }
-            String startBy = ts.getStartID();
-            if (startBy != null) {
-                int sCount = starts.containsKey(startBy) ? starts.get(startBy) : 0;
-                starts.put(startBy, ++sCount);
-            }
+            accumulate(allocs, ts, ts.getAllocateID(), getAllocCounters());
+            accumulate(starts, ts, ts.getStartID(), getStartCounters());
+            accumulate(completes, ts, ts.getCompleteID(), getCompleteCounters());    
+            accumulate(totals, ts, ts.getCompleteID(), getTotalCounter());
+            accumulate(timeouts, ts, ts.getTimeoutOwner(), getTimeoutCounters());
+            accumulate(ts, cancels, getCancelCounters());
         }
 
         XNode node = new XNode("taskStatistics");
         node.addAttribute("task", _taskName);
-        node.addAttribute("count", table.size());
-        for (TaskSubTally tally : tallies) {
-            if (tally.count > 0) node.addChild(tally.getNode());
-        }
-        XNode nPO = node.addChild("offers");
-        for (String pid : offers.keySet()) {
-            XNode offer = nPO.addChild("participant");
-            offer.addAttribute("name", getParticipantName(pid));
-            offer.addAttribute("instances", offers.get(pid));
-        }
-        XNode nPA = node.addChild("allocations");
-        for (String pid : allocs.keySet()) {
-            XNode alloc = nPA.addChild("participant");
-            alloc.addAttribute("name", getParticipantName(pid));
-            alloc.addAttribute("instances", allocs.get(pid));
-        }
-        XNode nPS = node.addChild("starts");
-        for (String pid : starts.keySet()) {
-            XNode start = nPS.addChild("participant");
-            start.addAttribute("name", getParticipantName(pid));
-            start.addAttribute("instances", starts.get(pid));
-        }
+        node.addAttribute("created", table.size());
+        if (! table.isEmpty()) {
+            if (overall.get(Counter.totalDuration) != null) {
+                node.addAttribute("completed", overall.get(Counter.totalDuration).count);
+            }
+            if (! offers.isEmpty()) node.addChild(getStateNode(offers, "offers"));
+            if (! allocs.isEmpty()) node.addChild(getStateNode(allocs, "allocations"));
+            if (! starts.isEmpty()) node.addChild(getStateNode(starts, "starts"));
+            if (! completes.isEmpty()) node.addChild(getStateNode(completes, "completions"));
+            if (! cancels.isEmpty()) {
+                node.addChild(getStateNode(cancels, "cancels", null, cancels.getSubCount()));
+            }
+            if (! timeouts.isEmpty()) node.addChild(getStateNode(timeouts, "timeouts"));
+            if (! totals.isEmpty()) node.addChild(getStateNode(totals, "totalDurations"));
 
-        return node.toString();
-    }
-
-
-    private List<TaskSubTally> initTallies() {
-        List<TaskSubTally> list = new ArrayList<TaskSubTally>();
-        list.add(new TaskSubTally("unofferToOffer"));
-        list.add(new TaskSubTally("offerToAllocate"));
-        list.add(new TaskSubTally("offerToStart"));
-        list.add(new TaskSubTally("unofferToAllocate"));
-        list.add(new TaskSubTally("unofferToStart"));
-        list.add(new TaskSubTally("allocateToStart"));
-        list.add(new TaskSubTally("startToComplete"));
-        list.add(new TaskSubTally("offerToCancel"));
-        list.add(new TaskSubTally("allocateToCancel"));
-        list.add(new TaskSubTally("startToCancel"));
-        list.add(new TaskSubTally("totalDuration"));
-        return list;
+            XNode overallNode = node.addChild("overall");
+            overall.sort();
+            for (TaskSubTally tally : overall.values()) {
+                if (tally.count > 0) overallNode.addChild(tally.getNode());
+            }
+        }
+        return node;
     }
 
 
@@ -185,9 +175,123 @@ public class TaskStatistics {
     }
 
 
+    private void accumulateAll(TaskSummary ts, TaskSubTallyList list) {
+        accumulate(ts, list, getOfferCounters());
+        accumulate(ts, list, getAllocCounters());
+        accumulate(ts, list, getStartCounters());
+        accumulate(ts, list, getCompleteCounters());
+        accumulate(ts, list, getTimeoutCounters());
+        accumulate(ts, list, getTotalCounter());
+    }
+
+
+    private void accumulate(TaskSummary ts, TaskSubTally tally, Counter counter) {
+        tally.add(ts.getPeriod(counter));
+    }
+
+
+    private void accumulate(TaskSummary ts, TaskSubTallyList list, List<Counter> counters) {
+        for (Counter counter : counters) {
+            list.add(counter, ts.getPeriod(counter));
+        }
+    }
+
+
+    private void accumulate(Map<String, TaskSubTallyList> map, TaskSummary ts,
+                            String pid, List<Counter> counters) {
+        if (pid != null) {
+            TaskSubTallyList list = map.get(pid);
+            if (list == null) {
+                list = new TaskSubTallyList();
+                map.put(pid, list);
+            }
+            accumulate(ts, list, counters);
+            list.count++;
+        }
+    }
+
+
+    private XNode getStateNode(Map<String, TaskSubTallyList> tallyMap, String name) {
+        XNode node = new XNode(name);
+        for (String pid : tallyMap.keySet()) {
+            TaskSubTallyList list = tallyMap.get(pid);
+            node.addChild(getStateNode(list, "participant", getParticipantName(pid),
+                    list.count));
+        }
+        return node;
+    }
+
+
+    private XNode getStateNode(TaskSubTallyList list, String tag, String name, int instances) {
+        XNode node = new XNode(tag);
+        list.sort();
+        if (name != null) node.addAttribute("name", name);
+        node.addAttribute("instances", instances);
+        for (TaskSubTally tally : list.values()) {
+            if (tally.count > 0) {
+                node.addChild(tally.getNode());
+            }
+        }
+        return node;
+    }
+
+
+    private List<Counter> getOfferCounters() {
+        return Arrays.asList(Counter.unofferToOffer);
+    }
+
+
+    private List<Counter> getAllocCounters() {
+        return Arrays.asList(Counter.offerToAllocate, Counter.unofferToAllocate);
+    }
+
+
+    private List<Counter> getStartCounters() {
+        return Arrays.asList(Counter.offerToStart, Counter.unofferToStart,
+                Counter.allocateToStart, Counter.startToReallocate);
+    }
+
+
+    private List<Counter> getCompleteCounters() {
+        return Arrays.asList(Counter.startToComplete);
+    }
+
+
+    private List<Counter> getCancelCounters() {
+        return Arrays.asList(Counter.unofferToCancel, Counter.offerToCancel, 
+                Counter.allocateToCancel, Counter.startToCancel);
+    }
+
+
+    private List<Counter> getTimeoutCounters() {
+        return Arrays.asList(Counter.unofferToTimeout, Counter.offerToTimeout,
+                Counter.allocateToTimeout, Counter.startToTimeout);
+    }
+
+
+    private List<Counter> getTotalCounter() {
+        return Arrays.asList(Counter.totalDuration);
+    }
+
+
+    private TaskSummary getTaskSummary(Map<String, TaskSummary> table, String key) {
+        return table.containsKey(key) ? table.get(key) : new TaskSummary(key);
+    }
+
+
+    private String getReferenceItemID(Map<String, TaskSummary> table, String id) {
+        if (table.containsKey(id)) {
+            TaskSummary ts = table.get(id);
+            if (ts.getStartTime() > 0) return getRootItemID(id);
+        }
+        return id;
+    }
+
     private String getRootItemID(String id) {
         String[] parts = id.split(":");
-        parts[0] = parts[0].substring(0, parts[0].lastIndexOf('.'));
+        if (parts[0].contains(".")) {
+            parts[0] = parts[0].substring(0, parts[0].lastIndexOf('.'));
+        }    
         return parts[0] + ":" + parts[1];
     }
 
@@ -195,15 +299,10 @@ public class TaskStatistics {
     /*********************************************************************/
 
     class TaskSummary {
-        long offerTime = 0;
-        long unofferTime = 0;
-        long allocTime = 0;
-        long startTime = 0;
-        long completeTime = 0;
-        long cancelTime = 0;
+        long offerTime = 0, unofferTime = 0, allocTime = 0, startTime = 0;
+        long reallocTime = 0, completeTime = 0, cancelTime = 0, timeout = 0;
         String id;
-        String allocateID;
-        String startID;
+        String allocateID, startID, completeID;
         Set<String> offerSet = new HashSet<String>();
 
         public TaskSummary(String id) { this.id = id; }
@@ -232,6 +331,10 @@ public class TaskStatistics {
 
         public void setCancelTime(long time) { cancelTime = time ; }
 
+        public long getReallocTime() { return reallocTime; }
+
+        public void setReallocTime(long time) { reallocTime = time; }
+
         public Set<String> getOfferSet() { return offerSet; }
 
         public void setOfferSet(Set<String> set) { offerSet = set; }
@@ -248,49 +351,49 @@ public class TaskStatistics {
 
         public void setStartID(String sID) { startID = sID; }
 
-        public long getOfferToAlloc() {
-            return (offerTime == 0) || (allocTime == 0) ? 0 : allocTime - offerTime;
-        }
+        public String getCompleteID() { return completeID; }
 
-        public long getAllocToStart() {
-            return (allocTime == 0) || (startTime == 0) ? 0 : startTime - allocTime;
-        }
+        public void setCompleteID(String cID) { completeID = cID; }
+
+        public long getTimeout() { return timeout; }
+
+        public void setTimeout(long time) { timeout = time; }
+
+        public long getOfferToAlloc() { return getDiff(offerTime, allocTime); }
+
+        public long getAllocToStart() { return getDiff(allocTime, startTime); }
 
         public long getOfferToStart() {
-            if (getAllocToStart() > 0) return 0;
-            return (offerTime == 0) || (startTime == 0) ? 0 : startTime - offerTime;
+            return (getAllocToStart() > 0) ? 0 : getDiff(offerTime, startTime);
         }
 
-        public long getStartToComplete() {
-            return (startTime == 0) || (completeTime == 0) ? 0 : completeTime - startTime;
-        }
+        public long getStartToComplete() { return getDiff(startTime, completeTime); }
 
-        public long getStartToCancel() {
-            return (startTime == 0) || (cancelTime == 0) ? 0 : cancelTime - startTime;
-        }
+        public long getStartToCancel() { return getDiff(startTime, cancelTime); }
+
+        public long getStartToRealloc() { return getDiff(startTime, reallocTime); }
 
         public long getAllocToCancel() {
-            if (getStartToCancel() > 0) return 0;
-            return (allocTime == 0) || (cancelTime == 0) ? 0 : cancelTime - allocTime;
+            return (getStartToCancel() > 0) ? 0 : getDiff(allocTime, cancelTime);
         }
 
         public long getOfferToCancel() {
-            if (getAllocToCancel() > 0) return 0;
-            return (offerTime == 0) || (cancelTime == 0) ? 0 : offerTime - startTime;
+            return (getAllocToCancel() > 0) ? 0 : getDiff(offerTime, cancelTime);
         }
 
-        public long getUnofferToOffer() {
-            return (unofferTime == 0) || (offerTime == 0) ? 0 : offerTime - unofferTime;
+        public long getUnofferToCancel() {
+            return (getOfferToCancel() > 0) ? 0 : getDiff(unofferTime, cancelTime);
         }
+
+
+        public long getUnofferToOffer() { return getDiff(unofferTime, offerTime); }
 
         public long getUnofferToAlloc() {
-            if (getUnofferToOffer() > 0) return 0;
-            return (unofferTime == 0) || (allocTime == 0) ? 0 : allocTime - unofferTime;
+            return (getUnofferToOffer() > 0) ? 0 : getDiff(unofferTime, allocTime);
         }
 
         public long getUnofferToStart() {
-            if (getUnofferToAlloc() > 0) return 0;
-            return (unofferTime == 0) || (startTime == 0) ? 0 : startTime - unofferTime;
+            return (getUnofferToAlloc() > 0) ? 0 : getDiff(unofferTime, startTime);
         }
 
         public long getTotalTime() {
@@ -300,7 +403,60 @@ public class TaskStatistics {
             if (start == 0) start = allocTime;
             if (start == 0) start = startTime;
             if (end == 0) end = cancelTime;
+            if (end == 0) end = timeout;
             return (start == 0) || (end == 0) ? 0 : end - start;
+        }
+
+        public long getUnofferToTimeout() {
+            return (getOfferToTimeout() > 0) ? 0 : getDiff(unofferTime, timeout);
+        }
+
+        public long getOfferToTimeout() {
+            return (getAllocToTimeout() > 0) ? 0 : getDiff(offerTime, timeout);
+        }
+
+        public long getAllocToTimeout() {
+            return (getStartToTimeout() > 0) ? 0 : getDiff(allocTime, timeout);
+        }
+
+        public long getStartToTimeout() { return getDiff(startTime, timeout); }
+
+        public String getTimeoutOwner() {
+            String owner = null;
+            if (timeout > 0) {
+                if (startID != null) owner = startID;
+                else if (allocateID != null) owner = allocateID;
+                else owner = "undefined";
+            }
+            return owner;
+        }
+
+        public long getPeriod(Counter counter) {
+            long period = 0;
+            switch (counter) {
+                case unofferToCancel:   period = getUnofferToCancel(); break;
+                case unofferToOffer:    period = getUnofferToOffer(); break;
+                case offerToAllocate:   period = getOfferToAlloc(); break;
+                case offerToStart:      period = getOfferToStart(); break;
+                case unofferToAllocate: period = getUnofferToAlloc(); break;
+                case unofferToStart:    period = getUnofferToStart(); break;
+                case allocateToStart:   period = getAllocToStart(); break;
+                case startToComplete:   period = getStartToComplete(); break;
+                case startToReallocate: period = getStartToRealloc(); break;
+                case offerToCancel:     period = getOfferToCancel(); break;
+                case allocateToCancel:  period = getAllocToCancel(); break;
+                case startToCancel:     period = getStartToCancel(); break;
+                case totalDuration:     period = getTotalTime(); break;
+                case unofferToTimeout:  period = getUnofferToTimeout(); break;
+                case offerToTimeout:    period = getOfferToTimeout(); break;
+                case allocateToTimeout: period = getAllocToTimeout(); break;
+                case startToTimeout:    period = getStartToTimeout(); break;
+            }
+            return period;
+        }
+
+        private long getDiff(long from, long to) {
+            return (from == 0) || (to == 0) ? 0 : to - from;            
         }
     }
 
@@ -310,9 +466,9 @@ public class TaskStatistics {
     class TaskSubTally {
         long max = 0, min = Long.MAX_VALUE, total = 0;
         int count = 0;
-        String name;
+        Counter counter;
 
-        public TaskSubTally(String name) { this.name = name; }
+        public TaskSubTally(Counter counter) { this.counter = counter; }
 
         public void add(long period) {
             if (period > 0) {
@@ -324,12 +480,52 @@ public class TaskStatistics {
         }
 
         public XNode getNode() {
-            XNode node = new XNode(name);
+            XNode node = new XNode(counter.name());
             node.addChild("instances", count);
             node.addChild("min", StringUtil.formatTime(min));
             node.addChild("max", StringUtil.formatTime(max));
             node.addChild("average", StringUtil.formatTime(total / count));
             return node;
+        }
+    }
+
+    /***************************************************************************/
+
+    class TaskSubTallyList extends LinkedHashMap<Counter, TaskSubTally> {
+
+        private int count;
+
+        public TaskSubTallyList() { }
+
+        public void add(Counter counter, long period) {
+            if (period > 0) {
+                TaskSubTally tally = get(counter);
+                if (tally == null) {
+                    tally = new TaskSubTally(counter);
+                    put(counter, tally);
+                }
+                tally.add(period);
+            }     
+        }
+
+        public void sort() {
+            TaskSubTallyList list = new TaskSubTallyList();
+            for (Counter counter : Counter.values()) {                
+                TaskSubTally tally = get(counter);
+                if (tally != null) {
+                    list.put(counter, tally);
+                }
+            }
+            clear();
+            putAll(list);
+        }
+
+        public int getSubCount() {
+            int subCount = 0;
+            for (TaskSubTally tally : values()) {
+                 subCount += tally.count;
+            }
+            return subCount;
         }
     }
         

@@ -169,6 +169,10 @@ public class XNode {
         return addChild(new XNode(name, text));
     }
 
+    public void addChildren(List<XNode> children) {
+        for (XNode child : children) addChild(child);
+    }
+
     public boolean removeChild(XNode child) {
         return (_children != null) && _children.remove(child);
     }

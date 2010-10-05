@@ -85,13 +85,32 @@ public class ResourceLogGatewayClient extends Interface_Client {
     }
 
 
-    private void addTimeRange(Map<String, String> params, long from, long to) {
-        params.put("from", String.valueOf(from));
-        params.put("to", String.valueOf(to));       
+    /**
+     * A wrapper for the executeGet method - accepts an id value and a time range
+     * @param action the name of the gateway method to call
+     * @param id the identifier
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    private String performGet(String action, String id, long from, long to, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap(action, handle);
+        params.put("id", id);
+        addTimeRange(params, from, to);
+        return executeGet(_logURI, params);
     }
 
 
-    public String specIDsToXML(Set<YSpecificationID> specIDs) {
+    private void addTimeRange(Map<String, String> params, long from, long to) {
+        params.put("from", String.valueOf(from));
+        params.put("to", String.valueOf(to));
+    }
+
+
+    private String specIDsToXML(Set<YSpecificationID> specIDs) {
         StringBuilder xml = new StringBuilder("<specificationids>");
         for (YSpecificationID specID : specIDs) {
             xml.append(specID.toXML());
@@ -99,7 +118,6 @@ public class ResourceLogGatewayClient extends Interface_Client {
         xml.append("</specificationids>");
         return xml.toString();
     }
-
 
 
     /*******************************************************************************/
@@ -140,10 +158,7 @@ public class ResourceLogGatewayClient extends Interface_Client {
      */
     public String getCaseEvents(String caseID, long from, long to, String handle)
             throws IOException {
-        Map<String, String> params = prepareParamMap("getCaseEvents", handle);
-        params.put("id", caseID);
-        addTimeRange(params, from, to);
-        return executeGet(_logURI, params);
+        return performGet("getCaseEvents", caseID, from, to, handle);
     }
 
 
@@ -260,10 +275,7 @@ public class ResourceLogGatewayClient extends Interface_Client {
      */
     public String getParticipantHistory(String pid, long from, long to, String handle)
             throws IOException {
-        Map<String, String> params = prepareParamMap("getParticipantHistory", handle);
-        params.put("id", pid);
-        addTimeRange(params, from, to);
-        return executeGet(_logURI, params);
+        return performGet("getParticipantHistory", pid, from, to, handle);
     }
 
 
@@ -310,10 +322,7 @@ public class ResourceLogGatewayClient extends Interface_Client {
      */
     public String getResourceHistory(String id, long from, long to, String handle)
             throws IOException {
-        Map<String, String> params = prepareParamMap("getResourceHistory", handle);
-        params.put("id", id);
-        addTimeRange(params, from, to);
-        return executeGet(_logURI, params);
+        return performGet("getResourceHistory", id, from, to, handle);
     }
 
 
@@ -520,11 +529,7 @@ public class ResourceLogGatewayClient extends Interface_Client {
      */
     public String getCaseHistoryInvolvingParticipant(String pid, long from, long to,
                                                      String handle) throws IOException {
-        Map<String, String> params = prepareParamMap(
-                "getCaseHistoryInvolvingParticipant", handle);
-        params.put("id", pid);
-        addTimeRange(params, from, to);
-        return executeGet(_logURI, params);
+        return performGet("getCaseHistoryInvolvingParticipant", pid, from, to, handle);
     }
 
 
@@ -700,6 +705,102 @@ public class ResourceLogGatewayClient extends Interface_Client {
 
 
     /**
+     * Gets an xml list of all case events for all case instances of all the
+     * specifications with a matching URI (name)
+     * @param uri the uri or name of the specification
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getSpecificationEventsByURI(String uri, String handle)
+            throws IOException {
+        return performGet("getSpecificationEventsByURI", "id", uri, handle);
+    }
+
+
+    /**
+     * Gets an xml list of all case events for all case instances of all the
+     * specifications with a matching URI (name)
+     * @param uri the uri or name of the specification
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getSpecificationEventsByURI(String uri, long from, long to,
+                                              String handle) throws IOException {
+        return performGet("getSpecificationEventsByURI", uri, from, to, handle);
+    }
+
+
+    /**
+     * Gets an xml list of all case events for all case instances of all the
+     * specifications with a matching URI (name)
+     * @param uri the uri or name of the specification
+     * @param dateFrom the lower time range value
+     * @param dateTo the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getSpecificationEventsByURI(String uri, Date dateFrom, Date dateTo,
+                                              String handle) throws IOException {
+        long from = (dateFrom != null) ? dateFrom.getTime() : -1;
+        long to = (dateTo != null) ? dateTo.getTime() : -1;
+        return performGet("getSpecificationEventsByURI", uri, from, to, handle);
+    }
+
+
+    /**
+     * Gets an xml list of all case events for all case instances of all the
+     * specifications with a matching identifier
+     * @param id the unique identifier of the specification
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getSpecificationEventsByID(String id, String handle)
+            throws IOException {
+        return performGet("getSpecificationEventsByID", "id", id, handle);
+    }
+
+
+    /**
+     * Gets an xml list of all case events for all case instances of all the
+     * specifications with a matching identifier
+     * @param id the unique identifier of the specification
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getSpecificationEventsByID(String id, long from, long to,
+                                              String handle) throws IOException {
+        return performGet("getSpecificationEventsByID", id, from, to, handle);
+    }
+
+
+    /**
+      * Gets an xml list of all case events for all case instances of all the
+      * specifications with a matching identifier
+      * @param id the unique identifier of the specification
+      * @param dateFrom the lower time range value
+      * @param dateTo the upper time range value
+      * @param handle an active sessionhandle
+      * @return the resultant String response (log data or error message)
+      * @throws IOException if there's a problem connecting to the service
+      */
+    public String getSpecificationEventsByID(String id, Date dateFrom, Date dateTo,
+                                               String handle) throws IOException {
+        long from = (dateFrom != null) ? dateFrom.getTime() : -1;
+        long to = (dateTo != null) ? dateTo.getTime() : -1;
+        return performGet("getSpecificationEventsByID", id, from, to, handle);
+     }
+
+
+    /**
      * Gets a summary set of statistics for all instances of a specified task
      * @param specID the specification identifier that contains the task
      * @param taskName the name of the task
@@ -733,6 +834,25 @@ public class ResourceLogGatewayClient extends Interface_Client {
 
     /**
      * Gets a summary set of statistics for all instances of a specified task
+     * @param specID the specification identifier that contains the task
+     * @param taskName the name of the task
+     * @param dateFrom the lower time range value
+     * @param dateTo the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatistics(YSpecificationID specID, String taskName, Date dateFrom,
+                                    Date dateTo, String handle) throws IOException {
+        long from = (dateFrom != null) ? dateFrom.getTime() : -1;
+        long to = (dateTo != null) ? dateTo.getTime() : -1;
+        return getTaskStatistics(specID.getIdentifier(), specID.getVersionAsString(),
+                specID.getUri(), taskName, from, to, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all instances of a specified task
      * @param identifier the unique specification identifier
      * @param version the specification version
      * @param uri the specification uri
@@ -744,6 +864,27 @@ public class ResourceLogGatewayClient extends Interface_Client {
     public String getTaskStatistics(String identifier, String version,
                       String uri, String taskName, String handle) throws IOException {
         return getTaskStatistics(identifier, version, uri, taskName, -1, -1, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all instances of a specified task
+     * @param identifier the unique specification identifier
+     * @param version the specification version
+     * @param uri the specification uri
+     * @param taskName the name of the task
+     * @param dateFrom the lower time range value
+     * @param dateTo the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatistics(String identifier, String version, String uri,
+                          String taskName, Date dateFrom, Date dateTo, String handle)
+            throws IOException {
+        long from = (dateFrom != null) ? dateFrom.getTime() : -1;
+        long to = (dateTo != null) ? dateTo.getTime() : -1;
+        return getTaskStatistics(identifier, version, uri, taskName, from, to, handle);        
     }
 
 
@@ -768,6 +909,304 @@ public class ResourceLogGatewayClient extends Interface_Client {
         params.put("taskname", taskName);
         addTimeRange(params, from, to);
         return executeGet(_logURI, params);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all task instances of a specified case
+     * @param caseID the id of the case
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatisticsForCase(String caseID, String handle) throws IOException {
+        return getTaskStatisticsForCase(caseID, -1, -1, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all task instances of a specified case
+     * @param caseID the id of the case
+     * @param dateFrom the lower time range value
+     * @param dateTo the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatisticsForCase(String caseID, Date dateFrom, Date dateTo,
+                                           String handle) throws IOException {
+        long from = (dateFrom != null) ? dateFrom.getTime() : -1;
+        long to = (dateTo != null) ? dateTo.getTime() : -1;
+        return performGet("getTaskStatisticsForCase", caseID, from, to, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all task instances of a specified case
+     * @param caseID the id of the case
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatisticsForCase(String caseID, long from, long to, String handle)
+            throws IOException {
+        return performGet("getTaskStatisticsForCase", caseID, from, to, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all task instances of a specified specification
+     * @param specID the specification identifier that contains the task
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatisticsForSpecification(YSpecificationID specID, String handle)
+            throws IOException {
+        return getTaskStatisticsForSpecification(specID.getIdentifier(),
+                specID.getVersionAsString(), specID.getUri(), -1, -1, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all task instances of a specified specification
+     * @param specID the specification identifier that contains the task
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatisticsForSpecification(YSpecificationID specID, long from,
+                                    long to, String handle) throws IOException {
+        return getTaskStatisticsForSpecification(specID.getIdentifier(),
+                specID.getVersionAsString(), specID.getUri(), from, to, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all task instances of a specified specification
+     * @param specID the specification identifier that contains the task
+     * @param dateFrom the lower time range value
+     * @param dateTo the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatisticsForSpecification(YSpecificationID specID, Date dateFrom,
+                                    Date dateTo, String handle) throws IOException {
+        long from = (dateFrom != null) ? dateFrom.getTime() : -1;
+        long to = (dateTo != null) ? dateTo.getTime() : -1;
+        return getTaskStatisticsForSpecification(specID.getIdentifier(),
+                specID.getVersionAsString(), specID.getUri(), from, to, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all task instances of a specified specification
+     * @param identifier the unique specification identifier
+     * @param version the specification version
+     * @param uri the specification uri
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatisticsForSpecification(String identifier, String version,
+                      String uri, String handle) throws IOException {
+        return getTaskStatisticsForSpecification(identifier, version, uri, -1, -1, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all task instances of a specified specification
+     * @param identifier the unique specification identifier
+     * @param version the specification version
+     * @param uri the specification uri
+     * @param dateFrom the lower time range value
+     * @param dateTo the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatisticsForSpecification(String identifier, String version,
+                 String uri, Date dateFrom, Date dateTo, String handle) throws IOException {
+        long from = (dateFrom != null) ? dateFrom.getTime() : -1;
+        long to = (dateTo != null) ? dateTo.getTime() : -1;
+        return getTaskStatisticsForSpecification(identifier, version, uri, from, to, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all task instances of a specified specification
+     * @param identifier the unique specification identifier
+     * @param version the specification version
+     * @param uri the specification uri
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatisticsForSpecification(String identifier, String version,
+                 String uri, long from, long to, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap(
+                "getTaskStatisticsForSpecification", handle);
+        params.put("identifier", identifier);
+        params.put("version", version);
+        params.put("uri", uri);
+        addTimeRange(params, from, to);
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all task instances of all the
+     * specifications in a Set
+     * @param specIDs the set of specification identifiers
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatisticsForSpecification(Set<YSpecificationID> specIDs, String handle)
+            throws IOException {
+        return performGet("getTaskStatisticsForSpecificationSet", "setxml",
+                specIDsToXML(specIDs), handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all task instances of all the
+     * specifications in a Set
+     * @param specIDs the set of specification identifiers
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatisticsForSpecification(Set<YSpecificationID> specIDs,
+                              long from, long to, String handle) throws IOException {
+        Map<String, String> params =
+                prepareParamMap("getTaskStatisticsForSpecificationSet", handle);
+        params.put("setxml", specIDsToXML(specIDs));
+        addTimeRange(params, from, to);
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all task instances of all the
+     * specifications in a Set
+     * @param specIDs the set of specification identifiers
+     * @param dateFrom the lower time range value
+     * @param dateTo the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatisticsForSpecification(Set<YSpecificationID> specIDs,
+                          Date dateFrom, Date dateTo, String handle) throws IOException {
+        long from = (dateFrom != null) ? dateFrom.getTime() : -1;
+        long to = (dateTo != null) ? dateTo.getTime() : -1;
+        return getSpecificationEvents(specIDs, from, to, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all task instances of all the
+     * specifications with a matching URI (name)
+     * @param uri the uri or name of the specification
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatisticsForSpecificationURI(String uri, String handle)
+            throws IOException {
+        return performGet("getTaskStatisticsForSpecificationURI", "id", uri, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all task instances of all the
+     * specifications with a matching URI (name)
+     * @param uri the uri or name of the specification
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatisticsForSpecificationURI(String uri, long from, long to,
+                                              String handle) throws IOException {
+        return performGet("getTaskStatisticsForSpecificationURI", uri, from, to, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all task instances of all the
+     * specifications with a matching URI (name)
+     * @param uri the uri or name of the specification
+     * @param dateFrom the lower time range value
+     * @param dateTo the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatisticsForSpecificationURI(String uri, Date dateFrom,
+                                   Date dateTo, String handle) throws IOException {
+        long from = (dateFrom != null) ? dateFrom.getTime() : -1;
+        long to = (dateTo != null) ? dateTo.getTime() : -1;
+        return performGet("getTaskStatisticsForSpecificationURI", uri, from, to, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all task instances of all the
+     * specifications with a matching identifier
+     * @param id the unique identifier of the specification
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatisticsForSpecificationUID(String id, String handle)
+            throws IOException {
+        return performGet("getTaskStatisticsForSpecificationUID", "id", id, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all task instances of all the
+     * specifications with a matching identifier
+     * @param id the unique identifier of the specification
+     * @param from the lower time range value
+     * @param to the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatisticsForSpecificationUID(String id, long from, long to,
+                                              String handle) throws IOException {
+        return performGet("getTaskStatisticsForSpecificationUID", id, from, to, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all task instances of all the
+     * specifications with a matching identifier
+     * @param id the unique identifier of the specification
+     * @param dateFrom the lower time range value
+     * @param dateTo the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getTaskStatisticsForSpecificationUID(String id, Date dateFrom,
+                                  Date dateTo, String handle) throws IOException {
+        long from = (dateFrom != null) ? dateFrom.getTime() : -1;
+        long to = (dateTo != null) ? dateTo.getTime() : -1;
+        return performGet("getTaskStatisticsForSpecificationUID", id, from, to, handle);
     }
 
 
@@ -803,6 +1242,24 @@ public class ResourceLogGatewayClient extends Interface_Client {
 
     /**
      * Gets a summary set of statistics for all case instances of a specification
+     * @param specID the specification identifier
+     * @param dateFrom the lower time range value
+     * @param dateTo the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getSpecificationStatistics(YSpecificationID specID, Date dateFrom,
+                                  Date dateTo, String handle) throws IOException {        
+        long from = (dateFrom != null) ? dateFrom.getTime() : -1;
+        long to = (dateTo != null) ? dateTo.getTime() : -1;
+        return getSpecificationStatistics(specID.getIdentifier(), specID.getVersionAsString(),
+                specID.getUri(), from, to, handle);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all case instances of a specification
      * @param identifier the unique specification identifier
      * @param version the specification version
      * @param uri the specification uri
@@ -829,12 +1286,31 @@ public class ResourceLogGatewayClient extends Interface_Client {
      */
     public String getSpecificationStatistics(String identifier, String version,
                       String uri, long from, long to, String handle) throws IOException {
-        Map<String, String> params = prepareParamMap("getSpecificationEvents", handle);
+        Map<String, String> params = prepareParamMap("getSpecificationStatistics", handle);
         params.put("identifier", identifier);
         params.put("version", version);
         params.put("uri", uri);
         addTimeRange(params, from, to);
         return executeGet(_logURI, params);
+    }
+
+
+    /**
+     * Gets a summary set of statistics for all case instances of a specification
+     * @param identifier the unique specification identifier
+     * @param version the specification version
+     * @param uri the specification uri
+     * @param dateFrom the lower time range value
+     * @param dateTo the upper time range value
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws IOException if there's a problem connecting to the service
+     */
+    public String getSpecificationStatistics(String identifier, String version,
+               String uri, Date dateFrom, Date dateTo, String handle) throws IOException {
+        long from = (dateFrom != null) ? dateFrom.getTime() : -1;
+        long to = (dateTo != null) ? dateTo.getTime() : -1;
+        return getSpecificationStatistics(identifier, version, uri, from, to, handle); 
     }
 
 
