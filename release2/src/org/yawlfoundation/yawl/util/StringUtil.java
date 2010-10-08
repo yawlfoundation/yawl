@@ -422,4 +422,14 @@ public class StringUtil
     public static boolean isNullOrEmpty(String s) {
         return (s == null) || (s.length() == 0);
     }
+
+
+    public static int strToInt(String s, int def) {
+        try {
+            return new Integer(s);
+        }
+        catch (NumberFormatException e) {
+            return def;
+        }
+    }
 }
