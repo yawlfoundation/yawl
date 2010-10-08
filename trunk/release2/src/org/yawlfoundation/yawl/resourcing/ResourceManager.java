@@ -1419,8 +1419,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
             // reset the item's data params to original values
             wir.setUpdatedData(wir.getDataList());
-            reallocateWorkItem(pFrom, pTo, wir);
-            EventLogger.log(wir, pFrom.getID(), EventLogger.event.reallocate_stateless);
+            reallocateWorkItem(pFrom, pTo, wir, EventLogger.event.reallocate_stateless);
             success = true ;
         }
         return success ;
@@ -1431,8 +1430,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                                                WorkItemRecord wir) {
         boolean success = false ;
         if (hasUserTaskPrivilege(pFrom, wir, TaskPrivileges.CAN_REALLOCATE_STATEFUL)) {
-            reallocateWorkItem(pFrom, pTo, wir);
-            EventLogger.log(wir, pFrom.getID(), EventLogger.event.reallocate_stateful);
+            reallocateWorkItem(pFrom, pTo, wir, EventLogger.event.reallocate_stateful);
             success = true ;
         }
         return success ;
@@ -1440,7 +1438,8 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     private void reallocateWorkItem(Participant pFrom, Participant pTo,
-                                               WorkItemRecord wir) {
+                                    WorkItemRecord wir, EventLogger.event event) {
+        EventLogger.log(wir, pFrom.getID(), event);
         pFrom.getWorkQueues().removeFromQueue(wir, WorkQueue.STARTED);
         pTo.getWorkQueues().addToQueue(wir, WorkQueue.STARTED);
     }
@@ -2520,7 +2519,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             throws IOException {
         if (_serviceURI == null) setServiceURI();
         String caseID = _interfaceBClient.launchCase(specID, caseData,
-                          getEngineSessionHandle(), getLogData(), _serviceURI) ;
+                          getEngineSessionHandle(), getLaunchLogData(), _serviceURI) ;
         if (successful(caseID)) {
             Participant p = getParticipantWithSessionHandle(handle);
             String pid = (p != null) ? p.getID() : "admin" ;
@@ -2530,7 +2529,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    private YLogDataItemList getLogData() {
+    private YLogDataItemList getLaunchLogData() {
         return new YLogDataItemList(
                new YLogDataItem("launched", "name", "resourceService", "string"));
     }
