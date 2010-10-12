@@ -104,7 +104,7 @@ public class IBControllerCache {
     }
 
 
-    public void setSpecificationData(SpecificationData specData) {
+    public void addSpecificationData(SpecificationData specData) {
         if (! _specDataCache.containsKey(specData.getID().getKey())) {
             _specDataCache.put(specData.getID().getKey(), specData);
         }

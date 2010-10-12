@@ -24,7 +24,7 @@ import org.yawlfoundation.yawl.util.XNode;
  * @author Michael Adams
 * @date 6/10/2010
 */
-class UtilisationResource {
+public class UtilisationResource {
 
     private StringWithMessage _id;
     private StringWithMessage _role;

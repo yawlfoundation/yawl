@@ -25,7 +25,7 @@ import org.yawlfoundation.yawl.util.XNode;
  * @author Michael Adams
 * @date 6/10/2010
 */
-class UtilisationRelation extends StatusMessage {
+public class UtilisationRelation extends StatusMessage {
 
     private StringWithMessage _thisType;
     private StringWithMessage _otherType;

@@ -20,7 +20,6 @@ package org.yawlfoundation.yawl.worklet.exception;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
-import org.jdom.JDOMException;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_Service;
@@ -35,7 +34,10 @@ import org.yawlfoundation.yawl.worklet.support.EventLogger;
 import org.yawlfoundation.yawl.worklet.support.Library;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 /**
  *  The ExceptionService class manages the handling of exceptions that may occur
@@ -1224,9 +1226,6 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         catch (IOException ioe){
             _log.error("IO Exception attempting to update WIR: " + wir.getID(), ioe);
         }
-        catch (JDOMException jde){
-            _log.error("JDOM Exception attempting complete workitem: " + wir.getID(), jde);
-        }
         return wir ;
     }
 
@@ -1541,10 +1540,6 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         }
         catch (IOException ioe) {
             _log.error("Exception getting WIR: " + itemID, ioe);
-            return null ;
-        }
-        catch (JDOMException jde) {
-            _log.error("Exception getting WIR: " + itemID, jde);
             return null ;
         }
     }

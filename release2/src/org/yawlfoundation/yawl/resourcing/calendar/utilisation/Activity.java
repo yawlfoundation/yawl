@@ -28,7 +28,7 @@ import java.util.List;
  * @author Michael Adams
 * @date 6/10/2010
 */
-class Activity extends StatusMessage {
+public class Activity extends StatusMessage {
 
     private String _name;
     private StringWithMessage _from;

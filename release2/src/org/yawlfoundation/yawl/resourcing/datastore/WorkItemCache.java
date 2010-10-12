@@ -72,6 +72,12 @@ public class WorkItemCache extends HashMap<String, WorkItemRecord> implements Se
         return this.remove(wir.getID());
     }
 
+    public WorkItemRecord replace(WorkItemRecord oldWir, WorkItemRecord newWir) {
+        this.remove(oldWir.getID());
+        return add(newWir);
+    }
+    
+
     public void removeCase(String caseID) {
         Set<WorkItemRecord> clonedValues = new HashSet<WorkItemRecord>(this.values());
         for (WorkItemRecord wir : clonedValues) {

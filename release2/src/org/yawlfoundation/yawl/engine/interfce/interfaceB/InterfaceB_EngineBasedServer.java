@@ -227,8 +227,8 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                     String caseID = request.getParameter("caseID");
                     msg.append(_engine.cancelCase(caseID, sessionHandle));
                 }
-                else if (action.equals("details")) {
-                    msg.append(_engine.getWorkItemDetails(workItemID, sessionHandle));
+                else if (action.equals("getWorkItem")) {
+                    msg.append(_engine.getWorkItem(workItemID, sessionHandle));
                 }
                 else if (action.equals("startOne")) {
                     String userID = request.getParameter("user");

@@ -25,7 +25,7 @@ import org.yawlfoundation.yawl.util.XNode;
  * @author Michael Adams
 * @date 6/10/2010
 */
-class StringWithMessage extends StatusMessage {
+public class StringWithMessage extends StatusMessage {
 
     private String _key;
     private String _value;

@@ -195,17 +195,13 @@ public class EngineGatewayImpl implements EngineGateway {
      * @return the full work item record of the workitem with the id passed
      * @throws RemoteException
      */
-    public String getWorkItemDetails(String workItemID, String sessionHandle) throws RemoteException {
+    public String getWorkItem(String workItemID, String sessionHandle) throws RemoteException {
         String sessionMessage = checkSession(sessionHandle);
         if (isFailureMessage(sessionMessage)) return sessionMessage;
 
         YWorkItem workItem = _engine.getWorkItem(workItemID);
-        if (workItem != null) {
-            return workItem.toXML();
-        }
-        else {
-            return failureMessage("WorkItem with ID (" + workItemID + ") not found.");
-        }
+        return (workItem != null) ? workItem.toXML() :
+               failureMessage("WorkItem with ID '" + workItemID + "' not found.");
     }
 
 
@@ -1329,6 +1325,9 @@ public class EngineGatewayImpl implements EngineGateway {
 
         YWorkItem item = _engine.getWorkItem(itemID);
         if (item != null) {
+            if (item.getStatus().equals(YWorkItemStatus.statusExecuting)) {
+                rollbackWorkItem(itemID, sessionHandle);
+            }
             _engine.getAnnouncer().rejectAnnouncedEnabledTask(item);
             return successMessage("workitem rejection successful");
         }

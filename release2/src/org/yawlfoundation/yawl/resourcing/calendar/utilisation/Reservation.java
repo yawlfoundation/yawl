@@ -25,7 +25,7 @@ import org.yawlfoundation.yawl.util.XNode;
  * @author Michael Adams
 * @date 6/10/2010
 */
-class Reservation extends StatusMessage {
+public class Reservation extends StatusMessage {
 
     private StringWithMessage _statusToBe;
     private StringWithMessage _status;

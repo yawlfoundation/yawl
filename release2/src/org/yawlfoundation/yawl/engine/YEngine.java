@@ -1902,7 +1902,7 @@ public class YEngine implements InterfaceADesign,
                         _workItemRepository.getNetRunner(workItem.getCaseID().getParent());
                 if (! netRunner.rollbackWorkItem(pmgr, workItem.getCaseID(), workItem.getTaskID())) {
                     if (pmgr != null) pmgr.rollbackTransaction();
-                    throw new YStateException("Work Item[" + workItemID +
+                    throw new YStateException("Unable to rollback: work Item[" + workItemID +
                             "] is not in executing state.");
                 }
                 if (pmgr != null) pmgr.commit();

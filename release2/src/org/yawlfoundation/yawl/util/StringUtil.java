@@ -298,18 +298,18 @@ public class StringUtil
 
     /**
      * Removes an outer set of xml tags from an xml string, if possible
-     * @param inputXML the xml string to strip
+     * @param xml the xml string to strip
      * @return the stripped xml string
      */
-    public static String unwrap(String inputXML) {
-        if (inputXML != null) {
-            int beginClipping = inputXML.indexOf(">") + 1;
-            int endClipping = inputXML.lastIndexOf("<");
-            if (beginClipping >= 0 && endClipping >= 0 && endClipping > beginClipping) {
-                inputXML = inputXML.substring(beginClipping, endClipping);
+    public static String unwrap(String xml) {
+        if (xml != null) {
+            int start = xml.indexOf('>') + 1;
+            int end = xml.lastIndexOf('<');
+            if (end > start) {
+                return xml.substring(start, end);
             }
         }
-        return inputXML;
+        return xml;
     }
     
     /**
