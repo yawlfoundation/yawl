@@ -913,7 +913,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
            // an atomic task can be rolled back and handled in worklist
            try {
-                _interfaceBClient.rollbackWorkItem(itemID, _sessionHandle);
+                _interfaceBClient.rejectAnnouncedEnabledTask(itemID, _sessionHandle);
                 _log.info("Undo checkout successful: " + itemID);
 
                 // log the undo checkout event

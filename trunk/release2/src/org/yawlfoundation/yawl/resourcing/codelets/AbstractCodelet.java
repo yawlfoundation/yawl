@@ -116,15 +116,11 @@ public abstract class AbstractCodelet {
      * @param value the value to assign to it
      */
     protected void setParameterValue(String varName, String value) {
-        if (_outData == null) _outData = new Element("codelet_output") ;
-        Element eParam = _outData.getChild(varName) ;
-        if (eParam != null)
-            eParam.setText(value);
-        else {
-            eParam = new Element(varName) ;
-            eParam.setText(value);
-            _outData.addContent(eParam);
-        }
+        if (_outData == null) _outData = new Element("codelet_output");
+        Element content =
+              (Element) JDOMUtil.stringToElement(StringUtil.wrap(value, varName)).clone();
+        _outData.removeChild(varName);
+        _outData.addContent(content);
     }
 
     
@@ -180,7 +176,10 @@ public abstract class AbstractCodelet {
     private String getValue(String varName) throws CodeletExecutionException {
         String result = null ;
         if (_inData != null) {
-            result = _inData.getChildText(varName);
+            Element varElem = _inData.getChild(varName);          // may be complex type
+            if (varElem != null) {
+               result = StringUtil.unwrap(JDOMUtil.elementToString(varElem));
+            }
         }
         if (result != null)
             return result;

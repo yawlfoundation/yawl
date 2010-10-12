@@ -46,12 +46,15 @@ public class TimeSlot {
 
 
     public String toXML() {
+        return toXNode().toString();
+    }
+
+    public XNode toXNode() {
         XNode node = new XNode("timeslot");
         node.addChild("start", _start);
         node.addChild("end", _end);
-        return node.toString();
+        return node;
     }
-
 
     public void fromXML(String xml) throws NumberFormatException {
         XNode node = new XNodeParser().parse(xml);

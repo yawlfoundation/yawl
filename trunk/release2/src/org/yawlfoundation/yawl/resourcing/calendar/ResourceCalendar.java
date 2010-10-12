@@ -19,9 +19,13 @@
 package org.yawlfoundation.yawl.resourcing.calendar;
 
 import org.hibernate.Query;
+import org.yawlfoundation.yawl.resourcing.calendar.utilisation.UtilisationPlan;
+import org.yawlfoundation.yawl.resourcing.calendar.utilisation.UtilisationResource;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.resource.AbstractResource;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -182,6 +186,7 @@ public class ResourceCalendar {
      *   2. start <-> end is wholly within a record's time range
      *   3. start is prior to the record's time range, and end falls within it
      *   4. end is after the record's time range, and start falls within it
+     * todo: -1 starts and ends
      */
     public List getTimeSlotEntries(String id, long start, long end) {
         return _persister.createQuery(
@@ -294,6 +299,32 @@ public class ResourceCalendar {
             throws ScheduleStateException {
 
         // must be currently reserved
+    }
+
+
+    public String saveReservations(String planXML, boolean checkOnly) {
+        XNode planNode = new XNodeParser(true).parse(planXML);
+        UtilisationPlan plan = saveReservations(new UtilisationPlan(planNode), checkOnly);
+        return plan.toXML();
+    }
+
+
+    public UtilisationPlan saveReservations(UtilisationPlan plan, boolean checkOnly) {
+
+        // todo
+        return plan;
+    }
+
+
+    public String getReservations(String resource, long from, long to) {
+        XNode resNode = new XNodeParser(true).parse(resource);
+        UtilisationPlan plan = getReservations(new UtilisationResource(resNode), from, to);
+        return plan.toXML();
+    }
+
+    
+    public UtilisationPlan getReservations(UtilisationResource resource, long from, long to) {
+        return new UtilisationPlan();
     }
 
 }

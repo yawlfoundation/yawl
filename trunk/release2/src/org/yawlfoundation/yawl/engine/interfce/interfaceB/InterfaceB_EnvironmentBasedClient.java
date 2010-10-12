@@ -104,6 +104,22 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
+     * Returns an XML string describing all the work items that are
+     * currently active in the engine.
+     * @param itemID the workitem id
+     * @param sessionHandle the session handle
+     * @return an XML representation of the set of live workitems
+     * @throws IOException if engine can't be found.
+     */
+    public String getWorkItem(String itemID, String sessionHandle)
+               throws IOException {
+        Map<String, String> params = prepareParamMap("getWorkItem", sessionHandle);
+        params.put("workItemID", itemID) ;
+        return executeGet(_backEndURIStr, params);
+    }
+
+
+    /**
      * Returns the current set of active workitems for a case
      * @param caseID the case in question
      * @param sessionHandle the session handle
@@ -806,6 +822,11 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      */
     public String postToExternalURL(String url, Map<String, String> params) throws IOException {
         return executePost(url, params);
+    }
+
+
+    public String stripOuterElement(String xml) {
+        return super.stripOuterElement(xml);
     }
 
 

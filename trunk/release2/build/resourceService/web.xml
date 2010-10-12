@@ -297,6 +297,16 @@
     </servlet>
 
 
+    <servlet>
+        <servlet-name>rsCalendarGateway</servlet-name>
+        <description>
+            Gateway to the service resource calendars
+        </description>
+        <servlet-class>org.yawlfoundation.yawl.resourcing.rsInterface.ResourceCalendarGateway</servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+
     <servlet-mapping>
         <servlet-name>InterfaceB_Servlet</servlet-name>
         <url-pattern>/ib</url-pattern>
@@ -320,6 +330,11 @@
     <servlet-mapping>
         <servlet-name>rsLogGateway</servlet-name>
         <url-pattern>/logGateway</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>rsCalendarGateway</servlet-name>
+        <url-pattern>/calendarGateway</url-pattern>
     </servlet-mapping>
 
     <!--

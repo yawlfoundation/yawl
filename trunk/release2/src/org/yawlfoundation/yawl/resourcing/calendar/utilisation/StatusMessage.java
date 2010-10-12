@@ -24,7 +24,7 @@ import org.yawlfoundation.yawl.util.XNode;
  * @author Michael Adams
  * @date 6/10/2010
  */
-class StatusMessage {
+public class StatusMessage {
     private String warning;
     private String error;
 

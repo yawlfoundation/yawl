@@ -69,28 +69,47 @@ public class ResourceCalendarGateway extends HttpServlet {
             throw new IOException("ResourceCalendarGateway called with null action.");
         }
         else if (action.equalsIgnoreCase("connect")) {
-           String userid = req.getParameter("userid");
-           String password = req.getParameter("password");
-           if (_rm != null) {
-               int interval = req.getSession().getMaxInactiveInterval();
-               result = _rm.serviceConnect(userid, password, interval);
-           }
-           else result = _noService;
-       }
-       else if (action.equalsIgnoreCase("checkConnection")) {
-           if (_rm != null)
-               result = String.valueOf(_rm.checkServiceConnection(handle));
-           else result = _noService;
-       }
-       else if (validConnection(handle)) {
-           if (action.equals("getResourceAvailability")) {
-               long fromDate = strToLong(req.getParameter("fromDate"));
-               long toDate = strToLong(req.getParameter("toDate"));
+            String userid = req.getParameter("userid");
+            String password = req.getParameter("password");
+            if (_rm != null) {
+                int interval = req.getSession().getMaxInactiveInterval();
+                result = _rm.serviceConnect(userid, password, interval);
+            }
+            else result = _noService;
+        }
+        else if (action.equalsIgnoreCase("checkConnection")) {
+            if (_rm != null)
+                result = String.valueOf(_rm.checkServiceConnection(handle));
+            else result = _noService;
+        }
+        else if (action.equalsIgnoreCase("disconnect")) {
+            if (_rm != null) {
+                _rm.serviceDisconnect(handle);
+                result = "true";
+            }
+            else result = _noService;
+        }
+        else if (validConnection(handle)) {
+            if (action.equals("getResourceAvailability")) {
+               long fromDate = strToLong(req.getParameter("from"));
+               long toDate = strToLong(req.getParameter("to"));
                if ((fromDate > -1) && (toDate > -1)) {
                    List<TimeSlot> slots = _calendar.getAvailability(id, fromDate, toDate);
                    result = timeSlotsToXML(id, slots);
                }
-               else result = fail("Invalid Date values.");
+               else result = fail("Invalid Date value(s).");
+           }
+           else if (action.equals("getReservations")) {
+               String resources = req.getParameter("resource");
+               long fromDate = strToLong(req.getParameter("from"));
+               long toDate = strToLong(req.getParameter("to"));
+               result = _calendar.getReservations(resources, fromDate, toDate);
+           }
+           else if (action.equals("saveReservations")) {
+               String plan = req.getParameter("plan");
+               String checkStr = req.getParameter("checkOnly");
+               boolean checkOnly = (checkStr != null) && checkStr.equalsIgnoreCase("true");
+               result = _calendar.saveReservations(plan, checkOnly);
            }
            else result = _noAction;
        }
@@ -122,6 +141,7 @@ public class ResourceCalendarGateway extends HttpServlet {
     }
 
     private long strToLong(String s) {
+        if (s == null) return -1;
         try {
             return new Long(s);
         }
@@ -135,9 +155,7 @@ public class ResourceCalendarGateway extends HttpServlet {
         XNode node = new XNode("timeslots");
         node.addAttribute("id", id);
         for (TimeSlot slot : slots) {
-            XNode slotNode = node.addChild("timeslot");
-            slotNode.addChild("start", slot.getStart());
-            slotNode.addChild("end", slot.getEnd());
+            node.addChild(slot.toXNode());
         }
         return node.toString();
     }

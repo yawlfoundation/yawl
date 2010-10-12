@@ -112,7 +112,7 @@ public abstract class AbstractAllocator extends AbstractSelector {
             String eventStr = event.name();
             String taskName = wir.getTaskName();
             return persister.selectWhere("ResourceEvent",
-                  String.format("_event='%s' AND tbl._specKey='%s' AND tbl._taskID='%s'",
+                  String.format("_event='%s' AND tbl._specKey=%d AND tbl._taskID='%s'",
                                 eventStr, specKey, taskName)) ;
         }
         else return null;

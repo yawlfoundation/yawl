@@ -446,9 +446,9 @@ public class ResourceManager extends InterfaceBWebsideController {
             reestablishInterfaceClients();
         }
 
+        setAuthorisedServiceConnections();
         setServiceURI();
         sanitiseCaches();
-        setAuthorisedServiceConnections();
 
         // if this is the first time the engine has started since service start...
         // (these things are only to be done once per service start)
@@ -1334,11 +1334,10 @@ public class ResourceManager extends InterfaceBWebsideController {
             }
 
             // replace the parent in the cache with the executing child
-            _workItemCache.remove(wir) ;
-            oneToStart.setResourceStatus(WorkItemRecord.statusResourceStarted);
-            _workItemCache.add(oneToStart);
+            _workItemCache.replace(wir, oneToStart);
 
             p.getWorkQueues().movetoStarted(wir, oneToStart);
+            oneToStart.setResourceStatus(WorkItemRecord.statusResourceStarted);
 
             if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceUnoffered)) {
                 _resAdmin.getWorkQueues().removeFromQueue(wir, WorkQueue.UNOFFERED);

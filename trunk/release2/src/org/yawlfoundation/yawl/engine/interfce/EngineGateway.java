@@ -72,7 +72,7 @@ public interface EngineGateway extends Remote {
      * @return the full workitem record matching the id passed
      * @throws RemoteException
      */
-    public String getWorkItemDetails(String workItemID, String sessionHandle) throws RemoteException;
+    public String getWorkItem(String workItemID, String sessionHandle) throws RemoteException;
 
     /**
      *
