@@ -21,6 +21,9 @@ package org.yawlfoundation.yawl.util;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 
+import javax.xml.datatype.Duration;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.*;
 import java.math.BigDecimal;
 import java.net.URLDecoder;
@@ -28,7 +31,10 @@ import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Currency;
+import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -432,4 +438,43 @@ public class StringUtil
             return def;
         }
     }
+
+
+    public static Duration strToDuration(String s) {
+        if (s != null) {
+            try {
+                return DatatypeFactory.newInstance().newDuration(s) ;
+            }
+            catch (DatatypeConfigurationException dce) {
+                // nothing to do - null will be returned
+            }
+        }
+        return null;
+    }
+
+    
+    public static boolean isValidDurationString(String s) {
+        try {
+            DatatypeFactory.newInstance().newDuration(s) ;
+            return true;
+        }
+        catch (DatatypeConfigurationException dce) {
+            return false;
+        }
+    }
+
+
+    public static long durationToMSecs(Duration d, long def) {
+        return (d != null) ? d.getTimeInMillis(new Date()) : def;
+    }
+
+    public static long durationToMSecs(Duration d) {
+        return durationToMSecs(d, 0);
+    }
+
+    public static long durationStrToMSecs(String s) {
+        Duration d = strToDuration(s);
+        return (d != null) ? durationToMSecs(d) : 0;
+    }
+
 }

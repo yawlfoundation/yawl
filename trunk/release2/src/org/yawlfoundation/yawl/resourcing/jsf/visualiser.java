@@ -282,10 +282,7 @@ public class visualiser extends AbstractPageBean {
         StringBuilder result = new StringBuilder("<applet width=\"800\" height=\"600\"");
         result.append(" archive=\"visualiser.jar,javax.servlet.jar,jdom.jar,")
               .append(" resourceService.jar,saxon9.jar,log4j-1.2.14.jar,commons-codec-1.4.jar\"")
-              .append(" codebase=\"")
-         //     .append(baseURI)
-              .append("..")
-              .append("/visualiserApplet\"")
+              .append(" codebase=\"../../visualiserApplet\"")
               .append(" code=\"worklist.WRKLApplet.class\" MAYSCRIPT>")
               .append(" <param name=\"user\" value=\"")
               .append(p.getUserID())

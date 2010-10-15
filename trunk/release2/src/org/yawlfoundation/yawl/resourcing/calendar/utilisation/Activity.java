@@ -31,6 +31,7 @@ import java.util.List;
 public class Activity extends StatusMessage {
 
     private String _name;
+    private String _taskID;
     private StringWithMessage _from;
     private StringWithMessage _to;
     private StringWithMessage _duration;
@@ -39,8 +40,9 @@ public class Activity extends StatusMessage {
 
     public Activity() { }
 
-    public Activity(String name, String from, String to, int duration) {
+    public Activity(String name, String taskID, String from, String to, String duration) {
         setName(name);
+        setTaskID(taskID);
         setFrom(from);
         setTo(to);
         setDuration(duration);
@@ -55,6 +57,11 @@ public class Activity extends StatusMessage {
     public String getName() { return _name; }
 
     public void setName(String name) { _name = name; }
+
+
+    public String getTaskID() { return _taskID; }
+
+    public void setTaskID(String id) { _taskID = id; }
 
 
     public String getFrom() { return _from.getValue(); }
@@ -73,11 +80,16 @@ public class Activity extends StatusMessage {
     }
 
 
-    public int getDuration() { return _duration.getIntValue(); }
+    // duration is stored as String that represents an xs:duration value
+    public String getDuration() { return _duration.getValue(); }
 
-    public void setDuration(int duration) {
+    public void setDuration(String duration) {
         if (_duration == null) _duration = new StringWithMessage("Duration");
         _duration.setValue(duration);
+    }
+
+    public long getDurationMSecs() {
+        return (_duration != null) ? StringUtil.durationStrToMSecs(_duration.getValue()) : 0;
     }
 
 
@@ -125,6 +137,7 @@ public class Activity extends StatusMessage {
         XNode node = new XNode("Activity");
         addAttributes(node);
         node.addChild("Name", _name);
+        node.addChild("StartTaskId", _taskID);
         if (_from != null) node.addChild(_from.toXNode());
         if (_to != null) node.addChild(_to.toXNode());
         if (_duration != null) node.addChild(_duration.toXNode());
@@ -144,9 +157,10 @@ public class Activity extends StatusMessage {
     public void fromXNode(XNode node) {
         super.fromXNode(node);
         setName(node.getChildText("Name"));
+        setTaskID(node.getChildText("StartTaskId"));
         setFrom(node.getChildText("From"));
         setTo(node.getChildText("To"));
-        setDuration(StringUtil.strToInt(node.getChildText("Duration"), -1));
+        setDuration(node.getChildText("Duration"));
         for (XNode reservationNode : node.getChildren("Reservation")) {
             addReservation(new Reservation(reservationNode));
         }

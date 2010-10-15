@@ -357,7 +357,9 @@ public abstract class InterfaceBWebsideController {
     public WorkItemRecord getEngineStoredWorkItem(String workItemID, String sessionHandle)
             throws IOException {
         String itemXML = _interfaceBClient.getWorkItem(workItemID, sessionHandle);
-        return successful(itemXML) ? Marshaller.unmarshalWorkItem(itemXML) : null;
+        return successful(itemXML) ?
+            Marshaller.unmarshalWorkItem(_interfaceBClient.stripOuterElement(itemXML))
+            : null;
     }
 
 

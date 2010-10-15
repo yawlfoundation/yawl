@@ -256,7 +256,10 @@ public class WorkletService extends InterfaceBWebsideController {
 
         if (connected()) {
              _log.info("Connection to engine is active") ;
-            handleWorkletSelection(workItemRecord) ;
+            if (! handleWorkletSelection(workItemRecord)) {
+                declineWorkItem(workItemRecord, null);
+                _log.info("Workitem returned to Engine: " + workItemRecord.getID());
+            }
         }
         else _log.error("Could not connect to YAWL engine") ;
     }
@@ -463,7 +466,7 @@ public class WorkletService extends InterfaceBWebsideController {
     /** Attempt to substitute the enabled workitem with a worklet
      *  @param wir - the enabled workitem record
      */
-    private void handleWorkletSelection(WorkItemRecord wir) {
+    private boolean handleWorkletSelection(WorkItemRecord wir) {
         YSpecificationID specId = new YSpecificationID(wir);
         String taskId = wir.getTaskName() ;
         String itemId = wir.getID() ;
@@ -471,6 +474,7 @@ public class WorkletService extends InterfaceBWebsideController {
         CheckedOutItem coParent ;                        // record of item
         CheckedOutChildItem coChild ;                    // child item rec.
         int childIndex = 0;
+        boolean success = false;
 
         _log.info("Received workitem for worklet substitution: " + itemId) ;
         _log.info("   specId = " + specId);
@@ -506,6 +510,7 @@ public class WorkletService extends InterfaceBWebsideController {
                      _handledParentItems.put(itemId, coParent) ;
                      if (_persisting) _dbMgr.persist(coParent, DBManager.DB_INSERT);
                   }
+                 success = true;            // at least one worklet launched
              }
              else
                  _log.info("No worklets launched for workitem: " + itemId);
@@ -521,6 +526,7 @@ public class WorkletService extends InterfaceBWebsideController {
         }
         else _log.warn("Rule set does not contain rules for task: " + taskId +
                        " OR No rule set found for specId: " + specId);
+        return success;
     }
 
 
@@ -907,25 +913,32 @@ public class WorkletService extends InterfaceBWebsideController {
      * @param coChild - the record for the child to undo the checkout for
      */
     private void undoCheckOutWorkItem(CheckedOutChildItem coChild) {
+        if (declineWorkItem(coChild.getItem(), EventLogger.eUndoCheckOut)) {
+            _log.info("Undo checkout successful: " + coChild.getItemId());
 
-        String itemID = coChild.getItemId() ;
-        CheckedOutItem parent = coChild.getParent();
+            // remove child from parent record
+            CheckedOutItem parent = coChild.getParent();
+            parent.removeChild(coChild);
+        }
+    }
 
-           // an atomic task can be rolled back and handled in worklist
-           try {
-                _interfaceBClient.rejectAnnouncedEnabledTask(itemID, _sessionHandle);
-                _log.info("Undo checkout successful: " + itemID);
 
-                // log the undo checkout event
-                EventLogger.log(_dbMgr, EventLogger.eUndoCheckOut, coChild.getItem(), -1) ;
+    // an atomic task can be rolled back and rehandled in engine's default worklist
+    private boolean declineWorkItem(WorkItemRecord wir, String eventType) {
+        if (wir == null) return false;
+        try {
+             _interfaceBClient.rejectAnnouncedEnabledTask(wir.getID(), _sessionHandle);
 
-                // remove child from parent record
-                parent.removeChild(coChild);
-           }
-           catch (IOException ioe) {
-                _log.error("IO Exception with undo checkout: " + itemID, ioe);
-           }
-     }
+            // log the rollback checkout event
+            if (eventType == null) eventType = EventLogger.eDecline;
+            EventLogger.log(_dbMgr, eventType, wir, -1) ;
+            return true;
+        }
+        catch (IOException ioe) {
+             _log.error("IO Exception with undo checkout: " + wir.getID(), ioe);
+            return false;
+        }
+    }
 
   //***************************************************************************//
 

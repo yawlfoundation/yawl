@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.util.XNode;
 */
 public class Reservation extends StatusMessage {
 
+    private String _reservationID;
     private StringWithMessage _statusToBe;
     private StringWithMessage _status;
     private UtilisationResource _resource;
@@ -34,8 +35,9 @@ public class Reservation extends StatusMessage {
 
     public Reservation() { }
 
-    public Reservation(String statusToBe, String status,
+    public Reservation(String id, String statusToBe, String status,
                        UtilisationResource resource, int workload) {
+        setReservationID(id);
         setStatusToBe(statusToBe);
         setStatus(status);
         setResource(resource);
@@ -48,6 +50,13 @@ public class Reservation extends StatusMessage {
 
 
     /************************************************************************/
+
+    public String getReservationID() { return _reservationID; }
+
+    public void setReservationID(String id) {
+        _reservationID = id;
+    }
+
 
     public String getStatusToBe() { return _statusToBe.getValue(); }
 
@@ -87,6 +96,7 @@ public class Reservation extends StatusMessage {
     public XNode toXNode() {
         XNode node = new XNode("Reservation");
         addAttributes(node);
+        node.addChild("ReservationId", _reservationID);
         if (_statusToBe != null) node.addChild(_statusToBe.toXNode());
         if (_status != null) node.addChild(_status.toXNode());
         if (_resource != null) node.addChild(_resource.toXNode());
@@ -96,6 +106,7 @@ public class Reservation extends StatusMessage {
 
     public void fromXNode(XNode node) {
         super.fromXNode(node);
+        setReservationID(node.getChildText("ReservationId"));
         setStatusToBe(node.getChildText("StatusToBe"));
         setStatus(node.getChildText("Status"));
         setResource(new UtilisationResource(node.getChild("Resource")));

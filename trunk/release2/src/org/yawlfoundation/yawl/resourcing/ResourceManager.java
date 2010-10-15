@@ -163,6 +163,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private String _engineSessionHandle = null ;
     private String _serviceURI = null;
     private String _exceptionServiceURI = null ;
+    private String _schedulingServiceURI = null ;
     private Namespace _yNameSpace =
             Namespace.getNamespace("http://www.yawlfoundation.org/yawlschema");
 
@@ -217,15 +218,22 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
     
-    public void initInterfaceClients(String engineURI, String exceptionURI) {
+    public void initInterfaceClients(String engineURI, String exceptionURI,
+                                     String schedulingURI) {
         _interfaceAClient = new InterfaceA_EnvironmentBasedClient(
                                                  engineURI.replaceFirst("/ib", "/ia"));
         _interfaceEClient = new YLogGatewayClient(
                                          engineURI.replaceFirst("/ib", "/logGateway"));
         if (exceptionURI != null) {
             _exceptionServiceURI = exceptionURI;
-            _gatewayServer = new ResourceGatewayServer(exceptionURI + "/ix");
+            _gatewayServer = new ResourceGatewayServer();
+            _gatewayServer.setExceptionInterfaceURI(exceptionURI + "/ix");
         }    
+        if (schedulingURI != null) {
+            _schedulingServiceURI = schedulingURI;
+            if (_gatewayServer == null) _gatewayServer = new ResourceGatewayServer();
+            _gatewayServer.setSchedulingInterfaceURI(schedulingURI);
+        }
     }
 
 
@@ -351,6 +359,14 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public String getExceptionServiceURI() {
         return _exceptionServiceURI;
+    }
+
+    public boolean hasSchedulingServiceEnabled() {
+        return (_schedulingServiceURI != null);
+    }
+
+    public String getSchedulingServiceURI() {
+        return _schedulingServiceURI;
     }
 
     public Logger getLogger() { return _log ; }
