@@ -76,26 +76,28 @@ public class RdrConversionTools {
      * @return the reconstructed WorkItemRecord
      */
     public static WorkItemRecord xmlStringtoWIR(String xmlStr) {
-        Element eWIR = JDOMUtil.stringToElement(xmlStr) ;    // reform as Element
-
-        String status = eWIR.getChildText("status");
-        String specID = eWIR.getChildText("specid");
-        String caseid = eWIR.getChildText("caseid");
-        String taskid = eWIR.getChildText("taskid");
-
-        String taskName = Library.getTaskNameFromId(taskid);
+//        Element eWIR = JDOMUtil.stringToElement(xmlStr) ;    // reform as Element
+//
+//        String status = eWIR.getChildText("status");
+//        String specID = eWIR.getChildText("specid");
+//        String caseid = eWIR.getChildText("caseid");
+//        String taskid = eWIR.getChildText("taskid");
+//
+//        String taskName = Library.getTaskNameFromId(taskid);
 
         // call the wir constructor
-        WorkItemRecord wir = new WorkItemRecord(caseid, taskid, specID,
-                              null, status);
-
-        // add data list if non-parent item
-        Element data = eWIR.getChild("data").getChild(taskName) ;
-        if (data != null) {
-            data = (Element) data.detach() ;
-            wir.setDataList(data);
-        }
-        return wir;
+        return Marshaller.unmarshalWorkItem(xmlStr);
+//
+//                new WorkItemRecord(caseid, taskid, specID,
+//                              null, status);
+//
+//        // add data list if non-parent item
+//        Element data = eWIR.getChild("data").getChild(taskName) ;
+//        if (data != null) {
+//            data = (Element) data.detach() ;
+//            wir.setDataList(data);
+//        }
+//        return wir;
     }
 
     /******************************************************************************/

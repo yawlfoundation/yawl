@@ -39,6 +39,7 @@ public class EventLogger {
 
     // event type descriptors
     public static final String eCheckOut = "CheckOutWorkItem";
+    public static final String eDecline = "DeclineWorkItem";
     public static final String eUndoCheckOut = "UndoCheckOutWorkItem";
     public static final String eLaunch = "WorkletLaunched";
     public static final String eCheckIn = "CheckInWorkItem";

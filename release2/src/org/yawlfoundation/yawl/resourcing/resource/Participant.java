@@ -192,12 +192,7 @@ public class Participant extends AbstractResource implements Serializable {
 
     public void setPassword(String pw, boolean encrypt) {
         if (encrypt) {
-            try {
-                pw = PasswordEncryptor.encrypt(pw) ;
-            }
-            catch (Exception e) {
-                // will have to revert to a non-encrypted string
-            }
+            pw = PasswordEncryptor.encrypt(pw, pw);
         }
         setPassword(pw) ;        
     }

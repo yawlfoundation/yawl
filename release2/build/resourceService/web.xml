@@ -227,6 +227,18 @@
     </context-param>
 -->    
 
+    <!-- This param, when available, enables scheduling announcements to a
+         scheduling service listening on Interface S. -->
+<!--
+    <context-param>
+       <param-name>InterfaceS_BackEnd</param-name>
+       <param-value>http://localhost:8080/schedulingService</param-value>
+       <description>
+          The URL of the scheduling service.
+       </description>
+    </context-param>
+-->
+
 
     <!--CharsetFilter -->
 

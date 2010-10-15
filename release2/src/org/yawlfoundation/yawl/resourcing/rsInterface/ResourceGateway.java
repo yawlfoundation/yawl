@@ -68,7 +68,8 @@ public class ResourceGateway extends HttpServlet {
 
                 // set the engine uri and the exception service uri (if enabled)
                 _rm.initInterfaceClients(context.getInitParameter("InterfaceB_BackEnd"),
-                                        context.getInitParameter("InterfaceX_BackEnd"));
+                                         context.getInitParameter("InterfaceX_BackEnd"),
+                                         context.getInitParameter("InterfaceS_BackEnd"));
 
                 // set the path to external plugin classes (if any)
                 String pluginDir = context.getInitParameter("ExternalPluginsDir");

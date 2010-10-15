@@ -30,8 +30,6 @@ import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.util.StringUtil;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -436,13 +434,9 @@ public class YDecompositionParser {
                     // duration type - specified as a Duration?
                     String durationStr = timerElem.getChildText("duration", _yawlNS);
                     if (durationStr != null) {
-                        try {
-                            Duration duration = DatatypeFactory.newInstance()
-                                                               .newDuration(durationStr) ;
+                        Duration duration = StringUtil.strToDuration(durationStr);
+                        if (duration != null) {
                             task.setTimerParameters(trigger, duration);
-                        }
-                        catch (DatatypeConfigurationException dce) {
-                            // nothing to do - timer won't be set
                         }
                     }
                     else {

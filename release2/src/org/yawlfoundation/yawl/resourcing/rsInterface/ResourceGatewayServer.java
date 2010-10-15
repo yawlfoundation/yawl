@@ -34,11 +34,25 @@ public class ResourceGatewayServer extends Interface_Client {
     //'borrowed' from InterfaceX_EngineSideClient
     protected static final int NOTIFY_RESOURCE_UNAVAILABLE = 4;
 
-    private String _ixURI ;                            // the uri to Interface X Service
+    public static final int NOTIFY_UTILISATION_REQUEST = 0;
+    public static final int NOTIFY_UTILISATION_RELEASE = 1;
 
-    public ResourceGatewayServer(String uri) {
+
+    private String _ixURI ;      // the uri to Interface X Service (exception handling)
+    private String _isURI ;      // the uri to Interface S Service (resource scheduling)
+
+    public ResourceGatewayServer() { }
+
+
+    public void setExceptionInterfaceURI(String uri) {
         _ixURI = uri;
     }
+
+
+    public void setSchedulingInterfaceURI(String uri) {
+        _isURI = uri;
+    }
+
 
     public void announceResourceUnavailable(WorkItemRecord wir)
             throws IOException {
@@ -46,5 +60,32 @@ public class ResourceGatewayServer extends Interface_Client {
         params.put("action", String.valueOf(NOTIFY_RESOURCE_UNAVAILABLE)) ;
         params.put("workItem", wir.toXML());
         executePost(_ixURI, params);
+    }
+
+
+    public void announceUtilisationRequest(String caseID, String activityID)
+            throws IOException {
+        announceUtilisationTask(caseID, activityID, true);
+    }
+
+
+    public void announceUtilisationRelease(String caseID, String activityID)
+            throws IOException {
+        announceUtilisationTask(caseID, activityID, false);
+    }
+
+
+    private void announceUtilisationTask(String caseID, String activityID, boolean request)
+            throws IOException {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("action", String.valueOf(getUtilisationAction(request))) ;
+        params.put("caseid", caseID);
+        params.put("activityid", activityID);
+        executePost(_ixURI, params);
+    }
+
+
+    private int getUtilisationAction(boolean request) {
+        return request ? NOTIFY_UTILISATION_REQUEST : NOTIFY_UTILISATION_RELEASE;
     }
 }

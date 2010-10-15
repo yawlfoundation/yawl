@@ -1,6 +1,6 @@
-<%@ page import="org.jdom.Element" %>
 <%@ page import="org.yawlfoundation.yawl.engine.interfce.Marshaller" %>
 <%@ page import="org.yawlfoundation.yawl.engine.interfce.WorkItemRecord" %>
+<%@ page import="org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGatewayClient" %>
     <%--
   ~ Copyright (c) 2004-2010 The YAWL Foundation. All rights reserved.
   ~ The YAWL Foundation is a collaboration of individuals and
@@ -20,71 +20,89 @@
   --%>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
-    
-    <%@ page import="org.apache.commons.fileupload.servlet.*,
-    org.apache.commons.fileupload.disk.*,
-     org.apache.commons.io.*,
-     java.util.*,
-     org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException,
-     org.apache.commons.fileupload.*,
-     org.yawlfoundation.yawl.digitalSignature.DigitalSignature,
-     java.io.*" %>
 
 <?xml version="1.0"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 
-	<head>
-		    <meta content="no-cache" http-equiv="Pragma" />
-        <meta content="no-cache" http-equiv="Cache-Control" />                            
-        <meta content="no-store" http-equiv="Cache-Control" />
-        <meta content="max-age=0" http-equiv="Cache-Control" />
-        <meta content="1" http-equiv="Expires" />
+<head>
+    <meta content="no-cache" http-equiv="Pragma"/>
+    <meta content="no-cache" http-equiv="Cache-Control"/>
+    <meta content="no-store" http-equiv="Cache-Control"/>
+    <meta content="max-age=0" http-equiv="Cache-Control"/>
+    <meta content="1" http-equiv="Expires"/>
 
 
-		<title>Welcome to the Digital Signature Service</title>
-        <script type="text/javascript" src="/resourceService/theme/com/sun/rave/web/ui/defaulttheme-gray/javascript/formElements.js"></script>
-        <link rel="stylesheet" type="text/css" href="/resourceService/theme/com/sun/rave/web/ui/defaulttheme-gray/css/css_master.css" />
-        <script type="text/javascript">
-                    var sjwuic_ScrollCookie = new sjwuic_ScrollCookie('/dynForm.jsp', '/resourceService/faces/dynForm.jsp');
-        </script>
+    <title>Welcome to the Digital Signature Service</title>
+    <script type="text/javascript"
+            src="/resourceService/theme/com/sun/rave/web/ui/defaulttheme-gray/javascript/formElements.js"></script>
+    <link rel="stylesheet" type="text/css"
+          href="/resourceService/theme/com/sun/rave/web/ui/defaulttheme-gray/css/css_master.css"/>
+    <script type="text/javascript">
+        var sjwuic_ScrollCookie = new sjwuic_ScrollCookie('/dynForm.jsp', '/resourceService/faces/dynForm.jsp');
+    </script>
 
-<link id="link1" rel="stylesheet" type="text/css" href="/resourceService/resources/stylesheet.css" />
-<link id="lnkFavIcon" rel="shortcut icon" type="image/x-icon" href="/resourceService/resources/favicon.ico" />
-
-
-	</head>
-	<body id="body1" style="-rave-layout: grid" onload="return body1_jsObject.setInitialFocus();" onunload="return body1_jsObject.setScrollPosition();">
-
-	<div><div><table cellpadding="0" cellspacing="0" width="100%" style="height: 69px" id="form1:headtable1"><tbody><tr><td background="./resources/headbgleft.jpg" height="69px" width="40%" valign="bottom" align="left"><p>
-                                <a style="font-family:verdana; color: #3277ba" target="_blank" href="http://www.yawlfoundation.org/">
-                                    www.yawlfoundation.org
-                                </a></p></td><td width="409px" height="69px" align="center"><img src="./resources/newYAWL.jpg" border="0" alt="YAWL 2.0" width="409px" height="69px" id="form1:headImage1"/></td><td background="./resources/headbgright.jpg" height="69px" valign="bottom" align="right" width="40%"><p style="font-family:verdana; color: #97cbfd"><i>Leading the World in Process Innovation</i>
-
- </p></td></tr></tbody></table></div></div>
+    <link id="link1" rel="stylesheet" type="text/css"
+          href="/resourceService/resources/stylesheet.css"/>
+    <link id="lnkFavIcon" rel="shortcut icon" type="image/x-icon"
+          href="/resourceService/resources/favicon.ico"/>
 
 
+</head>
+<body id="body1" style="-rave-layout: grid"
+      onload="return body1_jsObject.setInitialFocus();"
+      onunload="return body1_jsObject.setScrollPosition();">
 
-        <%
- 	    
- 	    String workItemXML = request.getParameter("workitem");
-    	WorkItemRecord wir;
+<div>
+    <div>
+        <table cellpadding="0" cellspacing="0" width="100%" style="height: 69px"
+               id="form1:headtable1">
+            <tbody>
+            <tr>
+                <td background="./resources/headbgleft.jpg" height="69px" width="40%"
+                    valign="bottom" align="left"><p>
+                    <a style="font-family:verdana; color: #3277ba" target="_blank"
+                       href="http://www.yawlfoundation.org/">
+                        www.yawlfoundation.org
+                    </a></p></td>
+                <td width="409px" height="69px" align="center"><img
+                        src="./resources/newYAWL.jpg" border="0" alt="YAWL 2.0"
+                        width="409px" height="69px" id="form1:headImage1"/></td>
+                <td background="./resources/headbgright.jpg" height="69px" valign="bottom"
+                    align="right" width="40%"><p
+                        style="font-family:verdana; color: #97cbfd"><i>Leading the World
+                    in Process Innovation</i>
 
-    	// workItemXML won't be null on the first call from the worklist handler
-    	if (workItemXML != null) {
-       	wir = Marshaller.unmarshalWorkItem(workItemXML) ;
-       	 	session.setAttribute("workitem", wir);                  // save it for the post
-   	 		}
-
-		// if it is null, it's after a 'submit' and the request param is lost,
-		// so retreive the wir from the session attribute saved earlier
-		else {
-			wir = (WorkItemRecord) session.getAttribute("workitem");
-		}
-		String redirectURL = "upload.jsp?workitem=" + wir.toXML();
+                </p></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
 
-		%>
+<%
+    String itemXML = (String) session.getAttribute("itemXML");
+    if (itemXML == null) {
+
+        // The workitem id and user's session handle are passed as parameters. Use them
+        // to get an xml record of the workitem.
+        String itemid = request.getParameter("workitem");
+        String handle = request.getParameter("handle");
+        String redirectURL = request.getParameter("source");
+
+        String wqURL = "http://localhost:8080/resourceService/workqueuegateway";
+        WorkQueueGatewayClient wqClient = new WorkQueueGatewayClient(wqURL);
+        itemXML = wqClient.getWorkItem(itemid, handle);
+        
+        session.setAttribute("itemXML", itemXML);
+        session.setAttribute("workitem", itemid);
+        session.setAttribute("handle", handle);
+        session.setAttribute("redirectURL", redirectURL);
+    }
+
+%>
 		
 			
       <center>
