@@ -330,7 +330,7 @@ public class NetGraph extends JGraph {
 
     setFlowPriorityIfNecessary(flow);
     makeSameTaskFlowPrettyIfNecessary(flow);
-
+    updateCPorts(source, target);
     getNetModel().endUpdate();
     return flow;
   }
@@ -342,7 +342,19 @@ public class NetGraph extends JGraph {
       flow.setPriority(edges.size() - 1);
     }
   }
+
+    private void updateCPorts(YAWLPort source, YAWLPort target) {
+        updateCPort(source);
+        updateCPort(target);
+    }
   
+    private void updateCPort(YAWLPort port) {
+        YAWLTask task = port.getTask();
+        if (task != null && task.isConfigurable()) {
+            task.configureReset();
+        }
+    }
+
   private void makeSameTaskFlowPrettyIfNecessary(YAWLFlowRelation flow) {
      
     if (flow.connectsTaskToItself()) {

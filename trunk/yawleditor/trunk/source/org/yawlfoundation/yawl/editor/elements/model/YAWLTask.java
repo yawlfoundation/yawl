@@ -346,6 +346,18 @@ public abstract class YAWLTask extends YAWLVertex {
     return true;
   }
 
+    public void detachFlow(YAWLFlowRelation flow) {
+        if (! (hasSplitDecorator() || hasJoinDecorator())) {
+            super.detachFlow(flow);
+        }
+        if (hasSplitDecorator()) {
+            getSplitDecorator().detachFlow(flow);
+        }
+        if (hasJoinDecorator()) {
+            getJoinDecorator().detachFlow(flow);
+        }
+    }
+
     public void removeInvalidParameters() {
         List<Parameter> paramsToDelete = new LinkedList<Parameter>();
         Decomposition decomp = getDecomposition();
@@ -406,67 +418,94 @@ public abstract class YAWLTask extends YAWLVertex {
   public List<CPort> getOutputCPorts(){
 	  return this.outputCPorts;
   }
-  /**
-   * Created by Jingxin XU 13/01/2010
-   * This method construct the configurable input ports
-   */
-  public void generateInputCPorts(){
-	  int size = this.getIncomingFlowCount();
-	  if((this.hasJoinDecorator())&&
-			  (this.getJoinDecorator().getType()== Decorator.XOR_TYPE)) {
 
-		  	for(int i=0;i<size; i++){
-		  		this.inputCPorts.add(new CPort(this,CPort.INPUTPORT));
-		  	}
-		  	YAWLFlowRelation flows[] = new YAWLFlowRelation[size];
-		  	flows = this.getIncomingFlows().toArray(flows);
-			 for(int i=0; i<size; i++){
-				 HashSet Cflows = new HashSet();
-				 Cflows.add(flows[i]);
-				 this.inputCPorts.get(i).setID(i);
-				 this.inputCPorts.get(i).setFlows(Cflows);
-			 }
-	  }else if(size>0){
+  public int getNextCPortID(int portType) {
+      int id = -1;
+      switch (portType) {
+          case CPort.INPUTPORT: id = getMaxCPortID(inputCPorts) + 1; break;
+          case CPort.OUTPUTPORT: id = getMaxCPortID(outputCPorts) + 1; break;
+      }
+      return id;
+  }
 
-		  this.inputCPorts.add(new CPort(this,CPort.INPUTPORT));
-		  this.inputCPorts.get(0).setID(0);
-		  this.inputCPorts.get(0).setFlows(this.getIncomingFlows());
-		  }
+  public int getMaxCPortID(List<CPort> ports) {
+      int max = -1;
+      for (CPort port : ports) {
+          max = Math.max(max, port.getID());
+      }
+      return max;
   }
 
   /**
    * Created by Jingxin XU 13/01/2010
+   * refactored MA 25/10/10
+   * This method construct the configurable input ports
+   */
+  public void generateInputCPorts(){
+	  if (hasJoinDecorator() && (getJoinDecorator().getType() == Decorator.XOR_TYPE)) {
+        int id = 0;
+        for (YAWLFlowRelation flow : getIncomingFlows()) {
+            if (! flow.isBroken()) {
+                CPort port = new CPort(this, CPort.INPUTPORT);
+                port.setID(id++);
+                port.getFlows().add(flow);
+                inputCPorts.add(port);
+            }
+        }
+	  }
+    else if (getIncomingFlowCount() > 0) {
+        CPort port = new CPort(this, CPort.INPUTPORT);
+        port.setID(0);
+        for (YAWLFlowRelation flow : getIncomingFlows()) {
+            if (! flow.isBroken()) {
+                port.getFlows().add(flow);
+            }
+        }
+        inputCPorts.add(port);
+		}
+  }
+
+  /**
+   * Created by Jingxin XU 13/01/2010
+   * refactored MA 25/10/10
    * This method construct the configurable output ports
    */
   public void generateOutputCPorts(){
-	  int size = this.getOutgoingFlowCount();
-	  YAWLFlowRelation flows[] = new YAWLFlowRelation[size];
-	  flows = this.getOutgoingFlows().toArray(flows);
+	  if ((! hasSplitDecorator()) ||
+			  (getSplitDecorator().getType() == Decorator.AND_TYPE)) {
 
-	  if((!this.hasSplitDecorator())||
-			  (this.getSplitDecorator().getType()==Decorator.AND_TYPE)){
-
-		  this.outputCPorts.add(new CPort(this,CPort.OUTPUTPORT));
-		  this.outputCPorts.get(0).setID(0);
-		  this.outputCPorts.get(0).setFlows(this.getOutgoingFlows());
+        CPort port = new CPort(this, CPort.OUTPUTPORT);
+        port.setID(0);
+        for (YAWLFlowRelation flow : getOutgoingFlows()) {
+            if (! flow.isBroken()) {
+                port.getFlows().add(flow);
+            }
+        }
+        outputCPorts.add(port);
 	  }
-    else if(this.getSplitDecorator().getType()== Decorator.XOR_TYPE){
-			 for(int i=0; i<size; i++){
-				 HashSet Cflows = new HashSet();
-				 Cflows.add(flows[i]);
-				 this.outputCPorts.add(new CPort(this,CPort.OUTPUTPORT));
-				 this.outputCPorts.get(i).setID(i);
-				 this.outputCPorts.get(i).setFlows(Cflows);
-			 }
+    else if (getSplitDecorator().getType() == Decorator.XOR_TYPE) {
+        int id = 0;
+        for (YAWLFlowRelation flow : getOutgoingFlows()) {
+            if (! flow.isBroken()) {
+                CPort port = new CPort(this, CPort.OUTPUTPORT);
+                port.setID(id++);
+                port.getFlows().add(flow);
+                outputCPorts.add(port);
+            }
+        }
 	  }
-    else if(this.getSplitDecorator().getType()== Decorator.OR_TYPE) {
-        int i = 0;
+    else if (getSplitDecorator().getType() == Decorator.OR_TYPE) {
+        int id = 0;
         for (Set<YAWLFlowRelation> flowsPowerSet : getPowerSet(getOutgoingFlows())) {
             if ((flowsPowerSet != null) && (! flowsPowerSet.isEmpty())) {
                 CPort port = new CPort(this, CPort.OUTPUTPORT);
-                port.setFlows(flowsPowerSet);
-                port.setID(i++);
-			          outputCPorts.add(port);
+                port.setID(id++);
+                for (YAWLFlowRelation flow : flowsPowerSet) {
+                    if (! flow.isBroken()) {
+                        port.getFlows().add(flow);
+                    }
+                }
+                outputCPorts.add(port);
             }
 	      }
     }   
@@ -491,12 +530,12 @@ public abstract class YAWLTask extends YAWLVertex {
       if (configurable != newSetting) {
           configurable = newSetting;
           if (configurable && (! hasBeenConfigureInitialised)) {
-              configureInitialise();
+              configureReset();
           }
       }
   }
 
-    private void configureInitialise() {
+    public void configureReset() {
         if (configurable) {
             inputCPorts.clear();
             outputCPorts.clear();
@@ -522,6 +561,24 @@ public abstract class YAWLTask extends YAWLVertex {
   public void removeOutputPort(CPort port){
 	  this.outputCPorts.remove(port);
   }
+
+    public void removeOutputPort(YAWLFlowRelation flow) {
+        for (CPort port : outputCPorts) {
+            if (port.getFlows().contains(flow)) {
+                outputCPorts.remove(port);
+                break;
+            }
+        }
+    }
+
+    public void removeInputPort(YAWLFlowRelation flow) {
+        for (CPort port : inputCPorts) {
+            if (port.getFlows().contains(flow)) {
+                inputCPorts.remove(port);
+                break;
+            }
+        }
+    }
 
   public void addInputPort(CPort port){
 	  this.inputCPorts.add(port);

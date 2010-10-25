@@ -62,6 +62,7 @@ public class CPort implements Cloneable {
 	public void setID(int iD) {
 		ID = iD;
 	}
+
 	public String getConfigurationSetting() {
 		return configurationSetting;
 	}
@@ -86,6 +87,11 @@ public class CPort implements Cloneable {
 	}
 
 
+    public void addFlow(YAWLFlowRelation flow) {
+        flows.add(flow);
+    }
+
+
 	public String getDefaultValue() {
 		return defaultValue;
 	}
@@ -108,67 +114,74 @@ public class CPort implements Cloneable {
 		    flow.setAvailable(false);
 		}
 	}
-	
-	public String getSourceTasksLabels(){
-		String sum = "";
-		YAWLFlowRelation[] flowArray = new YAWLFlowRelation[this.flows.size()];
-		flowArray = (YAWLFlowRelation[]) this.flows.toArray(flowArray);
-		if(this.type == INPUTPORT){
-			for(YAWLFlowRelation flow : flows){
-				if(flow.getSourceVertex() instanceof InputCondition){
-					if(flow == flowArray[flowArray.length-1]){
-						sum = sum + "Start";
-					}else {
-						sum = sum + "Start"+", ";
-					}
-				}else if(flow != flowArray[flowArray.length-1]){
-					if(flow.getSourceVertex().getLabel() != null){
-						sum = sum + flow.getSourceVertex().getLabel()+", ";
-					}else{
-						sum = sum + flow.getSourceVertex().getEngineId()+", ";
-					}
-				}else{
-					if(flow.getSourceVertex().getLabel() != null){
-						sum = sum + flow.getSourceVertex().getLabel();
-					}else{
-						sum = sum + flow.getSourceVertex().getEngineId();
-					}
-				}
-			}
-		}
-		return sum;
-	}
-	
-	public String getTagetTasksLabels(){
-		String sum = "";
-		
-		YAWLFlowRelation[] flowArray = new YAWLFlowRelation[this.flows.size()];
-		flowArray = (YAWLFlowRelation[]) this.flows.toArray(flowArray);
-		if(this.type == this.OUTPUTPORT){
-			for(YAWLFlowRelation flow : flowArray){
-				if(flow.getTargetVertex() instanceof OutputCondition){
-					if(flow == flowArray[flowArray.length-1]){
-						sum = sum + "End";
-					}else {
-						sum = sum + "End"+", ";
-					}
-				}else if(flow != flowArray[flowArray.length-1]){
-					if( flow.getTargetVertex().getLabel() != null){
-						sum = sum + flow.getTargetVertex().getLabel()+", ";
-					}else{
-						sum = sum + flow.getTargetVertex().getEngineId()+", ";
-					}
-				}else{
-					if(flow.getTargetVertex().getLabel() != null){
-						sum = sum + flow.getTargetVertex().getLabel();
-					}else{
-						sum = sum + flow.getTargetVertex().getEngineId();
-					}
-				}
-			}
-		}
-		
-		return sum;
-	}
-	
+
+    public String getSourceTasksLabels(){
+        String sum = "";
+        YAWLFlowRelation[] flowArray = new YAWLFlowRelation[this.flows.size()];
+        flowArray = flows.toArray(flowArray);
+        if(this.type == INPUTPORT){
+            for(YAWLFlowRelation flow : flows){
+                YAWLVertex vertex = flow.getSourceVertex();
+                if (vertex != null) {
+                    if(vertex instanceof InputCondition){
+                        if(flow == flowArray[flowArray.length-1]){
+                            sum = sum + "Start";
+                        }else {
+                            sum = sum + "Start"+", ";
+                        }
+                    }else if(flow != flowArray[flowArray.length-1]){
+                        if(vertex.getLabel() != null){
+                            sum = sum + flow.getSourceVertex().getLabel()+", ";
+                        }else{
+                            sum = sum + flow.getSourceVertex().getEngineId()+", ";
+                        }
+                    }else{
+                        if(vertex.getLabel() != null){
+                            sum = sum + flow.getSourceVertex().getLabel();
+                        }else{
+                            sum = sum + flow.getSourceVertex().getEngineId();
+                        }
+                    }
+                }
+            }
+        }
+        return sum;
+    }
+
+    public String getTargetTasksLabels(){
+        String sum = "";
+
+        YAWLFlowRelation[] flowArray = new YAWLFlowRelation[this.flows.size()];
+        flowArray = flows.toArray(flowArray);
+        if(this.type == OUTPUTPORT){
+            for(YAWLFlowRelation flow : flowArray){
+                YAWLVertex vertex = flow.getTargetVertex();
+                if(vertex != null) {
+                    if (vertex instanceof OutputCondition) {
+
+                        if(flow == flowArray[flowArray.length-1]){
+                            sum = sum + "End";
+                        }else {
+                            sum = sum + "End"+", ";
+                        }
+                    }else if(flow != flowArray[flowArray.length-1]){
+                        if(vertex.getLabel() != null){
+                            sum = sum + flow.getTargetVertex().getLabel()+", ";
+                        }else{
+                            sum = sum + flow.getTargetVertex().getEngineId()+", ";
+                        }
+                    }else{
+                        if(vertex.getLabel() != null){
+                            sum = sum + flow.getTargetVertex().getLabel();
+                        }else{
+                            sum = sum + flow.getTargetVertex().getEngineId();
+                        }
+                    }
+                }
+            }
+        }
+
+        return sum;
+    }
+
 }

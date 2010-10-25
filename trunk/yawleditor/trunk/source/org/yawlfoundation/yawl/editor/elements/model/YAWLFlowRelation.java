@@ -262,6 +262,14 @@ public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparabl
     return clone;
   }
 
+
+    public void detach() {
+        YAWLTask source = getSourceTask();
+        if (source != null) source.detachFlow(this);
+        YAWLTask target = getTargetTask();
+        if (target != null) target.detachFlow(this);
+    }
+
 /**
  * Created By Jingxin XU
  * @return
