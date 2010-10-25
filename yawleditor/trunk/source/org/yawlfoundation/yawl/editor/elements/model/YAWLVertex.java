@@ -413,6 +413,18 @@ public abstract class YAWLVertex extends DefaultGraphCell
 
     return flows;
   }
+
+  public void detachFlow(YAWLFlowRelation flow) {
+      for(int i = 0; i <= 3; i++) {
+          for (Object o : getPorts()[i].getEdges()) {
+              YAWLFlowRelation f = (YAWLFlowRelation) o;
+              if (f.equals(flow)) {
+                  getPorts()[i].getEdges().remove(f);
+                  break;
+              }
+          }
+      }
+  }
   
   public HashSet<YAWLFlowRelation> getOutgoingFlows() {
     HashSet<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();

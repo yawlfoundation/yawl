@@ -127,7 +127,9 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable {
     );
     cellsAndTheirEdges.addAll(getEdges(this,cells.toArray()));
     removeCellsFromCancellationSets(cellsAndTheirEdges);
-    
+
+    resetAffectedCPorts(cellsAndTheirEdges);
+
     super.remove(cellsAndTheirEdges.toArray());
 
     compressFlowPriorities(
@@ -142,6 +144,23 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable {
       task.getSplitDecorator().compressFlowPriorities();
     }
   }
+
+    private void resetAffectedCPorts(Set cells) {
+        for(Object cell: cells) {
+          if (cell instanceof YAWLFlowRelation) {
+              YAWLFlowRelation flow = (YAWLFlowRelation) cell;
+              YAWLTask source = flow.getSourceTask();
+              YAWLTask target = flow.getTargetTask();
+              flow.detach();
+              if (source != null && source.isConfigurable()) {
+                  source.configureReset();
+              }
+              if (target != null && target.isConfigurable()) {
+                  target.configureReset();
+              }
+          }
+        }
+    }
   
   private void removeCellsFromCancellationSets(final Set cells) {
     for(YAWLTask taskWithCancellationSet : NetUtilities.getTasksWithCancellationSets(this)) {

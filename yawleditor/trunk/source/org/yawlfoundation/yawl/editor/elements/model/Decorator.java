@@ -392,7 +392,21 @@ public abstract class Decorator extends DefaultGraphCell
 
     return flows;
   }
-  
+
+
+    public boolean detachFlow(YAWLFlowRelation flow) {
+      for (DecoratorPort port : getPorts()) {
+        for (Object flowAsObject : port.getEdges()) {
+            if (flow.equals(flowAsObject)) {
+                return port.removeEdge(flow);
+            }
+        }
+      }
+      return false;
+    }
+
+
+
   public DecoratorPort getPortWithOnlyFlow() {
     for(int i = 0; i <= 4; i++) {
       if (getPorts()[i].getEdges().size() > 0) {

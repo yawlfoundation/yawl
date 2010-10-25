@@ -101,7 +101,7 @@ private static final long serialVersionUID = 1L;
 	    	
 	    	for(int i=0; i<size ; i++){	
 	    			rowInfor[i][0] = this.OutputPorts.get(i).getID();
-	    			rowInfor[i][1] = this.OutputPorts.get(i).getTagetTasksLabels();
+	    			rowInfor[i][1] = this.OutputPorts.get(i).getTargetTasksLabels();
 	    			rowInfor[i][2] = this.OutputPorts.get(i).getConfigurationSetting();		
 	    	}
 	    	return rowInfor;
@@ -409,7 +409,7 @@ private class SetOutputPortDefaultConfigurationJDialog extends javax.swing.JDial
 			Object[][] rowInfor = new Object[size ][3];
 	    	for(int i=0; i<size ; i++){	
 	    			rowInfor[i][0] = this.outputPorts.get(i).getID();
-	    			rowInfor[i][1] = this.outputPorts.get(i).getTagetTasksLabels();
+	    			rowInfor[i][1] = this.outputPorts.get(i).getTargetTasksLabels();
 	    			rowInfor[i][2] = this.outputPorts.get(i).getDefaultValue();		
 	    	}
 	    	return rowInfor;
