@@ -22,6 +22,8 @@ import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.calendar.ResourceCalendar;
 import org.yawlfoundation.yawl.resourcing.calendar.TimeSlot;
+import org.yawlfoundation.yawl.resourcing.calendar.utilisation.UtilisationLogger;
+import org.yawlfoundation.yawl.resourcing.resource.AbstractResource;
 import org.yawlfoundation.yawl.util.XNode;
 
 import javax.servlet.ServletException;
@@ -44,22 +46,27 @@ import java.util.List;
 public class ResourceCalendarGateway extends HttpServlet {
 
     private static final Logger _log = Logger.getLogger(ResourceCalendarGateway.class);
-    private ResourceManager _rm;
-    private ResourceCalendar _calendar;
+    private static ResourceManager _rm;
+    private static ResourceCalendar _calendar;
+    private static UtilisationLogger _uLogger;
 
-    private final String _noService = "<failure>Not connected to Resource Service.</failure>";
-    private final String _noAction =
+    private static final String _success = "<success/>";
+    private static final String _noResource = "<failure>Unknown Resource.</failure>";
+    private static final String _noService =
+            "<failure>Not connected to Resource Service.</failure>";
+    private static final String _noAction =
             "<failure>Resource Calendar Gateway called with invalid action.</failure>";
 
 
     public void init() {
         _rm = ResourceManager.getInstance();
         _calendar = ResourceCalendar.getInstance();
+        _uLogger = UtilisationLogger.getInstance();
     }
 
 
     public void doPost(HttpServletRequest req, HttpServletResponse res)
-                               throws IOException {
+            throws IOException {
         String result = "";
         String action = req.getParameter("action");
         String handle = req.getParameter("sessionHandle");
@@ -91,42 +98,47 @@ public class ResourceCalendarGateway extends HttpServlet {
         }
         else if (validConnection(handle)) {
             if (action.equals("getResourceAvailability")) {
-               long fromDate = strToLong(req.getParameter("from"));
-               long toDate = strToLong(req.getParameter("to"));
-               if ((fromDate > -1) && (toDate > -1)) {
-                   List<TimeSlot> slots = _calendar.getAvailability(id, fromDate, toDate);
-                   result = timeSlotsToXML(id, slots);
-               }
-               else result = fail("Invalid Date value(s).");
-           }
-           else if (action.equals("getReservations")) {
-               String resources = req.getParameter("resource");
-               long fromDate = strToLong(req.getParameter("from"));
-               long toDate = strToLong(req.getParameter("to"));
-               result = _calendar.getReservations(resources, fromDate, toDate);
-           }
-           else if (action.equals("saveReservations")) {
-               String plan = req.getParameter("plan");
-               String checkStr = req.getParameter("checkOnly");
-               boolean checkOnly = (checkStr != null) && checkStr.equalsIgnoreCase("true");
-               result = _calendar.saveReservations(plan, checkOnly);
-           }
-           else result = _noAction;
-       }
-       else throw new IOException("Invalid or disconnected session handle.");
+                long fromDate = strToLong(req.getParameter("from"));
+                long toDate = strToLong(req.getParameter("to"));
+                AbstractResource resource = _rm.getOrgDataSet().getResource(id);
+                List<TimeSlot> slots = _calendar.getAvailability(resource, fromDate, toDate);
+                result = timeSlotsToXML(id, slots);
+            }
+            else if (action.equals("setBlockedDuration")) {
+                AbstractResource resource = _rm.getOrgDataSet().getResource(id);
+                if (resource != null) {
+                    resource.setBlockedDuration(req.getParameter("duration"));
+                    result = String.valueOf(resource.getBlockedDuration());
+                }
+                else result = _noResource;
+            }
+            else if (action.equals("getReservations")) {
+                String resources = req.getParameter("resource");
+                long fromDate = strToLong(req.getParameter("from"));
+                long toDate = strToLong(req.getParameter("to"));
+                result = _uLogger.getReservations(resources, fromDate, toDate);
+            }
+            else if (action.equals("saveReservations")) {
+                String plan = req.getParameter("plan");
+                String checkStr = req.getParameter("checkOnly");
+                boolean checkOnly = (checkStr != null) && checkStr.equalsIgnoreCase("true");
+                result = _uLogger.saveReservations(plan, checkOnly);
+            }
+            else result = _noAction;
+        }
+        else throw new IOException("Invalid or disconnected session handle.");
 
-       // generate the output
-       res.setContentType("text/html");
-       PrintWriter out = res.getWriter();
-       out.write(result);
-       out.flush();
-       out.close();
+        // generate the output
+        res.setContentType("text/html");
+        PrintWriter out = res.getWriter();
+        out.write(result);
+        out.flush();
+        out.close();
     }
 
 
-
     public void doGet(HttpServletRequest req, HttpServletResponse res)
-                                throws IOException, ServletException {
+            throws IOException, ServletException {
         doPost(req, res);
     }
 
@@ -140,6 +152,7 @@ public class ResourceCalendarGateway extends HttpServlet {
         }
     }
 
+
     private long strToLong(String s) {
         if (s == null) return -1;
         try {
@@ -149,6 +162,7 @@ public class ResourceCalendarGateway extends HttpServlet {
             return -1;
         }
     }
+
 
     private String timeSlotsToXML(String id, List<TimeSlot> slots) {
         if (slots == null) return null;
@@ -160,6 +174,7 @@ public class ResourceCalendarGateway extends HttpServlet {
         return node.toString();
     }
 
+    
     private String fail(String msg) {
         return "<failure>" + msg + "</failure>";
     }

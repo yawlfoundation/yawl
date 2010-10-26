@@ -33,9 +33,7 @@ import java.io.IOException;
 
 public interface InterfaceS_Service {
 
-     void handleUtilisationRequestEvent(String caseID, String activityID);
-
-     void handleUtilisationReleaseEvent(String caseID, String activityID);
+     void handleUtilisationStatusChangeEvent(String caseID, String activityID, long timestamp);
 
      void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException ;

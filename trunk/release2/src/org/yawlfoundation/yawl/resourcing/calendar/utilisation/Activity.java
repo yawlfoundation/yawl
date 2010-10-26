@@ -26,11 +26,12 @@ import java.util.List;
 
 /**
  * @author Michael Adams
-* @date 6/10/2010
-*/
+ * @date 6/10/2010
+ */
 public class Activity extends StatusMessage {
 
     private String _name;
+    private String _activityID;
     private String _taskID;
     private StringWithMessage _from;
     private StringWithMessage _to;
@@ -40,8 +41,10 @@ public class Activity extends StatusMessage {
 
     public Activity() { }
 
-    public Activity(String name, String taskID, String from, String to, String duration) {
+    public Activity(String name, String activityID, String taskID, String from,
+                    String to, String duration) {
         setName(name);
+        setActivityID(activityID);
         setTaskID(taskID);
         setFrom(from);
         setTo(to);
@@ -59,6 +62,11 @@ public class Activity extends StatusMessage {
     public void setName(String name) { _name = name; }
 
 
+    public String getActivityID() { return _activityID; }
+
+    public void setActivityID(String id) { _activityID = id; }
+
+
     public String getTaskID() { return _taskID; }
 
     public void setTaskID(String id) { _taskID = id; }
@@ -71,6 +79,8 @@ public class Activity extends StatusMessage {
         _from.setValue(from);
     }
 
+    public long getFromAsLong() { return getTime(_from); }
+
 
     public String getTo() { return _to.getValue(); }
 
@@ -78,6 +88,8 @@ public class Activity extends StatusMessage {
         if (_to == null) _to = new StringWithMessage("To");
         _to.setValue(to);
     }
+
+    public long getToAsLong() { return getTime(_to); }
 
 
     // duration is stored as String that represents an xs:duration value
@@ -137,6 +149,7 @@ public class Activity extends StatusMessage {
         XNode node = new XNode("Activity");
         addAttributes(node);
         node.addChild("Name", _name);
+        node.addChild("ActivityId", _activityID);
         node.addChild("StartTaskId", _taskID);
         if (_from != null) node.addChild(_from.toXNode());
         if (_to != null) node.addChild(_to.toXNode());
@@ -157,6 +170,7 @@ public class Activity extends StatusMessage {
     public void fromXNode(XNode node) {
         super.fromXNode(node);
         setName(node.getChildText("Name"));
+        setActivityID(node.getChildText("ActivityId"));
         setTaskID(node.getChildText("StartTaskId"));
         setFrom(node.getChildText("From"));
         setTo(node.getChildText("To"));
@@ -167,6 +181,13 @@ public class Activity extends StatusMessage {
         for (XNode relationNode : node.getChildren("UtilisationRelation")) {
             addUtilisationRelation(new UtilisationRelation(relationNode));
         }
+    }
+
+
+    private long getTime(StringWithMessage smTime) {
+        long time = StringUtil.xmlDateToLong(smTime.getValue());
+        if (time < 0) smTime.setError("Invalid dateTime value: " + smTime.getValue());
+        return time;        
     }
 
 }

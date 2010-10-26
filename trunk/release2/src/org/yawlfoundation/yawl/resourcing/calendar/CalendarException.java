@@ -19,12 +19,16 @@
 package org.yawlfoundation.yawl.resourcing.calendar;
 
 /**
- * Maintains scheduling and state for a single resource.
- * 
  * @author Michael Adams
  * @date 24/08/2010
  */
-public class Schedule {
+public class CalendarException extends Exception {
+    public CalendarException(String msg) {
+        super(msg);
+    }
 
 
+    public CalendarException() {
+        super();
+    }
 }

@@ -71,6 +71,12 @@ public class NonHumanResource extends AbstractResource implements Comparable {
     }
 
 
+    public boolean hasCategory(String category, String subCategory) {
+        return _category.equals(category) &&
+               ((subCategory == null) || _subCategory.equals(subCategory));
+    }
+
+
     public int compareTo(Object o) {
         if ((o == null) || (! (o instanceof NonHumanResource))) return 1;
         return this.getName().compareTo(((NonHumanResource) o).getName());

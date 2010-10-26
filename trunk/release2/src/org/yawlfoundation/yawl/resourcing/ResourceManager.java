@@ -237,6 +237,11 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
+    public ResourceGatewayServer getGatewayServer() {
+        return _gatewayServer;
+    }
+
+
     private void setServiceURI() {
         _serviceURI = "http://localhost:8080/resourceService/ib";         // a default
         Set<YAWLServiceReference> services =

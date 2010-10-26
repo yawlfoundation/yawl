@@ -29,10 +29,22 @@ public class TimeSlot {
 
     private long _start;
     private long _end;
+    private String _status;
 
     public TimeSlot(long from, long to) {
         _start = from;
         _end = to;
+    }
+
+    public TimeSlot(long from, long to, String status) {
+        _start = from;
+        _end = to;
+        _status = status;
+    }
+
+
+    public TimeSlot(CalendarEntry entry) {
+        this(entry.getStartTime(), entry.getEndTime(), entry.getStatus());
     }
 
 
@@ -44,6 +56,10 @@ public class TimeSlot {
 
     public void setEnd(long end) { _end = end; }
 
+    public String getStatus() { return _status; }
+
+    public void setStatus(String status) { _status = status; }
+
 
     public String toXML() {
         return toXNode().toString();
@@ -53,6 +69,7 @@ public class TimeSlot {
         XNode node = new XNode("timeslot");
         node.addChild("start", _start);
         node.addChild("end", _end);
+        node.addChild("status", _status);
         return node;
     }
 
@@ -61,6 +78,7 @@ public class TimeSlot {
         if (node != null) {
             _start = new Long(node.getChildText("start"));
             _end = new Long(node.getChildText("end"));
+            _status = node.getChildText("status");
         }
     }
 

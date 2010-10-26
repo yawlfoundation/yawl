@@ -24,7 +24,7 @@ public class NonHumanResourceCategory {
     private String _category;
     private long _parentKey;
 
-    private NonHumanResourceCategory() { }
+    public NonHumanResourceCategory() { }
 
     public NonHumanResourceCategory(String category, long parentKey) {
          _category = category;

@@ -66,6 +66,17 @@ public class UtilisationPlan extends StatusMessage {
         return (_activityList != null) && _activityList.remove(a);
     }
 
+    public Activity getActivity(String id) {
+        if (_activityList != null) {
+            for (Activity activity : _activityList) {
+                if (activity.getActivityID().equals(id)) {
+                    return activity;
+                }
+            }
+        }
+        return null;
+    }
+
 
     public String toXML() {
         return toXNode().toString();

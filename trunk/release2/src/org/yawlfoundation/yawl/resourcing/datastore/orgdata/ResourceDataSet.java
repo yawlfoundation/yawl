@@ -573,6 +573,14 @@ public class ResourceDataSet {
 
     /************************************/
 
+    public AbstractResource getResource(String id) {
+        AbstractResource resource = getParticipant(id);
+        if (resource == null) {
+            resource = getNonHumanResource(id);   // may also be null - means unknown id
+        }
+        return resource;
+    }
+
     public Participant getParticipant(String pid) {
        return participantMap.get(pid) ;
     }
@@ -761,6 +769,18 @@ public class ResourceDataSet {
                 return r ;
         }
         return null ;                    // no match
+    }
+
+    public Set<NonHumanResource> getNonHumanResources(String category, String subcategory) {
+        Set<NonHumanResource> resources = new HashSet<NonHumanResource>();
+        if (category != null) {
+            for (NonHumanResource r : nonHumanMap.values()) {
+                if (r.hasCategory(category, subcategory)) {
+                    resources.add(r) ;
+                }
+            }
+        }
+        return resources ;
     }
 
     public boolean isKnownRoleName(String name) {

@@ -18,6 +18,8 @@
 
 package org.yawlfoundation.yawl.resourcing.resource;
 
+import org.yawlfoundation.yawl.util.StringUtil;
+
 /**
  * An abstract class representing a resource entity.
  *
@@ -32,6 +34,10 @@ public abstract class AbstractResource {
     protected String _description ;
     protected String _notes ;
 
+    // the msecs this resource is 'offline' for after use, before it can be used again
+    // is a Long object to handle null values stored in db
+    protected Long _blockedDuration ;
+ 
 
     protected AbstractResource() {}
 
@@ -57,12 +63,27 @@ public abstract class AbstractResource {
 
     public void setAvailable(boolean available) { _isAvailable = available; }
 
+
     public String getNotes() { return _notes; }
 
     public void setNotes(String notes) {  _notes = notes; }
 
+
     public String getDescription() { return _description;  }
 
-    public void setDescription(String desc) {_description = desc; }
+    public void setDescription(String desc) { _description = desc; }
+
+
+    public long getBlockedDuration() {
+        return (_blockedDuration) != null ? _blockedDuration : 0;
+    }
+
+    public void setBlockedDuration(long duration) { _blockedDuration = duration; }
+
+    public void setBlockedDuration(String duration) {
+        _blockedDuration = StringUtil.durationStrToMSecs(duration);
+    }
+
+    
 
 }
