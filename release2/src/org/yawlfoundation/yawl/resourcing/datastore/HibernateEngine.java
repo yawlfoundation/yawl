@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.calendar.CalendarEntry;
+import org.yawlfoundation.yawl.resourcing.calendar.utilisation.UtilisationLogEntry;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.AuditEvent;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.SpecLog;
@@ -39,7 +40,7 @@ import java.util.List;
  *  This singleton class provides db & persistence support via Hibernate.
  *
  *  @author Michael Adams
- *  v0.1, 03/08/2007
+ *  @date 03/08/2007
  *
  *  last update: 26/08/2010 (for v2.2)
  */
@@ -63,7 +64,8 @@ public class HibernateEngine {
             OrgGroup.class, UserPrivileges.class, NonHumanResource.class,
             NonHumanResourceCategory.class, WorkQueue.class, ResourceMap.class,
             CalendarEntry.class, WorkItemRecord.class, ResourceEvent.class,
-            AuditEvent.class, SpecLog.class, PersistedAutoTask.class
+            AuditEvent.class, SpecLog.class, PersistedAutoTask.class,
+            UtilisationLogEntry.class
     };
 
 
@@ -81,9 +83,6 @@ public class HibernateEngine {
         _persistOn = persistenceOn;
         initialise();
     }
-
-
-    public HibernateEngine() { getInstance(true) ; }
 
 
     /** returns the current HibernateEngine instance */
@@ -231,6 +230,7 @@ public class HibernateEngine {
     public Query createQuery(String queryString) {
         try {
             Session session = _factory.getCurrentSession();
+            Transaction tx = session.beginTransaction();
             return session.createQuery(queryString);
         }
         catch (HibernateException he) {

@@ -38,9 +38,14 @@ public class StatusMessage {
 
     public void setWarning(String s) { warning = s; }
 
+    public boolean hasWarning() { return (warning != null); }
+
+
     public String getError() { return error; }
 
     public void setError(String s) { error = s; }
+
+    public boolean hasError() { return (error != null); }
 
 
     public void addAttributes(XNode node) {

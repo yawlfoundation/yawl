@@ -21,9 +21,10 @@ package org.yawlfoundation.yawl.util;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 
-import javax.xml.datatype.Duration;
-import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.Duration;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.*;
 import java.math.BigDecimal;
 import java.net.URLDecoder;
@@ -31,10 +32,7 @@ import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Currency;
-import java.util.Date;
-import java.util.Locale;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -440,6 +438,16 @@ public class StringUtil
     }
 
 
+    public static long strToLong(String s, long def) {
+        try {
+            return new Long(s);
+        }
+        catch (NumberFormatException e) {
+            return def;
+        }
+    }
+
+
     public static Duration strToDuration(String s) {
         if (s != null) {
             try {
@@ -475,6 +483,30 @@ public class StringUtil
     public static long durationStrToMSecs(String s) {
         Duration d = strToDuration(s);
         return (d != null) ? durationToMSecs(d) : 0;
+    }
+
+    public static long xmlDateToLong(String s) {
+        try {
+            XMLGregorianCalendar cal =
+                    DatatypeFactory.newInstance().newXMLGregorianCalendar(s);
+            return cal.toGregorianCalendar().getTimeInMillis();
+        }
+        catch (DatatypeConfigurationException dce) {
+            return -1;
+        }
+    }
+
+    public static String longToDateTime(long time) {
+        GregorianCalendar gregCal = new GregorianCalendar();
+        gregCal.setTimeInMillis(time);
+        try {
+            XMLGregorianCalendar cal =
+                    DatatypeFactory.newInstance().newXMLGregorianCalendar(gregCal);
+            return cal.toXMLFormat();
+        }
+        catch (DatatypeConfigurationException dce) {
+            return null;
+        }
     }
 
 }

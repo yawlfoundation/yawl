@@ -34,8 +34,7 @@ public class ResourceGatewayServer extends Interface_Client {
     //'borrowed' from InterfaceX_EngineSideClient
     protected static final int NOTIFY_RESOURCE_UNAVAILABLE = 4;
 
-    public static final int NOTIFY_UTILISATION_REQUEST = 0;
-    public static final int NOTIFY_UTILISATION_RELEASE = 1;
+    public static final int NOTIFY_UTILISATION_STATUS_CHANGE = 0;
 
 
     private String _ixURI ;      // the uri to Interface X Service (exception handling)
@@ -54,38 +53,37 @@ public class ResourceGatewayServer extends Interface_Client {
     }
 
 
+    public boolean hasExceptionListener() {
+        return _ixURI != null;
+    }
+
+
+    public boolean hasSchedulingListener() {
+        return _isURI != null;
+    }
+
+
     public void announceResourceUnavailable(WorkItemRecord wir)
             throws IOException {
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("action", String.valueOf(NOTIFY_RESOURCE_UNAVAILABLE)) ;
+        Map<String, String> params = prepareParams(NOTIFY_RESOURCE_UNAVAILABLE);
         params.put("workItem", wir.toXML());
         executePost(_ixURI, params);
     }
 
 
-    public void announceUtilisationRequest(String caseID, String activityID)
-            throws IOException {
-        announceUtilisationTask(caseID, activityID, true);
-    }
-
-
-    public void announceUtilisationRelease(String caseID, String activityID)
-            throws IOException {
-        announceUtilisationTask(caseID, activityID, false);
-    }
-
-
-    private void announceUtilisationTask(String caseID, String activityID, boolean request)
-            throws IOException {
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("action", String.valueOf(getUtilisationAction(request))) ;
+    private void announceUtilisationStatusChange(String caseID, String activityID, long timestamp
+                                         ) throws IOException {
+        Map<String, String> params = prepareParams(NOTIFY_UTILISATION_STATUS_CHANGE);
         params.put("caseid", caseID);
         params.put("activityid", activityID);
-        executePost(_ixURI, params);
+        params.put("timestamp", String.valueOf(timestamp));
+        executePost(_isURI, params);
     }
 
 
-    private int getUtilisationAction(boolean request) {
-        return request ? NOTIFY_UTILISATION_REQUEST : NOTIFY_UTILISATION_RELEASE;
+    private Map<String, String> prepareParams(int action) {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("action", String.valueOf(action)) ;
+        return params;
     }
 }

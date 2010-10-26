@@ -44,6 +44,11 @@
                   type="boolean"
                   access="field"/>
 
+        <property name="_blockedDuration"
+                  column="BlockedDuration"
+                  type="long"
+                  access="field"/>
+
         <property name="_lastname"
                   column="LastName"
                   type="string"

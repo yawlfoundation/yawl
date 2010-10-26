@@ -18,7 +18,6 @@
 
 package org.yawlfoundation.yawl.resourcing.rsInterface.scheduling;
 
-import org.yawlfoundation.yawl.resourcing.rsInterface.scheduling.InterfaceS_Service;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayServer;
 
 import javax.servlet.ServletConfig;
@@ -84,13 +83,11 @@ public class InterfaceSController extends HttpServlet {
         // unpack the strings
         String caseID = request.getParameter("caseid");
         String activityID = request.getParameter("activityid");
+        long timestamp = strToLong(request.getParameter("timestamp"));
 
         switch (actionToNotifyType(request.getParameter("action"))) {
-            case ResourceGatewayServer.NOTIFY_UTILISATION_REQUEST:
-               _controller.handleUtilisationRequestEvent(caseID, activityID);
-               break;
-            case ResourceGatewayServer.NOTIFY_UTILISATION_RELEASE:
-               _controller.handleUtilisationReleaseEvent(caseID, activityID);
+            case ResourceGatewayServer.NOTIFY_UTILISATION_STATUS_CHANGE:
+               _controller.handleUtilisationStatusChangeEvent(caseID, activityID, timestamp);
                break;
             default: return "<failure>Unknown action: '" + request.getParameter("action") +
                             "'</failure>";
@@ -98,10 +95,22 @@ public class InterfaceSController extends HttpServlet {
         return "<success/>";
     }
 
+
     /** @return the 'action' converted to an 'int' notify type, or -1 if invalid */
     private int actionToNotifyType(String action) {
         try {
             return Integer.parseInt(action);
+        }
+        catch (NumberFormatException nfe) {
+            return -1;
+        }
+    }
+
+
+    private long strToLong(String s) {
+        if (s == null) return -1;
+        try {
+            return new Long(s);
         }
         catch (NumberFormatException nfe) {
             return -1;
