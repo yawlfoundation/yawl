@@ -71,12 +71,9 @@ public class ResourceGatewayServer extends Interface_Client {
     }
 
 
-    private void announceUtilisationStatusChange(String caseID, String activityID, long timestamp
-                                         ) throws IOException {
+    public void announceResourceCalendarStatusChange(String xml) throws IOException {
         Map<String, String> params = prepareParams(NOTIFY_UTILISATION_STATUS_CHANGE);
-        params.put("caseid", caseID);
-        params.put("activityid", activityID);
-        params.put("timestamp", String.valueOf(timestamp));
+        params.put("xml", xml);
         executePost(_isURI, params);
     }
 

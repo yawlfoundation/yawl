@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.resourcing.calendar;
 
+import org.yawlfoundation.yawl.resourcing.calendar.utilisation.UtilisationLogger;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.resource.AbstractResource;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
@@ -38,7 +39,7 @@ import java.util.List;
 public class ResourceCalendar {
 
     public static enum Status { Nil, Unknown, Available, Unavailable,
-                                Requested, Reserved, Blocked }
+                                Requested, Reserved, HardBlocked, SoftBlocked }
 
     public static enum ResourceGroup { AllResources, HumanResources, NonHumanResources }
 
@@ -62,15 +63,18 @@ public class ResourceCalendar {
      * @param startTime the date/time when the resource's unavailability starts
      * @param endTime the date/time when the resource's unavailability ends
      * @param status the resource's schedule status
+     * @param workload the percentage workload (1-100)
+     * @param agent the id of the user or service that is adding the entry
      * @param comment an optional comment string
      * @return the identifier of the added entry
      * @throws CalendarException if invalid parameters are passed, or the addition
      * otherwise fails
      */
     public long addEntry(AbstractResource resource, long startTime, long endTime,
-                           Status status, String comment) throws CalendarException {
+                           Status status, int workload, String agent, String comment)
+            throws CalendarException {
         if (resource != null) {
-            return addEntry(resource.getID(), startTime, endTime, status, comment);
+            return addEntry(resource.getID(), startTime, endTime, status, workload, agent, comment);
         }
         else throw new CalendarException("Failed to add entry: resource is null.");
     }
@@ -82,36 +86,15 @@ public class ResourceCalendar {
      * @param startTime the date/time when the resource's unavailability starts
      * @param endTime the date/time when the resource's unavailability ends
      * @param status the resource's schedule status
+     * @param agent the id of the user or service that is adding the entry
      * @param comment an optional comment string
      * @return the identifier of the added entry
      * @throws CalendarException if invalid parameters are passed, or the addition
      * otherwise fails
      */
     public long addEntry(ResourceGroup entry, long startTime, long endTime,
-                         Status status, String comment) throws CalendarException {
-        return addEntry(getEntryString(entry), startTime, endTime, status, comment);
-    }
-
-
-    /**
-     * Adds an entry to the Calendar table.
-     * @param id either the resource's id or an Entry value (for multiple resources)
-     * @param startTime the date/time when the resource's unavailability starts
-     * @param endTime the date/time when the resource's unavailability ends
-     * @param status the resource's schedule status
-     * @param comment an optional comment string
-     * @return the identifier of the added entry
-     * @throws CalendarException if invalid parameters are passed, or the addition
-     * otherwise fails
-     */
-    private long addEntry(String id, long startTime, long endTime,
-                            Status status, String comment) throws CalendarException {
-        if (endTime > startTime) {
-            CalendarEntry entry = new CalendarEntry(id, startTime, endTime, status, comment);
-            _persister.insert(entry);
-            return entry.getEntryID();
-        }
-        else throw new CalendarException("Failed to add Entry: End time is before Start time.");
+                         Status status, String agent, String comment) throws CalendarException {
+        return addEntry(getEntryString(entry), startTime, endTime, status, 100, agent, comment);
     }
 
 
@@ -124,6 +107,7 @@ public class ResourceCalendar {
         List list = _persister.createQuery("FROM CalendarEntry AS ce WHERE ce.entryID=:id")
                 .setLong("id", entryID)
                 .list();
+        _persister.commit();
         return (list == null) || list.isEmpty() ? null : (CalendarEntry) list.get(0);
     }
 
@@ -149,14 +133,417 @@ public class ResourceCalendar {
 
 
     /**
+     * Removes all entries from the Calendar table prior to the timestamp passed.
+     * @param priorTo timestamp that marks when to delete entries up to. Note: priorTo
+     * must be a timestamp prior to the current time.
+     * @return the number of entries deleted
+     */
+    public int clean(long priorTo) {
+        if (priorTo > System.currentTimeMillis()) return -1;
+        return _persister.execUpdate(
+                "DELETE FROM CalendarEntry AS ce WHERE ce.endTime<" + String.valueOf(priorTo));
+    }
+
+
+    /**
+     * Checks if the resource is available within the specified period. Will return
+     * true if there is not an entry in the calendar table for the resource that
+     * covers the period within its duration
+     * @param resource the resource to check availability for
+     * @param from the start of a time range to search for
+     * @param to the end of a time range to search for
+     * @return true if available, false if not
+     */
+    public boolean isAvailable(AbstractResource resource, long from, long to) {
+        if (resource == null) return false;
+        List list = getTimeSlotEntries(resource, from, to);
+        return (list == null) || list.isEmpty();
+    }
+
+
+    /**
+     * Checks if the resource is currently available. Will return true if there is not
+     * an entry in the calendar table for the resource that covers the current time
+     * within its duration
+     * @param resource the resource to check availability for
+     * @return true if available, false if not
+     */
+    public boolean isAvailable(AbstractResource resource) {
+        long now = System.currentTimeMillis();
+        return isAvailable(resource, now, now);
+    }
+
+
+    /**
+     * Checks if the resource is available within the specified period. Will return
+     * true if the workload total of all the entries in the calendar table for the
+     * resource that covers the period within its duration, plus the workload passed,
+     * doesn't exceed 100%
+     * @param resource the resource to check availability for
+     * @param from the start of a time range to search for
+     * @param to the end of a time range to search for
+     * @param workload the percentage workoad to check for (0-100)
+     * @return true if available, false if not
+     */
+    public boolean isAvailable(AbstractResource resource, long from, long to, int workload) {
+        if (resource == null) return false;
+        if (workload == 100) return isAvailable(resource, from, to);
+        List list = getTimeSlotEntries(resource, from, to);
+        if (list != null) {
+            for (Object o : list) {
+                workload += ((CalendarEntry) o).getWorkload();
+            }
+        }
+        return workload <= 100;
+    }
+
+
+    /**
+     * Checks if the resource is available within the specified period. Will return
+     * true if the workload total of all the entries in the calendar table for the
+     * resource that covers the period within its duration, plus the workload passed,
+     * doesn't exceed 100%
+     * @param resource the resource to check availability for
+     * @param entry a CalendarEntry object containing the required parameters
+     * @return true if available, false if not
+     */
+    public boolean isAvailable(AbstractResource resource, CalendarEntry entry) {
+        if ((resource == null) || (entry == null)) return false;
+        int workload = entry.getWorkload();
+        if (entry.getWorkload() == 100) {
+            return isAvailable(resource, entry.getStartTime(), entry.getEndTime());
+        }
+        List list = getTimeSlotEntries(resource, entry.getStartTime(), entry.getEndTime());
+        if (list != null) {
+            for (Object o : list) {
+                workload += ((CalendarEntry) o).getWorkload();
+            }
+        }
+        return workload <= 100;
+    }
+
+
+    /**
+     * Gets the list of calendar entries within a specified period for a resource.
+     * Covers 4 overlapping possibilities :
+     *   1. A record's time range is wholly within start <-> end
+     *   2. start <-> end is wholly within a record's time range
+     *   3. start is prior to the record's time range, and end falls within it
+     *   4. end is after the record's time range, and start falls within it
+     *
+     * @param resource the resource to get the entries for
+     * @param from the start of a time range to search for (-ve value for all start times)
+     * @param to the end of a time range to search for (-ve value for all end times)
+     * @return the matching list of calendar entries (as CalendarEntry objects)
+     */
+    public List getTimeSlotEntries(AbstractResource resource, long from, long to) {
+        if (resource == null) return new ArrayList();         // empty list
+
+        if (to <= 0) to = Long.MAX_VALUE;
+        List list = _persister.createQuery(
+                "FROM CalendarEntry AS ce " +
+                "WHERE ce.resourceID IN (:idlist) " +
+                "AND ce.startTime < :end AND ce.endTime > :start " +
+                "ORDER BY ce.startTime")
+                .setParameterList("idlist", createIDListForQuery(resource))
+                .setLong("start", from)
+                .setLong("end", to)
+                .list();
+        _persister.commit();
+        return list;
+    }
+
+
+    /**
+     * Gets the list of calendar entries for a resource.
+     * @param resource the resource to get the entries for
+     * @return the matching list of calendar entries (as CalendarEntry objects)
+     */
+    public List getTimeSlotEntries(AbstractResource resource) {
+        return getTimeSlotEntries(resource, -1, -1);
+    }
+
+
+    public List<TimeSlot> getAvailability(AbstractResource resource, long startTime,
+                                          long endTime) {
+        List<TimeSlot> available = new ArrayList<TimeSlot>();
+        long endOfPrevSlot = startTime;
+        for (Object o : getTimeSlotEntries(resource, startTime, endTime)) {
+            CalendarEntry entry = (CalendarEntry) o;
+            available.add(new TimeSlot(endOfPrevSlot, entry.getStartTime(), entry.getStatus()));
+            endOfPrevSlot = entry.getEndTime();
+        }
+        return available;
+    }
+
+
+    public long createEntry(AbstractResource resource, long startTime, long endTime,
+                            String status, String comment, String agent)
+            throws CalendarException, ScheduleStateException {
+        return createEntry(resource, startTime, endTime, strToStatus(status), comment, agent);
+    }
+
+
+    public long createEntry(AbstractResource resource, long startTime, long endTime,
+                            Status status, String comment, String agent)
+            throws CalendarException, ScheduleStateException {
+        long entryID = -1;
+        switch (status) {
+            case Available:
+                makeAvailable(resource, startTime, endTime); break;
+            case Unavailable:
+                entryID = makeUnavailable(resource, startTime, endTime, agent, comment); break;
+            case Requested:
+                entryID = request(resource, startTime, endTime, agent, comment); break;
+            case Reserved:
+                entryID = reserve(resource, startTime, endTime, agent, comment); break;
+            default: throw new CalendarException(
+                    "Invalid status change request: " + status.name());
+        }
+        return entryID;
+    }
+
+
+    public long createEntry(AbstractResource resource, CalendarEntry entry)
+            throws CalendarException, ScheduleStateException {
+        long entryID = -1;
+        switch (strToStatus(entry.getStatus())) {
+            case Available:
+                makeAvailable(resource, entry.getStartTime(), entry.getEndTime()); break;
+            case Unavailable:
+                entryID = makeUnavailable(resource, entry.getStartTime(),
+                        entry.getEndTime(), entry.getAgent(), entry.getComment()); break;
+            case Requested:
+            case Reserved:
+                entryID = addEntryIfAvailable(resource, entry); break;
+            default: throw new CalendarException(
+                    "Invalid status change request: " + entry.getStatus());
+        }
+        return entryID;
+    }
+
+
+    public boolean canCreateEntry(AbstractResource resource, long startTime, long endTime,
+                                  String status, int workload)
+            throws CalendarException, ScheduleStateException {
+        return canCreateEntry(resource, startTime, endTime, strToStatus(status), workload);
+    }
+
+
+    public boolean canCreateEntry(AbstractResource resource, long startTime, long endTime,
+                                  Status status, int workload)
+            throws CalendarException, ScheduleStateException {
+        switch (status) {
+            case Available:
+            case Unavailable: return true;     // can always do
+            case Requested:
+            case Reserved:  return isAvailable(resource, startTime, endTime, workload);
+            default: return false;
+        }
+    }
+
+
+    public Status updateEntry(long entryID, String status)
+            throws CalendarException, ScheduleStateException {
+        return updateEntry(entryID, strToStatus(status));
+    }
+
+
+    public Status updateEntry(long entryID, Status status)
+            throws CalendarException, ScheduleStateException {
+        switch (status) {
+            case Available : makeAvailable(entryID); break;
+            case Reserved  : confirm(entryID); break;
+            case Requested : unconfirm(entryID); break;
+            default: throw new CalendarException(
+                    "Invalid status change request: " + status.name());
+        }
+        return status;
+    }
+
+
+    public boolean canUpdateEntry(long entryID, String status)
+            throws CalendarException, ScheduleStateException {
+        return canUpdateEntry(entryID, strToStatus(status));
+    }
+
+
+    public boolean canUpdateEntry(long entryID, Status status)
+            throws CalendarException, ScheduleStateException {
+        switch (status) {
+            case Available : return true;                // can always do
+            case Reserved  : return canConfirm(entryID);
+            case Requested : return canUnconfirm(entryID);
+            default: return false;
+        }
+    }
+
+
+    public List<TimeSlot> makeAvailable(AbstractResource resource, long startTime, long endTime)
+            throws ScheduleStateException {
+
+        // all trans to available valid
+        List removedEntries = getTimeSlotEntries(resource, startTime, endTime);
+        removeEntries(resource, startTime, endTime);
+        return entriesToTimeSlots(removedEntries);
+    }
+
+
+    public void makeAvailable(long entryID) throws CalendarException {
+        CalendarEntry entry = getEntry(entryID);
+        if (entry != null) {
+            removeEntry(entryID);                           // all trans to available valid
+            removeBlockedEntry(entry.getChainID());
+            notifyStatusChange(entry);
+        }
+        else throw new CalendarException("Unknown calendar entry id: " + entryID);
+    }
+
+
+    public long makeUnavailable(AbstractResource resource, long startTime,
+                                          long endTime, String agent, String comment)
+            throws ScheduleStateException, CalendarException {
+
+        // all trans to unavailable valid
+        makeAvailable(resource, startTime, endTime);              // remove all current
+        return addEntry(resource, startTime, endTime, Status.Unavailable, 100, agent, comment);
+     }
+
+
+    public long makeUnavailable(AbstractResource resource, CalendarEntry calEntry)
+            throws ScheduleStateException, CalendarException {
+
+        // all trans to unavailable valid
+        makeAvailable(resource, calEntry.getStartTime(), calEntry.getEndTime()); // remove all current
+        return addEntry(calEntry);
+     }
+
+
+    public long reserve(AbstractResource resource, long startTime, long endTime, String agent,
+                        String comment) throws ScheduleStateException, CalendarException {
+
+        // must be currently available
+        return addEntryIfAvailable(resource, startTime, endTime, Status.Reserved, agent, comment);
+    }
+
+
+    public long reserve(AbstractResource resource, CalendarEntry calEntry)
+            throws ScheduleStateException, CalendarException {
+        return addEntryIfAvailable(resource, calEntry);
+    }
+
+
+    public void cancel(long entryID) throws ScheduleStateException, CalendarException {
+
+        // must be currently reserved
+        removeEntry(entryID, Status.Reserved);
+    }
+
+
+    public long request(AbstractResource resource, long startTime, long endTime,
+                     String agent, String comment) throws ScheduleStateException, CalendarException {
+
+        // must be currently available
+        return addEntryIfAvailable(resource, startTime, endTime, Status.Requested, agent, comment);
+    }
+
+
+    public long request(AbstractResource resource, CalendarEntry calEntry)
+            throws ScheduleStateException, CalendarException {
+        return addEntryIfAvailable(resource, calEntry);
+    }
+
+    public void unrequest(long entryID) throws ScheduleStateException, CalendarException {
+
+        // must be currently requested
+        removeEntry(entryID, Status.Requested);
+    }
+
+
+    public void confirm(long entryID) throws ScheduleStateException, CalendarException {
+
+        // must be currently requested
+        updateStatus(entryID, Status.Requested, Status.Reserved);
+    }
+
+
+    public void unconfirm(long entryID) throws ScheduleStateException, CalendarException {
+
+        // must be currently reserved
+        updateStatus(entryID, Status.Reserved, Status.Requested);
+    }
+
+
+    public boolean canConfirm(long entryID) throws CalendarException {
+        return canUpdateStatus(entryID, Status.Requested);
+    }
+
+
+    public boolean canUnconfirm(long entryID) throws ScheduleStateException, CalendarException {
+        return canUpdateStatus(entryID, Status.Reserved);
+    }
+
+
+    public Status strToStatus(String name) throws CalendarException {
+        try {
+            return Status.valueOf(name);
+        }
+        catch (Exception e) {
+            throw new CalendarException("Invalid status: " + name);
+        }
+    }
+    
+
+    /*******************************************************************************/
+
+    /**
+     * Adds an entry to the Calendar table.
+     * @param id either the resource's id or an Entry value (for multiple resources)
+     * @param startTime the date/time when the resource's unavailability starts
+     * @param endTime the date/time when the resource's unavailability ends
+     * @param status the resource's schedule status
+     * @param workload the percentage workload (1-100)
+     * @param agent the id of the user or service that is adding the entry
+     * @param comment an optional comment string
+     * @return the identifier of the added entry
+     * @throws CalendarException if invalid parameters are passed, or the addition
+     * otherwise fails
+     */
+    private long addEntry(String id, long startTime, long endTime, Status status,
+                          int workload, String agent, String comment)
+            throws CalendarException {
+        return addEntry(new CalendarEntry(id, startTime, endTime, status,
+                                          workload, agent, comment));
+    }
+
+
+    /**
+     * Adds an entry to the Calendar table.
+     * @param entry the CalendarEntry to add
+     * @return the identifier of the added entry
+     * @throws CalendarException if invalid parameters are passed, or the addition
+     * otherwise fails
+     */
+    private long addEntry(CalendarEntry entry) throws CalendarException {
+        if (entry.getEndTime() > entry.getStartTime()) {
+            _persister.insert(entry);
+            return entry.getEntryID();
+        }
+        else throw new CalendarException("Failed to add Entry: End time is before Start time.");
+    }
+
+
+    /**
      * Gets the current list of calendar entries for a resource
      * @param id the resource's id or the Entry type to get the entries for
      * @return the list of corresponding entries
      */
     private List getEntries(String id) {
-        return _persister.createQuery("FROM CalendarEntry AS ce WHERE ce.resourceID=:id")
-                .setString("id", id)
-                .list();
+        List list = _persister.createQuery("FROM CalendarEntry AS ce WHERE ce.resourceID=:id")
+                    .setString("id", id)
+                    .list();
+        _persister.commit();
+        return list;
     }
 
 
@@ -238,87 +625,6 @@ public class ResourceCalendar {
 
 
     /**
-     * Removes all entries from the Calendar table prior to the timestamp passed.
-     * @param priorTo timestamp that marks when to delete entries up to. Note: priorTo
-     * must be a timestamp prior to the current time.
-     * @return the number of entries deleted
-     */
-    public int clean(long priorTo) {
-        if (priorTo > System.currentTimeMillis()) return -1;
-        return _persister.execUpdate(
-                "DELETE FROM CalendarEntry AS ce WHERE ce.endTime<" + String.valueOf(priorTo));
-    }
-
-
-    /**
-     * Checks if the resource is available within the specified period. Will return
-     * true if there is not an entry in the calendar table for the resource that
-     * covers the period within its duration
-     * @param resource the resource to check availability for
-     * @param from the start of a time range to search for
-     * @param to the end of a time range to search for
-     * @return true if available, false if not
-     */
-    public boolean isAvailable(AbstractResource resource, long from, long to) {
-        if (resource == null) return false;
-        List list = getTimeSlotEntries(resource, from, to);
-        return (list == null) || list.isEmpty();
-    }
-
-    
-    /**
-     * Checks if the resource is currently available. Will return true if there is not
-     * an entry in the calendar table for the resource that covers the current time
-     * within its duration
-     * @param resource the resource to check availability for
-     * @return true if available, false if not
-     */
-    public boolean isAvailable(AbstractResource resource) {
-        long now = System.currentTimeMillis();
-        return isAvailable(resource, now, now);
-    }
-
-
-    /**
-     * Gets the list of calendar entries within a specified period for a resource.
-     * Covers 4 overlapping possibilities :
-     *   1. A record's time range is wholly within start <-> end
-     *   2. start <-> end is wholly within a record's time range
-     *   3. start is prior to the record's time range, and end falls within it
-     *   4. end is after the record's time range, and start falls within it
-     *
-     * @param resource the resource to get the entries for
-     * @param from the start of a time range to search for (-ve value for all start times)
-     * @param to the end of a time range to search for (-ve value for all end times)
-     * @return the matching list of calendar entries (as CalendarEntry objects)
-     */
-    public List getTimeSlotEntries(AbstractResource resource, long from, long to) {
-        if (resource == null) return new ArrayList();         // empty list
-
-        if (to <= 0) to = Long.MAX_VALUE;
-        return _persister.createQuery(
-                "FROM CalendarEntry AS ce " +
-                "WHERE ce.resourceID IN (:idlist) " +
-                "AND ce.startTime < :end AND ce.endTime > :start " +
-                "ORDER BY ce.startTime")
-                .setParameterList("idlist", createIDListForQuery(resource))
-                .setLong("start", from)
-                .setLong("end", to)
-                .list();
-    }
-
-
-    /**
-     * Gets the list of calendar entries for a resource.
-     * @param resource the resource to get the entries for
-     * @return the matching list of calendar entries (as CalendarEntry objects)
-     */
-    public List getTimeSlotEntries(AbstractResource resource) {
-        return getTimeSlotEntries(resource, -1, -1);
-    }
-
-
-    /**
      * Creates a list of ids to match against for a query. An entry may match the
      * resource's particular id, or 'AllResources' (applies to all) or all resources
      * of its type (human or non-human)
@@ -367,88 +673,14 @@ public class ResourceCalendar {
         return slots;
     }
 
-    /***********************************************************************/
 
-
-    public List<TimeSlot> getAvailability(AbstractResource resource, long startTime,
-                                          long endTime) {
-        List<TimeSlot> available = new ArrayList<TimeSlot>();
-        long endOfPrevSlot = startTime;
-        for (Object o : getTimeSlotEntries(resource, startTime, endTime)) {
-            CalendarEntry entry = (CalendarEntry) o;
-            available.add(new TimeSlot(endOfPrevSlot, entry.getStartTime(), entry.getStatus()));
-            endOfPrevSlot = entry.getEndTime();
+    private boolean canUpdateStatus(long entryID, Status requiredStatus)
+            throws CalendarException {
+        CalendarEntry entry = getEntry(entryID);
+        if (entry != null) {
+            return entry.getStatus().equals(requiredStatus.name());
         }
-        return available;
-    }
-
-
-    public List<TimeSlot> makeAvailable(AbstractResource resource, long startTime, long endTime)
-            throws ScheduleStateException {
-
-        // all trans to available valid
-        List removedEntries = getTimeSlotEntries(resource, startTime, endTime);
-        removeEntries(resource, startTime, endTime);
-        return entriesToTimeSlots(removedEntries);
-    }
-
-
-    public void makeAvailable(long entryID) {
-        removeEntry(entryID);                           // all trans to available valid
-    }
-
-
-    public long makeUnavailable(AbstractResource resource, long startTime,
-                                          long endTime, String comment) 
-            throws ScheduleStateException, CalendarException {
-
-        // all trans to unavailable valid
-        makeAvailable(resource, startTime, endTime);              // remove all current
-        return addEntry(resource, startTime, endTime, Status.Unavailable, comment);
-     }
-
-    
-    public long reserve(AbstractResource resource, long startTime, long endTime,
-                        String comment) throws ScheduleStateException, CalendarException {
-
-        // must be currently available
-        return addEntryIfAvailable(resource, startTime, endTime, Status.Reserved, comment);
-    }
-
-    
-    public void cancel(long entryID) throws ScheduleStateException, CalendarException {
-
-        // must be currently reserved
-        removeEntry(entryID, Status.Reserved);
-    }
-
-    
-    public long book(AbstractResource resource, long startTime, long endTime,
-                     String comment) throws ScheduleStateException, CalendarException {
-
-        // must be currently available
-        return addEntryIfAvailable(resource, startTime, endTime, Status.Requested, comment);
-    }
-
-    
-    public void unbook(long entryID) throws ScheduleStateException, CalendarException {
-
-        // must be currently booked
-        removeEntry(entryID, Status.Requested);
-    }
-
-
-    public void confirm(long entryID) throws ScheduleStateException, CalendarException {
-
-        // must be currently booked
-        updateStatus(entryID, Status.Requested, Status.Reserved);
-    }
-
-
-    public void unconfirm(long entryID) throws ScheduleStateException, CalendarException {
-
-        // must be currently reserved
-        updateStatus(entryID, Status.Reserved, Status.Requested);
+        else throw new CalendarException("Unknown calendar entry id: " + entryID);
     }
 
 
@@ -457,6 +689,7 @@ public class ResourceCalendar {
         CalendarEntry entry = getEntryWithStatus(entryID, oldStatus);
         entry.setStatus(newStatus.name());
         updateEntry(entry);
+        notifyStatusChange(entry);
     }
 
 
@@ -482,22 +715,56 @@ public class ResourceCalendar {
 
 
     private long addEntryIfAvailable(AbstractResource resource, long startTime,
-                                     long endTime, Status status, String comment)
+                                     long endTime, Status status, String agent, String comment)
             throws ScheduleStateException, CalendarException {
-        if (isAvailable(resource, startTime, endTime)) {
-            return addEntry(resource, startTime, endTime, status, comment);
+        CalendarEntry entry = new CalendarEntry(resource.getID(), startTime, endTime,
+                                                 status, 100, agent, comment);
+        return addEntryIfAvailable(resource, entry);
+    }
+
+
+    private long addEntryIfAvailable(AbstractResource resource, CalendarEntry calEntry)
+            throws ScheduleStateException, CalendarException {
+        if (isAvailable(resource, calEntry)) {
+            calEntry.setResourceID(resource.getID());
+            long entryID = addEntry(calEntry);
+            addBlockedEntry(resource, calEntry);
+            return entryID;
         }
         else throw new ScheduleStateException("Resource not available for timeslot.");
     }
 
 
-    public Status strToStatus(String name) throws CalendarException {
-        try {
-            return Status.valueOf(name);
+    private void addBlockedEntry(AbstractResource resource, CalendarEntry entry)
+            throws CalendarException {
+        long duration = resource.getBlockedDuration();
+        if (duration > 0) {
+            Status status = resource.getBlockType().equals("Soft") ?
+                    Status.SoftBlocked : Status.HardBlocked;
+            CalendarEntry blockedEntry = new CalendarEntry(resource.getID(),
+                    entry.getEndTime() + 1, entry.getEndTime() + duration, status,
+                    100, entry.getAgent(), entry.getComment());
+
+            entry.setChainID(addEntry(blockedEntry));
+            updateEntry(entry);
         }
-        catch (Exception e) {
-            throw new CalendarException("Invalid status: " + name);
+    }
+
+
+    private void removeBlockedEntry(CalendarEntry entry) {
+        removeBlockedEntry(entry.getChainID());
+    }
+
+
+    private void removeBlockedEntry(long chainID) {
+        if (chainID > 0) {
+            removeEntry(chainID);
         }
+    }
+
+
+    private void notifyStatusChange(CalendarEntry entry) {
+        UtilisationLogger.getInstance().notifyStatusChange(entry);
     }
 
 }

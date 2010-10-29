@@ -32,8 +32,11 @@
     	<property name="resourceID" type="string"/>
         <property name="startTime"  type="long"/>
         <property name="endTime"    type="long"/>
+        <property name="agent"      type="string"/>
         <property name="status"     type="string" column="entryStatus"/>
         <property name="comment"    type="text"   column="entryComment"/>
+        <property name="workload"   type="int"/>
+        <property name="chainID"    type="long"/>
 	</class>
 
 </hibernate-mapping>

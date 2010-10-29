@@ -29,6 +29,8 @@ import org.yawlfoundation.yawl.util.StringUtil;
 
 public abstract class AbstractResource {
 
+    public enum BlockType { Hard, Soft }
+
     protected String _resourceID;
     protected boolean _isAvailable = true;
     protected String _description ;
@@ -37,6 +39,7 @@ public abstract class AbstractResource {
     // the msecs this resource is 'offline' for after use, before it can be used again
     // is a Long object to handle null values stored in db
     protected Long _blockedDuration ;
+    protected BlockType _blockType = BlockType.Hard;
  
 
     protected AbstractResource() {}
@@ -84,6 +87,21 @@ public abstract class AbstractResource {
         _blockedDuration = StringUtil.durationStrToMSecs(duration);
     }
 
-    
+    public String getBlockType() { return get_blockType(); }
 
+    public void setBlockType(String s) { set_blockType(s); }
+
+
+    // for hibernate
+    private String get_blockType() { return _blockType.name(); }
+
+    private void set_blockType(String s) {
+        try {
+            _blockType = BlockType.valueOf(s);
+        }
+        catch (Exception e) {
+            _blockType = BlockType.Hard;                  // default
+        }
+    }
+    
 }

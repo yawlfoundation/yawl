@@ -24,15 +24,15 @@ package org.yawlfoundation.yawl.resourcing.calendar.utilisation;
  */
 public class UtilisationLogEntry {
 
-    public enum Phase { pre, start, end }
-
     private long entryID;
     private String caseID;
     private String activityID;
     private String resourceID;
     private long timestamp;
     private String status;
-    private Phase phase;
+    private int workload;
+    private String phase;
+    private String agent;
     private long calendarKey;
 
     public UtilisationLogEntry() { }
@@ -107,11 +107,27 @@ public class UtilisationLogEntry {
         return caseID + ":" + activityID;
     }
 
-    public Phase getPhase() {
+    public String getPhase() {
         return phase;
     }
 
-    public void setPhase(Phase p) {
+    public void setPhase(String p) {
         phase = p;
+    }
+
+    public String getAgent() {
+        return agent;
+    }
+
+    public void setAgent(String agt) {
+        agent = agt;
+    }
+
+    public int getWorkload() {
+        return workload;
+    }
+
+    public void setWorkload(int load) {
+        workload = load;
     }
 }

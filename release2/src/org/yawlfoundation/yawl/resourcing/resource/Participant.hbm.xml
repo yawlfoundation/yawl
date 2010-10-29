@@ -49,6 +49,10 @@
                   type="long"
                   access="field"/>
 
+        <property name="_blockType"
+                  column="BlockedType"
+                  type="string"/>
+
         <property name="_lastname"
                   column="LastName"
                   type="string"

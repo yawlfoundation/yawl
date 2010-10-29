@@ -40,6 +40,7 @@ import org.yawlfoundation.yawl.logging.YLogDataItem;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.resourcing.allocators.AbstractAllocator;
 import org.yawlfoundation.yawl.resourcing.allocators.AllocatorFactory;
+import org.yawlfoundation.yawl.resourcing.calendar.CalendarEntry;
 import org.yawlfoundation.yawl.resourcing.calendar.ResourceCalendar;
 import org.yawlfoundation.yawl.resourcing.codelets.AbstractCodelet;
 import org.yawlfoundation.yawl.resourcing.codelets.CodeletFactory;
@@ -63,10 +64,7 @@ import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
-import org.yawlfoundation.yawl.resourcing.rsInterface.ConnectionCache;
-import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayServer;
-import org.yawlfoundation.yawl.resourcing.rsInterface.UserConnection;
-import org.yawlfoundation.yawl.resourcing.rsInterface.UserConnectionCache;
+import org.yawlfoundation.yawl.resourcing.rsInterface.*;
 import org.yawlfoundation.yawl.resourcing.util.*;
 import org.yawlfoundation.yawl.schema.YDataValidator;
 import org.yawlfoundation.yawl.util.*;
@@ -390,6 +388,17 @@ public class ResourceManager extends InterfaceBWebsideController {
             _log.error("Failed to announce unavailable resource to environment", ioe);
         }
     }
+
+    public void announceResourceCalendarStatusChange(String changeXML) {
+        try {
+            if (_gatewayServer != null)
+                _gatewayServer.announceResourceCalendarStatusChange(changeXML);
+        }
+        catch (IOException ioe) {
+            _log.error("Failed to announce unavailable resource to environment", ioe);
+        }
+    }
+
 
 
     /*********************************************************************************/
@@ -2353,6 +2362,20 @@ public class ResourceManager extends InterfaceBWebsideController {
     private Participant getParticipantWithSessionHandle(String handle) {
         return _liveSessions.getParticipantWithSessionHandle(handle);
     }
+
+
+    public String getUserIDForSessionHandle(String handle) {
+        Participant p = getParticipantWithSessionHandle(handle);      // try users first
+        if (p != null) {
+            return p.getUserID();
+        }
+        ServiceConnection connection = _connections.get(handle);     // try services
+        if (connection != null) {
+            return connection.getUserID();
+        }
+        return null;
+    }
+
 
     public Set<SpecificationData> getLoadedSpecs() {
         Set<SpecificationData> result = getSpecList() ;

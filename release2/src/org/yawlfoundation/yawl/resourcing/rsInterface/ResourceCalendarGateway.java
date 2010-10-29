@@ -101,8 +101,11 @@ public class ResourceCalendarGateway extends HttpServlet {
                 long fromDate = strToLong(req.getParameter("from"));
                 long toDate = strToLong(req.getParameter("to"));
                 AbstractResource resource = _rm.getOrgDataSet().getResource(id);
-                List<TimeSlot> slots = _calendar.getAvailability(resource, fromDate, toDate);
-                result = timeSlotsToXML(id, slots);
+                if (resource != null) {
+                    List<TimeSlot> slots = _calendar.getAvailability(resource, fromDate, toDate);
+                    result = timeSlotsToXML(id, slots);
+                }
+                else result = _noResource;
             }
             else if (action.equals("setBlockedDuration")) {
                 AbstractResource resource = _rm.getOrgDataSet().getResource(id);
@@ -122,7 +125,8 @@ public class ResourceCalendarGateway extends HttpServlet {
                 String plan = req.getParameter("plan");
                 String checkStr = req.getParameter("checkOnly");
                 boolean checkOnly = (checkStr != null) && checkStr.equalsIgnoreCase("true");
-                result = _uLogger.saveReservations(plan, checkOnly);
+                String agent = _rm.getUserIDForSessionHandle(handle);
+                result = _uLogger.saveReservations(plan, agent, checkOnly);
             }
             else result = _noAction;
         }

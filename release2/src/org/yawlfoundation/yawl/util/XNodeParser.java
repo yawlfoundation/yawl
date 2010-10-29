@@ -133,7 +133,7 @@ public class XNodeParser {
         if (s.endsWith("/")) s = s.substring(0, s.length() - 1);  // lop off '/', if any
 
         String name = getFirstWord(s.trim());
-        XNode node = new XNode(name);                  // parts[0] is the tag's name
+        XNode node = new XNode(name);                 
         node.setDepth(depth);
 
         // if there are any attributes defined, add them to the node
@@ -152,10 +152,16 @@ public class XNodeParser {
 
 
     private String getFirstWord(String s) {
-        int firstSpace = s.indexOf(" ");
-        return (firstSpace > -1) ? s.substring(0, firstSpace) : s;
+        for (int i=0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if ((c == ' ') || (c == '\n') || (c == '\t')) {
+                return s.substring(0, i);
+            }
+        }
+        return s;
     }
 
+    
     private String strSubtract(String subtractee, String subtractor) {
         int i = subtractee.indexOf(subtractor);
         return (i > -1) ? subtractee.substring(i + subtractor.length()) : subtractee;

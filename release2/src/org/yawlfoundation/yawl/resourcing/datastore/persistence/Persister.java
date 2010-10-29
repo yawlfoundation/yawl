@@ -107,6 +107,8 @@ public class Persister implements Serializable {
         return _db.createQuery(query);
     }
 
+    public void commit() { _db.commit(); }
+
 
     public Object selectScalar(String className, String id) {
        Object retObj = null ;
