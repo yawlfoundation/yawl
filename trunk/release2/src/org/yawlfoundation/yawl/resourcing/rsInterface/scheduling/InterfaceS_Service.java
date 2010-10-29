@@ -33,7 +33,7 @@ import java.io.IOException;
 
 public interface InterfaceS_Service {
 
-     void handleUtilisationStatusChangeEvent(String caseID, String activityID, long timestamp);
+     void handleUtilisationStatusChangeEvent(String changeXML);
 
      void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException ;

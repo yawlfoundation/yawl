@@ -228,17 +228,29 @@ public class HibernateEngine {
 
 
     public Query createQuery(String queryString) {
+        Transaction tx = null;
         try {
             Session session = _factory.getCurrentSession();
-            Transaction tx = session.beginTransaction();
+            tx = session.beginTransaction();
             return session.createQuery(queryString);
         }
         catch (HibernateException he) {
             _log.error("Caught Exception: Error creating query: " + queryString, he);
+            if (tx != null) tx.rollback();
         }
         return null;
     }
 
+
+    public void commit() {
+        try {
+           Transaction tx = _factory.getCurrentSession().getTransaction();
+           if (tx != null) tx.commit();
+        }
+        catch (HibernateException he) {
+            _log.error("Caught Exception: Error committing transaction", he);
+        }
+    }
 
 
     /**

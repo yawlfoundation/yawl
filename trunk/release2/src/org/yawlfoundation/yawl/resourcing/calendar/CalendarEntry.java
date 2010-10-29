@@ -28,17 +28,22 @@ public class CalendarEntry {
     private String resourceID;
     private long startTime;
     private long endTime;
-    private String comment;
     private String status;
+    private int workload;
+    private String agent;                             // user/service that made the entry
+    private long chainID;                             // opt. FK relation between entries
+    private String comment;
 
     public CalendarEntry() {}
 
     public CalendarEntry(String resID, long start, long end,
-                         ResourceCalendar.Status st, String cmt) {
+                         ResourceCalendar.Status st, int wload, String agt, String cmt) {
         resourceID = resID;
         startTime = start;
         endTime = end;
         status = st.name();
+        workload = wload;
+        agent = agt;
         comment = cmt;
     }
 
@@ -82,11 +87,36 @@ public class CalendarEntry {
         status = st;
     }
 
+    public int getWorkload() {
+        return workload;
+    }
+
+    public void setWorkload(int load) {
+        if (load < 1) load = 100;
+        workload = load;
+    }
+
+    public String getAgent() {
+        return agent;
+    }
+
+    public void setAgent(String agt) {
+        agent = agt;
+    }
+
     public String getComment() {
         return comment;
     }
 
-    public void setComment(String comment) {
-        this.comment = comment;
+    public void setComment(String cmt) {
+        comment = cmt;
+    }
+
+    public long getChainID() {
+        return chainID;
+    }
+
+    public void setChainID(long id) {
+        chainID = id;
     }
 }

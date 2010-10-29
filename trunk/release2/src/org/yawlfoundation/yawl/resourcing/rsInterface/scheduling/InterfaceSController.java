@@ -81,13 +81,11 @@ public class InterfaceSController extends HttpServlet {
     private String processPostQuery(HttpServletRequest request) {
 
         // unpack the strings
-        String caseID = request.getParameter("caseid");
-        String activityID = request.getParameter("activityid");
-        long timestamp = strToLong(request.getParameter("timestamp"));
+        String xml = request.getParameter("xml");
 
         switch (actionToNotifyType(request.getParameter("action"))) {
             case ResourceGatewayServer.NOTIFY_UTILISATION_STATUS_CHANGE:
-               _controller.handleUtilisationStatusChangeEvent(caseID, activityID, timestamp);
+               _controller.handleUtilisationStatusChangeEvent(xml);
                break;
             default: return "<failure>Unknown action: '" + request.getParameter("action") +
                             "'</failure>";

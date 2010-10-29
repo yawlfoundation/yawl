@@ -29,11 +29,15 @@
             <generator class="native"/>
         </id>
 
+        <property name="phase"/>  
         <property name="caseID"/>
         <property name="activityID"/>
     	<property name="resourceID"/>
-        <property name="timestamp"  type="long"/>
-        <property name="status"     column="entryStatus"/>
+        <property name="agent"/>  
+        <property name="workload"    type="int"/>
+        <property name="timestamp"   column="entryTime" type="long"/>
+        <property name="status"      column="entryStatus"/>
+        <property name="calendarKey" type="long"/>
 	</class>
 
 </hibernate-mapping>

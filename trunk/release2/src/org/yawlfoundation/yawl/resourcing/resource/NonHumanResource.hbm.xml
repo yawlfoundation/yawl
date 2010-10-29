@@ -51,8 +51,12 @@
 
         <property name="_blockedDuration"
                   column="BlockedDuration"
-                  type="long" 
+                  type="long"
                   access="field"/>
+
+        <property name="_blockType"
+                  column="BlockedType"
+                  type="string"/>
 
         <property name="_category"
                   column="LastName"

@@ -889,6 +889,28 @@ public class ResourceDataSet {
     }
 
 
+    public Set<AbstractResource> getRoleParticipantsWithCapability(String rid, String cid) {
+        Set<AbstractResource> resourceSet = new HashSet<AbstractResource>();
+        Role role = getRole(rid);
+        if (role != null) {
+
+            // filter role members by capability
+            if (cid != null) {
+                Capability cap = getCapability(cid);
+                if (cap != null) {
+                    for (AbstractResource member : role.getResources()) {
+                        if (((Participant) member).getCapabilities().contains(cap)) {
+                           resourceSet.add(member);
+                        }
+                    }
+                }
+            }
+            else resourceSet = role.getResources();         // no cid means don't filter
+        }
+        return resourceSet;
+    }
+
+
     public Set<Participant> getCapabilityParticipants(String cid) {
         Capability c = capabilityMap.get(cid);
         return (c != null) ? castToParticipantSet(c.getResources()) : null ;
