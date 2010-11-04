@@ -83,7 +83,7 @@ public class XNodeParser {
     private XNode parse(String s, int depth, XNode parent) {
         XNode node = null;
         try {
-            while (s.length() > 0) {
+            while (s.trim().length() > 0) {
                 s = s.trim();
 
                 // get any comments above the tag

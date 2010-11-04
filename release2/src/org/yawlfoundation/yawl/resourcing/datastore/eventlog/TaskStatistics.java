@@ -66,7 +66,7 @@ public class TaskStatistics {
                 key = event.get_itemID();
                 stat = getTaskSummary(table, key);
                 if (stat.getOfferCount() == 0) stat.setOfferTime(event.get_timeStamp());
-                stat.addOffer(event.get_participantID());
+                stat.addOffer(event.get_resourceID());
             }
             else if (event.get_event().equals("unoffer")) {
                 key = event.get_itemID();
@@ -77,19 +77,19 @@ public class TaskStatistics {
                 key = event.get_itemID();
                 stat = getTaskSummary(table, key);
                 stat.setAllocTime(event.get_timeStamp());
-                stat.setAllocateID(event.get_participantID());
+                stat.setAllocateID(event.get_resourceID());
             }
             else if (event.get_event().equals("start")) {
                 key = getRootItemID(event.get_itemID());
                 stat = getTaskSummary(table, key);
                 stat.setStartTime(event.get_timeStamp());
-                stat.setStartID(event.get_participantID());
+                stat.setStartID(event.get_resourceID());
             }
             else if (event.get_event().equals("complete")) {
                 key = getRootItemID(event.get_itemID());
                 stat = getTaskSummary(table, key);
                 stat.setCompleteTime(event.get_timeStamp());
-                stat.setCompleteID(event.get_participantID());
+                stat.setCompleteID(event.get_resourceID());
             }
             else if (event.get_event().startsWith("cancel")) {
                 key = getReferenceItemID(table, event.get_itemID());

@@ -1757,7 +1757,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         for (String caseID : _chainedCases.keySet()) {
             Participant chainer = _chainedCases.get(caseID);
             if (chainer.getID().equals(p.getID()))
-                result.add(caseID + "::" + getSpecIDForCase(caseID));
+                result.add(caseID + "::" + getSpecIdentifierForCase(caseID));
         }
         return result;
     }
@@ -1796,7 +1796,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     
     /*****************************************************************************/
 
-    private String getSpecIDForCase(String caseID) {
+    private String getSpecIdentifierForCase(String caseID) {
         for (WorkItemRecord wir : _workItemCache.values()) {
             if (wir.getRootCaseID().equals(caseID))
                 return wir.getSpecIdentifier();

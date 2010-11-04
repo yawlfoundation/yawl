@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.resourcing.datastore.orgdata;
 
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.util.XNode;
@@ -383,6 +384,12 @@ public class ResourceDataSet {
     }
 
     /************************************/
+
+    public void updateResource(AbstractResource r) {
+        if (r instanceof Participant) updateParticipant((Participant) r);
+        else updateNonHumanResource((NonHumanResource) r);
+    }
+
 
     public boolean updateParticipant(Participant p) {
         boolean editable = isDataEditable(ResUnit.Participant);
@@ -1348,6 +1355,19 @@ public class ResourceDataSet {
             chainStr.append(" --> ").append(chain.get(i));
         }
         return String.format(templateMsg, type, refType, type, refName, chainStr.toString());
+    }
+
+    /********************************/
+
+    public boolean setResourceAvailability(String caseID, String id, boolean available) {
+        AbstractResource resource = getResource(id);
+        if (resource != null) {
+            resource.setAvailable(available);
+            updateResource(resource);        // persist the change
+            EventLogger.log(null, caseID, id,
+                    (available ? EventLogger.event.released : EventLogger.event.in_use));
+        }
+        return (resource != null);
     }
     
 }

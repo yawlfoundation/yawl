@@ -324,15 +324,13 @@ public class ResourceCalendar {
 
 
     public boolean canCreateEntry(AbstractResource resource, long startTime, long endTime,
-                                  String status, int workload)
-            throws CalendarException, ScheduleStateException {
+                                  String status, int workload) throws CalendarException {
         return canCreateEntry(resource, startTime, endTime, strToStatus(status), workload);
     }
 
 
     public boolean canCreateEntry(AbstractResource resource, long startTime, long endTime,
-                                  Status status, int workload)
-            throws CalendarException, ScheduleStateException {
+                                  Status status, int workload) {
         switch (status) {
             case Available:
             case Unavailable: return true;     // can always do
@@ -383,7 +381,7 @@ public class ResourceCalendar {
 
     public CalendarEntry reconcileEntry(AbstractResource resource, long entryID,
                                         long startTime, long endTime)
-              throws CalendarException, ScheduleStateException {
+              throws CalendarException {
         CalendarEntry entry = getEntry(entryID);
         CalendarEntry blockedEntry = getEntry(entry.getChainID());
         entry.setStartTime(startTime);

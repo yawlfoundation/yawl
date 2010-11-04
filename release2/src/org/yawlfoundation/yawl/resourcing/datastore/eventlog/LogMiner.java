@@ -727,7 +727,7 @@ public class LogMiner {
         List<BaseEvent> cloneList = new ArrayList<BaseEvent>();
         for (Object o : events) {
             ResourceEvent event = ((ResourceEvent) o).clone();
-            event.set_participantID(getParticipantName(event.get_participantID()));
+            event.set_resourceID(getParticipantName(event.get_resourceID()));
             cloneList.add(event) ;
         }
         return cloneList;
@@ -813,7 +813,7 @@ public class LogMiner {
                     eventNode.addChild("taskname", event.get_taskID());
                     eventNode.addChild("descriptor", event.get_event());
                     eventNode.addChild("timestamp", event.getTimeStampString());
-                    eventNode.addChild("resource", event.get_participantID());
+                    eventNode.addChild("resource", event.get_resourceID());
                 }    
             }
         }
