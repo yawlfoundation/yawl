@@ -181,6 +181,10 @@ public class ResourceScheduler {
     }
 
 
+    /**
+     * Builds an appropriate data set and announces a status change for a calendar record.
+     * @param calEntry the calendar record that has had a status change
+     */
     protected void notifyStatusChange(CalendarEntry calEntry) {
         XNode node = new XNode("StatusChange");
         long reservationID = calEntry.getEntryID();
@@ -228,6 +232,14 @@ public class ResourceScheduler {
     }
 
 
+    /**
+     * Checks if a reservation for a period would succeed. If it would not, the check
+     * will raise an exception that results in an error message being added to the
+     * reservation.
+     * @param reservation the reservation to check
+     * @param from the start of the period
+     * @param to the end of the period
+     */
     private void checkReservation(Reservation reservation, long from, long to) {
         if (reservation != null) {
             try {
@@ -245,23 +257,31 @@ public class ResourceScheduler {
     }
 
 
+    /**
+     * Attempts to save a reservation to the calendar. If the save doesn't succeed,
+     * an exception will be raised that results in an error message being added to the
+     * reservation.
+     * @param reservation the reservation to save
+     * @param from the start of the period
+     * @param to the end of the period
+     * @param logEntry a partially populated log entry
+     */
     private void saveReservation(Reservation reservation, long from, long to,
                                  CalendarLogEntry logEntry) {
         if (reservation == null) return;
         try {
-            if (reservation.getReservationID() != null) {
-                String phase = logEntry.getPhase();
-                if (phase.equals("EOU")) {                         // end-of-utilisation
+            if (reservation.getReservationID() != null) {          // pre-existing
+                if (logEntry.getPhase().equals("EOU")) {           // end-of-utilisation
                     reconcileReservation(reservation, from, to, logEntry);
                 }
                 else {
                     updateReservation(reservation, logEntry);
                 }    
             }
-            else {
+            else {                                                  // new
                 AbstractResource resource = getActualResourceIfAvailable(reservation, from, to);
                 CalendarEntry calEntry =
-                        createCalendarEntry(reservation, resource, from, to, logEntry);
+                        createCalendarEntry(reservation, resource, from, to, logEntry.getAgent());
                 makeReservation(reservation, resource, calEntry, logEntry);
             }
         }
@@ -271,33 +291,60 @@ public class ResourceScheduler {
     }
 
 
+    /**
+     * Derives one resource from the resource specified in a reservation that is
+     * available for the period requested.
+     * @param reservation the reservation to save
+     * @param from the start of the period
+     * @param to the end of the period
+     * @return the available resource, if possible
+     * @throws CalendarException if a resource could not be resolved from the ids in
+     * the reservation, or if no resource is available for the period, or if the
+     * status to be in the reservation is invalid
+     */
     private AbstractResource getActualResourceIfAvailable(Reservation reservation, long from, long to)
-            throws CalendarException, ScheduleStateException {
+            throws CalendarException {
         List<AbstractResource> actualList = getActualResourceList(reservation.getResource());
         if ((actualList == null) || actualList.isEmpty()) {
-            throw new CalendarException("Failed to resolve resource.");
+            throw new CalendarException("Failed to resolve resource.");     // none found
         }
+
+        // while the list has resources, remove a random selection and check if the
+        // reservation would succeed
         while (actualList.size() > 0) {
             AbstractResource actual =
                     actualList.remove((int) Math.floor(Math.random() * actualList.size()));
             if (_calendar.canCreateEntry(actual, from, to, reservation.getStatusToBe(),
                     reservation.getWorkload())) {
-                return actual;
+                return actual;                                      // found a candidate
             }
         }
         throw new CalendarException("No specified resource available for period.");
     }
 
 
+    /**
+     * Builds a list of resources from the ids specified in a reservation's resource data.
+     * @param resource the resource data set of a reservation. May contain a single id,
+     * OR a Role and (optional) Capability pair OR a Category and (optional) Subcategory
+     * of a non-human resource.
+     * @return a list of resources matching the ids specified
+     */
     private List<AbstractResource> getActualResourceList(UtilisationResource resource) {
         List<AbstractResource> resourceList = new ArrayList<AbstractResource>();
+
+        // if a single resource is specified, get it
         if (resource.getID() != null) {
             resourceList.add(getActualResource(resource.getID()));
         }
+
+        // if there is a role (and optionally a capability), get all matching resources
         else if (resource.getRole() != null) {
             resourceList.addAll(_rm.getOrgDataSet().getRoleParticipantsWithCapability(
                     resource.getRole(), resource.getCapability()));
         }
+
+        // if there is a category (and optionally a subcategory), get all matches
         else if (resource.getCategory() != null) {
             resourceList.addAll(_rm.getOrgDataSet().getNonHumanResources(
                     resource.getCategory(), resource.getSubcategory()));
@@ -306,10 +353,24 @@ public class ResourceScheduler {
     }
 
 
+    /**
+     * Gets the resource (participant or non-human) matching the specified id.
+     * @param resourceID the id of the resource
+     * @return the matching resource
+     */
     private AbstractResource getActualResource(String resourceID) {
         return _rm.getOrgDataSet().getResource(resourceID);
     }
 
+
+    /**
+     * Updates the status of a reservation stored in the calendar.
+     * @param reservation the updated reservation
+     * @param logEntry the matching log entry of the update
+     * @throws CalendarException if there's a problem locating the record or saving
+     * the update
+     * @throws ScheduleStateException if the status transition is invlaid
+     */
     private void updateReservation(Reservation reservation, CalendarLogEntry logEntry)
             throws CalendarException, ScheduleStateException {
         long entryID = convertReservationID(reservation);
@@ -324,26 +385,50 @@ public class ResourceScheduler {
         _uLogger.log(logEntry, calEntry);
 
         if (logEntry.getPhase().equals("SOU")) {                 // start-of-utilisation
-            setInUse(reservation.getResource().getID(), true);
+            setResourceAvailable(logEntry.getCaseID(), reservation.getResource().getID(),
+                    false);
         }
     }
 
 
+    /**
+     * Stores a reservation in the calendar.
+     * @param reservation the reservation to store
+     * @param resource the resource to make the reservation for
+     * @param calEntry the calendar entry to save, representing the resource
+     * @param logEntry the entry to save to the calendar log
+     * @throws CalendarException if there's a problem saving the reservation
+     * @throws ScheduleStateException if the status transition is invlaid
+     */
     private void makeReservation(Reservation reservation, AbstractResource resource,
                                  CalendarEntry calEntry, CalendarLogEntry logEntry)
             throws CalendarException, ScheduleStateException {
         String statusToBe = reservation.getStatusToBe();
         reservation.setStatus(ResourceCalendar.Status.Nil.name());     // default status
         long entryID = _calendar.createEntry(resource, calEntry);
+
+        // if the entry was successful, update the reservation record  
         if (entryID > 0) reservation.setReservationID(String.valueOf(entryID));
         reservation.setStatus(statusToBe);
         reservation.getResource().setID(calEntry.getResourceID());
         _uLogger.log(logEntry, calEntry);
+
+        if (logEntry.getPhase().equals("SOU")) {                 // start-of-utilisation
+            setResourceAvailable(logEntry.getCaseID(), calEntry.getResourceID(), false);
+        }
     }
 
 
+    /**
+     * Checks whether a new reservation can by made for the specified resource and period
+     * (i.e. there are no conflicts with existing reservations).
+     * @param reservation the reservation to store
+     * @param from the start of the period
+     * @param to the end of the period
+     * @throws CalendarException if the reservation's 'statusToBe' is invalid
+     */
     private void checkMakeReservation(Reservation reservation, long from, long to)
-            throws CalendarException, ScheduleStateException {
+            throws CalendarException {
 
         // if at least one resource is available, then check succeeds
         for (AbstractResource resource : getActualResourceList(reservation.getResource())) {
@@ -360,6 +445,12 @@ public class ResourceScheduler {
     }
 
 
+    /**
+     * Checks whether updating the reservation in the calendar will succeed.
+     * @param reservation the reservation to check
+     * @throws CalendarException if the reservation's 'statusToBe' is invalid
+     * @throws ScheduleStateException if the update involves an invalid status transition
+     */
     private void checkUpdateReservation(Reservation reservation)
             throws CalendarException, ScheduleStateException {
         long entryID = convertReservationID(reservation);
@@ -370,28 +461,49 @@ public class ResourceScheduler {
     }
 
 
+    /**
+     * Reconciles and updates an EOU (end-of-utilisation) plan with the stored SOU
+     * (start-of-utilisation) plan.
+     * @param reservation the reservation to reconcile
+     * @param from the start of the period
+     * @param to actual end of the period
+     * @throws CalendarException if the reservation's 'statusToBe' is invalid
+     * @param logEntry the log entry associated with the reservation
+     * @throws CalendarException if the reconciliation causes a clash in the
+     * calendar
+     */
     private void reconcileReservation(Reservation reservation, long from, long to,
                                       CalendarLogEntry logEntry)
-            throws CalendarException, ScheduleStateException {
-        this.getActualResourceIfAvailable(reservation, from, to);
+            throws CalendarException {
         AbstractResource resource = getActualResource(reservation.getResource().getID());
         CalendarEntry calEntry = _calendar.reconcileEntry(
                 resource, convertReservationID(reservation), from, to);
         _uLogger.log(logEntry, calEntry);
 
-        // if the reconcile throws no exception, mark the resource as available
+        // if the reconcile throws no exception, mark the resource as available, if it
+        // doesn't have a post-usage 'blocked' period
         if (calEntry.getChainID() > 0) {
             CalendarEntry blockedEntry = getCalendarEntry(calEntry.getChainID());
             if ((blockedEntry != null) &&
-                (blockedEntry.getEndTime() > System.currentTimeMillis())) {
-                    setInUse(reservation.getResource().getID(), false);
+                (blockedEntry.getEndTime() < System.currentTimeMillis())) {
+                    setResourceAvailable(logEntry.getCaseID(),
+                            reservation.getResource().getID(), true);
             }
         }
     }
 
 
+    /**
+     * Removes any reservations made in an earlier version of the plan that are no
+     * longer included in the current plan
+     * @param caseID the case id of the plan
+     * @param activityName the name of the activity
+     * @param entryIDs the ids of all the reservations for the activity
+     */
     private void handleCancellations(String caseID, String activityName, Set<Long> entryIDs) {
         Set<Long> toCancel = new HashSet<Long>();
+
+        // compare stored reservations to current ones, and extract the differences
         for (long id : _uLogger.getEntryIDsForActivity(caseID, activityName)) {
             if (! entryIDs.contains(id)) {
                 toCancel.add(id);
@@ -399,7 +511,7 @@ public class ResourceScheduler {
         }
         for (long cancelledID : toCancel) {
             try {
-                _calendar.makeAvailable(cancelledID);
+                _calendar.makeAvailable(cancelledID);             // removes the entry
             }
             catch (CalendarException ce) {
                 // safe to ignore - thrown by missing id in calendar, so no more to do
@@ -408,6 +520,13 @@ public class ResourceScheduler {
     }
 
 
+    /**
+     * Converts the reservation id stored in a reservation record to its original
+     * 'long' type
+     * @param reservation the reservation with the id
+     * @return the id as a long value
+     * @throws CalendarException if the conversion is unsuccessful
+     */
     private long convertReservationID(Reservation reservation) throws CalendarException {
         long entryID = StringUtil.strToLong(reservation.getReservationID(), -1);
         if (entryID == -1) {
@@ -418,6 +537,12 @@ public class ResourceScheduler {
     }
 
 
+    /**
+     * Gets a Calendar entry matching the specified id
+     * @param entryID the id to search for
+     * @return the matching calendar entry
+     * @throws CalendarException if no match is found
+     */
     private CalendarEntry getCalendarEntry(long entryID) throws CalendarException {
         CalendarEntry entry = _calendar.getEntry(entryID);
         if (entry == null) {
@@ -427,18 +552,32 @@ public class ResourceScheduler {
     }
 
 
+    /**
+     * Creates a new CalendarEntry object, ready for storing in the calendar.
+     * @param reservation a Reservation record
+     * @param resource the resource associated with the reservation
+     * @param from the start of the period
+     * @param to the end of the period
+     * @param agent the userid of the user or service creating the entry
+     * @return the newly constructed calendar entry
+     * @throws CalendarException if the reservation's 'statusToBe' is invalid
+     */
     private CalendarEntry createCalendarEntry(Reservation reservation,
-             AbstractResource resource, long from, long to, CalendarLogEntry logEntry)
+             AbstractResource resource, long from, long to, String agent)
              throws CalendarException {
         ResourceCalendar.Status status = _calendar.strToStatus(reservation.getStatusToBe());
         return new CalendarEntry(resource.getID(), from, to, status,
-                                 reservation.getWorkload(), logEntry.getAgent(), null);
+                                 reservation.getWorkload(), agent, null);
     }
 
 
-    private void setInUse(String id, boolean inUse) {
-        AbstractResource resource = _rm.getOrgDataSet().getResource(id);
-        if (resource != null) resource.setAvailable(! inUse);
+    /**
+     * Marks a resource as being in use
+     * @param id the id of the resource
+     * @param available true if 'available', false if 'in use'
+     */
+    private void setResourceAvailable(String caseID, String id, boolean available) {
+        _rm.getOrgDataSet().setResourceAvailability(caseID, id, available);
     }
 
 }

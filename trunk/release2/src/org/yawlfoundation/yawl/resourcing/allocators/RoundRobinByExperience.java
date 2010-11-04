@@ -86,7 +86,7 @@ public class RoundRobinByExperience extends AbstractAllocator {
         Iterator itr = events.iterator();
         while (itr.hasNext()) {
             ResourceEvent event = (ResourceEvent) itr.next();
-            if (event.get_participantID().equals(p.getID()))
+            if (event.get_resourceID().equals(p.getID()))
                 result++;
         }
         return result;

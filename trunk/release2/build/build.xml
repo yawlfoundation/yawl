@@ -90,6 +90,7 @@
     <property name="antlr"                 value="antlr-2.7.6.jar"/>              <!-- hibernate -->
     <property name="apacheSoap"            value="apache_soap-2_3_1.jar"/>        <!-- wsinvoker -->
     <property name="axis"                  value="axis-1.1RC2.jar"/>              <!-- wsinvoker -->
+    <property name="backport"              value="backport-util-concurrent-2.1.jar"/> <!-- hibernate -->
     <property name="bcmail"                value="bcmail-jdk15-139.jar"/>         <!-- digSignature -->
     <property name="bcprov"                value="bcprov-jdk15-139.jar"/>         <!-- digSignature -->
     <property name="common"                value="common.jar"/>                   <!-- engine schema/xsd* -->
@@ -107,6 +108,7 @@
     <property name="ecore"                 value="ecore.jar"/>                    <!-- engine schema/xsd* -->
     <property name="ehcache"               value="ehcache-1.5.0.jar"/>            <!-- hibernate -->
     <property name="hibernate"             value="hibernate3.jar"/>               <!-- multiple -->
+    <property name="hibernate-jpa"         value="hibernate-jpa-2.0-api-1.0.0.Final.jar"/>
     <property name="hsql"                  value="hsqldb.jar"/>                   <!-- multiple db -->
     <property name="javaAssist"            value="javassist-3.12.0.GA.jar"/>      <!-- hibernate -->
     <property name="jaxrpc"                value="jaxrpc.jar"/>                   <!-- wsinvoker -->
@@ -214,8 +216,8 @@
     -->
     <property name="persistence.libs"
               value="${antlr} ${commonsCollections} ${commonsLogging} ${dom4j}
-                     ${ehcache} ${hibernate} hibernate.cfg.xml ${jta}
-                     ${slf4j} ${javaAssist} ${slf4j-log4j}"/>
+                     ${ehcache} ${hibernate} ${hibernate-jpa} hibernate.cfg.xml ${jta}
+                     ${slf4j} ${javaAssist} ${slf4j-log4j} ${backport}"/>
 
 	<property name="xsd.libs"
               value="${common} ${ecore} ${xsd} ${xsd.resources}"/>

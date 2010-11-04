@@ -43,7 +43,7 @@ public class EventLogger {
     public static enum event { offer, allocate, start, suspend, deallocate, delegate,
         reallocate_stateless, reallocate_stateful, skip, pile, cancel, chain, complete,
         unoffer, unchain, unpile, resume, timer_expired, launch_case, cancel_case,
-        cancelled_by_case }
+        cancelled_by_case, in_use, released }
 
     public static enum audit { logon, logoff, invalid, unknown, shutdown, expired,
         gwlogon, gwlogoff, gwinvalid, gwunknown, gwexpired }
@@ -77,6 +77,15 @@ public class EventLogger {
         catch (Exception e) {
             Logger.getLogger(EventLogger.class).error("'" + eventString +
                     "' is not a valid event type.");
+        }
+    }
+
+
+    public static void log(YSpecificationID specID, String caseID, String id, event eType) {
+        if (_logging) {
+            long specKey = getSpecificationKey(specID);
+            ResourceEvent resEvent = new ResourceEvent(specKey, caseID, id, eType);
+            insertEvent(resEvent);
         }
     }
 

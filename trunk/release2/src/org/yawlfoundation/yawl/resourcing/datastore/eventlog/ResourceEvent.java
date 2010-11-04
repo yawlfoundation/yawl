@@ -34,7 +34,7 @@ public class ResourceEvent extends BaseEvent implements Cloneable {
     private String _caseID ;
     private String _taskID ;
     private String _itemID ;
-    private String _participantID ;
+    private String _resourceID;
 
 
     public ResourceEvent() {}                                    // for reflection
@@ -46,12 +46,12 @@ public class ResourceEvent extends BaseEvent implements Cloneable {
         _itemID = wir.getID();
     }
 
-    /** Constrcutor for case level events **/
-    public ResourceEvent(long specKey, String caseID, String pid, EventLogger.event eType) {
+    /** Constructor for case level and secondary resource events **/
+    public ResourceEvent(long specKey, String caseID, String id, EventLogger.event eType) {
         super(eType.name());
         _specKey = specKey;
         _caseID = caseID;
-        _participantID = pid;
+        _resourceID = id;
     }
 
     /** Constructor for unmarshalling from xml **/
@@ -87,9 +87,9 @@ public class ResourceEvent extends BaseEvent implements Cloneable {
     public void set_itemID(String itemID) {_itemID = itemID; }
 
 
-    public String get_participantID() { return _participantID; }
+    public String get_resourceID() { return _resourceID; }
 
-    public void set_participantID(String participantID) { _participantID = participantID;}
+    public void set_resourceID(String participantID) { _resourceID = participantID;}
 
 
     public long get_specKey() { return _specKey; }
@@ -103,7 +103,7 @@ public class ResourceEvent extends BaseEvent implements Cloneable {
            .append(StringUtil.wrap(_caseID, "caseid"))
            .append(StringUtil.wrap(_taskID, "taskid"))
            .append(StringUtil.wrap(_itemID, "itemid"))
-           .append(StringUtil.wrap(_participantID, "participantid"))
+           .append(StringUtil.wrap(_resourceID, "resourceid"))
            .append(super.toXML())
            .append("</event>") ;
         return xml.toString();
@@ -116,7 +116,7 @@ public class ResourceEvent extends BaseEvent implements Cloneable {
         _caseID = xml.getChildText("caseid");
         _taskID = xml.getChildText("taskid");
         _itemID = xml.getChildText("itemid");
-        _participantID = xml.getChildText("participantid");
+        _resourceID = xml.getChildText("participantid");
         _event = xml.getChildText("eventtype") ;
         _timeStamp = strToLong(xml.getChildText("timestamp"));
     }
