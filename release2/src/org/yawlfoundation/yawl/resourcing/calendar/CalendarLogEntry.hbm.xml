@@ -21,9 +21,9 @@
 	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
-<hibernate-mapping package="org.yawlfoundation.yawl.resourcing.calendar.utilisation">
+<hibernate-mapping package="org.yawlfoundation.yawl.resourcing.calendar">
 
-	<class name="UtilisationLogEntry" table="rs_UtilLog">
+	<class name="CalendarLogEntry" table="rs_CalendarLog">
 
         <id name="entryID" type="long">
             <generator class="native"/>
@@ -31,9 +31,10 @@
 
         <property name="phase"/>  
         <property name="caseID"/>
-        <property name="activityID"/>
+        <property name="activityName"/>
     	<property name="resourceID"/>
-        <property name="agent"/>  
+        <property name="resourceRec"/>
+        <property name="agent"/>
         <property name="workload"    type="int"/>
         <property name="timestamp"   column="entryTime" type="long"/>
         <property name="status"      column="entryStatus"/>

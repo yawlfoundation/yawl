@@ -87,6 +87,35 @@ public class ResourceCalendarGatewayClient extends Interface_Client {
     }
 
 
+    /**
+     * Registers a URI as a listener for status change events. Note that only changes
+     * that affect the owner of the handle will receive events via the URI.
+     * @param uri the uri to which status change announcements are made
+     * @param handle a valid session handle
+     * @return a diagnostic message
+     * @throws IOException if the service can't be reached
+     */
+    public String registerStatusChangeListener(String uri, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("registerStatusChangeListener", handle);
+        params.put("uri", uri);
+        return executeGet(_serviceURI, params);
+    }
+
+
+    /**
+     * Removes a URI as a listener for status change events.
+     * @param uri the uri to remove as a listener for status change announcements
+     * @param handle a valid session handle
+     * @return a diagnostic message
+     * @throws IOException if the service can't be reached
+     */
+    public void removeStatusChangeListener(String uri, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("removeStatusChangeListener", handle);
+        params.put("uri", uri);
+        executePost(_serviceURI, params);
+    }
+
+
     /******************************************************************************/
 
     /**

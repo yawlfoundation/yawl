@@ -31,20 +31,21 @@ import java.util.List;
 public class Activity extends StatusMessage {
 
     private String _name;
-    private String _activityID;
     private String _taskID;
+    private String _phase;
     private StringWithMessage _from;
     private StringWithMessage _to;
     private StringWithMessage _duration;
     private List<Reservation> _reservationList;
     private List<UtilisationRelation> _relationList;
 
+    private enum Phase { POU, SOU, EOU }           // pre, start of, end of, utilisation
+
+
     public Activity() { }
 
-    public Activity(String name, String activityID, String taskID, String from,
-                    String to, String duration) {
+    public Activity(String name, String taskID, String from, String to, String duration) {
         setName(name);
-        setActivityID(activityID);
         setTaskID(taskID);
         setFrom(from);
         setTo(to);
@@ -62,14 +63,28 @@ public class Activity extends StatusMessage {
     public void setName(String name) { _name = name; }
 
 
-    public String getActivityID() { return _activityID; }
-
-    public void setActivityID(String id) { _activityID = id; }
-
-
     public String getTaskID() { return _taskID; }
 
     public void setTaskID(String id) { _taskID = id; }
+
+
+    public String getPhase() { return _phase; }
+
+    public void setPhase(String phase) { _phase = phase; }
+
+    public boolean hasValidPhase() {
+        try {
+            Phase.valueOf(_phase);
+            return true;
+        }
+        catch (Exception e)  {
+            return false;
+        }
+    }
+
+    public boolean isSOU() { return _phase.equals("SOU"); }
+
+    public boolean isEOU() { return _phase.equals("EOU"); }
 
 
     public String getFrom() { return _from.getValue(); }
@@ -149,8 +164,8 @@ public class Activity extends StatusMessage {
         XNode node = new XNode("Activity");
         addAttributes(node);
         node.addChild("Name", _name);
-        node.addChild("ActivityId", _activityID);
         node.addChild("StartTaskId", _taskID);
+        node.addChild("RequestType", _phase);
         if (_from != null) node.addChild(_from.toXNode());
         if (_to != null) node.addChild(_to.toXNode());
         if (_duration != null) node.addChild(_duration.toXNode());
@@ -170,8 +185,8 @@ public class Activity extends StatusMessage {
     public void fromXNode(XNode node) {
         super.fromXNode(node);
         setName(node.getChildText("Name"));
-        setActivityID(node.getChildText("ActivityId"));
         setTaskID(node.getChildText("StartTaskId"));
+        setPhase(node.getChildText("RequestType"));
         setFrom(node.getChildText("From"));
         setTo(node.getChildText("To"));
         setDuration(node.getChildText("Duration"));

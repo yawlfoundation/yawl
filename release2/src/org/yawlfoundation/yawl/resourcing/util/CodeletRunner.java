@@ -74,7 +74,7 @@ public class CodeletRunner implements Runnable {
                 result = _codelet.execute(_wir.getDataList(), inputs, outputs);
             }
         }
-        catch (CodeletExecutionException e) {
+        catch (Exception e) {
             _log.error(MessageFormat.format("Exception executing codelet ''{0}'': {1}. " +
                     "Codelet could not be executed; default value returned for workitem ''{2}''",
                     _codeletName, e.getMessage(), _wir.getID()));

@@ -18,6 +18,8 @@
 
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
+
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -71,6 +73,7 @@ public class ServiceConnection {
     private class TimeOut extends TimerTask {
         public void run() {
             ConnectionCache.getInstance().expire(_handle) ;
+            ResourceManager.getInstance().removeCalendarStatusChangeListeners(_handle);
         }
     }
 }   

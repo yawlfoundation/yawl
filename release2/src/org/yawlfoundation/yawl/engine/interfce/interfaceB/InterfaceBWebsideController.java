@@ -143,6 +143,9 @@ public abstract class InterfaceBWebsideController {
      * Receives notification from the engine that the status of a workitem has been
      * modified. Override this method to handle any effects a status change might have
      * on a custom service
+     * @param workItem the work item that has had its status modified
+     * @param oldStatus the work item's previous status
+     * @param newStatus the work item's new status
      */
     public void handleWorkItemStatusChangeEvent(WorkItemRecord workItem, 
                                                 String oldStatus, String newStatus) { }

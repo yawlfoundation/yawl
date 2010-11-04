@@ -40,7 +40,6 @@ import org.yawlfoundation.yawl.logging.YLogDataItem;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.resourcing.allocators.AbstractAllocator;
 import org.yawlfoundation.yawl.resourcing.allocators.AllocatorFactory;
-import org.yawlfoundation.yawl.resourcing.calendar.CalendarEntry;
 import org.yawlfoundation.yawl.resourcing.calendar.ResourceCalendar;
 import org.yawlfoundation.yawl.resourcing.codelets.AbstractCodelet;
 import org.yawlfoundation.yawl.resourcing.codelets.CodeletFactory;
@@ -376,6 +375,24 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public ResourceCalendar getCalendar() { return _calendar ; }
 
+
+    public String registerCalendarStatusChangeListener(String uri, String handle) {
+        String userid = getUserIDForSessionHandle(handle);
+        return (userid == null) ? "<failure>Invalid session handle</failure>" :
+                _gatewayServer.registerSchedulingInterfaceListener(userid, uri);
+    }
+
+    public void removeCalendarStatusChangeListener(String uri, String handle) {
+        String userid = getUserIDForSessionHandle(handle);
+        if (userid != null) _gatewayServer.removeSchedulingInterfaceListener(userid, uri);
+    }
+
+    public void removeCalendarStatusChangeListeners(String handle) {
+        String userid = getUserIDForSessionHandle(handle);
+        if (userid != null) _gatewayServer.removeSchedulingInterfaceListeners(userid);
+    }
+
+
     /*********************************************************************************/
 
     // Server methods (event announcements) //
@@ -389,10 +406,10 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
     }
 
-    public void announceResourceCalendarStatusChange(String changeXML) {
+    public void announceResourceCalendarStatusChange(String origAgent, String changeXML) {
         try {
             if (_gatewayServer != null)
-                _gatewayServer.announceResourceCalendarStatusChange(changeXML);
+                _gatewayServer.announceResourceCalendarStatusChange(origAgent, changeXML);
         }
         catch (IOException ioe) {
             _log.error("Failed to announce unavailable resource to environment", ioe);
@@ -2352,6 +2369,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public void serviceDisconnect(String handle) {
         _connections.disconnect(handle) ;
+        removeCalendarStatusChangeListeners(handle);
     }
 
     public boolean checkServiceConnection(String handle) {
@@ -2427,6 +2445,16 @@ public class ResourceManager extends InterfaceBWebsideController {
             }
         }
         return result ;
+    }
+
+    
+    public boolean isRunningCaseID(String caseID) {
+        for (String runningCaseID : getAllRunningCaseIDs()) {
+            if (runningCaseID.equals(caseID)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 

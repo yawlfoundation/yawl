@@ -16,14 +16,10 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.resourcing.calendar.utilisation;
+package org.yawlfoundation.yawl.resourcing.calendar;
 
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
-import org.yawlfoundation.yawl.resourcing.calendar.CalendarEntry;
-import org.yawlfoundation.yawl.resourcing.calendar.CalendarException;
-import org.yawlfoundation.yawl.resourcing.calendar.ResourceCalendar;
-import org.yawlfoundation.yawl.resourcing.calendar.ScheduleStateException;
-import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
+import org.yawlfoundation.yawl.resourcing.calendar.utilisation.*;
 import org.yawlfoundation.yawl.resourcing.resource.AbstractResource;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
@@ -32,29 +28,30 @@ import org.yawlfoundation.yawl.util.XNodeParser;
 import java.util.*;
 
 /**
+ * The implementation of server side of the calendar gateway (Interface S).
  * @author Michael Adams
- * @date 18/10/2010
+ * @date 2/11/2010
  */
-public class UtilisationLogger {
+public class ResourceScheduler {
 
-    private static UtilisationLogger _me;
+    private static ResourceScheduler _me;
     private ResourceCalendar _calendar;
     private ResourceManager _rm;
-    private Persister _persister;
+    private CalendarLogger _uLogger;
 
-    private UtilisationLogger() {
+    private ResourceScheduler() {
         _rm = ResourceManager.getInstance();
         _calendar = ResourceCalendar.getInstance();
-        _persister = Persister.getInstance();
+        _uLogger = new CalendarLogger();
     }
 
 
     /**
-     * Gets an instance of this UtilisationLogger object
-     * @return this UtilisationLogger instance
+     * Gets an instance of this ResourceScheduler object
+     * @return this ResourceScheduler instance
      */
-    public static UtilisationLogger getInstance() {
-        if (_me == null) _me = new UtilisationLogger();
+    public static ResourceScheduler getInstance() {
+        if (_me == null) _me = new ResourceScheduler();
         return _me;
     }
 
@@ -83,22 +80,28 @@ public class UtilisationLogger {
      * @return the updated plan
      */
     public UtilisationPlan saveReservations(UtilisationPlan plan, String agent, boolean checkOnly) {
-        for (Activity activity : plan.getActivityList()) {
-            long from = activity.getFromAsLong();
-            long to = activity.getToAsLong();
-            if ((from > 0) && (to > 0)) {
-                for (Reservation reservation : activity.getReservationList()) {
-                    if (checkOnly) checkReservation(reservation, from, to);
-                    else {
-                        UtilisationLogEntry logEntry = new UtilisationLogEntry();
-                        logEntry.setCaseID(plan.getCaseID());
-                        logEntry.setPhase(plan.getPhase());
-                        logEntry.setActivityID(activity.getActivityID());
-                        logEntry.setAgent(agent);
-                        saveReservation(reservation, from, to, logEntry);
+        if (validatePlan(plan)) {
+            for (Activity activity : plan.getActivityList()) {
+                if (validateActivity(activity)) {
+                    Set<Long> reservationIDs = new HashSet<Long>();
+                    long from = activity.getFromAsLong();
+                    long to = activity.getToAsLong();
+                    for (Reservation reservation : activity.getReservationList()) {
+                        if (checkOnly) checkReservation(reservation, from, to);
+                        else {
+                            CalendarLogEntry logEntry = new CalendarLogEntry();
+                            logEntry.setCaseID(plan.getCaseID());
+                            logEntry.setPhase(activity.getPhase());
+                            logEntry.setActivityName(activity.getName());
+                            logEntry.setAgent(agent);
+                            logEntry.setResourceRec(reservation.getResource().toXML());
+                            saveReservation(reservation, from, to, logEntry);
+                            reservationIDs.add(reservation.getReservationIDAsLong());
+                        }
                     }
+                    handleCancellations(plan.getCaseID(), activity.getName(), reservationIDs);
                 }
-            }    
+            }
         }
         return plan;
     }
@@ -133,65 +136,97 @@ public class UtilisationLogger {
      * @return the set of matching utilisation plans
      */
     public Set<UtilisationPlan> getReservations(UtilisationResource uResource, long from, long to) {
+        UtilisationReconstructor reconstructor = new UtilisationReconstructor();
         int i = -1;
         Map<String, UtilisationPlan> planSet = new Hashtable<String, UtilisationPlan>();
 
-        // for all of the calendar entries for each referenced resource
+        // for all of the calendar entries and for each referenced resource
         for (AbstractResource resource : getActualResourceList(uResource)) {
             for (Object o : _calendar.getTimeSlotEntries(resource, from, to)) {
                 CalendarEntry calEntry = (CalendarEntry) o;
-                UtilisationLogEntry logEntry = getLogEntry(calEntry.getEntryID());
+                CalendarLogEntry logEntry =
+                        _uLogger.getLogEntryForCalendarKey(calEntry.getEntryID());
                 String caseID = null;
-                String activityID = null;
+                String activityName = null;
                 UtilisationPlan plan = null;
                 if (logEntry != null) {
                     caseID = logEntry.getCaseID();
-                    activityID = logEntry.getActivityID();
+                    activityName = logEntry.getActivityName();
                     plan = planSet.get(caseID);
                 }
 
                 if (plan != null) {
-                    Activity activity = activityID != null ? plan.getActivity(activityID) : null;
+                    Activity activity = (activityName == null) ? null :
+                                         plan.getActivity(activityName) ;
 
                     // add calEntry to plan
                     if (activity == null) {
-                        plan.addActivity(reconstructActivity(calEntry, activityID));
+                        plan.addActivity(
+                                reconstructor.reconstructActivity(calEntry, activityName));
                     }
                     else {
-                        activity.addReservation(reconstructReservation(calEntry));
+                        activity.addReservation(
+                                reconstructor.reconstructReservation(calEntry));
                     }
                 }
                 else {
                     // make a new plan
-                    plan = reconstructPlan(logEntry, calEntry);
+                    plan = reconstructor.reconstructPlan(logEntry, calEntry);
                     String index = (caseID != null) ? caseID : "" + i--;
                     planSet.put(index, plan);
                 }
             }
-        }        
+        }
         return new HashSet<UtilisationPlan>(planSet.values());
     }
 
 
-    public void notifyStatusChange(CalendarEntry calEntry) {
+    protected void notifyStatusChange(CalendarEntry calEntry) {
         XNode node = new XNode("StatusChange");
         long reservationID = calEntry.getEntryID();
-        UtilisationLogEntry logEntry = getLogEntry(reservationID);
+        CalendarLogEntry logEntry = _uLogger.getLogEntryForCalendarKey(reservationID);
         if (logEntry != null) {
-            node.addChild("caseID", logEntry.getCaseID());
-            node.addChild("activityID", logEntry.getActivityID());
-            node.addChild("oldStatus", logEntry.getStatus());
+
+            // only notify if the changer is different to the original 'owner'
+            if (! logEntry.getAgent().equals(calEntry.getAgent())) {
+                node.addChild("CaseId", logEntry.getCaseID());
+                node.addChild("ActivityName", logEntry.getActivityName());
+                node.addChild("ReservationId", reservationID);
+
+                XNode resource = new XNodeParser().parse(logEntry.getResourceRec());
+                if (resource != null) {
+                    resource.getChild("Id").setText(calEntry.getResourceID());
+                    node.addChild(resource);
+                }
+                
+                node.addChild("OldStatus", logEntry.getStatus());
+                node.addChild("NewStatus", calEntry.getStatus());
+                _rm.announceResourceCalendarStatusChange(logEntry.getAgent(), node.toString());
+            }
         }
-        node.addChild("reservationID", reservationID);
-        node.addChild("newStatus", calEntry.getStatus());
-        node.addChild("agent", calEntry.getAgent());
-        node.addChild("startTime", calEntry.getStartTime());
-        node.addChild("endTime", calEntry.getEndTime());
-        _rm.announceResourceCalendarStatusChange(node.toString());
     }
 
 
     /*******************************************************************************/
+
+    private boolean validatePlan(UtilisationPlan plan) {
+        String caseID = plan.getCaseID();
+        if (! _rm.isRunningCaseID(plan.getCaseID())) {
+            plan.setError("There is no running case with id: " + caseID);
+            return false;
+        }
+        return true;
+    }
+
+
+    private boolean validateActivity(Activity activity) {
+        if (! activity.hasValidPhase()) {
+            activity.setError("Invalid requestType: " + activity.getPhase());
+            return false;
+        }
+        return activity.getFromAsLong() > 0 && activity.getToAsLong() > 0;
+    }
+
 
     private void checkReservation(Reservation reservation, long from, long to) {
         if (reservation != null) {
@@ -209,16 +244,22 @@ public class UtilisationLogger {
         }
     }
 
-    
+
     private void saveReservation(Reservation reservation, long from, long to,
-                                 UtilisationLogEntry logEntry) {
+                                 CalendarLogEntry logEntry) {
         if (reservation == null) return;
         try {
             if (reservation.getReservationID() != null) {
-                updateReservation(reservation, logEntry);
+                String phase = logEntry.getPhase();
+                if (phase.equals("EOU")) {                         // end-of-utilisation
+                    reconcileReservation(reservation, from, to, logEntry);
+                }
+                else {
+                    updateReservation(reservation, logEntry);
+                }    
             }
             else {
-                AbstractResource resource = getActualResource(reservation.getResource());
+                AbstractResource resource = getActualResourceIfAvailable(reservation, from, to);
                 CalendarEntry calEntry =
                         createCalendarEntry(reservation, resource, from, to, logEntry);
                 makeReservation(reservation, resource, calEntry, logEntry);
@@ -230,16 +271,28 @@ public class UtilisationLogger {
     }
 
 
-    private AbstractResource getActualResource(UtilisationResource resource)
-            throws CalendarException {
-        return randomSelection(getActualResourceList(resource));
+    private AbstractResource getActualResourceIfAvailable(Reservation reservation, long from, long to)
+            throws CalendarException, ScheduleStateException {
+        List<AbstractResource> actualList = getActualResourceList(reservation.getResource());
+        if ((actualList == null) || actualList.isEmpty()) {
+            throw new CalendarException("Failed to resolve resource.");
+        }
+        while (actualList.size() > 0) {
+            AbstractResource actual =
+                    actualList.remove((int) Math.floor(Math.random() * actualList.size()));
+            if (_calendar.canCreateEntry(actual, from, to, reservation.getStatusToBe(),
+                    reservation.getWorkload())) {
+                return actual;
+            }
+        }
+        throw new CalendarException("No specified resource available for period.");
     }
 
-    
+
     private List<AbstractResource> getActualResourceList(UtilisationResource resource) {
         List<AbstractResource> resourceList = new ArrayList<AbstractResource>();
         if (resource.getID() != null) {
-            resourceList.add(_rm.getOrgDataSet().getResource(resource.getID()));
+            resourceList.add(getActualResource(resource.getID()));
         }
         else if (resource.getRole() != null) {
             resourceList.addAll(_rm.getOrgDataSet().getRoleParticipantsWithCapability(
@@ -253,33 +306,31 @@ public class UtilisationLogger {
     }
 
 
-    private AbstractResource randomSelection(List<AbstractResource> resources)
-            throws CalendarException {
-        if ((resources == null) || resources.isEmpty()) {
-            throw new CalendarException("Failed to resolve resource.");
-        }
-        return (resources.size() == 1) ? resources.get(0) :
-                resources.get((int) Math.floor(Math.random() * resources.size()));
+    private AbstractResource getActualResource(String resourceID) {
+        return _rm.getOrgDataSet().getResource(resourceID);
     }
 
-
-    private void updateReservation(Reservation reservation, UtilisationLogEntry logEntry)
+    private void updateReservation(Reservation reservation, CalendarLogEntry logEntry)
             throws CalendarException, ScheduleStateException {
         long entryID = convertReservationID(reservation);
         CalendarEntry calEntry = getCalendarEntry(entryID);
         reservation.setStatus(calEntry.getStatus());               // current status
         ResourceCalendar.Status statusToBe =
-                _calendar.updateEntry(entryID, calEntry.getStatus());
+                    _calendar.updateEntry(entryID, calEntry.getStatus());
 
         // if update raised no exceptions, update reservation and log
         reservation.setStatus(statusToBe.name());
         calEntry.setStatus(statusToBe.name());
-        log(logEntry, calEntry);
+        _uLogger.log(logEntry, calEntry);
+
+        if (logEntry.getPhase().equals("SOU")) {                 // start-of-utilisation
+            setInUse(reservation.getResource().getID(), true);
+        }
     }
 
 
     private void makeReservation(Reservation reservation, AbstractResource resource,
-                                 CalendarEntry calEntry, UtilisationLogEntry logEntry)
+                                 CalendarEntry calEntry, CalendarLogEntry logEntry)
             throws CalendarException, ScheduleStateException {
         String statusToBe = reservation.getStatusToBe();
         reservation.setStatus(ResourceCalendar.Status.Nil.name());     // default status
@@ -287,7 +338,7 @@ public class UtilisationLogger {
         if (entryID > 0) reservation.setReservationID(String.valueOf(entryID));
         reservation.setStatus(statusToBe);
         reservation.getResource().setID(calEntry.getResourceID());
-        log(logEntry, calEntry);
+        _uLogger.log(logEntry, calEntry);
     }
 
 
@@ -308,7 +359,7 @@ public class UtilisationLogger {
         }
     }
 
-    
+
     private void checkUpdateReservation(Reservation reservation)
             throws CalendarException, ScheduleStateException {
         long entryID = convertReservationID(reservation);
@@ -316,6 +367,44 @@ public class UtilisationLogger {
             reservation.setWarning("Reservation would succeed.");
         }
         else reservation.setWarning("Reservation would fail.");
+    }
+
+
+    private void reconcileReservation(Reservation reservation, long from, long to,
+                                      CalendarLogEntry logEntry)
+            throws CalendarException, ScheduleStateException {
+        this.getActualResourceIfAvailable(reservation, from, to);
+        AbstractResource resource = getActualResource(reservation.getResource().getID());
+        CalendarEntry calEntry = _calendar.reconcileEntry(
+                resource, convertReservationID(reservation), from, to);
+        _uLogger.log(logEntry, calEntry);
+
+        // if the reconcile throws no exception, mark the resource as available
+        if (calEntry.getChainID() > 0) {
+            CalendarEntry blockedEntry = getCalendarEntry(calEntry.getChainID());
+            if ((blockedEntry != null) &&
+                (blockedEntry.getEndTime() > System.currentTimeMillis())) {
+                    setInUse(reservation.getResource().getID(), false);
+            }
+        }
+    }
+
+
+    private void handleCancellations(String caseID, String activityName, Set<Long> entryIDs) {
+        Set<Long> toCancel = new HashSet<Long>();
+        for (long id : _uLogger.getEntryIDsForActivity(caseID, activityName)) {
+            if (! entryIDs.contains(id)) {
+                toCancel.add(id);
+            }
+        }
+        for (long cancelledID : toCancel) {
+            try {
+                _calendar.makeAvailable(cancelledID);
+            }
+            catch (CalendarException ce) {
+                // safe to ignore - thrown by missing id in calendar, so no more to do
+            }
+        }
     }
 
 
@@ -339,64 +428,17 @@ public class UtilisationLogger {
 
 
     private CalendarEntry createCalendarEntry(Reservation reservation,
-             AbstractResource resource, long from, long to, UtilisationLogEntry logEntry)
+             AbstractResource resource, long from, long to, CalendarLogEntry logEntry)
              throws CalendarException {
         ResourceCalendar.Status status = _calendar.strToStatus(reservation.getStatusToBe());
         return new CalendarEntry(resource.getID(), from, to, status,
-                                 reservation.getWorkload(), logEntry.getAgent(), null);    
+                                 reservation.getWorkload(), logEntry.getAgent(), null);
     }
 
 
-    private void log(UtilisationLogEntry logEntry, CalendarEntry calEntry) {
-        logEntry.setResourceID(calEntry.getResourceID());
-        logEntry.setStatus(calEntry.getStatus());
-        logEntry.setTimestamp(new Date().getTime());
-        logEntry.setWorkload(calEntry.getWorkload());
-        logEntry.setCalendarKey(calEntry.getEntryID());
-        _persister.insert(logEntry);
-    }
-
-
-    private UtilisationLogEntry getLogEntry(long calEntryID) {
-        List list = _persister.selectWhere("UtilisationLogEntry", "calendarKey=" + calEntryID);
-        return (list == null) || list.isEmpty() ? null : (UtilisationLogEntry) list.get(0);
-    }
-
-
-    private UtilisationPlan reconstructPlan(UtilisationLogEntry logEntry,
-                                            CalendarEntry calEntry) {
-        String caseID = (logEntry != null) ? logEntry.getCaseID() : null;
-        String activityID = (logEntry != null) ? logEntry.getActivityID() : null;
-
-        UtilisationPlan plan = new UtilisationPlan(caseID);
-        plan.addActivity(reconstructActivity(calEntry, activityID));
-        return plan;
-    }
-
-
-    private Activity reconstructActivity(CalendarEntry calEntry, String id) {
-        String from = StringUtil.longToDateTime(calEntry.getStartTime());
-        String to = StringUtil.longToDateTime(calEntry.getEndTime());
-
-        Activity activity = new Activity(null, id, null, from, to, null);
-        activity.addReservation(reconstructReservation(calEntry));
-        return activity;
-    }
-
-
-    private Reservation reconstructReservation(CalendarEntry calEntry) {
-        Reservation reservation = new Reservation();
-        reservation.setReservationID(String.valueOf(calEntry.getEntryID()));
-        reservation.setStatus(calEntry.getStatus());
-        reservation.setResource(reconstructResource(calEntry));
-        return reservation;
-    }
-
-
-    private UtilisationResource reconstructResource(CalendarEntry calEntry) {
-        UtilisationResource resource = new UtilisationResource();
-        resource.setID(calEntry.getResourceID());
-        return resource;
+    private void setInUse(String id, boolean inUse) {
+        AbstractResource resource = _rm.getOrgDataSet().getResource(id);
+        if (resource != null) resource.setAvailable(! inUse);
     }
 
 }

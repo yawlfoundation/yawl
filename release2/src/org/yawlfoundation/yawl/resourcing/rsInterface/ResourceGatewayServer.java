@@ -20,10 +20,11 @@ package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.resourcing.util.TaggedStringList;
+import org.yawlfoundation.yawl.util.HttpURLValidator;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Author: Michael Adams
@@ -39,8 +40,11 @@ public class ResourceGatewayServer extends Interface_Client {
 
     private String _ixURI ;      // the uri to Interface X Service (exception handling)
     private String _isURI ;      // the uri to Interface S Service (resource scheduling)
+    private Map<String, TaggedStringList> _isListeners;
 
-    public ResourceGatewayServer() { }
+    public ResourceGatewayServer() {
+        _isListeners = new Hashtable<String, TaggedStringList>();
+    }
 
 
     public void setExceptionInterfaceURI(String uri) {
@@ -63,6 +67,31 @@ public class ResourceGatewayServer extends Interface_Client {
     }
 
 
+    public String registerSchedulingInterfaceListener(String logonID, String uri) {
+        String msg = HttpURLValidator.validate(uri);
+        if (successful(msg)) {
+            TaggedStringList uriList = _isListeners.get(logonID);
+            if (uriList == null) {
+                uriList = new TaggedStringList(logonID, uri);
+                _isListeners.put(logonID, uriList);
+            }
+            else uriList.add(uri);
+        }
+        return msg;
+    }
+
+
+    public void removeSchedulingInterfaceListener(String logonID, String uri) {
+        TaggedStringList uriList = _isListeners.get(logonID);
+        if (uriList != null) uriList.remove(uri);
+    }
+
+
+    public void removeSchedulingInterfaceListeners(String logonID) {
+        _isListeners.remove(logonID);
+    }
+ 
+
     public void announceResourceUnavailable(WorkItemRecord wir)
             throws IOException {
         Map<String, String> params = prepareParams(NOTIFY_RESOURCE_UNAVAILABLE);
@@ -71,10 +100,13 @@ public class ResourceGatewayServer extends Interface_Client {
     }
 
 
-    public void announceResourceCalendarStatusChange(String xml) throws IOException {
+    public void announceResourceCalendarStatusChange(String origOwner, String xml)
+            throws IOException {
         Map<String, String> params = prepareParams(NOTIFY_UTILISATION_STATUS_CHANGE);
         params.put("xml", xml);
-        executePost(_isURI, params);
+        for (String listener : getSchedulingInterfaceListeners(origOwner)) {
+            executePost(listener, params);
+        }    
     }
 
 
@@ -82,5 +114,13 @@ public class ResourceGatewayServer extends Interface_Client {
         Map<String, String> params = new HashMap<String, String>();
         params.put("action", String.valueOf(action)) ;
         return params;
+    }
+
+
+    private Set<String> getSchedulingInterfaceListeners(String logonID) {
+        Set<String> listeners = new HashSet<String>();
+        if (_isURI != null) listeners.add(_isURI);
+        listeners.addAll(_isListeners.get(logonID));
+        return listeners;
     }
 }

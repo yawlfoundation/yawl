@@ -57,6 +57,10 @@ public class Reservation extends StatusMessage {
         _reservationID = id;
     }
 
+    public long getReservationIDAsLong() {
+        return StringUtil.strToLong(_reservationID, -1);
+    }
+
 
     public String getStatusToBe() { return _statusToBe.getValue(); }
 

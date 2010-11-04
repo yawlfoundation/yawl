@@ -18,7 +18,6 @@
 
 package org.yawlfoundation.yawl.resourcing.calendar;
 
-import org.yawlfoundation.yawl.resourcing.calendar.utilisation.UtilisationLogger;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.resource.AbstractResource;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
@@ -104,6 +103,7 @@ public class ResourceCalendar {
      * @return the matching calendar entry, or null if the entry can't be found
      */
     public CalendarEntry getEntry(long entryID) {
+        if (entryID < 1) return null;
         List list = _persister.createQuery("FROM CalendarEntry AS ce WHERE ce.entryID=:id")
                 .setLong("id", entryID)
                 .list();
@@ -353,6 +353,7 @@ public class ResourceCalendar {
             throws CalendarException, ScheduleStateException {
         switch (status) {
             case Available : makeAvailable(entryID); break;
+            case Unavailable : makeUnavailable(entryID); break;
             case Reserved  : confirm(entryID); break;
             case Requested : unconfirm(entryID); break;
             default: throw new CalendarException(
@@ -371,11 +372,33 @@ public class ResourceCalendar {
     public boolean canUpdateEntry(long entryID, Status status)
             throws CalendarException, ScheduleStateException {
         switch (status) {
-            case Available : return true;                // can always do
+            case Available :
+            case Unavailable : return true;                // can always do
             case Reserved  : return canConfirm(entryID);
             case Requested : return canUnconfirm(entryID);
             default: return false;
         }
+    }
+
+
+    public CalendarEntry reconcileEntry(AbstractResource resource, long entryID,
+                                        long startTime, long endTime)
+              throws CalendarException, ScheduleStateException {
+        CalendarEntry entry = getEntry(entryID);
+        CalendarEntry blockedEntry = getEntry(entry.getChainID());
+        entry.setStartTime(startTime);
+        long reservedEndTime = entry.getEndTime();
+        if (reservedEndTime != endTime) {
+            if (blockedEntry != null) {
+                updateBlockedEntry(blockedEntry, endTime);
+                checkForClashes(resource, blockedEntry);
+            }    
+        }
+        entry.setEndTime(endTime);
+        updateEntry(entry);
+        checkForClashes(resource, entry);
+
+        return entry;
     }
 
 
@@ -416,7 +439,16 @@ public class ResourceCalendar {
         // all trans to unavailable valid
         makeAvailable(resource, calEntry.getStartTime(), calEntry.getEndTime()); // remove all current
         return addEntry(calEntry);
-     }
+    }
+
+
+    private void makeUnavailable(long entryID)
+            throws ScheduleStateException, CalendarException {
+        CalendarEntry entry = getEntry(entryID);
+        entry.setStatus(Status.Unavailable.name());
+        updateEntry(entry);
+        notifyStatusChange(entry);
+    }    
 
 
     public long reserve(AbstractResource resource, long startTime, long endTime, String agent,
@@ -699,6 +731,34 @@ public class ResourceCalendar {
     }
 
 
+    private void updateBlockedEntry(CalendarEntry blockedEntry, long time) {
+        if (blockedEntry != null) {
+            long blockDuration = blockedEntry.getEndTime() - blockedEntry.getStartTime();
+            blockedEntry.setStartTime(time + 1);
+            blockedEntry.setEndTime(time + blockDuration);
+            updateEntry(blockedEntry);
+        }
+    }
+
+
+    private void checkForClashes(AbstractResource resource, CalendarEntry entry)
+            throws CalendarException {
+        List list = getTimeSlotEntries(resource, entry.getStartTime(), entry.getEndTime());
+        if (list.size() > 1) {
+            String clashID = " ";
+            for (Object o : list) {
+                long id = ((CalendarEntry) o).getEntryID();
+                if (id != entry.getEntryID()) {
+                    clashID += id + " ";
+                }
+            }
+            throw new CalendarException(
+                    "Reconciled reservation has caused a clash for resource '" +
+                    entry.getResourceID() + "' with reservation id(s): " + clashID);
+        }
+    }
+
+
     private CalendarEntry getEntryWithStatus(long entryID, Status status)
             throws ScheduleStateException, CalendarException {
         CalendarEntry entry = getEntry(entryID);
@@ -764,7 +824,7 @@ public class ResourceCalendar {
 
 
     private void notifyStatusChange(CalendarEntry entry) {
-        UtilisationLogger.getInstance().notifyStatusChange(entry);
+        ResourceScheduler.getInstance().notifyStatusChange(entry);
     }
 
 }
