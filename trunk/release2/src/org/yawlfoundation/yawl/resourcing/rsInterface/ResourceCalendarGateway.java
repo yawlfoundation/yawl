@@ -21,8 +21,8 @@ package org.yawlfoundation.yawl.resourcing.rsInterface;
 import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.calendar.ResourceCalendar;
+import org.yawlfoundation.yawl.resourcing.calendar.ResourceScheduler;
 import org.yawlfoundation.yawl.resourcing.calendar.TimeSlot;
-import org.yawlfoundation.yawl.resourcing.calendar.utilisation.UtilisationLogger;
 import org.yawlfoundation.yawl.resourcing.resource.AbstractResource;
 import org.yawlfoundation.yawl.util.XNode;
 
@@ -48,7 +48,7 @@ public class ResourceCalendarGateway extends HttpServlet {
     private static final Logger _log = Logger.getLogger(ResourceCalendarGateway.class);
     private static ResourceManager _rm;
     private static ResourceCalendar _calendar;
-    private static UtilisationLogger _uLogger;
+    private static ResourceScheduler _scheduler;
 
     private static final String _success = "<success/>";
     private static final String _noResource = "<failure>Unknown Resource.</failure>";
@@ -61,7 +61,7 @@ public class ResourceCalendarGateway extends HttpServlet {
     public void init() {
         _rm = ResourceManager.getInstance();
         _calendar = ResourceCalendar.getInstance();
-        _uLogger = UtilisationLogger.getInstance();
+        _scheduler = ResourceScheduler.getInstance();
     }
 
 
@@ -119,14 +119,23 @@ public class ResourceCalendarGateway extends HttpServlet {
                 String resources = req.getParameter("resource");
                 long fromDate = strToLong(req.getParameter("from"));
                 long toDate = strToLong(req.getParameter("to"));
-                result = _uLogger.getReservations(resources, fromDate, toDate);
+                result = _scheduler.getReservations(resources, fromDate, toDate);
             }
             else if (action.equals("saveReservations")) {
                 String plan = req.getParameter("plan");
                 String checkStr = req.getParameter("checkOnly");
                 boolean checkOnly = (checkStr != null) && checkStr.equalsIgnoreCase("true");
                 String agent = _rm.getUserIDForSessionHandle(handle);
-                result = _uLogger.saveReservations(plan, agent, checkOnly);
+                result = _scheduler.saveReservations(plan, agent, checkOnly);
+            }
+            else if (action.equals("registerStatusChangeListener")) {
+                String uri = req.getParameter("uri");
+                result = _rm.registerCalendarStatusChangeListener(uri, handle);
+            }
+            else if (action.equals("removeStatusChangeListener")) {
+                String uri = req.getParameter("uri");
+                _rm.removeCalendarStatusChangeListener(uri, handle);
+                result = _success;
             }
             else result = _noAction;
         }

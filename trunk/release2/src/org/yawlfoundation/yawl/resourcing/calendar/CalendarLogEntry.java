@@ -16,18 +16,19 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.resourcing.calendar.utilisation;
+package org.yawlfoundation.yawl.resourcing.calendar;
 
 /**
  * @author Michael Adams
  * @date 21/10/2010
  */
-public class UtilisationLogEntry {
+public class CalendarLogEntry {
 
     private long entryID;
     private String caseID;
-    private String activityID;
+    private String activityName;
     private String resourceID;
+    private String resourceRec;
     private long timestamp;
     private String status;
     private int workload;
@@ -35,12 +36,12 @@ public class UtilisationLogEntry {
     private String agent;
     private long calendarKey;
 
-    public UtilisationLogEntry() { }
+    public CalendarLogEntry() { }
 
-    public UtilisationLogEntry(String caseID, String activityID, String resourceID,
+    public CalendarLogEntry(String caseID, String activityID, String resourceID,
                                long timestamp, String status, long key) {
         setCaseID(caseID);
-        setActivityID(activityID);
+        setActivityName(activityID);
         setResourceID(resourceID);
         setTimestamp(timestamp);
         setStatus(status);
@@ -63,12 +64,12 @@ public class UtilisationLogEntry {
         caseID = id;
     }
 
-    public String getActivityID() {
-        return activityID;
+    public String getActivityName() {
+        return activityName;
     }
 
-    public void setActivityID(String id) {
-        activityID = id;
+    public void setActivityName(String name) {
+        activityName = name;
     }
 
     public String getResourceID() {
@@ -104,7 +105,7 @@ public class UtilisationLogEntry {
     }
 
     public String getKey() {
-        return caseID + ":" + activityID;
+        return caseID + ":" + activityName;
     }
 
     public String getPhase() {
@@ -129,5 +130,13 @@ public class UtilisationLogEntry {
 
     public void setWorkload(int load) {
         workload = load;
+    }
+
+    public String getResourceRec() {
+        return resourceRec;
+    }
+
+    public void setResourceRec(String rec) {
+        resourceRec = rec;
     }
 }

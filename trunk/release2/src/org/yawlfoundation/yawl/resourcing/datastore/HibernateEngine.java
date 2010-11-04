@@ -27,7 +27,7 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.calendar.CalendarEntry;
-import org.yawlfoundation.yawl.resourcing.calendar.utilisation.UtilisationLogEntry;
+import org.yawlfoundation.yawl.resourcing.calendar.CalendarLogEntry;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.AuditEvent;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.SpecLog;
@@ -65,7 +65,7 @@ public class HibernateEngine {
             NonHumanResourceCategory.class, WorkQueue.class, ResourceMap.class,
             CalendarEntry.class, WorkItemRecord.class, ResourceEvent.class,
             AuditEvent.class, SpecLog.class, PersistedAutoTask.class,
-            UtilisationLogEntry.class
+            CalendarLogEntry.class
     };
 
 

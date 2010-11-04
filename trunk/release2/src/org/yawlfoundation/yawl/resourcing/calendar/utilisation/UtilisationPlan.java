@@ -31,7 +31,6 @@ import java.util.List;
 public class UtilisationPlan extends StatusMessage {
 
     private String _caseID;
-    private String _phase;
     private List<Activity> _activityList;
 
     public UtilisationPlan() { }
@@ -52,11 +51,6 @@ public class UtilisationPlan extends StatusMessage {
     public void setCaseID(String id) { _caseID = id; }
 
 
-    public String getPhase() { return _phase; }
-
-    public void setPhase(String phase) { _phase = phase; }
-
-
     public List<Activity> getActivityList() { return _activityList; }
 
     public void setActivityList(List<Activity> list) {
@@ -72,10 +66,10 @@ public class UtilisationPlan extends StatusMessage {
         return (_activityList != null) && _activityList.remove(a);
     }
 
-    public Activity getActivity(String id) {
+    public Activity getActivity(String name) {
         if (_activityList != null) {
             for (Activity activity : _activityList) {
-                if (activity.getActivityID().equals(id)) {
+                if (activity.getName().equals(name)) {
                     return activity;
                 }
             }
@@ -96,7 +90,6 @@ public class UtilisationPlan extends StatusMessage {
         XNode node = new XNode("ResourceUtilisationPlan");
         addAttributes(node);
         node.addChild("CaseId", _caseID);
-        node.addChild("Phase", _phase);
         if (_activityList != null) {
            for (Activity activity : _activityList) {
                 node.addChild(activity.toXNode());
@@ -108,7 +101,6 @@ public class UtilisationPlan extends StatusMessage {
     public void fromXNode(XNode node) {
         super.fromXNode(node);
         setCaseID(node.getChildText("CaseId"));
-        setPhase(node.getChildText("Phase"));
         for (XNode activityNode : node.getChildren("Activity")) {
             addActivity(new Activity(activityNode));
         }

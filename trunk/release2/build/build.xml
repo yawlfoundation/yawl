@@ -105,10 +105,10 @@
 	<property name="derby"                 value="derbyclient.jar"/>              <!-- multiple db -->
     <property name="dom4j"                 value="dom4j-1.6.1.jar"/>              <!-- hibernate -->
     <property name="ecore"                 value="ecore.jar"/>                    <!-- engine schema/xsd* -->
-    <property name="ehcache"               value="ehcache-1.3.0.jar"/>            <!-- hibernate -->
+    <property name="ehcache"               value="ehcache-1.5.0.jar"/>            <!-- hibernate -->
     <property name="hibernate"             value="hibernate3.jar"/>               <!-- multiple -->
     <property name="hsql"                  value="hsqldb.jar"/>                   <!-- multiple db -->
-    <property name="javaAssist"            value="javassist-3.9.0.GA.jar"/>       <!-- hibernate -->
+    <property name="javaAssist"            value="javassist-3.12.0.GA.jar"/>      <!-- hibernate -->
     <property name="jaxrpc"                value="jaxrpc.jar"/>                   <!-- wsinvoker -->
     <property name="jdom"                  value="jdom.jar"/>                     <!-- multiple -->
     <property name="jsf-api"               value="jsf-api.jar"/>                  <!-- resource jsf -->
@@ -134,7 +134,7 @@
     <property name="saxondom"              value="saxon9-dom.jar"/>               <!-- multiple -->
     <property name="saxonjdom"             value="saxon9-jdom.jar"/>              <!-- multiple -->
     <property name="servlet"               value="servlet-api.jar"/>              <!-- multiple -->
-    <property name="slf4j"                 value="slf4j-api-1.6.0.jar"/>          <!-- hibernate -->
+    <property name="slf4j"                 value="slf4j-api-1.6.1.jar"/>          <!-- hibernate -->
     <property name="slf4j-log4j"           value="slf4j-log4j12-1.6.0.jar"/>      <!-- hibernate -->
     <property name="soaprmi"               value="soaprmi-1_1.jar"/>              <!-- wsinvoker --> 
     <property name="twitter4j"             value="twitter4j-2.0.8.jar"/>          <!-- twitter -->
