@@ -42,9 +42,10 @@ import java.io.StringReader;
  *  Last date: 22/06/08
  */
 
- public class JDOMUtil {
+public class JDOMUtil {
 
-    private static Logger _log = Logger.getLogger("org.yawlfoundation.yawl.util.JDOMUtil");
+    private static Logger _log = Logger.getLogger(JDOMUtil.class);
+    private static SAXBuilder _builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
 
     /****************************************************************************/
 
@@ -74,17 +75,15 @@ import java.io.StringReader;
 
     public static Document stringToDocument(String s) {
         try {
-           if (s == null) return null ;
-           return new SAXBuilder().build(new StringReader(s));
+            return (s != null) ? _builder.build(new StringReader(s)) : null ;
         }
         catch (JDOMException jde) {
             _log.error("JDOMException converting to Document, String = " + s , jde);
-            return null ;
         }
         catch (IOException ioe) {
             _log.error("IOException converting to Document, String = " + s, ioe);
-            return null ;
         }
+        return null ;
     }
 
     /****************************************************************************/
@@ -98,35 +97,33 @@ import java.io.StringReader;
     /****************************************************************************/
 
     public static Document fileToDocument(String path) {
-       try {
-           if (path == null) return null ;
-           return new SAXBuilder().build(new File(path));
-       }
-       catch (JDOMException jde) {
-           _log.error("JDOMException loading file into Document, filepath = " + path , jde);
-           return null ;
-       }
-       catch (IOException ioe) {
-           _log.error("IOException loading file into Document, filepath = " + path, ioe);
-           return null ;
-       }
+        try {
+            return (path != null) ? _builder.build(new File(path)) : null ;
+        }
+        catch (JDOMException jde) {
+            _log.error("JDOMException loading file into Document, filepath = " + path , jde);
+        }
+        catch (IOException ioe) {
+            _log.error("IOException loading file into Document, filepath = " + path, ioe);
+        }
+        return null ;
     }
 
     /****************************************************************************/
 
-         /** saves a JDOM Document to a file */
-     public static void documentToFile(Document doc, String path)   {
+    /** saves a JDOM Document to a file */
+    public static void documentToFile(Document doc, String path)   {
         try {
-           FileOutputStream fos = new FileOutputStream(path);
-           XMLOutputter xop = new XMLOutputter(Format.getPrettyFormat());
-           xop.output(doc, fos);
-           fos.flush();
-           fos.close();
-      }
-      catch (IOException ioe){
-          _log.error("IO Exeception in saving Document to file, filepath = " + path, ioe) ;
-      }
-   }
+            FileOutputStream fos = new FileOutputStream(path);
+            XMLOutputter xop = new XMLOutputter(Format.getPrettyFormat());
+            xop.output(doc, fos);
+            fos.flush();
+            fos.close();
+        }
+        catch (IOException ioe){
+            _log.error("IO Exeception in saving Document to file, filepath = " + path, ioe) ;
+        }
+    }
 
     /****************************************************************************/
 
@@ -142,7 +139,7 @@ import java.io.StringReader;
     public static String encodeEscapes(String s) {
         if (s == null) return s;
         return s.replaceAll("&", "&amp;")
-                .replaceAll("<", "&lt;")                
+                .replaceAll("<", "&lt;")
                 .replaceAll(">", "&gt;")
                 .replaceAll("\"", "&quot;")
                 .replaceAll("'", "&apos;") ;
@@ -162,9 +159,9 @@ import java.io.StringReader;
     public static String formatXMLString(String s) {
         if (s == null) return null;
         if (s.startsWith("<?xml"))
-            return documentToString(stringToDocument(s));
+            return formatXMLStringAsDocument(s);
         else
-            return elementToString(stringToElement(s));
+            return formatXMLStringAsElement(s);
     }
 
     public static String formatXMLStringAsDocument(String s) {
@@ -182,7 +179,7 @@ import java.io.StringReader;
         }
         return s;
     }
-    
+
     public static Element stripAttributes(Element e) {
         e.setAttributes(null);
         for (Object o: e.getChildren()) {
@@ -190,7 +187,5 @@ import java.io.StringReader;
         }
         return e;
     }
-
-
 
 } //ends
