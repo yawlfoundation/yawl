@@ -162,7 +162,7 @@ public abstract class YExternalNetElement extends YNetElement implements YVerifi
      * @return the flow connecting the elements
      */
     public YFlow getPresetFlow(YExternalNetElement netElement) {
-        return _postsetFlows.get(netElement.getID());
+        return _presetFlows.get(netElement.getID());
     }
 
 
