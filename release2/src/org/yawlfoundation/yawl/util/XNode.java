@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A utility for building xml strings. Handles elements, attributes, comments and text
- * (and that's all - no edge cases). Comments are printed _above_ the xml tag.
+ * A utility for building xml strings. Handles elements, attributes, comments, text
+ * and CDATA (and that's all - no edge cases).
  *
  * NOTE: To keep things simple, while this class allows a node to have both child
  * nodes and text, where both have values set the child nodes have precedence (ie.
@@ -43,21 +43,24 @@ public class XNode {
     static final String newline = System.getProperty("line.separator");
     static final String _header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 
+    public static enum ContentType { text, comment, cdata }
+
     private XNode _parent;
     private List<XNode> _children;
     private Map<String, String> _attributes;
     private String _name;
     private String _text;
-    private List<String> _comments;
+    private ContentType _contentType;
     private int _depth = 0;
     private static int _defTabSize = 2;
 
     public XNode(String name) {
         _name = name;
+        _contentType = ContentType.text;  // default
     }
 
     public XNode(String name, String text) {
-        _name = name;
+        this(name);
         _text = text;
     }
 
@@ -177,25 +180,29 @@ public class XNode {
         return (_children != null) && _children.remove(child);
     }
 
+
     /**************************************************************************/
 
-    public void addComment(String comment) {
-        if (_comments == null) _comments = new ArrayList<String>();
-        _comments.add(comment);
+    public XNode addComment(String comment) {
+        XNode child = addChild("_!_", comment);
+        child.setContentType(ContentType.comment);
+        return child;
     }
 
-    public void addComments(List<String> comments) {
-        if (_comments == null) _comments = new ArrayList<String>();
-        _comments.addAll(comments);
+    public boolean isComment() {
+        return _contentType == ContentType.comment;
     }
 
-    public boolean hasComments() {
-        return (_comments != null);
+    public XNode addCDATA(String cdata) {
+        XNode child = addChild("_[_", cdata);
+        child.setContentType(ContentType.cdata);
+        return child;
     }
 
-    public List<String> getComments() {
-        return _comments;
+    public boolean isCDATA() {
+        return _contentType == ContentType.cdata;
     }
+
 
     /**************************************************************************/
 
@@ -245,10 +252,14 @@ public class XNode {
         return null;
     }
 
-    /* returns the first child */
+    /* returns the first text-type child */
     public XNode getChild() {
-        if ((_children != null) && (_children.size() > 0)) {
-            return _children.get(0);
+        if (_children != null) {
+            for (XNode child : _children) {
+                if (child.getContentType() == ContentType.text) {
+                    return child;
+                }
+            }
         }
         return null;
     }
@@ -256,7 +267,17 @@ public class XNode {
 
     public List<XNode> getChildren() {
         return (_children != null) ? _children : new ArrayList<XNode>();
+    }
 
+
+    public List<XNode> getChildren(ContentType cType) {
+        List<XNode> matches = new ArrayList<XNode>();
+        for (XNode child : getChildren()) {
+            if (child.getContentType() == cType) {
+                matches.add(child);
+            }
+        }
+        return matches;
     }
 
     public List<XNode> getChildren(String name) {
@@ -351,14 +372,9 @@ public class XNode {
         return (_children == null) ? 0 : _children.size();
     }
 
-    public int getCommentCount() {
-        return (_comments == null) ? 0 : _comments.size();
-    }
-
     public int getTextLength() {
         return (_text == null) ? 0 : _text.length();
     }
-
 
     public int length() {
         return toString().length();
@@ -393,11 +409,14 @@ public class XNode {
     }
 
     private String toString(boolean pretty, int offset, int tabSize, boolean header) {
+        String tabs = getIndent(offset, tabSize);
+        if (isComment()) return printComment(pretty, tabs);
+        if (isCDATA()) return printCDATA(pretty, tabs);
+
         StringBuilder s = new StringBuilder(getInitialToStringSize());
         if (header) s.append(_header).append(newline);
-        String tabs = getIndent(offset, tabSize);
         if (pretty) s.append(tabs);
-        if (hasComments()) s.append(printComments(pretty, tabs));
+
         s.append("<").append(_name);
 
         if (_attributes != null) {
@@ -449,29 +468,6 @@ public class XNode {
     }
 
 
-//    public String toJSON() {
-//        StringBuilder s = new StringBuilder(getInitialToStringSize());
-//        s.append("{");
-//        s.append(quote(_name)).append(":");
-//        if (_attributes != null) {
-//            s.append("{ ");
-//            for (String key : _attributes.keySet()) {
-//                s.append(quote(key)).append(":");
-//                s.append(quote(_attributes.get(key))).append(",");
-//            }
-//        }
-//
-//        if (_children != null) {
-//            // do kids
-//        }
-//        if (_text != null) {
-//            s.append(quote(_text));
-//        }
-//        s.append("}");
-//        return s.toString();
-//    }
-
-
     private String getIndent(int offset, int tabSize) {
         int tabCount = _depth - offset;
         if (tabCount < 1) return "";
@@ -483,23 +479,30 @@ public class XNode {
     }
 
 
-    private String printComments(boolean pretty, String tabs) {
-        if (hasComments()) {
-            StringBuilder s = new StringBuilder(_comments.size() * 30);
-            for (String comment : _comments) {
-                if (pretty) s.append(tabs);
-                s.append("<!-- ").append(comment).append(" -->");
-                if (pretty) s.append(newline);
-            }
-            return s.toString();
-        }
-        return "";
+    private String printSpecialText(String head, String foot, boolean pretty, String tabs) {
+        StringBuilder s = new StringBuilder(_text.length() + 12);
+        if (pretty) s.append(tabs);
+        s.append(head).append(_text).append(foot);
+        if (pretty) s.append(newline);
+        return s.toString();
     }
 
 
-    private String quote(String s) {
-        StringBuilder sb = new StringBuilder(s.length() + 2);
-        return sb.append('\"').append(s).append('\"').toString();
+    private String printComment(boolean pretty, String tabs) {
+        return isComment() ? printSpecialText("<!-- ", " -->", pretty, tabs) : "";
+    }
+
+
+    private String printCDATA(boolean pretty, String tabs) {
+        return isCDATA() ? printSpecialText("<![CDATA[", "]]>", pretty, tabs) : "";
+    }
+
+    private void setContentType(ContentType cType) {
+        _contentType = cType;
+    }
+
+    private ContentType getContentType() {
+        return _contentType;
     }
 
 }
