@@ -37,6 +37,8 @@ import org.yawlfoundation.yawl.unmarshal.YDecompositionParser;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.io.IOException;
+import java.net.ConnectException;
+import java.text.MessageFormat;
 import java.util.*;
 
 
@@ -391,16 +393,34 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                     executePost(urlOfYawlService, paramsMap);
                 }
             }
+            catch (ConnectException ce) {
+                if (ADDWORKITEM_CMD.equals(_command)) {
+                    redirectWorkItem(true);
+                }
+            }
             catch (IOException e) {
 
+                if (ADDWORKITEM_CMD.equals(_command)) {
+                    redirectWorkItem(false);
+                }
+
                 // ignore broadcast announcements for missing services
-                if (! (ANNOUNCE_INIT_ENGINE.equals(_command) ||
+                else if (! (ANNOUNCE_INIT_ENGINE.equals(_command) ||
                        ANNOUNCE_CASE_CANCELLED.equals(_command) ||
                        ANNOUNCE_ITEM_STATUS.equals(_command))) {
-                    logger.error("failed to call YAWL service", e);
+                    logger.error("Failed to call YAWL service", e);
                     e.printStackTrace();
                 }
             }            
+        }
+
+        private void redirectWorkItem(boolean connect) {
+            logger.warn(MessageFormat.format(
+                    "Could not {0} YAWL Service at URL [{1}] to announce enabled workitem" +
+                    " [{2}]. Redirecting workitem to default worklist handler.",
+                    connect ? "connect to" : "find", _yawlService.getURI(),
+                    _workItem.getIDString()));
+            YEngine.getInstance().getAnnouncer().rejectAnnouncedEnabledTask(_workItem);
         }
     }
 }

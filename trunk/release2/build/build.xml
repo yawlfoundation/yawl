@@ -924,7 +924,7 @@
       	<copy todir="${temp.dir}/${worklet.app.name}/WEB-INF/lib">
     	    <fileset dir="${lib.dir}"
                    includes="${persistence.libs} ${xsd.libs} ${jdom} ${log4j}
-                             ${dbClient} ${saxon.libs} ${commonsLang}
+                             ${dbClient} ${saxon.libs} ${commonsLang} ${xerces}
     	    	             ${commonsCodec}"/>
         </copy>
 

@@ -73,7 +73,7 @@ public class JDOMUtil {
 
     /****************************************************************************/
 
-    public static Document stringToDocument(String s) {
+    public synchronized static Document stringToDocument(String s) {
         try {
             return (s != null) ? _builder.build(new StringReader(s)) : null ;
         }
@@ -96,7 +96,7 @@ public class JDOMUtil {
 
     /****************************************************************************/
 
-    public static Document fileToDocument(String path) {
+    public synchronized static Document fileToDocument(String path) {
         try {
             return (path != null) ? _builder.build(new File(path)) : null ;
         }
