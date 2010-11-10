@@ -242,11 +242,12 @@ public class rssFormViewer extends AbstractPageBean {
                 return "Incorrect password.";
             }
             if (! rm.hasOrgDataSource()) {
-                return "Missing or invalid organisational data source. The resource" +
-                           " service requires a connection to a valid data source" +
-                           " that contains organisational data. Please check the" +
-                           " settings in the service's web.xml to ensure a valid" +
-                           " data source is set.";
+                msgPanel.error("Missing or invalid organisational data source. The resource" +
+                               " service requires a connection to a valid data source" +
+                               " that contains organisational data. Please check the" +
+                               " settings of the 'OrgDataSource' parameter in the service's" +
+                               " web.xml to ensure a valid data source is set, and/or check" +
+                               " the configuration properties set for the data source.");
             }
             String handle = rm.login(userid, password, sb.getExternalSessionID());
             if (! rm.successful(handle)) {

@@ -32,8 +32,8 @@ import java.util.Hashtable;
 import java.util.List;
 
 /**
- * Author: Michael Adams
- * Creation Date: 14/11/2008
+ * @author Michael Adams
+ * @date 14/11/2008, 08/11/10 (non-human resources)
  */
 public class DataBackupEngine {
 
@@ -48,6 +48,7 @@ public class DataBackupEngine {
         result.append(exportPositions());
         result.append(exportCapabilities());
         result.append(exportOrgGroups());
+        result.append(exportNonHumanResources());
         result.append("</orgdata>");
         return result.toString();
     }
@@ -125,6 +126,8 @@ public class DataBackupEngine {
 
     private String exportOrgGroups() { return orgDataSet.getOrgGroupsAsXML(); }
 
+    private String exportNonHumanResources() { return orgDataSet.getNonHumanResourcesAsXML(); }
+
 
     private String importCapabilities(Element capElem) {
         String result = "Capabilities: 0 in imported file.";
@@ -147,6 +150,37 @@ public class DataBackupEngine {
             }
             else {
                 result = "Capabilities: could not import, external dataset is read-only.";
+            }
+        }
+        return result;
+    }
+
+
+    private String importNonHumanResources(Element nhrElem) {
+        String result = "NonHumanResources: 0 in imported file.";
+        if (nhrElem != null) {
+            if (orgDataSet.isDataEditable("NonHumanResources")) {
+                int added = 0;
+                List children = nhrElem.getChildren();
+                for (Object o : children) {
+                    Element nhr = (Element) o;
+                    String id = nhr.getAttributeValue("id");
+                    NonHumanResource r = orgDataSet.getNonHumanResource(id);
+                    if ((r == null) && (! orgDataSet.isKnownNonHumanResourceName(
+                            nhr.getChildText("name")))) {
+                        r = new NonHumanResource();
+                        r.fromXML(nhr);
+                        orgDataSet.importNonHumanResource(r);
+                        if (r.getCategory() != null) {
+                            orgDataSet.addNonHumanResourceSubCategory(r.getCategory(), r.getSubCategory());
+                        }
+                        added++;
+                    }
+                }
+                result = String.format("NonHumanResources: %d/%d imported.", added, children.size());
+            }
+            else {
+                result = "NonHumanResources: could not import, external dataset is read-only.";
             }
         }
         return result;

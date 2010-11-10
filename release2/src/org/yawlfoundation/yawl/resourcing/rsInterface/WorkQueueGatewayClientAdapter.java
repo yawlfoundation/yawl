@@ -457,6 +457,12 @@ public class WorkQueueGatewayClientAdapter {
     }
 
 
+    public String redirectWorkItemToYawlService(String itemID, String serviceName,
+                                                String handle)
+            throws IOException, ResourceGatewayException {
+            return successCheck(_wqclient.redirectWorkItemToYawlService(itemID,
+                    serviceName, handle));
+    }
 
     /********************************************************************************/
 

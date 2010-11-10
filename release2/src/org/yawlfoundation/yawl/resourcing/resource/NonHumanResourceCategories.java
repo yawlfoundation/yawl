@@ -42,7 +42,7 @@ public class NonHumanResourceCategories extends Hashtable<Long, TaggedStringList
 
 
     public long addCategory(String categoryName) {
-        if (getCategoryKey(categoryName) > -1) return -1;
+        if ((categoryName == null) || getCategoryKey(categoryName) > -1) return -1;
         long key = insert(categoryName, -1);
         put(key, new TaggedStringList(categoryName));
         return key;
@@ -50,6 +50,7 @@ public class NonHumanResourceCategories extends Hashtable<Long, TaggedStringList
 
 
     public boolean addSubCategory(String categoryName, String subCategoryName) {
+        if ((categoryName == null) || (subCategoryName == null)) return false;
         long key = getCategoryKey(categoryName);
         if (key == -1) {
             key = addCategory(categoryName);
@@ -59,6 +60,7 @@ public class NonHumanResourceCategories extends Hashtable<Long, TaggedStringList
 
 
     public boolean addSubCategory(long key, String subCategoryName) {
+        if (subCategoryName == null) return false;
         TaggedStringList subCategoryList = get(key);
         if ((subCategoryList != null) && (! subCategoryList.contains(subCategoryName))) {
             subCategoryList.add(subCategoryName);
@@ -70,7 +72,7 @@ public class NonHumanResourceCategories extends Hashtable<Long, TaggedStringList
 
 
     public boolean removeCategory(String category) {
-        return removeCategory(getCategoryKey(category));
+        return (category != null) && removeCategory(getCategoryKey(category));
     }
 
 
@@ -85,6 +87,7 @@ public class NonHumanResourceCategories extends Hashtable<Long, TaggedStringList
 
 
     public boolean removeSubCategory(long key, String subCategory) {
+        if (subCategory == null) return false;
         TaggedStringList subCategoryList = get(key);
         return (subCategoryList != null) && subCategoryList.remove(subCategory) &&
                (deleteSubCategory(key, subCategory) > 0);
@@ -92,9 +95,11 @@ public class NonHumanResourceCategories extends Hashtable<Long, TaggedStringList
 
 
     public long getCategoryKey(String category) {
-        for (long key : this.keySet()) {
-            if (get(key).getTag().equals(category)) {
-                return key;
+        if (category != null) {
+            for (long key : this.keySet()) {
+                if (get(key).getTag().equals(category)) {
+                    return key;
+                }    
             }
         }
         return -1;

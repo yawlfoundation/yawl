@@ -1074,9 +1074,9 @@ public class ResourceDataSet {
     public String getNonHumanResourcesAsXML() {
         Set<NonHumanResource> rList = new TreeSet<NonHumanResource>(nonHumanMap.values());
 
-        StringBuilder xml = new StringBuilder("<resources>") ;
+        StringBuilder xml = new StringBuilder("<nonhumanresources>") ;
         for (NonHumanResource r : rList) xml.append(r.toXML()) ;
-        xml.append("</resources>");
+        xml.append("</nonhumanresources>");
         return xml.toString() ;
     }
 

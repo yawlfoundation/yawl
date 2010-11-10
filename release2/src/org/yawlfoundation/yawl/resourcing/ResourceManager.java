@@ -174,6 +174,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private ResourceManager() {
         super();
         _resAdmin = ResourceAdministrator.getInstance() ;
+        _gatewayServer = new ResourceGatewayServer();
         _log = Logger.getLogger(getClass());
         _me = this ;
     }
@@ -223,12 +224,10 @@ public class ResourceManager extends InterfaceBWebsideController {
                                          engineURI.replaceFirst("/ib", "/logGateway"));
         if (exceptionURI != null) {
             _exceptionServiceURI = exceptionURI;
-            _gatewayServer = new ResourceGatewayServer();
             _gatewayServer.setExceptionInterfaceURI(exceptionURI + "/ix");
         }    
         if (schedulingURI != null) {
             _schedulingServiceURI = schedulingURI;
-            if (_gatewayServer == null) _gatewayServer = new ResourceGatewayServer();
             _gatewayServer.setSchedulingInterfaceURI(schedulingURI);
         }
     }
@@ -412,7 +411,17 @@ public class ResourceManager extends InterfaceBWebsideController {
                 _gatewayServer.announceResourceCalendarStatusChange(origAgent, changeXML);
         }
         catch (IOException ioe) {
-            _log.error("Failed to announce unavailable resource to environment", ioe);
+            _log.error("Failed to announce resource calendar status change to environment", ioe);
+        }
+    }
+
+    public void redirectWorkItemToYawlService(WorkItemRecord wir, String serviceURI) {
+        try {
+            if (_gatewayServer != null)
+                _gatewayServer.redirectWorkItemToYawlService(wir.toXML(), serviceURI);
+        }
+        catch (IOException ioe) {
+            _log.error("Failed to redirect workitem to YAWL Service", ioe);
         }
     }
 
@@ -3220,5 +3229,59 @@ public class ResourceManager extends InterfaceBWebsideController {
                                                      String taskName, String pid) {
         LogMiner miner = LogMiner.getInstance();
         return miner.getWorkItemDurationsForParticipant(specID, taskName, pid);
-    }    
+    }
+
+    /**
+     * Dispatches a work item to a YAWL Custom Service for handling.
+     * @param itemID the id of the work to be redirected.
+     * @param serviceName the name of the service to redirect it to
+     * @pre The item id refers to a work item that is currently in the list of items known
+     * to the Resource Service, and the work item has enabled or fired status
+     * @pre The service name refers to a service registered in the engine
+     * @pre The service is up and running
+     * @return a success or diagnostic error message
+     */
+    public String redirectWorkItemToYawlService(String itemID, String serviceName) {
+        String result;
+        WorkItemRecord wir = getWorkItemRecord(itemID);
+        if (wir != null) {
+            if (wir.isEnabledOrFired()) {
+                Set<YAWLServiceReference> serviceSet = getRegisteredServices();
+                if (serviceSet != null) {
+                    String serviceURI = null;
+                    for (YAWLServiceReference service : serviceSet) {
+                        if (service.getServiceName().equals(serviceName)) {
+                            serviceURI = service.getURI();
+                            break;
+                        }
+                    }
+                    if (serviceURI != null) {
+                        result = HttpURLValidator.validate(serviceURI);
+                        if (successful(result)) {
+                            try {
+                                if (_gatewayServer != null) {
+                                    _gatewayServer.redirectWorkItemToYawlService(wir.toXML(),
+                                        serviceURI);
+                                    removeFromAll(wir);
+                                }
+                                else result = fail("Gateway server unavailable");
+                            }
+                            catch (Exception e) {
+                                _log.error("Failed to redirect workitem: " + itemID, e);
+                                result = fail(e.getMessage());
+                            }
+                        }
+                    }
+                    else result = fail("Unknown or unregistered service name: " + serviceName);
+                }
+                else result = fail("Unable to load service references");
+            }
+            else result = fail("Only work items with enabled or fired status may be " +
+                    "redirected; work item [" + itemID + "] has status: " + wir.getStatus());
+        }
+        else result = fail("Unknown work item: " + itemID);
+
+        return result;
+    }
+
 }                                                                                  

@@ -472,6 +472,15 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
 
+    public String redirectWorkItemToYawlService(String itemID, String serviceName,
+                                                String handle) throws IOException {
+        params.clear();
+        params.put("workitemid", itemID) ;
+        params.put("serviceName", serviceName) ;
+        return performPost("redirectWorkItemToYawlService", params, handle) ;
+    }           
+
+
     /********************************************************************************/
 
     // SPEC AND INSTANCE ACTIONS //

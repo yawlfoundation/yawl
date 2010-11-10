@@ -361,8 +361,11 @@ public class WorkItemRecord implements Cloneable {
     public String getCustomFormURL() { return _customFormURL; }
 
     public boolean hasLiveStatus() {
-        return _status.equals(statusFired) || _status.equals(statusEnabled) ||
-               _status.equals(statusExecuting);
+        return isEnabledOrFired() || _status.equals(statusExecuting);
+    }
+
+    public boolean isEnabledOrFired() {
+        return _status.equals(statusEnabled) || _status.equals(statusFired);
     }
 
     public boolean hasStatus(String status) {
