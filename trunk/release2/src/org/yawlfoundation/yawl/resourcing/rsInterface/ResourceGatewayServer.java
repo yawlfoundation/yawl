@@ -110,6 +110,14 @@ public class ResourceGatewayServer extends Interface_Client {
     }
 
 
+    public void redirectWorkItemToYawlService(String wirXML, String serviceURI)
+            throws IOException {
+        Map<String, String> paramsMap = prepareParamMap("handleEnabledItem", null);
+        paramsMap.put("workItem", wirXML);
+        executePost(serviceURI, paramsMap);
+    }
+
+
     private Map<String, String> prepareParams(int action) {
         Map<String, String> params = new HashMap<String, String>();
         params.put("action", String.valueOf(action)) ;

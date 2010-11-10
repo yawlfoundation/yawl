@@ -382,6 +382,10 @@ public class WorkQueueGateway extends HttpServlet {
             _rm.sanitiseCaches();
             result = success;
         }
+        else if (action.equals("redirectWorkItemToYawlService")) {
+            String serviceName = req.getParameter("serviceName");
+            result = _rm.redirectWorkItemToYawlService(itemid, serviceName);
+        }
 
         // the following calls are convenience pass-throughs to engine interfaces A & B
 
