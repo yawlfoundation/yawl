@@ -140,6 +140,13 @@ public abstract class InterfaceBWebsideController {
 
 
     /**
+     * Receives notification from the engine that it has begun to shutdown. Override this
+     * method to handle outstanding engine tasks.
+     */
+    public void handleEngineShutdownEvent() { }
+
+
+    /**
      * Receives notification from the engine that the status of a workitem has been
      * modified. Override this method to handle any effects a status change might have
      * on a custom service
