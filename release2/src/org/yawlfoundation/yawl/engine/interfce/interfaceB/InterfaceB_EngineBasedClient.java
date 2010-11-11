@@ -64,6 +64,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     protected static final String ANNOUNCE_INIT_ENGINE =        "announceEngineInitialised";
     protected static final String ANNOUNCE_CASE_CANCELLED =     "announceCaseCancelled";
     protected static final String ANNOUNCE_ITEM_STATUS =        "announceItemStatus";
+    protected static final String ANNOUNCE_SHUTDOWN_ENGINE =    "announceEngineShutdown";
 
     /**
      * Indicates which protocol this shim services.<P>
@@ -233,7 +234,13 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * Called by the engine to announce shutdown of the engine's servlet container
      */
     public void shutdown() {
-    	// Nothing to do - Interface B Clients handle shutdown within their own servlet.
+        Set<YAWLServiceReference> services = YEngine.getInstance().getYAWLServices() ;
+        if (services != null) {
+            for (YAWLServiceReference service : services) {
+                Handler myHandler = new Handler(service, ANNOUNCE_SHUTDOWN_ENGINE);
+                myHandler.start();
+            }
+        }
     }
 
 
@@ -379,7 +386,8 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                     paramsMap.put("workItem", workItemXML);
                     executePost(urlOfYawlService, paramsMap);
                 }
-                else if (ANNOUNCE_INIT_ENGINE.equals(_command)) {
+                else if (ANNOUNCE_INIT_ENGINE.equals(_command) ||
+                         ANNOUNCE_SHUTDOWN_ENGINE.equals(_command)) {
                     String urlOfYawlService = _yawlService.getURI();
                     Map<String, String> paramsMap = prepareParamMap(_command, null);
                     executePost(urlOfYawlService, paramsMap);
