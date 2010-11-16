@@ -66,8 +66,12 @@ public class ServiceConnection {
     }
 
     public void resetActivityTimer() {
-        if (_activityTimer != null) _activityTimer.cancel();  // cancel old
+        cancelActivityTimer();                                // cancel old
         startActivityTimer();                                 // start new
+    }
+
+    public void cancelActivityTimer() {
+        if (_activityTimer != null) _activityTimer.cancel();  // cancel old
     }
 
     private class TimeOut extends TimerTask {

@@ -110,6 +110,9 @@ public class Persister implements Serializable {
     public void commit() { _db.commit(); }
 
 
+    public void closeDB() { _db.closeFactory(); }
+
+
     public Object selectScalar(String className, String id) {
        Object retObj = null ;
        if (className.endsWith("Participant"))

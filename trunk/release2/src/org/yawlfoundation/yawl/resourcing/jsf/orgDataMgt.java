@@ -489,7 +489,7 @@ public class orgDataMgt extends AbstractPageBean {
             }
             catch (Exception e) {
                 msgPanel.error("Could not remove chosen item. See log file for details.");
-                _log.error("Handled Exception: Unable to remove reosurce attribute", e);
+                _log.error("Handled Exception: Unable to remove resource attribute", e);
             }
             _sb.setOrgDataItemRemovedFlag(true) ;
             _sb.setOrgDataChoice(null);

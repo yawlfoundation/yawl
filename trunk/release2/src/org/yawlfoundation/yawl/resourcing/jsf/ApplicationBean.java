@@ -92,7 +92,7 @@ public class ApplicationBean extends AbstractApplicationBean {
     // GLOBAL COMPONENTS //
 
     public enum PageRef { adminQueues, caseMgt, customServices, dynForm,
-                          Login, orgDataMgt, participantData, selectUser,
+                          Login, orgDataMgt, nonHumanMgt, participantData, selectUser,
                           userWorkQueues, viewProfile, addInstance,
                           teamQueues, externalClients }
 

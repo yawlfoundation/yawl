@@ -191,6 +191,7 @@ public class HibernateEngine {
             tx = session.beginTransaction();
             Query query = session.createQuery(queryString);
             if (query != null) result = query.list();
+            tx.commit();
         }
         catch (JDBCConnectionException jce) {
             _log.error("Caught Exception: Couldn't connect to datasource - " +
@@ -250,6 +251,11 @@ public class HibernateEngine {
         catch (HibernateException he) {
             _log.error("Caught Exception: Error committing transaction", he);
         }
+    }
+
+
+    public void closeFactory() {
+        if (_factory != null) _factory.close();
     }
 
 

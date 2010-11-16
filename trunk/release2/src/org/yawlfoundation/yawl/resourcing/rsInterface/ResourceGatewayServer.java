@@ -62,8 +62,8 @@ public class ResourceGatewayServer extends Interface_Client {
     }
 
 
-    public boolean hasSchedulingListener() {
-        return _isURI != null;
+    public boolean hasSchedulingListener(String origOwner) {
+        return ! getSchedulingInterfaceListeners(origOwner).isEmpty();
     }
 
 
@@ -94,19 +94,23 @@ public class ResourceGatewayServer extends Interface_Client {
 
     public void announceResourceUnavailable(WorkItemRecord wir)
             throws IOException {
-        Map<String, String> params = prepareParams(NOTIFY_RESOURCE_UNAVAILABLE);
-        params.put("workItem", wir.toXML());
-        executePost(_ixURI, params);
+        if (hasExceptionListener()) {
+            Map<String, String> params = prepareParams(NOTIFY_RESOURCE_UNAVAILABLE);
+            params.put("workItem", wir.toXML());
+            executePost(_ixURI, params);
+        }
     }
 
 
     public void announceResourceCalendarStatusChange(String origOwner, String xml)
             throws IOException {
-        Map<String, String> params = prepareParams(NOTIFY_UTILISATION_STATUS_CHANGE);
-        params.put("xml", xml);
-        for (String listener : getSchedulingInterfaceListeners(origOwner)) {
-            executePost(listener, params);
-        }    
+        if (hasSchedulingListener(origOwner)) {
+            Map<String, String> params = prepareParams(NOTIFY_UTILISATION_STATUS_CHANGE);
+            params.put("xml", xml);
+            for (String listener : getSchedulingInterfaceListeners(origOwner)) {
+                executePost(listener, params);
+            }
+        }
     }
 
 

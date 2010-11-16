@@ -106,6 +106,10 @@ public class YSession {
      */
     public void refresh() { resetActivityTimer(); }
 
+    public void shutdown() {
+        cancelActivityTimer();
+    }
+
 
     /*****************************************************************/
     
@@ -126,10 +130,17 @@ public class YSession {
     }
 
     // restarts a timer
-    private void resetActivityTimer() {
-        if (_activityTimer != null) _activityTimer.cancel();  // cancel old timer
-        startActivityTimer();                                 // start new one
+    // synched to avoid a cancel before a schedule in rapid refresh() calls
+    private synchronized void resetActivityTimer() {
+        cancelActivityTimer();                                // cancel old timer
+        startActivityTimer();                                 // start new one 
     }
+
+    // cancels a timer (mainly for when the server shuts down)
+    public void cancelActivityTimer() {
+        if (_activityTimer != null) _activityTimer.cancel();
+    }
+
 
     // expires (removes) this active session. Called when a session timer expires.
     private class TimeOut extends TimerTask {

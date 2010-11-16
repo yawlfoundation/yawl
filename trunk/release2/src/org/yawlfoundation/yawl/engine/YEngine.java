@@ -304,6 +304,8 @@ public class YEngine implements InterfaceADesign,
     public void shutdown() {
         _sessionCache.shutdown();
         _announcer.shutdownObserverGateways();
+        YTimer.getInstance().cancelAll();
+        _factory.close();
     }
 
 
@@ -394,7 +396,7 @@ public class YEngine implements InterfaceADesign,
      * @param runner the runner to add
      * @param specification its specification
      */
-    public void addRunner(YNetRunner runner, YSpecification specification) {
+    public synchronized void addRunner(YNetRunner runner, YSpecification specification) {
         if (specification != null) {
             runner.setEngine(this);
             runner.restoreprepare();
@@ -701,9 +703,7 @@ public class YEngine implements InterfaceADesign,
     public synchronized Set<YIdentifier> getCasesForSpecification(YSpecificationID specID) {
         Set<YIdentifier> resultSet = new HashSet<YIdentifier>();
         if (_specifications.contains(specID)) {
-            Set<YIdentifier> caseIDs = _runningCaseIDToSpecMap.keySet();
-            for (YIdentifier caseID : caseIDs)
-            {
+            for (YIdentifier caseID : _runningCaseIDToSpecMap.keySet()) {
                 YSpecification specForCaseID = _runningCaseIDToSpecMap.get(caseID);
                 if (specForCaseID.getSpecificationID().equals(specID)) {
                     resultSet.add(caseID);
@@ -711,6 +711,28 @@ public class YEngine implements InterfaceADesign,
             }
         }
         return resultSet;
+    }
+
+
+    /**
+     * Gets the complete map of all running case ids, grouped by specification id
+     * @return a map of [YSpecificationID, List<Yidentifier>]
+     */
+    public synchronized Map<YSpecificationID, List<YIdentifier>> getRunningCaseMap() {
+        Map<YSpecificationID, List<YIdentifier>> caseMap =
+                new HashMap<YSpecificationID, List<YIdentifier>>();
+        List<YIdentifier> list;
+        for (YIdentifier caseID : _runningCaseIDToSpecMap.keySet()) {
+            YSpecification specForCaseID = _runningCaseIDToSpecMap.get(caseID);
+            YSpecificationID specID = specForCaseID.getSpecificationID();
+            list = caseMap.get(specID);
+            if (list == null) {
+                list = new ArrayList<YIdentifier>();
+                caseMap.put(specID, list);
+            }
+            list.add(caseID);
+        }
+        return caseMap;
     }
 
 
@@ -733,7 +755,7 @@ public class YEngine implements InterfaceADesign,
     }
 
 
-    protected YIdentifier startCase(YPersistenceManager pmgr,
+    protected synchronized YIdentifier startCase(YPersistenceManager pmgr,
                                     YSpecificationID specID, String caseParams,
                                     URI completionObserver, String caseID,
                                     YLogDataItemList logData, String serviceRef)
@@ -778,7 +800,7 @@ public class YEngine implements InterfaceADesign,
                     logData.add(new YLogDataItem("Predicate", "OnLaunch", predicate, "string"));
                 }            
             }
-            _yawllog.logCaseCreated(specID, runnerCaseID, logData, serviceRef);
+            _yawllog.logCaseCreated(pmgr, specID, runnerCaseID, logData, serviceRef);
 
             // cache instance
             instanceCache.addCase(runnerCaseID.toString(), specID, caseParams,
@@ -846,7 +868,8 @@ public class YEngine implements InterfaceADesign,
      * @param caseID the identifier of the cancelling case
      * @throws YPersistenceException if there's some persistence problem
      */
-    protected void cancelCase(YPersistenceManager pmgr, YIdentifier caseID, String serviceHandle)
+    protected synchronized void cancelCase(YPersistenceManager pmgr, YIdentifier caseID,
+                                           String serviceHandle)
             throws YPersistenceException {
         _logger.debug("--> cancelCase");
 
@@ -863,9 +886,10 @@ public class YEngine implements InterfaceADesign,
                 if (runner != null) runner.cancel(pmgr);
                 clearCase(pmgr, caseID);
                 _announcer.announceCaseCancellationToEnvironment(caseID);
-                _yawllog.logCaseCancelled(caseID, null, serviceHandle);
+                _yawllog.logCaseCancelled(pmgr, caseID, null, serviceHandle);
                 for (YWorkItem item : removedItems) {
-                    _yawllog.logWorkItemEvent(item, YWorkItemStatus.statusCancelledByCase, null);
+                    _yawllog.logWorkItemEvent(pmgr, item,
+                            YWorkItemStatus.statusCancelledByCase, null);
                 }
 
             } catch (YPersistenceException e) {
@@ -914,14 +938,14 @@ public class YEngine implements InterfaceADesign,
         cancelCase(id, null);
     }
 
-    public synchronized String launchCase(YSpecificationID specID, String caseParams,
+    public String launchCase(YSpecificationID specID, String caseParams,
                              URI completionObserver, YLogDataItemList logData)
             throws YStateException, YDataStateException, YSchemaBuildingException,
             YPersistenceException, YEngineStateException, YQueryException {
         return launchCase(specID, caseParams, completionObserver, null, logData, null);
     }
 
-    public synchronized String launchCase(YSpecificationID specID, String caseParams,
+    public String launchCase(YSpecificationID specID, String caseParams,
                              URI completionObserver, YLogDataItemList logData,
                              String serviceHandle)
             throws YStateException, YDataStateException, YSchemaBuildingException,
@@ -930,7 +954,7 @@ public class YEngine implements InterfaceADesign,
     }
 
 
-    public String launchCase(YSpecificationID specID, String caseParams,
+    public synchronized String launchCase(YSpecificationID specID, String caseParams,
                              URI completionObserver, String caseID,
                              YLogDataItemList logData, String serviceHandle)
                                  throws YStateException, YDataStateException, YEngineStateException,
@@ -1152,8 +1176,8 @@ public class YEngine implements InterfaceADesign,
     /**
      * @return the next available case number.
      */
-    public String getNextCaseNbr() {
-        return _caseNbrStore.getNextCaseNbr();
+    public String getNextCaseNbr(YPersistenceManager pmgr) {
+        return _caseNbrStore.getNextCaseNbr(pmgr);
     }
 
 
@@ -1170,7 +1194,7 @@ public class YEngine implements InterfaceADesign,
             throw new YPersistenceException(
                     "Pre-allocated CaseIDs are not available in a persisting engine instance");
         }
-        return YCaseNbrStore.getInstance().getNextCaseNbr();
+        return YCaseNbrStore.getInstance().getNextCaseNbr(null);
     }
 
     /**
@@ -1601,104 +1625,103 @@ public class YEngine implements InterfaceADesign,
      *                completion
      * @throws YStateException
      */
-    public void completeWorkItem(YWorkItem workItem, String data, String logPredicate, boolean force)
+    public synchronized void completeWorkItem(YWorkItem workItem, String data,
+                                              String logPredicate, boolean force)
             throws YStateException, YDataStateException, YQueryException,
-                   YSchemaBuildingException, YPersistenceException, YEngineStateException{
+            YSchemaBuildingException, YPersistenceException, YEngineStateException{
 
-        synchronized (mutex) {
-            if (getEngineStatus() != ENGINE_STATUS_RUNNING) {
-                throw new YEngineStateException(
-                        "Unable to accept request as engine not in correct state: Current state = "
-                                + getEngineStatus());
-            }
-            debug("--> completeWorkItem", "\nWorkItem = ",
-                    workItem.getWorkItemID().getUniqueID(), "\nXML = ", data);
+        if (getEngineStatus() != ENGINE_STATUS_RUNNING) {
+            throw new YEngineStateException(
+                    "Unable to accept request as engine not in correct state: Current state = "
+                            + getEngineStatus());
+        }
+        debug("--> completeWorkItem", "\nWorkItem = ",
+                workItem.getWorkItemID().getUniqueID(), "\nXML = ", data);
 
-            YPersistenceManager pmgr = getPersistenceSession();
-            YNetRunner netRunner = null;
-            try {
-                if (force) data = mapOutputDataForSkippedWorkItem(workItem);
+        YPersistenceManager pmgr = getPersistenceSession();
+        YNetRunner netRunner = null;
+        try {
+            if (force) data = mapOutputDataForSkippedWorkItem(workItem);
 
-                if (workItem != null) {
-                    if (workItem.getStatus().equals(YWorkItemStatus.statusExecuting)) {
-                        netRunner = _workItemRepository.getNetRunner(
-                                workItem.getCaseID().getParent());
+            if (workItem != null) {
+                if (workItem.getStatus().equals(YWorkItemStatus.statusExecuting)) {
+                    netRunner = _workItemRepository.getNetRunner(
+                            workItem.getCaseID().getParent());
 
-                        if (_announcer.hasInterfaceXListeners()) {
-                            if (netRunner.isTimeServiceTask(workItem)) {
-                                List timeOutSet = netRunner.getTimeOutTaskSet(workItem);
-                                _announcer.announceTimeServiceExpiry(workItem, timeOutSet);
-                            }
+                    if (_announcer.hasInterfaceXListeners()) {
+                        if (netRunner.isTimeServiceTask(workItem)) {
+                            List timeOutSet = netRunner.getTimeOutTaskSet(workItem);
+                            _announcer.announceTimeServiceExpiry(workItem, timeOutSet);
                         }
-                        Document doc = JDOMUtil.stringToDocument(data);
-                        workItem.setLogPredicateCompletion(logPredicate);
-                        workItem.setStatusToComplete(pmgr, force);
-                        workItem.completeData(pmgr, doc);
+                    }
+                    Document doc = JDOMUtil.stringToDocument(data);
+                    workItem.setLogPredicateCompletion(logPredicate);
+                    workItem.setStatusToComplete(pmgr, force);
+                    workItem.completeData(pmgr, doc);
 
-                        boolean taskExited = netRunner.completeWorkItemInTask(pmgr,
-                                workItem, workItem.getCaseID(), workItem.getTaskID(), doc);
-                        if (taskExited) {
+                    boolean taskExited = netRunner.completeWorkItemInTask(pmgr,
+                            workItem, workItem.getCaseID(), workItem.getTaskID(), doc);
+                    if (taskExited) {
 
-                            /* Calling this to fix a problem.
-                      * When a Task is enabled twice by virtue of having two enabling sets of
-                      * tokens in the current marking the work items are not created twice.
-                      * Instead an Enabled work item is created for one of the enabling sets.
-                      * Once that task has well and truly finished it is then an appropriate
-                      * time to notify the worklists that it is enabled again.
-                      * This is done by calling continueIfPossible().*/
-                            _logger.debug("Recalling continue (looping bugfix???)");
-                            netRunner.continueIfPossible(pmgr);
-                        }
-                        instanceCache.closeWorkItem(workItem, doc);
+                        /* Calling this to fix a problem.
+                  * When a Task is enabled twice by virtue of having two enabling sets of
+                  * tokens in the current marking the work items are not created twice.
+                  * Instead an Enabled work item is created for one of the enabling sets.
+                  * Once that task has well and truly finished it is then an appropriate
+                  * time to notify the worklists that it is enabled again.
+                  * This is done by calling continueIfPossible().*/
+                        _logger.debug("Recalling continue (looping bugfix???)");
+                        netRunner.continueIfPossible(pmgr);
+                    }
+                    instanceCache.closeWorkItem(workItem, doc);
 
-                        // remove any active timer for this item 
-                        YTimer.getInstance().cancelTimerTask(workItem.getParent().getIDString());
+                    // remove any active timer for this item
+                    YTimer.getInstance().cancelTimerTask(workItem.getParent().getIDString());
 
-                        /**
-                         * If case is suspending, see if we can progress into a fully suspended state
-                         */
-                        if (netRunner.getCasedata().getExecutionState() == YCaseData.SUSPEND_STATUS_SUSPENDING)
-                        {
-                            progressCaseSuspension(pmgr, workItem.getParent().getCaseID());
-                        }
-
-                    } else if (workItem.getStatus().equals(YWorkItemStatus.statusDeadlocked)) {
-                        _workItemRepository.removeWorkItemFamily(workItem);
-                    } else {
-                        throw new YStateException("WorkItem with ID [" + workItem.getIDString() +
-                                "] not in executing state.");
+                    /**
+                     * If case is suspending, see if we can progress into a fully suspended state
+                     */
+                    if (netRunner.getCasedata().getExecutionState() == YCaseData.SUSPEND_STATUS_SUSPENDING)
+                    {
+                        progressCaseSuspension(pmgr, workItem.getParent().getCaseID());
                     }
 
-                    // COMMIT POINT
-                    if (pmgr != null) pmgr.commit();
-                    if (netRunner != null) announceEvents(netRunner.getCaseID());
-                }
-                else {
-                    if (pmgr != null) pmgr.rollbackTransaction();
-                    throw new YStateException("WorkItem argument is equal to null.");
-                }
-            }
-            catch (YAWLException ye) {
-                if (pmgr != null) pmgr.rollbackTransaction();
-                ye.rethrow();
-            }
-            catch (Exception e) {
-                if (pmgr != null) pmgr.rollbackTransaction();
-
-                if (e instanceof IllegalArgumentException) {
-                    e.printStackTrace();
-                    throw new YSchemaBuildingException(StringUtil.convertThrowableToString(e));
+                } else if (workItem.getStatus().equals(YWorkItemStatus.statusDeadlocked)) {
+                    _workItemRepository.removeWorkItemFamily(workItem);
                 } else {
-                    e.printStackTrace();
-                    throw new YSchemaBuildingException(StringUtil.convertThrowableToString(e));
+                    throw new YStateException("WorkItem with ID [" + workItem.getIDString() +
+                            "] not in executing state.");
                 }
+
+                // COMMIT POINT
+                if (pmgr != null) pmgr.commit();
+                if (netRunner != null) announceEvents(netRunner.getCaseID());
             }
-            debug("<-- completeWorkItem");
+            else {
+                if (pmgr != null) pmgr.rollbackTransaction();
+                throw new YStateException("WorkItem argument is equal to null.");
+            }
         }
+        catch (YAWLException ye) {
+            if (pmgr != null) pmgr.rollbackTransaction();
+            ye.rethrow();
+        }
+        catch (Exception e) {
+            if (pmgr != null) pmgr.rollbackTransaction();
+
+            if (e instanceof IllegalArgumentException) {
+                e.printStackTrace();
+                throw new YSchemaBuildingException(StringUtil.convertThrowableToString(e));
+            } else {
+                e.printStackTrace();
+                throw new YSchemaBuildingException(StringUtil.convertThrowableToString(e));
+            }
+        }
+        debug("<-- completeWorkItem");
     }
 
 
-    public YWorkItem skipWorkItem(YWorkItem workItem, YClient client)
+    public synchronized YWorkItem skipWorkItem(YWorkItem workItem, YClient client)
             throws YStateException, YDataStateException,
                    YQueryException, YSchemaBuildingException,
                    YPersistenceException, YEngineStateException {
@@ -1718,7 +1741,7 @@ public class YEngine implements InterfaceADesign,
     }
 
 
-    private String mapOutputDataForSkippedWorkItem(YWorkItem workItem) {
+    private synchronized String mapOutputDataForSkippedWorkItem(YWorkItem workItem) {
 
         // get input and output params for task
         YSpecificationID specID = workItem.getSpecificationID();
@@ -1941,10 +1964,9 @@ public class YEngine implements InterfaceADesign,
 
        /** cancels the workitem - marks final status as 'failed' if statusFail is true,
      *  or 'cancelled' if it is false */
-    public void cancelWorkItem(YWorkItem workItem, boolean statusFail)  {
-         synchronized (mutex) {
-             try {
-                if (workItem != null) {
+       public synchronized void cancelWorkItem(YWorkItem workItem, boolean statusFail)  {
+           try {
+               if (workItem != null) {
                    if (workItem.getStatus().equals(YWorkItemStatus.statusExecuting)) {
                        YIdentifier caseID = workItem.getCaseID().getParent() ;
                        YNetRunner runner = _workItemRepository.getNetRunner(caseID);
@@ -1960,13 +1982,12 @@ public class YEngine implements InterfaceADesign,
                        if (pmgr != null) pmgr.commit();
                        announceEvents(runner.getCaseID());
                    }
-                }
-             }
-             catch (Exception e) {
-                _logger.error("Failure whilst persisting workitem cancellation", e);
-             }
-        }
-   }
+               }
+           }
+           catch (Exception e) {
+               _logger.error("Failure whilst persisting workitem cancellation", e);
+           }
+       }
 
     /*********************************************************************/
 
@@ -2249,7 +2270,7 @@ public class YEngine implements InterfaceADesign,
      * @param id the case id to clear
      * @throws YPersistenceException if there's a problem clearing the case
      */
-    private void clearCaseDelegate(YPersistenceManager pmgr, YIdentifier id)
+    private synchronized void clearCaseDelegate(YPersistenceManager pmgr, YIdentifier id)
                                                         throws YPersistenceException {
 
         debug("--> clearCaseDelegate: CaseID = ", id.get_idString());
@@ -2292,7 +2313,7 @@ public class YEngine implements InterfaceADesign,
     }
 
 
-    private YPersistenceManager getPersistenceSession() throws YPersistenceException {
+    protected YPersistenceManager getPersistenceSession() throws YPersistenceException {
         YPersistenceManager pmgr = null ;
         if (isPersisting()) {
             pmgr = new YPersistenceManager(getPMSessionFactory());
@@ -2309,7 +2330,7 @@ public class YEngine implements InterfaceADesign,
      * @param caseID - the caseID for this case
      * @throws YPersistenceException if there's some persistence problem
      */
-    private void clearWorkItemsFromPersistence(YPersistenceManager pmgr,
+    private synchronized void clearWorkItemsFromPersistence(YPersistenceManager pmgr,
                                                YIdentifier caseID)
                                                throws YPersistenceException{
 

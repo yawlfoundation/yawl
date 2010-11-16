@@ -200,6 +200,7 @@ public class YSessionCache extends Hashtable<String, YSession> {
     public void shutdown() {
         for (YSession session : this.values()) {
             audit(session.getClient().getUserName(), YAuditEvent.Action.shutdown);
+            session.shutdown();
         }
     }
 
