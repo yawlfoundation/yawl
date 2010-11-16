@@ -633,6 +633,13 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     }
 
 
+    public String getAllRunningCases(String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("getAllRunningCases",
+                                                      sessionHandle);
+        return executeGet(_backEndURIStr, params);
+    }
+
+
     /**
      * Gets the state description of the case
      * @param caseID the case id.

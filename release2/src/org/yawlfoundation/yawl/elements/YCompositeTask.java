@@ -101,7 +101,7 @@ public final class YCompositeTask extends YTask {
             }
         }
 
-        YEventLogger.getInstance().logSubNetCreated(specID, netRunner, 
+        YEventLogger.getInstance().logSubNetCreated(pmgr, specID, netRunner,
                                                     this.getID(), logData);
         netRunner.continueIfPossible(pmgr);
         netRunner.start(pmgr);
@@ -118,7 +118,7 @@ public final class YCompositeTask extends YTask {
                 if (netRunner != null) {
                     for (YWorkItem item : netRunner.cancel(pmgr)) {
                         item.cancel(pmgr);
-                        YEventLogger.getInstance().logWorkItemEvent(item,
+                        YEventLogger.getInstance().logWorkItemEvent(pmgr, item,
                                 YWorkItemStatus.statusDeleted, null);
                         YEngine.getInstance().getAnnouncer().announceCancelledWorkItem(item);
 

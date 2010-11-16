@@ -54,10 +54,14 @@ public class YIdentifier {
     public YIdentifier() { }                       // only for hibernate
 
     public YIdentifier(String idString) {
-        _idString = (idString != null) ? idString : YEngine.getInstance().getNextCaseNbr();
+        this(null, idString);
     }
 
-    
+
+    public YIdentifier(YPersistenceManager pmgr, String idString) {
+        _idString = (idString != null) ? idString : YEngine.getInstance().getNextCaseNbr(pmgr);
+    }
+
 
     public String getId() {
         return id;

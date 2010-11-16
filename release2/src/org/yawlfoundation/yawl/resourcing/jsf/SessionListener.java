@@ -56,7 +56,7 @@ public class SessionListener implements HttpSessionListener {
             handleSessionTimeout(session);
         }
         catch(Exception e) {
-            _log.error("Error while logging out at session destroyed : ", e) ;
+            _log.error("Error while adding expired session audit event on session destroyed.") ;
         }
     }
 

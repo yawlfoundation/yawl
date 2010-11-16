@@ -168,6 +168,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private InterfaceA_EnvironmentBasedClient _interfaceAClient ;
     private YLogGatewayClient _interfaceEClient;
     private ResourceGatewayServer _gatewayServer;
+    private InterfaceProxy _proxy;
 
 
     // Constructor - called exclusively by getInstance()
@@ -1816,11 +1817,11 @@ public class ResourceManager extends InterfaceBWebsideController {
     private void cleanCaches() {
         Set<String> liveCases = getAllRunningCaseIDs();
         if ((liveCases != null) && (! liveCases.isEmpty())) {
-            List<String> caseIDs = new ArrayList(_chainedCases.keySet());
+            List<String> caseIDs = new ArrayList<String>(_chainedCases.keySet());
             for (String id : caseIDs) {
                 if (! liveCases.contains(id)) _chainedCases.remove(id);
             }
-            List<WorkItemRecord> wirList = new ArrayList(_workItemCache.values());
+            List<WorkItemRecord> wirList = new ArrayList<WorkItemRecord>(_workItemCache.values());
             for (WorkItemRecord wir : wirList) {
                 if (! liveCases.contains(wir.getRootCaseID())) _workItemCache.remove(wir);
             }
@@ -2366,6 +2367,8 @@ public class ResourceManager extends InterfaceBWebsideController {
             for (CodeletRunner runner : _codeletRunners.values()) {
                 runner.shutdown();
             }
+            _persister.closeDB();
+            if (_orgDataRefreshTimer != null) _orgDataRefreshTimer.cancel();
         }
         catch (Exception e) {
             _log.error("Unsuccessful audit log update on shutdown.");
@@ -2443,17 +2446,45 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
+//    public Set<String> getAllRunningCaseIDs() {
+//        Set<String> result = new HashSet<String>();
+//        Set<SpecificationData> specDataSet = getSpecList() ;
+//        if (specDataSet != null) {
+//            for (SpecificationData specData : specDataSet) {
+//                List<String> caseIDs = getRunningCasesAsList(specData.getID());
+//                if (caseIDs != null)
+//                    result.addAll(caseIDs) ;
+//            }
+//        }
+//        return result ;
+//    }
+
+
     public Set<String> getAllRunningCaseIDs() {
-        Set<String> result = new HashSet<String>(); 
-        Set<SpecificationData> specDataSet = getSpecList() ;
-        if (specDataSet != null) {
-            for (SpecificationData specData : specDataSet) {
-                List<String> caseIDs = getRunningCasesAsList(specData.getID());
-                if (caseIDs != null)
-                    result.addAll(caseIDs) ;
+        Set<String> result = new HashSet<String>();
+        XNode node = getAllRunningCases();
+        if (node != null) {
+            for (XNode specNode : node.getChildren()) {
+                for (XNode caseNode : specNode.getChildren()) {
+                    result.add(caseNode.getText());
+                }
             }
         }
         return result ;
+    }
+
+
+    public XNode getAllRunningCases() {
+        try {
+            String caseStr = _interfaceBClient.getAllRunningCases(getEngineSessionHandle());
+            if (successful(caseStr)) {
+                return new XNodeParser().parse(StringUtil.unwrap(caseStr));
+            }
+        }
+        catch (IOException ioe) {
+            _log.error("Could not get Running Case list: ", ioe);
+        }
+        return null;
     }
 
     
@@ -3244,37 +3275,27 @@ public class ResourceManager extends InterfaceBWebsideController {
     public String redirectWorkItemToYawlService(String itemID, String serviceName) {
         String result;
         WorkItemRecord wir = getWorkItemRecord(itemID);
-        if (wir != null) {
-            if (wir.isEnabledOrFired()) {
-                Set<YAWLServiceReference> serviceSet = getRegisteredServices();
-                if (serviceSet != null) {
-                    String serviceURI = null;
-                    for (YAWLServiceReference service : serviceSet) {
-                        if (service.getServiceName().equals(serviceName)) {
-                            serviceURI = service.getURI();
-                            break;
-                        }
-                    }
-                    if (serviceURI != null) {
-                        result = HttpURLValidator.validate(serviceURI);
-                        if (successful(result)) {
-                            try {
-                                if (_gatewayServer != null) {
-                                    _gatewayServer.redirectWorkItemToYawlService(wir.toXML(),
+        if (wir != null) {                                       // wir exists...
+            if (wir.isEnabledOrFired()) {                        // and has right status
+                String serviceURI = getServiceURI(serviceName);
+                if (serviceURI != null) {                            // service exists...
+                    result = HttpURLValidator.validate(serviceURI);
+                    if (successful(result)) {                        // and is online
+                        try {
+                            if (_gatewayServer != null) {
+                                _gatewayServer.redirectWorkItemToYawlService(wir.toXML(),
                                         serviceURI);
-                                    removeFromAll(wir);
-                                }
-                                else result = fail("Gateway server unavailable");
+                                removeFromAll(wir);
                             }
-                            catch (Exception e) {
-                                _log.error("Failed to redirect workitem: " + itemID, e);
-                                result = fail(e.getMessage());
-                            }
+                            else result = fail("Gateway server unavailable");
+                        }
+                        catch (Exception e) {
+                            _log.error("Failed to redirect workitem: " + itemID, e);
+                            result = fail(e.getMessage());
                         }
                     }
-                    else result = fail("Unknown or unregistered service name: " + serviceName);
                 }
-                else result = fail("Unable to load service references");
+                else result = fail("Unknown or unregistered service name: " + serviceName);
             }
             else result = fail("Only work items with enabled or fired status may be " +
                     "redirected; work item [" + itemID + "] has status: " + wir.getStatus());
@@ -3282,6 +3303,47 @@ public class ResourceManager extends InterfaceBWebsideController {
         else result = fail("Unknown work item: " + itemID);
 
         return result;
+    }
+
+
+    private String getServiceURI(String serviceName) {
+        Set<YAWLServiceReference> serviceSet = getRegisteredServices();
+        if (serviceSet != null) {
+            for (YAWLServiceReference service : serviceSet) {
+                if (service.getServiceName().equals(serviceName)) {
+                    return service.getURI();
+                }
+            }
+        }
+        return null;
+    }
+
+
+    private Object ibCall(String mName, Object... args) throws IOException {
+        if (_proxy == null) {
+            _proxy = new InterfaceProxy(_interfaceBClient);            
+        }
+        try {
+            if (_engineSessionHandle == null) {
+                 _engineSessionHandle = connect(_engineUser, _enginePassword);
+            }
+            Object[] argsWithHandle = new Object[args.length + 1];
+            System.arraycopy(args, 0, argsWithHandle, 0, args.length);
+            argsWithHandle[args.length] = _engineSessionHandle;
+            return _proxy.call(mName, argsWithHandle);
+        }
+        catch (InterfaceProxyException ipe) {
+            if (ipe.getMessage().equals("Inactive session")) {
+                try {
+                    _engineSessionHandle = connect(_engineUser, _enginePassword);
+                }
+                catch (IOException ioe) {
+                    return null;
+                }
+                return ibCall(mName, args);
+            }
+        }
+        return null;
     }
 
 }                                                                                  

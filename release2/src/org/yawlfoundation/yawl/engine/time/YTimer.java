@@ -75,6 +75,16 @@ public class YTimer extends Timer {
     }
 
 
+    public void cancelAll() {
+
+        // avoid concurrency issues
+        Set<String> timedIDs = new HashSet<String>(_runners.keySet());
+        for (String id : timedIDs) {
+            cancelTimerTask(id);
+        }
+    }
+
+
     // both methods return a long value of the date/time stamp representing
     // the expiry time
 

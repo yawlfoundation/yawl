@@ -24,6 +24,7 @@ import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 
@@ -35,15 +36,15 @@ import java.util.*;
  * 
  */
 public class YWorkItemRepository {
-    private static Map<String, YWorkItem> _idStringToWorkItemsMap; //[case&taskIDStr=YWorkItem]
-    protected static Map<YIdentifier, YNetRunner> _caseToNetRunnerMap;
+    private static ConcurrentHashMap<String, YWorkItem> _idStringToWorkItemsMap; //[case&taskIDStr=YWorkItem]
+    protected static ConcurrentHashMap<YIdentifier, YNetRunner> _caseToNetRunnerMap;
     private static YWorkItemRepository _myInstance;
     private static final Logger logger = Logger.getLogger(YWorkItemRepository.class);
 
 
     private YWorkItemRepository() {
-        _idStringToWorkItemsMap = new HashMap<String, YWorkItem>();
-        _caseToNetRunnerMap = new HashMap<YIdentifier, YNetRunner>();
+        _idStringToWorkItemsMap = new ConcurrentHashMap<String, YWorkItem>();
+        _caseToNetRunnerMap = new ConcurrentHashMap<YIdentifier, YNetRunner>();
     }
 
 
@@ -58,7 +59,7 @@ public class YWorkItemRepository {
     //mutators
     protected void addNewWorkItem(YWorkItem workItem) {
         logger.debug("--> addNewWorkItem: " + workItem.getIDString());
-        _idStringToWorkItemsMap.put(workItem.getIDString(), workItem);
+        _idStringToWorkItemsMap.putIfAbsent(workItem.getIDString(), workItem);
         YEngine.getInstance().getInstanceCache().addWorkItem(workItem);
     }
 
@@ -92,13 +93,13 @@ public class YWorkItemRepository {
 
     // look up tables to find netrunners
     public void setNetRunnerToCaseIDBinding(YNetRunner netRunner, YIdentifier caseID) {
-        _caseToNetRunnerMap.put(caseID, netRunner);
+        _caseToNetRunnerMap.putIfAbsent(caseID, netRunner);
     }
 
 
     protected void clear() {
-        _idStringToWorkItemsMap = new HashMap<String, YWorkItem>();
-        _caseToNetRunnerMap = new HashMap<YIdentifier, YNetRunner>();
+        _idStringToWorkItemsMap = new ConcurrentHashMap<String, YWorkItem>();
+        _caseToNetRunnerMap = new ConcurrentHashMap<YIdentifier, YNetRunner>();
     }
 
 

@@ -237,6 +237,9 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                 else if (action.equals("getLiveItems")) {
                     msg.append(_engine.describeAllWorkItems(sessionHandle));
                 }
+                else if (action.equals("getAllRunningCases")) {
+                    msg.append(_engine.getAllRunningCases(sessionHandle));
+                }
                 else if (action.equals("getWorkItemsWithIdentifier")) {
                     String idType = request.getParameter("idType");
                     String id = request.getParameter("id");

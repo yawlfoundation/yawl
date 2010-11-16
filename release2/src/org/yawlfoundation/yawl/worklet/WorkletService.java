@@ -233,6 +233,11 @@ public class WorkletService extends InterfaceBWebsideController {
         if ((_persisting) && (! restored)) restoreDataSets();
     }
 
+    
+    public void shutdown() {
+        if (_dbMgr != null) _dbMgr.closeFactory();
+    }
+
 //***************************************************************************//
 
 /************************************ 

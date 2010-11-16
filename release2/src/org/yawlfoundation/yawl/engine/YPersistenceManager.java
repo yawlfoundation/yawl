@@ -139,6 +139,7 @@ public class YPersistenceManager {
         }
     }
 
+
     /**
      * Start a new Hibernate session.
      *
@@ -146,7 +147,7 @@ public class YPersistenceManager {
      */
     public void startTransactionalSession() throws YPersistenceException {
         try {
-            session = getFactory().openSession();
+            session = getFactory().getCurrentSession();
             transaction = session.beginTransaction();
         } catch (HibernateException e) {
             logger.fatal("Failure to start transactional session", e);
@@ -167,6 +168,8 @@ public class YPersistenceManager {
             doPersistAction(obj, INSERT);
         }
     }
+
+
 
 
     /**

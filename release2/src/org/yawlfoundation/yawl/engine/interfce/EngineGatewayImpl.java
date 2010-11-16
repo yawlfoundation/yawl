@@ -640,6 +640,25 @@ public class EngineGatewayImpl implements EngineGateway {
     }
 
 
+    public String getAllRunningCases(String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        Map<YSpecificationID, List<YIdentifier>> caseMap = _engine.getRunningCaseMap();
+        XNode node = new XNode("AllRunningCases");
+        for (YSpecificationID specID : caseMap.keySet()) {
+            XNode idNode = node.addChild("specificationID");
+            idNode.addAttribute("identifier", specID.getIdentifier());
+            idNode.addAttribute("version", specID.getVersionAsString());
+            idNode.addAttribute("uri", specID.getUri());
+            for (YIdentifier caseID : caseMap.get(specID)) {
+                idNode.addChild("caseID", caseID);
+            }
+        }
+        return node.toString();
+    }
+
+
     /**
      * This method returns a complex XML message containing the state of a particular
      * case.  i.e. every token (identifier) and its position in every

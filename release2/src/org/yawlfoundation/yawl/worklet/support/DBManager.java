@@ -97,6 +97,10 @@ public class DBManager {
     }
 
 
+    public void closeFactory() {
+        if (_factory != null) _factory.close();
+    }
+
     /** iterates through all tables in cfg, tests that they physically exist */
     private boolean allTablesExist() {
 

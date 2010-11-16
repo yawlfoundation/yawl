@@ -71,20 +71,20 @@ public class YCaseNbrStore {
 
 
     /** @return the next available case number (as a String) */
-    public String getNextCaseNbr() {
+    public String getNextCaseNbr(YPersistenceManager pmgr) {
         String result = String.valueOf(++caseNbr);
-        if (persisting) persistThis() ;
+        if (persisting) persistThis(pmgr) ;
         return result;
     }
 
 
     /** persist the current case number */
-    private void persistThis() {
+    private void persistThis(YPersistenceManager pmgr) {
         try {
             if (persisted)
-                YEngine.getInstance().updateObject(this);
+                updateThis(pmgr);
             else {
-                YEngine.getInstance().storeObject(this);
+                storeThis(pmgr);
                 persisted = true ;
             }
         }
@@ -92,4 +92,19 @@ public class YCaseNbrStore {
             log.error("Could not persist case number.", ype) ;
         }
     }
+
+    private void updateThis(YPersistenceManager pmgr) throws YPersistenceException {
+        if (pmgr != null) {
+            pmgr.updateObject(this);
+        }
+        else YEngine.getInstance().updateObject(this);
+    }
+
+    private void storeThis(YPersistenceManager pmgr) throws YPersistenceException {
+        if (pmgr != null) {
+            pmgr.storeObject(this);
+        }
+        else YEngine.getInstance().storeObject(this);
+    }
+
 }

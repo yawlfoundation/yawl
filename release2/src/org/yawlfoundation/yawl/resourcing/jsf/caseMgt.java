@@ -42,7 +42,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeSet;
 
 /**
@@ -690,19 +689,17 @@ public class caseMgt extends AbstractPageBean {
 
     // refreshes list of running cases
     private void updateRunningCaseList() {
-        Set<SpecificationData> specDataSet = _rm.getSpecList() ;
-        if (specDataSet != null) {
-            ArrayList<String> caseList = new ArrayList<String>();
-            for (SpecificationData specData : specDataSet) {
-                List<String> caseIDs = _rm.getRunningCasesAsList(specData.getID());
-                if (caseIDs != null) {
-                    for (String caseID : caseIDs) {
-                        String line = String.format("%s: %s (%s)", caseID,
-                                                    specData.getID().getUri(),
-                                                    specData.getSpecVersion());
-                        caseList.add(line) ;
-                    }    
-                }
+        XNode node = _rm.getAllRunningCases();
+        ArrayList<String> caseList = new ArrayList<String>();
+        if (node != null) {
+            for (XNode specNode : node.getChildren()) {
+                 for (XNode caseID : specNode.getChildren()) {
+                     String line = String.format("%s: %s (%s)", caseID.getText(),
+                                                 specNode.getAttributeValue("uri"),
+                                                 specNode.getAttributeValue("version"));
+                     caseList.add(line) ;
+
+                 }
             }
 
             // sort the list using a treeset

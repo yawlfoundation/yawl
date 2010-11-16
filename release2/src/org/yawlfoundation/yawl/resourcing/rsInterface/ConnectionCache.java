@@ -130,7 +130,8 @@ public class ConnectionCache extends Hashtable<String, ServiceConnection> {
 
     public void shutdown() {
         for (ServiceConnection con : this.values()) {
-            EventLogger.audit(con.getUserID(), EventLogger.audit.shutdown);            
+            EventLogger.audit(con.getUserID(), EventLogger.audit.shutdown);
+            con.cancelActivityTimer();
         }
     }
 

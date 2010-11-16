@@ -78,6 +78,11 @@ public class WorkletGateway extends HttpServlet {
     }
 
 
+    public void destroy() {
+        WorkletService.getInstance().shutdown();
+    }
+
+
     public void doPost(HttpServletRequest req, HttpServletResponse res)
                                 throws IOException, ServletException {
         String result = "";

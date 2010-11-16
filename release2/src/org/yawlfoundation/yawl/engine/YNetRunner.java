@@ -101,8 +101,8 @@ public class YNetRunner {
                       String caseID) throws YDataStateException, YSchemaBuildingException,
                                             YPersistenceException {
 
-        // initialise and persist case identifier
-        _caseIDForNet = new YIdentifier(caseID);  // if caseID is null, a new one is supplied
+        // initialise and persist case identifier - if caseID is null, a new one is supplied
+        _caseIDForNet = new YIdentifier(pmgr, caseID);   
         if (pmgr != null) pmgr.storeObject(_caseIDForNet);
 
         // get case data from external data gateway, if set for this specification
@@ -315,7 +315,7 @@ public class YNetRunner {
                                      "OnCompletion", predicate, "string"));
                     }
                 }                
-                YEventLogger.getInstance().logNetCompleted(_caseIDForNet, logData);
+                YEventLogger.getInstance().logNetCompleted(pmgr, _caseIDForNet, logData);
             }
             if (! _cancelling && deadLocked()) notifyDeadLock(pmgr);
             cancel(pmgr);
@@ -422,7 +422,7 @@ public class YNetRunner {
                 }
             }
 
-            YEventLogger.getInstance().logNetCompleted(caseIDForSubnet, logData);
+            YEventLogger.getInstance().logNetCompleted(pmgr, caseIDForSubnet, logData);
 
 
             //check to see if completing this task resulted in completing the net.
@@ -687,7 +687,7 @@ public class YNetRunner {
             }
 
             // log it
-            YEventLogger.getInstance().logWorkItemEvent(wItem,
+            YEventLogger.getInstance().logWorkItemEvent(pmgr, wItem,
                     YWorkItemStatus.statusDeleted, null);
 
             // cancel any live timer
@@ -868,7 +868,7 @@ public class YNetRunner {
         _busyTasks = new HashSet<YTask>();
 
         if (_containingCompositeTask != null) {
-            YEventLogger.getInstance().logNetCancelled(
+            YEventLogger.getInstance().logNetCancelled(pmgr,
                     getSpecificationID(), this, _containingCompositeTask.getID(), null);
         }
         
