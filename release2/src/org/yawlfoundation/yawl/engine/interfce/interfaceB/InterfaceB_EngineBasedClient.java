@@ -290,7 +290,6 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         private Document _casedata;
         private String _oldStatus;
         private String _newStatus;
-        private String _seed;
 
         public Handler(YAWLServiceReference yawlService, YWorkItem workItem, String command) {
             _workItem = workItem;
@@ -326,12 +325,6 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
             _command = command;
         }
 
-        public Handler(YAWLServiceReference yawlService, String seed, String command) {
-            _yawlService = yawlService;
-            _seed = seed;
-            _command = command;
-        }
-
 
         /**
          * Load parameter map as required, then POST the message to the custom service
@@ -347,11 +340,9 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                 }
                 else if (CANCELALLWORKITEMS_CMD.equals(_command)) {
                     cancelWorkItem(_yawlService, _workItem);
-                    Set children = _workItem.getChildren();
+                    Set<YWorkItem> children = _workItem.getChildren();
                     if (children != null) {
-                        Iterator iter = children.iterator();
-                        while (iter.hasNext()) {
-                            YWorkItem item = (YWorkItem) iter.next();
+                        for (YWorkItem item : children) {
                             cancelWorkItem(_yawlService, item);
                         }    
                     }
@@ -422,13 +413,32 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
             }            
         }
 
+        
         private void redirectWorkItem(boolean connect) {
-            logger.warn(MessageFormat.format(
-                    "Could not {0} YAWL Service at URL [{1}] to announce enabled workitem" +
-                    " [{2}]. Redirecting workitem to default worklist handler.",
-                    connect ? "connect to" : "find", _yawlService.getURI(),
-                    _workItem.getIDString()));
-            YEngine.getInstance().getAnnouncer().rejectAnnouncedEnabledTask(_workItem);
+            YAWLServiceReference defWorklist = YEngine.getInstance().getDefaultWorklist();
+            if (defWorklist == null) {
+                logger.error(MessageFormat.format(
+                        "Could not {0} YAWL Service at URL [{1}] to announce enabled workitem" +
+                        " [{2}], and cannot redirect workitem to default worklist handler" +
+                        " because there is no default handler known to the engine.",
+                        connect ? "connect to" : "find", _yawlService.getURI(),
+                        _workItem.getIDString()));
+            }
+            else if (! defWorklist.getURI().equals(_yawlService.getURI())) {
+                logger.warn(MessageFormat.format(
+                        "Could not {0} YAWL Service at URL [{1}] to announce enabled workitem" +
+                        " [{2}]. Redirecting workitem to default worklist handler.",
+                        connect ? "connect to" : "find", _yawlService.getURI(),
+                        _workItem.getIDString()));
+                YEngine.getInstance().getAnnouncer().rejectAnnouncedEnabledTask(_workItem);
+            }
+            else {
+                logger.error(MessageFormat.format(
+                        "Could not announce enabled workitem [{0}] to default worklist " +
+                        "handler at URL [{1}]. Either the handler is missing or offline, " +
+                        "or the URL is invalid.",
+                        _workItem.getIDString(), _yawlService.getURI()));
+            }
         }
     }
 }

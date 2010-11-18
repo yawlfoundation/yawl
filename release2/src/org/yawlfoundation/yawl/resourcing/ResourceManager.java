@@ -168,7 +168,6 @@ public class ResourceManager extends InterfaceBWebsideController {
     private InterfaceA_EnvironmentBasedClient _interfaceAClient ;
     private YLogGatewayClient _interfaceEClient;
     private ResourceGatewayServer _gatewayServer;
-    private InterfaceProxy _proxy;
 
 
     // Constructor - called exclusively by getInstance()
@@ -3313,34 +3312,6 @@ public class ResourceManager extends InterfaceBWebsideController {
                 if (service.getServiceName().equals(serviceName)) {
                     return service.getURI();
                 }
-            }
-        }
-        return null;
-    }
-
-
-    private Object ibCall(String mName, Object... args) throws IOException {
-        if (_proxy == null) {
-            _proxy = new InterfaceProxy(_interfaceBClient);            
-        }
-        try {
-            if (_engineSessionHandle == null) {
-                 _engineSessionHandle = connect(_engineUser, _enginePassword);
-            }
-            Object[] argsWithHandle = new Object[args.length + 1];
-            System.arraycopy(args, 0, argsWithHandle, 0, args.length);
-            argsWithHandle[args.length] = _engineSessionHandle;
-            return _proxy.call(mName, argsWithHandle);
-        }
-        catch (InterfaceProxyException ipe) {
-            if (ipe.getMessage().equals("Inactive session")) {
-                try {
-                    _engineSessionHandle = connect(_engineUser, _enginePassword);
-                }
-                catch (IOException ioe) {
-                    return null;
-                }
-                return ibCall(mName, args);
             }
         }
         return null;
