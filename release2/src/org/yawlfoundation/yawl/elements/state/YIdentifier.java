@@ -53,13 +53,9 @@ public class YIdentifier {
 
     public YIdentifier() { }                       // only for hibernate
 
+
     public YIdentifier(String idString) {
-        this(null, idString);
-    }
-
-
-    public YIdentifier(YPersistenceManager pmgr, String idString) {
-        _idString = (idString != null) ? idString : YEngine.getInstance().getNextCaseNbr(pmgr);
+        _idString = (idString != null) ? idString : YEngine.getInstance().getNextCaseNbr();
     }
 
 

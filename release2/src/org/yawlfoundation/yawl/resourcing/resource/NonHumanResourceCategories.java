@@ -198,6 +198,7 @@ public class NonHumanResourceCategories extends Hashtable<Long, TaggedStringList
                 }
             }
         }
+        _persister.commit();
     }
 
 }

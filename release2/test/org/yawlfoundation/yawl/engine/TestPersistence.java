@@ -19,7 +19,7 @@ public class TestPersistence extends TestCase {
 //
 //    public void testStore() throws InterruptedException, YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
 //        YPersistenceManager pmgr = new YPersistenceManager(YEngine.getPMSessionFactory());
-//        pmgr.startTransactionalSession();
+//        pmgr.startTransaction();
 //        pmgr.storeObject(specification);
 //        pmgr.commit();
 //    }

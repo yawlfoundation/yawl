@@ -30,6 +30,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -53,7 +54,7 @@ public class WorkQueue implements Serializable {
 
     
     // the workitems assigned to this queue: <item's id, item>
-    private HashMap<String, WorkItemRecord> _workitems =
+    private Map<String, WorkItemRecord> _workitems =
             new HashMap<String, WorkItemRecord>();
 
     private long _id ;                                       // hibernate primary key
@@ -121,7 +122,7 @@ public class WorkQueue implements Serializable {
     }
 
 
-    private void logEvent(HashMap<String, WorkItemRecord> map) {
+    private void logEvent(Map<String, WorkItemRecord> map) {
         if (_queueType < WORKLISTED)
             for (WorkItemRecord wir : map.values()) logEvent(wir) ;        
     }
@@ -161,7 +162,7 @@ public class WorkQueue implements Serializable {
      * Adds all members of the Map passed to the queue
      * @param queueMap the Map of [item id, YWorkItem] to add
      */
-    public void addQueue(HashMap<String, WorkItemRecord> queueMap) {
+    public void addQueue(Map<String, WorkItemRecord> queueMap) {
         _workitems.putAll(queueMap);
         persistThis() ;
         logEvent(queueMap) ;
@@ -212,7 +213,7 @@ public class WorkQueue implements Serializable {
      * Retrieves a HashMap of all workitems in the queue
      * @return all members of the queue as a HashMap of [item id, YWorkItem]
      */
-    public HashMap<String, WorkItemRecord> getQueueAsMap() { return _workitems; }
+    public Map<String, WorkItemRecord> getQueueAsMap() { return _workitems; }
 
 
     /**
@@ -254,14 +255,16 @@ public class WorkQueue implements Serializable {
         for (String itemID : clonedQueue) {
             if (cache.get(itemID) == null) _workitems.remove(itemID);
         }
+        if (_workitems.size() != clonedQueue.size()) persistThis();
     }
 
     
     public void removeCase(String caseID) {
         Set<WorkItemRecord> clonedQueue = new HashSet<WorkItemRecord>(_workitems.values());
         for (WorkItemRecord wir : clonedQueue) {
-            if (wir.getRootCaseID().equals(caseID)) remove(wir);           
+            if (wir.getRootCaseID().equals(caseID)) _workitems.remove(wir.getID());
         }
+        if (_workitems.size() != clonedQueue.size()) persistThis();
     }
 
 

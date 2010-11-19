@@ -1198,7 +1198,12 @@ public class EngineGatewayImpl implements EngineGateway {
         String sessionMessage = checkSession(sessionHandle);
         if (isFailureMessage(sessionMessage)) return sessionMessage;
 
-        return String.valueOf(_engine.updateCaseData(caseID, data));
+        try {
+             return String.valueOf(_engine.updateCaseData(caseID, data));
+        }
+        catch (Exception e) {
+            return "false";
+        }
     }
 
 

@@ -93,7 +93,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private ResourceDataSet _orgDataSet;
 
     // cache of 'live' workitems
-    private WorkItemCache _workItemCache = new WorkItemCache();
+    private WorkItemCache _workItemCache = WorkItemCache.getInstance();
 
     // map of userid -> participant id
     private Map<String,String> _userKeys = new Hashtable<String,String>();
@@ -884,6 +884,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                 removeOrphanedQueues(orphanedQueues);
             }
         }
+        _persister.commit();
     }
 
 
@@ -1850,14 +1851,14 @@ public class ResourceManager extends InterfaceBWebsideController {
         Set<ResourceMap> result = new HashSet<ResourceMap>();
         List maps = _persister.select("ResourceMap");
         if (maps != null) {
-            Iterator itr = maps.iterator();
-            while (itr.hasNext()) {
-                ResourceMap map = (ResourceMap) itr.next();
+            for (Object o : maps) {
+                ResourceMap map = (ResourceMap) o;
                 String pid = map.getPiledResourceID();
                 if ((pid != null) && (pid.equals(p.getID())))
                     result.add(map);
             }
         }
+        _persister.commit();
         return result ;
     }
 
@@ -3071,6 +3072,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
                 if ((children != null) && (! children.isEmpty())) {
                     wir = (WorkItemRecord) children.get(0) ;  // get executing child
+                    EventLogger.logAutoTask(wir, true);             // log item start
                     processAutoTask(wir, true);
                 }
             }
@@ -3123,6 +3125,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                                                  "PersistedAutoTask", wir.getID());
             if (task != null) task.unpersist();
         }
+        _persister.commit();
     }
 
 
@@ -3137,6 +3140,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                     processAutoTask(wir, false);             // resume processing task
                 }
             }
+            _persister.commit();
         }
     }
 
@@ -3165,6 +3169,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             String msg = checkInWorkItem(wir.getID(), wir.getDataList(),
                     outData, null, getEngineSessionHandle()) ;
             if (successful(msg)) {
+                EventLogger.logAutoTask(wir, false);             // log item completion
                 _log.info("Automated task '" + wir.getID() +
                         "' successfully processed and checked back into the engine.");
             }

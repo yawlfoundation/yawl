@@ -80,6 +80,7 @@ public class HibernateImpl extends DataSource {
         HashMap<String,Capability> capMap = new HashMap<String,Capability>();
         List<Capability> cList = _db.getObjectsForClass(_capability) ;
         for (Capability c : cList) capMap.put(c.getID(), c) ;
+        _db.commit();
         return capMap ;
     }
 
@@ -87,6 +88,7 @@ public class HibernateImpl extends DataSource {
         HashMap<String,Role> roleMap = new HashMap<String,Role>() ;
         List<Role> roleList = _db.getObjectsForClass(_role) ;
         for (Role r : roleList) roleMap.put(r.getID(), r) ;
+        _db.commit();
         return roleMap ;
     }
 
@@ -94,6 +96,7 @@ public class HibernateImpl extends DataSource {
         HashMap<String,Position> posMap = new HashMap<String,Position>();
         List<Position> posList = _db.getObjectsForClass(_position) ;
         for (Position p : posList) posMap.put(p.getID(), p) ;
+        _db.commit();
         return posMap ;
     }
 
@@ -101,6 +104,7 @@ public class HibernateImpl extends DataSource {
         HashMap<String,OrgGroup> orgMap = new HashMap<String,OrgGroup>();
         List<OrgGroup> ogList = _db.getObjectsForClass(_orgGroup) ;
         for (OrgGroup o : ogList) orgMap.put(o.getID(), o) ;
+        _db.commit();
         return orgMap ;
     }             
 
@@ -108,6 +112,7 @@ public class HibernateImpl extends DataSource {
         HashMap<String,NonHumanResource> nhMap = new HashMap<String,NonHumanResource>();
         List<NonHumanResource> nhList = _db.getObjectsForClass(_nonHumanResource) ;
         for (NonHumanResource r : nhList) nhMap.put(r.getID(), r) ;
+        _db.commit();
         return nhMap ;
     }
 

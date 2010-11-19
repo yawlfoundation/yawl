@@ -43,7 +43,7 @@ public class EventLogger {
     public static enum event { offer, allocate, start, suspend, deallocate, delegate,
         reallocate_stateless, reallocate_stateful, skip, pile, cancel, chain, complete,
         unoffer, unchain, unpile, resume, timer_expired, launch_case, cancel_case,
-        cancelled_by_case, in_use, released }
+        cancelled_by_case, in_use, released, autotask_start, autotask_complete }
 
     public static enum audit { logon, logoff, invalid, unknown, shutdown, expired,
         gwlogon, gwlogoff, gwinvalid, gwunknown, gwexpired }
@@ -62,10 +62,14 @@ public class EventLogger {
 
     public static void log(WorkItemRecord wir, String pid, event eType) {
         if (_logging) {
-            long specKey = getSpecificationKey(wir);
-            ResourceEvent resEvent = new ResourceEvent(specKey, wir, pid, eType);
-            insertEvent(resEvent);
+            insertEvent(getSpecificationKey(wir), wir, pid, eType);
         }
+    }
+
+
+    public static void logAutoTask(WorkItemRecord wir, boolean start) {
+        event eType = start ? event.autotask_start : event.autotask_complete;
+        log(wir, null, eType);
     }
 
 
@@ -83,9 +87,7 @@ public class EventLogger {
 
     public static void log(YSpecificationID specID, String caseID, String id, event eType) {
         if (_logging) {
-            long specKey = getSpecificationKey(specID);
-            ResourceEvent resEvent = new ResourceEvent(specKey, caseID, id, eType);
-            insertEvent(resEvent);
+            insertEvent(getSpecificationKey(specID), caseID, id, eType);
         }
     }
 
@@ -102,12 +104,8 @@ public class EventLogger {
 
 
     public static void log(YSpecificationID specID, String caseID, String pid, boolean launch) {
-        if (_logging) {
-            long specKey = getSpecificationKey(specID);
-            event eType = launch ? event.launch_case : event.cancel_case;
-            ResourceEvent resEvent = new ResourceEvent(specKey, caseID, pid, eType);
-            insertEvent(resEvent);
-        }
+        event eType = launch ? event.launch_case : event.cancel_case;
+        log(specID, caseID, pid, eType);
     }
 
 
@@ -116,6 +114,18 @@ public class EventLogger {
             AuditEvent auditEvent = new AuditEvent(userid, eType) ;
             insertEvent(auditEvent);
         }
+    }
+
+
+    private static void insertEvent(long specKey, String caseID, String pid, event eType) {
+        ResourceEvent resEvent = new ResourceEvent(specKey, caseID, pid, eType);
+        insertEvent(resEvent);
+    }
+
+
+    private static void insertEvent(long specKey, WorkItemRecord wir, String pid, event eType) {
+        ResourceEvent resEvent = new ResourceEvent(specKey, wir, pid, eType);
+        insertEvent(resEvent);
     }
 
 
@@ -153,6 +163,7 @@ public class EventLogger {
                 _specMap.put(key, specEntry);
                 result = specEntry.getLogID();               
             }
+            _persister.commit();
         }
         return result;
     }

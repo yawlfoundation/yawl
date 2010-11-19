@@ -93,6 +93,7 @@
     <property name="backport"              value="backport-util-concurrent-2.1.jar"/> <!-- hibernate -->
     <property name="bcmail"                value="bcmail-jdk15-139.jar"/>         <!-- digSignature -->
     <property name="bcprov"                value="bcprov-jdk15-139.jar"/>         <!-- digSignature -->
+    <property name="c3p0"                  value="c3p0-0.9.1.jar"/>               <!-- hibernate -->
     <property name="common"                value="common.jar"/>                   <!-- engine schema/xsd* -->
     <property name="commonsBeanutils"      value="commons-beanutils.jar"/>        <!-- engine DomUtil -->
     <property name="commonsCodec"          value="commons-codec-1.4.jar"/>        <!-- multiple -->
@@ -217,7 +218,7 @@
     <property name="persistence.libs"
               value="${antlr} ${commonsCollections} ${commonsLogging} ${dom4j}
                      ${ehcache} ${hibernate} ${hibernate-jpa} hibernate.cfg.xml ${jta}
-                     ${slf4j} ${javaAssist} ${slf4j-log4j} ${backport}"/>
+                     ${slf4j} ${javaAssist} ${slf4j-log4j} ${backport} ${c3p0}"/>
 
 	<property name="xsd.libs"
               value="${common} ${ecore} ${xsd} ${xsd.resources}"/>

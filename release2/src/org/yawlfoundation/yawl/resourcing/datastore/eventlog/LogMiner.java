@@ -87,7 +87,7 @@ public class LogMiner {
 
             String query = String.format(template.toString(), taskName, specKey, participantID);
 
-            rows = _reader.execQuery(query) ;
+            rows = execQuery(query) ;
             if (rows != null) {
                 StringBuilder xml = new StringBuilder() ;
                 String currentItemID = "";
@@ -112,7 +112,6 @@ public class LogMiner {
                 result = xml.toString();
             }
             else result = _noRowsStr ;
-
         }
         else result = _pmErrStr ;
 
@@ -458,6 +457,7 @@ public class LogMiner {
         List rows = null;
         if (_reader != null) {
             rows = _reader.execQuery(query) ;
+            _reader.commit();
         }
         return rows;
     }
@@ -540,14 +540,16 @@ public class LogMiner {
 
 
     private SpecLog getSpecLogRecord(long key) {
+        SpecLog specLog = null;
         if (_reader != null) {
             String query = String.format("FROM SpecLog AS sl WHERE sl.logID=%d", key);
             List rows = _reader.execQuery(query) ;
             if ((rows != null) && (! rows.isEmpty())) {
-                return (SpecLog) rows.get(0);
+                specLog = (SpecLog) rows.get(0);
             }
+            _reader.commit();
         }
-        return null;
+        return specLog;
     }
 
 
@@ -706,13 +708,15 @@ public class LogMiner {
 
 
     private ResourceEvent execScalarQuery(String query) {
+        ResourceEvent event = null;
         if (_reader != null) {
             List rows = _reader.execQuery(query) ;
             if ((rows != null) && (! rows.isEmpty())) {
-                return (ResourceEvent) rows.get(0);
+                event = (ResourceEvent) rows.get(0);
             }
+            _reader.commit();
         }
-        return null;
+        return event;
     }
 
 
@@ -785,6 +789,7 @@ public class LogMiner {
             SpecLog spec = (SpecLog) row;
             specSet.add(spec.getSpecID());
         }
+        _reader.commit();
         return specSet;
     }
 
@@ -816,6 +821,7 @@ public class LogMiner {
                     eventNode.addChild("resource", event.get_resourceID());
                 }    
             }
+            _reader.commit();
         }
         return cases;
     }
