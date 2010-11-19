@@ -85,6 +85,7 @@ public class YLogGateway extends HttpServlet {
            else result = _noEngine ;
        }
        else if (validConnection(handle)) {
+           _logMgr.startTransaction(); 
            if (action.equals("getAllSpecifications")) {
                result = _logMgr.getAllSpecifications();
            }
@@ -189,6 +190,7 @@ public class YLogGateway extends HttpServlet {
                boolean withData = (withDataStr != null) && withDataStr.equalsIgnoreCase("true");
                result = _logMgr.getSpecificationXESLog(specID, withData);
            }
+           _logMgr.commitTransaction(); 
        }
        else throw new IOException("Invalid or disconnected session handle.");
 

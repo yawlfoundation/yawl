@@ -75,14 +75,12 @@ public class YPersistenceManager {
     /**
      * Constructor
      */
-    public YPersistenceManager(SessionFactory factory) {
+    public YPersistenceManager() {
         logger = Logger.getLogger(YPersistenceManager.class);
-        this.factory = factory;
     }
 
 
-    protected static SessionFactory initialise(boolean journalising) throws YPersistenceException {
-        SessionFactory factory = null;
+    protected SessionFactory initialise(boolean journalising) throws YPersistenceException {
         Configuration cfg;
 
         // Create the Hibernate config, check and create database if required,
@@ -140,14 +138,19 @@ public class YPersistenceManager {
     }
 
 
+    public void closeFactory() {                    // shutdown persistence engine
+        factory.close();
+    }
+
     /**
-     * Start a new Hibernate session.
+     * Start a new Hibernate transaction.
      *
      * @throws YPersistenceException
      */
-    public void startTransactionalSession() throws YPersistenceException {
+    public void startTransaction() throws YPersistenceException {
+        if (transaction != null) return;
         try {
-            session = getFactory().getCurrentSession();
+            session = factory.getCurrentSession();
             transaction = session.beginTransaction();
         } catch (HibernateException e) {
             logger.fatal("Failure to start transactional session", e);
@@ -168,7 +171,6 @@ public class YPersistenceManager {
             doPersistAction(obj, INSERT);
         }
     }
-
 
 
 
@@ -274,10 +276,11 @@ public class YPersistenceManager {
     }
 
 
-     protected void commit() throws YPersistenceException {
+     public void commit() throws YPersistenceException {
         logger.debug("--> commit");
         try {
-            getTransaction().commit();
+            if ((transaction != null) && transaction.isActive()) transaction.commit();
+            transaction = null;
         }
         catch (Exception e1) {
             logger.fatal("Failure to commit transactional session - Rolling Back Transaction", e1);
@@ -296,7 +299,7 @@ public class YPersistenceManager {
 
         if (getTransaction() != null) {
             try {
-                getTransaction().rollback();
+                if ((transaction != null) && transaction.isActive()) transaction.rollback();
             }
             catch (HibernateException e) {
                 throw new YPersistenceException("Failure to rollback transaction", e);
@@ -400,9 +403,6 @@ public class YPersistenceManager {
             throws YPersistenceException {
         return selectScalar(className, field, String.valueOf(value));
     }
-
-    
-
 
 
 }

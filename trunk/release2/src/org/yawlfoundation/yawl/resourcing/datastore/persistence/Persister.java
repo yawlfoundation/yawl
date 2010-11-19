@@ -48,7 +48,7 @@ public class Persister implements Serializable {
     public final int _INSERT = HibernateEngine.DB_INSERT;
 
 
-    public Persister() {
+    private Persister() {
         _db = HibernateEngine.getInstance(true) ; 
     }
 
@@ -79,6 +79,7 @@ public class Persister implements Serializable {
            List<SpecLog> slList = _db.getObjectsForClass(className) ;
            for (SpecLog sl : slList) result.put(sl.getSpecID().getKey() + sl.getVersion(), sl) ;
        }
+       commit();
        return result ;
    }
 
@@ -114,7 +115,7 @@ public class Persister implements Serializable {
 
 
     public Object selectScalar(String className, String id) {
-       Object retObj = null ;
+       Object retObj ;
        if (className.endsWith("Participant"))
            retObj = _db.selectScalar(className,"_resourceID", id);
        else if (className.endsWith("UserPrivileges"))
@@ -126,7 +127,6 @@ public class Persister implements Serializable {
            retObj = _db.selectScalar(className,"_wirID", id);
        else
            retObj = _db.selectScalar(className,"_id", id);
-
        return retObj ;
     }
 

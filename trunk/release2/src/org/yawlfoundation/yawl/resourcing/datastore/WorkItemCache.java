@@ -35,30 +35,29 @@ import java.util.*;
 public class WorkItemCache extends HashMap<String, WorkItemRecord> implements Serializable {
 
     private Persister _persister;
-    private WorkItemCache _me ;
+    private static WorkItemCache _me ;
     private boolean _persistOn = false ;
 
-    public WorkItemCache() {
+    private WorkItemCache() {
         super();
         _me = this ;
     }
 
-    public WorkItemCache(boolean persist) {
-        this() ;
-        _persistOn = persist ;
-        if (_persistOn) _persister = Persister.getInstance();
+
+    public static WorkItemCache getInstance() {
+        if (_me == null) _me = new WorkItemCache() ;
+        return _me ;
     }
 
-
-    public WorkItemCache getInstance() {
-        if (_me == null) _me = new WorkItemCache() ;
+    public static WorkItemCache getInstance(boolean persist) {
+        if (_me == null) _me = new WorkItemCache();
+        _me.setPersist(persist);
         return _me ;
     }
 
     public void setPersist(boolean persist) {
         _persistOn = persist ;
-        if (_persistOn) _persister = Persister.getInstance();
-        else _persister = null ;
+        _persister = _persistOn ? Persister.getInstance() : null ;
     }
 
     public boolean isPersistOn() { return _persistOn ; }
@@ -109,6 +108,7 @@ public class WorkItemCache extends HashMap<String, WorkItemRecord> implements Se
                     super.put(wir.getID(), wir);
                 }
             }
+            _persister.commit();
         }
     }
 

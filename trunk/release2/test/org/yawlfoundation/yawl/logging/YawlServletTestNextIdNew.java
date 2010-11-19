@@ -20,11 +20,11 @@ public class YawlServletTestNextIdNew extends TestCase {
     public void testNextId() {
         YEventLogger yawllog = YEventLogger.getInstance();
 
-        String x = YEngine.getInstance().getNextCaseNbr(null);
+        String x = YEngine.getInstance().getNextCaseNbr();
 
-        String y = YEngine.getInstance().getNextCaseNbr(null);
+        String y = YEngine.getInstance().getNextCaseNbr();
 
-        String z = YEngine.getInstance().getNextCaseNbr(null);
+        String z = YEngine.getInstance().getNextCaseNbr();
 
 //        System.out.println("HERE: " + x + " " + y + " " + z);
 

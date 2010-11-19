@@ -157,7 +157,7 @@ public class ResourceMap {
         if (! hasPiledResource()) {
             _piledResource = p;
             _piledResourceID = p.getID();
-            if (getPersisting()) _persister.insert(this);
+            if (isPersisting()) _persister.insert(this);
             if (rm.routePiledWorkItem(_piledResource, wir)) {
                 result = "Task successfully piled." ;
             }
@@ -173,19 +173,20 @@ public class ResourceMap {
     public void removePiledResource() {
         _piledResource = null ;
         _piledResourceID = null ;
-        if (getPersisting()) {
+        if (isPersisting()) {
 
             // have to get persisted map first, so we can delete it (since 'this' is not
             // the same object as the one persisted)
             ResourceMap map = getPersistedMap();
             if (map != null) _persister.delete(map);
+            _persister.commit();
         }
     }
 
     
     private ResourceMap getPersistedMap() {
         ResourceMap result = null;
-        if (getPersisting()) {
+        if (isPersisting()) {
             String where = String.format(
               "_specID.identifier='%s' and _specID.version.version='%s' and _taskID='%s'",
                   _specID.getIdentifier(), _specID.getVersionAsString(), _taskID);
@@ -218,7 +219,7 @@ public class ResourceMap {
             _persister = null;
     }
 
-    public boolean getPersisting() { return (_persister != null); }
+    public boolean isPersisting() { return (_persister != null); }
 
 
     public void ignore(WorkItemRecord wir, Participant p) {

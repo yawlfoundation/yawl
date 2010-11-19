@@ -111,9 +111,11 @@ public abstract class AbstractAllocator extends AbstractSelector {
             long specKey = EventLogger.getSpecificationKey(specID);
             String eventStr = event.name();
             String taskName = wir.getTaskName();
-            return persister.selectWhere("ResourceEvent",
+            List events = persister.selectWhere("ResourceEvent",
                   String.format("_event='%s' AND tbl._specKey=%d AND tbl._taskID='%s'",
-                                eventStr, specKey, taskName)) ;
+                                eventStr, specKey, taskName));
+            persister.commit();
+            return events;
         }
         else return null;
     }

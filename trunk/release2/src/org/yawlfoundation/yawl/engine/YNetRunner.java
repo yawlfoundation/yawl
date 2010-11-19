@@ -102,7 +102,7 @@ public class YNetRunner {
                                             YPersistenceException {
 
         // initialise and persist case identifier - if caseID is null, a new one is supplied
-        _caseIDForNet = new YIdentifier(pmgr, caseID);   
+        _caseIDForNet = new YIdentifier(caseID);   
         if (pmgr != null) pmgr.storeObject(_caseIDForNet);
 
         // get case data from external data gateway, if set for this specification

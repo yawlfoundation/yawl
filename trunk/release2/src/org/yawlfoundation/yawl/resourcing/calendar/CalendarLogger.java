@@ -52,6 +52,7 @@ public class CalendarLogger {
 
     public CalendarLogEntry getLogEntry(long entryID) {
         List list = _persister.selectWhere("CalendarLogEntry", "entryID=" + entryID);
+        _persister.commit();
         return (list == null) || list.isEmpty() ? null : (CalendarLogEntry) list.get(0);
     }
 
@@ -62,17 +63,20 @@ public class CalendarLogger {
                                            "ORDER BY cle.entryID DESCENDING")
                 .setLong("key", calEntryID)
                 .list();
+        _persister.commit();
         return (list == null) || list.isEmpty() ? null : (CalendarLogEntry) list.get(0);
     }
 
     
     public List getLogEntriesForActivity(String caseID, String activityName) {
-        return _persister.createQuery("FROM CalendarLogEntry AS cle " +
+        List entries = _persister.createQuery("FROM CalendarLogEntry AS cle " +
                                            "WHERE cle.caseID=:caseID " +
                                            "AND cle.activityName=:activityName")
                 .setString("caseID", caseID)
                 .setString("activityName", activityName)
                 .list();
+        _persister.commit();
+        return entries;
     }
 
 

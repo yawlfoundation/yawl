@@ -101,7 +101,7 @@ public class HibernateEngine {
 
 
     /** initialises hibernate and the required tables */
-    public void initialise() throws HibernateException {
+    private void initialise() throws HibernateException {
         try {
             Configuration _cfg = new Configuration();
 
@@ -125,7 +125,9 @@ public class HibernateEngine {
 
     /** @return true if a table of 'tableName' currently exists */
     public boolean isAvailable(String tableName) {
-        return (getObjectsForClass(tableName) != null);
+        boolean hasTable = (getObjectsForClass(tableName) != null);
+        commit();
+        return hasTable;
     }
 
 
@@ -191,7 +193,6 @@ public class HibernateEngine {
             tx = session.beginTransaction();
             Query query = session.createQuery(queryString);
             if (query != null) result = query.list();
-            tx.commit();
         }
         catch (JDBCConnectionException jce) {
             _log.error("Caught Exception: Couldn't connect to datasource - " +
@@ -246,7 +247,7 @@ public class HibernateEngine {
     public void commit() {
         try {
            Transaction tx = _factory.getCurrentSession().getTransaction();
-           if (tx != null) tx.commit();
+           if ((tx != null) && tx.isActive()) tx.commit();
         }
         catch (HibernateException he) {
             _log.error("Caught Exception: Error committing transaction", he);

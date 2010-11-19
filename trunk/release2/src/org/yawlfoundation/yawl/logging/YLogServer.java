@@ -59,19 +59,33 @@ public class YLogServer {
 
     private YLogServer() {
         if (YEngine.isPersisting()) {
-            _pmgr = new YPersistenceManager(YEngine.getPMSessionFactory());
-            try {
-                 _pmgr.startTransactionalSession();
-            }
-            catch (YPersistenceException ype) {
-                 _log.error("Could not initialise connection to log tables.", ype) ;
-            }
+            _pmgr = YEngine.getPersistenceManager();
         }
     }
 
     public static YLogServer getInstance() {
         if (_me == null) _me = new YLogServer();
         return _me ;
+    }
+
+
+    public void startTransaction() {
+        try {
+            if (_pmgr != null) _pmgr.startTransaction();
+        }
+        catch (YPersistenceException ype) {
+             _log.error("Could not initialise connection to log tables.", ype) ;
+        }
+    }
+
+
+    public void commitTransaction() {
+        try {
+            if (_pmgr != null) _pmgr.commit();
+        }
+        catch (YPersistenceException ype) {
+             _log.error("Could not commit after log table read.", ype) ;
+        }
     }
 
 
@@ -458,6 +472,7 @@ public class YLogServer {
                       result = xml.toString();
                   }
                  else result = _noRowsStr ;
+                 _pmgr.commit();
              }
              catch (YPersistenceException ype) {
                 result = _exErrStr ;
