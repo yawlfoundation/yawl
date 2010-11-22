@@ -60,7 +60,7 @@ public class CalendarLogger {
     public CalendarLogEntry getLogEntryForCalendarKey(long calEntryID) {
         List list = _persister.createQuery("FROM CalendarLogEntry AS cle " +
                                            "WHERE cle.calendarKey=:key " +
-                                           "ORDER BY cle.entryID DESCENDING")
+                                           "ORDER BY cle.entryID DESC")
                 .setLong("key", calEntryID)
                 .list();
         _persister.commit();
