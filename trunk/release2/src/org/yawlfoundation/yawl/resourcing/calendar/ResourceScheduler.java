@@ -148,10 +148,12 @@ public class ResourceScheduler {
                         _uLogger.getLogEntryForCalendarKey(calEntry.getEntryID());
                 String caseID = null;
                 String activityName = null;
+                String phase = null;
                 UtilisationPlan plan = null;
                 if (logEntry != null) {
                     caseID = logEntry.getCaseID();
                     activityName = logEntry.getActivityName();
+                    phase = logEntry.getPhase();
                     plan = planSet.get(caseID);
                 }
 
@@ -162,7 +164,7 @@ public class ResourceScheduler {
                     // add calEntry to plan
                     if (activity == null) {
                         plan.addActivity(
-                                reconstructor.reconstructActivity(calEntry, activityName));
+                            reconstructor.reconstructActivity(calEntry, activityName, phase));
                     }
                     else {
                         activity.addReservation(

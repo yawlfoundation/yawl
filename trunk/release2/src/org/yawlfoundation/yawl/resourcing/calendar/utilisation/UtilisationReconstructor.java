@@ -32,20 +32,26 @@ public class UtilisationReconstructor {
 
     public UtilisationPlan reconstructPlan(CalendarLogEntry logEntry,
                                             CalendarEntry calEntry) {
-        String caseID = (logEntry != null) ? logEntry.getCaseID() : null;
-        String activityName = (logEntry != null) ? logEntry.getActivityName() : null;
-
+        String caseID = null;
+        String activityName = null;
+        String phase = null;
+        if (logEntry != null) {
+            caseID = logEntry.getCaseID();
+            activityName = logEntry.getActivityName();
+            phase = logEntry.getPhase();
+        }
         UtilisationPlan plan = new UtilisationPlan(caseID);
-        plan.addActivity(reconstructActivity(calEntry, activityName));
+        plan.addActivity(reconstructActivity(calEntry, activityName, phase));
         return plan;
     }
 
 
-    public Activity reconstructActivity(CalendarEntry calEntry, String name) {
+    public Activity reconstructActivity(CalendarEntry calEntry, String name, String phase) {
         String from = StringUtil.longToDateTime(calEntry.getStartTime());
         String to = StringUtil.longToDateTime(calEntry.getEndTime());
 
         Activity activity = new Activity(name, null, from, to, null);
+        activity.setPhase(phase);
         activity.addReservation(reconstructReservation(calEntry));
         return activity;
     }

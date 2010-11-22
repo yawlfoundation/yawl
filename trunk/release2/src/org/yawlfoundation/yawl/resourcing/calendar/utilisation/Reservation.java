@@ -114,6 +114,6 @@ public class Reservation extends StatusMessage {
         setStatusToBe(node.getChildText("StatusToBe"));
         setStatus(node.getChildText("Status"));
         setResource(new UtilisationResource(node.getChild("Resource")));
-        setWorkload(StringUtil.strToInt(node.getChildText("Workload"), -1));
+        setWorkload(StringUtil.strToInt(node.getChildText("Workload"), 100));
     }
 }
