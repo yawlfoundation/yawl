@@ -426,9 +426,4 @@ public class YAnnouncer {
         }
     }
 
-    
-    protected void shutdownObserverGateways() {
-    	  _controller.shutdownObserverGateways();
-    }
-
 }

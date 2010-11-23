@@ -37,8 +37,9 @@ import java.util.List;
  */
 public class ResourceCalendar {
 
-    public static enum Status { Nil, Unknown, Available, Unavailable,
-                                Requested, Reserved, HardBlocked, SoftBlocked }
+    public static enum Status {
+        nil, unknown, available, unavailable, requested, reserved, hardBlocked, softBlocked
+    }
 
     public static enum ResourceGroup { AllResources, HumanResources, NonHumanResources }
 
@@ -289,13 +290,13 @@ public class ResourceCalendar {
             throws CalendarException, ScheduleStateException {
         long entryID = -1;
         switch (status) {
-            case Available:
+            case available:
                 makeAvailable(resource, startTime, endTime); break;
-            case Unavailable:
+            case unavailable:
                 entryID = makeUnavailable(resource, startTime, endTime, agent, comment); break;
-            case Requested:
+            case requested:
                 entryID = request(resource, startTime, endTime, agent, comment); break;
-            case Reserved:
+            case reserved:
                 entryID = reserve(resource, startTime, endTime, agent, comment); break;
             default: throw new CalendarException(
                     "Invalid status change request: " + status.name());
@@ -308,13 +309,13 @@ public class ResourceCalendar {
             throws CalendarException, ScheduleStateException {
         long entryID = -1;
         switch (strToStatus(entry.getStatus())) {
-            case Available:
+            case available:
                 makeAvailable(resource, entry.getStartTime(), entry.getEndTime()); break;
-            case Unavailable:
+            case unavailable:
                 entryID = makeUnavailable(resource, entry.getStartTime(),
                         entry.getEndTime(), entry.getAgent(), entry.getComment()); break;
-            case Requested:
-            case Reserved:
+            case requested:
+            case reserved:
                 entryID = addEntryIfAvailable(resource, entry); break;
             default: throw new CalendarException(
                     "Invalid status change request: " + entry.getStatus());
@@ -332,10 +333,10 @@ public class ResourceCalendar {
     public boolean canCreateEntry(AbstractResource resource, long startTime, long endTime,
                                   Status status, int workload) {
         switch (status) {
-            case Available:
-            case Unavailable: return true;     // can always do
-            case Requested:
-            case Reserved:  return isAvailable(resource, startTime, endTime, workload);
+            case available:
+            case unavailable: return true;     // can always do
+            case requested:
+            case reserved:  return isAvailable(resource, startTime, endTime, workload);
             default: return false;
         }
     }
@@ -350,10 +351,10 @@ public class ResourceCalendar {
     public Status updateEntry(long entryID, Status status)
             throws CalendarException, ScheduleStateException {
         switch (status) {
-            case Available : makeAvailable(entryID); break;
-            case Unavailable : makeUnavailable(entryID); break;
-            case Reserved  : confirm(entryID); break;
-            case Requested : unconfirm(entryID); break;
+            case available: makeAvailable(entryID); break;
+            case unavailable: makeUnavailable(entryID); break;
+            case reserved: confirm(entryID); break;
+            case requested: unconfirm(entryID); break;
             default: throw new CalendarException(
                     "Invalid status change request: " + status.name());
         }
@@ -370,10 +371,10 @@ public class ResourceCalendar {
     public boolean canUpdateEntry(long entryID, Status status)
             throws CalendarException, ScheduleStateException {
         switch (status) {
-            case Available :
-            case Unavailable : return true;                // can always do
-            case Reserved  : return canConfirm(entryID);
-            case Requested : return canUnconfirm(entryID);
+            case available:
+            case unavailable: return true;                // can always do
+            case reserved: return canConfirm(entryID);
+            case requested: return canUnconfirm(entryID);
             default: return false;
         }
     }
@@ -427,7 +428,7 @@ public class ResourceCalendar {
 
         // all trans to unavailable valid
         makeAvailable(resource, startTime, endTime);              // remove all current
-        return addEntry(resource, startTime, endTime, Status.Unavailable, 100, agent, comment);
+        return addEntry(resource, startTime, endTime, Status.unavailable, 100, agent, comment);
      }
 
 
@@ -443,7 +444,7 @@ public class ResourceCalendar {
     private void makeUnavailable(long entryID)
             throws ScheduleStateException, CalendarException {
         CalendarEntry entry = getEntry(entryID);
-        entry.setStatus(Status.Unavailable.name());
+        entry.setStatus(Status.unavailable.name());
         updateEntry(entry);
         notifyStatusChange(entry);
     }    
@@ -453,7 +454,7 @@ public class ResourceCalendar {
                         String comment) throws ScheduleStateException, CalendarException {
 
         // must be currently available
-        return addEntryIfAvailable(resource, startTime, endTime, Status.Reserved, agent, comment);
+        return addEntryIfAvailable(resource, startTime, endTime, Status.reserved, agent, comment);
     }
 
 
@@ -466,7 +467,7 @@ public class ResourceCalendar {
     public void cancel(long entryID) throws ScheduleStateException, CalendarException {
 
         // must be currently reserved
-        removeEntry(entryID, Status.Reserved);
+        removeEntry(entryID, Status.reserved);
     }
 
 
@@ -474,7 +475,7 @@ public class ResourceCalendar {
                      String agent, String comment) throws ScheduleStateException, CalendarException {
 
         // must be currently available
-        return addEntryIfAvailable(resource, startTime, endTime, Status.Requested, agent, comment);
+        return addEntryIfAvailable(resource, startTime, endTime, Status.requested, agent, comment);
     }
 
 
@@ -486,31 +487,31 @@ public class ResourceCalendar {
     public void unrequest(long entryID) throws ScheduleStateException, CalendarException {
 
         // must be currently requested
-        removeEntry(entryID, Status.Requested);
+        removeEntry(entryID, Status.requested);
     }
 
 
     public void confirm(long entryID) throws ScheduleStateException, CalendarException {
 
         // must be currently requested
-        updateStatus(entryID, Status.Requested, Status.Reserved);
+        updateStatus(entryID, Status.requested, Status.reserved);
     }
 
 
     public void unconfirm(long entryID) throws ScheduleStateException, CalendarException {
 
         // must be currently reserved
-        updateStatus(entryID, Status.Reserved, Status.Requested);
+        updateStatus(entryID, Status.reserved, Status.requested);
     }
 
 
     public boolean canConfirm(long entryID) throws CalendarException {
-        return canUpdateStatus(entryID, Status.Requested);
+        return canUpdateStatus(entryID, Status.requested);
     }
 
 
     public boolean canUnconfirm(long entryID) throws ScheduleStateException, CalendarException {
-        return canUpdateStatus(entryID, Status.Reserved);
+        return canUpdateStatus(entryID, Status.reserved);
     }
 
 
@@ -798,7 +799,7 @@ public class ResourceCalendar {
         long duration = resource.getBlockedDuration();
         if (duration > 0) {
             Status status = resource.getBlockType().equals("Soft") ?
-                    Status.SoftBlocked : Status.HardBlocked;
+                    Status.softBlocked : Status.hardBlocked;
             CalendarEntry blockedEntry = new CalendarEntry(resource.getID(),
                     entry.getEndTime() + 1, entry.getEndTime() + duration, status,
                     100, entry.getAgent(), entry.getComment());

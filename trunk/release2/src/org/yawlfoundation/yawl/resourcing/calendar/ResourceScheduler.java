@@ -80,7 +80,7 @@ public class ResourceScheduler {
      * @return the updated plan
      */
     public UtilisationPlan saveReservations(UtilisationPlan plan, String agent, boolean checkOnly) {
-        if (validatePlan(plan)) {
+        if (validatePlan(plan) && plan.hasActivities()) {
             for (Activity activity : plan.getActivityList()) {
                 if (validateActivity(activity)) {
                     Set<Long> reservationIDs = new HashSet<Long>();
@@ -406,7 +406,7 @@ public class ResourceScheduler {
                                  CalendarEntry calEntry, CalendarLogEntry logEntry)
             throws CalendarException, ScheduleStateException {
         String statusToBe = reservation.getStatusToBe();
-        reservation.setStatus(ResourceCalendar.Status.Nil.name());     // default status
+        reservation.setStatus(ResourceCalendar.Status.nil.name());     // default status
         long entryID = _calendar.createEntry(resource, calEntry);
 
         // if the entry was successful, update the reservation record  
@@ -431,19 +431,23 @@ public class ResourceScheduler {
      */
     private void checkMakeReservation(Reservation reservation, long from, long to)
             throws CalendarException {
+        boolean hasAvailableResource = false;
 
         // if at least one resource is available, then check succeeds
-        for (AbstractResource resource : getActualResourceList(reservation.getResource())) {
-             if (_calendar.canCreateEntry(resource, from, to, reservation.getStatusToBe(),
-                     reservation.getWorkload())) {
-                 reservation.getResource().setID(resource.getID());  // available resource
-                 reservation.setWarning("Reservation would succeed.");
-                 break;
-             }
+        if (reservation.hasResource()) {
+            for (AbstractResource resource : getActualResourceList(reservation.getResource())) {
+                if (_calendar.canCreateEntry(resource, from, to, reservation.getStatusToBe(),
+                        reservation.getWorkload())) {
+                    reservation.getResource().setID(resource.getID());  // available resource
+                    hasAvailableResource = true;
+                    break;
+                }
+            }
+            if (! hasAvailableResource) {                       // no available resources
+                reservation.setWarning("Reservation would fail.");
+            }
         }
-        if (! reservation.hasWarning()) {                       // no available resources
-            reservation.setWarning("Reservation would fail.");
-        }
+        else reservation.setWarning("No resource specified for reservation.");
     }
 
 
@@ -456,10 +460,9 @@ public class ResourceScheduler {
     private void checkUpdateReservation(Reservation reservation)
             throws CalendarException, ScheduleStateException {
         long entryID = convertReservationID(reservation);
-        if (_calendar.canUpdateEntry(entryID, reservation.getStatusToBe())) {
-            reservation.setWarning("Reservation would succeed.");
+        if (! _calendar.canUpdateEntry(entryID, reservation.getStatusToBe())) {
+            reservation.setWarning("Reservation would fail.");
         }
-        else reservation.setWarning("Reservation would fail.");
     }
 
 

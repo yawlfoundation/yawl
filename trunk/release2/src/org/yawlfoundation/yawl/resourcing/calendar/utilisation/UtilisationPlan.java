@@ -77,6 +77,10 @@ public class UtilisationPlan extends StatusMessage {
         return null;
     }
 
+    public boolean hasActivities() {
+        return _activityList != null;
+    }
+
 
     public String toXML() {
         return toXNode().toString();
