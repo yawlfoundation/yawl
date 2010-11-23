@@ -84,6 +84,8 @@ public class Reservation extends StatusMessage {
         _resource = resource;
     }
 
+    public boolean hasResource() { return _resource != null; }
+
 
     public int getWorkload() { return _workload.getIntValue(); }
 
@@ -100,7 +102,7 @@ public class Reservation extends StatusMessage {
     public XNode toXNode() {
         XNode node = new XNode("Reservation");
         addAttributes(node);
-        node.addChild("ReservationId", _reservationID);
+        if (_reservationID != null) node.addChild("ReservationId", _reservationID);
         if (_statusToBe != null) node.addChild(_statusToBe.toXNode());
         if (_status != null) node.addChild(_status.toXNode());
         if (_resource != null) node.addChild(_resource.toXNode());
@@ -113,7 +115,8 @@ public class Reservation extends StatusMessage {
         setReservationID(node.getChildText("ReservationId"));
         setStatusToBe(node.getChildText("StatusToBe"));
         setStatus(node.getChildText("Status"));
-        setResource(new UtilisationResource(node.getChild("Resource")));
+        XNode resourceNode = node.getChild("Resource");
+        if (resourceNode != null) setResource(new UtilisationResource(resourceNode));
         setWorkload(StringUtil.strToInt(node.getChildText("Workload"), 100));
     }
 }

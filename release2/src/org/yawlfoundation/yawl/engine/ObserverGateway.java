@@ -119,10 +119,4 @@ public interface ObserverGateway
      */
     public void announceCaseCancellation(Set<YAWLServiceReference> services, YIdentifier id) ;
 
-    /**
-     * Called when the Engine is shutdown (servlet destroyed); the observer gateway should
-     * to do its own finalisation processing
-     */
-    public void shutdown();
-
 }

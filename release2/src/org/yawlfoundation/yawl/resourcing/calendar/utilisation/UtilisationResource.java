@@ -81,7 +81,7 @@ public class UtilisationResource {
     public String getSubcategory() { return _subcategory.getValue(); }
 
     public void setSubcategory(String s) {
-        if (_subcategory == null) _subcategory = new StringWithMessage("Subcategory");
+        if (_subcategory == null) _subcategory = new StringWithMessage("SubCategory");
         _subcategory.setValue(s);
     }
 
@@ -104,7 +104,7 @@ public class UtilisationResource {
         setRole(node.getChildText("Role"));
         setCapability(node.getChildText("Capability"));
         setCategory(node.getChildText("Category"));
-        setSubcategory(node.getChildText("Subcategory"));
+        setSubcategory(node.getChildText("SubCategory"));
     }
 
 }

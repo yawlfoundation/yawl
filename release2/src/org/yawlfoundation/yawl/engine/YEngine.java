@@ -302,8 +302,8 @@ public class YEngine implements InterfaceADesign,
 
     public void shutdown() {
         _sessionCache.shutdown();
-        _announcer.shutdownObserverGateways();
-        YTimer.getInstance().cancelAll();
+        YTimer.getInstance().cancelAll();             // cancel timer threads
+        YTimer.getInstance().cancel();                // stop the timer
         if (_pmgr != null) _pmgr.closeFactory();
     }
 

@@ -163,7 +163,7 @@ public class Activity extends StatusMessage {
     public XNode toXNode() {
         XNode node = new XNode("Activity");
         addAttributes(node);
-        node.addChild("Name", _name);
+        node.addChild("ActivityName", _name);
         node.addChild("StartTaskId", _taskID);
         node.addChild("RequestType", _phase);
         if (_from != null) node.addChild(_from.toXNode());
@@ -184,7 +184,7 @@ public class Activity extends StatusMessage {
 
     public void fromXNode(XNode node) {
         super.fromXNode(node);
-        setName(node.getChildText("Name"));
+        setName(node.getChildText("ActivityName"));
         setTaskID(node.getChildText("StartTaskId"));
         setPhase(node.getChildText("RequestType"));
         setFrom(node.getChildText("From"));
