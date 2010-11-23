@@ -1647,10 +1647,15 @@ libraries)">
         </copy>
     </target>
 
+    <!-- copies the set of jars needed by the five core webapps to tomcat/lib -->
 	<target name="deploySharedLibs" if="tomcat.isDedicated">
 		<copy overwrite="true" todir="${sharedLibs.dir}">
-			<fileset dir="${lib.dir}" includes="*.jar" />
-		</copy>
+            <fileset dir="${lib.dir}"
+                includes="${persistence.libs} ${xsd.libs} ${common.libs} ${soaprmi}
+                          ${xerces} ${dbClient} ${saxon.libs} ${wsif.libs} ${apacheSoap}
+                          ${wsif-j2c} ${jsf.libs} ${commonsLang} ${commonsCodec}"
+                 excludes="${servlet}"/>
+        </copy>
 		<copy overwrite="true" todir="${sharedLibs.dir}">
 			<fileset dir="${classes.dir}"
 				     includes="log4j.properties, hibernate.properties" />
