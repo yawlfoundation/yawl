@@ -86,7 +86,6 @@ public class YEngine implements InterfaceADesign,
     private static boolean _persisting;
     private static boolean _restoring;
     private static YCaseNbrStore _caseNbrStore;
-//    private static SessionFactory _factory = null;               // for persistence
     private static boolean _generateUIMetaData = true;           // extended attributes
     private static Logger _logger;
     private static Set<YWorkItemTimer> _expiredTimers;
@@ -300,7 +299,9 @@ public class YEngine implements InterfaceADesign,
         }
     }
 
+
     public void shutdown() {
+        _announcer.shutdownObserverGateways();
         _sessionCache.shutdown();
         YTimer.getInstance().cancelAll();             // cancel timer threads
         YTimer.getInstance().cancel();                // stop the timer
@@ -317,7 +318,6 @@ public class YEngine implements InterfaceADesign,
      public YBuildProperties getBuildProperties() {
          return _buildProps;
      }
-
 
 
      public YSessionCache getSessionCache() { return _sessionCache; }
