@@ -229,6 +229,13 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         }
     }
 
+    /**
+     * Called by the engine to announce shutdown of the engine's servlet container
+     */
+    public void shutdown() {
+    	// Nothing to do - Interface B Clients handle shutdown within their own servlet.
+    }
+
 
     /**
      * Returns an array of YParameter objects that describe the YAWL service
