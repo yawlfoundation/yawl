@@ -16,12 +16,14 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.resourcing.resource;
+package org.yawlfoundation.yawl.resourcing.resource.nonhuman;
 
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.util.TaggedStringList;
 
-import java.util.*;
+import java.util.Hashtable;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @author Michael Adams
@@ -37,7 +39,7 @@ public class NonHumanResourceCategories extends Hashtable<Long, TaggedStringList
 
     public NonHumanResourceCategories(boolean restore) {
         this();
-        if (restore) restore();
+  //      if (restore) restore();
     }
 
 
@@ -153,52 +155,52 @@ public class NonHumanResourceCategories extends Hashtable<Long, TaggedStringList
     /*********************************************************************/
 
     private long insert(String categoryName, long parentKey) {
-        NonHumanResourceCategory category =
-                new NonHumanResourceCategory(categoryName, parentKey);
+        NonHumanCategory category =
+                new NonHumanCategory(categoryName);
         _persister.insert(category);
-        return category.getKey();
+        return -1; // category.getKey();
     }
 
 
     private long deleteCategory(long key) {
-        String stmt = String.format("delete from NonHumanResourceCategory as nc " +
+        String stmt = String.format("delete from NonHumanCategory as nc " +
                                     "where nc._key=%d or nc._parentKey=%d", key, key);
         return _persister.execUpdate(stmt);
     }
 
 
     private long deleteSubCategory(long key, String subCategoryName) {
-        String stmt = String.format("delete from NonHumanResourceCategory as nc " +
+        String stmt = String.format("delete from NonHumanCategory as nc " +
                                     "where nc._category='%s' and nc._parentKey=%d",
                                     subCategoryName, key);
         return _persister.execUpdate(stmt);
     }
 
 
-    public void restore() {
-        List rows = _persister.execQuery("from NonHumanResourceCategory");
-        if (rows != null) {
-
-            // two passes categories first
-            for (Object o : rows) {
-                NonHumanResourceCategory row = (NonHumanResourceCategory) o;
-                if (row.getParentKey() == -1) {
-                    put(row.getKey(), new TaggedStringList(row.getCategory()));
-                }
-            }
-
-            // now subcategories
-            for (Object o : rows) {
-                NonHumanResourceCategory row = (NonHumanResourceCategory) o;
-                if (row.getParentKey() > -1) {
-                    TaggedStringList categoryList = get(row.getParentKey());
-                    if (categoryList != null) {
-                        categoryList.add(row.getCategory());
-                    }
-                }
-            }
-        }
-        _persister.commit();
-    }
+//    public void restore() {
+//        List rows = _persister.execQuery("from NonHumanCategory");
+//        if (rows != null) {
+//
+//            // two passes categories first
+//            for (Object o : rows) {
+//                NonHumanCategory row = (NonHumanCategory) o;
+//                if (row.getParentKey() == -1) {
+//                    put(row.getKey(), new TaggedStringList(row.getName()));
+//                }
+//            }
+//
+//            // now subcategories
+//            for (Object o : rows) {
+//                NonHumanCategory row = (NonHumanCategory) o;
+//                if (row.getParentKey() > -1) {
+//                    TaggedStringList categoryList = get(row.getParentKey());
+//                    if (categoryList != null) {
+//                        categoryList.add(row.getName());
+//                    }
+//                }
+//            }
+//        }
+//        _persister.commit();
+//    }
 
 }

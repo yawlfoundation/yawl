@@ -973,12 +973,13 @@ public class jdbcImpl extends DataSource {
      * deletes the object from the database
      * @param obj the object to delete
      */
-    public void delete(Object obj) {
+    public boolean delete(Object obj) {
         if (obj instanceof OrgGroup) deleteOrgGroup((OrgGroup) obj) ;
         else if (obj instanceof Capability) deleteCapability((Capability) obj) ;
         else if (obj instanceof Position) deletePosition((Position) obj) ;
         else if (obj instanceof Role) deleteRole((Role) obj);
         else if (obj instanceof Participant) deleteParticipant((Participant) obj);
+        return true;
     }
 
     

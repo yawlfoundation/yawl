@@ -32,6 +32,9 @@ import org.yawlfoundation.yawl.resourcing.datastore.eventlog.AuditEvent;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.SpecLog;
 import org.yawlfoundation.yawl.resourcing.resource.*;
+import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
+import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
+import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanSubCategory;
 
 import java.util.List;
 
@@ -62,10 +65,10 @@ public class HibernateEngine {
     private static Class[] persistedClasses = {
             Participant.class, Role.class, Capability.class, Position.class,
             OrgGroup.class, UserPrivileges.class, NonHumanResource.class,
-            NonHumanResourceCategory.class, WorkQueue.class, ResourceMap.class,
+            WorkQueue.class, ResourceMap.class, PersistedAutoTask.class,
             CalendarEntry.class, WorkItemRecord.class, ResourceEvent.class,
-            AuditEvent.class, SpecLog.class, PersistedAutoTask.class,
-            CalendarLogEntry.class
+            AuditEvent.class, SpecLog.class, CalendarLogEntry.class,
+            NonHumanCategory.class, NonHumanSubCategory.class
     };
 
 
@@ -147,7 +150,7 @@ public class HibernateEngine {
      * @param obj - an instance of the object to persist
      * @param action - type type of action performed
      */
-    public void exec(Object obj, int action) {
+    public boolean exec(Object obj, int action) {
 
         Transaction tx = null;
         try {
@@ -159,11 +162,13 @@ public class HibernateEngine {
             else if (action == DB_DELETE) session.delete(obj);
 
             tx.commit();
+            return true;
         }
         catch (HibernateException he) {
             _log.error("Handled Exception: Error persisting object (" + actionToString(action) +
                     "): " + obj.toString(), he);
             if (tx != null) tx.rollback();
+            return false;
         }
     }
 

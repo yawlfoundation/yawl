@@ -32,9 +32,7 @@ public class KeyValuePair extends Hashtable<String, String> {
 
     public String toXML() {
         XNode node = new XNode("pairs");
-        for (String key : this.keySet()) {
-            node.addChild(key, get(key));
-        }
+        node.addChildren(this);
         return node.toString();
     }
 

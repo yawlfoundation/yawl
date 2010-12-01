@@ -176,6 +176,10 @@ public class XNode {
         for (XNode child : children) addChild(child);
     }
 
+    public void addChildren(Map<String, String> children) {
+        for (String key : children.keySet()) addChild(key, children.get(key));
+    }
+
     public boolean removeChild(XNode child) {
         return (_children != null) && _children.remove(child);
     }

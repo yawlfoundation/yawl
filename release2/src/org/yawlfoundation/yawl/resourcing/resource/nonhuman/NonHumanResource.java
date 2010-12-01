@@ -16,9 +16,10 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.resourcing.resource;
+package org.yawlfoundation.yawl.resourcing.resource.nonhuman;
 
 import org.jdom.Element;
+import org.yawlfoundation.yawl.resourcing.resource.AbstractResource;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
@@ -29,16 +30,15 @@ import org.yawlfoundation.yawl.util.XNode;
 public class NonHumanResource extends AbstractResource implements Comparable {
 
     private String _name;
-    private String _category;
-    private String _subCategory;
+    private NonHumanCategory _category;
 
     public NonHumanResource() { super(); }
 
-    public NonHumanResource(String name, String category, String subCategory) {
+    public NonHumanResource(String name, NonHumanCategory category, String subCategoryName) {
         super();
         _name = name;
         _category = category;
-        _subCategory = subCategory;
+        _category.addResource(this, subCategoryName);
     }
 
     public NonHumanResource(Element e) {
@@ -54,32 +54,42 @@ public class NonHumanResource extends AbstractResource implements Comparable {
         _name = name;
     }
 
-    public String getCategory() {
+    public NonHumanCategory getCategory() {
         return _category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(NonHumanCategory category) {
         _category = category;
     }
 
-    public String getSubCategory() {
-        return _subCategory;
+    public NonHumanSubCategory getSubCategory() {
+        return _category.getResourceSubCategory(this);
     }
 
+    public String getSubCategoryName() {
+        NonHumanSubCategory subCategory = _category.getResourceSubCategory(this);
+        return (subCategory != null) ? subCategory.getName() : null;
+    }
+
+
     public void setSubCategory(String subCategory) {
-        _subCategory = subCategory;
+        _category.moveToSubCategory(this, subCategory);
+    }
+
+
+    public void detachSubCategory() {
+        getSubCategory().removeResource(this);
     }
 
 
     public boolean hasCategory(String category, String subCategory) {
-        return _category.equals(category) &&
-               ((subCategory == null) || _subCategory.equals(subCategory));
+        return _category.getName().equals(category) && _category.hasResource(this, subCategory);
     }
 
 
     public int compareTo(Object o) {
         if ((o == null) || (! (o instanceof NonHumanResource))) return 1;
-        return this.getName().compareTo(((NonHumanResource) o).getName());
+        return this.getID().compareTo(((NonHumanResource) o).getID());
     }
 
 
@@ -89,8 +99,8 @@ public class NonHumanResource extends AbstractResource implements Comparable {
         node.addChild("name", _name, true);
         node.addChild("description", _description, true);
         node.addChild("notes", _notes, true);
-        node.addChild("category", _category, true);
-        node.addChild("subcategory", _subCategory, true);
+        node.addChild("category", _category.getName(), true);
+        node.addChild("subcategory", getSubCategory());
         return node.toString() ;
     }
 
@@ -100,8 +110,6 @@ public class NonHumanResource extends AbstractResource implements Comparable {
         setName(JDOMUtil.decodeEscapes(e.getChildText("name")));
         setDescription(JDOMUtil.decodeEscapes(e.getChildText("description")));
         setNotes(JDOMUtil.decodeEscapes(e.getChildText("notes")));
-        setCategory(JDOMUtil.decodeEscapes(e.getChildText("category")));
-        setSubCategory(JDOMUtil.decodeEscapes(e.getChildText("subcategory")));
     }
 
 }

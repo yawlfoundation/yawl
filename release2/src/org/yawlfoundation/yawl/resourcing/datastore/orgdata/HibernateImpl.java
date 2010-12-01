@@ -20,6 +20,8 @@ package org.yawlfoundation.yawl.resourcing.datastore.orgdata;
 
 import org.yawlfoundation.yawl.resourcing.datastore.HibernateEngine;
 import org.yawlfoundation.yawl.resourcing.resource.*;
+import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
+import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
 import org.yawlfoundation.yawl.exceptions.YAuthenticationException;
 
 import java.util.HashMap;
@@ -48,7 +50,8 @@ public class HibernateImpl extends DataSource {
     private final String _position = Position.class.getName();
     private final String _orgGroup = OrgGroup.class.getName();
     private final String _nonHumanResource = NonHumanResource.class.getName();
-    
+    private final String _nonHumanResourceCategory = NonHumanCategory.class.getName();
+
     // the constructor
     public HibernateImpl() {
         _db = HibernateEngine.getInstance(true) ;
@@ -69,12 +72,13 @@ public class HibernateImpl extends DataSource {
         else if (obj instanceof Role) prefix = "RO" ;
         else if (obj instanceof Participant) prefix = "PA";
         else if (obj instanceof NonHumanResource) prefix = "NH";
+        else if (obj instanceof NonHumanCategory) prefix = "NC";
 
         return getNextID(prefix);
     }
 
 
-    /** these 5 methods load resource entity sets individually */
+    /** these methods load resource entity sets individually */
 
     public HashMap<String,Capability> loadCapabilities() {
         HashMap<String,Capability> capMap = new HashMap<String,Capability>();
@@ -116,6 +120,15 @@ public class HibernateImpl extends DataSource {
         return nhMap ;
     }
 
+    public HashMap<String, NonHumanCategory> loadNonHumanCategories() {
+        HashMap<String, NonHumanCategory> nhCategoryMap =
+                new HashMap<String, NonHumanCategory>();
+        List<NonHumanCategory> nhList = _db.getObjectsForClass(_nonHumanResourceCategory) ;
+        for (NonHumanCategory r : nhList) nhCategoryMap.put(r.getID(), r) ;
+        _db.commit();
+        return nhCategoryMap ;
+    }
+
 
    /*******************************************************************************/
 
@@ -144,6 +157,10 @@ public class HibernateImpl extends DataSource {
        List<NonHumanResource> resList = _db.getObjectsForClass(_nonHumanResource) ;
        if (resList != null) for (NonHumanResource res : resList) ds.putNonHumanResource(res) ;
 
+       List<NonHumanCategory> catList = _db.getObjectsForClass(_nonHumanResourceCategory) ;
+       if (catList != null) for (NonHumanCategory cat : catList)
+           ds.putNonHumanCategory(cat) ;
+
        return ds ;
     }
 
@@ -151,7 +168,7 @@ public class HibernateImpl extends DataSource {
     public void update(Object obj) { _db.exec(obj, _UPDATE); }
 
 
-    public void delete(Object obj) { _db.exec(obj, _DELETE); }
+    public boolean delete(Object obj) { return _db.exec(obj, _DELETE); }
 
 
     public String insert(Object obj) {
@@ -166,8 +183,12 @@ public class HibernateImpl extends DataSource {
                 _db.exec(((Participant) obj).getUserPrivileges(), _INSERT);
             }
         }
-        else ((AbstractResourceAttribute) obj).setID(id);
-
+        else if (obj instanceof AbstractResourceAttribute) {
+            ((AbstractResourceAttribute) obj).setID(id);
+        }
+        else {
+            ((NonHumanCategory) obj).setID(id);
+        }
         _db.exec(obj, _INSERT);
 
         return id ;

@@ -450,8 +450,8 @@ public class LDAPSource extends DataSource {
 
     }
 
-    public void delete(Object obj) {
-
+    public boolean delete(Object obj) {
+        return false;
     }
 
     public String insert(Object obj) {

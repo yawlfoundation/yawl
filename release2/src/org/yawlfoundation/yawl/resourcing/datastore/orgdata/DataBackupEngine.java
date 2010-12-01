@@ -24,6 +24,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.resource.*;
+import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -172,7 +173,7 @@ public class DataBackupEngine {
                         r.fromXML(nhr);
                         orgDataSet.importNonHumanResource(r);
                         if (r.getCategory() != null) {
-                            orgDataSet.addNonHumanResourceSubCategory(r.getCategory(), r.getSubCategory());
+  //                          orgDataSet.addNonHumanSubCategory(r.getCategory(), r.getSubCategory());
                         }
                         added++;
                     }

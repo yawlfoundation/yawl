@@ -25,6 +25,8 @@ import org.yawlfoundation.yawl.resourcing.codelets.CodeletInfo;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
 import org.yawlfoundation.yawl.resourcing.resource.*;
+import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
+import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
@@ -648,6 +650,21 @@ public class ResourceGatewayClientAdapter {
 
 
     /**
+     * Checks if an id corresponds to a NonHumanCategory id known to the service
+     * @param id the id to check
+     * @param handle the current sessionhandle
+     * @return true if the id is known (valid), false if otherwise
+     */
+    public boolean isKnownNonHumanCategory(String id, String handle) {
+        try {
+            return _rgclient.isKnownNonHumanCategory(id, handle).equals("true") ;
+        }
+        catch (IOException ioe) { return false; }
+    }
+
+
+
+    /**
      * Gets the set of Participants that are currently logged on
      * @param handle the current sessionhandle
      * @return the Set of currently logged on Participants
@@ -1173,8 +1190,8 @@ public class ResourceGatewayClientAdapter {
      */
     public String addNonHumanResource(NonHumanResource resource, String handle)
             throws IOException {
-        return _rgclient.addNonHumanResource(resource.getName(), resource.getCategory(),
-                resource.getSubCategory(), resource.getDescription(), resource.getNotes(),
+        return _rgclient.addNonHumanResource(resource.getName(), resource.getCategory().getName(),
+                resource.getSubCategoryName(), resource.getDescription(), resource.getNotes(),
                 handle);
     }
 
@@ -1331,7 +1348,7 @@ public class ResourceGatewayClientAdapter {
     public String updateNonHumanResource(NonHumanResource resource, String handle)
             throws IOException {
         return _rgclient.updateNonHumanResource(resource.getID(), resource.getName(),
-                resource.getCategory(), resource.getSubCategory(),
+                resource.getCategory().getName(), resource.getSubCategoryName(),
                 resource.getDescription(), resource.getNotes(), handle);
     }
 
@@ -1398,6 +1415,21 @@ public class ResourceGatewayClientAdapter {
         return _rgclient.updateOrgGroup(group.getID(), group.getGroupName(),
                 group.getGroupType().name(), group.getDescription(), group.getNotes(),
                 ownerID, handle);
+    }
+
+
+    /**
+     * Updates the NonHumanCategory stored in the service's org data with the modified
+     * values of the NonHumanResource specified
+     * @param category the NonHumanResource
+     * @param handle the current sessionhandle
+     * @return a message indicating success, or describing a problem encountered
+     * @throws IOException if there was a problem connecting to the resource service
+     */
+    public String updateNonHumanCategory(NonHumanCategory category, String handle)
+            throws IOException {
+        return _rgclient.updateNonHumanCategory(category.getID(), category.getName(),
+                category.getDescription(), category.getNotes(), handle);
     }
 
 
@@ -1608,16 +1640,56 @@ public class ResourceGatewayClientAdapter {
 
 
     /**
-     * Gets the list of all NonHumanResource category names
+     * Gets the NonHumanCategory with the specified id
+     * @param id a valid NonHumanCategory identifier
+     * @param handle a valid session handle
+     * @return the NonHumanCategory object matching the id specified
+     * @throws IOException if the service can't be reached
+     * @throws ResourceGatewayException if there was a problem getting the NonHumanCategory
+     */
+    public NonHumanCategory getNonHumanCategory(String id, String handle)
+            throws IOException, ResourceGatewayException {
+        String xml = successCheck(_rgclient.getNonHumanCategory(id, handle));
+        NonHumanCategory category = new NonHumanCategory();
+        category.fromXML(xml);
+        return category;
+    }
+
+
+    /**
+     * Gets the NonHumanCategory with the specified name
+     * @param name a valid NonHumanCategory name
+     * @param handle a valid session handle
+     * @return the NonHumanCategory object matching the name specified
+     * @throws IOException if the service can't be reached
+     * @throws ResourceGatewayException if there was a problem getting the NonHumanCategory
+     */
+    public NonHumanCategory getNonHumanCategoryByName(String name, String handle)
+            throws IOException, ResourceGatewayException {
+        String xml = successCheck(_rgclient.getNonHumanCategoryByName(name, handle));
+        NonHumanCategory category = new NonHumanCategory();
+        category.fromXML(xml);
+        return category;
+    }
+
+    /**
+     * Gets the list of all NonHumanCategory objects known to the Resource Service
      * @param handle the current sessionhandle
-     * @return a list of category name strings
+     * @return a list of categories
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the list
      */
-    public List<String> getNonHumanResourceCategories(String handle)
+    public List<NonHumanCategory> getNonHumanCategories(String handle)
             throws IOException, ResourceGatewayException {
-        String xml = successCheck(_rgclient.getNonHumanResourceCategories(handle));
-        return xmlToStringList(xml);
+        String xml = successCheck(_rgclient.getNonHumanCategories(handle));
+        List<NonHumanCategory> categoryList = new ArrayList<NonHumanCategory>();
+        XNode node = new XNodeParser().parse(xml);
+        for (XNode catNode : node.getChildren()) {
+            NonHumanCategory category = new NonHumanCategory();
+            category.fromXNode(catNode);
+            categoryList.add(category);
+        }
+        return categoryList;
     }
 
 
@@ -1628,9 +1700,9 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the list
      */
-    public String getNonHumanResourceCategoriesToJSON(String handle)
+    public String getNonHumanCategoriesToJSON(String handle)
             throws IOException, ResourceGatewayException {
-        return successCheck(_rgclient.getNonHumanResourceCategories(JSON_FORMAT, handle));
+        return successCheck(_rgclient.getNonHumanCategories(JSON_FORMAT, handle));
     }
 
 
@@ -1642,9 +1714,9 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the list
      */
-    public List<String> getNonHumanResourceSubCategories(String category, String handle)
+    public List<String> getNonHumanSubCategories(String category, String handle)
             throws IOException, ResourceGatewayException {
-        String xml = successCheck(_rgclient.getNonHumanResourceSubCategories(category, handle));
+        String xml = successCheck(_rgclient.getNonHumanSubCategories(category, handle));
         return xmlToStringList(xml);
     }
 
@@ -1658,9 +1730,9 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the list
      */
-    public String getNonHumanResourceSubCategoriesToJSON(String category, String handle)
+    public String getNonHumanSubCategoriesToJSON(String category, String handle)
             throws IOException, ResourceGatewayException {
-        return successCheck(_rgclient.getNonHumanResourceSubCategories(
+        return successCheck(_rgclient.getNonHumanSubCategories(
                 category, JSON_FORMAT, handle));
     }
 
@@ -1672,9 +1744,9 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the list
      */
-    public Map<String, Set<String>> getNonHumanResourceCategorySet(String handle)
+    public Map<String, Set<String>> getNonHumanCategorySet(String handle)
             throws IOException, ResourceGatewayException {
-        String xml = successCheck(_rgclient.getNonHumanResourceCategorySet(handle));
+        String xml = successCheck(_rgclient.getNonHumanCategorySet(handle));
         XNode node = _xnodeParser.parse(xml);
         Map<String, Set<String>> map = null;
         if (node != null) {
@@ -1695,15 +1767,13 @@ public class ResourceGatewayClientAdapter {
      * Adds a new NonHumanResource category
      * @param category the category to add
      * @param handle the current sessionhandle
-     * @return the category key (an id for the category)
+     * @return a unique id for the category
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem adding the category
      */
-    public long addNonHumanResourceCategory(String category, String handle)
+    public String addNonHumanCategory(String category, String handle)
             throws IOException, ResourceGatewayException {
-        String keyStr = successCheck(_rgclient.addNonHumanResourceCategory(category, handle));
-        XNode node = _xnodeParser.parse(keyStr);
-        return stringToLong(node.getText());
+        return successCheck(_rgclient.addNonHumanCategory(category, handle));
     }
 
 
@@ -1716,57 +1786,59 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem adding the subcategory
      */
-    public boolean addNonHumanResourceSubCategory(String category, String subcategory, String handle)
+    public boolean addNonHumanSubCategoryByName(String category,
+                                                        String subcategory, String handle)
             throws IOException, ResourceGatewayException {
-        successful(_rgclient.addNonHumanResourceSubCategory(category, subcategory, handle));
+        successful(_rgclient.addNonHumanSubCategoryByName(category, subcategory,
+                handle));
         return true;
     }
 
 
     /**
      * Adds a new NonHumanResource category
-     * @param key the identifier of the category to add the subcategory to
+     * @param id the identifier of the category to add the subcategory to
      * @param subcategory the subcategory to add
      * @param handle the current sessionhandle
      * @return true if the add was successful
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem adding the subcategory
      */
-    public boolean addNonHumanResourceSubCategory(long key, String subcategory, String handle)
+    public boolean addNonHumanSubCategory(String id, String subcategory, String handle)
             throws IOException, ResourceGatewayException {
-        successful(_rgclient.addNonHumanResourceSubCategory(key, subcategory, handle));
+        successful(_rgclient.addNonHumanSubCategory(id, subcategory, handle));
         return true;
     }
 
 
     /**
      * Removes a category of the list of NonHumanResource categories
-     * @param category the name of the category to remove; all of the category's
+     * @param id the identifier of the category to remove; all of the category's
      * subcategories will also be removed
      * @param handle the current sessionhandle
      * @return true if the removal was successful
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem removing the category
      */
-    public boolean removeNonHumanResourceCategory(String category, String handle)
+    public boolean removeNonHumanCategory(String id, String handle)
             throws IOException, ResourceGatewayException {
-        successful(_rgclient.removeNonHumanResourceCategory(category, handle));
+        successful(_rgclient.removeNonHumanCategory(id, handle));
         return true;
     }
 
 
     /**
      * Removes a category of the list of NonHumanResource categories
-     * @param key the identifier of the category to remove; all of the category's
+     * @param name the name of the category to remove; all of the category's
      * subcategories will also be removed
      * @param handle the current sessionhandle
      * @return true if the removal was successful
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem removing the category
      */
-    public boolean removeNonHumanResourceCategory(long key, String handle)
+    public boolean removeNonHumanCategoryByName(String name, String handle)
             throws IOException, ResourceGatewayException {
-        successful(_rgclient.removeNonHumanResourceCategory(key, handle));
+        successful(_rgclient.removeNonHumanCategoryByName(name, handle));
         return true;
     }
 
@@ -1780,25 +1852,25 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem removing the subcategory
      */
-    public boolean removeNonHumanResourceSubCategory(String category, String subcategory,
+    public boolean removeNonHumanSubCategoryByName(String category, String subcategory,
             String handle) throws IOException, ResourceGatewayException {
-        successful(_rgclient.removeNonHumanResourceSubCategory(category, subcategory, handle));
+        successful(_rgclient.removeNonHumanSubCategoryByName(category, subcategory, handle));
         return true;
     }
 
 
     /**
      * Removes a subcategory of a NonHumanResource category
-     * @param key the identifier of the category to remove the subcategory from
+     * @param id the identifier of the category to remove the subcategory from
      * @param subcategory the subcategory name to remove
      * @param handle the current sessionhandle
      * @return true if the removal was successful
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem removing the subcategory
      */
-    public boolean removeNonHumanResourceSubCategory(long key, String subcategory,
+    public boolean removeNonHumanSubCategory(String id, String subcategory,
             String handle) throws IOException, ResourceGatewayException {
-        successful(_rgclient.removeNonHumanResourceSubCategory(key, subcategory, handle));
+        successful(_rgclient.removeNonHumanSubCategory(id, subcategory, handle));
         return true;
     }
 

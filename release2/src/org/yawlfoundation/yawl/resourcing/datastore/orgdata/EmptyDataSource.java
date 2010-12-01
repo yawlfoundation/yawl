@@ -45,7 +45,7 @@ public class EmptyDataSource extends DataSource {
 
     public void update(Object obj) { }
 
-    public void delete(Object obj) { }
+    public boolean delete(Object obj) { return false; }
 
     public String insert(Object obj) {
         return null; 
