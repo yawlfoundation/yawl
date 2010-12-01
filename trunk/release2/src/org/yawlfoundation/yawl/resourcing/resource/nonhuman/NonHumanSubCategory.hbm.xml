@@ -20,26 +20,26 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
           "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
-<hibernate-mapping package="org.yawlfoundation.yawl.resourcing.resource">
+<hibernate-mapping package="org.yawlfoundation.yawl.resourcing.resource.nonhuman">
 
-	<class name="NonHumanResourceCategory" table="rs_NonHumanResourceCategory" lazy="false">
+	<class name="NonHumanSubCategory" table="rs_NonHumanSubCategory" lazy="false">
 
-        <id name="_key"
-            column="CategoryKey"
-            type="long"
-            access="field">
+        <id name="_id"
+            column="SubCategoryID"
+            type="long">
             <generator class="native"/>
         </id>
 
-    	<property name="_category"
-                  column="Category"
+    	<property name="_name"
+                  column="SubcategoryName"
                   type="string"
                   access="field"/>
 
-        <property name="_parentKey"
-                  column="ParentKey"
-                  type="long"
-                  access="field"/>
-     </class> 
+        <set name="_resources" table="rs_SubCategory_Resource" access="field" lazy="false">
+           <key column="SubCategoryID"/>
+           <one-to-many class="NonHumanResource"/>
+        </set>
+
+     </class>
 	
 </hibernate-mapping>

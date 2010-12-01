@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.resourcing.calendar;
 
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.calendar.utilisation.*;
+import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.resource.AbstractResource;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
@@ -311,8 +312,8 @@ public class ResourceScheduler {
             throw new CalendarException("Failed to resolve resource.");     // none found
         }
 
-        // while the list has resources, remove a random selection and check if the
-        // reservation would succeed
+        // while the list has resources, remove a random selection and check if a
+        // reservation for it would succeed
         while (actualList.size() > 0) {
             AbstractResource actual =
                     actualList.remove((int) Math.floor(Math.random() * actualList.size()));
@@ -334,6 +335,7 @@ public class ResourceScheduler {
      */
     private List<AbstractResource> getActualResourceList(UtilisationResource resource) {
         List<AbstractResource> resourceList = new ArrayList<AbstractResource>();
+        ResourceDataSet dataSet = _rm.getOrgDataSet();
 
         // if a single resource is specified, get it
         if (resource.getID() != null) {
@@ -342,13 +344,18 @@ public class ResourceScheduler {
 
         // if there is a role (and optionally a capability), get all matching resources
         else if (resource.getRole() != null) {
-            resourceList.addAll(_rm.getOrgDataSet().getRoleParticipantsWithCapability(
+            resourceList.addAll(dataSet.getRoleParticipantsWithCapability(
                     resource.getRole(), resource.getCapability()));
+        }
+
+        // if there's a capability but no role, get all those with that capability
+        else if (resource.getCapability() != null) {
+            resourceList.addAll(dataSet.getCapabilityParticipants(resource.getCapability()));
         }
 
         // if there is a category (and optionally a subcategory), get all matches
         else if (resource.getCategory() != null) {
-            resourceList.addAll(_rm.getOrgDataSet().getNonHumanResources(
+            resourceList.addAll(dataSet.getNonHumanResources(
                     resource.getCategory(), resource.getSubcategory()));
         }
         return resourceList;

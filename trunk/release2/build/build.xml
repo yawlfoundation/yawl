@@ -1539,9 +1539,6 @@
 (memory optimised via shared lib folder)">
 	</target>
 
-	<target name="TESTdeployEngine_DedicatedTomcat"
-		        depends="setDedicatedTomcat, deployEngine, deploySharedLibs" />
-
 	<target name="deployWebapps_SharedTomcat"
 		        depends="deployWebapps"
 		        description="Build and deploy all web apps to a shared Tomcat

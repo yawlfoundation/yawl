@@ -20,7 +20,7 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
           "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
-<hibernate-mapping package="org.yawlfoundation.yawl.resourcing.resource">
+<hibernate-mapping package="org.yawlfoundation.yawl.resourcing.resource.nonhuman">
 
 	<class name="NonHumanResource" table="rs_NonHumanResource" lazy="false">
 
@@ -58,15 +58,11 @@
                   column="BlockedType"
                   type="string"/>
 
-        <property name="_category"
-                  column="LastName"
-                  type="string"
-                  access="field"/>
-
-        <property name="_subCategory"
-                  column="FirstName"
-                  type="string"
-                  access="field"/>
+        <many-to-one name="_category"
+                  column="CategoryID"
+                  class="NonHumanCategory"
+                  access="field"
+                  cascade="save-update"/>
 
      </class> 
 	

@@ -76,7 +76,7 @@ public abstract class DataSource {
      * deletes a persisted object
      * @param obj the object to delete
      */
-    public abstract void delete(Object obj) ;
+    public abstract boolean delete(Object obj) ;
 
 
     /**
