@@ -67,7 +67,7 @@ public class UtilisationPlan extends StatusMessage {
     }
 
     public Activity getActivity(String name) {
-        if (_activityList != null) {
+        if ((name != null) && (_activityList != null)) {
             for (Activity activity : _activityList) {
                 if (activity.getName().equals(name)) {
                     return activity;

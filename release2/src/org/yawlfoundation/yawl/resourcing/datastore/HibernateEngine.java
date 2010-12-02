@@ -36,6 +36,7 @@ import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanSubCategory;
 
+import java.io.Serializable;
 import java.util.List;
 
 
@@ -149,6 +150,7 @@ public class HibernateEngine {
      * persists the object instance passed
      * @param obj - an instance of the object to persist
      * @param action - type type of action performed
+     * @return true if persist was successful, false if otherwise
      */
     public boolean exec(Object obj, int action) {
 
@@ -171,6 +173,35 @@ public class HibernateEngine {
             return false;
         }
     }
+
+
+    /**
+     * persists the object instance passed
+     * @param obj - an instance of the object to persist
+     * @param action - type type of action performed
+     * @params tx - an active Transaction object. NOTE: Any objects persisted via this
+     * method will not be permanently actioned until the transaction is committed via
+     * a call to 'commit()'.
+     * @return true if persist was successful, false if otherwise
+     */
+    public boolean exec(Object obj, int action, Transaction tx) {
+
+        try {
+            Session session = _factory.getCurrentSession();
+            if (action == DB_INSERT) session.save(obj);
+            else if (action == DB_UPDATE) updateOrMerge(session, obj);
+            else if (action == DB_DELETE) session.delete(obj);
+
+            return true;
+        }
+        catch (HibernateException he) {
+            _log.error("Handled Exception: Error persisting object (" + actionToString(action) +
+                    "): " + obj.toString(), he);
+            if (tx != null) tx.rollback();
+            return false;
+        }
+    }
+
 
 
     /* a workaround for a hibernate 'feature' */
@@ -249,6 +280,21 @@ public class HibernateEngine {
     }
 
 
+    public Transaction beginTransaction() {
+        return _factory.getCurrentSession().beginTransaction();
+    }
+
+
+    public Object load(Class claz, Serializable key) {
+        return _factory.getCurrentSession().load(claz, key);
+    }
+
+
+    public Object get(Class claz, Serializable key) {
+        return _factory.getCurrentSession().get(claz, key);
+    }
+
+    
     public void commit() {
         try {
            Transaction tx = _factory.getCurrentSession().getTransaction();
@@ -256,6 +302,17 @@ public class HibernateEngine {
         }
         catch (HibernateException he) {
             _log.error("Caught Exception: Error committing transaction", he);
+        }
+    }
+
+
+    public void rollback() {
+        try {
+           Transaction tx = _factory.getCurrentSession().getTransaction();
+           if ((tx != null) && tx.isActive()) tx.rollback();
+        }
+        catch (HibernateException he) {
+            _log.error("Caught Exception: Error rolling back transaction", he);
         }
     }
 

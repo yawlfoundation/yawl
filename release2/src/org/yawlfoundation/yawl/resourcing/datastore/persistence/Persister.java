@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.resourcing.datastore.persistence;
 
 import org.hibernate.Query;
+import org.hibernate.Transaction;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.HibernateEngine;
@@ -31,7 +32,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *  This class implements methods for Organisational Data CRUD.
+ * This class is a thin client of HibernateEngine that implements methods for 
+ * Organisational Data CRUD.
  *
  *  @author Michael Adams
  *  v0.1, 03/08/2007
@@ -108,8 +110,15 @@ public class Persister implements Serializable {
         return _db.createQuery(query);
     }
 
+    public Transaction beginTransaction() { return _db.beginTransaction(); }
+
+    public Object load(Class claz, Serializable key) { return _db.load(claz, key); }
+
+    public Object get(Class claz, Serializable key) { return _db.get(claz, key); }
+
     public void commit() { _db.commit(); }
 
+    public void rollback() { _db.rollback(); }
 
     public void closeDB() { _db.closeFactory(); }
 
@@ -135,5 +144,11 @@ public class Persister implements Serializable {
     public void delete(Object obj) { _db.exec(obj, _DELETE); }
 
     public void insert(Object obj) { _db.exec(obj, _INSERT); }
+
+    public void update(Object obj, Transaction tx) { _db.exec(obj, _UPDATE, tx); }
+
+    public void delete(Object obj, Transaction tx) { _db.exec(obj, _DELETE, tx); }
+
+    public void insert(Object obj, Transaction tx) { _db.exec(obj, _INSERT, tx); }
 
 }

@@ -18,12 +18,15 @@
 
 package org.yawlfoundation.yawl.resourcing.calendar;
 
+import org.hibernate.ObjectNotFoundException;
+import org.hibernate.Transaction;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.resource.AbstractResource;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Maintains the resource calendar. An entry in the calendar denotes that a resource
@@ -42,6 +45,8 @@ public class ResourceCalendar {
     }
 
     public static enum ResourceGroup { AllResources, HumanResources, NonHumanResources }
+
+    public static String TRANSIENT_FLAG = "__transient__entry__flag__";
 
     private static ResourceCalendar _me;
     private Persister _persister;
@@ -523,7 +528,58 @@ public class ResourceCalendar {
             throw new CalendarException("Invalid status: " + name);
         }
     }
-    
+
+
+    public long addTransientEntry(CalendarEntry entry) throws CalendarException {
+        entry.setComment(TRANSIENT_FLAG);
+        return addEntry(entry);
+    }
+
+
+    public long addTransientEntry(String id, long startTime, long endTime, Status status,
+                                  int workload, String agent)
+            throws CalendarException {
+        return addEntry(id, startTime, endTime, status, workload, agent, TRANSIENT_FLAG);
+    }
+
+
+    public String updateTransientEntry(long entryID, String newStatus)
+            throws CalendarException {
+        String oldStatus = null;
+        CalendarEntry entry = getEntry(entryID);
+        if (entry != null) {
+            oldStatus = entry.getStatus();
+            entry.setStatus(newStatus);
+            updateEntry(entry);
+        }
+        return oldStatus;
+    }
+
+
+    public void removeTransientEntries(Map<Long, String> transientMap) {
+        CalendarEntry entry;
+        Transaction tx = _persister.beginTransaction();
+        for (Long entryID : transientMap.keySet()) {
+            String status = transientMap.get(entryID);
+            if (status.equals(TRANSIENT_FLAG)) {
+                try {
+                    entry = (CalendarEntry) _persister.load(CalendarEntry.class, entryID);
+                    _persister.delete(entry, tx);
+                }
+                catch (ObjectNotFoundException onfe) {
+                    // nothing to remove if not found
+                }
+            }
+            else {
+                entry = (CalendarEntry) _persister.get(CalendarEntry.class, entryID);
+                if (entry != null) {
+                    entry.setStatus(status);
+                    _persister.update(entry, tx);
+                }
+            }
+        }
+        _persister.commit();
+    }
 
     /*******************************************************************************/
 
