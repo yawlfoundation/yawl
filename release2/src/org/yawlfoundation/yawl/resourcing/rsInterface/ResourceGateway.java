@@ -52,7 +52,7 @@ import java.util.Map;
 
 public class ResourceGateway extends HttpServlet {
 
-    private ResourceManager _rm;
+    private ResourceManager _rm = ResourceManager.getInstance(); 
     private ResourceDataSet _orgDataSet;
     private static final String SUCCESS = "<success/>";
     private static final Logger _log = Logger.getLogger(ResourceGateway.class);
@@ -143,7 +143,6 @@ public class ResourceGateway extends HttpServlet {
             }
             finally {
                 ResourceManager.setServiceInitialised();
-                _rm = ResourceManager.getInstance(); 
                 _orgDataSet = _rm.getOrgDataSet();
             }
         }
