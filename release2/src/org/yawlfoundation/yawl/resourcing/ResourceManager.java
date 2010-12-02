@@ -1391,10 +1391,10 @@ public class ResourceManager extends InterfaceBWebsideController {
             }
 
             // replace the parent in the cache with the executing child
+            oneToStart.setResourceStatus(WorkItemRecord.statusResourceStarted);
             _workItemCache.replace(wir, oneToStart);
 
             p.getWorkQueues().movetoStarted(wir, oneToStart);
-            oneToStart.setResourceStatus(WorkItemRecord.statusResourceStarted);
 
             if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceUnoffered)) {
                 _resAdmin.getWorkQueues().removeFromQueue(wir, WorkQueue.UNOFFERED);
