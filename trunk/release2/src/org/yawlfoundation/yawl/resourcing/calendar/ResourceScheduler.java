@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The implementation of server side of the calendar gateway (Interface S).
@@ -35,15 +36,21 @@ import java.util.*;
  */
 public class ResourceScheduler {
 
+    // references to required objects
     private static ResourceScheduler _me;
     private ResourceCalendar _calendar;
     private ResourceManager _rm;
     private CalendarLogger _uLogger;
 
+    // map of temp entries added during a check-only operation
+    private Map<Long, String> _transientMap;
+
+    
     private ResourceScheduler() {
         _rm = ResourceManager.getInstance();
         _calendar = ResourceCalendar.getInstance();
         _uLogger = new CalendarLogger();
+        _transientMap = new ConcurrentHashMap<Long, String>();
     }
 
 
@@ -67,8 +74,12 @@ public class ResourceScheduler {
      */
     public String saveReservations(String planXML, String agent, boolean checkOnly) {
         XNode planNode = new XNodeParser(true).parse(planXML);
-        UtilisationPlan plan = saveReservations(new UtilisationPlan(planNode), agent, checkOnly);
-        return plan.toXML();
+        if (planNode != null) {
+            UtilisationPlan plan = saveReservations(new UtilisationPlan(planNode),
+                    agent, checkOnly);
+            return (plan != null) ? plan.toXML() : null;
+        }
+        else return new XNode("failure", "Malformed Plan XML").toString();
     }
 
 
@@ -80,29 +91,11 @@ public class ResourceScheduler {
      * changes
      * @return the updated plan
      */
-    public UtilisationPlan saveReservations(UtilisationPlan plan, String agent, boolean checkOnly) {
+    public UtilisationPlan saveReservations(UtilisationPlan plan, String agent,
+                                            boolean checkOnly) {
         if (validatePlan(plan) && plan.hasActivities()) {
-            for (Activity activity : plan.getActivityList()) {
-                if (validateActivity(activity)) {
-                    Set<Long> reservationIDs = new HashSet<Long>();
-                    long from = activity.getFromAsLong();
-                    long to = activity.getToAsLong();
-                    for (Reservation reservation : activity.getReservationList()) {
-                        if (checkOnly) checkReservation(reservation, from, to);
-                        else {
-                            CalendarLogEntry logEntry = new CalendarLogEntry();
-                            logEntry.setCaseID(plan.getCaseID());
-                            logEntry.setPhase(activity.getPhase());
-                            logEntry.setActivityName(activity.getName());
-                            logEntry.setAgent(agent);
-                            logEntry.setResourceRec(reservation.getResource().toXML());
-                            saveReservation(reservation, from, to, logEntry);
-                            reservationIDs.add(reservation.getReservationIDAsLong());
-                        }
-                    }
-                    handleCancellations(plan.getCaseID(), activity.getName(), reservationIDs);
-                }
-            }
+            if (checkOnly) checkReservations(plan);
+            else saveReservations(plan, agent);
         }
         return plan;
     }
@@ -111,19 +104,23 @@ public class ResourceScheduler {
     /**
      * Gets all the utilisation plans in which a resource is involved for the specified
      * period
-     * @param resource an XML representation of a utilisation resource object, containing
-     * reference(s) to the resources to get plans for
+     * @param resourceXML an XML representation of a utilisation resource object,
+     * containing reference(s) to the resources to get plans for
      * @param from the start of the date/time range
      * @param to the end of the date/time range
      * @return an XML representation of the matching utilisation plans
      */
-    public String getReservations(String resource, long from, long to) {
-        XNode resNode = new XNodeParser(true).parse(resource);
-        XNode setNode = new XNode("UtilisationPlans");
-        for (UtilisationPlan plan : getReservations(new UtilisationResource(resNode), from, to)) {
-            setNode.addChild(plan.toXNode());
+    public String getReservations(String resourceXML, long from, long to) {
+        XNode resNode = new XNodeParser(true).parse(resourceXML);
+        if (resNode != null) {
+            XNode setNode = new XNode("UtilisationPlans");
+            UtilisationResource resource = new UtilisationResource(resNode);
+            for (UtilisationPlan plan : getReservations(resource, from, to)) {
+                setNode.addChild(plan.toXNode());
+            }
+            return setNode.toString();
         }
-        return setNode.toString();
+        else return new XNode("failure", "Malformed Plan XML").toString();
     }
 
 
@@ -136,47 +133,49 @@ public class ResourceScheduler {
      * @param to the end of the date/time range
      * @return the set of matching utilisation plans
      */
-    public Set<UtilisationPlan> getReservations(UtilisationResource uResource, long from, long to) {
-        UtilisationReconstructor reconstructor = new UtilisationReconstructor();
-        int i = -1;
+    public Set<UtilisationPlan> getReservations(UtilisationResource uResource,
+                                                long from, long to) {
         Map<String, UtilisationPlan> planSet = new Hashtable<String, UtilisationPlan>();
+        if (uResource != null) {
+            UtilisationReconstructor reconstructor = new UtilisationReconstructor();
+            int i = -1;
 
-        // for all of the calendar entries and for each referenced resource
-        for (AbstractResource resource : getActualResourceList(uResource)) {
-            for (Object o : _calendar.getTimeSlotEntries(resource, from, to)) {
-                CalendarEntry calEntry = (CalendarEntry) o;
-                CalendarLogEntry logEntry =
-                        _uLogger.getLogEntryForCalendarKey(calEntry.getEntryID());
-                String caseID = null;
-                String activityName = null;
-                String phase = null;
-                UtilisationPlan plan = null;
-                if (logEntry != null) {
-                    caseID = logEntry.getCaseID();
-                    activityName = logEntry.getActivityName();
-                    phase = logEntry.getPhase();
-                    plan = planSet.get(caseID);
-                }
+            // for all of the calendar entries and for each referenced resource
+            for (AbstractResource resource : getActualResourceList(uResource)) {
+                for (Object o : _calendar.getTimeSlotEntries(resource, from, to)) {
+                    CalendarEntry calEntry = (CalendarEntry) o;
+                    CalendarLogEntry logEntry =
+                            _uLogger.getLogEntryForCalendarKey(calEntry.getEntryID());
+                    String caseID = null;
+                    String activityName = null;
+                    String phase = null;
+                    UtilisationPlan plan = null;
+                    if (logEntry != null) {
+                        caseID = logEntry.getCaseID();
+                        activityName = logEntry.getActivityName();
+                        phase = logEntry.getPhase();
+                        plan = planSet.get(caseID);
+                    }
 
-                if (plan != null) {
-                    Activity activity = (activityName == null) ? null :
-                                         plan.getActivity(activityName) ;
+                    if (plan != null) {
+                        Activity activity = plan.getActivity(activityName) ;
 
-                    // add calEntry to plan
-                    if (activity == null) {
-                        plan.addActivity(
-                            reconstructor.reconstructActivity(calEntry, activityName, phase));
+                        // add calEntry to plan
+                        if (activity != null) {
+                            activity.addReservation(
+                                    reconstructor.reconstructReservation(calEntry));
+                        }
+                        else {
+                            plan.addActivity(reconstructor.reconstructActivity(
+                                    calEntry, activityName, phase));
+                        }
                     }
                     else {
-                        activity.addReservation(
-                                reconstructor.reconstructReservation(calEntry));
+                        // make a new plan
+                        plan = reconstructor.reconstructPlan(logEntry, calEntry);
+                        String index = (caseID != null) ? caseID : "" + i--;
+                        planSet.put(index, plan);
                     }
-                }
-                else {
-                    // make a new plan
-                    plan = reconstructor.reconstructPlan(logEntry, calEntry);
-                    String index = (caseID != null) ? caseID : "" + i--;
-                    planSet.put(index, plan);
                 }
             }
         }
@@ -216,6 +215,11 @@ public class ResourceScheduler {
 
     /*******************************************************************************/
 
+    /**
+     * Validates Plan values.
+     * @param plan the plan to validate
+     * @return true if the validation passed, false if failed
+     */
     private boolean validatePlan(UtilisationPlan plan) {
         String caseID = plan.getCaseID();
         if (! _rm.isRunningCaseID(plan.getCaseID())) {
@@ -226,6 +230,11 @@ public class ResourceScheduler {
     }
 
 
+    /**
+     * Validates Activity values.
+     * @param activity the activity to validate
+     * @return true if the validation passed, false if failed
+     */
     private boolean validateActivity(Activity activity) {
         if (! activity.hasValidPhase()) {
             activity.setError("Invalid requestType: " + activity.getPhase());
@@ -233,6 +242,61 @@ public class ResourceScheduler {
         }
         return activity.getFromAsLong() > 0 && activity.getToAsLong() > 0;
     }
+
+
+    /**
+     * Checks whether the reservations for the resources contained in the plan would
+     * succeed against the current state of the calendar
+     * @param plan the plan to check
+     */
+    private void checkReservations(UtilisationPlan plan) {
+        for (Activity activity : plan.getActivityList()) {
+            if (validateActivity(activity) && activity.hasReservation()) {
+                long from = activity.getFromAsLong();
+                long to = activity.getToAsLong();
+                for (Reservation reservation : activity.getReservationList()) {
+                    checkReservation(reservation, from, to);
+                }
+            }
+        }
+
+        // remove all the temp calendar entries created during the checking process
+        removeTransientCalendarEntries();
+    }
+
+
+    /**
+     * Attempts to save the reservations for the resources contained in the plan to
+     * the calendar
+     * @param plan the plan to save
+     * @param agent the service instigating the save
+     */
+    private void saveReservations(UtilisationPlan plan, String agent) {
+        for (Activity activity : plan.getActivityList()) {
+            if (validateActivity(activity) && activity.hasReservation()) {
+                Set<Long> reservationIDs = new HashSet<Long>();
+                long from = activity.getFromAsLong();
+                long to = activity.getToAsLong();
+                for (Reservation reservation : activity.getReservationList()) {
+                    CalendarLogEntry logEntry = new CalendarLogEntry();
+                    logEntry.setCaseID(plan.getCaseID());
+                    logEntry.setPhase(activity.getPhase());
+                    logEntry.setActivityName(activity.getName());
+                    logEntry.setAgent(agent);
+                    if (reservation.hasResource()) {
+                        logEntry.setResourceRec(reservation.getResource().toXML());
+                    }
+                    saveReservation(reservation, from, to, logEntry);
+                    reservationIDs.add(reservation.getReservationIDAsLong());
+                }
+
+                // remove any previous calendar entries made for this plan that are
+                // no longer in the plan
+                handleCancellations(plan.getCaseID(), activity.getName(), reservationIDs);
+            }
+        }
+    }
+    
 
 
     /**
@@ -246,7 +310,7 @@ public class ResourceScheduler {
     private void checkReservation(Reservation reservation, long from, long to) {
         if (reservation != null) {
             try {
-                if (reservation.getReservationID() != null) {
+                if (reservation.isUpdate()) {
                     checkUpdateReservation(reservation);
                 }
                 else {
@@ -273,7 +337,10 @@ public class ResourceScheduler {
                                  CalendarLogEntry logEntry) {
         if (reservation == null) return;
         try {
-            if (reservation.getReservationID() != null) {          // pre-existing
+            if (! reservation.hasResource()) {
+                throw new CalendarException("Reservation contains no resources.");
+            }
+            if (reservation.isUpdate()) {                          // pre-existing
                 if (logEntry.getPhase().equals("EOU")) {           // end-of-utilisation
                     reconcileReservation(reservation, from, to, logEntry);
                 }
@@ -303,14 +370,18 @@ public class ResourceScheduler {
      * @return the available resource, if possible
      * @throws CalendarException if a resource could not be resolved from the ids in
      * the reservation, or if no resource is available for the period, or if the
-     * status to be in the reservation is invalid
+     * status-to-be in the reservation is invalid
      */
-    private AbstractResource getActualResourceIfAvailable(Reservation reservation, long from, long to)
+    private AbstractResource getActualResourceIfAvailable(Reservation reservation,
+                                                          long from, long to)
             throws CalendarException {
         List<AbstractResource> actualList = getActualResourceList(reservation.getResource());
         if ((actualList == null) || actualList.isEmpty()) {
             throw new CalendarException("Failed to resolve resource.");     // none found
         }
+
+        String errPrefix = (actualList.size() == 1) ? "Specified resource not" :
+                "No specified resource";
 
         // while the list has resources, remove a random selection and check if a
         // reservation for it would succeed
@@ -322,15 +393,15 @@ public class ResourceScheduler {
                 return actual;                                      // found a candidate
             }
         }
-        throw new CalendarException("No specified resource available for period.");
+        throw new CalendarException(errPrefix + " available for period.");
     }
 
 
     /**
      * Builds a list of resources from the ids specified in a reservation's resource data.
      * @param resource the resource data set of a reservation. May contain a single id,
-     * OR a Role and (optional) Capability pair OR a Category and (optional) Subcategory
-     * of a non-human resource.
+     * OR a Role and (optional) Capability pair OR a Capability (and no Role) OR
+     * a Category and (optional) Subcategory of a non-human resource.
      * @return a list of resources matching the ids specified
      */
     private List<AbstractResource> getActualResourceList(UtilisationResource resource) {
@@ -378,19 +449,20 @@ public class ResourceScheduler {
      * @param logEntry the matching log entry of the update
      * @throws CalendarException if there's a problem locating the record or saving
      * the update
-     * @throws ScheduleStateException if the status transition is invlaid
+     * @throws ScheduleStateException if the status transition is invalid
      */
     private void updateReservation(Reservation reservation, CalendarLogEntry logEntry)
             throws CalendarException, ScheduleStateException {
         long entryID = convertReservationID(reservation);
-        CalendarEntry calEntry = getCalendarEntry(entryID);
+        CalendarEntry calEntry = getCalendarEntry(entryID);   // exc. if invalid id
+        compareStatuses(calEntry.getStatus(), reservation.getStatusToBe());
         reservation.setStatus(calEntry.getStatus());               // current status
-        ResourceCalendar.Status statusToBe =
-                    _calendar.updateEntry(entryID, calEntry.getStatus());
+        ResourceCalendar.Status updatedStatus =
+                    _calendar.updateEntry(entryID, reservation.getStatusToBe());
 
         // if update raised no exceptions, update reservation and log
-        reservation.setStatus(statusToBe.name());
-        calEntry.setStatus(statusToBe.name());
+        reservation.setStatus(updatedStatus.name());
+        calEntry.setStatus(updatedStatus.name());
         _uLogger.log(logEntry, calEntry);
 
         if (logEntry.getPhase().equals("SOU")) {                 // start-of-utilisation
@@ -445,6 +517,7 @@ public class ResourceScheduler {
             for (AbstractResource resource : getActualResourceList(reservation.getResource())) {
                 if (_calendar.canCreateEntry(resource, from, to, reservation.getStatusToBe(),
                         reservation.getWorkload())) {
+                    addTransientCalendarEntry(resource, from, to, reservation);
                     reservation.getResource().setID(resource.getID());  // available resource
                     hasAvailableResource = true;
                     break;
@@ -467,9 +540,10 @@ public class ResourceScheduler {
     private void checkUpdateReservation(Reservation reservation)
             throws CalendarException, ScheduleStateException {
         long entryID = convertReservationID(reservation);
-        if (! _calendar.canUpdateEntry(entryID, reservation.getStatusToBe())) {
-            reservation.setWarning("Reservation would fail.");
+        if (_calendar.canUpdateEntry(entryID, reservation.getStatusToBe())) {
+            updateTransientCalendarEntry(entryID, reservation.getStatusToBe());
         }
+        else reservation.setWarning("Reservation would fail.");
     }
 
 
@@ -580,6 +654,71 @@ public class ResourceScheduler {
         ResourceCalendar.Status status = _calendar.strToStatus(reservation.getStatusToBe());
         return new CalendarEntry(resource.getID(), from, to, status,
                                  reservation.getWorkload(), agent, null);
+    }
+
+
+    /**
+     * Adds a calendar entry temporarily, to allow reservation checking to proceed
+     * @param resource the resource to add
+     * @param from the start of the period
+     * @param to the end of the period
+     * @param reservation the reservation containing the resource to add
+     * @return the entry id of the newly constructed calendar entry
+     * @throws CalendarException if the reservation's 'statusToBe' is invalid
+     */
+    private long addTransientCalendarEntry(AbstractResource resource, long from, long to,
+                                      Reservation reservation) throws CalendarException {
+        ResourceCalendar.Status status = _calendar.strToStatus(reservation.getStatusToBe());
+        long entryID = _calendar.addTransientEntry(resource.getID(), from, to, status,
+                                                   reservation.getWorkload(), null);
+
+        // save entry id to the transient map so it can be removed when check is done
+        _transientMap.put(entryID, ResourceCalendar.TRANSIENT_FLAG);
+        return entryID;
+    }
+
+
+    /**
+     * Updates  a calendar entry temporarily, to allow reservation checking to proceed
+     * @param entryID the entry to update
+     * @param statusToBe the new status to check
+     * @throws CalendarException if the reservation's 'statusToBe' is invalid
+     * @throws ScheduleStateException if the status change is invalid
+     */
+    private void updateTransientCalendarEntry(long entryID, String statusToBe)
+            throws CalendarException, ScheduleStateException {
+        String currentStatus = _calendar.updateTransientEntry(entryID, statusToBe);
+        if (currentStatus != null) {
+
+            // save update data to the transient map so it can be removed when check is done
+            _transientMap.put(entryID, currentStatus);
+        }
+    }
+
+
+    /**
+     * Removes any entries created during a reservation check (once check is complete)
+     */
+    private void removeTransientCalendarEntries() {
+        if (! _transientMap.isEmpty()) {
+            _calendar.removeTransientEntries(_transientMap);
+            _transientMap.clear();
+        }    
+    }
+
+
+    /**
+     * Checks that the status-to-be of an update reservation request is not the same as
+     * its current status.
+     * @param current the current status
+     * @param toBe the requested status-to-be
+     * @throws ScheduleStateException if the current and requested statuses are identical
+     */
+    private void compareStatuses(String current, String toBe) throws ScheduleStateException {
+        if (! current.equals(toBe)) {
+            throw new ScheduleStateException("Reservation already has status of '" +
+                                             toBe + "'.");
+        }
     }
 
 

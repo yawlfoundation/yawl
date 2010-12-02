@@ -53,6 +53,8 @@ public class Reservation extends StatusMessage {
 
     public String getReservationID() { return _reservationID; }
 
+    public boolean isUpdate() { return (_reservationID != null); }
+
     public void setReservationID(String id) {
         _reservationID = id;
     }

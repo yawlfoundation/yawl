@@ -137,6 +137,9 @@ public class Activity extends StatusMessage {
         return (_reservationList != null) && _reservationList.remove(r);
     }
 
+    public boolean hasReservation() {
+        return ! ((_reservationList == null) || _reservationList.isEmpty());
+    }
 
     public List<UtilisationRelation> getRelationList() {
         return _relationList;
