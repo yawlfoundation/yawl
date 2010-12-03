@@ -306,9 +306,9 @@ public class YPersistenceManager {
             }
             finally {
                 transaction = null;
-                if (getSession() != null) {
+                if (session != null) {
                     try {
-                        getSession().close();
+                        if (session.isOpen()) session.close();
                     }
                     catch (HibernateException e) {
                         logger.warn("Failure to tidy close Hibernate session", e);

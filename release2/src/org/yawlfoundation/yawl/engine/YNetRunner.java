@@ -351,14 +351,16 @@ public class YNetRunner {
     private void notifyDeadLock(YPersistenceManager pmgr)
             throws YPersistenceException {
         for (Object o : _caseIDForNet.getLocations()) {
-            YExternalNetElement element = (YExternalNetElement) o;
-            if (_net.getNetElements().values().contains(element)) {
-                if (element instanceof YTask) {
-                    createDeadlockItem(pmgr, (YTask) element);
-                }
-                Set<YExternalNetElement> postset = element.getPostsetElements();
-                for (YExternalNetElement postsetElement : postset) {
-                    createDeadlockItem(pmgr, (YTask) postsetElement);
+            if (o instanceof YExternalNetElement) {
+                YExternalNetElement element = (YExternalNetElement) o;
+                if (_net.getNetElements().values().contains(element)) {
+                    if (element instanceof YTask) {
+                        createDeadlockItem(pmgr, (YTask) element);
+                    }
+                    Set<YExternalNetElement> postset = element.getPostsetElements();
+                    for (YExternalNetElement postsetElement : postset) {
+                        createDeadlockItem(pmgr, (YTask) postsetElement);
+                    }
                 }
             }
         }
