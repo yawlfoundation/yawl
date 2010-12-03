@@ -99,11 +99,13 @@ public class SaxonUtil {
 
 
     private static String removeHeader(String xml) {
-        if (xml == null) return null;
-        String[] headSplit = xml.split("\\?>");
-        if (headSplit.length > 1)
-            return headSplit[1];
-        else return xml;
+        if ((xml != null) && xml.trim().startsWith("<?xml")) {
+            int closingPos = xml.indexOf("?>");
+            if (closingPos > -1) {
+                xml = xml.substring(closingPos + 2);
+            }
+        }
+        return xml;
     }
 }
 

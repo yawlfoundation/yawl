@@ -94,7 +94,7 @@ public class YInternalCondition extends YNetElement implements YConditionInterfa
      * inside then make no change to the state of this.
      */
     public YIdentifier removeOne(YPersistenceManager pmgr) throws YPersistenceException {
-        YIdentifier id = (YIdentifier) getIdentifiers().get(0);
+        YIdentifier id = getIdentifiers().get(0);
         _bag.remove(pmgr, id, 1);
         return id;
     }

@@ -1643,10 +1643,7 @@ public class YEngine implements InterfaceADesign,
                 commitTransaction();
                 if (netRunner != null) announceEvents(netRunner.getCaseID());
             }
-            else {
-                rollbackTransaction();
-                throw new YStateException("WorkItem argument is equal to null.");
-            }
+            else throw new YStateException("WorkItem argument is equal to null.");
         }
         catch (YAWLException ye) {
             rollbackTransaction();
@@ -1654,14 +1651,7 @@ public class YEngine implements InterfaceADesign,
         }
         catch (Exception e) {
             rollbackTransaction();
-
-            if (e instanceof IllegalArgumentException) {
-                e.printStackTrace();
-                throw new YSchemaBuildingException(StringUtil.convertThrowableToString(e));
-            } else {
-                e.printStackTrace();
-                throw new YSchemaBuildingException(StringUtil.convertThrowableToString(e));
-            }
+            _logger.error("Exception competing workitem", e);
         }
         debug("<-- completeWorkItem");
     }
