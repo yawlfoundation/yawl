@@ -39,37 +39,42 @@ public class EngineSpecificationValidator {
     return createProblemListFrom(specification.verify());
   }
   
-  private static List<String> createProblemListFrom(List verificationList) {
+  private static List<String> createProblemListFrom(
+                              List<YVerificationMessage> verificationList) {
     LinkedList<String> problemList = new LinkedList<String>();
-    
-    for(int i = 0; i < verificationList.size(); i++) {
-      YVerificationMessage message = (YVerificationMessage) verificationList.get(i);
-      String messageString = message.getMessage();
-      
-      if (messageString.indexOf("composite task may not decompose to other than a net") != -1) {
-        continue;
-      }
-      if (messageString.indexOf("is not registered with engine.") != -1) {
-        // We have no running engine when validating, so this is not valid.
-        continue;
-      }
-      
-      messageString = messageString.replaceAll("postset size","outgoing flow number");
-      messageString = messageString.replaceAll("preset size","incoming flow number");
-      messageString = messageString.replaceAll("Check the empty tasks linking from i to o.",
-                                               "Should all atomic tasks in the net have no decomposition?");
-      messageString = messageString.replaceAll("from i to o","between the input and output conditions");
-      messageString = messageString.replaceAll("InputCondition","Input Condition");
-      messageString = messageString.replaceAll("OutputCondition","Output Condition");
 
-      messageString = messageString.replaceAll("ExternalCondition","Condition");
-      messageString = messageString.replaceAll("AtomicTask","Atomic Task");
-      messageString = messageString.replaceAll("CompositeTask","Composite Task");
-      messageString = messageString.replaceAll("The net \\(Net:","The net (");
-      messageString = messageString.replaceAll("composite task must contain a net","must unfold to some net");
-      
-      problemList.add(messageString);
-    }
+      for (YVerificationMessage message : verificationList) {
+          String messageString = message.getMessage();
+
+          if (messageString.indexOf("composite task may not decompose to other than a net") != -1) {
+              continue;
+          }
+          if (messageString.indexOf("is not registered with engine.") != -1) {
+              // We have no running engine when validating, so this is not valid.
+              continue;
+          }
+
+          // External db validation needs a running engine, so this is not valid.
+          if (messageString.indexOf("could not be successfully parsed. External DB") != -1) {
+              continue;
+          }
+
+          messageString = messageString.replaceAll("postset size", "outgoing flow number");
+          messageString = messageString.replaceAll("preset size", "incoming flow number");
+          messageString = messageString.replaceAll("Check the empty tasks linking from i to o.",
+                  "Should all atomic tasks in the net have no decomposition?");
+          messageString = messageString.replaceAll("from i to o", "between the input and output conditions");
+          messageString = messageString.replaceAll("InputCondition", "Input Condition");
+          messageString = messageString.replaceAll("OutputCondition", "Output Condition");
+
+          messageString = messageString.replaceAll("ExternalCondition", "Condition");
+          messageString = messageString.replaceAll("AtomicTask", "Atomic Task");
+          messageString = messageString.replaceAll("CompositeTask", "Composite Task");
+          messageString = messageString.replaceAll("The net \\(Net:", "The net (");
+          messageString = messageString.replaceAll("composite task must contain a net", "must unfold to some net");
+
+          problemList.add(messageString);
+      }
     if (problemList.size() == 0) {
       problemList.add(NO_PROBLEMS_MESSAGE);
     }
