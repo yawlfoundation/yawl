@@ -24,9 +24,7 @@ import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.resource.AbstractResource;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Maintains the resource calendar. An entry in the calendar denotes that a resource
@@ -50,6 +48,7 @@ public class ResourceCalendar {
 
     private static ResourceCalendar _me;
     private Persister _persister;
+    private Transaction _tx;
 
 
     private ResourceCalendar() {
@@ -59,6 +58,26 @@ public class ResourceCalendar {
     public static ResourceCalendar getInstance() {
         if (_me == null) _me = new ResourceCalendar();
         return _me;
+    }
+
+
+    public Transaction beginTransaction() {
+        _tx = _persister.beginTransaction();
+        return _tx;
+    }
+
+    public void commitTransaction() {
+        _persister.commit();
+        _tx = null;
+    }
+
+    public void rollBackTransaction() {
+        _persister.rollback();
+        _tx = null;
+    }
+
+    private boolean getCommitFlag() {
+        return (_tx == null);
     }
 
 
@@ -110,11 +129,7 @@ public class ResourceCalendar {
      */
     public CalendarEntry getEntry(long entryID) {
         if (entryID < 1) return null;
-        List list = _persister.createQuery("FROM CalendarEntry AS ce WHERE ce.entryID=:id")
-                .setLong("id", entryID)
-                .list();
-        _persister.commit();
-        return (list == null) || list.isEmpty() ? null : (CalendarEntry) list.get(0);
+        return (CalendarEntry) _persister.get(CalendarEntry.class, entryID);
     }
 
 
@@ -146,8 +161,8 @@ public class ResourceCalendar {
      */
     public int clean(long priorTo) {
         if (priorTo > System.currentTimeMillis()) return -1;
-        return _persister.execUpdate(
-                "DELETE FROM CalendarEntry AS ce WHERE ce.endTime<" + String.valueOf(priorTo));
+        return _persister.execUpdate("DELETE FROM CalendarEntry AS ce WHERE ce.endTime<" +
+                String.valueOf(priorTo), getCommitFlag());
     }
 
 
@@ -246,7 +261,7 @@ public class ResourceCalendar {
         if (resource == null) return new ArrayList();         // empty list
 
         if (to <= 0) to = Long.MAX_VALUE;
-        List list = _persister.createQuery(
+        return _persister.createQuery(
                 "FROM CalendarEntry AS ce " +
                 "WHERE ce.resourceID IN (:idlist) " +
                 "AND ce.startTime < :end AND ce.endTime > :start " +
@@ -255,8 +270,6 @@ public class ResourceCalendar {
                 .setLong("start", from)
                 .setLong("end", to)
                 .list();
-        _persister.commit();
-        return list;
     }
 
 
@@ -267,6 +280,18 @@ public class ResourceCalendar {
      */
     public List getTimeSlotEntries(AbstractResource resource) {
         return getTimeSlotEntries(resource, -1, -1);
+    }
+
+
+    public List getEntries(long from, long to) {
+        if (to <= 0) to = Long.MAX_VALUE;
+        return _persister.createQuery(
+                "FROM CalendarEntry AS ce " +
+                "WHERE ce.startTime < :end AND ce.endTime > :start " +
+                "ORDER BY ce.startTime")
+                .setLong("start", from)
+                .setLong("end", to)
+                .list();
     }
 
 
@@ -432,7 +457,7 @@ public class ResourceCalendar {
             throws ScheduleStateException, CalendarException {
 
         // all trans to unavailable valid
-        makeAvailable(resource, startTime, endTime);              // remove all current
+        reassignOrRemoveEntries(resource, startTime, endTime);      // remove all current
         return addEntry(resource, startTime, endTime, Status.unavailable, 100, agent, comment);
      }
 
@@ -441,18 +466,25 @@ public class ResourceCalendar {
             throws ScheduleStateException, CalendarException {
 
         // all trans to unavailable valid
-        makeAvailable(resource, calEntry.getStartTime(), calEntry.getEndTime()); // remove all current
+        reassignOrRemoveEntries(resource, calEntry.getStartTime(), calEntry.getEndTime());
         return addEntry(calEntry);
     }
 
 
+    private void makeUnavailable(CalendarEntry entry)
+            throws ScheduleStateException, CalendarException {
+        if (entry != null) {
+            entry.setStatus(Status.unavailable.name());
+            updateEntry(entry);
+            notifyStatusChange(entry);
+        }
+    }    
+
+
     private void makeUnavailable(long entryID)
             throws ScheduleStateException, CalendarException {
-        CalendarEntry entry = getEntry(entryID);
-        entry.setStatus(Status.unavailable.name());
-        updateEntry(entry);
-        notifyStatusChange(entry);
-    }    
+        makeUnavailable(getEntry(entryID));
+    }
 
 
     public long reserve(AbstractResource resource, long startTime, long endTime, String agent,
@@ -558,7 +590,7 @@ public class ResourceCalendar {
 
     public void removeTransientEntries(Map<Long, String> transientMap) {
         CalendarEntry entry;
-        Transaction tx = _persister.beginTransaction();
+        Transaction tx = _persister.getOrBeginTransaction();
         for (Long entryID : transientMap.keySet()) {
             String status = transientMap.get(entryID);
             if (status.equals(TRANSIENT_FLAG)) {
@@ -578,7 +610,30 @@ public class ResourceCalendar {
                 }
             }
         }
-        _persister.commit();
+    }
+
+
+    public Set<String> freeResourcesForCase(String caseID) throws CalendarException {
+        Set<String> resourceIDs = new HashSet<String>();
+        List logList = getLogEntriesForCase(caseID);
+        if (logList != null) {
+            Transaction tx = _persister.getOrBeginTransaction();
+            for (Object o : logList) {
+                CalendarLogEntry logEntry = (CalendarLogEntry) o;
+                CalendarEntry calEntry = (CalendarEntry) _persister.get(
+                        CalendarEntry.class, logEntry.getCalendarKey());
+                if (calEntry != null) {
+                    if (! hasBlockedStatus(calEntry)) {
+                        if (logEntry.getPhase().equals("SOU")) {
+                            resourceIDs.add(calEntry.getResourceID());
+                        }    
+                        _persister.delete(calEntry, tx);
+                        notifyStatusChange(calEntry);
+                    }
+                }
+            }
+        }
+        return resourceIDs;
     }
 
     /*******************************************************************************/
@@ -611,9 +666,10 @@ public class ResourceCalendar {
      * @throws CalendarException if invalid parameters are passed, or the addition
      * otherwise fails
      */
-    private long addEntry(CalendarEntry entry) throws CalendarException {
+    protected long addEntry(CalendarEntry entry) throws CalendarException {
         if (entry.getEndTime() > entry.getStartTime()) {
-            _persister.insert(entry);
+            if (_tx != null) _persister.insert(entry, _tx);
+            else _persister.insert(entry);
             return entry.getEntryID();
         }
         else throw new CalendarException("Failed to add Entry: End time is before Start time.");
@@ -626,11 +682,9 @@ public class ResourceCalendar {
      * @return the list of corresponding entries
      */
     private List getEntries(String id) {
-        List list = _persister.createQuery("FROM CalendarEntry AS ce WHERE ce.resourceID=:id")
+        return _persister.createQuery("FROM CalendarEntry AS ce WHERE ce.resourceID=:id")
                     .setString("id", id)
                     .list();
-        _persister.commit();
-        return list;
     }
 
 
@@ -638,8 +692,8 @@ public class ResourceCalendar {
      * Updates and saves an existing calendar entry
      * @param entry the entry to update
      */
-    private void updateEntry(CalendarEntry entry) {
-        _persister.update(entry);
+    public void updateEntry(CalendarEntry entry) {
+        _persister.update(entry, getCommitFlag());
     }
 
 
@@ -649,8 +703,8 @@ public class ResourceCalendar {
      * @return true if the removal was successful
      */
     private boolean removeEntry(long entryID) {
-        return _persister.execUpdate(
-                "DELETE FROM CalendarEntry AS ce WHERE ce.entryID=" + entryID) > 0;
+        return _persister.execUpdate("DELETE FROM CalendarEntry AS ce WHERE ce.entryID="
+                + entryID, getCommitFlag()) > 0;
     }
 
 
@@ -659,7 +713,7 @@ public class ResourceCalendar {
      * @param entry the calendar entry to remove
      */
     private void removeEntry(CalendarEntry entry) {
-        _persister.delete(entry);
+        _persister.delete(entry, getCommitFlag());
     }
 
 
@@ -679,8 +733,8 @@ public class ResourceCalendar {
      * @return the number of entries removed
      */
     private int removeEntries(String id) {
-        return _persister.execUpdate(
-                "DELETE FROM CalendarEntry AS ce WHERE ce.resourceID='" + id + "'");
+        return _persister.execUpdate("DELETE FROM CalendarEntry AS ce WHERE ce.resourceID='"
+                + id + "'", getCommitFlag());
     }
 
 
@@ -707,7 +761,7 @@ public class ResourceCalendar {
         String cmd = String.format(
                 "DELETE FROM CalendarEntry AS ce WHERE ce.resourceID='%s' " +
                 "AND ce.startTime < %d AND ce.endTime > %d", id, to, from);
-        return _persister.execUpdate(cmd);
+        return _persister.execUpdate(cmd, getCommitFlag());
     }
 
 
@@ -719,13 +773,13 @@ public class ResourceCalendar {
      * @return the list of possible id values to match
      */
     private List<String> createIDListForQuery(AbstractResource resource) {
-        List<String> idlist = new ArrayList<String>(3);
-        idlist.add(resource.getID());
-        idlist.add(getEntryString(ResourceGroup.AllResources));
-        idlist.add(getEntryString((resource instanceof Participant) ?
+        return Arrays.asList(
+                   resource.getID(),
+                   getEntryString(ResourceGroup.AllResources),
+                   getEntryString((resource instanceof Participant) ?
                                    ResourceGroup.HumanResources :
-                                   ResourceGroup.NonHumanResources));
-        return idlist;
+                                   ResourceGroup.NonHumanResources)
+        );
     }
 
 
@@ -783,6 +837,20 @@ public class ResourceCalendar {
     private void removeEntry(long entryID, Status status)
             throws ScheduleStateException, CalendarException {
         removeEntry(getEntryWithStatus(entryID, status));
+    }
+
+
+    private void removeEntries(List<CalendarEntry> entries) {
+        if ((entries != null) && (! entries.isEmpty())) {
+            Transaction tx = _persister.getOrBeginTransaction();
+            for (CalendarEntry entry : entries) {
+                CalendarEntry blocked = (CalendarEntry) _persister.get(
+                        CalendarEntry.class, entry.getChainID());
+                if (blocked != null) _persister.delete(blocked, tx);
+                _persister.delete(entry, tx);
+                notifyStatusChange(entry);
+            }
+        }
     }
 
 
@@ -878,8 +946,69 @@ public class ResourceCalendar {
     }
 
 
+    private boolean hasBlockedStatus(CalendarEntry entry) throws CalendarException {
+        return hasBlockedStatus(entry.getStatus());
+    }
+
+
+    private boolean hasBlockedStatus(String status) throws CalendarException {
+        return hasBlockedStatus(strToStatus(status));
+    }
+
+
+    private boolean hasBlockedStatus(Status status) {
+        switch (status) {
+            case hardBlocked:
+            case softBlocked: return true;
+            default: return false;
+        }
+    }
+
+
+
+    private void reassignOrRemoveEntries(AbstractResource resource,
+                                                long startTime, long endTime) {
+        List<CalendarEntry> unreassigned = reassignEntries(resource, startTime, endTime);
+        removeEntries(unreassigned);
+    }
+
+
+    private List<CalendarEntry> reassignEntries(AbstractResource resource,
+                                                long startTime, long endTime) {
+        List<CalendarEntry> unassigned = new ArrayList<CalendarEntry>();
+        List entries = getTimeSlotEntries(resource, startTime, endTime);
+        if (entries != null) {
+            for (Object o : entries) {
+                CalendarEntry entry = (CalendarEntry) o;
+                if (! reassignEntry(entry)) {
+                    unassigned.add(entry);
+                }
+                
+            }
+        }
+        return unassigned;
+    }
+
+
+    private boolean reassignEntry(CalendarEntry entry) {
+        return ResourceScheduler.getInstance().reassignEntryIfPossible(entry, true);
+    }
+
+
     private void notifyStatusChange(CalendarEntry entry) {
         ResourceScheduler.getInstance().notifyStatusChange(entry);
     }
+
+
+    private Set<Long> getEntryIDsForCase(String caseID) {
+        Set<Long> ids = ResourceScheduler.getInstance().getCalendarEntryIDsForCase(caseID);
+        return (ids != null) ? ids : new HashSet<Long>();
+    }
+
+
+    private List getLogEntriesForCase(String caseID) {
+        return ResourceScheduler.getInstance().getCalendarEntriesForCase(caseID);
+    }
+
 
 }

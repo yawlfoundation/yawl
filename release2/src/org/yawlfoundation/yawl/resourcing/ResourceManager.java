@@ -40,6 +40,7 @@ import org.yawlfoundation.yawl.logging.YLogDataItem;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.resourcing.allocators.AbstractAllocator;
 import org.yawlfoundation.yawl.resourcing.allocators.AllocatorFactory;
+import org.yawlfoundation.yawl.resourcing.calendar.CalendarException;
 import org.yawlfoundation.yawl.resourcing.calendar.ResourceCalendar;
 import org.yawlfoundation.yawl.resourcing.codelets.AbstractCodelet;
 import org.yawlfoundation.yawl.resourcing.codelets.CodeletFactory;
@@ -480,6 +481,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             cancelCodeletRunnersForCase(caseID);
             _workItemCache.removeCase(caseID);
             removeChain(caseID);
+            removeActiveCalendarEntriesForCase(caseID);
         }
     }
 
@@ -1805,6 +1807,20 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
     
     /*****************************************************************************/
+
+    private void removeActiveCalendarEntriesForCase(String caseID) {
+        try {
+            for (String resourceID : _calendar.freeResourcesForCase(caseID)) {
+                _orgDataSet.freeResource(caseID, resourceID);            
+            }
+            _calendar.commitTransaction();
+        }
+        catch (CalendarException ce)  {
+            _log.error("Could not clear Calendar bookings for case: " + caseID, ce);
+            _calendar.rollBackTransaction();
+        }
+    }
+
 
     private String getSpecIdentifierForCase(String caseID) {
         for (WorkItemRecord wir : _workItemCache.values()) {

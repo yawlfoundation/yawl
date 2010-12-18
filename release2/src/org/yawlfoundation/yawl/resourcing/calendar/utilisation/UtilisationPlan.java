@@ -58,16 +58,16 @@ public class UtilisationPlan extends StatusMessage {
     }
 
     public boolean addActivity(Activity a) {
-        if (_activityList == null) _activityList = new ArrayList<Activity>();
+        if (! hasActivities()) _activityList = new ArrayList<Activity>();
         return _activityList.add(a);
     }
 
     public boolean removeActivity(Activity a) {
-        return (_activityList != null) && _activityList.remove(a);
+        return (hasActivities()) && _activityList.remove(a);
     }
 
     public Activity getActivity(String name) {
-        if ((name != null) && (_activityList != null)) {
+        if ((name != null) && (hasActivities())) {
             for (Activity activity : _activityList) {
                 if (activity.getName().equals(name)) {
                     return activity;
@@ -79,6 +79,23 @@ public class UtilisationPlan extends StatusMessage {
 
     public boolean hasActivities() {
         return _activityList != null;
+    }
+
+
+    public boolean hasErrors() {
+        return hasError() || activitiesHaveErrors();
+    }
+
+
+    public boolean activitiesHaveErrors() {
+        if (hasActivities()) {
+            for (Activity activity : _activityList) {
+                if (activity.hasErrors()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 

@@ -64,7 +64,9 @@ public class Reservation extends StatusMessage {
     }
 
 
-    public String getStatusToBe() { return _statusToBe.getValue(); }
+    public String getStatusToBe() {
+        return (_statusToBe != null) ? _statusToBe.getValue() : null;
+    }
 
     public void setStatusToBe(String status) {
         if (_statusToBe == null) _statusToBe = new StringWithMessage("StatusToBe");
@@ -72,7 +74,9 @@ public class Reservation extends StatusMessage {
     }
 
 
-    public String getStatus() { return _status.getValue(); }
+    public String getStatus() {
+        return (_status != null) ? _status.getValue() : null;
+    }
 
     public void setStatus(String status) {
         if (_status == null) _status = new StringWithMessage("Status");
@@ -89,11 +93,22 @@ public class Reservation extends StatusMessage {
     public boolean hasResource() { return _resource != null; }
 
 
-    public int getWorkload() { return _workload.getIntValue(); }
+    public int getWorkload() {
+        return (_workload != null) ? _workload.getIntValue() : 0;
+    }
 
     public void setWorkload(int workload) {
         if (_workload == null) _workload = new StringWithMessage("Workload");
         _workload.setValue(workload);
+    }
+
+
+    public boolean hasErrors() {
+        return hasError() ||
+               StringWithMessage.hasError(_statusToBe) ||
+               StringWithMessage.hasError(_status) ||
+               StringWithMessage.hasError(_workload) ||
+               (hasResource() && _resource.hasErrors()) ;
     }
 
 
@@ -105,10 +120,10 @@ public class Reservation extends StatusMessage {
         XNode node = new XNode("Reservation");
         addAttributes(node);
         if (_reservationID != null) node.addChild("ReservationId", _reservationID);
-        if (_statusToBe != null) node.addChild(_statusToBe.toXNode());
-        if (_status != null) node.addChild(_status.toXNode());
+        if (StringWithMessage.hasData(_statusToBe)) node.addChild(_statusToBe.toXNode());
+        if (StringWithMessage.hasData(_status)) node.addChild(_status.toXNode());
         if (_resource != null) node.addChild(_resource.toXNode());
-        if (_workload != null) node.addChild(_workload.toXNode());
+        if (StringWithMessage.hasData(_workload)) node.addChild(_workload.toXNode());
         return node;
     }
 

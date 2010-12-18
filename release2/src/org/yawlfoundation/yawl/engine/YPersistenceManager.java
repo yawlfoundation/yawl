@@ -216,6 +216,17 @@ public class YPersistenceManager {
      }
 
 
+    private void updateOrMerge(Object obj) {
+        try {
+            session.saveOrUpdate(obj);
+        }
+        catch (Exception e) {
+            session.merge(obj);
+       }
+    }
+
+
+
     /**
      * Causes the supplied object to be persisted when the current transaction is committed.
      * This method simply calls {@link #updateObject(Object)} but is public in scope.
@@ -246,7 +257,7 @@ public class YPersistenceManager {
         }
         try {
             if (update) {
-                getSession().update(obj);
+                updateOrMerge(obj);
             }
             else {
                 getSession().save(obj);

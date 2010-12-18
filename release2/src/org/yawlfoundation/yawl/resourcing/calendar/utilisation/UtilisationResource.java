@@ -22,8 +22,8 @@ import org.yawlfoundation.yawl.util.XNode;
 
 /**
  * @author Michael Adams
-* @date 6/10/2010
-*/
+ * @date 6/10/2010
+ */
 public class UtilisationResource {
 
     private StringWithMessage _id;
@@ -50,40 +50,84 @@ public class UtilisationResource {
 
     /**************************************************************************/
 
-    public String getID() { return _id.getValue(); }
+    public String getID() {
+        return (_id != null) ? _id.getValue() : null;
+    }
 
     public void setID(String s) {
         if (_id == null) _id = new StringWithMessage("Id");
         _id.setValue(s);
     }
 
-    public String getRole() { return _role.getValue(); }
+    public boolean hasIDOnly() {
+        return (getID() != null);
+    }
+
+
+    public String getRole() {
+        return (_role != null) ? _role.getValue() : null;
+    }
 
     public void setRole(String s) {
         if (_role == null) _role = new StringWithMessage("Role");
         _role.setValue(s);
     }
 
-    public String getCapability() { return _capability.getValue(); }
+
+    public String getCapability() {
+        return (_capability != null) ? _capability.getValue() : null;
+    }
 
     public void setCapability(String s) {
         if (_capability == null) _capability = new StringWithMessage("Capability");
         _capability.setValue(s);
     }
 
-    public String getCategory() { return _category.getValue(); }
+
+    public String getCategory() {
+        return (_category != null) ? _category.getValue() : null;
+    }
 
     public void setCategory(String s) {
         if (_category == null) _category = new StringWithMessage("Category");
         _category.setValue(s);
     }
 
-    public String getSubcategory() { return _subcategory.getValue(); }
+
+    public String getSubcategory() {
+        return (_subcategory != null) ? _subcategory.getValue() : null;
+    }
 
     public void setSubcategory(String s) {
         if (_subcategory == null) _subcategory = new StringWithMessage("SubCategory");
         _subcategory.setValue(s);
     }
+
+    
+    public boolean hasErrors() {
+        return StringWithMessage.hasError(_id) ||
+               StringWithMessage.hasError(_role) ||
+               StringWithMessage.hasError(_capability) ||
+               StringWithMessage.hasError(_category) ||
+               StringWithMessage.hasError(_subcategory);
+    }
+
+
+    public boolean hasError(StringWithMessage strMsg) {
+        return (strMsg != null) && strMsg.hasError();
+    }
+
+
+    public boolean equals(Object o) {
+        return (o instanceof UtilisationResource) &&
+                toXML().equals(((UtilisationResource) o).toXML());
+    }
+
+
+    public int hashCode() {
+        return toXML().hashCode();
+    }
+
 
     public String toXML() {
         return toXNode().toString();
@@ -91,11 +135,11 @@ public class UtilisationResource {
 
     public XNode toXNode() {
         XNode node = new XNode("Resource");
-        if (_id != null) node.addChild(_id.toXNode());
-        if (_role != null) node.addChild(_role.toXNode());
-        if (_capability != null) node.addChild(_capability.toXNode());
-        if (_category != null) node.addChild(_category.toXNode());
-        if (_subcategory != null) node.addChild(_subcategory.toXNode());
+        if (StringWithMessage.hasData(_id)) node.addChild(_id.toXNode());
+        if (StringWithMessage.hasData(_role)) node.addChild(_role.toXNode());
+        if (StringWithMessage.hasData(_capability)) node.addChild(_capability.toXNode());
+        if (StringWithMessage.hasData(_category)) node.addChild(_category.toXNode());
+        if (StringWithMessage.hasData(_subcategory)) node.addChild(_subcategory.toXNode());
         return node;
     }
 

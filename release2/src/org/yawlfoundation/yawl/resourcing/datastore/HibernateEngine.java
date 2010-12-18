@@ -146,24 +146,28 @@ public class HibernateEngine {
     // Persistence Methods //
     /***********************/
 
+    public boolean exec(Object obj, int action) {
+        return exec(obj, action, true);
+    }
+
     /**
      * persists the object instance passed
      * @param obj - an instance of the object to persist
      * @param action - type type of action performed
      * @return true if persist was successful, false if otherwise
      */
-    public boolean exec(Object obj, int action) {
+    public boolean exec(Object obj, int action, boolean commit) {
 
         Transaction tx = null;
         try {
             Session session = _factory.getCurrentSession();
-            tx = session.beginTransaction();
+            tx = getOrBeginTransaction();
 
             if (action == DB_INSERT) session.save(obj);
             else if (action == DB_UPDATE) updateOrMerge(session, obj);
             else if (action == DB_DELETE) session.delete(obj);
 
-            tx.commit();
+            if (commit) tx.commit();
             return true;
         }
         catch (HibernateException he) {
@@ -215,6 +219,18 @@ public class HibernateEngine {
     }
 
 
+    public Transaction getOrBeginTransaction() {
+        try {
+           Transaction tx = _factory.getCurrentSession().getTransaction();
+           return ((tx != null) && tx.isActive()) ? tx : beginTransaction();
+        }
+        catch (HibernateException he) {
+            _log.error("Caught Exception: Error creating or getting transaction", he);
+            return null;
+        }        
+    }
+
+
     /**
      * executes a Query object based on the sql string passed
      * @param queryString - the sql query to execute
@@ -226,7 +242,7 @@ public class HibernateEngine {
         Transaction tx = null;
         try {
             Session session = _factory.getCurrentSession();
-            tx = session.beginTransaction();
+            tx = getOrBeginTransaction();
             Query query = session.createQuery(queryString);
             if (query != null) result = query.list();
         }
@@ -244,13 +260,18 @@ public class HibernateEngine {
 
 
     public int execUpdate(String queryString) {
+        return execUpdate(queryString, true);
+    }
+
+
+    public int execUpdate(String queryString, boolean commit) {
         int result = -1;
         Transaction tx = null;
         try {
             Session session = _factory.getCurrentSession();
-            tx = session.beginTransaction();
+            tx = getOrBeginTransaction();
             result = session.createQuery(queryString).executeUpdate();
-            tx.commit();
+            if (commit) tx.commit();
         }
         catch (JDBCConnectionException jce) {
             _log.error("Caught Exception: Couldn't connect to datasource - " +
@@ -269,7 +290,7 @@ public class HibernateEngine {
         Transaction tx = null;
         try {
             Session session = _factory.getCurrentSession();
-            tx = session.beginTransaction();
+            tx = getOrBeginTransaction();
             return session.createQuery(queryString);
         }
         catch (HibernateException he) {
@@ -286,11 +307,13 @@ public class HibernateEngine {
 
 
     public Object load(Class claz, Serializable key) {
+        getOrBeginTransaction();
         return _factory.getCurrentSession().load(claz, key);
     }
 
 
     public Object get(Class claz, Serializable key) {
+        getOrBeginTransaction();
         return _factory.getCurrentSession().get(claz, key);
     }
 

@@ -54,7 +54,9 @@ public class UtilisationRelation extends StatusMessage {
     
     /*************************************************************************/
 
-    public String getThisType() { return _thisType.getValue(); }
+    public String getThisType() {
+        return (_thisType != null) ? _thisType.getValue() : null;
+    }
 
     public void setThisType(String type) {
         if (_thisType == null) {
@@ -64,7 +66,9 @@ public class UtilisationRelation extends StatusMessage {
     }
 
 
-    public String getOtherType() { return _otherType.getValue(); }
+    public String getOtherType() {
+        return (_otherType != null) ? _otherType.getValue() : null;
+    }
 
     public void setOtherType(String type) {
         if (_otherType == null) {
@@ -74,7 +78,9 @@ public class UtilisationRelation extends StatusMessage {
     }
 
 
-    public String getOtherActivityName() { return _otherActivityName.getValue(); }
+    public String getOtherActivityName() {
+        return (_otherActivityName != null) ? _otherActivityName.getValue() : null;
+    }
 
     public void setOtherActivityName(String name) {
         if (_otherActivityName == null) {
@@ -84,7 +90,9 @@ public class UtilisationRelation extends StatusMessage {
     }
 
 
-    public int getMin() { return _min.getIntValue(); }
+    public int getMin() {
+        return (_min != null) ? _min.getIntValue() : 0;
+    }
 
     public void setMin(int min) {
         if (_min == null) _min = new StringWithMessage("Min");
@@ -92,7 +100,9 @@ public class UtilisationRelation extends StatusMessage {
     }
 
 
-    public int getMax() { return _max.getIntValue(); }
+    public int getMax() {
+        return (_max != null) ? _max.getIntValue() : 0; 
+    }
 
     public void setMax(int max) {
         if (_max == null) _max = new StringWithMessage("Max");
@@ -100,6 +110,16 @@ public class UtilisationRelation extends StatusMessage {
     }
 
 
+    public boolean hasErrors() {
+        return hasError() ||
+               StringWithMessage.hasError(_thisType) ||
+               StringWithMessage.hasError(_otherType) ||
+               StringWithMessage.hasError(_otherActivityName) ||
+               StringWithMessage.hasError(_min) ||
+               StringWithMessage.hasError(_max) ;
+    }
+
+    
     public String toXML() {
         return toXNode().toString();
     }
@@ -107,11 +127,12 @@ public class UtilisationRelation extends StatusMessage {
     public XNode toXNode() {
         XNode node = new XNode("UtilisationRelation");
         addAttributes(node);
-        if (_thisType != null) node.addChild(_thisType.toXNode());
-        if (_otherType != null) node.addChild(_otherType.toXNode());
-        if (_otherActivityName != null) node.addChild(_otherActivityName.toXNode());
-        if (_min != null) node.addChild(_min.toXNode());
-        if (_max != null) node.addChild(_max.toXNode());
+        if (StringWithMessage.hasData(_thisType)) node.addChild(_thisType.toXNode());
+        if (StringWithMessage.hasData(_otherType)) node.addChild(_otherType.toXNode());
+        if (StringWithMessage.hasData(_otherActivityName))
+            node.addChild(_otherActivityName.toXNode());
+        if (StringWithMessage.hasData(_min)) node.addChild(_min.toXNode());
+        if (StringWithMessage.hasData(_max)) node.addChild(_max.toXNode());
         return node;
     }
 

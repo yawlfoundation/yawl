@@ -27,6 +27,8 @@ import java.util.Set;
 
 /**
  * Manages the Calendar Log - an archive of calendar entry and change activity.
+ * NOTE: The caller is responsible for committing all db transactions performed by any
+ * methods of this class.
  * 
  * @author Michael Adams
  * @date 18/10/2010
@@ -40,43 +42,52 @@ public class CalendarLogger {
     }
 
 
-    public void log(CalendarLogEntry logEntry, CalendarEntry calEntry) {
+    public void log(CalendarLogEntry logEntry, CalendarEntry calEntry, boolean commit) {
         logEntry.setResourceID(calEntry.getResourceID());
         logEntry.setStatus(calEntry.getStatus());
         logEntry.setTimestamp(new Date().getTime());
         logEntry.setWorkload(calEntry.getWorkload());
         logEntry.setCalendarKey(calEntry.getEntryID());
-        _persister.insert(logEntry);
+        _persister.insert(logEntry, commit);
     }
 
 
     public CalendarLogEntry getLogEntry(long entryID) {
-        List list = _persister.selectWhere("CalendarLogEntry", "entryID=" + entryID);
-        _persister.commit();
-        return (list == null) || list.isEmpty() ? null : (CalendarLogEntry) list.get(0);
+        return (CalendarLogEntry) _persister.get(CalendarLogEntry.class, entryID);
     }
 
     
     public CalendarLogEntry getLogEntryForCalendarKey(long calEntryID) {
+        List list = getLogEntriesForCalendarKey(calEntryID);
+        return (list == null) || list.isEmpty() ? null : (CalendarLogEntry) list.get(0);
+    }
+
+
+    public List getLogEntriesForCalendarKey(long calEntryID) {
         List list = _persister.createQuery("FROM CalendarLogEntry AS cle " +
                                            "WHERE cle.calendarKey=:key " +
                                            "ORDER BY cle.entryID DESC")
                 .setLong("key", calEntryID)
                 .list();
-        _persister.commit();
-        return (list == null) || list.isEmpty() ? null : (CalendarLogEntry) list.get(0);
+        return (list == null) || list.isEmpty() ? null : list;
     }
 
-    
+
     public List getLogEntriesForActivity(String caseID, String activityName) {
-        List entries = _persister.createQuery("FROM CalendarLogEntry AS cle " +
+        return _persister.createQuery("FROM CalendarLogEntry AS cle " +
                                            "WHERE cle.caseID=:caseID " +
                                            "AND cle.activityName=:activityName")
                 .setString("caseID", caseID)
                 .setString("activityName", activityName)
                 .list();
-        _persister.commit();
-        return entries;
+    }
+
+
+    public List getLogEntriesForCase(String caseID) {
+        return _persister.createQuery("FROM CalendarLogEntry AS cle " +
+                                           "WHERE cle.caseID=:caseID ")
+                .setString("caseID", caseID)
+                .list();
     }
 
 
@@ -89,6 +100,23 @@ public class CalendarLogger {
             }
         }
         return idSet;
+    }
+
+    public Set<Long> getEntryIDsForCase(String caseID) {
+        Set<Long> idSet = new HashSet<Long>();
+        List list = getLogEntriesForCase(caseID);
+        if (list != null) {
+            for (Object o : list) {
+                idSet.add(((CalendarLogEntry) o).getCalendarKey());
+            }
+        }
+        return idSet;
+    }
+
+
+    public String getResourceRecord(long calendarKey) {
+        CalendarLogEntry logEntry = getLogEntryForCalendarKey(calendarKey);
+        return (logEntry != null) ? logEntry.getResourceRec() : null;
     }
 
 }

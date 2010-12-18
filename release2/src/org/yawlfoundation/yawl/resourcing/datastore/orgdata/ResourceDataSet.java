@@ -1427,5 +1427,10 @@ public class ResourceDataSet {
         }
         return (resource != null);
     }
+
+
+    public void freeResource(String caseID, String id) {
+        setResourceAvailability(caseID, id, true);
+    }
     
 }
