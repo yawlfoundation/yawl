@@ -27,7 +27,6 @@ import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The implementation of server side of the calendar gateway (Interface S).
@@ -42,15 +41,15 @@ public class ResourceScheduler {
     private ResourceManager _rm;
     private CalendarLogger _uLogger;
 
-    // map of temp entries added during a check-only operation
-    private Map<Long, String> _transientMap;
+    // set of added entry id's resulting from reassigned bookings
+    private Set<Long> _reassignedIDs;
 
     
     private ResourceScheduler() {
         _rm = ResourceManager.getInstance();
         _calendar = ResourceCalendar.getInstance();
         _uLogger = new CalendarLogger();
-        _transientMap = new ConcurrentHashMap<Long, String>();
+        _reassignedIDs = new HashSet<Long>();
     }
 
 
@@ -91,9 +90,11 @@ public class ResourceScheduler {
      * changes
      * @return the updated plan
      */
-    public UtilisationPlan saveReservations(UtilisationPlan plan, String agent,
-                                            boolean checkOnly) {
+    public synchronized UtilisationPlan saveReservations(UtilisationPlan plan,
+                                                         String agent, boolean checkOnly) {
         if (validatePlan(plan) && plan.hasActivities()) {
+            clearCaches();
+            _calendar.beginTransaction();
             if (checkOnly) checkReservations(plan);
             else saveReservations(plan, agent);
         }
@@ -111,10 +112,9 @@ public class ResourceScheduler {
      * @return an XML representation of the matching utilisation plans
      */
     public String getReservations(String resourceXML, long from, long to) {
-        XNode resNode = new XNodeParser(true).parse(resourceXML);
-        if (resNode != null) {
+        UtilisationResource resource = reconstituteResourceRecord(resourceXML);
+        if (resource != null) {
             XNode setNode = new XNode("UtilisationPlans");
-            UtilisationResource resource = new UtilisationResource(resNode);
             for (UtilisationPlan plan : getReservations(resource, from, to)) {
                 setNode.addChild(plan.toXNode());
             }
@@ -180,6 +180,51 @@ public class ResourceScheduler {
             }
         }
         return new HashSet<UtilisationPlan>(planSet.values());
+    }
+
+
+    /*******************************************************************************/
+
+    /**
+     * Seeks another AbstractResource that meets the original UtilisationResource
+     * parameters and is available, and if found reassigns the calendar entry to the
+     * found resource.
+     * @param entry the CalendarEntry containing a reference to a resource that is no
+     * longer available, but may be replaced by another resource of the same role,
+     * capability or category
+     * @param updating true if the caller is updating an existing calendar entry, false
+     * if it is a new entry
+     * @return true if the resource has been reassigned
+     */
+    protected boolean reassignEntryIfPossible(CalendarEntry entry, boolean updating) {
+        CalendarLogEntry logEntry = _uLogger.getLogEntryForCalendarKey(entry.getEntryID());
+        if ((logEntry != null) && logEntry.getPhase().equals(Activity.Phase.POU.name())) {
+            UtilisationResource uResource = reconstituteResourceRecord(logEntry.getResourceRec());
+            if (uResource != null) {
+                return reassignEntry(entry, logEntry, uResource, updating);
+            }
+        }
+        return false;
+    }
+
+
+    /**
+     * Gets the set of all calendar entry ids for a case
+     * @param caseID the id of case to get the entry ids for
+     * @return the set of ids
+     */
+    protected Set<Long> getCalendarEntryIDsForCase(String caseID) {
+        return _uLogger.getEntryIDsForCase(caseID);
+    }
+
+
+    /**
+     * Gets a list of all calendar entries for a case
+     * @param caseID the id of case to get the entry ids for
+     * @return the list of calendar entries
+     */
+    protected List getCalendarEntriesForCase(String caseID) {
+        return _uLogger.getLogEntriesForCase(caseID);
     }
 
 
@@ -259,9 +304,7 @@ public class ResourceScheduler {
                 }
             }
         }
-
-        // remove all the temp calendar entries created during the checking process
-        removeTransientCalendarEntries();
+        commitOrRollback(false);      // rollback any changes to db when checking only
     }
 
 
@@ -295,6 +338,7 @@ public class ResourceScheduler {
                 handleCancellations(plan.getCaseID(), activity.getName(), reservationIDs);
             }
         }
+        commitOrRollback(! plan.hasErrors());
     }
     
 
@@ -337,9 +381,6 @@ public class ResourceScheduler {
                                  CalendarLogEntry logEntry) {
         if (reservation == null) return;
         try {
-            if (! reservation.hasResource()) {
-                throw new CalendarException("Reservation contains no resources.");
-            }
             if (reservation.isUpdate()) {                          // pre-existing
                 if (logEntry.getPhase().equals("EOU")) {           // end-of-utilisation
                     reconcileReservation(reservation, from, to, logEntry);
@@ -349,10 +390,14 @@ public class ResourceScheduler {
                 }    
             }
             else {                                                  // new
-                AbstractResource resource = getActualResourceIfAvailable(reservation, from, to);
-                CalendarEntry calEntry =
-                        createCalendarEntry(reservation, resource, from, to, logEntry.getAgent());
-                makeReservation(reservation, resource, calEntry, logEntry);
+                if (reservation.hasResource()) {
+                    AbstractResource resource = getActualResourceIfAvailable(reservation,
+                            from, to);
+                    CalendarEntry calEntry = createCalendarEntry(reservation, resource,
+                            from, to, logEntry.getAgent());
+                    makeReservation(reservation, resource, calEntry, logEntry);
+                }
+                else throw new CalendarException("Reservation contains no resources.");
             }
         }
         catch (Exception e) {
@@ -376,24 +421,69 @@ public class ResourceScheduler {
                                                           long from, long to)
             throws CalendarException {
         List<AbstractResource> actualList = getActualResourceList(reservation.getResource());
-        if ((actualList == null) || actualList.isEmpty()) {
+        try {
+            // send a copy of the list because it is altered by the method called
+            return getRandomAvailableResource(new ArrayList<AbstractResource>(actualList),
+                      from, to, reservation.getStatusToBe(), reservation.getWorkload());
+        }
+        catch (CalendarException ce) {
+            AbstractResource resource = shuffleEntryIfPossible(reservation.getResource(),
+                    actualList, from, to);
+            if (resource != null) {
+                return resource;
+            }
+            else throw new CalendarException(ce.getMessage());
+        }
+    }
+
+
+    /**
+     * Extracts a single resource from the list passed that is available for the
+     * specified period
+     * @param resourceList the list of resources to choose from
+     * @param from the start of the period
+     * @param to the end of the period
+     * @param status the desired booking status
+     * @param workload the percentage workload required from the resource
+     * @return an available resource from the list, if any
+     * @throws CalendarException if the list is null or empty, or none of the
+     * resources in the list is available
+     */
+    private AbstractResource getRandomAvailableResource(List<AbstractResource> resourceList,
+                                          long from, long to, String status, int workload)
+            throws CalendarException {
+        if ((resourceList == null) || resourceList.isEmpty()) {
             throw new CalendarException("Failed to resolve resource.");     // none found
         }
-
-        String errPrefix = (actualList.size() == 1) ? "Specified resource not" :
-                "No specified resource";
+        int resourceCount = resourceList.size();
 
         // while the list has resources, remove a random selection and check if a
         // reservation for it would succeed
-        while (actualList.size() > 0) {
-            AbstractResource actual =
-                    actualList.remove((int) Math.floor(Math.random() * actualList.size()));
-            if (_calendar.canCreateEntry(actual, from, to, reservation.getStatusToBe(),
-                    reservation.getWorkload())) {
+        while (resourceList.size() > 0) {
+            AbstractResource actual = resourceList.remove(
+                    (int) Math.floor(Math.random() * resourceList.size()));
+            if (_calendar.canCreateEntry(actual, from, to, status, workload)) {
                 return actual;                                      // found a candidate
             }
         }
-        throw new CalendarException(errPrefix + " available for period.");
+        throw new CalendarException(((resourceCount == 1) ? "Specified resource not" :
+                "No specified resource") + " available for period.");
+    }
+
+
+    /**
+     * Extracts a single resource from the list passed that is available for the
+     * specified potential calendar entry
+     * @param resourceList the list of resources to choose from
+     * @param calEntry the potential calendar entry
+     * @return an available resource from the list, if any
+     * @throws CalendarException if the list is null or empty, or none of the
+     * resources in the list is available
+     */
+    private AbstractResource getRandomAvailableResource(List<AbstractResource> resourceList,
+                                          CalendarEntry calEntry) throws CalendarException {
+        return getRandomAvailableResource(resourceList, calEntry.getStartTime(),
+                calEntry.getEndTime(), calEntry.getStatus(), calEntry.getWorkload());
     }
 
 
@@ -444,6 +534,23 @@ public class ResourceScheduler {
 
 
     /**
+     * removes a resource from a list of resources, if a match is found
+     * @param resourceList the list of resources
+     * @param id the id of the resource to remove
+     */
+    private void removeResourceFromList(List<AbstractResource> resourceList, String id) {
+        if ((resourceList != null) && (id != null)) {
+            for (AbstractResource resource : resourceList) {
+                if (resource.getID().equals(id)) {
+                    resourceList.remove(resource);
+                    break;
+                }
+            }
+        }
+    }
+
+
+    /**
      * Updates the status of a reservation stored in the calendar.
      * @param reservation the updated reservation
      * @param logEntry the matching log entry of the update
@@ -457,13 +564,18 @@ public class ResourceScheduler {
         CalendarEntry calEntry = getCalendarEntry(entryID);   // exc. if invalid id
         compareStatuses(calEntry.getStatus(), reservation.getStatusToBe());
         reservation.setStatus(calEntry.getStatus());               // current status
+        if (reservation.getStatusToBe().equals("unavailable")) {
+            reassignEntryIfPossible(calEntry, false);      // adds new rec if possible
+        }
         ResourceCalendar.Status updatedStatus =
                     _calendar.updateEntry(entryID, reservation.getStatusToBe());
 
         // if update raised no exceptions, update reservation and log
         reservation.setStatus(updatedStatus.name());
         calEntry.setStatus(updatedStatus.name());
-        _uLogger.log(logEntry, calEntry);
+        logEntry.setCalendarKey(entryID);
+        setResourceRecord(logEntry);
+        _uLogger.log(logEntry, calEntry, false);
 
         if (logEntry.getPhase().equals("SOU")) {                 // start-of-utilisation
             setResourceAvailable(logEntry.getCaseID(), reservation.getResource().getID(),
@@ -489,10 +601,12 @@ public class ResourceScheduler {
         long entryID = _calendar.createEntry(resource, calEntry);
 
         // if the entry was successful, update the reservation record  
-        if (entryID > 0) reservation.setReservationID(String.valueOf(entryID));
+        if (entryID > 0) {
+            reservation.setReservationID(String.valueOf(entryID));
+            calEntry.setEntryID(entryID);    // for logging
+        }
         reservation.setStatus(statusToBe);
-        reservation.getResource().setID(calEntry.getResourceID());
-        _uLogger.log(logEntry, calEntry);
+        _uLogger.log(logEntry, calEntry, false);
 
         if (logEntry.getPhase().equals("SOU")) {                 // start-of-utilisation
             setResourceAvailable(logEntry.getCaseID(), calEntry.getResourceID(), false);
@@ -518,7 +632,6 @@ public class ResourceScheduler {
                 if (_calendar.canCreateEntry(resource, from, to, reservation.getStatusToBe(),
                         reservation.getWorkload())) {
                     addTransientCalendarEntry(resource, from, to, reservation);
-                    reservation.getResource().setID(resource.getID());  // available resource
                     hasAvailableResource = true;
                     break;
                 }
@@ -564,7 +677,7 @@ public class ResourceScheduler {
         AbstractResource resource = getActualResource(reservation.getResource().getID());
         CalendarEntry calEntry = _calendar.reconcileEntry(
                 resource, convertReservationID(reservation), from, to);
-        _uLogger.log(logEntry, calEntry);
+        _uLogger.log(logEntry, calEntry, false);
 
         // if the reconcile throws no exception, mark the resource as available, if it
         // doesn't have a post-usage 'blocked' period
@@ -588,7 +701,8 @@ public class ResourceScheduler {
      */
     private void handleCancellations(String caseID, String activityName, Set<Long> entryIDs) {
         Set<Long> toCancel = new HashSet<Long>();
-
+        entryIDs.addAll(_reassignedIDs);
+        
         // compare stored reservations to current ones, and extract the differences
         for (long id : _uLogger.getEntryIDsForActivity(caseID, activityName)) {
             if (! entryIDs.contains(id)) {
@@ -603,6 +717,7 @@ public class ResourceScheduler {
                 // safe to ignore - thrown by missing id in calendar, so no more to do
             }
         }
+        _reassignedIDs.clear();
     }
 
 
@@ -669,12 +784,8 @@ public class ResourceScheduler {
     private long addTransientCalendarEntry(AbstractResource resource, long from, long to,
                                       Reservation reservation) throws CalendarException {
         ResourceCalendar.Status status = _calendar.strToStatus(reservation.getStatusToBe());
-        long entryID = _calendar.addTransientEntry(resource.getID(), from, to, status,
+        return _calendar.addTransientEntry(resource.getID(), from, to, status,
                                                    reservation.getWorkload(), null);
-
-        // save entry id to the transient map so it can be removed when check is done
-        _transientMap.put(entryID, ResourceCalendar.TRANSIENT_FLAG);
-        return entryID;
     }
 
 
@@ -687,23 +798,7 @@ public class ResourceScheduler {
      */
     private void updateTransientCalendarEntry(long entryID, String statusToBe)
             throws CalendarException, ScheduleStateException {
-        String currentStatus = _calendar.updateTransientEntry(entryID, statusToBe);
-        if (currentStatus != null) {
-
-            // save update data to the transient map so it can be removed when check is done
-            _transientMap.put(entryID, currentStatus);
-        }
-    }
-
-
-    /**
-     * Removes any entries created during a reservation check (once check is complete)
-     */
-    private void removeTransientCalendarEntries() {
-        if (! _transientMap.isEmpty()) {
-            _calendar.removeTransientEntries(_transientMap);
-            _transientMap.clear();
-        }    
+        _calendar.updateTransientEntry(entryID, statusToBe);
     }
 
 
@@ -715,9 +810,38 @@ public class ResourceScheduler {
      * @throws ScheduleStateException if the current and requested statuses are identical
      */
     private void compareStatuses(String current, String toBe) throws ScheduleStateException {
-        if (! current.equals(toBe)) {
+        if (current.equals(toBe)) {
             throw new ScheduleStateException("Reservation already has status of '" +
                                              toBe + "'.");
+        }
+    }
+
+
+    /**
+     * Clears the reassigned id cache
+     */
+    private void clearCaches() {
+        _reassignedIDs.clear();
+    }
+
+
+    /**
+     * Sets the relevant resource xml for a log entry
+     * @param logEntry
+     */
+    private void setResourceRecord(CalendarLogEntry logEntry) {
+        if (logEntry.getResourceRec() == null) {
+            List list = _uLogger.getLogEntriesForCalendarKey(logEntry.getCalendarKey());
+            if (list != null) {
+                for (Object o : list) {
+                    CalendarLogEntry priorEntry = (CalendarLogEntry) o;
+                    String resourceRec = priorEntry.getResourceRec();
+                    if (resourceRec != null) {
+                        logEntry.setResourceRec(resourceRec);
+                        break;
+                    }
+                }
+            }
         }
     }
 
@@ -729,6 +853,165 @@ public class ResourceScheduler {
      */
     private void setResourceAvailable(String caseID, String id, boolean available) {
         _rm.getOrgDataSet().setResourceAvailability(caseID, id, available);
+    }
+
+
+    /**
+     * Do a final commit or rollback of all the additions and updates made to the
+     * calendar and log for a complete actioning of a plan
+     * @param commit if true, all changes are committed; if false, all changes are
+     * rolled back
+     */
+    private void commitOrRollback(boolean commit) {
+        if (commit) _calendar.commitTransaction();
+        else _calendar.rollBackTransaction();
+    }
+
+
+    /**
+     * Reassign a calendar entry to another resource in the same grouping (role,
+     * capability or category/subcategory
+     * @param entry the calendar entry to reassign
+     * @param logEntry the matching log entry for the calendar entry
+     * @param uResource the resource xml specifying the group object
+     * @param updating true if this is an plan update, false if it is a new plan
+     * @return true if the entry was able to be reassigned to a different resource
+     */
+    private boolean reassignEntry(CalendarEntry entry, CalendarLogEntry logEntry,
+                                  UtilisationResource uResource, boolean updating) {
+        List<AbstractResource> resourceList = getActualResourceList(uResource);
+        removeResourceFromList(resourceList, entry.getResourceID());
+        try {
+            AbstractResource resource = getRandomAvailableResource(resourceList,
+                    entry);
+            if (resource != null) {
+                if (updating) {
+                    entry.setResourceID(resource.getID());
+                    _calendar.updateEntry(entry);
+                }
+                else {
+                    CalendarEntry newEntry = entry.clone();
+                    newEntry.setResourceID(resource.getID());
+                    _calendar.addEntry(newEntry);
+                    _uLogger.log(logEntry, newEntry, false);
+                    _reassignedIDs.add(newEntry.getEntryID());
+                }
+                return true;                   // reassign successful
+            }
+        }
+        catch (Exception ce) {
+            // nothing to do - false will be returned below
+        }
+        return false;
+    }
+
+
+    /**
+     * Find a resource that is currently booked for a period as the member of a grouping
+     * (role, capability, category/subcategory), that can be replaced by another member
+     * of that group, so that the resource can be used to satisfy another booking for
+     * which no free resource could be found. For example, if role X contains resources
+     * R1 and R2, and role Y also contains R1, and R1 has been chosen to satisfy an
+     * entry E1 for X, and a request for an entry E2 of Y is received, then an attempt is
+     * made in this method to swap R1 with R2 in E1, so that R1 can be used to satisfy
+     * E2.
+     * @param origResource the resource xml of the original entry
+     * @param origResourceList the list of resources that could potential satisfy the
+     * entry
+     * @param from the start of the period
+     * @param to the end of the period
+     * @return the shuffled out resource, if the suffle is possible
+     */
+    private AbstractResource shuffleEntryIfPossible(UtilisationResource origResource,
+                                          List<AbstractResource> origResourceList,
+                                          long from, long to) {
+        if (! origResource.hasIDOnly()) {
+
+            // get all the current entries for the specified time
+            List entries = _calendar.getEntries(from, to);
+            if (entries != null) {
+
+                // for each calendar entry covering the same time period
+                for (Object o : entries) {
+                    CalendarEntry entry = (CalendarEntry) o;
+
+                    // if the activity hasn't started yet for this entry
+                    if (isPhase(entry.getEntryID(), Activity.Phase.POU)) {
+
+                        // if this entry's resource satsifies the original resource xml
+                        // and it can be swapped with another, then swap it return it
+                        AbstractResource shuffled = shuffleEntry(entry, origResourceList,
+                                origResource);
+                        if (shuffled != null) {
+                            return shuffled;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * Find a resource that is currently booked for a period as the member of a grouping
+     * (role, capability, category/subcategory), that can be replaced by another member
+     * of that group, so that the resource can be used to satisfy another booking for
+     * which no free resource could be found. For example, if role X contains resources
+     * R1 and R2, and role Y also contains R1, and R1 has been chosen to satisfy an
+     * entry E1 for X, and a request for an entry E2 of Y is received, then an attempt is
+     * made in this method to swap R1 with R2 in E1, so that R1 can be used to satisfy
+     * E2.
+     * @param entry the entry to be shuffled
+     * @param origResource the resource xml of the original entry
+     * @param resourceList the list of resources that could potential satisfy the
+     * entry
+     * @return the shuffled out resource, if the suffle is possible
+     */
+    private AbstractResource shuffleEntry(CalendarEntry entry,
+                                          List<AbstractResource> resourceList,
+                                          UtilisationResource origResource) {
+        AbstractResource resource = _rm.getOrgDataSet().getResource(entry.getResourceID());
+
+        // if the entry's resource is a member of the list
+        if ((resource != null) && resourceList.contains(resource)) {
+            CalendarLogEntry logEntry = _uLogger.getLogEntryForCalendarKey(entry.getEntryID());
+            UtilisationResource uResource = reconstituteResourceRecord(logEntry.getResourceRec());
+
+            // ...and its resource xml is different to the resource xml passed, and
+            // the entry can be reassigned, return the resource
+            if ((uResource != null) && (! origResource.equals(uResource)) &&
+                    reassignEntry(entry, logEntry, uResource, true)) {
+                return resource;
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * Creates a UtilisationResource object from its xml equivalent
+     * @param resourceRec the xml string
+     * @return a populated resource record
+     */
+    private UtilisationResource reconstituteResourceRecord(String resourceRec) {
+        if (resourceRec != null) {
+            XNode node = new XNodeParser().parse(resourceRec);
+            if (node != null) return new UtilisationResource(node);
+        }
+        return null;
+    }
+
+
+    /**
+     * Checks if a log entry has the specified phase
+     * @param calendarKey the id of the log entry to check
+     * @param phase the phase to check for
+     * @return true if the log entry matches the phase
+     */
+    private boolean isPhase(long calendarKey, Activity.Phase phase) {
+        CalendarLogEntry logEntry = _uLogger.getLogEntryForCalendarKey(calendarKey);
+        return (logEntry != null) && logEntry.getPhase().equals(phase.name());
     }
 
 }

@@ -22,7 +22,7 @@ package org.yawlfoundation.yawl.resourcing.calendar;
  * Author: Michael Adams
  * Creation Date: 12/03/2010
  */
-public class CalendarEntry {
+public class CalendarEntry implements Cloneable {
 
     private long entryID;                              // hibernate PK
     private String resourceID;
@@ -118,5 +118,9 @@ public class CalendarEntry {
 
     public void setChainID(long id) {
         chainID = id;
+    }
+
+    public CalendarEntry clone()  throws CloneNotSupportedException {
+        return (CalendarEntry) super.clone();
     }
 }

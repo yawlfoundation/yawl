@@ -39,7 +39,7 @@ public class Activity extends StatusMessage {
     private List<Reservation> _reservationList;
     private List<UtilisationRelation> _relationList;
 
-    private enum Phase { POU, SOU, EOU }           // pre, start of, end of, utilisation
+    public static enum Phase { POU, SOU, EOU }           // pre, start of, end of, utilisation
 
 
     public Activity() { }
@@ -82,12 +82,14 @@ public class Activity extends StatusMessage {
         }
     }
 
-    public boolean isSOU() { return _phase.equals("SOU"); }
+    public boolean isSOU() { return _phase.equals(Phase.SOU.name()); }
 
-    public boolean isEOU() { return _phase.equals("EOU"); }
+    public boolean isEOU() { return _phase.equals(Phase.EOU.name()); }
 
 
-    public String getFrom() { return _from.getValue(); }
+    public String getFrom() {
+        return (_from != null) ? _from.getValue() : null;
+    }
 
     public void setFrom(String from) {
         if (_from == null) _from = new StringWithMessage("From");
@@ -97,7 +99,9 @@ public class Activity extends StatusMessage {
     public long getFromAsLong() { return getTime(_from); }
 
 
-    public String getTo() { return _to.getValue(); }
+    public String getTo() {
+        return (_to != null) ? _to.getValue() : null; 
+    }
 
     public void setTo(String to) {
         if (_to == null) _to = new StringWithMessage("To");
@@ -108,7 +112,9 @@ public class Activity extends StatusMessage {
 
 
     // duration is stored as String that represents an xs:duration value
-    public String getDuration() { return _duration.getValue(); }
+    public String getDuration() {
+        return (_duration != null) ? _duration.getValue() : null;
+    }
 
     public void setDuration(String duration) {
         if (_duration == null) _duration = new StringWithMessage("Duration");
@@ -134,7 +140,7 @@ public class Activity extends StatusMessage {
     }
 
     public boolean removeReservation(Reservation r) {
-        return (_reservationList != null) && _reservationList.remove(r);
+        return (hasReservation()) && _reservationList.remove(r);
     }
 
     public boolean hasReservation() {
@@ -149,13 +155,52 @@ public class Activity extends StatusMessage {
         _relationList = list;
     }
 
+    public boolean hasRelation() {
+        return ! ((_relationList == null) || _relationList.isEmpty());
+    }
+
+
     public boolean addUtilisationRelation(UtilisationRelation r) {
         if (_relationList == null) _relationList = new ArrayList<UtilisationRelation>();
         return _relationList.add(r);
     }
 
     public boolean removeUtilisationRelation(UtilisationRelation r) {
-        return (_relationList != null) && _relationList.remove(r);
+        return (hasRelation()) && _relationList.remove(r);
+    }
+
+
+    public boolean hasErrors() {
+        return hasError() ||
+               StringWithMessage.hasError(_from) ||
+               StringWithMessage.hasError(_to) ||
+               StringWithMessage.hasError(_duration) ||
+               reservationsHaveErrors() ||
+               relationsHaveErrors();
+    }
+
+
+    public boolean reservationsHaveErrors() {
+        if (hasReservation()) {
+            for (Reservation reservation : _reservationList) {
+                if (reservation.hasErrors()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+    public boolean relationsHaveErrors() {
+        if (hasRelation()) {
+            for (UtilisationRelation relation : _relationList) {
+                if (relation.hasErrors()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 
@@ -169,9 +214,9 @@ public class Activity extends StatusMessage {
         node.addChild("ActivityName", _name);
         node.addChild("StartTaskId", _taskID);
         node.addChild("RequestType", _phase);
-        if (_from != null) node.addChild(_from.toXNode());
-        if (_to != null) node.addChild(_to.toXNode());
-        if (_duration != null) node.addChild(_duration.toXNode());
+        if (StringWithMessage.hasData(_from)) node.addChild(_from.toXNode());
+        if (StringWithMessage.hasData(_to)) node.addChild(_to.toXNode());
+        if (StringWithMessage.hasData(_duration)) node.addChild(_duration.toXNode());
         if (_reservationList != null) {
             for (Reservation r : _reservationList) {
                 node.addChild(r.toXNode());

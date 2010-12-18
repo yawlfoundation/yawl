@@ -46,9 +46,20 @@ public class StringWithMessage extends StatusMessage {
     }
 
 
+    public static boolean hasError(StringWithMessage strMsg) {
+        return (strMsg != null) && strMsg.hasError();
+    }
+
+
+    public static boolean hasData(StringWithMessage strMsg) {
+        return (strMsg != null) && strMsg.hasData();        
+    }
+
+
     public String getKey() { return _key; }
 
     public void setKey(String key) { _key = key; }
+
 
     public void setValue(String s) { _value = s; }
 
@@ -56,9 +67,9 @@ public class StringWithMessage extends StatusMessage {
 
     public String getValue() { return _value; }
 
-    public int getIntValue() {
-        return StringUtil.strToInt(_value, -1);
-    }
+    public int getIntValue() { return StringUtil.strToInt(_value, -1); }
+
+    public boolean hasData() { return (_value != null) || hasMessage(); }
 
     public XNode toXNode() {
         XNode node = super.toXNode(_key);

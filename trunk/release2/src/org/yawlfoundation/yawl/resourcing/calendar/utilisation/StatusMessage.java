@@ -48,6 +48,9 @@ public class StatusMessage {
     public boolean hasError() { return (error != null); }
 
 
+    public boolean hasMessage() { return hasError() || hasWarning(); }
+
+
     public void addAttributes(XNode node) {
         if (error != null) node.addAttribute("error", error);
         if (warning != null) node.addAttribute("warning", warning);

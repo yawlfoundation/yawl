@@ -141,7 +141,7 @@
     <property name="slf4j"                 value="slf4j-api-1.6.1.jar"/>          <!-- hibernate -->
     <property name="slf4j-log4j"           value="slf4j-log4j12-1.6.0.jar"/>      <!-- hibernate -->
     <property name="soaprmi"               value="soaprmi-1_1.jar"/>              <!-- wsinvoker --> 
-    <property name="twitter4j"             value="twitter4j-2.0.8.jar"/>          <!-- twitter -->
+    <property name="twitter4j"             value="twitter4j-core-2.1.8.jar"/>     <!-- twitter -->
     <property name="wsdl4j"                value="wsdl4j-20030807.jar"/>          <!-- wsinvoker -->
     <property name="wsif"                  value="wsif.jar"/>                     <!-- wsinvoker -->
     <property name="wsif-j2c"              value="wsif-j2c.jar"/>                 <!-- wsinvoker -->
@@ -1359,9 +1359,11 @@
         <copy todir="${temp.dir}/${twitter.app.name}/graphics">
             <fileset dir="${graphics.dir}"/>
         </copy>
-        <copy todir="${temp.dir}/${twitter.app.name}/WEB-INF">
-            <fileset file="${build.dir}/${twitter.app.name}/web.xml"/>
-        </copy>
+        <copy todir="${temp.dir}/${twitter.app.name}/WEB-INF"
+              file="${build.dir}/${twitter.app.name}/web.xml"/>
+        <copy todir="${temp.dir}/${twitter.app.name}/WEB-INF/classes"
+              file="${build.dir}/${twitter.app.name}/twitter4j.properties"/>
+
         <jar destfile="${output.dir}/${twitter.app.name}.war">
             <fileset dir="${temp.dir}/${twitter.app.name}"/>
         </jar>

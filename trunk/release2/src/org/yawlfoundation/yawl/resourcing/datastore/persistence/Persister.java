@@ -106,11 +106,17 @@ public class Persister implements Serializable {
         return _db.execUpdate(statement);
     }
 
+    public int execUpdate(String statement, boolean commit) {
+        return _db.execUpdate(statement, commit);
+    }
+
     public Query createQuery(String query) {
         return _db.createQuery(query);
     }
 
     public Transaction beginTransaction() { return _db.beginTransaction(); }
+
+    public Transaction getOrBeginTransaction() { return _db.getOrBeginTransaction(); }
 
     public Object load(Class claz, Serializable key) { return _db.load(claz, key); }
 
@@ -150,5 +156,11 @@ public class Persister implements Serializable {
     public void delete(Object obj, Transaction tx) { _db.exec(obj, _DELETE, tx); }
 
     public void insert(Object obj, Transaction tx) { _db.exec(obj, _INSERT, tx); }
+
+    public void update(Object obj, boolean commit) { _db.exec(obj, _UPDATE, commit); }
+
+    public void delete(Object obj, boolean commit) { _db.exec(obj, _DELETE, commit); }
+
+    public void insert(Object obj, boolean commit) { _db.exec(obj, _INSERT, commit); }
 
 }
