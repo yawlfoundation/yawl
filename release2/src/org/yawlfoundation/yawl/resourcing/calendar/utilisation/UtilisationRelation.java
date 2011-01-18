@@ -127,21 +127,23 @@ public class UtilisationRelation extends StatusMessage {
     public XNode toXNode() {
         XNode node = new XNode("UtilisationRelation");
         addAttributes(node);
-        if (StringWithMessage.hasData(_thisType)) node.addChild(_thisType.toXNode());
-        if (StringWithMessage.hasData(_otherType)) node.addChild(_otherType.toXNode());
-        if (StringWithMessage.hasData(_otherActivityName))
-            node.addChild(_otherActivityName.toXNode());
-        if (StringWithMessage.hasData(_min)) node.addChild(_min.toXNode());
-        if (StringWithMessage.hasData(_max)) node.addChild(_max.toXNode());
+        if (_thisType != null) node.addChild(_thisType.toXNode());
+        if (_otherType != null) node.addChild(_otherType.toXNode());
+        if (_otherActivityName != null) node.addChild(_otherActivityName.toXNode());
+        if (_min != null) node.addChild(_min.toXNode());
+        if (_max != null) node.addChild(_max.toXNode());
         return node;
     }
 
     public void fromXNode(XNode node) {
         super.fromXNode(node);
-        setThisType(node.getChildText("ThisUtilisationType"));
-        setOtherType(node.getChildText("OtherUtilisationType"));
-        setOtherActivityName(node.getChildText("OtherActivityName"));
-        setMin(StringUtil.strToInt(node.getChildText("Min"), -1));
-        setMax(StringUtil.strToInt(node.getChildText("Max"), -1));
+        if (node.hasChild("ThisUtilisationType"))
+            setThisType(node.getChildText("ThisUtilisationType"));
+        if (node.hasChild("OtherUtilisationType"))
+            setOtherType(node.getChildText("OtherUtilisationType"));
+        if (node.hasChild("OtherActivityName"))
+            setOtherActivityName(node.getChildText("OtherActivityName"));
+        if (node.hasChild("Min")) setMin(StringUtil.strToInt(node.getChildText("Min"), -1));
+        if (node.hasChild("Max")) setMax(StringUtil.strToInt(node.getChildText("Max"), -1));
     }
 }

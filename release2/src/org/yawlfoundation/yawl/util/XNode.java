@@ -326,6 +326,10 @@ public class XNode {
         return _attributes;
     }
 
+    public boolean hasAttribute(String key) {
+        return (_attributes != null) && _attributes.containsKey(key);
+    }
+
     public void setAttributes(Map<String, String> attributes) {
         _attributes = attributes;
     }
@@ -366,6 +370,10 @@ public class XNode {
 
     public boolean hasChildren(String name) {
         return getChildren(name).size() > 0 ;
+    }
+
+    public boolean hasChild(String name) {
+        return getChild(name) != null;
     }
 
     public int getAttributeCount() {
