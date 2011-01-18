@@ -71,6 +71,7 @@ public class CodeletRunner implements Runnable {
             // get class instance
             _codelet = CodeletFactory.getInstance(codeletName);
             if (_codelet != null) {
+                _codelet.setWorkItem(_wir);
                 if (_init)
                     _codelet.init();
                 else
