@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.resourcing.datastore.eventlog;
 
+import org.jdom.Element;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.text.SimpleDateFormat;
@@ -60,6 +61,13 @@ public abstract class BaseEvent {
     public String toXML() {
         return StringUtil.wrap(_event, "eventtype") +
                StringUtil.wrap(String.valueOf(_timeStamp), "timestamp");        
+    }
+
+
+    public void fromXML(Element xml) {
+        _id = StringUtil.strToLong(xml.getAttributeValue("key"), -1);
+        _event = xml.getChildText("eventtype");
+        _timeStamp = StringUtil.strToLong(xml.getChildText("timestamp"), -1);
     }
     
 }

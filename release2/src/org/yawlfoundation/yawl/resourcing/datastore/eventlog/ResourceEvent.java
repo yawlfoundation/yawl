@@ -111,24 +111,12 @@ public class ResourceEvent extends BaseEvent implements Cloneable {
 
 
     public void fromXML(Element xml) {
-        _id = strToLong(xml.getAttributeValue("key"));
-        _specKey = strToLong(xml.getChildText("speckey"));
+        super.fromXML(xml);
+        _specKey = StringUtil.strToLong(xml.getChildText("speckey"), -1);
         _caseID = xml.getChildText("caseid");
         _taskID = xml.getChildText("taskid");
         _itemID = xml.getChildText("itemid");
-        _resourceID = xml.getChildText("participantid");
-        _event = xml.getChildText("eventtype") ;
-        _timeStamp = strToLong(xml.getChildText("timestamp"));
-    }
-
-
-    private long strToLong(String value) {
-        try {
-            return new Long(value);
-        }
-        catch (NumberFormatException nfe) {
-            return -1;
-        }
+        _resourceID = xml.getChildText("resourceid");
     }
 
 }
