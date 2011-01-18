@@ -135,20 +135,20 @@ public class UtilisationResource {
 
     public XNode toXNode() {
         XNode node = new XNode("Resource");
-        if (StringWithMessage.hasData(_id)) node.addChild(_id.toXNode());
-        if (StringWithMessage.hasData(_role)) node.addChild(_role.toXNode());
-        if (StringWithMessage.hasData(_capability)) node.addChild(_capability.toXNode());
-        if (StringWithMessage.hasData(_category)) node.addChild(_category.toXNode());
-        if (StringWithMessage.hasData(_subcategory)) node.addChild(_subcategory.toXNode());
+        if (_id != null) node.addChild(_id.toXNode());
+        if (_role != null) node.addChild(_role.toXNode());
+        if (_capability != null) node.addChild(_capability.toXNode());
+        if (_category != null) node.addChild(_category.toXNode());
+        if (_subcategory != null) node.addChild(_subcategory.toXNode());
         return node;
     }
 
     public void fromXNode(XNode node) {
-        setID(node.getChildText("Id"));
-        setRole(node.getChildText("Role"));
-        setCapability(node.getChildText("Capability"));
-        setCategory(node.getChildText("Category"));
-        setSubcategory(node.getChildText("SubCategory"));
+        if (node.hasChild("Id")) setID(node.getChildText("Id"));
+        if (node.hasChild("Role")) setRole(node.getChildText("Role"));
+        if (node.hasChild("Capability")) setCapability(node.getChildText("Capability"));
+        if (node.hasChild("Category")) setCategory(node.getChildText("Category"));
+        if (node.hasChild("SubCategory")) setSubcategory(node.getChildText("SubCategory"));
     }
 
 }

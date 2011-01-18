@@ -32,8 +32,11 @@ public class Reservation extends StatusMessage {
     private StringWithMessage _status;
     private UtilisationResource _resource;
     private StringWithMessage _workload;
+    private boolean _hasIdElement;
 
-    public Reservation() { }
+    public Reservation() {
+        _hasIdElement = false;
+    }
 
     public Reservation(String id, String statusToBe, String status,
                        UtilisationResource resource, int workload) {
@@ -42,6 +45,7 @@ public class Reservation extends StatusMessage {
         setStatus(status);
         setResource(resource);
         setWorkload(workload);
+        _hasIdElement = (id != null);
     }
 
     public Reservation(XNode node) {
@@ -119,21 +123,25 @@ public class Reservation extends StatusMessage {
     public XNode toXNode() {
         XNode node = new XNode("Reservation");
         addAttributes(node);
-        if (_reservationID != null) node.addChild("ReservationId", _reservationID);
-        if (StringWithMessage.hasData(_statusToBe)) node.addChild(_statusToBe.toXNode());
-        if (StringWithMessage.hasData(_status)) node.addChild(_status.toXNode());
+        if (_hasIdElement) node.addChild("ReservationId", _reservationID);
+        if (_statusToBe != null) node.addChild(_statusToBe.toXNode());
+        if (_status != null) node.addChild(_status.toXNode());
         if (_resource != null) node.addChild(_resource.toXNode());
-        if (StringWithMessage.hasData(_workload)) node.addChild(_workload.toXNode());
+        if (_workload != null) node.addChild(_workload.toXNode());
         return node;
     }
 
     public void fromXNode(XNode node) {
         super.fromXNode(node);
-        setReservationID(node.getChildText("ReservationId"));
-        setStatusToBe(node.getChildText("StatusToBe"));
-        setStatus(node.getChildText("Status"));
-        XNode resourceNode = node.getChild("Resource");
-        if (resourceNode != null) setResource(new UtilisationResource(resourceNode));
-        setWorkload(StringUtil.strToInt(node.getChildText("Workload"), 100));
+        if (node.hasChild("ReservationId")) {
+            setReservationID(node.getChildText("ReservationId"));
+            _hasIdElement = true;
+        }
+        if (node.hasChild("StatusToBe")) setStatusToBe(node.getChildText("StatusToBe"));
+        if (node.hasChild("Status")) setStatus(node.getChildText("Status"));
+        if (node.hasChild("Resource"))
+            setResource(new UtilisationResource(node.getChild("Resource")));
+        if (node.hasChild("Workload"))
+            setWorkload(StringUtil.strToInt(node.getChildText("Workload"), 100));
     }
 }

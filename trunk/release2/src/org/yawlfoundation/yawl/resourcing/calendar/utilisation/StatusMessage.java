@@ -57,8 +57,8 @@ public class StatusMessage {
     }
 
     public void fromXNode(XNode node) {
-        setWarning(node.getAttributeValue("warning"));
-        setError(node.getAttributeValue("error"));
+        if (node.hasAttribute("warning")) setWarning(node.getAttributeValue("warning"));
+        if (node.hasAttribute("error")) setError(node.getAttributeValue("error"));
     }
 
     public XNode toXNode(String tag) {

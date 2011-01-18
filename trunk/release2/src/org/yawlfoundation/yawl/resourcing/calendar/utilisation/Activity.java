@@ -39,7 +39,7 @@ public class Activity extends StatusMessage {
     private List<Reservation> _reservationList;
     private List<UtilisationRelation> _relationList;
 
-    public static enum Phase { POU, SOU, EOU }           // pre, start of, end of, utilisation
+    public static enum Phase { POU, SOU, EOU }      // pre, start of, end of, utilisation
 
 
     public Activity() { }
@@ -214,9 +214,9 @@ public class Activity extends StatusMessage {
         node.addChild("ActivityName", _name);
         node.addChild("StartTaskId", _taskID);
         node.addChild("RequestType", _phase);
-        if (StringWithMessage.hasData(_from)) node.addChild(_from.toXNode());
-        if (StringWithMessage.hasData(_to)) node.addChild(_to.toXNode());
-        if (StringWithMessage.hasData(_duration)) node.addChild(_duration.toXNode());
+        if (_from != null) node.addChild(_from.toXNode());
+        if (_to != null) node.addChild(_to.toXNode());
+        if (_duration != null) node.addChild(_duration.toXNode());
         if (_reservationList != null) {
             for (Reservation r : _reservationList) {
                 node.addChild(r.toXNode());
@@ -235,9 +235,9 @@ public class Activity extends StatusMessage {
         setName(node.getChildText("ActivityName"));
         setTaskID(node.getChildText("StartTaskId"));
         setPhase(node.getChildText("RequestType"));
-        setFrom(node.getChildText("From"));
-        setTo(node.getChildText("To"));
-        setDuration(node.getChildText("Duration"));
+        if (node.hasChild("From")) setFrom(node.getChildText("From"));
+        if (node.hasChild("To")) setTo(node.getChildText("To"));
+        if (node.hasChild("Duration")) setDuration(node.getChildText("Duration"));
         for (XNode reservationNode : node.getChildren("Reservation")) {
             addReservation(new Reservation(reservationNode));
         }
