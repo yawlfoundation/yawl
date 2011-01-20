@@ -97,6 +97,26 @@ public class YSpecificationID implements Comparable<YSpecificationID> {
     public void setVersion(YSpecVersion ver) { version = ver ; }
 
     public void setUri(String n) { uri = n; }
+
+
+    public boolean isValid() {
+
+        // only 2.0 or later ids (i.e. with a non-null identifier) can have a version
+        // other than the default 0.1
+        return (identifier != null) || version.getVersion().equals("0.1");
+    }
+
+    
+    public boolean isPreviousVersionOf(YSpecificationID other) {
+
+        // a null identifier means pre-2.0, which only have one version
+        return hasMatchingIdentifier(other) && (version.compareTo(other.getVersion()) < 0);
+    }
+
+
+    public boolean hasMatchingIdentifier(YSpecificationID other) {
+        return (identifier != null) && identifier.equals(other.getIdentifier());
+    }
     
 
     @Override public boolean equals(Object obj) {
