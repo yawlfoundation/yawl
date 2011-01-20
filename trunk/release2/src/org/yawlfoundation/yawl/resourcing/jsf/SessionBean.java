@@ -20,9 +20,9 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractSessionBean;
 import com.sun.rave.web.ui.component.Button;
+import com.sun.rave.web.ui.component.Listbox;
 import com.sun.rave.web.ui.component.PanelLayout;
 import com.sun.rave.web.ui.component.Script;
-import com.sun.rave.web.ui.component.Listbox;
 import com.sun.rave.web.ui.model.Option;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
@@ -38,14 +38,15 @@ import org.yawlfoundation.yawl.resourcing.jsf.comparator.*;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.resource.*;
+import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.FacesException;
-import javax.faces.event.ActionEvent;
 import javax.faces.application.Application;
 import javax.faces.application.NavigationHandler;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -279,7 +280,7 @@ public class SessionBean extends AbstractSessionBean {
             setEditedParticipant((Participant) null);
         }
         if (page != ApplicationBean.PageRef.externalClients) {
-            this.setAddClientAccountMode(true);
+            setAddClientAccountMode(true);
         }
     }
 
@@ -311,6 +312,9 @@ public class SessionBean extends AbstractSessionBean {
     private Option[] orgDataOptions;                              // org data mgt
     private Option[] orgDataBelongsItems;                         // org data mgt
     private Option[] orgDataGroupItems;                           // org data mgt
+    private Option[] nhResourcesOptions;                          // nonhuman resource mgt
+    private Option[] nhResourcesCategoryItems;                    // nonhuman resource mgt
+    private Option[] nhResourcesSubcategoryItems;                 // nonhuman resource mgt
 
 
     public Option[] getWorklistOptions() {
@@ -359,6 +363,17 @@ public class SessionBean extends AbstractSessionBean {
         return orgDataGroupItems;
     }
 
+    public Option[] getNhResourcesOptions() {
+        return nhResourcesOptions;
+    }
+
+    public Option[] getNhResourcesCategoryItems() {
+        return nhResourcesCategoryItems;
+    }
+
+    public Option[] getNhResourcesSubcategoryItems() {
+        return nhResourcesSubcategoryItems;
+    }
 
     public void setWorklistOptions(Option[] options) {
         worklistOptions = options;
@@ -404,8 +419,21 @@ public class SessionBean extends AbstractSessionBean {
         this.orgDataGroupItems = orgDataGroupItems;
     }
 
+    public void setNhResourcesOptions(Option[] nhResourcesOptions) {
+        this.nhResourcesOptions = nhResourcesOptions;
+    }
 
-    // user selection from each listbox
+    public void setNhResourcesCategoryItems(Option[] nhResourcesCategoryItems) {
+        this.nhResourcesCategoryItems = nhResourcesCategoryItems;
+    }
+
+    public void setNhResourcesSubcategoryItems(Option[] nhResourcesSubcategoryItems) {
+        this.nhResourcesSubcategoryItems = nhResourcesSubcategoryItems;
+    }
+
+
+  // user selection from each listbox
+
     private String worklistChoice;
     private YSpecificationID loadedSpecListChoice;
     private String runningCaseListChoice;
@@ -415,6 +443,9 @@ public class SessionBean extends AbstractSessionBean {
     private String orgDataChoice;
     private String orgDataBelongsChoice;
     private String orgDataGroupChoice;
+    private String nhResourcesChoice;
+    private String nhResourcesCategoryChoice;
+    private String nhResourcesSubcategoryChoice;
 
 
     public String getWorklistChoice() { return worklistChoice; }
@@ -426,6 +457,9 @@ public class SessionBean extends AbstractSessionBean {
     public String getChainedCasesChoice() { return chainedCasesChoice; }
     public String getOrgDataBelongsChoice() { return orgDataBelongsChoice; }
     public String getOrgDataGroupChoice() { return orgDataGroupChoice; }
+    public String getNhResourcesChoice() { return nhResourcesChoice; }
+    public String getNhResourcesCategoryChoice() { return nhResourcesCategoryChoice; }
+    public String getNhResourcesSubcategoryChoice() { return nhResourcesSubcategoryChoice; }
 
     public void setWorklistChoice(String choice) { worklistChoice = choice ; }
     public void setRunningCaseListChoice(String choice) { runningCaseListChoice = choice ; }
@@ -435,6 +469,9 @@ public class SessionBean extends AbstractSessionBean {
     public void setChainedCasesChoice(String choice) { chainedCasesChoice = choice; }
     public void setOrgDataBelongsChoice(String choice) { orgDataBelongsChoice = choice; }
     public void setOrgDataGroupChoice(String choice) { orgDataGroupChoice = choice; }
+    public void setNhResourcesChoice(String choice) { nhResourcesChoice = choice; }
+    public void setNhResourcesCategoryChoice(String choice) { nhResourcesCategoryChoice = choice; }
+    public void setNhResourcesSubcategoryChoice(String choice) { nhResourcesSubcategoryChoice = choice; }
 
     public void setLoadedSpecListChoice(SpecificationData choice) {        
         loadedSpecListChoice = choice.getID() ;
@@ -1109,6 +1146,12 @@ public class SessionBean extends AbstractSessionBean {
     public Mode getOrgMgtMode() { return _orgMgtMode; }
     public void setOrgMgtMode(Mode mode) { _orgMgtMode = mode; }
 
+    private Mode _nhrMgtMode = Mode.edit;
+
+    public Mode getNhrMgtMode() { return _nhrMgtMode; }
+    public void setNhrMgtMode(Mode mode) { _nhrMgtMode = mode; }
+
+
     private Option[] orgDataParticipantList ;
     private HashMap<String, Participant> participantMap ;
 
@@ -1252,6 +1295,21 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
+    public Option[] getFullNhResourcesList(String tab) {
+        Option[] options = null;
+        if (tab.equals("tabResources")) {
+            options = getNhResourcesList(_rm.getOrgDataSet().getNonHumanResourceMap());
+        }
+        else if (tab.equals("tabCategories")) {
+//            options = getNhResourcesCategoryList(_rm.getOrgDataSet().getNonHumanResourceCategoryMap());
+        }                            // todo
+//        else if (tab.equals("tabSubcategories"))  {
+//            options = getCapabilityList(_rm.getOrgDataSet().getCapabilityMap());
+//        }
+        sortOptions(options);
+        return options ;
+    }
+
     public Option[] getParticipantAttributeList(String tab, Participant p) {
         Option[] options = null;
         if (tab.equals("tabRoles")) {
@@ -1303,7 +1361,6 @@ public class SessionBean extends AbstractSessionBean {
             return result ;
         }
         else return null ;
-
     }
 
     private Option[] getCapabilityList(HashMap<String, Capability> capabilityMap) {
@@ -1317,7 +1374,6 @@ public class SessionBean extends AbstractSessionBean {
             return result ;
         }
         else return null ;
-
     }
 
     private Option[] getOrgGroupList(HashMap<String, OrgGroup> orgGroupMap) {
@@ -1331,8 +1387,35 @@ public class SessionBean extends AbstractSessionBean {
             return result ;
         }
         else return null ;
-
     }
+
+
+    private Option[] getNhResourcesList(Map<String, NonHumanResource> resMap) {
+        if (resMap != null) {
+            Option[] result = new Option[resMap.size()];
+            int i = 0 ;
+            for (String id : resMap.keySet()) {
+                NonHumanResource r = resMap.get(id);
+                result[i++] = new Option(id, r.getName()) ;
+            }
+            return result ;
+        }
+        else return null ;
+    }
+
+
+    private Option[] getNhResourcesCategoryList(Map<String, String> resMap) {
+        if (resMap != null) {
+            Option[] result = new Option[resMap.size()];
+            int i = 0 ;
+            for (String id : resMap.keySet()) {
+                result[i++] = new Option(id, resMap.get(id)) ;
+            }
+            return result ;
+        }
+        else return null ;
+    }
+
 
     private boolean orgDataItemRemovedFlag ;
 
@@ -1340,8 +1423,18 @@ public class SessionBean extends AbstractSessionBean {
         return orgDataItemRemovedFlag;
     }
 
-    public void setOrgDataItemRemovedFlag(boolean orgDataItemRemovedFlag) {
-        this.orgDataItemRemovedFlag = orgDataItemRemovedFlag;
+    public void setOrgDataItemRemovedFlag(boolean flag) {
+        orgDataItemRemovedFlag = flag;
+    }
+
+    private boolean nhResourcesItemRemovedFlag ;
+
+    public boolean isNhResourcesItemRemovedFlag() {
+        return nhResourcesItemRemovedFlag;
+    }
+
+    public void setNhResourcesItemRemovedFlag(boolean flag) {
+        orgDataItemRemovedFlag = flag;
     }
 
     private String activeResourceAttributeTab = "tabRoles";           // start value
@@ -1669,7 +1762,7 @@ public class SessionBean extends AbstractSessionBean {
         this.orgDataBelongsLabelText = orgDataBelongsLabelText;
     }
 
-        private String orgDataGroupLabelText = "Org Group";
+    private String orgDataGroupLabelText = "Org Group";
 
     public String getOrgDataGroupLabelText() {
         return orgDataGroupLabelText;
@@ -1678,6 +1771,17 @@ public class SessionBean extends AbstractSessionBean {
     public void setOrgDataGroupLabelText(String orgDataGroupLabelText) {
         this.orgDataGroupLabelText = orgDataGroupLabelText;
     }
+
+    private String nhResourceListLabelText = "List Label";
+
+    public String getNhResourceListLabelText() {
+        return nhResourceListLabelText;
+    }
+
+    public void setNhResourceListLabelText(String text) {
+        orgDataListLabelText = text;
+    }
+
 
     public void resetPageDefaults(ApplicationBean.PageRef page) {
         switch (page) {

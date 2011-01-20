@@ -139,7 +139,7 @@ public class SpecificationData {
         Document document = JDOMUtil.stringToDocument(_specAsXML);
         Element yawlSpecSetElement = document.getRootElement();
 
-        String ns = _schemaVersion.startsWith("2.") ?
+        String ns = isSecondGenSchemaVersion() ?
                 "http://www.yawlfoundation.org/yawlschema" :
                 "http://www.citi.qut.edu.au/yawl" ;
 
@@ -160,6 +160,11 @@ public class SpecificationData {
 
     public String getSchemaVersion() {
         return _schemaVersion;
+    }
+
+
+    public boolean isSecondGenSchemaVersion() {
+        return _schemaVersion.startsWith("2.");
     }
 
 

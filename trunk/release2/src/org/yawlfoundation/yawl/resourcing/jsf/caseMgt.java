@@ -517,10 +517,6 @@ public class caseMgt extends AbstractPageBean {
                 if (! _rm.successful(result)) processErrorMsg(result);
                 _sb.refreshLoadedSpecs();
             }
-            else {
-                msgPanel.error("A specification with the same URI, version and " +
-                    "description as those in the file '" + fileName + "' is already loaded.");    
-            }
         }
         else msgPanel.error("The file '" + fileName + "' does not appear to be a " +
                             "valid YAWL specification description or is malformed. " +
@@ -762,26 +758,79 @@ public class caseMgt extends AbstractPageBean {
 
 
     private boolean hasUniqueDescriptors(String specxml) {
-        if ((specxml == null) || (specxml.length() == 0)) return false;
-        XNode specNode = new XNodeParser().parse(specxml);
-        String schemaVersion = specNode.getAttributeValue("version");
-        XNode specification = specNode.getChild("specification");
-        String uri = specification.getAttributeValue("uri");
-        String version;
-        String description;
-        if ((schemaVersion != null) && schemaVersion.startsWith("2.")) {
-            XNode metadata = specification.getChild("metaData");
-            version = metadata.getChildText("version");
-            description = metadata.getChildText("description");
+        if ((specxml == null) || (specxml.length() == 0)) {
+            msgPanel.error("Invalid specification file: null or empty contents.");
+            return false;
         }
-        else {
-            version = "0.1";
-            description = specification.getChildText("documentation");
-        }    
-        return ! _sb.isLoadedSpec(uri, version, description);
+        YSpecificationID specID = getDescriptors(specxml);
+        if (specID != null) {
+            if (! specID.isValid()) {
+                msgPanel.error("Invalid specification: missing identifier or incorrect version.");
+                return false;
+            }
+            List<SpecificationData> loadedSpecs = _sb.getLoadedSpecs();
+            if (loadedSpecs != null) {
+                for (SpecificationData spec : loadedSpecs) {
+                    if (spec.getID().equals(specID)) {
+                        if (specID.getUri().equals(spec.getSpecURI())) {
+                            msgPanel.error("This specification is already loaded.");
+                        }
+                        else {
+                            msgPanel.error("A specification with the same id and " +
+                                    "version (but different name) is already loaded.");                            
+                        }
+                        return false;
+                    }
+                    else if (specID.isPreviousVersionOf(spec.getID())) {
+                        if (specID.getUri().equals(spec.getSpecURI())) {
+                            msgPanel.error("A later version of this specification is " +
+                                    "already loaded.");
+                        }
+                        else {
+                            msgPanel.error("A later version of a specification with the " +
+                                    "same id (but different name) is already loaded.");                            
+                        }
+                        return false;
+                    }
+                    else if (specID.getUri().equals(spec.getSpecURI()) &&
+                             (! specID.hasMatchingIdentifier(spec.getID()))) {
+                        msgPanel.error("A specification with the same name, but a different " +
+                                "id, is already loaded. Please change the name and try again.");
+                        return false;
+                    }
+                }
+            }
+            return true;                                // no loaded or matching specs
+        }
+        return false;                            // null specID means problem with spec
     }
 
 
+    private YSpecificationID getDescriptors(String specxml) {
+        YSpecificationID descriptors = null;
+        XNode specNode = new XNodeParser().parse(specxml);
+        if (specNode != null) {
+            String schemaVersion = specNode.getAttributeValue("version");
+            XNode specification = specNode.getChild("specification");
+            if (specification != null) {
+                String uri = specification.getAttributeValue("uri");
+                String version = "0.1";
+                String uid = null;
+                if ((schemaVersion != null) && schemaVersion.startsWith("2.")) {
+                    XNode metadata = specification.getChild("metaData");
+                    version = metadata.getChildText("version");
+                    uid = metadata.getChildText("identifier");
+                }
+                descriptors = new YSpecificationID(uid, version, uri);
+            }
+            else msgPanel.error("Malformed specification: 'specification' node not found.");
+        }
+        else msgPanel.error("Malformed specification: unable to parse.");
+        
+        return descriptors;
+    }
+
+    
     private void processErrorMsg(String msg) {
         Element root = JDOMUtil.stringToElement(msg);
         if (root != null) {
