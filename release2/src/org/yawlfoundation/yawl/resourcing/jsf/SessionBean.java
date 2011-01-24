@@ -1250,9 +1250,10 @@ public class SessionBean extends AbstractSessionBean {
         return editedParticipant;
     }
 
-    public void saveParticipantUpdates(Participant temp) {
-        Participant p = getParticipantMap().get(temp.getID());
-        p.merge(temp);
+    public void saveParticipantUpdates(Participant cloned) {
+        String actualID = cloned.getID().substring(7);
+        Participant p = getParticipantMap().get(actualID);
+        p.merge(cloned);
         p.save();
         setEditedParticipant(p.getID()) ;             // reset
     }

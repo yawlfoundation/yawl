@@ -881,29 +881,5 @@ public class participantData extends AbstractPageBean {
         return result;
     }
 
-
-    // below are tags removed from the jsp - may be reused later - here for safekeeping
-    
-//                <ui:checkbox binding="#{participantData.cbxViewAllOffered}"
-//                    id="cbxViewAllOffered"
-//                    label="View All Offered Work items"
-//                    styleClass="orgDataPrivCheckBox"
-//                    selected="false"
-//                    style="top: 127px"/>
-//
-//                <ui:checkbox binding="#{participantData.cbxViewAllAllocated}"
-//                    id="cbxViewAllAllocated"
-//                    label="View All Allocated Work Items"
-//                    styleClass="orgDataPrivCheckBox"
-//                    selected="false"
-//                    style="top: 156px"/>
-//
-//                <ui:checkbox binding="#{participantData.cbxViewAllExecuting}"
-//                    id="cbxViewAllExecuting"
-//                    label="View All Executing Work Items"
-//                    styleClass="orgDataPrivCheckBox"
-//                    selected="false"
-//                    style="top: 185px"/>
-
 }
 

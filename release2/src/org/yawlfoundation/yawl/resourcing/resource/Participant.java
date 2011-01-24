@@ -109,21 +109,21 @@ public class Participant extends AbstractResource implements Serializable {
     public Participant clone() {
 
         // create a new Participant with persistence OFF
-        Participant result = new Participant(_lastname, _firstname, _userID, false);
-        result.setAdministrator(_isAdministrator);
-        result.setPassword(_password);
-        result.setID(_resourceID);
-        result.setNotes(_notes);
-        result.setDescription(_description);
+        Participant cloned = new Participant(_lastname, _firstname, _userID, false);
+        cloned.setAdministrator(_isAdministrator);
+        cloned.setPassword(_password);
+        cloned.setID("_CLONE_" + _resourceID);                  // different id to this
+        cloned.setNotes(_notes);
+        cloned.setDescription(_description);
         if (_privileges != null)
-            result.setUserPrivileges(_privileges.clone());
+            cloned.setUserPrivileges(_privileges.clone());
         else
-            result.setUserPrivileges(new UserPrivileges(_resourceID));
+            cloned.setUserPrivileges(new UserPrivileges(_resourceID));
 
-        for (Role r : _roles) result.addRole(r);
-        for (Position p : _positions ) result.addPosition(p) ;
-        for (Capability c : _capabilities) result.addCapability(c);
-        return result ;
+        for (Role r : _roles) cloned.addRole(r);
+        for (Position p : _positions ) cloned.addPosition(p) ;
+        for (Capability c : _capabilities) cloned.addCapability(c);
+        return cloned ;
     }
 
     // copies values from p to this (does NOT change id)
