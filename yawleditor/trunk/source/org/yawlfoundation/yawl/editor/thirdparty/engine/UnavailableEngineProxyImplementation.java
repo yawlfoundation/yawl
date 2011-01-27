@@ -41,7 +41,7 @@ public class UnavailableEngineProxyImplementation implements
 
   public void validate(SpecificationModel editorSpec) {}
 
-  public void connect() {}
+  public boolean connect() { return false; }
   
   public boolean testConnection(String engineURL, String engineUserID, String engineUserPassword) {
     return false;

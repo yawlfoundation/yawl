@@ -71,8 +71,8 @@ public class YAWLEngineProxy implements YAWLEngineProxyInterface {
         }
     }
   
-  public void connect() {
-    implementation.connect();
+  public boolean connect() {
+    return implementation.connect();
   }
   
   public boolean testConnection(String engineURL, String engineUserID, String engineUserPassword) {

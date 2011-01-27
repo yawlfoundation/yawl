@@ -124,8 +124,7 @@ class ResourceServiceDialog extends AbstractDoneDialog {
 
          ResourcingServiceProxy.getInstance().setImplementation(
                  resourcingServiceURIField.getText());
-         YAWLEditor.setStatusMode("resource",
-                                  ResourcingServiceProxy.getInstance().isLiveService());
+         YAWLEditor.setStatusMode("resource", ResourcingServiceProxy.getInstance().connect());
 
          SpecificationUndoManager.getInstance().setDirty(true);                            
        }
@@ -369,7 +368,7 @@ class ResourceServiceDialog extends AbstractDoneDialog {
             )
         );
       }
-      if (resourcingServicePasswordField.getPassword().equals("")) {
+      if (resourcingServicePasswordField.getPassword().length == 0) {
         resourcingServicePasswordField.setText(
             prefs.get(
                 "resourcingServiceUserPassword", 

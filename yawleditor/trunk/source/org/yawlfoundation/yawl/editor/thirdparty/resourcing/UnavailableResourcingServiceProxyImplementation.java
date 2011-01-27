@@ -39,8 +39,7 @@ public class UnavailableResourcingServiceProxyImplementation implements Resourci
   }
   
   public boolean connect() {
-    // deliberately does nothing.
-    return true;  
+    return false;  
   }
 
   public void disconnect() {

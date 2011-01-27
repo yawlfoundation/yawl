@@ -18,7 +18,7 @@ import java.util.*;
  */
 public class ConnectableEngineProxyImplementation extends AvailableEngineProxyImplementation {
 
-    public void connect() {
+    public boolean connect() {
       try {
         if (!connected()) {
           tryConnect();
@@ -26,6 +26,7 @@ public class ConnectableEngineProxyImplementation extends AvailableEngineProxyIm
       } catch (Exception e) {
         sessionID = "";
       }
+      return (! sessionID.equals(""));
     }
 
     public boolean testConnection(String engineURL, String engineUserId, String engineUserPassword) {

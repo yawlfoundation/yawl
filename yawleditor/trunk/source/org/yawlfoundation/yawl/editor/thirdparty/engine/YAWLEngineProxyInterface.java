@@ -54,7 +54,7 @@ public interface YAWLEngineProxyInterface {
 
   public void validate(SpecificationModel specification); 
   
-  public void connect();
+  public boolean connect();
   
   public boolean testConnection(String engineURL, String engineUserID, String engineUserPassword);
 
