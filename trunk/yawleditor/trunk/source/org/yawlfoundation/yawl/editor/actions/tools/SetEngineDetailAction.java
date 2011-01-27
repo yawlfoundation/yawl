@@ -126,7 +126,7 @@ class EngineDetailDialog extends AbstractDoneDialog {
            if (dataSchema != null) {
                YAWLEngineProxy.getInstance().setDataTypeSchema(dataSchema);
            }
-           YAWLEditor.setStatusMode("engine", YAWLEngineProxy.getInstance().isConnectable());
+           YAWLEditor.setStatusMode("engine", YAWLEngineProxy.getInstance().connect());
 
          SpecificationUndoManager.getInstance().setDirty(true);
        }

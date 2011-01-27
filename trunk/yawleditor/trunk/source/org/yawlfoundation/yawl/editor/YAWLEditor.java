@@ -441,10 +441,8 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   }
 
   private void attemptEngineConnectionIfApplicable() {
-      YAWLEngineProxy.getInstance().connect();
-      ResourcingServiceProxy.getInstance().connect();
-      setStatusMode("engine", YAWLEngineProxy.getInstance().isConnectable());
-      setStatusMode("resource", ResourcingServiceProxy.getInstance().isLiveService());
+      setStatusMode("engine", YAWLEngineProxy.getInstance().connect());
+      setStatusMode("resource", ResourcingServiceProxy.getInstance().connect());
   }
 
   public static void pause(long milliseconds) {

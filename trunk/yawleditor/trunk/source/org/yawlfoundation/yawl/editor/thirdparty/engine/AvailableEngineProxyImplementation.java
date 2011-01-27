@@ -86,7 +86,7 @@ public class AvailableEngineProxyImplementation implements
     EngineSpecificationHandler.getInstance().validate(editorSpec);
   }
   
-  public void connect() {  } 
+  public boolean connect() { return false; } 
   
   public boolean testConnection(String engineURL, String engineUserId, String engineUserPassword) {
    return false;
