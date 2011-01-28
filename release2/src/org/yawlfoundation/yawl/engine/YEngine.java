@@ -152,6 +152,9 @@ public class YEngine implements InterfaceADesign,
                 _caseNbrStore.setPersisting(true);
                 _thisInstance.restore();
             }
+            else {		// Default clients and services should always be available
+                _thisInstance.loadDefaultClients();            
+            }
 
             // init the process logger
             _yawllog = YEventLogger.getInstance(_thisInstance);
@@ -239,6 +242,29 @@ public class YEngine implements InterfaceADesign,
             restorer.persistDefaultClients();
         }
     }
+
+
+    /**
+     * Loads the logon accounts for the standard client apps and services from a
+     * properties file on startup when they have not previously been persisted (ie. on
+     * first startup) or when persistence is disabled.
+     * @return the set of default clients loaded.
+     * @throws YPersistenceException A passthrough - since it is only called when
+     * restoring or when persistence is disabled, this exception is never thrown.
+     */
+    protected Set<YClient> loadDefaultClients() throws YPersistenceException {
+        Set<YClient> defClients = new YDefClientsLoader().load();
+        for (YClient client : defClients) {
+            if (client instanceof YExternalClient) {
+                addExternalClient((YExternalClient) client);
+            }
+            else if (client instanceof YAWLServiceReference) {
+                addYawlService((YAWLServiceReference) client);
+            }
+        }
+        return defClients;
+    }
+
 
     /**
      * Indicate if user interface metadata is to be generated within a task's input XML doclet.
