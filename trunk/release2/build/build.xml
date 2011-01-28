@@ -213,8 +213,11 @@
 	</condition>
 
     <!--
-    	JAR grouping properties. Used to define JAR groupings copied to
-    	lib folders (cf. groupings for compilation classpaths)
+    	JAR grouping properties. Used to define JAR groupings for dependencies
+    	(cf. groupings for compilation classpaths).
+
+    	!!!NB!!! This includes properties for the dependencies of each webapp,
+    	since these are reused for both shared and dedicated Tomcat builds
     -->
     <property name="persistence.libs"
               value="${antlr} ${commonsCollections} ${commonsLogging} ${dom4j}
@@ -235,10 +238,53 @@
                      ${activation} ${jaxrpc} ${saaj} ${wsdl4j}"/>
 
     <property name="common.libs"
-              value="${junit} ${saxon} ${jdom} ${servlet} ${log4j}"/>
+              value="${junit} ${saxon} ${jdom} ${log4j}"/>
 
     <property name="saxon.libs"
               value="${saxon} ${saxondom} ${saxonapi} ${saxonjdom}"/>
+
+	<!-- Per webapp dependency lists -->
+
+	<property name="webapp_yawl.libs"
+			  value="${persistence.libs} ${xsd.libs} ${common.libs} ${xerces}
+					 ${dbClient} ${saxon.libs} ${commonsLang} ${commonsCodec}" />
+
+	<property name="webapp_resourceService.libs"
+			  value="${persistence.libs} ${xsd.libs} ${jdom} ${log4j}
+        		     ${dbClient} ${jsf.libs} ${commonsLang} ${commonsCodec}
+	        		 ${xerces} ${saxon.libs}" />
+
+	<property name="webapp_worklet.libs"
+			  value="${persistence.libs} ${xsd.libs} ${jdom} ${log4j}
+        			 ${dbClient} ${saxon.libs} ${commonsLang} ${xerces}
+	       			 ${commonsCodec}" />
+
+	<property name="webapp_wsInvoker.libs"
+			  value="${wsif.libs} ${apacheSoap} ${jdom} ${log4j}
+        			 ${soaprmi} ${wsif-j2c} ${xerces}
+        			 ${commonsCodec} README.html" />
+
+	<property name="webapp_smsInvoker.libs"
+			  value="${jdom} ${log4j} ${commonsCodec}" />
+
+	<property name="webapp_digitalSignature.libs"
+			  value="${jdom} ${log4j} ${commonsCodec} ${commonsIO}
+        			 ${commonsFileupload} ${bcmail} ${bcprov}" />
+
+	<property name="webapp_mailSender.libs"
+			  value="${jdom} ${log4j} ${mail} ${activation}
+		   			 ${commonsIO} ${commonsFileupload} ${commonsCodec}" />
+
+	<property name="webapp_monitor.libs"
+			  value="${jdom} ${log4j} ${jsf.libs} ${commonsLang}
+        			 ${commonsLogging} ${commonsCollections} ${commonsCodec}" />
+
+	<property name="webapp_twitter.libs"
+			  value="${jdom} ${log4j} ${twitter4j} ${commonsCodec}" />
+
+	<property name="webapp_test.libs"
+			  value="${jdom} ${xerces} ${log4j} ${twitter4j}
+		   			 ${commonsCodec} ${saxon.libs} ${commonsLang}" />
 
     <!--
     	JAR grouping properties for compilation classpath usage
@@ -415,7 +461,7 @@
                      includes="${persistence.libs} ${xsd.libs} ${common.libs}
                                ${saxon.libs} ${xerces} ${commonsLang} ${dbClient}
                                ${commonsCodec}"
-                     excludes="hibernate.cfg.xml ${servlet}"/>
+                     excludes="hibernate.cfg.xml"/>
         </unzip>
 
         <jar destfile="${output.dir}/YAWL_Standalone_${app.version}.jar">
@@ -664,10 +710,7 @@
 		</copy>
 		<copy todir="${temp.dir}/${engine.app.name}/WEB-INF/lib">
 			<fileset dir="${lib.dir}"
-		             includes="${persistence.libs} ${xsd.libs} ${common.libs}
-				               ${xerces} ${dbClient} ${saxon.libs}
-				               ${commonsLang} ${commonsCodec}"
-		             excludes="${servlet}"/>
+		             includes="${webapp_yawl.libs}" />
 		</copy>
 	</target>
 
@@ -732,9 +775,7 @@
 		</copy>
 		<copy todir="${temp.dir}/${wsInvoker.app.name}/WEB-INF/lib">
 			<fileset dir="${lib.dir}"
-		             includes="${wsif.libs} ${apacheSoap} ${jdom} ${log4j}
-		                       ${soaprmi} ${wsif-j2c} ${xerces}
-		                       ${commonsCodec} README.html"/>
+		             includes="${webapp_wsInvoker.libs}"/>
 		</copy>
 	</target>
 
@@ -803,7 +844,7 @@
 		</copy>
 	    <copy todir="${temp.dir}/${smsInvoker.app.name}/WEB-INF/lib">
 	        <fileset dir="${lib.dir}"
-	        	     includes="${jdom} ${log4j} ${commonsCodec}"/>
+	        	     includes="${webapp_smsInvoker.libs}"/>
 	    </copy>
 	</target>
 
@@ -920,9 +961,7 @@
 		</copy>
 		<copy todir="${temp.dir}/${worklet.app.name}/WEB-INF/lib">
 			<fileset dir="${lib.dir}"
-		             includes="${persistence.libs} ${xsd.libs} ${jdom} ${log4j}
-		                       ${dbClient} ${saxon.libs} ${commonsLang} ${xerces}
-		    	    	       ${commonsCodec}"/>
+		             includes="${webapp_worklet.libs}"/>
 		</copy>
     </target>
 
@@ -1060,9 +1099,7 @@
 		</copy>
         <copy todir="${temp.dir}/${resource.app.name}/WEB-INF/lib">
            <fileset dir="${lib.dir}"
-                    includes="${persistence.libs} ${xsd.libs} ${jdom} ${log4j}
-                    ${dbClient} ${jsf.libs} ${commonsLang} ${commonsCodec}
-           	        ${xerces} ${saxon.libs}"/>
+                    includes="${webapp_resourceService.libs}"/>
         </copy>
     </target>
 
@@ -1216,8 +1253,7 @@
 		</copy>
 	    <copy todir="${temp.dir}/${monitor.app.name}/WEB-INF/lib">
 	        <fileset dir="${lib.dir}"
-	                 includes="${jdom} ${log4j} ${jsf.libs} ${commonsLang}
-	                           ${commonsLogging} ${commonsCollections} ${commonsCodec}"/>
+	                 includes="${webapp_monitor.libs}"/>
 	    </copy>
     </target>
 
@@ -1316,8 +1352,7 @@
 		</copy>
 	    <copy todir="${temp.dir}/${test.app.name}/WEB-INF/lib">
 	        <fileset dir="${lib.dir}"
-	    	         includes="${jdom} ${xerces} ${log4j} ${twitter4j}
-	            			   ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
+	    	         includes="${webapp_test.libs}"/>
 	    </copy>
 	</target>
 
@@ -1378,7 +1413,7 @@
 		</copy>
         <copy todir="${temp.dir}/${twitter.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}"
-            	     includes="${jdom} ${log4j} ${twitter4j} ${commonsCodec}"/>
+            	     includes="${webapp_twitter.libs}"/>
         </copy>
 	</target>
 
@@ -1447,8 +1482,7 @@
     	</copy>
         <copy todir="${temp.dir}/${digitalSignature.app.name}/WEB-INF/lib">
         	<fileset dir="${lib.dir}"
-                     includes="${jdom} ${log4j} ${commonsCodec} ${commonsIO}
-                               ${commonsFileupload} ${bcmail} ${bcprov}"/>
+                     includes="${webapp_digitalSignature.libs}"/>
        	</copy>
    	</target>
 
@@ -1511,9 +1545,7 @@
 		</copy>
         <copy todir="${temp.dir}/${mailSender.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}"
-            	     includes="${jdom} ${log4j} ${mail} ${activation}
-                    		   ${commonsIO} ${commonsFileupload}
-            	               ${commonsCodec}" />
+            	     includes="${webapp_mailSender.libs}" />
         </copy>
 	</target>
 
@@ -1571,7 +1603,8 @@ libraries)">
     			 deployDigitalSignature,
     		     deployMailSender,
     	    	 deployTestService,
-	    		 deployTwitterService">
+	    		 deployTwitterService,
+    	         deployNonCoreSharedLibs">
     </target>
 
     <target name="deployCoreWebapps"
@@ -1580,7 +1613,7 @@ libraries)">
         		 deployResourceService,
     		     deployWsInvoker,
     			 deploySMS,
-    	  		 deploySharedLibs">
+    	  		 deployCoreSharedLibs">
     </target>
 
 	<!--
@@ -1646,14 +1679,16 @@ libraries)">
         </copy>
     </target>
 
-    <!-- copies the set of jars needed by the five core webapps to tomcat/lib -->
-	<target name="deploySharedLibs" if="tomcat.isDedicated">
+    <!--
+    	Copies JARs as needed for the install type to tomcat/lib
+    -->
+
+	<target name="deployCoreSharedLibs" if="tomcat.isDedicated">
 		<copy overwrite="true" todir="${sharedLibs.dir}">
             <fileset dir="${lib.dir}"
-                includes="${persistence.libs} ${xsd.libs} ${common.libs} ${soaprmi}
-                          ${xerces} ${dbClient} ${saxon.libs} ${wsif.libs} ${apacheSoap}
-                          ${wsif-j2c} ${jsf.libs} ${commonsLang} ${commonsCodec}"
-                 excludes="${servlet}"/>
+                includes="${webapp_yawl.libs} ${webapp_resourceService.libs}
+            	          ${webapp_wsInvoker.libs} ${webapp_smsInvoker.libs}
+            	          ${webapp_worklet.libs}" />
         </copy>
 		<copy overwrite="true" todir="${sharedLibs.dir}">
 			<fileset dir="${classes.dir}"
@@ -1661,6 +1696,14 @@ libraries)">
 		</copy>
 	</target>
 
+	<target name="deployNonCoreSharedLibs" if="tomcat.isDedicated">
+		<copy overwrite="true" todir="${sharedLibs.dir}">
+	    	<fileset dir="${lib.dir}"
+	             	 includes="${webapp_digitalSignature.libs} ${webapp_mailSender.libs}
+							   ${webapp_monitor.libs} ${webapp_twitter.libs}
+	    					   ${webapp_test.libs}" />
+	    </copy>
+	</target>
 
 	<!-- ===================== TEST-RELATED TARGETS======================== -->
 
