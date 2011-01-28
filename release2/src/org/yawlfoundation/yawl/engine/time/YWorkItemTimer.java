@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.engine.time;
 
 import org.yawlfoundation.yawl.engine.YEngine;
+import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.YWorkItemStatus;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
@@ -50,7 +51,7 @@ public class YWorkItemTimer implements YTimedObject {
         _ownerID = workItemID ;
         _persisting = persisting ;
         _endTime = YTimer.getInstance().schedule(this, msec) ;
-        if (persisting) persistThis(true) ;
+//        if (persisting) persistThis(true) ;
     }
 
 
@@ -58,7 +59,7 @@ public class YWorkItemTimer implements YTimedObject {
         _ownerID = workItemID ;
         _persisting = persisting ;
         _endTime = YTimer.getInstance().schedule(this, expiryTime) ;
-        if (persisting) persistThis(true) ;
+//        if (persisting) persistThis(true) ;
     }
 
 
@@ -66,7 +67,7 @@ public class YWorkItemTimer implements YTimedObject {
         _ownerID = workItemID ;
         _persisting = persisting ;
         _endTime = YTimer.getInstance().schedule(this, duration) ;
-        if (persisting) persistThis(true) ;
+  //      if (persisting) persistThis(true) ;
     }
 
 
@@ -75,7 +76,7 @@ public class YWorkItemTimer implements YTimedObject {
         _ownerID = workItemID ;
         _persisting = persisting ;
         _endTime = YTimer.getInstance().schedule(this, units, interval);
-        if (persisting) persistThis(true) ;
+//        if (persisting) persistThis(true) ;
     }
 
 
@@ -92,15 +93,16 @@ public class YWorkItemTimer implements YTimedObject {
 
     public void persistThis(boolean insert) {
         if (_persisting) {
-            try {
-                if (insert)
-                    YEngine.getInstance().storeObject(this);
-                else
-                    YEngine.getInstance().deleteObject(this);
-            }
-            catch (YPersistenceException ype) {
-                // handle exc.
-            }
+            YPersistenceManager pmgr = YEngine.getPersistenceManager();
+            if (pmgr != null) {
+                try {
+                    if (insert) pmgr.storeObjectFromExternal(this);
+                    else pmgr.deleteObjectFromExternal(this);
+                }
+                catch (YPersistenceException ype) {
+                    // handle exc.
+                }
+            }    
         }
     }
 
@@ -144,7 +146,7 @@ public class YWorkItemTimer implements YTimedObject {
 
     // unpersist this timer when the workitem is cancelled
     public void cancel() {
-        persistThis(false) ;                                
+        persistThis(false) ;
     }
 
 }

@@ -85,6 +85,13 @@ public class YTimer extends Timer {
     }
 
 
+    public void shutdown() {
+        for (TimeKeeper timer : _runners.values()) {
+            timer.cancel();
+        }
+    }
+
+
     // both methods return a long value of the date/time stamp representing
     // the expiry time
 
