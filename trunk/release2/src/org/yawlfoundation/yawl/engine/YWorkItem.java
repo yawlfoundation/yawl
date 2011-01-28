@@ -424,7 +424,8 @@ public class YWorkItem {
     }
 
 
-    public void checkStartTimer(YPersistenceManager pmgr, YCaseData data) {
+    public void checkStartTimer(YPersistenceManager pmgr, YCaseData data)
+            throws YPersistenceException {
         YWorkItemTimer timer = null ;
 
         if (_timerParameters != null) {
@@ -474,6 +475,7 @@ public class YWorkItem {
             if (_timerStarted && (timer != null)) {
                 _timerExpiry = timer.getEndTime();
                 setTimerActive();
+                if (pmgr != null) pmgr.storeObject(timer);
             }
         }
     }

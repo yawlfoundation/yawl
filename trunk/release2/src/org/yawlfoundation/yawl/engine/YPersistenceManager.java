@@ -229,7 +229,7 @@ public class YPersistenceManager {
 
     /**
      * Causes the supplied object to be persisted when the current transaction is committed.
-     * This method simply calls {@link #updateObject(Object)} but is public in scope.
+     * This method simply calls {@link #storeObject(Object)} but is public in scope.
      *
      * @param obj The object to be persisted
      */
@@ -246,6 +246,17 @@ public class YPersistenceManager {
      */
     public void updateObjectExternal(Object obj) throws YPersistenceException {
         updateObject(obj);
+    }
+
+
+    /**
+      * Causes the supplied object to be unpersisted when the current transaction is committed.
+      * This method simply calls {@link #deleteObject(Object)} but is public in scope.
+      *
+      * @param obj The object to be unpersisted
+      */
+    public void deleteObjectFromExternal(Object obj) throws YPersistenceException {
+        deleteObject(obj);
     }
 
 
