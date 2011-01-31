@@ -119,6 +119,44 @@ public class ResourceCalendarGatewayClient extends Interface_Client {
     /******************************************************************************/
 
     /**
+     * Gets the periods (timeslots) between 'from' and 'to' when the resource
+     * described by the resource record xml, is available
+     * @param resourceXML the resource record to check for availability
+     * @param from the start of the date/time range
+     * @param to the end of the date/time range
+     * @param handle a valid session handle
+     * @return an xml string of the resource's available timeslots
+     * @throws IOException if the service can't be reached
+     */
+    public String getAvailability(String resourceXML, long from, long to,
+                                          String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getAvailability", handle);
+        params.put("resourceXML", resourceXML);
+        params.put("from", String.valueOf(from));
+        params.put("to", String.valueOf(to));
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Gets the periods (timeslots) between 'from' and 'to' when the resource
+     * described by the resource record xml, is available
+     * @param resourceXML the resource record to check for availability
+     * @param fromDate the start of the date/time range
+     * @param toDate the end of the date/time range
+     * @param handle a valid session handle
+     * @return an xml string of the resource's available timeslots
+     * @throws IOException if the service can't be reached
+     */
+    public String getAvailability(String resourceXML, Date fromDate, Date toDate,
+                                          String handle) throws IOException {
+        long from = (fromDate != null) ? fromDate.getTime() : -1;
+        long to = (toDate != null) ? toDate.getTime() : -1;
+        return getAvailability(resourceXML, from, to, handle);
+    }
+
+
+    /**
      * Gets the periods (timeslots) between 'from' and 'to' when the resource is
      * available
      * @param resourceID the resource to check for availability

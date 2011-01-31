@@ -50,7 +50,7 @@ public class UtilisationReconstructor {
         String from = StringUtil.longToDateTime(calEntry.getStartTime());
         String to = StringUtil.longToDateTime(calEntry.getEndTime());
 
-        Activity activity = new Activity(name, null, from, to, null);
+        Activity activity = new Activity(name, null, null, from, to, null);
         activity.setPhase(phase);
         activity.addReservation(reconstructReservation(calEntry));
         return activity;

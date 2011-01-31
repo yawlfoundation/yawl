@@ -59,9 +59,12 @@ public class ResourceDataSet {
     // maps the data source for each org data entity
     private Map<ResUnit, DataSource> _sources = new Hashtable<ResUnit, DataSource>();
 
+    // stores a timestamp of each entity's last change
+    private Map<ResUnit, Long> _changeStamp = new Hashtable<ResUnit, Long>();
+
 
     public ResourceDataSet(DataSource source) {
-        initSourcesTable(source);            
+        initUnitMaps(source);
         participantMap = new HashMap<String, Participant>();
         roleMap = new HashMap<String, Role>();
         capabilityMap = new HashMap<String, Capability>();
@@ -75,10 +78,17 @@ public class ResourceDataSet {
 
     // PRIVATE METHODS //
 
-    private void initSourcesTable(DataSource source) {
+    private void initUnitMaps(DataSource source) {
+        long now = System.currentTimeMillis();
         for (ResUnit unit : ResUnit.values()) {
             _sources.put(unit, source);
+            _changeStamp.put(unit, now);
         }
+    }
+
+
+    private void setChangeStamp(ResUnit unit) {
+        _changeStamp.put(unit, System.currentTimeMillis());        
     }
 
 
@@ -167,6 +177,19 @@ public class ResourceDataSet {
         return ResUnit.valueOf(name);
     }
 
+
+    public long getChangeStamp(ResUnit unit) {
+        return _changeStamp.get(unit);
+    }
+
+    public long getLastChangeStamp() {
+        long lastChange = 0;
+        for (Long stamp : _changeStamp.values()) {
+            if (stamp > lastChange) lastChange = stamp;
+        }
+        return lastChange;
+    }
+
     /************************************/
 
     public void setParticipants(HashMap<String, Participant> participants, DataSource source) {
@@ -233,60 +256,74 @@ public class ResourceDataSet {
 
     public void putParticipant(Participant p) {
         participantMap.put(p.getID(), p);
+        setChangeStamp(ResUnit.Participant);
     }
 
     public void putCapability(Capability c) {
         capabilityMap.put(c.getID(), c);
+        setChangeStamp(ResUnit.Capability);
     }
 
     public void putRole(Role r) {
         roleMap.put(r.getID(), r);
+        setChangeStamp(ResUnit.Role);
     }
 
     public void putPosition(Position p) {
         positionMap.put(p.getID(), p);
+        setChangeStamp(ResUnit.Position);
     }
 
     public void putOrgGroup(OrgGroup o) {
-        orgGroupMap.put(o.getID(), o) ;
+        orgGroupMap.put(o.getID(), o);
+        setChangeStamp(ResUnit.OrgGroup);
     }
 
     public void putNonHumanResource(NonHumanResource r) {
-        nonHumanMap.put(r.getID(), r) ;
+        nonHumanMap.put(r.getID(), r);
+        setChangeStamp(ResUnit.NonHumanResource);
     }
 
     public void putNonHumanCategory(NonHumanCategory r) {
-        nonHumanCategoryMap.put(r.getID(), r) ;
+        nonHumanCategoryMap.put(r.getID(), r);
+        setChangeStamp(ResUnit.NonHumanCategory);
     }
 
     /************************************/
 
     public void delParticipant(Participant p) {
-        participantMap.remove(p.getID()) ;
+        participantMap.remove(p.getID());
+        setChangeStamp(ResUnit.Participant);
     }
 
     public void delRole(Role r) {
         roleMap.remove(r.getID());
+        setChangeStamp(ResUnit.Role);
     }
 
     public void delCapability(Capability c) {
         capabilityMap.remove(c.getID());
+        setChangeStamp(ResUnit.Capability);
     }
 
     public void delPosition(Position p) {
         positionMap.remove(p.getID());
+        setChangeStamp(ResUnit.Position);
     }
 
     public void delOrgGroup(OrgGroup o) {
         orgGroupMap.remove(o.getID());
+        setChangeStamp(ResUnit.OrgGroup);
     }
 
     public void delNonHumanResource(NonHumanResource r) {
         nonHumanMap.remove(r.getID());
+        setChangeStamp(ResUnit.NonHumanResource);
     }
 
     public void delNonHumanCategory(NonHumanCategory r) {
         nonHumanCategoryMap.remove(r.getID());
+        setChangeStamp(ResUnit.NonHumanCategory);
     }
 
     /************************************/

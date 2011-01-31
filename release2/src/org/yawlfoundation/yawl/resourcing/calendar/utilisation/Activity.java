@@ -31,7 +31,8 @@ import java.util.List;
 public class Activity extends StatusMessage {
 
     private String _name;
-    private String _taskID;
+    private String _startTaskID;
+    private String _endTaskID;
     private String _phase;
     private StringWithMessage _from;
     private StringWithMessage _to;
@@ -44,9 +45,11 @@ public class Activity extends StatusMessage {
 
     public Activity() { }
 
-    public Activity(String name, String taskID, String from, String to, String duration) {
+    public Activity(String name, String startTaskID, String endTaskID,
+                    String from, String to, String duration) {
         setName(name);
-        setTaskID(taskID);
+        setStartTaskID(startTaskID);
+        setStartTaskID(endTaskID);
         setFrom(from);
         setTo(to);
         setDuration(duration);
@@ -63,9 +66,14 @@ public class Activity extends StatusMessage {
     public void setName(String name) { _name = name; }
 
 
-    public String getTaskID() { return _taskID; }
+    public String getStartTaskID() { return _startTaskID; }
 
-    public void setTaskID(String id) { _taskID = id; }
+    public void setStartTaskID(String id) { _startTaskID = id; }
+
+
+    public String getEndTaskID() { return _endTaskID; }
+
+    public void setEndTaskID(String id) { _endTaskID = id; }
 
 
     public String getPhase() { return _phase; }
@@ -208,15 +216,17 @@ public class Activity extends StatusMessage {
         return toXNode().toString();
     }
 
+    
     public XNode toXNode() {
         XNode node = new XNode("Activity");
         addAttributes(node);
+        node.addChild("StartTaskId", _startTaskID);
+        node.addChild("EndTaskId", _startTaskID);
         node.addChild("ActivityName", _name);
-        node.addChild("StartTaskId", _taskID);
-        node.addChild("RequestType", _phase);
+        if (_duration != null) node.addChild(_duration.toXNode());
         if (_from != null) node.addChild(_from.toXNode());
         if (_to != null) node.addChild(_to.toXNode());
-        if (_duration != null) node.addChild(_duration.toXNode());
+        node.addChild("RequestType", _phase);
         if (_reservationList != null) {
             for (Reservation r : _reservationList) {
                 node.addChild(r.toXNode());
@@ -230,10 +240,12 @@ public class Activity extends StatusMessage {
         return node;
     }
 
+
     public void fromXNode(XNode node) {
         super.fromXNode(node);
         setName(node.getChildText("ActivityName"));
-        setTaskID(node.getChildText("StartTaskId"));
+        setStartTaskID(node.getChildText("StartTaskId"));
+        setEndTaskID(node.getChildText("EndTaskId"));
         setPhase(node.getChildText("RequestType"));
         if (node.hasChild("From")) setFrom(node.getChildText("From"));
         if (node.hasChild("To")) setTo(node.getChildText("To"));

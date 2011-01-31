@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.resourcing.calendar;
 
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
@@ -30,35 +31,53 @@ public class TimeSlot {
     private long _start;
     private long _end;
     private String _status;
+    private int _percentAvailable;
 
     public TimeSlot(long from, long to) {
         _start = from;
         _end = to;
+        _percentAvailable = 100;
     }
 
+
     public TimeSlot(long from, long to, String status) {
-        _start = from;
-        _end = to;
+        this(from, to);
         _status = status;
     }
 
 
-    public TimeSlot(CalendarEntry entry) {
-        this(entry.getStartTime(), entry.getEndTime(), entry.getStatus());
+    public TimeSlot(long from, long to, String status, int percentAvailable) {
+        this(from, to, status);
+        _percentAvailable = percentAvailable;
     }
 
+
+    public TimeSlot(CalendarEntry entry) {
+        this(entry.getStartTime(), entry.getEndTime(), entry.getStatus(),
+                100 - entry.getWorkload());    // % free
+    }
+
+
+    /****************************************************************************/
 
     public long getStart() { return _start; }
 
     public void setStart(long start) { _start = start; }
 
+
     public long getEnd() { return _end; }
 
     public void setEnd(long end) { _end = end; }
 
+
     public String getStatus() { return _status; }
 
     public void setStatus(String status) { _status = status; }
+
+
+    public int getAvailability() { return _percentAvailable; }
+
+    public void setAvailability( int available) { _percentAvailable = available; }
 
 
     public String toXML() {
@@ -67,18 +86,20 @@ public class TimeSlot {
 
     public XNode toXNode() {
         XNode node = new XNode("timeslot");
-        node.addChild("start", _start);
-        node.addChild("end", _end);
+        node.addChild("start", StringUtil.longToDateTime(_start));
+        node.addChild("end", StringUtil.longToDateTime(_end));
         node.addChild("status", _status);
+        node.addChild("availability", _percentAvailable);
         return node;
     }
 
     public void fromXML(String xml) throws NumberFormatException {
         XNode node = new XNodeParser().parse(xml);
         if (node != null) {
-            _start = new Long(node.getChildText("start"));
-            _end = new Long(node.getChildText("end"));
+            _start = StringUtil.xmlDateToLong(node.getChildText("start"));
+            _end = StringUtil.xmlDateToLong(node.getChildText("end"));
             _status = node.getChildText("status");
+            _percentAvailable = new Integer(node.getChildText("availability"));
         }
     }
 

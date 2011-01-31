@@ -229,20 +229,10 @@ public class ResourceCalendar {
      * @return true if available, false if not
      */
     public boolean isAvailable(AbstractResource resource, CalendarEntry entry) {
-        if ((resource == null) || (entry == null)) return false;
-        int workload = entry.getWorkload();
-        if (entry.getWorkload() == 100) {
-            return isAvailable(resource, entry.getStartTime(), entry.getEndTime());
-        }
-        List list = getTimeSlotEntries(resource, entry.getStartTime(), entry.getEndTime());
-        if (list != null) {
-            for (Object o : list) {
-                workload += ((CalendarEntry) o).getWorkload();
-            }
-        }
-        return workload <= 100;
+        return !((resource == null) || (entry == null)) &&
+                isAvailable(resource, entry.getStartTime(), entry.getEndTime(),
+                        entry.getWorkload());
     }
-
 
     /**
      * Gets the list of calendar entries within a specified period for a resource.
@@ -298,12 +288,29 @@ public class ResourceCalendar {
     public List<TimeSlot> getAvailability(AbstractResource resource, long startTime,
                                           long endTime) {
         List<TimeSlot> available = new ArrayList<TimeSlot>();
-        long endOfPrevSlot = startTime;
-        for (Object o : getTimeSlotEntries(resource, startTime, endTime)) {
-            CalendarEntry entry = (CalendarEntry) o;
-            available.add(new TimeSlot(endOfPrevSlot, entry.getStartTime(), entry.getStatus()));
-            endOfPrevSlot = entry.getEndTime();
+        List entries = getTimeSlotEntries(resource, startTime, endTime);
+        if (! entries.isEmpty()) {
+    //        consolidatePartialWorkloadOverlaps(entries);
+            long endOfPrevSlot = startTime;
+            for (Object o : entries) {
+                CalendarEntry entry = (CalendarEntry) o;
+
+                // ignore first entry if start times are equivalent
+                if (entry.getStartTime() > startTime) {
+                    available.add(new TimeSlot(endOfPrevSlot, entry.getStartTime(),
+                            Status.available.name()));
+                }
+                if (entry.getWorkload() < 100) {
+                    available.add(new TimeSlot(entry));           // partial availability
+                }
+                endOfPrevSlot = entry.getEndTime();
+            }
+            if (endOfPrevSlot < endTime) {
+                available.add(new TimeSlot(endOfPrevSlot, endTime, Status.available.name()));
+            }    
         }
+        else available.add(new TimeSlot(startTime, endTime, Status.available.name()));
+
         return available;
     }
 
@@ -1010,5 +1017,19 @@ public class ResourceCalendar {
         return ResourceScheduler.getInstance().getCalendarEntriesForCase(caseID);
     }
 
+//    // @pre: all entries passed are in chronological order and refer to the same resource
+//    private List consolidatePartialWorkloadOverlaps(List calEntryList) {
+//        List<CalendarEntry> partials = new ArrayList<CalendarEntry>();
+//        if (calEntryList != null) {
+//            int prev
+//            for (Object o : calEntryList) {
+//                CalendarEntry entry = (CalendarEntry) o;
+//                if (entry.getWorkload() < 100) {
+//
+//                }
+//
+//            }
+//        }
+//    }
 
 }

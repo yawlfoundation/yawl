@@ -183,6 +183,23 @@ public class ResourceScheduler {
     }
 
 
+    public List<TimeSlot> getAvailability(String resourceXML, long from, long to) {
+        XNode resourceNode = new XNodeParser().parse(resourceXML);
+        return (resourceNode != null) ?
+                getAvailability(new UtilisationResource(resourceNode), from, to) : null;
+    }
+
+
+    public List<TimeSlot> getAvailability(UtilisationResource uResource, long from, long to) {
+        List<TimeSlot> availableSlots = new ArrayList<TimeSlot>();
+        for (AbstractResource resource : getActualResourceList(uResource)) {
+            availableSlots.addAll(_calendar.getAvailability(resource, from, to));
+        }
+        return availableSlots;
+    }
+
+
+
     /*******************************************************************************/
 
     /**
