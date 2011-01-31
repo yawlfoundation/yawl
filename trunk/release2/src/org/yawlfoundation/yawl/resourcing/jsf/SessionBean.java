@@ -34,6 +34,7 @@ import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.*;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
@@ -261,6 +262,12 @@ public class SessionBean extends AbstractSessionBean {
     public void setSessionTimeoutValueChanged(boolean changed) {
         sessionTimeoutValueChanged = changed;
     }
+
+
+    private Map<ResourceDataSet.ResUnit, Long> _changeStamp =
+            new Hashtable<ResourceDataSet.ResUnit, Long>();
+
+
 
 
     /*******************************************************************************/
@@ -1157,7 +1164,10 @@ public class SessionBean extends AbstractSessionBean {
 
 
     public Option[] getOrgDataParticipantList() {
-        if (orgDataParticipantList == null) refreshOrgDataParticipantList() ;
+        if ((orgDataParticipantList == null) ||
+             orgDataUpdated(ResourceDataSet.ResUnit.Participant)) {
+            refreshOrgDataParticipantList() ;
+        }
         return orgDataParticipantList;
     }
 
@@ -1183,6 +1193,13 @@ public class SessionBean extends AbstractSessionBean {
 
 
 
+    private boolean orgDataUpdated(ResourceDataSet.ResUnit unit) {
+        Long time = _changeStamp.get(unit);
+        long lastChange = _changeStamp.put(unit, _rm.getOrgDataSet().getChangeStamp(unit));
+        return (time == null) || (time < lastChange) ;
+    }
+
+    
     public void refreshOrgDataParticipantList() {
         HashMap<String, Participant> pMap = getParticipantMap();
 
@@ -1204,8 +1221,7 @@ public class SessionBean extends AbstractSessionBean {
                                             p.getLastName() + ", " + p.getFirstName()) ;
             }
         }
-        else
-            orgDataParticipantList = null ;
+        else orgDataParticipantList = null ;
     }
 
     

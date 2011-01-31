@@ -121,9 +121,9 @@ public class Participant extends AbstractResource implements Serializable {
             cloned.setUserPrivileges(new UserPrivileges(_resourceID));
 
         for (Role r : _roles) cloned.addRole(r);
-        for (Position p : _positions ) cloned.addPosition(p) ;
+        for (Position p : _positions) cloned.addPosition(p);
         for (Capability c : _capabilities) cloned.addCapability(c);
-        return cloned ;
+        return cloned;
     }
 
     // copies values from p to this (does NOT change id)

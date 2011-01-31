@@ -123,11 +123,11 @@ public class Reservation extends StatusMessage {
     public XNode toXNode() {
         XNode node = new XNode("Reservation");
         addAttributes(node);
-        if (_hasIdElement) node.addChild("ReservationId", _reservationID);
         if (_statusToBe != null) node.addChild(_statusToBe.toXNode());
         if (_status != null) node.addChild(_status.toXNode());
         if (_resource != null) node.addChild(_resource.toXNode());
         if (_workload != null) node.addChild(_workload.toXNode());
+        if (_hasIdElement) node.addChild("ReservationId", _reservationID);
         return node;
     }
 

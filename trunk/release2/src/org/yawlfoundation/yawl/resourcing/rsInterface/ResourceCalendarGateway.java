@@ -52,6 +52,10 @@ public class ResourceCalendarGateway extends HttpServlet {
 
     private static final String _success = "<success/>";
     private static final String _noResource = "<failure>Unknown Resource.</failure>";
+    private static final String _nullResource =
+            "<failure>Null Resource record supplied.</failure>";
+    private static final String _invalidResource =
+            "<failure>Invalid Resource record supplied - unable to parse.</failure>";
     private static final String _noService =
             "<failure>Not connected to Resource Service.</failure>";
     private static final String _noAction =
@@ -97,7 +101,20 @@ public class ResourceCalendarGateway extends HttpServlet {
             else result = _noService;
         }
         else if (validConnection(handle)) {
-            if (action.equals("getResourceAvailability")) {
+            if (action.equals("getAvailability")) {
+                long fromDate = strToLong(req.getParameter("from"));
+                long toDate = strToLong(req.getParameter("to"));
+                String resourceXML = req.getParameter("resourceXML");
+                if (resourceXML != null) {
+                    List<TimeSlot> slots = _scheduler.getAvailability(resourceXML, fromDate, toDate);
+                    if (slots != null) {
+                        result = timeSlotsToXML(new XNode("timeslots"), slots);
+                    }
+                    else result = _invalidResource;
+                }
+                else result = _nullResource;
+            }
+            else if (action.equals("getResourceAvailability")) {
                 long fromDate = strToLong(req.getParameter("from"));
                 long toDate = strToLong(req.getParameter("to"));
                 AbstractResource resource = _rm.getOrgDataSet().getResource(id);
@@ -181,13 +198,18 @@ public class ResourceCalendarGateway extends HttpServlet {
         if (slots == null) return null;
         XNode node = new XNode("timeslots");
         node.addAttribute("id", id);
-        for (TimeSlot slot : slots) {
-            node.addChild(slot.toXNode());
-        }
-        return node.toString();
+        return timeSlotsToXML(node, slots);
     }
 
-    
+
+    private String timeSlotsToXML(XNode node, List<TimeSlot> slots) {
+         for (TimeSlot slot : slots) {
+             node.addChild(slot.toXNode());
+         }
+         return node.toString();
+     }
+
+
     private String fail(String msg) {
         return "<failure>" + msg + "</failure>";
     }
