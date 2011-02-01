@@ -32,6 +32,9 @@ import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.JUtilities;
 import org.yawlfoundation.yawl.editor.swing.resourcing.CodeletSelectTable;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -637,7 +640,7 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
         pane.setSelectedIndex(1);
     }
     else {
-        xQueryEditor.setText(XMLDialogFormatter.format(query));
+        xQueryEditor.setText(prettify(query));
     }    
     xQueryEditor.setTargetVariableName(
         (String) sinkVariableComboBox.getSelectedItem()
@@ -660,6 +663,19 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
       getDoneButton().setEnabled(false);
     }
   }
+
+
+    private String prettify(String s) {
+        if (s == null) return null;
+        if (s.trim().startsWith("<")) {
+            XNode node = new XNodeParser().parse(StringUtil.wrap(s, "temp"));
+            if (node != null) {
+                String formatted = StringUtil.unwrap(node.toPrettyString());
+                return formatted.substring(1);                             // remove /n
+            }
+        }
+        return s;
+    }
   
   class XQueryEditorPanel extends JPanel {
     
@@ -696,7 +712,7 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
       btnFormat.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {
               String text = xQueryEditor.getText();
-              xQueryEditor.setText(XMLDialogFormatter.format(text));
+              xQueryEditor.setText(prettify(text));
           }
       });
 
