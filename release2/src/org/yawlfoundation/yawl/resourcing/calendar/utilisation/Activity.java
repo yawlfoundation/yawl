@@ -31,6 +31,7 @@ import java.util.List;
 public class Activity extends StatusMessage {
 
     private String _name;
+    private String _type;
     private String _startTaskID;
     private String _endTaskID;
     private String _phase;
@@ -38,7 +39,8 @@ public class Activity extends StatusMessage {
     private StringWithMessage _to;
     private StringWithMessage _duration;
     private List<Reservation> _reservationList;
-    private List<UtilisationRelation> _relationList;
+    private List<XNode> _relationList;
+    private List<XNode> _transferList;
 
     public static enum Phase { POU, SOU, EOU }      // pre, start of, end of, utilisation
 
@@ -64,6 +66,11 @@ public class Activity extends StatusMessage {
     public String getName() { return _name; }
 
     public void setName(String name) { _name = name; }
+
+
+    public String getType() { return _type; }
+
+    public void setType(String type) { _type = type; }
 
 
     public String getStartTaskID() { return _startTaskID; }
@@ -155,26 +162,20 @@ public class Activity extends StatusMessage {
         return ! ((_reservationList == null) || _reservationList.isEmpty());
     }
 
-    public List<UtilisationRelation> getRelationList() {
+    public List<XNode> getRelationList() {
         return _relationList;
     }
 
-    public void setRelationList(List<UtilisationRelation> list) {
+    public void setRelationList(List<XNode> list) {
         _relationList = list;
     }
 
-    public boolean hasRelation() {
-        return ! ((_relationList == null) || _relationList.isEmpty());
+    public List<XNode> getTransferList() {
+        return _transferList;
     }
 
-
-    public boolean addUtilisationRelation(UtilisationRelation r) {
-        if (_relationList == null) _relationList = new ArrayList<UtilisationRelation>();
-        return _relationList.add(r);
-    }
-
-    public boolean removeUtilisationRelation(UtilisationRelation r) {
-        return (hasRelation()) && _relationList.remove(r);
+    public void setTransferList(List<XNode> list) {
+        _transferList = list;
     }
 
 
@@ -183,8 +184,7 @@ public class Activity extends StatusMessage {
                StringWithMessage.hasError(_from) ||
                StringWithMessage.hasError(_to) ||
                StringWithMessage.hasError(_duration) ||
-               reservationsHaveErrors() ||
-               relationsHaveErrors();
+               reservationsHaveErrors();
     }
 
 
@@ -192,18 +192,6 @@ public class Activity extends StatusMessage {
         if (hasReservation()) {
             for (Reservation reservation : _reservationList) {
                 if (reservation.hasErrors()) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-
-    public boolean relationsHaveErrors() {
-        if (hasRelation()) {
-            for (UtilisationRelation relation : _relationList) {
-                if (relation.hasErrors()) {
                     return true;
                 }
             }
@@ -223,6 +211,7 @@ public class Activity extends StatusMessage {
         node.addChild("StartTaskId", _startTaskID);
         node.addChild("EndTaskId", _startTaskID);
         node.addChild("ActivityName", _name);
+        node.addChild("ActivityType", _type);
         if (_duration != null) node.addChild(_duration.toXNode());
         if (_from != null) node.addChild(_from.toXNode());
         if (_to != null) node.addChild(_to.toXNode());
@@ -232,11 +221,8 @@ public class Activity extends StatusMessage {
                 node.addChild(r.toXNode());
             }
         }
-        if (_relationList != null) {
-            for (UtilisationRelation r : _relationList) {
-                node.addChild(r.toXNode());
-            }
-        }
+        if (_relationList != null) node.addChildren(_relationList);
+        if (_transferList != null) node.addChildren(_transferList);
         return node;
     }
 
@@ -244,6 +230,7 @@ public class Activity extends StatusMessage {
     public void fromXNode(XNode node) {
         super.fromXNode(node);
         setName(node.getChildText("ActivityName"));
+        setType(node.getChildText("ActivityType"));
         setStartTaskID(node.getChildText("StartTaskId"));
         setEndTaskID(node.getChildText("EndTaskId"));
         setPhase(node.getChildText("RequestType"));
@@ -253,9 +240,10 @@ public class Activity extends StatusMessage {
         for (XNode reservationNode : node.getChildren("Reservation")) {
             addReservation(new Reservation(reservationNode));
         }
-        for (XNode relationNode : node.getChildren("UtilisationRelation")) {
-            addUtilisationRelation(new UtilisationRelation(relationNode));
-        }
+
+        // these 2 element sets are never modified, so are left undeconstructed
+        _relationList = node.getChildren("UtilisationRelation");
+        _transferList = node.getChildren("MessageTransfer");        
     }
 
 

@@ -46,6 +46,7 @@ public abstract class AbstractResource {
 
     public boolean equals(Object o) {
         return (o != null) && (o instanceof AbstractResource) &&
+               (((AbstractResource) o).getID() != null) &&
                ((AbstractResource) o).getID().equals(_resourceID);
     }
 
