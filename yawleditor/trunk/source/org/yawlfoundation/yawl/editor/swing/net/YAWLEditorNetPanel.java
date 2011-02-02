@@ -30,8 +30,10 @@ import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
-public class YAWLEditorNetPanel extends JPanel {
+public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
 
     private static final long serialVersionUID = 1L;
     private static SpecificationModel model;
@@ -84,6 +86,33 @@ public class YAWLEditorNetPanel extends JPanel {
     }
 
 
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        if (e.isShiftDown()) {
+            boolean wheelUp = (e.getWheelRotation() < 0);
+
+            // Ctrl + Shift + Up -> scroll right; Ctrl + Shift + Down -> scroll left 
+            if (e.isControlDown()) {
+                JViewport viewport = scrollPane.getViewport();
+                Point pt = viewport.getViewPosition();
+                pt.x += wheelUp ? 10 : -10;
+                pt.x = Math.max(0, pt.x);
+                pt.x = Math.min(viewport.getView().getWidth() - viewport.getWidth(), pt.x);
+                viewport.setViewPosition(pt);
+            }
+            else {
+
+                // Shift + Up -> zoom in ; Shift + Down -> zoom out
+                double scale = net.getScale();
+                if (wheelUp) {
+                    net.setScale(scale + 0.01);
+                } else {
+                    if (scale > 0.1) net.setScale(scale - 0.01);
+                }
+            }
+        }
+        else e.getComponent().getParent().dispatchEvent(e);        // def. pass through
+    }
+
     public Rectangle getCurrentViewportBounds() {
         return scrollPane.getVisibleRect();
     }
@@ -97,6 +126,7 @@ public class YAWLEditorNetPanel extends JPanel {
     public void setNet(final NetGraph net, final String title) {
         this.net = net;
         net.setFrame(this);
+        net.addMouseWheelListener(this);
         scrollPane = new JScrollPane();
         scrollPane.getViewport().add(net, BorderLayout.CENTER);
         add(scrollPane);
