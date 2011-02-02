@@ -125,7 +125,7 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
             DataVariable variable = getVariableWithName(
                         (String) sinkVariableComboBox.getSelectedItem());
             if (pane.getSelectedIndex() == 0) {
-                parameter.setQuery(xQueryEditor.getText());
+                parameter.setQuery(formatQuery(xQueryEditor.getText(), false));
             }
             else {
                 if (outputType == DataVariable.SCOPE_NET) {
@@ -640,7 +640,7 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
         pane.setSelectedIndex(1);
     }
     else {
-        xQueryEditor.setText(prettify(query));
+        xQueryEditor.setText(formatQuery(query, true));
     }    
     xQueryEditor.setTargetVariableName(
         (String) sinkVariableComboBox.getSelectedItem()
@@ -665,17 +665,17 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
   }
 
 
-    private String prettify(String s) {
-        if (s == null) return null;
-        if (s.trim().startsWith("<")) {
-            XNode node = new XNodeParser().parse(StringUtil.wrap(s, "temp"));
+    private String formatQuery(String query, boolean prettify) {
+        if ((query != null) && (query.trim().startsWith("<"))) {
+            XNode node = new XNodeParser().parse(StringUtil.wrap(query, "temp"));
             if (node != null) {
-                String formatted = StringUtil.unwrap(node.toPrettyString());
-                return formatted.substring(1);                             // remove /n
+                return prettify ? StringUtil.unwrap(node.toPrettyString()).substring(1) :
+                    StringUtil.unwrap(node.toString());
             }
         }
-        return s;
+        return query;
     }
+
   
   class XQueryEditorPanel extends JPanel {
     
@@ -712,7 +712,7 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
       btnFormat.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {
               String text = xQueryEditor.getText();
-              xQueryEditor.setText(prettify(text));
+              xQueryEditor.setText(formatQuery(text, true));
           }
       });
 
