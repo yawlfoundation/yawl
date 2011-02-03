@@ -23,24 +23,13 @@
 
 package org.yawlfoundation.yawl.editor.swing.element;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
-
-import javax.swing.ButtonGroup;
-import javax.swing.InputVerifier;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.border.EmptyBorder;
-
 import org.yawlfoundation.yawl.editor.elements.model.YAWLMultipleInstanceTask;
 import org.yawlfoundation.yawl.editor.swing.JFormattedNumberField;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.*;
 
 public class MultipleInstanceBoundsPanel extends JPanel {
   
@@ -350,10 +339,19 @@ public class MultipleInstanceBoundsPanel extends JPanel {
       }
 
       task.setMinimumInstances((long) minInstancesField.getDouble());
-      task.setMaximumInstances((long) maxInstancesField.getDouble());
-      task.setContinuationThreshold((long) thresholdField.getDouble());
 
-  //    getDoneButton().setEnabled(true);
+        /*
+        * SPR: Do *not* set task values using getDouble() when they are infinite
+        * (which is synonymous with them being disabled). We do not have to set them
+        * at all in this case, since this is already done as soon as an infinite
+        * radio button is clicked
+        */
+       if (maxInstancesField.isEnabled()) {
+           task.setMaximumInstances((long) maxInstancesField.getDouble());
+       }
+       if (thresholdField.isEnabled()) {
+           task.setContinuationThreshold((long) thresholdField.getDouble());
+       }
     }
     
     private boolean shouldYieldFocus(JFormattedNumberField field) {
