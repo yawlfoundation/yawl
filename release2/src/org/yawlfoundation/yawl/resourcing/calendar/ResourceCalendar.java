@@ -288,29 +288,33 @@ public class ResourceCalendar {
     public List<TimeSlot> getAvailability(AbstractResource resource, long startTime,
                                           long endTime) {
         List<TimeSlot> available = new ArrayList<TimeSlot>();
-        List entries = getTimeSlotEntries(resource, startTime, endTime);
-        if (! entries.isEmpty()) {
-    //        consolidatePartialWorkloadOverlaps(entries);
-            long endOfPrevSlot = startTime;
-            for (Object o : entries) {
-                CalendarEntry entry = (CalendarEntry) o;
 
-                // ignore first entry if start times are equivalent
-                if (entry.getStartTime() > startTime) {
-                    available.add(new TimeSlot(endOfPrevSlot, entry.getStartTime(),
-                            Status.available.name()));
+        if (endTime > startTime) {
+
+            // get each unavailable slot for the resorce
+            List entries = getTimeSlotEntries(resource, startTime, endTime);
+            if (! entries.isEmpty()) {
+                //        consolidatePartialWorkloadOverlaps(entries);
+                long endOfPrevSlot = startTime;
+                for (Object o : entries) {
+                    CalendarEntry entry = (CalendarEntry) o;
+
+                    // ignore entry if gap between slots is 0
+                    if (entry.getStartTime() > endOfPrevSlot) {
+                        available.add(new TimeSlot(endOfPrevSlot, entry.getStartTime(),
+                                Status.available.name()));
+                    }
+                    if (entry.getWorkload() < 100) {
+                        available.add(new TimeSlot(entry));       // partial availability
+                    }
+                    endOfPrevSlot = entry.getEndTime();
                 }
-                if (entry.getWorkload() < 100) {
-                    available.add(new TimeSlot(entry));           // partial availability
+                if (endOfPrevSlot < endTime) {
+                    available.add(new TimeSlot(endOfPrevSlot, endTime, Status.available.name()));
                 }
-                endOfPrevSlot = entry.getEndTime();
             }
-            if (endOfPrevSlot < endTime) {
-                available.add(new TimeSlot(endOfPrevSlot, endTime, Status.available.name()));
-            }    
+            else available.add(new TimeSlot(startTime, endTime, Status.available.name()));
         }
-        else available.add(new TimeSlot(startTime, endTime, Status.available.name()));
-
         return available;
     }
 

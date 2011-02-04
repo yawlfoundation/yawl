@@ -54,9 +54,8 @@ public class HttpURLValidator {
             // ok - let's see if and how it responds
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setRequestMethod("HEAD");
-            httpConnection.connect();
             int response = httpConnection.getResponseCode();
-            if (response >= 300)                           // indicates some error
+            if ((response < 0) || (response >= 300))             // indicates some error
                 return getErrorMessage(response + " " + httpConnection.getResponseMessage());
         }
         catch (MalformedURLException mue) {
