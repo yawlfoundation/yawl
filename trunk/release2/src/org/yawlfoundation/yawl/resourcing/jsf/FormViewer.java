@@ -96,32 +96,23 @@ public class FormViewer {
 
     
     private String showCustomForm(WorkItemRecord wir) {
-        String result = null;
         String url = wir.getCustomFormURL();
         if (url != null) {
-            String validateMsg = HttpURLValidator.validate(url);
+            String uriPlusParams = buildURI(wir);
+
+            // check custom form exists and responds without error
+            String validateMsg = HttpURLValidator.validate(uriPlusParams);
             if (validateMsg.equals("<success/>")) {
                 _sb.setCustomFormPost(true);
-                try {
-
-                    // adjust session timeout value if required
-                    adjustSessionTimeout(wir);
-
-                    // add params to the custom form url
-                    result = buildURI(wir);
-                }
-                catch (Exception e) {
-                    _sb.setCustomFormPost(false);
-                    _log.error("IO Exception attempting to display custom form: " +
-                               e.getMessage() + ". Defaulting to dynamic form.");
-                }
+                adjustSessionTimeout(wir);
+                return uriPlusParams;   // return validated custom form url incl. params
             }
-            else _log.error("Could not locate custom form: '" + url + "', message: " +
+            else _log.error("Missing or invalid custom form: '" + url + "', message: " +
                                validateMsg + ". Defaulting to dynamic form.");
         }
         else _log.error("Unspecified form URI. Defaulting to dynamic form.");
 
-        return result;
+        return null;                   // invalid form
     }
 
 

@@ -183,6 +183,14 @@ public class ResourceScheduler {
     }
 
 
+    /**
+     * Gets the available time slots for a datetime range for each resource referenced
+     * within the given resource XML record.
+     * @param resourceXML an XML String equivalent of a UtilisationResource record
+     * @param from the start of the date/time range
+     * @param to the end of the date/time range
+     * @return a consolidated list of timeslots when the resources are available
+     */
     public List<TimeSlot> getAvailability(String resourceXML, long from, long to) {
         XNode resourceNode = new XNodeParser().parse(resourceXML);
         return (resourceNode != null) ?
@@ -190,6 +198,14 @@ public class ResourceScheduler {
     }
 
 
+    /**
+     * Gets the available time slots for a datetime range for each resource referenced
+     * within the given resource XML record.
+     * @param uResource a UtilisationResource record referencing resource(s)
+     * @param from the start of the date/time range
+     * @param to the end of the date/time range
+     * @return a consolidated list of timeslots when the resources are available
+     */
     public List<TimeSlot> getAvailability(UtilisationResource uResource, long from, long to) {
         List<TimeSlot> availableSlots = new ArrayList<TimeSlot>();
         for (AbstractResource resource : getActualResourceList(uResource)) {
@@ -577,11 +593,13 @@ public class ResourceScheduler {
      */
     private void updateReservation(Reservation reservation, CalendarLogEntry logEntry)
             throws CalendarException, ScheduleStateException {
+        String statusToBe = reservation.getStatusToBe();
         long entryID = convertReservationID(reservation);
         CalendarEntry calEntry = getCalendarEntry(entryID);   // exc. if invalid id
-        compareStatuses(calEntry.getStatus(), reservation.getStatusToBe());
+        compareStatuses(calEntry.getStatus(), statusToBe);
+        checkRequestedStatusToBe(statusToBe);
         reservation.setStatus(calEntry.getStatus());               // current status
-        if (reservation.getStatusToBe().equals("unavailable")) {
+        if (statusToBe.equals(ResourceCalendar.Status.unavailable.name())) {
             reassignEntryIfPossible(calEntry, false);      // adds new rec if possible
         }
         ResourceCalendar.Status updatedStatus =
@@ -614,15 +632,22 @@ public class ResourceScheduler {
                                  CalendarEntry calEntry, CalendarLogEntry logEntry)
             throws CalendarException, ScheduleStateException {
         String statusToBe = reservation.getStatusToBe();
-        reservation.setStatus(ResourceCalendar.Status.nil.name());     // default status
+        checkRequestedStatusToBe(statusToBe);
+        reservation.setStatus(statusToBe);                   // assume success by default
         long entryID = _calendar.createEntry(resource, calEntry);
 
         // if the entry was successful, update the reservation record  
         if (entryID > 0) {
             reservation.setReservationID(String.valueOf(entryID));
             calEntry.setEntryID(entryID);    // for logging
+            reservation.setStatus(statusToBe);
         }
-        reservation.setStatus(statusToBe);
+        else {
+            if (statusToBe.equals(ResourceCalendar.Status.requested.name()) ||
+                statusToBe.equals(ResourceCalendar.Status.reserved.name())) {
+                reservation.setStatus(ResourceCalendar.Status.unavailable.name());
+            }
+        }
         _uLogger.log(logEntry, calEntry, false);
 
         if (logEntry.getPhase().equals("SOU")) {                 // start-of-utilisation
@@ -649,12 +674,14 @@ public class ResourceScheduler {
                 if (_calendar.canCreateEntry(resource, from, to, reservation.getStatusToBe(),
                         reservation.getWorkload())) {
                     addTransientCalendarEntry(resource, from, to, reservation);
+                    reservation.setStatus(ResourceCalendar.Status.available.name());
                     hasAvailableResource = true;
                     break;
                 }
             }
             if (! hasAvailableResource) {                       // no available resources
                 reservation.setWarning("Reservation would fail.");
+                reservation.setStatus(ResourceCalendar.Status.unavailable.name());
             }
         }
         else reservation.setWarning("No resource specified for reservation.");
@@ -671,7 +698,8 @@ public class ResourceScheduler {
             throws CalendarException, ScheduleStateException {
         long entryID = convertReservationID(reservation);
         if (_calendar.canUpdateEntry(entryID, reservation.getStatusToBe())) {
-            updateTransientCalendarEntry(entryID, reservation.getStatusToBe());
+            String status = updateTransientCalendarEntry(entryID, reservation.getStatusToBe());
+            reservation.setStatus(getAvailabilityStatus(status, true));
         }
         else reservation.setWarning("Reservation would fail.");
     }
@@ -810,12 +838,13 @@ public class ResourceScheduler {
      * Updates  a calendar entry temporarily, to allow reservation checking to proceed
      * @param entryID the entry to update
      * @param statusToBe the new status to check
+     * @return the pre-update status of the entry
      * @throws CalendarException if the reservation's 'statusToBe' is invalid
      * @throws ScheduleStateException if the status change is invalid
      */
-    private void updateTransientCalendarEntry(long entryID, String statusToBe)
+    private String updateTransientCalendarEntry(long entryID, String statusToBe)
             throws CalendarException, ScheduleStateException {
-        _calendar.updateTransientEntry(entryID, statusToBe);
+        return _calendar.updateTransientEntry(entryID, statusToBe);
     }
 
 
@@ -1029,6 +1058,47 @@ public class ResourceScheduler {
     private boolean isPhase(long calendarKey, Activity.Phase phase) {
         CalendarLogEntry logEntry = _uLogger.getLogEntryForCalendarKey(calendarKey);
         return (logEntry != null) && logEntry.getPhase().equals(phase.name());
+    }
+
+
+    /**
+     * Consolidates a status into a simpler one in these cases:
+     *  - if checkonly is true, status is one of unknown/available/unavailable
+     *  - else, status is one of unknown/available/requested/reserved/unavailable
+     * @param statusStr the status to consolidate
+     * @param checkOnly true if the call is a check, false if it is a save
+     * @return the consolidated status
+     * @throws CalendarException if statusStr is not a valid status
+     */
+    private String getAvailabilityStatus(String statusStr, boolean checkOnly)
+            throws CalendarException {
+        switch (_calendar.strToStatus(statusStr)) {
+            case nil:
+            case unknown:   return ResourceCalendar.Status.unknown.name();
+            case available: return ResourceCalendar.Status.available.name();
+            case requested: if (! checkOnly) return ResourceCalendar.Status.requested.name();
+            case reserved:  if (! checkOnly) return ResourceCalendar.Status.reserved.name();
+            default:        return ResourceCalendar.Status.unavailable.name();
+        }
+    }
+
+
+    /**
+     * Checks that a supplied updated status for a save reservation request is one of
+     * the four valid values: available, unavailable, requested, reserved
+     * @param statusStr the status string to check
+     * @throws CalendarException if the status string is invalid
+     */
+    private void checkRequestedStatusToBe(String statusStr)
+            throws CalendarException {
+        switch (_calendar.strToStatus(statusStr)) {
+            case available:
+            case unavailable:
+            case requested:
+            case reserved: return;
+        }
+        throw new CalendarException(
+                "Invalid StatusToBe value for save reservation request:" + statusStr);
     }
 
 }
