@@ -69,12 +69,13 @@ public class YLogServer {
     }
 
 
-    public void startTransaction() {
+    public boolean startTransaction() {
         try {
-            if (_pmgr != null) _pmgr.startTransaction();
+            return (_pmgr != null) && _pmgr.startTransaction();
         }
         catch (YPersistenceException ype) {
-             _log.error("Could not initialise connection to log tables.", ype) ;
+            _log.error("Could not initialise connection to log tables.", ype) ;
+            return false;
         }
     }
 
@@ -472,7 +473,6 @@ public class YLogServer {
                       result = xml.toString();
                   }
                  else result = _noRowsStr ;
-                 _pmgr.commit();
              }
              catch (YPersistenceException ype) {
                 result = _exErrStr ;

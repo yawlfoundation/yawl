@@ -85,7 +85,7 @@ public class YLogGateway extends HttpServlet {
            else result = _noEngine ;
        }
        else if (validConnection(handle)) {
-           _logMgr.startTransaction(); 
+           boolean isLocalTransaction = _logMgr.startTransaction();
            if (action.equals("getAllSpecifications")) {
                result = _logMgr.getAllSpecifications();
            }
@@ -190,7 +190,7 @@ public class YLogGateway extends HttpServlet {
                boolean withData = (withDataStr != null) && withDataStr.equalsIgnoreCase("true");
                result = _logMgr.getSpecificationXESLog(specID, withData);
            }
-           _logMgr.commitTransaction(); 
+           if (isLocalTransaction) _logMgr.commitTransaction();
        }
        else throw new IOException("Invalid or disconnected session handle.");
 
@@ -201,7 +201,6 @@ public class YLogGateway extends HttpServlet {
        out.flush();
        out.close();
     }
-
 
 
     public void doGet(HttpServletRequest req, HttpServletResponse res)

@@ -2167,43 +2167,33 @@ public class YEngine implements InterfaceADesign,
      * @throws YPersistenceException
      */
     public void storeObject(Object obj) throws YPersistenceException {
-        synchronized (mutex) {
-            doPersistAction(obj, YPersistenceManager.DB_INSERT);
-        }
+        doPersistAction(obj, YPersistenceManager.DB_INSERT);
     }
 
     public void updateObject(Object obj) throws YPersistenceException {
-        synchronized (mutex) {
-            doPersistAction(obj, YPersistenceManager.DB_UPDATE);
-        }
+        doPersistAction(obj, YPersistenceManager.DB_UPDATE);
     }
 
     public void deleteObject(Object obj) throws YPersistenceException {
-        synchronized (mutex) {
-            doPersistAction(obj, YPersistenceManager.DB_DELETE);
-        }
+        doPersistAction(obj, YPersistenceManager.DB_DELETE);
     }
 
 
-    private void doPersistAction(Object obj, int action) throws YPersistenceException {
-        synchronized (mutex) {
-            if (isPersisting()) {
-                if (_pmgr != null) {
-                    _pmgr.startTransaction();
-                    switch (action) {
-                        case YPersistenceManager.DB_UPDATE : _pmgr.updateObject(obj); break;
-                        case YPersistenceManager.DB_DELETE : _pmgr.deleteObject(obj); break;
-                        case YPersistenceManager.DB_INSERT : _pmgr.storeObject(obj); break;
-                    }
-                    _pmgr.commit();
-                }
+    private synchronized void doPersistAction(Object obj, int action) throws YPersistenceException {
+        if (isPersisting() && (_pmgr != null)) {
+            boolean isLocalTransaction = _pmgr.startTransaction();
+            switch (action) {
+                case YPersistenceManager.DB_UPDATE : _pmgr.updateObject(obj); break;
+                case YPersistenceManager.DB_DELETE : _pmgr.deleteObject(obj); break;
+                case YPersistenceManager.DB_INSERT : _pmgr.storeObject(obj); break;
             }
+            if (isLocalTransaction) _pmgr.commit();
         }
     }
 
 
-    private void startTransaction() throws YPersistenceException {
-        if (_pmgr != null) _pmgr.startTransaction();
+    private boolean startTransaction() throws YPersistenceException {
+        return (_pmgr != null) && _pmgr.startTransaction();
     }
 
 

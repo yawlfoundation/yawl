@@ -1195,8 +1195,8 @@ public class SessionBean extends AbstractSessionBean {
 
     private boolean orgDataUpdated(ResourceDataSet.ResUnit unit) {
         Long time = _changeStamp.get(unit);
-        long lastChange = _changeStamp.put(unit, _rm.getOrgDataSet().getChangeStamp(unit));
-        return (time == null) || (time < lastChange) ;
+        Long lastChange = _changeStamp.put(unit, _rm.getOrgDataSet().getChangeStamp(unit));
+        return (time == null) || (lastChange == null) || (time < lastChange) ;
     }
 
     
