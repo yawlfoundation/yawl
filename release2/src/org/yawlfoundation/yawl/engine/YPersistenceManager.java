@@ -144,11 +144,13 @@ public class YPersistenceManager {
 
     /**
      * Start a new Hibernate transaction.
-     *
-     * @throws YPersistenceException
+     * @return true if a transaction is started successfully, false if the session
+     * already has an active transaction
+     * @throws YPersistenceException if there's a problem starting a transaction 
      */
-    public void startTransaction() throws YPersistenceException {
-        if (transaction != null) return;
+    public boolean startTransaction() throws YPersistenceException {
+        if (isActiveTransaction()) return false;
+        logger.debug("---> start Transaction");
         try {
             session = factory.getCurrentSession();
             transaction = session.beginTransaction();
@@ -156,6 +158,8 @@ public class YPersistenceManager {
             logger.fatal("Failure to start transactional session", e);
             throw new YPersistenceException("Failure to start transactional session", e);
         }
+        logger.debug("<--- start Transaction");
+        return true;
     }
 
     /**
@@ -226,6 +230,9 @@ public class YPersistenceManager {
     }
 
 
+    private boolean isActiveTransaction() {
+        return (transaction != null) && transaction.isActive();
+    }
 
     /**
      * Causes the supplied object to be persisted when the current transaction is committed.
@@ -301,7 +308,7 @@ public class YPersistenceManager {
      public void commit() throws YPersistenceException {
         logger.debug("--> commit");
         try {
-            if ((transaction != null) && transaction.isActive()) transaction.commit();
+            if (isActiveTransaction()) transaction.commit();
             transaction = null;
         }
         catch (Exception e1) {
@@ -319,23 +326,16 @@ public class YPersistenceManager {
     protected void rollbackTransaction() throws YPersistenceException {
         logger.debug("--> rollback Transaction");
 
-        if (getTransaction() != null) {
+        if (transaction != null) {
             try {
-                if ((transaction != null) && transaction.isActive()) transaction.rollback();
+                if (isActiveTransaction()) transaction.rollback();
             }
             catch (HibernateException e) {
                 throw new YPersistenceException("Failure to rollback transaction", e);
             }
             finally {
                 transaction = null;
-                if (session != null) {
-                    try {
-                        if (session.isOpen()) session.close();
-                    }
-                    catch (HibernateException e) {
-                        logger.warn("Failure to tidy close Hibernate session", e);
-                    }
-                }
+                closeSession();
                 session = null;
             }
         }

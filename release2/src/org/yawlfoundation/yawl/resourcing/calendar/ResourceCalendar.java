@@ -294,7 +294,6 @@ public class ResourceCalendar {
             // get each unavailable slot for the resorce
             List entries = getTimeSlotEntries(resource, startTime, endTime);
             if (! entries.isEmpty()) {
-                //        consolidatePartialWorkloadOverlaps(entries);
                 long endOfPrevSlot = startTime;
                 for (Object o : entries) {
                     CalendarEntry entry = (CalendarEntry) o;
@@ -1021,19 +1020,5 @@ public class ResourceCalendar {
         return ResourceScheduler.getInstance().getCalendarEntriesForCase(caseID);
     }
 
-//    // @pre: all entries passed are in chronological order and refer to the same resource
-//    private List consolidatePartialWorkloadOverlaps(List calEntryList) {
-//        List<CalendarEntry> partials = new ArrayList<CalendarEntry>();
-//        if (calEntryList != null) {
-//            int prev
-//            for (Object o : calEntryList) {
-//                CalendarEntry entry = (CalendarEntry) o;
-//                if (entry.getWorkload() < 100) {
-//
-//                }
-//
-//            }
-//        }
-//    }
 
 }
