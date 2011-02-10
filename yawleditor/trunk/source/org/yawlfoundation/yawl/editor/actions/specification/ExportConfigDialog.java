@@ -34,6 +34,7 @@ class ExportConfigDialog extends AbstractDoneDialog {
   private JCheckBox analysisCheckBox;
   private JCheckBox autoIncVersionCheckBox;
   private JCheckBox backupCheckBox;
+  private JCheckBox versionCopyCheckBox;
   private JLabel idLabel;
   private boolean initialising;
 
@@ -60,6 +61,10 @@ class ExportConfigDialog extends AbstractDoneDialog {
               prefs.putBoolean(
                   EngineSpecificationExporter.FILE_BACKUP_PREFERENCE,
                   backupCheckBox.isSelected()
+              );
+              prefs.putBoolean(
+                  EngineSpecificationExporter.FILE_VERSIONING_PREFERENCE,
+                  versionCopyCheckBox.isSelected()
               );
 
             SpecificationModel.getInstance().setVersionNumber(
@@ -144,6 +149,10 @@ class ExportConfigDialog extends AbstractDoneDialog {
 
    panel.add(getBackupCheckBox(), gbc);
 
+    gbc.gridy++;
+
+   panel.add(getVersionCopyCheckBox(), gbc);
+
     return panel;
   }
 
@@ -152,7 +161,6 @@ class ExportConfigDialog extends AbstractDoneDialog {
       specificationIDField = new JFormattedAlphaNumericField(10);
 
       specificationIDField.setInputVerifier(new SpecificationIdVerifier());
- //     specificationIDField.allowXMLNames();
       specificationIDField.addKeyListener(new SpecificationIdFieldDocumentListener());
       specificationIDField.setToolTipText(" Enter the unique engine identifier (XML element name) for this specification ");
       return specificationIDField;
@@ -173,6 +181,7 @@ class ExportConfigDialog extends AbstractDoneDialog {
     verificationCheckBox = new JCheckBox();
 
     verificationCheckBox.setText("Verify on save");
+    verificationCheckBox.setToolTipText(" Check the model for errors ");
     verificationCheckBox.setMnemonic(KeyEvent.VK_E);
 
     return verificationCheckBox;
@@ -182,6 +191,7 @@ class ExportConfigDialog extends AbstractDoneDialog {
     analysisCheckBox = new JCheckBox();
 
     analysisCheckBox.setText("Analyse on save");
+    analysisCheckBox.setToolTipText(" Perform a full analysis of the model ");
     analysisCheckBox.setMnemonic(KeyEvent.VK_A);
 
     return analysisCheckBox;
@@ -191,6 +201,7 @@ class ExportConfigDialog extends AbstractDoneDialog {
     autoIncVersionCheckBox = new JCheckBox();
 
     autoIncVersionCheckBox.setText("Auto Increment Minor Version Number");
+    autoIncVersionCheckBox.setToolTipText(" Increment version number for each save ");
     autoIncVersionCheckBox.setMnemonic(KeyEvent.VK_I);
 
     autoIncVersionCheckBox.addItemListener(new ItemListener() {
@@ -216,8 +227,17 @@ class ExportConfigDialog extends AbstractDoneDialog {
     private JCheckBox getBackupCheckBox() {
       backupCheckBox = new JCheckBox();
       backupCheckBox.setText("Create backup");
+      backupCheckBox.setToolTipText(" Keep the previous copy of this file ");
       backupCheckBox.setMnemonic(KeyEvent.VK_B);
       return backupCheckBox;
+    }
+
+    private JCheckBox getVersionCopyCheckBox() {
+      versionCopyCheckBox = new JCheckBox();
+      versionCopyCheckBox.setText("File Versioning");
+      versionCopyCheckBox.setToolTipText(" Save all previous versions of this file ");
+      versionCopyCheckBox.setMnemonic(KeyEvent.VK_F);
+      return versionCopyCheckBox;
     }
 
 
@@ -260,9 +280,14 @@ class ExportConfigDialog extends AbstractDoneDialog {
             prefs.getBoolean(
                 EngineSpecificationExporter.FILE_BACKUP_PREFERENCE,
                 true
-            )
-        );
-
+          )
+      );
+      versionCopyCheckBox.setSelected(
+          prefs.getBoolean(
+              EngineSpecificationExporter.FILE_VERSIONING_PREFERENCE,
+              true
+          )
+      );
 
       String verStr = SpecificationModel.getInstance().getVersionNumber().toString();
       YSpecVersion version = new YSpecVersion(verStr);

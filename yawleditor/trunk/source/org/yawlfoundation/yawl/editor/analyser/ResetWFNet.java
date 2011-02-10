@@ -1089,7 +1089,8 @@ public final class ResetWFNet {
     //This is to add Mi to RS.
     visitingPS.addMarking(M);
     while (!RS.containsAll(visitingPS.getMarkings()))
-       { 
+       {
+         if (messageDlg.isCancelled()) return RS;  
          RS.addAll(visitingPS);
            if(RS.size() > maxNumMarkings)
         { //throw new Exception("Reachable markings >"+maxNumMarkings+ ". Possible infinite loop in the net "+_ID);

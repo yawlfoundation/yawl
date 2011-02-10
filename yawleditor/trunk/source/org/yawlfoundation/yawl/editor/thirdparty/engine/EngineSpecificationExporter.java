@@ -60,10 +60,7 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import javax.swing.*;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -77,6 +74,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   public static String ANALYSIS_WITH_EXPORT_PREFERENCE = "analyseWithExportCheck";
   public static String AUTO_INCREMENT_VERSION_WITH_EXPORT_PREFERENCE = "autoIncVersionExportCheck";
   public static String FILE_BACKUP_PREFERENCE = "backupOnExportCheck";
+  public static String FILE_VERSIONING_PREFERENCE = "savePreviousOnExportCheck";
 
   public static void exportEngineSpecToFile(SpecificationModel editorSpec, String fullFileName) {
       if (checkUserDefinedDataTypes(editorSpec)) {
@@ -134,17 +132,36 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   }
   
   private static void exportStringToFile(String string, String fullFileName) {
+      String prettyString = JDOMUtil.formatXMLString(string);
+      if (prettyString == null) {
+          JOptionPane.showMessageDialog(null,
+               "Unable to save specification to file. Please see log output for details.",
+               "Export File Generation Error", JOptionPane.ERROR_MESSAGE);
+          return;
+      }
+
     try {
         if (prefs.getBoolean(FILE_BACKUP_PREFERENCE, false)) {
             FileUtilities.backup(fullFileName, fullFileName + ".bak");     // back it up
         }
+        if (SpecificationModel.getInstance().isVersionChanged() &&
+                prefs.getBoolean(FILE_VERSIONING_PREFERENCE, false)) {
+            String versionedFileName = String.format("%s.%s.yawl",
+                    FileUtilities.stripFileExtension(fullFileName),
+                    SpecificationModel.getInstance().getPreviousVersionNumber().toString());
+            if (! new File(versionedFileName).exists()) {
+                FileUtilities.backup(fullFileName, versionedFileName);
+            }    
+        }
+
+      // now save it
       PrintStream outputStream =
         new PrintStream(
             new BufferedOutputStream(new FileOutputStream(fullFileName)),
             false,
             "UTF-8"
         );
-      outputStream.println(JDOMUtil.formatXMLString(string));
+      outputStream.println(prettyString);
 
       outputStream.close();
     } catch (IOException e) {

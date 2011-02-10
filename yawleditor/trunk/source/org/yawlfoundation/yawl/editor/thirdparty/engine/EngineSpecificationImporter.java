@@ -188,6 +188,9 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
           metaData.getVersion()
     );
 
+    // reset version change for file open
+    SpecificationModel.getInstance().setVersionChanged(false);  
+
     if (metaData.getValidFrom() != null) {
       SpecificationModel.getInstance().setValidFromTimestamp(
           TIMESTAMP_FORMAT.format(metaData.getValidFrom())
@@ -529,7 +532,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
      
      if(engineAtomicTask.getConfigurationElement() != null){
     	 ConfigurationImporter.CTaskList.add((YAWLTask) editorAtomicTask);
-    	 ConfigurationImporter.map.put((YAWLTask) editorAtomicTask,engineAtomicTask.getConfigurationElement() );
+    	 ConfigurationImporter.map.put(editorAtomicTask,engineAtomicTask.getConfigurationElement() );
     	 ConfigurationImporter.NetTaskMap.put(editorAtomicTask,editorNet );
 
      }

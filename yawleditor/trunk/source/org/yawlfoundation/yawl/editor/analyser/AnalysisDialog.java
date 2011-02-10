@@ -18,6 +18,8 @@ public class AnalysisDialog extends JDialog {
     private JCheckBox cbxKeepOpen;
     private JLabel lblHeader;
     private JScrollPane scrollpane;
+    private JButton btnCancel;
+    private boolean cancelled;
 
     private final Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
     public static final String KEEP_OPEN_PREFERENCE = "keepAnalysisDialogOpenWhenDone";
@@ -25,6 +27,7 @@ public class AnalysisDialog extends JDialog {
     public AnalysisDialog(String title) {
         setContentPane(contentPane);
         lblHeader.setText("Analysing " + title + ":");
+        cancelled = false;
         setModal(false);
         setAlwaysOnTop(true);
         getRootPane().setDefaultButton(btnClose);
@@ -34,6 +37,12 @@ public class AnalysisDialog extends JDialog {
         btnClose.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onClose();
+            }
+        });
+
+        btnCancel.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                cancelled = true;
             }
         });
 
@@ -55,13 +64,20 @@ public class AnalysisDialog extends JDialog {
         return txtOutput.getText();
     }
 
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
 
     public void finished() {
-        lblHeader.setText(lblHeader.getText() + " Completed.");
+        lblHeader.setText(lblHeader.getText() +
+                (cancelled ? " Cancelled." : " Completed."));
         if (!cbxKeepOpen.isSelected())
             onClose();
-        else
+        else {
+            btnCancel.setEnabled(false);
             btnClose.setEnabled(true);
+        }
     }
 
 
@@ -112,17 +128,20 @@ public class AnalysisDialog extends JDialog {
         contentPane.add(panel1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, null, null, 0, false));
         cbxKeepOpen = new JCheckBox();
         cbxKeepOpen.setSelected(true);
-        cbxKeepOpen.setText("Keep open when analysis completes");
+        cbxKeepOpen.setText("Keep open when analysis completes        ");
         cbxKeepOpen.setMnemonic('K');
         cbxKeepOpen.setDisplayedMnemonicIndex(0);
         panel1.add(cbxKeepOpen, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel2 = new JPanel();
-        panel2.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panel2.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
         panel1.add(panel2, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         btnClose = new JButton();
         btnClose.setEnabled(false);
         btnClose.setText("Close");
-        panel2.add(btnClose, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel2.add(btnClose, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        btnCancel = new JButton();
+        btnCancel.setText("Stop");
+        panel2.add(btnCancel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel3 = new JPanel();
         panel3.setLayout(new GridLayoutManager(2, 1, new Insets(10, 10, 0, 10), -1, -1));
         contentPane.add(panel3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(500, 200), null, 0, false));

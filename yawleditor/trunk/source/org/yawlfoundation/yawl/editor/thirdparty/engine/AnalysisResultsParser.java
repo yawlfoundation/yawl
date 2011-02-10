@@ -17,17 +17,8 @@ public abstract class AnalysisResultsParser {
     Preferences.userNodeForPackage(YAWLEditor.class);
   
   public List getAnalysisResults(SpecificationModel editorSpec) {
-    
-//    String tempEngineFile = getTempEngineXMLFile(editorSpec);
-
     String specXML = EngineSpecificationExporter.getEngineSpecificationXML(editorSpec);
-
-    List results = getAnalysisResults(specXML);
-    
-    // added this check to allow the temp file to be inspected in case of error - MJF
-//    if (!errorFound) removeFile(tempEngineFile);
-    
-    return results;
+    return getAnalysisResults(specXML);
   }
   
   

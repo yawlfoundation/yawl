@@ -359,6 +359,7 @@ public class YAWLResetAnalyser{
  reducedNet = reducedNet_t;                                                     
  
 }
+  if (messageDlg.isCancelled()) break;
 } while (reducedNet != null);//end while
    return null;
                      

@@ -442,6 +442,7 @@ public class YAWLReachabilityUtils{
 
     while (!RS.containsAll(visitingPS.getMarkings()))
        { 
+           if (messageDlg.isCancelled()) return RS;  
          RS.addAll(visitingPS);
             if(RS.size() > maxNumMarkings)
         {   messageDlg.write("Reachable markings > "+maxNumMarkings+ ". Possible infinite loop in the net "+_yNet.getID());
