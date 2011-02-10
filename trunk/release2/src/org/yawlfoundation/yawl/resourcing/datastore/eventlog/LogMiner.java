@@ -82,7 +82,7 @@ public class LogMiner {
             StringBuilder template = new StringBuilder("FROM ResourceEvent AS re ");
             template.append("WHERE re._taskID='%s' ")
                     .append("AND re._specKey=%d ")
-                    .append("AND re._participantID='%s' ")
+                    .append("AND re._resourceID='%s' ")
                     .append("ORDER BY re._itemID, re._timeStamp");
 
             String query = String.format(template.toString(), taskName, specKey, participantID);
@@ -92,7 +92,7 @@ public class LogMiner {
                 StringBuilder xml = new StringBuilder() ;
                 String currentItemID = "";
                 xml.append(String.format(
-                        "<workitems specID=\"%s\" taskName=\"%s\" participantID=\"%s\">",
+                        "<workitems specID=\"%s\" taskName=\"%s\" resourceID=\"%s\">",
                         specID.toString(), taskName, participantID));
                 for (Object o : rows) {
                     ResourceEvent event = (ResourceEvent) o ;
@@ -201,7 +201,7 @@ public class LogMiner {
     public String getCaseStartedBy(String caseID) {
         ResourceEvent event = getCaseEvent(caseID, EventLogger.event.launch_case);
         if (event != null) {
-            return getParticipantName(getFieldValue(event.toXML(), "participantid"));
+            return getParticipantName(getFieldValue(event.toXML(), "resourceid"));
         }
         else return "Unavailable"; 
     }
@@ -528,12 +528,12 @@ public class LogMiner {
 
     
     private List getResourceEventsList(String resourceID) {
-        return execQuery(getWhereQuery("_participantID", resourceID)) ;
+        return execQuery(getWhereQuery("_resourceID", resourceID)) ;
     }
 
 
     private List getResourceEventsList(String resourceID, long from, long to) {
-        String query = getWhereQuery("_participantID", resourceID) +
+        String query = getWhereQuery("_resourceID", resourceID) +
                 getTimeRangeSubclause(from, to);
         return execQuery(query) ;
     }

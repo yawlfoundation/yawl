@@ -41,17 +41,17 @@ public class YMarshal {
 
     /**
      * Builds a list of specification objects from a XML document.
-     * @param specificationSetDoc the JDom docment containing the specification XML
+     * @param specificationSetElem the JDOM Element containing the specification XML
+     * @param ns specificationSetElem namespace
+     * @param version the schema version of the specification set 
      * @return a list of YSpecification objects taken from the XML document.
      * @throws YSyntaxException if a parsed specification doesn't validate against
      * schema
      * @throws YSchemaBuildingException if there's a problem parsing the document
      */
-    private static List<YSpecification> buildSpecifications(Document specificationSetDoc)
+    private static List<YSpecification> buildSpecifications(
+            Element specificationSetElem, Namespace ns, String version)
             throws YSchemaBuildingException, YSyntaxException {
-        Element specificationSetElem = specificationSetDoc.getRootElement();
-        Namespace ns = specificationSetElem.getNamespace();
-        String version = getVersion(specificationSetElem);
         List<YSpecification> specifications = new Vector<YSpecification>();
         List specificationElemList = specificationSetElem.getChildren("specification", ns);
 
@@ -103,11 +103,15 @@ public class YMarshal {
         if (document != null) {
             Element specificationSetEl = document.getRootElement();
             String version = getVersion(specificationSetEl);
+            Namespace ns = specificationSetEl.getNamespace();
+
+            // strip layout element, if any (the engine doesn't use it)
+            specificationSetEl.removeChild("layout", ns);
 
             //now check the specification file against its respective schema
             if (schemaValidate) {
                 String errors = YawlXMLSpecificationValidator.getInstance()
-                                                    .checkSchema(specStr, version);
+                              .checkSchema(JDOMUtil.documentToString(document), version);
                 if (errors == null || errors.length() > 0) {
                     throw new YSyntaxException(
                       " The specification file failed to verify against YAWL's Schema:\n"
@@ -116,7 +120,7 @@ public class YMarshal {
             }
 
             //now build a set of specifications - verification has not yet occured.
-            result = buildSpecifications(document);
+            result = buildSpecifications(specificationSetEl, ns, version);
         }
         return result;
     }
