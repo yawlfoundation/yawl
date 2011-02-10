@@ -487,6 +487,7 @@ public class ServiceAutomatonTree implements PropertyChangeListener {
                 while ((count = isr.read(buffer)) > 0) {
                     out.write(buffer, 0, count);
                     publish(out.toString());
+                    if (msgDialog.isCancelled()) break;
                 }
                 isr.close();
             }

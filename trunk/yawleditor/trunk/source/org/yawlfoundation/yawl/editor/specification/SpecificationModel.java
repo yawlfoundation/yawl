@@ -90,9 +90,11 @@ public class SpecificationModel {
   private String  uniqueID            = "UID_" + UUID.randomUUID().toString();
   private String  author              = System.getProperty("user.name");
   private YSpecVersion versionNumber  = new YSpecVersion("0.0");
+  private YSpecVersion prevVersionNumber  = null;
   private String  validFromTimestamp  = "";
   private String  validUntilTimestamp = "";
-  
+  private boolean _versionChanged = false;
+
   private transient static final SpecificationModel INSTANCE = new SpecificationModel();
   
   public SpecificationModel() {
@@ -189,6 +191,8 @@ public class SpecificationModel {
     setValidUntilTimestamp("");
     YAWLEditor.setStatusBarText("Open or create a net to begin.");
     setState(State.NO_NETS_EXIST);
+    prevVersionNumber = null;
+      setVersionChanged(false);
   }
 
   private Color getPreferredVertexBackground() {
@@ -746,12 +750,23 @@ public class SpecificationModel {
   }
 
   public void setVersionNumber(YSpecVersion versionNumber) {
+    _versionChanged = (! this.versionNumber.equals(versionNumber));
+    if (_versionChanged) prevVersionNumber = this.versionNumber;
     this.versionNumber = versionNumber;
   }
   
   public YSpecVersion getVersionNumber() {
     return this.versionNumber;
   }
+
+  public void setVersionChanged(boolean b) {
+      _versionChanged = b;
+      if (! _versionChanged) prevVersionNumber = null;
+  }
+
+  public YSpecVersion getPreviousVersionNumber() { return prevVersionNumber; }  
+
+  public boolean isVersionChanged() { return _versionChanged; }
   
   public void setValidFromTimestamp(String timestamp) {
     this.validFromTimestamp = timestamp;

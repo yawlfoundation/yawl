@@ -45,10 +45,12 @@ public class DefaultConfigurationExporter {
         XNode portNode = new XNode("port");
         portNode.addAttribute("value", portValue);
         for (YAWLFlowRelation flow : port.getFlows()) {
-            XNode flowNode = portNode.addChild(flowLabel);
-            YAWLVertex vertex = (dir == Direction.input) ? flow.getSourceVertex() :
-                    flow.getTargetVertex();
-            flowNode.addAttribute("id", vertex.getEngineId());
+            if (flow != null) {
+                XNode flowNode = portNode.addChild(flowLabel);
+                YAWLVertex vertex = (dir == Direction.input) ? flow.getSourceVertex() :
+                        flow.getTargetVertex();
+                flowNode.addAttribute("id", vertex.getEngineId());
+            }    
         }
         return portNode;
     }
