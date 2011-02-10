@@ -509,4 +509,52 @@ public class StringUtil
         }
     }
 
+
+    public static int find(String toSearch, String toFind, int start, boolean ignoreCase) {
+        if ((toSearch == null) || (toFind == null)) return -1;
+        if (start < 0) start = 0;
+        if (ignoreCase) {
+            toSearch = toSearch.toUpperCase();
+            toFind = toFind.toUpperCase();
+        }
+        char[] charsToSearch = toSearch.toCharArray();
+        char[] charsToFind = toFind.toCharArray();
+        int lastCharToFindIndex = charsToFind.length - 1;
+        char lastCharToFind = charsToFind[lastCharToFindIndex];
+        for (int i = start + lastCharToFindIndex; i < charsToSearch.length; i++) {
+            if (charsToSearch[i] == lastCharToFind) {
+                boolean match = true;
+                for (int j = 1; j <= lastCharToFindIndex; j++) {
+                    if (charsToSearch[i - j] != charsToFind[lastCharToFindIndex - j]) {
+                        match = false;
+                        break;
+                    }
+                }
+                if (match) return i - lastCharToFindIndex;
+            }
+        }
+        return -1;
+    }
+
+
+    public static int find(String toSearch, String toFind) {
+        return find(toSearch, toFind, 0, false);
+    }
+
+
+    public static List<Integer> findAll(String toSearch, String toFind, boolean ignoreCase) {
+        List<Integer> foundList = new ArrayList<Integer>();
+        int start = 0;
+        while (start > -1) {
+            start = find(toSearch, toFind, start, ignoreCase);
+            if (start > -1) foundList.add(start++);
+        }
+        return foundList;
+    }
+
+    public static List<Integer> findAll(String toSearch, String toFind) {
+        return findAll(toSearch, toFind, false);
+    }
+
+
 }
