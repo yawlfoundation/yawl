@@ -70,8 +70,8 @@ class UpdateDataTypeDefinitionDialog extends AbstractDoneDialog {
    */
   private static final long serialVersionUID = 1L;
   protected JXMLSchemaEditorPane dataTypeDefinitionEditor;
-  
-  public UpdateDataTypeDefinitionDialog() {
+
+    public UpdateDataTypeDefinitionDialog() {
     super("Update Data Type Definitions", true);
     setContentPanel(getVariablePanel());
     getContentPane().add(getToolbarMenuPanel(), BorderLayout.NORTH) ;
@@ -89,7 +89,7 @@ class UpdateDataTypeDefinitionDialog extends AbstractDoneDialog {
   }
 
   protected void makeLastAdjustments() {
-    setSize(800,800);
+    setSize(900,800);
   }
   
   private JPanel getVariablePanel() {
@@ -107,13 +107,13 @@ class UpdateDataTypeDefinitionDialog extends AbstractDoneDialog {
       dataTypeDefinitionEditor.setText(
           SpecificationModel.getInstance().getDataTypeDefinition()
       );
-      dataTypeDefinitionEditor.getEditor().setCaretPosition(56);
+      dataTypeDefinitionEditor.getEditor().setCaretPosition(1);
     }
     super.setVisible(state);
   }
   
   private JXMLSchemaEditorPane getDataTypeDefinitionEditor() {
-    dataTypeDefinitionEditor = new JXMLSchemaEditorPane();
+    dataTypeDefinitionEditor = new JXMLSchemaEditorPane(true);
     return dataTypeDefinitionEditor;
   }
 

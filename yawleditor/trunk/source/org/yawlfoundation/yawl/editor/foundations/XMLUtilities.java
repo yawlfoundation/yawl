@@ -25,6 +25,9 @@ package org.yawlfoundation.yawl.editor.foundations;
 
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.File;
 import java.util.regex.Matcher;
@@ -424,5 +427,24 @@ public class XMLUtilities {
     }
     return xmlFragment;  // *shrug* no tags in the fragment, apparently.
   }
+
+
+    public static String formatXML(String xml, boolean prettify, boolean wrap) {
+        if ((xml != null) && (xml.trim().startsWith("<"))) {
+            String temp = wrap ? StringUtil.wrap(xml, "temp") : xml;
+            XNode node = new XNodeParser(true).parse(temp);
+            if (node != null) {
+                if (prettify) {
+                    temp = node.toPrettyString();
+                    return wrap ? StringUtil.unwrap(temp).substring(1) : temp;  // lead \n
+                }
+                else {                
+                    temp = node.toString();
+                    return wrap ? StringUtil.unwrap(temp) : temp;
+                }
+            }
+        }
+        return xml;
+    }
 
 }

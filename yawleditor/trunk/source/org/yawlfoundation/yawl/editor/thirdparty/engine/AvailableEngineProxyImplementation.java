@@ -267,6 +267,7 @@ class XQueryStyledDocument extends AbstractXMLStyledDocument{
   public void checkValidity() {
     if (isValidating()) {
       if (getEditor().getText().equals("")) {
+          parseError = "Query required";
         setContentValid(AbstractXMLStyledDocument.Validity.INVALID);
         return;
       }
