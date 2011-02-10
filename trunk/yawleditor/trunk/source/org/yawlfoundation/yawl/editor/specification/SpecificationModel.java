@@ -229,12 +229,12 @@ public class SpecificationModel {
   
   public NetGraphModel getStartingNet() {
     Object[] netSetArray = nets.toArray();
-    for(int i = 0; i < netSetArray.length; i++) {
-      NetGraphModel thisNet = (NetGraphModel) netSetArray[i];
-      if (thisNet.isStartingNet()) {
-        return thisNet;
+      for (Object aNetSetArray : netSetArray) {
+          NetGraphModel thisNet = (NetGraphModel) aNetSetArray;
+          if (thisNet.isStartingNet()) {
+              return thisNet;
+          }
       }
-    }
     return null;
   }
   
@@ -392,23 +392,15 @@ public class SpecificationModel {
   }
   
   public boolean isValidNewDecompositionName(String name) {
-    if (name == null) {
-      return false;
+    return (name != null) &&
+           (SpecificationUtilities.getNetModelFromName(this, name) == null) &&
+           (getDecompositionFromLabel(name) == null);
     }
 
-    boolean nameIsValid = true;
-    
-    nameIsValid = (SpecificationUtilities.getNetModelFromName(this, name) == null) ? true : false;
-    
-    if (nameIsValid) {
-      nameIsValid = (getDecompositionFromLabel(name) == null) ? true : false;
-    }
-    
-    return nameIsValid;
-  }
   
   public String getDataTypeDefinition() {
-   return this.dataTypeDefinition;
+      return (dataTypeDefinition.contains("\n")) ? dataTypeDefinition :
+             DEFAULT_TYPE_DEFINITION ;
   }
   
   public void setDataTypeDefinition(String dataTypeDefinition) {

@@ -29,6 +29,7 @@ import org.yawlfoundation.yawl.editor.swing.data.AbstractXMLStyledDocument;
 import org.yawlfoundation.yawl.editor.swing.data.JXMLSchemaEditorPane;
 import org.yawlfoundation.yawl.editor.swing.undo.UndoableDataTypeDialogActionListener;
 
+import javax.swing.*;
 import java.awt.*;
 
 public class DataTypeDialogToolBarMenu extends YAWLToolBar {
@@ -44,6 +45,8 @@ public class DataTypeDialogToolBarMenu extends YAWLToolBar {
   private YAWLToolBarButton cutButton ;
   private YAWLToolBarButton copyButton ;
   private YAWLToolBarButton pasteButton ;
+  private YAWLToolBarButton formatButton ;
+  private JTextField findText;
 
 
   public DataTypeDialogToolBarMenu(JXMLSchemaEditorPane pane) {
@@ -68,25 +71,44 @@ public class DataTypeDialogToolBarMenu extends YAWLToolBar {
     }
 
     protected void buildInterface() {
-    setMargin(new Insets(3,2,2,0));
-    cutButton = new YAWLToolBarButton(new CutDataTypeDialogAction()) ;
-    add(cutButton);
-    copyButton = new YAWLToolBarButton(new CopyDataTypeDialogAction());    
-    add(copyButton);
-    pasteButton = new YAWLToolBarButton(new PasteDataTypeDialogAction());
-    pasteButton.setEnabled(false);    
-    add(pasteButton);
-    addSeparator();
-    add(new YAWLToolBarButton(UndoableDataTypeDialogActionListener.getInstance().getUndoAction()));
-    add(new YAWLToolBarButton(UndoableDataTypeDialogActionListener.getInstance().getRedoAction()));
-  }
+        setMargin(new Insets(3,2,2,0));
+        cutButton = new YAWLToolBarButton(new CutDataTypeDialogAction()) ;
+        add(cutButton);
+        copyButton = new YAWLToolBarButton(new CopyDataTypeDialogAction());
+        add(copyButton);
+        pasteButton = new YAWLToolBarButton(new PasteDataTypeDialogAction());
+        pasteButton.setEnabled(false);
+        add(pasteButton);
+        addSeparator();
+        add(new YAWLToolBarButton(UndoableDataTypeDialogActionListener.getInstance().getUndoAction()));
+        add(new YAWLToolBarButton(UndoableDataTypeDialogActionListener.getInstance().getRedoAction()));
+        addSeparator();
+        add(new YAWLToolBarButton(new ToggleLineNumbersDataTypeDialogAction(this)));
+        formatButton = new YAWLToolBarButton(new ReformatDataTypeDialogAction(this));
+        add(formatButton);
+        addSeparator();
+
+        FlowLayout layout = new FlowLayout(FlowLayout.LEFT);
+        layout.setHgap(0);
+        JPanel innerPanel = new JPanel(layout);
+        findText = new JTextField(8);
+        innerPanel.add(findText);
+        innerPanel.add(new YAWLToolBarButton(new FindTextDataTypeDialogAction(this)));
+         add(innerPanel);
+
+    }
 
   public YAWLToolBarButton getButton(String btype) {
       if (btype.equals("cut")) return cutButton ;
       if (btype.equals("copy")) return copyButton ;
       if (btype.equals("paste")) return pasteButton ;
+      if (btype.equals("format")) return formatButton ;
       return null;
   }
+
+    public String getFindText() {
+        return findText.getText();
+    }
 
 
     

@@ -315,7 +315,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
                     engineParameter.getDataTypeName(),
                     engineParameter.getName(),
                     engineParameter.getInitialValue(),
-                    engineParameter.getInitialValue(),
+                    engineParameter.getDefaultValue(),
                     engineParameter.getLogPredicate(),
                     engineParameter.getAttributes()
             );
@@ -337,7 +337,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
                     engineParameter.getDataTypeName(),
                     engineParameter.getName(),
                     engineParameter.getInitialValue(),
-                    engineParameter.getDefaultValue(),
+                    JDOMUtil.decodeEscapes(engineParameter.getDefaultValue()),
                     engineParameter.getLogPredicate(),
                     engineParameter.getAttributes()
             );
@@ -361,6 +361,7 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     editorVariable.setUsage(editorUsage);
     editorVariable.setDataType(dataType);
     editorVariable.setInitialValue(initialValue);
+    editorVariable.setDefaultValue(defaultValue);
     editorVariable.setUserDefined(true);
     editorVariable.setAttributes(attributes);
 

@@ -32,9 +32,6 @@ import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.JUtilities;
 import org.yawlfoundation.yawl.editor.swing.resourcing.CodeletSelectTable;
-import org.yawlfoundation.yawl.util.XNode;
-import org.yawlfoundation.yawl.util.XNodeParser;
-import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -96,8 +93,6 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
   private String xQuerySinkLabelText;
   private final String gatewayFromTaskSinkLabelText = "maps from the task variable:";
 
-
-//  private XQueryDescriptorLabel xQueryButtonDescriptor;
   
   public ParameterUpdateDialog(AbstractDoneDialog parent, int transitionType) {
     super("", true);
@@ -396,28 +391,6 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
         enableDoneButtonIfAppropriate();  
       }
     });
-    
-//    inputVariableQueryElementButton.addMouseListener(new MouseAdapter() {
-//      public void mouseEntered(MouseEvent e) {
-//        if (!inputVariableQueryElementButton.isEnabled()) {
-//          return;
-//        }
-//        xQueryButtonDescriptor.setMode(
-//          XQueryDescriptorLabel.DISPLAY_FOR_ENTIRE_ELEMENT
-//        );
-//        xQueryEditor.refreshDividerLocation();
-//      }
-//
-//      public void mouseExited(MouseEvent e) {
-//        if (!inputVariableQueryElementButton.isEnabled()) {
-//          return;
-//        }
-//        xQueryButtonDescriptor.setMode(
-//            XQueryDescriptorLabel.DISPLAY_NOTHING
-//        );
-//        xQueryEditor.refreshDividerLocation();
-//      }
-//    });
 
     return inputVariableQueryElementButton; 
   }
@@ -446,40 +419,9 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
       }
     });
 
-//    inputVariableQueryContentButton.addMouseListener(new MouseAdapter() {
-//      public void mouseEntered(MouseEvent e) {
-//        if (!inputVariableQueryContentButton.isEnabled()) {
-//          return;
-//        }
-//        xQueryButtonDescriptor.setMode(
-//          XQueryDescriptorLabel.DISPLAY_FOR_CONTENT_ONLY
-//        );
-//        xQueryEditor.refreshDividerLocation();
-//      }
-//
-//      public void mouseExited(MouseEvent e) {
-//        if (!inputVariableQueryContentButton.isEnabled()) {
-//          return;
-//        }
-//        xQueryButtonDescriptor.setMode(
-//            XQueryDescriptorLabel.DISPLAY_NOTHING
-//        );
-//        xQueryEditor.refreshDividerLocation();
-//      }
-//    });
-
     return inputVariableQueryContentButton; 
   }
-  
-//  private XQueryDescriptorLabel getXQueryButtonDescriptor() {
-//    xQueryButtonDescriptor = new XQueryDescriptorLabel();
-//
-//    xQueryButtonDescriptor.setHorizontalAlignment(JLabel.CENTER);
-//    xQueryButtonDescriptor.setForeground(Color.GREEN.darker().darker());
-//
-//    return xQueryButtonDescriptor;
-//  }
-  
+
   private JButton getNewOutputVariableButton() {
     newVariableButton = new JButton("Create...");
     newVariableButton.setMnemonic(KeyEvent.VK_R);
@@ -645,9 +587,6 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
     xQueryEditor.setTargetVariableName(
         (String) sinkVariableComboBox.getSelectedItem()
     );
-//    xQueryButtonDescriptor.setMode(
-//        XQueryDescriptorLabel.DISPLAY_NOTHING
-//    );
     enableDoneButtonIfAppropriate();
   }
   
@@ -666,14 +605,7 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
 
 
     private String formatQuery(String query, boolean prettify) {
-        if ((query != null) && (query.trim().startsWith("<"))) {
-            XNode node = new XNodeParser().parse(StringUtil.wrap(query, "temp"));
-            if (node != null) {
-                return prettify ? StringUtil.unwrap(node.toPrettyString()).substring(1) :
-                    StringUtil.unwrap(node.toString());
-            }
-        }
-        return query;
+        return XMLUtilities.formatXML(query, prettify, true);
     }
 
   

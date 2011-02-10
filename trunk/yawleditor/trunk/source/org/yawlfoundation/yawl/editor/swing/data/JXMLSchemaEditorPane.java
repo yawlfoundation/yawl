@@ -40,7 +40,14 @@ public class JXMLSchemaEditorPane extends JProblemReportingEditorPane {
 
   public JXMLSchemaEditorPane() {
     super(new JXMLSchemaEditor());
+    ((JXMLSchemaEditor) getEditor()).setContainingPane(this);
   }
+
+    public JXMLSchemaEditorPane(boolean showLineNumbers) {
+      super(new JXMLSchemaEditor(), showLineNumbers);
+      ((JXMLSchemaEditor) getEditor()).setContainingPane(this);
+    }
+
 }
 
 class JXMLSchemaEditor extends ValidityEditorPane {
@@ -48,6 +55,17 @@ class JXMLSchemaEditor extends ValidityEditorPane {
    * 
    */
   private static final long serialVersionUID = 1L;
+  private JXMLSchemaEditorPane containingPane;
+
+  public void setContainingPane(JXMLSchemaEditorPane pane) {
+      containingPane = pane;
+  }
+
+    public JXMLSchemaEditorPane getContainingPane() {
+        return containingPane;
+    }
+
+
 
   public JXMLSchemaEditor() {
     super();
@@ -80,13 +98,11 @@ class JXMLSchemaEditor extends ValidityEditorPane {
       // deliberately does nothing.
     }
 
-    public void checkValidity() {
-      
+    public void checkValidity() {      
       if (getEditor().getText().equals("")) {
         setContentValid(AbstractXMLStyledDocument.Validity.VALID);
-        return;
       }
-      if (isValidating()) {
+      else if (isValidating()) {
         List validationResults = getProblemList();
  
         setContentValid(validationResults == null ?
@@ -94,6 +110,8 @@ class JXMLSchemaEditor extends ValidityEditorPane {
             AbstractXMLStyledDocument.Validity.INVALID
         );
       }
+        DataTypeDialogToolBarMenu.getInstance().getButton("format")
+                .setEnabled(isContentValidity());
     }
   }
 
@@ -103,12 +121,18 @@ class JXMLSchemaEditor extends ValidityEditorPane {
      }
 
      public void caretUpdate(CaretEvent e) {
-        YAWLToolBarButton btnCut = 
+        YAWLToolBarButton btnCut =
                             DataTypeDialogToolBarMenu.getInstance().getButton("cut") ;
         YAWLToolBarButton btnCopy =
                             DataTypeDialogToolBarMenu.getInstance().getButton("copy") ;
         if (btnCut != null) btnCut.setEnabled(e.getDot() != e.getMark());
         if (btnCopy != null) btnCopy.setEnabled(e.getDot() != e.getMark());
+
+        JXMLSchemaEditorPane pane = ((JXMLSchemaEditor) e.getSource()).getContainingPane();
+        if (pane.getShowLineNumbers()) {
+            pane.setLineNumbers(e.getDot());
+        }
+        pane.getEditor().getHighlighter().removeAllHighlights();
      }
   }
 
