@@ -24,10 +24,14 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.resource.*;
+import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
+import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanSubCategory;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.XNode;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -50,26 +54,29 @@ public class DataBackupEngine {
         result.append(exportCapabilities());
         result.append(exportOrgGroups());
         result.append(exportNonHumanResources());
+        result.append(exportNonHumanCategories());
         result.append("</orgdata>");
         return result.toString();
     }
 
-    public String importOrgData(String xml) {
-        StringBuilder result = new StringBuilder();
+    public List<String> importOrgData(String xml) {
+        List<String> msgList = new ArrayList<String>();
         Document doc = JDOMUtil.stringToDocument(xml);
         if (doc != null) {
             Element root = doc.getRootElement();
             if (root != null) {
-                result.append(importCapabilities(root.getChild("capabilities"))).append('\n');
-                result.append(importRoles(root.getChild("roles"))).append('\n');
-                result.append(importOrgGroups(root.getChild("orggroups"))).append('\n');
-                result.append(importPositions(root.getChild("positions"))).append('\n');
-                result.append(importParticipants(root.getChild("participants"))).append('\n');
+                msgList.add(importCapabilities(root.getChild("capabilities")));
+                msgList.add(importRoles(root.getChild("roles")));
+                msgList.add(importOrgGroups(root.getChild("orggroups")));
+                msgList.add(importPositions(root.getChild("positions")));
+                msgList.add(importParticipants(root.getChild("participants")));
+                msgList.add(importNonHumanCategories(root.getChild("nonhumancategories")));
+                msgList.add(importNonHumanResources(root.getChild("nonhumanresources")));
             }
         }
-        if (result.length() == 0) result.append("Invalid YAWL Org Data Export file.");
+        if (msgList.isEmpty()) msgList.add("Invalid YAWL Org Data Export file.");
 
-        return result.toString();
+        return msgList;
     }
 
 
@@ -127,8 +134,45 @@ public class DataBackupEngine {
 
     private String exportOrgGroups() { return orgDataSet.getOrgGroupsAsXML(); }
 
-    private String exportNonHumanResources() { return orgDataSet.getNonHumanResourcesAsXML(); }
+    private String exportNonHumanResources() {
+        XNode top = new XNode("nonhumanresources");
+        for (NonHumanResource n : orgDataSet.getNonHumanResources()) {
+            XNode resource = top.addChild("nonhumanresource");
+            resource.addAttribute("id", n.getID());
+            resource.addChild("name", n.getName(), true);
+            if (n.getDescription() != null) {
+                resource.addChild("description", n.getDescription(), true);
+            }
+            if (n.getNotes() != null) resource.addChild("notes", n.getNotes(), true);
+            XNode category = resource.addChild("category");
+            category.addAttribute("id", n.getCategory().getID());
+            resource.addChild("subcategory", n.getSubCategoryName(), true);
+        }
+        return top.toString();
+    }
 
+    private String exportNonHumanCategories() {
+        XNode top = new XNode("nonhumancategories");
+        for (NonHumanCategory category : orgDataSet.getNonHumanCategories()) {
+            XNode catNode = top.addChild("nonhumancategory");
+            catNode.addAttribute("id", category.getID());
+            catNode.addChild("name", category.getName(), true);
+            if (category.getDescription() != null) {
+                catNode.addChild("description", category.getDescription(), true);
+            }
+            if (category.getNotes() != null) {
+                catNode.addChild("notes", category.getNotes(), true);
+            }
+            XNode subCatNode = catNode.addChild("subcategories");
+            for (NonHumanSubCategory subCategory : category.getSubCategories()) {
+                subCatNode.addChild("name", subCategory.getName(), true);
+            }
+        }
+        return top.toString();
+    }
+
+
+    /************************************************************************/
 
     private String importCapabilities(Element capElem) {
         String result = "Capabilities: 0 in imported file.";
@@ -157,10 +201,43 @@ public class DataBackupEngine {
     }
 
 
+    private String importNonHumanCategories(Element nhcElem) {
+        String result = "NonHumanCategories: 0 in imported file.";
+        if (nhcElem != null) {
+            if (orgDataSet.isDataEditable("NonHumanCategory")) {
+                int added = 0;
+                List children = nhcElem.getChildren();
+                for (Object o : children) {
+                    Element nhc = (Element) o;
+                    String id = nhc.getAttributeValue("id");
+                    String name = nhc.getChildText("name");
+                    NonHumanCategory c = orgDataSet.getNonHumanCategory(id);
+                    if ((c == null) && (! orgDataSet.isKnownNonHumanCategoryName(name))) {
+                        c = new NonHumanCategory(name);
+                        c.setID(id);
+                        c.setDescription(nhc.getChildText("description"));
+                        c.setNotes(nhc.getChildText("notes"));
+                        for (Object ob : nhc.getChild("subcategories").getChildren()) {
+                            c.addSubCategory(((Element) ob).getText());
+                        }
+                        orgDataSet.importNonHumanCategory(c);
+                        added++;
+                    }
+                }
+                result = String.format("NonHumanCategories: %d/%d imported.", added, children.size());
+            }
+            else {
+                result = "NonHumanCategories: could not import, external dataset is read-only.";
+            }
+        }
+        return result;
+    }
+
+
     private String importNonHumanResources(Element nhrElem) {
         String result = "NonHumanResources: 0 in imported file.";
         if (nhrElem != null) {
-            if (orgDataSet.isDataEditable("NonHumanResources")) {
+            if (orgDataSet.isDataEditable("NonHumanResource")) {
                 int added = 0;
                 List children = nhrElem.getChildren();
                 for (Object o : children) {
@@ -171,10 +248,13 @@ public class DataBackupEngine {
                             nhr.getChildText("name")))) {
                         r = new NonHumanResource();
                         r.fromXML(nhr);
+                        String catID = nhr.getChild("category").getAttributeValue("id");
+                        NonHumanCategory category = orgDataSet.getNonHumanCategory(catID);
+                        if (category != null) {
+                            r.setCategory(category);
+                            r.setSubCategory(nhr.getChildText("subcategory"));
+                        }    
                         orgDataSet.importNonHumanResource(r);
-                        if (r.getCategory() != null) {
-  //                          orgDataSet.addNonHumanSubCategory(r.getCategory(), r.getSubCategory());
-                        }
                         added++;
                     }
                 }

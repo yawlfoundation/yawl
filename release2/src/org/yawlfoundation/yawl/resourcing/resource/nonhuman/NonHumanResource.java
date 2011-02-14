@@ -100,7 +100,8 @@ public class NonHumanResource extends AbstractResource implements Comparable {
         node.addChild("description", _description, true);
         node.addChild("notes", _notes, true);
         node.addChild("category", _category.getName(), true);
-        node.addChild("subcategory", getSubCategory());
+        String subCategoryName = getSubCategoryName();
+        if (subCategoryName != null) node.addChild("subcategory", subCategoryName);
         return node.toString() ;
     }
 

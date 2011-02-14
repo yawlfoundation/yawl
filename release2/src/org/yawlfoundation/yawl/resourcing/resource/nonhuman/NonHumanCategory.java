@@ -200,7 +200,7 @@ public class NonHumanCategory implements Comparable {
 
 
     public XNode toXNode() {
-        XNode node = new XNode("nonHumanResourceCategory");
+        XNode node = new XNode("nonHumanCategory");
         node.addAttribute("id", _id);
         node.addChild("name", _categoryName);
         node.addChild("description", _description);
