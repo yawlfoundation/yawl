@@ -1218,7 +1218,7 @@ public class ResourceGatewayClient extends Interface_Client {
      */
     public String addNonHumanSubCategoryByName(String category, String subcategory,
                                                  String handle) throws IOException {
-        Map<String, String> params = prepareParamMap("addNonHumanResourceSubCategory", handle);
+        Map<String, String> params = prepareParamMap("addNonHumanSubCategory", handle);
         params.put("category", category);
         params.put("subcategory", subcategory);
         return executeGet(_serviceURI, params) ;

@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.List;
 
 /*
  * The backing bean for the YAWL 2.0 org data mgt form
@@ -382,21 +383,25 @@ public class orgDataMgt extends AbstractPageBean {
         String result = exporter.exportOrgData();
         try {
             Document doc = JDOMUtil.stringToDocument(result);
-            FacesContext context = FacesContext.getCurrentInstance();
-            HttpServletResponse response =
+            if (result != null) {
+                FacesContext context = FacesContext.getCurrentInstance();
+                HttpServletResponse response =
                      ( HttpServletResponse ) context.getExternalContext().getResponse();
-            response.setContentType("text/xml");
-            response.setHeader("Content-Disposition",
-                               "attachment;filename=\"YAWLOrgDataExport.ybkp\"");
-            OutputStream os = response.getOutputStream();
-            OutputStreamWriter osw = new OutputStreamWriter(os);
-            osw.write(JDOMUtil.documentToString(doc));
-            osw.flush();
-            osw.close();
-            FacesContext.getCurrentInstance().responseComplete();
+                response.setContentType("text/xml");
+                response.setHeader("Content-Disposition",
+                                   "attachment;filename=\"YAWLOrgDataExport.ybkp\"");
+                OutputStream os = response.getOutputStream();
+                OutputStreamWriter osw = new OutputStreamWriter(os);
+                osw.write(JDOMUtil.documentToString(doc));
+                osw.flush();
+                osw.close();
+                FacesContext.getCurrentInstance().responseComplete();
+                msgPanel.success("Data successfully exported to file 'YAWLOrgDataExport.ybkp'");
+            }
+            else msgPanel.error("Unable to create export file: malformed xml.");
         }
         catch (IOException ioe) {
-            msgPanel.error("Could not create export file. Please see the log for details.");
+            msgPanel.error("Unable to create export file. Please see the log for details.");
         }
         return null ;
     }
@@ -417,12 +422,18 @@ public class orgDataMgt extends AbstractPageBean {
         if (fileName.length() > 0) {
             if (fileName.endsWith(".ybkp")) {
                 DataBackupEngine importer = new DataBackupEngine();
-                String result = importer.importOrgData(uploadedFile.getAsString());
-                if (result.startsWith("Invalid"))
-                    msgPanel.error(result);
+                List<String> result = importer.importOrgData(uploadedFile.getAsString());
+                if (! ((result == null) || result.isEmpty())) {
+                    if (result.size() == 1) {
+                        msgPanel.error(result);                       
+                    }
+                    else {
+                        _sb.refreshOrgDataParticipantList();
+                        msgPanel.success(result);
+                    }
+                }
                 else {
-                    _sb.refreshOrgDataParticipantList();
-                    msgPanel.success(result);
+                    msgPanel.error("Data import failed. Please see log file for details.");
                 }
             }
             else msgPanel.error(

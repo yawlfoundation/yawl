@@ -21,8 +21,9 @@ package org.yawlfoundation.yawl.resourcing.datastore.orgdata;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
 import org.yawlfoundation.yawl.resourcing.resource.*;
-import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
+import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
+import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanSubCategory;
 import org.yawlfoundation.yawl.util.XNode;
 
 import java.util.*;
@@ -739,6 +740,15 @@ public class ResourceDataSet {
         return new HashSet<NonHumanCategory>(nonHumanCategoryMap.values()) ;
     }
 
+    public Set<NonHumanSubCategory> getNonHumanSubCategories() {
+        Set<NonHumanSubCategory> set = new HashSet<NonHumanSubCategory>();
+        for (NonHumanCategory c : nonHumanCategoryMap.values()) {
+            set.addAll(c.getSubCategories());
+        }
+        return set;
+    }
+
+
     public HashMap<String, Participant> getParticipantMap() {
         return participantMap ;
     }
@@ -1243,13 +1253,21 @@ public class ResourceDataSet {
     }
 
 
+    public String getNonHumanSubCategoriesAsXML() {
+        StringBuilder xml = new StringBuilder("<nonhumansubcategories>") ;
+        for (NonHumanSubCategory n : getNonHumanSubCategories()) xml.append(n.toXML()) ;
+        xml.append("</nonhumansubcategories>");
+        return xml.toString() ;
+    }
+
+
     public String getNonHumanCategoriesAsXML() {
         Set<NonHumanCategory> rList = new TreeSet<NonHumanCategory>(
                 nonHumanCategoryMap.values());
 
         StringBuilder xml = new StringBuilder("<nonhumancategories>") ;
         for (NonHumanCategory r : rList) xml.append(r.toXML()) ;
-        xml.append("</nonhumanresourcecategories>");
+        xml.append("</nonhumancategories>");
         return xml.toString() ;
     }
 

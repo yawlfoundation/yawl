@@ -119,9 +119,17 @@ public class MessagePanel extends PanelLayout {
         _messages.put(format(message), MsgType.info);
     }
 
+    public void info(List<String> msgList) {
+        for (String message : msgList) info(message);
+    }
+
     /* adds a success message */
     public void success(String message) {
         _messages.put(format(message), MsgType.success);
+    }
+
+    public void success(List<String> msgList) {
+        for (String message : msgList) success(message);
     }
 
     /* removes all messages */

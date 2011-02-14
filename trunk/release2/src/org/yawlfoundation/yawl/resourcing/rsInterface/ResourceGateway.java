@@ -654,7 +654,7 @@ public class ResourceGateway extends HttpServlet {
         }
         else if (action.equalsIgnoreCase("getNonHumanResourceByName")) {
             NonHumanResource r = _orgDataSet.getNonHumanResourceByName(name);
-            result = (r != null) ? r.toXML() : fail("Unknown NonHumanResource name: " + id) ;
+            result = (r != null) ? r.toXML() : fail("Unknown NonHumanResource name: " + name) ;
         }
         else if (action.equalsIgnoreCase("getParticipantRoles")) {
             result = _orgDataSet.getParticipantRolesAsXML(id);
