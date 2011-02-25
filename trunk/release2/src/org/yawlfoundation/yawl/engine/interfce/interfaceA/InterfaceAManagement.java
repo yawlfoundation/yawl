@@ -24,6 +24,7 @@ import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.YAnnouncer;
+import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.announcement.AnnouncementContext;
@@ -37,7 +38,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Defines the 'A' interface into the YAWL Engine corresponding to WfMC interface 5 - Administration + Monitoring.
+ * Defines the 'A' interface into the YAWL Engine corresponding to WfMC interface 5 -
+ * Administration + Monitoring.
  *
  * @author Andrew Hastie
  *         Creation Date: 10-Jun-2005
@@ -73,7 +75,7 @@ public interface InterfaceAManagement {
 
     boolean loadSpecification(YSpecification spec);
     
-    Set<YSpecificationID> getLoadedSpecifications() throws YPersistenceException;
+    Set<YSpecificationID> getLoadedSpecificationIDs() throws YPersistenceException;
 
     /**
      * Returns the process specification identified by its ID.<P>
@@ -155,17 +157,6 @@ public interface InterfaceAManagement {
      * @throws YPersistenceException
      */
     void resumeCase(YIdentifier id) throws YPersistenceException, YStateException;
-
-    /**
-     * Returns the execution status of a case.
-     *
-     * @param id
-     * @return the current case execution state
-     * @throws YPersistenceException
-     */
-    int getCaseExecutionStatus(YIdentifier id) throws YPersistenceException;
-
-
 
 
     /**
@@ -255,9 +246,9 @@ public interface InterfaceAManagement {
      */
     void dump();
 
-    void setEngineStatus(int engineStatus);
+    void setEngineStatus(YEngine.Status engineStatus);
 
-    int getEngineStatus();
+    YEngine.Status getEngineStatus();
 
     AnnouncementContext getAnnouncementContext();
 

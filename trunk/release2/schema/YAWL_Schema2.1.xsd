@@ -848,6 +848,8 @@
 				<xs:sequence>
 					<xs:element name="initialValue" type="xs:string" minOccurs="0"/>
 				</xs:sequence>
+                <!-- Extended Attributes whose validation will be skipped -->
+                <xs:anyAttribute processContents="skip"/>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>

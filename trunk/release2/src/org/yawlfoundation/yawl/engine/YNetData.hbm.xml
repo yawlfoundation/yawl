@@ -23,14 +23,13 @@
 
 <hibernate-mapping>
 
-	<class name="org.yawlfoundation.yawl.engine.YCaseData" table="CaseDataDocument">
+	<class name="org.yawlfoundation.yawl.engine.YNetData" table="CaseDataDocument">
 
-       <id name="id" column="net_id" type="string" access="field">
+       <id name="_id" column="net_id" type="string" access="field">
    		<generator class="assigned"/>
     	</id>
 		
-    	<property name="data" column="casedata" type="text" access="field"/>
-        <property name="executionState" column="executionState" type="integer" />
+    	<property name="_data" column="casedata" type="text" access="field"/>
 
 	</class>
 	

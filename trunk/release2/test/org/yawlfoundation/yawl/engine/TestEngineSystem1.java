@@ -117,7 +117,7 @@ public class TestEngineSystem1 extends TestCase {
 //                _localWorklist.setWorkItemToComplete(
 //                        anItem.getCaseID().toString(), anItem.getTaskID(),"<data/>");
                 _engine.completeWorkItem(anItem, "<data/>", null, false);
-                assertTrue(_workItemRepository.getWorkItem(
+                assertTrue(_workItemRepository.get(
                         anItem.getCaseID().toString(), anItem.getTaskID())
                         == null);
                 Thread.sleep(_sleepTime);

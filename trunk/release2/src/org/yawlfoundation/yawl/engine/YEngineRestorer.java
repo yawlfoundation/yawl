@@ -408,7 +408,7 @@ public class YEngineRestorer {
                 _engine.addRunner(runner);
             }
             else {
-                YWorkItemRepository.getInstance().addNetRunner(runner);   // a subnet
+                _engine.getNetRunnerRepository().add(runner);         // a subnet
             }
 
             // restore enabled and busy tasks

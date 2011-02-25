@@ -34,7 +34,6 @@ import org.yawlfoundation.yawl.elements.state.YSetOfMarkings;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.exceptions.YDataStateException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.util.*;
 
 import java.util.*;
@@ -534,7 +533,7 @@ public final class YNet extends YDecomposition {
 
 
     public void setIncomingData(YPersistenceManager pmgr, Element incomingData)
-            throws YSchemaBuildingException, YDataStateException, YPersistenceException {
+            throws YDataStateException, YPersistenceException {
         for (YParameter parameter : getInputParameters().values()) {
             Element actualParam = incomingData.getChild(parameter.getName());
             if (parameter.isMandatory() && actualParam == null) {

@@ -41,26 +41,40 @@ import java.util.Set;
  */
 public class YDefClientsLoader {
 
-    private Logger _log;
     private final String _propsFile = "defaultClients.properties";
+    private Logger _log;
+    private Set<YExternalClient> _clients;
+    private Set<YAWLServiceReference> _services;
 
     public YDefClientsLoader() {
         _log = Logger.getLogger(this.getClass());
+        _clients = new HashSet<YExternalClient>();
+        _services = new HashSet<YAWLServiceReference>();
+        load();
     }
 
-    public Set<YClient> load() {
+
+    public Set<YExternalClient> getLoadedClients() { return _clients; }
+
+    public Set<YAWLServiceReference> getLoadedServices() { return _services; }
+
+    public Set<YClient> getAllLoaded() {
+        Set<YClient> allLoaded = new HashSet<YClient>();
+        allLoaded.addAll(_clients);
+        allLoaded.addAll(_services);
+        return allLoaded;
+    }
+   
+
+    private void load() {
         _log.info("Loading default client and service account details - Starts");
-        Set<YClient> loadedSet = new HashSet<YClient>();
         InputStream in = getClass().getResourceAsStream(_propsFile);
         if (in != null) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             try {
                 String line = reader.readLine();
                 while (line != null) {
-                    YClient client = processLine(line);
-                    if (client != null) {
-                        loadedSet.add(client);
-                    }
+                    processLine(line);
                     line = reader.readLine();
                 }
             }
@@ -71,26 +85,22 @@ public class YDefClientsLoader {
         else _log.warn("Error opening file '" + _propsFile + "'.");
 
         _log.info("Loading default client and service account details - Ends");
-        return loadedSet;
     }
 
 
-    private YClient processLine(String rawLine) {
+    private void processLine(String rawLine) {
         rawLine = rawLine.trim();
 
         // ignore comments and empty lines
-        if ((rawLine.length() == 0) || rawLine.startsWith("#")) {
-            return null;
-        }
-        
+        if ((rawLine.length() == 0) || rawLine.startsWith("#")) return;
+
         int headerEnd = rawLine.indexOf(':');
         if (headerEnd > -1) {
             String[] parts = rawLine.substring(headerEnd + 1).split(",");
             if (rawLine.startsWith("extClient:") && (parts.length == 3)) {
-                return new YExternalClient(parts[0].trim(),
+                _clients.add(new YExternalClient(parts[0].trim(),
                         PasswordEncryptor.encrypt(parts[1].trim(), null),
-                        parts[2].trim());
-
+                        parts[2].trim()));
             }
             else if (rawLine.startsWith("service:") && (parts.length == 5)) {
                 YAWLServiceReference service = new YAWLServiceReference(
@@ -98,11 +108,10 @@ public class YDefClientsLoader {
                         PasswordEncryptor.encrypt(parts[1].trim(), null),
                         parts[2].trim());
                 service.setAssignable(parts[4].trim().equalsIgnoreCase("true"));
-                return service;
+                _services.add(service);
             }
         }
         _log.warn("Could not load default external client - malformed entry: " + rawLine);
-        return null;
     }
     
 }

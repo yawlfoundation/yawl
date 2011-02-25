@@ -145,7 +145,7 @@ public class YSession {
     // expires (removes) this active session. Called when a session timer expires.
     private class TimeOut extends TimerTask {
         public void run() {
-            YSessionCache.getInstance().expire(_handle) ;
+            YEngine.getInstance().getSessionCache().expire(_handle) ;
         }
     }
 }

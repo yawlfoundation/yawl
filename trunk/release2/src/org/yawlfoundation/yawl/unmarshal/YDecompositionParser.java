@@ -553,6 +553,9 @@ public class YDecompositionParser {
             boolean isUntyped = localVariableElem.getChild("isUntyped", ns) != null;
             variable.setUntyped(isUntyped);
 
+            // set mandatory (default is true)
+            variable.setMandatory(localVariableElem.getChild("mandatory", ns) == null);
+
             //set the element name if it uses one
             String elementName;
             elementName = localVariableElem.getChildText("element", ns);
@@ -564,6 +567,7 @@ public class YDecompositionParser {
                 variable.setOrdering(new Integer(orderingStr));
             }
 
+            variable.getAttributes().fromJDOM(localVariableElem.getAttributes());
 
         }
         //the variable either is data typed xor linked to an element declaration
@@ -596,13 +600,10 @@ public class YDecompositionParser {
             parameter.setIsCutThroughParam(isCutThroughParam);
         }
 
-        parameter.setMandatory(paramElem.getChild("mandatory", ns) != null);
-
         String defaultValue = paramElem.getChildText("defaultValue", ns);
         if (defaultValue != null) parameter.setDefaultValue(defaultValue);
 
         parameter.setLogPredicate(parseLogPredicate(paramElem, ns));
-        parameter.getAttributes().fromJDOM(paramElem.getAttributes());
     }
 
 

@@ -22,25 +22,29 @@ import com.sun.rave.web.ui.appbase.AbstractApplicationBean;
 import com.sun.rave.web.ui.component.Link;
 import com.sun.rave.web.ui.component.PanelLayout;
 import com.sun.rave.web.ui.component.StaticText;
-import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
+import org.yawlfoundation.yawl.resourcing.jsf.comparator.YAWLServiceComparator;
+import org.yawlfoundation.yawl.resourcing.jsf.comparator.YExternalClientComparator;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 import org.yawlfoundation.yawl.util.YBuildProperties;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.authentication.YExternalClient;
 
 import javax.faces.FacesException;
 import javax.faces.application.Application;
 import javax.faces.application.ViewHandler;
 import javax.faces.component.UIViewRoot;
-import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import java.io.IOException;
+import javax.faces.context.ExternalContext;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.io.IOException;
 
 /**
  * Application scope data bean for the worklist and admin pages.
@@ -89,7 +93,7 @@ public class ApplicationBean extends AbstractApplicationBean {
 
     /*******************************************************************************/
 
-    // GLOBAL COMPONENTS //
+    // GLOBAL ENUMS AND COMPONENTS //
 
     public enum PageRef { adminQueues, caseMgt, customServices, dynForm,
                           Login, orgDataMgt, nonHumanMgt, participantData, selectUser,
@@ -99,6 +103,7 @@ public class ApplicationBean extends AbstractApplicationBean {
     public enum TabRef { offered, allocated, started, suspended, unoffered, worklisted }
 
     public enum DynFormType { netlevel, tasklevel }
+
 
     // favIcon appears in the browser's address bar for all pages
     private Link favIcon = new Link() ;
@@ -126,7 +131,8 @@ public class ApplicationBean extends AbstractApplicationBean {
 
 
     // mapping of participant id to each session
-    private Map<String, SessionBean> sessionReference = new HashMap<String, SessionBean>();
+    private Map<String, SessionBean> sessionReference =
+            new ConcurrentHashMap<String, SessionBean>();
 
     public void addSessionReference(String participantID, SessionBean sBean) {
         sessionReference.put(participantID, sBean) ;
@@ -145,6 +151,8 @@ public class ApplicationBean extends AbstractApplicationBean {
         if (sessionBean != null) sessionBean.refreshUserWorkQueues();
     }
 
+
+    /**********************************************************************/
 
     // set of participants currently logged on
     private Set<String> liveUsers = new HashSet<String>();
@@ -176,6 +184,8 @@ public class ApplicationBean extends AbstractApplicationBean {
     }
 
 
+    /**********************************************************************/
+
     /** @return true if the workitem has no parameters */
     public boolean isEmptyWorkItem(WorkItemRecord wir) {
         try {
@@ -187,7 +197,7 @@ public class ApplicationBean extends AbstractApplicationBean {
 
 
     private Map<String, Map<String, FormParameter>> _workItemParams = new
-            HashMap<String, Map<String, FormParameter>>();
+            ConcurrentHashMap<String, Map<String, FormParameter>>();
 
 
     public Map<String, FormParameter> getWorkItemParams(WorkItemRecord wir) {
@@ -205,7 +215,25 @@ public class ApplicationBean extends AbstractApplicationBean {
 
     public void removeWorkItemParams(WorkItemRecord wir) {
         _workItemParams.remove(wir.getID());
+        removeFromReofferMap(wir);
     }
+
+
+    public void removeWorkItemParamsForCase(String caseID) {
+        Set<String> toRemove = new HashSet<String>();
+        for (String id : _workItemParams.keySet()) {
+            if (id.startsWith(caseID + ".")) {
+                toRemove.add(id);
+            }
+        }
+        for (String id : toRemove) {
+            _workItemParams.remove(id);
+        }
+        removeCaseFromReofferMap(caseID);
+    }
+
+
+    /**********************************************************************/
 
     /**
      * formats a long time value into a string of the form 'ddd:hh:mm:ss'
@@ -224,17 +252,6 @@ public class ApplicationBean extends AbstractApplicationBean {
         long mins = age / 60 ;
         age %= 60 ;                                    // seconds leftover
         return String.format("%d:%02d:%02d:%02d", days, hours, mins, age) ;
-    }
-
-    /** @deprecated */
-    public Map<String, FormParameter> yParamListToFormParamMap(List params) {
-        Map<String, FormParameter> result = new HashMap<String, FormParameter>();
-        for (Object obj : params) {
-            YParameter param = (YParameter) obj ;
-            result.put(param.getName(), new FormParameter(param)) ;
-        }
-        if (result.isEmpty()) result = null ;
-        return result ;
     }
 
 
@@ -268,9 +285,20 @@ public class ApplicationBean extends AbstractApplicationBean {
         UIViewRoot viewRoot = viewHandler.createView(context, context
              .getViewRoot().getViewId());
         context.setViewRoot(viewRoot);
-      //  context.renderResponse(); //Optional
     }
 
+    
+    public void redirect(String uri) {
+        try {
+            ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+            if (context != null) {
+                context.redirect(uri);
+            }
+        }
+        catch (IOException ioe) {
+            // nothing to do
+        }
+    }
 
     public void synch() {
         _rm.sanitiseCaches();
@@ -286,6 +314,7 @@ public class ApplicationBean extends AbstractApplicationBean {
     public void setExceptionServiceEnabled(boolean enabled) {
         exceptionServiceEnabled = enabled;
     }
+
 
     private boolean visualizerEnabled = _rm.isVisualiserEnabled() ;
 
@@ -336,19 +365,9 @@ public class ApplicationBean extends AbstractApplicationBean {
     }
 
 
-    public void redirect(String uri) {
-        try {
-            ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-            if (context != null) {
-                context.redirect(uri);
-            }
-        }
-        catch (IOException ioe) {
-            // nothing to do
-        }
-    }
-
     /**********************************************************************/
+
+    // the footer text is the text line at the bottom of every worklist and admin page
 
     private PanelLayout footerPanel;
 
@@ -374,7 +393,7 @@ public class ApplicationBean extends AbstractApplicationBean {
     private String _footerText = "";
 
     public String getFooterText() {
-        if (_footerText.length() == 0) {
+        if (_footerText.length() == 0) {          // only need to build the text once
             String version = "";
             String rsBuild = "";
             String engBuild = "";
@@ -430,5 +449,177 @@ public class ApplicationBean extends AbstractApplicationBean {
     }
 
     /*************************************************************************/
+
+    // if an offered workitem has no resource map (usually a pre-2.0 spec), it can't
+    // be reoffered on the admin screen. This map keeps track of listed workitems and
+    // whether they can be reoffered or not.
+
+    private Map<String, Boolean> _canReofferMap = new ConcurrentHashMap<String, Boolean>() ;
+
+    public boolean canReoffer(WorkItemRecord wir) {
+        Boolean okToReoffer = _canReofferMap.get(wir.getID());
+        if (okToReoffer == null) {
+            okToReoffer = (_rm.getCachedResourceMap(wir) != null);
+            _canReofferMap.put(wir.getID(), okToReoffer);
+        }
+        return okToReoffer;
+    }
+
+    public void removeFromReofferMap(WorkItemRecord wir) {
+        _canReofferMap.remove(wir.getID());
+    }
+
+    public void removeCaseFromReofferMap(String caseID) {
+        int len = caseID.length();
+        for (String id : _canReofferMap.keySet()) {
+            if (id.startsWith(caseID) && ":.".contains(id.substring(len, len + 1))) {
+                _canReofferMap.remove(id);
+            }
+        }
+    }
+
+
+    /****** This section used by the 'Service Mgt' Page ***************************/
+
+    List<YAWLServiceReference> registeredServices;
+
+
+    public List<YAWLServiceReference> getRegisteredServices() {
+        if (registeredServices == null) refreshRegisteredServices() ;
+        return registeredServices;
+    }
+
+
+    public void setRegisteredServices(List<YAWLServiceReference> services) {
+        registeredServices = services ;
+    }
+
+
+    public String removeRegisteredService(int listIndex) {
+        String result = null;
+        try {
+            YAWLServiceReference service = registeredServices.get(listIndex);
+            result = _rm.removeRegisteredService(service.getServiceID());
+            if (_rm.successful(result)) refreshRegisteredServices();
+        }
+        catch (IOException ioe) {
+            // message ...
+        }
+        return result ;
+    }
+
+
+    public String addRegisteredService(String name, String pw, String uri, String doco) {
+        String result = null;
+        try {
+            YAWLServiceReference service = new YAWLServiceReference(uri, null, name, pw, doco);
+            result = _rm.addRegisteredService(service);
+            if (_rm.successful(result)) refreshRegisteredServices();
+        }
+        catch (IOException ioe) {
+            // message ...
+        }
+        return result ;
+    }
+
+
+    public void refreshRegisteredServices() {
+        Set<YAWLServiceReference> services = _rm.getRegisteredServices();
+        if (services != null) {
+
+            // get & sort the items
+            List<YAWLServiceReference> servList = new ArrayList<YAWLServiceReference>();
+            for (YAWLServiceReference service : services) {
+                if (service.isAssignable())
+                    servList.add(service) ;
+            }
+            Collections.sort(servList, new YAWLServiceComparator());
+            synchronized(this) {
+                registeredServices = servList;
+            }    
+        }
+        else registeredServices = null ;
+    }
+
+
+    /****** This section used by the 'External App Mgt' Page ***************************/
+
+    List<YExternalClient> externalClients;
+
+
+    public List<YExternalClient> getExternalClients() {
+        if (externalClients == null) refreshExternalClients() ;
+        return externalClients;
+    }
+
+
+    public void setExternalClients(List<YExternalClient> clients) {
+        externalClients = clients ;
+    }
+
+
+    public YExternalClient getSelectedExternalClient(int listIndex) {
+        return externalClients.get(listIndex);
+    }
+
+
+    public String removeExternalClient(int listIndex) {
+        String result;
+        try {
+            YExternalClient client = externalClients.get(listIndex);
+            result = _rm.removeExternalClient(client.getUserName());
+            if (_rm.successful(result)) refreshExternalClients();
+        }
+        catch (IOException ioe) {
+            result = "Error attempting to remove client. Please see the log files for details.";
+        }
+        return result ;
+    }
+
+
+    public String updateExternalClient(String name, String pw, String doco) {
+        try {
+            return _rm.updateExternalClient(name, pw, doco);
+        }
+        catch (IOException ioe) {
+            return "Error attempting to update client. Please see the log files for details.";
+        }
+    }
+
+
+
+    public String addExternalClient(String name, String pw, String doco) {
+        String result;
+        if (name.equals("admin")) {
+            return "Cannot add client 'admin' because it is a reserved client name.";
+        }
+        try {
+            YExternalClient client = new YExternalClient(name, pw, doco);
+            result = _rm.addExternalClient(client);
+            if (_rm.successful(result)) refreshExternalClients();
+        }
+        catch (IOException ioe) {
+            result = "Error attempting to add new client. Please see the log files for details.";
+        }
+        return result ;
+    }
+
+
+    public void refreshExternalClients() {
+        try {
+            List<YExternalClient> clients =
+                    new ArrayList<YExternalClient>(_rm.getExternalClients());
+            Collections.sort(clients, new YExternalClientComparator());
+            synchronized(this) {
+                externalClients = clients;
+            }
+        }
+        catch (IOException ioe) {
+            externalClients = null;
+        }
+    }
+
+
+
 
 }

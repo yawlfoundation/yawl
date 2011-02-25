@@ -673,7 +673,7 @@ public class DynFormFactory extends AbstractSessionBean {
                 // new complex type - recurse in a new sub-container
                 componentList.addAll(buildSubPanel(builder, field));
             }
-            else  {  // create the field (inside a panel)
+            else if (! field.isEmptyOptionalInputOnly()) {  // create the field (inside a panel)
 
                 // if min and/or max defined at the field level, enclose it in a subpanel
                 if (field.getGroupID() != null) {

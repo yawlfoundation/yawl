@@ -192,7 +192,7 @@ public class YWorklistModel {
     //######################################################################################
 
     // MUTATORS ############################################################################
-    public void applyForWorkItem(String caseID, String taskID) throws YSchemaBuildingException, YPersistenceException {
+    public void applyForWorkItem(String caseID, String taskID) throws YPersistenceException {
         Set workItems = _engineClient.getAvailableWorkItems();
         for (Iterator iterator = workItems.iterator(); iterator.hasNext();) {
             YWorkItem item = (YWorkItem) iterator.next();

@@ -26,12 +26,13 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Author: Michael Adams
  * Creation Date: 15/04/2009
  */
-public class YDataSchemaCache extends Hashtable<String, YDataSchemaCache.SchemaMap> {
+public class YDataSchemaCache extends ConcurrentHashMap<String, YDataSchemaCache.SchemaMap> {
 
     public YDataSchemaCache() {
         super();

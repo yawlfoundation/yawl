@@ -24,8 +24,6 @@ import com.sun.rave.web.ui.component.Listbox;
 import com.sun.rave.web.ui.component.PanelLayout;
 import com.sun.rave.web.ui.component.Script;
 import com.sun.rave.web.ui.model.Option;
-import org.yawlfoundation.yawl.authentication.YExternalClient;
-import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
@@ -35,7 +33,9 @@ import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
-import org.yawlfoundation.yawl.resourcing.jsf.comparator.*;
+import org.yawlfoundation.yawl.resourcing.jsf.comparator.OptionComparator;
+import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
+import org.yawlfoundation.yawl.resourcing.jsf.comparator.SpecificationDataComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.resource.*;
@@ -514,7 +514,6 @@ public class SessionBean extends AbstractSessionBean {
             lbxUserList.setMultiple(false);
             lbxUserList.setSelected(selectUserListChoice);
         }
-  //      lbxUserList.setSelected(selectUserListChoices);
     }
 
 
@@ -547,6 +546,12 @@ public class SessionBean extends AbstractSessionBean {
         runningCaseListChoices = list;
     }
 
+    public String getRunningCasesCaption() {
+        String caption = "Running Cases";
+        if (runningCaseListOptions != null) caption += " (" + runningCaseListOptions.length + ")";
+        return caption;
+    }
+
     /******************************************************************/
 
     private ArrayList selectUserListChoices;
@@ -558,7 +563,6 @@ public class SessionBean extends AbstractSessionBean {
     public void setSelectUserListChoices(ArrayList list) {
         selectUserListChoices = list;
     }
-
 
 
     /********************************************************************************/
@@ -763,145 +767,6 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
-    /****** This section used by the 'Service Mgt' Page ***************************/
-
-    List<YAWLServiceReference> registeredServices;
-
-
-    public List<YAWLServiceReference> getRegisteredServices() {
-        if (registeredServices == null) refreshRegisteredServices() ;
-
-        return registeredServices;
-    }
-
-
-    public void setRegisteredServices(List<YAWLServiceReference> services) {
-        registeredServices = services ;
-    }
-
-
-    public String removeRegisteredService(int listIndex) {
-        String result = null;
-        try {
-            YAWLServiceReference service = registeredServices.get(listIndex);
-            result = _rm.removeRegisteredService(service.getServiceID());
-            if (_rm.successful(result)) refreshRegisteredServices();
-        }
-        catch (IOException ioe) {
-            // message ...
-        }
-        return result ;
-    }
-
-
-    public String addRegisteredService(String name, String pw, String uri, String doco) {
-        String result = null;
-        try {
-            YAWLServiceReference service = new YAWLServiceReference(uri, null, name, pw, doco);
-            result = _rm.addRegisteredService(service);
-            if (_rm.successful(result)) refreshRegisteredServices();
-        }
-        catch (IOException ioe) {
-            // message ...
-        }
-        return result ;
-    }
-
-    
-    public void refreshRegisteredServices() {
-        Set<YAWLServiceReference> services = _rm.getRegisteredServices();
-        if (services != null) {
-
-            // sort the items
-            List<YAWLServiceReference> servList = new ArrayList<YAWLServiceReference>();
-            for (YAWLServiceReference service : services) {
-                if (service.isAssignable())
-                    servList.add(service) ;
-            }
-            registeredServices = servList;
-            Collections.sort(registeredServices, new YAWLServiceComparator());
-        }
-        else
-            registeredServices = null ;
-    }
-
-
-    /****** This section used by the 'External App Mgt' Page ***************************/
-
-    List<YExternalClient> externalClients;
-
-
-    public List<YExternalClient> getExternalClients() {
-        if (externalClients == null) refreshExternalClients() ;
-
-        return externalClients;
-    }
-
-
-    public void setExternalClients(List<YExternalClient> clients) {
-        externalClients = clients ;
-    }
-
-
-    public YExternalClient getSelectedExternalClient(int listIndex) {
-        return externalClients.get(listIndex);
-    }
-
-
-    public String removeExternalClient(int listIndex) {
-        String result;
-        try {
-            YExternalClient client = externalClients.get(listIndex);
-            result = _rm.removeExternalClient(client.getUserName());
-            if (_rm.successful(result)) refreshExternalClients();
-        }
-        catch (IOException ioe) {
-            result = "Error attempting to remove client. Please see the log files for details.";
-        }
-        return result ;
-    }
-
-
-    public String updateExternalClient(String name, String pw, String doco) {
-        try {
-            return _rm.updateExternalClient(name, pw, doco);
-        }
-        catch (IOException ioe) {
-            return "Error attempting to update client. Please see the log files for details.";
-        }
-    }
-
-
-
-    public String addExternalClient(String name, String pw, String doco) {
-        String result;
-        if (name.equals("admin")) {
-            return "Cannot add client 'admin' because it is a reserved client name.";
-        }
-        try {      
-            YExternalClient client = new YExternalClient(name, pw, doco);
-            result = _rm.addExternalClient(client);
-            if (_rm.successful(result)) refreshExternalClients();
-        }
-        catch (IOException ioe) {
-            result = "Error attempting to add new client. Please see the log files for details.";
-        }
-        return result ;
-    }
-
-
-    public void refreshExternalClients() {
-        try {
-            externalClients = new ArrayList<YExternalClient>(_rm.getExternalClients());
-        }
-        catch (IOException ioe) {
-            externalClients = null; 
-        }
-        if (externalClients != null) {
-            Collections.sort(externalClients, new YExternalClientComparator());
-        }
-    }
-
 
     /****** This section used by the 'Case Mgt' Page ***************************/
 
@@ -929,10 +794,15 @@ public class SessionBean extends AbstractSessionBean {
         if (specDataSet != null) {
             loadedSpecs = new ArrayList<SpecificationData>(specDataSet);
             Collections.sort(loadedSpecs, new SpecificationDataComparator());
-        //    refreshSchemaLibraries() ;
         }
-        else
-            loadedSpecs = null ;
+        else loadedSpecs = null ;
+    }
+
+
+    public String getLoadedSpecsCaption() {
+        String caption = "Loaded Specifications";
+        if (loadedSpecs != null) caption += " (" + loadedSpecs.size() + ")";
+        return caption;
     }
 
 
@@ -995,37 +865,6 @@ public class SessionBean extends AbstractSessionBean {
             return _rm.getInstanceData(schema, wir) ;
     }
 
-
-    
-
-    private void refreshSchemaLibraries() {
-//        schemaLibraries = new Hashtable<String, String>();
-//        for (SpecificationData spec : loadedSpecs) {
-//            try {
-//                String schema = _rm.getSchemaLibrary(spec.getID(),
-//                                                                      sessionhandle) ;
-//                if (schema != null)
-//                    schemaLibraries.put(spec.getID(), schema) ;
-//            }
-//            catch (Exception e) {
-//                // some kind of io or jdom exception
-//            }
-//        }
-    }
-
-//    public String getSchemaLibrary(String specID) {
-//        String result = schemaLibraries.get(specID) ;
-//
-//        // not in local cache, try getting it from engine
-//        if (result == null) {
-//            result = _rm.getDataSchema(specID) ;
-//
-//            // not in engine = problem or not loaded
-//            if (result != null) schemaLibraries.put(specID, result) ;
-//        }
-//
-//        return result ;
-//    }
 
     /****** This section used by the 'Admin Queues' Page ***************************/
 

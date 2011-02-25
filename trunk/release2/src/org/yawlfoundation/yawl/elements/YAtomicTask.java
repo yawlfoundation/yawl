@@ -109,7 +109,7 @@ public class YAtomicTask extends YTask {
             throws YPersistenceException {
         if (! cancelBusyWorkItem(pmgr)) {
             String workItemID = caseID.get_idString() + ":" + getID();
-            YWorkItem workItem = _workItemRepository.getWorkItem(workItemID);
+            YWorkItem workItem = _workItemRepository.get(workItemID);
             if (null != workItem) cancelWorkItem(pmgr, workItem) ;
         }
         super.cancel(pmgr);
@@ -178,14 +178,12 @@ public class YAtomicTask extends YTask {
      * corresponding values that were populated after evaluating their mapping
      * expressions.
      * @throws YQueryException if thre's a problem with a query evaluation.
-     * @throws YSchemaBuildingException if there's a problem populating the data set.
      * @throws YDataStateException if there's a problem with the evaluated data.
      * @throws YStateException if there's a problem setting the task state.
      * @deprecated Since 2.0, enablement mappings have no function.
      */
     public Element prepareEnablementData()
-            throws YQueryException, YSchemaBuildingException, YDataStateException,
-            YStateException {
+            throws YQueryException, YDataStateException, YStateException {
         if (null == getDecompositionPrototype()) {
             return null;
         }
@@ -234,7 +232,7 @@ public class YAtomicTask extends YTask {
         // nothing to do if not fired or has no decomposition
         if ((_i == null) || (_decompositionPrototype == null)) return false;
 
-        YWorkItem workItem = _workItemRepository.getWorkItem(_i.toString(), getID());
+        YWorkItem workItem = _workItemRepository.get(_i.toString(), getID());
         if (null != workItem) cancelWorkItem(pmgr, workItem) ;
         return true;
     }

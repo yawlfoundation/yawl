@@ -41,7 +41,7 @@ public class TestYExternalCondition extends TestCase {
         v.setUntyped(true);
         v.setInitialValue("<stub/><stub/><stub/>");
         _net.setLocalVariable(v);
-        YCaseData casedata = new YCaseData();
+        YNetData casedata = new YNetData();
         _net.initializeDataStore(null, casedata);
         _net.initialise(null);
 	_condition = new YCondition("c1", "C1", _net);

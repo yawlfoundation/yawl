@@ -126,12 +126,11 @@ public class YAWLException extends Exception {
      * @throws YStateException
      * @throws YDataStateException
      * @throws YQueryException
-     * @throws YSchemaBuildingException
      * @throws YPersistenceException
      */
 
     public void rethrow() throws YStateException, YDataStateException, YQueryException,
-                                 YSchemaBuildingException, YPersistenceException
+                                 YPersistenceException
     {
         if (this instanceof YStateException) {
             throw (YStateException) this;
@@ -139,8 +138,6 @@ public class YAWLException extends Exception {
             throw (YDataStateException) this;
         } else if (this instanceof YQueryException) {
             throw (YQueryException) this;
-        } else if (this instanceof YSchemaBuildingException) {
-            throw (YSchemaBuildingException) this;
         } else if (this instanceof YPersistenceException) {
             throw (YPersistenceException) this;
         }

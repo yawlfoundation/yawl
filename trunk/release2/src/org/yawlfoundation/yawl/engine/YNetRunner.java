@@ -51,11 +51,12 @@ import java.util.*;
  */
 public class YNetRunner {
 
-    private static YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
+    public static enum ExecutionStatus { Normal, Suspending, Suspended, Resuming }
+
     private static final Logger _logger = Logger.getLogger(YNetRunner.class);
 
     protected YNet _net;
-
+    private YWorkItemRepository _workItemRepository;
     private Set<YTask> _netTasks;
     private Set<YTask> _enabledTasks = new HashSet<YTask>();
     private Set<YTask> _busyTasks = new HashSet<YTask>();
@@ -69,10 +70,11 @@ public class YNetRunner {
     private Set<String> _busyTaskNames = new HashSet<String>();
     private String _caseID = null;
     private String _containingTaskID = null;
-    private YCaseData _casedata = null;
+    private YNetData _netdata = null;
     private YAWLServiceReference _caseObserver;
     private long _startTime;
     private Map<String, String> _timerStates;
+    private ExecutionStatus _executionStatus;
 
     // these members are used to persist observers
     private String _caseObserverStr = null ;
@@ -91,6 +93,7 @@ public class YNetRunner {
 
         try {
        	    _engine = YEngine.getInstance(YEngine.isPersisting());
+            _workItemRepository = _engine.getWorkItemRepository();
         } catch (YPersistenceException e) {
         	  _logger.error("Exception getting reference to running engine", e);
         }
@@ -98,8 +101,7 @@ public class YNetRunner {
 
 
     public YNetRunner(YPersistenceManager pmgr, YNet netPrototype, Element paramsData,
-                      String caseID) throws YDataStateException, YSchemaBuildingException,
-                                            YPersistenceException {
+                      String caseID) throws YDataStateException, YPersistenceException {
 
         // initialise and persist case identifier - if caseID is null, a new one is supplied
         _caseIDForNet = new YIdentifier(caseID);   
@@ -120,13 +122,12 @@ public class YNetRunner {
      * @param caseIDForNet
      * @param incomingData
      * @throws YDataStateException
-     * @throws YSchemaBuildingException
      * @throws YPersistenceException
      */
     public YNetRunner(YPersistenceManager pmgr, YNet netPrototype,
                       YCompositeTask container, YIdentifier caseIDForNet,
                       Element incomingData)
-            throws YDataStateException, YSchemaBuildingException, YPersistenceException {
+            throws YDataStateException, YPersistenceException {
 
         initialise(pmgr, netPrototype, caseIDForNet, incomingData) ;
 
@@ -139,30 +140,26 @@ public class YNetRunner {
 
     private void initialise(YPersistenceManager pmgr, YNet netPrototype,
                       YIdentifier caseIDForNet, Element incomingData)
-            throws YDataStateException, YSchemaBuildingException, YPersistenceException {
+            throws YDataStateException, YPersistenceException {
 
         _caseIDForNet = caseIDForNet;
         _caseID = _caseIDForNet.toString();
-        _casedata = new YCaseData(_caseID);
+        _netdata = new YNetData(_caseID);
         _net = (YNet) netPrototype.clone();
-        _net.initializeDataStore(pmgr, _casedata);
+        _net.initializeDataStore(pmgr, _netdata);
         _netTasks = new HashSet<YTask>(_net.getNetTasks());
         _specID = _net.getSpecification().getSpecificationID();
         _engine = YEngine.getInstance();
+        _workItemRepository = _engine.getWorkItemRepository();
         _startTime = System.currentTimeMillis();
         prepare(pmgr);
         if (incomingData != null) _net.setIncomingData(pmgr, incomingData);
         initTimerStates();
+        _executionStatus = ExecutionStatus.Normal;
     }
 
-
-    public void restoreprepare() {
-        _workItemRepository.setNetRunnerToCaseIDBinding(this, _caseIDForNet);
-    }
-    
 
     private void prepare(YPersistenceManager pmgr) throws YPersistenceException {
-        restoreprepare();
         YInputCondition inputCondition = _net.getInputCondition();
         inputCondition.add(pmgr, _caseIDForNet);
         _net.initialise(pmgr);
@@ -186,7 +183,7 @@ public class YNetRunner {
     public void setNet(YNet net) {
         _net = net;
         _specID = net.getSpecification().getSpecificationID();
-        _net.restoreData(_casedata);
+        _net.restoreData(_netdata);
         _netTasks = new HashSet<YTask>(_net.getNetTasks());
     }
 
@@ -206,18 +203,17 @@ public class YNetRunner {
         _specID = id;
     }
 
-    public YCaseData getCasedata() {
-        return _casedata;
+    public YNetData getNetData() {
+        return _netdata;
     }
 
-    public void setCasedata(YCaseData data) {
-        _casedata = data;
+    public void setNetData(YNetData data) {
+        _netdata = data;
     }
 
     public YIdentifier get_caseIDForNet() {
         return _caseIDForNet;
     }
-
 
     public void set_caseIDForNet(YIdentifier id) {
         this._caseIDForNet = id;
@@ -268,7 +264,7 @@ public class YNetRunner {
 
 
     public void start(YPersistenceManager pmgr)
-            throws YPersistenceException, YDataStateException, YSchemaBuildingException,
+            throws YPersistenceException, YDataStateException,
                    YQueryException, YStateException {
         kick(pmgr);
     }
@@ -285,7 +281,7 @@ public class YNetRunner {
      * @throws YPersistenceException
      */
     public synchronized void kick(YPersistenceManager pmgr)
-            throws YPersistenceException, YDataStateException, YSchemaBuildingException,
+            throws YPersistenceException, YDataStateException,
                    YQueryException, YStateException {
         _logger.debug("--> YNetRunner.kick");
 
@@ -303,7 +299,7 @@ public class YNetRunner {
                 _net.postCaseDataToExternal(getCaseID().toString());
 
                 _logger.debug("Asking engine to finish case");
-                _engine.finishCase(_caseIDForNet);
+                _engine.removeCaseFromCaches(_caseIDForNet);
 
                 // log it
                 YLogPredicate logPredicate = getNet().getLogPredicate();
@@ -319,7 +315,7 @@ public class YNetRunner {
             }
             if (! _cancelling && deadLocked()) notifyDeadLock(pmgr);
             cancel(pmgr);
-            if ((_engine != null) && isRootNet()) _engine.clearCase(pmgr, _caseIDForNet);
+            if ((_engine != null) && isRootNet()) _engine.clearCaseFromPersistence(_caseIDForNet);
         }
 
         _logger.debug("<-- YNetRunner.kick");
@@ -403,7 +399,7 @@ public class YNetRunner {
                            YIdentifier caseIDForSubnet, YCompositeTask busyCompositeTask,
                            Document rawSubnetData)
             throws YDataStateException, YStateException, YQueryException,
-                   YSchemaBuildingException, YPersistenceException {
+                   YPersistenceException {
 
         _logger.debug("--> processCompletedSubnet");
 
@@ -431,9 +427,8 @@ public class YNetRunner {
             if (isCompleted() && _net.getOutputCondition().getIdentifiers().size() == 1) {
 
                 if (_containingCompositeTask != null) {
-                    YNetRunner parentRunner = _workItemRepository.getNetRunner(_caseIDForNet.getParent());
+                    YNetRunner parentRunner = _engine.getNetRunner(_caseIDForNet.getParent());
                     if (parentRunner != null) {
-                        synchronized (parentRunner) {
 
                            // MJF: Added below to avoid NPE
                             parentRunner.setEngine(_engine);
@@ -449,7 +444,6 @@ public class YNetRunner {
                                             _containingCompositeTask,
                                             dataDoc);
  
-                            }
                         }
                     }
                 }
@@ -464,23 +458,19 @@ public class YNetRunner {
     }
 
 
-    public List attemptToFireAtomicTask(YPersistenceManager pmgr, String taskID)
+    public List<YIdentifier> attemptToFireAtomicTask(YPersistenceManager pmgr, String taskID)
             throws YDataStateException, YStateException, YQueryException,
-                   YPersistenceException, YSchemaBuildingException {
+                   YPersistenceException {
         YAtomicTask task = (YAtomicTask) _net.getNetElement(taskID);
         if (task.t_enabled(_caseIDForNet)) {
-            List newChildIdentifiers = task.t_fire(pmgr);
+            List<YIdentifier> newChildIdentifiers = task.t_fire(pmgr);
             _enabledTasks.remove(task);
             _enabledTaskNames.remove(task.getID());
             _busyTasks.add(task);
             _busyTaskNames.add(task.getID());
-            if (pmgr != null) {
-                pmgr.updateObject(this);
-            }
-            synchronized (this) {
-                _logger.debug("NOTIFYING RUNNER");
-                kick(pmgr);
-            }
+            if (pmgr != null) pmgr.updateObject(this);
+            _logger.debug("NOTIFYING RUNNER");
+            kick(pmgr);
             return newChildIdentifiers;
         }
         return null;
@@ -492,7 +482,7 @@ public class YNetRunner {
                                                    YIdentifier aSiblingInstance,
                                                    Element newInstanceData)
             throws YDataStateException, YStateException, YQueryException,
-            YSchemaBuildingException, YPersistenceException {
+                   YPersistenceException {
         YAtomicTask task = (YAtomicTask) _net.getNetElement(taskID);
         if (task.t_isBusy()) {
             return task.t_add(pmgr, aSiblingInstance, newInstanceData);
@@ -503,7 +493,7 @@ public class YNetRunner {
 
     public synchronized void startWorkItemInTask(YPersistenceManager pmgr,
                                                  YIdentifier caseID, String taskID)
-            throws YDataStateException, YSchemaBuildingException, YPersistenceException,
+            throws YDataStateException, YPersistenceException,
                    YQueryException, YStateException {
         YAtomicTask task = (YAtomicTask) _net.getNetElement(taskID);
         task.t_start(pmgr, caseID);
@@ -516,7 +506,7 @@ public class YNetRunner {
                                                        String taskID,
                                                        Document outputData)
             throws YDataStateException, YStateException, YQueryException,
-                   YSchemaBuildingException, YPersistenceException {
+                   YPersistenceException {
         _logger.debug("--> completeWorkItemInTask");
         YAtomicTask task = (YAtomicTask) _net.getNetElement(taskID);
         boolean success = completeTask(pmgr, workItem, task, caseID, outputData);
@@ -532,12 +522,12 @@ public class YNetRunner {
 
     public synchronized boolean continueIfPossible(YPersistenceManager pmgr)
            throws YDataStateException, YStateException, YQueryException,
-                  YSchemaBuildingException, YPersistenceException {
+                  YPersistenceException {
         _logger.debug("--> continueIfPossible");
 
         // Check if we are suspending (or suspended?) and if so exit out as we
         // shouldn't post new workitems
-        if (getCasedata().isInSuspense()) {
+        if (isInSuspense()) {
             _logger.debug("Aborting runner continuation as case is currently suspending/suspended");
             return true;
         }
@@ -587,7 +577,7 @@ public class YNetRunner {
 
     private void fireTasks(YEnabledTransitionSet enabledSet, YPersistenceManager pmgr)
             throws YDataStateException, YStateException, YQueryException,
-                   YSchemaBuildingException, YPersistenceException {
+                   YPersistenceException {
 
         Set<YTask> enabledTasks = new HashSet<YTask>() ;
         List<YEnabledTransitionSet.TaskGroup> taskGroups = enabledSet.getEnabledTaskGroups();
@@ -620,7 +610,7 @@ public class YNetRunner {
     private NewWorkItemAnnouncement fireAtomicTask(YAtomicTask task, String groupID,
                                                    YPersistenceManager pmgr)
             throws YDataStateException, YStateException, YQueryException,
-                   YSchemaBuildingException, YPersistenceException {
+                   YPersistenceException {
 
         NewWorkItemAnnouncement announcement = null ;
         YAWLServiceGateway wsgw = (YAWLServiceGateway) task.getDecompositionPrototype();
@@ -652,7 +642,7 @@ public class YNetRunner {
 
     private void fireCompositeTask(YCompositeTask task, YPersistenceManager pmgr)
                       throws YDataStateException, YStateException, YQueryException,
-                             YSchemaBuildingException, YPersistenceException {
+                             YPersistenceException {
         
         if (! _busyTasks.contains(task)) {     // don't proceed if task already started
             _busyTasks.add(task);
@@ -667,15 +657,14 @@ public class YNetRunner {
     }
 
     private CancelWorkItemAnnouncement cancelEnabledTask(YTask task, YPersistenceManager pmgr)
-                      throws YDataStateException, YStateException, YQueryException,
-                             YSchemaBuildingException, YPersistenceException {
+                      throws YDataStateException, YStateException, YPersistenceException {
 
         CancelWorkItemAnnouncement result = null;
         _enabledTasks.remove(task);
         _enabledTaskNames.remove(task.getID());
 
         //  remove the cancelled task from persistence
-        YWorkItem wItem = _workItemRepository.getWorkItem(_caseID, task.getID());
+        YWorkItem wItem = _workItemRepository.get(_caseID, task.getID());
         if (wItem != null) {               //may already have been removed by task.cancel
 
             //MLF: announce all cancelled work items (maybe subset to enabled/fired...?)
@@ -728,8 +717,8 @@ public class YNetRunner {
     private YWorkItem createEnabledWorkItem(YPersistenceManager pmgr,
                                             YIdentifier caseIDForNet,
                                             YAtomicTask atomicTask)
-            throws YPersistenceException, YDataStateException, YSchemaBuildingException,
-                   YQueryException, YStateException {
+            throws YPersistenceException, YDataStateException, YQueryException,
+                   YStateException {
         _logger.debug("--> createEnabledWorkItem: Case=" + caseIDForNet.get_idString() +
                       " Task=" + atomicTask.getID());
 
@@ -761,7 +750,7 @@ public class YNetRunner {
         Map timerParams = atomicTask.getTimeParameters();
         if (timerParams != null) {
             workItem.setTimerParameters(timerParams);
-            workItem.checkStartTimer(pmgr, _casedata);
+            workItem.checkStartTimer(pmgr, _netdata);
         }
 
         // set custom form for workitem if specified
@@ -790,7 +779,7 @@ public class YNetRunner {
                                  YAtomicTask atomicTask, YIdentifier identifier,
                                  Document outputData)
             throws YDataStateException, YStateException, YQueryException,
-                   YSchemaBuildingException, YPersistenceException {
+                   YPersistenceException {
 
         boolean taskExited = atomicTask.t_complete(pmgr, identifier, outputData);
 
@@ -805,7 +794,7 @@ public class YNetRunner {
 
                 // check if the completed net is a subnet.
                 if (_containingCompositeTask != null) {
-                    YNetRunner parentRunner = _workItemRepository.getNetRunner(_caseIDForNet.getParent());
+                    YNetRunner parentRunner = _engine.getNetRunner(_caseIDForNet.getParent());
                     if (parentRunner != null) {
                         synchronized (parentRunner) {
                             if (_containingCompositeTask.t_isBusy()) {
@@ -851,7 +840,7 @@ public class YNetRunner {
     }
 
 
-    public synchronized Set<YWorkItem> cancel(YPersistenceManager pmgr) throws YPersistenceException {
+    public synchronized void cancel(YPersistenceManager pmgr) throws YPersistenceException {
         _logger.debug("--> NetRunner cancel " + getCaseID().get_idString());
 
         _cancelling = true;
@@ -874,8 +863,7 @@ public class YNetRunner {
                     getSpecificationID(), this, _containingCompositeTask.getID(), null);
         }
         
-        return _workItemRepository.cancelNet(_caseIDForNet);
-
+        _engine.getNetRunnerRepository().remove(_caseIDForNet);
     }
 
 
@@ -1032,7 +1020,7 @@ public class YNetRunner {
     }
 
 
-   /** these four methods are here to support persistence of the IB and IX Observers */
+   /** these two methods are here to support persistence of the IB and IX Observers */
     private String get_caseObserverStr() { return _caseObserverStr ; }
 
     private void set_caseObserverStr(String obStr) { _caseObserverStr = obStr ; }
@@ -1061,8 +1049,9 @@ public class YNetRunner {
             YAWLServiceGateway wsgw = (YAWLServiceGateway) task.getDecompositionPrototype();
             if (wsgw != null) {
                 YAWLServiceReference ys = wsgw.getYawlService();
-                if (ys != null)
-                   return ys.getServiceID().indexOf("timeService") > -1 ;
+                if (ys != null) {
+                    return ys.getServiceID().indexOf("timeService") > -1 ;
+                }
             }
         }
         return false ;
@@ -1172,6 +1161,31 @@ public class YNetRunner {
         return null;
     }
 
+    public boolean isSuspending() { return _executionStatus == ExecutionStatus.Suspending; }
+
+    public boolean isSuspended() { return _executionStatus == ExecutionStatus.Suspended; }
+
+    public boolean isResuming() { return _executionStatus == ExecutionStatus.Resuming; }
+
+    public boolean isInSuspense() { return isSuspending() || isSuspended(); }
+
+    public boolean hasNormalState() { return _executionStatus == ExecutionStatus.Normal; }
+
+    public void setStateSuspending() { _executionStatus = ExecutionStatus.Suspending; }
+
+    public void setStateSuspended() { _executionStatus = ExecutionStatus.Suspended; }
+
+    public void setStateResuming() { _executionStatus = ExecutionStatus.Resuming; }
+
+    public void setStateNormal() { _executionStatus = ExecutionStatus.Normal; }
+
+    public void setExecutionStatus(String status) {
+        _executionStatus = ExecutionStatus.valueOf(status);
+    }
+
+    public String getExecutionStatus() {
+        return _executionStatus.name();
+    }
 
 }
 

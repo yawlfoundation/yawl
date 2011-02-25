@@ -29,12 +29,12 @@
             <generator class="assigned"/>
         </id>
 
-        <many-to-one name="_caseIDForNet"
+        <many-to-one name="_caseIDForNet" access="field"
                      class="org.yawlfoundation.yawl.elements.state.YIdentifier"
                      column="identifier" cascade="all"/>
 
-        <many-to-one name="casedata"
-                     class="org.yawlfoundation.yawl.engine.YCaseData"
+        <many-to-one name="_netdata" access="field"
+                     class="org.yawlfoundation.yawl.engine.YNetData"
                      column="casedata" cascade="all"/>
 
         <component name="_specID"
@@ -50,6 +50,7 @@
         <property name="_containingTaskID" column="containing_task_id" access="field"/>
         <property name="_startTime" column="startTime" access="field"/>
         <property name="_caseObserverStr" column="caseObserver"/>
+        <property name="executionStatus" column="executionStatus"/>
 
         <set name="_enabledTaskNames" table="RUNNER_ENABLED_TASKS" access="field">
             <key column="runner_id"/>

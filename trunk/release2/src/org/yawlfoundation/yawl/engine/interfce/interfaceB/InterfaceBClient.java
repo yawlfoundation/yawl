@@ -65,9 +65,9 @@ public interface InterfaceBClient {
      */
     public Set getAllWorkItems();
 
-    YWorkItem startWorkItem(YWorkItem workItem, YClient client) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException, YEngineStateException;
+    YWorkItem startWorkItem(YWorkItem workItem, YClient client) throws YStateException, YDataStateException, YQueryException, YPersistenceException, YEngineStateException;
 
-    void completeWorkItem(YWorkItem workItem, String data, String logPredicate, boolean force) throws YStateException, YDataStateException, YQueryException, YSchemaBuildingException, YPersistenceException, YEngineStateException;
+    void completeWorkItem(YWorkItem workItem, String data, String logPredicate, boolean force) throws YStateException, YDataStateException, YQueryException, YPersistenceException, YEngineStateException;
 
     void rollbackWorkItem(String workItemID) throws YStateException, YPersistenceException, YLogException;
 
@@ -93,12 +93,11 @@ public interface InterfaceBClient {
      * @return the caseid of the started case
      * @throws YStateException
      * @throws YDataStateException
-     * @throws YSchemaBuildingException
      */
     String launchCase(YSpecificationID specID,
                       String caseParams, URI completionObserver, YLogDataItemList logData)
-            throws YStateException, YDataStateException, YSchemaBuildingException,
-                   YPersistenceException, YEngineStateException, YLogException, YQueryException;
+            throws YStateException, YDataStateException, YPersistenceException,
+                   YEngineStateException, YLogException, YQueryException;
 
     /**
      * Starts an instance of a specification (known as a 'case') within the engine.<P>
@@ -110,13 +109,12 @@ public interface InterfaceBClient {
      * @return the caseid of the started case
      * @throws YStateException
      * @throws YDataStateException
-     * @throws YSchemaBuildingException
      */
     String launchCase(YSpecificationID specID, String caseParams,
                       URI completionObserver, String caseID,
                       YLogDataItemList logData, String serviceHandle)
-            throws YStateException, YDataStateException, YSchemaBuildingException,
-                   YPersistenceException, YEngineStateException, YLogException, YQueryException;
+            throws YStateException, YDataStateException, YPersistenceException,
+                   YEngineStateException, YLogException, YQueryException;
 
     /**
      * Returns the next available caseID to be used when launching a new case where this is required to be known

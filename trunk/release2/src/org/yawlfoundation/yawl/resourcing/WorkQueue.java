@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Convenience class that encapsulates the various work queues for a Participant and/or
@@ -55,7 +56,7 @@ public class WorkQueue implements Serializable {
     
     // the workitems assigned to this queue: <item's id, item>
     private Map<String, WorkItemRecord> _workitems =
-            new HashMap<String, WorkItemRecord>();
+            new ConcurrentHashMap<String, WorkItemRecord>();
 
     private long _id ;                                       // hibernate primary key
     private String _ownerID ;                                // who owns this queue?

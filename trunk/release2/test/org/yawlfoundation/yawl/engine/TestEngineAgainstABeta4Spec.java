@@ -51,7 +51,7 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
             EngineClearer.clear(_engine);
             _engine.loadSpecification(_specification);
             YIdentifier id = _engine.startCase(null, null, _specification.getURI(), null, null);
-            _netRunner = (YNetRunner) _engine._caseIDToNetRunnerMap.get(id);
+            _netRunner = (YNetRunner) _engine._netRunnerRepository.get(id);
             {
                 //execute task "decideName"
                 Set availableItems = _engine.getAvailableWorkItems();

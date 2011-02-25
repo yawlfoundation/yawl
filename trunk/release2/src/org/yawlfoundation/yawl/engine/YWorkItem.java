@@ -55,7 +55,7 @@ public class YWorkItem {
 
     private static DateFormat _df = new SimpleDateFormat("MMM:dd, yyyy H:mm:ss");
     private static YEngine _engine = YEngine.getInstance();
-    private static YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
+    private YWorkItemRepository _workItemRepository = _engine.getWorkItemRepository();
     private YWorkItemID _workItemID;
     private String _thisID = null;
     private YSpecificationID _specID;
@@ -147,8 +147,7 @@ public class YWorkItem {
         _allowsDynamicCreation = allowsDynamicInstanceCreation;
         _status = status ;
         set_thisID(_workItemID.toString() + "!" + _workItemID.getUniqueID());
-        
-        _workItemRepository.addNewWorkItem(this);
+        addToRepository();
     }
 
 
@@ -203,7 +202,7 @@ public class YWorkItem {
      * @param data the case or net-level data object
      * @return true if the param is successfully unpacked.
      */
-    private boolean unpackTimerParams(String param, YCaseData data) {
+    private boolean unpackTimerParams(String param, YNetData data) {
         if (data == null)
             data = _engine.getCaseData(_workItemID.getCaseID());
 
@@ -268,9 +267,8 @@ public class YWorkItem {
     // MISC METHODS //
 
     public void addToRepository() {
-        if ((_workItemRepository.getWorkItem(_workItemID.toString())) == null) {
-            _workItemRepository.addNewWorkItem(this);
-        }
+        _workItemRepository.add(this);
+        _engine.getInstanceCache().addWorkItem(this);
     }
 
 
@@ -366,8 +364,7 @@ public class YWorkItem {
         if (getDataString() != null) {
             YNet net;
             try {
-                net = YWorkItemRepository.getInstance()
-                        .getNetRunner(getCaseID().getParent()).getNet();
+                net = _engine.getNetRunner(getCaseID().getParent()).getNet();
             }
             catch (Exception e) {
                 return;
@@ -424,7 +421,7 @@ public class YWorkItem {
     }
 
 
-    public void checkStartTimer(YPersistenceManager pmgr, YCaseData data)
+    public void checkStartTimer(YPersistenceManager pmgr, YNetData data)
             throws YPersistenceException {
         YWorkItemTimer timer = null ;
 
@@ -798,7 +795,7 @@ public class YWorkItem {
     }
 
     public YNetRunner getNetRunner() {
-        return _workItemRepository.getNetRunner(_workItemID.getCaseID()) ;
+        return _engine.getNetRunner(_workItemID.getCaseID()) ;
     }
 
 

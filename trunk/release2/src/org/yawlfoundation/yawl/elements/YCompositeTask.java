@@ -73,10 +73,9 @@ public final class YCompositeTask extends YTask {
      * @param pmgr
      * @param id
      * @throws YDataStateException
-     * @throws YSchemaBuildingException
      */
     protected synchronized void startOne(YPersistenceManager pmgr, YIdentifier id)
-            throws YDataStateException, YSchemaBuildingException, YPersistenceException,
+            throws YDataStateException, YPersistenceException,
                    YQueryException, YStateException {
         _mi_executing.add(pmgr, id);
         _mi_entered.removeOne(pmgr, id);
@@ -86,6 +85,7 @@ public final class YCompositeTask extends YTask {
                 this,
                 id,
                 getData(id));
+        _netRunnerRepository.add(netRunner);
 
         // log sub-case start event
         YSpecificationID specID =
@@ -114,9 +114,10 @@ public final class YCompositeTask extends YTask {
         if (_i != null) {
             List<YIdentifier> activeChildIdentifiers = _mi_active.getIdentifiers();
             for (YIdentifier identifier : activeChildIdentifiers) {
-                YNetRunner netRunner = _workItemRepository.getNetRunner(identifier);
+                YNetRunner netRunner = _netRunnerRepository.get(identifier);
                 if (netRunner != null) {
-                    for (YWorkItem item : netRunner.cancel(pmgr)) {
+                    netRunner.cancel(pmgr);
+                    for (YWorkItem item : _workItemRepository.cancelNet(identifier)) {
                         item.cancel(pmgr);
                         YEventLogger.getInstance().logWorkItemEvent(pmgr, item,
                                 YWorkItemStatus.statusDeleted, null);
@@ -135,7 +136,7 @@ public final class YCompositeTask extends YTask {
         }
 
         if (thisI != null) {
-            YNetRunner parentRunner = _workItemRepository.getNetRunner(thisI);
+            YNetRunner parentRunner = _netRunnerRepository.get(thisI);
             if (parentRunner != null) {
                 parentRunner.removeActiveTask(pmgr, this);
             }

@@ -476,7 +476,7 @@ public class adminQueues extends AbstractPageBean {
             cbbAssignedTo.setItems(_sb.getAdminQueueAssignedList());
             lblAssignedTo.setText(_sb.getAssignedToText());
             txtResourceState.setText(wir.getResourceStatus());
-            processButtonEnablement(wir.getResourceStatus());
+            processButtonEnablement(wir);
         }
         else enableUnofferedButtons(! wir.hasStatus(WorkItemRecord.statusSuspended));
     }
@@ -508,10 +508,11 @@ public class adminQueues extends AbstractPageBean {
 
     /**
      * Enable or disable buttons based on the status of the selected workitem
-     * @param status the resource stats of the workitem
+     * @param wir the selected workitem
      */
-    private void processButtonEnablement(String status) {
-        btnReoffer.setDisabled(false);
+    private void processButtonEnablement(WorkItemRecord wir) {
+        btnReoffer.setDisabled(! getApplicationBean().canReoffer(wir));
+        String status = wir.getResourceStatus();
         if (status != null) {
             btnReallocate.setDisabled(status.equals(WorkItemRecord.statusResourceOffered));
             btnRestart.setDisabled(status.equals(WorkItemRecord.statusResourceOffered) ||
@@ -541,7 +542,7 @@ public class adminQueues extends AbstractPageBean {
     private void enableUnofferedButtons(boolean liveStatus) {
         btnOffer.setDisabled(false);
         btnAllocate.setDisabled(false);
-        btnStart.setDisabled(! liveStatus);        
+        btnStart.setDisabled(! liveStatus);
     }
 
     private void clearWorklistedFields() {

@@ -100,6 +100,10 @@ public class DynFormUserAttributes {
         return getBooleanValue("mandatory");
     }
 
+    public boolean isOptional() {
+        return getBooleanValue("optional");
+    }
+
     public boolean hasHideIfQuery() {
         return (hasValue("hideIf"));
     }

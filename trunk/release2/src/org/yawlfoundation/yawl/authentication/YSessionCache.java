@@ -22,7 +22,7 @@ import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.logging.table.YAuditEvent;
 
-import java.util.Hashtable;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * An extended Hashtable that manages connections to the engine from custom services
@@ -35,23 +35,15 @@ import java.util.Hashtable;
  */
 
 
-public class YSessionCache extends Hashtable<String, YSession> {
+public class YSessionCache extends ConcurrentHashMap<String, YSession> {
 
-    private static YSessionCache _me ;
-
-    private YSessionCache() {
+    public YSessionCache() {
         super();
     }
 
     /******************************************************************************/
 
     // PUBLIC METHODS //
-
-    public static YSessionCache getInstance() {
-        if (_me == null) _me = new YSessionCache() ;
-        return _me ;
-    }
-
 
     /**
      * Creates and stores a new session between the the Engine and a custom service

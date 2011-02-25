@@ -876,7 +876,7 @@ public class participantData extends AbstractPageBean {
         }
         else {
             msgPanel.error("Please supply a userid.");
-            result = false;
+            result = false; 
         }
         return result;
     }

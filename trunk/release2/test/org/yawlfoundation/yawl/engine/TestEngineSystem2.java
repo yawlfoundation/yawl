@@ -63,7 +63,7 @@ public class TestEngineSystem2 extends TestCase {
         EngineClearer.clear(_engine);
         _engine.loadSpecification(_specification);
         YIdentifier id = _engine.startCase(null, _specification.getSpecificationID(), null, null, new YLogDataItemList());
-        _netRunner = (YNetRunner) _engine._caseIDToNetRunnerMap.get(id);
+        _netRunner = (YNetRunner) _engine._netRunnerRepository.get(id);
         try {
 //            YNetRunner _netRunner = _basicEngine2.getNetRunner();
 //            YIdentifier _idForBottomNet;
@@ -114,7 +114,7 @@ public class TestEngineSystem2 extends TestCase {
                     );
             _idForBottomNet = (YIdentifier)
                     _netRunner.getCaseID().getChildren().iterator().next();
-            anItem = _workItemRepository.getWorkItem(_idForBottomNet.toString(), "e-top");
+            anItem = _workItemRepository.get(_idForBottomNet.toString(), "e-top");
             //asert that we can start e-top
             YWorkItem eTp = _engine.getWorkItem(
                     _idForBottomNet.toString() +
@@ -165,7 +165,7 @@ public class TestEngineSystem2 extends TestCase {
         EngineClearer.clear(_engine);
         _engine.loadSpecification(_specification);
             YIdentifier id = _engine.startCase(null, _specification.getSpecificationID(), null, null, new YLogDataItemList());
-           _netRunner = (YNetRunner) _engine._caseIDToNetRunnerMap.get(id);
+           _netRunner = (YNetRunner) _engine._netRunnerRepository.get(id);
         try {
 //            YNetRunner _netRunner = _basicEngine2.getNetRunner();
 //            YIdentifier _idForBottomNet;
@@ -213,7 +213,7 @@ public class TestEngineSystem2 extends TestCase {
                 YCondition ec = (YCondition) iterator.next();
                 assertTrue(ec.containsIdentifier());
             }
-            anItem = _workItemRepository.getWorkItem(_idForBottomNet.toString(), "e-top");
+            anItem = _workItemRepository.get(_idForBottomNet.toString(), "e-top");
             //assert that we can start e-top
             YWorkItem eTop = _engine.getWorkItem(
                 _idForBottomNet.toString() +

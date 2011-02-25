@@ -225,7 +225,8 @@ public class DynFormField implements Cloneable {
 
 
     public boolean isRequired() {
-        _required = (! (isInputOnly() || hasZeroMinimum())) || _attributes.isMandatory();
+        _required = (! (isInputOnly() || hasZeroMinimum() || _attributes.isOptional()))
+                || _attributes.isMandatory();
         return _required;
     }
 
@@ -236,10 +237,7 @@ public class DynFormField implements Cloneable {
 
 
     public boolean hasZeroMinimum() {
-//        if (_parent != null)
-//            return _parent.hasZeroMinimum() || (_minoccurs == 0);
-//        else
-            return (_minoccurs == 0);
+        return (_minoccurs == 0);
     }
     
     public void setEnumeratedValues(List<String> enumValues) {
@@ -451,6 +449,15 @@ public class DynFormField implements Cloneable {
 
     public boolean isVisible() {
         return (_hideApplied == null) || (! _hideApplied);
+    }
+
+    public boolean isEmptyOptionalInputOnly() {
+        return isInputOnly() && _attributes.isOptional() && hasNullValue();
+    }
+
+    public boolean hasNullValue() {
+        String type = getDataTypeUnprefixed();
+        return (_value == null) && (type != null) && (! type.equals("string"));
     }
 
     public String getToolTip() {

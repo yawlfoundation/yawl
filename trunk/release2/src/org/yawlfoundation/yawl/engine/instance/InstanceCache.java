@@ -21,15 +21,12 @@ package org.yawlfoundation.yawl.engine.instance;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.YTask;
-import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.elements.state.YInternalCondition;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
 
 import java.util.Collection;
-import java.util.Hashtable;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages a dataset of all 'live' case instances, including their workitems (live and
@@ -38,7 +35,7 @@ import java.util.Hashtable;
  * Author: Michael Adams
  * Creation Date: 11/11/2008
  */
-public class InstanceCache extends Hashtable<String, CaseInstance> {
+public class InstanceCache extends ConcurrentHashMap<String, CaseInstance> {
 
     long _startupTime;
 

@@ -43,11 +43,11 @@ public class TestYWorkItemRepository extends TestCase {
         assertTrue(_workitemRepository.getEnabledWorkItems().size() == 0);
         new YWorkItem(null, new YSpecificationID("ASpecID"), _task, new YWorkItemID(new YIdentifier(null), "task4321"), false, false);
         assertEquals(
-                _workitemRepository.getWorkItem(
+                _workitemRepository.get(
                         _parentWorkItem.getCaseID().toString(), _parentWorkItem.getTaskID()),
                 _parentWorkItem);
         _workitemRepository.removeWorkItemFamily(_parentWorkItem);
-        assertNull(_workitemRepository.getWorkItem(_parentWorkItem.getCaseID().toString(), _parentWorkItem.getTaskID()));
+        assertNull(_workitemRepository.get(_parentWorkItem.getCaseID().toString(), _parentWorkItem.getTaskID()));
     }
 
 

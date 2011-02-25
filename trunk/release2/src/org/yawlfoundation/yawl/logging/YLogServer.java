@@ -89,6 +89,10 @@ public class YLogServer {
         }
     }
 
+    public YPersistenceManager getPersistenceManager() {
+        return _pmgr;
+    }
+
 
     /*****************************************************************************/
 

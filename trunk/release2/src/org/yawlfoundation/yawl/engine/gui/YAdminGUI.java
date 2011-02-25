@@ -333,7 +333,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
         //AJH: Load up the loaded specs into UI
         {
             try {
-                Set specs = _engineManagement.getLoadedSpecifications();
+                Set specs = _engineManagement.getLoadedSpecificationIDs();
                 Iterator iter = specs.iterator();
                 while (iter.hasNext()) {
                     YSpecification spec = _engineManagement.getSpecification((YSpecificationID) iter.next());

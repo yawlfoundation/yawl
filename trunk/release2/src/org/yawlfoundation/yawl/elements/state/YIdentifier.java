@@ -173,6 +173,8 @@ public class YIdentifier {
         return _parent;
     }
 
+    public boolean hasParent() { return _parent != null; } 
+
 
     public boolean isImmediateChildOf(YIdentifier identifier) {
         return (_parent == identifier);
@@ -298,6 +300,10 @@ public class YIdentifier {
     public boolean equals(Object another) {
         return (another instanceof YIdentifier) &&
                 another.toString().equals(this.toString());
+    }
+
+    public boolean equalsOrIsAncestorOf(YIdentifier another) {
+        return equals(another) || isAncestorOf(another);
     }
 
     /**

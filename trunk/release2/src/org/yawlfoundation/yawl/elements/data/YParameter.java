@@ -19,12 +19,10 @@
 package org.yawlfoundation.yawl.elements.data;
 
 import org.jdom.Element;
-import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
@@ -43,7 +41,6 @@ public class YParameter extends YVariable implements Comparable<YVariable> {
 
     private boolean _cutsThroughDecompositionStateSpace;
     private int _paramType;
-    private YAttributeMap _attributes = new YAttributeMap();
 
 
     public YParameter() { }
@@ -92,16 +89,6 @@ public class YParameter extends YVariable implements Comparable<YVariable> {
     }
 
 
-    public boolean isRequired() {
-        return super.isMandatory() || (! isOptional()) || _attributes.getBoolean("mandatory");
-    }
-
-    public boolean isOptional() {
-        return _attributes.getBoolean("optional");
-
-    }
-
-
     public String toXML() {
         StringBuilder xml = new StringBuilder("<");
         String type = getParamTypeStr(_paramType);
@@ -112,13 +99,18 @@ public class YParameter extends YVariable implements Comparable<YVariable> {
                 xml.append(getAttributes().toXML());
             }
             else if (_paramType == _OUTPUT_PARAM_TYPE) {
-                if (getAttributes().containsKey("mandatory")) {
+                if (getAttributes().containsKey("optional")) {
+                    xml.append(" optional=\"")
+                       .append(getAttributes().get("optional"))
+                       .append("\"");
+                }
+                else if (getAttributes().containsKey("mandatory")) {
                     xml.append(" mandatory=\"")
                        .append(getAttributes().get("mandatory"))
                        .append("\"");     
                 }
-            }
 
+            }
         }
         xml.append(">");
 
@@ -234,21 +226,4 @@ public class YParameter extends YVariable implements Comparable<YVariable> {
     }
 
 
-    /**
-     * Return table of attributes associated with this variable.<P>
-     * Table is keyed by attribute 'name' and contains the string representation of the
-     * XML elements attribute.<P>
-     * @return the Map of attributes for this parameter
-     */
-    public YAttributeMap getAttributes() {
-        return _attributes;
-    }
-
-    public void addAttribute(String key, String value) {
-        _attributes.put(key, value);
-    }
-
-    public void setAttributes(Hashtable<String, String> attributes) {
-        _attributes.set(attributes);
-    }
 }

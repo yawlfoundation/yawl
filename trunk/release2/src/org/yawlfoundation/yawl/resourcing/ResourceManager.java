@@ -2069,16 +2069,17 @@ public class ResourceManager extends InterfaceBWebsideController {
                 result = checkInWorkItem(wir.getID(), wir.getDataList(), outData,
                         wir.getLogPredicateCompletion(), getEngineSessionHandle()) ;
                 if (successful(result)) {
+                    EventLogger.log(wir, (p != null) ? p.getID() : "",
+                            EventLogger.event.complete);       // log it immediately
+
                     if (p != null) {
                         QueueSet qSet = p.getWorkQueues();
                         if (qSet != null) {
                             WorkQueue queue = qSet.getQueue(WorkQueue.STARTED);
                             if (queue != null) queue.remove(wir);
                         }
-                    }    
+                    }
                     _workItemCache.remove(wir) ;
-                    String pid = (p != null) ? p.getID() : "";
-                    EventLogger.log(wir, pid, EventLogger.event.complete);
                 }
                 else {
                     removeTaskCompleter(p, wir);
