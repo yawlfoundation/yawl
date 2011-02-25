@@ -6,7 +6,7 @@ import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.util.YMessagePrinter;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 import org.yawlfoundation.yawl.exceptions.*;
-import org.yawlfoundation.yawl.engine.YCaseData;
+import org.yawlfoundation.yawl.engine.YNetData;
 import junit.framework.TestCase;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -48,7 +48,7 @@ public class TestYAtomicTask extends TestCase{
         v.setUntyped(true);
         v.setInitialValue("<stub/><stub/><stub/>");
         deadNet.setLocalVariable(v);
-        YCaseData casedata = new YCaseData();
+        YNetData casedata = new YNetData();
         deadNet.initializeDataStore(null, casedata);
         deadNet.initialise(null);
         _atomicTask1 = new YAtomicTask("AT1", YAtomicTask._AND, YAtomicTask._AND, deadNet);

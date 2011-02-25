@@ -84,7 +84,7 @@
                                                         dataTableScrollBarCol"
                                          cellpadding="3"
                                          styleClass="dataTable"
-                                         value="#{SessionBean.registeredServices}"
+                                         value="#{ApplicationBean.registeredServices}"
                                          var="currentRow"
                                          width="638">
 

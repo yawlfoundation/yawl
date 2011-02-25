@@ -351,6 +351,7 @@ public class customServices extends AbstractPageBean {
 
     /********************************************************************************/
 
+    private ApplicationBean _appbean = getApplicationBean();
     private SessionBean _sb = getSessionBean();
     private MessagePanel msgPanel = getSessionBean().getMessagePanel();
 
@@ -368,7 +369,7 @@ public class customServices extends AbstractPageBean {
     public String btnRemove_action() {
         try {
             Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
-            _sb.removeRegisteredService(selectedRowIndex);
+            _appbean.removeRegisteredService(selectedRowIndex);
             msgPanel.success("Service successfully removed.");
         }
         catch (NumberFormatException nfe) {
@@ -396,7 +397,7 @@ public class customServices extends AbstractPageBean {
             else {
                 String validMsg = HttpURLValidator.validate(uri);
                 if (validMsg.startsWith("<success")) {
-                    _sb.addRegisteredService(name, password, uri, doco);
+                    _appbean.addRegisteredService(name, password, uri, doco);
                     clearInputs();
                     msgPanel.success("Service successfully added.");
                 }

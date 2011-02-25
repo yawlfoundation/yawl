@@ -586,6 +586,7 @@ public class caseMgt extends AbstractPageBean {
     private String cancelCase(String caseID) {
         try {
             _sb.setRunningCaseListChoice(null) ;
+            getApplicationBean().removeWorkItemParamsForCase(caseID);            
             return _rm.cancelCase(caseID, _sb.getSessionhandle());
         }
         catch (IOException ioe) {

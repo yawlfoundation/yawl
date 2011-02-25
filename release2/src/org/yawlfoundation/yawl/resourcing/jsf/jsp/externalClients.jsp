@@ -83,7 +83,7 @@
                                                         dataTableScrollBarCol"
                                          cellpadding="3"
                                          styleClass="dataTable"
-                                         value="#{SessionBean.externalClients}"
+                                         value="#{ApplicationBean.externalClients}"
                                          var="currentRow"
                                          width="638">
 

@@ -23,7 +23,6 @@ import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.yawlfoundation.yawl.elements.*;
-import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
@@ -58,9 +57,8 @@ class YSpecificationParser {
      * @param specificationElem the specification part of an XMl document
      * @param version the version of the XML representation (i.e. beta2 or beta3).
      * @throws YSyntaxException
-     * @throws YSchemaBuildingException
      */
-    public YSpecificationParser(Element specificationElem, String version) throws YSyntaxException, YSchemaBuildingException {
+    public YSpecificationParser(Element specificationElem, String version) throws YSyntaxException {
         _yawlNS = specificationElem.getNamespace();
 
         parseSpecification(specificationElem, version);
@@ -69,7 +67,7 @@ class YSpecificationParser {
 
 
     private void parseSpecification(Element specificationElem, String version)
-            throws YSyntaxException, YSchemaBuildingException {
+            throws YSyntaxException {
         List decompositionElems = specificationElem.getChildren("decomposition", _yawlNS);
         for (int i = 0; i < decompositionElems.size(); i++) {
             Element decompositionElem = (Element) decompositionElems.get(i);
@@ -250,13 +248,7 @@ class YSpecificationParser {
 
         Element schemaElem = specificationElem.getChild("schema");
         if (schemaElem != null) {
-            try {
-                _specification.setSchema(JDOMUtil.elementToString(schemaElem));
-            } catch (YSchemaBuildingException e) {
-                YSyntaxException f = new YSyntaxException(e.getMessage());
-                f.setStackTrace(e.getStackTrace());
-                throw f;
-            }
+            _specification.setSchema(JDOMUtil.elementToString(schemaElem));
         }
     }
 

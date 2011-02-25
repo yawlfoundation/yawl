@@ -555,7 +555,7 @@ public class EngineGatewayImpl implements EngineGateway {
         String sessionMessage = checkSession(sessionHandle);
         if (isFailureMessage(sessionMessage)) return sessionMessage;
 
-        Set<YSpecificationID> specIDs = _engine.getSpecIDs();
+        Set<YSpecificationID> specIDs = _engine.getLoadedSpecificationIDs();
         Set<YSpecification> specs = new HashSet<YSpecification>();
         for (YSpecificationID ySpecID : specIDs) {
             specs.add(_engine.getSpecification(ySpecID));
@@ -1352,7 +1352,9 @@ public class EngineGatewayImpl implements EngineGateway {
             if (item.getStatus().equals(YWorkItemStatus.statusExecuting)) {
                 rollbackWorkItem(itemID, sessionHandle);
             }
-            _engine.getAnnouncer().rejectAnnouncedEnabledTask(item);
+            if (! item.getStatus().equals(YWorkItemStatus.statusIsParent)) {
+                _engine.getAnnouncer().rejectAnnouncedEnabledTask(item);
+            }    
             return successMessage("workitem rejection successful");
         }
         else return failureMessage("Unknown worklitem: " + itemID);

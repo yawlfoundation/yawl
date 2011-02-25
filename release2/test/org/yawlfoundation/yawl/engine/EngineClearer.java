@@ -15,8 +15,8 @@ import java.util.Set;
  */
 public class EngineClearer {
     public static void clear(YEngine engine) throws YPersistenceException, YEngineStateException {
-        while (engine.getSpecIDs().iterator().hasNext()) {
-            YSpecificationID specID = engine.getSpecIDs().iterator().next();
+        while (engine.getLoadedSpecificationIDs().iterator().hasNext()) {
+            YSpecificationID specID = engine.getLoadedSpecificationIDs().iterator().next();
             Set caseIDs = engine.getCasesForSpecification(specID);
             for (Iterator iterator2 = caseIDs.iterator(); iterator2.hasNext();) {
                 YIdentifier identifier = (YIdentifier) iterator2.next();

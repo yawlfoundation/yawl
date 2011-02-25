@@ -292,11 +292,7 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
         if (rowSel >= 0) {
             String caseID = (String) _availableTable.getValueAt(rowSel, 0);
             String taskID = (String) _availableTable.getValueAt(rowSel, 1);
-            try {
-                _worklistModel.applyForWorkItem(caseID, taskID);
-            } catch (YSchemaBuildingException e) {
-                e.printStackTrace();
-            }
+            _worklistModel.applyForWorkItem(caseID, taskID);
         }
     }
 

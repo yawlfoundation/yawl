@@ -140,6 +140,7 @@ hibernate.show_sql false
 ## enable automatic session context management
 hibernate.current_session_context_class thread
 
+hibernate.generate_statistics true
 
 ## auto schema export
 

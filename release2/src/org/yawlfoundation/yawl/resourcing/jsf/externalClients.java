@@ -333,6 +333,7 @@ public class externalClients extends AbstractPageBean {
 
     /********************************************************************************/
 
+    private ApplicationBean _appbean = getApplicationBean();
     private SessionBean _sb = getSessionBean();
     private MessagePanel msgPanel = _sb.getMessagePanel();
 
@@ -359,7 +360,7 @@ public class externalClients extends AbstractPageBean {
     public String btnRemove_action() {
         try {
             Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
-            String result = _sb.removeExternalClient(selectedRowIndex);
+            String result = _appbean.removeExternalClient(selectedRowIndex);
             if (result.startsWith("<fail")) {
                 msgPanel.error(result);
             }
@@ -384,10 +385,10 @@ public class externalClients extends AbstractPageBean {
         String result;
         if (inputsValid()) {
             if (getMode() == Mode.Edit) {
-                result = _sb.updateExternalClient(name, password, doco);
+                result = _appbean.updateExternalClient(name, password, doco);
             }
             else {
-                result = _sb.addExternalClient(name, password, doco);
+                result = _appbean.addExternalClient(name, password, doco);
             }
             if (result.startsWith("Cannot") || result.startsWith("Error")) {
                 msgPanel.error(result);
@@ -404,7 +405,7 @@ public class externalClients extends AbstractPageBean {
     public String btnEdit_action() {
         try {
             Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
-            YExternalClient client = _sb.getSelectedExternalClient(selectedRowIndex);
+            YExternalClient client = _appbean.getSelectedExternalClient(selectedRowIndex);
             if (client != null) {
                 addPanelHeading = "Edit Client Application Account";
                 btnAddText = "Save";

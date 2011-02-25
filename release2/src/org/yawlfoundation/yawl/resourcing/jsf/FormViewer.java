@@ -25,6 +25,7 @@ import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.util.HttpURLValidator;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -107,10 +108,10 @@ public class FormViewer {
                 adjustSessionTimeout(wir);
                 return uriPlusParams;   // return validated custom form url incl. params
             }
-            else _log.error("Missing or invalid custom form: '" + url + "', message: " +
-                               validateMsg + ". Defaulting to dynamic form.");
+            else _log.warn("Missing or invalid custom form: '" + url + "', message: " +
+                    StringUtil.unwrap(validateMsg) + ". Defaulting to dynamic form.");
         }
-        else _log.error("Unspecified form URI. Defaulting to dynamic form.");
+        else _log.warn("Unspecified form URI. Defaulting to dynamic form.");
 
         return null;                   // invalid form
     }

@@ -24,6 +24,7 @@ import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.exceptions.YStateException;
+import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.YIdentifierBag;
 
 import java.util.List;
@@ -133,5 +134,14 @@ public class YInternalCondition extends YNetElement implements YConditionInterfa
 
     public String toString() {
         return getID() + "[" + _myTask.toString() + "]";
+    }
+
+    public String toXML() {
+        XNode node = new XNode("internalCondition");
+        node.addAttribute("id", toString());
+        for (YIdentifier identifier : getIdentifiers()) {
+            node.addChild("identifier", identifier.toString());
+        }
+        return node.toString();
     }
 }

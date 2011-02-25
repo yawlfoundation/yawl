@@ -807,10 +807,11 @@ public class userWorkQueues extends AbstractPageBean {
 
     private void completeWorkItem(WorkItemRecord wir, Participant p) {
         String result = _rm.checkinItem(p, wir);
-        if (_rm.successful(result))
+        if (_rm.successful(result)) {
             _sb.removeWarnedForNonEdit(wir.getID());
-        else
-            msgPanel.error(result) ;
+            getApplicationBean().removeWorkItemParams(wir);
+        }
+        else msgPanel.error(result) ;
     }
 
 

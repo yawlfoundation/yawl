@@ -178,7 +178,7 @@
                                     <h:outputText binding="#{ItemParams.colResourceUserRows}"
                                                   id="colResourceUserRows"
                                                   styleClass="dataTableItemText"
-                                                  value="#{currentRow._participantID}"/>
+                                                  value="#{currentRow._resourceID}"/>
                                 </h:column>
 
                              </h:dataTable>       

@@ -22,7 +22,6 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.yawlfoundation.yawl.elements.YSpecification;
-import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
@@ -47,11 +46,10 @@ public class YMarshal {
      * @return a list of YSpecification objects taken from the XML document.
      * @throws YSyntaxException if a parsed specification doesn't validate against
      * schema
-     * @throws YSchemaBuildingException if there's a problem parsing the document
      */
     private static List<YSpecification> buildSpecifications(
             Element specificationSetElem, Namespace ns, String version)
-            throws YSchemaBuildingException, YSyntaxException {
+            throws YSyntaxException {
         List<YSpecification> specifications = new Vector<YSpecification>();
         List specificationElemList = specificationSetElem.getChildren("specification", ns);
 
@@ -75,10 +73,9 @@ public class YMarshal {
      * @return a list of YSpecification objects taken from the XML string.
      * @throws YSyntaxException if a parsed specification doesn't validate against
      * schema
-     * @throws YSchemaBuildingException if there's a problem parsing the document
      */
     public static List<YSpecification> unmarshalSpecifications(String specStr)
-            throws YSyntaxException, YSchemaBuildingException {
+            throws YSyntaxException {
         return unmarshalSpecifications(specStr, true) ;
     }
 
@@ -91,11 +88,11 @@ public class YMarshal {
      * @return a list of YSpecification objects taken from the XML string.
      * @throws YSyntaxException if a parsed specification doesn't validate against
      * schema
-     * @throws YSchemaBuildingException if there's a problem parsing the document
      */
     public static List<YSpecification> unmarshalSpecifications(String specStr,
                                                                boolean schemaValidate)
-            throws YSyntaxException, YSchemaBuildingException {
+            throws YSyntaxException {
+        
         List<YSpecification> result = null;
 
         //first check if the xml string is well formed and build a document

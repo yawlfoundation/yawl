@@ -100,7 +100,7 @@
                                            id="staticText2"
                                            styleClass="pageSubheading"
                                            style="left: 12px; top: 12px"
-                                           text="Loaded Specifications"/>
+                                           text="#{SessionBean.loadedSpecsCaption}"/>
 
                             <ui:panelGroup binding="#{caseMgt.pnlGroup}"
                                             id="pnlGroup"
@@ -221,7 +221,7 @@
                                            id="staticText3"
                                            styleClass="pageSubheading"
                                            style="left: 12px; top: 12px"
-                                           text="Running Cases"/>
+                                           text="#{SessionBean.runningCasesCaption}"/>
                         </ui:panelLayout>
 
                             <div><jsp:include page="pfMsgPanel.jspf"/></div>

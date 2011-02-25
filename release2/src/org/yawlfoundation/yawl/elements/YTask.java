@@ -31,10 +31,7 @@ import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
 import org.yawlfoundation.yawl.elements.e2wfoj.E2WFOJNet;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.elements.state.YInternalCondition;
-import org.yawlfoundation.yawl.engine.YEngine;
-import org.yawlfoundation.yawl.engine.YNetRunner;
-import org.yawlfoundation.yawl.engine.YPersistenceManager;
-import org.yawlfoundation.yawl.engine.YWorkItemRepository;
+import org.yawlfoundation.yawl.engine.*;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YTimerVariable;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
@@ -71,8 +68,9 @@ public abstract class YTask extends YExternalNetElement {
     protected YInternalCondition _mi_complete = new YInternalCondition(YInternalCondition._mi_complete, this);
     protected YInternalCondition _mi_executing = new YInternalCondition(YInternalCondition._mi_executing, this);
 
-    // repository reference used by cancel methods in subclasses
-    protected static YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
+    // repository references used by cancel methods in subclasses
+    protected static YWorkItemRepository _workItemRepository = YEngine.getInstance().getWorkItemRepository();
+    protected static YNetRunnerRepository _netRunnerRepository = YEngine.getInstance().getNetRunnerRepository();
 
     //private attributes
     private int _splitType;
@@ -299,7 +297,7 @@ public abstract class YTask extends YExternalNetElement {
 
     public synchronized List<YIdentifier> t_fire(YPersistenceManager pmgr)
             throws YStateException, YDataStateException, YQueryException,
-                   YPersistenceException, YSchemaBuildingException {
+                   YPersistenceException {
         YIdentifier id = getI();
 
         if (! t_enabled(id)) {
@@ -328,8 +326,6 @@ public abstract class YTask extends YExternalNetElement {
                     throw (YStateException) e;
                 else if (e instanceof YQueryException)
                     throw (YQueryException) e;
-                else if (e instanceof YSchemaBuildingException)
-                    throw (YSchemaBuildingException) e;
             }
 
             childIdentifiers.add(childID);
@@ -380,7 +376,7 @@ public abstract class YTask extends YExternalNetElement {
 
     public synchronized YIdentifier t_add(YPersistenceManager pmgr,
                                           YIdentifier siblingWithPermission, Element newInstanceData)
-            throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
+            throws YDataStateException, YStateException, YQueryException, YPersistenceException {
         if (!YMultiInstanceAttributes._creationModeDynamic.equals(_multiInstAttr.getCreationMode())) {
             throw new RuntimeException(this + " does not allow dynamic instance creation.");
         }
@@ -473,17 +469,11 @@ public abstract class YTask extends YExternalNetElement {
     public synchronized boolean t_complete(YPersistenceManager pmgr, YIdentifier childID,
                                            Document decompositionOutputData)
             throws YDataStateException, YStateException, YQueryException,
-                   YSchemaBuildingException, YPersistenceException {
+                   YPersistenceException {
         if (t_isBusy()) {
-            YDataValidator validator = _net._specification.getDataValidator();
-
-            // if the specification is beta 4 or greater then do validation.
-            if (! _net._specification.usesSimpleRootData()) {
-                if (null != getDecompositionPrototype()) {
-                    validator.validate(_decompositionPrototype.getOutputParameters().values(),
-                            decompositionOutputData.getRootElement(), getID());
-                }
-            }
+            YSpecification spec = _net.getSpecification();
+            YDataValidator validator = spec.getDataValidator();
+            validateOutputs(validator, decompositionOutputData);
 
             for (String query : getQueriesForTaskCompletion()) {
                 if (ExternalDBGatewayFactory.isExternalDBMappingExpression(query)) {
@@ -515,8 +505,7 @@ public abstract class YTask extends YExternalNetElement {
 
                 //Now we check that the resulting transformation produced data according
                 //to the net variable's type.
-                if (_net.getSpecification().isSchemaValidating() &&
-                        !query.equals(getPreJoiningMIQuery())) {
+                if (spec.isSchemaValidating() && (! query.equals(getPreJoiningMIQuery()))) {
                     YVariable var = _net.getLocalVariables().containsKey(localVarThatQueryResultGetsAppliedTo) ?
                              _net.getLocalVariables().get(localVarThatQueryResultGetsAppliedTo) :
                              _net.getInputParameters().get(localVarThatQueryResultGetsAppliedTo);
@@ -561,6 +550,49 @@ public abstract class YTask extends YExternalNetElement {
                     "This task [" +
                     (getName() != null ? getName() : getID()) +
                     "] is not active, and therefore cannot be completed.");
+        }
+    }
+
+
+    private void addDefaultValuesAsRequired(Document dataDoc) {
+        if (dataDoc == null) return;
+        Element dataElem = dataDoc.getRootElement();
+        for (YParameter param : _decompositionPrototype.getOutputParameters().values()) {
+            String defaultValue = param.getDefaultValue();
+            if (defaultValue != null) {
+                Element paramData = dataElem.getChild(param.getPreferredName());
+
+                // if there's an element, but no value, add the default
+                if (paramData != null) {
+                    if (paramData.getText() == null) {
+                        paramData.setText(defaultValue);
+                    }
+                }
+
+                // else if there's no element at all, add it with the default value
+                else {
+                    Element defElem = JDOMUtil.stringToElement(
+                            StringUtil.wrap(defaultValue, param.getPreferredName()));
+                    defElem.setNamespace(dataElem.getNamespace());
+                    dataElem.addContent(param.getOrdering(), defElem.detach());
+                }
+            }
+        }
+    }
+
+
+    private void validateOutputs(YDataValidator validator, Document decompositionOutputData)
+            throws YDataValidationException {
+        YSpecification spec = _net.getSpecification();
+
+        // if the specification is beta 4 or greater then do validation.
+        if ((! spec.usesSimpleRootData()) && (null != getDecompositionPrototype())) {
+
+            // fix any output vars with missing values that have default values defined
+            addDefaultValuesAsRequired(decompositionOutputData);
+
+            validator.validate(_decompositionPrototype.getOutputParameters().values(),
+                        decompositionOutputData.getRootElement(), getID());
         }
     }
 
@@ -615,7 +647,7 @@ public abstract class YTask extends YExternalNetElement {
 
 
     public synchronized void t_start(YPersistenceManager pmgr, YIdentifier child)
-            throws YSchemaBuildingException, YDataStateException, YPersistenceException,
+            throws YDataStateException, YPersistenceException,
                    YQueryException, YStateException {
         if (t_isBusy()) {
             startOne(pmgr, child);
@@ -636,7 +668,7 @@ public abstract class YTask extends YExternalNetElement {
 
     private synchronized void t_exit(YPersistenceManager pmgr)
             throws YDataStateException, YStateException, YQueryException,
-                   YSchemaBuildingException, YPersistenceException {
+                   YPersistenceException {
         if (!t_isExitEnabled()) {
             throw new RuntimeException(this + "_exit() is not enabled.");
         }
@@ -683,7 +715,7 @@ public abstract class YTask extends YExternalNetElement {
 
 
     private void performDataAssignmentsAccordingToOutputExpressions(YPersistenceManager pmgr)
-            throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
+            throws YDataStateException, YStateException, YQueryException, YPersistenceException {
         if (null == getDecompositionPrototype()) {
             return;
         }
@@ -882,7 +914,7 @@ public abstract class YTask extends YExternalNetElement {
     }
 
     private boolean evaluateTimerPredicate(String predicate, YIdentifier token) throws YQueryException {
-        YNetRunner runner = _workItemRepository.getNetRunner(token);
+        YNetRunner runner = _netRunnerRepository.get(token);
         if (runner != null) {
             return runner.evaluateTimerPredicate(predicate);
         }
@@ -943,7 +975,7 @@ public abstract class YTask extends YExternalNetElement {
 
 
     protected abstract void startOne(YPersistenceManager pmgr, YIdentifier id)
-            throws YDataStateException, YSchemaBuildingException, YPersistenceException,
+            throws YDataStateException, YPersistenceException,
                    YQueryException, YStateException;
 
 
@@ -954,14 +986,14 @@ public abstract class YTask extends YExternalNetElement {
         return childCaseID;
     }
 
-    public void prepareDataForInstanceStarting(YIdentifier childInstanceID) throws YDataStateException, YStateException, YQueryException, YSchemaBuildingException {
+    public void prepareDataForInstanceStarting(YIdentifier childInstanceID)
+            throws YDataStateException, YStateException, YQueryException {
 
         logger.debug("--> prepareDataForInstanceStarting" + childInstanceID);
 
         if (null == getDecompositionPrototype())  return;
 
         Element dataForChildCase = produceDataRootElement();
-//       InstanceCache instanceCache = YEngine.getInstance().getInstanceCache();
 
         List<YParameter> inputParams =
                 new ArrayList<YParameter>(_decompositionPrototype.getInputParameters().values());
@@ -977,32 +1009,26 @@ public abstract class YTask extends YExternalNetElement {
                         _multiInstanceSpecificParamsIterator.next();
 
                 if (specificMIData != null) {
-                    if (YEngine.getInstance().generateUIMetaData()) {
+                    if (YEngine.getInstance().generateUIMetaData()) {  
 
                         // Add in attributes for input parameter
                         specificMIData.setAttributes(parameter.getAttributes().toJDOM());
                     }
                     dataForChildCase.addContent(specificMIData.detach());
-       //             instanceCache.addParameter(childInstanceID, parameter,
-     //                                          expression, specificMIData);
                }
             }
             else {
-                Element result;
-                if (ExternalDBGatewayFactory.isExternalDBMappingExpression(expression)) {
-                    result = performExternalDataExtraction(expression, parameter);
+                Element result = ExternalDBGatewayFactory.isExternalDBMappingExpression(expression) ?
+                    performExternalDataExtraction(expression, parameter) :
+                    performDataExtraction(expression, parameter);
+
+                if (result != null) {
+                    if (YEngine.getInstance().generateUIMetaData()) {
+                        result.setAttributes(parameter.getAttributes().toJDOM());
+                    }
+                    dataForChildCase.addContent((Element) result.clone());
                 }
-                else  {
-                    result = performDataExtraction(expression, parameter);
-                }
-                
-                if ((result != null) && YEngine.getInstance().generateUIMetaData()) {
-                    result.setAttributes(parameter.getAttributes().toJDOM());
-                }
-                dataForChildCase.addContent((Element) result.clone());
-   //             instanceCache.addParameter(childInstanceID, parameter,
-   //                                        expression, (Element) result.clone());
-          }
+            }
         }
 
         if (YEngine.getInstance().generateUIMetaData()) {
@@ -1023,44 +1049,33 @@ public abstract class YTask extends YExternalNetElement {
     }
 
 
-    protected Element performDataExtraction(String expression, YParameter inputParamName)
-            throws YSchemaBuildingException, YDataStateException, YQueryException, YStateException {
+    protected Element performDataExtraction(String expression, YParameter inputParam)
+            throws YDataStateException, YQueryException, YStateException {
+
         Element result = evaluateTreeQuery(expression, _net.getInternalDataDocument());
 
-//        TODO: REVIEW THIS BIT OF CODE: (i) is xforms assumption correct in all cases?
-//        /**
-//         * AJH: If we have an empty element and the element is not mandatory and the task is not destined for
-//         * an XForm (assumed here if there are no UI meta-data attributes), don't pass the element out to the
-//         * task as input data.
-//         */
-        if (!inputParamName.isMandatory())
-//        {
-//            if (!_skipOutboundSchemaChecks)
-//            {
-//                if ((inputParamName.getAttributes() == null) || (inputParamName.getAttributes().size() == 0))
-//                {
-//                    if ((result.getChildren().size() == 0) && (result.getContent().size() ==0 ))
-//                    {
-//                        return null;
-//                    }
-//                }
-//            }
-//        }
+        /**
+         * AJH: If we have an empty element and the element is not mandatory, don't pass 
+         * the element out to the task as input data.
+         */
+        if ((! inputParam.isRequired()) && (result.getChildren().size() == 0) &&
+                (result.getContentSize() == 0)) {
+             return null;
+        }
 
         /**
          * AJH: Allow option to inhibit schema validation for outbound data.
          *      Ideally need to support this at task level.
          */
-        if (_net.getSpecification().isSchemaValidating()) {
-            if (!skipOutboundSchemaChecks()) {
-                performSchemaValidationOverExtractionResult(expression, inputParamName, result); }
+        if (_net.getSpecification().isSchemaValidating() && (! skipOutboundSchemaChecks())) {
+                performSchemaValidationOverExtractionResult(expression, inputParam, result);
         }
         return result;
     }
 
 
     protected Element performExternalDataExtraction(String expression, YParameter inputParam)
-            throws YStateException, YSchemaBuildingException, YDataStateException {
+            throws YStateException, YDataStateException {
         Element result = null;
         if (ExternalDBGatewayFactory.isExternalDBMappingExpression(expression)) {
             AbstractExternalDBGateway extractor =
@@ -1089,7 +1104,7 @@ public abstract class YTask extends YExternalNetElement {
     
     private void performSchemaValidationOverExtractionResult(String expression,
                                                 YParameter param, Element result)
-            throws YSchemaBuildingException, YDataStateException {
+            throws YDataStateException {
         Element tempRoot = new Element(_decompositionPrototype.getID());
         try {
             tempRoot.addContent((Element) result.clone());
@@ -1194,6 +1209,15 @@ public abstract class YTask extends YExternalNetElement {
 
     public YInternalCondition getMIExecuting() {
         return _mi_executing;
+    }
+
+    public List<YInternalCondition> getAllInternalConditions() {
+        List<YInternalCondition> icList = new Vector<YInternalCondition>();
+        icList.add(_mi_active);
+        icList.add(_mi_entered);
+        icList.add(_mi_complete);
+        icList.add(_mi_executing);
+        return icList;
     }
 
     /**

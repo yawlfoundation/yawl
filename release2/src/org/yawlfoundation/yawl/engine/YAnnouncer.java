@@ -107,12 +107,12 @@ public class YAnnouncer {
     }
 
     private void setAnnouncementContext(AnnouncementContext context) {
-        this._announcementContext = context;
+        _announcementContext = context;
     }
 
 
-    public synchronized AnnouncementContext getAnnouncementContext() {
-        return this._announcementContext;
+    public  AnnouncementContext getAnnouncementContext() {
+        return _announcementContext;
     }
 
     public void notifyServletInitialisationComplete() {
@@ -227,7 +227,7 @@ public class YAnnouncer {
      */
     public int reannounceEnabledWorkItems() throws YStateException {
         debug("--> reannounceEnabledWorkItems");
-        return reannounceWorkItems(YEngine.getWorkItemRepository().getEnabledWorkItems());
+        return reannounceWorkItems(_engine.getWorkItemRepository().getEnabledWorkItems());
     }
 
 
@@ -238,7 +238,7 @@ public class YAnnouncer {
      */
     public int reannounceExecutingWorkItems() throws YStateException {
         debug("--> reannounceExecutingWorkItems");
-        return reannounceWorkItems(YEngine.getWorkItemRepository().getExecutingWorkItems());
+        return reannounceWorkItems(_engine.getWorkItemRepository().getExecutingWorkItems());
     }
 
 
@@ -249,7 +249,7 @@ public class YAnnouncer {
      */
     public int reannounceFiredWorkItems() throws YStateException {
         debug("--> reannounceFiredWorkItems");
-        return reannounceWorkItems(YEngine.getWorkItemRepository().getFiredWorkItems());
+        return reannounceWorkItems(_engine.getWorkItemRepository().getFiredWorkItems());
     }
 
     /**
@@ -277,7 +277,7 @@ public class YAnnouncer {
         if (wsgw != null) {
             YAWLServiceReference ys = wsgw.getYawlService();
             if (ys != null) {
-                YWorkItem item = YEngine.getWorkItemRepository().getWorkItem(caseID.toString(),
+                YWorkItem item = _engine.getWorkItemRepository().get(caseID.toString(),
                         atomicTask.getID());
                 if (item == null) {
                     throw new RuntimeException("Unable to find YWorKItem for atomic task '" +

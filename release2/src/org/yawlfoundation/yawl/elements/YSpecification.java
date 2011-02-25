@@ -19,7 +19,6 @@
 package org.yawlfoundation.yawl.elements;
 
 import org.yawlfoundation.yawl.engine.YSpecificationID;
-import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.schema.YDataValidator;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
@@ -162,9 +161,8 @@ public final class YSpecification implements Cloneable, YVerifiable {
     /**
      * Sets the data schema for this specification.
      * @param schemaString
-     * @throws YSchemaBuildingException
      */
-    public void setSchema(String schemaString) throws YSchemaBuildingException, YSyntaxException {
+    public void setSchema(String schemaString) throws YSyntaxException {
         _dataValidator = new YDataValidator(schemaString);
     }
 

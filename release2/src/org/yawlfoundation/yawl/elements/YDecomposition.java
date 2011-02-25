@@ -21,7 +21,7 @@ package org.yawlfoundation.yawl.elements;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.engine.YCaseData;
+import org.yawlfoundation.yawl.engine.YNetData;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.engine.time.YTimerVariable;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
@@ -52,7 +52,7 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
     private Map<String, YParameter> _enablementParameters;  // only used to generate editor xml
     private Set<String> _outputExpressions;
     protected Document _data;
-    private YCaseData _casedata = null;
+    private YNetData _casedata = null;
     private YAttributeMap _attributes;
     private YLogPredicate _logPredicate;
     private Map<YTask, YTimerVariable> _timerVariables;
@@ -84,7 +84,7 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
 
     // PERSISTENCE METHODS //
 
-    public void initializeDataStore(YPersistenceManager pmgr, YCaseData casedata)
+    public void initializeDataStore(YPersistenceManager pmgr, YNetData casedata)
                                                         throws YPersistenceException {
         _casedata = casedata;
         _casedata.setData(JDOMUtil.documentToString(_data));
@@ -93,7 +93,7 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
     }
 
     
-    public void restoreData(YCaseData casedata) {
+    public void restoreData(YNetData casedata) {
         _casedata = casedata;
         _data = getNetDataDocument(casedata.getData());
     }

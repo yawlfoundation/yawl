@@ -22,6 +22,7 @@ package org.yawlfoundation.yawl.engine;
 import org.apache.log4j.Logger;
 import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.stat.Statistics;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
@@ -56,7 +57,7 @@ public class YPersistenceManager {
     
     private static Class[] persistedClasses = {
             YSpecification.class, YNetRunner.class, YWorkItem.class, YIdentifier.class,
-            YCaseData.class, YAWLServiceReference.class, YExternalClient.class,
+            YNetData.class, YAWLServiceReference.class, YExternalClient.class,
             YWorkItemTimer.class, YCaseNbrStore.class, Problem.class,
             YLogSpecification.class, YLogNet.class, YLogTask.class, YLogNetInstance.class,
             YLogTaskInstance.class, YLogEvent.class, YLogDataItemInstance.class,
@@ -140,6 +141,12 @@ public class YPersistenceManager {
 
     public void closeFactory() {                    // shutdown persistence engine
         factory.close();
+    }
+
+
+    public void getStatistics() {
+        Statistics stats = factory.getStatistics();
+        System.out.println(stats);
     }
 
     /**

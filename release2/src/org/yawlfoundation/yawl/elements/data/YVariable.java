@@ -22,6 +22,7 @@ import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.YVerifiable;
+import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.schema.XMLToolsForYAWL;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -30,6 +31,7 @@ import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.util.List;
 import java.util.Vector;
+import java.util.Hashtable;
 
 /**
  *
@@ -51,16 +53,7 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
     private String _documentation;
     private boolean _mandatory;
     private YLogPredicate _logPredicate;
-
-    public boolean isMandatory()
-    {
-        return _mandatory;
-    }
-
-    public void setMandatory(boolean _mandatory)
-    {
-        this._mandatory = _mandatory;
-    }
+    private YAttributeMap _attributes = new YAttributeMap();
 
     public YVariable() {}
 
@@ -162,6 +155,14 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
     public boolean isUserDefinedType() {
         return (_namespaceURI == null);
     }
+
+    public boolean isMandatory() {
+        return _mandatory;
+    }
+
+    public void setMandatory(boolean mandatory) {
+        _mandatory = mandatory;
+    }    
 
 
     public String getName() {
@@ -382,4 +383,34 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
         return _dataTypeName != null;
     }
 
+    public boolean isRequired() {
+        return (! isOptional()) && (isMandatory() || _attributes.getBoolean("mandatory"));
+    }
+
+    public boolean isOptional() {
+        return _attributes.getBoolean("optional");
+
+    }
+
+    /**
+     * Return table of attributes associated with this variable.<P>
+     * Table is keyed by attribute 'name' and contains the string representation of the
+     * XML elements attribute.<P>
+     * @return the Map of attributes for this parameter
+     */
+    public YAttributeMap getAttributes() {
+        return _attributes;
+    }
+
+    public void addAttribute(String key, String value) {
+        _attributes.put(key, value);
+    }
+
+    public void setAttributes(Hashtable<String, String> attributes) {
+        _attributes.set(attributes);
+    }
+
+    public boolean hasAttributes() {
+        return ! _attributes.isEmpty();
+    }
 }

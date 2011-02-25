@@ -15,7 +15,7 @@ import junit.textui.TestRunner;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.yawlfoundation.yawl.engine.YCaseData;
+import org.yawlfoundation.yawl.engine.YNetData;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,7 +55,7 @@ public class TestYExternalTask extends TestCase{
         v.setName("stubList");
         v.setUntyped(true);
         v.setInitialValue("<stub/><stub/><stub/>");
-        YCaseData casedata = new YCaseData();
+        YNetData casedata = new YNetData();
         deadNet.initializeDataStore(null, casedata);
         deadNet.setLocalVariable(v);
         deadNet.initialise(null);

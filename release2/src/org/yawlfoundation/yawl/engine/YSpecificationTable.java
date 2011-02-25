@@ -23,31 +23,29 @@ import org.yawlfoundation.yawl.elements.YSpecification;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
+ * A mapping of specification identifiers to a list of versions of that specification.
+ * The key used is the spec's unique identifier (introduced in v2.0); for earlier
+ * schema versions, it falls back to the spec's name (uri)
+ *
  * @author Michael Adams (a refactor of Mike Fowler's YSpecificationMap)
  * @since 2.0
  * @date 06/06/2008
  */
-public class YSpecificationTable {
-
-    // A mapping of specification identifiers to a list of versions of that specification
-    // The key used is the spec's unique identifier (introduced in v2.0); for earlier
-    // schema versions, it falls back to the spec's name (uri)
-    private Hashtable<String, SpecList> _specs ;
+public class YSpecificationTable
+        extends ConcurrentHashMap<String, YSpecificationTable.SpecList> {
 
 
-    public YSpecificationTable() {
-        _specs = new Hashtable<String, SpecList>();
-    }
+    public YSpecificationTable() { super(); }
 
 
     public boolean loadSpecification(YSpecification spec) {
         String key = spec.getSpecificationID().getKey();
-        SpecList list = _specs.get(key);
+        SpecList list = super.get(key);
         if (list != null) {
             if (list.getSpecification(spec.getMetaData().getVersion()) != null)
                 return false;
@@ -57,7 +55,7 @@ public class YSpecificationTable {
             }
         }
         else {
-            _specs.put(key, new SpecList(spec));
+            super.put(key, new SpecList(spec));
             return true;
         }
     }
@@ -65,12 +63,12 @@ public class YSpecificationTable {
     public void unloadSpecification(YSpecification spec) {
         if (spec != null) {
             String key = spec.getSpecificationID().getKey();
-            SpecList list = _specs.get(key);
+            SpecList list = super.get(key);
             if (list != null) {
                 list.remove(spec);
 
                 if (list.isEmpty())                    // just unloaded the only version
-                    _specs.remove(key);
+                    super.remove(key);
             }    
         }
     }
@@ -78,7 +76,7 @@ public class YSpecificationTable {
 
     public YSpecification getSpecification(YSpecificationID specid) {
         if (specid != null) {
-            SpecList list = _specs.get(specid.getKey());
+            SpecList list = super.get(specid.getKey());
             if (list != null) {
                 return list.getSpecification(specid.getVersion());
             }
@@ -93,15 +91,15 @@ public class YSpecificationTable {
      * @return the specification with the latest version number that matches the key
      */
     public YSpecification getLatestSpecification(String key) {
-        SpecList list = _specs.get(key);
-        if (list != null)
-           return list.getLatestVersion();
-        else
-           return null ;
+        if (key != null) {
+            SpecList list = super.get(key);
+            if (list != null) return list.getLatestVersion();
+        }
+        return null ;
     }
 
     public boolean contains(String key) {
-        return _specs.containsKey(key);
+        return super.containsKey(key);
     }
 
     public boolean contains(YSpecification spec) {
@@ -115,7 +113,7 @@ public class YSpecificationTable {
 
     public Set<YSpecificationID> getSpecIDs() {
         Set<YSpecificationID> set = new HashSet<YSpecificationID>();
-        for (SpecList list : _specs.values()) {
+        for (SpecList list : this.values()) {
             set.addAll(list.getSpecificationIDs());
         }
         return set;
@@ -124,7 +122,7 @@ public class YSpecificationTable {
 
     /********************************************************************************/
 
-    private class SpecList extends ArrayList<YSpecification> {
+    protected class SpecList extends ArrayList<YSpecification> {
 
         // Constructor //
         public SpecList(YSpecification spec) {
