@@ -649,15 +649,14 @@ public class YEngine implements InterfaceADesign,
 
 
     public String getSpecificationDataSchema(YSpecificationID specID) {
-        String result = null;
         YSpecification spec = _specifications.getSpecification(specID);
         if (spec != null) {
             YDataValidator validator = spec.getDataValidator() ;
             if (validator != null) {
-               result = validator.getSchema();
+               return validator.getSchema();
             }
         }
-        return result;
+        return null;
     }
 
 

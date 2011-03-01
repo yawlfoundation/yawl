@@ -47,6 +47,7 @@ public class JDOMUtil {
     private static Logger _log = Logger.getLogger(JDOMUtil.class);
     private static SAXBuilder _builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
 
+
     /****************************************************************************/
 
     public static String documentToString(Document doc) {
@@ -75,6 +76,7 @@ public class JDOMUtil {
 
     public synchronized static Document stringToDocument(String s) {
         try {
+            _builder.setIgnoringBoundaryWhitespace(true);            
             return (s != null) ? _builder.build(new StringReader(s)) : null ;
         }
         catch (JDOMException jde) {

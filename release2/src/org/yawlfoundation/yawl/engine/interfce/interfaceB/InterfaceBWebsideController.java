@@ -519,7 +519,7 @@ public abstract class InterfaceBWebsideController {
             List<SpecificationData> specs =
                     _interfaceBClient.getSpecificationList(sessionHandle);
             for (SpecificationData data : specs) {
-                if (data.getID().getKey().equals(specID.getKey())) {
+                if (data.getID().equals(specID)) {
                     if (data.getAsXML() == null) {
                         data.setSpecAsXML(
                                 _interfaceBClient.getSpecification(specID, sessionHandle));

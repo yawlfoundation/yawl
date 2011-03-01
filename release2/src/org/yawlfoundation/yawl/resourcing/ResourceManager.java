@@ -2463,20 +2463,6 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-//    public Set<String> getAllRunningCaseIDs() {
-//        Set<String> result = new HashSet<String>();
-//        Set<SpecificationData> specDataSet = getSpecList() ;
-//        if (specDataSet != null) {
-//            for (SpecificationData specData : specDataSet) {
-//                List<String> caseIDs = getRunningCasesAsList(specData.getID());
-//                if (caseIDs != null)
-//                    result.addAll(caseIDs) ;
-//            }
-//        }
-//        return result ;
-//    }
-
-
     public Set<String> getAllRunningCaseIDs() {
         Set<String> result = new HashSet<String>();
         XNode node = getAllRunningCases();
@@ -2891,10 +2877,8 @@ public class ResourceManager extends InterfaceBWebsideController {
     public String getDataSchema(YSpecificationID specID) {
         String result = null ;
         try {
-      //      Map<String, Element> schemaMap = getSpecificationDataSchema(specID);
             SpecificationData specData = getSpecData(specID);
-     //       result = new DataSchemaBuilder(schemaMap).build(specData);
-                  result = new DataSchemaProcessor().createSchema(specData);
+            result = new DataSchemaProcessor().createSchema(specData);
         }
         catch (Exception e) {
             _log.error("Could not retrieve schema for case parameters", e)  ;
@@ -2912,14 +2896,18 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
     
+    public String getDataSchema(WorkItemRecord wir) {
+        return (wir != null) ? getDataSchema(wir, new YSpecificationID(wir)) :
+            "<failure>Null workitem.</failure>";
+    }
+
+
     public String getDataSchema(WorkItemRecord wir, YSpecificationID specID) {
         String result = null ;
         try {
             Map<String, Element> schemaMap = getSpecificationDataSchema(specID);
             TaskInformation taskInfo = getTaskInformation(specID, wir.getTaskID(),
                                                           getEngineSessionHandle());
-      //      SpecificationData specData = this.getSpecData(specID);
-     //       result = new DataSchemaProcessor().createSchema(specData, taskInfo);
             result = new DataSchemaBuilder(schemaMap).build(taskInfo);
         }
         catch (Exception e) {

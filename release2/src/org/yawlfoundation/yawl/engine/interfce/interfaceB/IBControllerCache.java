@@ -105,8 +105,9 @@ public class IBControllerCache {
 
 
     public void addSpecificationData(SpecificationData specData) {
-        if (! _specDataCache.containsKey(specData.getID().getKey())) {
-            _specDataCache.put(specData.getID().getKey(), specData);
+        String key = specData.getID().toKeyString();
+        if (! _specDataCache.containsKey(key)) {
+            _specDataCache.put(key, specData);
         }
     }
 
@@ -119,13 +120,13 @@ public class IBControllerCache {
      * @return the specification data
      */
     public SpecificationData getSpecificationData(YSpecificationID specID) throws IOException {
-        return _specDataCache.get(specID.getKey());
+        return _specDataCache.get(specID.toKeyString());
     }
 
     public void unloadSpecificationData(YSpecificationID specID) throws IOException {
-	      _specDataCache.remove(specID.getKey());
+	      _specDataCache.remove(specID.toKeyString());
         unloadTaskInformation(specID);
-    }	
+    }
 
 
     public void addWorkItem(WorkItemRecord itemRecord) {
