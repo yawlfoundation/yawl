@@ -435,13 +435,15 @@ public class MessagePanel extends PanelLayout {
 
     private int getMessagesHeight(int width) {
         int height = 0;
+        int totLines = 0;
         if (hasMessage()) {
             for (String message : _messages.keySet()) {
                 Dimension bounds = FontUtil.getFontMetrics(message, _msgFont);
-                int lines = (int) Math.ceil(bounds.getWidth() / (width + 30));
+                int lines = (int) Math.ceil(bounds.getWidth() / (width - 30));
                 height += lines * (bounds.getHeight() + (_msgFont.getSize() / 2) - 2);
+                totLines += lines;
             }
-            height += MESSAGE_VSPACE * _messages.size();           // add vspace
+            height += MESSAGE_VSPACE * _messages.size() - (totLines * 2) ; // add vspace
         }
         return height;
     }
