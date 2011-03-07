@@ -727,8 +727,8 @@ public class ResourceGateway extends HttpServlet {
             String format = req.getParameter("format");
             if ((format != null) && format.equals("JSON")) {
                 String callback = req.getParameter("callback");
-                result = stringSetToJSON(
-                        _orgDataSet.getNonHumanCategoryIdentifiers().values(), callback);
+                result = stringMapToJSON(
+                        _orgDataSet.getNonHumanCategoryIdentifiers(), callback);
             }
             else result = _orgDataSet.getNonHumanCategoriesAsXML();
         }

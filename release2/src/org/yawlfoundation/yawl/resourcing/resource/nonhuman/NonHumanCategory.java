@@ -144,9 +144,12 @@ public class NonHumanCategory implements Comparable {
         else return getResources();           // no subcat name supplied means get all
     }
 
-    public void moveToSubCategory(NonHumanResource resource, String subCategory) {
-        removeFromAll(resource);
-        addResource(resource, subCategory);
+    public boolean moveToSubCategory(NonHumanResource resource, String subCategory) {
+        if (subCategory != null) {
+            removeFromAll(resource);
+            addResource(resource, subCategory);
+        }
+        return (subCategory != null);
     }
 
 

@@ -424,6 +424,7 @@ public class ResourceScheduler {
             }
             else {                                                  // new
                 if (reservation.hasResource()) {
+                    checkIfPreviouslySaved(logEntry, from, to);
                     AbstractResource resource = getActualResourceIfAvailable(reservation,
                             from, to);
                     CalendarEntry calEntry = createCalendarEntry(reservation, resource,
@@ -1099,6 +1100,22 @@ public class ResourceScheduler {
         }
         throw new CalendarException(
                 "Invalid StatusToBe value for save reservation request:" + statusStr);
+    }
+
+
+    private void checkIfPreviouslySaved(CalendarLogEntry logEntry, long from, long to)
+            throws CalendarException {
+        for (Object o : _uLogger.getLogEntriesForReservation(logEntry.getCaseID(),
+                logEntry.getActivityName(), logEntry.getResourceRec())) {
+            CalendarLogEntry entry = (CalendarLogEntry) o;
+            if (entry.getPhase().equals("POU")) {
+                CalendarEntry calEntry = _calendar.getEntry(entry.getCalendarKey());
+                if ((calEntry != null) && calEntry.hasPeriod(from, to)) {
+                    throw new CalendarException(
+                        "This reservation is a duplicate of one previously saved.");
+                }
+            }    
+        }
     }
 
 }

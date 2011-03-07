@@ -79,6 +79,10 @@ public class CalendarEntry implements Cloneable {
         endTime = time;
     }
 
+    public boolean hasPeriod(long start, long end) {
+        return (startTime == start) && (endTime == end);
+    }
+
     public String getStatus() {
         return status;
     }
