@@ -79,6 +79,8 @@ public class DataBackupEngine {
         return msgList;
     }
 
+    /*************************************************************************/
+
 
     private String exportParticipants() {
         HashSet<Participant> pSet = orgDataSet.getParticipants();
@@ -134,6 +136,7 @@ public class DataBackupEngine {
 
     private String exportOrgGroups() { return orgDataSet.getOrgGroupsAsXML(); }
 
+
     private String exportNonHumanResources() {
         XNode top = new XNode("nonhumanresources");
         for (NonHumanResource n : orgDataSet.getNonHumanResources()) {
@@ -150,6 +153,7 @@ public class DataBackupEngine {
         }
         return top.toString();
     }
+
 
     private String exportNonHumanCategories() {
         XNode top = new XNode("nonhumancategories");
@@ -246,8 +250,7 @@ public class DataBackupEngine {
                     NonHumanResource r = orgDataSet.getNonHumanResource(id);
                     if ((r == null) && (! orgDataSet.isKnownNonHumanResourceName(
                             nhr.getChildText("name")))) {
-                        r = new NonHumanResource();
-                        r.fromXML(nhr);
+                        r = new NonHumanResource(nhr);
                         String catID = nhr.getChild("category").getAttributeValue("id");
                         NonHumanCategory category = orgDataSet.getNonHumanCategory(catID);
                         if (category != null) {

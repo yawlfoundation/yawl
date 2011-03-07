@@ -73,6 +73,19 @@ public class CalendarLogger {
     }
 
 
+    public List getLogEntriesForReservation(String caseID, String activityName, 
+                                            String resourceRec) {
+        return _persister.createQuery("FROM CalendarLogEntry AS cle " +
+                                           "WHERE cle.caseID=:caseID " +
+                                           "AND cle.activityName=:activityName " +
+                                           "AND cle.resourceRec=:resourceRec")
+                .setString("caseID", caseID)
+                .setString("activityName", activityName)
+                .setString("resourceRec", resourceRec)
+                .list();
+    }
+
+
     public List getLogEntriesForActivity(String caseID, String activityName) {
         return _persister.createQuery("FROM CalendarLogEntry AS cle " +
                                            "WHERE cle.caseID=:caseID " +

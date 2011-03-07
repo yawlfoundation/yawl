@@ -221,8 +221,7 @@ public class ResourceGatewayClientAdapter {
                 }
             }
         }
-        if (result.isEmpty()) return null;
-        return result ;
+        return (! result.isEmpty()) ? result : null;
     }
 
 
@@ -254,18 +253,22 @@ public class ResourceGatewayClientAdapter {
             }
         }
 
-        if (result.isEmpty()) return null;
-        return result ;
+        return (! result.isEmpty()) ? result : null;
     }
 
 
-    private long stringToLong(String s) {
-        try {
-            return new Long(s);
+    private NonHumanResource buildNonHumanResource(Element e, String handle)
+            throws IOException, ResourceGatewayException {
+        NonHumanResource resource = new NonHumanResource(e);
+        Element catElem = e.getChild("nonHumanCategory");
+        if (catElem != null) {
+            resource.setCategory(getNonHumanCategory(catElem.getAttributeValue("id"), handle));
         }
-        catch (NumberFormatException nfe) {
-            return -1;
+        Element subcatElem = e.getChild("nonHumanSubCategory");
+        if (subcatElem != null) {
+            resource.setSubCategory(subcatElem.getChildText("name"));
         }
+        return resource;
     }
 
     //*******************************************************************************/
@@ -388,7 +391,7 @@ public class ResourceGatewayClientAdapter {
         if (e != null) {
             for (Object o : e.getChildren()) {
                 Element child = (Element) o;
-                list.add(new NonHumanResource(child));
+                list.add(buildNonHumanResource(child, handle));
             }    
         }
         return list ;
@@ -795,7 +798,7 @@ public class ResourceGatewayClientAdapter {
     public NonHumanResource getNonHumanResource(String id, String handle)
             throws IOException, ResourceGatewayException {
         String xml = successCheck(_rgclient.getNonHumanResource(id, handle));
-        return new NonHumanResource(JDOMUtil.stringToElement(xml));
+        return buildNonHumanResource(JDOMUtil.stringToElement(xml), handle);
     }
 
 
@@ -810,7 +813,7 @@ public class ResourceGatewayClientAdapter {
     public NonHumanResource getNonHumanResourceByName(String name, String handle)
             throws IOException, ResourceGatewayException {
         String xml = successCheck(_rgclient.getNonHumanResourceByName(name, handle));
-        return new NonHumanResource(JDOMUtil.stringToElement(xml));
+        return buildNonHumanResource(JDOMUtil.stringToElement(xml), handle);
     }
 
 

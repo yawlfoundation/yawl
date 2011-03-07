@@ -537,8 +537,12 @@ public class WorkQueueGateway extends HttpServlet {
                 wir.hasResourceStatus(WorkItemRecord.statusResourceOffered) ||
                 wir.hasResourceStatus(WorkItemRecord.statusResourceAllocated)) {
 
-                successful = _rm.start(p, wir);
-                if (successful) {
+                // if offered, accept offer first (equivalent of an accept & offer)
+                if (wir.hasResourceStatus(WorkItemRecord.statusResourceOffered)) {
+                    _rm.acceptOffer(p, wir);                    
+                }
+
+                if (_rm.start(p, wir)) {
                     WorkItemRecord child = _rm.getExecutingChild(wir);
                     if (child != null) {
                         child.setResourceStatus(WorkItemRecord.statusResourceStarted);
