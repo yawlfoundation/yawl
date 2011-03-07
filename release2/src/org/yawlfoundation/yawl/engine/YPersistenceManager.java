@@ -72,6 +72,7 @@ public class YPersistenceManager {
     private Session session = null;
     private Transaction transaction = null;
     private boolean restoring = false;
+    private boolean enabled = false;
 
     /**
      * Constructor
@@ -95,7 +96,7 @@ public class YPersistenceManager {
 
                 factory = cfg.buildSessionFactory();
                 new SchemaUpdate(cfg).execute(false, true);
-
+                setEnabled(true);
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -105,6 +106,11 @@ public class YPersistenceManager {
         }
         return factory;
     }
+
+
+    public void setEnabled(boolean enable) { enabled = enable; }
+
+    public boolean isEnabled() { return enabled; }
 
 
     public SessionFactory getFactory() {
@@ -155,7 +161,7 @@ public class YPersistenceManager {
      * @throws YPersistenceException if there's a problem starting a transaction 
      */
     public boolean startTransaction() throws YPersistenceException {
-        if (isActiveTransaction()) return false;
+        if ((! isEnabled()) || isActiveTransaction()) return false;
         logger.debug("---> start Transaction");
         try {
             session = factory.getCurrentSession();
@@ -174,7 +180,7 @@ public class YPersistenceManager {
      * @param obj The object to be persisted
      */
     protected void storeObject(Object obj) throws YPersistenceException {
-        if (!restoring) {
+        if ((!restoring) && isEnabled()) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Adding to insert cache: Type=" + obj.getClass().getName());
             }
@@ -190,7 +196,7 @@ public class YPersistenceManager {
      * @param obj The object to be persisted
      */
     protected void updateObject(Object obj) throws YPersistenceException {
-        if (!restoring) {
+        if ((!restoring) && isEnabled()) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Adding to update cache: Type=" + obj.getClass().getName());
             }
@@ -207,6 +213,8 @@ public class YPersistenceManager {
       * @throws YPersistenceException
       */
      protected void deleteObject(Object obj) throws YPersistenceException {
+         if (! isEnabled()) return;
+
          if (logger.isDebugEnabled()) {
              logger.debug("Adding to delete cache: Type=" + obj.getClass().getName());
          }
@@ -314,7 +322,7 @@ public class YPersistenceManager {
      public void commit() throws YPersistenceException {
         logger.debug("--> commit");
         try {
-            if (isActiveTransaction()) transaction.commit();
+            if (isEnabled() && isActiveTransaction()) transaction.commit();
             transaction = null;
         }
         catch (Exception e1) {

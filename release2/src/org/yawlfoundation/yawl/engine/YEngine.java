@@ -146,7 +146,10 @@ public class YEngine implements InterfaceADesign,
                 _caseNbrStore.setPersisting(true);
                 _thisInstance.restore();
             }
-            else {		// Default clients and services should always be available
+            else {
+                _pmgr.setEnabled(false);
+
+                // Default clients and services should always be available
                 _thisInstance.loadDefaultClients();            
             }
 
