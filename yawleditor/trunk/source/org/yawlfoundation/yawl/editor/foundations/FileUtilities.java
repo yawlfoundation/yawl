@@ -82,10 +82,8 @@ public class FileUtilities {
    */
   
   public static String stripFileExtension(String fileName) {
-    return fileName.substring(
-       0, 
-       fileName.lastIndexOf('.') 
-    );
+    int lastDotPos = fileName.lastIndexOf('.');
+    return (lastDotPos > -1) ? fileName.substring(0, lastDotPos) : fileName;
   }
   
   // Basic Plugin Detail
