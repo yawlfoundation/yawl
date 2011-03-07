@@ -59,23 +59,18 @@ public class Marshaller {
 
 
     public static String presentParam(YParameter param) {
-
-        boolean typedParam = param.getDataTypeName() != null;
         StringBuilder result = new StringBuilder();
         result.append("\n  <!--");
-        if (typedParam) {
-            result.append("Data Type:     " + param.getDataTypeName());
+        if (param.getDataTypeName() != null) {
+            result.append("Data Type:     ").append(param.getDataTypeName());
         }
-        result.append("\n      Is Mandatory:  " + param.isMandatory());
+        result.append("\n      Is Mandatory:  ").append(param.isMandatory());
         if (param.getDocumentation() != null) {
-            result.append("\n      Documentation: " + param.getDocumentation());
+            result.append("\n      Documentation: ").append(param.getDocumentation());
         }
         result.append("-->\n  ");
-        if (typedParam || param.isUntyped()) {
-            result.append("<" + param.getName() + "></" + param.getName() + ">");
-        } else {
-            result.append("<" + param.getElementName() + "></" + param.getElementName() + ">");
-        }
+        String name = param.getPreferredName();
+        result.append(String.format("<%s></%s>", name, name));
         return result.toString();
     }
 
@@ -293,7 +288,6 @@ public class Marshaller {
 
     public static List<String> unmarshalCaseIDs(String casesAsXML) {
         List<String> cases = new ArrayList<String>();
-
         Element casesElem = JDOMUtil.stringToElement(casesAsXML);
         List caseList = casesElem.getChildren();
         for (Object o : caseList) {
@@ -303,7 +297,6 @@ public class Marshaller {
                 cases.add(caseID);
             }
         }
-
         return cases;
     }
 
@@ -355,6 +348,5 @@ public class Marshaller {
         }
         return JDOMUtil.elementToString(filteredData);
     }
-
 
 }

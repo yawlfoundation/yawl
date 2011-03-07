@@ -1180,6 +1180,43 @@ public class ResourceDataSet {
     }
 
 
+    /**
+     * Gets the immediate supervisor of a participant. If the participant holds multiple
+     * positions, and therefore has multiple supervisors, one is returned as a
+     * random selection.
+     * @param pid the id of the participant to get the supervisor of
+     * @return the Participant who is the supervisor of the pid passed, or null if there
+     * is no supervisor.
+     */
+    public Participant getImmediateSupervisor(String pid) {
+        return getImmediateSupervisor(getParticipant(pid));
+    }
+
+
+    /**
+     * Gets the immediate supervisor of a participant. If the participant holds multiple
+     * positions, and therefore has multiple supervisors, one is returned as a
+     * random selection.
+     * @param p the participant to get the supervisor of
+     * @return the Participant who is the supervisor of the pid passed, or null if there
+     * is no supervisor.
+     */
+    public Participant getImmediateSupervisor(Participant p) {
+        if (p != null) {
+            for (Position position : p.getPositions()) {
+                Position superPosition = position.getReportsTo();
+                if (superPosition != null) {
+                    Set<AbstractResource> resources = superPosition.getResources();
+                    if (! resources.isEmpty()) {
+                        return (Participant) resources.iterator().next();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+
     public Set<Participant> getParticipantsInDescendantRoles(Role owner) {
         Set<Participant> result = new HashSet<Participant>();
         Set<Role> roleSet = getRoles();

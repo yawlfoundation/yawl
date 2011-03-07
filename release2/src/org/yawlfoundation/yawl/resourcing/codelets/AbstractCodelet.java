@@ -127,13 +127,13 @@ public abstract class AbstractCodelet {
     protected Element getOutputData() { return _outData; }
 
 
-    private YParameter getInputParameter(String paramName)
+    protected YParameter getInputParameter(String paramName)
             throws CodeletExecutionException {
         return getParameter(paramName, _inParams) ;
     }
 
 
-    private YParameter getOutputParameter(String paramName)
+    protected YParameter getOutputParameter(String paramName)
             throws CodeletExecutionException {
         return getParameter(paramName, _outParams) ;
     }
@@ -173,7 +173,7 @@ public abstract class AbstractCodelet {
      * @throws CodeletExecutionException if the parameter doesn't exist in the input
      * data
      */
-    private String getValue(String varName) throws CodeletExecutionException {
+    protected String getValue(String varName) throws CodeletExecutionException {
         String result = null ;
         if (_inData != null) {
             Element varElem = _inData.getChild(varName);          // may be complex type
