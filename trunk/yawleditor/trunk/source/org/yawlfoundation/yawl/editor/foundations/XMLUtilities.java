@@ -390,7 +390,8 @@ public class XMLUtilities {
       fullFilePath = "";
     }
     File theFile = new File(fullFilePath);
-    return toValidXMLName(theFile.getName());
+    String sansExtn = FileUtilities.stripFileExtension(theFile.getName());
+    return toValidXMLName(sansExtn);
   }
   
   /**

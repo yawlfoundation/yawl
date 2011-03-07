@@ -51,7 +51,7 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
                 "One or more net parameters (if available) may also be chosen below. " +
                 "These are parameters that, at runtime, may contain either a userid " +
                 "(set the 'Refers To' value to 'Participant') or a " +
-                "role name (set to 'Role) that is to be included in the set of resources " +
+                "role name (set to 'Role') that is to be included in the set of resources " +
                 "the task is offered to.</body></html>"
     );
     
@@ -75,8 +75,6 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
     gbc.gridx++;
 
     add(buildTaskInputParameterPanel(), gbc);
-
-    LinkedList<JComponent> panels = new LinkedList<JComponent>();
   }
 
   public String getWizardStepTitle() {

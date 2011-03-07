@@ -25,13 +25,17 @@
 package org.yawlfoundation.yawl.editor.actions.specification;
 
 import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
+import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-public class SaveSpecificationAsAction extends YAWLOpenSpecificationAction implements TooltipTogglingWidget {
+public class SaveSpecificationAsAction extends YAWLOpenSpecificationAction
+        implements TooltipTogglingWidget {
 
   /**
    * 
@@ -48,7 +52,14 @@ public class SaveSpecificationAsAction extends YAWLOpenSpecificationAction imple
   }
   
   public void actionPerformed(ActionEvent event) {
-    ArchivingThread.getInstance().saveAs();
+      String fileName = SpecificationModel.getInstance().getFileName();
+      if (StringUtil.isNullOrEmpty(fileName)) {                   // never been saved
+          ExportConfigDialog dialog = new ExportConfigDialog();
+          dialog.setLocationRelativeTo(YAWLEditor.getInstance());
+          dialog.showOrHideSpecIDField();
+          dialog.setVisible(true);
+      }
+      else ArchivingThread.getInstance().saveAs();
   }
   
   public String getEnabledTooltipText() {
