@@ -146,7 +146,6 @@ public class YPersistenceManager {
 
     public void getStatistics() {
         Statistics stats = factory.getStatistics();
-        System.out.println(stats);
     }
 
     /**
