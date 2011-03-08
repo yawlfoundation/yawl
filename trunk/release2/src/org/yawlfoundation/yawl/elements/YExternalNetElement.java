@@ -63,6 +63,13 @@ public abstract class YExternalNetElement extends YNetElement implements YVerifi
     public void setDocumentation(String doco) { _documentation = doco; }
 
 
+    /**
+     * Gets the net that contains this atomic task.
+     * @return the containing net.
+     */
+    public YNet getNet() { return _net; }
+
+
     public String getProperID() {
         return _net.getSpecification().getURI() + "|" + super.getID();
     }

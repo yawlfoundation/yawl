@@ -18,14 +18,16 @@
 
 package org.yawlfoundation.yawl.elements;
 
-import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.engine.YWorkItem;
-import org.yawlfoundation.yawl.exceptions.*;
+import org.yawlfoundation.yawl.exceptions.YDataStateException;
+import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.yawlfoundation.yawl.exceptions.YQueryException;
+import org.yawlfoundation.yawl.exceptions.YStateException;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.util.*;
@@ -39,8 +41,6 @@ import java.util.*;
  * @since 0.1
  */
 public class YAtomicTask extends YTask {
-
-    private static Logger logger = Logger.getLogger(YAtomicTask.class);
 
     /**
      * Constructs a new atomic task.
@@ -116,6 +116,29 @@ public class YAtomicTask extends YTask {
     }
 
 
+
+
+    private synchronized boolean cancelBusyWorkItem(YPersistenceManager pmgr)
+                                                         throws YPersistenceException {
+
+        // nothing to do if not fired or has no decomposition
+        if ((_i == null) || (_decompositionPrototype == null)) return false;
+
+        YWorkItem workItem = _workItemRepository.get(_i.toString(), getID());
+        if (null != workItem) cancelWorkItem(pmgr, workItem) ;
+        return true;
+    }
+
+
+    private synchronized void cancelWorkItem(YPersistenceManager pmgr,
+                                             YWorkItem workItem)
+            throws YPersistenceException {
+        _workItemRepository.removeWorkItemFamily(workItem);
+        workItem.cancel(pmgr);
+        YEngine.getInstance().getAnnouncer().announceCancelledWorkItem(workItem);
+    }
+
+
     /**
      * Rolls back a task's inner state from 'executing' to 'entered'.
      * <p/>
@@ -136,15 +159,6 @@ public class YAtomicTask extends YTask {
             return true;
         }
         return false;
-    }
-
-
-    /**
-     * Gets the net that contains this atomic task.
-     * @return the containing net.
-     */
-    public YNet getNet() {
-        return _net;
     }
 
 
@@ -182,8 +196,7 @@ public class YAtomicTask extends YTask {
      * @throws YStateException if there's a problem setting the task state.
      * @deprecated Since 2.0, enablement mappings have no function.
      */
-    public Element prepareEnablementData()
-            throws YQueryException, YDataStateException, YStateException {
+    public Element prepareEnablementData() throws YQueryException, YDataStateException {
         if (null == getDecompositionPrototype()) {
             return null;
         }
@@ -202,14 +215,15 @@ public class YAtomicTask extends YTask {
     }
 
 
+    /***** VERIFICATION *******************************************************/
+
     /**
      * Verifies this atomic task definition against YAWL semantics.
      * @return a List of error and/or warning messages. An empty list is returned if
      * the atomic task verifies successfully.
      */
     public List<YVerificationMessage> verify() {
-        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
-        messages.addAll(super.verify());
+        List<YVerificationMessage> messages = super.verify();
         if (_decompositionPrototype == null) {
             if (_multiInstAttr != null && (_multiInstAttr.getMaxInstances() > 1 ||
                     _multiInstAttr.getThreshold() > 1)) {
@@ -225,26 +239,6 @@ public class YAtomicTask extends YTask {
         return messages;
     }
 
-
-    private synchronized boolean cancelBusyWorkItem(YPersistenceManager pmgr)
-                                                         throws YPersistenceException {
-
-        // nothing to do if not fired or has no decomposition
-        if ((_i == null) || (_decompositionPrototype == null)) return false;
-
-        YWorkItem workItem = _workItemRepository.get(_i.toString(), getID());
-        if (null != workItem) cancelWorkItem(pmgr, workItem) ;
-        return true;
-    }
-
-
-    private synchronized void cancelWorkItem(YPersistenceManager pmgr,
-                                             YWorkItem workItem)
-            throws YPersistenceException {
-        _workItemRepository.removeWorkItemFamily(workItem);
-        workItem.cancel(pmgr);
-        YEngine.getInstance().getAnnouncer().announceCancelledWorkItem(workItem);
-    }
 
 
     /**

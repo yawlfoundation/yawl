@@ -69,26 +69,28 @@ public abstract class YTask extends YExternalNetElement {
     protected YInternalCondition _mi_executing = new YInternalCondition(YInternalCondition._mi_executing, this);
 
     // repository references used by cancel methods in subclasses
-    protected static YWorkItemRepository _workItemRepository = YEngine.getInstance().getWorkItemRepository();
-    protected static YNetRunnerRepository _netRunnerRepository = YEngine.getInstance().getNetRunnerRepository();
+    protected static YWorkItemRepository _workItemRepository =
+            YEngine.getInstance().getWorkItemRepository();
+    protected static final YNetRunnerRepository _netRunnerRepository =
+            YEngine.getInstance().getNetRunnerRepository();
 
     //private attributes
     private int _splitType;
     private int _joinType;
     protected YMultiInstanceAttributes _multiInstAttr;
     private Set<YExternalNetElement> _removeSet = new HashSet<YExternalNetElement>();
-    protected Map<String, String> _dataMappingsForTaskStarting =
+    protected final Map<String, String> _dataMappingsForTaskStarting =
             new HashMap<String, String>();       //[key=ParamName, value=query]
-    private Map<String, String> _dataMappingsForTaskCompletion =
+    private final Map<String, String> _dataMappingsForTaskCompletion =
             new HashMap<String, String>();       //[key=query, value=NetVarName]
-    protected Map<String, String> _dataMappingsForTaskEnablement =
+    protected final Map<String, String> _dataMappingsForTaskEnablement =
             new HashMap<String, String>();       //[key=ParamName, value=query]
     protected YDecomposition _decompositionPrototype;
 
     // input data storage
-    private Map<YIdentifier, Element> _caseToDataMap = new HashMap<YIdentifier, Element>();
+    private final Map<YIdentifier, Element> _caseToDataMap = new HashMap<YIdentifier, Element>();
     private Iterator _multiInstanceSpecificParamsIterator;
-    private Map<String, Element> _localVariableNameToReplaceableOuptutData;
+    private Map<String, Element> _localVariableNameToReplaceableOutputData;
     private Document _groupedMultiInstanceOutputData;
 
     // Reset net association
@@ -370,7 +372,7 @@ public abstract class YTask extends YExternalNetElement {
         _groupedMultiInstanceOutputData.setRootElement(
                 new Element(getDecompositionPrototype().getRootDataElementName()));
 
-        _localVariableNameToReplaceableOuptutData = new HashMap<String, Element>();
+        _localVariableNameToReplaceableOutputData = new HashMap<String, Element>();
     }
 
 
@@ -401,7 +403,7 @@ public abstract class YTask extends YExternalNetElement {
     }
 
 
-    private long determineHowManyInstancesToCreate() throws YDataStateException, YStateException, YQueryException {
+    private long determineHowManyInstancesToCreate() throws YDataStateException, YQueryException {
         if (!isMultiInstance()) {
             return 1;
         }
@@ -499,7 +501,7 @@ public abstract class YTask extends YExternalNetElement {
                             (Element) queryResultElement.clone());
                 }
                 else {
-                    _localVariableNameToReplaceableOuptutData.put(
+                    _localVariableNameToReplaceableOutputData.put(
                             localVarThatQueryResultGetsAppliedTo, queryResultElement);
                 }
 
@@ -691,10 +693,7 @@ public abstract class YTask extends YExternalNetElement {
                 ((YCondition) netElement).removeAll(pmgr); 
             }
         }
-        _mi_active.removeAll(pmgr);
-        _mi_complete.removeAll(pmgr);
-        _mi_entered.removeAll(pmgr);
-        _mi_executing.removeAll(pmgr);
+        purgeLocations(pmgr);
         switch (_splitType) {
             case YTask._AND:
                 doAndSplit(pmgr, i);
@@ -715,16 +714,13 @@ public abstract class YTask extends YExternalNetElement {
 
 
     private void performDataAssignmentsAccordingToOutputExpressions(YPersistenceManager pmgr)
-            throws YDataStateException, YStateException, YQueryException, YPersistenceException {
+            throws YDataStateException, YQueryException, YPersistenceException {
         if (null == getDecompositionPrototype()) {
             return;
         }
         if(logger.isInfoEnabled()) generateExitReport1();
-        for (Iterator iter = _localVariableNameToReplaceableOuptutData.keySet().iterator();
-             iter.hasNext();) {
-            String localVariableName = (String) iter.next();
-            Element queryResult =
-                    (Element) _localVariableNameToReplaceableOuptutData.get(localVariableName);
+        for (String localVariableName : _localVariableNameToReplaceableOutputData.keySet()) {
+            Element queryResult = _localVariableNameToReplaceableOutputData.get(localVariableName);
             //todo check that queryResult is valid instance of variable type
             _net.addData(pmgr, queryResult);
         }
@@ -742,8 +738,8 @@ public abstract class YTask extends YExternalNetElement {
 
                 YVariable var = _net.getLocalVariables().containsKey(
                         localVarThatQueryResultGetsAppliedTo) ?
-                        (YVariable) _net.getLocalVariables().get(localVarThatQueryResultGetsAppliedTo) :
-                        (YVariable) _net.getInputParameters().get(localVarThatQueryResultGetsAppliedTo);
+                        _net.getLocalVariables().get(localVarThatQueryResultGetsAppliedTo) :
+                        _net.getInputParameters().get(localVarThatQueryResultGetsAppliedTo);
 
                 Element tempRoot = new Element(_decompositionPrototype.getID());
                 tempRoot.addContent((Element) result.clone());
@@ -792,7 +788,7 @@ public abstract class YTask extends YExternalNetElement {
         if (logger.isInfoEnabled()) {
             logger.debug("\n\nYTask::exit()");
             logger.debug("\tgetID = " + getID());
-            for (Element queryResult : _localVariableNameToReplaceableOuptutData.values()) {
+            for (Element queryResult : _localVariableNameToReplaceableOutputData.values()) {
                 logger.debug("\tqueryResult = " + JDOMUtil.elementToString(queryResult));
             }
         }
@@ -1050,7 +1046,7 @@ public abstract class YTask extends YExternalNetElement {
 
 
     protected Element performDataExtraction(String expression, YParameter inputParam)
-            throws YDataStateException, YQueryException, YStateException {
+            throws YDataStateException, YQueryException {
 
         Element result = evaluateTreeQuery(expression, _net.getInternalDataDocument());
 
@@ -1176,10 +1172,7 @@ public abstract class YTask extends YExternalNetElement {
 
 
     public synchronized void cancel(YPersistenceManager pmgr) throws YPersistenceException {
-        _mi_active.removeAll(pmgr);
-        _mi_complete.removeAll(pmgr);
-        _mi_entered.removeAll(pmgr);
-        _mi_executing.removeAll(pmgr);
+        purgeLocations(pmgr);
         if (_i != null) {
             _i.removeLocation(pmgr, this);
             _i = null;
@@ -1193,6 +1186,14 @@ public abstract class YTask extends YExternalNetElement {
         _i.removeChild(childID);
         _i.removeLocation(pmgr, this);
         _i = null;
+    }
+
+
+    private void purgeLocations(YPersistenceManager pmgr) throws YPersistenceException {
+        _mi_active.removeAll(pmgr);
+        _mi_complete.removeAll(pmgr);
+        _mi_entered.removeAll(pmgr);
+        _mi_executing.removeAll(pmgr);
     }
 
     public YInternalCondition getMIActive() {

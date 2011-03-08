@@ -60,14 +60,14 @@ public class YNetRunner {
     private Set<YTask> _netTasks;
     private Set<YTask> _enabledTasks = new HashSet<YTask>();
     private Set<YTask> _busyTasks = new HashSet<YTask>();
-    private Set<YTask> _deadlockedTasks = new HashSet<YTask>();
+    private final Set<YTask> _deadlockedTasks = new HashSet<YTask>();
     private YIdentifier _caseIDForNet;
     private YSpecificationID _specID;
     private YCompositeTask _containingCompositeTask;
     private YEngine _engine;
     private boolean _cancelling;
-    private Set<String> _enabledTaskNames = new HashSet<String>();
-    private Set<String> _busyTaskNames = new HashSet<String>();
+    private final Set<String> _enabledTaskNames = new HashSet<String>();
+    private final Set<String> _busyTaskNames = new HashSet<String>();
     private String _caseID = null;
     private String _containingTaskID = null;
     private YNetData _netdata = null;
@@ -584,7 +584,7 @@ public class YNetRunner {
         for (YEnabledTransitionSet.TaskGroup group : taskGroups) {
             if (group.hasEnabledCompositeTasks()) {
                 YCompositeTask composite = group.getRandomCompositeTaskFromTaskGroup();
-                if (! enabledTasks.contains(composite)) {
+                if (! (enabledTasks.contains(composite) || endOfNetReached())) {
                     fireCompositeTask(composite, pmgr) ;
                     enabledTasks.add(composite) ;
                 }
@@ -594,7 +594,7 @@ public class YNetRunner {
                 String groupID = taskList.size() > 1 ? group.getID() : null;
                 boolean groupHasEmptyTask = group.hasEmptyAtomicTask(); 
                 for (YAtomicTask atomic : taskList) {
-                    if (! enabledTasks.contains(atomic)) {
+                    if (! (enabledTasks.contains(atomic) || endOfNetReached())) {
                         NewWorkItemAnnouncement announcement = fireAtomicTask(atomic, groupID, pmgr) ;
                         if ((announcement != null) && (! groupHasEmptyTask)) {
                             _firedAnnouncements.addAnnouncement(announcement);
@@ -657,7 +657,7 @@ public class YNetRunner {
     }
 
     private CancelWorkItemAnnouncement cancelEnabledTask(YTask task, YPersistenceManager pmgr)
-                      throws YDataStateException, YStateException, YPersistenceException {
+                      throws YPersistenceException {
 
         CancelWorkItemAnnouncement result = null;
         _enabledTasks.remove(task);
@@ -717,8 +717,7 @@ public class YNetRunner {
     private YWorkItem createEnabledWorkItem(YPersistenceManager pmgr,
                                             YIdentifier caseIDForNet,
                                             YAtomicTask atomicTask)
-            throws YPersistenceException, YDataStateException, YQueryException,
-                   YStateException {
+            throws YPersistenceException, YDataStateException, YQueryException {
         _logger.debug("--> createEnabledWorkItem: Case=" + caseIDForNet.get_idString() +
                       " Task=" + atomicTask.getID());
 
@@ -978,32 +977,29 @@ public class YNetRunner {
         return (! haveTokens.isEmpty());
     }
 
-    public void dump() {
-        dump(_logger);
-    }
 
-    public void dump(Logger logger) {
-        logger.debug("*** DUMP OF NETRUNNER ENABLED TASKS ***");
+    public void dump() {
+        _logger.debug("*** DUMP OF NETRUNNER ENABLED TASKS ***");
 
         Iterator iter = _enabledTasks.iterator();
         while(iter.hasNext())
         {
             Object obj = iter.next();
-            logger.debug("Type = " + obj.getClass().getName());
+            _logger.debug("Type = " + obj.getClass().getName());
         }
 
-        logger.debug("*** END OF DUMP OF NETRUNNER ENABLED TASKS ***");
+       _logger.debug("*** END OF DUMP OF NETRUNNER ENABLED TASKS ***");
 
-        logger.debug("*** DUMP OF NETRUNNER BUSY TASKS ***");
+        _logger.debug("*** DUMP OF NETRUNNER BUSY TASKS ***");
 
         iter = _busyTasks.iterator();
         while(iter.hasNext())
         {
             Object obj = iter.next();
-            logger.debug("Type = " + obj.getClass().getName());
+            _logger.debug("Type = " + obj.getClass().getName());
         }
 
-        logger.debug("*** END OF DUMP OF NETRUNNER BUSY TASKS ***");
+        _logger.debug("*** END OF DUMP OF NETRUNNER BUSY TASKS ***");
     }
 
     /***************************************************************************/
@@ -1180,7 +1176,8 @@ public class YNetRunner {
     public void setStateNormal() { _executionStatus = ExecutionStatus.Normal; }
 
     public void setExecutionStatus(String status) {
-        _executionStatus = ExecutionStatus.valueOf(status);
+        _executionStatus = (status != null) ? ExecutionStatus.valueOf(status) :
+                ExecutionStatus.Normal;
     }
 
     public String getExecutionStatus() {
