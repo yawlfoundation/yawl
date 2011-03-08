@@ -121,6 +121,7 @@ public class MonitorClient {
     public List<ParameterInstance> getParameters(String itemID) throws IOException {
         List<ParameterInstance> paramList = new ArrayList<ParameterInstance>();
         String caseID = getCaseFromItemID(itemID);
+        itemID = checkForItemStarted(itemID, caseID);
         String xml = _interfaceBClient.getParameterInstanceSummary(caseID, itemID, getEngineHandle());
         Element params = JDOMUtil.stringToElement(xml);
         if (params != null) {
@@ -137,12 +138,21 @@ public class MonitorClient {
     public long getStartupTime() { return _startupTime; }
 
 
-    //== LOGIN & SESSION ===================================//
+    //== PRIVATE ===================================//
+
+    private String getCaseFromItemID(String itemID) {
+        String caseID = itemID;
+        if (caseID.contains(":")) caseID = itemID.substring(0, itemID.indexOf(':'));
+        if (caseID.contains(".")) caseID = caseID.substring(0, caseID.indexOf('.'));
+        return caseID;
+    }
+
 
     /* tests that a sessionhandle is valid */
     private boolean connected(String handle) {
         return successful(handle);
     }
+
 
     /* returns the engine session handle, creating a new one if its invalid */
     private String getEngineHandle() {
@@ -172,6 +182,28 @@ public class MonitorClient {
     }
 
 
+    private String validateUserCredentials(String userid, String password) {
+        try {
+            return _resClient.validateUserCredentials(userid, password, true, getResourceHandle());
+        }
+        catch (IOException ioe) {
+            return "<failure>Unable to validate user - service unreachable.</failure>";
+        }
+    }
+
+
+    private String checkForItemStarted(String itemID, String caseID) throws IOException {
+        for (WorkItemInstance item : getWorkItems(caseID)) {
+            if (itemID.endsWith(":" + item.getTaskID())) {
+                return item.getID();
+            }
+        }
+        return itemID;     // fallback
+    }
+
+
+    //== LOGIN & SESSION ===================================//
+
     /* called from msLogin to log a user with admin credentials into the service */
     public String login(String userid, String password) {
         try {
@@ -187,27 +219,8 @@ public class MonitorClient {
     }
 
 
-    private String validateUserCredentials(String userid, String password) {
-        try {
-            return _resClient.validateUserCredentials(userid, password, true, getResourceHandle());
-        }
-        catch (IOException ioe) {
-            return "<failure>Unable to validate user - service unreachable.</failure>";
-        }
-    }
-
-
     public boolean successful(String msg) {
         return _interfaceBClient.successful(msg);
-    }
-
-
-    //== PRIVATE ===================================//
-
-    private String getCaseFromItemID(String itemID) {
-        String caseID = itemID.split(":")[0];
-        if (caseID.contains(".")) caseID = caseID.split("\\.")[0];
-        return caseID;
     }
 
 
@@ -233,6 +246,7 @@ public class MonitorClient {
 
     public List<YLogEvent> getEventsForWorkItem(String itemID) throws IOException {
         List<YLogEvent> eventList = new ArrayList<YLogEvent>();
+        itemID = checkForItemStarted(itemID, getCaseFromItemID(itemID));
         String xml = _logClient.getEventsForTaskInstance(itemID, getEngineHandle()) ;
         if (successful(xml)) {
             Element events = JDOMUtil.stringToElement(xml);
@@ -250,6 +264,7 @@ public class MonitorClient {
 
     public List<ResourceEvent> getResourceEventsForWorkItem(String itemID) throws IOException {
         List<ResourceEvent> eventList = new ArrayList<ResourceEvent>();
+        itemID = checkForItemStarted(itemID, getCaseFromItemID(itemID));
         String xml = _resLogClient.getWorkItemEvents(itemID, true, getResourceHandle());
         if (successful(xml)) {
             Element events = JDOMUtil.stringToElement(xml);

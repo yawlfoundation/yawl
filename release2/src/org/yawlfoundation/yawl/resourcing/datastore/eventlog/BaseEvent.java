@@ -57,7 +57,11 @@ public abstract class BaseEvent {
         return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date(_timeStamp));
     }
 
-    
+    public String getTimeStampMidString() {
+        return new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss.SSS").format(new Date(_timeStamp));
+    }
+
+
     public String toXML() {
         return StringUtil.wrap(_event, "eventtype") +
                StringUtil.wrap(String.valueOf(_timeStamp), "timestamp");        

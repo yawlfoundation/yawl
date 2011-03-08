@@ -88,7 +88,7 @@ public class YEngine implements InterfaceADesign,
 
     // NON-STATIC MEMBERS //
 
-    protected YWorkItemRepository _workItemRepository;
+    private YWorkItemRepository _workItemRepository;
     protected YNetRunnerRepository _netRunnerRepository;
     private Map<YIdentifier, YSpecification> _runningCaseIDToSpecMap;
     private Map<String, YAWLServiceReference> _yawlServices;
@@ -110,7 +110,7 @@ public class YEngine implements InterfaceADesign,
     /**
      * The Constructor - called from getInstance().
      */
-    protected YEngine() {
+    private YEngine() {
         _engineStatus = Status.Initialising;
 
         // initialise global objects
@@ -803,7 +803,7 @@ public class YEngine implements InterfaceADesign,
      * @param caseID the id of the completing case
      * @throws YPersistenceException if theres a persistence problem
      */
-    protected void removeCaseFromCaches(YIdentifier caseID) throws YPersistenceException {
+    protected void removeCaseFromCaches(YIdentifier caseID) {
         _logger.debug("--> removeCaseFromCaches: Case=" + caseID.get_idString());
 
         _netRunnerRepository.remove(caseID);
@@ -836,7 +836,7 @@ public class YEngine implements InterfaceADesign,
         YNetRunner runner = _netRunnerRepository.get(caseID);
         synchronized(_pmgr) {
             startTransaction();
-            if (_persisting) clearWorkItemsFromPersistence(_pmgr, removedItems);
+            if (_persisting) clearWorkItemsFromPersistence(removedItems);
             YTimer.getInstance().cancelTimersForCase(caseID.toString());
             removeCaseFromCaches(caseID);
             if (runner != null) runner.cancel(_pmgr);
@@ -939,7 +939,6 @@ public class YEngine implements InterfaceADesign,
                 stateText.append("CaseIDs in: ")
                         .append(element.toString())
                         .append("\r\n");
-                List identifiers = ((YConditionInterface) element).getIdentifiers();
                 stateText.append("\thashcode ")
                         .append(element.hashCode())
                         .append("\r\n");
@@ -2119,24 +2118,22 @@ public class YEngine implements InterfaceADesign,
     /**
      * Removes the workitems of the runner from persistence (after a case cancellation).
      *
-     * @param pmgr a (non-null) YPersistence object
      * @param items the set of work items to delete from persistnece
      * @throws YPersistenceException if there's some persistence problem
      */
-    private void clearWorkItemsFromPersistence(YPersistenceManager pmgr,
-                                               Set<YWorkItem> items)
-                                               throws YPersistenceException{
+    private void clearWorkItemsFromPersistence(Set<YWorkItem> items)
+            throws YPersistenceException {
 
         // clear child items first (to avoid foreign key constraint exceptions)
         for (YWorkItem item : items) {
             if (! item.getStatus().equals(YWorkItemStatus.statusIsParent))
-                pmgr.deleteObject(item);
+                _pmgr.deleteObject(item);
         }
 
         // now clear any parents
         for (YWorkItem item : items) {
             if (item.getStatus().equals(YWorkItemStatus.statusIsParent))
-                pmgr.deleteObject(item);
+                _pmgr.deleteObject(item);
         }
     }
 

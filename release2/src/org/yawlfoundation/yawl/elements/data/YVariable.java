@@ -162,8 +162,7 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
 
     public void setMandatory(boolean mandatory) {
         _mandatory = mandatory;
-    }    
-
+    }
 
     public String getName() {
         return _name;
@@ -389,8 +388,12 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
 
     public boolean isOptional() {
         return _attributes.getBoolean("optional");
-
     }
+
+    public void setOptional(boolean option) {
+        addAttribute("optional", String.valueOf(option));
+    }
+    
 
     /**
      * Return table of attributes associated with this variable.<P>

@@ -127,7 +127,7 @@
                                     <h:outputText binding="#{ItemParams.colEngineTimeRows}"
                                                   id="colEngineEventTimeRows"
                                                   styleClass="dataTableItemText"
-                                                  value="#{currentRow.timestampString}"/>
+                                                  value="#{currentRow.timestampMidString}"/>
                                 </h:column>
 
                                <h:column binding="#{ItemParams.colEngineEvent}"
@@ -162,7 +162,7 @@
                                       <h:outputText binding="#{ItemParams.colResourceTimeRows}"
                                                    id="colResourceEventTimeRows"
                                                    styleClass="dataTableItemText"
-                                                   value="#{currentRow.timeStampString}"/>
+                                                   value="#{currentRow.timeStampMidString}"/>
                                  </h:column>
 
                                 <h:column binding="#{ItemParams.colResourceEvent}"
