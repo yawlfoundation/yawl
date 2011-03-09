@@ -935,15 +935,21 @@ public class ResourceDataSet {
         return null ;                    // no match
     }
 
-    public Set<NonHumanResource> getNonHumanResources(String category, String subcategory) {
+    public Set<NonHumanResource> getNonHumanResources(NonHumanCategory category,
+                                                      String subcategory) {
         Set<NonHumanResource> resources = new HashSet<NonHumanResource>();
         if (category != null) {
-            NonHumanCategory nhrCategory = getNonHumanCategoryByName(category);
-            if (nhrCategory != null) {
-                resources = nhrCategory.getSubCategoryResources(subcategory);
-            }
+            resources = category.getSubCategoryResources(subcategory);
         }
         return resources ;
+    }
+
+    public Set<NonHumanResource> getNonHumanResources(String id, String subcategory) {
+        return getNonHumanResources(getNonHumanCategory(id), subcategory);
+    }
+
+    public Set<NonHumanResource> getNonHumanResourcesByName(String category, String subcategory) {
+        return getNonHumanResources(getNonHumanCategoryByName(category), subcategory);
     }
 
     public boolean isKnownRoleName(String name) {
