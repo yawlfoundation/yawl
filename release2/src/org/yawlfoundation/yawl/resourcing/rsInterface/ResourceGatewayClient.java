@@ -765,29 +765,61 @@ public class ResourceGatewayClient extends Interface_Client {
 
 
     /**
-     * Gets all the NonHumanResource sub-categories for the specified category
-     * @param category the category to get the sub-categories for 
+     * Gets all the NonHumanResource sub-categories for the specified category identifier
+     * @param id the category id to get the sub-categories for
      * @param handle a valid session handle
      * @return an XML string describing the categories, or an appropriate error message
      * @throws IOException if the service can't be reached
      */
-    public String getNonHumanSubCategories(String category, String handle)
+    public String getNonHumanSubCategories(String id, String handle)
             throws IOException {
-        return getNonHumanSubCategories(category, null, handle);
+        return getNonHumanSubCategories(id, null, handle);
     }
 
 
     /**
-     * Gets all the NonHumanResource sub-categories for the specified category
-     * @param category the category to get the sub-categories for
-     * @param format how to format the output; valid values are "XML" or "JSON"
+     * Gets all the NonHumanResource sub-categories for the specified category identifier
+     * @param id the category id  to get the sub-categories for
+     * @param format how to format the output; valid values are "XML" or "JSON" - a null
+     * value defaults to XML
      * @param handle a valid session handle
      * @return an XML string describing the categories, or an appropriate error message
      * @throws IOException if the service can't be reached
      */
-    public String getNonHumanSubCategories(String category, String format, String handle)
+    public String getNonHumanSubCategories(String id, String format, String handle)
             throws IOException {
         Map<String, String> params = prepareParamMap("getNonHumanSubCategories", handle);
+        params.put("id", id);
+        if (format != null) params.put("format", format);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Gets all the NonHumanResource sub-categories for the specified category name
+     * @param category the category to get the sub-categories for
+     * @param handle a valid session handle
+     * @return an XML string describing the categories, or an appropriate error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getNonHumanSubCategoriesByName(String category, String handle)
+            throws IOException {
+        return getNonHumanSubCategoriesByName(category, null, handle);
+    }
+
+
+    /**
+     * Gets all the NonHumanResource sub-categories for the specified category name
+     * @param category the category to get the sub-categories for
+     * @param format how to format the output; valid values are "XML" or "JSON" - a null
+     * value defaults to XML
+     * @param handle a valid session handle
+     * @return an XML string describing the categories, or an appropriate error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getNonHumanSubCategoriesByName(String category, String format, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("getNonHumanSubCategoriesByName", handle);
         params.put("category", category);
         if (format != null) params.put("format", format);
         return executeGet(_serviceURI, params) ;

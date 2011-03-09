@@ -733,6 +733,18 @@ public class ResourceGateway extends HttpServlet {
             else result = _orgDataSet.getNonHumanCategoriesAsXML();
         }
         else if (action.equalsIgnoreCase("getNonHumanSubCategories")) {
+            NonHumanCategory category = _orgDataSet.getNonHumanCategory(id);
+            if (category != null) {
+                String format = req.getParameter("format");
+                if ((format != null) && format.equals("JSON")) {
+                    String callback = req.getParameter("callback");
+                    result = stringSetToJSON(category.getSubCategoryNames(), callback);
+                }
+                else result = _orgDataSet.getNonHumanSubCategoriesAsXML(category.getID());
+            }
+            else result = fail("Unknown category id: " + id);
+        }
+        else if (action.equalsIgnoreCase("getNonHumanSubCategoriesByName")) {
             String categoryName = req.getParameter("category");
             NonHumanCategory category = _orgDataSet.getNonHumanCategoryByName(categoryName);
             if (category != null) {
@@ -742,7 +754,8 @@ public class ResourceGateway extends HttpServlet {
                     result = stringSetToJSON(category.getSubCategoryNames(), callback);
                 }
                 else result = _orgDataSet.getNonHumanSubCategoriesAsXML(category.getID());
-            }    
+            }
+            else result = fail("Unknown category name: " + categoryName);
         }
         else if (action.equalsIgnoreCase("getNonHumanCategoryByName")) {
             NonHumanCategory category = _orgDataSet.getNonHumanCategoryByName(name);

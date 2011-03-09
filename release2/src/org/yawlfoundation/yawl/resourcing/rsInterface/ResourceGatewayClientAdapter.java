@@ -1711,15 +1711,30 @@ public class ResourceGatewayClientAdapter {
 
     /**
      * Gets the list of all the subcategory names of a NonHumanResource category
-     * @param category the category names to get the subcategories for
+     * @param id the category id to get the subcategories for
      * @param handle the current sessionhandle
      * @return a list of category name strings
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the list
      */
-    public List<String> getNonHumanSubCategories(String category, String handle)
+    public List<String> getNonHumanSubCategories(String id, String handle)
             throws IOException, ResourceGatewayException {
-        String xml = successCheck(_rgclient.getNonHumanSubCategories(category, handle));
+        String xml = successCheck(_rgclient.getNonHumanSubCategories(id, handle));
+        return xmlToStringList(xml);
+    }
+
+
+    /**
+     * Gets the list of all the subcategory names of a NonHumanResource category
+     * @param category the category name to get the subcategories for
+     * @param handle the current sessionhandle
+     * @return a list of category name strings
+     * @throws IOException if there was a problem connecting to the resource service
+     * @throws ResourceGatewayException if there was a problem getting the list
+     */
+    public List<String> getNonHumanSubCategoriesByName(String category, String handle)
+            throws IOException, ResourceGatewayException {
+        String xml = successCheck(_rgclient.getNonHumanSubCategoriesByName(category, handle));
         return xmlToStringList(xml);
     }
 
@@ -1727,15 +1742,30 @@ public class ResourceGatewayClientAdapter {
     /**
      * Gets the list of all the subcategory names of a NonHumanResource category in
      * JSON format
-     * @param category the category names to get the subcategories for
+     * @param id the category id to get the subcategories for
      * @param handle the current sessionhandle
      * @return a JSON String of category name pairs
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the list
      */
-    public String getNonHumanSubCategoriesToJSON(String category, String handle)
+    public String getNonHumanSubCategoriesToJSON(String id, String handle)
             throws IOException, ResourceGatewayException {
-        return successCheck(_rgclient.getNonHumanSubCategories(
+        return successCheck(_rgclient.getNonHumanSubCategories(id, JSON_FORMAT, handle));
+    }
+
+
+    /**
+     * Gets the list of all the subcategory names of a NonHumanResource category in
+     * JSON format
+     * @param category the category name to get the subcategories for
+     * @param handle the current sessionhandle
+     * @return a JSON String of category name pairs
+     * @throws IOException if there was a problem connecting to the resource service
+     * @throws ResourceGatewayException if there was a problem getting the list
+     */
+    public String getNonHumanSubCategoriesToJSONByName(String category, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_rgclient.getNonHumanSubCategoriesByName(
                 category, JSON_FORMAT, handle));
     }
 
