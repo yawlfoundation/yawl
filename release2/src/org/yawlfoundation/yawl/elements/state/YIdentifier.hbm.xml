@@ -23,19 +23,19 @@
 
 <hibernate-mapping>
 
-	<class name="org.yawlfoundation.yawl.elements.state.YIdentifier" table="YIdentifiers" lazy="false">
+	<class name="org.yawlfoundation.yawl.elements.state.YIdentifier" table="YIdentifiers">
 
 	    <id name="_idString" column="idString" type="string">
     		<generator class="assigned"/>
     	</id>
    	
-      <list name="_children" lazy="false">
+      <list name="_children">
     		<key column="parent"/>
     		<index column="ix"/>
 	    	<one-to-many class="org.yawlfoundation.yawl.elements.state.YIdentifier"/>
 	    </list>
 
-	    <list name="locationNames" table="YLOCATIONS" access="field" lazy="false">
+	    <list name="locationNames" table="YLOCATIONS" access="field">
 	      <key column="id_key"/>
 	      <index column="ix"/>
 	      <element column="loc_condition" type="string"/>
