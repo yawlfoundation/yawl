@@ -60,7 +60,7 @@
 
         <many-to-one name="_parent" column="parent"
                      class="org.yawlfoundation.yawl.engine.YWorkItem"
-                     access="field" lazy="false"/>
+                     access="field"/>
 
 	</class>
 	

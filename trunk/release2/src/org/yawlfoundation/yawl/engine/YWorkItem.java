@@ -276,7 +276,7 @@ public class YWorkItem {
            throws YPersistenceException {
         if (this._parent == null) {
             YIdentifier parentCaseID = getWorkItemID().getCaseID();
-            if (childCaseID.getParent() != parentCaseID) return null;
+            if (! childCaseID.getParent().equals(parentCaseID)) return null;
 
             set_status(pmgr, statusIsParent);
 

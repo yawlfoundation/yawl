@@ -166,13 +166,20 @@ public class YWorkItemRepository extends ConcurrentHashMap<String, YWorkItem> { 
     // check that the items in the repository are in synch with the engine
     public void cleanseRepository() {
         Set<String> itemsToRemove = new HashSet<String>();
-
+        YNetRunnerRepository netRunnerRepository =
+                YEngine.getInstance().getNetRunnerRepository();
+        YNetRunner runner = null;
         for (YWorkItem workitem : this.values()) {
+            YWorkItemStatus status = workitem.getStatus();
             YIdentifier caseID = workitem.getWorkItemID().getCaseID();
-            if (caseID.hasParent()) caseID = caseID.getParent();
-            YNetRunnerRepository netRunnerRepository =
-                    YEngine.getInstance().getNetRunnerRepository();
-            YNetRunner runner = netRunnerRepository.get(caseID);
+            if (status.equals(statusEnabled) || status.equals(statusIsParent) ||
+                    workitem.isEnabledSuspended()) {
+                runner = netRunnerRepository.get(caseID);
+            }
+            else if (status.equals(statusComplete) || status.equals(statusExecuting) ||
+                    status.equals(statusSuspended) || status.equals(statusFired)) {
+                runner = netRunnerRepository.get(caseID.getParent());
+            }
 
             if (runner != null) {                                      //MLF can be null
                 boolean foundOne = false;
