@@ -165,6 +165,7 @@ public class YPersistenceManager {
         logger.debug("---> start Transaction");
         try {
             session = factory.getCurrentSession();
+            if (! session.isOpen()) factory.openSession();
             transaction = session.beginTransaction();
         } catch (HibernateException e) {
             logger.fatal("Failure to start transactional session", e);
