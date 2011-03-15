@@ -124,13 +124,14 @@ public class DataListGenerator {
            value =  ((Checkbox) component).getValue().toString();
         else if (component instanceof Calendar) {
             Date date = ((Calendar) component).getSelectedDate();
-            if (date != null)
-                value = _sdf.format(date);
-            else
-                value = null;
+            value = (date != null) ? _sdf.format(date) : null;
         }
         else if (component instanceof DropDown)
             value = (String) ((DropDown) component).getSelected();
+        else if (component instanceof TextArea)
+            value = JDOMUtil.encodeEscapes((String) ((TextArea) component).getValue());
+        else if (component instanceof FieldBase)
+            value = (String) ((FieldBase) component).getText();    // default fallthrough
 
         return formatField(value, field);
     }

@@ -698,11 +698,14 @@ public class ResourceScheduler {
     private void checkUpdateReservation(Reservation reservation)
             throws CalendarException, ScheduleStateException {
         long entryID = convertReservationID(reservation);
-        if (_calendar.canUpdateEntry(entryID, reservation.getStatusToBe())) {
-            String status = updateTransientCalendarEntry(entryID, reservation.getStatusToBe());
-            reservation.setStatus(getAvailabilityStatus(status, true));
-        }
-        else reservation.setWarning("Reservation would fail.");
+        if (! _calendar.hasStatus(entryID, reservation.getStatusToBe())) {
+            if (_calendar.canUpdateEntry(entryID, reservation.getStatusToBe())) {
+                String status = updateTransientCalendarEntry(entryID,
+                        reservation.getStatusToBe());
+                reservation.setStatus(getAvailabilityStatus(status, true));
+            }
+            else reservation.setWarning("Reservation would fail.");
+        }    
     }
 
 

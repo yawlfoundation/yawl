@@ -157,9 +157,7 @@
 	     fairly apparent how to add other DBs as required (the 'master'
 	     hibernate.properties includes DBs that have at some point worked).
 
-	     !!!!!!!!!NOTE!!!!!!!!!!!!!!
-
-	     Unlike other DBs, a Derby build will not work at runtime with the
+         NOTE: Unlike other DBs, a Derby build will not work at runtime with the
 	     standard stop/start/apply-SQL-script method (as in the User Guide).
 	     This is due to required differing table structures, meaning that
 	     table creation cannot be automated at first startup as for other DBs.
@@ -289,6 +287,7 @@
     <!--
     	JAR grouping properties for compilation classpath usage
     -->
+
     <path id="cp.compile">
         <pathelement location="${lib.dir}/${junit}"/>
         <pathelement location="${lib.dir}/${xerces}"/>
@@ -372,6 +371,16 @@
             <pathelement location="${lib.dir}/${twitter4j}"/>
     </path>
 
+    <!--
+		Condition using user-set build.properties value to determine whether
+		a dedicated (all JARs in Tomcat lib) or shared (all JARs per webapp)
+		Tomcat build is performed
+	-->
+
+    <condition property="tomcat.isDedicated" value="true">
+        <equals arg1="${tomcat.treatAsDedicated}" arg2="true" />
+    </condition>
+
 
     <!-- =================MAIN YAWL SERVICES BUILD TARGETS================= -->
 
@@ -409,8 +418,10 @@
     	when preparing a distribution release, but is available as a separate
     	target for independent creation
   	-->
+
     <target name="javadoc" depends="compile"
     		description="Create Javadoc API documentation">
+
     	<mkdir dir="${javadoc.dir}/docs/api"/>
         <javadoc sourcepath="${src.dir}" destdir="${javadoc.dir}/docs/api"
                  packagenames="org.yawlfoundation.yawl.*"
@@ -452,6 +463,7 @@
     	Build single JAR of YAWL with its standalone GUI and all dependencies
     	included 'statically'
     -->
+
     <target name="build_Standalone" depends="compile"
     		description="Build YAWL Standalone application (single JAR)">
 
@@ -480,6 +492,7 @@
     <!--
     	Create ZIP file of all source code
     -->
+
     <target name="build_sourcecode" depends="compile"
     		description="Create ZIP file of source code (for release)">
 
@@ -516,8 +529,9 @@
     </target>
 
     <!--
-    	Copy examples and schema files
+        Copy examples and schema files in
     -->
+
     <target name="copy">
         <copy todir="./exampleSpecs/xml">
             <fileset dir="./schema" includes="*.xsd"/>
@@ -534,8 +548,9 @@
     </target>
 
     <!--
-    	Clean build environment
+        Clean the build environment
     -->
+
     <target name="clean" depends="copy">
         <delete dir="${classes.dir}"/>
     	<delete dir="${javadoc.dir}"/>
@@ -556,6 +571,7 @@
     <!--
   		Initialise build environment
   	-->
+
     <target name="init" depends="clean">
         <mkdir dir="${classes.dir}"/>
         <mkdir dir="${output.dir}"/>
@@ -563,8 +579,12 @@
 
     <!--
     	Compile main project source into ${classes.dir}, and produce
-    	library JAR of all non-GUI Java source (for use by Editor builds)
+        library JAR of all non-GUI Java source (for use by Editor builds).
+        This also prepares the Log4J properties file in the classes area,
+        setting logging levels as specified in the properties file (this
+        filtered version will then be used to build all webapps)
     -->
+
     <target name="compile" depends="init, configureDatabaseAccess">
         <javac srcdir="${src.dir}" debug="true" destdir="${classes.dir}">
             <classpath refid="cp.standard"/>
@@ -598,11 +618,7 @@
             <fileset dir="${src.dir}" excludes="**/*.java"/>
         </copy>
 
-        <!--
-        	Copy Log4J properties file to classes area, setting logging levels
-        	as specified (this filtered version will then be used to build all
-        	webapps)
-        -->
+        <!-- prepare Log4J properties file -->
         <copy filtering="true" overwrite="true"
         	  file="${properties.dir}/log4j.properties"
               todir="${classes.dir}" />
@@ -612,9 +628,11 @@
     	Configure appropriate driver and Hibernate properties for persistence.
      	Adjusted properties file used for all later builds
     -->
+
     <target name="configureDatabaseAccess"
     		depends="hibernate_postgres8, hibernate_mysql, hibernate_derby,
     		         hibernate_hypersonic">
+
     	<echo message="Set up Hibernate properties for ${database.type}"/>
     </target>
 
@@ -717,8 +735,10 @@
     <!--
     	Build the Web Service invoker WAR
     -->
+
     <target name="build_WS_Invoker.war"
     	    depends="compile, build_WS_Invoker_SharedTomcat">
+
         <copy todir="${temp.dir}/${wsInvoker.app.name}${webinf.dir}/elements">
             <fileset dir="${classes.dir}${packageRoot}/elements"
                      includes="**/*.class **/*.xsd"/>
@@ -782,8 +802,10 @@
     <!--
     	Build the SMS service invoker WAR
     -->
+
     <target name="build_SMS_Invoker.war"
     	    depends="compile, build_SMS_Invoker_SharedTomcat">
+
         <copy todir="${temp.dir}/${smsInvoker.app.name}${webinf.dir}/elements">
             <fileset dir="${classes.dir}${packageRoot}/elements"
                      includes="**/*.class **/*.xsd"/>
@@ -851,8 +873,10 @@
 	<!--
 		Build the worklet service WAR
 	-->
+
     <target name="build_workletService.war"
     		depends="compile, build_workletService_SharedTomcat">
+
         <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/authentication">
             <fileset dir="${classes.dir}${packageRoot}/authentication"
                      includes="YClient.class"/>
@@ -862,7 +886,6 @@
         </copy>
         <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/engine"
               file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
-
         <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/elements">
             <fileset dir="${classes.dir}${packageRoot}/elements"
                      includes="*.class" />
@@ -968,6 +991,7 @@
     <!--
     	Build the resource service WAR
     -->
+
     <target name="build_resourceService.war"
             depends="compile, build_resourceService_SharedTomcat">
 
@@ -1003,7 +1027,6 @@
                               YPersistenceException.class YDataValidationException.class
                               YLogException.class"/>
         </copy>
-
         <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/logging">
            <fileset dir="${classes.dir}${packageRoot}/logging"
                     includes="YLogDataItem.class YLogDataItemList.class
@@ -1106,6 +1129,7 @@
 	<!--
 		Build the resource service client JAR
 	-->
+
     <target name="build_YResourceServiceClient.jar" depends="compile">
         <tstamp />
         <mkdir dir="${enumeratedClasses}"/>
@@ -1143,8 +1167,10 @@
     <!--
     	Build the monitor service WAR
    	-->
+
     <target name="build_monitorService.war"
     	    depends="compile, build_monitorService_SharedTomcat">
+
         <copy todir="${temp.dir}/${monitor.app.name}${webinf.dir}/engine/interfce/interfaceB">
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceB"/>
         </copy>
@@ -1260,8 +1286,10 @@
     <!--
     	Build the test service WAR
     -->
+
     <target name="build_testService.war"
     	    depends="compile, build_testService_SharedTomcat">
+
         <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/elements/data">
             <fileset dir="${classes.dir}${packageRoot}/elements/data"/>
         </copy>
@@ -1359,8 +1387,10 @@
     <!--
     	Build the Twitter service WAR
     -->
+
     <target name="build_twitterService.war"
     	    depends="compile, build_twitterService_SharedTomcat">
+
         <copy todir="${temp.dir}/${twitter.app.name}${webinf.dir}/elements/data">
             <fileset dir="${classes.dir}${packageRoot}/elements/data"/>
         </copy>
@@ -1420,8 +1450,10 @@
     <!--
     	Build the digital signature service WAR
     -->
+
     <target name="build_digitalSignature.war"
     	    depends="compile, build_digitalSignature_SharedTomcat">
+
         <copy todir="${temp.dir}/${digitalSignature.app.name}${webinf.dir}/elements">
                 <fileset dir="${classes.dir}${packageRoot}/elements"
                          includes="**/*.class **/*.xsd"/>
@@ -1489,8 +1521,10 @@
     <!--
     	Build the YAWL Mail Sender Service WebApplication
     -->
+
     <target name="build_mailSender.war"
     	    depends="compile, build_mailSender_SharedTomcat">
+
         <copy todir="${temp.dir}/${mailSender.app.name}${webinf.dir}/elements">
                     <fileset dir="${classes.dir}${packageRoot}/elements"
                              includes="**/*.class **/*.xsd"/>
@@ -1553,51 +1587,17 @@
 	<!-- ==================DEPLOYMENT RELATED TARGETS====================== -->
 
     <!--
-		Main deployment targets. Includes variants for a dedicated YAWL
-		Tomcat installation or one shared with other apps. In the former,
+        Main deployment targets. The build and deploy tasks support the
+        user-defined tomcat.treatAsDedicated flag. If dedciated,
 		memory use is minimised by having all libraries and log4j settings in
-		the main shared Tomcat lib folder. In the latter, each webapp has its
+        the main shared Tomcat lib folder. If not (shared), each webapp has its
 		own set of required libraries and log4j settings, which significantly
 		increases permgen usage (so consider increasing permgen space from the
 		default 64m via a -XX:MaxPermSize=Nm startup Java option).
-
-		To support Ant 1.7 and below, we use the clumsy method below. With
-		Ant 1.8, we could use property expansions and have a
-		tomcat.isDedicated flag as a user-defined build property. See
-		http://ant.apache.org/manual/properties.html#if+unless
     -->
-	<target name="deployWebapps_DedicatedTomcat"
-	        depends="setDedicatedTomcat, deployWebapps"
-	        description=
-	        "Build and deploy all web apps to a YAWL-dedicated Tomcat
-(memory optimised via shared lib folder)">
-	</target>
-
-	<target name="deployWebapps_SharedTomcat"
-		        depends="deployWebapps"
-		        description="Build and deploy all web apps to a shared Tomcat
-(each webapp with its own libraries)">
-	</target>
-
-	<target name="deployCoreWebapps_DedicatedTomcat"
-	        depends="setDedicatedTomcat, deployCoreWebapps"
-	        description="Build and deploy core web apps (engine, worklet,
-resource, WS invoker, SMS) to a YAWL-dedicated Tomcat (memory optimised via
-shared lib folder)">
-	</target>
-
-	<target name="deployCoreWebapps_SharedTomcat"
-	        depends="deployCoreWebapps"
-	        description="Build and deploy core web apps (engine, worklet,
-resource, WS invoker, SMS) to a shared Tomcat (each webapp with its own
-libraries)">
-	</target>
-
-	<target name="setDedicatedTomcat">
-		<property name="tomcat.isDedicated" value="true" />
-	</target>
 
     <target name="deployWebapps"
+            description="Build and deploy all web apps"
         depends="deployCoreWebapps,
         		 deployMonitorService,
     			 deployDigitalSignature,
@@ -1608,6 +1608,7 @@ libraries)">
     </target>
 
     <target name="deployCoreWebapps"
+            description="Build and deploy core web apps (engine, worklet, resource, WS invoker, SMS)"
         depends="deployEngine,
         		 deployWorkletService,
         		 deployResourceService,
@@ -1619,6 +1620,7 @@ libraries)">
 	<!--
 		Actual deployment (plain copy) tasks
 	-->
+
     <target name="deployEngine" depends="build_engine.war">
         <copy todir="${webapps.dir}">
             <fileset file="${output.dir}/${engine.app.name}.war"/>
@@ -1680,7 +1682,7 @@ libraries)">
     </target>
 
     <!--
-    	Copies JARs as needed for the install type to tomcat/lib
+        Copies to Tomcat shared lib folder if this is a dedicated Tomcat installation
     -->
 
 	<target name="deployCoreSharedLibs" if="tomcat.isDedicated">
@@ -1710,6 +1712,7 @@ libraries)">
     <!--
     Run the unit tests
     -->
+
     <target name="unitTest" depends="compile-test">
         <junit printsummary="withOutAndErr" fork="true">
             <classpath refid="cp.standard"/>
@@ -1734,6 +1737,7 @@ libraries)">
     <!--
     	Run the resourcing tests
     -->
+
     <target name="resourcingtest" depends="compile-test">
         <java classname="org.yawlfoundation.yawl.resourcing.ResourcingTestSuite"
               fork="true" failonerror="false">
@@ -1755,6 +1759,7 @@ libraries)">
 	<!--
 	  	Compile test source code
 	-->
+
     <target name="compile-test" depends="compile">
          <copy todir="${classes.dir}">
              <fileset dir="${test.dir}" excludes="**/*.java"/>
@@ -1774,6 +1779,7 @@ libraries)">
     <!--
 	 	Cleans out Intellij .dependency-info to force re-compile
     -->
+
 	<target name="removeDependancyInfo"
 	        description="Force Intellij recompile by cleaning out .dependency-info">
 
@@ -1783,6 +1789,7 @@ libraries)">
 	<!--
 		ZIP up all material in output folder
 	-->
+
 	<target name="zipOutput"
 		    description="ZIP up output folder">
 		<jar destfile="YAWLOutput.zip">

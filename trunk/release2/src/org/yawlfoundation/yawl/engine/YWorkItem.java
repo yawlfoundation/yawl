@@ -103,8 +103,7 @@ public class YWorkItem {
 
         _log.debug("Spec =" + specID + " WorkItem =" + workItemID.getTaskID());
 
-        createWorkItem(pmgr, specID, workItemID,
-                       isDeadlocked ? statusDeadlocked : statusEnabled,
+        createWorkItem(specID, workItemID, isDeadlocked ? statusDeadlocked : statusEnabled,
                        allowsDynamicCreation); 
 
         _task = task;
@@ -122,8 +121,7 @@ public class YWorkItem {
 
         _log.debug("Spec =" + specID + " WorkItem =" + workItemID.getTaskID());
 
-        createWorkItem(pmgr, specID, workItemID, statusFired,
-                       allowsDynamicInstanceCreation);
+        createWorkItem(specID, workItemID, statusFired, allowsDynamicInstanceCreation);
 
         _enablementTime = workItemCreationTime;
         _firingTime = new Date();
@@ -138,7 +136,7 @@ public class YWorkItem {
     // PRIVATE METHODS //
 
     /** Called from constructors to set some mutual members */
-    private void createWorkItem(YPersistenceManager pmgr, YSpecificationID specificationID,
+    private void createWorkItem(YSpecificationID specificationID,
                                 YWorkItemID workItemID, YWorkItemStatus status,
                                 boolean allowsDynamicInstanceCreation)
                                 throws YPersistenceException {
@@ -493,9 +491,8 @@ public class YWorkItem {
 
     /** @return true if workitem is finished */
     public boolean hasFinishedStatus() {
-        return _status.equals(statusComplete) ||
+        return hasCompletedStatus() ||
                _status.equals(statusDeleted)  ||
-               _status.equals(statusForcedComplete) ||
                _status.equals(statusFailed) ;
     }
 
@@ -795,7 +792,7 @@ public class YWorkItem {
     }
 
     public YNetRunner getNetRunner() {
-        return _engine.getNetRunner(_workItemID.getCaseID()) ;
+        return _engine.getNetRunnerRepository().get(this);
     }
 
 

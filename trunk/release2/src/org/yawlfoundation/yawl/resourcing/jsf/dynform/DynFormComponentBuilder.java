@@ -99,6 +99,7 @@ public class DynFormComponentBuilder {
                 spc.setOccursButtonsEnablement();
             }    
         }
+        subPanel.setVisible(! field.hasHideAttribute());
         return subPanel ;
     }
 
@@ -256,11 +257,11 @@ public class DynFormComponentBuilder {
     public Calendar makeCalendar(DynFormField input) {
         Calendar cal = new Calendar();
         cal.setId(_factory.createUniqueID("cal" + input.getName()));
-        cal.setSelectedDate(createDate(input.getValue()));
+        cal.setSelectedDate(createDate(input.getValue(), -1));       // default to today
         cal.setDateFormatPatternHelp("");
         cal.setDisabled(isDisabled(input));
-        cal.setMinDate(new Date(1));
-        cal.setMaxDate(getDate(25));
+        cal.setMinDate(getMinDate(input));
+        cal.setMaxDate(getMaxDate(input));
         cal.setColumns(15);
         cal.setStyleClass(getInputStyleClass(input));    
         cal.setStyle(makeStyle(cal, input)) ;
@@ -268,10 +269,44 @@ public class DynFormComponentBuilder {
         return cal;
     }
 
-    private Date getDate(int yearAdj) {
-        GregorianCalendar result = new GregorianCalendar() ;
-        result.add(java.util.Calendar.YEAR, yearAdj);
-        return result.getTime();
+    
+    private Date getAdjustedDate(int period, int adjustment, Date startDate) {
+        GregorianCalendar greg = new GregorianCalendar();
+        if (startDate != null) greg.setTimeInMillis(startDate.getTime());
+        greg.add(period, adjustment);
+        return greg.getTime();
+    }
+
+
+    private Date getMinDate(DynFormField input) {
+        Date minDate = new Date(1);
+        DynFormFieldRestriction restriction = input.getRestriction();
+        if (restriction != null) {
+            if (restriction.hasMinInclusive()) {
+                minDate = createDate(restriction.getMinInclusive(), 1);   // def. 1/1/70
+            }
+            else if (restriction.hasMinExclusive()) {
+                minDate = createDate(restriction.getMinExclusive(), 1);
+                minDate = getAdjustedDate(java.util.Calendar.DAY_OF_MONTH, 1, minDate);
+            }
+        }
+        return minDate;
+    }
+
+
+    private Date getMaxDate(DynFormField input) {
+        Date maxDate = getAdjustedDate(java.util.Calendar.YEAR, 25, null);
+        DynFormFieldRestriction restriction = input.getRestriction();
+        if (restriction != null) {
+            if (restriction.hasMaxInclusive()) {
+                maxDate = createDate(restriction.getMaxInclusive(), maxDate.getTime());
+            }
+            else if (restriction.hasMaxExclusive()) {
+                maxDate = createDate(restriction.getMaxExclusive(), maxDate.getTime());
+                maxDate = getAdjustedDate(java.util.Calendar.DAY_OF_MONTH, -1, maxDate);
+            }
+        }
+        return maxDate;
     }
 
 
@@ -421,8 +456,9 @@ public class DynFormComponentBuilder {
     }
 
 
-    private Date createDate(String dateStr) {
-        // set the date to the param's input value if possible, else default to today
+    private Date createDate(String dateStr, long defaultDate) {
+        // set the date to the param's input value if possible, else default to a
+        // date representation of the long defaultDate, or today if defaultDate < 0
         Date result = null;
 
         if (dateStr != null) {
@@ -430,7 +466,7 @@ public class DynFormComponentBuilder {
                 result = _sdf.parse(dateStr) ;
             }
             catch (ParseException pe) {
-                result = new Date();
+                result = (defaultDate > -1) ? new Date(defaultDate) : new Date();
             }
         }
         return result ;

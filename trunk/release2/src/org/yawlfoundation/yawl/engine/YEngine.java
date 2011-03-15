@@ -450,31 +450,13 @@ public class YEngine implements InterfaceADesign,
      * @param primaryCaseID the id of the case
      * @return Vector of net runners for the case
      */
-    private Vector<YNetRunner> getRunnersForPrimaryCase(YIdentifier primaryCaseID) {
-        Vector<YNetRunner> runners = new Vector<YNetRunner>();
-        for (YNetRunner runner : _netRunnerRepository.values()) {
-            if (primaryCaseID.equalsOrIsAncestorOf(runner.getCaseID())) {
-                runners.add(runner);
-            }
-        }
-        return runners;
+    private List<YNetRunner> getRunnersForPrimaryCase(YIdentifier primaryCaseID) {
+        return _netRunnerRepository.getAllRunnersForCase(primaryCaseID);
     }
 
 
     public YNetRunner getNetRunner(YWorkItem workItem) {
-        YNetRunner runner = null;
-        YIdentifier caseID = null;
-        if ((workItem.getStatus() == YWorkItemStatus.statusEnabled) ||
-            (workItem.getStatus() == YWorkItemStatus.statusIsParent)) {
-             caseID = workItem.getCaseID();
-        }
-        else if (workItem.hasLiveStatus()) {
-             caseID = workItem.getCaseID().getParent();
-        }
-        if (caseID != null) {
-            runner = getNetRunner(caseID);
-        }
-        return runner;
+        return _netRunnerRepository.get(workItem);
     }
 
 
@@ -1215,7 +1197,7 @@ public class YEngine implements InterfaceADesign,
 
         YIdentifier topNetID = caseID.getRootAncestor();
         boolean executingTasks = false;
-        Vector<YNetRunner> runners = getRunnersForPrimaryCase(topNetID);
+        List<YNetRunner> runners = getRunnersForPrimaryCase(topNetID);
         for (YNetRunner runner : runners) {
 
             // Go thru busy and executing tasks and see if we have any atomic tasks
@@ -1415,14 +1397,6 @@ public class YEngine implements InterfaceADesign,
                         netRunner = getNetRunner(workItem.getCaseID().getParent());
                         netRunner.startWorkItemInTask(_pmgr, workItem.getCaseID(), workItem.getTaskID());
                         workItem.setStatusToStarted(_pmgr, client);
-
-                        // AJH: As the workitem's data is restored courtesy of Hibernate, why
-                        // do we need to explicity restore it, get it wrong and subsequently
-                        // set it to NULL? After further digging I suspect this id all down to
-                        // implementing multi-atomics and getting it wrong.
-
-//                        dataList = task.getData(workItem.getCaseID());
-//                        workItem.setData(_pmgr, dataList);
                         startedItem = workItem;
                     }
                     else if (workItem.getStatus().equals(YWorkItemStatus.statusDeadlocked)) {
@@ -1457,7 +1431,6 @@ public class YEngine implements InterfaceADesign,
         }
         return startedItem;
     }
-
 
 
     /**

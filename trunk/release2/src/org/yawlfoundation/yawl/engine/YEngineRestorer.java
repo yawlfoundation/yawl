@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.engine;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
@@ -577,6 +578,10 @@ public class YEngineRestorer {
                 if ((parent != null) && (! itemList.contains(parent))) {
                     orphans.add(witem);
                 }
+
+                // if not a parent and not an orphan, must init (possibly future)
+                // children collection to avoid potential future LazyInitializationException
+                else Hibernate.initialize(witem.getChildren());
             }
         }
         return orphans ;

@@ -507,7 +507,8 @@ public class DynFormFactory extends AbstractSessionBean {
             height = ((ImageComponent) component).getHeight();
         }
         else if (component instanceof TextArea) {
-            height = getFieldHeight(component) * ((TextArea) component).getRows();
+            height = getFieldHeight(component) * ((TextArea) component).getRows()
+                    + FIELD_VSPACE;
         }
         else {
             height = getFieldHeight(component) + FIELD_VSPACE;

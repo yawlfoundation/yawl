@@ -725,8 +725,7 @@ public class YNetRunner {
                     YMultiInstanceAttributes._creationModeDynamic.equals(
                             atomicTask.getMultiInstanceAttributes().getCreationMode());
 
-        //creating a new work item puts it into the work item
-        //repository automatically.
+        //creating a new work item puts it into the work item repository automatically.
         YWorkItem workItem = new YWorkItem(pmgr,
                 atomicTask.getNet().getSpecification().getSpecificationID(), atomicTask,
                 new YWorkItemID(caseIDForNet, atomicTask.getID()),
