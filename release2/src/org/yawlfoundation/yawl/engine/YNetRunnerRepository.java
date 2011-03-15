@@ -20,7 +20,10 @@ package org.yawlfoundation.yawl.engine;
 
 import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
+import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -53,6 +56,34 @@ public class YNetRunnerRepository extends ConcurrentHashMap<YIdentifier, YNetRun
     public YNetRunner get(String caseID) {
         YIdentifier id = getCaseIdentifier(caseID);
         return (id != null) ? this.get(id) : null;
+    }
+
+
+    public YNetRunner get(YWorkItem workitem) {
+        YNetRunner runner = null;
+        YWorkItemStatus status = workitem.getStatus();
+        YIdentifier caseID = workitem.getWorkItemID().getCaseID();
+        if (status.equals(statusEnabled) || status.equals(statusIsParent) ||
+                workitem.isEnabledSuspended()) {
+            runner = get(caseID);
+        }
+        else if (workitem.hasLiveStatus() || workitem.hasCompletedStatus() ||
+                status.equals(statusSuspended)) {
+            runner = get(caseID.getParent());
+        }
+        return runner;     // may be null
+    }
+
+
+    public List<YNetRunner> getAllRunnersForCase(YIdentifier primaryCaseID) {
+        List<YNetRunner> runners = new ArrayList<YNetRunner>();
+        for (YNetRunner runner : this.values()) {
+            if (primaryCaseID.equalsOrIsAncestorOf(runner.getCaseID())) {
+                runners.add(runner);
+            }
+        }
+        return runners;
+
     }
 
 

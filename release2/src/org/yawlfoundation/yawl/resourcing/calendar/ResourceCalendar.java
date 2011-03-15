@@ -835,6 +835,15 @@ public class ResourceCalendar {
     }
 
 
+    public boolean hasStatus(long entryID, String status) throws CalendarException {
+        CalendarEntry entry = getEntry(entryID);
+        if (entry != null) {
+            return entry.getStatus().equals(status);
+        }
+        else throw new CalendarException("Unknown calendar entry id: " + entryID);
+    }
+
+
     private void updateStatus(long entryID, Status oldStatus, Status newStatus)
             throws ScheduleStateException, CalendarException {
         CalendarEntry entry = getEntryWithStatus(entryID, oldStatus);

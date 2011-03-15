@@ -1349,12 +1349,13 @@ public class SessionBean extends AbstractSessionBean {
     public String addParticipant(Participant p) {
         String newID = _rm.addParticipant(p);
         refreshOrgDataParticipantList();
-        editedParticipant = p.clone() ;
+        editedParticipant = p.clone();
         return newID;
     }
 
     public void removeParticipant(Participant p) {
-        Participant pToRemove = participantMap.get(p.getID());
+        String actualID = p.getID().substring(7);      // remove 'CLONE_' from edited id
+        Participant pToRemove = participantMap.get(actualID);
         setEditedParticipant((Participant) null);
         _rm.removeParticipant(pToRemove);
         refreshOrgDataParticipantList();
