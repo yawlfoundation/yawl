@@ -75,7 +75,7 @@ public final class YCompositeTask extends YTask {
         // create a net runner for this task's contained subnet
         YNetRunner netRunner = new YNetRunner(pmgr, (YNet) _decompositionPrototype,
                 this, id, getData(id));
-        _netRunnerRepository.add(netRunner);
+        getNetRunnerRepository().add(netRunner);
         logTaskStart(pmgr, netRunner);
         netRunner.continueIfPossible(pmgr);
         netRunner.start(pmgr);
@@ -87,10 +87,10 @@ public final class YCompositeTask extends YTask {
         YIdentifier thisI = _i;
         if (_i != null) {
             for (YIdentifier identifier : _mi_active.getIdentifiers()) {
-                YNetRunner netRunner = _netRunnerRepository.get(identifier);
+                YNetRunner netRunner = getNetRunnerRepository().get(identifier);
                 if (netRunner != null) {
                     netRunner.cancel(pmgr);
-                    for (YWorkItem item : _workItemRepository.cancelNet(identifier)) {
+                    for (YWorkItem item : getWorkItemRepository().cancelNet(identifier)) {
                         item.cancel(pmgr);
                         YEventLogger.getInstance().logWorkItemEvent(pmgr, item,
                                 YWorkItemStatus.statusDeleted, null);
@@ -107,7 +107,7 @@ public final class YCompositeTask extends YTask {
         }
 
         if (thisI != null) {
-            YNetRunner parentRunner = _netRunnerRepository.get(thisI);
+            YNetRunner parentRunner = getNetRunnerRepository().get(thisI);
             if (parentRunner != null) {
                 parentRunner.removeActiveTask(pmgr, this);
             }

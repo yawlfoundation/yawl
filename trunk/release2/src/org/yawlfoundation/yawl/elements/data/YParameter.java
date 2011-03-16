@@ -93,25 +93,7 @@ public class YParameter extends YVariable implements Comparable<YVariable> {
         StringBuilder xml = new StringBuilder("<");
         String type = getParamTypeStr(_paramType);
         xml.append(type);
-
-        if (getAttributes() != null) {
-            if (_paramType == _INPUT_PARAM_TYPE) {
-                xml.append(getAttributes().toXML());
-            }
-            else if (_paramType == _OUTPUT_PARAM_TYPE) {
-                if (getAttributes().containsKey("optional")) {
-                    xml.append(" optional=\"")
-                       .append(getAttributes().get("optional"))
-                       .append("\"");
-                }
-                else if (getAttributes().containsKey("mandatory")) {
-                    xml.append(" mandatory=\"")
-                       .append(getAttributes().get("mandatory"))
-                       .append("\"");     
-                }
-
-            }
-        }
+        if (getAttributes() != null) xml.append(getAttributes().toXML());
         xml.append(">");
 
         xml.append(toXMLGuts());
