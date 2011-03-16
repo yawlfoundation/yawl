@@ -212,6 +212,9 @@ public class ConnectableEngineProxyImplementation extends AvailableEngineProxyIm
            if (engineParametersForService[i].isOutput()) {
              editorVariable.setUsage(DataVariable.USAGE_OUTPUT_ONLY);
            }
+           if (engineParametersForService[i].isOptional()) {
+               editorVariable.setAttribute("optional", "true");
+           }
 
            dataVariableList.add(editorVariable);
         }

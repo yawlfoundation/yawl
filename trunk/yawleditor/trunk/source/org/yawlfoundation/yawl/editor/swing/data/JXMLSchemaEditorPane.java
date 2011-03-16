@@ -28,7 +28,9 @@ import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
+import javax.swing.text.Highlighter;
 import javax.swing.text.PlainDocument;
+import java.util.ArrayList;
 import java.util.List;
 
 public class JXMLSchemaEditorPane extends JProblemReportingEditorPane {
@@ -120,20 +122,39 @@ class JXMLSchemaEditor extends ValidityEditorPane {
          super();
      }
 
-     public void caretUpdate(CaretEvent e) {
-        YAWLToolBarButton btnCut =
-                            DataTypeDialogToolBarMenu.getInstance().getButton("cut") ;
-        YAWLToolBarButton btnCopy =
-                            DataTypeDialogToolBarMenu.getInstance().getButton("copy") ;
-        if (btnCut != null) btnCut.setEnabled(e.getDot() != e.getMark());
-        if (btnCopy != null) btnCopy.setEnabled(e.getDot() != e.getMark());
+      public void caretUpdate(CaretEvent e) {
+          YAWLToolBarButton btnCut =
+                  DataTypeDialogToolBarMenu.getInstance().getButton("cut");
+          YAWLToolBarButton btnCopy =
+                  DataTypeDialogToolBarMenu.getInstance().getButton("copy");
+          int dot = e.getDot();
+          int mark = e.getMark();
+          boolean selected = (dot != mark);
+          if (btnCut != null) btnCut.setEnabled(selected);
+          if (btnCopy != null) btnCopy.setEnabled(selected);
 
-        JXMLSchemaEditorPane pane = ((JXMLSchemaEditor) e.getSource()).getContainingPane();
-        if (pane.getShowLineNumbers()) {
-            pane.setLineNumbers(e.getDot());
-        }
-        pane.getEditor().getHighlighter().removeAllHighlights();
-     }
+          JXMLSchemaEditorPane pane = ((JXMLSchemaEditor) e.getSource()).getContainingPane();
+          if (pane.getShowLineNumbers()) {
+              pane.setLineNumbers(e.getDot());
+          }
+
+          if (selected) {
+              List<Highlighter.Highlight> toClear = new ArrayList<Highlighter.Highlight>();
+              int start = Math.min(dot, mark);
+              int end = Math.max(dot, mark);
+              for (Highlighter.Highlight h : pane.getEditor().getHighlighter().getHighlights()) {
+                  if (! ((h.getStartOffset() == start) && (h.getEndOffset() == end))) {
+                      toClear.add(h);
+                  }
+              }
+              for (Highlighter.Highlight h : toClear) {
+                  pane.getEditor().getHighlighter().removeHighlight(h);
+              }
+          }
+          else {
+              pane.getEditor().getHighlighter().removeAllHighlights();
+          }
+      }
   }
 
 }
