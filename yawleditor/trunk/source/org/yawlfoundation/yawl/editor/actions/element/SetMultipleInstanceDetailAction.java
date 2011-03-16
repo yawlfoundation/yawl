@@ -132,8 +132,9 @@ class InstanceDetailDialog extends AbstractTaskDoneDialog {
   
   private void resize() {
     pack();
-    setSize(550,550);
+    setSize(650,700);
     JUtilities.setMinSizeToCurrent(this);
+    JUtilities.centerWindow(this);  
   }
   
   private JPanel getTabbedPanePanel() {
