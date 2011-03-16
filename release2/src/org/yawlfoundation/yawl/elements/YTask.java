@@ -68,12 +68,6 @@ public abstract class YTask extends YExternalNetElement {
     protected YInternalCondition _mi_complete = new YInternalCondition(YInternalCondition._mi_complete, this);
     protected YInternalCondition _mi_executing = new YInternalCondition(YInternalCondition._mi_executing, this);
 
-    // repository references used by cancel methods in subclasses
-    protected static YWorkItemRepository _workItemRepository =
-            YEngine.getInstance().getWorkItemRepository();
-    protected static final YNetRunnerRepository _netRunnerRepository =
-            YEngine.getInstance().getNetRunnerRepository();
-
     //private attributes
     private int _splitType;
     private int _joinType;
@@ -910,12 +904,22 @@ public abstract class YTask extends YExternalNetElement {
     }
 
     private boolean evaluateTimerPredicate(String predicate, YIdentifier token) throws YQueryException {
-        YNetRunner runner = _netRunnerRepository.get(token);
+        YNetRunner runner = getNetRunnerRepository().get(token);
         if (runner != null) {
             return runner.evaluateTimerPredicate(predicate);
         }
         else throw new YQueryException("Unable to determine current timer status for " +
                 "predicate: " + predicate);
+    }
+
+
+    protected YNetRunnerRepository getNetRunnerRepository() {
+        return YEngine.getInstance().getNetRunnerRepository();
+    }
+
+
+    protected YWorkItemRepository getWorkItemRepository() {
+        return YEngine.getInstance().getWorkItemRepository();
     }
 
 

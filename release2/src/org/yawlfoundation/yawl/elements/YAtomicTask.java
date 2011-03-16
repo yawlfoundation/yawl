@@ -109,7 +109,7 @@ public class YAtomicTask extends YTask {
             throws YPersistenceException {
         if (! cancelBusyWorkItem(pmgr)) {
             String workItemID = caseID.get_idString() + ":" + getID();
-            YWorkItem workItem = _workItemRepository.get(workItemID);
+            YWorkItem workItem = getWorkItemRepository().get(workItemID);
             if (null != workItem) cancelWorkItem(pmgr, workItem) ;
         }
         super.cancel(pmgr);
@@ -118,22 +118,21 @@ public class YAtomicTask extends YTask {
 
 
 
-    private synchronized boolean cancelBusyWorkItem(YPersistenceManager pmgr)
-                                                         throws YPersistenceException {
+    private boolean cancelBusyWorkItem(YPersistenceManager pmgr)
+             throws YPersistenceException {
 
         // nothing to do if not fired or has no decomposition
         if ((_i == null) || (_decompositionPrototype == null)) return false;
 
-        YWorkItem workItem = _workItemRepository.get(_i.toString(), getID());
+        YWorkItem workItem = getWorkItemRepository().get(_i.toString(), getID());
         if (null != workItem) cancelWorkItem(pmgr, workItem) ;
         return true;
     }
 
 
-    private synchronized void cancelWorkItem(YPersistenceManager pmgr,
-                                             YWorkItem workItem)
+    private void cancelWorkItem(YPersistenceManager pmgr, YWorkItem workItem)
             throws YPersistenceException {
-        _workItemRepository.removeWorkItemFamily(workItem);
+        getWorkItemRepository().removeWorkItemFamily(workItem);
         workItem.cancel(pmgr);
         YEngine.getInstance().getAnnouncer().announceCancelledWorkItem(workItem);
     }
