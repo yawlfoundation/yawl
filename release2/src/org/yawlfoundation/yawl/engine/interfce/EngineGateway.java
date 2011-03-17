@@ -49,6 +49,10 @@ public interface EngineGateway extends Remote {
 
     public void setAllowAdminID(boolean allow);
 
+    public void disableLogging();
+
+    public void setHibernateStatisticsEnabled(boolean enable);
+
     public void shutdown();
 
     public void initBuildProperties(InputStream stream);
@@ -194,4 +198,10 @@ public interface EngineGateway extends Remote {
     public String rejectAnnouncedEnabledTask(String itemID, String sessionHandle) throws RemoteException ;
 
     public String getExternalDBGateways(String sessionHandle) throws RemoteException ;
+
+    public String setHibernateStatisticsEnabled(boolean enabled, String sessionHandle);
+
+    public String isHibernateStatisticsEnabled(String sessionHandle);
+
+    public String getHibernateStatistics(String sessionHandle);
 }

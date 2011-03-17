@@ -134,7 +134,8 @@ public class YEngine implements InterfaceADesign,
      * @return a reference to the initialised engine
      * @throws YPersistenceException if there's a problem restoring from persistence
      */
-    public static YEngine getInstance(boolean persisting) throws YPersistenceException {
+    public static YEngine getInstance(boolean persisting, boolean gatherHbnStats)
+            throws YPersistenceException {
         if (_thisInstance == null) {
             _thisInstance = new YEngine();
             _logger.debug("--> YEngine: Creating initial instance");
@@ -143,6 +144,7 @@ public class YEngine implements InterfaceADesign,
             _persisting = persisting;
             if (_persisting) {
                 _pmgr.initialise(true);
+                _pmgr.setStatisticsEnabled(gatherHbnStats);
                 _caseNbrStore.setPersisting(true);
                 _thisInstance.restore();
             }
@@ -161,6 +163,11 @@ public class YEngine implements InterfaceADesign,
             _thisInstance.setEngineStatus(Status.Running);
         }
         return _thisInstance;
+    }
+
+
+    public static YEngine getInstance(boolean persisting) throws YPersistenceException {
+        return getInstance(persisting, false);
     }
 
 
@@ -2192,5 +2199,23 @@ public class YEngine implements InterfaceADesign,
             }    
         }
     }
+
+
+    public void setHibernateStatisticsEnabled(boolean enabled) {
+        _pmgr.setStatisticsEnabled(enabled);
+    }
+
+    public boolean isHibernateStatisticsEnabled() {
+        return _pmgr.isStatisticsEnabled();
+    }
+
+    public String getHibernateStatistics() {
+        return _pmgr.getStatistics();
+    }
+
+    public void disableProcessLogging() {
+        _yawllog.disable();
+    }
+
 
 }

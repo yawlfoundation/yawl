@@ -77,6 +77,11 @@ public class EngineGatewayImpl implements EngineGateway {
         _sessionCache = _engine.getSessionCache();
     }
 
+    public EngineGatewayImpl(boolean persist, boolean gatherHbnStats) throws YPersistenceException {
+        _engine = YEngine.getInstance(persist, gatherHbnStats);
+        _sessionCache = _engine.getSessionCache();
+    }
+
     // PRIVATE METHODS
 
     /** encases a message in "<failure><reason>...</reason></failure>"
@@ -137,6 +142,16 @@ public class EngineGatewayImpl implements EngineGateway {
 
     public void setAllowAdminID(boolean allow) {
         _engine.setAllowAdminID(allow);
+    }
+
+
+    public void disableLogging() {
+        _engine.disableProcessLogging();
+    }
+
+
+    public void setHibernateStatisticsEnabled(boolean enabled) {
+        _engine.setHibernateStatisticsEnabled(enabled);
     }
 
 
@@ -1379,5 +1394,27 @@ public class EngineGatewayImpl implements EngineGateway {
         }
     }
 
+
+    public String setHibernateStatisticsEnabled(boolean enabled, String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        _engine.setHibernateStatisticsEnabled(enabled);
+        return SUCCESS;
+    }
+
+    public String isHibernateStatisticsEnabled(String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        return String.valueOf(_engine.isHibernateStatisticsEnabled());
+    }
+
+    public String getHibernateStatistics(String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        return _engine.getHibernateStatistics();
+    }
 
 }

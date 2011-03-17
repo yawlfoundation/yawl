@@ -29,10 +29,20 @@
 		<param-name>EnablePersistence</param-name>
 		<param-value>true</param-value>
 		<description>
-			Set this value to 'true' to enable persistance and logging
-			set to 'false' to disable
+			Set this value to 'true' to enable persistence and process logging.
+			Set to 'false' to disable.
         </description>
 	</context-param>
+
+    <context-param>
+        <param-name>EnableLogging</param-name>
+        <param-value>false</param-value>
+        <description>
+            Process logging is enabled by default when persistence is enabled.
+            Set this value to 'false' when persistence is enabled to disable
+            process logging. If persistence is disabled, this param has no effect.
+        </description>
+    </context-param>
 
     <context-param>
         <param-name>DefaultWorklist</param-name>
@@ -52,6 +62,16 @@
             YAWL engine using the generic administrator account 'admin', password 'YAWL'.
             When set to 'false', each connecting service and application
             must connect using a unique account previously registered with the engine.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>EnableHibernateStatisticsGathering</param-name>
+        <param-value>true</param-value>
+        <description>
+            When set to 'true', the hibernate database layer will collect statistics of
+            all operations for later perusal.
+            When set to 'false', hibernate statistics collection is disabled.
         </description>
     </context-param>
 
