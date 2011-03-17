@@ -66,9 +66,20 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
             if (_engine == null) {
                 String persistOn = context.getInitParameter("EnablePersistence");
                 boolean persist = (persistOn != null) && persistOn.equalsIgnoreCase("true");
-                _engine = new EngineGatewayImpl(persist);
+                String enableHbnStatsStr =
+                        context.getInitParameter("EnableHibernateStatisticsGathering");
+                boolean enableHbnStats = ((enableHbnStatsStr != null) &&
+                        enableHbnStatsStr.equalsIgnoreCase("true"));
+                _engine = new EngineGatewayImpl(persist, enableHbnStats);
                 _engine.setActualFilePath(context.getRealPath("/"));
                 context.setAttribute("engine", _engine);
+            }
+
+            // set flag to disable logging (only if false) - enabled with persistence by
+            // default
+            String logStr = context.getInitParameter("EnableLogging");
+            if ((logStr != null) && logStr.equalsIgnoreCase("false")) {
+                _engine.disableLogging();
             }
 
             // add the reference to the default worklist

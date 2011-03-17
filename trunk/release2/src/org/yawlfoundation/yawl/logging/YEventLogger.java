@@ -353,7 +353,7 @@ public class YEventLogger {
 
         // pre-2.0 specs don't have an identifier field
         String field = (ySpecID.getIdentifier() != null) ? "identifier" : "uri";
-        String where = String.format("%s='%s' AND version='%s'", field, ySpecID.getKey(),
+        String where = String.format("%s='%s' AND tbl.version='%s'", field, ySpecID.getKey(),
                                       ySpecID.getVersionAsString());
         return (YLogSpecification) selectScalarWhere(pmgr, "YLogSpecification", where);
     }
@@ -412,7 +412,7 @@ public class YEventLogger {
     private long getNetID(YPersistenceManager pmgr, YSpecificationID ySpecID, String netName)
             throws YPersistenceException {
         long specKey = getSpecificationKey(pmgr, ySpecID);
-        String where = String.format("name='%s' AND specKey=%d", netName, specKey);
+        String where = String.format("name='%s' AND tbl.specKey=%d", netName, specKey);
         YLogNet net = (YLogNet) selectScalarWhere(pmgr, "YLogNet", where);
         return (net != null) ? net.getNetID() : insertNet(pmgr, netName, specKey);
     }
@@ -445,7 +445,7 @@ public class YEventLogger {
             throws YPersistenceException {
         YTask task = _engine.getTaskDefinition(ySpecID, engineTaskID);
         long netID = getNetID(pmgr, ySpecID, task._net.getID()) ;
-        String where = String.format("name='%s' AND parentNetID=%d", task.getName(), netID);
+        String where = String.format("name='%s' AND tbl.parentNetID=%d", task.getName(), netID);
         YLogTask logTask = (YLogTask) selectScalarWhere(pmgr, "YLogTask", where);
 
         return (logTask != null) ? logTask.getTaskID() :
@@ -510,7 +510,7 @@ public class YEventLogger {
      */
     private long getTaskInstanceID(YPersistenceManager pmgr, YIdentifier engineID, long taskID)
             throws YPersistenceException {
-        String where = String.format("engineInstanceID='%s' AND taskID=%d",
+        String where = String.format("engineInstanceID='%s' AND tbl.taskID=%d",
                                     engineID.toString(), taskID);
         YLogTaskInstance instance =
                 (YLogTaskInstance) selectScalarWhere(pmgr, "YLogTaskInstance", where);
@@ -552,7 +552,7 @@ public class YEventLogger {
      */
     private long getServiceID(YPersistenceManager pmgr, String name, String url)
             throws YPersistenceException {
-        String template = (url != null) ? "name='%s' AND url='%s'" : "name='%s'";
+        String template = (url != null) ? "name='%s' AND tbl.url='%s'" : "name='%s'";
         String where = String.format(template, name, url);
         YLogService instance = (YLogService) selectScalarWhere(pmgr, "YLogService", where);
         return (instance != null) ? instance.getServiceID() : insertService(pmgr, name, url);

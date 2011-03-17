@@ -364,5 +364,23 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
     }
 
 
+    public String setHibernateStatisticsEnabled(boolean enabled, String sessionHandle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("setHibernateStatisticsEnabled", sessionHandle);
+        params.put("enabled", String.valueOf(enabled));
+        return executePost(_backEndURIStr, params);
+    }
+
+    public String isHibernateStatisticsEnabled(String sessionHandle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("isHibernateStatisticsEnabled", sessionHandle);
+        return executeGet(_backEndURIStr, params);
+    }
+
+    public String getHibernateStatistics(String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("getHibernateStatistics", sessionHandle);
+        return executeGet(_backEndURIStr, params);
+    }
+
 
 }

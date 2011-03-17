@@ -165,7 +165,6 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                 else if ("getExternalDBGateways".equals(action)) {
                     msg.append(_engine.getExternalDBGateways(sessionHandle));
                 }
-
                 else if ("unload".equals(action)) {
                     String specIdentifier = request.getParameter("specidentifier");
                     String version = request.getParameter("specversion");
@@ -173,6 +172,23 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                     YSpecificationID specID =
                             new YSpecificationID(specIdentifier, version, uri);
                     msg.append(_engine.unloadSpecification(specID, sessionHandle));
+                }
+                else if ("setHibernateStatisticsEnabled".equals(action)) {
+                    String enabled = request.getParameter("enabled");
+                    if (enabled != null) {
+                        _engine.setHibernateStatisticsEnabled(enabled.equalsIgnoreCase("true"),
+                                sessionHandle);
+                        msg.append("<success/>");
+                    }
+                    else {
+                        msg.append("<failure>Invalid parameter value 'enabled'</failure>");
+                    }
+                }
+                else if ("isHibernateStatisticsEnabled".equals(action)) {
+                    msg.append(_engine.isHibernateStatisticsEnabled(sessionHandle));
+                }
+                else if ("getHibernateStatistics".equals(action)) {
+                    msg.append(_engine.getHibernateStatistics(sessionHandle));
                 }
             }
         }

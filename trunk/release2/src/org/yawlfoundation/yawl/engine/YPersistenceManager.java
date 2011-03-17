@@ -22,7 +22,6 @@ package org.yawlfoundation.yawl.engine;
 import org.apache.log4j.Logger;
 import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.stat.Statistics;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
@@ -32,6 +31,7 @@ import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.Problem;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.logging.table.*;
+import org.yawlfoundation.yawl.util.HibernateStatistics;
 
 import java.util.Iterator;
 import java.util.List;
@@ -150,9 +150,19 @@ public class YPersistenceManager {
     }
 
 
-    public void getStatistics() {
-        Statistics stats = factory.getStatistics();
+    public String getStatistics() {
+        HibernateStatistics stats = new HibernateStatistics(factory);
+        return stats.toXML();
     }
+
+    public void setStatisticsEnabled(boolean enabled) {
+        factory.getStatistics().setStatisticsEnabled(enabled);
+    }
+
+    public boolean isStatisticsEnabled() {
+        return factory.getStatistics().isStatisticsEnabled();
+    }
+    
 
     /**
      * Start a new Hibernate transaction.
