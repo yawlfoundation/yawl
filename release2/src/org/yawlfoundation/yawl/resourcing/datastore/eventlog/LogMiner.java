@@ -88,7 +88,7 @@ public class LogMiner {
             String query = String.format(template.toString(), taskName, specKey, participantID);
 
             rows = execQuery(query) ;
-            if (rows != null) {
+            if ((rows != null) && (! rows.isEmpty())) {
                 StringBuilder xml = new StringBuilder() ;
                 String currentItemID = "";
                 xml.append(String.format(
