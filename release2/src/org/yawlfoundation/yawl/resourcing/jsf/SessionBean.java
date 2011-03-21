@@ -39,6 +39,7 @@ import org.yawlfoundation.yawl.resourcing.jsf.comparator.SpecificationDataCompar
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.resource.*;
+import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
@@ -705,7 +706,7 @@ public class SessionBean extends AbstractSessionBean {
     private String title ;
 
     public String getTitle() {
-        title = "YAWL 2.1 Worklist";
+        title = "YAWL 2.2 Worklist";
         if ((activePage == ApplicationBean.PageRef.userWorkQueues) && (participant != null))
              title += ": " + participant.getFullName() ;
         return title ;
@@ -1151,20 +1152,6 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
-    public Option[] getFullNhResourcesList(String tab) {
-        Option[] options = null;
-        if (tab.equals("tabResources")) {
-            options = getNhResourcesList(_rm.getOrgDataSet().getNonHumanResourceMap());
-        }
-        else if (tab.equals("tabCategories")) {
-//            options = getNhResourcesCategoryList(_rm.getOrgDataSet().getNonHumanResourceCategoryMap());
-        }                            // todo
-//        else if (tab.equals("tabSubcategories"))  {
-//            options = getCapabilityList(_rm.getOrgDataSet().getCapabilityMap());
-//        }
-        sortOptions(options);
-        return options ;
-    }
 
     public Option[] getParticipantAttributeList(String tab, Participant p) {
         Option[] options = null;
@@ -1246,7 +1233,19 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
-    private Option[] getNhResourcesList(Map<String, NonHumanResource> resMap) {
+    public Option[] getNhrItems(String tabName) {
+        if (tabName.equals("tabResources")) {
+            return getNhResourcesList();
+        }
+        if (tabName.equals("tabCategories")) {
+            return getNhResourcesCategoryList();
+        }
+        return null;
+    }
+
+
+    public Option[] getNhResourcesList() {
+        Map<String, NonHumanResource> resMap = _rm.getOrgDataSet().getNonHumanResourceMap();
         if (resMap != null) {
             Option[] result = new Option[resMap.size()];
             int i = 0 ;
@@ -1260,12 +1259,14 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
-    private Option[] getNhResourcesCategoryList(Map<String, String> resMap) {
-        if (resMap != null) {
-            Option[] result = new Option[resMap.size()];
+    public Option[] getNhResourcesCategoryList() {
+        Map<String, NonHumanCategory> catMap = _rm.getOrgDataSet().getNonHumanCategoryMap();
+        if (catMap != null) {
+            Option[] result = new Option[catMap.size()];
             int i = 0 ;
-            for (String id : resMap.keySet()) {
-                result[i++] = new Option(id, resMap.get(id)) ;
+            for (String id : catMap.keySet()) {
+                NonHumanCategory c = catMap.get(id);
+                result[i++] = new Option(id, c.getName()) ;
             }
             return result ;
         }
@@ -1629,7 +1630,7 @@ public class SessionBean extends AbstractSessionBean {
         this.orgDataGroupLabelText = orgDataGroupLabelText;
     }
 
-    private String nhResourceListLabelText = "List Label";
+    private String nhResourceListLabelText = "Resources";
 
     public String getNhResourceListLabelText() {
         return nhResourceListLabelText;
@@ -1890,6 +1891,29 @@ public class SessionBean extends AbstractSessionBean {
         }
         else {
             orgDataMembers = null;
+        }
+        return membership;
+    }
+
+
+    private Option[] categoryMembers;
+
+    public Option[] getCategoryMembers() {
+        return categoryMembers;
+    }
+
+    public int setCategoryMembers(NonHumanCategory category) {
+        int membership = 0;
+        if (category != null) {
+            categoryMembers = new Option[category.getResources().size()];
+            int i = 0;
+            for (NonHumanResource r : category.getResources()) {
+                categoryMembers[i++] = new Option(r.getID(), r.getName()) ;
+            }
+            membership = categoryMembers.length;
+        }
+        else {
+            categoryMembers = null;
         }
         return membership;
     }

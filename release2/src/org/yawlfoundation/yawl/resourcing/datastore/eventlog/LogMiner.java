@@ -812,8 +812,9 @@ public class LogMiner {
                     caseNode = cases.addChild("case");
                     caseNode.addAttribute("id", caseID);
                 }
-                if (event.get_taskID() != null) {            // only want task events
 
+                 // only want task events
+                if ((caseNode != null) && (event.get_taskID() != null)) {
                     XNode eventNode = caseNode.addChild("event");
                     eventNode.addChild("taskname", event.get_taskID());
                     eventNode.addChild("descriptor", event.get_event());
