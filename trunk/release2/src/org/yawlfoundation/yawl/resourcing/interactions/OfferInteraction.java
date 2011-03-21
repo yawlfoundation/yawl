@@ -590,11 +590,9 @@ public class OfferInteraction extends AbstractInteraction {
 
 
         public Set<Participant> evaluate(WorkItemRecord wir) {
-            HashSet<Participant> result = new HashSet<Participant>() ;
-            String varID = getNetParamValue(wir, _name) ;
-
-            if (varID != null) {
-                if (_refers == USER_PARAM) {
+            HashSet<Participant> result = new HashSet<Participant>();
+            if (_refers == USER_PARAM) {
+                for (String varID : getVarIDList(wir)) {
                     Participant p = _rm.getParticipantFromUserID(varID);
                     if (p != null)
                         result.add(p) ;
@@ -602,12 +600,13 @@ public class OfferInteraction extends AbstractInteraction {
                         _log.error("Unknown participant userID '" + varID +
                                 "' in dynamic parameter: " + _name );
                 }
-                else {
+            }
+            else {
+                for (String varID : getVarIDList(wir)) {
                     Role r = _rm.getOrgDataSet().getRoleByName(varID) ;
                     if (r != null) {
                         Set<Participant> rpSet = _rm.getOrgDataSet().getRoleParticipants(r.getID()) ;
-                        if (rpSet != null)
-                            result.addAll(rpSet) ;
+                        if (rpSet != null) result.addAll(rpSet) ;
                     }
                     else
                         _log.error("Unknown role '" + varID +
@@ -633,6 +632,18 @@ public class OfferInteraction extends AbstractInteraction {
                            wir.getID() + "'.");                
             }
             return result;
+        }
+
+
+        private List<String> getVarIDList(WorkItemRecord wir) {
+            List<String> idList = new ArrayList<String>();
+            String varValue = getNetParamValue(wir, _name);
+            if (varValue != null) {
+                for (String id : varValue.split(",")) {
+                     idList.add(id.trim());
+                }
+            }
+            return idList;
         }
 
     /*******************************************************************************/

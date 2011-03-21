@@ -45,9 +45,14 @@ public class CalendarLogger {
     public void log(CalendarLogEntry logEntry, CalendarEntry calEntry, boolean commit) {
         logEntry.setResourceID(calEntry.getResourceID());
         logEntry.setStatus(calEntry.getStatus());
-        logEntry.setTimestamp(new Date().getTime());
         logEntry.setWorkload(calEntry.getWorkload());
         logEntry.setCalendarKey(calEntry.getEntryID());
+        log(logEntry, commit);
+    }
+
+
+    public void log(CalendarLogEntry logEntry, boolean commit) {
+        logEntry.setTimestamp(new Date().getTime());
         _persister.insert(logEntry, commit);
     }
 

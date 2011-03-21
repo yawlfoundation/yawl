@@ -30,7 +30,7 @@
     <filter token="WORKLET_LOGGING_LEVEL" value="${worklet.logging.level}"/>
     <filter token="RESOURCE_LOGGING_LEVEL" value="${resource.logging.level}"/>
 
-    <property name="app.version" value="2.1"/>
+    <property name="app.version" value="2.2beta"/>
     <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
                                            Mike Fowler et al."/>
 
@@ -450,7 +450,7 @@
 
             <!-- titles, headers & footers -->
             <doctitle>
-                <![CDATA[<h1>YAWL Environment version 2.1</h1>]]></doctitle>
+                <![CDATA[<h1>YAWL Environment version 2.2</h1>]]></doctitle>
             <bottom>
                 <![CDATA[<i>Copyright &#169; 2010 The YAWL Foundation.</i>]]></bottom>
 

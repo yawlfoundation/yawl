@@ -71,7 +71,7 @@ public class FormViewer {
 
             DynFormFactory factory = _sb.getDynFormFactoryInstance();
             factory.setDisplayedWIR(wir);
-            if (factory.initDynForm("YAWL 2.1 - Edit Work Item")) {
+            if (factory.initDynForm("YAWL 2.2 - Edit Work Item")) {
                 result = "showDynForm" ;
             }
             else {

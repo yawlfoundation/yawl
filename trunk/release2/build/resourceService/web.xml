@@ -183,7 +183,7 @@
 
     <context-param>
         <param-name>ExternalPluginsDir</param-name>
-        <param-value>/Users/adamsmj/Documents/Subversion/release2.1/src/</param-value>
+        <param-value></param-value>
         <description>
             Sets the base directory for external 'plugin' classes (i.e. codelets,
             allocators, filters, constraints, data sources). The base directory must

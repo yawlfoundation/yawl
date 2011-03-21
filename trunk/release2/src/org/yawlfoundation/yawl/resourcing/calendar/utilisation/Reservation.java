@@ -127,7 +127,7 @@ public class Reservation extends StatusMessage {
         if (_status != null) node.addChild(_status.toXNode());
         if (_resource != null) node.addChild(_resource.toXNode());
         if (_workload != null) node.addChild(_workload.toXNode());
-        if (_hasIdElement) node.addChild("ReservationId", _reservationID);
+        if (_reservationID != null) node.addChild("ReservationId", _reservationID);
         return node;
     }
 

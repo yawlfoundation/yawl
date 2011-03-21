@@ -29,7 +29,7 @@
         <ui:page binding="#{msLogin.page}" id="page1">
             <ui:html binding="#{msLogin.html}" id="html1">
                 <ui:head binding="#{msLogin.head}" id="head1"
-                         title="Welcome to the YAWL 2.1 Monitor Service: Please Login">
+                         title="Welcome to the YAWL 2.2 Monitor Service: Please Login">
                     <ui:link binding="#{msLogin.link}" id="link1"
                              url="/resources/stylesheet.css"/>
                     <ui:link binding="#{ApplicationBean.favIcon}" id="lnkFavIcon"

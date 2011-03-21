@@ -113,6 +113,16 @@
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>
     <managed-bean>
+        <managed-bean-name>pfNHResources</managed-bean-name>
+        <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.pfNHResources</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+    <managed-bean>
+        <managed-bean-name>nonHumanMgt</managed-bean-name>
+        <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.nonHumanMgt</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+    <managed-bean>
         <managed-bean-name>visualiser</managed-bean-name>
         <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.visualiser</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>

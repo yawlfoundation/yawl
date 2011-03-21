@@ -596,8 +596,8 @@ public class ResourceScheduler {
             throws CalendarException, ScheduleStateException {
         String statusToBe = reservation.getStatusToBe();
         long entryID = convertReservationID(reservation);
-        CalendarEntry calEntry = getCalendarEntry(entryID);   // exc. if invalid id
-        compareStatuses(calEntry.getStatus(), statusToBe);
+        CalendarEntry calEntry = getCalendarEntry(entryID);        // exc. if invalid id
+        if (calEntry.getStatus().equals(statusToBe)) return;       // ignore if no change
         checkRequestedStatusToBe(statusToBe);
         reservation.setStatus(calEntry.getStatus());               // current status
         if (statusToBe.equals(ResourceCalendar.Status.unavailable.name())) {
@@ -761,6 +761,7 @@ public class ResourceScheduler {
         for (long cancelledID : toCancel) {
             try {
                 _calendar.makeAvailable(cancelledID);             // removes the entry
+                logCancellation(cancelledID, caseID, activityName);
             }
             catch (CalendarException ce) {
                 // safe to ignore - thrown by missing id in calendar, so no more to do
@@ -784,6 +785,19 @@ public class ResourceScheduler {
                     reservation.getReservationID());
         }
         return entryID;
+    }
+
+
+    /**
+     * Adds a record to the calendar log for a reservation cancellation
+     * @param entryID the id of the reservation that has been cancelled
+     * @param caseID the reservation's case id
+     * @param activityName the name of the activity that contained the reservation
+     */
+    private void logCancellation(long entryID, String caseID, String activityName) {
+        CalendarLogEntry logEntry =
+                new CalendarLogEntry(caseID, activityName, null, 0, "cancelled", entryID);
+        _uLogger.log(logEntry, false);
     }
 
 

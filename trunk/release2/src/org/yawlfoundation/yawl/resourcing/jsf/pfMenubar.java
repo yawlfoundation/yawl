@@ -89,6 +89,7 @@ public class pfMenubar extends AbstractFragmentBean {
     private final String BTN_ORGDATAMGT = "OrgDataMgt";
     private final String BTN_TEAMQUEUES = "TeamQueues";
     private final String BTN_EXTCLIENTS = "ExternalClients";
+    private final String BTN_NHRESOURCES = "NonHumanResources";
 
     private final int BTN_WIDTH = 95;
     private final int BOOKEND_WIDTH = 38;
@@ -116,6 +117,7 @@ public class pfMenubar extends AbstractFragmentBean {
             menuPanel.getChildren().add(makeButton(BTN_CASEMGT));
             menuPanel.getChildren().add(makeButton(BTN_USERMGT));
             menuPanel.getChildren().add(makeButton(BTN_ORGDATAMGT));
+            menuPanel.getChildren().add(makeButton(BTN_NHRESOURCES));
             menuPanel.getChildren().add(makeButton(BTN_SERVICEMGT));
             menuPanel.getChildren().add(makeButton(BTN_EXTCLIENTS));
         }
@@ -172,18 +174,18 @@ public class pfMenubar extends AbstractFragmentBean {
     }
 
     private String getButtonText(String btnType) {
-        String result = null;
-        if (btnType.equals(BTN_WORKQUEUES)) result = "Work Queues";
-        if (btnType.equals(BTN_USERMGT)) result = "Users";
-        if (btnType.equals(BTN_CASEMGT)) result = "Cases";
-        if (btnType.equals(BTN_LOGOUT)) result = "Logout";
-        if (btnType.equals(BTN_PROFILE)) result = "Edit Profile";
-        if (btnType.equals(BTN_ADMINQUEUES)) result = "Admin Queues";
-        if (btnType.equals(BTN_SERVICEMGT)) result = "Services";
-        if (btnType.equals(BTN_EXTCLIENTS)) result = "Client Apps";
-        if (btnType.equals(BTN_ORGDATAMGT)) result = "Org Data";
-        if (btnType.equals(BTN_TEAMQUEUES)) result = "Team Queues";
-        return result;
+        if (btnType.equals(BTN_WORKQUEUES)) return "Work Queues";
+        if (btnType.equals(BTN_ADMINQUEUES)) return "Admin Queues";
+        if (btnType.equals(BTN_CASEMGT)) return "Cases";
+        if (btnType.equals(BTN_USERMGT)) return "Users";
+        if (btnType.equals(BTN_ORGDATAMGT)) return "Org Data";
+        if (btnType.equals(BTN_LOGOUT)) return "Logout";
+        if (btnType.equals(BTN_NHRESOURCES)) return "Assets";
+        if (btnType.equals(BTN_PROFILE)) return "Edit Profile";
+        if (btnType.equals(BTN_SERVICEMGT)) return "Services";
+        if (btnType.equals(BTN_EXTCLIENTS)) return "Client Apps";
+        if (btnType.equals(BTN_TEAMQUEUES)) return "Team Queues";
+        return "";
     }
 
 
@@ -269,6 +271,12 @@ public class pfMenubar extends AbstractFragmentBean {
     public String btnExternalClientsAction() {
         showSelection(BTN_EXTCLIENTS);
         return "showExternalClients";
+    }
+
+
+    public String btnNonHumanResourcesAction() {
+        showSelection(BTN_NHRESOURCES);
+        return "showNonHumanResources";
     }
 
 }
