@@ -36,7 +36,7 @@
 
     <context-param>
         <param-name>EnableLogging</param-name>
-        <param-value>false</param-value>
+        <param-value>true</param-value>
         <description>
             Process logging is enabled by default when persistence is enabled.
             Set this value to 'false' when persistence is enabled to disable
