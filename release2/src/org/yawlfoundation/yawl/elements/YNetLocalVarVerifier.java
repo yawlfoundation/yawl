@@ -72,7 +72,8 @@ public class YNetLocalVarVerifier {
         // for each affected task, check each of its backward paths to the start
         // condition to see if any tasks on the path output a value to the local var
         for (YTask task : map.getInputTasks()) {
-            messages.addAll(verify(map, task, task, new ArrayList<YExternalNetElement>()));
+            messages.addAll(verify(map, task, task, new ArrayList<YExternalNetElement>(),
+                    new Stack<Integer>()));
         }
 
         return messages;
@@ -80,18 +81,20 @@ public class YNetLocalVarVerifier {
 
 
     private List<YVerificationMessage> verify(LocalTaskMap map, YTask subjectTask,
-                       YExternalNetElement baseElement, List<YExternalNetElement> visited) {
+                       YExternalNetElement baseElement, List<YExternalNetElement> visited,
+                       Stack<Integer> andStack) {
         List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
 
         // add the root net element to the set of those visited on this path
         visited.add(baseElement);
+        updateAndStack(baseElement, andStack);
 
         Set<YExternalNetElement> preSet = baseElement.getPresetElements();
         for (YExternalNetElement preElement : preSet) {
 
             _log.debug("Net: " + _net.getID() + " | Local var: " +
                     map.getLocalVar().getName() +  " | Subject: " + subjectTask.getName() +
-                    " | PreElement: " + preElement.toString()); 
+                    " | PreElement: " + preElement.toString());
 
             // if this element has already been visited on this path,
             // it is a loop so don't go further on it
@@ -99,6 +102,8 @@ public class YNetLocalVarVerifier {
 
                 // if we're back to the start of the net, this local var is a problem
                 if (preElement instanceof YInputCondition) {
+                    if (! allPathsWalked(andStack)) continue;
+
                     visited.add(preElement);
                     messages.add(getMessage(map, subjectTask, visited));
                     visited = resetVisited(baseElement);
@@ -112,13 +117,13 @@ public class YNetLocalVarVerifier {
                         visited = resetVisited(baseElement);                        
                     }
                     else {
-                        messages.addAll(verify(map, subjectTask, preTask, visited));
+                        messages.addAll(verify(map, subjectTask, preTask, visited, andStack));
                     }
                 }
                 else {
 
                     // a plain condition - recurse
-                    messages.addAll(verify(map, subjectTask, preElement, visited));
+                    messages.addAll(verify(map, subjectTask, preElement, visited, andStack));
                 }
             }
         }
@@ -130,7 +135,7 @@ public class YNetLocalVarVerifier {
         Set<String> outputParamNames = _net.getOutputParameterNames();
 
         for (YVariable local : _net.getLocalVariables().values()) {
-            if (StringUtil.isNullOrEmpty(local.getInitialValue())) {
+            if ((! local.isOptional()) && StringUtil.isNullOrEmpty(local.getInitialValue())) {
 
                 // output parameters have a mirrored local var created, although they
                 // are not true local vars, so any of those need to be ignored
@@ -169,7 +174,7 @@ public class YNetLocalVarVerifier {
         if (query != null) {
             for (String localVarName : _uninitialisedLocalVars.keySet()) {
 
-                // if this task has an uninit. local task in its mapping query
+                // if this task has an uninit. local var in its mapping query
                 if (queryReferencesLocalVar(query, localVarName, input) ||
                     miTaskOutputsToLocalVar(task, query, localVarName, input)) {
                     LocalTaskMap taskMap = _uninitialisedLocalVars.get(localVarName);
@@ -212,6 +217,34 @@ public class YNetLocalVarVerifier {
     private String getQueryForParam(YTask task, String paramName, boolean input) {
         return input ? task.getDataBindingForInputParam(paramName) :
                        task.getDataBindingForOutputParam(paramName);
+    }
+
+
+    private void updateAndStack(YExternalNetElement element, Stack<Integer> stack) {
+        if (element instanceof YTask) {
+            YTask task = (YTask) element;
+            if (task.getSplitType() == YTask._AND) {
+                int outFlowCount = task.getPostsetElements().size();
+                if ((outFlowCount > 1) && (! stack.isEmpty())) {
+                    stack.push(stack.pop() - 1);                // decrement and replace
+                }
+            }
+            if (task.getJoinType() == YTask._AND) {
+                int inFlowCount = task.getPresetElements().size();
+                if (inFlowCount > 1) {
+                    stack.push(task.getPresetElements().size());
+                }    
+            }
+        }
+    }
+
+
+    private boolean allPathsWalked(Stack<Integer> stack) {
+        if (stack.peek() == 0) {
+            stack.pop();
+            return true;
+        }
+        return false;
     }
 
 

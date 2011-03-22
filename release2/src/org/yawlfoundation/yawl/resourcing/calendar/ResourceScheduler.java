@@ -349,7 +349,7 @@ public class ResourceScheduler {
      */
     private void saveReservations(UtilisationPlan plan, String agent) {
         for (Activity activity : plan.getActivityList()) {
-            if (validateActivity(activity) && activity.hasReservation()) {
+            if (validateActivity(activity)) {
                 Set<Long> reservationIDs = new HashSet<Long>();
                 long from = activity.getFromAsLong();
                 long to = activity.getToAsLong();
@@ -419,7 +419,7 @@ public class ResourceScheduler {
                     reconcileReservation(reservation, from, to, logEntry);
                 }
                 else {
-                    updateReservation(reservation, logEntry);
+                    updateReservation(reservation, from, to, logEntry);
                 }    
             }
             else {                                                  // new
@@ -588,27 +588,42 @@ public class ResourceScheduler {
      * Updates the status of a reservation stored in the calendar.
      * @param reservation the updated reservation
      * @param logEntry the matching log entry of the update
+     * @param from the reservation start time
+     * @param to the reservation end time
      * @throws CalendarException if there's a problem locating the record or saving
      * the update
      * @throws ScheduleStateException if the status transition is invalid
      */
-    private void updateReservation(Reservation reservation, CalendarLogEntry logEntry)
+    private void updateReservation(Reservation reservation, long from, long to,
+                                   CalendarLogEntry logEntry)
             throws CalendarException, ScheduleStateException {
         String statusToBe = reservation.getStatusToBe();
+        int workload = reservation.getWorkload();
         long entryID = convertReservationID(reservation);
         CalendarEntry calEntry = getCalendarEntry(entryID);        // exc. if invalid id
-        if (calEntry.getStatus().equals(statusToBe)) return;       // ignore if no change
+
+        // ignore this update if there's no change to the reservation
+        if (unchangedReservation(calEntry, statusToBe, from, to, workload)) return;
+
         checkRequestedStatusToBe(statusToBe);
         reservation.setStatus(calEntry.getStatus());               // current status
         if (statusToBe.equals(ResourceCalendar.Status.unavailable.name())) {
             reassignEntryIfPossible(calEntry, false);      // adds new rec if possible
         }
-        ResourceCalendar.Status updatedStatus =
-                    _calendar.updateEntry(entryID, reservation.getStatusToBe());
 
-        // if update raised no exceptions, update reservation and log
-        reservation.setStatus(updatedStatus.name());
-        calEntry.setStatus(updatedStatus.name());
+        // if not status change only
+        if (! (calEntry.hasPeriod(from, to) && (calEntry.getWorkload() == workload))) {
+            updateEntry(calEntry, from, to, workload);         // exc. if changes clash
+        }
+
+        // status updates done separately since several 2ndary changes may be triggered
+        if (! calEntry.getStatus().equals(statusToBe)) {
+            ResourceCalendar.Status updatedStatus = _calendar.updateEntry(entryID, statusToBe);
+            reservation.setStatus(updatedStatus.name());
+            calEntry.setStatus(updatedStatus.name());
+        }
+
+        // if update(s) raised no exceptions, update log       
         logEntry.setCalendarKey(entryID);
         setResourceRecord(logEntry);
         _uLogger.log(logEntry, calEntry, false);
@@ -768,6 +783,26 @@ public class ResourceScheduler {
             }
         }
         _reassignedIDs.clear();
+    }
+
+
+    private void updateEntry(CalendarEntry entry, long from, long to, int workload)
+           throws CalendarException, ScheduleStateException {
+        boolean isAvailable = true;
+        AbstractResource resource = getActualResource(entry.getResourceID());
+        if (from < entry.getStartTime()) {
+            isAvailable = _calendar.isAvailable(resource, from, entry.getStartTime() - 1, workload);
+        }
+        if (to > entry.getEndTime()) {
+            isAvailable = isAvailable &&
+                    _calendar.isAvailable(resource, entry.getEndTime() + 1, to, workload);
+        }
+        if (! isAvailable) throw new ScheduleStateException(
+                "Resource is not available for update period.");
+        entry.setStartTime(from);
+        entry.setEndTime(to);
+        entry.setWorkload(workload);
+        _calendar.updateEntry(entry);
     }
 
 
@@ -1133,6 +1168,15 @@ public class ResourceScheduler {
                 }
             }    
         }
+    }
+
+
+    private boolean unchangedReservation(CalendarEntry calEntry, String statusToBe,
+                                         long from, long to, int workload) {
+        return (calEntry != null) &&
+                calEntry.hasPeriod(from, to) &&
+                calEntry.getStatus().equals(statusToBe) &&
+                calEntry.getWorkload() == workload;
     }
 
 }
