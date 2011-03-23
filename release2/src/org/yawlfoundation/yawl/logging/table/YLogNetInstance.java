@@ -75,6 +75,16 @@ public class YLogNetInstance {
     }
 
 
+    public boolean equals(Object other) {
+        return (other instanceof YLogNetInstance) &&
+                (this.getNetInstanceID() == ((YLogNetInstance) other).getNetInstanceID());
+    }
+
+    public int hashCode() {
+        return (int) (31 * getNetInstanceID()) % Integer.MAX_VALUE;
+    }
+
+
     public String toXML() {
         StringBuilder xml = new StringBuilder(140);
         xml.append(String.format("<netInstance key=\"%d\">", netInstanceID));

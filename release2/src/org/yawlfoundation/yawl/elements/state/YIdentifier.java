@@ -297,9 +297,9 @@ public class YIdentifier {
         _logKey = key;
     }
 
-    public boolean equals(Object another) {
-        return (another instanceof YIdentifier) &&
-                another.toString().equals(this.toString());
+    public boolean equals(Object other) {
+        return (this == other) ||
+              ((other instanceof YIdentifier) && other.toString().equals(this.toString()));
     }
 
     public boolean equalsOrIsAncestorOf(YIdentifier another) {

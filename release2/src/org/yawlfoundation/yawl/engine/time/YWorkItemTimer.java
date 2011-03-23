@@ -41,7 +41,7 @@ public class YWorkItemTimer implements YTimedObject {
 
     public enum State { dormant, active, closed, expired }
 
-    private String _ownerID;
+    private String _ownerID;     // the owner work item - each can have at most one timer
     private long _endTime ;
     private boolean _persisting ;
 
@@ -51,7 +51,6 @@ public class YWorkItemTimer implements YTimedObject {
         _ownerID = workItemID ;
         _persisting = persisting ;
         _endTime = YTimer.getInstance().schedule(this, msec) ;
-//        if (persisting) persistThis(true) ;
     }
 
 
@@ -59,7 +58,6 @@ public class YWorkItemTimer implements YTimedObject {
         _ownerID = workItemID ;
         _persisting = persisting ;
         _endTime = YTimer.getInstance().schedule(this, expiryTime) ;
-//        if (persisting) persistThis(true) ;
     }
 
 
@@ -67,7 +65,6 @@ public class YWorkItemTimer implements YTimedObject {
         _ownerID = workItemID ;
         _persisting = persisting ;
         _endTime = YTimer.getInstance().schedule(this, duration) ;
-  //      if (persisting) persistThis(true) ;
     }
 
 
@@ -76,7 +73,6 @@ public class YWorkItemTimer implements YTimedObject {
         _ownerID = workItemID ;
         _persisting = persisting ;
         _endTime = YTimer.getInstance().schedule(this, units, interval);
-//        if (persisting) persistThis(true) ;
     }
 
 
@@ -104,6 +100,18 @@ public class YWorkItemTimer implements YTimedObject {
                 }
             }    
         }
+    }
+
+
+    public boolean equals(Object other) {
+        return (other instanceof YWorkItemTimer) &&
+                ((getOwnerID() != null) ?
+                 getOwnerID().equals(((YWorkItemTimer) other).getOwnerID()) :
+                 super.equals(other));
+    }
+
+    public int hashCode() {
+        return (getOwnerID() != null) ? getOwnerID().hashCode() : super.hashCode();
     }
 
             

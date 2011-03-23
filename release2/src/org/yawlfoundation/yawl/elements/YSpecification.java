@@ -37,6 +37,7 @@ import java.util.*;
  */
 public final class YSpecification implements Cloneable, YVerifiable {
     private String _specURI;
+    private YSpecificationID _specID;
     private YNet _rootNet;
     private Map<String, YDecomposition> _decompositions =
                                         new HashMap<String, YDecomposition>();
@@ -252,7 +253,11 @@ public final class YSpecification implements Cloneable, YVerifiable {
 
 
     public YSpecificationID getSpecificationID() {
-        return new YSpecificationID(_metaData.getUniqueID(), _metaData.getVersion(), _specURI);
+        if (_specID == null) {
+            _specID = new YSpecificationID(_metaData.getUniqueID(),
+                    _metaData.getVersion(), _specURI);
+        }
+        return _specID;
     }
 
     public void setMetaData(YMetaData metaData) {
@@ -261,6 +266,19 @@ public final class YSpecification implements Cloneable, YVerifiable {
 
     public YMetaData getMetaData() {
         return _metaData;
+    }
+
+
+    public boolean equals(Object other) {
+        return (other instanceof YSpecification) &&  // instanceof = false if other is null
+                ((getSpecificationID() != null) ?
+                  getSpecificationID().equals(((YSpecification) other).getSpecificationID())
+                : super.equals(other));
+    }
+
+    public int hashCode() {
+        return (getSpecificationID() != null) ? getSpecificationID().hashCode()
+                : super.hashCode();
     }
 
     /************************************/

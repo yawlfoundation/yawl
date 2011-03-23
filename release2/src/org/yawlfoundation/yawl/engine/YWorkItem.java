@@ -516,6 +516,20 @@ public class YWorkItem {
     }
 
 
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other instanceof YWorkItem) {         // instanceof = false if other is null
+            YWorkItem otherItem = (YWorkItem) other;
+            return (this.getWorkItemID() != null) &&
+                    this.getWorkItemID().equals(otherItem.getWorkItemID());
+        }
+        return false;
+    }
+
+    public int hashCode() {
+        return (getWorkItemID() != null) ? getWorkItemID().hashCode() : super.hashCode();
+    }
+
     /********************************************************************************/
 
     // STATUS CHANGE METHODS //

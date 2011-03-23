@@ -164,6 +164,13 @@
                                        styleClass="caseMgtButton"
                                        style="left: 247px; top: 230px"
                                        text="Get Info"/>
+
+                            <ui:button action="#{caseMgt.btnDownloadLog_action}"
+                                       binding="#{caseMgt.btnDownloadLog}"
+                                       id="btnDownloadLog"
+                                       styleClass="caseMgtButton"
+                                       style="left: 365px; top: 230px"
+                                       text="Download Log"/>
                         </ui:panelLayout>
 
                         <!-- Running Cases Panel -->

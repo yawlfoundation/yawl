@@ -110,6 +110,15 @@ public class YLogEvent {
         this.rootNetInstanceID = rootNetInstanceID;
     }
 
+    public boolean equals(Object other) {
+        return (other instanceof YLogEvent) &&
+                (this.getEventID() == ((YLogEvent) other).getEventID());
+    }
+
+    public int hashCode() {
+        return (int) (31 * getEventID()) % Integer.MAX_VALUE;
+    }
+
 
     public String toXML() {
         StringBuilder xml = new StringBuilder(240);

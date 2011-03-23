@@ -45,4 +45,14 @@ public class YNetData {
         return _id;
     }
 
+    public boolean equals(Object other) {
+        return (other instanceof YNetData) &&    // instanceof = false if other is null
+                ((getId() != null) ? getId().equals(((YNetData) other).getId())
+                : super.equals(other));
+    }
+
+    public int hashCode() {
+        return (getId() != null) ? getId().hashCode() : super.hashCode();
+    }
+
 }

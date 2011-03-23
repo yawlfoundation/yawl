@@ -166,6 +166,17 @@ public class YNetRunner {
     }
 
 
+    public boolean equals(Object other) {
+        return (other instanceof YNetRunner) &&   // instanceof = false if other is null
+                ((getCaseID() != null) ? getCaseID().equals(((YNetRunner) other).getCaseID())
+                : super.equals(other));
+    }
+
+    public int hashCode() {
+        return (getCaseID() != null) ? getCaseID().hashCode() : super.hashCode();
+    }
+
+
     /******************************************************************************/
 
     public void setContainingTask(YCompositeTask task) {

@@ -68,9 +68,7 @@ public class YPersistenceManager {
     private static final boolean UPDATE = true;
     private static Logger logger = null;
 
-    private SessionFactory factory = null;
-    private Session session = null;
-    private Transaction transaction = null;
+    private static SessionFactory factory = null;
     private boolean restoring = false;
     private boolean enabled = false;
 
@@ -127,15 +125,16 @@ public class YPersistenceManager {
     }
 
     public Session getSession() {
-        return session;
+        return factory.getCurrentSession();
     }
 
     public Transaction getTransaction() {
-        return transaction;
+        return getSession().getTransaction();
     }
 
     public void closeSession() {
         try {
+            Session session = getSession();
             if ((session != null) && (session.isOpen())) {
                 session.close();
             }
@@ -174,9 +173,7 @@ public class YPersistenceManager {
         if ((! isEnabled()) || isActiveTransaction()) return false;
         logger.debug("---> start Transaction");
         try {
-            session = factory.getCurrentSession();
-            if (! session.isOpen()) factory.openSession();
-            transaction = session.beginTransaction();
+            getSession().beginTransaction();
         } catch (HibernateException e) {
             logger.fatal("Failure to start transactional session", e);
             throw new YPersistenceException("Failure to start transactional session", e);
@@ -247,15 +244,16 @@ public class YPersistenceManager {
 
     private void updateOrMerge(Object obj) {
         try {
-            session.saveOrUpdate(obj);
+            getSession().saveOrUpdate(obj);
         }
         catch (Exception e) {
-            session.merge(obj);
+            getSession().merge(obj);
        }
     }
 
 
     private boolean isActiveTransaction() {
+        Transaction transaction = getTransaction();
         return (transaction != null) && transaction.isActive();
     }
 
@@ -333,8 +331,7 @@ public class YPersistenceManager {
      public void commit() throws YPersistenceException {
         logger.debug("--> commit");
         try {
-            if (isEnabled() && isActiveTransaction()) transaction.commit();
-            transaction = null;
+            if (isEnabled() && isActiveTransaction()) getTransaction().commit();
         }
         catch (Exception e1) {
             logger.fatal("Failure to commit transactional session - Rolling Back Transaction", e1);
@@ -351,6 +348,7 @@ public class YPersistenceManager {
     protected void rollbackTransaction() throws YPersistenceException {
         logger.debug("--> rollback Transaction");
 
+        Transaction transaction = getTransaction();
         if (transaction != null) {
             try {
                 if (isActiveTransaction()) transaction.rollback();
@@ -359,9 +357,7 @@ public class YPersistenceManager {
                 throw new YPersistenceException("Failure to rollback transaction", e);
             }
             finally {
-                transaction = null;
                 closeSession();
-                session = null;
             }
         }
         logger.debug("<-- rollback Transaction");
@@ -451,6 +447,4 @@ public class YPersistenceManager {
         return selectScalar(className, field, String.valueOf(value));
     }
 
-
 }
-

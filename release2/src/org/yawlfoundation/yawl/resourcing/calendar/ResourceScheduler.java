@@ -351,23 +351,25 @@ public class ResourceScheduler {
         for (Activity activity : plan.getActivityList()) {
             if (validateActivity(activity)) {
                 Set<Long> reservationIDs = new HashSet<Long>();
-                long from = activity.getFromAsLong();
-                long to = activity.getToAsLong();
-                for (Reservation reservation : activity.getReservationList()) {
-                    CalendarLogEntry logEntry = new CalendarLogEntry();
-                    logEntry.setCaseID(plan.getCaseID());
-                    logEntry.setPhase(activity.getPhase());
-                    logEntry.setActivityName(activity.getName());
-                    logEntry.setAgent(agent);
-                    if (reservation.hasResource()) {
-                        logEntry.setResourceRec(reservation.getResource().toXML());
+                if (activity.hasReservation()) {
+                    long from = activity.getFromAsLong();
+                    long to = activity.getToAsLong();
+                    for (Reservation reservation : activity.getReservationList()) {
+                        CalendarLogEntry logEntry = new CalendarLogEntry();
+                        logEntry.setCaseID(plan.getCaseID());
+                        logEntry.setPhase(activity.getPhase());
+                        logEntry.setActivityName(activity.getName());
+                        logEntry.setAgent(agent);
+                        if (reservation.hasResource()) {
+                            logEntry.setResourceRec(reservation.getResource().toXML());
+                        }
+                        saveReservation(reservation, from, to, logEntry);
+                        reservationIDs.add(reservation.getReservationIDAsLong());
                     }
-                    saveReservation(reservation, from, to, logEntry);
-                    reservationIDs.add(reservation.getReservationIDAsLong());
                 }
 
-                // remove any previous calendar entries made for this plan that are
-                // no longer in the plan
+                // remove any previous calendar entries made for this activity that are
+                // no longer in the activity
                 handleCancellations(plan.getCaseID(), activity.getName(), reservationIDs);
             }
         }

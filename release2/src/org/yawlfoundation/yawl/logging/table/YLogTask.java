@@ -74,6 +74,16 @@ public class YLogTask {
     }
 
 
+    public boolean equals(Object other) {
+        return (other instanceof YLogTask) &&
+                (this.getTaskID() == ((YLogTask) other).getTaskID());
+    }
+
+    public int hashCode() {
+        return (int) (31 * getTaskID()) % Integer.MAX_VALUE;
+    }
+
+
     public String toXML() {
         StringBuilder xml = new StringBuilder(130);
         xml.append(String.format("<task key=\"%d\">", taskID));

@@ -125,6 +125,17 @@ public class YAWLServiceReference extends YClient implements YVerifiable {
 
     /***************************************************/
 
+    public boolean equals(Object other) {
+        return (other instanceof YAWLServiceReference) &&
+                ((getServiceID() != null) ?
+                getServiceID().equals(((YAWLServiceReference) other).getServiceID()) :
+                super.equals(other));
+    }
+
+    public int hashCode() {
+        return (getServiceID() != null) ? getServiceID().hashCode() : super.hashCode();
+    }
+    
 
     public List<YVerificationMessage> verify() {
         List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();

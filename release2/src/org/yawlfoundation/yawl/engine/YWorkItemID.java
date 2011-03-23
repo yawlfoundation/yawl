@@ -82,6 +82,22 @@ public class YWorkItemID {
 
         return bigInt2.compareTo(bigInt1);
     }
+
+
+    public boolean equals(Object other) {
+        if (other instanceof YWorkItemID) {
+            YWorkItemID otherID = (YWorkItemID) other;
+            return this.toString().equals(otherID.toString()) &&
+                    (((this.getUniqueID() == null) && (otherID.getUniqueID() == null)) ||
+                    this.getUniqueID().equals(otherID.getUniqueID()));
+        }
+        return false;
+    }
+
+    public int hashCode() {
+        int uCode = (getUniqueID() != null) ? getUniqueID().hashCode() : 17 * 31;
+        return toString().hashCode() + uCode; 
+    }
 }
 
 /*********************************************************************************/
