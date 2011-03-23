@@ -63,6 +63,15 @@ public class YLogDataType {
         this.name = name;
     }
 
+    public boolean equals(Object other) {
+        return (other instanceof YLogDataType) &&
+                (this.getDataTypeID() == ((YLogDataType) other).getDataTypeID());
+    }
+
+    public int hashCode() {
+        return (int) (31 * getDataTypeID()) % Integer.MAX_VALUE;
+    }
+
 
     public String toXML() {
         StringBuilder xml = new StringBuilder(150);

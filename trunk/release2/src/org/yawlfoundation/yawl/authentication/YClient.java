@@ -67,6 +67,17 @@ public class YClient {
     public void setDocumentation(String documentation) { _documentation = documentation; }
 
 
+    public boolean equals(Object other) {
+        return (other instanceof YClient) &&
+                ((getUserName() != null) ?
+                  getUserName().equals(((YClient) other).getUserName()) :
+                        super.equals(other));
+    }
+
+    public int hashCode() {
+        return (getUserName() != null) ? getUserName().hashCode() : super.hashCode();
+    }
+
     public String toXML() {
         XNode root = new XNode("client");
         root.addChild("username", _userName);

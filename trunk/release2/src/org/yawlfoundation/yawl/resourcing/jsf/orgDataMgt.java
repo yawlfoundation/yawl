@@ -23,11 +23,9 @@ import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
 import com.sun.rave.web.ui.model.UploadedFile;
 import org.apache.log4j.Logger;
-import org.jdom.Document;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataBackupEngine;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
-import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.faces.FacesException;
 import javax.faces.context.ExternalContext;
@@ -382,7 +380,6 @@ public class orgDataMgt extends AbstractPageBean {
         DataBackupEngine exporter = new DataBackupEngine();
         String result = exporter.exportOrgData();
         try {
-            Document doc = JDOMUtil.stringToDocument(result);
             if (result != null) {
                 FacesContext context = FacesContext.getCurrentInstance();
                 HttpServletResponse response =
@@ -392,7 +389,7 @@ public class orgDataMgt extends AbstractPageBean {
                                    "attachment;filename=\"YAWLOrgDataExport.ybkp\"");
                 OutputStream os = response.getOutputStream();
                 OutputStreamWriter osw = new OutputStreamWriter(os);
-                osw.write(JDOMUtil.documentToString(doc));
+                osw.write(result);
                 osw.flush();
                 osw.close();
                 FacesContext.getCurrentInstance().responseComplete();

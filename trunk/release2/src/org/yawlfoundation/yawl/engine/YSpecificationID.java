@@ -122,17 +122,18 @@ public class YSpecificationID implements Comparable<YSpecificationID> {
     @Override public boolean equals(Object obj) {
         boolean equalYIDs = false;
         if (obj instanceof YSpecificationID) {
-            YSpecificationID id = (YSpecificationID) obj;
+            YSpecificationID other = (YSpecificationID) obj;
 
-            if ((id.getIdentifier() == null) && (identifier == null)) {  // both pre-2.0
-                equalYIDs = id.getUri().equals(uri) && id.getVersion().equals(version) ;
+            if ((other.getIdentifier() == null) && (getIdentifier() == null)) {  // both pre-2.0
+                equalYIDs = other.getUri().equals(getUri()) &&
+                        other.getVersion().equals(getVersion()) ;
             }
             else {
 
                 // if only one identifier is non-null its no match
-                equalYIDs = (id.getIdentifier() != null) && (identifier != null) &&
-                             id.getIdentifier().equals(identifier) &&
-                             id.getVersion().equals(version);
+                equalYIDs = (other.getIdentifier() != null) && (getIdentifier() != null) &&
+                             other.getIdentifier().equals(getIdentifier()) &&
+                             other.getVersion().equals(getVersion());
             }
         }
         return equalYIDs;

@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.LogMiner;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.XNode;
@@ -38,8 +39,11 @@ import javax.faces.component.html.HtmlDataTable;
 import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
@@ -368,6 +372,13 @@ public class caseMgt extends AbstractPageBean {
     public void setBtnGetInfo(Button b) { btnGetInfo = b; }
 
 
+    private Button btnDownloadLog = new Button();
+
+    public Button getBtnDownloadLog() { return btnDownloadLog; }
+
+    public void setBtnDownloadLog(Button b) { btnDownloadLog = b; }
+
+
     /*******************************************************************************/
 
     private ResourceManager _rm = getApplicationBean().getResourceManager() ;
@@ -421,6 +432,12 @@ public class caseMgt extends AbstractPageBean {
 
     public String btnGetInfo_action() {
         showSpecInfo();
+        return null ;
+    }
+
+
+    public String btnDownloadLog_action() {
+        downloadLog();
         return null ;
     }
 
@@ -747,6 +764,42 @@ public class caseMgt extends AbstractPageBean {
         catch (NumberFormatException nfe) {
             msgPanel.error("Please select a specification to get info for.") ;
         }        
+    }
+
+
+    private void downloadLog() {
+        try {
+            Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
+            SpecificationData spec = _sb.getLoadedSpec(selectedRowIndex);
+
+            if (spec != null) {
+                String log = LogMiner.getInstance().getMergedXESLog(spec.getID(), true);
+                if (log != null) {
+                    String filename = String.format("%s%s_xes.xml", spec.getSpecURI(),
+                            spec.getSpecVersion());
+                    FacesContext context = FacesContext.getCurrentInstance();
+                    HttpServletResponse response =
+                            ( HttpServletResponse ) context.getExternalContext().getResponse();
+                    response.setContentType("text/xml");
+                    response.setHeader("Content-Disposition",
+                            "attachment;filename=\"" + filename + "\"");
+                    OutputStream os = response.getOutputStream();
+                    OutputStreamWriter osw = new OutputStreamWriter(os);
+                    osw.write(log);
+                    osw.flush();
+                    osw.close();
+                    FacesContext.getCurrentInstance().responseComplete();
+                    msgPanel.success("Data successfully exported to file '" + filename + "'.");
+                }
+                else msgPanel.error("Unable to create export file: malformed xml.");
+            }
+        }
+        catch (IOException ioe) {
+            msgPanel.error("Unable to create export file. Please see the log for details.");
+        }
+        catch (NumberFormatException nfe) {
+            msgPanel.error("Please select a specification to download the log for.") ;
+        }
     }
 
 

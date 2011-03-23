@@ -61,6 +61,15 @@ public class YLogService {
         this.url = url;
     }
 
+    public boolean equals(Object other) {
+        return (other instanceof YLogService) &&
+                (this.getServiceID() == ((YLogService) other).getServiceID());
+    }
+
+    public int hashCode() {
+        return (int) (31 * getServiceID()) % Integer.MAX_VALUE;
+    }
+
 
     public String toXML() {
         StringBuilder xml = new StringBuilder(100);

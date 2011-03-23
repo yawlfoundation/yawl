@@ -64,6 +64,15 @@ public class YLogNet {
         this.name = name;
     }
 
+    public boolean equals(Object other) {
+        return (other instanceof YLogNet) &&
+                (this.getNetID() == ((YLogNet) other).getNetID());
+    }
+
+    public int hashCode() {
+        return (int) (31 * getNetID()) % Integer.MAX_VALUE;
+    }
+
 
     public String toXML() {
         StringBuilder xml = new StringBuilder(90);

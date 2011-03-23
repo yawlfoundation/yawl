@@ -84,6 +84,15 @@ public class YLogTaskInstance {
         this.parentNetInstanceID = parentNetInstanceID;
     }
 
+    public boolean equals(Object other) {
+        return (other instanceof YLogTaskInstance) &&
+                (this.getTaskInstanceID() == ((YLogTaskInstance) other).getTaskInstanceID());
+    }
+
+    public int hashCode() {
+        return (int) (31 * getTaskInstanceID()) % Integer.MAX_VALUE;
+    }
+
 
     public String toXML() {
         StringBuilder xml = new StringBuilder(170);

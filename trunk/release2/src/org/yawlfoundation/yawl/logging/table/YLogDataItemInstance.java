@@ -109,6 +109,15 @@ public class YLogDataItemInstance {
         dataItem.setDescriptor(descriptor);
     }
 
+    public boolean equals(Object other) {
+        return (other instanceof YLogDataItemInstance) &&
+                (this.getDataItemID() == ((YLogDataItemInstance) other).getDataItemID());
+    }
+
+    public int hashCode() {
+        return (int) (31 * getDataItemID()) % Integer.MAX_VALUE;
+    }
+
 
     public String toXML() {
         StringBuilder xml = new StringBuilder(330);

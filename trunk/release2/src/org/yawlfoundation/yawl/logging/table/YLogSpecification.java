@@ -97,6 +97,15 @@ public class YLogSpecification {
     }
 
 
+    public boolean equals(Object other) {
+        return (other instanceof YLogSpecification) &&
+                (this.getRowKey() == ((YLogSpecification) other).getRowKey());
+    }
+
+    public int hashCode() {
+        return (int) (31 * getRowKey()) % Integer.MAX_VALUE;
+    }
+
     public String toXML() {
         StringBuilder xml = new StringBuilder(210);
         xml.append(String.format("<specification key=\"%d\">", rowKey));
