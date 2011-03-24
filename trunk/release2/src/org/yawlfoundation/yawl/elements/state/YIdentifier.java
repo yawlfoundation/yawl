@@ -298,8 +298,15 @@ public class YIdentifier {
     }
 
     public boolean equals(Object other) {
-        return (this == other) ||
-              ((other instanceof YIdentifier) && other.toString().equals(this.toString()));
+        if (this == other) return true;
+        if (other instanceof YIdentifier) {
+            YIdentifier otherID = (YIdentifier) other;
+            if ((toString() != null) && toString().equals(otherID.toString())) {
+                return (getParent() == null) ? (otherID.getParent() == null) :
+                        getParent().equals(otherID.getParent());
+            }
+        }
+        return false;
     }
 
     public boolean equalsOrIsAncestorOf(YIdentifier another) {
