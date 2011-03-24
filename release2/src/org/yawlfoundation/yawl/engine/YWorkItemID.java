@@ -85,9 +85,11 @@ public class YWorkItemID {
 
 
     public boolean equals(Object other) {
+        if (this == other) return true;
         if (other instanceof YWorkItemID) {
             YWorkItemID otherID = (YWorkItemID) other;
-            return this.toString().equals(otherID.toString()) &&
+            return this.getCaseID().equals(otherID.getCaseID()) &&
+                   this.getTaskID().equals(otherID.getTaskID()) &&
                     (((this.getUniqueID() == null) && (otherID.getUniqueID() == null)) ||
                     this.getUniqueID().equals(otherID.getUniqueID()));
         }
@@ -95,9 +97,10 @@ public class YWorkItemID {
     }
 
     public int hashCode() {
-        int uCode = (getUniqueID() != null) ? getUniqueID().hashCode() : 17 * 31;
-        return toString().hashCode() + uCode; 
+        int uCode = (getUniqueID() != null) ? getUniqueID().hashCode() : 31;
+        return getCaseID().hashCode() + getTaskID().hashCode() + uCode;
     }
+    
 }
 
 /*********************************************************************************/
