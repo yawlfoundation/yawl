@@ -514,7 +514,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             restoreAutoTasks();
             if (_orphanedStartedItems != null) {
                 for (WorkItemRecord wir : _orphanedStartedItems) {
-                    this.checkinItem(null, wir);
+                    checkinItem(null, wir);
                 }
             }
             _initCompleted = true;
@@ -754,70 +754,61 @@ public class ResourceManager extends InterfaceBWebsideController {
      * may also be executed via the 'synch' button on the admin queues.
      */
     public void sanitiseCaches() {
+        List<String> engineIDs = syncCacheWithEngineItems();
+        removeOrphanedItemsFromCache(engineIDs);
+        cleanseQueues();                       // removed any uncached items from queues
+    }
 
-        // check local cache = engine records
+
+    private List<String> syncCacheWithEngineItems() {
+        List<String> engineIDs = new ArrayList<String>();
         try {
             List<WorkItemRecord> engineItems =
-                  _interfaceBClient.getCompleteListOfLiveWorkItems(getEngineSessionHandle());
-            List<String> engineIDs = new ArrayList<String>();
-            List<WorkItemRecord> missingParents = new ArrayList<WorkItemRecord>();
+                    _interfaceBClient.getWorkItemsForService(getServiceURI(), getEngineSessionHandle());
 
             // check that a copy of each engine child item is stored locally
             for (WorkItemRecord wir : engineItems) {
                 if (! _workItemCache.containsKey(wir.getID())) {
-                    if (! wir.getStatus().equals(WorkItemRecord.statusIsParent)) {
-                        _workItemCache.add(wir);
-                        _log.warn("Engine workItem '" + wir.getID() +
-                                  "' was missing from local cache and has been added.");
+
+                    // Parent items are treated differently. If they have never been started
+                    // they should be in the cache, otherwise at least one child will be cached
+                    if (wir.getStatus().equals(WorkItemRecord.statusIsParent)) {
+                        List children = getChildren(wir.getID());
+                        if (! ((children == null) || children.isEmpty())) { // has kids
+                            continue;                                       // so ignore
+                        }
                     }
-                    else {
-                        missingParents.add(wir);
-                    }
+                    _workItemCache.add(wir);
+                    _resAdmin.addToUnoffered(wir, false);
+                    _log.warn("Engine workItem '" + wir.getID() +
+                            "' was missing from local cache and so has been readded" +
+                            " and placed on the Administrator's 'Unoffered' queue" +
+                            " for manual processing.");
                 }
                 engineIDs.add(wir.getID());
             }
-
-            // Parent items are treated differently. If they have never been started
-            // they should be in the cache, otherwise at least one child will be cached
-            for (WorkItemRecord wir : missingParents) {
-                List children = getChildren(wir.getID());
-                if ((children == null) || (children.isEmpty())) {            // no kids
-                    _workItemCache.add(wir);
-                    _log.warn("Engine workItem '" + wir.getID() +
-                              "' was missing from local cache and has been added.");
-                }
-            }
-
-            // now check that each item stored locally is also in engine
-            Set<String> missingIDs = new HashSet<String>();
-            for (String cachedID : _workItemCache.keySet()) {
-                if (! engineIDs.contains(cachedID))
-                    missingIDs.add(cachedID);
-            }
-            for (String missingID : missingIDs) {
-                WorkItemRecord deadWir = _workItemCache.remove(missingID);
-                removeFromAll(deadWir);                          // workqueues, that is
-                _log.warn("Cached workitem '" + missingID +
-                          "' did not exist in the Engine and was removed.");
-            }
         }
         catch (IOException ioe) {
-            _log.warn("Sanitise caches method could not get workitem list from engine.") ;
+            _log.warn("Could not get workitem list from engine to synchronise caches.") ;
         }
+        return engineIDs;
+    }
 
-        cleanseQueues();                       // removed any uncached items from queues
 
-        // finally, rebuild all 'offered' datasets
-       for (Participant p : _orgDataSet.getParticipants()) {
-           QueueSet qSet = p.getWorkQueues();
-           if (qSet != null) {
-               WorkQueue wq = qSet.getQueue(WorkQueue.OFFERED);
-               if (wq != null) {
-                   Set<WorkItemRecord> wirSet = wq.getAll();
-                   for (WorkItemRecord wir : wirSet) addToOfferedSet(wir, p);
-               }
-           }
-       }
+    private void removeOrphanedItemsFromCache(List<String> engineIDs) {
+
+        // check that each item stored locally is also in engine
+        Set<String> missingIDs = new HashSet<String>();
+        for (String cachedID : _workItemCache.keySet()) {
+            if (! engineIDs.contains(cachedID))
+                missingIDs.add(cachedID);
+        }
+        for (String missingID : missingIDs) {
+            WorkItemRecord deadWir = _workItemCache.remove(missingID);
+            removeFromAll(deadWir);                          // workqueues, that is
+            _log.warn("Cached workitem '" + missingID +
+                    "' did not exist in the Engine and was removed.");
+        }
     }
 
 
@@ -826,6 +817,12 @@ public class ResourceManager extends InterfaceBWebsideController {
             QueueSet qSet = p.getWorkQueues();
             if (qSet != null) {
                 qSet.cleanseAllQueues(_workItemCache);
+
+                // rebuild all 'offered' datasets
+                WorkQueue wq = qSet.getQueue(WorkQueue.OFFERED);
+                if (wq != null) {
+                    for (WorkItemRecord wir : wq.getAll()) addToOfferedSet(wir, p);
+                }
             }
         }
         WorkQueue q = _resAdmin.getWorkQueues().getQueue(WorkQueue.UNOFFERED);
@@ -3004,8 +3001,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     
     public void addToOfferedSet(WorkItemRecord wir, Participant p) {
         ResourceMap rMap = getResourceMap(wir);
-        if (rMap != null)
-            rMap.addToOfferedSet(wir, p);
+        if (rMap != null) rMap.addToOfferedSet(wir, p);
     }
 
 

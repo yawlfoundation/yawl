@@ -1345,11 +1345,6 @@ public class YEngine implements InterfaceADesign,
     }
 
 
-    public Set<YWorkItem> getWorkItemsWithIdentifier(String idType, String itemID) {
-        return _workItemRepository.getWorkItemsWithIdentifier(idType, itemID);
-    }
-
-
     /**
      * Starts a work item.  If the workitem param is enabled this method fires the task
      * and returns the first of its child instances in the exectuting state.

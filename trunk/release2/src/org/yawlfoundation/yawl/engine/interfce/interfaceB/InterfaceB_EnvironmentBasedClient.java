@@ -167,7 +167,6 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     }
 
 
-
     /**
      * Retrieves a List of live workitems for the case or spec id passed
      * @param idType : "case" for a case's workitems, "spec" for a specification's,
@@ -190,6 +189,22 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
             return getWorkItemsForTask(id, sessionHandle);
         }
         else return null;
+    }
+
+
+    /**
+     * Returns the current set of active workitems that are associated with a specified
+     * custom service
+     * @param serviceURI the uri of the service in question
+     * @param sessionHandle the session handle
+     * @return a list of live workitems (as WorkItemRecords)
+     * @throws IOException if engine can't be found.
+     */
+    public List<WorkItemRecord> getWorkItemsForService(String serviceURI, String sessionHandle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("getWorkItemsForService", sessionHandle);
+        params.put("serviceuri", serviceURI) ;
+        return unPackWorkItemList(executeGet(_backEndURIStr, params));
     }
 
     

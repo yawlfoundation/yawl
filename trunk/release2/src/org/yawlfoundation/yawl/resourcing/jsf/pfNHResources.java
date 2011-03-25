@@ -198,6 +198,17 @@ public class pfNHResources extends AbstractFragmentBean {
     }
 
 
+    private Listbox lbxSubCatItems = new Listbox();
+
+    public Listbox getLbxSubCatItems() {
+        return lbxSubCatItems;
+    }
+
+    public void setLbxSubCatItems(Listbox l) {
+        this.lbxSubCatItems = l;
+    }
+
+
     public pfNHResources() {
     }
 
@@ -250,12 +261,17 @@ public class pfNHResources extends AbstractFragmentBean {
         _sb.setSourceTabAfterListboxSelection();
     }
 
+    public void lbxSubCatItems_processValueChange(ValueChangeEvent event) {
+
+    }
+
 
     protected void populateGUI(String id, nonHumanMgt.AttribType type) {
         switch (type) {
             case resource : populateGUI(_orgDataSet.getNonHumanResource(id)); break;
             case category : populateGUI(_orgDataSet.getNonHumanCategory(id)); break;
         }
+        lbxItems.setSelected(id);        
     }
 
 
@@ -266,6 +282,7 @@ public class pfNHResources extends AbstractFragmentBean {
             txtName.setText(resource.getName());
             _sb.setNhResourcesCategoryItems(_sb.getNhResourcesCategoryList());
             NonHumanCategory category = resource.getCategory();
+            _sb.setNhResourceCategoryLabelText("Category");
             cbbCategory.setSelected(category.getID());
             _sb.setNhResourcesSubcategoryItems(getSubCategoryList(category));
             cbbSubCategory.setSelected(resource.getSubCategoryName());
@@ -278,27 +295,31 @@ public class pfNHResources extends AbstractFragmentBean {
             txtDesc.setText(category.getDescription());
             txtNotes.setText(category.getNotes());
             txtName.setText(category.getName());
-            _sb.setNhResourcesSubcategoryItems(getSubCategoryList(category));
+            Option[] subCatItems = getSubCategoryList(category);
+            _sb.setNhResourcesSubcategoryItems(subCatItems);  
             int membership = _sb.setCategoryMembers(category);
             lblMembers.setText("Members (" + membership + ")");
+            _sb.setNhResourceCategoryLabelText("Subcategories");
+            if ((subCatItems != null) && (subCatItems.length > 0)) {
+                lbxSubCatItems.setSelected(subCatItems[0].getValue());
+            }
         }
     }
 
 
     public void setVisibleComponents(String tabName) {
-        if (tabName.equals("tabResources")) {
-            cbbCategory.setVisible(true);
-            lblCategory.setVisible(true);
-            lblMembers.setVisible(false);
-            cbbMembers.setVisible(false);
-        }
-        else if (tabName.equals("tabCategories")) {
-            cbbCategory.setVisible(false);
-            lblCategory.setVisible(false);
+        boolean catTab = tabName.equals("tabCategories");
+        cbbCategory.setVisible(! catTab);
+        lblSubCategory.setVisible(! catTab);
+        cbbSubCategory.setVisible(! catTab);
+        lblMembers.setVisible(catTab);
+        cbbMembers.setVisible(catTab);
+        lbxSubCatItems.setVisible(catTab);
+        if (catTab) {
             cbbCategory.setItems(null);
-            lblMembers.setVisible(true);
-            cbbMembers.setVisible(true);
+            cbbSubCategory.setItems(null);
         }
+        else lbxSubCatItems.setItems(null);
     }
 
     

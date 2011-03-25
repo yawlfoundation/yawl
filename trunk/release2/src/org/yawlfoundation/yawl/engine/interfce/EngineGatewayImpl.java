@@ -480,7 +480,18 @@ public class EngineGatewayImpl implements EngineGateway {
         String sessionMessage = checkSession(sessionHandle);
         if (isFailureMessage(sessionMessage)) return sessionMessage;
 
-        return describeWorkItems(_engine.getWorkItemsWithIdentifier(idType, itemID));
+        return describeWorkItems(
+                _engine.getWorkItemRepository().getWorkItemsWithIdentifier(idType, itemID));
+    }
+
+
+    public String getWorkItemsForService(String serviceURI, String sessionHandle)
+            throws RemoteException {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        return describeWorkItems(
+                _engine.getWorkItemRepository().getWorkItemsForService(serviceURI));
     }
 
 

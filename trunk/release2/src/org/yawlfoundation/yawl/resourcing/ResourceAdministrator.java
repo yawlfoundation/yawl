@@ -52,12 +52,17 @@ public class ResourceAdministrator {
         return _qSet ;
     }
 
-    public void addToUnoffered(WorkItemRecord wir) {
+    public void addToUnoffered(WorkItemRecord wir, boolean announce) {
         ResourceManager rm = ResourceManager.getInstance();
         rm.getWorkItemCache().updateResourceStatus(wir, WorkItemRecord.statusResourceUnoffered);
         _qSet.addToQueue(wir, WorkQueue.UNOFFERED);
-        rm.announceResourceUnavailable(wir);
+        if (announce) rm.announceResourceUnavailable(wir);
     }
+
+    public void addToUnoffered(WorkItemRecord wir) {
+        addToUnoffered(wir, true);
+    }
+
 
     public void removeFromAllQueues(WorkItemRecord wir) {
         _qSet.removeFromQueue(wir, WorkQueue.UNOFFERED);

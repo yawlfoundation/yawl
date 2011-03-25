@@ -520,14 +520,19 @@ public class YWorkItem {
         if (this == other) return true;
         if (other instanceof YWorkItem) {         // instanceof = false if other is null
             YWorkItem otherItem = (YWorkItem) other;
-            return (this.getWorkItemID() != null) &&
-                    this.getWorkItemID().equals(otherItem.getWorkItemID());
+            if (this.get_thisID() != null) {
+                return this.get_thisID().equals(otherItem.get_thisID());
+            }
+            else if (this.getWorkItemID() != null) {
+                return this.getWorkItemID().equals(otherItem.getWorkItemID());
+            }
         }
         return false;
     }
 
     public int hashCode() {
-        return (getWorkItemID() != null) ? getWorkItemID().hashCode() : super.hashCode();
+        return (get_thisID() != null) ? get_thisID().hashCode() :
+               (getWorkItemID() != null) ? getWorkItemID().hashCode() : super.hashCode();
     }
 
     /********************************************************************************/

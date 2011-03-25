@@ -19,6 +19,8 @@
 package org.yawlfoundation.yawl.engine;
 
 import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
@@ -248,6 +250,27 @@ public class YWorkItemRepository extends ConcurrentHashMap<String, YWorkItem> { 
         if (matches.isEmpty()) matches = null ;
         return matches ;
     }
+    
+
+    public Set<YWorkItem> getWorkItemsForService(String serviceURI) {
+        Set<YWorkItem> matches = new HashSet<YWorkItem>();
+        YAWLServiceReference defWorklist = YEngine.getInstance().getDefaultWorklist();
+
+        // find out which items belong to the specified service
+        for (YWorkItem item : getWorkItems()) {
+            YAWLServiceGateway gateway =
+                     ((YAWLServiceGateway) item.getTask().getDecompositionPrototype());
+            if (gateway != null) {
+                YAWLServiceReference service = gateway.getYawlService();
+                if (service == null) service = defWorklist;
+                if ((service != null) && (service.getURI().equals(serviceURI))) {
+                    matches.add(item);
+                }
+            }
+        }
+        return matches;
+    }
+
 
 
     public void dump(Logger logger) {

@@ -78,7 +78,6 @@ public class orgDataMgt extends AbstractPageBean {
             log("userWorkQueues Initialization Failure", e);
             throw e instanceof FacesException ? (FacesException) e: new FacesException(e);
         }
-//        tabRoles_action();
     }
 
     public void preprocess() { }
