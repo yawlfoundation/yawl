@@ -105,6 +105,8 @@ public interface EngineGateway extends Remote {
 
     public String getWorkItemsWithIdentifier(String idType, String itemID, String sessionHandle) throws RemoteException;
 
+   public String getWorkItemsForService(String serviceURI, String sessionHandle) throws RemoteException;
+
     public String connect(String userID, String password, long timeOutSeconds) throws RemoteException;
 
     public String checkConnection(String sessionHandle) throws RemoteException;

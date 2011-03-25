@@ -399,9 +399,7 @@ public class ResourceMap {
     
     public void addToOfferedSet(WorkItemRecord wir, Participant p) {
         HashSet<Participant> pSet = _offered.get(wir.getID());
-        if (pSet == null)
-            pSet = new HashSet<Participant>();
-
+        if (pSet == null) pSet = new HashSet<Participant>();
         pSet.add(p);
         _offered.put(wir.getID(), pSet);
     }

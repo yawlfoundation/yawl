@@ -64,7 +64,7 @@
                   for="cbbCategory"
                   id="lblCategory"
                   style="top: 58px; left: 450px; position: absolute"
-                  text="Category"/>
+                  text="#{SessionBean.nhResourceCategoryLabelText}"/>
 
         <ui:dropDown binding="#{pfNHResources.cbbCategory}"
                      id="cbbCategory"
@@ -81,6 +81,14 @@
                      id="cbbSubCategory"
                      items="#{SessionBean.nhResourcesSubcategoryItems}"
                      style="left: 450px; top: 130px; position: absolute; width: 200px"/>
+
+        <ui:listbox binding="#{pfNHResources.lbxSubCatItems}"
+                    id="lbxSubCatItems"
+                    items="#{SessionBean.nhResourcesSubcategoryItems}"
+                    onChange="common_timeoutSubmitForm(this.form, 'lbxSubCatItems');"
+                    selected="#{SessionBean.nhResourcesSubcategoryChoice}"
+                    styleClass="nhSubCatListbox"
+                    valueChangeListener="#{pfNHResources.lbxSubCatItems_processValueChange}"/>
 
         <ui:label binding="#{pfNHResources.lblDesc}"
                   for="txtDesc"

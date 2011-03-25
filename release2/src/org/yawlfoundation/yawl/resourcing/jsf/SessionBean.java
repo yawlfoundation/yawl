@@ -1637,7 +1637,17 @@ public class SessionBean extends AbstractSessionBean {
     }
 
     public void setNhResourceListLabelText(String text) {
-        orgDataListLabelText = text;
+        nhResourceListLabelText = text;
+    }
+
+    private String nhResourceCategoryLabelText = "Category";
+
+    public String getNhResourceCategoryLabelText() {
+        return nhResourceCategoryLabelText;
+    }
+
+    public void setNhResourceCategoryLabelText(String text) {
+        nhResourceCategoryLabelText = text;
     }
 
 
