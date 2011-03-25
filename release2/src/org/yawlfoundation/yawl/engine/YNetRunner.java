@@ -407,64 +407,38 @@ public class YNetRunner {
 
 
     private synchronized void processCompletedSubnet(YPersistenceManager pmgr,
-                           YIdentifier caseIDForSubnet, YCompositeTask busyCompositeTask,
-                           Document rawSubnetData)
+                                                     YIdentifier caseIDForSubnet,
+                                                     YCompositeTask busyCompositeTask,
+                                                     Document rawSubnetData)
             throws YDataStateException, YStateException, YQueryException,
-                   YPersistenceException {
+            YPersistenceException {
 
         _logger.debug("--> processCompletedSubnet");
 
         if (caseIDForSubnet == null) throw new RuntimeException();
-        
+
         if (busyCompositeTask.t_complete(pmgr, caseIDForSubnet, rawSubnetData)) {
             _busyTasks.remove(busyCompositeTask);
-
-            // log the completing net
-            YLogPredicate logPredicate = busyCompositeTask.getDecompositionPrototype().getLogPredicate();
-            YLogDataItemList logData = null;
-            if (logPredicate != null) {
-                String predicate = logPredicate.getParsedCompletionPredicate(
-                        busyCompositeTask.getDecompositionPrototype());
-                if (predicate != null) {
-                    logData = new YLogDataItemList(new YLogDataItem("Predicate",
-                                 "OnCompletion", predicate, "string"));
-                }
-            }
-
-            YEventLogger.getInstance().logNetCompleted(pmgr, caseIDForSubnet, logData);
-
+            if (pmgr != null) pmgr.updateObject(this);
+            logCompletingTask(pmgr, caseIDForSubnet, busyCompositeTask);
 
             //check to see if completing this task resulted in completing the net.
             if (isCompleted() && _net.getOutputCondition().getIdentifiers().size() == 1) {
 
                 if (_containingCompositeTask != null) {
                     YNetRunner parentRunner = _engine.getNetRunner(_caseIDForNet.getParent());
-                    if (parentRunner != null) {
-
-                           // MJF: Added below to avoid NPE
-                            parentRunner.setEngine(_engine);
-
-                            if (_containingCompositeTask.t_isBusy()) {
-
-                                Document dataDoc = _net.usesSimpleRootData() ?
-                                                   _net.getInternalDataDocument() :
-                                                   _net.getOutputData() ;
-
-                                parentRunner.processCompletedSubnet(pmgr,
-                                            _caseIDForNet,
-                                            _containingCompositeTask,
-                                            dataDoc);
- 
-                        }
+                    if ((parentRunner != null) && _containingCompositeTask.t_isBusy()) {
+                        parentRunner.setEngine(_engine);           // added to avoid NPE
+                        Document dataDoc = _net.usesSimpleRootData() ?
+                                    _net.getInternalDataDocument() :
+                                    _net.getOutputData() ;
+                        parentRunner.processCompletedSubnet(pmgr, _caseIDForNet,
+                                    _containingCompositeTask, dataDoc);
                     }
                 }
             }
-
-            if (pmgr != null) pmgr.updateObject(this);
-
             kick(pmgr);
         }
-
         _logger.debug("<-- processCompletedSubnet");
     }
 
@@ -888,6 +862,22 @@ public class YNetRunner {
             throws YPersistenceException {
         YAtomicTask task = (YAtomicTask) _net.getNetElement(taskID);
         return task.t_rollBackToFired(pmgr, caseID);
+    }
+
+
+    private void logCompletingTask(YPersistenceManager pmgr, YIdentifier caseIDForSubnet,
+                                  YCompositeTask busyCompositeTask) {
+        YLogPredicate logPredicate = busyCompositeTask.getDecompositionPrototype().getLogPredicate();
+        YLogDataItemList logData = null;
+        if (logPredicate != null) {
+            String predicate = logPredicate.getParsedCompletionPredicate(
+                    busyCompositeTask.getDecompositionPrototype());
+            if (predicate != null) {
+                logData = new YLogDataItemList(new YLogDataItem("Predicate",
+                        "OnCompletion", predicate, "string"));
+            }
+        }
+        YEventLogger.getInstance().logNetCompleted(pmgr, caseIDForSubnet, logData);
     }
 
 
