@@ -804,10 +804,19 @@ public class ResourceManager extends InterfaceBWebsideController {
                 missingIDs.add(cachedID);
         }
         for (String missingID : missingIDs) {
-            WorkItemRecord deadWir = _workItemCache.remove(missingID);
-            removeFromAll(deadWir);                          // workqueues, that is
-            _log.warn("Cached workitem '" + missingID +
-                    "' did not exist in the Engine and was removed.");
+
+            // check engine for each remaining item - may have been redirected
+            try {
+                if (getEngineStoredWorkItem(missingID, getEngineSessionHandle()) == null) {
+                    WorkItemRecord deadWir = _workItemCache.remove(missingID);
+                    removeFromAll(deadWir);                       // workqueues, that is
+                    _log.warn("Cached workitem '" + missingID +
+                              "' did not exist in the Engine and was removed.");
+                }
+            }
+            catch (IOException ioe) {
+                // err on the side of caution and keep item in cache - ie. do nothing
+            }
         }
     }
 
