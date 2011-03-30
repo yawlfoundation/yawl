@@ -76,7 +76,7 @@ public class InterfaceX_EngineSideServer extends HttpServlet {
             if (_engine == null) {
 
                 // turn on persistence if required
-                String persistOn = context.getInitParameter("EnablePersistance");
+                String persistOn = context.getInitParameter("EnablePersistence");
                 boolean persist = "true".equalsIgnoreCase(persistOn);
                 _engine = new EngineGatewayImpl(persist);
                 context.setAttribute("engine", _engine);

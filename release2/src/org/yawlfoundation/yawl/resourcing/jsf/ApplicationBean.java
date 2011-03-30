@@ -95,10 +95,9 @@ public class ApplicationBean extends AbstractApplicationBean {
 
     // GLOBAL ENUMS AND COMPONENTS //
 
-    public enum PageRef { adminQueues, caseMgt, customServices, dynForm,
-                          Login, orgDataMgt, nonHumanMgt, participantData, selectUser,
-                          userWorkQueues, viewProfile, addInstance,
-                          teamQueues, externalClients }
+    public enum PageRef { adminQueues, caseMgt, customServices, dynForm, Login,
+        orgDataMgt, nonHumanMgt, participantData, selectUser, userWorkQueues,
+        viewProfile, addInstance, teamQueues, externalClients }
 
     public enum TabRef { offered, allocated, started, suspended, unoffered, worklisted }
 
@@ -618,8 +617,5 @@ public class ApplicationBean extends AbstractApplicationBean {
             externalClients = null;
         }
     }
-
-
-
 
 }

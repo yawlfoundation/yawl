@@ -23,13 +23,16 @@ import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
+import org.yawlfoundation.yawl.resourcing.jsf.comparator.NonHumanSubCategoryComparator;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanSubCategory;
 
 import javax.faces.FacesException;
 import javax.faces.event.ValueChangeEvent;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /*
  * Fragment bean for non human resources form
@@ -209,6 +212,46 @@ public class pfNHResources extends AbstractFragmentBean {
     }
 
 
+    private TextField txtSubCat = new TextField();
+
+    public TextField getTxtSubCat() {
+        return txtSubCat;
+    }
+
+    public void setTxtSubCat(TextField tf) {
+        this.txtSubCat = tf;
+    }
+
+
+    private Button btnRemoveSubCat = new Button();
+
+    public Button getBtnRemoveSubCat() { return btnRemoveSubCat; }
+
+    public void setBtnRemoveSubCat(Button b) { btnRemoveSubCat = b; }
+
+
+    private Button btnAddSubCat = new Button();
+
+    public Button getBtnAddSubCat() { return btnAddSubCat; }
+
+    public void setBtnAddSubCat(Button b) { btnAddSubCat = b; }
+
+
+    private Button btnConfirmAddSubCat = new Button();
+
+    public Button getBtnConfirmAddSubCat() { return btnConfirmAddSubCat; }
+
+    public void setBtnConfirmAddSubCat(Button b) { btnConfirmAddSubCat = b; }
+
+
+    private Button btnCancelAddSubCat = new Button();
+
+    public Button getBtnCancelAddSubCat() { return btnCancelAddSubCat; }
+
+    public void setBtnCancelAddSubCat(Button b) { btnCancelAddSubCat = b; }
+
+    /*********************************************************/
+
     public pfNHResources() {
     }
 
@@ -259,23 +302,105 @@ public class pfNHResources extends AbstractFragmentBean {
 
     public void lbxItems_processValueChange(ValueChangeEvent event) {
         _sb.setSourceTabAfterListboxSelection();
+        _sb.setSelectedNonHumanResource(_orgDataSet.getNonHumanResource((String) event.getNewValue()));
+        _sb.setOrigCategory(null);
+        _sb.setOrigSubcategory(null);
     }
 
     public void lbxSubCatItems_processValueChange(ValueChangeEvent event) {
-
+        _sb.setSourceTabAfterListboxSelection();
     }
 
+    public void cbbCategory_processValueChange(ValueChangeEvent event) {
+        NonHumanResource resource = _sb.getSelectedNonHumanResource();
+        if (resource != null) {
+            NonHumanCategory category = _orgDataSet.getNonHumanCategory((String) event.getNewValue());
+            if (category != null) {
+                if (_sb.getOrigCategory() == null) {
+                    _sb.setOrigCategory((String) event.getOldValue());
+                }
+                if (_sb.getOrigSubcategory() == null) {
+                    _sb.setOrigSubcategory(resource.getSubCategoryName());
+                }
+                resource.setCategory(category);
+                resource.setSubCategory("None");
+            }
+        }
+    }
+
+    public void cbbSubCategory_processValueChange(ValueChangeEvent event) {
+        NonHumanResource resource = _sb.getSelectedNonHumanResource();
+        if (resource != null) {
+            resource.setSubCategory((String) event.getNewValue());
+            if (_sb.getOrigSubcategory() == null) {
+                _sb.setOrigSubcategory((String) event.getOldValue());
+            }
+        }
+    }
+
+
+    public String btnAddSubCat_action() {
+        _sb.setSubCatAddMode(true);
+        setSubCatAddMode(true);
+        return null;
+    }
+
+    public String btnRemoveSubCat_action() {
+        String catID = _sb.getNhResourcesChoice();
+        if (catID != null) {
+            NonHumanCategory category = _orgDataSet.getNonHumanCategory(catID);
+            if (category != null) {
+                if (category.removeSubCategory(_sb.getNhResourcesSubcategoryChoice())) {
+                    _orgDataSet.updateNonHumanCategory(category);
+                }
+                else _msgPanel.error("Failed to remove subcategory.");
+            }
+        }
+        return null;
+    }
+
+
+    public String btnConfirmAddSubCat_action() {
+        String name = (String) txtSubCat.getText();
+        if ((name != null) && (name.length() > 0)) {
+            String catID = _sb.getNhResourcesChoice();
+            if (catID != null) {
+                NonHumanCategory category = _orgDataSet.getNonHumanCategory(catID);
+                if (category != null) {
+                    if (! category.hasSubCategory(name)) {
+                        category.addSubCategory(name);
+                        _orgDataSet.updateNonHumanCategory(category);
+                        _sb.setSubCatAddMode(false);
+                        txtSubCat.setText(null);
+                    }
+                    else _msgPanel.error("Subcategory already exists: " + name);
+                }
+            }
+        }
+        else _msgPanel.error("Please enter a subcategory to add.");
+        return null;
+    }
+
+    public String btnCancelAddSubCat_action() {
+        _sb.setSubCatAddMode(false);
+        return null;
+    }
 
     protected void populateGUI(String id, nonHumanMgt.AttribType type) {
         switch (type) {
-            case resource : populateGUI(_orgDataSet.getNonHumanResource(id)); break;
+            case resource : populateGUI(_sb.getSelectedNonHumanResource(), id); break;
             case category : populateGUI(_orgDataSet.getNonHumanCategory(id)); break;
         }
-        lbxItems.setSelected(id);        
+        lbxItems.setSelected(id);
+        setSubCatAddMode(_sb.getSubCatAddMode());
     }
 
 
-    private void populateGUI(NonHumanResource resource) {
+    private void populateGUI(NonHumanResource resource, String id) {
+        if (resource == null) {
+            resource = _orgDataSet.getNonHumanResource(id);
+            _sb.setSelectedNonHumanResource(resource);
+        }
         if (resource != null) {
             txtDesc.setText(resource.getDescription());
             txtNotes.setText(resource.getNotes());
@@ -300,9 +425,7 @@ public class pfNHResources extends AbstractFragmentBean {
             int membership = _sb.setCategoryMembers(category);
             lblMembers.setText("Members (" + membership + ")");
             _sb.setNhResourceCategoryLabelText("Subcategories");
-            if ((subCatItems != null) && (subCatItems.length > 0)) {
-                lbxSubCatItems.setSelected(subCatItems[0].getValue());
-            }
+            enableAsSelected();
         }
     }
 
@@ -315,6 +438,8 @@ public class pfNHResources extends AbstractFragmentBean {
         lblMembers.setVisible(catTab);
         cbbMembers.setVisible(catTab);
         lbxSubCatItems.setVisible(catTab);
+        btnAddSubCat.setVisible(catTab);
+        btnRemoveSubCat.setVisible(catTab);
         if (catTab) {
             cbbCategory.setItems(null);
             cbbSubCategory.setItems(null);
@@ -325,7 +450,27 @@ public class pfNHResources extends AbstractFragmentBean {
     
     public void setAddMode(boolean addFlag) {
         lbxItems.setDisabled(addFlag);
+        lbxSubCatItems.setDisabled(addFlag);
+        btnAddSubCat.setDisabled(addFlag);
+        btnRemoveSubCat.setDisabled(addFlag);
+        cbbMembers.setDisabled(addFlag);
         if (addFlag) clearTextFields();
+    }
+
+
+    public void resetResource() {
+        NonHumanResource resource = _sb.getSelectedNonHumanResource();
+        if (resource != null) {
+            if (_sb.getOrigCategory() != null) {
+                NonHumanCategory category = _orgDataSet.getNonHumanCategory(_sb.getOrigCategory());
+                resource.setCategory(category);
+            }
+            if (_sb.getOrigSubcategory() != null) {
+                resource.setSubCategory(_sb.getOrigSubcategory());
+            }
+        }
+        _sb.setOrigCategory(null);
+        _sb.setOrigSubcategory(null);
     }
 
 
@@ -341,7 +486,7 @@ public class pfNHResources extends AbstractFragmentBean {
 
 
     public boolean saveResourceChanges(String id) {
-        NonHumanResource resource = _orgDataSet.getNonHumanResource(id);
+        NonHumanResource resource = _sb.getSelectedNonHumanResource();
         if (resource == null) {
             _msgPanel.error("Invalid resource id: " + id);
             return false;
@@ -366,6 +511,8 @@ public class pfNHResources extends AbstractFragmentBean {
         if (subcat != null) {
             resource.setSubCategory(subcat);
         }
+        _sb.setOrigCategory(null);
+        _sb.setOrigSubcategory(null);
         _orgDataSet.updateNonHumanResource(resource);
         return true;
     }
@@ -416,15 +563,18 @@ public class pfNHResources extends AbstractFragmentBean {
             NonHumanResource resource = new NonHumanResource(name, category, subCat);
             resource.setDescription((String) txtDesc.getText());
             resource.setNotes((String) txtNotes.getText());
-            _orgDataSet.addNonHumanResource(resource);
             lbxItems.setSelected(resource.getID());
             txtName.setText("");
-            return true;
+            String result = _orgDataSet.addNonHumanResource(resource);
+            if (_rm.successful(result)) {
+                return true;
+            }
+            else _msgPanel.error(_msgPanel.format(result));
         }
         else {
             addDuplicationError("Resource");
-            return false;
         }
+        return false;
     }
 
 
@@ -436,12 +586,16 @@ public class pfNHResources extends AbstractFragmentBean {
             category.setDescription((String) txtDesc.getText());
             category.setNotes((String) txtNotes.getText());
             txtName.setText("");
-            return true;
+            String result = _orgDataSet.addNonHumanCategory(category);
+            if (_rm.successful(result)) {
+                return true;
+            }
+            else _msgPanel.error(_msgPanel.format(result));
         }
         else {
             addDuplicationError("Category");
-            return false;
         }
+        return false;
     }
 
 
@@ -484,16 +638,43 @@ public class pfNHResources extends AbstractFragmentBean {
 
 
     private Option[] getSubCategoryList(NonHumanCategory category) {
-        Set<NonHumanSubCategory> subCatSet = category.getSubCategories();
-        if (subCatSet != null) {
-            Option[] result = new Option[subCatSet.size()];
+        List<NonHumanSubCategory> subCatList =
+                new ArrayList<NonHumanSubCategory>(category.getSubCategories());
+        if (! subCatList.isEmpty()) {
+            Collections.sort(subCatList, new NonHumanSubCategoryComparator());
+            Option[] result = new Option[subCatList.size()];
             int i = 0 ;
-            for (NonHumanSubCategory subCat : subCatSet) {
+            for (NonHumanSubCategory subCat : subCatList) {
                 result[i++] = new Option(subCat.getName()) ;
             }
             return result ;
         }
         else return null ;
+    }
+
+
+    private void enableAsSelected() {
+        if (! _sb.getSubCatAddMode()) {
+            String subCatStr = _sb.getNhResourcesSubcategoryChoice();
+            if (subCatStr != null) {
+                btnRemoveSubCat.setDisabled(subCatStr.equals("None"));
+            }
+        }    
+    }
+
+
+    private void setSubCatAddMode(boolean addFlag) {
+        txtSubCat.setVisible(addFlag);
+        btnConfirmAddSubCat.setVisible(addFlag);
+        btnCancelAddSubCat.setVisible(addFlag);
+        lbxItems.setDisabled(addFlag);
+        txtName.setDisabled(addFlag);
+        txtDesc.setDisabled(addFlag);
+        txtNotes.setDisabled(addFlag);
+        cbbMembers.setDisabled(addFlag);
+        lbxSubCatItems.setDisabled(addFlag);
+        btnAddSubCat.setDisabled(addFlag);
+        btnRemoveSubCat.setDisabled(addFlag);
     }
 
 }

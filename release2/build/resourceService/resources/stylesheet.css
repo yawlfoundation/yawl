@@ -764,11 +764,19 @@
 
 .nhSubCatListbox {
     border: 2px inset rgb(204, 204, 255);
-    height: 106px;
+    height: 100px;
     left: 450px;
     top: 76px;
     position: absolute;
     width: 184px;
+}
+
+.nhSubCatButton {
+    font-size: 10px;
+    font-weight: bold;
+    height: 21px;
+    width: 20px;
+    position: absolute;
 }
 
 .queuesTextField {

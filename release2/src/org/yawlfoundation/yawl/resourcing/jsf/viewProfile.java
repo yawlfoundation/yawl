@@ -509,13 +509,17 @@ public class viewProfile extends AbstractPageBean {
 
 
     public String btnUnpile_action() {
-        ResourceMap selected = (ResourceMap) lbxPiled.getSelected();
+        String selected = (String) lbxPiled.getSelected();
         if (selected != null) {
-            String result = rm.unpileTask(selected, participant) ;
-            showResult(result);
+            ResourceMap selectedMap = _sb.getResourceMapFromLabel(selected);
+            if (selectedMap != null) {
+                String result = rm.unpileTask(selectedMap, participant) ;
+                showResult(result);
+            }
+            else msgPanel.error("Failed to unpile task - could not load piled mappings.");
         }
         else msgPanel.warn("No task selected to unpile");
-       return null;
+        return null;
     }
 
     private void populateFields(Participant p) {

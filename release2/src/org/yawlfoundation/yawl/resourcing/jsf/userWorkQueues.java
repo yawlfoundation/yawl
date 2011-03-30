@@ -641,24 +641,33 @@ public class userWorkQueues extends AbstractPageBean {
         }
 
         try {
-            if (action.equals("deallocate"))
+            if (action.equals("deallocate")) {
                 _rm.deallocateWorkItem(p, wir);
-            else if (action.equals("skip"))
+            }
+            else if (action.equals("skip")) {
+                if (isEngineSuspended(wir, "skipped")) return null;
                 _rm.skipWorkItem(p, wir);
+            }
             else if (action.equals("start")) {
+                if (isEngineSuspended(wir, "started")) return null;
                 if (! _rm.start(p, wir)) {
                     msgPanel.error("Could not start workitem '" + wir.getID() +
                        "'. Please see the log files for details.");
                 }
             }
-            else if (action.equals("suspend"))
+            else if (action.equals("suspend")) {
+                if (isEngineSuspended(wir, "suspended")) return null;
                 _rm.suspendWorkItem(p, wir);
-            else if (action.equals("unsuspend"))
+            }
+            else if (action.equals("unsuspend")) {
                 _rm.unsuspendWorkItem(p, wir);
-            else if (action.equals("acceptOffer"))
+            }
+            else if (action.equals("acceptOffer")) {
                 _rm.acceptOffer(p, wir);
+            }    
             else if (action.equals("acceptStart")) {
                 _rm.acceptOffer(p, wir);
+                if (isEngineSuspended(wir, "started")) return null;
 
                 // if the accepted offer has a system-initiated start, it's
                 // already started, so don't do it again
@@ -670,6 +679,7 @@ public class userWorkQueues extends AbstractPageBean {
                 }
             }
             else if (action.equals("pile")) {
+                if (isEngineSuspended(wir, "piled")) return null;
                 String result = _rm.pileWorkItem(p, wir);
                 if (result.startsWith("Cannot"))
                     msgPanel.error(result);
@@ -677,6 +687,7 @@ public class userWorkQueues extends AbstractPageBean {
                     msgPanel.success(result);
             }
             else if (action.equals("chain")) {
+                if (isEngineSuspended(wir, "chained")) return null;
                 String result = _rm.chainCase(p, wir);
                 if (result.startsWith("Cannot"))
                     msgPanel.error(result);
@@ -941,6 +952,17 @@ public class userWorkQueues extends AbstractPageBean {
             _sb.setChosenWIR(first);                             // set first listed
         }
         _sb.setWorklistOptions(options);
+    }
+
+
+    private boolean isEngineSuspended(WorkItemRecord wir, String action) {
+        boolean suspended = wir.hasStatus(WorkItemRecord.statusSuspended);
+        if (suspended) {
+            msgPanel.warn("The selected work item cannot be " + action +
+                    " because it has been suspended by the engine." +
+                    " Please try again later.");
+        }
+        return suspended;
     }
 
 

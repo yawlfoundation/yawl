@@ -266,6 +266,7 @@ public class nonHumanMgt extends AbstractPageBean {
                 selTab = tabCategories;
             }
         }
+        disableButtonsOnSubCatAddMode(selTab);
         updateTabHeaders(selTab) ;
         _sb.setActiveTab(tabSet.getSelected());
 
@@ -309,6 +310,11 @@ public class nonHumanMgt extends AbstractPageBean {
         if (btnAdd.getText().equals("Add")) {
             setMode(SessionBean.Mode.edit);
         }
+        else {
+            if (_sb.getActiveTab().equals("tabResources")) {
+                _innerForm.resetResource();
+            }
+        }
         return null ;
     }
 
@@ -339,6 +345,7 @@ public class nonHumanMgt extends AbstractPageBean {
 
     public String tabResources_action() {
         if (getMode() == SessionBean.Mode.edit) populateForm(AttribType.resource);
+        _sb.setSubCatAddMode(false);
         _sb.setNhResourceListLabelText("Resources");
         return null;
     }
@@ -346,6 +353,9 @@ public class nonHumanMgt extends AbstractPageBean {
 
     public String tabCategories_action() {
         if (getMode() == SessionBean.Mode.edit) populateForm(AttribType.category);
+        if (_sb.getSubCatAddMode()) {
+            body1.setFocus("form1:pfNHResources:txtSubCat");            
+        }
         _sb.setNhResourceListLabelText("Categories");
         return null;
     }
@@ -406,6 +416,16 @@ public class nonHumanMgt extends AbstractPageBean {
         tabResources.setStyle("");
         tabCategories.setStyle("");
         if (selected != null) selected.setStyle("color: #3277ba");
+    }
+
+
+    private void disableButtonsOnSubCatAddMode(Tab selectedTab) {
+        if (_sb.getNhrMgtMode() == SessionBean.Mode.add) return;
+        boolean addingSubCat = _sb.getSubCatAddMode() && (selectedTab == tabCategories);
+        btnSave.setDisabled(addingSubCat);
+        btnAdd.setDisabled(addingSubCat);
+        btnReset.setDisabled(addingSubCat);
+        btnRemove.setDisabled(addingSubCat);
     }
 
     /**

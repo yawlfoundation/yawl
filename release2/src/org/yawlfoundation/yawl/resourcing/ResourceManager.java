@@ -138,7 +138,10 @@ public class ResourceManager extends InterfaceBWebsideController {
     private YBuildProperties _buildProps;                 // build version info
     private boolean _persisting ;                         // flag to enable persistence
     private boolean _isNonDefaultOrgDB ;                  // flag for non-yawl org model
-    private final Object _mutex = new Object();           // for synchronizing ib events
+
+    private final Object _autoTaskMutex = new Object();   // for executing autotasks
+    private final Object _ibEventMutex = new Object();    // for synchronizing ib events
+    private final Object _removalMutex = new Object();    // for removing participants
 
     private Timer _orgDataRefreshTimer;               // if set, reloads db at intervals
 
@@ -432,34 +435,38 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     // Interface B implemented methods //
 
-    public synchronized void handleEnabledWorkItemEvent(WorkItemRecord wir) {
-        if (_serviceEnabled) {
-            if (isAutoTask(wir)) {
-                handleAutoTask(wir, false);
+    public void handleEnabledWorkItemEvent(WorkItemRecord wir) {
+        synchronized(_ibEventMutex) {
+            if (_serviceEnabled) {
+                if (isAutoTask(wir)) {
+                    handleAutoTask(wir, false);
+                }
+                else {
+                    ResourceMap rMap = getResourceMap(wir) ;
+                    if (rMap != null)
+                        wir = rMap.distribute(wir) ;
+                    else
+                        wir = offerToAll(wir) ;   // only when no resourcing spec for item
+                }
             }
-            else {
-                ResourceMap rMap = getResourceMap(wir) ;
-                if (rMap != null)
-                    wir = rMap.distribute(wir) ;
-                else
-                    wir = offerToAll(wir) ;   // only when no resourcing spec for item
-            }
+
+            // service disabled, so route directly to admin's unoffered queue
+            else _resAdmin.addToUnoffered(wir);
+
+            if (wir.isDeferredChoiceGroupMember()) mapDeferredChoice(wir);
+
+            // store all manually-resourced workitems in the local cache
+            if (! isAutoTask(wir)) _workItemCache.add(wir);
         }
-
-        // service disabled, so route directly to admin's unoffered queue
-        else _resAdmin.addToUnoffered(wir);
-
-        if (wir.isDeferredChoiceGroupMember()) mapDeferredChoice(wir);
-
-        // store all manually-resourced workitems in the local cache
-        if (! isAutoTask(wir)) _workItemCache.add(wir);
     }
 
 
-    public synchronized void handleCancelledWorkItemEvent(WorkItemRecord wir) {
-        if (cleanupWorkItemReferences(wir)) {
-            EventLogger.log(wir, null, EventLogger.event.cancel);
-        }    
+    public void handleCancelledWorkItemEvent(WorkItemRecord wir) {
+        synchronized(_ibEventMutex) {
+            if (cleanupWorkItemReferences(wir)) {
+                EventLogger.log(wir, null, EventLogger.event.cancel);
+            }
+        }
     }
 
 
@@ -474,14 +481,16 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public synchronized void handleCancelledCaseEvent(String caseID) {
+    public void handleCancelledCaseEvent(String caseID) {
         if (_serviceEnabled) {
-            removeCaseFromAllQueues(caseID) ;                              // workqueues
-            removeCaseFromTaskCompleters(caseID);
-            cancelCodeletRunnersForCase(caseID);
-            _workItemCache.removeCase(caseID);
-            removeChain(caseID);
-            removeActiveCalendarEntriesForCase(caseID);
+            synchronized(_ibEventMutex) {
+                removeCaseFromAllQueues(caseID) ;                          // workqueues
+                removeCaseFromTaskCompleters(caseID);
+                cancelCodeletRunnersForCase(caseID);
+                _workItemCache.removeCase(caseID);
+                removeChain(caseID);
+                removeActiveCalendarEntriesForCase(caseID);
+            }
         }
     }
 
@@ -496,29 +505,31 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public synchronized void handleEngineInitialisationCompletedEvent() {
+    public void handleEngineInitialisationCompletedEvent() {
+        synchronized(_ibEventMutex) {
 
-        // if the engine has been restarted during this service session
-        if (_initCompleted) {
-            _engineSessionHandle = null;
-            reestablishInterfaceClients();
-        }
-
-        setAuthorisedServiceConnections();
-        setServiceURI();
-        sanitiseCaches();
-
-        // if this is the first time the engine has started since service start...
-        // (these things are only to be done once per service start)
-        if (! _initCompleted) {
-            restoreAutoTasks();
-            if (_orphanedStartedItems != null) {
-                for (WorkItemRecord wir : _orphanedStartedItems) {
-                    checkinItem(null, wir);
-                }
+            // if the engine has been restarted during this service session
+            if (_initCompleted) {
+                _engineSessionHandle = null;
+                reestablishInterfaceClients();
             }
-            _initCompleted = true;
-        }    
+
+            setAuthorisedServiceConnections();
+            setServiceURI();
+            sanitiseCaches();
+
+            // if this is the first time the engine has started since service start...
+            // (these things are only to be done once per service start)
+            if (! _initCompleted) {
+                restoreAutoTasks();
+                if (_orphanedStartedItems != null) {
+                    for (WorkItemRecord wir : _orphanedStartedItems) {
+                        checkinItem(null, wir);
+                    }
+                }
+                _initCompleted = true;
+            }
+        }
     }
 
 
@@ -526,53 +537,58 @@ public class ResourceManager extends InterfaceBWebsideController {
     // by services other than this one
     public void handleWorkItemStatusChangeEvent(WorkItemRecord wir,
                                                 String oldStatus, String newStatus) {
-        WorkItemRecord cachedWir = _workItemCache.get(wir.getID());
-        if (cachedWir != null) {
+        synchronized(_ibEventMutex) {
+            WorkItemRecord cachedWir = _workItemCache.get(wir.getID());
+            if (cachedWir != null) {
 
-            // if its a status change this service didn't cause
-            if (! newStatus.equals(cachedWir.getStatus())) {
+                // if its a status change this service didn't cause
+                if (! newStatus.equals(cachedWir.getStatus())) {
 
-                // if it has been 'finished', remove it from all queues
-                if ((newStatus.equals(WorkItemRecord.statusComplete)) ||
-                    (newStatus.equals(WorkItemRecord.statusDeadlocked)) ||
-                    (newStatus.equals(WorkItemRecord.statusFailed)) ||
-                    (newStatus.equals(WorkItemRecord.statusForcedComplete))) {
+                    // if it has been 'finished', remove it from all queues
+                    if ((newStatus.equals(WorkItemRecord.statusComplete)) ||
+                            (newStatus.equals(WorkItemRecord.statusDeadlocked)) ||
+                            (newStatus.equals(WorkItemRecord.statusFailed)) ||
+                            (newStatus.equals(WorkItemRecord.statusForcedComplete))) {
 
-                    cleanupWorkItemReferences(cachedWir);
+                        cleanupWorkItemReferences(cachedWir);
 
-                }
-
-                // if it has been 'suspended', find it on a 'started' queue & move it
-                else if (newStatus.equals(WorkItemRecord.statusSuspended)) {
-                    Participant p = getParticipantAssignedWorkItem(cachedWir, WorkQueue.STARTED);
-                    if (p != null) {
-                        p.getWorkQueues().movetoSuspend(wir);
-                        cachedWir.setResourceStatus(WorkItemRecord.statusResourceSuspended);
-                        cachedWir.setStatus(newStatus);
-                        _workItemCache.update(wir);
                     }
-                }
 
-                // if it has moved to started status
-                else if (newStatus.equals(WorkItemRecord.statusExecuting)) {
-
-                    // ...and was previously suspended
-                    if (cachedWir.hasStatus(WorkItemRecord.statusSuspended)) {
-                        Participant p = getParticipantAssignedWorkItem(cachedWir, WorkQueue.SUSPENDED);
+                    // if it has been 'suspended', find it on a 'started' queue & move it
+                    else if (newStatus.equals(WorkItemRecord.statusSuspended)) {
+                        Participant p = getParticipantAssignedWorkItem(cachedWir, WorkQueue.STARTED);
                         if (p != null) {
-                            p.getWorkQueues().movetoUnsuspend(wir);
-                            cachedWir.setResourceStatus(WorkItemRecord.statusResourceStarted);
-                            cachedWir.setStatus(newStatus);
-                            _workItemCache.update(wir);
+                            p.getWorkQueues().movetoSuspend(wir);
+                            cachedWir.setResourceStatus(WorkItemRecord.statusResourceSuspended);
                         }
-                    }       
-                }
+                        _workItemCache.updateStatus(cachedWir, newStatus);
+                    }
 
-                // if it is 'Is Parent', its just been newly started and has spawned
-                // child items. Since we don't know who started it, all we can do is
-                // pass responsibility to the starting service & remove knowledge of it
-                else if (newStatus.equals(WorkItemRecord.statusIsParent)) {
-                    cleanupWorkItemReferences(cachedWir);
+                    // if it was 'suspended', it's been unsuspended or rolled back
+                    else if (oldStatus.equals(WorkItemRecord.statusSuspended)) {
+                        _workItemCache.updateStatus(cachedWir, newStatus);
+                     }
+
+                    // if it has moved to started status
+                    else if (newStatus.equals(WorkItemRecord.statusExecuting)) {
+
+                        // ...and was previously suspended
+                        if (cachedWir.hasStatus(WorkItemRecord.statusSuspended)) {
+                            Participant p = getParticipantAssignedWorkItem(cachedWir, WorkQueue.SUSPENDED);
+                            if (p != null) {
+                                p.getWorkQueues().movetoUnsuspend(wir);
+                                cachedWir.setResourceStatus(WorkItemRecord.statusResourceStarted);
+                                _workItemCache.updateStatus(cachedWir, newStatus);
+                            }
+                        }
+                    }
+
+                    // if it is 'Is Parent', its just been newly started and has spawned
+                    // child items. Since we don't know who started it, all we can do is
+                    // pass responsibility to the starting service & remove knowledge of it
+                    else if (newStatus.equals(WorkItemRecord.statusIsParent)) {
+                        cleanupWorkItemReferences(cachedWir);
+                    }
                 }
             }
         }
@@ -993,16 +1009,18 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public synchronized void removeParticipant(Participant p) {
-        if (_orgDataSet.removeParticipant(p)) {
-            handleWorkQueuesOnRemoval(p);
-            QueueSet qSet = p.getWorkQueues();
-            qSet.purgeAllQueues();
-            for (WorkQueue wq : qSet.getActiveQueues()) {
-                if (wq != null) _persister.delete(wq);
-            }    
-            _persister.delete(p.getUserPrivileges());
-            removeUserKey(p);
+    public void removeParticipant(Participant p) {
+        synchronized(_removalMutex) {
+            if (_orgDataSet.removeParticipant(p)) {
+                handleWorkQueuesOnRemoval(p);
+                QueueSet qSet = p.getWorkQueues();
+                qSet.purgeAllQueues();
+                for (WorkQueue wq : qSet.getActiveQueues()) {
+                    if (wq != null) _persister.delete(wq);
+                }
+                _persister.delete(p.getUserPrivileges());
+                removeUserKey(p);
+            }
         }
     }
 
@@ -1269,62 +1287,70 @@ public class ResourceManager extends InterfaceBWebsideController {
         handleWorkQueuesOnRemoval(p, p.getWorkQueues());
     }
 
-    public synchronized void handleWorkQueuesOnRemoval(Participant p, QueueSet qs) {
+    public void handleWorkQueuesOnRemoval(Participant p, QueueSet qs) {
         if (qs == null) return ;    // no queues = nothing to do
-        handleOfferedQueueOnRemoval(p, qs.getQueue(WorkQueue.OFFERED));
-        handleAllocatedQueueOnRemoval(qs.getQueue(WorkQueue.ALLOCATED));
-        handleStartedQueuesOnRemoval(p, qs.getQueue(WorkQueue.STARTED));
-        handleStartedQueuesOnRemoval(p, qs.getQueue(WorkQueue.SUSPENDED));
-    }
-
-
-    public synchronized void handleWorkQueueOnRemoval(WorkQueue wq) {
-        if (wq != null) {
-            wq.setPersisting(false);                    // turn off circular persistence
-            if (wq.getQueueType() == WorkQueue.OFFERED)
-                handleOfferedQueueOnRemoval(null, wq);
-            else if (wq.getQueueType() == WorkQueue.ALLOCATED)
-                handleAllocatedQueueOnRemoval(wq);
-            else handleStartedQueuesOnRemoval(null, wq);
+        synchronized(_removalMutex) {
+            handleOfferedQueueOnRemoval(p, qs.getQueue(WorkQueue.OFFERED));
+            handleAllocatedQueueOnRemoval(qs.getQueue(WorkQueue.ALLOCATED));
+            handleStartedQueuesOnRemoval(p, qs.getQueue(WorkQueue.STARTED));
+            handleStartedQueuesOnRemoval(p, qs.getQueue(WorkQueue.SUSPENDED));
         }
     }
 
-       
-    public synchronized void handleOfferedQueueOnRemoval(Participant p, WorkQueue qOffer) {
-        if ((qOffer != null) && (! qOffer.isEmpty())) {
-            Set<WorkItemRecord> wirSet = qOffer.getAll();
 
-            // get all items on all offered queues, except this part's queue
-            Set<WorkItemRecord> offerSet = new HashSet<WorkItemRecord>();
-            Set<Participant> allParticipants = _orgDataSet.getParticipants() ;
-            for (Participant temp : allParticipants) {
-                if ((p == null) || (! temp.getID().equals(p.getID()))) {
-                    WorkQueue q = temp.getWorkQueues().getQueue(WorkQueue.OFFERED) ;
-                    if (q != null) offerSet.addAll(q.getAll());
+    public void handleWorkQueueOnRemoval(WorkQueue wq) {
+        synchronized(_removalMutex) {
+            if (wq != null) {
+                wq.setPersisting(false);                 // turn off circular persistence
+                if (wq.getQueueType() == WorkQueue.OFFERED)
+                    handleOfferedQueueOnRemoval(null, wq);
+                else if (wq.getQueueType() == WorkQueue.ALLOCATED)
+                    handleAllocatedQueueOnRemoval(wq);
+                else handleStartedQueuesOnRemoval(null, wq);
+            }
+        }
+    }
+
+
+    public void handleOfferedQueueOnRemoval(Participant p, WorkQueue qOffer) {
+        synchronized(_removalMutex) {
+            if ((qOffer != null) && (! qOffer.isEmpty())) {
+                Set<WorkItemRecord> wirSet = qOffer.getAll();
+
+                // get all items on all offered queues, except this part's queue
+                Set<WorkItemRecord> offerSet = new HashSet<WorkItemRecord>();
+                Set<Participant> allParticipants = _orgDataSet.getParticipants() ;
+                for (Participant temp : allParticipants) {
+                    if ((p == null) || (! temp.getID().equals(p.getID()))) {
+                        WorkQueue q = temp.getWorkQueues().getQueue(WorkQueue.OFFERED) ;
+                        if (q != null) offerSet.addAll(q.getAll());
+                    }
+                }
+
+                // compare each item in this part's queue to the complete set
+                for (WorkItemRecord wir : wirSet) {
+                    if (! offerSet.contains(wir)) {
+                        _resAdmin.getWorkQueues().removeFromQueue(wir, WorkQueue.WORKLISTED);
+                        _resAdmin.addToUnoffered(wir);
+                    }
                 }
             }
-
-            // compare each item in this part's queue to the complete set
-            for (WorkItemRecord wir : wirSet) {
-                 if (! offerSet.contains(wir)) {
-                     _resAdmin.getWorkQueues().removeFromQueue(wir, WorkQueue.WORKLISTED);
-                     _resAdmin.addToUnoffered(wir);
-                 }
-            }
         }
     }
 
 
-    public synchronized void handleAllocatedQueueOnRemoval(WorkQueue qAlloc) {
+    public void handleAllocatedQueueOnRemoval(WorkQueue qAlloc) {
+        synchronized(_removalMutex) {
 
-        // allocated queue - all allocated go back to admin's unoffered
-        if ((qAlloc != null) && (! qAlloc.isEmpty())) {
-            _resAdmin.getWorkQueues().removeFromQueue(qAlloc, WorkQueue.WORKLISTED);
-            _resAdmin.getWorkQueues().addToQueue(WorkQueue.UNOFFERED, qAlloc);
-            if (_gatewayServer != null) {
-                Set<WorkItemRecord> wirSet = qAlloc.getAll() ;
-                for (WorkItemRecord wir : wirSet) {
-                    this.announceResourceUnavailable(wir);
+            // allocated queue - all allocated go back to admin's unoffered
+            if ((qAlloc != null) && (! qAlloc.isEmpty())) {
+                _resAdmin.getWorkQueues().removeFromQueue(qAlloc, WorkQueue.WORKLISTED);
+                _resAdmin.getWorkQueues().addToQueue(WorkQueue.UNOFFERED, qAlloc);
+                if (_gatewayServer != null) {
+                    Set<WorkItemRecord> wirSet = qAlloc.getAll() ;
+                    for (WorkItemRecord wir : wirSet) {
+                        this.announceResourceUnavailable(wir);
+                    }
                 }
             }
         }
@@ -1332,24 +1358,26 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     // started & suspended queues
-    public synchronized void handleStartedQueuesOnRemoval(Participant p, WorkQueue qStart) {
-        if (qStart != null) {
-            Set<WorkItemRecord> startSet = qStart.getAll();
+    public void handleStartedQueuesOnRemoval(Participant p, WorkQueue qStart) {
+        synchronized(_removalMutex) {
+            if (qStart != null) {
+                Set<WorkItemRecord> startSet = qStart.getAll();
 
-            // if called during restore, there's no engine available yet, so we have to
-            // save the wir until there is one; otherwise, we can do the checkin now
-            for (WorkItemRecord wir : startSet) {
-                if (serviceInitialised) {
-                    checkinItem(p, wir);
+                // if called during restore, there's no engine available yet, so we have to
+                // save the wir until there is one; otherwise, we can do the checkin now
+                for (WorkItemRecord wir : startSet) {
+                    if (serviceInitialised) {
+                        checkinItem(p, wir);
+                    }
+                    else {
+                        if (_orphanedStartedItems == null) {
+                            _orphanedStartedItems = new ArrayList<WorkItemRecord>();
+                        }
+                        _orphanedStartedItems.add(wir);
+                    }
+                    _resAdmin.getWorkQueues().removeFromQueue(wir, WorkQueue.WORKLISTED);
                 }
-                else {
-                    if (_orphanedStartedItems == null) {
-                        _orphanedStartedItems = new ArrayList<WorkItemRecord>();
-                    }    
-                    _orphanedStartedItems.add(wir);
-                }    
-                _resAdmin.getWorkQueues().removeFromQueue(wir, WorkQueue.WORKLISTED);
-            }    
+            }
         }
     }
 
@@ -1854,7 +1882,13 @@ public class ResourceManager extends InterfaceBWebsideController {
     /** @return the union of persisted and unpersisted maps */
     public Set<ResourceMap> getPiledTaskMaps(Participant p) {
         Set<ResourceMap> result = getUnpersistedPiledTasks(p);
-        if (_persisting) result.addAll(getPersistedPiledTasks(p));
+        if (_persisting) {
+            for (ResourceMap map : getPersistedPiledTasks(p)) {
+                if (! mapSetContains(result, map)) {
+                    result.add(map);
+                }
+            }
+        }
         return result ;
     }
 
@@ -1882,6 +1916,46 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
         _persister.commit();
         return result ;
+    }
+
+
+    public ResourceMap getPersistedPiledTask(YSpecificationID specID, String taskID) {
+        ResourceMap map = null;
+        String where = String.format(
+              "_specID.identifier='%s' and _specID.version.version='%s' and _taskID='%s'",
+                  specID.getIdentifier(), specID.getVersionAsString(), taskID);
+        List mapList = _persister.selectWhere("ResourceMap", where);
+        if ((mapList != null) && (! mapList.isEmpty())) {
+            map = (ResourceMap) mapList.iterator().next();
+            map.setPersisting(true);
+        }
+        _persister.commit();
+        return map;
+    }
+
+
+    public void deletePersistedPiledTasks(YSpecificationID specID) {
+        String where = String.format(
+              "_specID.identifier='%s' and _specID.version.version='%s'",
+                  specID.getIdentifier(), specID.getVersionAsString());
+        List mapList = _persister.selectWhere("ResourceMap", where);
+        if (mapList != null) {
+            for (Object map : mapList) {
+                _persister.delete(map);
+            }
+        }
+        _persister.commit();
+    }
+
+
+    public boolean mapSetContains(Set<ResourceMap> mapSet, ResourceMap other) {
+        for (ResourceMap map : mapSet) {
+            if (map.equals(other) &&
+                    map.getPiledResourceID().equals(other.getPiledResourceID())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -1942,6 +2016,11 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (wir == null) return null;
         YSpecificationID specID = new YSpecificationID(wir);
         String taskID = wir.getTaskID();
+        return _resMapCache.get(specID, taskID);
+    }
+
+
+    public ResourceMap getCachedResourceMap(YSpecificationID specID, String taskID) {
         return _resMapCache.get(specID, taskID);
     }
 
@@ -2346,20 +2425,22 @@ public class ResourceManager extends InterfaceBWebsideController {
      *  if there isn't, attempts to connect
      *  @return true if connected to the engine
      */
-    protected synchronized boolean connected() {
-        try {
-             // if not connected
-             if ((_engineSessionHandle == null) ||
-                 (_engineSessionHandle.length() == 0) ||
-                 (! checkConnection(_engineSessionHandle))) {
+    protected boolean connected() {
+        synchronized(_ibEventMutex) {
+            try {
+                // if not connected
+                if ((_engineSessionHandle == null) ||
+                        (_engineSessionHandle.length() == 0) ||
+                        (! checkConnection(_engineSessionHandle))) {
 
-                 _engineSessionHandle = connect(_engineUser, _enginePassword);
-             }
+                    _engineSessionHandle = connect(_engineUser, _enginePassword);
+                }
+            }
+            catch (IOException ioe) {
+                _log.error("Exception attempting to connect to engine", ioe);
+            }
+            return (successful(_engineSessionHandle)) ;
         }
-        catch (IOException ioe) {
-             _log.error("Exception attempting to connect to engine", ioe);
-        }
-        return (successful(_engineSessionHandle)) ;
     }
 
 
@@ -2545,33 +2626,35 @@ public class ResourceManager extends InterfaceBWebsideController {
      * @return a message from the engine indicating success or otherwise
      * @throws IOException if there's trouble talking to the engine
      */
-    public synchronized String cancelCase(String caseID, String userHandle) throws IOException {
-        List<WorkItemRecord> liveItems = getLiveWorkItemsForCase(caseID) ;
-        YSpecificationID specID = null;                           // for logging only
+    public String cancelCase(String caseID, String userHandle) throws IOException {
+        synchronized(_ibEventMutex) {
+            List<WorkItemRecord> liveItems = getLiveWorkItemsForCase(caseID) ;
+            YSpecificationID specID = null;                           // for logging only
 
-        // cancel the case in the engine
-        String result = _interfaceBClient.cancelCase(caseID, getEngineSessionHandle());
+            // cancel the case in the engine
+            String result = _interfaceBClient.cancelCase(caseID, getEngineSessionHandle());
 
-        // remove live items for case from workqueues and cache
-        if (successful(result)) {
-            if (liveItems != null) {
-                for (WorkItemRecord wir : liveItems) {
-                    if (specID == null) specID = new YSpecificationID(wir);
-                    removeFromAll(wir) ;
-                    _workItemCache.remove(wir);
-                    EventLogger.log(wir, null, EventLogger.event.cancelled_by_case);
+            // remove live items for case from workqueues and cache
+            if (successful(result)) {
+                if (liveItems != null) {
+                    for (WorkItemRecord wir : liveItems) {
+                        if (specID == null) specID = new YSpecificationID(wir);
+                        removeFromAll(wir) ;
+                        _workItemCache.remove(wir);
+                        EventLogger.log(wir, null, EventLogger.event.cancelled_by_case);
+                    }
+                    _chainedCases.remove(caseID);
                 }
-                _chainedCases.remove(caseID);
+
+                // log the cancellation
+                Participant p = getParticipantWithSessionHandle(userHandle);
+                String pid = (p != null) ? p.getID() : "admin" ;
+                EventLogger.log(specID, caseID, pid, false);
             }
+            else _log.error("Error attempting to Cancel Case.") ;
 
-            // log the cancellation
-            Participant p = getParticipantWithSessionHandle(userHandle);
-            String pid = (p != null) ? p.getID() : "admin" ;
-            EventLogger.log(specID, caseID, pid, false);
+            return result ;
         }
-        else _log.error("Error attempting to Cancel Case.") ;
-
-        return result ;
     }
 
 
@@ -2630,6 +2713,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             _specCache.remove(specID);
             _dataSchemaCache.remove(specID);
             getIBCache().unloadSpecificationData(specID);
+            deletePersistedPiledTasks(specID);  // for persisted tasks with unloaded maps
         }
         return result ;
     }
@@ -3074,7 +3158,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         // if this autotask has started a timer, don't process now - wait for timeout
         if ((! timedOut) && (wir.getTimerTrigger() != null)) return;
 
-        synchronized(_mutex) {
+        synchronized(_autoTaskMutex) {
 
             // check out the auto workitem
             if (checkOutWorkItem(wir)) {
