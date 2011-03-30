@@ -240,6 +240,7 @@ public class YNetLocalVarVerifier {
 
 
     private boolean allPathsWalked(Stack<Integer> stack) {
+        if (stack.isEmpty()) return true;
         if (stack.peek() == 0) {
             stack.pop();
             return true;

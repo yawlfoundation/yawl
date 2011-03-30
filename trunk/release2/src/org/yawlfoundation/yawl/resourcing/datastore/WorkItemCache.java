@@ -21,8 +21,10 @@ package org.yawlfoundation.yawl.resourcing.datastore;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 
-import java.io.Serializable;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -32,7 +34,7 @@ import java.util.*;
  *  v0.1, 15/09/2007
  */
 
-public class WorkItemCache extends HashMap<String, WorkItemRecord> implements Serializable {
+public class WorkItemCache extends ConcurrentHashMap<String, WorkItemRecord> {
 
     private Persister _persister;
     private static WorkItemCache _me ;
@@ -93,6 +95,11 @@ public class WorkItemCache extends HashMap<String, WorkItemRecord> implements Se
 
     public WorkItemRecord updateResourceStatus(WorkItemRecord wir, String status) {
         wir.setResourceStatus(status);
+        return this.put(wir.getID(), wir);
+    }
+
+    public WorkItemRecord updateStatus(WorkItemRecord wir, String status) {
+        wir.setStatus(status);
         return this.put(wir.getID(), wir);
     }
 

@@ -107,7 +107,12 @@ public class NonHumanCategory implements Comparable {
         if (! ((name == null) || name.equals("None"))) {
             NonHumanSubCategory subCategory = getSubCategory(name);
             if (subCategory != null) {
-                return _subcategories.remove(subCategory);
+                if (_subcategories.remove(subCategory)) {
+                    for (NonHumanResource resource : subCategory.getResources()) {
+                        resource.setSubCategory("None");
+                    }
+                    return true;
+                }
             }    
         }
         return false;

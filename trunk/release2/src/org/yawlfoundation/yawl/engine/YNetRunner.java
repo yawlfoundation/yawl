@@ -423,7 +423,7 @@ public class YNetRunner {
             logCompletingTask(pmgr, caseIDForSubnet, busyCompositeTask);
 
             //check to see if completing this task resulted in completing the net.
-            if (isCompleted() && _net.getOutputCondition().getIdentifiers().size() == 1) {
+            if (isCompleted() && _net.getOutputCondition().getIdentifiers().size() > 0) {
 
                 if (_containingCompositeTask != null) {
                     YNetRunner parentRunner = _engine.getNetRunner(_caseIDForNet.getParent());
@@ -1016,7 +1016,7 @@ public class YNetRunner {
     }
 
 
-   /** these two methods are here to support persistence of the IB and IX Observers */
+   /** these two methods are here to support persistence of the IB Observer */
     private String get_caseObserverStr() { return _caseObserverStr ; }
 
     private void set_caseObserverStr(String obStr) { _caseObserverStr = obStr ; }

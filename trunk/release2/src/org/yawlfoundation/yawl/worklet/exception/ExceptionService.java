@@ -151,6 +151,12 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 else _log.info("No current exception handlers for case " + caseID);
 
                 completeCaseMonitoring(monitor, caseID);
+
+                // if this case was a worklet running for another case, process
+                // the worklet cancellation
+                if (_handlersStarted.containsKey(caseID)) {
+                    handleCompletingExceptionWorklet(caseID, null, true);
+                }
             }
             else _log.info("Case monitoring complete for case " + caseID +
                     " - cancellation event ignored.");
@@ -255,7 +261,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                     // treat this as a case complete event for exception worklets also
                     if (_handlersStarted.containsKey(caseID))
                         handleCompletingExceptionWorklet(caseID,
-                                JDOMUtil.stringToElement(data));
+                                JDOMUtil.stringToElement(data), false);
 
                     destroyMonitorIfDone(monitor, caseID);
                 }
@@ -701,17 +707,17 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      * Deals with the end of an exception worklet case.
      *  @param caseId - the id of the completing case
      *  @param wlCasedata - the completing case's datalist Element
+     *  @param cancelled - true if the worklet has been cancelled, false for a normal
+     *  completion
      */
-    private void handleCompletingExceptionWorklet(String caseId, Element wlCasedata) {
+    private void handleCompletingExceptionWorklet(String caseId, Element wlCasedata,
+                                                  boolean cancelled) {
 
-        // get the HandlerRunner that launched this worklet
-        HandlerRunner runner = _handlersStarted.get(caseId);
+        // get and remove the HandlerRunner that launched this worklet
+        HandlerRunner runner = _handlersStarted.remove(caseId);
         _log.debug("Worklet ran as exception handler for case: " + runner.getCaseID());
 
-        // remove it from the running Handlers
-        _handlersStarted.remove(caseId);
-
-        /** Update data of parent workitem/case if allowed and required
+        /* Update data of parent workitem/case if allowed and required and not cancelled
          * ASSUMPTION: the output data of the worklet will be used to update the
          * case/item only if:
          *   1. it is a case level exception and the case has been suspended, in
@@ -723,22 +729,25 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
          *      case the item-level data is updated
          */
 
-        if (runner.isCaseSuspended() || runner.isItemSuspended())
-            updateCaseData(runner, wlCasedata);
+        if (! cancelled) {
+            if (runner.isCaseSuspended() || runner.isItemSuspended())
+                updateCaseData(runner, wlCasedata);
 
-        if (runner.isItemSuspended() && isExecutingItemException(runner.getReasonType()))
-            updateItemData(runner, wlCasedata);
+            if (runner.isItemSuspended() && isExecutingItemException(runner.getReasonType()))
+                updateItemData(runner, wlCasedata);
+        }
 
         // log the worklet's case completion event
-        EventLogger.log(_dbMgr, EventLogger.eComplete, caseId,
-                new YSpecificationID(runner.getItem()), "", runner.getCaseID(), -1) ;
+        String event = cancelled ? EventLogger.eCancel : EventLogger.eComplete;
+        EventLogger.log(_dbMgr, event, caseId, new YSpecificationID(runner.getItem()),
+                "", runner.getCaseID(), -1) ;
 
         runner.removeRunnerByCaseID(caseId);       // worklet's case id no longer needed
 
         // if all worklets have completed, process the next exception primitive
         if (! runner.hasRunningWorklet()) {
-            _log.info("All compensatory worklets have completed - " +
-                    "continuing exception processing");
+            _log.info("All compensatory worklets have finished execution - " +
+                    "continuing exception processing.");
             processException(runner);
         }
     }

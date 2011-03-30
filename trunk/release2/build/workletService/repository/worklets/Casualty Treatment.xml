@@ -9,13 +9,11 @@
         <name>PatientID</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-        <initialValue>1234567</initialValue>
       </inputParam>
       <inputParam>
         <name>Name</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-        <initialValue>Buster Legg</initialValue>
       </inputParam>
       <localVariable>
         <name>AbdominalPain</name>

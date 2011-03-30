@@ -58,12 +58,14 @@ public class NonHumanResource extends AbstractResource implements Comparable {
         return _category;
     }
 
-    public void setCategory(NonHumanCategory category) {
-        if (_category != null) {
-            _category.removeFromAll(this);
+    public void setCategory(NonHumanCategory newCategory) {
+        if (newCategory != null) {
+            if (_category != null) {
+                _category.removeFromAll(this);
+            }
+            _category = newCategory;
+            _category.addResource(this, null);
         }
-        _category = category;
-        _category.addResource(this, null);
     }
 
     public NonHumanSubCategory getSubCategory() {

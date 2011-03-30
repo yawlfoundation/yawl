@@ -69,6 +69,8 @@
         <ui:dropDown binding="#{pfNHResources.cbbCategory}"
                      id="cbbCategory"
                      items="#{SessionBean.nhResourcesCategoryItems}"
+                     onChange="common_timeoutSubmitForm(this.form, 'cbbCategory');"
+                     valueChangeListener="#{pfNHResources.cbbCategory_processValueChange}"
                      style="left: 450px; top: 76px; position: absolute; width: 200px"/>
 
         <ui:label binding="#{pfNHResources.lblSubCategory}"
@@ -80,15 +82,9 @@
         <ui:dropDown binding="#{pfNHResources.cbbSubCategory}"
                      id="cbbSubCategory"
                      items="#{SessionBean.nhResourcesSubcategoryItems}"
+                     onChange="common_timeoutSubmitForm(this.form, 'cbbSubCategory');"
+                     valueChangeListener="#{pfNHResources.cbbSubCategory_processValueChange}"
                      style="left: 450px; top: 130px; position: absolute; width: 200px"/>
-
-        <ui:listbox binding="#{pfNHResources.lbxSubCatItems}"
-                    id="lbxSubCatItems"
-                    items="#{SessionBean.nhResourcesSubcategoryItems}"
-                    onChange="common_timeoutSubmitForm(this.form, 'lbxSubCatItems');"
-                    selected="#{SessionBean.nhResourcesSubcategoryChoice}"
-                    styleClass="nhSubCatListbox"
-                    valueChangeListener="#{pfNHResources.lbxSubCatItems_processValueChange}"/>
 
         <ui:label binding="#{pfNHResources.lblDesc}"
                   for="txtDesc"
@@ -144,6 +140,53 @@
                     toolTip="Permanently remove the selected item"
                     onClick="return confirmDelete()"
                     text="Remove"/>
+
+            <ui:listbox binding="#{pfNHResources.lbxSubCatItems}"
+                        id="lbxSubCatItems"
+                        items="#{SessionBean.nhResourcesSubcategoryItems}"
+                        onChange="common_timeoutSubmitForm(this.form, 'lbxSubCatItems');"
+                        selected="#{SessionBean.nhResourcesSubcategoryChoice}"
+                        styleClass="nhSubCatListbox"
+                        valueChangeListener="#{pfNHResources.lbxSubCatItems_processValueChange}"/>
+
+            <ui:button action="#{pfNHResources.btnAddSubCat_action}"
+                       binding="#{pfNHResources.btnAddSubCat}"
+                        id="btnAddSubCat"
+                        styleClass="nhSubCatButton"
+                        style="top: 76px;left: 640px;"
+                        toolTip="Add a new subcategory"
+                        text="+"/>
+
+            <ui:button action="#{pfNHResources.btnRemoveSubCat_action}"
+                       binding="#{pfNHResources.btnRemoveSubCat}"
+                        id="btnRemoveSubCat"
+                        styleClass="nhSubCatButton"
+                        style="top: 98px;left: 640px;"
+                        toolTip="Remove the selected subcategory"
+                        text="-"/>
+
+          <ui:textField binding="#{pfNHResources.txtSubCat}"
+                        id="txtSubCat"
+                        styleClass="orgDataTextField"
+                        style="left: 450px; top: 180px; width: 135px"
+                        trim="false"/>
+
+        <ui:button action="#{pfNHResources.btnConfirmAddSubCat_action}"
+                   binding="#{pfNHResources.btnConfirmAddSubCat}"
+                    id="btnConfirmAddSubCat"
+                    styleClass="nhSubCatButton"
+                    style="top: 180px; left: 592px; color:green"
+                    toolTip="Confirm adding a new subcategory"
+                    text="√"/>
+
+        <ui:button action="#{pfNHResources.btnCancelAddSubCat_action}"
+                   binding="#{pfNHResources.btnCancelAddSubCat}"
+                    id="btnCancelAddSubCat"
+                    styleClass="nhSubCatButton"
+                    style="top: 180px; left: 612px; color:red"
+                    toolTip="Cancel adding a new subcategory"
+                    text="x"/>
+
 
     </f:subview>
 </div>

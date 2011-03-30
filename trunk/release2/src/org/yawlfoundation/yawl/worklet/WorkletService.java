@@ -361,7 +361,12 @@ public class WorkletService extends InterfaceBWebsideController {
     //***************************************************************************//
 
     public synchronized void handleCancelledCaseEvent(String caseID) {
-        _log.info("HANDLE CANCELLED CASE EVENT") ;
+        _log.info("HANDLE CANCELLED CASE EVENT");
+
+        if (isWorkletCase(caseID)) {
+            handleCancelledWorklet(caseID);
+            return;
+        }
 
         // only interested in child workitems for this case
         List<CheckedOutChildItem> caseItems = getCheckedOutChildrenForCase(caseID);
@@ -942,6 +947,19 @@ public class WorkletService extends InterfaceBWebsideController {
         catch (IOException ioe) {
              _log.error("IO Exception with undo checkout: " + wir.getID(), ioe);
             return false;
+        }
+    }
+
+
+    // if a worklet is cancelled independently to it's parent case, pass the checked
+    // out work item back to the engine so the parent case can progress
+    private void handleCancelledWorklet(String caseID) {
+        String childID = _casesStarted.get(caseID);
+        if (childID != null) {
+            CheckedOutChildItem coItem = _handledWorkItems.get(childID);
+            if (coItem != null) {
+                undoCheckOutWorkItem(coItem);
+            }
         }
     }
 

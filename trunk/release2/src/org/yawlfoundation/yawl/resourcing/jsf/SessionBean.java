@@ -290,6 +290,12 @@ public class SessionBean extends AbstractSessionBean {
         if (page != ApplicationBean.PageRef.externalClients) {
             setAddClientAccountMode(true);
         }
+        if (page != ApplicationBean.PageRef.nonHumanMgt) {
+            setSelectedNonHumanResource(null);
+            setOrigCategory(null);
+            setOrigSubcategory(null);       
+            setSubCatAddMode(false);
+        }        
     }
 
 
@@ -453,7 +459,7 @@ public class SessionBean extends AbstractSessionBean {
     private String orgDataGroupChoice;
     private String nhResourcesChoice;
     private String nhResourcesCategoryChoice;
-    private String nhResourcesSubcategoryChoice;
+    private String nhResourcesSubcategoryChoice = "None";
 
 
     public String getWorklistChoice() { return worklistChoice; }
@@ -600,7 +606,6 @@ public class SessionBean extends AbstractSessionBean {
     public boolean isFirstWorkItemChosen() {
         if ((worklistOptions != null) && (worklistOptions.length > 0)) {
             String first = (String) getWorklistOptions()[0].getValue();
-     //       return (first.equals(worklistChoice));
             return (first.equals(chosenWIR.getID()));
         }
         else return false;
@@ -744,7 +749,7 @@ public class SessionBean extends AbstractSessionBean {
             result = new Option[taskMaps.size()];
             int i = 0;
             for (ResourceMap map : taskMaps)
-                result[i++] = new Option(map, formatPiledTaskString(map));
+                result[i++] = new Option(formatPiledTaskString(map));
         }
         return result;
     }
@@ -753,6 +758,32 @@ public class SessionBean extends AbstractSessionBean {
         YSpecificationID specID = map.getSpecID();
         return String.format("%s (%s)::%s", specID.getUri(),
                       specID.getVersionAsString(), map.getTaskID()) ;
+    }
+
+    public ResourceMap getResourceMapFromLabel(String label) {
+        if (label != null) {
+            String specURI = label.substring(0, label.indexOf(' '));
+            String version = label.substring(label.indexOf('(') + 1, label.indexOf(')'));
+            String taskID = label.substring(label.indexOf(':') + 2);
+            List<SpecificationData> loadedSpecs = getLoadedSpecs();
+            if (loadedSpecs != null) {
+                YSpecificationID specID = null;
+                for (SpecificationData specData : loadedSpecs) {
+                     if (specData.getSpecURI().equals(specURI) &&
+                             specData.getSpecVersion().equals(version)) {
+                         specID = new YSpecificationID(specData.getSpecIdentifier(),
+                                 specData.getSpecVersion(), specData.getSpecURI());
+                         break;
+                     }
+                }
+                if (specID != null) {
+                    ResourceMap map = _rm.getCachedResourceMap(specID, taskID);
+                    if (map == null) map = _rm.getPersistedPiledTask(specID, taskID);
+                    return map;
+                }
+            }
+        }
+        return null;
     }
 
     private Option[] getParticipantChainedCases() {
@@ -1559,6 +1590,7 @@ public class SessionBean extends AbstractSessionBean {
             case customServices  : return 666;
             case Login           : return 240;
             case orgDataMgt      : return 698;
+            case nonHumanMgt     : return 698;
             case participantData : return 670;
             case userWorkQueues  : return 798;
             case viewProfile     : return 538;
@@ -1576,6 +1608,7 @@ public class SessionBean extends AbstractSessionBean {
             case caseMgt         : return 590;
             case customServices  : return 515;
             case orgDataMgt      : return 328;
+            case nonHumanMgt     : return 328;
             case participantData : return 543;
             case userWorkQueues  : return 328;
             case viewProfile     : return 377;
@@ -1934,7 +1967,44 @@ public class SessionBean extends AbstractSessionBean {
     public boolean isShowYAWLBanner() { return showYAWLBanner; }
 
     public void setShowYAWLBanner(boolean show) { showYAWLBanner = show; }
-    
+
+
+    private boolean subCatAddMode = false;
+
+    public boolean getSubCatAddMode() { return subCatAddMode; }
+
+    public void setSubCatAddMode(boolean adding) { subCatAddMode = adding; }
+
+
+    private NonHumanResource selectedNonHumanResource = null;
+
+    public NonHumanResource getSelectedNonHumanResource() {
+        return selectedNonHumanResource;
+    }
+
+    public void setSelectedNonHumanResource(NonHumanResource resource) {
+        selectedNonHumanResource = resource;
+    }
+
+
+    private String origCategory = null;
+    private String origSubcategory = null;
+
+    public String getOrigCategory() {
+        return origCategory;
+    }
+
+    public void setOrigCategory(String category) {
+        origCategory = category;
+    }
+
+    public String getOrigSubcategory() {
+        return origSubcategory;
+    }
+
+    public void setOrigSubcategory(String subcategory) {
+        origSubcategory = subcategory;
+    }
 }
 
 

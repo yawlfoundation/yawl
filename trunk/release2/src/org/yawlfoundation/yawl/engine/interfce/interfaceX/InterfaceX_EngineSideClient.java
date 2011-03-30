@@ -94,6 +94,16 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
         return _observerURI ;
     }
 
+    public boolean equals(Object other) {
+        return (other instanceof InterfaceX_EngineSideClient) &&
+               (getURI() != null) &&
+                getURI().equals(((InterfaceX_EngineSideClient) other).getURI());
+    }
+
+    public int hashCode() {
+        return (getURI() != null) ? getURI().hashCode() : super.hashCode();
+    }
+
     /*****************************************************************************/
 
     // ANNOUNCEMENT METHODS - SEE EXCEPTIONGATEWAY FOR COMMENTS //

@@ -247,6 +247,21 @@ public class ResourceMap {
         return _offered.get(itemID) ;
     }
 
+
+    public boolean equals(Object other) {
+        if (other instanceof ResourceMap) {
+            ResourceMap otherMap = (ResourceMap) other;
+            return getSpecID().equals(otherMap.getSpecID()) &&
+                   getTaskID().equals(otherMap.getTaskID());
+        }
+        return false;
+    }
+
+    
+    public int hashCode() {
+        return getSpecID().hashCode() + getTaskID().hashCode();
+    }
+
     /****************************************************************************/
 
     
