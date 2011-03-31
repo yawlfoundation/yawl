@@ -177,7 +177,7 @@ public interface EngineGateway extends Remote {
 
     public String restartWorkItem(String workItemID, String sessionHandle) throws RemoteException ;
 
-    public String cancelWorkItem(String id, String fail, String sessionHandle) throws RemoteException ;
+    public String cancelWorkItem(String id, String data, String fail, String sessionHandle) throws RemoteException ;
 
     public String getLatestSpecVersion(String id, String sessionHandle) throws RemoteException ;
 

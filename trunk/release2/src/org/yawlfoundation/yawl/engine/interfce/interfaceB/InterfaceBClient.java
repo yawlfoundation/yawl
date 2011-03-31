@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.engine.ObserverGateway;
+import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.exceptions.*;
@@ -67,7 +68,7 @@ public interface InterfaceBClient {
 
     YWorkItem startWorkItem(YWorkItem workItem, YClient client) throws YStateException, YDataStateException, YQueryException, YPersistenceException, YEngineStateException;
 
-    void completeWorkItem(YWorkItem workItem, String data, String logPredicate, boolean force) throws YStateException, YDataStateException, YQueryException, YPersistenceException, YEngineStateException;
+    void completeWorkItem(YWorkItem workItem, String data, String logPredicate, YEngine.WorkItemCompletion flag) throws YStateException, YDataStateException, YQueryException, YPersistenceException, YEngineStateException;
 
     void rollbackWorkItem(String workItemID) throws YStateException, YPersistenceException, YLogException;
 

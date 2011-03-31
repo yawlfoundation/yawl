@@ -999,7 +999,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 wir = coi.getChildWorkItem(0);
             }
 
-            _ixClient.cancelWorkItem(wir.getID(), false, _sessionHandle);
+            _ixClient.cancelWorkItem(wir.getID(), null, false, _sessionHandle);
             _log.info("WorkItem successfully removed from Engine: " + wir.getID());
         }
         catch (IOException ioe) {
@@ -1165,8 +1165,8 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 wir = coi.getChildWorkItem(0);
             }
 
-            _ixClient.cancelWorkItem(wir.getID(), true, _sessionHandle);
-            _log.debug("WorkItem successfully failed: " + wir.getID());
+            _ixClient.cancelWorkItem(wir.getID(), wir.getDataListString(), true, _sessionHandle);
+            _log.info("WorkItem successfully failed: " + wir.getID());
 
         }
         catch (IOException ioe) {

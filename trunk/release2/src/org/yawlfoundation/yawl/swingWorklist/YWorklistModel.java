@@ -275,7 +275,8 @@ public class YWorklistModel {
                     StringUtil.stringToFile(taskInputData.getAbsolutePath(), outputData);
 
             //        _engineClient.completeWorkItem(item, outputData, inSequenceWorkitemIDs);
-                    _engineClient.completeWorkItem(item, outputData, null, false);
+                    _engineClient.completeWorkItem(item, outputData, null,
+                            YEngine.WorkItemCompletion.Normal);
                 } catch (YDataStateException e) {
                     String errors = e.getMessage();
                     if (errors.indexOf("FAILED TO VALIDATE AGAINST SCHEMA =") != -1) {

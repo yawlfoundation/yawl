@@ -555,17 +555,22 @@ public class YWorkItem {
     }
 
 
-    public void setStatusToComplete(YPersistenceManager pmgr, boolean force)
+    public void setStatusToComplete(YPersistenceManager pmgr,
+                                    YEngine.WorkItemCompletion completionFlag)
            throws YPersistenceException {
-        YWorkItemStatus completionStatus = force ? statusForcedComplete : statusComplete ;
+        YWorkItemStatus completionStatus;
+        switch (completionFlag) {
+            case Force : completionStatus = statusForcedComplete; break;
+            case Fail  : completionStatus = statusFailed; break;
+            default    : completionStatus = statusComplete;
+        }
         completePersistence(pmgr, completionStatus) ;
     }
 
 
-    public void setStatusToDeleted(YPersistenceManager pmgr, boolean fail)
+    public void setStatusToDeleted(YPersistenceManager pmgr)
            throws YPersistenceException {
-        YWorkItemStatus completionStatus = fail ? statusFailed : statusDeleted ;
-        completePersistence(pmgr, completionStatus) ;
+        completePersistence(pmgr, statusDeleted) ;
     }
 
 
