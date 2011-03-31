@@ -71,6 +71,9 @@ public class YEngine implements InterfaceADesign,
     // Engine statuses
     public static enum Status { Dormant, Initialising, Running, Terminating }
 
+    // Workitem completion types
+    public static enum WorkItemCompletion { Normal, Force, Fail }
+
     // Constants
     private static final YPersistenceManager _pmgr = new YPersistenceManager();
     private static final boolean ENGINE_PERSISTS_BY_DEFAULT = false;
@@ -1441,12 +1444,12 @@ public class YEngine implements InterfaceADesign,
      * @param workItem
      * @param data
      * @param logPredicate - a pre-parse of the completion log predicate for this item
-     * @param force - true if this represents a 'forceComplete', false for normal
-     *                completion
+     * @param completionType - one of the completion types 'normal' (ordinary completion)
+     * 'force' (forced completion) or 'fail' (forced fail) completion
      * @throws YStateException
      */
-    public void completeWorkItem(YWorkItem workItem, String data,
-                                 String logPredicate, boolean force)
+    public void completeWorkItem(YWorkItem workItem, String data, String logPredicate,
+                                 WorkItemCompletion completionType)
             throws YStateException, YDataStateException, YQueryException,
             YPersistenceException, YEngineStateException{
 
@@ -1459,7 +1462,6 @@ public class YEngine implements InterfaceADesign,
             startTransaction();
             try {
                 if (workItem != null) {
-                    if (force) data = mapOutputDataForSkippedWorkItem(workItem);
                     if (workItem.getStatus().equals(YWorkItemStatus.statusExecuting)) {
                         netRunner = getNetRunner(workItem.getCaseID().getParent());
 
@@ -1469,9 +1471,9 @@ public class YEngine implements InterfaceADesign,
                                 _announcer.announceTimeServiceExpiry(workItem, timeOutSet);
                             }
                         }
-                        Document doc = JDOMUtil.stringToDocument(data);
                         workItem.setLogPredicateCompletion(logPredicate);
-                        workItem.setStatusToComplete(_pmgr, force);
+                        workItem.setStatusToComplete(_pmgr, completionType);
+                        Document doc = getDataDocForWorkItemCompletion(workItem, data, completionType);
                         workItem.completeData(_pmgr, doc);
 
                         boolean taskExited = netRunner.completeWorkItemInTask(_pmgr,
@@ -1535,10 +1537,10 @@ public class YEngine implements InterfaceADesign,
         // start item, get output data, get children, complete each child
         YWorkItem startedItem = startWorkItem(workItem, client) ;
         if (startedItem != null) {
-            String data = mapOutputDataForSkippedWorkItem(startedItem) ;
+            String data = mapOutputDataForSkippedWorkItem(startedItem, workItem.getDataString()) ;
             Set<YWorkItem> children = workItem.getChildren() ;
             for (YWorkItem child : children)
-                completeWorkItem(child, data, null, false) ;
+                completeWorkItem(child, data, null, WorkItemCompletion.Normal) ;
         }
         else {
             throw new YStateException("Could not skip workitem: " + workItem.getIDString()) ;
@@ -1547,7 +1549,16 @@ public class YEngine implements InterfaceADesign,
     }
 
 
-    private String mapOutputDataForSkippedWorkItem(YWorkItem workItem) {
+    private Document getDataDocForWorkItemCompletion(YWorkItem workItem, String data,
+                                                     WorkItemCompletion completionType) {
+        if (completionType != WorkItemCompletion.Normal) {
+            data = mapOutputDataForSkippedWorkItem(workItem, data);
+        }
+        return JDOMUtil.stringToDocument(data);
+    }
+
+
+    private String mapOutputDataForSkippedWorkItem(YWorkItem workItem, String data) {
 
         // get input and output params for task
         YSpecificationID specID = workItem.getSpecificationID();
@@ -1560,7 +1571,7 @@ public class YEngine implements InterfaceADesign,
                                  task.getDecompositionPrototype().getOutputParameters();
 
         // map data values to params
-        Element itemData = JDOMUtil.stringToElement(workItem.getDataString());
+        Element itemData = JDOMUtil.stringToElement(data);
         Element outputData = (Element) itemData.clone();
 
         // remove the input-only params from output data
@@ -1770,21 +1781,22 @@ public class YEngine implements InterfaceADesign,
     }
 
 
-       /** cancels the workitem - marks final status as 'failed' if statusFail is true,
-     *  or 'cancelled' if it is false */
-       public void cancelWorkItem(YWorkItem workItem, boolean statusFail)  {
+       public void cancelWorkItem(YWorkItem workItem)  {
            try {
                if ((workItem != null) && workItem.getStatus().equals(YWorkItemStatus.statusExecuting)) {
-                   YIdentifier caseID = workItem.getCaseID().getParent() ;
-                   YNetRunner runner = getNetRunner(caseID);
+                   YNetRunner runner = getNetRunner(workItem.getCaseID().getParent());
                    synchronized(_pmgr) {
                        startTransaction();
-                       runner.cancelTask(null, workItem.getTaskID());
-                       workItem.setStatusToDeleted(_pmgr, statusFail);
+                       workItem.cancel(_pmgr);
+                       YWorkItem parent = workItem.getParent();
+                       workItem.setStatusToDeleted(_pmgr);
                        if (workItem.hasTimerStarted()) {
                            YTimer.getInstance().cancelTimerTask(workItem.getIDString());
                        }
                        _instanceCache.closeWorkItem(workItem, null);
+                       if ((parent != null) && (parent.getChildren() == null)) {
+                           runner.cancelTask(null, workItem.getTaskID());
+                       }
                        runner.continueIfPossible(_pmgr);
                        commitTransaction();
                        announceEvents(runner.getCaseID());

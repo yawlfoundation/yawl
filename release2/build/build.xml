@@ -115,8 +115,8 @@
     <property name="commonsCollections" value="commons-collections-3.2.jar"/> <!-- hbn -->
     <property name="commonsDigester" value="commons-digester.jar"/>          <!-- mul -->
     <property name="commonsDiscovery" value="commons-discovery.jar"/>        <!-- wsi -->
-    <property name="commonsFileupload" value="commons-fileupload-1.1.jar"/> <!-- dss, mss -->
-    <property name="commonsIO" value="commons-io-1.1.jar"/>             <!-- dss, mss -->
+    <property name="commonsFileupload" value="commons-fileupload-1.2.2.jar"/> <!-- jsf, dss, mss -->
+    <property name="commonsIO" value="commons-io-2.0.1.jar"/>      <!-- jsf, dss, mss -->
     <property name="commonsLang" value="commons-lang-2.3.jar"/>              <!-- mul -->
     <property name="commonsLogging" value="commons-logging-1.1.1.jar"/>      <!-- mul -->
     <property name="derby" value="derbyclient.jar"/>                         <!-- dbd -->

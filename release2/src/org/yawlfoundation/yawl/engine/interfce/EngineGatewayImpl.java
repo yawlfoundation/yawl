@@ -351,7 +351,9 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             YWorkItem workItem = _engine.getWorkItem(workItemID);
             if (workItem != null) {
-                _engine.completeWorkItem(workItem, data, logPredicate, force);
+                YEngine.WorkItemCompletion flag = force ?
+                     YEngine.WorkItemCompletion.Force : YEngine.WorkItemCompletion.Normal;
+                _engine.completeWorkItem(workItem, data, logPredicate, flag);
                 return SUCCESS;
             } else {
                 return failureMessage("WorkItem with ID [" + workItemID + "] not found.");
@@ -1247,13 +1249,24 @@ public class EngineGatewayImpl implements EngineGateway {
     }
 
 
-    public String cancelWorkItem(String workItemID, String fail, String sessionHandle)
+    public String cancelWorkItem(String workItemID, String data, String fail, String sessionHandle)
                                                                  throws RemoteException {
         String sessionMessage = checkSession(sessionHandle);
         if (isFailureMessage(sessionMessage)) return sessionMessage;
 
         YWorkItem item = _engine.getWorkItem(workItemID);
-        _engine.cancelWorkItem(item, fail.equalsIgnoreCase("true")) ;
+        boolean forceFail = fail.equalsIgnoreCase("true");
+        if (forceFail) {
+            try {
+                _engine.completeWorkItem(item, data, null, YEngine.WorkItemCompletion.Fail);
+            }
+            catch (Exception e) {
+                return failureMessage(e.getMessage());
+            }
+        }
+        else {
+            _engine.cancelWorkItem(item) ;
+        }
         return SUCCESS ;
     }
 

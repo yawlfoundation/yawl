@@ -173,7 +173,7 @@ public class InterfaceX_EngineSideServer extends HttpServlet {
             }
             else if ("cancelWorkItem".equals(action)) {
                 String fail = request.getParameter("fail");
-                msg.append(_engine.cancelWorkItem(workitemID, fail, sessionHandle));
+                msg.append(_engine.cancelWorkItem(workitemID, data, fail, sessionHandle));
             }
         }
         catch (RemoteException re) {

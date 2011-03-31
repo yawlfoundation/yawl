@@ -839,16 +839,17 @@ public class SessionBean extends AbstractSessionBean {
 
 
     public SpecificationData getLoadedSpec(int listIndex) {
-        if (! loadedSpecs.isEmpty())
-            return loadedSpecs.get(listIndex);
-        else
-            return null;
+        return ((getLoadedSpecs() != null) && (! loadedSpecs.isEmpty())) ?
+              loadedSpecs.get(listIndex) : null;
     }
 
 
     public YSpecVersion getLatestLoadedSpecVersion(SpecificationData spec) {
+        List<SpecificationData> specs = getLoadedSpecs();
+        if (specs == null) return null;
+
         YSpecVersion result = new YSpecVersion("0.1");
-        for (SpecificationData sd : loadedSpecs) {
+        for (SpecificationData sd : specs) {
             if (sd.getID().equals(spec.getID())) {
                  YSpecVersion thisVersion = new YSpecVersion(sd.getSpecVersion());
                  if (result.compareTo(thisVersion) < 0) {
@@ -861,12 +862,15 @@ public class SessionBean extends AbstractSessionBean {
 
 
     public boolean isLoadedSpec(String uri, String version, String documentation) {
-        for (SpecificationData sd : loadedSpecs) {
-            if (sd.getSpecURI().equals(uri) &&
-                sd.getSpecVersion().equals(version) &&
-                sd.getDocumentation().equals(documentation)) {
+        List<SpecificationData> specs = getLoadedSpecs();
+        if (specs != null) {
+            for (SpecificationData sd : specs) {
+                if (sd.getSpecURI().equals(uri) &&
+                    sd.getSpecVersion().equals(version) &&
+                    sd.getDocumentation().equals(documentation)) {
 
-                return true;
+                    return true;
+                }
             }
         }
         return false;
