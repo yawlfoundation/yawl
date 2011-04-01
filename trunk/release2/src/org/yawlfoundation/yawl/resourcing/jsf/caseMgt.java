@@ -789,7 +789,7 @@ public class caseMgt extends AbstractPageBean {
                     osw.flush();
                     osw.close();
                     FacesContext.getCurrentInstance().responseComplete();
-                    msgPanel.success("Data successfully exported to file '" + filename + "'.");
+               //     msgPanel.success("Data successfully exported to file '" + filename + "'.");
                 }
                 else msgPanel.error("Unable to create export file: malformed xml.");
             }

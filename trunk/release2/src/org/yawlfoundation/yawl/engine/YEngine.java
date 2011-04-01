@@ -1537,7 +1537,7 @@ public class YEngine implements InterfaceADesign,
         // start item, get output data, get children, complete each child
         YWorkItem startedItem = startWorkItem(workItem, client) ;
         if (startedItem != null) {
-            String data = mapOutputDataForSkippedWorkItem(startedItem, workItem.getDataString()) ;
+            String data = mapOutputDataForSkippedWorkItem(startedItem, startedItem.getDataString()) ;
             Set<YWorkItem> children = workItem.getChildren() ;
             for (YWorkItem child : children)
                 completeWorkItem(child, data, null, WorkItemCompletion.Normal) ;
@@ -1569,6 +1569,8 @@ public class YEngine implements InterfaceADesign,
                                  task.getDecompositionPrototype().getInputParameters();
         Map<String, YParameter> outputs =
                                  task.getDecompositionPrototype().getOutputParameters();
+
+        if (outputs.isEmpty()) return data;                   // no output data to map
 
         // map data values to params
         Element itemData = JDOMUtil.stringToElement(data);
