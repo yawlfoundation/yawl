@@ -92,8 +92,10 @@ public class YWorkItemTimer implements YTimedObject {
             YPersistenceManager pmgr = YEngine.getPersistenceManager();
             if (pmgr != null) {
                 try {
+                    boolean localTransaction = pmgr.startTransaction();
                     if (insert) pmgr.storeObjectFromExternal(this);
                     else pmgr.deleteObjectFromExternal(this);
+                    if (localTransaction) pmgr.commit();
                 }
                 catch (YPersistenceException ype) {
                     // handle exc.
