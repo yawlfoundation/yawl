@@ -74,6 +74,7 @@ class SpecificationMenu extends JMenu {
 
     addMenuItemAction(new UpdateSpecificationPropertiesAction());
     addMenuItemAction(new UpdateDataTypeDefinitionsAction());
+    addMenuItemAction(new DeleteOrphanDecompositionAction());
     addSeparator();
 
     addMenuItemAction(new CloseSpecificationAction());

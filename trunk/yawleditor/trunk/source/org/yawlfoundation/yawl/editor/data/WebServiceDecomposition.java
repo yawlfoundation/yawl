@@ -69,10 +69,7 @@ public class WebServiceDecomposition extends Decomposition {
   }
   
   public boolean invokesWorklist() {
-    if (this.getYawlServiceID() == null) {
-      return true;
-    }
-    return false;
+    return (this.getYawlServiceID() == null);
   }
 
   public void setManualInteraction(boolean isManual) {

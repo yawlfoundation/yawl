@@ -25,7 +25,6 @@
 package org.yawlfoundation.yawl.editor.swing.menu;
 
 import org.yawlfoundation.yawl.editor.actions.ShowAboutEditorAction;
-import org.yawlfoundation.yawl.editor.actions.ShowSurveyLinkAction;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -44,10 +43,6 @@ class HelpMenu extends JMenu {
   
   protected void buildInterface() {
     setMnemonic(KeyEvent.VK_H);
-//    add(new YAWLMenuItem(new ShowCopyrightDetailAction()));
-//    add(new YAWLMenuItem(new ShowAcknowledgementsAction()));
     add(new YAWLMenuItem(new ShowAboutEditorAction()));
-      add(new YAWLMenuItem(new ShowSurveyLinkAction()));
-
   }
 }

@@ -431,7 +431,19 @@ public class SpecificationModel {
   public void addWebServiceDecomposition(WebServiceDecomposition decomposition) {
     webServiceDecompositions.add(decomposition);
   }
-  
+
+    public void removeWebServiceDecomposition(WebServiceDecomposition decomposition) {
+      webServiceDecompositions.remove(decomposition);
+    }
+
+    public void removeWebServiceDecomposition(String label) {
+        WebServiceDecomposition decomposition =
+                (WebServiceDecomposition) getDecompositionFromLabel(label);
+        if (decomposition != null) {
+            removeWebServiceDecomposition(decomposition);
+        }
+    }
+
   public Decomposition getDecompositionFromLabel(String label) {
     for(Decomposition decomposition: webServiceDecompositions) {
       if (decomposition == null) {
