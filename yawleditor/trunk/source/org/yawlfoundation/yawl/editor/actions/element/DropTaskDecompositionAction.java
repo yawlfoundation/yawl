@@ -59,9 +59,11 @@ public class DropTaskDecompositionAction extends YAWLSelectedNetAction
   }
 
   public void actionPerformed(ActionEvent event) {
-    graph.setTaskDecomposition(task, null);
-    graph.clearSelection();
-    SpecificationUndoManager.getInstance().setDirty(true);
+      if (confirmed()) {
+          graph.setTaskDecomposition(task, null);
+          graph.clearSelection();
+          SpecificationUndoManager.getInstance().setDirty(true);
+      }    
   }
 
   public String getEnabledTooltipText() {
@@ -74,5 +76,17 @@ public class DropTaskDecompositionAction extends YAWLSelectedNetAction
 
     public boolean shouldBeEnabled() {
      return (task.getDecomposition() != null);
+  }
+
+  private boolean confirmed() {
+      Object[] choices = {"Drop", "Cancel"};
+      int selection = JOptionPane.showOptionDialog(null,
+          "This will permanently remove the selected Decomposition\n" +
+          "and all its associated mappings from this Task.\n" +
+          "This action cannot be undone. Are you sure?",
+          "Confirm Drop Decomposition", JOptionPane.YES_NO_OPTION,
+          JOptionPane.WARNING_MESSAGE, null, choices, choices[1]);
+
+      return selection == 0 ;
   }
 }

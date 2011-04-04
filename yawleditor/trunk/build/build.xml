@@ -83,8 +83,7 @@
 
 		Compiled YAWL services code and its dependencies are referenced by
 		the properties file compatible.engine.* entries. We therefore define
-
-		We therefore define here:
+        here:
 			Editor-only dependencies (stored in the Editor source tree);
 			any YAWL Services dependencies we know we *don't* need;
 			the full set of required packages for the Complete build
@@ -92,14 +91,13 @@
     <property name="jcal" value="jcalendar-1.3.2.jar"/>
     <property name="servlet" value="servlet-api.jar"/>
     <property name="forms" value="forms_rt.jar"/>
-    <property name="browser" value="BrowserLauncher2-1_3.jar"/>
     <property name="grouplayout" value="swing-layout-1.0.4.jar"/>
     <property name="swingworker" value="swing-worker-1.2.jar"/>
 
 	<property name="junit" value="junit-4.4.jar"/>
 
 	<fileset id="editorOnlyDeps" dir="${library.dir}"
-			 includes="${jcal} ${servlet} ${forms} ${browser} ${grouplayout}
+			 includes="${jcal} ${servlet} ${forms} ${grouplayout}
 					   ${swingworker}" />
 
 	<fileset id="junitDeps" file="${tool.dir}/${junit}" />
