@@ -43,22 +43,22 @@ public class TestDeadlockingWorkflows extends TestCase{
             JDOMException, IOException, YStateException, YPersistenceException, YEngineStateException, YQueryException, YDataStateException {
         URL fileURL = getClass().getResource("DeadlockingSpecification.xml");
         File yawlXMLFile = new File(fileURL.getFile());
-        YSpecification specification = null;
-        specification = (YSpecification) YMarshal.
+        YSpecification specification = YMarshal.
                         unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
 
         YEngine engine = YEngine.getInstance();
         EngineClearer.clear(engine);
         engine.loadSpecification(specification);
-        _idForTopNet = engine.startCase(null, null, specification.getURI(), null, null);
-        YWorkItemRepository repository = YWorkItemRepository.getInstance();
-        YNetRunner runner = repository.getNetRunner(_idForTopNet);
+        _idForTopNet = engine.startCase(specification.getSpecificationID(), null, null,
+                 null, null, null);
+        YNetRunnerRepository repository = engine.getNetRunnerRepository();
+        YNetRunner runner = repository.get(_idForTopNet);
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Set items = repository.getWorkItems();
+        Set items = engine.getAllWorkItems();
         assertTrue(items.size() == 1);
         for (Iterator iterator = items.iterator(); iterator.hasNext();) {
             YWorkItem item = (YWorkItem) iterator.next();

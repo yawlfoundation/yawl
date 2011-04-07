@@ -13,9 +13,9 @@ import org.yawlfoundation.yawl.engine.announcement.Announcements;
 import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
 import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
 import org.yawlfoundation.yawl.exceptions.*;
+import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.logging.YLogDataItemList;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class TestCaseCancellation extends TestCase {
         EngineClearer.clear(_engine);
         _engine.setDefaultWorklist("http://localhost:8080/resourceService/ib#resource");
         _logdata = new YLogDataItemList();
-        _repository = YWorkItemRepository.getInstance();
+        _repository = _engine.getWorkItemRepository();
         URL fileURL = getClass().getResource("CaseCancellation.xml");
         File yawlXMLFile = new File(fileURL.getFile());
         _specification = YMarshal.unmarshalSpecifications(
@@ -58,7 +58,7 @@ public class TestCaseCancellation extends TestCase {
 
         YAWLServiceReference service = new YAWLServiceReference(serviceURI.toString(), null);
         _engine.addYawlService(service);
-        _idForTopNet = _engine.startCase(null, _specification.getSpecificationID(), null,
+        _idForTopNet = _engine.startCase(_specification.getSpecificationID(), null,
                 serviceURI, null, _logdata, service.getServiceName());
 
         ObserverGateway og = new ObserverGateway() {
@@ -157,7 +157,8 @@ public class TestCaseCancellation extends TestCase {
         activeItems = _repository.getExecutingWorkItems();
         for (Iterator iterator = activeItems.iterator(); iterator.hasNext();) {
             YWorkItem workItem = (YWorkItem) iterator.next();
-            _engine.completeWorkItem(workItem, "<data/>", null, false);
+            _engine.completeWorkItem(workItem, "<data/>", null,
+                    YEngine.WorkItemCompletion.Normal);
             break;
         }
     }

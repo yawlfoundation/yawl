@@ -481,6 +481,8 @@ public class participantData extends AbstractPageBean {
                 enableFields(true);
             }
             else {
+                clearFields();
+                cbbParticipants.setSelected("");
                 _sb.setAvailableResourceAttributes(null);
                 _sb.setOwnedResourceAttributes(null);
                 enableFields(false);
@@ -501,9 +503,14 @@ public class participantData extends AbstractPageBean {
         if (checkValidPasswordChange(true) && (checkValidUserID(p, true))) {
             boolean nameChange = ! (txtLastName.getText()).equals(p.getLastName());
             saveChanges(p);
-            _sb.saveParticipantUpdates(p);
-            if (nameChange) _sb.refreshOrgDataParticipantList();
-            msgPanel.success("Participant changes successfully saved.");
+            try {
+                _sb.saveParticipantUpdates(p);
+                if (nameChange) _sb.refreshOrgDataParticipantList();
+                msgPanel.success("Participant changes successfully saved.");
+            }
+            catch (CloneNotSupportedException cnse) {
+                msgPanel.error("Could not save changes: cloning Exception");
+            }
         }
         return null;
     }
@@ -519,8 +526,13 @@ public class participantData extends AbstractPageBean {
         }
         else {
             // if already in edit mode, discard edits
-            Participant p = _sb.resetParticipant();
-            populateFields(p) ;
+            try {
+                Participant p = _sb.resetParticipant();
+                populateFields(p) ;
+            }
+            catch (CloneNotSupportedException cnse) {
+                msgPanel.error("Could not reset changes: cloning Exception");
+            }
         }
         return null;   
     }
@@ -548,11 +560,16 @@ public class participantData extends AbstractPageBean {
         else {
             // we're in add mode - add new participant and go back to edit mode
             if (validateNewData()) {
-                Participant p = createParticipant();
-                String newID = _sb.addParticipant(p);
-                cbbParticipants.setSelected(newID);
-                setMode(Mode.edit);
-                msgPanel.success("New participant added successfully.");
+                try {
+                    Participant p = createParticipant();
+                    String newID = _sb.addParticipant(p);
+                    cbbParticipants.setSelected(newID);
+                    setMode(Mode.edit);
+                    msgPanel.success("New participant added successfully.");
+                }
+                catch (CloneNotSupportedException cnse) {
+                    msgPanel.error("Could not add participant: cloning Exception");
+                }
             }
         }
         return null;
@@ -575,7 +592,7 @@ public class participantData extends AbstractPageBean {
             ((pfAddRemove) getBean("pfAddRemove")).populateAvailableList();
             _sb.setAddParticipantMode(true);
             _sb.setAddedParticipant(new Participant());
-            _sb.setEditedParticipant((Participant) null);
+            _sb.setEditedParticipantToNull();
         }
         else {   // edit mode
             btnAdd.setText("New");
@@ -623,12 +640,17 @@ public class participantData extends AbstractPageBean {
     public void cbbParticipants_processValueChange(ValueChangeEvent event) {
         String pid = (String) event.getNewValue();
         if (pid.length() > 0) {
-            Participant p = _sb.setEditedParticipant(pid);
-            populateFields(p) ;
+            try {
+                Participant p = _sb.setEditedParticipant(pid);
+                populateFields(p) ;
+            }
+            catch (CloneNotSupportedException cnse) {
+                msgPanel.error("Could not change selected Participant: cloning Exception");
+            }
         }
         else {
             clearFields();                    // blank (first) option selected
-            _sb.setEditedParticipant((Participant) null) ;
+            _sb.setEditedParticipantToNull() ;
         }
         setMode(Mode.edit);
     }
@@ -655,9 +677,6 @@ public class participantData extends AbstractPageBean {
         cbxManageCases.setValue(up.canManageCases());
         cbxReorderItems.setValue(up.canReorder());
         cbxStartConcurrent.setValue(up.canStartConcurrent());
-//        cbxViewAllAllocated.setValue(up.canViewAllAllocated());
-//        cbxViewAllExecuting.setValue(up.canViewAllExecuting());
-//        cbxViewAllOffered.setValue(up.canViewAllOffered());
         cbxViewOrgGroupItems.setValue(up.canViewOrgGroupItems());
         cbxViewTeamItems.setValue(up.canViewTeamItems());
         
@@ -676,8 +695,8 @@ public class participantData extends AbstractPageBean {
         txtDesc.setText("");
         txtNotes.setText("");
         cbxAdmin.setValue("");
-        txtNewPassword.setPassword("");
-        txtConfirmPassword.setPassword("");
+        if (txtNewPassword != null) txtNewPassword.setPassword("");
+        if (txtConfirmPassword != null) txtConfirmPassword.setPassword("");
 
         // clear privileges
         cbxChooseItemToStart.setSelected(false);
@@ -685,9 +704,6 @@ public class participantData extends AbstractPageBean {
         cbxManageCases.setSelected(false);
         cbxReorderItems.setSelected(false);
         cbxStartConcurrent.setSelected(false);
-//        cbxViewAllAllocated.setSelected(false);
-//        cbxViewAllExecuting.setSelected(false);
-//        cbxViewAllOffered.setSelected(false);
         cbxViewOrgGroupItems.setSelected(false);
         cbxViewTeamItems.setSelected(false);
 
@@ -719,9 +735,6 @@ public class participantData extends AbstractPageBean {
             cbxManageCases.setDisabled(!enabled);
             cbxReorderItems.setDisabled(!enabled);
             cbxStartConcurrent.setDisabled(!enabled);
-//        cbxViewAllAllocated.setDisabled(!enabled);
-//        cbxViewAllExecuting.setDisabled(!enabled);
-//        cbxViewAllOffered.setDisabled(!enabled);
             cbxViewOrgGroupItems.setDisabled(!enabled);
             cbxViewTeamItems.setDisabled(!enabled);
 
@@ -762,9 +775,6 @@ public class participantData extends AbstractPageBean {
         up.setCanManageCases((Boolean) cbxManageCases.getValue());
         up.setCanReorder((Boolean) cbxReorderItems.getValue());
         up.setCanStartConcurrent((Boolean) cbxStartConcurrent.getValue());
-//        up.setCanViewAllAllocated((Boolean) cbxViewAllAllocated.getValue());
-//        up.setCanViewAllExecuting((Boolean) cbxViewAllExecuting.getValue());
-//        up.setCanViewAllOffered((Boolean) cbxViewAllOffered.getValue());
         up.setCanViewOrgGroupItems((Boolean) cbxViewOrgGroupItems.getValue());
         up.setCanViewTeamItems((Boolean) cbxViewTeamItems.getValue());
     }

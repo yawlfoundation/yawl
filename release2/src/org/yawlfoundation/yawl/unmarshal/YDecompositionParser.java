@@ -553,8 +553,8 @@ public class YDecompositionParser {
             boolean isUntyped = localVariableElem.getChild("isUntyped", ns) != null;
             variable.setUntyped(isUntyped);
 
-            // set mandatory (default is true)
-            variable.setMandatory(localVariableElem.getChild("mandatory", ns) == null);
+            // set mandatory (default is false)
+            variable.setMandatory(localVariableElem.getChild("mandatory", ns) != null);
 
             //set the element name if it uses one
             String elementName;

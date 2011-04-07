@@ -21,20 +21,19 @@ import java.net.URL;
  */
 public class TestMarlonsEagerNessExperiment {
     private static YIdentifier _idForTopNet;
-    private static YWorkItemRepository _worItemRepository;
+    private static YWorkItemRepository _workItemRepository;
 
     public static void main(String[] args) throws YSchemaBuildingException, YQueryException, YEngineStateException, YSyntaxException, JDOMException, IOException, YStateException, YPersistenceException, YDataStateException {
         YEngine _engine = YEngine.getInstance();
         EngineClearer.clear(_engine);
         URL fileURL = TestMarlonsEagerNessExperiment.class.getResource("MarlonsEagerExperiment.xml");
         File yawlXMLFile = new File(fileURL.getFile());
-        YSpecification specification = null;
-        specification = (YSpecification) YMarshal.
+        YSpecification specification = YMarshal.
                         unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
         YEngine engine2 = YEngine.getInstance();
         engine2.loadSpecification(specification);
-        _idForTopNet = engine2.startCase(null, null, specification.getURI(), null, null);
+        _idForTopNet = engine2.startCase(specification.getSpecificationID(), null, null, null, null, null);
 
-        _worItemRepository = YWorkItemRepository.getInstance();
+        _workItemRepository = engine2.getWorkItemRepository();
     }
 }

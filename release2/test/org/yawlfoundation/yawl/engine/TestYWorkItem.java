@@ -65,7 +65,7 @@ public class TestYWorkItem extends TestCase{
         }
         assertNotNull("Should have thown an exception.",e);
         try{
-            child.setStatusToComplete(null,false);
+            child.setStatusToComplete(null, YEngine.WorkItemCompletion.Normal);
         }catch(Exception f){
             e= f;
         }

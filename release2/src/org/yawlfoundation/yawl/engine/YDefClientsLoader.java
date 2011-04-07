@@ -101,6 +101,7 @@ public class YDefClientsLoader {
                 _clients.add(new YExternalClient(parts[0].trim(),
                         PasswordEncryptor.encrypt(parts[1].trim(), null),
                         parts[2].trim()));
+                return;
             }
             else if (rawLine.startsWith("service:") && (parts.length == 5)) {
                 YAWLServiceReference service = new YAWLServiceReference(
@@ -109,6 +110,7 @@ public class YDefClientsLoader {
                         parts[2].trim());
                 service.setAssignable(parts[4].trim().equalsIgnoreCase("true"));
                 _services.add(service);
+                return;
             }
         }
         _log.warn("Could not load default external client - malformed entry: " + rawLine);

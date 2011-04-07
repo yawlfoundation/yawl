@@ -190,7 +190,7 @@ public class Login extends AbstractPageBean {
         String nextPage = null ;
 
         // check if this browser session already has a logged in user
-        if (_sb.getUserid() != null) {
+        if ((_sb.getUserid() != null) && _sb.hasNavigationBegun()) {
             msgPanel.error("User '" + _sb.getUserid() + "' is already logged on in this" +
                            " browser instance. Only one user logon per browser " +
                            " instance is possible. If you wish to logon, please " +
