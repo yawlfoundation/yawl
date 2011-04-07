@@ -89,6 +89,7 @@ public class NonHumanCategory implements Comparable {
         return names;
     }
 
+    public int getSubCategoryCount() { return _subcategories.size(); }
 
     public boolean addSubCategory(String subCategory) {
         return (! hasSubCategory(subCategory)) &&

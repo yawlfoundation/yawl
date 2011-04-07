@@ -27,33 +27,49 @@ import org.yawlfoundation.yawl.util.StringUtil;
  *  v0.1, 03/08/2007
  */
 
-public abstract class AbstractResource {
+public abstract class AbstractResource implements Cloneable {
 
     public enum BlockType { Hard, Soft }
 
     protected String _resourceID;
     protected boolean _isAvailable = true;
-    protected String _description ;
-    protected String _notes ;
+    protected String _description;
+    protected String _notes;
 
     // the msecs this resource is 'offline' for after use, before it can be used again
     // is a Long object to handle null values stored in db
-    protected Long _blockedDuration ;
-    protected BlockType _blockType = BlockType.Hard;
+    protected Long _blockedDuration;
+    protected BlockType _blockType;
  
 
-    protected AbstractResource() {}
+    protected AbstractResource() {
+        _blockedDuration = 0L;
+        _blockType = BlockType.Hard;
+    }
 
     public boolean equals(Object o) {
-        return (o != null) && (o instanceof AbstractResource) &&
+        return (o == this) || ((o instanceof AbstractResource) &&
                (((AbstractResource) o).getID() != null) &&
-               ((AbstractResource) o).getID().equals(_resourceID);
+               ((AbstractResource) o).getID().equals(_resourceID));
     }
 
     public int hashCode() {
         return _resourceID == null ? 17 * 31 * 31 : 17 * _resourceID.hashCode();
     }
 
+    protected Object clone() throws CloneNotSupportedException {
+        AbstractResource cloned = (AbstractResource) super.clone();
+        cloned.setID(null);
+        return cloned;
+    }
+
+    protected void merge(AbstractResource resource) {
+        setAvailable(resource.isAvailable());
+        setDescription(resource.getDescription());
+        setNotes(resource.getNotes());
+        setBlockType(resource.getBlockType());
+        setBlockedDuration(resource.getBlockedDuration());
+    }
 
     public String getID() { return _resourceID; }
 

@@ -54,7 +54,7 @@ public class TestYMarshalB4 extends TestCase {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        _copy = (YSpecification) YMarshal.unmarshalSpecifications(
+        _copy = YMarshal.unmarshalSpecifications(
                 StringUtil.fileToString(derivedSpecFile.getAbsolutePath())).iterator().next();
         derivedSpecFile.delete();
         _originalXMLString = YMarshal.marshal(_originalSpec);

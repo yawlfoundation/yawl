@@ -26,8 +26,6 @@ import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 
 import javax.faces.FacesException;
-import javax.faces.context.ExternalContext;
-import java.io.IOException;
 
 /*
  * The backing bean for the YAWL 2.0 nonhuman resources mgt form
@@ -213,7 +211,7 @@ public class nonHumanMgt extends AbstractPageBean {
     /********************************************************************************/
 
 
-    public enum AttribType { resource, category }
+    public enum SelType { resource, category }                // which tab is selected?
 
     private SessionBean _sb = getSessionBean();
     private ResourceManager _rm = getApplicationBean().getResourceManager();
@@ -229,45 +227,26 @@ public class nonHumanMgt extends AbstractPageBean {
         _sb.setActivePage(ApplicationBean.PageRef.nonHumanMgt);
         _sb.showMessagePanel();
 
-        String selTabName = tabSet.getSelected() ;
-        Tab selTab = null;
-
-        if (selTabName == null) {
+        SelType sType = getSelTypeForTab();
+        if (tabSet.getSelected() == null) {                           // first rendering
             tabSet.setSelected("tabResources");
-            selTab = tabResources;
-            _sb.getNhResourcesOptions();
             setMode(SessionBean.Mode.edit);
             nullifyChoices();
-            tabResources_action() ;           // default
-            setVisibleComponents("tabResources");
+            setVisibleComponents(SelType.resource);
         }
         else {
-            if (btnAdd.getText().equals("Add")) {
-                _innerForm.getTxtName().setText("");
-                _innerForm.getLblMembers().setText("Members (0)");
-                _sb.setCategoryMembers(null);
-            }
-            else {
-                btnRemove.setDisabled(_sb.getNhResourcesOptions().length == 0);
-            }
-
-            if (! _sb.getActiveTab().equals(selTabName)) {
+            if (! _sb.getActiveTab().equals(tabSet.getSelected())) {       // tab change
                 nullifyChoices();
                 setMode(SessionBean.Mode.edit);
-                setVisibleComponents(selTabName);
-            }
-
-            if (selTabName.equals("tabResources")) {
-                tabResources_action() ;
-                selTab = tabResources;
-            }
-            else if (selTabName.equals("tabCategories")) {
-                tabCategories_action() ;
-                selTab = tabCategories;
+                _innerForm.setSubCatAddMode(false);
+                _sb.setSubCatAddMode(false);
+                setVisibleComponents(getSelTypeForTab());
             }
         }
-        disableButtonsOnSubCatAddMode(selTab);
-        updateTabHeaders(selTab) ;
+        doTabAction(sType);
+
+        disableButtonsOnSubCatAddMode(sType);
+        updateTabHeaders(sType) ;
         _sb.setActiveTab(tabSet.getSelected());
 
         if (_sb.isNhResourcesItemRemovedFlag()) {
@@ -277,25 +256,33 @@ public class nonHumanMgt extends AbstractPageBean {
     }
 
 
+    /* reloads the form */
     public String btnRefresh_action() {
         return null ;
     }
 
 
+    /* saves current changes to the selected resource or category */
     public String btnSave_action() {
-        if (_innerForm.saveChanges(_sb.getNhResourcesChoice()))
+        if (_innerForm.saveChanges(_sb.getNhResourcesChoice())) {
             populateForm(getAttribType(_sb.getActiveTab())) ;
+        }
         return null;
      }
 
 
+    /* toggles between add & edit modes */
     public String btnAdd_action() {
-        // if 'new', we're in edit mode - move to add mode
-        if (btnAdd.getText().equals("New")) {
+
+        // if in edit mode - move to add mode
+        if (! isAddMode()) {
             setMode(SessionBean.Mode.add);
+            if (getSelTypeForActiveTab() == SelType.resource) {
+                _innerForm.createNewResource();
+            }
         }
         else {
-            if (_innerForm.addNewItem(_sb.getActiveTab())) {
+            if (_innerForm.addNewItem(getSelTypeForActiveTab())) {
                 setMode(SessionBean.Mode.edit);
                 _msgPanel.success("New item added successfully.");
             }
@@ -304,29 +291,26 @@ public class nonHumanMgt extends AbstractPageBean {
     }
 
 
+    /* resets any unsaved changes back to original values */
     public String btnReset_action() {
 
         // if in 'add new' mode, discard inputs and go back to edit mode
-        if (btnAdd.getText().equals("Add")) {
+        if (isAddMode()) {
             setMode(SessionBean.Mode.edit);
         }
-        else {
-            if (_sb.getActiveTab().equals("tabResources")) {
-                _innerForm.resetResource();
-            }
-        }
+        _innerForm.updateSelectedResource(null, true);             // refresh selection
         return null ;
     }
 
 
+    /* deletes the selected resource or category from the org database */
     public String btnRemove_action() {
         String id = _sb.getNhResourcesChoice();
         if (id != null) {
-            AttribType type = getAttribType(_sb.getActiveTab());
             try {
-                switch (type) {
-                    case resource    : _orgDataSet.removeNonHumanResource(id); break ;
-                    case category    : _orgDataSet.removeNonHumanCategory(id); break ;
+                switch (getSelTypeForActiveTab()) {
+                    case resource : _orgDataSet.removeNonHumanResource(id); break ;
+                    case category : _orgDataSet.removeNonHumanCategory(id); break ;
                 }
                 _innerForm.clearFieldsAfterRemove();
                 nullifyChoices();
@@ -343,29 +327,54 @@ public class nonHumanMgt extends AbstractPageBean {
     }
 
 
+    /* do the action appropriate to populate the selected tab */
+    private void doTabAction(SelType sType) {
+        switch (sType) {
+            case resource : tabResources_action(); break;
+            case category : tabCategories_action(); break;
+        }
+        showButtons();
+    }
+
+
+    /* take action when the resource tab is selected */
     public String tabResources_action() {
-        if (getMode() == SessionBean.Mode.edit) populateForm(AttribType.resource);
         _sb.setSubCatAddMode(false);
         _sb.setNhResourceListLabelText("Resources");
+        _sb.setNhResourceCategoryLabelText("Category");
+        _innerForm.showSubCatAddFields(false);
+        populateForm(SelType.resource);
         return null;
     }
 
 
+    /* take action when the category tab is selected */
     public String tabCategories_action() {
-        if (getMode() == SessionBean.Mode.edit) populateForm(AttribType.category);
-        if (_sb.getSubCatAddMode()) {
+        _sb.setNhResourceListLabelText("Categories");
+        _sb.setNhResourceCategoryLabelText("Subcategories");
+        if (! isAddMode()) {
+            populateForm(SelType.category);
+            _innerForm.setSubCatAddMode(_sb.isSubCatAddMode());
+        }
+        if (_sb.isSubCatAddMode()) {
             body1.setFocus("form1:pfNHResources:txtSubCat");            
         }
-        _sb.setNhResourceListLabelText("Categories");
         return null;
     }
 
 
+    /* returns the current edit mode (ie. browse/edit or add) */
     private SessionBean.Mode getMode() {
         return _sb.getNhrMgtMode();
     }
 
 
+    private boolean isAddMode() {
+        return getMode() == SessionBean.Mode.add;
+    }
+
+
+    /* enables/disables fields when the add mode changes */
     private void setMode(SessionBean.Mode mode) {
         if (mode == SessionBean.Mode.edit) {
             _innerForm.setAddMode(false);
@@ -374,8 +383,7 @@ public class nonHumanMgt extends AbstractPageBean {
             btnReset.setToolTip("Discard unsaved changes");
             btnSave.setDisabled(false);
             btnRemove.setDisabled(false);
-            body1.setFocus("form1:pfNHResources:txtAdd");
-            populateForm(getAttribType(_sb.getActiveTab())) ;
+            body1.setFocus("form1:pfNHResources:lbxItems");
         }
         else {
             _innerForm.setAddMode(true);
@@ -384,48 +392,58 @@ public class nonHumanMgt extends AbstractPageBean {
             btnReset.setToolTip("Discard data and revert to edit mode");
             btnSave.setDisabled(true);
             btnRemove.setDisabled(true);
+            body1.setFocus("form1:pfNHResources:txtName");
         }
         _sb.setNhrMgtMode(mode);
     }
 
 
-    private void setVisibleComponents(String tabName) {
-        _innerForm.setVisibleComponents(tabName);
+    /* enables/disables fields depending on which tab is selected */
+    private void setVisibleComponents(SelType sType) {
+        _innerForm.setVisibleComponents(sType);
     }
 
 
+    /* resets all session stored selection values */
     private void nullifyChoices() {
         _sb.setNhResourcesChoice(null);
         _sb.setNhResourcesCategoryChoice(null);
         _sb.setNhResourcesSubcategoryChoice(null);
+        _innerForm.updateSelectedResource(null);
+        _innerForm.clearCombos();
     }
 
 
-    public void forceRefresh() {
-        ExternalContext externalContext = getFacesContext().getExternalContext();
-        if (externalContext != null) {
-            try {
-                externalContext.redirect("nonHumanMgt.jsp");
-            }
-            catch (IOException ioe) {}
-        }
-    }
-
-
-    private void updateTabHeaders(Tab selected) {
+    /* highlights the selected tab */
+    private void updateTabHeaders(SelType sType) {
         tabResources.setStyle("");
         tabCategories.setStyle("");
-        if (selected != null) selected.setStyle("color: #3277ba");
+        Tab tab = (sType == SelType.resource) ? tabResources : tabCategories;
+        tab.setStyle("color: #3277ba");
     }
 
 
-    private void disableButtonsOnSubCatAddMode(Tab selectedTab) {
-        if (_sb.getNhrMgtMode() == SessionBean.Mode.add) return;
-        boolean addingSubCat = _sb.getSubCatAddMode() && (selectedTab == tabCategories);
+    /* enables/disables fields when the subcategory edit mode changes */
+    private void disableButtonsOnSubCatAddMode(SelType sType) {
+        if (isAddMode()) return;
+        boolean addingSubCat = _sb.isSubCatAddMode() && (sType == SelType.category);
         btnSave.setDisabled(addingSubCat);
         btnAdd.setDisabled(addingSubCat);
         btnReset.setDisabled(addingSubCat);
         btnRemove.setDisabled(addingSubCat);
+    }
+
+
+    /* enables/disables buttons depending on whether a listbox item is selected */
+    private void showButtons() {
+        boolean noSelectedListItem = (_sb.getNhResourcesOptions().length == 0) ||
+                (_sb.getNhResourcesChoice() == null);
+        boolean adding = isAddMode();
+        if (! adding) {
+            btnSave.setDisabled(noSelectedListItem);
+            btnReset.setDisabled(noSelectedListItem);
+        }
+        btnRemove.setDisabled(adding || noSelectedListItem);
     }
 
     /**
@@ -446,36 +464,46 @@ public class nonHumanMgt extends AbstractPageBean {
     /******************************************************************************/
 
 
-    private int populateForm(AttribType aType) {
+    private int populateForm(SelType sType) {
         int result = -1;                                    // default for empty queue
-        if (aType != null) {
-            Option[] items = _sb.getNhrItems(getTabString(aType));
+        if (sType != null) {
+
+            // set listbox items for the selected tab
+            Option[] items = _sb.getNhrItems(getTabString(sType));
             _sb.setNhResourcesOptions(items);
             _innerForm.getLbxItems().setItems(items);
+            
             if ((items != null) && (items.length > 0)) {
                 String id = _sb.getNhResourcesChoice();
-                if (id == null) id = (String) items[0].getValue();
-                showItem(id, aType);
+                if (id == null) {
+                    id = (String) items[0].getValue();
+                    _sb.setNhResourcesChoice(id);
+                }
+                _innerForm.populateGUI(id, sType);
                 result = items.length ;
             }
-            else _innerForm.clearFields();
+            else {
+                nullifyChoices();
+                _innerForm.clearAllFieldsAndLists();
+            }
         }
         return result ;
     }
 
-    private String getTabString(AttribType type) {
+
+    private String getTabString(SelType type) {
         switch (type) {
-            case resource    : return "tabResources";
-            case category    : return "tabCategories";
+            case resource : return "tabResources";
+            case category : return "tabCategories";
         }
-        return "";
+        return "";     // default
     }
 
 
-    private AttribType getAttribType(String tabName) {
+    private SelType getAttribType(String tabName) {
         if (tabName != null) {
-            if (tabName.equals("tabResources")) return AttribType.resource;
-            if (tabName.equals("tabCategories")) return AttribType.category;
+            if (tabName.equals("tabResources")) return SelType.resource;
+            if (tabName.equals("tabCategories")) return SelType.category;
         }
         return null;
     }
@@ -483,15 +511,22 @@ public class nonHumanMgt extends AbstractPageBean {
     private String getActiveAttribText() {
         String activeTab = _sb.getActiveTab();
         if (activeTab != null) {
-            AttribType type = getAttribType(activeTab);
+            SelType type = getAttribType(activeTab);
             if (type != null)
                 return type.name();
         }
         return "resource";       // default
     }
 
-    private void showItem(String id, AttribType type) {
-        _innerForm.populateGUI(id, type);
+
+    private SelType getSelTypeForTab() {
+        String selected = tabSet.getSelected();
+        return ((selected == null) || selected.equals("tabResources")) ? SelType.resource
+                : SelType.category;
+    }
+
+    private SelType getSelTypeForActiveTab() {
+        return getAttribType(_sb.getActiveTab());
     }
 
 }

@@ -27,7 +27,7 @@ public class TestYWorkItemRepository extends TestCase {
 
 
     public void setUp() throws Exception {
-        _workitemRepository = YWorkItemRepository.getInstance();
+        _workitemRepository = YEngine.getInstance().getWorkItemRepository();
         _workitemRepository.clear();
         _task = new YAtomicTask("task-123", YTask._XOR, YTask._AND, null);
         YIdentifier identifier = new YIdentifier(null);

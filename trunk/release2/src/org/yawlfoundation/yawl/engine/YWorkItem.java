@@ -273,8 +273,11 @@ public class YWorkItem {
     public YWorkItem createChild(YPersistenceManager pmgr, YIdentifier childCaseID)
            throws YPersistenceException {
         if (this._parent == null) {
+
+            // don't proceed if child caseid is invalid
             YIdentifier parentCaseID = getWorkItemID().getCaseID();
-            if (! childCaseID.getParent().equals(parentCaseID)) return null;
+            if ((childCaseID == null) || (childCaseID.getParent() == null) ||
+                    (! childCaseID.getParent().equals(parentCaseID))) return null;
 
             set_status(pmgr, statusIsParent);
 

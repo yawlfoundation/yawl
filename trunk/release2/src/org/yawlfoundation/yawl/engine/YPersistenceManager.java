@@ -133,19 +133,21 @@ public class YPersistenceManager {
     }
 
     public void closeSession() {
-        try {
-            Session session = getSession();
-            if ((session != null) && (session.isOpen())) {
-                session.close();
+        if (isEnabled()) {
+            try {
+                Session session = getSession();
+                if ((session != null) && (session.isOpen())) {
+                    session.close();
+                }
+            } catch (HibernateException e) {
+                logger.error("Failure to close Hibernate session", e);
             }
-        } catch (HibernateException e) {
-            logger.error("Failure to close Hibernate session", e);
         }
     }
 
 
     public void closeFactory() {                    // shutdown persistence engine
-        factory.close();
+        if (factory != null) factory.close();
     }
 
 
@@ -347,11 +349,9 @@ public class YPersistenceManager {
      */
     protected void rollbackTransaction() throws YPersistenceException {
         logger.debug("--> rollback Transaction");
-
-        Transaction transaction = getTransaction();
-        if (transaction != null) {
+        if (isEnabled() && isActiveTransaction()) {
             try {
-                if (isActiveTransaction()) transaction.rollback();
+                getTransaction().rollback();
             }
             catch (HibernateException e) {
                 throw new YPersistenceException("Failure to rollback transaction", e);

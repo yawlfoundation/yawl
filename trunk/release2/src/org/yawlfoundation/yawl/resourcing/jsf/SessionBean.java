@@ -279,22 +279,32 @@ public class SessionBean extends AbstractSessionBean {
 
     private ApplicationBean.DynFormType dynFormType ;
 
+    private boolean navigationBegun = false;
+
+    public boolean hasNavigationBegun() { return navigationBegun; }
+
 
     public ApplicationBean.PageRef getActivePage() { return activePage; }
 
     public void setActivePage(ApplicationBean.PageRef page) {
         activePage = page;
+        if (page != ApplicationBean.PageRef.Login) {
+            navigationBegun = true;
+        }
         if (page != ApplicationBean.PageRef.participantData) {
-            setEditedParticipant((Participant) null);
+            setEditedParticipantToNull();
         }
         if (page != ApplicationBean.PageRef.externalClients) {
             setAddClientAccountMode(true);
         }
         if (page != ApplicationBean.PageRef.nonHumanMgt) {
-            setSelectedNonHumanResource(null);
-            setOrigCategory(null);
-            setOrigSubcategory(null);       
             setSubCatAddMode(false);
+            try {
+                setSelectedNonHumanResource(null, true);
+            }
+            catch (CloneNotSupportedException cnse) {
+                // no further action required
+            }
         }        
     }
 
@@ -445,8 +455,17 @@ public class SessionBean extends AbstractSessionBean {
         this.nhResourcesSubcategoryItems = nhResourcesSubcategoryItems;
     }
 
+    private Option[] nhResourcesSubcategoryList;
 
-  // user selection from each listbox
+    public Option[] getNhResourcesSubcategoryList() {
+        return nhResourcesSubcategoryList;
+    }
+
+    public void setNhResourcesSubcategoryList(Option[] nhResourcesSubcategoryList) {
+        this.nhResourcesSubcategoryList = nhResourcesSubcategoryList;
+    }
+
+// user selection from each listbox
 
     private String worklistChoice;
     private YSpecificationID loadedSpecListChoice;
@@ -619,7 +638,7 @@ public class SessionBean extends AbstractSessionBean {
     // logs out of session //
     public void doLogout() {
         _rm.logout(sessionhandle) ;
-        setEditedParticipant((Participant) null);
+        setEditedParticipantToNull();
         getApplicationBean().removeLiveUser(userid);
         setUserid(null);
         
@@ -1130,23 +1149,28 @@ public class SessionBean extends AbstractSessionBean {
 
     public Participant getEditedParticipant() { return editedParticipant; }
 
-    public void setEditedParticipant(Participant p) {
-        if (editedParticipant != null) editedParticipant.removeAttributeReferences();
-        editedParticipant = p;
+    public void setEditedParticipantToNull() {
+        editedParticipant = null;
     }
 
-    public Participant setEditedParticipant(String pid) {
-        if (editedParticipant != null) editedParticipant.removeAttributeReferences();
-        editedParticipant = getParticipantMap().get(pid).clone();
-        return editedParticipant;
+    public Participant setEditedParticipant(String pid) throws CloneNotSupportedException {
+        Participant p = getParticipantMap().get(pid);
+        if (p != null) {
+            preEditAttributes = p.getAttributeReferences();
+            editedParticipant = p.clone();
+        }
+            return editedParticipant;
     }
 
-    public void saveParticipantUpdates(Participant cloned) {
+    // the set of attributes held by a resource before it has been edited
+    private Set<AbstractResourceAttribute> preEditAttributes;
+
+    public void saveParticipantUpdates(Participant cloned) throws CloneNotSupportedException  {
         String actualID = cloned.getID().substring(7);
         Participant p = getParticipantMap().get(actualID);
         p.merge(cloned);
         p.save();
-        setEditedParticipant(p.getID()) ;             // reset
+ //       setEditedParticipant(p.getID()) ;             // reset
     }
 
     
@@ -1269,13 +1293,15 @@ public class SessionBean extends AbstractSessionBean {
 
 
     public Option[] getNhrItems(String tabName) {
+        Option[] options = null;
         if (tabName.equals("tabResources")) {
-            return getNhResourcesList();
+            options = getNhResourcesList();
         }
         if (tabName.equals("tabCategories")) {
-            return getNhResourcesCategoryList();
+            options = getNhResourcesCategoryList();
         }
-        return null;
+ //       if (options != null) Arrays.sort(options, new OptionComparator());
+        return options;
     }
 
 
@@ -1288,6 +1314,7 @@ public class SessionBean extends AbstractSessionBean {
                 NonHumanResource r = resMap.get(id);
                 result[i++] = new Option(id, r.getName()) ;
             }
+            Arrays.sort(result, new OptionComparator());
             return result ;
         }
         else return null ;
@@ -1303,6 +1330,7 @@ public class SessionBean extends AbstractSessionBean {
                 NonHumanCategory c = catMap.get(id);
                 result[i++] = new Option(id, c.getName()) ;
             }
+            Arrays.sort(result, new OptionComparator());
             return result ;
         }
         else return null ;
@@ -1376,15 +1404,22 @@ public class SessionBean extends AbstractSessionBean {
     }
 
     // resets all edits by reloading participant from org database
-    public Participant resetParticipant() {
-        if (editedParticipant != null)
-            editedParticipant = setEditedParticipant(editedParticipant.getID());
+    public Participant resetParticipant() throws CloneNotSupportedException {
+        if (editedParticipant != null) {
+            String actualID = editedParticipant.getID().substring(7);      // remove 'CLONE_' from edited id
+            if (preEditAttributes != null) {
+                getParticipantMap().get(actualID).setAttributeReferences(preEditAttributes);
+                preEditAttributes = null;
+            }
+            editedParticipant = setEditedParticipant(actualID);
+        }
         return editedParticipant ;
     }
 
-    public String addParticipant(Participant p) {
+    public String addParticipant(Participant p) throws CloneNotSupportedException  {
         String newID = _rm.addParticipant(p);
         refreshOrgDataParticipantList();
+        preEditAttributes = p.getAttributeReferences();
         editedParticipant = p.clone();
         return newID;
     }
@@ -1392,7 +1427,7 @@ public class SessionBean extends AbstractSessionBean {
     public void removeParticipant(Participant p) {
         String actualID = p.getID().substring(7);      // remove 'CLONE_' from edited id
         Participant pToRemove = participantMap.get(actualID);
-        setEditedParticipant((Participant) null);
+        setEditedParticipantToNull();
         _rm.removeParticipant(pToRemove);
         refreshOrgDataParticipantList();
     }
@@ -1691,7 +1726,7 @@ public class SessionBean extends AbstractSessionBean {
     public void resetPageDefaults(ApplicationBean.PageRef page) {
         switch (page) {
             case participantData :
-                setEditedParticipant((Participant) null);
+                setEditedParticipantToNull();
                 setActiveResourceAttributeTab(null);
                 setAddParticipantMode(false);
                 setAddedParticipant(null);                
@@ -1975,7 +2010,7 @@ public class SessionBean extends AbstractSessionBean {
 
     private boolean subCatAddMode = false;
 
-    public boolean getSubCatAddMode() { return subCatAddMode; }
+    public boolean isSubCatAddMode() { return subCatAddMode; }
 
     public void setSubCatAddMode(boolean adding) { subCatAddMode = adding; }
 
@@ -1986,29 +2021,19 @@ public class SessionBean extends AbstractSessionBean {
         return selectedNonHumanResource;
     }
 
-    public void setSelectedNonHumanResource(NonHumanResource resource) {
-        selectedNonHumanResource = resource;
+    // cloned for editing
+    public void setSelectedNonHumanResource(NonHumanResource resource, boolean editing)
+            throws CloneNotSupportedException {
+        if ((selectedNonHumanResource != null) && editing) {
+            selectedNonHumanResource.clearCategory();
+        }
+        if (resource != null) {
+            selectedNonHumanResource = (! resource.getID().equals("_TEMP_")) ?
+                    resource.clone() : resource;
+        }
+        else selectedNonHumanResource = null;
     }
 
-
-    private String origCategory = null;
-    private String origSubcategory = null;
-
-    public String getOrigCategory() {
-        return origCategory;
-    }
-
-    public void setOrigCategory(String category) {
-        origCategory = category;
-    }
-
-    public String getOrigSubcategory() {
-        return origSubcategory;
-    }
-
-    public void setOrigSubcategory(String subcategory) {
-        origSubcategory = subcategory;
-    }
 }
 
 

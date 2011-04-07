@@ -27,7 +27,7 @@ import org.yawlfoundation.yawl.util.XNode;
  * @author Michael Adams
  * @date 24/08/2010
  */
-public class NonHumanResource extends AbstractResource implements Comparable {
+public class NonHumanResource extends AbstractResource implements Comparable, Cloneable {
 
     private String _name;
     private NonHumanCategory _category;
@@ -38,7 +38,7 @@ public class NonHumanResource extends AbstractResource implements Comparable {
         super();
         _name = name;
         _category = category;
-        _category.addResource(this, subCategoryName);
+        if (_category != null) _category.addResource(this, subCategoryName);
     }
 
     public NonHumanResource(Element e) {
@@ -68,34 +68,63 @@ public class NonHumanResource extends AbstractResource implements Comparable {
         }
     }
 
+    public void clearCategory() {
+        if (_category != null) {
+            _category.removeFromAll(this);
+            _category = null;
+        }
+    }
+
     public NonHumanSubCategory getSubCategory() {
-        return _category.getResourceSubCategory(this);
+        return (_category != null) ? _category.getResourceSubCategory(this) : null;
     }
 
     public String getSubCategoryName() {
-        NonHumanSubCategory subCategory = _category.getResourceSubCategory(this);
+        NonHumanSubCategory subCategory = (_category != null) ?
+                _category.getResourceSubCategory(this) : null;
         return (subCategory != null) ? subCategory.getName() : null;
     }
 
 
     public void setSubCategory(String subCategory) {
-        _category.moveToSubCategory(this, subCategory);
+        String currentSubCategory = getSubCategoryName();
+        if ((_category != null) && (subCategory != null) &&
+                (! subCategory.equals(currentSubCategory))) {
+            _category.moveToSubCategory(this, subCategory);
+        }    
     }
 
 
     public void detachSubCategory() {
-        getSubCategory().removeResource(this);
+        NonHumanSubCategory subCategory = getSubCategory();
+        if (subCategory != null) subCategory.removeResource(this);
     }
 
 
     public boolean hasCategory(String category, String subCategory) {
-        return _category.getName().equals(category) && _category.hasResource(this, subCategory);
+        return (_category != null) && _category.getName().equals(category) &&
+                _category.hasResource(this, subCategory);
     }
 
 
     public int compareTo(Object o) {
         if ((o == null) || (! (o instanceof NonHumanResource))) return 1;
         return this.getID().compareTo(((NonHumanResource) o).getID());
+    }
+
+    
+    public NonHumanResource clone() throws CloneNotSupportedException {
+        NonHumanResource cloned = (NonHumanResource) super.clone();
+        cloned.setID("_CLONE_" + getID());
+        cloned.setSubCategory(getSubCategoryName());   // adds cloned to subcat resources
+        return cloned;
+    }
+
+    public void merge(NonHumanResource resource) {
+        super.merge(resource);
+        setName(resource.getName());
+        setCategory(resource.getCategory());
+        setSubCategory(resource.getSubCategoryName());
     }
 
 
@@ -105,7 +134,7 @@ public class NonHumanResource extends AbstractResource implements Comparable {
         node.addChild("name", _name, true);
         node.addChild("description", _description, true);
         node.addChild("notes", _notes, true);
-        node.addChild(_category.toXNode());
+        if (_category != null) node.addChild(_category.toXNode());
         NonHumanSubCategory subCategory = getSubCategory();
         if (subCategory != null) node.addChild(subCategory.toXNode());
         return node.toString() ;

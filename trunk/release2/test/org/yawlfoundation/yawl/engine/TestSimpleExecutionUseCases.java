@@ -37,14 +37,14 @@ public class TestSimpleExecutionUseCases extends TestCase{
     public void setUp() throws YSchemaBuildingException, YSyntaxException, YEngineStateException, YQueryException, JDOMException, IOException, YStateException, YPersistenceException, YDataStateException {
         URL fileURL = getClass().getResource("ImproperCompletion.xml");
 		File yawlXMLFile = new File(fileURL.getFile());
-        _workItemRepository = YWorkItemRepository.getInstance();
-        YSpecification specification = null;
-        specification = (YSpecification) YMarshal.
+        YSpecification specification = YMarshal.
                         unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
         _engine = YEngine.getInstance();
+        _workItemRepository = _engine.getWorkItemRepository();
         EngineClearer.clear(_engine);
         _engine.loadSpecification(specification);
-        _caseId =  _engine.startCase(null, specification.getSpecificationID(), null, null, new YLogDataItemList());
+        _caseId =  _engine.startCase(specification.getSpecificationID(), null, null,
+                null, new YLogDataItemList(), null);
 
     }
 
@@ -55,7 +55,6 @@ public class TestSimpleExecutionUseCases extends TestCase{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-//System.out.println("caseid: " + _caseId);
         YWorkItem item = _engine.getWorkItem(
                 _caseId.toString() +
                 ":" +
@@ -87,7 +86,6 @@ public class TestSimpleExecutionUseCases extends TestCase{
         } catch (YAWLException e) {
             fail(e.getMessage());
         }
-//        assertTrue(_localWorklist.startOneWorkItemAndSetOthersToFired(item.getCaseID().toString(), "a-top"));
     }
 
 

@@ -23,11 +23,10 @@ import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
-import org.yawlfoundation.yawl.util.PasswordEncryptor;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.PasswordEncryptor;
 import org.yawlfoundation.yawl.util.StringUtil;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,7 +38,7 @@ import java.util.Set;
  *  v0.1, 03/08/2007
  */
 
-public class Participant extends AbstractResource implements Serializable {
+public class Participant extends AbstractResource implements Cloneable {
 
     // participant descriptive data
     private String _lastname ;
@@ -106,15 +105,12 @@ public class Participant extends AbstractResource implements Serializable {
     }
 
 
-    public Participant clone() {
+    public Participant clone() throws CloneNotSupportedException {
 
         // create a new Participant with persistence OFF
-        Participant cloned = new Participant(_lastname, _firstname, _userID, false);
-        cloned.setAdministrator(_isAdministrator);
-        cloned.setPassword(_password);
+        Participant cloned = (Participant) super.clone();
+        cloned.setPersisting(false);
         cloned.setID("_CLONE_" + _resourceID);                  // different id to this
-        cloned.setNotes(_notes);
-        cloned.setDescription(_description);
         if (_privileges != null)
             cloned.setUserPrivileges(_privileges.clone());
         else
@@ -128,16 +124,15 @@ public class Participant extends AbstractResource implements Serializable {
 
     // copies values from p to this (does NOT change id)
     public void merge(Participant p) {
+        super.merge(p);
         _lastname = p.getLastName();
         _firstname = p.getFirstName();
         setUserID(p.getUserID());
         _isAdministrator = p.isAdministrator();
         _password = p.getPassword();
-        _notes = p.getNotes();
-        _description = p.getDescription();
-        setRoles(p.getRoles());
-        setPositions(p.getPositions());
-        setCapabilities(p.getCapabilities());
+        mergeRoles(p.getRoles());
+        mergePositions(p.getPositions());
+        mergeCapabilities(p.getCapabilities());
 
         if (_privileges == null) _privileges = new UserPrivileges(_resourceID) ; 
          _privileges.merge(p.getUserPrivileges());
@@ -239,6 +234,12 @@ public class Participant extends AbstractResource implements Serializable {
         addRole(_resMgr.getOrgDataSet().getRole(rid));
     }
 
+    public void mergeRoles(Set<Role> roleSet) {
+        for (Role r : roleSet) {
+            if (! _roles.contains(r)) _roles.add(r);
+        }
+    }
+
     public void removeRole(Role role) {
         if (_roles.remove(role)) {
             role.removeResource(this);
@@ -283,6 +284,13 @@ public class Participant extends AbstractResource implements Serializable {
         addCapability(_resMgr.getOrgDataSet().getCapability(cid));
     }
 
+    public void mergeCapabilities(Set<Capability> capSet) {
+        for (Capability c : capSet) {
+            if (! _capabilities.contains(c)) _capabilities.add(c);
+        }
+    }
+
+
     public void removeCapability(Capability cap) {
         if (_capabilities.remove(cap)) {
             cap.removeResource(this);
@@ -314,7 +322,7 @@ public class Participant extends AbstractResource implements Serializable {
 
     public void setPositions(Set<Position> posSet) {
         removePositions();
-        for (Position pos : posSet) addPosition(pos)  ;
+        for (Position pos : posSet) addPosition(pos);
     }
 
     public void addPosition(Position pos) {
@@ -351,6 +359,12 @@ public class Participant extends AbstractResource implements Serializable {
         _positions.clear();
     }
 
+    public void mergePositions(Set<Position> posSet) {
+        for (Position p : posSet) {
+            if (! _positions.contains(p)) _positions.add(p);
+        }
+    }
+
 
     public boolean hasPosition(Position pos) { return _positions.contains(pos) ; }
 
@@ -359,6 +373,31 @@ public class Participant extends AbstractResource implements Serializable {
         removeRoles();
         removePositions();
         removeCapabilities();
+    }
+
+    public Set<AbstractResourceAttribute> getAttributeReferences() {
+        Set<AbstractResourceAttribute> attributes = new HashSet<AbstractResourceAttribute>();
+        attributes.addAll(getRoles());
+        attributes.addAll(getPositions());
+        attributes.addAll(getCapabilities());
+        return attributes;
+    }
+
+    public void setAttributeReferences(Set<AbstractResourceAttribute> attributes) {
+        if (attributes != null) {
+            removeAttributeReferences();
+            for (AbstractResourceAttribute attribute : attributes) {
+                if (attribute instanceof Role) {
+                    addRole((Role) attribute);
+                }
+                else if (attribute instanceof Capability) {
+                    addCapability((Capability) attribute);
+                }
+                else if (attribute instanceof Position) {
+                    addPosition((Position) attribute);
+                }
+            }
+        }
     }
 
 

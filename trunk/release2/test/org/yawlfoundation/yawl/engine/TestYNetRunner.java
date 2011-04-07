@@ -48,8 +48,9 @@ public class TestYNetRunner extends TestCase {
         YEngine engine2 = YEngine.getInstance();
         EngineClearer.clear(engine2);
         engine2.loadSpecification(specification);
-        _id1 = engine2.startCase(null, specification.getSpecificationID(), null, null, new YLogDataItemList());
-           _netRunner1 = (YNetRunner) engine2._netRunnerRepository.get(_id1);
+        _id1 = engine2.startCase(specification.getSpecificationID(), null, null, null,
+                new YLogDataItemList(), null);
+           _netRunner1 = engine2._netRunnerRepository.get(_id1);
         _d = new Document();
         _d.setRootElement(new Element("data"));
     }
@@ -121,11 +122,6 @@ public class TestYNetRunner extends TestCase {
                 _id1.getLocations().size() == 1
                 ||
                 _id1.getLocations().size() == 0);
-/*
-        synchronized (_netRunner1) {
-            notify();
-        }
-*/
         try {
             Thread.sleep(200);
         } catch (InterruptedException e) {

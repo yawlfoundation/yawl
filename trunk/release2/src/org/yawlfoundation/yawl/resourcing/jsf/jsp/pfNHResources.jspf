@@ -68,7 +68,7 @@
 
         <ui:dropDown binding="#{pfNHResources.cbbCategory}"
                      id="cbbCategory"
-                     items="#{SessionBean.nhResourcesCategoryItems}"
+                     items="#{SessionBean.nhResourcesCategoryList}"
                      onChange="common_timeoutSubmitForm(this.form, 'cbbCategory');"
                      valueChangeListener="#{pfNHResources.cbbCategory_processValueChange}"
                      style="left: 450px; top: 76px; position: absolute; width: 200px"/>
@@ -143,7 +143,7 @@
 
             <ui:listbox binding="#{pfNHResources.lbxSubCatItems}"
                         id="lbxSubCatItems"
-                        items="#{SessionBean.nhResourcesSubcategoryItems}"
+                        items="#{SessionBean.nhResourcesSubcategoryList}"
                         onChange="common_timeoutSubmitForm(this.form, 'lbxSubCatItems');"
                         selected="#{SessionBean.nhResourcesSubcategoryChoice}"
                         styleClass="nhSubCatListbox"
@@ -155,6 +155,8 @@
                         styleClass="nhSubCatButton"
                         style="top: 76px;left: 640px;"
                         toolTip="Add a new subcategory"
+                        noTextPadding="true"
+                        mini="true"
                         text="+"/>
 
             <ui:button action="#{pfNHResources.btnRemoveSubCat_action}"
@@ -163,6 +165,8 @@
                         styleClass="nhSubCatButton"
                         style="top: 98px;left: 640px;"
                         toolTip="Remove the selected subcategory"
+                        noTextPadding="true"
+                        mini="true"
                         text="-"/>
 
           <ui:textField binding="#{pfNHResources.txtSubCat}"
@@ -177,6 +181,8 @@
                     styleClass="nhSubCatButton"
                     style="top: 180px; left: 592px; color:green"
                     toolTip="Confirm adding a new subcategory"
+                    noTextPadding="true"
+                    mini="true"
                     text="√"/>
 
         <ui:button action="#{pfNHResources.btnCancelAddSubCat_action}"
@@ -185,6 +191,8 @@
                     styleClass="nhSubCatButton"
                     style="top: 180px; left: 612px; color:red"
                     toolTip="Cancel adding a new subcategory"
+                    noTextPadding="true"
+                    mini="true"
                     text="x"/>
 
 

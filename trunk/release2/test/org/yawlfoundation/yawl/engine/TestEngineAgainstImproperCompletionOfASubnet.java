@@ -25,7 +25,7 @@ import java.net.URL;
 public class TestEngineAgainstImproperCompletionOfASubnet extends TestCase {
 
     private YIdentifier _idForTopNet;
-    private YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
+    private YWorkItemRepository _workItemRepository;
     private long _sleepTime = 500;
     private YEngine engine;
     private YSpecification _specification;
@@ -43,13 +43,14 @@ public class TestEngineAgainstImproperCompletionOfASubnet extends TestCase {
         _specification = (YSpecification) YMarshal.
                 unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
         engine = YEngine.getInstance();
+        _workItemRepository = engine.getWorkItemRepository();
     }
 
 
     public synchronized void testImproperCompletionSubnet() throws YDataStateException, YEngineStateException, YStateException, YQueryException, YSchemaBuildingException, YPersistenceException {
         EngineClearer.clear(engine);
         engine.loadSpecification(_specification);
-        _idForTopNet = engine.startCase(null, null, _specification.getURI(), null, null);
+        _idForTopNet = engine.startCase(_specification.getSpecificationID(),null, null, null, null, null);
         assertTrue(_workItemRepository.getCompletedWorkItems().size() == 0);
         assertTrue(_workItemRepository.getEnabledWorkItems().size() == 1);
         assertTrue(_workItemRepository.getExecutingWorkItems().size() == 0);
@@ -72,9 +73,8 @@ public class TestEngineAgainstImproperCompletionOfASubnet extends TestCase {
                 catch(InterruptedException ie){ie.printStackTrace();}
             }
             while (_workItemRepository.getExecutingWorkItems().size() > 0) {
-                item = (YWorkItem) _workItemRepository.getExecutingWorkItems()
-                        .iterator().next();
-                engine.completeWorkItem(item, "<data/>", null, false);
+                item = _workItemRepository.getExecutingWorkItems().iterator().next();
+                engine.completeWorkItem(item, "<data/>", null, YEngine.WorkItemCompletion.Normal);
                 try{ Thread.sleep(_sleepTime);}
                 catch(InterruptedException ie){ie.printStackTrace();}
             }

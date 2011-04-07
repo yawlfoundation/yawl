@@ -26,7 +26,7 @@ import java.util.Set;
  * 
  */
 public class TestImproperCompletion extends TestCase{
-    private YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
+    private YWorkItemRepository _workItemRepository;
     private long _sleepTime = 100;
     private YEngine _engine;
     private YIdentifier _id;
@@ -39,11 +39,12 @@ public class TestImproperCompletion extends TestCase{
     public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException {
         URL fileURL = getClass().getResource("TestImproperCompletion.xml");
         File yawlXMLFile = new File(fileURL.getFile());
-        _specification = (YSpecification) YMarshal.
+        _specification = YMarshal.
                             unmarshalSpecifications(StringUtil.fileToString(
                                     yawlXMLFile.getAbsolutePath())).get(0);
 
         _engine = YEngine.getInstance();
+        _workItemRepository = _engine.getWorkItemRepository();
     }
 
     private String trim(String casesRaw) {
@@ -60,7 +61,8 @@ public class TestImproperCompletion extends TestCase{
             YPersistenceException, YLogException {
         EngineClearer.clear(_engine);
         _engine.loadSpecification(_specification);
-        _id = _engine.startCase(null, _specification.getSpecificationID(), null, null, new YLogDataItemList());
+        _id = _engine.startCase(_specification.getSpecificationID(), null, null, null,
+                new YLogDataItemList(), null);
            int numIter = 0;
         Set s = _engine.getCasesForSpecification(_specification.getSpecificationID());
         assertTrue("s = " + s, s.contains(_id));
@@ -82,7 +84,7 @@ public class TestImproperCompletion extends TestCase{
             }
             while (_workItemRepository.getExecutingWorkItems().size() > 0) {
                 item = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
-                _engine.completeWorkItem(item, "<data/>", null, false);
+                _engine.completeWorkItem(item, "<data/>", null, YEngine.WorkItemCompletion.Normal);
                 try{ Thread.sleep(_sleepTime);}
                 catch(InterruptedException ie){ie.printStackTrace();}
             }

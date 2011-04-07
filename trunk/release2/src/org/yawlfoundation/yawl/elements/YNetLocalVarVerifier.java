@@ -93,8 +93,8 @@ public class YNetLocalVarVerifier {
         for (YExternalNetElement preElement : preSet) {
 
             _log.debug("Net: " + _net.getID() + " | Local var: " +
-                    map.getLocalVar().getName() +  " | Subject: " + subjectTask.getName() +
-                    " | PreElement: " + preElement.toString());
+                    map.getLocalVar().getPreferredName() +  " | Subject: " +
+                    subjectTask.getName() + " | PreElement: " + preElement.toString());
 
             // if this element has already been visited on this path,
             // it is a loop so don't go further on it
@@ -139,9 +139,9 @@ public class YNetLocalVarVerifier {
 
                 // output parameters have a mirrored local var created, although they
                 // are not true local vars, so any of those need to be ignored
-                if (! outputParamNames.contains(local.getName())) {
+                if (! outputParamNames.contains(local.getPreferredName())) {
                     LocalTaskMap localMap = new LocalTaskMap(local);
-                    _uninitialisedLocalVars.put(local.getName(), localMap);
+                    _uninitialisedLocalVars.put(local.getPreferredName(), localMap);
                 }
             }
         }
@@ -264,8 +264,8 @@ public class YNetLocalVarVerifier {
             subMsg = "be uninitialised when the mapping is attempted";
             postMsg = String.format(" Please assign an initial value to '%s' or ensure " +
                     "that a task which precedes task '%s' has a mandatory output " +
-                    "mapping to '%s'.", localVar.getName(), task.getName(),
-                    localVar.getName() ) ;
+                    "mapping to '%s'.", localVar.getPreferredName(), task.getName(),
+                    localVar.getPreferredName() ) ;
         }
 
         String visitedChain = "[";
@@ -281,8 +281,8 @@ public class YNetLocalVarVerifier {
         String msg = String.format("Task '%s' in Net '%s' references Local Variable " +
                 "'%s' via an input mapping, however it may be possible for '%s' to %s, via " +
                 "the path %s.%s",
-                task.getName(), _net.getID(), localVar.getName(), localVar.getName(),
-                subMsg, visitedChain, postMsg);
+                task.getName(), _net.getID(), localVar.getPreferredName(),
+                localVar.getPreferredName(), subMsg, visitedChain, postMsg);
 
         return new YVerificationMessage(this, msg, YVerificationMessage.WARNING_STATUS);
     }

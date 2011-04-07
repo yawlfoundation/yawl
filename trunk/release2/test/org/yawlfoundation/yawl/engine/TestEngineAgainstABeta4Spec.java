@@ -37,9 +37,7 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
     public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException {
         URL fileURL = getClass().getResource("MakeRecordings(Beta4).xml");
         File yawlXMLFile = new File(fileURL.getFile());
-        _specification = null;
-
-        _specification = (YSpecification) YMarshal.
+        _specification = YMarshal.
                 unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
 
         _engine = YEngine.getInstance();
@@ -50,8 +48,9 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
         synchronized (this) {
             EngineClearer.clear(_engine);
             _engine.loadSpecification(_specification);
-            YIdentifier id = _engine.startCase(null, null, _specification.getURI(), null, null);
-            _netRunner = (YNetRunner) _engine._netRunnerRepository.get(id);
+            YSpecificationID specID = _specification.getSpecificationID();
+            YIdentifier id = _engine.startCase(specID, null, null, null, null, null);
+            _netRunner = _engine._netRunnerRepository.get(id);
             {
                 //execute task "decideName"
                 Set availableItems = _engine.getAvailableWorkItems();
@@ -67,7 +66,7 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
                 _engine.completeWorkItem(wiDecideName_Executing,
                         "<DecideAlbumName>" +
                         "<nameOfRecord>The Fred experience.</nameOfRecord>" +
-                        "</DecideAlbumName>", null, false);
+                        "</DecideAlbumName>", null, YEngine.WorkItemCompletion.Normal);
             }
             {
                 //execute task "decideSongs"
@@ -99,7 +98,7 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
                                     "<sequenceNumber>1</sequenceNumber>" +
                                 "</song>" +
                             "</songlist>" +
-                        "</DecideWhichSongsToRecord>", null, false);
+                        "</DecideWhichSongsToRecord>", null,  YEngine.WorkItemCompletion.Normal);
             }
             {
                 //execute task "prepare" this is the first task of a decomposition

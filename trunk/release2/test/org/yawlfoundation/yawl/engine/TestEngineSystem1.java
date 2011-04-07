@@ -31,7 +31,7 @@ import java.util.Vector;
 public class TestEngineSystem1 extends TestCase {
     private YNetRunner _netRunner;
     private YIdentifier _idForTopNet;
-    private YWorkItemRepository _workItemRepository = YWorkItemRepository.getInstance();
+    private YWorkItemRepository _workItemRepository;
     private int _sleepTime = 100;
     private YEngine _engine;
     private YSpecification _specification;
@@ -44,11 +44,10 @@ public class TestEngineSystem1 extends TestCase {
     public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException {
         URL fileURL = getClass().getResource("YAWL_Specification3.xml");
         File yawlXMLFile = new File(fileURL.getFile());
-        _specification = null;
-        _specification = (YSpecification) YMarshal.
+        _specification = YMarshal.
                             unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
         _engine = YEngine.getInstance();
-
+        _workItemRepository = _engine.getWorkItemRepository();
     }
 
 
@@ -56,7 +55,8 @@ public class TestEngineSystem1 extends TestCase {
         try {
             EngineClearer.clear(_engine);
             _engine.loadSpecification(_specification);
-            _idForTopNet = _engine.startCase(null, null, _specification.getURI().toString(), null, null);
+            _idForTopNet = _engine.startCase(_specification.getSpecificationID(), null,
+                    null, null, null, null);
             //enabled btop
             Set currWorkItems = _workItemRepository.getEnabledWorkItems();
             YWorkItem anItem = (YWorkItem) currWorkItems.iterator().next();
@@ -73,7 +73,7 @@ public class TestEngineSystem1 extends TestCase {
             Thread.sleep(_sleepTime);
             //complete btop
 //            _localWorklist.setWorkItemToComplete(anItem.getCaseID().toString(), anItem.getTaskID(),"<data/>");
-            _engine.completeWorkItem(anItem, "<data/>", null, false);
+            _engine.completeWorkItem(anItem, "<data/>", null, YEngine.WorkItemCompletion.Normal);
             //should atumatically fire multi inst comp task ctop
             //get mi attributes of f-leaf-c
             List leafNetRunners = new Vector();
@@ -82,7 +82,7 @@ public class TestEngineSystem1 extends TestCase {
             Iterator iter = enabled.iterator();
             while (iter.hasNext()) {
                 YWorkItem item = (YWorkItem) iter.next();
-                YNetRunner leafCRunner = _workItemRepository.getNetRunner(item.getCaseID());
+                YNetRunner leafCRunner = _engine.getNetRunner(item.getCaseID());
                 if (leafNetRunners.size() == 0) {
                     fLeafCMIAttributes =
                             ((YAtomicTask) leafCRunner.getNetElement("f-leaf-c"))
@@ -116,7 +116,7 @@ public class TestEngineSystem1 extends TestCase {
                 anItem = (YWorkItem) v.get(temp);
 //                _localWorklist.setWorkItemToComplete(
 //                        anItem.getCaseID().toString(), anItem.getTaskID(),"<data/>");
-                _engine.completeWorkItem(anItem, "<data/>", null, false);
+                _engine.completeWorkItem(anItem, "<data/>", null, YEngine.WorkItemCompletion.Normal);
                 assertTrue(_workItemRepository.get(
                         anItem.getCaseID().toString(), anItem.getTaskID())
                         == null);
@@ -168,7 +168,7 @@ public class TestEngineSystem1 extends TestCase {
                 assertTrue(anItem.getTaskID().equals("f-leaf-c")
                         || anItem.getTaskID().equals("g-leaf-c"));
 //                _localWorklist.setWorkItemToComplete(anItem.getCaseID().toString(), anItem.getTaskID(),"<data/>");
-                _engine.completeWorkItem(anItem, "<data/>", null, false);
+                _engine.completeWorkItem(anItem, "<data/>", null, YEngine.WorkItemCompletion.Normal);
                 if (anItem.getTaskID().equals("g-leaf-c")) {
                     assertFalse(_workItemRepository.getWorkItems().contains(anItem));
                 }
@@ -193,14 +193,14 @@ public class TestEngineSystem1 extends TestCase {
              * All work items to-do with those nets are removed.
              * And that d-top is enabled. - done
              */
-            YNetRunner topNetRunner = _workItemRepository.getNetRunner(_idForTopNet);
+            YNetRunner topNetRunner = _engine.getNetRunner(_idForTopNet);
             while (_workItemRepository.getExecutingWorkItems().size() > 0) {
                 Vector v = new Vector(_workItemRepository.getExecutingWorkItems());
                 int temp = (int) Math.abs(Math.floor(Math.random() * v.size()));
                 anItem = (YWorkItem) v.get(temp);
                 assertTrue(anItem.getTaskID().equals("h-leaf-c"));
 //                _localWorklist.setWorkItemToComplete(anItem.getCaseID().toString(), anItem.getTaskID(),"<data/>");
-                _engine.completeWorkItem(anItem, "<data/>", null, false);
+                _engine.completeWorkItem(anItem, "<data/>", null, YEngine.WorkItemCompletion.Normal);
                 assertFalse(_workItemRepository.getWorkItems().contains(anItem));
                 Thread.sleep(_sleepTime);
             }
