@@ -115,7 +115,11 @@ public class ResourceGateway extends HttpServlet {
                 String enableVisualiser = context.getInitParameter("EnableVisualizer");
                 if (enableVisualiser.equalsIgnoreCase("TRUE")) {
                     _rm.setVisualiserEnabled(true);
-                }
+                    String visualiserSize = context.getInitParameter("VisualizerViewSize");
+                    if (visualiserSize != null) {
+                        _rm.setVisualiserDimension(visualiserSize);
+                    }
+                }               
 
                 // read the current version properties
                 _rm.initBuildProperties(context.getResourceAsStream(
