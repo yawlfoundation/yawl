@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
+import com.sun.rave.web.ui.component.Button;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
@@ -31,6 +32,7 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import javax.faces.FacesException;
 import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.ExternalContext;
+import java.awt.*;
 import java.io.IOException;
 import java.util.Set;
 
@@ -171,6 +173,7 @@ public class visualiser extends AbstractPageBean {
     private SessionBean _sb = getSessionBean();
     private MessagePanel msgPanel = _sb.getMessagePanel() ;
     private ResourceManager _rm = getApplicationBean().getResourceManager();
+    private static final Dimension DEFAULT_DIMENSION = new Dimension(800,600);
 
 
     public String btnReturn_action() {
@@ -279,8 +282,13 @@ public class visualiser extends AbstractPageBean {
     public String getAppletHtml() {
         String baseURI = getApplicationBean().getResServiceBaseURI();
         Participant p = _sb.getParticipant();
-        StringBuilder result = new StringBuilder("<applet width=\"800\" height=\"600\"");
-        result.append(" archive=\"visualiser.jar,javax.servlet.jar,jdom.jar,")
+        Dimension view = getViewSize();
+        StringBuilder result = new StringBuilder("<applet width=\"");
+        result.append(view.width)
+              .append("\" height=\"")
+              .append(view.height)
+              .append("\"")
+              .append(" archive=\"visualiser.jar,javax.servlet.jar,jdom.jar,")
               .append(" resourceService.jar,saxon9.jar,log4j-1.2.14.jar,commons-codec-1.4.jar\"")
               .append(" codebase=\"../../visualiserApplet\"")
               .append(" code=\"worklist.WRKLApplet.class\" MAYSCRIPT>")
@@ -309,6 +317,12 @@ public class visualiser extends AbstractPageBean {
             }
         }
         return selectedWIR;
+    }
+
+
+    private Dimension getViewSize() {
+        Dimension d = _rm.getVisualiserDimension();
+        return (d != null) ? d : DEFAULT_DIMENSION;
     }
 
 }

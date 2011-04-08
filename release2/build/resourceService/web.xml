@@ -207,7 +207,18 @@
             When set to true, a button to show workitems via the Visualizer applet
             will display on user work queues (assumes the visualizer applet is available).
             The default setting is false.
-            NOTE: the visualizer is not yet supported.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>VisualizerViewSize</param-name>
+        <param-value></param-value>
+        <description>
+            When the Visualizer applet is enabled, this parameter configures the size
+            of the Visualizer applet's view window. The value must be two comma-separated
+            positive integers (width,height). If no value is given, a default of 800,600
+            will be used.
+            When the visualizer is disabled, this parameter is ignored.
         </description>
     </context-param>
 

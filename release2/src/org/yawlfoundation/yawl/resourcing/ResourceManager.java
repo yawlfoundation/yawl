@@ -73,11 +73,13 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.List;
 
 /**
  * The ResourceManager singleton manages all aspects of the resource perspective,
@@ -154,6 +156,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     public boolean _logOffers ;
     private boolean _persistPiling ;
     private boolean _visualiserEnabled;
+    private Dimension _visualiserDimension;
 
     // Mappings for specid -> version -> taskid <-> resourceMap
     private ResourceMapCache _resMapCache = new ResourceMapCache() ;
@@ -333,6 +336,30 @@ public class ResourceManager extends InterfaceBWebsideController {
     public void setExternalUserAuthentication(boolean externalAuth) {
         if (_orgdb != null) _orgDataSet.setExternalUserAuthentication(externalAuth);
     }
+
+    public void setVisualiserDimension(String s) {
+        if (s != null) {
+            String[] parts = s.split(",");
+            if (parts.length == 2) {
+                try {
+                    int width = Integer.parseInt(parts[0].trim());
+                    int height = Integer.parseInt(parts[1].trim());
+                    setVisualiserDimension(new Dimension(width, height));
+                    return;
+                }
+                catch (NumberFormatException nfe) {
+                    _log.warn("Invalid visualiser dimension parameter value - using default");
+                }
+            }
+        }
+        setVisualiserDimension((Dimension) null);
+    }
+
+    public void setVisualiserDimension(Dimension d) {
+        _visualiserDimension = d;
+    }
+
+    public Dimension getVisualiserDimension() { return _visualiserDimension; }
     
     public void initRandomOrgDataGeneration(int count) {
         if (count > 0) {
