@@ -49,11 +49,6 @@ public class Login extends AbstractPageBean {
 
     public void preprocess() { }
 
-    public void prerender() {
-        _sb.setActivePage(ApplicationBean.PageRef.Login);
-        _sb.showMessagePanel();
-    }
-
     public void destroy() { }
 
     public void init() {                             
@@ -175,13 +170,20 @@ public class Login extends AbstractPageBean {
 
     /********************************************************************************/
 
-    // SPECIFIC DELARATIONS AND METHODS //
+    // SPECIFIC DECLARATIONS AND METHODS //
 
-    private ResourceManager rm = getApplicationBean().getResourceManager();
+    private ResourceManager _rm = getApplicationBean().getResourceManager();
     private SessionBean _sb = getSessionBean();
-    private MessagePanel msgPanel = _sb.getMessagePanel() ;
+    private MessagePanel _msgPanel = _sb.getMessagePanel() ;
 
-    
+
+    public void prerender() {
+        _sb.redirectIfActiveSession();
+        _sb.setActivePage(ApplicationBean.PageRef.Login);
+        renderMessagePanel();
+    }
+
+
     /**
      * Respond to a user-click of the Login button
      * @return the next page to show, or null to stay on this page
@@ -191,14 +193,14 @@ public class Login extends AbstractPageBean {
 
         // check if this browser session already has a logged in user
         if ((_sb.getUserid() != null) && _sb.hasNavigationBegun()) {
-            msgPanel.error("User '" + _sb.getUserid() + "' is already logged on in this" +
+            _msgPanel.error("User '" + _sb.getUserid() + "' is already logged on in this" +
                            " browser instance. Only one user logon per browser " +
                            " instance is possible. If you wish to logon, please " +
                            " logout the current user first.") ;
         }
 
         // session is free, so if there's a valid org data source --> process the logon
-        else if (rm.hasOrgDataSource() && (rm.getOrgDataSet() != null)) {
+        else if (_rm.hasOrgDataSource() && (_rm.getOrgDataSet() != null)) {
             String user = (String) txtUserName.getText() ;
             String pword = (String) txtPassword.getText();
             if (validateUser(user, pword)) {
@@ -208,7 +210,7 @@ public class Login extends AbstractPageBean {
 
         // else no org data source --> can't proceed
         else {
-            msgPanel.error("Missing or invalid organisational data source. The resource" +
+            _msgPanel.error("Missing or invalid organisational data source. The resource" +
                            " service requires a connection to a valid data source" +
                            " that contains organisational data. Please check the" +
                            " settings of the 'OrgDataSource' parameter in the service's" +
@@ -227,41 +229,41 @@ public class Login extends AbstractPageBean {
      */
     private boolean validateUser(String u, String p) {
         if ((u == null) || (p == null)) {
-            msgPanel.info("Please enter a valid username and password.") ;
+            _msgPanel.info("Please enter a valid username and password.") ;
             return false;
         }
 
         // attempt to log on (and gain a session) to the service
-        if (rm != null) {
+        if (_rm != null) {
             String pEncrypt = p ;                                // default for admin
-            boolean externalAuth = rm.getOrgDataSet().isUserAuthenticationExternal();
+            boolean externalAuth = _rm.getOrgDataSet().isUserAuthenticationExternal();
             if (u.equals("admin") || (! externalAuth)) {
                 try {
                     pEncrypt = PasswordEncryptor.encrypt(p) ;
                 }
                 catch(NoSuchAlgorithmException nsae) {
-                    msgPanel.error("Password Encryption Algorithm not available. Login failed.");
+                    _msgPanel.error("Password Encryption Algorithm not available. Login failed.");
                     return false;
                 }
                 catch(UnsupportedEncodingException uee) {
-                    msgPanel.error("Password could not be encrypted. Login failed.");
+                    _msgPanel.error("Password could not be encrypted. Login failed.");
                     return false;
                 }
             }
 
-            String handle = rm.login(u, pEncrypt, _sb.getExternalSessionID());
-            if (rm.successful(handle)) {           // successful login
+            String handle = _rm.login(u, pEncrypt, _sb.getExternalSessionID());
+            if (_rm.successful(handle)) {           // successful login
                 initSession(u, handle) ;
-                msgPanel.clear();
+                _msgPanel.clear();
                 return true ;
             }
             else {
-                msgPanel.error(handle);        // show error msg to user
+                _msgPanel.error(handle);        // show error msg to user
                 return false ;
             }    
         }
         else {
-            msgPanel.error("Could not connect to work queue, service unavailable.");
+            _msgPanel.error("Could not connect to work queue, service unavailable.");
             return false;
         }
 
@@ -277,7 +279,7 @@ public class Login extends AbstractPageBean {
         _sb.setSessionhandle(handle);
         _sb.setUserid(userid);
         if (! userid.equals("admin")) {
-            _sb.setParticipant(rm.getParticipantFromUserID(userid));
+            _sb.setParticipant(_rm.getParticipantFromUserID(userid));
             getApplicationBean().addLiveUser(userid);
 
             // initialise workqueue
@@ -287,6 +289,16 @@ public class Login extends AbstractPageBean {
                 _sb.setChosenWIR(wirSet.iterator().next());
         }
         ((pfMenubar) getBean("pfMenubar")).construct(userid.equals("admin"));     // make the menu bar
+    }
+
+
+    private void renderMessagePanel() {
+        boolean showPanel = _msgPanel.hasMessage();
+        txtUserName.setDisabled(showPanel);
+        txtPassword.setDisabled(showPanel);
+        btnLogin.setDisabled(showPanel);
+        body.setFocus(showPanel ? "form1:pfMsgPanel:btnOK001" : "form1:txtUserName");
+        _sb.showMessagePanel();
     }
 
 }

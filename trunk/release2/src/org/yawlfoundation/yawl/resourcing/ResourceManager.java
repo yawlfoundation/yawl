@@ -2421,6 +2421,11 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
+    public boolean isActiveSession(String jSessionID) {
+        return _liveSessions.containsSessionID(jSessionID);
+    }
+
+
     /** Checks if there is a connection to the engine, and
      *  if there isn't, attempts to connect
      *  @return true if connected to the engine
