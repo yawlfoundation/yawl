@@ -54,25 +54,25 @@
                                 <ui:label binding="#{Login.lblUserName}"
                                           for="txtUserName"
                                           id="lblUserName"
-                                          style="top: 25px"
+                                          style="top: 18px"
                                           styleClass="loginLabel"
                                           text="User Name:"/>
 
                                 <ui:textField binding="#{Login.txtUserName}"
                                               id="txtUserName"
-                                              style="top: 22px"
+                                              style="top: 15px"
                                               styleClass="loginField"/>
 
                                 <ui:label binding="#{Login.lblPassword}"
                                           for="txtPassword"
-                                          style="top: 55px"
+                                          style="top: 48px"
                                           styleClass="loginLabel"
                                           id="lblPassword"
                                           text="Password:"/>
 
                                 <ui:passwordField binding="#{Login.txtPassword}"
                                                   id="txtPassword"
-                                                  style="top: 52px"
+                                                  style="top: 45px"
                                                   styleClass="loginField"/>
 
                                 <ui:button action="#{Login.btnLogin_action}"

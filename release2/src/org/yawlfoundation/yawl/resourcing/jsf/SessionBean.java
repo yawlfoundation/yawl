@@ -309,6 +309,12 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
+    public void dispatchToActivePage() throws IOException {
+        FacesContext.getCurrentInstance().getExternalContext().dispatch(
+                    getActivePage().getFileName());
+    }
+
+
     public ApplicationBean.DynFormType getDynFormType() { return dynFormType; }
 
     public void setDynFormType(ApplicationBean.DynFormType type) {
@@ -677,6 +683,27 @@ public class SessionBean extends AbstractSessionBean {
             }
             catch (IOException ioe) {
                 // message about destroyed app
+            }
+        }
+    }
+
+
+    /*
+     * if there's a current session, goto the last active page
+     */
+    public void redirectIfActiveSession() {
+        if ((getUserid() != null) && _rm.isActiveSession(getExternalSessionID())) {
+
+            // halt the rendering of the current page
+            FacesContext.getCurrentInstance().responseComplete();
+            try {
+                dispatchToActivePage();
+            }
+            catch (IOException ioe) {
+
+                // could not redirect, so end session and start a new one
+                doLogout();
+                gotoPage("Login.jsp");
             }
         }
     }
@@ -1627,7 +1654,7 @@ public class SessionBean extends AbstractSessionBean {
             case adminQueues     : return 798;
             case caseMgt         : return 602;
             case customServices  : return 666;
-            case Login           : return 240;
+            case Login           : return 238;
             case orgDataMgt      : return 698;
             case nonHumanMgt     : return 698;
             case participantData : return 670;

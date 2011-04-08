@@ -1,6 +1,6 @@
 
 .loginPanel {
-    padding: 6px;
+    /*padding: 6px;*/
     background-color: #98ccfe;
     height: 120px;
     width: 240px;
@@ -167,15 +167,15 @@
 }
 
 .loginField {
-    left:105px;
+    left: 95px;
     position: absolute;
     width: 120px;
 }
 
 .loginButton {
     font-size: 18px;
-    left: 80px;
-    top: 90px;
+    left: 77px;
+    top: 84px;
     position: absolute;
     height: 30px;
     width: 85px;
@@ -320,10 +320,9 @@
     font-size: 12px;
     height: 30px;
     width: 95px;
-    color: #3277ba;
+    color: white;
+    background: none repeat scroll 0 0 #A0A0A0;
     font-weight: bold;
-    border: 3px solid;
-    border-color: #3277ba;
     top: 0;
     position: absolute;
 }

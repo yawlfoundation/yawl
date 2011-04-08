@@ -97,7 +97,11 @@ public class ApplicationBean extends AbstractApplicationBean {
 
     public enum PageRef { adminQueues, caseMgt, customServices, dynForm, Login,
         orgDataMgt, nonHumanMgt, participantData, selectUser, userWorkQueues,
-        viewProfile, addInstance, teamQueues, externalClients }
+        viewProfile, addInstance, teamQueues, externalClients, calendarMgt;
+
+        public String getFileName() { return name() + ".jsp"; }
+    }
+
 
     public enum TabRef { offered, allocated, started, suspended, unoffered, worklisted }
 
