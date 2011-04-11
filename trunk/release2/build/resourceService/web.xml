@@ -216,8 +216,8 @@
         <description>
             When the Visualizer applet is enabled, this parameter configures the size
             of the Visualizer applet's view window. The value must be two comma-separated
-            positive integers (width,height). If no value is given, a default of 800,600
-            will be used.
+            positive integers (width,height). If no value is given, or the value is
+            invalid, a default of 800,600 will be used.
             When the visualizer is disabled, this parameter is ignored.
         </description>
     </context-param>

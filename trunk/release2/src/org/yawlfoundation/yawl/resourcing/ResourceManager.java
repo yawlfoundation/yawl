@@ -344,15 +344,18 @@ public class ResourceManager extends InterfaceBWebsideController {
                 try {
                     int width = Integer.parseInt(parts[0].trim());
                     int height = Integer.parseInt(parts[1].trim());
-                    setVisualiserDimension(new Dimension(width, height));
-                    return;
+                    if ((width > 0) && (height > 0)) {
+                        setVisualiserDimension(new Dimension(width, height));
+                        return;
+                    }    
                 }
                 catch (NumberFormatException nfe) {
-                    _log.warn("Invalid visualiser dimension parameter value - using default");
+                    // nothing to do - will fall through to the following statements
                 }
             }
+            _log.warn("Invalid visualiser dimension parameter value - using default");
         }
-        setVisualiserDimension((Dimension) null);
+        setVisualiserDimension((Dimension) null);               // null is a valid value
     }
 
     public void setVisualiserDimension(Dimension d) {

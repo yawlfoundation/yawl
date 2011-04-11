@@ -54,6 +54,7 @@ public class YNetRunner {
     public static enum ExecutionStatus { Normal, Suspending, Suspended, Resuming }
 
     private static final Logger _logger = Logger.getLogger(YNetRunner.class);
+    private static final Object _mutex = YEngine.getPersistenceManager();
 
     protected YNet _net;
     private YWorkItemRepository _workItemRepository;
@@ -551,8 +552,9 @@ public class YNetRunner {
         }
 
         // fire the set of enabled 'transitions' (if any)
-        if (! enabledTransitions.isEmpty()) fireTasks(enabledTransitions, pmgr);
-
+        synchronized(_mutex) {
+            if (! enabledTransitions.isEmpty()) fireTasks(enabledTransitions, pmgr);
+        }
         _busyTasks = _net.getBusyTasks();
         _logger.debug("<-- continueIfPossible");
 
@@ -614,13 +616,10 @@ public class YNetRunner {
             }
             _enabledTasks.add(task);
             _enabledTaskNames.add(task.getID());
-            if (pmgr != null)  pmgr.updateObject(this);
+            if (pmgr != null) pmgr.updateObject(this);
         }
-        else {                                             //fire the empty atomic task
-            YIdentifier id = task.t_fire(pmgr).get(0);
-            task.t_start(pmgr, id);
-            completeTask(pmgr, null, task, id, null);
-        }
+        else processEmptyTask(task, pmgr);
+
         return announcement;
     }
 
@@ -641,6 +640,18 @@ public class YNetRunner {
         }
     }
 
+
+    private void processEmptyTask(YAtomicTask task, YPersistenceManager pmgr)
+            throws YDataStateException, YStateException, YQueryException,
+                   YPersistenceException {
+
+        // fire, start and complete the empty atomic task in situ
+        YIdentifier id = task.t_fire(pmgr).get(0);
+        task.t_start(pmgr, id);
+        completeTask(pmgr, null, task, id, null);
+    }
+
+    
     private CancelWorkItemAnnouncement cancelEnabledTask(YTask task, YPersistenceManager pmgr)
                       throws YPersistenceException {
 
@@ -751,7 +762,8 @@ public class YNetRunner {
     /**
      * Completes a work item inside an atomic task.
      *
-     * @param workItem The work item. If null is supplied, this work item cannot be removed from the work items repository (hack)
+     * @param workItem The work item. If null is supplied, this work item cannot be
+     * removed from the work items repository (hack)
      * @param atomicTask the atomic task
      * @param identifier the identifier of the work item
      * @param outputData the document containing output data
@@ -806,17 +818,17 @@ public class YNetRunner {
                 }
             }
 
-            continueIfPossible(pmgr);
-            _busyTasks.remove(atomicTask);
-            _busyTaskNames.remove(atomicTask.getID());
-
             if (pmgr != null) {
+                continueIfPossible(pmgr);
+                _busyTasks.remove(atomicTask);
+                _busyTaskNames.remove(atomicTask.getID());
+
                 if (_engine.getRunningCaseIDs().contains(_caseIDForNet)) {
                     pmgr.updateObject(this);
                 }
-            }
-            _logger.debug("NOTIFYING RUNNER");
-            kick(pmgr);
+                _logger.debug("NOTIFYING RUNNER");
+                kick(pmgr);
+            }    
         }
         _logger.debug("<-- completeTask: Exited=" + taskExited);
         return taskExited;

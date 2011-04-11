@@ -301,8 +301,6 @@ public abstract class YTask extends YExternalNetElement {
         }
         _i = id;
         _i.addLocation(pmgr, this);
-        List<YExternalNetElement> conditions = new Vector<YExternalNetElement>(getPresetElements());
-        Iterator conditionsIt = getPresetElements().iterator();
         long numToSpawn = determineHowManyInstancesToCreate();
         List<YIdentifier> childIdentifiers = new Vector<YIdentifier>();
         for (int i = 0; i < numToSpawn; i++) {
@@ -327,27 +325,29 @@ public abstract class YTask extends YExternalNetElement {
             childIdentifiers.add(childID);
         }
         prepareDataDocsForTaskOutput();
+
+        // contract: all task presetElements are conditions
         switch (_joinType) {
             case YTask._AND:
-                while (conditionsIt.hasNext()) {
-                    ((YConditionInterface) conditionsIt.next()).removeOne(pmgr);
+                for (YExternalNetElement preSetElement : getPresetElements()) {
+                     ((YConditionInterface) preSetElement).removeOne(pmgr);
                 }
                 break;
             case YTask._OR:
-                while (conditionsIt.hasNext()) {
-                    YConditionInterface condition = (YConditionInterface) conditionsIt.next();
-                    if (condition.containsIdentifier()) {
-                        condition.removeOne(pmgr);
-                    }
+                for (YExternalNetElement preSetElement : getPresetElements()) {
+                    YConditionInterface condition = ((YConditionInterface) preSetElement);
+                    if (condition.containsIdentifier()) condition.removeOne(pmgr);
                 }
                 break;
             case YTask._XOR:
+                List<YExternalNetElement> conditions =
+                        new Vector<YExternalNetElement>(getPresetElements());
                 boolean done = false;
                 do {
                     int i = Math.abs(_random.nextInt()) % conditions.size();
                     YConditionInterface condition = (YConditionInterface) conditions.get(i);
                     if (condition.containsIdentifier()) {
-                        condition.removeOne(pmgr);
+                        condition.removeOne(pmgr);    
                         done = true;
                     }
                 } while (!done);
