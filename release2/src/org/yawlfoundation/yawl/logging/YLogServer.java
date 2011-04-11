@@ -51,7 +51,7 @@ public class YLogServer {
 
     // some error messages
     private final String _exErrStr = "<failure>Unable to retrieve data.</failure>";
-    private final String _pmErrStr = "<failure>Error connecting to database.</failure>";
+    private final String _pmErrStr = "<failure>Database connection is disabled.</failure>";
     private final String _noRowsStr = "<failure>No rows returned.</failure>";
 
 
@@ -71,7 +71,7 @@ public class YLogServer {
 
     public boolean startTransaction() {
         try {
-            return (_pmgr != null) && _pmgr.startTransaction();
+            return (connected()) && _pmgr.startTransaction();
         }
         catch (YPersistenceException ype) {
             _log.error("Could not initialise connection to log tables.", ype) ;
@@ -82,7 +82,7 @@ public class YLogServer {
 
     public void commitTransaction() {
         try {
-            if (_pmgr != null) _pmgr.commit();
+            if (connected()) _pmgr.commit();
         }
         catch (YPersistenceException ype) {
              _log.error("Could not commit after log table read.", ype) ;
@@ -94,11 +94,16 @@ public class YLogServer {
     }
 
 
+    private boolean connected() {
+        return (_pmgr != null) && _pmgr.isEnabled();
+    }
+
+
     /*****************************************************************************/
 
     public String getNetInstancesOfSpecification(YSpecificationID specID) {
         String result ;
-        if (_pmgr != null) {
+        if (connected()) {
             try {
                 YLogSpecification spec = getSpecification(specID);
                 if (spec != null) {
@@ -123,7 +128,7 @@ public class YLogServer {
      */
     public String getNetInstancesOfSpecification(long specKey) {
         String result ;
-        if (_pmgr != null) {
+        if (connected()) {
             try {
                 Iterator itr = _pmgr.createQuery(
                         "select ni from YLogNet as n, YLogNetInstance as ni " +
@@ -154,7 +159,7 @@ public class YLogServer {
 
     public String getCaseEvents(long rootNetInstanceKey) {
         String result ;
-        if (_pmgr != null) {
+        if (connected()) {
             try {
                Iterator itr = _pmgr.createQuery("from YLogEvent as e where " +
                        "e.rootNetInstanceID=:key")
@@ -185,7 +190,7 @@ public class YLogServer {
 
     public String getCaseEvents(String caseID) {
         String result ;
-        if (_pmgr != null) {
+        if (connected()) {
             try {
                 Iterator itr = _pmgr.createQuery(
                         "from YLogNetInstance as n where n.engineInstanceID=:caseID")
@@ -208,7 +213,7 @@ public class YLogServer {
 
     public String getTaskInstancesForTask(String caseID, String taskName) {
         String result ;
-        if (_pmgr != null) {
+        if (connected()) {
             try {
                 Iterator itr = _pmgr.createQuery(
                         "from YLogTaskInstance as ti, YLogTask as t " +
@@ -245,7 +250,7 @@ public class YLogServer {
 
     public String getInstanceEvents(long instanceKey) {
         String result ;
-        if (_pmgr != null) {
+        if (connected()) {
             try {
                Iterator itr = _pmgr.createQuery("from YLogEvent as e where " +
                        "e.instanceID=:key")
@@ -274,12 +279,9 @@ public class YLogServer {
     }
 
 
-
-
-
     public String getDataForEvent(long eventKey) {
         String result ;
-        if (_pmgr != null) {
+        if (connected()) {
             try {
                Iterator itr = _pmgr.createQuery("from YLogDataItemInstance as di where " +
                        "di.eventID=:key")
@@ -309,7 +311,7 @@ public class YLogServer {
 
     public String getDataTypeForDataItem(long dataTypeKey) {
         String result ;
-        if (_pmgr != null) {
+        if (connected()) {
             try {
                Iterator itr = _pmgr.createQuery("from YLogDataType as dt where " +
                        "dt.dataTypeID=:key")
@@ -335,7 +337,7 @@ public class YLogServer {
 
     public String getTaskInstancesForCase(String caseID) {
         String result ;
-        if (_pmgr != null) {
+        if (connected()) {
             try {
                Iterator itr = _pmgr.createQuery("from YLogTaskInstance as ti where " +
                        "ti.engineInstanceID like :key")
@@ -365,7 +367,7 @@ public class YLogServer {
 
     public String getTaskInstancesForTask(long taskKey) {
         String result ;
-        if (_pmgr != null) {
+        if (connected()) {
             try {
                Iterator itr = _pmgr.createQuery("from YLogTaskInstance as ti where " +
                        "ti.taskID=:key")
@@ -396,7 +398,7 @@ public class YLogServer {
 
     public String getAllSpecifications() {
         String result ;
-        if (_pmgr != null) {
+        if (connected()) {
             try {
                 Iterator itr = _pmgr.execQuery("from YLogSpecification").iterator();
                 if (itr.hasNext()) {
@@ -424,7 +426,7 @@ public class YLogServer {
 
     public String getCaseEvent(String caseID, String eventType) {
         String result ;
-        if (_pmgr != null) {
+        if (connected()) {
             try {
                 Iterator itr = _pmgr.createQuery(
                         "select e from YLogEvent as e, YLogNetInstance as ni where " +
@@ -457,7 +459,7 @@ public class YLogServer {
 
     public String getAllCaseEventsByService(String serviceName, String eventType) {
         String result ;
-         if (_pmgr != null) {
+         if (connected()) {
              try {
                  Iterator itr = _pmgr.createQuery(
                          "select e from YLogEvent as e, YLogService as s where " +
@@ -499,7 +501,7 @@ public class YLogServer {
 
     public String getCompleteCaseLogsForSpecification(YSpecificationID specID) {
         String result ;
-        if (_pmgr != null) {
+        if (connected()) {
             try {
                 YLogSpecification spec = getSpecification(specID);
                 if (spec != null) {
@@ -524,7 +526,7 @@ public class YLogServer {
 
     public String getSpecificationStatistics(YSpecificationID specID, long from, long to) {
         String result ;
-        if (_pmgr != null) {
+        if (connected()) {
             try {
                 YLogSpecification spec = getSpecification(specID);
                 if (spec != null) {
@@ -549,7 +551,7 @@ public class YLogServer {
 
     public String getSpecificationStatistics(long specKey, long from, long to) {
         String result ;
-         if (_pmgr != null) {
+         if (connected()) {
              try {
                  YLogSpecification spec = getSpecification(specKey);
                  int casesStarted = 0;
@@ -627,7 +629,7 @@ public class YLogServer {
 
 
     public XNode getXESLog(YSpecificationID specID, boolean withData) {
-        if (_pmgr != null) {
+        if (connected()) {
             try {
                 YLogSpecification spec = getSpecification(specID);
                 if (spec != null) {
@@ -707,7 +709,7 @@ public class YLogServer {
 
     public String getCompleteCaseLogsForSpecification(long specKey) {
         String result ;
-         if (_pmgr != null) {
+         if (connected()) {
              try {
                  YLogSpecification spec = getSpecification(specKey);
                  List instances = getNetInstanceObjects(spec.getRootNetID());
@@ -732,7 +734,7 @@ public class YLogServer {
 
     public String getCompleteCaseLog(String caseID) {
         String result ;
-         if (_pmgr != null) {
+         if (connected()) {
              try {
                  YLogNetInstance rootNet = getNetInstance(caseID);
                  if (rootNet != null) {
@@ -760,7 +762,7 @@ public class YLogServer {
 
     public String getServiceName(long key) {
         String result;
-        if (_pmgr != null) {
+        if (connected()) {
             try {
                 YLogService service = getService(key);
                 if (service != null) {
@@ -900,7 +902,7 @@ public class YLogServer {
 
 
     private YLogSpecification getSpecification(long key) throws YPersistenceException {
-        if (_pmgr != null) {
+        if (connected()) {
             return (YLogSpecification) _pmgr.selectScalar("YLogSpecification", "rowKey", key);
         }
         else return null;
@@ -908,7 +910,7 @@ public class YLogServer {
 
     private YLogSpecification getSpecification(YSpecificationID specID)
             throws YPersistenceException {
-        if (_pmgr != null) {
+        if (connected()) {
             String identifier = specID.getIdentifier();
             Iterator itr ;
             if (identifier != null) {
@@ -935,7 +937,7 @@ public class YLogServer {
 
 
     private YLogNet getNet(long key) throws YPersistenceException {
-        if (_pmgr != null) {
+        if (connected()) {
             return (YLogNet) _pmgr.selectScalar("YLogNet", "netID", key);
         }
         else return null;
@@ -943,7 +945,7 @@ public class YLogServer {
 
 
     private List getNets(long specKey) throws YPersistenceException {
-        if (_pmgr != null) {
+        if (connected()) {
             return _pmgr.createQuery("from YLogNet as n where n.specKey=:specKey")
                     .setLong("specKey", specKey)
                     .list();
@@ -953,7 +955,7 @@ public class YLogServer {
 
 
     private YLogNetInstance getNetInstance(String caseID) throws YPersistenceException {
-        if (_pmgr != null) {
+        if (connected()) {
             String quotedCaseID = String.format("'%s'", caseID);
             return (YLogNetInstance) _pmgr.selectScalar(
                     "YLogNetInstance", "engineInstanceID", quotedCaseID);
@@ -962,7 +964,7 @@ public class YLogServer {
     }
 
     private YLogNetInstance getNetInstance(long key) throws YPersistenceException {
-        if (_pmgr != null) {
+        if (connected()) {
             return (YLogNetInstance) _pmgr.selectScalar(
                     "YLogNetInstance", "netID", key);
         }
@@ -970,7 +972,7 @@ public class YLogServer {
     }
 
     private YLogNetInstance getSubNetInstance(long key) throws YPersistenceException {
-        if (_pmgr != null) {
+        if (connected()) {
             return (YLogNetInstance) _pmgr.selectScalar(
                     "YLogNetInstance", "parentTaskInstanceID", key);
         }
@@ -979,7 +981,7 @@ public class YLogServer {
 
 
     private List getNetInstances(String caseID) throws YPersistenceException {
-        if (_pmgr != null) {
+        if (connected()) {
             return _pmgr.createQuery("from YLogNetInstance as ni where " +
                 "ni.engineInstanceID=:caseid or ni.engineInstanceID like :likeid")
                 .setString("caseid", caseID)
@@ -993,7 +995,7 @@ public class YLogServer {
 
 
     private YLogTaskInstance getTaskInstance(String itemID) throws YPersistenceException {
-        if ((itemID != null) && (_pmgr != null)) {
+        if ((itemID != null) && (connected())) {
             String caseID = itemID.split(":")[0];
             String taskName = getTaskNameForWorkItem(caseID, itemID);
             if (taskName != null) {
@@ -1014,7 +1016,7 @@ public class YLogServer {
     }
 
     private YLogTaskInstance getTaskInstance(long key) throws YPersistenceException {
-        if (_pmgr != null) {
+        if (connected()) {
              return (YLogTaskInstance) _pmgr.selectScalar(
                     "YLogTaskInstance", "taskInstanceID", key);
         }
@@ -1022,28 +1024,28 @@ public class YLogServer {
     }
 
     private YLogTask getTask(long key) throws YPersistenceException {
-        if (_pmgr != null) {
+        if (connected()) {
             return (YLogTask) _pmgr.selectScalar("YLogTask", "taskID", key);
         }
         else return null;
     }
 
     private YLogService getService(long key) throws YPersistenceException {
-        if (_pmgr != null) {
+        if (connected()) {
             return (YLogService) _pmgr.selectScalar("YLogService", "serviceID", key);
         }
         else return null;
     }
 
     private YLogDataType getDataType(long key) throws YPersistenceException {
-        if (_pmgr != null) {
+        if (connected()) {
             return (YLogDataType) _pmgr.selectScalar("YLogDataType", "dataTypeID", key);
         }
         else return null;
     }
 
     private List getInstanceEventObjects(long key) throws YPersistenceException {
-        if (_pmgr != null) {
+        if (connected()) {
             return _pmgr.createQuery("from YLogEvent as e where e.instanceID=:key")
                        .setLong("key", key)
                        .list();
@@ -1052,7 +1054,7 @@ public class YLogServer {
     }
 
     private List getTaskInstanceObjects(long key) throws YPersistenceException {
-        if (_pmgr != null) {
+        if (connected()) {
             return _pmgr.createQuery(
                     "from YLogTaskInstance as ti where ti.parentNetInstanceID=:key")
                        .setLong("key", key)
@@ -1062,7 +1064,7 @@ public class YLogServer {
     }
 
     private List getNetInstanceObjects(long key) throws YPersistenceException {
-        if (_pmgr != null) {
+        if (connected()) {
             return _pmgr.createQuery("from YLogNetInstance as ni where ni.netID=:key")
                        .setLong("key", key)
                        .list();
@@ -1071,7 +1073,7 @@ public class YLogServer {
     }
 
     private List getDataItemInstanceObjects(long key) throws YPersistenceException {
-        if (_pmgr != null) {
+        if (connected()) {
             return _pmgr.createQuery("from YLogDataItemInstance as di where di.eventID=:key")
                        .setLong("key", key)
                        .list();

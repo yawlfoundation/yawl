@@ -108,7 +108,7 @@ public class YPersistenceManager {
 
     public void setEnabled(boolean enable) { enabled = enable; }
 
-    public boolean isEnabled() { return enabled; }
+    public boolean isEnabled() { return enabled && (factory != null); }
 
 
     public SessionFactory getFactory() {
@@ -125,11 +125,12 @@ public class YPersistenceManager {
     }
 
     public Session getSession() {
-        return factory.getCurrentSession();
+        return (factory != null) ? factory.getCurrentSession() : null;
     }
 
     public Transaction getTransaction() {
-        return getSession().getTransaction();
+        Session session = getSession();
+        return (session != null) ? session.getTransaction() : null;
     }
 
     public void closeSession() {
@@ -139,7 +140,8 @@ public class YPersistenceManager {
                 if ((session != null) && (session.isOpen())) {
                     session.close();
                 }
-            } catch (HibernateException e) {
+            }
+            catch (HibernateException e) {
                 logger.error("Failure to close Hibernate session", e);
             }
         }
@@ -152,16 +154,19 @@ public class YPersistenceManager {
 
 
     public String getStatistics() {
-        HibernateStatistics stats = new HibernateStatistics(factory);
-        return stats.toXML();
+        if (factory != null) {
+            HibernateStatistics stats = new HibernateStatistics(factory);
+            return stats.toXML();
+        }
+        return null;
     }
 
     public void setStatisticsEnabled(boolean enabled) {
-        factory.getStatistics().setStatisticsEnabled(enabled);
+        if (factory != null) factory.getStatistics().setStatisticsEnabled(enabled);
     }
 
     public boolean isStatisticsEnabled() {
-        return factory.getStatistics().isStatisticsEnabled();
+        return (factory != null) && factory.getStatistics().isStatisticsEnabled();
     }
     
 
@@ -184,6 +189,7 @@ public class YPersistenceManager {
         return true;
     }
 
+
     /**
      * Persists an object.
      *
@@ -197,7 +203,6 @@ public class YPersistenceManager {
             doPersistAction(obj, INSERT);
         }
     }
-
 
 
     /**
@@ -259,6 +264,7 @@ public class YPersistenceManager {
         return (transaction != null) && transaction.isActive();
     }
 
+    
     /**
      * Causes the supplied object to be persisted when the current transaction is committed.
      * This method simply calls {@link #storeObject(Object)} but is public in scope.
@@ -365,12 +371,15 @@ public class YPersistenceManager {
 
 
     public Query createQuery(String queryString) throws YPersistenceException {
-        try {
-            return getSession().createQuery(queryString);
+        if (isEnabled()) {
+            try {
+                return getSession().createQuery(queryString);
+            }
+            catch (HibernateException e) {
+                throw new YPersistenceException("Failure to create Hibernate query object", e);
+            }
         }
-        catch (HibernateException e) {
-            throw new YPersistenceException("Failure to create Hibernate query object", e);
-        }
+        return null;
     }
 
 
