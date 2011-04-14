@@ -51,6 +51,7 @@
                         <center>
                         <ui:panelLayout binding="#{nonHumanMgt.pnlContainer}"
                                         id="pnlContainer"
+                                        style="#{SessionBean.outerPanelTop}"
                                         styleClass="orgDataMgtContainerPanel">
 
                         <ui:tabSet binding="#{nonHumanMgt.tabSet}"

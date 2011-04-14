@@ -296,25 +296,24 @@ public class orgDataMgt extends AbstractPageBean {
 
     public enum AttribType { role, position, capability, orggroup }
 
-    private SessionBean _sb = getSessionBean();
-    private ResourceManager _rm = getApplicationBean().getResourceManager();
-    private ResourceDataSet orgDataSet = _rm.getOrgDataSet();
-    private MessagePanel msgPanel = _sb.getMessagePanel() ;
-    private pfOrgData innerForm = (pfOrgData) getBean("pfOrgData");
-    private Logger _log = Logger.getLogger(this.getClass());
+    private final SessionBean _sb = getSessionBean();
+    private final ResourceManager _rm = getApplicationBean().getResourceManager();
+    private final ResourceDataSet orgDataSet = _rm.getOrgDataSet();
+    private final MessagePanel msgPanel = _sb.getMessagePanel() ;
+    private final pfOrgData innerForm = (pfOrgData) getBean("pfOrgData");
+    private final Logger _log = Logger.getLogger(this.getClass());
 
 
     // Callback method that is called just before rendering takes place.
     public void prerender() {
         _sb.checkLogon();
         _sb.setActivePage(ApplicationBean.PageRef.orgDataMgt);
-        _sb.showMessagePanel();
+        showMessagePanel();
 
         String selTabName = tabSet.getSelected() ;
         Tab selTab = null;
 
         if (selTabName == null) {
-
        //     setRefreshRate(0) ;               // get default refresh rate from web.xml
             tabSet.setSelected("tabRoles");
             selTab = tabRoles;
@@ -545,7 +544,6 @@ public class orgDataMgt extends AbstractPageBean {
             btnReset.setToolTip("Discard unsaved changes");
             btnSave.setDisabled(false);
             btnRemove.setDisabled(false);
-            body1.setFocus("form1:pfQueueUI:txtAdd");
             populateForm(getAttribType(_sb.getActiveTab())) ;            
         }
         else {
@@ -663,5 +661,12 @@ public class orgDataMgt extends AbstractPageBean {
     private void showItem(String id, AttribType type) {
         innerForm.populateGUI(id, type);
     }
+
+
+    private void showMessagePanel() {
+        body1.setFocus(msgPanel.hasMessage() ? "form1:pfMsgPanel:btnOK001" :
+                "form1:pfOrgData:txtName");
+        _sb.showMessagePanel();
+    }    
 
 }

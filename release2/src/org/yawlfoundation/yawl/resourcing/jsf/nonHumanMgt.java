@@ -213,19 +213,19 @@ public class nonHumanMgt extends AbstractPageBean {
 
     public enum SelType { resource, category }                // which tab is selected?
 
-    private SessionBean _sb = getSessionBean();
-    private ResourceManager _rm = getApplicationBean().getResourceManager();
-    private ResourceDataSet _orgDataSet = _rm.getOrgDataSet();
-    private MessagePanel _msgPanel = _sb.getMessagePanel() ;
-    private pfNHResources _innerForm = (pfNHResources) getBean("pfNHResources");
-    private Logger _log = Logger.getLogger(this.getClass());
+    private final SessionBean _sb = getSessionBean();
+    private final ResourceManager _rm = getApplicationBean().getResourceManager();
+    private final ResourceDataSet _orgDataSet = _rm.getOrgDataSet();
+    private final MessagePanel _msgPanel = _sb.getMessagePanel() ;
+    private final pfNHResources _innerForm = (pfNHResources) getBean("pfNHResources");
+    private final Logger _log = Logger.getLogger(this.getClass());
 
 
     // Callback method that is called just before rendering takes place.
     public void prerender() {
         _sb.checkLogon();
         _sb.setActivePage(ApplicationBean.PageRef.nonHumanMgt);
-        _sb.showMessagePanel();
+        showMessagePanel();
 
         SelType sType = getSelTypeForTab();
         if (tabSet.getSelected() == null) {                           // first rendering
@@ -356,7 +356,7 @@ public class nonHumanMgt extends AbstractPageBean {
             populateForm(SelType.category);
             _innerForm.setSubCatAddMode(_sb.isSubCatAddMode());
         }
-        if (_sb.isSubCatAddMode()) {
+        if (_sb.isSubCatAddMode() && (! _msgPanel.hasMessage())) {
             body1.setFocus("form1:pfNHResources:txtSubCat");            
         }
         return null;
@@ -383,7 +383,7 @@ public class nonHumanMgt extends AbstractPageBean {
             btnReset.setToolTip("Discard unsaved changes");
             btnSave.setDisabled(false);
             btnRemove.setDisabled(false);
-            body1.setFocus("form1:pfNHResources:lbxItems");
+            if (! _msgPanel.hasMessage()) body1.setFocus("form1:pfNHResources:lbxItems");
         }
         else {
             _innerForm.setAddMode(true);
@@ -392,7 +392,7 @@ public class nonHumanMgt extends AbstractPageBean {
             btnReset.setToolTip("Discard data and revert to edit mode");
             btnSave.setDisabled(true);
             btnRemove.setDisabled(true);
-            body1.setFocus("form1:pfNHResources:txtName");
+            if (! _msgPanel.hasMessage()) body1.setFocus("form1:pfNHResources:txtName");
         }
         _sb.setNhrMgtMode(mode);
     }
@@ -527,6 +527,12 @@ public class nonHumanMgt extends AbstractPageBean {
 
     private SelType getSelTypeForActiveTab() {
         return getAttribType(_sb.getActiveTab());
+    }
+
+
+    private void showMessagePanel() {
+        if (_msgPanel.hasMessage()) body1.setFocus("form1:pfMsgPanel:btnOK001");
+        _sb.showMessagePanel();
     }
 
 }

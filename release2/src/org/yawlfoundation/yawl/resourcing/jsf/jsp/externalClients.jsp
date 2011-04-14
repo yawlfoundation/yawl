@@ -42,8 +42,7 @@
 
                 </ui:head>
                 <ui:body binding="#{externalClients.body1}" id="body1"
-                         style="-rave-layout: grid"
-                         focus="form1:txtName">
+                         style="-rave-layout: grid">
 
                     <ui:form binding="#{externalClients.form1}" id="form1">
 
@@ -56,6 +55,7 @@
                         <center>
                         <ui:panelLayout binding="#{externalClients.pnlContainer}"
                                         id="pnlContainer"
+                                        style="#{SessionBean.outerPanelTop}"
                                         styleClass="externalClientsContainerPanel">
 
                         <!-- Registered Services Panel -->
@@ -166,7 +166,8 @@
 
                             <ui:textField binding="#{externalClients.txtName}"
                                           id="txtName"
-                                          style="left: 100px; top: 40px; width: 200px; position: absolute"/>
+                                          style="left: 100px; top: 40px; width: 200px; position: absolute"
+                                          onKeyPress="return disableEnterKey(event);"/>
  
                             <!--=====================================================-->
 
@@ -188,11 +189,13 @@
                             
                             <ui:passwordField binding="#{externalClients.txtPassword}"
                                           id="txtPassword"
-                                          style="left: 100px; top: 70px; width: 170px; position: absolute"/>
+                                          style="left: 100px; top: 70px; width: 170px; position: absolute"
+                                          onKeyPress="return disableEnterKey(event);"/>
 
                             <ui:passwordField binding="#{externalClients.txtConfirmPassword}"
                                            id="txtConfirmPassword"
-                                           style="left: 430px; top: 70px; width: 170px; position: absolute"/>
+                                           style="left: 430px; top: 70px; width: 170px; position: absolute"
+                                           onKeyPress="return disableEnterKey(event);"/>
 
                             <ui:textArea binding="#{externalClients.txtDescription}"
                                          id="txtDescription"

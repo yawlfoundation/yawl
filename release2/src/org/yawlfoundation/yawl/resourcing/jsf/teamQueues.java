@@ -208,8 +208,8 @@ public class teamQueues extends AbstractPageBean {
 
     // SPECIFIC DELARATIONS AND METHODS //
 
-    private SessionBean _sb = getSessionBean();
-    private ResourceManager _rm = getApplicationBean().getResourceManager();
+    private final SessionBean _sb = getSessionBean();
+    private final ResourceManager _rm = getApplicationBean().getResourceManager();
 
     private enum qSet { team, orgGroup }
 

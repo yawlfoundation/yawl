@@ -35,8 +35,8 @@ import java.util.Map;
  */
 public class EventLogger {
 
-    private static boolean _logging ;
-    private static boolean _logOffers ;
+    private static boolean _loggingEnabled = false;
+    private static boolean _logOffers = false;
     private static Persister _persister = Persister.getInstance() ;
     private static Map<String, Object> _specMap;
 
@@ -52,16 +52,13 @@ public class EventLogger {
     public EventLogger() { }
 
 
-    public static void setLogging(boolean flag) {
-        _logging = flag;
-    }
+    public static void setLogging(boolean flag) { _loggingEnabled = flag; }
 
     public static void setOfferLogging(boolean flag) { _logOffers = flag ; }
 
 
-
     public static void log(WorkItemRecord wir, String pid, event eType) {
-        if (_logging) {
+        if (_loggingEnabled) {
             insertEvent(getSpecificationKey(wir), wir, pid, eType);
         }
     }
@@ -86,7 +83,7 @@ public class EventLogger {
 
 
     public static void log(YSpecificationID specID, String caseID, String id, event eType) {
-        if (_logging) {
+        if (_loggingEnabled) {
             insertEvent(getSpecificationKey(specID), caseID, id, eType);
         }
     }
@@ -110,7 +107,7 @@ public class EventLogger {
 
 
     public static void audit(String userid, audit eType) {
-        if (_logging) {
+        if (_loggingEnabled) {
             AuditEvent auditEvent = new AuditEvent(userid, eType) ;
             insertEvent(auditEvent);
         }

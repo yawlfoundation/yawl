@@ -32,6 +32,7 @@ import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.calendar.CalendarRow;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.OptionComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
@@ -2061,6 +2062,29 @@ public class SessionBean extends AbstractSessionBean {
         else selectedNonHumanResource = null;
     }
 
+
+    private int menuBarCount = 1;
+
+    public int getMenuBarCount() {
+        return menuBarCount;
+    }
+
+    public void setMenuBarCount(int count) {
+        menuBarCount = count;
+    }
+
+    public String getOuterPanelTop() {
+        return String.format("top: %dpx;", (menuBarCount * 30) + 20);
+    }
+
+
+    public List<CalendarRow> getCalendarRows() {
+        List<CalendarRow> rows = new ArrayList<CalendarRow>();
+        CalendarRow c = new CalendarRow();
+        c.setName("Fred Flintstone");
+        rows.add(c);
+        return rows;
+    }
 }
 
 

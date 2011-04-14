@@ -185,7 +185,7 @@ public class RandomOrgDataGenerator {
             _log.error(h + "Particpant table not empty" + f);
             return false;
         }
-        if (! _rm.getPersisting()) {
+        if (! _rm.isPersisting()) {
             _log.error(h + "Persistence must be enabled to populate tables" + f);
             return false ;
         }

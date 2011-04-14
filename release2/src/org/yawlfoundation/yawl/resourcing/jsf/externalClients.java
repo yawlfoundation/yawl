@@ -333,9 +333,9 @@ public class externalClients extends AbstractPageBean {
 
     /********************************************************************************/
 
-    private ApplicationBean _appbean = getApplicationBean();
-    private SessionBean _sb = getSessionBean();
-    private MessagePanel msgPanel = _sb.getMessagePanel();
+    private final ApplicationBean _appbean = getApplicationBean();
+    private final SessionBean _sb = getSessionBean();
+    private final MessagePanel msgPanel = _sb.getMessagePanel();
 
     private enum Mode {Add, Edit}
 
@@ -345,7 +345,7 @@ public class externalClients extends AbstractPageBean {
     public void prerender() {
         _sb.checkLogon();
         _sb.setActivePage(ApplicationBean.PageRef.externalClients);
-        _sb.showMessagePanel();
+        showMessagePanel();
 
         if (getMode() == Mode.Edit) {
             addPanelHeading = "Edit Client Application Account";
@@ -466,6 +466,9 @@ public class externalClients extends AbstractPageBean {
         return (errMsg == null);
     }
 
-
+    private void showMessagePanel() {
+        body1.setFocus(msgPanel.hasMessage() ? "form1:pfMsgPanel:btnOK001" : "form1:txtName");
+        _sb.showMessagePanel();
+    }    
 
 }

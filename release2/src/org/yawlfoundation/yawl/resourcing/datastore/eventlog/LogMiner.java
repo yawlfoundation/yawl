@@ -79,11 +79,11 @@ public class LogMiner {
         List rows ;
         if (_reader != null) {
             long specKey = getSpecificationKey(specID);
-            StringBuilder template = new StringBuilder("FROM ResourceEvent AS re ");
-            template.append("WHERE re._taskID='%s' ")
-                    .append("AND re._specKey=%d ")
-                    .append("AND re._resourceID='%s' ")
-                    .append("ORDER BY re._itemID, re._timeStamp");
+            StringBuilder template = new StringBuilder(_baseQuery);
+            template.append(" WHERE re._taskID='%s'")
+                    .append(" AND re._specKey=%d")
+                    .append(" AND re._resourceID='%s'")
+                    .append(" ORDER BY re._itemID, re._timeStamp");
 
             String query = String.format(template.toString(), taskName, specKey, participantID);
 

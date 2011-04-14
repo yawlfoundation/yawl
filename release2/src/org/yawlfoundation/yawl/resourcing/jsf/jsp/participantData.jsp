@@ -55,6 +55,7 @@
 
                         <ui:panelLayout binding="#{participantData.pnlContainer}"
                                         id="pnlContainer"
+                                        style="#{SessionBean.outerPanelTop}"
                                         styleClass="userMgtContainerPanel">
 
                         <!-- Select Participant Panel -->
@@ -177,14 +178,17 @@
 
                             <ui:textField binding="#{participantData.txtFirstName}"
                                           id="txtFirstName"
+                                          onKeyPress="return disableEnterKey(event);"
                                           style="left: 100px; top: 12px; width: 280px; position: absolute"/>
 
                             <ui:textField binding="#{participantData.txtLastName}"
                                           id="txtLastName"
+                                          onKeyPress="return disableEnterKey(event);"
                                           style="left: 100px; top: 48px; width: 280px; position: absolute"/>
 
                             <ui:textField binding="#{participantData.txtUserID}"
                                           id="txtUserID"
+                                          onKeyPress="return disableEnterKey(event);"
                                           style="left: 100px; top: 84px; width: 150px; position: absolute"/>
 
                             <ui:checkbox binding="#{participantData.cbxAdmin}"
@@ -285,10 +289,12 @@
 
                             <ui:passwordField binding="#{participantData.txtNewPassword}"
                                               id="txtNewPassword"
+                                              onKeyPress="return disableEnterKey(event);"
                                               style="left: 70px; top: 40px; width: 160px; position: absolute"/>
 
                             <ui:passwordField binding="#{participantData.txtConfirmPassword}"
                                               id="txtConfirmPassword"
+                                              onKeyPress="return disableEnterKey(event);"
                                               style="left: 70px; top: 76px; width: 160px; position: absolute"/>
 
                         </ui:panelLayout>

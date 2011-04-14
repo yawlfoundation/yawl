@@ -52,6 +52,7 @@
 
                     <ui:panelLayout binding="#{userWorkQueues.pnlContainer}"
                                     id="pnlUQContainer"
+                                    style="#{SessionBean.outerPanelTop}"
                                     styleClass="userQueuesContainerPanel">
                     
                         <ui:tabSet binding="#{userWorkQueues.tabSet}"

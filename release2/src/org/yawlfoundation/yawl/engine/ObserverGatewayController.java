@@ -27,6 +27,8 @@ import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
 
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Class which encapsulates the management and processing of InterfaceBClients.<P>
@@ -36,8 +38,9 @@ import java.util.Vector;
  */
 public class ObserverGatewayController
 {
-    private Vector<ObserverGateway> gateways = null;
-
+    private Vector<ObserverGateway> gateways;
+    private ExecutorService executor;
+    private static final int THREADPOOL_SIZE = Runtime.getRuntime().availableProcessors();
 
     /**
      * Constructor
@@ -45,6 +48,7 @@ public class ObserverGatewayController
     public ObserverGatewayController()
     {
         gateways = new Vector<ObserverGateway>();
+        executor = Executors.newFixedThreadPool(THREADPOOL_SIZE);
     }
 
     /**
@@ -74,7 +78,7 @@ public class ObserverGatewayController
      */
     void notifyAddWorkItems(final Announcements<NewWorkItemAnnouncement> announcements)
     {
-        new Thread(new Runnable()
+        executor.execute(new Runnable()
         {
             public void run()
             {
@@ -90,7 +94,7 @@ public class ObserverGatewayController
                     }
                 }
             }
-        }).start();
+        });
     }
 
     /**
@@ -100,7 +104,7 @@ public class ObserverGatewayController
      */
     void notifyRemoveWorkItems(final Announcements<CancelWorkItemAnnouncement> announcements)
     {
-        new Thread(new Runnable()
+        executor.execute(new Runnable()
         {
             public void run()
             {
@@ -116,13 +120,13 @@ public class ObserverGatewayController
                     }
                 }
             }
-        }).start();
+        });
     }
 
 
     void notifyTimerExpiry(final YAWLServiceReference yawlService, final YWorkItem item)
     {
-        new Thread(new Runnable()
+        executor.execute(new Runnable()
         {
             public void run()
             {
@@ -133,7 +137,7 @@ public class ObserverGatewayController
                     observerGateway.announceTimerExpiry(yawlService, item);
                 }                    
             }
-        }).start();
+        });
     }
 
     /**
@@ -167,7 +171,7 @@ public class ObserverGatewayController
      */
     public void notifyCaseCompletion(final YAWLServiceReference yawlService, final YIdentifier caseID, final Document casedata)
     {
-        new Thread(new Runnable()
+        executor.execute(new Runnable()
         {
             public void run()
             {
@@ -178,7 +182,7 @@ public class ObserverGatewayController
                     observerGateway.announceCaseCompletion(yawlService, caseID, casedata);
                 }
             }
-        }).start();
+        });
     }
 
 
@@ -189,7 +193,7 @@ public class ObserverGatewayController
      */
     public void notifyCaseCompletion(final YIdentifier caseID, final Document casedata)
     {
-        new Thread(new Runnable()
+        executor.execute(new Runnable()
         {
             public void run()
             {
@@ -198,7 +202,7 @@ public class ObserverGatewayController
                     observerGateway.announceCaseCompletion(caseID, casedata);
                 }
             }
-        }).start();
+        });
     }
 
     /**
@@ -209,7 +213,7 @@ public class ObserverGatewayController
      */
     public void notifyWorkItemStatusChange(final YWorkItem workItem, final YWorkItemStatus oldStatus, final YWorkItemStatus newStatus)
     {
-        new Thread(new Runnable()
+        executor.execute(new Runnable()
         {
             public void run()
             {
@@ -218,7 +222,7 @@ public class ObserverGatewayController
                     observerGateway.announceWorkItemStatusChange(workItem, oldStatus, newStatus);
                 }
             }
-        }).start();
+        });
     }
 
     /**
@@ -227,7 +231,7 @@ public class ObserverGatewayController
      */
     public void notifyCaseSuspending(final YIdentifier caseID)
     {
-        new Thread(new Runnable()
+        executor.execute(new Runnable()
         {
             public void run()
             {
@@ -236,7 +240,7 @@ public class ObserverGatewayController
                     observerGateway.announceCaseSuspending(caseID);
                 }
             }
-        }).start();
+        });
     }
 
     /**
@@ -245,7 +249,7 @@ public class ObserverGatewayController
      */
     public void notifyCaseSuspended(final YIdentifier caseID)
     {
-        new Thread(new Runnable()
+        executor.execute(new Runnable()
         {
             public void run()
             {
@@ -254,7 +258,7 @@ public class ObserverGatewayController
                     observerGateway.announceCaseSuspended(caseID);
                 }
             }
-        }).start();
+        });
     }
 
     /**
@@ -263,7 +267,7 @@ public class ObserverGatewayController
      */
     public void notifyCaseResumption(final YIdentifier caseID)
     {
-        new Thread(new Runnable()
+        executor.execute(new Runnable()
         {
             public void run()
             {
@@ -272,7 +276,7 @@ public class ObserverGatewayController
                     observerGateway.announceCaseResumption(caseID);
                 }
             }
-        }).start();
+        });
     }
 
 
@@ -282,7 +286,7 @@ public class ObserverGatewayController
      */
     public void notifyEngineInitialised(final Set<YAWLServiceReference> services)
     {
-        new Thread(new Runnable()
+        executor.execute(new Runnable()
         {
             public void run()
             {
@@ -291,7 +295,7 @@ public class ObserverGatewayController
                     observerGateway.announceEngineInitialised(services);
                 }
             }
-        }).start();
+        });
     }
 
 
@@ -303,7 +307,7 @@ public class ObserverGatewayController
     public void notifyCaseCancellation(final Set<YAWLServiceReference> services,
                                        final YIdentifier id)
     {
-        new Thread(new Runnable()
+        executor.execute(new Runnable()
         {
             public void run()
             {
@@ -312,7 +316,7 @@ public class ObserverGatewayController
                     observerGateway.announceCaseCancellation(services, id);
                 }
             }
-        }).start();
+        });
     }
 
     /**
@@ -323,6 +327,7 @@ public class ObserverGatewayController
       	for (ObserverGateway observerGateway : gateways) {
             observerGateway.shutdown();
         }
+        executor.shutdownNow();
     }
 
 }

@@ -21,8 +21,8 @@ package org.yawlfoundation.yawl.resourcing.rsInterface;
 import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
-import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
@@ -74,11 +74,22 @@ public class ResourceGateway extends HttpServlet {
 
                 // set the path to external plugin classes (if any)
                 String pluginDir = context.getInitParameter("ExternalPluginsDir");
-                if (pluginDir != null) Docket.setExternalPluginsDir(pluginDir);
+                if (! (pluginDir == null || pluginDir.length() == 0))
+                    Docket.setExternalPluginsDir(pluginDir);
 
                 // enable/or disable persistence
                 String persist = context.getInitParameter("EnablePersistence");
                 _rm.setPersisting(persist.equalsIgnoreCase("TRUE"));
+                if (_rm.isPersisting()) {
+
+                    // enable/disable process logging
+                    String enableLogging = context.getInitParameter("EnableLogging");
+                    EventLogger.setLogging(enableLogging.equalsIgnoreCase("TRUE"));
+
+                    // enable/disable logging of all offers
+                    String logOffers = context.getInitParameter("LogOffers");
+                    EventLogger.setOfferLogging(logOffers.equalsIgnoreCase("TRUE"));
+                }
 
                 // set the org data source and refresh rate
                 String orgDataSource = context.getInitParameter("OrgDataSource");
@@ -103,10 +114,6 @@ public class ResourceGateway extends HttpServlet {
                     _rm.setExternalUserAuthentication(externalAuth.equalsIgnoreCase("TRUE"));
                 }
 
-                // enable/disable logging of all offers
-                String logOffers = context.getInitParameter("LogOffers");
-                EventLogger.setOfferLogging(logOffers.equalsIgnoreCase("TRUE"));
-
                 // enable/disable the dropping of task piling on logout
                 String dropPiling = context.getInitParameter("DropTaskPilingOnLogoff");
                 _rm.setPersistPiling(dropPiling.equalsIgnoreCase("FALSE")) ;
@@ -119,7 +126,7 @@ public class ResourceGateway extends HttpServlet {
                     if (visualiserSize != null) {
                         _rm.setVisualiserDimension(visualiserSize);
                     }
-                }               
+                }
 
                 // read the current version properties
                 _rm.initBuildProperties(context.getResourceAsStream(
@@ -1037,6 +1044,15 @@ public class ResourceGateway extends HttpServlet {
 
     private String jsonPair(String key, String value) {
         return String.format("\"%s\":\"%s\"", key, value);
+    }
+
+
+    private long debug(long start, String... msgs) {
+        long now = System.currentTimeMillis();
+        for (String msg : msgs) {
+            System.out.println(msg + "; Elapsed (msecs): " + (now - start));
+        }
+        return now;
     }
 
 }

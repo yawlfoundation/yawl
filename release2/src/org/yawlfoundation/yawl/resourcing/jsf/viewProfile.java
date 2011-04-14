@@ -472,16 +472,16 @@ public class viewProfile extends AbstractPageBean {
 
     /**************************************************************************/
 
-    private SessionBean _sb = getSessionBean();
-    private MessagePanel msgPanel = _sb.getMessagePanel() ;
-    private Participant participant = _sb.getParticipant();
-    private ResourceManager rm = getApplicationBean().getResourceManager();
+    private final SessionBean _sb = getSessionBean();
+    private final MessagePanel msgPanel = _sb.getMessagePanel() ;
+    private final Participant participant = _sb.getParticipant();
+    private final ResourceManager rm = getApplicationBean().getResourceManager();
 
 
     public void prerender() {
         _sb.checkLogon();
         _sb.setActivePage(ApplicationBean.PageRef.viewProfile);
-        _sb.showMessagePanel();
+        showMessagePanel();
         populateFields(participant);
     }
 
@@ -625,9 +625,11 @@ public class viewProfile extends AbstractPageBean {
         return result ;
     }
 
+
     private boolean hasText(PasswordField field) {
         return ((String) field.getPassword()).length() > 0 ;
     }
+
 
     private void showResult(String result) {
         if (result.startsWith("Cannot"))
@@ -638,4 +640,11 @@ public class viewProfile extends AbstractPageBean {
             msgPanel.info(result);            
     }
 
+
+    private void showMessagePanel() {
+        body1.setFocus(msgPanel.hasMessage() ? "form1:pfMsgPanel:btnOK001" :
+                "form1:txtNewPassword");
+        _sb.showMessagePanel();
+    }
+    
 }

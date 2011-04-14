@@ -342,9 +342,9 @@ public class userWorkQueues extends AbstractPageBean {
 
     // SPECIFIC DELARATIONS AND METHODS //
 
-    private SessionBean _sb = getSessionBean();
-    private ResourceManager _rm = getApplicationBean().getResourceManager();
-    private MessagePanel msgPanel = _sb.getMessagePanel() ;
+    private final SessionBean _sb = getSessionBean();
+    private final ResourceManager _rm = getApplicationBean().getResourceManager();
+    private final MessagePanel msgPanel = _sb.getMessagePanel() ;
 
 
     /**
@@ -356,7 +356,7 @@ public class userWorkQueues extends AbstractPageBean {
         }
         _sb.checkLogon();                                  // check session still live
         _sb.setActivePage(ApplicationBean.PageRef.userWorkQueues);
-        _sb.showMessagePanel();                                   // show msgs (if any)
+        showMessagePanel();                                   // show msgs (if any)
 
         // check flags & take post-roundtrip action if any are set
         if (_sb.isDelegating()) postDelegate();
@@ -1067,6 +1067,14 @@ public class userWorkQueues extends AbstractPageBean {
             case WorkQueue.SUSPENDED : btnUnsuspend.setDisabled(isEmptyQueue);
         }
     }
+
+
+    private void showMessagePanel() {
+        body1.setFocus(msgPanel.hasMessage() ? "form1:pfMsgPanel:btnOK001" :
+                "form1:pfQueueUI:lbxItems");
+        _sb.showMessagePanel();
+    }
+    
 
 
     /********************************************************************************/

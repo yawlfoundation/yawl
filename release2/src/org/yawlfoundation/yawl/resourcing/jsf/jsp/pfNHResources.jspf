@@ -33,6 +33,7 @@
                     id="lbxItems"
                     items="#{SessionBean.nhResourcesOptions}"
                     selected="#{SessionBean.nhResourcesChoice}"
+                    onKeyPress="return disableEnterKey(event);"
                     onChange="common_timeoutSubmitForm(this.form, 'lbxItems');"
                     styleClass="orgDataListbox"
                     valueChangeListener="#{pfNHResources.lbxItems_processValueChange}"/>
@@ -47,6 +48,7 @@
                       id="txtName"
                       styleClass="orgDataTextField"
                       style="left: 12px; top: 270px; width: 184px"
+                      onKeyPress="return disableEnterKey(event);"
                       trim="false"/>
 
         <ui:label binding="#{pfNHResources.lblMembers}"

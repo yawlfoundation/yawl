@@ -123,6 +123,11 @@
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>
     <managed-bean>
+        <managed-bean-name>calendarMgt</managed-bean-name>
+        <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.calendarMgt</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+    <managed-bean>
         <managed-bean-name>visualiser</managed-bean-name>
         <managed-bean-class>org.yawlfoundation.yawl.resourcing.jsf.visualiser</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>

@@ -351,9 +351,9 @@ public class customServices extends AbstractPageBean {
 
     /********************************************************************************/
 
-    private ApplicationBean _appbean = getApplicationBean();
-    private SessionBean _sb = getSessionBean();
-    private MessagePanel msgPanel = getSessionBean().getMessagePanel();
+    private final ApplicationBean _appbean = getApplicationBean();
+    private final SessionBean _sb = getSessionBean();
+    private final MessagePanel msgPanel = getSessionBean().getMessagePanel();
 
     /**
      * Overridden method that is called immediately before the page is rendered
@@ -361,7 +361,7 @@ public class customServices extends AbstractPageBean {
     public void prerender() {
         _sb.checkLogon();
         _sb.setActivePage(ApplicationBean.PageRef.customServices);
-        _sb.showMessagePanel();
+        showMessagePanel();
     }
 
 
@@ -429,8 +429,14 @@ public class customServices extends AbstractPageBean {
         txtPassword.setText("");
         txtConfirmPassword.setText("");
         txtURL.setText("");
-        txtDescription.setText("");
+        txtDescription.setText("");   
     }
-    
+
+
+    private void showMessagePanel() {
+        body1.setFocus(msgPanel.hasMessage() ? "form1:pfMsgPanel:btnOK001" : "form1:txtName");
+        _sb.showMessagePanel();
+    }
+
 }
 

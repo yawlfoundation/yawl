@@ -57,6 +57,7 @@
                         <center>
                             <ui:panelLayout binding="#{viewProfile.pnlContainer}"
                                             id="pnlContainer"
+                                            style="#{SessionBean.outerPanelTop}"
                                             styleClass="vpcontainerPanel">
 
                                  <!-- View Profile Panel -->
@@ -143,6 +144,7 @@
                                      <ui:listbox binding="#{viewProfile.lbxPiled}"
                                                  id="lbxPiled"
                                                  items="#{SessionBean.piledTasks}"
+                                                 onKeyPress="return disableEnterKey(event);"
                                                  style="height: 99px; left: 12px; top: 35px; position: absolute; width: 245px"/>
 
                                      <ui:button action="#{viewProfile.btnUnpile_action}"
@@ -178,6 +180,7 @@
 
     <ui:passwordField binding="#{viewProfile.txtNewPassword}"
                       id="txtNewPassword"
+                      onKeyPress="return disableEnterKey(event);"
                       style="left: 102px; top: 40px; width: 145px; position: absolute"/>
 
     <ui:label binding="#{viewProfile.lblConfirmPassword}"
@@ -188,6 +191,7 @@
 
     <ui:passwordField binding="#{viewProfile.txtConfirmPassword}"
                       id="txtConfirmPassword"
+                      onKeyPress="return disableEnterKey(event);"
                       style="left: 102px; top: 76px; width: 145px; position: absolute"/>
 
     <ui:button action="#{viewProfile.btnSavePassword_action}"
@@ -220,6 +224,7 @@
                                          binding="#{viewProfile.lbxChained}"
                                          id="lbxChained"
                                          items="#{SessionBean.chainedCases}"
+                                         onKeyPress="return disableEnterKey(event);"
                                          style="height: 100px; left: 12px; top: 35px; position: absolute; width: 245px"/>
 
                                  <ui:button

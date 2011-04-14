@@ -30,7 +30,10 @@ import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YTimerVariable;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
-import org.yawlfoundation.yawl.exceptions.*;
+import org.yawlfoundation.yawl.exceptions.YDataStateException;
+import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.yawlfoundation.yawl.exceptions.YQueryException;
+import org.yawlfoundation.yawl.exceptions.YStateException;
 import org.yawlfoundation.yawl.logging.YEventLogger;
 import org.yawlfoundation.yawl.logging.YLogDataItem;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
@@ -54,7 +57,6 @@ public class YNetRunner {
     public static enum ExecutionStatus { Normal, Suspending, Suspended, Resuming }
 
     private static final Logger _logger = Logger.getLogger(YNetRunner.class);
-    private static final Object _mutex = YEngine.getPersistenceManager();
 
     protected YNet _net;
     private YWorkItemRepository _workItemRepository;
@@ -77,7 +79,7 @@ public class YNetRunner {
     private Map<String, String> _timerStates;
     private ExecutionStatus _executionStatus;
 
-    // these members are used to persist observers
+    // used to persist observers
     private String _caseObserverStr = null ;
 
     // stored announcements for items fired or cancelled by this runner
@@ -552,9 +554,8 @@ public class YNetRunner {
         }
 
         // fire the set of enabled 'transitions' (if any)
-        synchronized(_mutex) {
-            if (! enabledTransitions.isEmpty()) fireTasks(enabledTransitions, pmgr);
-        }
+        if (! enabledTransitions.isEmpty()) fireTasks(enabledTransitions, pmgr);
+
         _busyTasks = _net.getBusyTasks();
         _logger.debug("<-- continueIfPossible");
 
@@ -641,11 +642,11 @@ public class YNetRunner {
     }
 
 
-    private void processEmptyTask(YAtomicTask task, YPersistenceManager pmgr)
+    protected void processEmptyTask(YAtomicTask task,YPersistenceManager pmgr)
             throws YDataStateException, YStateException, YQueryException,
                    YPersistenceException {
 
-        // fire, start and complete the empty atomic task in situ
+        // fire, start and complete the decomposition-less atomic task in situ
         YIdentifier id = task.t_fire(pmgr).get(0);
         task.t_start(pmgr, id);
         completeTask(pmgr, null, task, id, null);
@@ -770,11 +771,13 @@ public class YNetRunner {
      * @return whether or not the task exited
      * @throws YDataStateException
      */
-    private boolean completeTask(YPersistenceManager pmgr, YWorkItem workItem,
+    private synchronized boolean completeTask(YPersistenceManager pmgr, YWorkItem workItem,
                                  YAtomicTask atomicTask, YIdentifier identifier,
                                  Document outputData)
             throws YDataStateException, YStateException, YQueryException,
                    YPersistenceException {
+
+        _logger.debug("--> completeTask: " + atomicTask.getID());
 
         boolean taskExited = atomicTask.t_complete(pmgr, identifier, outputData);
 
@@ -830,7 +833,9 @@ public class YNetRunner {
                 kick(pmgr);
             }    
         }
-        _logger.debug("<-- completeTask: Exited=" + taskExited);
+        _logger.debug("<-- completeTask: " + atomicTask.getID()
+                + ", Exited=" + taskExited);
+
         return taskExited;
     }
 
@@ -987,6 +992,12 @@ public class YNetRunner {
             _logger.warn(msg.toString());
         }
         return (! haveTokens.isEmpty());
+    }
+
+
+    public String toString() {
+        return String.format("CaseID: %s; Enabled: %s; Busy: %s", _caseIDForNet.toString(),
+                _enabledTaskNames.toString(), _busyTaskNames.toString());
     }
 
 

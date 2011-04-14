@@ -519,7 +519,7 @@
             <fileset dir="${test.dir}" excludes="**/*.java"/>
         </copy>
         <copy todir="${output.dir}/engine/src">
-            <fileset dir="${src.dir}"/>
+            <fileset dir="${src.dir}" includes="org/yawlfoundation/**"/>
         </copy>
         <copy todir="${output.dir}/engine/build">
             <fileset dir="${build.dir}"/>

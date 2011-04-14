@@ -138,12 +138,24 @@
     </context-param>
 
     <context-param>
+        <param-name>EnableLogging</param-name>
+        <param-value>true</param-value>
+        <description>
+            When true (the default), all resource events will be logged. Set to false
+            if process logging is not required. This parameter is ignored if
+            persistence is disabled (via the 'EnablePersistence' parameter above).
+        </description>
+    </context-param>
+
+    <context-param>
         <param-name>LogOffers</param-name>
         <param-value>true</param-value>
         <description>
             When true (the default), all offers will be logged. May be set to false
             if there are a large number of participants and offer logging is not
-            required.            
+            required. Both persistence and logging must be enabled (via the
+            'EnablePersistence' and 'EnableLogging' parameters above) for this parameter
+            to have any effect.
         </description>
     </context-param>
 

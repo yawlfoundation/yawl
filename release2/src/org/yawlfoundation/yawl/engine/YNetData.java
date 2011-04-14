@@ -55,4 +55,8 @@ public class YNetData {
         return (getId() != null) ? getId().hashCode() : super.hashCode();
     }
 
+    public String toString() {
+        return String.format("ID: %s; DATA: %s", _id, _data);
+    }
+
 }

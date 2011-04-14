@@ -26,7 +26,8 @@ import javax.faces.application.Application;
 import javax.faces.context.FacesContext;
 import javax.faces.el.MethodBinding;
 import javax.faces.event.ActionEvent;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -273,10 +274,11 @@ public class MessagePanel extends PanelLayout {
     }
 
 
-    private com.sun.rave.web.ui.component.Button constructOKButton() {
+    private Button constructOKButton() {
         Button btnOK = new Button();
         btnOK.setId("btnOK001");
         btnOK.setText("OK");
+        btnOK.setPrimary(true);
         btnOK.setActionListener(bindButtonListener());
         return btnOK;
     }

@@ -672,7 +672,8 @@ public class YEventLogger {
             parentTaskInstanceID = getTaskInstanceID(pmgr, parent);
             runner = parent.getNetRunner();
         }
-        long parentNetInstanceID = getNetInstanceID(pmgr, runner.getCaseID());
+        long parentNetInstanceID = (runner != null) ?
+                getNetInstanceID(pmgr, runner.getCaseID()) : -1L;
 
         return insertTaskInstance(pmgr, engineInstanceID, taskID, parentTaskInstanceID,
                                   parentNetInstanceID);
