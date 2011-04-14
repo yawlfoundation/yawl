@@ -45,4 +45,22 @@ public class CancelWorkItemAnnouncement implements Announcement
     {
         return item;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CancelWorkItemAnnouncement)) return false;
+
+        CancelWorkItemAnnouncement other = (CancelWorkItemAnnouncement) o;
+        return (item != null ? item.equals(other.item) : other.item == null) &&
+               (yawlService != null ? yawlService.equals(other.yawlService) :                        
+                      other.yawlService == null);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = yawlService != null ? yawlService.hashCode() : 0;
+        result = 31 * result + (item != null ? item.hashCode() : 0);
+        return result;
+    }
 }
