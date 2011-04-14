@@ -54,6 +54,7 @@
 
                         <ui:panelLayout binding="#{caseMgt.pnlContainer}"
                                         id="pnlContainer"
+                                        style="#{SessionBean.outerPanelTop}"
                                         styleClass="caseMgtContainerPanel">
 
                         <!-- Upload Panel -->
@@ -222,6 +223,7 @@
                                         id="lbxRunningCases"
                                         items="#{SessionBean.runningCaseListOptions}"
                                         selected="#{SessionBean.runningCaseListChoice}"
+                                        onKeyPress="return disableEnterKey(event);"
                                         styleClass="caseMgtListbox"/>
 
                             <ui:staticText binding="#{caseMgt.staticText3}"

@@ -231,7 +231,8 @@ public class YPersistenceManager {
          if (! isEnabled()) return;
 
          if (logger.isDebugEnabled()) {
-             logger.debug("Adding to delete cache: Type=" + obj.getClass().getName());
+             logger.debug("--> delete: Object=" + obj.getClass().getName() +
+                          ": " + obj.toString());
          }
          try {
              getSession().delete(obj);
@@ -246,6 +247,7 @@ public class YPersistenceManager {
          catch (HibernateException he) {
              // nothing to do
          }
+        logger.debug("<-- delete");
      }
 
 
@@ -254,6 +256,8 @@ public class YPersistenceManager {
             getSession().saveOrUpdate(obj);
         }
         catch (Exception e) {
+            logger.error("Persistence update failed, trying merge. Object: "
+                    + obj.toString());
             getSession().merge(obj);
        }
     }
@@ -301,8 +305,9 @@ public class YPersistenceManager {
     private synchronized void doPersistAction(Object obj, boolean update)
             throws YPersistenceException {
         if (logger.isDebugEnabled()) {
-            logger.debug("--> doPersistAction: Object=" + obj.getClass().getName() +
-                        (update ? " Mode=Update" : " Mode=Create"));
+            logger.debug("--> doPersistAction: Mode=" +
+                    (update ? "Update " : "Create ")  + "; Object = " +
+                    obj.getClass().getName() + ": " + obj.toString());
         }
         try {
             if (update) {
@@ -337,7 +342,7 @@ public class YPersistenceManager {
 
 
      public void commit() throws YPersistenceException {
-        logger.debug("--> commit");
+        logger.debug("--> start commit");
         try {
             if (isEnabled() && isActiveTransaction()) getTransaction().commit();
         }
@@ -346,7 +351,7 @@ public class YPersistenceManager {
             rollbackTransaction();
             throw new YPersistenceException("Failure to commit transactional session", e1);
         }
-        logger.debug("<-- commit");
+        logger.debug("<-- end commit");
     }
 
 

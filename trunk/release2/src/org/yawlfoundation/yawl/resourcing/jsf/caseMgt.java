@@ -381,9 +381,9 @@ public class caseMgt extends AbstractPageBean {
 
     /*******************************************************************************/
 
-    private ResourceManager _rm = getApplicationBean().getResourceManager() ;
-    private SessionBean _sb = getSessionBean();
-    private MessagePanel msgPanel = _sb.getMessagePanel();
+    private final ResourceManager _rm = getApplicationBean().getResourceManager() ;
+    private final SessionBean _sb = getSessionBean();
+    private final MessagePanel msgPanel = _sb.getMessagePanel();
 
     public void fileUpload1_processValueChange(ValueChangeEvent event) { }
 
@@ -400,7 +400,7 @@ public class caseMgt extends AbstractPageBean {
     public void prerender() {
         _sb.checkLogon();
         _sb.setActivePage(ApplicationBean.PageRef.caseMgt);
-        _sb.showMessagePanel();
+        showMessagePanel();
 
         // take postback action on case launch
         if (_sb.isCaseLaunch()) {
@@ -908,6 +908,13 @@ public class caseMgt extends AbstractPageBean {
                 }
             }
         }
+    }
+
+
+    private void showMessagePanel() {
+        body1.setFocus(msgPanel.hasMessage() ? "form1:pfMsgPanel:btnOK001" :
+                "form1:lbxRunningCases");        
+        _sb.showMessagePanel();
     }
 }
 

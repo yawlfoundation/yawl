@@ -73,6 +73,8 @@ public class YCaseNbrStore {
 
     public void setPersisting(boolean persist) { persisting = persist; }
 
+    public String toString() { return caseNbr.toString(); }
+
 
     /** @return the next available case number (as a String) */
     public String getNextCaseNbr(YPersistenceManager pmgr) {

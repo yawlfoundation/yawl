@@ -429,4 +429,12 @@ public class YAnnouncer {
     	  _controller.shutdownObserverGateways();
     }
 
+
+    protected void shutdownInterfaceXListeners() {
+        for (InterfaceX_EngineSideClient listener : _interfaceXListeners) {
+            listener.shutdown();
+        }
+     }
+
+
 }

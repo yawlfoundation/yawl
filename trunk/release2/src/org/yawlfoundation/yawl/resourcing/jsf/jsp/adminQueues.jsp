@@ -52,6 +52,7 @@
                         <center>
                         <ui:panelLayout binding="#{adminQueues.pnlContainer}"
                                         id="pnlAQContainer"
+                                        style="#{SessionBean.outerPanelTop}"
                                         styleClass="adminQueuesContainerPanel">
 
                         <ui:tabSet binding="#{adminQueues.tabSet}"

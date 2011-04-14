@@ -29,6 +29,7 @@
                     items="#{SessionBean.worklistOptions}"
                     selected="#{SessionBean.worklistChoice}"
                     onChange="common_timeoutSubmitForm(this.form, 'lbxItems');"
+                    onKeyPress="return disableEnterKey(event);"
                     styleClass="queuesListbox"
                     valueChangeListener="#{pfQueueUI.lbxItems_processValueChange}"/>
 
@@ -45,6 +46,7 @@
                       styleClass="queuesTextField"
                       style="left: 320px; top: 76px; align: left"
                       text="#{SessionBean.initSpecID}"
+                      onKeyPress="return disableEnterKey(event);"
                       trim="false"/>
 
         <ui:label binding="#{pfQueueUI.lblCaseID}"
@@ -67,6 +69,7 @@
                       styleClass="queuesTextField"
                       style="left: 320px; top: 208px"
                       text="#{SessionBean.initCreatedDate}"
+                      onKeyPress="return disableEnterKey(event);"
                       trim="false"/>
 
         <ui:textField binding="#{pfQueueUI.txtCaseID}"
@@ -75,6 +78,7 @@
                       styleClass="queuesTextField"
                       style="left: 320px; top: 142px"
                       text="#{SessionBean.initCaseID}"
+                      onKeyPress="return disableEnterKey(event);"
                       trim="false"/>
 
         <ui:textField binding="#{pfQueueUI.txtAge}"
@@ -83,6 +87,7 @@
                       styleClass="queuesTextField"
                       style="left: 482px; top: 208px"
                       text="#{SessionBean.initAge}"
+                      onKeyPress="return disableEnterKey(event);"
                       trim="false"/>
 
         <ui:textField binding="#{pfQueueUI.txtStatus}"
@@ -91,6 +96,7 @@
                       styleClass="queuesTextField"
                       style="left: 482px; top: 142px"
                       text="#{SessionBean.initStatus}"
+                      onKeyPress="return disableEnterKey(event);"
                       trim="false"/>
 
         <ui:textField binding="#{pfQueueUI.txtTaskID}"
@@ -99,6 +105,7 @@
                       styleClass="queuesTextField"
                       style="left: 482px; top: 76px"
                       text="#{SessionBean.initTaskID}"
+                      onKeyPress="return disableEnterKey(event);"
                       trim="false"/>
 
         <ui:label binding="#{pfQueueUI.lblTaskID}"

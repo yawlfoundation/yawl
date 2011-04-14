@@ -74,6 +74,14 @@ public interface ExceptionGateway
      */
     void announceCaseCancellation(String caseID);
 
+    
+    /**
+     * Called when the Engine is shutdown (servlet destroyed); the listener should
+     * to do its own finalisation processing
+     */
+    public void shutdown();
+
+
 
     /************** FOR FUTURE IMPLEMENTATION *************/
     void announceWorkitemAbort(YWorkItem item);

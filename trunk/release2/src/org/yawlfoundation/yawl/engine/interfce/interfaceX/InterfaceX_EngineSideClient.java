@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  *  InterfaceX_EngineSideClient passes exception event calls from the engine to the
@@ -59,6 +61,8 @@ import java.util.Map;
 public class InterfaceX_EngineSideClient extends Interface_Client implements ExceptionGateway {
 
     protected static Logger logger = Logger.getLogger(InterfaceX_EngineSideClient.class);
+    private static final int THREADPOOL_SIZE = Runtime.getRuntime().availableProcessors();
+    private static final ExecutorService executor = Executors.newFixedThreadPool(THREADPOOL_SIZE);
 
     // event types
     protected static final int NOTIFY_CHECK_CASE_CONSTRAINTS = 0;
@@ -109,35 +113,44 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
     // ANNOUNCEMENT METHODS - SEE EXCEPTIONGATEWAY FOR COMMENTS //
 
     public void announceCheckWorkItemConstraints(YWorkItem item, Document data, boolean preCheck) {
-        new Handler(_observerURI, item, data, preCheck, NOTIFY_CHECK_ITEM_CONSTRAINTS).start();
+        executor.execute(new Handler(_observerURI, item, data, preCheck,
+                NOTIFY_CHECK_ITEM_CONSTRAINTS));
     }
 
 
     public void announceCheckCaseConstraints(YSpecificationID specID, String caseID,
                                              String data, boolean preCheck) {
-        new Handler(_observerURI, specID, caseID, data, preCheck,
-                                              NOTIFY_CHECK_CASE_CONSTRAINTS).start();
+        executor.execute(new Handler(_observerURI, specID, caseID, data, preCheck,
+                                              NOTIFY_CHECK_CASE_CONSTRAINTS));
     }
 
 
     public void announceWorkitemAbort(YWorkItem item) {
-        new Handler(_observerURI, item, NOTIFY_WORKITEM_ABORT).start();
+        executor.execute(new Handler(_observerURI, item, NOTIFY_WORKITEM_ABORT));
     }
 
 
     public void announceTimeOut(YWorkItem item, List taskList){
-       new Handler(_observerURI, item, taskList, NOTIFY_TIMEOUT).start();
+       executor.execute(new Handler(_observerURI, item, taskList, NOTIFY_TIMEOUT));
     }
 
 
     public void announceConstraintViolation(YWorkItem item){
-        new Handler(_observerURI, item, NOTIFY_CONSTRAINT_VIOLATION).start();
+        executor.execute(new Handler(_observerURI, item, NOTIFY_CONSTRAINT_VIOLATION));
     }
 
 
     public void announceCaseCancellation(String caseID){
-        new Handler(_observerURI, caseID, NOTIFY_CANCELLED_CASE).start();
+        executor.execute(new Handler(_observerURI, caseID, NOTIFY_CANCELLED_CASE));
+    }
 
+
+    /**
+     * Called when the Engine is shutdown (servlet destroyed); the listener should
+     * to do its own finalisation processing
+     */
+    public void shutdown() {
+        executor.shutdownNow();
     }
 
 
@@ -149,7 +162,7 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
      * to the service side.
      */
 
-    private class Handler extends Thread {
+    private class Handler implements Runnable {
         private YWorkItem _workItem;
         private String _observerURI;
         private String _caseID;

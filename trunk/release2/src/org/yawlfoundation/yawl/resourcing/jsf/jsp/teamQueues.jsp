@@ -51,6 +51,7 @@
                         <center>
                         <ui:panelLayout binding="#{customServices.pnlContainer}"
                                         id="pnlAQContainer"
+                                        style="#{SessionBean.outerPanelTop}"
                                         styleClass="teamQueuesContainerPanel">
 
                             <ui:panelLayout binding="#{teamQueues.lpQueues}"

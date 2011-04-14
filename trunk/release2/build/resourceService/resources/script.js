@@ -60,6 +60,19 @@ function confirmDelete() {
 
 /*************************************************************************************/
 
+// forms with an input field having focus revert to the default page when an enter
+// keypress. This function prevents that.
+function disableEnterKey(e){
+     var key;
+     if(window.event)
+          key = window.event.keyCode;
+     else
+          key = e.which;
+     return (key != 13);
+}
+
+/*************************************************************************************/ 
+
 function setSelectedItemID(itemID) {
     document.getElementById('form1:hdnSelectedItemID').value = itemID;
     document.getElementById('form1:btnView').click() ;

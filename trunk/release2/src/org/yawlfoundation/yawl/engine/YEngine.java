@@ -332,6 +332,7 @@ public class YEngine implements InterfaceADesign,
 
     public void shutdown() {
         _announcer.shutdownObserverGateways();
+        _announcer.shutdownInterfaceXListeners();
         _sessionCache.shutdown();
         YTimer.getInstance().shutdown();              // stop timer threads
         YTimer.getInstance().cancel();                // stop the timer
@@ -1453,8 +1454,7 @@ public class YEngine implements InterfaceADesign,
             throws YStateException, YDataStateException, YQueryException,
             YPersistenceException, YEngineStateException{
 
-        debug("--> completeWorkItem", "\nWorkItem = ",
-                workItem.getWorkItemID().getUniqueID(), "\nXML = ", data);
+        debug("--> completeWorkItem", "\nWorkItem = ", workItem.get_thisID(), "\nXML = ", data);
         checkEngineRunning();
         YNetRunner netRunner = null;
 
@@ -1495,13 +1495,10 @@ public class YEngine implements InterfaceADesign,
                         // remove any active timer for this item
                         YTimer.getInstance().cancelTimerTask(workItem.getParent().getIDString());
 
-                        /**
-                         * If case is suspending, see if we can progress into a fully suspended state
-                         */
+                        // If case is suspending, see if we can progress into a fully suspended state
                         if (netRunner.isSuspending()) {
                             progressCaseSuspension(_pmgr, workItem.getParent().getCaseID());
                         }
-
                     }
                     else if (workItem.getStatus().equals(YWorkItemStatus.statusDeadlocked)) {
                         _workItemRepository.removeWorkItemFamily(workItem);

@@ -40,6 +40,8 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -54,7 +56,9 @@ import java.util.*;
 
 public class InterfaceB_EngineBasedClient extends Interface_Client implements ObserverGateway {
 
-    protected static Logger logger = Logger.getLogger(InterfaceB_EngineBasedClient.class);
+    protected static final Logger logger = Logger.getLogger(InterfaceB_EngineBasedClient.class);
+    private static final int THREADPOOL_SIZE = Runtime.getRuntime().availableProcessors();
+    private static final ExecutorService executor = Executors.newFixedThreadPool(THREADPOOL_SIZE);
 
     protected static final String ADDWORKITEM_CMD =             "announceWorkItem";
     protected static final String CANCELALLWORKITEMS_CMD =      "cancelAllInstancesUnderWorkItem";
@@ -64,6 +68,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     protected static final String ANNOUNCE_INIT_ENGINE =        "announceEngineInitialised";
     protected static final String ANNOUNCE_CASE_CANCELLED =     "announceCaseCancelled";
     protected static final String ANNOUNCE_ITEM_STATUS =        "announceItemStatus";
+
 
     /**
      * Indicates which protocol this shim services.<P>
@@ -84,9 +89,8 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         for (NewWorkItemAnnouncement announcement :
                 announcements.getAnnouncementsForScheme(getScheme()).getAllAnnouncements())
         {
-            Handler myHandler = new Handler(announcement.getYawlService(),
-                                            announcement.getItem(), ADDWORKITEM_CMD);
-            myHandler.start();
+            executor.execute(new Handler(announcement.getYawlService(),
+                                            announcement.getItem(), ADDWORKITEM_CMD));
         }
     }
 
@@ -96,8 +100,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param workItem the work item to cancel.
      */
     public void cancelWorkItem(YAWLServiceReference yawlService, YWorkItem workItem) {
-        Handler myHandler = new Handler(yawlService, workItem, "cancelWorkItem");
-        myHandler.start();
+        executor.execute(new Handler(yawlService, workItem, "cancelWorkItem"));
     }
 
     /**
@@ -112,16 +115,9 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         {
             YAWLServiceReference yawlService = announcement.getYawlService();
             YWorkItem workItem = announcement.getItem();
-            if (workItem.getParent() == null) {
-                Handler myHandler = new Handler(yawlService, workItem,
-                                                "cancelAllInstancesUnderWorkItem");
-                myHandler.start();
-            }
-            else {
-                Handler myHandler = new Handler(yawlService, workItem.getParent(),
-                                                "cancelAllInstancesUnderWorkItem");
-                myHandler.start();
-            }
+            if (workItem.getParent() != null) workItem = workItem.getParent();
+            executor.execute(new Handler(yawlService, workItem,
+                    "cancelAllInstancesUnderWorkItem"));
         }
     }
 
@@ -132,10 +128,8 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param workItem the work item that has expired
      */
     public void announceTimerExpiry(YAWLServiceReference yawlService, YWorkItem workItem) {
-        Handler myHandler = new Handler(yawlService, workItem, ANNOUNCE_TIMER_EXPIRY_CMD);
-        myHandler.start();
+        executor.execute(new Handler(yawlService, workItem, ANNOUNCE_TIMER_EXPIRY_CMD));
     }
-
 
 
     /**
@@ -177,9 +171,8 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     {
        Set<YAWLServiceReference> services = YEngine.getInstance().getYAWLServices() ;
         for (YAWLServiceReference service : services) {
-            Handler myHandler = new Handler(service, workItem, oldStatus.toString(),
-                                            newStatus.toString(), ANNOUNCE_ITEM_STATUS);
-            myHandler.start();
+            executor.execute(new Handler(service, workItem, oldStatus.toString(),
+                                            newStatus.toString(), ANNOUNCE_ITEM_STATUS));
         }
     }
 
@@ -201,8 +194,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      */
     public void announceCaseCompletion(YAWLServiceReference yawlService, 
                                        YIdentifier caseID, Document casedata) {
-        Handler myHandler = new Handler(yawlService, caseID, casedata, "announceCompletion");
-        myHandler.start();
+        executor.execute(new Handler(yawlService, caseID, casedata, "announceCompletion"));
     }
 
     /**
@@ -211,8 +203,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      */
     public void announceEngineInitialised(Set<YAWLServiceReference> services) {
         for (YAWLServiceReference service : services) {
-            Handler myHandler = new Handler(service, ANNOUNCE_INIT_ENGINE);
-            myHandler.start();
+            executor.execute(new Handler(service, ANNOUNCE_INIT_ENGINE));
         }
     }
 
@@ -224,16 +215,17 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     public void announceCaseCancellation(Set<YAWLServiceReference> services,
                                                YIdentifier id) {
         for (YAWLServiceReference service : services) {
-            Handler myHandler = new Handler(service, id, ANNOUNCE_CASE_CANCELLED);
-            myHandler.start();
+            executor.execute(new Handler(service, id, ANNOUNCE_CASE_CANCELLED));
         }
     }
+
 
     /**
      * Called by the engine to announce shutdown of the engine's servlet container
      */
     public void shutdown() {
-    	// Nothing to do - Interface B Clients handle shutdown within their own servlet.
+        executor.shutdownNow();
+    	  // Nothing else to do - Interface B Clients handle shutdown within their own servlet.
     }
 
 
@@ -275,7 +267,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * parameter values as HTTP POST messages to external custom services
      */
 
-    private class Handler extends Thread {
+    private class Handler implements Runnable {
         private YWorkItem _workItem;
         private YAWLServiceReference _yawlService;
         private String _command; 

@@ -229,27 +229,6 @@ public class participantData extends AbstractPageBean {
     public void setCbxReorderItems(Checkbox c) { cbxReorderItems = c; }
 
 
-//    private Checkbox cbxViewAllOffered = new Checkbox();
-//
-//    public Checkbox getCbxViewAllOffered() { return cbxViewAllOffered; }
-//
-//    public void setCbxViewAllOffered(Checkbox c) { cbxViewAllOffered = c; }
-//
-//
-//    private Checkbox cbxViewAllAllocated = new Checkbox();
-//
-//    public Checkbox getCbxViewAllAllocated() { return cbxViewAllAllocated; }
-//
-//    public void setCbxViewAllAllocated(Checkbox c) { cbxViewAllAllocated = c; }
-//
-//
-//    private Checkbox cbxViewAllExecuting = new Checkbox();
-//
-//    public Checkbox getCbxViewAllExecuting() { return cbxViewAllExecuting; }
-//
-//    public void setCbxViewAllExecuting(Checkbox c) { cbxViewAllExecuting = c; }
-
-
     private Checkbox cbxViewTeamItems = new Checkbox();
 
     public Checkbox getCbxViewTeamItems() { return cbxViewTeamItems; }
@@ -453,15 +432,15 @@ public class participantData extends AbstractPageBean {
 
     private enum Mode {edit, add}
 
-    private SessionBean _sb = getSessionBean();
-    private MessagePanel msgPanel = _sb.getMessagePanel() ;
+    private final SessionBean _sb = getSessionBean();
+    private final MessagePanel msgPanel = _sb.getMessagePanel() ;
     
 
     // This method is called immediately before the page is rendered
     public void prerender() {
         _sb.checkLogon();                // check if session still active
         _sb.setActivePage(ApplicationBean.PageRef.participantData);
-        _sb.showMessagePanel();
+        showMessagePanel();
 
         // a null btnAdd tooltip indicates the first rendering of this page
         if (btnAdd.getToolTip() == null) {
@@ -890,6 +869,14 @@ public class participantData extends AbstractPageBean {
         }
         return result;
     }
+
+
+    private void showMessagePanel() {
+        if (msgPanel.hasMessage()) body1.setFocus("form1:pfMsgPanel:btnOK001");
+        _sb.showMessagePanel();
+    }
+
+
 
 }
 

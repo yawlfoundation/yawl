@@ -46,7 +46,6 @@ import org.yawlfoundation.yawl.resourcing.codelets.AbstractCodelet;
 import org.yawlfoundation.yawl.resourcing.codelets.CodeletFactory;
 import org.yawlfoundation.yawl.resourcing.constraints.AbstractConstraint;
 import org.yawlfoundation.yawl.resourcing.constraints.ConstraintFactory;
-import org.yawlfoundation.yawl.resourcing.datastore.HibernateEngine;
 import org.yawlfoundation.yawl.resourcing.datastore.PersistedAutoTask;
 import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
@@ -319,12 +318,8 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public synchronized void finaliseInitialisation() {
-        EventLogger.setLogging(
-            HibernateEngine.getInstance(false).isAvailable("ResourceEvent"));
-        _workItemCache.setPersist(_persisting) ;
-        if (_persisting) {
-            restoreWorkQueues() ;
-        }
+        _workItemCache.setPersist(_persisting);
+        if (_persisting) restoreWorkQueues();
         _calendar = ResourceCalendar.getInstance();
     }
 
@@ -2006,7 +2001,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         else _persister = null ;
     }
 
-    public boolean getPersisting() { return _persisting; }
+    public boolean isPersisting() { return _persisting; }
 
      /**
      * Starts a timer task to refresh the org data dataset at regular intervals
@@ -3189,7 +3184,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     private void handleAutoTask(WorkItemRecord wir, boolean timedOut) {
-
+        System.out.println(">>>>>>>> Autotask: " + wir.getID());
         // if this autotask has started a timer, don't process now - wait for timeout
         if ((! timedOut) && (wir.getTimerTrigger() != null)) return;
 
@@ -3207,6 +3202,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             }
             else _log.error("Could not check out automated workitem: " + wir.getID());
         }
+        System.out.println("<<<<<<<<<<< Autotask: " + wir.getID());
     }
 
 

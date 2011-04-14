@@ -127,12 +127,21 @@ public class HibernateEngine {
     }
 
 
-    /** @return true if a table of 'tableName' currently exists */
+    /** @return true if a table of 'tableName' currently exists and has at least one row */
     public boolean isAvailable(String tableName) {
-        boolean hasTable = (getObjectsForClass(tableName) != null);
-        commit();
-        return hasTable;
-    }
+        try {
+            Session session = _factory.getCurrentSession();
+            getOrBeginTransaction();
+            Query query = session.createQuery("from " + tableName).setMaxResults(1);
+            boolean hasTable = query.list().size() > 0;
+            commit();
+            return hasTable;
+        }
+        catch (Exception e) {
+            return false;
+        }
+     }
+
 
 
     /** @return true if this instance is persisting */

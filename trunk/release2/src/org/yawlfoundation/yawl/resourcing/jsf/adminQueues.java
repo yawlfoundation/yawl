@@ -269,7 +269,8 @@ public class adminQueues extends AbstractPageBean {
 
     // SPECIFIC DELARATIONS AND METHODS //
 
-    private SessionBean _sb = getSessionBean();
+    private final SessionBean _sb = getSessionBean();
+    private final MessagePanel _msgPanel = _sb.getMessagePanel();
 
     /**
      * Overridden method that is called immediately before the page is rendered
@@ -283,10 +284,10 @@ public class adminQueues extends AbstractPageBean {
 
         // take appropriate postback action if required
         if (! _sb.performAdminQueueAction()) {
-            _sb.getMessagePanel().error("Could not complete workitem action." +
+           _msgPanel.error("Could not complete workitem action." +
                     " Please see the log files for details.");               
         }
-        _sb.showMessagePanel();
+        showMessagePanel();
 
         // goto last selected tab
         if (_sb.getSourceTab() != null) {
@@ -387,7 +388,7 @@ public class adminQueues extends AbstractPageBean {
         else {
             _sb.setDirectToMeChoice(null);
             if (ResourceManager.getInstance().getOrgDataSet().getParticipantCount() == 0) {
-                _sb.getMessagePanel().error("Unable to assign workitem: " +
+                _msgPanel.error("Unable to assign workitem: " +
                     "Missing or empty organisational database. Please check and, if " +
                     "necessary, add some participants via the 'User Mgt' form, then " +
                     "return to this form to assign the workitem.");
@@ -545,9 +546,17 @@ public class adminQueues extends AbstractPageBean {
         btnStart.setDisabled(! liveStatus);
     }
 
+
     private void clearWorklistedFields() {
         cbbAssignedTo.setItems(null);
         lblAssignedTo.setText("Assigned To");
         txtResourceState.setText(" ");        
     }
+
+    private void showMessagePanel() {
+        body1.setFocus(_msgPanel.hasMessage() ? "form1:pfMsgPanel:btnOK001" :
+                "form1:pfQueueUI:lbxItems");
+        _sb.showMessagePanel();
+    }
+
 }

@@ -77,7 +77,7 @@ public class pfMenubar extends AbstractFragmentBean {
 
     // IMPLEMENTATION //
 
-    private SessionBean _sb = (SessionBean)getBean("SessionBean");
+    private SessionBean _sb = (SessionBean) getBean("SessionBean");
 
     private final String BTN_WORKQUEUES = "WorkQueues";
     private final String BTN_USERMGT = "UserMgt";
@@ -90,51 +90,31 @@ public class pfMenubar extends AbstractFragmentBean {
     private final String BTN_TEAMQUEUES = "TeamQueues";
     private final String BTN_EXTCLIENTS = "ExternalClients";
     private final String BTN_NHRESOURCES = "NonHumanResources";
+    private final String BTN_CALENDAR = "CalendarMgt";
 
     private final int BTN_WIDTH = 95;
     private final int BOOKEND_WIDTH = 38;
 
 
     public void construct(boolean isAdminID) {
-        int left = 0;
-        menuPanel.getChildren().add(makeBookEnd(0));
+        int width = 0;
+        int menuCount = 0;
         Participant p = _sb.getParticipant();
+        PanelLayout userMenu = constructUserMenu(p);
+        PanelLayout adminMenu = constructAdminMenu(p);
 
-        // all participants get profile and workqueue access
-        if (p != null) {
-            menuPanel.getChildren().add(makeButton(BTN_WORKQUEUES));
-            menuPanel.getChildren().add(makeButton(BTN_PROFILE));
-
-            // participants with admin or team view access get to view teams
-            if (p.isAdministrator() || canViewTeamQueues(p)) {
-                menuPanel.getChildren().add(makeButton(BTN_TEAMQUEUES));
-            }
+        if (userMenu != null) {
+            menuPanel.getChildren().add(userMenu);
+            width = getMenuWidth(userMenu);
+            menuCount++;
         }
-
-        // the "admin" user (p == null) and users with admin privileges get admin access
-        if ((p == null) || p.isAdministrator()) {
-            menuPanel.getChildren().add(makeButton(BTN_ADMINQUEUES));
-            menuPanel.getChildren().add(makeButton(BTN_CASEMGT));
-            menuPanel.getChildren().add(makeButton(BTN_USERMGT));
-            menuPanel.getChildren().add(makeButton(BTN_ORGDATAMGT));
-            menuPanel.getChildren().add(makeButton(BTN_NHRESOURCES));
-            menuPanel.getChildren().add(makeButton(BTN_SERVICEMGT));
-            menuPanel.getChildren().add(makeButton(BTN_EXTCLIENTS));
+        if (adminMenu != null) {
+            menuPanel.getChildren().add(adminMenu);
+            width = getMenuWidth(adminMenu);
+            menuCount++;
+            if (userMenu != null) userMenu.setStyle(userMenu.getStyle() + "left: 285px;");
         }
-        else {
-
-            // non-admin participants may have case mgt privileges
-           if (p.getUserPrivileges().canManageCases()) {
-               menuPanel.getChildren().add(makeButton(BTN_CASEMGT));
-           }
-        }
-
-        // and everyone gets to logoff
-        menuPanel.getChildren().add(makeButton(BTN_LOGOUT));
-
-        menuPanel.getChildren().add(makeBookEnd(getRightBookEndLeftPos()));
-
-        int width = ((menuPanel.getChildCount() - 2) * BTN_WIDTH) + (BOOKEND_WIDTH * 2) + 2;
+        _sb.setMenuBarCount(menuCount);
         menuPanel.setStyle(String.format("width: %dpx", width));
 
         if (isAdminID)
@@ -144,33 +124,95 @@ public class pfMenubar extends AbstractFragmentBean {
     }
 
 
-    private ImageComponent makeBookEnd(int left) {
+    private PanelLayout constructUserMenu(Participant p) {
+        if (p == null) return null;
+
+        PanelLayout userMenu = new PanelLayout();
+        userMenu.getChildren().add(makeBookEnd(0, 1));
+        userMenu.getChildren().add(makeButton(BTN_WORKQUEUES, userMenu));
+        userMenu.getChildren().add(makeButton(BTN_PROFILE, userMenu));
+
+        if (! p.isAdministrator()) {
+            if (canViewTeamQueues(p)) {
+                userMenu.getChildren().add(makeButton(BTN_TEAMQUEUES, userMenu));
+            }
+
+            // non-admin participants may have case mgt privileges
+            if (p.getUserPrivileges().canManageCases()) {
+                userMenu.getChildren().add(makeButton(BTN_CASEMGT, userMenu));
+            }
+        }
+
+        userMenu.getChildren().add(makeButton(BTN_LOGOUT, userMenu));
+        userMenu.getChildren().add(makeBookEnd(getRightBookEndLeftPos(userMenu), 1));
+        int width = getMenuWidth(userMenu);
+        userMenu.setStyle(String.format("width: %dpx; position: absolute;", width));
+
+        return userMenu;
+    }
+
+
+    private PanelLayout constructAdminMenu(Participant p) {
+        PanelLayout adminMenu = null;
+        if ((p == null) || p.isAdministrator()) {
+            adminMenu = new PanelLayout();
+            adminMenu.getChildren().add(makeBookEnd(0, 2));
+            adminMenu.getChildren().add(makeButton(BTN_ADMINQUEUES, adminMenu));
+            if (p != null) {
+                adminMenu.getChildren().add(makeButton(BTN_TEAMQUEUES, adminMenu));
+            }
+            adminMenu.getChildren().add(makeButton(BTN_CASEMGT, adminMenu));
+            adminMenu.getChildren().add(makeButton(BTN_USERMGT, adminMenu));
+            adminMenu.getChildren().add(makeButton(BTN_ORGDATAMGT, adminMenu));
+            adminMenu.getChildren().add(makeButton(BTN_NHRESOURCES, adminMenu));
+            adminMenu.getChildren().add(makeButton(BTN_CALENDAR, adminMenu));
+            adminMenu.getChildren().add(makeButton(BTN_SERVICEMGT, adminMenu));
+            adminMenu.getChildren().add(makeButton(BTN_EXTCLIENTS, adminMenu));
+            if (p == null) {
+                adminMenu.getChildren().add(makeButton(BTN_LOGOUT, adminMenu));
+            }
+            adminMenu.getChildren().add(makeBookEnd(getRightBookEndLeftPos(adminMenu), 2));
+            int width = getMenuWidth(adminMenu);
+            int top = (p != null) ? 40 : 0;
+            adminMenu.setStyle(String.format("width: %dpx; top: %dpx; position: absolute;",
+                    width, top));
+        }
+        return adminMenu;
+    }
+
+
+    private int getMenuWidth(PanelLayout menu) {
+        return ((menu.getChildCount() - 2) * BTN_WIDTH) + (BOOKEND_WIDTH * 2) + 2;
+    }
+
+
+    private ImageComponent makeBookEnd(int left, int i) {
         ImageComponent image = new ImageComponent();
         image.setStyle("height:30px; width:39px; position:absolute; left:" + left + "px");
-        image.setId(left==0 ? "menuLeft" : "menuRight");
+        image.setId((left==0 ? "menuLeft" : "menuRight") + i);
         image.setUrl(left==0 ? "/resources/menuLeft.png" : "/resources/menuRight.png");
         image.setWidth(39);
         image.setHeight(30);
         return image;
     }
 
-    private Button makeButton(String btnType) {
+    private Button makeButton(String btnType, PanelLayout menu) {
         Button result = new Button();
         result.setId("menubtn" + btnType);
         result.setText(getButtonText(btnType));
         result.setStyleClass("menubarButton");
-        result.setStyle(String.format("left: %dpx", getButtonLeft()));
+        result.setStyle(String.format("left: %dpx", getButtonLeft(menu)));
         result.setAction(bindButtonListener(btnType));
         return result;
     }
 
 
-    private int getButtonLeft() {
-        return BOOKEND_WIDTH + (BTN_WIDTH * (menuPanel.getChildCount() - 1));
+    private int getButtonLeft(PanelLayout menu) {
+        return BOOKEND_WIDTH + (BTN_WIDTH * (menu.getChildCount() - 1));
     }
 
-    private int getRightBookEndLeftPos() {
-        return getButtonLeft() + 1;
+    private int getRightBookEndLeftPos(PanelLayout menu) {
+        return getButtonLeft(menu) + 1;
     }
 
     private String getButtonText(String btnType) {
@@ -181,6 +223,7 @@ public class pfMenubar extends AbstractFragmentBean {
         if (btnType.equals(BTN_ORGDATAMGT)) return "Org Data";
         if (btnType.equals(BTN_LOGOUT)) return "Logout";
         if (btnType.equals(BTN_NHRESOURCES)) return "Assets";
+        if (btnType.equals(BTN_CALENDAR)) return "Calendar";
         if (btnType.equals(BTN_PROFILE)) return "Edit Profile";
         if (btnType.equals(BTN_SERVICEMGT)) return "Services";
         if (btnType.equals(BTN_EXTCLIENTS)) return "Client Apps";
@@ -198,12 +241,16 @@ public class pfMenubar extends AbstractFragmentBean {
 
     private void showSelection(String btnType) {
         for (Object o : menuPanel.getChildren()) {
-            if (o instanceof Button) {
-                Button btn = (Button) o;
-                if (btn.getId().equals("menubtn" + btnType))
-                    btn.setStyleClass("menubarButtonSelected");
-                else
-                    btn.setStyleClass("menubarButton");
+            if (o instanceof PanelLayout) {
+                for (Object obj : ((PanelLayout) o).getChildren()) {
+                    if (obj instanceof Button) {
+                        Button btn = (Button) obj;
+                        if (btn.getId().equals("menubtn" + btnType))
+                            btn.setStyleClass("menubarButtonSelected");
+                        else
+                            btn.setStyleClass("menubarButton");
+                    }    
+                }
             }
         }
     }
@@ -277,6 +324,12 @@ public class pfMenubar extends AbstractFragmentBean {
     public String btnNonHumanResourcesAction() {
         showSelection(BTN_NHRESOURCES);
         return "showNonHumanResources";
+    }
+
+
+    public String btnCalendarMgtAction() {
+        showSelection(BTN_CALENDAR);
+        return "showCalendar";
     }
 
 }

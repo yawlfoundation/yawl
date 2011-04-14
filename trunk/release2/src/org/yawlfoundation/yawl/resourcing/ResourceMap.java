@@ -348,7 +348,7 @@ public class ResourceMap {
             // for each participant in set, place workitem on their offered queue
             for (Participant p : pSet) {
                 QueueSet qs = p.getWorkQueues() ;
-                if (qs == null) qs = p.createQueueSet(rm.getPersisting());
+                if (qs == null) qs = p.createQueueSet(rm.isPersisting());
                 qs.addToQueue(wir, WorkQueue.OFFERED);
                 rm.announceModifiedQueue(p.getID()) ;
             }
@@ -371,7 +371,7 @@ public class ResourceMap {
     private void doStart(Participant p, WorkItemRecord wir) {
         boolean started = false ;
         QueueSet qs = p.getWorkQueues() ;
-        if (qs == null) qs = p.createQueueSet(rm.getPersisting());
+        if (qs == null) qs = p.createQueueSet(rm.isPersisting());
 
         if (_start.getInitiator() == AbstractInteraction.SYSTEM_INITIATED) {
             started = rm.startImmediate(p, wir) ;
