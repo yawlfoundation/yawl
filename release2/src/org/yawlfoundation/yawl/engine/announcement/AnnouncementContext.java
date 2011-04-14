@@ -25,8 +25,10 @@ package org.yawlfoundation.yawl.engine.announcement;
 
 public enum AnnouncementContext
 {
-    NORMAL,               //Announcements are being posted as part of a specification or an extra-engine request
+    NORMAL,               // Announcements are being posted as part of a specification or
+                          // an extra-engine request
 
-    RECOVERING            //Announcements are being posted due to restart processing within the engine.
-                          // Note: In this context, the underlying engine status may be running rather than initialising!
+    RECOVERING            // Announcements are being posted due to restart processing
+                          // within the engine. Note: In this context, the underlying
+                          // engine status may be running rather than initialising!
 }

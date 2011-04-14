@@ -31,7 +31,8 @@ public class NewWorkItemAnnouncement implements Announcement
     private YWorkItem item;
     private AnnouncementContext context;
 
-    public NewWorkItemAnnouncement(YAWLServiceReference yawlService, YWorkItem item, AnnouncementContext context)
+    public NewWorkItemAnnouncement(YAWLServiceReference yawlService, YWorkItem item,
+                                   AnnouncementContext context)
     {
         this.yawlService = yawlService;
         this.item = item;
@@ -51,5 +52,25 @@ public class NewWorkItemAnnouncement implements Announcement
     public AnnouncementContext getContext()
     {
         return context;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof NewWorkItemAnnouncement)) return false;
+
+        NewWorkItemAnnouncement other = (NewWorkItemAnnouncement) o;
+        return (context == other.context) &&
+               (item != null ? item.equals(other.item) : other.item == null) &&
+               (yawlService != null ? yawlService.equals(other.yawlService) :
+                       other.yawlService == null);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = yawlService != null ? yawlService.hashCode() : 0;
+        result = 31 * result + (item != null ? item.hashCode() : 0);
+        result = 31 * result + (context != null ? context.hashCode() : 0);
+        return result;
     }
 }

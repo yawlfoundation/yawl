@@ -3184,7 +3184,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     private void handleAutoTask(WorkItemRecord wir, boolean timedOut) {
-        System.out.println(">>>>>>>> Autotask: " + wir.getID());
+
         // if this autotask has started a timer, don't process now - wait for timeout
         if ((! timedOut) && (wir.getTimerTrigger() != null)) return;
 
@@ -3202,7 +3202,6 @@ public class ResourceManager extends InterfaceBWebsideController {
             }
             else _log.error("Could not check out automated workitem: " + wir.getID());
         }
-        System.out.println("<<<<<<<<<<< Autotask: " + wir.getID());
     }
 
 
