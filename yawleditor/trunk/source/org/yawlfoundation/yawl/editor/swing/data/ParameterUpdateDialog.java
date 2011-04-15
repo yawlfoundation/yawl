@@ -311,6 +311,9 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
       gatewayTable.getSelectionModel().addListSelectionListener(this);
       gatewayTable.getColumnModel().getSelectionModel().addListSelectionListener(this);
 
+      if (gatewayTable.getRowCount() > 0) {
+          gatewayTable.selectRow(0);                             // default selection
+      }
       JScrollPane jspane =  new JScrollPane(gatewayTable);
 
       panel.setBorder(new EmptyBorder(12,12,0,11));
@@ -592,7 +595,7 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
   
   private boolean shouldDoneButtonBeEnabled() {
     return  ((selectedGateway != null) || (!xQueryEditor.getText().equals("")))
-            && sinkVariableComboBox.isEnabled();
+            && (sinkVariableComboBox != null) && sinkVariableComboBox.isEnabled();
   }
   
   private void enableDoneButtonIfAppropriate() {
