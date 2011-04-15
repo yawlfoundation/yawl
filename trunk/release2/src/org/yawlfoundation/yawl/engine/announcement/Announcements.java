@@ -165,4 +165,10 @@ public class Announcements<A extends Announcement>
             addAnnouncement(a);
         }
     }
+
+
+    public void clear() {
+        schemeToUris.clear();
+        uriToAnnouncements.clear();
+    }
 }

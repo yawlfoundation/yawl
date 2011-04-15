@@ -83,9 +83,9 @@ public class YNetRunner {
     private String _caseObserverStr = null ;
 
     // stored announcements for items fired or cancelled by this runner
-    private Announcements<CancelWorkItemAnnouncement> _cancelAnnouncements =
+    private final Announcements<CancelWorkItemAnnouncement> _cancelAnnouncements =
                                           new Announcements<CancelWorkItemAnnouncement>();
-    private Announcements<NewWorkItemAnnouncement> _firedAnnouncements =
+    private final Announcements<NewWorkItemAnnouncement> _firedAnnouncements =
                                           new Announcements<NewWorkItemAnnouncement>();
 
 
@@ -699,10 +699,14 @@ public class YNetRunner {
      */
     public void makeAnnouncements() {
         YAnnouncer announcer = _engine.getAnnouncer();
-        announcer.announceCancellationToEnvironment(_cancelAnnouncements);
-        announcer.announceTasks(_firedAnnouncements);
-        _cancelAnnouncements = new Announcements<CancelWorkItemAnnouncement>();
-        _firedAnnouncements = new Announcements<NewWorkItemAnnouncement>();
+        synchronized(_cancelAnnouncements) {
+            announcer.announceCancellationToEnvironment(_cancelAnnouncements);
+            _cancelAnnouncements.clear();
+        }
+        synchronized(_firedAnnouncements) {
+            announcer.announceTasks(_firedAnnouncements);
+            _firedAnnouncements.clear();
+        }    
     }
 
     /**

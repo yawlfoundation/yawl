@@ -382,10 +382,11 @@ public final class YSpecification implements Cloneable, YVerifiable {
         Set<YExternalNetElement> elements = YNet.getPostset(aSet);
         Set<YExternalNetElement> resultSet = new HashSet<YExternalNetElement>();
         for (YExternalNetElement element : elements) {
-            if (element instanceof YTask && ((YTask) element).getDecompositionPrototype() == null ||
-                    element instanceof YCondition) {
-                resultSet.add(element);
+            if ((element instanceof YTask) &&
+                    (((YTask) element).getDecompositionPrototype() != null)) {
+                return Collections.emptySet();      // short circuit on a non-empty task
             }
+            resultSet.add(element);
         }
         return resultSet;
     }
