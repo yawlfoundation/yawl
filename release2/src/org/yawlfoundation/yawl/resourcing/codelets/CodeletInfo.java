@@ -125,4 +125,9 @@ public class CodeletInfo {
         return params;
     }
 
+
+    public String toString() {
+        return "Codelet: " + _name;
+    }
+
 }

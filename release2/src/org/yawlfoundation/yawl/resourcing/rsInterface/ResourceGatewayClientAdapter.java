@@ -492,7 +492,8 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the constraints
      */
-    public List getConstraints(String handle) throws IOException, ResourceGatewayException {
+    public List<AbstractSelector> getConstraints(String handle)
+            throws IOException, ResourceGatewayException {
         String cStr = successCheck(_rgclient.getConstraints(handle)) ;
         return xmlStringToSelectorList(cStr, "constraints.GenericConstraint") ;
     }
@@ -505,7 +506,8 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the allocators
      */
-    public List getAllocators(String handle) throws IOException, ResourceGatewayException {
+    public List<AbstractSelector> getAllocators(String handle)
+            throws IOException, ResourceGatewayException {
         String aStr = successCheck(_rgclient.getAllocators(handle)) ;
         return xmlStringToSelectorList(aStr, "allocators.GenericAllocator") ;
     }
@@ -518,7 +520,8 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the filters
      */
-    public List getFilters(String handle) throws IOException, ResourceGatewayException {
+    public List<AbstractSelector> getFilters(String handle)
+            throws IOException, ResourceGatewayException {
         String aStr = successCheck(_rgclient.getFilters(handle)) ;
         return xmlStringToSelectorList(aStr, "filters.GenericFilter") ;
     }

@@ -28,4 +28,6 @@ public class PluginLoaderException extends Exception {
 
     public PluginLoaderException(String msg) { super(msg); }
 
+    public PluginLoaderException(String msg, Throwable t) { super(msg, t); }
+
 }

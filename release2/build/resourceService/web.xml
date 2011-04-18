@@ -198,16 +198,20 @@
         <param-value></param-value>
         <description>
             Sets the base directory for external 'plugin' classes (i.e. codelets,
-            allocators, filters, constraints, data sources). The base directory must
-            refer to a location on the local disk, for example: C:\yawlplugins".
+            allocators, filters, constraints). The base directory must refer to a
+            location on the local disk, for example: "C:\yawlplugins". Several base
+            directories can be provided, separated by semi-colons, for example:
+            "C:\yawlplugins;C:\some\other\place".
+
             The service expects classes to be located in sub-directories matching their
-            package structure, and ending in the 'type' of the plugin. For example, if
-            the 'ExternalPluginsDir' is set "C:\yawlplugins" and there is a codelet file
+            package structure, and ending in the 'type' of the plugin (i.e. 'codelets',
+            'allocators', 'constraints' or 'filters'). For example, if the
+            'ExternalPluginsDir' is set "C:\yawlplugins" and there is a codelet file
             called 'MyCodelet.class' and it has a package 'com.example.yawl.codelets'
-            (since its a codelet, it must end in 'codelets') then it's file path is
+            (since its a codelet, it must end in 'codelets') then its file path is
             expected to be 'C:\yawlplugins\com\example\yawl\codelets\MyCodelet.class'.
 
-            If there is no external plugins, then this param can be commented out or
+            If there are no external plugins, then this param can be commented out or
             the param-value can be left blank.
         </description>
     </context-param>
