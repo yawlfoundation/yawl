@@ -182,6 +182,9 @@ public abstract class AbstractSelector {
      */
     public void setKeyValue(String key, String value) { addParam(key, value); }
 
+
+    public String toString() { return getClass().getCanonicalName() + ": " + _name; }
+
     /*******************************************************************************/
 
     // SPECIFICATION XML METHODS //
