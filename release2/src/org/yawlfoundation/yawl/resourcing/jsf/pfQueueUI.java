@@ -17,9 +17,7 @@
  */package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractFragmentBean;
-import com.sun.rave.web.ui.component.Label;
-import com.sun.rave.web.ui.component.Listbox;
-import com.sun.rave.web.ui.component.TextField;
+import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.DefaultOptionsList;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
@@ -183,6 +181,36 @@ public class pfQueueUI extends AbstractFragmentBean {
     public void setLblItems(Label l) {
         this.lblItems = l;
     }
+
+
+    private Label lblDocumentation = new Label();
+
+    public Label getLblDocumentation() {
+        return lblDocumentation;
+    }
+
+    public void setLblDocumentation(Label l) {
+        lblDocumentation = l;
+    }
+
+
+    private TextArea txtDocumentation = new TextArea();
+
+    public TextArea getTxtDocumentation() {
+        return txtDocumentation;
+    }
+
+    public void setTxtDocumentation(TextArea ta) {
+        txtDocumentation = ta;
+    }
+
+    private PanelGroup pnlGroup ;
+
+    public PanelGroup getPnlGroup() { return pnlGroup; }
+
+    public void setPnlGroup(PanelGroup group) { pnlGroup = group; }
+
+    
     // </editor-fold>
     
     public pfQueueUI() {
@@ -240,6 +268,7 @@ public class pfQueueUI extends AbstractFragmentBean {
         String taskName = wir.getTaskName();
         if (taskName == null) taskName = wir.getTaskID();
         txtTaskID.setText(wordWrap(taskName, 20));
+        txtDocumentation.setText(wir.getDocumentation());
 
         try {
             long enabled = Long.parseLong(wir.getEnablementTimeMs());
@@ -251,6 +280,17 @@ public class pfQueueUI extends AbstractFragmentBean {
         }
 
         txtCreated.setText(wir.getEnablementTime()) ;
+    }
+
+
+
+    public void setDocoStyle(boolean lower) {
+//        int lblHeight = lower ? 300 : 256;
+//        lblDocumentation.setStyle("top: " + lblHeight + "px;");
+//        if (lower) {
+//            pnlGroup.setStyle("top:315px; height: 50px");
+//            txtDocumentation.setStyle("height: 50px");
+//        }
     }
 
 
@@ -267,7 +307,7 @@ public class pfQueueUI extends AbstractFragmentBean {
         txtStatus.setText(" ");
         txtCreated.setText(" ");
         txtAge.setText(" ");
-
+        txtDocumentation.setText(" ");
     }
 
     

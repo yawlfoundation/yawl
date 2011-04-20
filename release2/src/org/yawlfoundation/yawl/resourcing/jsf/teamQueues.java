@@ -222,6 +222,7 @@ public class teamQueues extends AbstractPageBean {
         _sb.showMessagePanel();
         
         ((pfQueueUI) getBean("pfQueueUI")).clearQueueGUI();
+        ((pfQueueUI) getBean("pfQueueUI")).setDocoStyle(true);
         if (enableRadioButtons()) {
 
             // get team or group members (if any)

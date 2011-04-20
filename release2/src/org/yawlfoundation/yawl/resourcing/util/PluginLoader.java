@@ -93,7 +93,8 @@ public class PluginLoader {
      */
     public static <T> T loadInstance(Class<T> c, String localPkg, String className)
             throws PluginLoaderException {
-        boolean external = (localPkg == null) || (! className.startsWith(localPkg));
+        boolean external = (localPkg == null) ||
+                (className.contains(".") && (! className.startsWith(localPkg)));
         return loadInstance(c, localPkg, className, external);
     }
 

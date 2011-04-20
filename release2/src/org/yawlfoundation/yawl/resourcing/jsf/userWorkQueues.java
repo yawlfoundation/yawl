@@ -899,6 +899,7 @@ public class userWorkQueues extends AbstractPageBean {
         Set<WorkItemRecord> queue = _sb.refreshQueue(queueType);
         processButtonEnablement(queueType) ;                // disable btns if queue empty
         ((pfQueueUI) getBean("pfQueueUI")).clearQueueGUI();
+        ((pfQueueUI) getBean("pfQueueUI")).setDocoStyle(false);
 
         if ((queue != null) && (! queue.isEmpty())) {
 
