@@ -55,22 +55,78 @@
                         <ui:panelLayout binding="#{calendarMgt.pnlContainer}"
                                         id="pnlContainer"
                                         style="#{SessionBean.outerPanelTop}"
-                                        styleClass="caseMgtContainerPanel">
+                                        styleClass="calendarMgtContainerPanel">
 
                         <ui:panelLayout binding="#{calendarMgt.layoutPanel2}"
                                         id="layoutPanel2"
                                         styleClass="caseMgtPanel"
-                                        style="position: absolute; height: 570px; top: 3px">
+                                        style="position: absolute; height: 620px; top: 3px">
+
+              <ui:label binding="#{calendarMgt.lblFilter}"
+                  for="cbbFilter"
+                  id="lblFilter"
+                  style="top: 10px; left: 12px; position: absolute"
+                  text="Filter:"/>
+
+              <ui:dropDown binding="#{calendarMgt.cbbFilter}"
+                     id="cbbFilter"
+                     onChange="common_timeoutSubmitForm(this.form, 'cbbFilter');"
+                     items="#{calendarMgt.calendarMgtFilterComboItems}"
+                     valueChangeListener="#{calendarMgt.cbbFilter_processValueChange}"
+                     style="left: 80px; top: 10px; position: absolute; width: 200px"/>
+
+                            <ui:label binding="#{calendarMgt.lblResource}"
+                                for="cbbResource"
+                                id="lblResource"
+                                style="top: 33px; left: 12px; position: absolute"
+                                text="Resource:"/>
+
+                            <ui:dropDown binding="#{calendarMgt.cbbResource}"
+                                   id="cbbResource"
+                                   items="#{SessionBean.calResourceOptions}"
+                                   onChange="common_timeoutSubmitForm(this.form, 'cbbResource');"
+                                   valueChangeListener="#{calendarMgt.cbbResource_processValueChange}"
+                                   style="left: 80px; top: 33px; position: absolute; width: 200px"/>
+
+                            <ui:calendar binding="#{calendarMgt.calComponent}"
+                                         id="calendarComponent"
+                                         style="position: absolute; top: 30px; left: 380px"
+                                         selectedDate="#{SessionBean.selectedCalMgtDate}"
+                                         columns="20"
+                                         dateFormatPatternHelp=""
+                                         minDate="#{SessionBean.calMgtMinDate}"
+                                         maxDate="#{SessionBean.calMgtMaxDate}"/>
+
+             <ui:button action="#{calendarMgt.btnYesterday_action}"
+                   binding="#{calendarMgt.btnYesterday}"
+                    id="btnYesterday"
+                    styleClass="nhSubCatButton"
+                    style="top: 30px; left: 342px"
+                    toolTip="Previous Day"
+                    noTextPadding="true"
+                    mini="true"
+                    imageURL="/resources/prevday.png"/>
+
+             <ui:button action="#{calendarMgt.btnTomorrow_action}"
+                   binding="#{calendarMgt.btnTomorrow}"
+                    id="btnTomorrow"
+                    styleClass="nhSubCatButton"
+                    style="top: 30px; left: 560px;"
+                    toolTip="Next Day"
+                    noTextPadding="true"
+                    mini="true"
+                    imageURL="/resources/nextday.png"/>
 
                             <ui:panelGroup binding="#{calendarMgt.pnlGroup}"
                                             id="pnlGroup"
-                                            style="position: absolute"
+                                            style="height: 500px; top: 60px; position: absolute"
                                             styleClass="tablePnlGroup">
 
                             <h:dataTable binding="#{calendarMgt.dataTable1}"
                                          headerClass="dataTableHeader"
                                          id="dataTable1"
                                          cellpadding="3"
+                                         style="height: 500px"
                                          styleClass="dataTable"
                                          columnClasses="specsNameCol,
                                                         specsVersCol,
@@ -148,7 +204,7 @@
                                        binding="#{calendarMgt.btnDelete}"
                                        id="btnDelete"
                                        styleClass="caseMgtButton"
-                                       style="left: 247px; top: 230px"
+                                       style="left: 247px; top: 580px"
                                        text="Delete"/>
 
                             <ui:button binding="#{SessionBean.btnRefresh}"
