@@ -536,13 +536,10 @@ public class YNetRunner {
             }
             else {
 
-                // if the task is not an enabled transition, and its been previously
+                // if the task is not an enabled transition, and it has been previously
                 // enabled by the engine, then it must be cancelled
                 if (_enabledTasks.contains(task)) {
-                    CancelWorkItemAnnouncement announcement = cancelEnabledTask(task, pmgr) ;
-                    if (announcement != null) {
-                        _cancelAnnouncements.addAnnouncement(announcement);
-                    }
+                    _cancelAnnouncements.addAnnouncement(cancelEnabledTask(task, pmgr));
                 }
             }
 
@@ -697,18 +694,16 @@ public class YNetRunner {
      * environment. Called by the engine after a case start/resume, or a workitem
      * completion or cancellation, once all state processing is fully completed.
      */
-    public void makeAnnouncements() {
-        YAnnouncer announcer = _engine.getAnnouncer();
+    public void makeAnnouncements(YAnnouncer announcer) {
         synchronized(_cancelAnnouncements) {
             announcer.announceCancellationToEnvironment(_cancelAnnouncements);
-            _cancelAnnouncements.clear();
         }
         synchronized(_firedAnnouncements) {
             announcer.announceTasks(_firedAnnouncements);
-            _firedAnnouncements.clear();
-        }    
+        }
     }
 
+    
     /**
      * Creates an enabled work item.
      *

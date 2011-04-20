@@ -74,6 +74,13 @@
     position:relative;
 }
 
+.calendarMgtContainerPanel {
+    height: 620px;
+    width: 602px;
+    top: 50px;
+    position:relative;
+}
+
 .userMgtContainerPanel {
     height: 543px;
     width: 670px;

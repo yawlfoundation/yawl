@@ -27,8 +27,10 @@ import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
 
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 /**
  * Class which encapsulates the management and processing of InterfaceBClients.<P>
@@ -78,7 +80,7 @@ public class ObserverGatewayController
      */
     void notifyAddWorkItems(final Announcements<NewWorkItemAnnouncement> announcements)
     {
-        executor.execute(new Runnable()
+        FutureTask<Integer> task = new FutureTask<Integer>(new Runnable()
         {
             public void run()
             {
@@ -94,7 +96,9 @@ public class ObserverGatewayController
                     }
                 }
             }
-        });
+        }, 1);
+
+        runFutureTask(task, announcements);
     }
 
     /**
@@ -104,7 +108,7 @@ public class ObserverGatewayController
      */
     void notifyRemoveWorkItems(final Announcements<CancelWorkItemAnnouncement> announcements)
     {
-        executor.execute(new Runnable()
+        FutureTask<Integer> task = new FutureTask<Integer>(new Runnable()
         {
             public void run()
             {
@@ -120,7 +124,23 @@ public class ObserverGatewayController
                     }
                 }
             }
-        });
+        }, 1);
+
+        runFutureTask(task, announcements);
+    }
+
+
+    private void runFutureTask(FutureTask task, Announcements announcements) {
+        try {
+            executor.execute(task);
+            if (((Integer) task.get()) == 1) announcements.clear();
+        }
+        catch (InterruptedException ie) {
+            // nothing to do
+        }
+        catch (ExecutionException ee) {
+            // nothing to do
+        }
     }
 
 

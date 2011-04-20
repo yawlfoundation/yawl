@@ -1283,7 +1283,7 @@ public class YEngine implements InterfaceADesign,
     private void announceEvents(YIdentifier caseID) {
         YIdentifier rootCaseID = caseID.getRootAncestor();
         for (YNetRunner runner : getRunnersForPrimaryCase(rootCaseID)) {
-            runner.makeAnnouncements();
+            runner.makeAnnouncements(_announcer);
         }
     }
 

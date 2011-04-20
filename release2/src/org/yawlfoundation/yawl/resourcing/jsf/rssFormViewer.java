@@ -34,7 +34,8 @@ import java.io.IOException;
 import java.util.Set;
 
 /*
- * The backing bean for the YAWL 2.0 login form
+ * The backing bean for the YAWL 2.0 rss form - shows a dynform instance via an RSS
+ * request (such as the iGoogle gadget)
  *
  * @author Michael Adams
  * Date: 21/10/2007
@@ -154,9 +155,9 @@ public class rssFormViewer extends AbstractPageBean {
 
     // SPECIFIC DELARATIONS AND METHODS //
 
-    private ResourceManager rm = getApplicationBean().getResourceManager();
-    private SessionBean sb = getSessionBean();
-    private MessagePanel msgPanel = sb.getMessagePanel() ;
+    private final ResourceManager rm = getApplicationBean().getResourceManager();
+    private final SessionBean sb = getSessionBean();
+    private final MessagePanel msgPanel = sb.getMessagePanel() ;
 
     private final static String success = "<success/>";
 

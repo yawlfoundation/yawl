@@ -33,7 +33,7 @@ import java.util.Set;
  * @author Mike Fowler
  *         Date: May 15, 2008
  */
-public class Announcements<A extends Announcement>
+public class Announcements<A extends Announcement> implements Cloneable
 {
     /**
      * Maps resource uri's to the announcement object
@@ -54,6 +54,7 @@ public class Announcements<A extends Announcement>
      */
     public void addAnnouncement(A announcement) throws YStateException
     {
+        if (announcement == null) return;
         try
         {
             URI uri = new URI(announcement.getYawlService().getURI());

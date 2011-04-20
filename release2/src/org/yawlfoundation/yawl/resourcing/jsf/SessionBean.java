@@ -53,6 +53,8 @@ import javax.faces.event.ActionEvent;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /*
@@ -1650,53 +1652,9 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
-    private int getOuterPanelWidth() {
-        switch (activePage) {
-            case adminQueues     : return 798;
-            case caseMgt         : return 602;
-            case customServices  : return 666;
-            case Login           : return 238;
-            case orgDataMgt      : return 698;
-            case nonHumanMgt     : return 698;
-            case participantData : return 670;
-            case userWorkQueues  : return 798;
-            case viewProfile     : return 538;
-            case addInstance     : return 306;
-            case teamQueues      : return 796;
-            case externalClients : return 666;
-            case dynForm         : return getDynFormFactoryInstance().getFormWidth();
-            default: return -1;
-        }
-    }
 
-    private int getOuterPanelHeight() {
-        switch (activePage) {
-            case adminQueues     : return 328;
-            case caseMgt         : return 590;
-            case customServices  : return 515;
-            case orgDataMgt      : return 328;
-            case nonHumanMgt     : return 328;
-            case participantData : return 543;
-            case userWorkQueues  : return 328;
-            case viewProfile     : return 377;
-            case addInstance     : return 370;
-            case teamQueues      : return 350;
-            case externalClients : return 485;
-            default: return -1;
-        }
-    }
 
     /*****************************************************************************/
-
-
-//    public void setConnectionTimeout() {
-//        if (! getApplicationBean().isSessionTimeoutSet()) {
-//            int interval = this.getExternalSession().getMaxInactiveInterval();
-//            _rm.setConnectionTimeoutInterval(interval * 1000);      // secs --> msecs
-//            getApplicationBean().setSessionTimeoutSet(true);
-//        }
-//    }
-
     /*****************************************************************************/
     
 
@@ -1889,17 +1847,6 @@ public class SessionBean extends AbstractSessionBean {
         orgDataUploadPanelVisible = visible;
     }
 
-    public String getFooterPanelStyle() {
-        String style = "top: %dpx; height:100%%; width:100%%; position:relative;";
-        int top = 80;
-        if (messagePanel.isVisible()) {
-            int overhang =  (messagePanel.getHeight() + 60) - getOuterPanelHeight();
-            if (overhang > 0) {
-                top += overhang;
-            }
-        }
-        return String.format(style, top);
-    }
 
     private boolean visualiserReferred = false;
 
@@ -1971,64 +1918,50 @@ public class SessionBean extends AbstractSessionBean {
         rssFormDisplay = display;
     }
 
+
+    /******************************************************************************/
+    /** Client Apps Page **********************************************************/
+    /******************************************************************************/
+
+    // true if currently adding a client
     private boolean addClientAccountMode = true ;
 
-    public boolean isAddClientAccountMode() {
-        return addClientAccountMode;
-    }
+    public boolean isAddClientAccountMode() { return addClientAccountMode; }
 
-    public void setAddClientAccountMode(boolean mode) {
-        addClientAccountMode = mode;
-    }
+    public void setAddClientAccountMode(boolean mode) { addClientAccountMode = mode; }
 
 
+    /******************************************************************************/
+    /** Org Mgt Page **************************************************************/
+    /******************************************************************************/
+
+    // list of resources in a selected grouping - fills the members combo
     private Option[] orgDataMembers;
 
-    public Option[] getOrgDataMembers() {
-        return orgDataMembers;
-    }
+    public Option[] getOrgDataMembers() { return orgDataMembers; }
 
     public int setOrgDataMembers(AbstractResourceAttribute attribute) {
         int membership = 0;
         if (attribute != null) {
-            orgDataMembers = new Option[attribute.getResources().size()];
+            membership = attribute.getResources().size();
+            orgDataMembers = new Option[membership];
             int i = 0;
             for (AbstractResource resource : attribute.getResources()) {
                 Participant p = (Participant) resource;
                 orgDataMembers[i++] = new Option(p.getID(), p.getFullName()) ;
             }
-            membership = orgDataMembers.length;
         }
-        else {
-            orgDataMembers = null;
-        }
+        else orgDataMembers = null;
+
         return membership;
     }
 
 
-    private Option[] categoryMembers;
+    /******************************************************************************/
+    /** Dyn Form ******************************************************************/
+    /******************************************************************************/
 
-    public Option[] getCategoryMembers() {
-        return categoryMembers;
-    }
-
-    public int setCategoryMembers(NonHumanCategory category) {
-        int membership = 0;
-        if (category != null) {
-            categoryMembers = new Option[category.getResources().size()];
-            int i = 0;
-            for (NonHumanResource r : category.getResources()) {
-                categoryMembers[i++] = new Option(r.getID(), r.getName()) ;
-            }
-            membership = categoryMembers.length;
-        }
-        else {
-            categoryMembers = null;
-        }
-        return membership;
-    }
-
-
+    // if false, top YAWL banner is hidden - set from dyn form's attributes
     private boolean showYAWLBanner = true;
 
     public boolean isShowYAWLBanner() { return showYAWLBanner; }
@@ -2036,6 +1969,11 @@ public class SessionBean extends AbstractSessionBean {
     public void setShowYAWLBanner(boolean show) { showYAWLBanner = show; }
 
 
+    /******************************************************************************/
+    /** Assets Page (Non-Human Resources ******************************************/
+    /******************************************************************************/
+
+    // true if currently adding a sub-category
     private boolean subCatAddMode = false;
 
     public boolean isSubCatAddMode() { return subCatAddMode; }
@@ -2043,6 +1981,28 @@ public class SessionBean extends AbstractSessionBean {
     public void setSubCatAddMode(boolean adding) { subCatAddMode = adding; }
 
 
+    // list of resources in a selected category - fills the members combo on category tab
+    private Option[] categoryMembers;
+
+    public Option[] getCategoryMembers() { return categoryMembers; }
+
+    public int setCategoryMembers(NonHumanCategory category) {
+        int membership = 0;
+        if (category != null) {
+            membership = category.getResources().size();
+            categoryMembers = new Option[membership];
+            int i = 0;
+            for (NonHumanResource r : category.getResources()) {
+                categoryMembers[i++] = new Option(r.getID(), r.getName()) ;
+            }
+        }
+        else categoryMembers = null;
+        
+        return membership;
+    }
+
+
+    // a clone of the currently selected resource
     private NonHumanResource selectedNonHumanResource = null;
 
     public NonHumanResource getSelectedNonHumanResource() {
@@ -2055,7 +2015,10 @@ public class SessionBean extends AbstractSessionBean {
         if ((selectedNonHumanResource != null) && editing) {
             selectedNonHumanResource.clearCategory();
         }
+
         if (resource != null) {
+
+            // an id of _TEMP_ means a new resource (in add mode), so don't clone it
             selectedNonHumanResource = (! resource.getID().equals("_TEMP_")) ?
                     resource.clone() : resource;
         }
@@ -2063,20 +2026,83 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
+    /******************************************************************************/
+    /** All Pages *****************************************************************/
+    /******************************************************************************/
+
+    // nbr of menu bars: 1 if 'admin' or non-admin user, 2 if admin-level user
     private int menuBarCount = 1;
 
-    public int getMenuBarCount() {
-        return menuBarCount;
-    }
+    public int getMenuBarCount() { return menuBarCount; }
 
-    public void setMenuBarCount(int count) {
-        menuBarCount = count;
-    }
+    public void setMenuBarCount(int count) { menuBarCount = count; }
 
+
+    // sets the 'top' of each page's main panel based on the nbr of menubars on view
     public String getOuterPanelTop() {
         return String.format("top: %dpx;", (menuBarCount * 30) + 20);
     }
 
+
+    // adjusts to 'top' of each page's footer text to allow for long msg panels
+    public String getFooterPanelStyle() {
+        String style = "top: %dpx; height:100%%; width:100%%; position:relative;";
+        int top = 80;
+        if (messagePanel.isVisible()) {
+            int overhang =  (messagePanel.getHeight() + 60) - getOuterPanelHeight();
+            if (overhang > 0) {
+                top += overhang;
+            }
+        }
+        return String.format(style, top);
+    }
+
+
+    // returns the width in pixels of the active page's outermost panel
+    private int getOuterPanelWidth() {
+        switch (activePage) {
+            case adminQueues     : return 798;
+            case caseMgt         : return 602;
+            case customServices  : return 666;
+            case Login           : return 238;
+            case orgDataMgt      : return 698;
+            case nonHumanMgt     : return 698;
+            case participantData : return 670;
+            case userWorkQueues  : return 798;
+            case viewProfile     : return 538;
+            case addInstance     : return 306;
+            case teamQueues      : return 796;
+            case externalClients : return 666;
+            case calendarMgt     : return 602;
+            case dynForm         : return getDynFormFactoryInstance().getFormWidth();
+            default: return -1;
+        }
+    }
+
+
+    // returns the height in pixels of the active page's outermost panel
+    private int getOuterPanelHeight() {
+        switch (activePage) {
+            case adminQueues     : return 328;
+            case caseMgt         : return 590;
+            case customServices  : return 515;
+            case orgDataMgt      : return 328;
+            case nonHumanMgt     : return 328;
+            case participantData : return 543;
+            case userWorkQueues  : return 328;
+            case viewProfile     : return 377;
+            case addInstance     : return 370;
+            case teamQueues      : return 350;
+            case externalClients : return 485;
+            case calendarMgt     : return 590;
+            default: return -1;
+        }
+    }
+
+
+    /******************************************************************************/
+    /** Calendar Page *************************************************************/
+    /******************************************************************************/
 
     public List<CalendarRow> getCalendarRows() {
         List<CalendarRow> rows = new ArrayList<CalendarRow>();
@@ -2085,6 +2111,56 @@ public class SessionBean extends AbstractSessionBean {
         rows.add(c);
         return rows;
     }
+
+
+    // the currently selected date on the page
+    private Date selectedCalMgtDate = new Date();                  // default to today
+
+    public Date getSelectedCalMgtDate() { return selectedCalMgtDate; }
+
+    public void setSelectedCalMgtDate(Date date) { selectedCalMgtDate = date; }
+
+
+    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+    private Date calMgtMinDate = createDate("2010-01-01");
+
+    public Date getCalMgtMinDate() { return calMgtMinDate; }
+
+    public void setCalMgtMinDate(Date date) { calMgtMinDate = date; }
+
+
+    private Date calMgtMaxDate = createDate("2020-01-01");
+
+    public Date getCalMgtMaxDate() { return calMgtMaxDate; }
+
+    public void setCalMgtMaxDate(Date date) { calMgtMaxDate = date; }
+
+
+    private Date createDate(String s) {
+        try {
+            return sdf.parse(s);
+        }
+        catch (ParseException pe) {
+            return new Date();
+        }
+    }
+
+
+    private String calFilterSelection = "All Resources";
+
+    public String getCalFilterSelection() { return calFilterSelection; }
+
+    public void setCalFilterSelection(String selection) { calFilterSelection = selection; }
+    
+
+    public Option[] getCalResourceOptions() {
+        return new Option[0];
+    }
+
+
+    /******************************************************************************/
+
 }
 
 

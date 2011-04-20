@@ -20,12 +20,15 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
+import com.sun.rave.web.ui.model.Option;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 
 import javax.faces.FacesException;
 import javax.faces.component.UIColumn;
 import javax.faces.component.html.HtmlDataTable;
 import javax.faces.component.html.HtmlOutputText;
+import javax.faces.event.ValueChangeEvent;
+import java.util.GregorianCalendar;
 
 /**
  *  Backing bean for the calendar mgt page.
@@ -316,11 +319,70 @@ public class calendarMgt extends AbstractPageBean {
     public void setBtnDelete(Button b) { btnDelete = b; }
 
 
+    private Button btnYesterday = new Button();
+
+    public Button getBtnYesterday() { return btnYesterday; }
+
+    public void setBtnYesterday(Button b) { btnYesterday = b; }
+
+
+    private Button btnTomorrow = new Button();
+
+    public Button getBtnTomorrow() { return btnTomorrow; }
+
+    public void setBtnTomorrow(Button b) { btnTomorrow = b; }
+
+
+    private Calendar calComponent = new Calendar();
+
+    public Calendar getCalComponent() { return calComponent; }
+
+    public void setCalComponent(Calendar cal) { calComponent = cal; }
+
+
+    public Label lblFilter = new Label();
+
+    public Label getLblFilter() { return lblFilter; }
+
+    public void setLblFilter(Label lbl) { lblFilter = lbl; }
+
+
+    private DropDown cbbFilter = new DropDown();
+
+    public DropDown getCbbFilter() { return cbbFilter; }
+
+    public void setCbbFilter(DropDown cbb) { cbbFilter = cbb; }
+
+
+    public Label lblResource = new Label();
+
+    public Label getLblResource() { return lblResource; }
+
+    public void setLblResource(Label lbl) { lblResource = lbl; }
+
+
+    private DropDown cbbResource = new DropDown();
+
+    public DropDown getCbbResource() { return cbbResource; }
+
+    public void setCbbResource(DropDown cbb) { cbbResource = cbb; }
+
+
     /*******************************************************************************/
 
     private final ResourceManager _rm = ResourceManager.getInstance() ;
     private final SessionBean _sb = getSessionBean();
     private final MessagePanel _msgPanel = _sb.getMessagePanel();
+
+
+    public void cbbFilter_processValueChange(ValueChangeEvent event) {
+        _sb.setCalFilterSelection((String) event.getNewValue());
+    }
+
+
+    public void cbbResource_processValueChange(ValueChangeEvent event) {
+
+    }
 
 
     /**
@@ -331,6 +393,7 @@ public class calendarMgt extends AbstractPageBean {
         _sb.setActivePage(ApplicationBean.PageRef.calendarMgt);
         _sb.showMessagePanel();
         refreshRows();
+        setFilter();
         activateButtons();
     }
 
@@ -356,13 +419,48 @@ public class calendarMgt extends AbstractPageBean {
     }
 
 
-    public String btnDelete_action() {
-        // do something
+    public String btnYesterday_action() {
+        incDate(-1);
         return null;
     }
 
 
+    public String btnTomorrow_action() {
+        incDate(1);
+        return null;
+    }
+
+
+    public void incDate(int amt) {
+        GregorianCalendar greg = new GregorianCalendar();
+        greg.setTimeInMillis(calComponent.getSelectedDate().getTime());
+        greg.add(GregorianCalendar.DAY_OF_YEAR, amt);
+        _sb.setSelectedCalMgtDate(greg.getTime());
+    }
+
+
     private void activateButtons() {
+    }
+
+
+    private void setFilter() {
+        String selectedFilter = _sb.getCalFilterSelection();
+        cbbFilter.setSelected(selectedFilter);
+
+        boolean showResourceCombo = (selectedFilter.startsWith("Selected"));
+        lblResource.setVisible(showResourceCombo);
+        cbbResource.setVisible(showResourceCombo);
+    }
+
+
+    public Option[] getCalendarMgtFilterComboItems() {
+        Option[] options = new Option[5];
+        options[0] = new Option("All Resources");
+        options[1] = new Option("All Participants");
+        options[2] = new Option("All Assets");
+        options[3] = new Option("Selected Participant");
+        options[4] = new Option("Selected Asset");
+        return options;
     }
 
 }

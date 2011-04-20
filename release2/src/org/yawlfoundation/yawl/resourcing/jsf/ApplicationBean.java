@@ -22,6 +22,7 @@ import com.sun.rave.web.ui.appbase.AbstractApplicationBean;
 import com.sun.rave.web.ui.component.Link;
 import com.sun.rave.web.ui.component.PanelLayout;
 import com.sun.rave.web.ui.component.StaticText;
+import com.sun.rave.web.ui.model.Option;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
@@ -620,6 +621,17 @@ public class ApplicationBean extends AbstractApplicationBean {
         catch (IOException ioe) {
             externalClients = null;
         }
+    }
+
+    
+    public Option[] getCalendarMgtFilterComboItems() {
+        Option[] options = new Option[5];
+        options[0] = new Option("All Resources");
+        options[1] = new Option("All Participants");
+        options[2] = new Option("All Assets");
+        options[3] = new Option("Selected Participant");
+        options[4] = new Option("Selected Asset");
+        return options;
     }
 
 }
