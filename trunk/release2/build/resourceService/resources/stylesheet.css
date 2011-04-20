@@ -47,21 +47,21 @@
 }
 
 .adminQueuesContainerPanel {
-    height: 328px;
+    height: 378px;
     width: 798px;
     top: 50px;
     position:relative;
 }
 
 .teamQueuesContainerPanel {
-    height: 350px;
+    height: 370px;
     width: 796px;
     top: 50px;
     position:relative;
 }
 
 .userQueuesContainerPanel {
-    height: 328px;
+    height: 378px;
     width: 798px;
     top: 50px;
     position:relative;
@@ -239,6 +239,18 @@
     overflow-y: scroll;
     background-color: #f0f0f0;
     border: 2px solid gray;
+}
+
+.docoPnlGroup {
+    position: absolute;
+    left: 320px;
+    top: 274px;
+    height: 90px;
+    width: 307px;
+    border: 2px inset #ccccff;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    background-color: white;
 }
 
 .dataTable {
@@ -672,7 +684,7 @@
 }
 
 .teamQueueUI {
-    height: 202px;
+    height: 302px;
     top: 10px;
     position: absolute;
     width: 642px;
@@ -681,7 +693,7 @@
 
 .userQueuesTabSet {
     border: 1px solid black;
-    height: 326px;
+    height: 376px;
     left: 0;
     position: absolute;
     width: 796px;
@@ -689,7 +701,7 @@
 
 .adminQueuesTabSet {
     border: 1px solid black;
-    height: 326px;
+    height: 376px;
     left: 0;
     position: absolute;
     width: 796px;
@@ -704,7 +716,7 @@
 }
 
 .userQueuesTabPanel {
-    height: 289px;
+    height: 339px;
     position: absolute;
     width: 796px;
     background-color: #d4e5f6;
@@ -712,7 +724,7 @@
 }
 
 .adminQueuesTabPanel {
-    height: 289px;
+    height: 339px;
     position: absolute;
     width: 796px;
     background-color: #d4e5f6;
@@ -728,7 +740,7 @@
 }
 
 .teamQueuesInnerPanel {
-    height: 289px;
+    height: 339px;
     position: absolute;
     top: 40px;
     width: 796px;
@@ -752,7 +764,7 @@
 
 .queuesListbox {
     border: 2px inset rgb(204, 204, 255);
-    height: 220px;
+    height: 290px;
     left: 12px;
     top: 76px;
     position: absolute;
@@ -794,10 +806,20 @@
     width: 136px;
 }
 
+.docoTextArea {
+    border: 0;
+    padding: 4px;
+    background-color: white;
+    color: rgb(102, 102, 102);
+    left: 0;
+    top: 0! important;
+    height: 89px;
+    width: 287px;
+    position: absolute;
+    text-align: left;
+}
+
 .orgDataTextField {
-    /*border: 2px inset #ccccff;*/
-    /*padding: 2px;*/
-    /*background-color: white;*/
     position: absolute;
     width: 136px;
 }

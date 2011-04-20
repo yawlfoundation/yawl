@@ -131,7 +131,8 @@ class YSpecificationParser {
                 YDecomposition decomposition = _decompositionParser[i].getDecomposition();
                 _specification.setDecomposition(decomposition);
             }
-        } else {//must be beta3 or greater
+        }
+        else {//must be beta3 or greater
             _decompositionParser = new YDecompositionParser[decompositionElems.size()];
             for (int i = 0; i < decompositionElems.size(); i++) {
                 Element decompositionElem = (Element) decompositionElems.get(i);

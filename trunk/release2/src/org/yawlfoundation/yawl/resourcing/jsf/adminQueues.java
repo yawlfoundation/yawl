@@ -452,6 +452,7 @@ public class adminQueues extends AbstractPageBean {
         int result = -1;                                    // default for empty queue
         Set<WorkItemRecord> queue = _sb.refreshQueue(queueType);
         ((pfQueueUI) getBean("pfQueueUI")).clearQueueGUI();
+        ((pfQueueUI) getBean("pfQueueUI")).setDocoStyle(queueType == WorkQueue.WORKLISTED);
 
         if ((queue != null) && (!queue.isEmpty())) {
             addItemsToListOptions(queue, _sb.getChosenWIR(queueType)) ;

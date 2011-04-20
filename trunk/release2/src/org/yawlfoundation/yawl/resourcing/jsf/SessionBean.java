@@ -2083,16 +2083,16 @@ public class SessionBean extends AbstractSessionBean {
     // returns the height in pixels of the active page's outermost panel
     private int getOuterPanelHeight() {
         switch (activePage) {
-            case adminQueues     : return 328;
+            case adminQueues     : return 378;
             case caseMgt         : return 590;
             case customServices  : return 515;
             case orgDataMgt      : return 328;
             case nonHumanMgt     : return 328;
             case participantData : return 543;
-            case userWorkQueues  : return 328;
+            case userWorkQueues  : return 378;
             case viewProfile     : return 377;
             case addInstance     : return 370;
-            case teamQueues      : return 350;
+            case teamQueues      : return 370;
             case externalClients : return 485;
             case calendarMgt     : return 590;
             default: return -1;
@@ -2161,6 +2161,24 @@ public class SessionBean extends AbstractSessionBean {
 
     /******************************************************************************/
 
+
+    public String getLblDocumentationStyle() {
+        boolean lower = (activeTab.equals("tabWorklisted") ||
+                         activePage == ApplicationBean.PageRef.teamQueues);
+        return "top: " + (lower ? 300 : 256) + "px;";
+    }
+
+    public String getDocoPnlGroupStyle() {
+        boolean lower = (activeTab.equals("tabWorklisted") ||
+                         activePage == ApplicationBean.PageRef.teamQueues);
+        return "top: " + (lower ? 315 : 271) + "px; height: " + (lower ? 50 : 90) + "px;";
+    }
+
+    public String getTxtDocumentationStyle() {
+        boolean lower = (activeTab.equals("tabWorklisted") ||
+                         activePage == ApplicationBean.PageRef.teamQueues);
+        return "height: " + (lower ? 50 : 90) + "px;";
+    }    
 }
 
 

@@ -135,6 +135,25 @@
                   style="left: 12px; top: 58px; position: absolute"
                   text="Work Items"/>
 
+        <ui:label binding="#{pfQueueUI.lblDocumentation}"
+                  for="txtDocumentation"
+                  id="lblDocumentation"
+                  styleClass="queuesLabelLeft"
+                  style="#{SessionBean.lblDocumentationStyle}"
+                  text="Documentation"/>
+
+        <ui:panelGroup binding="#{pfQueueUI.pnlGroup}"
+            id="pnlGroup"
+            style="#{SessionBean.docoPnlGroupStyle}"
+            styleClass="docoPnlGroup">
+        
+            <ui:textArea binding="#{pfQueueUI.txtDocumentation}"
+                     id="txtDocumentation"
+                     readOnly="true"
+                     style="#{SessionBean.txtDocumentationStyle}"
+                     styleClass="docoTextArea"/>
+       </ui:panelGroup>
+
     </f:subview>
     </center>
 </div>

@@ -66,6 +66,7 @@ public class WorkItemRecord implements Cloneable {
     private String _taskID;
     private String _uniqueID;                            // used by PDF Forms service
     private String _taskName;                            // the unmodified task name
+    private String _documentation;
     private String _allowsDynamicCreation;
     private String _requiresManualResourcing;
     private String _codelet;
@@ -249,6 +250,10 @@ public class WorkItemRecord implements Cloneable {
         _logPredicateCompletion = predicate;
     }
 
+    public void setDocumentation(String doco) {
+        _documentation = doco;
+    }
+
     /********************************************************************************/
 
     // GETTERS //
@@ -334,9 +339,9 @@ public class WorkItemRecord implements Cloneable {
         return _caseID + ":" + _taskName ;
     }
 
-    public String getTaskName() {
-        return _taskName;
-    }
+    public String getTaskName() { return _taskName; }
+
+    public String getDocumentation() { return _documentation; }
 
     // returns the case id of the root ancestor case
     public String getRootCaseID() {
@@ -389,8 +394,9 @@ public class WorkItemRecord implements Cloneable {
            .append(StringUtil.wrap(_caseID, "caseid"))
            .append(StringUtil.wrap(_taskID, "taskid"))
            .append(StringUtil.wrap(_uniqueID, "uniqueid"))
-           .append(StringUtil.wrap(_taskName, "taskname"))
-           .append(StringUtil.wrap(_allowsDynamicCreation, "allowsdynamiccreation"))
+           .append(StringUtil.wrap(_taskName, "taskname"));
+        if (_documentation != null) xml.append(StringUtil.wrap(_documentation, "documentation"));
+        xml.append(StringUtil.wrap(_allowsDynamicCreation, "allowsdynamiccreation"))
            .append(StringUtil.wrap(_requiresManualResourcing, "requiresmanualresourcing"))
            .append(StringUtil.wrap(_codelet, "codelet"))
            .append(StringUtil.wrap(_deferredChoiceGroupID, "deferredChoiceGroupid"))

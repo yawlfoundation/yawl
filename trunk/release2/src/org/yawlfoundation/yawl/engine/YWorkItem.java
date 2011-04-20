@@ -842,6 +842,7 @@ public class YWorkItem {
         xml.append(StringUtil.wrap(getCaseID().toString(), "caseid"));
         xml.append(StringUtil.wrap(getUniqueID(), "uniqueid"));
         xml.append(StringUtil.wrap(_task.getName(), "taskname"));
+        xml.append(StringUtil.wrap(_task.getDocumentation(), "documentation"));
         if (_specID.getIdentifier() != null)
             xml.append(StringUtil.wrap(_specID.getIdentifier(), "specidentifier"));
 
