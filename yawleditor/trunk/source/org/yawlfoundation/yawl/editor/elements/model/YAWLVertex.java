@@ -198,6 +198,14 @@ public abstract class YAWLVertex extends DefaultGraphCell
     return (String) serializationProofAttributeMap.get("designNotes");
   }
   
+    public void setDocumentation(String doco) {
+      serializationProofAttributeMap.put("documentation",doco);
+    }
+
+    public String getDocumentation() {
+      return (String) serializationProofAttributeMap.get("documentation");
+    }
+
   public String getToolTipText() {
     if (getEngineIdToolTipText() != null) {
       return "<html><body>" + getEngineIdToolTipText() + "</body></html>";
@@ -350,12 +358,13 @@ public abstract class YAWLVertex extends DefaultGraphCell
   }
   
   public boolean hasLabel() {
-    if (getLabel() == null) {
-      return false;
-    }
-    return true;
+    return (getLabel() != null);
   }
   
+    public boolean hasDocumentation() {
+      return (getDocumentation() != null); 
+    }
+
   public void setBounds(Rectangle2D bounds) {
     Map map = new HashMap();
     GraphConstants.setBounds(map, bounds);

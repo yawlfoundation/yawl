@@ -493,12 +493,14 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   private static InputCondition generateEditorInputCondition(YInputCondition engineInputCondition) {
     InputCondition editorInputCondition = new InputCondition(DEFAULT_LOCATION);
     mapUniqueElementID(editorInputCondition, engineInputCondition.getID()) ;
+    setConditionDocumentation(editorInputCondition, engineInputCondition);
     return editorInputCondition;
   }
   
   private static OutputCondition generateEditorOutputCondition(YOutputCondition engineOutputCondition) {
     OutputCondition editorOutputCondition = new OutputCondition(DEFAULT_LOCATION);
     mapUniqueElementID(editorOutputCondition, engineOutputCondition.getID()) ;
+    setConditionDocumentation(editorOutputCondition, engineOutputCondition);
     return editorOutputCondition;
   }
   
@@ -524,7 +526,8 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
         editorNet.getGraph().addElement((MultipleAtomicTask) editorAtomicTask);
       }
       setEditorTaskLabel(editorNet.getGraph(), (YAWLTask) editorAtomicTask, engineAtomicTask);
-      
+      setEditorTaskDocumentation((YAWLTask) editorAtomicTask, engineAtomicTask);
+
       setTaskDecorators(engineAtomicTask, (YAWLTask) editorAtomicTask, editorNet);
       setTaskResources(engineAtomicTask, editorAtomicTask, editorNet) ;
       setTaskTimers(engineAtomicTask, editorAtomicTask, editorNet);
@@ -556,7 +559,20 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     }
   }
 
-  
+    private static void setEditorTaskDocumentation(YAWLTask editorTask, YTask engineTask) {
+      String doco = engineTask.getDocumentation();
+      if (doco != null) {
+          editorTask.setDocumentation(doco);
+      }
+    }
+
+    private static void setConditionDocumentation(YAWLCondition editorCondition, YCondition engineCondition) {
+      String doco = engineCondition.getDocumentation();
+      if (doco != null) {
+          editorCondition.setDocumentation(doco);
+      }
+    }
+
   private static void setTaskDecorators(YTask engineTask, YAWLTask editorTask, NetGraphModel editorNet) {
     editorNet.setJoinDecorator(
         editorTask,
@@ -729,7 +745,8 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
       }
 
       setEditorTaskLabel(editorNet.getGraph(), (YAWLTask) editorCompositeTask, engineCompositeTask);
-      
+      setEditorTaskDocumentation((YAWLTask) editorCompositeTask, engineCompositeTask);
+
       editorToEngineElementMap.put(
           engineCompositeTask,        
           editorCompositeTask
@@ -871,6 +888,8 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
           editorCondition,
           engineCondition.getName()
       );
+
+      setConditionDocumentation(editorCondition, engineCondition);    
       
       editorToEngineElementMap.put(
           engineCondition,        
@@ -966,46 +985,6 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
       }
   }
 
- // I'm leaving the below method as a monument to the grief it caused me //
-//  private static void removeImplicitConditions(Set engineConditions, NetGraphModel editorNet) {
-//    Iterator conditionIterator = engineConditions.iterator();
-//    while(conditionIterator.hasNext()) {
-//      YCondition engineCondition = (YCondition) conditionIterator.next();
-//      Condition editorCondition = (Condition) editorToEngineElementMap.get(engineCondition);
-//
-//      // assumption: a labelled flow, or one with more than single flow into or out of it
-//      // indicates an explicit condition. It's not foolproof, but it should take away 90%
-//      // of the noise implicit  conditions, leaving the designer to add back in those
-//      // explicit conditions that have been compressed to flows.
-//
-//      if(editorCondition.getLabel() == null || editorCondition.getLabel().trim().equals("")) {
-//
-//        YAWLFlowRelation sourceFlow = editorCondition.getOnlyIncomingFlow();
-//        YAWLFlowRelation targetFlow = editorCondition.getOnlyOutgoingFlow();
-//
-//        if(sourceFlow != null && targetFlow != null) {
-//
-//          YAWLTask sourceTask = ((YAWLPort) sourceFlow.getSource()).getTask();
-//          YAWLTask targetTask = ((YAWLPort) targetFlow.getTarget()).getTask();
-//
-//          if (sourceTask != null && targetTask != null) {
-//
-//            editorNet.getGraph().removeCellsAndTheirEdges(
-//                new Object[] { editorCondition }
-//            );
-//
-//            YAWLFlowRelation editorFlow = editorNet.getGraph().connect(sourceTask, targetTask);
-//
-//            // map predicate & priority from removed condition to new flow
-//            editorFlow.setPredicate(sourceFlow.getPredicate());
-//            editorFlow.setPriority(sourceFlow.getPriority());
-//
-//            editorFlowEngineConditionMap.put(engineCondition, editorFlow);
-//          }
-//        }
-//      }
-//    }
-//  }
   
     private static void removeUnnecessaryDecorators(SpecificationModel editorSpec) {
         for (NetGraphModel net : editorSpec.getNets())

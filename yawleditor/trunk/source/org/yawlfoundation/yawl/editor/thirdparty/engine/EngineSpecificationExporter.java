@@ -563,6 +563,13 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
         );
       }
 
+        if (editorCondition.hasDocumentation()) {
+             engineCondition.setDocumentation(
+                 XMLUtilities.quoteSpecialCharacters(
+                     editorCondition.getDocumentation()
+                 )
+             );
+        }
       engineNet.addNetElement(engineCondition);
 
       editorToEngineElementMap.put(editorCondition, engineCondition);
@@ -599,6 +606,14 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
        );
      }
      
+     if (editorTask.hasDocumentation()) {
+          engineAtomicTask.setDocumentation(
+              XMLUtilities.quoteSpecialCharacters(
+                  editorTask.getDocumentation()
+              )
+          );
+     }
+
      generateTimeoutDetailForAtomicTask(engineAtomicTask, editorTask);
 
       if (editorTask.getDecomposition() != null) {
