@@ -898,17 +898,18 @@ public class userWorkQueues extends AbstractPageBean {
         int result = -1;                                    // default for empty queue
         Set<WorkItemRecord> queue = _sb.refreshQueue(queueType);
         processButtonEnablement(queueType) ;                // disable btns if queue empty
+        boolean queueHasItems = (! ((queue == null) || queue.isEmpty()));
         ((pfQueueUI) getBean("pfQueueUI")).clearQueueGUI();
-        ((pfQueueUI) getBean("pfQueueUI")).setDocoStyle(false);
+        ((pfQueueUI) getBean("pfQueueUI")).getTxtDocumentation().setReadOnly(! queueHasItems);
 
-        if ((queue != null) && (! queue.isEmpty())) {
+        if (queueHasItems) {
 
             // add items to listbox and get first or selected one in list
-            addItemsToListOptions(queue, _sb.getChosenWIR(queueType)) ;
-            WorkItemRecord choice = _sb.getChosenWIR(queueType) ;
+            addItemsToListOptions(queue, _sb.getChosenWIR(queueType));
+            WorkItemRecord choice = _sb.getChosenWIR(queueType);
             showWorkItem(choice);                                   // show details
-            processTaskPrivileges(choice, queueType) ;
-            result = queue.size() ;
+            processTaskPrivileges(choice, queueType);
+            result = queue.size();
         }
         else {
             if (! (_sb.isDelegating() || _sb.isReallocating() ||

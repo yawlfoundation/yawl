@@ -120,7 +120,7 @@
                   id="lblAge"
                   styleClass="queuesLabelRight"
                   style="top: 190px"
-                  text="Age"/>
+                  text="#{SessionBean.lblAgeText}"/>
 
         <ui:label binding="#{pfQueueUI.lblStatus}"
                   for="txtStatus"
@@ -142,17 +142,11 @@
                   style="#{SessionBean.lblDocumentationStyle}"
                   text="Documentation"/>
 
-        <ui:panelGroup binding="#{pfQueueUI.pnlGroup}"
-            id="pnlGroup"
-            style="#{SessionBean.docoPnlGroupStyle}"
-            styleClass="docoPnlGroup">
-        
             <ui:textArea binding="#{pfQueueUI.txtDocumentation}"
-                     id="txtDocumentation"
-                     readOnly="true"
-                     style="#{SessionBean.txtDocumentationStyle}"
-                     styleClass="docoTextArea"/>
-       </ui:panelGroup>
+                    id="txtDocumentation"
+                    style="#{SessionBean.txtDocumentationStyle}"
+                    styleClass="docoTextArea"
+                    valueChangeListener="#{pfQueueUI.txtDocumentation_processValueChange}"/>
 
     </f:subview>
     </center>
