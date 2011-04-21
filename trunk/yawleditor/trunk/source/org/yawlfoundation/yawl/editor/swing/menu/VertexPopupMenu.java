@@ -74,10 +74,8 @@ public class VertexPopupMenu extends JPopupMenu {
   }
 
   private void addGraphSpecificMenuItems(YAWLVertex vertex) {
-    add(new YAWLPopupMenuItem(
-        new LabelElementAction(vertex, graph)    
-        )
-    );
+    add(new YAWLPopupMenuItem(new LabelElementAction(vertex, graph)));
+    add(new YAWLPopupMenuItem(new DocumentationAction(vertex, graph)));
     if (! (vertex instanceof InputCondition || vertex instanceof OutputCondition)) {
         add(new YAWLPopupMenuItem(new SetElementFillColourAction(vertex, graph)));
         addSeparator();
