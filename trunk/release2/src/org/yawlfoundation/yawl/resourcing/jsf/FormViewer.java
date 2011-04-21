@@ -179,7 +179,7 @@ public class FormViewer {
                 Element data = JDOMUtil.stringToElement(
                                         _sb.getDynFormFactoryInstance().getDataList());
                 wir.setUpdatedData(data);
-                _rm.getWorkItemCache().update(wir) ;
+                _rm.getWorkItemCache().update(wir);
                 if (_sb.isCompleteAfterEdit()) result = completeWorkItem(wir);
             }
             else {

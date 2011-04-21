@@ -451,10 +451,11 @@ public class adminQueues extends AbstractPageBean {
     private int populateQueue(int queueType) {
         int result = -1;                                    // default for empty queue
         Set<WorkItemRecord> queue = _sb.refreshQueue(queueType);
+        boolean queueHasItems = (! ((queue == null) || queue.isEmpty()));
         ((pfQueueUI) getBean("pfQueueUI")).clearQueueGUI();
-        ((pfQueueUI) getBean("pfQueueUI")).setDocoStyle(queueType == WorkQueue.WORKLISTED);
+        ((pfQueueUI) getBean("pfQueueUI")).getTxtDocumentation().setReadOnly(! queueHasItems);
 
-        if ((queue != null) && (!queue.isEmpty())) {
+        if (queueHasItems) {
             addItemsToListOptions(queue, _sb.getChosenWIR(queueType)) ;
             showWorkItem(_sb.getChosenWIR(queueType), queueType);
             result = queue.size() ;

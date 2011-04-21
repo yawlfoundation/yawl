@@ -241,18 +241,6 @@
     border: 2px solid gray;
 }
 
-.docoPnlGroup {
-    position: absolute;
-    left: 320px;
-    top: 274px;
-    height: 90px;
-    width: 307px;
-    border: 2px inset #ccccff;
-    overflow-x: hidden;
-    overflow-y: scroll;
-    background-color: white;
-}
-
 .dataTable {
     left: 0;
     top: 0px! important;
@@ -807,14 +795,15 @@
 }
 
 .docoTextArea {
-    border: 0;
-    padding: 4px;
+    border: 2px inset #ccccff;
+    padding-top: 3px;
+    padding-left: 3px;
     background-color: white;
     color: rgb(102, 102, 102);
-    left: 0;
-    top: 0! important;
-    height: 89px;
-    width: 287px;
+    left: 318px;
+    top: 274px;
+    height: 84px;
+    width: 299px;
     position: absolute;
     text-align: left;
 }

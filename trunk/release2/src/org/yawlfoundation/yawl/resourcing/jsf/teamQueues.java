@@ -222,7 +222,6 @@ public class teamQueues extends AbstractPageBean {
         _sb.showMessagePanel();
         
         ((pfQueueUI) getBean("pfQueueUI")).clearQueueGUI();
-        ((pfQueueUI) getBean("pfQueueUI")).setDocoStyle(true);
         if (enableRadioButtons()) {
 
             // get team or group members (if any)
@@ -314,8 +313,8 @@ public class teamQueues extends AbstractPageBean {
 
 
     private void showWorkItem(WorkItemRecord wir) {
+        pfQueueUI itemsSubPage = (pfQueueUI) getBean("pfQueueUI");
         if (wir != null) {
-            pfQueueUI itemsSubPage = (pfQueueUI) getBean("pfQueueUI");
             Listbox lbx = itemsSubPage.getLbxItems();
             lbx.setSelected(wir.getID());
             itemsSubPage.populateTextBoxes(wir) ;
@@ -331,6 +330,7 @@ public class teamQueues extends AbstractPageBean {
                 txtResourceState.setText("");
             }
         }
+        itemsSubPage.getTxtDocumentation().setReadOnly(wir == null);
     }
 
 

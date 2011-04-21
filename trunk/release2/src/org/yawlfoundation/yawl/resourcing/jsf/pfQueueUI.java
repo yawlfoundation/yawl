@@ -260,6 +260,15 @@ public class pfQueueUI extends AbstractFragmentBean {
         getSessionBean().setSourceTabAfterListboxSelection();
     }
 
+
+    public void txtDocumentation_processValueChange(ValueChangeEvent event) {
+        if ((((String) event.getOldValue()).trim().length() > 0) ||
+            (((String) event.getNewValue()).trim().length() > 0)) {    
+
+            getSessionBean().updateWIRDoco((String) event.getNewValue());
+        }
+    }
+
     
     protected void populateTextBoxes(WorkItemRecord wir) {
         txtCaseID.setText(wir.getCaseID());
@@ -269,28 +278,8 @@ public class pfQueueUI extends AbstractFragmentBean {
         if (taskName == null) taskName = wir.getTaskID();
         txtTaskID.setText(wordWrap(taskName, 20));
         txtDocumentation.setText(wir.getDocumentation());
-
-        try {
-            long enabled = Long.parseLong(wir.getEnablementTimeMs());
-            long age = System.currentTimeMillis() - enabled ;
-            txtAge.setText(getApplicationBean().formatAge(age));
-        }
-        catch (NumberFormatException nfe) {
-            txtAge.setText("<unavailable>") ;
-        }
-
         txtCreated.setText(wir.getEnablementTime()) ;
-    }
-
-
-
-    public void setDocoStyle(boolean lower) {
-//        int lblHeight = lower ? 300 : 256;
-//        lblDocumentation.setStyle("top: " + lblHeight + "px;");
-//        if (lower) {
-//            pnlGroup.setStyle("top:315px; height: 50px");
-//            txtDocumentation.setStyle("height: 50px");
-//        }
+        setAgeField(wir);
     }
 
 
@@ -327,6 +316,29 @@ public class pfQueueUI extends AbstractFragmentBean {
         }
         result += s;
         return result;
+    }
+
+
+    private void setAgeField(WorkItemRecord wir) {
+        long now = System.currentTimeMillis();
+        long time;
+        String labelText;
+        try {
+            String expiryStr = wir.getTimerExpiry();
+            if (expiryStr != null) {
+                time = Long.parseLong(expiryStr) - now;          // a future amt of time
+                labelText = "Expires in";
+            }
+            else {
+                time = now - Long.parseLong(wir.getEnablementTimeMs());
+                labelText = "Age";
+            }
+            getSessionBean().setLblAgeText(labelText);
+            txtAge.setText(getApplicationBean().formatAge(time));
+        }
+        catch (NumberFormatException nfe) {
+            txtAge.setText("<unavailable>");
+        }
     }
 
 }

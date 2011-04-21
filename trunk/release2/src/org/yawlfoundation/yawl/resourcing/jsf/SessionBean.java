@@ -43,6 +43,7 @@ import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.YPredicateParser;
 
 import javax.faces.FacesException;
 import javax.faces.application.Application;
@@ -1462,6 +1463,23 @@ public class SessionBean extends AbstractSessionBean {
         refreshOrgDataParticipantList();
     }
 
+
+    private String lblAgeText = "Age";
+
+    public String getLblAgeText() { return lblAgeText; }
+
+    public void setLblAgeText(String text) { lblAgeText = text; }
+
+
+    private YPredicateParser docoParser = new YPredicateParser();
+
+    public void updateWIRDoco(String doco) {
+        if (chosenWIR != null) {
+            chosenWIR.setDocumentation(docoParser.parse(doco));
+            _rm.getWorkItemCache().update(chosenWIR);
+        }
+    }
+
     /******************************************************************************/
 
     // Methods to initialise page values
@@ -2165,19 +2183,14 @@ public class SessionBean extends AbstractSessionBean {
     public String getLblDocumentationStyle() {
         boolean lower = (activeTab.equals("tabWorklisted") ||
                          activePage == ApplicationBean.PageRef.teamQueues);
-        return "top: " + (lower ? 300 : 256) + "px;";
-    }
-
-    public String getDocoPnlGroupStyle() {
-        boolean lower = (activeTab.equals("tabWorklisted") ||
-                         activePage == ApplicationBean.PageRef.teamQueues);
-        return "top: " + (lower ? 315 : 271) + "px; height: " + (lower ? 50 : 90) + "px;";
+        return String.format("top: %dpx",  (lower ? 300 : 256));
     }
 
     public String getTxtDocumentationStyle() {
         boolean lower = (activeTab.equals("tabWorklisted") ||
                          activePage == ApplicationBean.PageRef.teamQueues);
-        return "height: " + (lower ? 50 : 90) + "px;";
+        return String.format("height: %dpx; top: %dpx;",
+                (lower ? 44 : 84), (lower ? 314 : 274));
     }    
 }
 
