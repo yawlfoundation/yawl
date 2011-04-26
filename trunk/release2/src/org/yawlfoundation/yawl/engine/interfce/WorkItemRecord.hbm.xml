@@ -38,6 +38,7 @@
         <property name="_uniqueID" column="uniqueID" access="field"/>
         <property name="_taskName" column="taskName" access="field"/>
         <property name="_documentation" column="documentation" access="field" type="text"/>
+        <property name="_docoChanged" column="documentationChanged" access="field" type="boolean"/>
         <property name="_extendedAttributes" column="ExtendedAttributes" access="field" type="text"/>
         <property name="_allowsDynamicCreation" column="canCreate" access="field"/>
         <property name="_codelet" column="codelet" access="field"/>

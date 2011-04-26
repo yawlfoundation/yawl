@@ -1476,6 +1476,7 @@ public class SessionBean extends AbstractSessionBean {
     public void updateWIRDoco(String doco) {
         if (chosenWIR != null) {
             chosenWIR.setDocumentation(docoParser.parse(doco));
+            chosenWIR.setDocumentationChanged(true);
             _rm.getWorkItemCache().update(chosenWIR);
         }
     }

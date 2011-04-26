@@ -303,7 +303,8 @@ public abstract class InterfaceBWebsideController {
      * @param workItemID the work item id.
      * @param inputData the input data as an XML String.
      * @param outputData the output data as an XML String
-     * @param logPredicate a configurable logging string to be logged when the item completes
+     * @param logPredicate a configurable logging string to be logged when the item
+     * completes. May be a simple string or an xml'd YLogDataItemList object.
      * @param sessionHandle a valid session handle
      * @return a diagnostic result of the action - in XML.
      * @throws IOException if there is a problem contacting the engine.

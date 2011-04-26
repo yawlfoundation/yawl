@@ -2175,9 +2175,8 @@ public class ResourceManager extends InterfaceBWebsideController {
                 if (outData == null) outData = wir.getDataList();
                 checkCacheForWorkItem(wir);
                 if (p != null) addTaskCompleter(p, wir);
-                parseCompletionLogPredicate(p, wir);
                 result = checkInWorkItem(wir.getID(), wir.getDataList(), outData,
-                        wir.getLogPredicateCompletion(), getEngineSessionHandle()) ;
+                        getCompletionLogPredicate(p, wir), getEngineSessionHandle()) ;
                 if (successful(result)) {
                     EventLogger.log(wir, (p != null) ? p.getID() : "",
                             EventLogger.event.complete);       // log it immediately
@@ -2200,7 +2199,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             }
         }
         catch (IOException ioe) {
-            result = "<failure>checkinItem method caused java IO Exception</failure>";
+            result = "<failure>checkinItem method caused IO Exception</failure>";
             _log.error(result, ioe) ;
         }
         catch (JDOMException jde) {
@@ -2243,19 +2242,32 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    private void parseCompletionLogPredicate(Participant p, WorkItemRecord wir) {
-        String predicate = wir.getLogPredicateCompletion();
-        if (predicate != null) {
-            wir.setLogPredicateCompletion(new LogPredicateParser(p, wir).parse(predicate));
+    private String getCompletionLogPredicate(Participant p, WorkItemRecord wir) {
+        String decompPredicate = parseCompletionLogPredicate(p, wir);
+        if (wir.isDocumentationChanged()) {
+            YLogDataItem docoItem = new YLogDataItem("Predicate", "Documentation",
+                    wir.getDocumentation(), "string");
+            YLogDataItemList itemList = new YLogDataItemList(docoItem);
+            if (decompPredicate != null) {
+                YLogDataItem decompItem = new YLogDataItem("Predicate", "Complete",
+                    decompPredicate, "string");
+                itemList.add(decompItem);
+            }
+            return itemList.toXML();
         }
+        return decompPredicate;
     }
 
+
+    private String parseCompletionLogPredicate(Participant p, WorkItemRecord wir) {
+        String predicate = wir.getLogPredicateCompletion();
+        return (predicate != null) ? new LogPredicateParser(p, wir).parse(predicate) : null;
+    }
+
+    
     private String getRootCaseID(String id) {
         int firstDot = id.indexOf(".");
-        if (firstDot > -1)
-            return id.substring(0, firstDot);
-        else
-            return id;
+        return (firstDot > -1) ? id.substring(0, firstDot) : id;
     }
 
     private void cancelCodeletRunnersForCase(String caseID) {
