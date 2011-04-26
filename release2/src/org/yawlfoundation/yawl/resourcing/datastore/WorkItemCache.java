@@ -66,7 +66,7 @@ public class WorkItemCache extends ConcurrentHashMap<String, WorkItemRecord> {
 
 
     public WorkItemRecord add(WorkItemRecord wir) {
-        return this.put(wir.getID(), wir) ;
+        return (wir != null) ? this.put(wir.getID(), wir) : null;
     }
 
     public WorkItemRecord remove(WorkItemRecord wir) {
@@ -74,7 +74,10 @@ public class WorkItemCache extends ConcurrentHashMap<String, WorkItemRecord> {
     }
 
     public WorkItemRecord replace(WorkItemRecord oldWir, WorkItemRecord newWir) {
-        this.remove(oldWir.getID());
+        if (oldWir != null) {
+            this.remove(oldWir.getID());
+            copyDocumentation(oldWir, newWir);
+        }
         return add(newWir);
     }
     
@@ -118,6 +121,15 @@ public class WorkItemCache extends ConcurrentHashMap<String, WorkItemRecord> {
             _persister.commit();
         }
     }
+
+
+    private void copyDocumentation(WorkItemRecord oldWir, WorkItemRecord newWir) {
+        if ((newWir != null) && oldWir.isDocumentationChanged()) {
+            newWir.setDocumentation(oldWir.getDocumentation());
+            newWir.setDocumentationChanged(true);
+        }
+    }
+
 
 
     // OVERRIDES //

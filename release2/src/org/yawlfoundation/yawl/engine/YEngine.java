@@ -1471,7 +1471,7 @@ public class YEngine implements InterfaceADesign,
                                 _announcer.announceTimeServiceExpiry(workItem, timeOutSet);
                             }
                         }
-                        workItem.setLogPredicateCompletion(logPredicate);
+                        workItem.setExternalLogPredicate(logPredicate);
                         workItem.setStatusToComplete(_pmgr, completionType);
                         Document doc = getDataDocForWorkItemCompletion(workItem, data, completionType);
                         workItem.completeData(_pmgr, doc);

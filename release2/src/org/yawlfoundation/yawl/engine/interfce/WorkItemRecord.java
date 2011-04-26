@@ -100,21 +100,23 @@ public class WorkItemRecord implements Cloneable {
 
     // who performed the workitem
     private String _startedBy;
-    private String _completedBy ;
+    private String _completedBy;
 
     // initial data params and values
     private Element _dataList;
     private String _dataListString;
 
     // interim data store - for use by custome services for temp storage
-    private Element _dataListUpdated ;
-    private String _dataListUpdatedString ;
+    private Element _dataListUpdated;
+    private String _dataListUpdatedString;
 
     // configurable logging predicates
     private String _logPredicateStarted;
     private String _logPredicateCompletion;
 
-    private String _customFormURL ;                         // path to alternate jsp
+    private String _customFormURL;                         // path to alternate jsp
+
+    private boolean _docoChanged = false;                  // documentation updated?
 
     private String _tag;                                   // for user-defined values
 
@@ -254,6 +256,10 @@ public class WorkItemRecord implements Cloneable {
         _documentation = doco;
     }
 
+    public void setDocumentationChanged(boolean added) {
+        _docoChanged = added;
+    }
+
     /********************************************************************************/
 
     // GETTERS //
@@ -342,6 +348,10 @@ public class WorkItemRecord implements Cloneable {
     public String getTaskName() { return _taskName; }
 
     public String getDocumentation() { return _documentation; }
+
+    public boolean hasDocumentation() { return _documentation != null; }
+
+    public boolean isDocumentationChanged() { return _docoChanged; }
 
     // returns the case id of the root ancestor case
     public String getRootCaseID() {
