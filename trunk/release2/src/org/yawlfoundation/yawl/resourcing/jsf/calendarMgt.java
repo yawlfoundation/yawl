@@ -22,6 +22,10 @@ import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.calendar.CalendarEntry;
+import org.yawlfoundation.yawl.resourcing.calendar.CalendarException;
+import org.yawlfoundation.yawl.resourcing.calendar.CalendarRow;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.faces.FacesException;
 import javax.faces.component.UIColumn;
@@ -368,20 +372,170 @@ public class calendarMgt extends AbstractPageBean {
     public void setCbbResource(DropDown cbb) { cbbResource = cbb; }
 
 
+    private PanelLayout calPanel = new PanelLayout();
+
+    public PanelLayout getCalPanel() { return calPanel; }
+
+    public void setCalPanel(PanelLayout pl) { calPanel = pl; }
+
+
+    private StaticText headingStart = new StaticText();
+
+    public StaticText getHeadingStart() { return headingStart; }
+
+    public void setHeadingStart(StaticText st) { headingStart = st; }
+
+
+    private StaticText headingEnd = new StaticText();
+
+    public StaticText getHeadingEnd() { return headingEnd; }
+
+    public void setHeadingEnd(StaticText st) { headingEnd = st; }
+
+
+    private StaticText headingName = new StaticText();
+
+    public StaticText getHeadingName() { return headingName; }
+
+    public void setHeadingName(StaticText st) { headingName = st; }
+
+
+    private StaticText headingStatus = new StaticText();
+
+    public StaticText getHeadingStatus() { return headingStatus; }
+
+    public void setHeadingStatus(StaticText st) { headingStatus = st; }
+
+
+    private StaticText headingWorkload = new StaticText();
+
+    public StaticText getHeadingWorkload() { return headingWorkload; }
+
+    public void setHeadingWorkload(StaticText st) { headingWorkload = st; }
+
+
+    private StaticText headingComments = new StaticText();
+
+    public StaticText getHeadingComments() { return headingComments; }
+
+    public void setHeadingComments(StaticText st) { headingComments = st; }
+
+
+    private PanelLayout editPanel = new PanelLayout();
+
+    public PanelLayout getEditPanel() { return editPanel; }
+
+    public void setEditPanel(PanelLayout pl) { editPanel = pl; }
+
+
+    private PanelLayout upperPanel = new PanelLayout();
+
+    public PanelLayout getUpperPanel() { return upperPanel; }
+
+    public void setUpperPanel(PanelLayout pl) { upperPanel = pl; }
+
+
+    public Label lblStart = new Label();
+
+    public Label getLblStart() { return lblStart; }
+
+    public void setLblStart(Label lbl) { lblStart = lbl; }
+
+
+    public Label lblEnd = new Label();
+
+    public Label getLblEnd() { return lblEnd; }
+
+    public void setLblEnd(Label lbl) { lblEnd = lbl; }
+
+
+    public Label lblUntil = new Label();
+
+    public Label getLblUntil() { return lblUntil; }
+
+    public void setLblUntil(Label lbl) { lblUntil = lbl; }
+
+
+    public Label lblWorkload = new Label();
+
+    public Label getLblWorkload() { return lblWorkload; }
+
+    public void setLblWorkload(Label lbl) { lblWorkload = lbl; }
+
+
+    public Label lblComments = new Label();
+
+    public Label getLblComments() { return lblComments; }
+
+    public void setLblComments(Label lbl) { lblComments = lbl; }
+
+
+    private Calendar calDuration = new Calendar();
+
+    public Calendar getCalDuration() { return calDuration; }
+
+    public void setCalDuration(Calendar cal) { calDuration = cal; }
+
+
+    private TextField txtStartTime = new TextField();
+
+    public TextField getTxtStartTime() { return txtStartTime; }
+
+    public void setTxtStartTime(TextField tf) { txtStartTime = tf; }
+
+
+    private TextField txtEndTime = new TextField();
+
+    public TextField getTxtEndTime() { return txtEndTime; }
+
+    public void setTxtEndTime(TextField tf) { txtEndTime = tf; }
+
+
+    private TextField txtWorkload = new TextField();
+
+    public TextField getTxtWorkload() { return txtWorkload; }
+
+    public void setTxtWorkload(TextField tf) { txtWorkload = tf; }
+
+
+    private TextField txtComments = new TextField();
+
+    public TextField getTxtComments() { return txtComments; }
+
+    public void setTxtComments(TextField tf) { txtComments = tf; }
+
+
+    private Button btnClear = new Button();
+
+    public Button getBtnClear() { return btnClear; }
+
+    public void setBtnClear(Button b) { btnClear = b; }
+
+
+    private String btnAddText = "Add";
+
+    public String getBtnAddText() { return btnAddText; }
+
+    public void setBtnAddText(String text) { btnAddText = text; }
+
+
     /*******************************************************************************/
 
     private final ResourceManager _rm = ResourceManager.getInstance() ;
     private final SessionBean _sb = getSessionBean();
     private final MessagePanel _msgPanel = _sb.getMessagePanel();
+    private final GregorianCalendar _greg = new GregorianCalendar();
 
+    private enum Mode {Add, Edit}
 
     public void cbbFilter_processValueChange(ValueChangeEvent event) {
         _sb.setCalFilterSelection((String) event.getNewValue());
+        nullifyResourceCombo();
     }
 
 
     public void cbbResource_processValueChange(ValueChangeEvent event) {
-
+        _sb.setCalResourceSelection((String) event.getNewValue()); 
     }
 
 
@@ -390,15 +544,23 @@ public class calendarMgt extends AbstractPageBean {
      */
     public void prerender() {
         _sb.checkLogon();
-        _sb.setActivePage(ApplicationBean.PageRef.calendarMgt);
-        _sb.showMessagePanel();
-        refreshRows();
+        setActivePage();
+        showMessagePanel();
+        processMode();
         setFilter();
         activateButtons();
     }
 
-    private void refreshRows() {
-
+    private void processMode() {
+        boolean isEditMode = (getMode() == Mode.Edit);
+        btnAddText = isEditMode ? "Save" : "Add";
+        btnDelete.setDisabled(isEditMode);
+        btnUpdate.setDisabled(isEditMode);
+        btnTomorrow.setDisabled(isEditMode);
+        btnYesterday.setDisabled(isEditMode);
+        calComponent.setDisabled(isEditMode);
+        cbbFilter.setDisabled(isEditMode);
+        cbbResource.setDisabled(isEditMode);
     }
 
 
@@ -408,16 +570,84 @@ public class calendarMgt extends AbstractPageBean {
 
 
     public String btnAdd_action() {
-        // do something
-        return null ;
+        if (validateFields()) {
+            long startTime = getTime((String) txtStartTime.getText());
+            long endTime = getTime((String) txtEndTime.getText());
+            if (startTime < endTime) {
+                int workload = getWorkloadValue();
+                String comment = (String) txtComments.getText();
+                if (getMode() == Mode.Edit) {                  // update existing entry
+                    CalendarEntry entry = getSelectedEntry();
+                    if (entry != null) {
+                        entry.setStartTime(startTime);
+                        entry.setEndTime(endTime);
+                        entry.setWorkload(workload);
+                        entry.setComment(comment);
+                        _rm.getCalendar().updateEntry(entry);
+                    }
+                    else {
+                        _msgPanel.error("Could not retrieve selected row to update.");
+                    }
+                }
+                else {                                         // add new entry
+                    try {
+                        _sb.addCalendarEntry(startTime, endTime, workload, comment);
+                    }
+                    catch (CalendarException ce) {
+                        _msgPanel.error("Could not add entry: " + ce.getMessage());
+                    }
+                }
+                clearFields();
+            }
+            else _msgPanel.error("End time must come after start time.");
+        }
+        return null;
     }
 
 
     public String btnUpdate_action() {
-        // do something
-        return null ;
+        try {
+            Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
+            CalendarRow row = _sb.getSelectedCalendarRow(selectedRowIndex);
+            if (row != null) {
+                btnAddText = "Save";
+                txtStartTime.setText(row.getStartTimeAsString());
+                txtEndTime.setText(row.getEndTimeAsString());
+                txtWorkload.setText(row.getWorkload());
+                txtComments.setText(row.getComment());
+                setMode(Mode.Edit);
+            }
+        }
+        catch (NumberFormatException nfe) {
+            _msgPanel.warn("Please select a row to edit.");
+        }
+        return null;
     }
 
+
+    public String btnDelete_action() {
+        try {
+            Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
+            String result = _sb.removeCalendarRow(selectedRowIndex);
+            if (result.startsWith("<fail")) {
+                _msgPanel.error(result);
+            }
+        }
+        catch (NumberFormatException nfe) {
+            _msgPanel.error("No entry selected to remove.");
+        }
+        catch (Exception e) {
+            _msgPanel.error("Could not remove entry. See logs for details");
+            e.printStackTrace();
+        }
+        return null;        
+    }
+
+
+    public String btnClear_action() {
+        clearFields();
+        return null ;
+    }
 
     public String btnYesterday_action() {
         incDate(-1);
@@ -432,10 +662,9 @@ public class calendarMgt extends AbstractPageBean {
 
 
     public void incDate(int amt) {
-        GregorianCalendar greg = new GregorianCalendar();
-        greg.setTimeInMillis(calComponent.getSelectedDate().getTime());
-        greg.add(GregorianCalendar.DAY_OF_YEAR, amt);
-        _sb.setSelectedCalMgtDate(greg.getTime());
+        _greg.setTimeInMillis(calComponent.getSelectedDate().getTime());
+        _greg.add(GregorianCalendar.DAY_OF_YEAR, amt);
+        _sb.setSelectedCalMgtDate(_greg.getTime());        
     }
 
 
@@ -443,24 +672,126 @@ public class calendarMgt extends AbstractPageBean {
     }
 
 
-    private void setFilter() {
-        String selectedFilter = _sb.getCalFilterSelection();
-        cbbFilter.setSelected(selectedFilter);
-
-        boolean showResourceCombo = (selectedFilter.startsWith("Selected"));
-        lblResource.setVisible(showResourceCombo);
-        cbbResource.setVisible(showResourceCombo);
+    private CalendarEntry getSelectedEntry() {
+        CalendarRow row = _sb.getSelectedCalendarRow();
+        return (row != null) ? row.toCalendarEntry() : null;
     }
 
 
+    private void setFilter() {
+        String selectedFilter = _sb.getCalFilterSelection();
+        cbbFilter.setSelected(selectedFilter);
+        cbbResource.setDisabled(! selectedFilter.startsWith("Selected"));
+        if (cbbResource.isDisabled()) {
+            _sb.setCalResourceSelection(null);
+        }
+        setAddModeInputs(selectedFilter);
+    }
+
+
+    private void setAddModeInputs(String selectedFilter) {
+        boolean disable = selectedFilter.equals("Unfiltered");
+        txtStartTime.setDisabled(disable);
+        txtEndTime.setDisabled(disable);
+        txtWorkload.setDisabled(disable);
+        txtComments.setDisabled(disable);
+        btnAdd.setDisabled(disable);
+     }
+
+
     public Option[] getCalendarMgtFilterComboItems() {
-        Option[] options = new Option[5];
-        options[0] = new Option("All Resources");
-        options[1] = new Option("All Participants");
-        options[2] = new Option("All Assets");
-        options[3] = new Option("Selected Participant");
-        options[4] = new Option("Selected Asset");
+        Option[] options = new Option[6];
+        options[0] = new Option("Unfiltered");
+        options[1] = new Option("All Resources");
+        options[2] = new Option("All Participants");
+        options[3] = new Option("All Assets");
+        options[4] = new Option("Selected Participant");
+        options[5] = new Option("Selected Asset");
         return options;
+    }
+
+
+    private void setActivePage() {
+        _sb.setActivePage(ApplicationBean.PageRef.calendarMgt);
+    }
+
+    
+    private void showMessagePanel() {
+        if (_msgPanel.hasMessage()) body1.setFocus("form1:pfMsgPanel:btnOK001");
+        _sb.showMessagePanel();
+    }
+
+
+    private Mode getMode() {
+        return _sb.isAddCalendarRowMode() ? Mode.Add : Mode.Edit;
+    }
+
+    private void setMode(Mode mode) {
+        _sb.setAddCalendarRowMode(mode == Mode.Add) ;
+    }
+
+
+    private boolean validateFields() {
+        boolean valid;
+        String start = (String) txtStartTime.getText();
+        valid = validateTimeField(start, "Start Time");
+        String end = (String) txtEndTime.getText();
+        valid = valid && validateTimeField(end, "End Time");
+        int workload = getWorkloadValue();
+        return valid && validateWorkloadField(workload);
+    }
+
+
+    private boolean validateTimeField(String time, String label) {
+        if (! time.matches("(([01]?\\d)|(2[0-3])):([0-5]\\d)")) {
+            _msgPanel.error("Invalid " + label);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateWorkloadField(int load) {
+        if ((load < 1) || (load > 100)) {
+            _msgPanel.error("Invalid workload: must be between 1 and 100");
+            return false;
+        }
+        return true;
+    }
+
+
+    private void nullifyResourceCombo() {
+        cbbResource.setSelected(null);
+        cbbResource.setItems(null);
+        _sb.setCalResourceSelection(null);
+    }
+
+
+    private void clearFields() {
+        txtStartTime.setText("");
+        txtEndTime.setText("");
+        txtWorkload.setText("");
+        txtComments.setText("");
+        calDuration.setValue("");
+        _sb.setSelectedCalendarRowIndex(-1);
+        setMode(Mode.Add);
+    }
+
+
+    private long getTime(String timeStr) {
+        long midnight = calComponent.getSelectedDate().getTime();
+        String[] hrsAndMins = timeStr.split(":");
+        long hrs = StringUtil.strToLong(hrsAndMins[0], 0);
+        long mins = StringUtil.strToLong(hrsAndMins[1], 0);
+        return midnight + ((hrs * 60 + mins) * 60000);             // add time in msecs 
+    }
+
+
+    private int getWorkloadValue() {
+        Object load = txtWorkload.getText();
+        if (load instanceof Integer) {
+            return (Integer) load;
+        }
+        return StringUtil.strToInt((String) load, 100);
     }
 
 }
