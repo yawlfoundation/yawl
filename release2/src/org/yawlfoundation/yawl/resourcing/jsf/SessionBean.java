@@ -24,6 +24,7 @@ import com.sun.rave.web.ui.component.Listbox;
 import com.sun.rave.web.ui.component.PanelLayout;
 import com.sun.rave.web.ui.component.Script;
 import com.sun.rave.web.ui.model.Option;
+import org.apache.commons.lang.time.DateUtils;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
@@ -32,7 +33,10 @@ import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.calendar.CalendarEntry;
+import org.yawlfoundation.yawl.resourcing.calendar.CalendarException;
 import org.yawlfoundation.yawl.resourcing.calendar.CalendarRow;
+import org.yawlfoundation.yawl.resourcing.calendar.ResourceCalendar;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.OptionComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
@@ -300,6 +304,9 @@ public class SessionBean extends AbstractSessionBean {
         }
         if (page != ApplicationBean.PageRef.externalClients) {
             setAddClientAccountMode(true);
+        }
+        if (page != ApplicationBean.PageRef.calendarMgt) {
+            setAddCalendarRowMode(true);
         }
         if (page != ApplicationBean.PageRef.nonHumanMgt) {
             setSubCatAddMode(false);
@@ -2123,17 +2130,81 @@ public class SessionBean extends AbstractSessionBean {
     /** Calendar Page *************************************************************/
     /******************************************************************************/
 
+    private List<CalendarRow> calendarRows = new ArrayList<CalendarRow>();
+
     public List<CalendarRow> getCalendarRows() {
-        List<CalendarRow> rows = new ArrayList<CalendarRow>();
-        CalendarRow c = new CalendarRow();
-        c.setName("Fred Flintstone");
-        rows.add(c);
-        return rows;
+        calendarRows.clear();
+        long from = selectedCalMgtDate.getTime();
+        long to = from + 86400000;      // msecs in 1 day
+        List rawRows = getEntriesForSelection(from, to);
+        for (Object o : rawRows) {
+            CalendarRow row = new CalendarRow((CalendarEntry) o);
+            row.setName(getNameForCalendarID(row.getResourceID()));
+            calendarRows.add(row);
+        }    
+        return calendarRows;
     }
 
 
-    // the currently selected date on the page
-    private Date selectedCalMgtDate = new Date();                  // default to today
+    private List getEntriesForSelection(long from, long to) {
+        String id = getSelectedCalendarID();
+        if (id != null) {
+            if (calFilterSelection.startsWith("All")) {
+                return _rm.getCalendar().getEntries(getSelectedResourceGroup(), from, to, true);
+            }
+            else if (calFilterSelection.startsWith("Selected")) {
+                AbstractResource resource = _rm.getOrgDataSet().getResource(id);
+                return _rm.getCalendar().getEntries(resource, from, to, true);
+            }    
+        }
+        return _rm.getCalendar().getEntries(id, from, to, true);
+    }
+
+
+    public String removeCalendarRow(int index) {
+        CalendarRow row = getSelectedCalendarRow(index);
+        if (row != null) {
+            try {
+                _rm.getCalendar().makeAvailable(row.getEntryID());
+                return "<success/>";
+            }
+            catch (CalendarException ce) {
+                return "<failure>" + ce.getMessage() + "</failure>";
+            }
+        }
+        return "<failure>Could not remove row.</failure>";
+    }
+
+
+    private int selectedCalendarRowIndex = -1;
+
+    public CalendarRow getSelectedCalendarRow(int index) {
+        if (index < calendarRows.size()) {
+             selectedCalendarRowIndex = index;
+             return calendarRows.get(index);
+        }
+        return null;
+    }
+
+    public CalendarRow getSelectedCalendarRow() {
+        return (selectedCalendarRowIndex > -1) ?
+             calendarRows.get(selectedCalendarRowIndex) : null;
+    }
+
+
+    public CalendarEntry getSelectedEntry() {
+        CalendarRow row = getSelectedCalendarRow();
+        return (row != null) ? row.toCalendarEntry() : null;
+    }
+
+
+    public int getSelectedCalendarRowIndex() { return selectedCalendarRowIndex; }
+
+    public void setSelectedCalendarRowIndex(int index) { selectedCalendarRowIndex = index; }
+
+
+    // the currently selected date on the page - default to today midnight
+    private Date selectedCalMgtDate = DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH);
 
     public Date getSelectedCalMgtDate() { return selectedCalMgtDate; }
 
@@ -2166,17 +2237,109 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
-    private String calFilterSelection = "All Resources";
+    private String calFilterSelection = "Unfiltered";
 
     public String getCalFilterSelection() { return calFilterSelection; }
 
     public void setCalFilterSelection(String selection) { calFilterSelection = selection; }
+
+
+    private String calResourceSelection = null;
+
+    public String getCalResourceSelection() { return calResourceSelection; }
+
+    public void setCalResourceSelection(String selection) { calResourceSelection = selection; }
+
+
+    public String getSelectedCalendarID() {
+        String result = null;
+        if (calFilterSelection.startsWith("All")) {
+            result = getSelectedResourceGroup().name();
+        }
+        else if (calFilterSelection.startsWith("Selected")) {
+            result = calResourceSelection;
+        }
+        return result;
+    }
+
+
+    public void addCalendarEntry(long startTime, long endTime, int workload, String comments)
+            throws CalendarException {
+        if (calFilterSelection.startsWith("All")) {
+            ResourceCalendar.ResourceGroup group = getSelectedResourceGroup();
+            _rm.getCalendar().addEntry(group, startTime, endTime,
+                    ResourceCalendar.Status.unavailable, getUserid(), comments);
+        }
+        else if (calFilterSelection.startsWith("Selected")) {
+            AbstractResource resource = _rm.getOrgDataSet().getResource(calResourceSelection);
+            _rm.getCalendar().addEntry(resource, startTime, endTime,
+                    ResourceCalendar.Status.unavailable, workload, getUserid(), comments);
+        }
+    }
+
+
+    private ResourceCalendar.ResourceGroup getSelectedResourceGroup() {
+        if (calFilterSelection.equals("All Resources")) {
+            return ResourceCalendar.ResourceGroup.AllResources;
+        }
+        else if (calFilterSelection.equals("All Participants")) {
+            return ResourceCalendar.ResourceGroup.HumanResources;
+        }
+        else if (calFilterSelection.equals("All Assets")) {
+            return ResourceCalendar.ResourceGroup.NonHumanResources;
+        }
+        return null;
+    }
+
+    private String getNameForCalendarID(String id) {
+        ResourceCalendar cal = _rm.getCalendar();
+        if (id == null) return "";
+        String result = "";
+        if (id.equals(cal.getEntryString(ResourceCalendar.ResourceGroup.AllResources))) {
+            result = "All Resources";
+        }
+        else if (id.equals(cal.getEntryString(ResourceCalendar.ResourceGroup.HumanResources))) {
+            result = "All Participants";
+        }
+        else if (id.equals(cal.getEntryString(ResourceCalendar.ResourceGroup.NonHumanResources))) {
+            result = "All Assets";
+        }
+        else if (id.length() > 0) {
+            AbstractResource resource = _rm.getOrgDataSet().getResource(id);
+            if (resource instanceof Participant) {
+                result = ((Participant) resource).getFullName();
+            }
+            else if (resource instanceof NonHumanResource) {
+                result = ((NonHumanResource) resource).getName();
+            }
+        }
+        return result;            
+    }
     
 
     public Option[] getCalResourceOptions() {
+        if (calFilterSelection.endsWith("Participant")) {
+            return getOrgDataParticipantList();
+        }
+        else if (calFilterSelection.endsWith("Asset")) {
+            return getNhResourcesList();
+        }
         return new Option[0];
     }
 
+
+    private Date selectedDurationDate;
+
+    public Date getSelectedDurationDate() { return selectedDurationDate; }
+
+    public void setSelectedDurationDate(Date date) { selectedDurationDate = date; }
+
+
+    private boolean addCalendarRowMode = true;
+
+    public boolean isAddCalendarRowMode() { return addCalendarRowMode; }
+
+    public void setAddCalendarRowMode(boolean mode) { addCalendarRowMode = mode; }
 
     /******************************************************************************/
 

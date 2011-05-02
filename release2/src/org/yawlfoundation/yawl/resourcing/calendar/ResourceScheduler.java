@@ -971,7 +971,7 @@ public class ResourceScheduler {
 
     /**
      * Reassign a calendar entry to another resource in the same grouping (role,
-     * capability or category/subcategory
+     * capability or category/subcategory)
      * @param entry the calendar entry to reassign
      * @param logEntry the matching log entry for the calendar entry
      * @param uResource the resource xml specifying the group object

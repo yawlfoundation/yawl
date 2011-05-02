@@ -377,6 +377,14 @@
     position: absolute;    
 }
 
+.calTableHeading {
+    color: #3277ba;
+    font-size: 12px;
+    top: 75px;
+    font-weight: bold;
+    position: absolute;
+}
+
 .rssMessage {
     color: #3333ff;
     font-size: 16px;
@@ -648,6 +656,26 @@
 
 .specsDescCol {
     width: 360px;
+}
+
+.calTimeCol {
+    width: 22px;
+}
+
+.calNameCol {
+    width: 120px;
+}
+
+.calStatusCol {
+    width: 50px;
+}
+
+.calWorkloadCol {
+    width: 18px;
+}
+
+.calCommentCol {
+    width: 128px;
 }
 
 

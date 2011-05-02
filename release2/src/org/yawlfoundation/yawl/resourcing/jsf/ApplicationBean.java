@@ -22,30 +22,29 @@ import com.sun.rave.web.ui.appbase.AbstractApplicationBean;
 import com.sun.rave.web.ui.component.Link;
 import com.sun.rave.web.ui.component.PanelLayout;
 import com.sun.rave.web.ui.component.StaticText;
-import com.sun.rave.web.ui.model.Option;
+import org.yawlfoundation.yawl.authentication.YExternalClient;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
-import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.YAWLServiceComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.YExternalClientComparator;
+import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 import org.yawlfoundation.yawl.util.YBuildProperties;
-import org.yawlfoundation.yawl.elements.YAWLServiceReference;
-import org.yawlfoundation.yawl.authentication.YExternalClient;
 
 import javax.faces.FacesException;
 import javax.faces.application.Application;
 import javax.faces.application.ViewHandler;
 import javax.faces.component.UIViewRoot;
-import javax.faces.context.FacesContext;
 import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.io.IOException;
 
 /**
  * Application scope data bean for the worklist and admin pages.
@@ -621,17 +620,6 @@ public class ApplicationBean extends AbstractApplicationBean {
         catch (IOException ioe) {
             externalClients = null;
         }
-    }
-
-    
-    public Option[] getCalendarMgtFilterComboItems() {
-        Option[] options = new Option[5];
-        options[0] = new Option("All Resources");
-        options[1] = new Option("All Participants");
-        options[2] = new Option("All Assets");
-        options[3] = new Option("Selected Participant");
-        options[4] = new Option("Selected Asset");
-        return options;
     }
 
 }

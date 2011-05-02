@@ -698,6 +698,51 @@ public class ResourceCalendar {
     }
 
 
+    public List getEntries(String id, long from, long to, boolean immediateCommit) {
+        List entries = getEntries(id, from, to);
+        if (immediateCommit) commitTransaction();
+        return entries;
+    }
+
+    public List getEntries(String id, long from, long to) {
+        if (id == null) {
+            return getEntries(from, to);
+        }
+        return _persister.createQuery("FROM CalendarEntry AS ce WHERE ce.resourceID=:id" +
+                " AND ce.startTime < :end AND ce.endTime > :start " +
+                " ORDER BY ce.startTime")
+                .setString("id", id)
+                .setLong("start", from)
+                .setLong("end", to)
+                .list();
+    }
+
+
+    public List getEntries(ResourceGroup group, long from, long to, boolean immediateCommit) {
+        List entries = getEntries(group, from, to);
+        if (immediateCommit) commitTransaction();
+        return entries;
+    }
+
+    public List getEntries(ResourceGroup group, long from, long to) {
+        return getEntries(getEntryString(group), from, to);
+    }
+
+
+    public List getEntries(AbstractResource resource, long from, long to, boolean immediateCommit) {
+        List entries = getEntries(resource, from, to);
+        if (immediateCommit) commitTransaction();
+        return entries;
+    }
+
+    public List getEntries(AbstractResource resource, long from, long to) {
+        if (resource == null) {
+            return getEntries(from, to);
+        }
+        return getTimeSlotEntries(resource, from, to);
+    }
+
+
     /**
      * Updates and saves an existing calendar entry
      * @param entry the entry to update
@@ -783,10 +828,15 @@ public class ResourceCalendar {
      * @return the list of possible id values to match
      */
     private List<String> createIDListForQuery(AbstractResource resource) {
+        return createIDListForQuery(resource.getID(), (resource instanceof Participant));
+    }
+
+
+    private List<String> createIDListForQuery(String resourceID, boolean isParticipant) {
         return Arrays.asList(
-                   resource.getID(),
+                   resourceID,
                    getEntryString(ResourceGroup.AllResources),
-                   getEntryString((resource instanceof Participant) ?
+                   getEntryString(isParticipant ?
                                    ResourceGroup.HumanResources :
                                    ResourceGroup.NonHumanResources)
         );
@@ -799,7 +849,7 @@ public class ResourceCalendar {
      * @return its matching string
      * @pre entry is a valid Entry type
      */
-    private String getEntryString(ResourceGroup entry) {
+    public String getEntryString(ResourceGroup entry) {
         switch (entry) {
             case AllResources : return "ALL_RESOURCES";
             case HumanResources : return "ALL_HUMAN_RESOURCES";

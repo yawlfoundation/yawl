@@ -38,14 +38,20 @@ public class CalendarEntry implements Cloneable {
 
     public CalendarEntry(String resID, long start, long end,
                          ResourceCalendar.Status st, int wload, String agt, String cmt) {
+        this(resID, start, end, st.name(), wload, agt, cmt);
+    }
+
+    public CalendarEntry(String resID, long start, long end,
+                         String st, int wload, String agt, String cmt) {
         resourceID = resID;
         startTime = start;
         endTime = end;
-        status = st.name();
+        status = st;
         workload = wload;
         agent = agt;
         comment = cmt;
     }
+
 
     public long getEntryID() {
         return entryID;

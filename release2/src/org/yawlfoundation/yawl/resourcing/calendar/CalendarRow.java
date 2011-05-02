@@ -33,6 +33,13 @@ public class CalendarRow extends CalendarEntry {
         super();
     }
 
+    public CalendarRow(CalendarEntry entry) {
+        super(entry.getResourceID(), entry.getStartTime(), entry.getEndTime(),
+              entry.getStatus(), entry.getWorkload(),entry.getAgent(), entry.getComment());
+        setEntryID(entry.getEntryID());
+        setChainID(entry.getChainID());
+    }
+
     public String getName() {
         return name;
     }
@@ -53,5 +60,14 @@ public class CalendarRow extends CalendarEntry {
         return sdf.format(time);
     }
 
+
+    // required for hibernate
+    public CalendarEntry toCalendarEntry() {
+        CalendarEntry entry = new CalendarEntry(getResourceID(), getStartTime(),
+                getEndTime(), getStatus(), getWorkload(), getAgent(), getComment());
+        entry.setChainID(getChainID());
+        entry.setEntryID(getEntryID());
+        return entry;
+    }
 
 }
