@@ -216,7 +216,7 @@ public class SubPanel extends PanelLayout implements Cloneable {
      * @param top the new top value
      */
     private void resetTopStyle(UIComponent component, int top) {
-        String style = String.format("top: %dpx", top) ;
+        String style = String.format("top: %dpx;", top) ;
         if (component instanceof Label)
             ((Label) component).setStyle(style);
         else if (component instanceof TextField)
