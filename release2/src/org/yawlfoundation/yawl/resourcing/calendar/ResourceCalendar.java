@@ -39,15 +39,16 @@ import java.util.*;
 public class ResourceCalendar {
 
     public static enum Status {
-        nil, unknown, available, unavailable, requested, reserved, hardBlocked, softBlocked
+        nil, unknown, available, unavailable, requested,
+        reserved, busy, hardBlocked, softBlocked
     }
 
     public static enum ResourceGroup { AllResources, HumanResources, NonHumanResources }
 
-    public static String TRANSIENT_FLAG = "__transient__entry__flag__";
+    private static final String TRANSIENT_FLAG = "__transient__entry__flag__";
 
     private static ResourceCalendar _me;
-    private Persister _persister;
+    private final Persister _persister;
     private Transaction _tx;
 
 
@@ -170,15 +171,27 @@ public class ResourceCalendar {
      * Checks if the resource is available within the specified period. Will return
      * true if there is not an entry in the calendar table for the resource that
      * covers the period within its duration
+     * @param idsToIgnore the primary key(s) of entries to exclude from the check. An
+     * empty Set (or null) means exclude none, otherwise the corresponding entry is
+     * excluded (used when updating an entry)
      * @param resource the resource to check availability for
      * @param from the start of a time range to search for
      * @param to the end of a time range to search for
      * @return true if available, false if not
      */
-    public boolean isAvailable(AbstractResource resource, long from, long to) {
+    public boolean isAvailable(Set<Long> idsToIgnore, AbstractResource resource,
+                               long from, long to) {
         if (resource == null) return false;
         List list = getTimeSlotEntries(resource, from, to);
-        return (list == null) || list.isEmpty();
+
+        int excludeCount = 0;
+        if ((idsToIgnore != null) && (! list.isEmpty())) {
+            for (Object o : list) {
+                CalendarEntry entry = (CalendarEntry) o;
+                if (idsToIgnore.contains(entry.getEntryID())) ++excludeCount;
+            }
+        }
+        return list.size() == excludeCount;
     }
 
 
@@ -191,7 +204,7 @@ public class ResourceCalendar {
      */
     public boolean isAvailable(AbstractResource resource) {
         long now = System.currentTimeMillis();
-        return isAvailable(resource, now, now);
+        return isAvailable(null, resource, now, now);
     }
 
 
@@ -200,24 +213,35 @@ public class ResourceCalendar {
      * true if the workload total of all the entries in the calendar table for the
      * resource that covers the period within its duration, plus the workload passed,
      * doesn't exceed 100%
+     * @param idsToIgnore the primary key(s) of entries to exclude from the check. An
+     * empty Set (or null) means exclude none, otherwise the corresponding entry is
+     * excluded (used when updating an entry)
      * @param resource the resource to check availability for
      * @param from the start of a time range to search for
      * @param to the end of a time range to search for
-     * @param workload the percentage workoad to check for (0-100)
+     * @param workload the percentage workload to check for (0-100)
      * @return true if available, false if not
      */
-    public boolean isAvailable(AbstractResource resource, long from, long to, int workload) {
+    public boolean isAvailable(Set<Long> idsToIgnore, AbstractResource resource,
+                               long from, long to, int workload) {
         if (resource == null) return false;
-        if (workload == 100) return isAvailable(resource, from, to);
+        if (workload == 100) return isAvailable(idsToIgnore, resource, from, to);
         List list = getTimeSlotEntries(resource, from, to);
         if (list != null) {
             for (Object o : list) {
-                workload += ((CalendarEntry) o).getWorkload();
+                CalendarEntry entry = (CalendarEntry) o;
+                if ((idsToIgnore == null) || (! idsToIgnore.contains(entry.getEntryID()))) {
+                    workload += entry.getWorkload();
+                }
             }
         }
-        return workload <= 100;
+        return workload < 100;
     }
 
+
+    public boolean isAvailable(AbstractResource resource, long from, long to, int workload) {
+        return isAvailable(null, resource, from, to, workload);
+    }
 
     /**
      * Checks if the resource is available within the specified period. Will return
@@ -248,7 +272,7 @@ public class ResourceCalendar {
      * @return the matching list of calendar entries (as CalendarEntry objects)
      */
     public List getTimeSlotEntries(AbstractResource resource, long from, long to) {
-        if (resource == null) return new ArrayList();         // empty list
+        if (resource == null) return Collections.EMPTY_LIST;         // empty list
 
         if (to <= 0) to = Long.MAX_VALUE;
         return _persister.createQuery(

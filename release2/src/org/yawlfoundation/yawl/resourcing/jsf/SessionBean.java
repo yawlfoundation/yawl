@@ -38,6 +38,7 @@ import org.yawlfoundation.yawl.resourcing.calendar.CalendarException;
 import org.yawlfoundation.yawl.resourcing.calendar.CalendarRow;
 import org.yawlfoundation.yawl.resourcing.calendar.ResourceCalendar;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
+import org.yawlfoundation.yawl.resourcing.jsf.comparator.CalendarRowComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.OptionComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.ParticipantNameComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.SpecificationDataComparator;
@@ -2099,7 +2100,7 @@ public class SessionBean extends AbstractSessionBean {
             case addInstance     : return 306;
             case teamQueues      : return 796;
             case externalClients : return 666;
-            case calendarMgt     : return 602;
+            case calendarMgt     : return 600;
             case dynForm         : return getDynFormFactoryInstance().getFormWidth();
             default: return -1;
         }
@@ -2120,7 +2121,7 @@ public class SessionBean extends AbstractSessionBean {
             case addInstance     : return 370;
             case teamQueues      : return 370;
             case externalClients : return 485;
-            case calendarMgt     : return 590;
+            case calendarMgt     : return 648;
             default: return -1;
         }
     }
@@ -2132,7 +2133,11 @@ public class SessionBean extends AbstractSessionBean {
 
     private List<CalendarRow> calendarRows = new ArrayList<CalendarRow>();
 
-    public List<CalendarRow> getCalendarRows() {
+    public List<CalendarRow> getCalendarRows() { return calendarRows; }
+
+    public int getCalendarRowCount() { return calendarRows.size(); }
+
+    public void refreshCalendarRows() {
         calendarRows.clear();
         long from = selectedCalMgtDate.getTime();
         long to = from + 86400000;      // msecs in 1 day
@@ -2140,9 +2145,10 @@ public class SessionBean extends AbstractSessionBean {
         for (Object o : rawRows) {
             CalendarRow row = new CalendarRow((CalendarEntry) o);
             row.setName(getNameForCalendarID(row.getResourceID()));
+            row.setBaseDate(selectedCalMgtDate);
             calendarRows.add(row);
-        }    
-        return calendarRows;
+        }
+        Collections.sort(calendarRows, new CalendarRowComparator());
     }
 
 
@@ -2164,6 +2170,9 @@ public class SessionBean extends AbstractSessionBean {
     public String removeCalendarRow(int index) {
         CalendarRow row = getSelectedCalendarRow(index);
         if (row != null) {
+            if (row.getStatus().equals("busy")) {
+                return "<failure>Entries with 'busy' status cannot be removed.</failure>"; 
+            }
             try {
                 _rm.getCalendar().makeAvailable(row.getEntryID());
                 return "<success/>";
@@ -2341,6 +2350,19 @@ public class SessionBean extends AbstractSessionBean {
 
     public void setAddCalendarRowMode(boolean mode) { addCalendarRowMode = mode; }
 
+
+    public String calEditedResourceName;
+
+    public String getCalEditedResourceName() { return calEditedResourceName; }
+
+    public void setCalEditedResourceName(String name) { calEditedResourceName = name; }
+
+
+    public String getCalDataTableStyle() {
+        int height = 20 * (calendarRows.size() + 1);
+        return String.format("height: %dpx", Math.min(height, 330));
+    }
+    
     /******************************************************************************/
 
 

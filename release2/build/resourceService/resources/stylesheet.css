@@ -75,8 +75,8 @@
 }
 
 .calendarMgtContainerPanel {
-    height: 620px;
-    width: 602px;
+    height: 648px;
+    width: 600px;
     top: 50px;
     position:relative;
 }
@@ -244,13 +244,13 @@
 .dataTable {
     left: 0;
     top: 0px! important;
-    height: 152px;
+    height: 170px;
     position: absolute;    
 }
 
 .dataTable tbody {
     width:95%;
-    height:150px;
+    /*height:90%;*/
 }
 
 .dataTable tbody tr {
@@ -258,9 +258,10 @@
 }
 
 .dataTableHeader {
-  background-color: #eeeeee;
+  background-color: #b0b0b0;
   font-size: larger;
   font-weight: bold;
+  height: 20px!important;
 }
 
 .dataTablePagingHeader {
