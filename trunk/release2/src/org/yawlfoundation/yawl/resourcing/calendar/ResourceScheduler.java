@@ -44,12 +44,16 @@ public class ResourceScheduler {
     // set of added entry id's resulting from reassigned bookings
     private Set<Long> _reassignedIDs;
 
+    // set of update requests that have time changes - must be updated atomically
+    private Set<CalendarEntry> _timeUpdates;
+
     
     private ResourceScheduler() {
         _rm = ResourceManager.getInstance();
         _calendar = ResourceCalendar.getInstance();
         _uLogger = new CalendarLogger();
         _reassignedIDs = new HashSet<Long>();
+        _timeUpdates = new HashSet<CalendarEntry>();
     }
 
 
@@ -792,15 +796,17 @@ public class ResourceScheduler {
            throws CalendarException, ScheduleStateException {
         boolean isAvailable = true;
         AbstractResource resource = getActualResource(entry.getResourceID());
-        if (from < entry.getStartTime()) {
-            isAvailable = _calendar.isAvailable(resource, from, entry.getStartTime() - 1, workload);
-        }
-        if (to > entry.getEndTime()) {
-            isAvailable = isAvailable &&
-                    _calendar.isAvailable(resource, entry.getEndTime() + 1, to, workload);
-        }
+//        if (from < entry.getStartTime()) {
+//            isAvailable = _calendar.isAvailable(entry.getEntryID(), resource, from,
+//                    entry.getStartTime() - 1, workload);
+//        }
+//        if (to > entry.getEndTime()) {
+//            isAvailable = isAvailable &&
+//                    _calendar.isAvailable(entry.getEntryID(), resource,
+//                            entry.getEndTime() + 1, to, workload);
+//        }
         if (! isAvailable) throw new ScheduleStateException(
-                "Resource is not available for update period.");
+                "Resource is not available for updated period.");
         entry.setStartTime(from);
         entry.setEndTime(to);
         entry.setWorkload(workload);

@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.resourcing.calendar;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @author Michael Adams
@@ -26,8 +27,12 @@ import java.text.SimpleDateFormat;
  */
 public class CalendarRow extends CalendarEntry {
 
+    private static final SimpleDateFormat timeFormat = new SimpleDateFormat("H:mm");
+    private static final SimpleDateFormat extdFormat = new SimpleDateFormat("H:mm '('dd'/'MM')'");
+    private static final long MSECS_IN_ONE_DAY = 86400000;
+
     private String name;
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("H:mm");
+    private Date baseDate;
 
     public CalendarRow() {
         super();
@@ -48,6 +53,14 @@ public class CalendarRow extends CalendarEntry {
         name = n;
     }
 
+    public Date getBaseDate() {
+        return baseDate;
+    }
+
+    public void setBaseDate(Date date) {
+        baseDate = date;
+    }
+
     public String getStartTimeAsString() {
         return getTimeAsString(getStartTime());
     }
@@ -57,7 +70,9 @@ public class CalendarRow extends CalendarEntry {
     }
 
     private String getTimeAsString(long time) {
-        return sdf.format(time);
+        long diff = time - baseDate.getTime();
+        return ((diff >= 0) && (diff <= MSECS_IN_ONE_DAY)) ? timeFormat.format(time) :
+                extdFormat.format(time);
     }
 
 

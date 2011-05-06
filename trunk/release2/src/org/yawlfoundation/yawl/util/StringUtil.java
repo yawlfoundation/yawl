@@ -429,6 +429,7 @@ public class StringUtil
 
 
     public static int strToInt(String s, int def) {
+        if (isNullOrEmpty(s)) return def;      // short circuit
         try {
             return new Integer(s);
         }
@@ -439,6 +440,7 @@ public class StringUtil
 
 
     public static long strToLong(String s, long def) {
+        if (isNullOrEmpty(s)) return def;      // short circuit
         try {
             return new Long(s);
         }

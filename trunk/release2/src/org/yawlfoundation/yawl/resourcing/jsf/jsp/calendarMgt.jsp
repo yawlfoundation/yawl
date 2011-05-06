@@ -60,12 +60,12 @@
                         <ui:panelLayout binding="#{calendarMgt.layoutPanel2}"
                                         id="layoutPanel2"
                                         styleClass="caseMgtPanel"
-                                        style="position: absolute; height: 620px; top: 3px">
+                                        style="position: absolute; height: 642px; width: 595px; top: 3px">
 
               <ui:label binding="#{calendarMgt.lblFilter}"
                   for="cbbFilter"
                   id="lblFilter"
-                  style="top: 10px; left: 292px; position: absolute"
+                  style="top: 30px; left: 292px; position: absolute"
                   text="Filter:"/>
 
               <ui:dropDown binding="#{calendarMgt.cbbFilter}"
@@ -73,12 +73,12 @@
                      onChange="common_timeoutSubmitForm(this.form, 'cbbFilter');"
                      items="#{calendarMgt.calendarMgtFilterComboItems}"
                      valueChangeListener="#{calendarMgt.cbbFilter_processValueChange}"
-                     style="left: 360px; top: 10px; position: absolute; width: 200px"/>
+                     style="left: 360px; top: 30px; position: absolute; width: 200px"/>
 
                             <ui:label binding="#{calendarMgt.lblResource}"
                                 for="cbbResource"
                                 id="lblResource"
-                                style="top: 36px; left: 292px; position: absolute"
+                                style="top: 56px; left: 292px; position: absolute"
                                 text="Resource:"/>
 
                             <ui:dropDown binding="#{calendarMgt.cbbResource}"
@@ -86,12 +86,12 @@
                                    items="#{SessionBean.calResourceOptions}"
                                    onChange="common_timeoutSubmitForm(this.form, 'cbbResource');"
                                    valueChangeListener="#{calendarMgt.cbbResource_processValueChange}"
-                                   style="left: 360px; top: 36px; position: absolute; width: 200px"/>
+                                   style="left: 360px; top: 56px; position: absolute; width: 200px"/>
 
                             <ui:panelLayout binding="#{calendarMgt.calPanel}"
                                             id="calPanel"
                                             styleClass="caseMgtPanel"
-                                            style="border: 1px solid gray; position: absolute; height: 23px; top: 30px; left: 16px; width: 239px">
+                                            style="border: 1px solid gray; position: absolute; height: 23px; top: 50px; left: 16px; width: 239px">
 
                                 <ui:button action="#{calendarMgt.btnYesterday_action}"
                                       binding="#{calendarMgt.btnYesterday}"
@@ -125,43 +125,6 @@
                     imageURL="/resources/nextday.png"/>
             </ui:panelLayout>
 
-
-              <ui:staticText binding="#{calendarMgt.headingStart}"
-                             id="headingStart"
-                             styleClass="calTableHeading"
-                             style="left: 16px;"
-                             text="Start"/>
-
-                            <ui:staticText binding="#{calendarMgt.headingEnd}"
-                                           id="headingEnd"
-                                           styleClass="calTableHeading"
-                                           style="left: 59px;"
-                                           text="End"/>
-
-                            <ui:staticText binding="#{calendarMgt.headingName}"
-                                           id="headingName"
-                                           styleClass="calTableHeading"
-                                           style="left: 100px;"
-                                           text="Resource"/>
-
-                            <ui:staticText binding="#{calendarMgt.headingStatus}"
-                                           id="headingStatus"
-                                           styleClass="calTableHeading"
-                                           style="left: 268px;"
-                                           text="Status"/>
-
-                            <ui:staticText binding="#{calendarMgt.headingWorkload}"
-                                           id="headingWorkload"
-                                           styleClass="calTableHeading"
-                                           style="left: 346px;"
-                                           text="Load"/>
-
-              <ui:staticText binding="#{calendarMgt.headingComments}"
-                             id="headingComments"
-                             styleClass="calTableHeading"
-                             style="left: 387px;"
-                             text="Comments"/>            
-
               <ui:panelLayout binding="#{calendarMgt.upperPanel}"
                               id="upperPanel"
                               styleClass="caseMgtPanel"
@@ -176,7 +139,7 @@
                                          headerClass="dataTableHeader"
                                          id="dataTable1"
                                          cellpadding="3"
-                                         style="height: 330px"
+                                         style="#{SessionBean.calDataTableStyle}"
                                          styleClass="dataTable"
                                          columnClasses="calTimeCol,
                                                         calTimeCol,
@@ -191,7 +154,9 @@
 
                                 <h:column binding="#{calendarMgt.colStartTime}"
                                           id="colStartTime">
-
+                                    <f:facet name="header" >
+                                         <h:commandLink value="Start"/>
+                                    </f:facet>
                                     <h:outputText binding="#{calendarMgt.colStartTimeRows}"
                                                   id="colStartTimeRows"
                                                   value="#{currentRow.startTimeAsString}"/>
@@ -199,7 +164,9 @@
 
                                 <h:column binding="#{calendarMgt.colEndTime}"
                                           id="colEndTime">
-
+                                    <f:facet name="header" >
+                                         <h:commandLink value="End"/>
+                                    </f:facet>
                                     <h:outputText binding="#{calendarMgt.colEndTimeRows}"
                                                   id="colWndTimeRows"
                                                   value="#{currentRow.endTimeAsString}"/>
@@ -207,6 +174,9 @@
 
                                 <h:column binding="#{calendarMgt.colName}"
                                           id="colName">
+                                    <f:facet name="header" >
+                                         <h:commandLink value="Resource"/>
+                                    </f:facet>
                                     <h:outputText binding="#{calendarMgt.colNameRows}"
                                                   id="colNameRows"
                                                   value="#{currentRow.name}"/>
@@ -214,6 +184,9 @@
 
                                 <h:column binding="#{calendarMgt.colStatus}"
                                           id="colStatus">
+                                    <f:facet name="header" >
+                                         <h:commandLink value="Status"/>
+                                    </f:facet>
                                     <h:outputText binding="#{calendarMgt.colStatusRows}"
                                                   id="colStatusRows"
                                                   value="#{currentRow.status}"/>
@@ -221,6 +194,9 @@
 
                                 <h:column binding="#{calendarMgt.colWorkload}"
                                           id="colWorkload">
+                                    <f:facet name="header" >
+                                         <h:commandLink value="Workload"/>
+                                    </f:facet>
                                     <h:outputText binding="#{calendarMgt.colWorkloadRows}"
                                                   id="colWorkloadRows"
                                                   value="#{currentRow.workload}"/>
@@ -228,6 +204,9 @@
 
                                 <h:column binding="#{calendarMgt.colComment}"
                                           id="colComment">
+                                    <f:facet name="header" >
+                                         <h:commandLink value="Comments"/>
+                                    </f:facet>
                                     <h:outputText binding="#{calendarMgt.colCommentRows}"
                                                   id="colCommentRows"
                                                   value="#{currentRow.comment}"/>
@@ -258,55 +237,65 @@
               <ui:panelLayout binding="#{calendarMgt.editPanel}"
                               id="editPanel"
                               styleClass="caseMgtPanel"
-                              style="position: absolute; height: 128px; top: 480px; left: 12px; width: 567px">
+                              style="position: absolute; height: 152px; top: 480px; left: 12px; width: 567px">
+
+                  <ui:label binding="#{calendarMgt.lblResourceName}"
+                            id="lblResourceName" style="left: 12px; top: 12px; position: absolute"
+                            text="Resource:"/>
+
+                  <ui:staticText binding="#{calendarMgt.sttResourceName}"
+                                 id="sttResourceName"
+                                 style="left: 80px; top: 12px; position: absolute"
+                                 text="#{SessionBean.calEditedResourceName}"/>
 
                   <ui:label binding="#{calendarMgt.lblStart}"
-                            id="lblStart" style="left: 12px; top: 12px; position: absolute"
+                            id="lblStart" style="left: 12px; top: 42px; position: absolute"
                             text="Start Time:"/>
 
                   <ui:label binding="#{calendarMgt.lblEnd}"
-                            id="lblEnd" style="left: 187px; top: 12px; position: absolute"
+                            id="lblEnd" style="left: 170px; top: 42px; position: absolute"
                             text="End Time:"/>
 
                   <ui:label binding="#{calendarMgt.lblUntil}"
-                            id="lblUntil" style="left: 350px; top: 12px; position: absolute"
+                            id="lblUntil" style="left: 310px; top: 42px; position: absolute"
                             text="Until:"/>
 
                   <ui:label binding="#{calendarMgt.lblWorkload}"
-                            id="lblWorkload" style="left: 12px; top: 52px; position: absolute"
+                            id="lblWorkload" style="left: 12px; top: 72px; position: absolute"
                             text="Workload (%):"/>
 
                   <ui:label binding="#{calendarMgt.lblComments}"
-                            id="lblComments" style="left: 187px; top: 52px; position: absolute"
+                            id="lblComments" style="left: 170px; top: 72px; position: absolute"
                             text="Comments:"/>
 
 
                   <ui:textField binding="#{calendarMgt.txtStartTime}"
                                 id="txtStartTime"
                                 onKeyPress="return disableEnterKey(event);"
-                                style="left: 100px; top: 12px; width: 40px; position: absolute"/>
+                                style="left: 100px; top: 42px; width: 40px; position: absolute"/>
 
                   <ui:textField binding="#{calendarMgt.txtEndTime}"
                                 id="txtEndTime"
                                 onKeyPress="return disableEnterKey(event);"
-                                style="left: 260px; top: 12px; width: 40px; position: absolute"/>
+                                style="left: 240px; top: 42px; width: 40px; position: absolute"/>
 
                   <ui:textField binding="#{calendarMgt.txtWorkload}"
                                 id="txtWorkload"
                                 onKeyPress="return disableEnterKey(event);"
-                                style="left: 100px; top: 52px; width: 40px; position: absolute"/>
+                                style="left: 100px; top: 72px; width: 40px; position: absolute"/>
 
                   <ui:textField binding="#{calendarMgt.txtComments}"
                                 id="txtComments"
                                 onKeyPress="return disableEnterKey(event);"
-                                style="left: 260px; top: 52px; width: 290px; position: absolute"/>
+                                style="left: 240px; top: 72px; width: 310px; position: absolute"/>
 
                             <ui:calendar binding="#{calendarMgt.calDuration}"
                                          id="calendarDuration"
-                                         style="top: 12px; left: 395px; position: absolute"
+                                         style="top: 42px; left: 350px; position: absolute"
                                          selectedDate="#{SessionBean.selectedDurationDate}"
                                          columns="15"
                                          dateFormatPatternHelp=""
+                                         onChange="null"
                                          minDate="#{SessionBean.calMgtMinDate}"
                                          maxDate="#{SessionBean.calMgtMaxDate}"/>
                   
@@ -314,16 +303,22 @@
                              binding="#{calendarMgt.btnAdd}"
                              id="btnAdd"
                              styleClass="caseMgtButton"
-                             style="left: 11px; top: 92px"
+                             style="left: 11px; top: 112px"
                              text="#{calendarMgt.btnAddText}"/>
 
                   <ui:button action="#{calendarMgt.btnClear_action}"
                              binding="#{calendarMgt.btnClear}"
                              id="btnClear"
                              styleClass="caseMgtButton"
-                             style="left: 129px; top: 92px"
+                             style="left: 129px; top: 112px"
                              text="Clear"/>
 
+                  <ui:checkbox binding="#{calendarMgt.cbxRepeat}"
+                               id="cbxRepeat"
+                               label="Repeat"
+                               styleClass="orgDataPrivCheckBox"
+                               selected="false"
+                               style="top: 42px; left: 495px;"/>
               </ui:panelLayout>
 
                             <ui:button binding="#{SessionBean.btnRefresh}"
@@ -331,6 +326,7 @@
                                        id="btnRefresh"
                                        imageURL="/resources/refresh.png"
                                        styleClass="refreshCasesButton"
+                                       style="left: 572px;"
                                        toolTip="Refresh Running Cases"
                                        text=""/>
                         </ui:panelLayout>
