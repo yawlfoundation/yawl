@@ -418,13 +418,7 @@ public class DynFormFactory extends AbstractSessionBean {
             String topStyle = StringUtil.extract(style, "top:\\s*\\d+px") ;
             if (topStyle != null) {
                 String value = StringUtil.extract(topStyle, "\\d+");
-                int top;
-                try {
-                    top = Integer.parseInt(value);
-                }
-                catch (NumberFormatException nfe) {
-                    top = -1;    
-                }
+                int top = StringUtil.strToInt(value, -1);
                 if (top > -1) {
                     String newTopStyle = String.format("top: %dpx", top + adjustment);
                     style = style.replace(topStyle, newTopStyle);
