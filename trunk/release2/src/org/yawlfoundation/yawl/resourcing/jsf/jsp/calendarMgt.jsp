@@ -293,7 +293,7 @@
                                          id="calendarDuration"
                                          style="top: 42px; left: 350px; position: absolute"
                                          selectedDate="#{SessionBean.selectedDurationDate}"
-                                         columns="15"
+                                         columns="12"
                                          dateFormatPatternHelp=""
                                          onChange="null"
                                          minDate="#{SessionBean.calMgtMinDate}"

@@ -272,15 +272,18 @@ public class ResourceCalendar {
      * @return the matching list of calendar entries (as CalendarEntry objects)
      */
     public List getTimeSlotEntries(AbstractResource resource, long from, long to) {
-        if (resource == null) return Collections.EMPTY_LIST;         // empty list
+        if (resource == null) return Collections.EMPTY_LIST;
+        return getTimeSlotEntries(resource.getID(), resource instanceof Participant, from, to);
+    }
 
+    public List getTimeSlotEntries(String resourceID, boolean isParticipant, long from, long to) {
         if (to <= 0) to = Long.MAX_VALUE;
         return _persister.createQuery(
                 "FROM CalendarEntry AS ce " +
                 "WHERE ce.resourceID IN (:idlist) " +
                 "AND ce.startTime < :end AND ce.endTime > :start " +
                 "ORDER BY ce.startTime")
-                .setParameterList("idlist", createIDListForQuery(resource))
+                .setParameterList("idlist", createIDListForQuery(resourceID, isParticipant))
                 .setLong("start", from)
                 .setLong("end", to)
                 .list();
@@ -700,7 +703,7 @@ public class ResourceCalendar {
      * @throws CalendarException if invalid parameters are passed, or the addition
      * otherwise fails
      */
-    protected long addEntry(CalendarEntry entry) throws CalendarException {
+    public long addEntry(CalendarEntry entry) throws CalendarException {
         if (entry.getEndTime() > entry.getStartTime()) {
             if (_tx != null) _persister.insert(entry, _tx);
             else _persister.insert(entry);
