@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2010 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2011 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -37,15 +37,15 @@ public class ResourceScheduler {
 
     // references to required objects
     private static ResourceScheduler _me;
-    private ResourceCalendar _calendar;
-    private ResourceManager _rm;
-    private CalendarLogger _uLogger;
+    private final ResourceCalendar _calendar;
+    private final ResourceManager _rm;
+    private final CalendarLogger _uLogger;
 
     // set of added entry id's resulting from reassigned bookings
-    private Set<Long> _reassignedIDs;
+    private final Set<Long> _reassignedIDs;
 
     // set of update requests that have time changes - must be updated atomically
-    private Set<Reservation> _timeUpdates;
+    private final Set<Reservation> _timeUpdates;
 
     
     private ResourceScheduler() {
