@@ -48,6 +48,7 @@ import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YPredicateParser;
 
 import javax.faces.FacesException;
@@ -2281,8 +2282,16 @@ public class SessionBean extends AbstractSessionBean {
         }
         else if (calFilterSelection.startsWith("Selected")) {
             AbstractResource resource = _rm.getOrgDataSet().getResource(calResourceSelection);
-            _rm.getCalendar().addEntry(resource, startTime, endTime,
+            if (resource != null) {
+                CalendarEntry entry = new CalendarEntry(resource.getID(), startTime, endTime,
                     ResourceCalendar.Status.unavailable, workload, getUserid(), comments);
+                if (! clashesWithCalendar(entry, true)) {
+                    _rm.getCalendar().addEntry(entry);
+                }
+                else throw new CalendarException(
+                        "Time(s) and/or workload clashes with an existing entry.");
+            }
+            else throw new CalendarException("Unknown resource.");
         }
     }
 
@@ -2327,11 +2336,21 @@ public class SessionBean extends AbstractSessionBean {
     
 
     public Option[] getCalResourceOptions() {
+        Option[] options = null;
         if (calFilterSelection.endsWith("Participant")) {
-            return getOrgDataParticipantList();
+            options = getOrgDataParticipantList();
         }
         else if (calFilterSelection.endsWith("Asset")) {
-            return getNhResourcesList();
+            options = getNhResourcesList();
+        }
+
+        if (options != null) {
+            if ((options.length > 0) && StringUtil.isNullOrEmpty(getCalEditedResourceName())) {
+                setCalResourceSelection((String) options[0].getValue());
+                setCalEditedResourceName(options[0].getLabel());
+                refreshCalendarRows();
+            }
+            return options;
         }
         return new Option[0];
     }
@@ -2356,6 +2375,26 @@ public class SessionBean extends AbstractSessionBean {
     public String getCalEditedResourceName() { return calEditedResourceName; }
 
     public void setCalEditedResourceName(String name) { calEditedResourceName = name; }
+
+
+    public boolean clashesWithCalendar(CalendarEntry entry, boolean add) {
+
+        // non-individual entries are 'unioned', so they may overlap
+        if (! calFilterSelection.startsWith("All")) {
+            for (CalendarRow row : calendarRows) {
+                if ((add || (row.getEntryID() != entry.getEntryID())) &&
+                    (row.getResourceID().equals(entry.getResourceID())) &&
+                    (row.getStartTime() < entry.getEndTime()) &&
+                    (row.getEndTime() > entry.getStartTime()) &&
+                    ((row.getWorkload() + entry.getWorkload()) > 100)) {
+
+                    return true;
+                }
+            }
+        }
+        return false;
+
+    }
 
 
     public String getCalDataTableStyle() {

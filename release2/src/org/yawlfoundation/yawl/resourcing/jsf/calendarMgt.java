@@ -589,27 +589,15 @@ public class calendarMgt extends AbstractPageBean {
                 int workload = getWorkloadValue();
                 String comment = (String) txtComments.getText();
                 if (getMode() == Mode.Edit) {                  // update existing entry
-                    CalendarEntry entry = getSelectedEntry();
-                    if (entry != null) {
-                        entry.setStartTime(startTime);
-                        entry.setEndTime(endTime);
-                        entry.setWorkload(workload);
-                        entry.setComment(comment);
-                        _rm.getCalendar().updateEntry(entry);
-                    }
-                    else {
-                        _msgPanel.error("Could not retrieve selected row to update.");
+                    if (updateCalendarEntry(startTime, endTime, workload, comment)) {
+                        clearFields();
                     }
                 }
                 else {                                         // add new entry
-                    try {
-                        addCalendarEntry(startTime, endTime, workload, comment);
-                    }
-                    catch (CalendarException ce) {
-                        _msgPanel.error("Could not add entry: " + ce.getMessage());
+                    if (addCalendarEntry(startTime, endTime, workload, comment)) {
+                        clearFields();
                     }
                 }
-                clearFields();
             }
             else _msgPanel.error("End time must come after start time.");
         }
@@ -728,21 +716,47 @@ public class calendarMgt extends AbstractPageBean {
     }
 
 
-    private void addCalendarEntry(long startTime, long endTime, int workload, String comment)
-            throws CalendarException {
-        if (cbxRepeat.isChecked()) {
-            Date baseDate = calComponent.getSelectedDate();
-            String startTimeStr = (String) txtStartTime.getText();
-            String endTimeStr = (String) txtEndTime.getText();           
-            while (startTime < endTime) {
-                _sb.addCalendarEntry(startTime, getTime(endTimeStr, baseDate.getTime()),
-                        workload, comment);
-                baseDate = incDate(baseDate, 1);
-                startTime = getTime(startTimeStr, baseDate.getTime());
+    private boolean addCalendarEntry(long startTime, long endTime, int workload, String comment) {
+        try {
+            if (cbxRepeat.isChecked()) {
+                Date baseDate = calComponent.getSelectedDate();
+                String startTimeStr = (String) txtStartTime.getText();
+                String endTimeStr = (String) txtEndTime.getText();
+                while (startTime < endTime) {
+                    _sb.addCalendarEntry(startTime, getTime(endTimeStr, baseDate.getTime()),
+                            workload, comment);
+                    baseDate = incDate(baseDate, 1);
+                    startTime = getTime(startTimeStr, baseDate.getTime());
+                }
             }
-            return;
+            else _sb.addCalendarEntry(startTime, endTime, workload, comment);
+
+            return true;
         }
-        _sb.addCalendarEntry(startTime, endTime, workload, comment);
+        catch (CalendarException ce) {
+            _msgPanel.error("Could not add entry: " + ce.getMessage());
+            return false;
+        }
+    }
+
+
+    private boolean updateCalendarEntry(long startTime, long endTime, int workload, String comment) {
+        CalendarEntry entry = getSelectedEntry();
+        if (entry != null) {
+            entry.setStartTime(startTime);
+            entry.setEndTime(endTime);
+            entry.setWorkload(workload);
+            entry.setComment(comment);
+            if (! _sb.clashesWithCalendar(entry, false)) {
+                _rm.getCalendar().updateEntry(entry);
+                return true;
+            }
+            else _msgPanel.error("Cannot update entry. Times and/or workload" +
+                    " clashes with an existing entry.");
+        }
+        else _msgPanel.error("Could not retrieve selected row to update.");
+
+        return false;
     }
 
 
@@ -861,6 +875,7 @@ public class calendarMgt extends AbstractPageBean {
         cbbResource.setSelected(null);
         cbbResource.setItems(null);
         _sb.setCalResourceSelection(null);
+        _sb.setCalEditedResourceName(null);
     }
 
 
