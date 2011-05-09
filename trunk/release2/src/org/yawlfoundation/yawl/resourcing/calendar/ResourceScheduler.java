@@ -45,7 +45,7 @@ public class ResourceScheduler {
     private Set<Long> _reassignedIDs;
 
     // set of update requests that have time changes - must be updated atomically
-    private Set<CalendarEntry> _timeUpdates;
+    private Set<Reservation> _timeUpdates;
 
     
     private ResourceScheduler() {
@@ -53,7 +53,7 @@ public class ResourceScheduler {
         _calendar = ResourceCalendar.getInstance();
         _uLogger = new CalendarLogger();
         _reassignedIDs = new HashSet<Long>();
-        _timeUpdates = new HashSet<CalendarEntry>();
+        _timeUpdates = new HashSet<Reservation>();
     }
 
 
@@ -377,6 +377,12 @@ public class ResourceScheduler {
                 handleCancellations(plan.getCaseID(), activity.getName(), reservationIDs);
             }
         }
+
+        // if plan contains any updates that changed start time, end time or workload,
+        // check that no clashes were caused by the update(s) across all activites
+        if (! _timeUpdates.isEmpty()) checkTimeUpdatesForClashes();
+
+        // commit all changes iff no errors occurred during saving of plan 
         commitOrRollback(! plan.hasErrors());
     }
     
@@ -619,7 +625,8 @@ public class ResourceScheduler {
 
         // if not status change only
         if (! (calEntry.hasPeriod(from, to) && (calEntry.getWorkload() == workload))) {
-            updateEntry(calEntry, from, to, workload);         // exc. if changes clash
+            updateEntry(calEntry, from, to, workload);
+            _timeUpdates.add(reservation);             // for final atomic clash checking
         }
 
         // status updates done separately since several 2ndary changes may be triggered
@@ -794,23 +801,27 @@ public class ResourceScheduler {
 
     private void updateEntry(CalendarEntry entry, long from, long to, int workload)
            throws CalendarException, ScheduleStateException {
-        boolean isAvailable = true;
-        AbstractResource resource = getActualResource(entry.getResourceID());
-//        if (from < entry.getStartTime()) {
-//            isAvailable = _calendar.isAvailable(entry.getEntryID(), resource, from,
-//                    entry.getStartTime() - 1, workload);
-//        }
-//        if (to > entry.getEndTime()) {
-//            isAvailable = isAvailable &&
-//                    _calendar.isAvailable(entry.getEntryID(), resource,
-//                            entry.getEndTime() + 1, to, workload);
-//        }
-        if (! isAvailable) throw new ScheduleStateException(
-                "Resource is not available for updated period.");
         entry.setStartTime(from);
         entry.setEndTime(to);
         entry.setWorkload(workload);
         _calendar.updateEntry(entry);
+    }
+
+
+    private void checkTimeUpdatesForClashes() {
+        Set<Long> ignoreSet = new HashSet<Long>();
+        for (Reservation reservation : _timeUpdates) {
+            long id = reservation.getReservationIDAsLong();
+            CalendarEntry entry = _calendar.getEntry(id);
+            AbstractResource resource = getActualResource(entry.getResourceID());
+            ignoreSet.add(id);
+            if (! _calendar.isAvailable(ignoreSet, resource, entry.getStartTime(),
+                    entry.getEndTime(), entry.getWorkload())) {
+                reservation.setError("Resource is not available for updated period.");
+            }
+            ignoreSet.clear();
+        }
+        _timeUpdates.clear();
     }
 
 
