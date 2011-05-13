@@ -150,6 +150,14 @@ public class ResourceMapping implements Serializable, Cloneable  {
     return (List<ResourcingParticipant>) serializationProofAttributeMap.get("baseUserDistributionList");
   }
 
+    public void setSecondaryResourcesList(List<Object> list) {
+      serializationProofAttributeMap.put("secondaryResourcesList", list);
+    }
+
+    public List<Object> getSecondaryResourcesList() {
+      return (List<Object>) serializationProofAttributeMap.get("secondaryResourcesList");
+    }
+
   public void setBaseRoleDistributionList(List<ResourcingRole> roles) {
     serializationProofAttributeMap.put("baseRoleDistributionList", roles);
   }
@@ -318,6 +326,7 @@ public class ResourceMapping implements Serializable, Cloneable  {
           badRef = parseOffer(resourceSpec.getChild("offer", nsYawl), nsYawl, containingNet) ;
           parseAllocate(resourceSpec.getChild("allocate", nsYawl), nsYawl) ;
           parseStart(resourceSpec.getChild("start", nsYawl), nsYawl) ;
+          badRef = badRef || parseSecondary(resourceSpec.getChild("secondary", nsYawl), nsYawl);
           parsePrivileges(resourceSpec.getChild("privileges", nsYawl), nsYawl) ;
       }
       return badRef;
@@ -366,16 +375,7 @@ public class ResourceMapping implements Serializable, Cloneable  {
 
   private boolean parseParticipants(Element e, Namespace nsYawl) {
       boolean badRef = false;
-
-      List<ResourcingParticipant> liveList =
-              ResourcingServiceProxy.getInstance().getAllParticipants();
-      Map<String, ResourcingParticipant> liveMap =
-              new HashMap<String, ResourcingParticipant>();
-      if (liveList != null) {
-          for (ResourcingParticipant resp : liveList) {
-              liveMap.put(resp.getId(), resp);
-          }
-      }
+      Map<String, ResourcingParticipant> liveMap = getUserMap();
       List<ResourcingParticipant> result = new LinkedList<ResourcingParticipant>();
 
       List participants = e.getChildren("participant", nsYawl);
@@ -400,15 +400,7 @@ public class ResourceMapping implements Serializable, Cloneable  {
 
   private boolean parseRoles(Element e, Namespace nsYawl) {
       boolean badRef = false;
-      List<ResourcingRole> liveList =
-              ResourcingServiceProxy.getInstance().getAllRoles();
-      Map<String, ResourcingRole> liveMap =
-              new HashMap<String, ResourcingRole>();
-      if (liveList != null) {
-          for (ResourcingRole role : liveList) {
-              liveMap.put(role.getId(), role);
-          }
-      }
+      Map<String, ResourcingRole> liveMap = getRoleMap();
       List<ResourcingRole> result = new LinkedList<ResourcingRole>();
 
       List roles = e.getChildren("role", nsYawl);
@@ -496,11 +488,6 @@ public class ResourceMapping implements Serializable, Cloneable  {
                       String famTaskName = params.get("familiarTask");
                         if (famTaskName != null) {
                             setSeparationOfDutiesTaskID(famTaskName);
-//                          YAWLAtomicTask famTask = getTaskWithName(famTaskName,
-//                                  containingNet);
-//                          if (famTask != null) {
-//                              setSeparationOfDutiesTask(famTask);
-//                          }
                       }
                   }
               }
@@ -515,10 +502,6 @@ public class ResourceMapping implements Serializable, Cloneable  {
           String famTaskName = eFamTask.getAttributeValue("taskID");
           if (famTaskName != null) {
               this.setRetainFamiliarTaskID(famTaskName);
-//              YAWLAtomicTask famTask = getTaskWithName(famTaskName, containingNet);
-//              if (famTask != null) {
-//                  this.setRetainFamiliarTask(famTask);
-//              }
           }
       }
   }
@@ -543,8 +526,6 @@ public class ResourceMapping implements Serializable, Cloneable  {
               this.setSeparationOfDutiesTask(famTask);
           }
       }
-
-      
   }
 
 
@@ -567,6 +548,116 @@ public class ResourceMapping implements Serializable, Cloneable  {
   public void parseStart(Element startElement, Namespace nsYawl) {
       setStartInteractionPoint(parseInitiator(startElement));
   }
+
+
+    private Map<String, ResourcingParticipant> getUserMap() {
+       List<ResourcingParticipant> liveList =
+              ResourcingServiceProxy.getInstance().getAllParticipants();
+      Map<String, ResourcingParticipant> liveMap = new HashMap<String, ResourcingParticipant>();
+      if (liveList != null) {
+          for (ResourcingParticipant resp : liveList) {
+              liveMap.put(resp.getId(), resp);
+          }
+      }
+      return liveMap;
+    }
+
+
+    private Map<String, ResourcingRole> getRoleMap() {
+        Map<String, ResourcingRole> liveMap =  new HashMap<String, ResourcingRole>();
+        List<ResourcingRole> liveList = ResourcingServiceProxy.getInstance().getAllRoles();
+        if (liveList != null) {
+            for (ResourcingRole role : liveList) {
+                liveMap.put(role.getId(), role);
+            }
+        }
+        return liveMap;
+    }
+
+
+    private Map<String, ResourcingAsset> getAssetMap() {
+        Map<String, ResourcingAsset> liveMap =  new HashMap<String, ResourcingAsset>();
+        List<ResourcingAsset> liveList =
+                ResourcingServiceProxy.getInstance().getAllNonHumanResources();
+        if (liveList != null) {
+            for (ResourcingAsset asset : liveList) {
+                liveMap.put(asset.getId(), asset);
+            }
+        }
+        return liveMap;
+    }
+
+
+    private Map<String, ResourcingCategory> getCategoryMap() {
+         Map<String, ResourcingCategory> liveMap =  new HashMap<String, ResourcingCategory>();
+         List<ResourcingCategory> liveList =
+                 ResourcingServiceProxy.getInstance().getAllNonHumanCategories();
+         if (liveList != null) {
+             for (ResourcingCategory category : liveList) {
+                 liveMap.put(category.getId(), category);
+             }
+         }
+         return liveMap;
+     }
+
+
+    private boolean parseSecondary(Element e, Namespace nsYawl) {
+        boolean badRef = false;
+        List<Object> result = new LinkedList<Object>();
+        Map<String, ResourcingParticipant> userMap = getUserMap();
+        Map<String, ResourcingRole> roleMap = getRoleMap();
+        Map<String, ResourcingAsset> assetMap = getAssetMap();
+        Map<String, ResourcingCategory> categoryMap = getCategoryMap();
+
+        List users = e.getChildren("participant", nsYawl);
+        for (Object o : users) {
+            String id = ((Element) o).getText();
+            if (id != null) {
+                ResourcingParticipant p = userMap.get(id);
+                if (p != null) {
+                    result.add(p);
+                }
+                else badRef = true;
+            }
+        }
+        List roles = e.getChildren("role", nsYawl);
+        for (Object o : roles) {
+            String id = ((Element) o).getText();
+            if (id != null) {
+                ResourcingRole r = roleMap.get(id);
+                if (r != null) {
+                    result.add(r);
+                }
+                else badRef = true;
+            }
+        }
+        List assets = e.getChildren("nonHumanResource", nsYawl);
+        for (Object o : assets) {
+            String id = ((Element) o).getText();
+            if (id != null) {
+                ResourcingAsset r = assetMap.get(id);
+                if (r != null) {
+                    result.add(r);
+                }
+                else badRef = true;
+            }
+        }
+        List categories = e.getChildren("nonHumanCategory", nsYawl);
+        for (Object o : categories) {
+            String id = ((Element) o).getText();
+            if (id != null) {
+                ResourcingCategory r = categoryMap.get(id);
+                if (r != null) {
+                    result.add(r);
+                }
+                else badRef = true;
+            }
+        }
+        setSecondaryResourcesList(result);
+        return badRef;
+    }
+
+
 
 
   public void parsePrivileges(Element privilegesElement, Namespace nsYawl) {

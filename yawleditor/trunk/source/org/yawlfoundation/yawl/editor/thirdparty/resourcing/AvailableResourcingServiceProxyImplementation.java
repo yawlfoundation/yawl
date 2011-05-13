@@ -23,20 +23,22 @@ package org.yawlfoundation.yawl.editor.thirdparty.resourcing;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
-import org.yawlfoundation.yawl.editor.resourcing.AllocationMechanism;
-import org.yawlfoundation.yawl.editor.resourcing.ResourcingFilter;
-import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
-import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
+import org.yawlfoundation.yawl.editor.resourcing.*;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.ServerLookup;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.resourcing.allocators.AbstractAllocator;
 import org.yawlfoundation.yawl.resourcing.filters.AbstractFilter;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.Role;
+import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
+import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.prefs.Preferences;
 
 public class AvailableResourcingServiceProxyImplementation implements ResourcingServiceProxyInterface {
@@ -112,7 +114,7 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
   }
   
   public List<ResourcingParticipant> getAllParticipants() {
-      List engineParticipants;
+      List<Participant> engineParticipants;
       LinkedList<ResourcingParticipant> participantList = new LinkedList<ResourcingParticipant>();
 
       if (connect()) {
@@ -123,9 +125,7 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
           }
 
           if (engineParticipants != null) {
-              for (Object engineParticipant: engineParticipants) {
-                  Participant participant = (Participant) engineParticipant;
-
+              for (Participant participant : engineParticipants) {
                   participantList.add(
                           new ResourcingParticipant(
                                   participant.getID(),
@@ -165,6 +165,50 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
         }
         return registeredRoles;
     }
+
+
+    public List<ResourcingAsset> getAllNonHumanResources() {
+      List<NonHumanResource> engineResources;
+      LinkedList<ResourcingAsset> resourcesList = new LinkedList<ResourcingAsset>();
+
+      if (connect()) {
+          try {
+              engineResources = gateway.getNonHumanResources(sessionHandle);
+          } catch (Exception e) {
+              return resourcesList;
+          }
+
+          if (engineResources != null) {
+              for (NonHumanResource resource : engineResources) {
+                  resourcesList.add(
+                          new ResourcingAsset(resource.getID(), resource.getName()));
+              }
+          }
+      }
+      return resourcesList;
+    }
+
+
+    public List<ResourcingCategory> getAllNonHumanCategories() {
+        List<NonHumanCategory> engineCategories;
+        LinkedList<ResourcingCategory> categoriesList = new LinkedList<ResourcingCategory>();
+        if (connect()) {
+            try {
+                engineCategories = gateway.getNonHumanCategories(sessionHandle);
+            } catch (Exception e) {
+                return categoriesList;
+            }
+
+            if ( engineCategories != null) {
+                for (NonHumanCategory category : engineCategories) {
+                    categoriesList.add(
+                            new ResourcingCategory(category.getID(), category.getName()));
+                }
+            }
+        }
+        return categoriesList;
+    }
+
 
     public List<AllocationMechanism> getRegisteredAllocationMechanisms() {
         List engineAllocators;

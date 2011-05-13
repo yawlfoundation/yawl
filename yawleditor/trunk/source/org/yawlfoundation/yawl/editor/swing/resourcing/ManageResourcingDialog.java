@@ -24,6 +24,7 @@ public class ManageResourcingDialog extends AbstractWizardDialog {
             new SetInteractionPointBehaviourPanel(this),
             new SpecifyBaseDistributionSetPanel(this),
             new SpecifyDistributionSetFiltersPanel(this),
+            new SetSecondaryResourcesPanel(this),
             new SetSystemAllocateBehaviourPanel(this),
             new SetRuntimePrivilegesPanel(this)
         }
@@ -89,7 +90,7 @@ public class ManageResourcingDialog extends AbstractWizardDialog {
   }
 
   public void setVisible(boolean state) {
-    if (state == true) {
+    if (state) {
       JUtilities.centreWindowUnderVertex(net, this, task, 10);
     }
     super.setVisible(state);
