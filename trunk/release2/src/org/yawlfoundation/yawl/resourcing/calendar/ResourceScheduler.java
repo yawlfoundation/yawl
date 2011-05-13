@@ -276,7 +276,9 @@ public class ResourceScheduler {
         if (logEntry != null) {
 
             // only notify if the changer is different to the original 'owner'
-            if (! logEntry.getAgent().equals(calEntry.getAgent())) {
+            String changer = calEntry.getAgent();
+            String owner = logEntry.getAgent();
+            if ((owner != null) && ((changer == null) || (! owner.equals(changer)))) {
                 node.addChild("CaseId", logEntry.getCaseID());
                 node.addChild("ActivityName", logEntry.getActivityName());
                 node.addChild("ReservationId", reservationID);
@@ -289,7 +291,7 @@ public class ResourceScheduler {
                 
                 node.addChild("OldStatus", logEntry.getStatus());
                 node.addChild("NewStatus", calEntry.getStatus());
-                _rm.announceResourceCalendarStatusChange(logEntry.getAgent(), node.toString());
+                _rm.announceResourceCalendarStatusChange(owner, node.toString());
             }
         }
     }
