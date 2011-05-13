@@ -107,6 +107,10 @@ public class InterfaceX_ServiceSideServer extends HttpServlet {
         String sPreCheck = request.getParameter("preCheck") ;
         if (sPreCheck != null) preCheck = sPreCheck.equalsIgnoreCase("TRUE");
 
+        boolean primary = true;
+        String sPrimary = request.getParameter("primary");
+        if (sPrimary != null) primary = sPrimary.equalsIgnoreCase("TRUE");
+
         // unpack the strings
         String data = request.getParameter("data");
         String caseID = request.getParameter("caseID");
@@ -114,6 +118,7 @@ public class InterfaceX_ServiceSideServer extends HttpServlet {
         String specVersion = request.getParameter("specVersion");
         String specURI = request.getParameter("specURI");
         String taskList = request.getParameter("taskList");
+        String resourceID = request.getParameter("resourceid");
 
         switch (actionToNotifyType(request.getParameter("action"))) {
             case InterfaceX_EngineSideClient.NOTIFY_CHECK_CASE_CONSTRAINTS:
@@ -131,7 +136,7 @@ public class InterfaceX_ServiceSideServer extends HttpServlet {
                _controller.handleTimeoutEvent(wir, taskList);
                break;
             case InterfaceX_EngineSideClient.NOTIFY_RESOURCE_UNAVAILABLE:
-               _controller.handleResourceUnavailableException(wir);
+               _controller.handleResourceUnavailableException(resourceID, wir, primary);
                break;
             case InterfaceX_EngineSideClient.NOTIFY_CONSTRAINT_VIOLATION:
                _controller.handleConstraintViolationException(wir);

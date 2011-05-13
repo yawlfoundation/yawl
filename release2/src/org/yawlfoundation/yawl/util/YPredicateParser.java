@@ -183,9 +183,13 @@ public class YPredicateParser {
      * @return the result of the evaluation, or "__evaluation_error__" if there's a
      * problem evaluating the expression
      */
-    private String evaluateXQuery(String s, Element data) {
+    protected String evaluateXQuery(String s, Element data) {
+        return  evaluateXQuery(s, new Document((Element) data.clone()));
+
+    }
+
+    protected String evaluateXQuery(String s, Document dataDoc) {
         try {
-            Document dataDoc = new Document((Element) data.clone());
             return SaxonUtil.evaluateQuery(s, dataDoc);
         }
         catch (Exception e) {
@@ -199,7 +203,7 @@ public class YPredicateParser {
      * @param s the delimited String
      * @return the inner contents of the String with the delimiters removed
      */
-    private String stripDelimiters(String s) {
+    protected String stripDelimiters(String s) {
         return s.substring(2, s.length() - 1);    
     }
 

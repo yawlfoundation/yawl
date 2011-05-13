@@ -501,7 +501,8 @@ public abstract class YTask extends YExternalNetElement {
 
                 //Now we check that the resulting transformation produced data according
                 //to the net variable's type.
-                if (spec.isSchemaValidating() && (! query.equals(getPreJoiningMIQuery()))) {
+                if (spec.getSchemaVersion().isSchemaValidating() &&
+                        (! query.equals(getPreJoiningMIQuery()))) {
                     YVariable var = _net.getLocalVariables().containsKey(localVarThatQueryResultGetsAppliedTo) ?
                              _net.getLocalVariables().get(localVarThatQueryResultGetsAppliedTo) :
                              _net.getInputParameters().get(localVarThatQueryResultGetsAppliedTo);
@@ -582,7 +583,7 @@ public abstract class YTask extends YExternalNetElement {
         YSpecification spec = _net.getSpecification();
 
         // if the specification is beta 4 or greater then do validation.
-        if ((! spec.usesSimpleRootData()) && (null != getDecompositionPrototype())) {
+        if ((! spec.getSchemaVersion().usesSimpleRootData()) && (null != getDecompositionPrototype())) {
 
             // fix any output vars with missing values that have default values defined
             addDefaultValuesAsRequired(decompositionOutputData);
@@ -724,7 +725,7 @@ public abstract class YTask extends YExternalNetElement {
             result = evaluateTreeQuery(
                     _multiInstAttr.getMIJoiningQuery(),
                     _groupedMultiInstanceOutputData);
-            if (_net.getSpecification().isSchemaValidating()) {
+            if (_net.getSpecification().getSchemaVersion().isSchemaValidating()) {
                 //if betaversion > beta3 then validate the results of the aggregation query
                 String uniqueInstanceOutputQuery = _multiInstAttr.getMIFormalOutputQuery();
                 String localVarThatQueryResultGetsAppliedTo =
@@ -1067,8 +1068,9 @@ public abstract class YTask extends YExternalNetElement {
          * AJH: Allow option to inhibit schema validation for outbound data.
          *      Ideally need to support this at task level.
          */
-        if (_net.getSpecification().isSchemaValidating() && (! skipOutboundSchemaChecks())) {
-                performSchemaValidationOverExtractionResult(expression, inputParam, result);
+        if (_net.getSpecification().getSchemaVersion().isSchemaValidating()
+                && (! skipOutboundSchemaChecks())) {
+            performSchemaValidationOverExtractionResult(expression, inputParam, result);
         }
         return result;
     }
@@ -1086,7 +1088,7 @@ public abstract class YTask extends YExternalNetElement {
             }
         }
         if (result != null) {
-            if (_net.getSpecification().isSchemaValidating()) {
+            if (_net.getSpecification().getSchemaVersion().isSchemaValidating()) {
                 if (!skipOutboundSchemaChecks()) {
 
                     // remove any dynamic attributes for schema checking
@@ -1657,7 +1659,7 @@ public abstract class YTask extends YExternalNetElement {
 
     private List<YVerificationMessage> checkOutputParameterMappings() {
         List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
-        if (_net._specification.usesSimpleRootData()) {
+        if (_net._specification.getSchemaVersion().usesSimpleRootData()) {
             messages.addAll(checkOutputParamsPreBeta4());
         }
 

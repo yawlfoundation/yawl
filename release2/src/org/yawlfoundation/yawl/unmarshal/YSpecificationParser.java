@@ -24,6 +24,7 @@ import org.jdom.Element;
 import org.jdom.Namespace;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.text.ParseException;
@@ -58,7 +59,8 @@ class YSpecificationParser {
      * @param version the version of the XML representation (i.e. beta2 or beta3).
      * @throws YSyntaxException
      */
-    public YSpecificationParser(Element specificationElem, String version) throws YSyntaxException {
+    public YSpecificationParser(Element specificationElem, YSchemaVersion version)
+            throws YSyntaxException {
         _yawlNS = specificationElem.getNamespace();
 
         parseSpecification(specificationElem, version);
@@ -66,7 +68,7 @@ class YSpecificationParser {
     }
 
 
-    private void parseSpecification(Element specificationElem, String version)
+    private void parseSpecification(Element specificationElem, YSchemaVersion version)
             throws YSyntaxException {
         List decompositionElems = specificationElem.getChildren("decomposition", _yawlNS);
         for (int i = 0; i < decompositionElems.size(); i++) {
@@ -237,8 +239,8 @@ class YSpecificationParser {
      * @return whether this is a a beta 2 specification version or not.
      */
     private boolean isBeta2Version() {
-        return _specification.getBetaVersion().equals(YSpecification.Beta2);
-    }
+        return _specification.getSchemaVersion().isBeta2();
+    }    
 
 
     /**

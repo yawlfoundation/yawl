@@ -334,7 +334,8 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         monitor.removeProcessInfo();
     }
 
-    public void handleResourceUnavailableException(WorkItemRecord wir) {
+    public void handleResourceUnavailableException(String resourceID, WorkItemRecord wir, 
+                                                   boolean primary) {
         String caseID = getIntegralID(wir.getCaseID());
         CaseMonitor monitor = _monitoredCases.get(caseID);
 

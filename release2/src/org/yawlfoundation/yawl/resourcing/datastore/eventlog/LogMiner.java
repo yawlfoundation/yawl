@@ -451,6 +451,26 @@ public class LogMiner {
     }
 
 
+    public List getLastBusyOrReleaseEvents(String resourceID) {
+        return getLastUseEvents(resourceID);
+    }
+
+
+    public List getBusyResources(String itemID) {
+        return getBusyResources("_itemID", itemID);
+    }
+
+    
+    public List getBusyResourcesForCase(String caseID) {
+        String query = String.format(
+             "%s WHERE (re._event='busy' OR re._event='released') " +
+                     "AND (re._caseID='%s' OR re._caseID LIKE '%s%s') " +
+                     "ORDER BY re._itemID, re._timeStamp",
+                _baseQuery, caseID, caseID, ".%");
+        return execQuery(query) ;
+    }
+
+
     /*****************************************************************************/
 
     private List execQuery(String query) {
@@ -536,6 +556,11 @@ public class LogMiner {
         String query = getWhereQuery("_resourceID", resourceID) +
                 getTimeRangeSubclause(from, to);
         return execQuery(query) ;
+    }
+
+    
+    private List getBusyResources(String key, String value) {
+        return execQuery(getWhereQuery(key, value) + " AND re._event='busy'");
     }
 
 
@@ -704,6 +729,16 @@ public class LogMiner {
                 "%s WHERE re._itemID='%s' AND re._event='%s'",
                 _baseQuery, itemID, eventType.name());
         return execScalarQuery(query);
+    }
+
+
+    private List getLastUseEvents(String resourceID) {
+        String query = "SELECT re._event, MAX(re._timeStamp) " +
+                       "FROM ResourceEvent AS re " +
+                       "WHERE re._resourceID = '" + resourceID +
+                       "' AND (re._event='busy' OR re._event='released') " +
+                       "GROUP BY re._event";
+        return execQuery(query);                        // returns 0-2 rows of Object[2]
     }
 
 

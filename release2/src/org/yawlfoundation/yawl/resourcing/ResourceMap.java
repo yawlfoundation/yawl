@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.resourcing.allocators.ShortestQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.interactions.*;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.resourcing.resource.SecondaryResources;
 import org.yawlfoundation.yawl.resourcing.util.TaggedStringList;
 
 import java.util.HashMap;
@@ -55,6 +56,8 @@ public class ResourceMap {
     // user-task privileges
     private TaskPrivileges _privileges ;
 
+    private SecondaryResources _secondary;
+
     private long _id ;                                             // hibernate pkey
     private String _taskID ;
     private YSpecificationID _specID ;
@@ -79,6 +82,7 @@ public class ResourceMap {
         _offer = new OfferInteraction(taskID) ;
         _allocate = new AllocateInteraction(taskID);
         _start = new StartInteraction(taskID) ;
+        _secondary = new SecondaryResources();
 
         _allocate.setAllocator(new ShortestQueue());               // default allocator
     }
@@ -110,6 +114,10 @@ public class ResourceMap {
        _start = si ;
     }
 
+    public void setSecondaryResources(SecondaryResources sr) {
+        _secondary = sr;
+    }
+
     public void setTaskPrivileges(TaskPrivileges tp) {
         _privileges = tp ;
     }
@@ -124,6 +132,10 @@ public class ResourceMap {
 
     public StartInteraction getStartInteraction() {
        return _start ;
+    }
+
+    public SecondaryResources getSecondaryResources() {
+        return _secondary;
     }
 
     public TaskPrivileges getTaskPrivileges() {
@@ -263,9 +275,6 @@ public class ResourceMap {
     }
 
     /****************************************************************************/
-
-    
-
     /****************************************************************************/
 
     public WorkItemRecord distribute(WorkItemRecord wir) {
@@ -316,7 +325,6 @@ public class ResourceMap {
         rm.getWorkItemCache().updateResourceStatus(wir, WorkItemRecord.statusResourceUnoffered);
         ResourceAdministrator.getInstance().addToUnoffered(wir);
     }
-
 
 
     private HashSet<Participant> doOffer(WorkItemRecord wir) {
@@ -432,6 +440,7 @@ public class ResourceMap {
                 _offer.parse(eleSpec.getChild("offer", nsYawl), nsYawl) ;
                 _allocate.parse(eleSpec.getChild("allocate", nsYawl), nsYawl) ;
                 _start.parse(eleSpec.getChild("start", nsYawl), nsYawl) ;
+                _secondary.parse(eleSpec.getChild("secondary", nsYawl), nsYawl);
                 _privileges.parse(eleSpec.getChild("privileges", nsYawl), nsYawl) ;
                 _log.info("Resourcing specification parse completed for task: " + _taskID);
             }
@@ -448,6 +457,7 @@ public class ResourceMap {
         xml.append(_offer.toXML()) ;
         xml.append(_allocate.toXML()) ;
         xml.append(_start.toXML()) ;
+        xml.append(_secondary.toXML());
         xml.append(_privileges.toXML()) ;
         xml.append("</resourcing>");
         return xml.toString() ;

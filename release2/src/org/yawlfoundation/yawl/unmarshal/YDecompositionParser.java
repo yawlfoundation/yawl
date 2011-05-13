@@ -28,6 +28,7 @@ import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.xml.datatype.Duration;
@@ -50,7 +51,7 @@ public class YDecompositionParser {
     private Map<YTask, String> _decomposesToIDs;
     private YSpecificationParser _specificationParser;
     Map<YTask, List<Element>> _removeSetForFlows = new HashMap<YTask, List<Element>>();
-    private String _version;
+    private YSchemaVersion _version;
 
 
 
@@ -69,7 +70,8 @@ public class YDecompositionParser {
      * @param specificationParser a reference to parent spec parser.
      * @param version the version of XML structure
      */
-    YDecompositionParser(Element decompElem, YSpecificationParser specificationParser, String version) {
+    YDecompositionParser(Element decompElem, YSpecificationParser specificationParser,
+                         YSchemaVersion version) {
         _decompElem = decompElem;
         _yawlNS = decompElem.getNamespace();
         _specificationParser = specificationParser;
@@ -223,7 +225,7 @@ public class YDecompositionParser {
         parseExternalTaskRoles(taskElem, task);
         parseNameAndDocumentation(task, taskElem);
 
-        if ((task != null) && (! _version.startsWith("Beta"))) {
+        if ((task != null) && (! _version.isBetaVersion())) {
             task.setResourcingSpecs(taskElem.getChild("resourcing", _yawlNS));
             parseTimerParameters(task, taskElem) ;
             parseCustomFormURL(task, taskElem) ;
@@ -579,7 +581,7 @@ public class YDecompositionParser {
      * @return whether this is a a beta 2 specification version or not.
      */
     private boolean isBeta2Version() {
-        return YSpecification.Beta2.equals(_version);
+        return _version.isBeta2();
     }
 
 

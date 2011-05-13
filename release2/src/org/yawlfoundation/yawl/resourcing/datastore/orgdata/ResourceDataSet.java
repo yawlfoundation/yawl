@@ -1004,8 +1004,16 @@ public class ResourceDataSet {
         return orgGroupMap.containsKey(oid);
     }
 
+    public boolean isKnownNonHumanResource(NonHumanResource r) {
+        return isKnownNonHumanResource(r.getID());
+    }
+
     public boolean isKnownNonHumanResource(String rid) {
         return nonHumanMap.containsKey(rid);
+    }
+
+    public boolean isKnownNonHumanCategory(NonHumanCategory c) {
+        return isKnownNonHumanCategory(c.getID());
     }
 
     public boolean isKnownNonHumanCategory(String rid) {
@@ -1515,20 +1523,18 @@ public class ResourceDataSet {
 
     /********************************/
 
-    public boolean setResourceAvailability(String caseID, String id, boolean available) {
+    public boolean logResourceBusy(String caseID, String id, boolean isBusy) {
         AbstractResource resource = getResource(id);
         if (resource != null) {
-            resource.setAvailable(available);
-            updateResource(resource);        // persist the change
             EventLogger.log(null, caseID, id,
-                    (available ? EventLogger.event.released : EventLogger.event.in_use));
+                    (isBusy ? EventLogger.event.busy : EventLogger.event.released));
         }
         return (resource != null);
     }
 
 
     public void freeResource(String caseID, String id) {
-        setResourceAvailability(caseID, id, true);
+        logResourceBusy(caseID, id, false);
     }
     
 }

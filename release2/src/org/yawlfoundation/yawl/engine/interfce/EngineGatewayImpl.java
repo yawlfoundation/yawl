@@ -237,9 +237,8 @@ public class EngineGatewayImpl implements EngineGateway {
         }
         List<YSpecification> specList = new Vector<YSpecification>();
         specList.add(spec);
-        String version = spec.getSchemaVersion();
         try {
-            return YMarshal.marshal(specList, version);
+            return YMarshal.marshal(specList, spec.getSchemaVersion());
         }
         catch (Exception e) {
             logger.error("Failed to marshal a specification into XML.", e);
@@ -1173,7 +1172,7 @@ public class EngineGatewayImpl implements EngineGateway {
                 specs.append("</params>");
             }
             specs.append(StringUtil.wrap(spec.getRootNet().getID(), "rootNetID"));
-            specs.append(StringUtil.wrap(spec.getSchemaVersion(),"version"));
+            specs.append(StringUtil.wrap(spec.getSchemaVersion().toString(), "version"));
             specs.append(StringUtil.wrap(spec.getSpecVersion(), "specversion"));
             specs.append(StringUtil.wrap(_engine.getLoadStatus(spec.getSpecificationID()),
                          "status"));

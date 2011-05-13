@@ -63,7 +63,7 @@ public interface InterfaceX_Service {
 
      void handleTimeoutEvent(WorkItemRecord wir, String taskList);
 
-     void handleResourceUnavailableException(WorkItemRecord wir);
+     void handleResourceUnavailableException(String resourceID, WorkItemRecord wir, boolean primary);
 
      void handleConstraintViolationException(WorkItemRecord wir);
 

@@ -550,8 +550,8 @@ public class YEngine implements InterfaceADesign,
                         result.add(specification.getSpecificationID());
                     }
                     else {
-                        String errDetail = specification.getSchemaVersion().startsWith("2.") ?
-                            "UID: " + specification.getID() : "URI: " + specification.getURI();
+                        String errDetail = specification.getSchemaVersion().isBetaVersion() ?
+                            "URI: " + specification.getURI() : "UID: " + specification.getID();
                         errDetail += "- Version: " + specification.getSpecVersion();
                         errorMessages.add(new YVerificationMessage(this,
                                 "There is a specification with an identical id to ["

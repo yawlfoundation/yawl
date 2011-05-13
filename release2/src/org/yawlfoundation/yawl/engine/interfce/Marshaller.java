@@ -23,6 +23,7 @@ import org.jdom.JDOMException;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.unmarshal.YDecompositionParser;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
@@ -175,7 +176,7 @@ public class Marshaller {
             if (specURI != null && specStatus != null) {
                 YSpecificationID ySpecID = new YSpecificationID(specID, specVersion, specURI);
                 SpecificationData specData = new SpecificationData(ySpecID,
-                            specName, specDoco, specStatus, version);
+                            specName, specDoco, specStatus, YSchemaVersion.fromString(version));
                 
                 specData.setRootNetID(rootNetID);
                 specData.setExternalDataGateway(dataGateway);
