@@ -85,7 +85,9 @@ public class YWorkItem {
 
     private URL _customFormURL ;
     private String _codelet ;
+    private String _documentation;
     private String _externalLogPredicate;                 // set by services on checkin
+
 
     private final YEventLogger _eventLog = YEventLogger.getInstance();
     private final Logger _log = Logger.getLogger(YWorkItem.class);
@@ -107,6 +109,7 @@ public class YWorkItem {
                        allowsDynamicCreation); 
 
         _task = task;
+        if (task != null) _documentation = task.getDocumentation(); 
         _enablementTime = new Date();
         _eventLog.logWorkItemEvent(pmgr, this, _status, null);
         if ((pmgr != null) && (! isDeadlocked)) pmgr.storeObject(this);
@@ -832,7 +835,12 @@ public class YWorkItem {
 
     public YTask getTask() { return _task; }
 
-    public void setTask(YTask task) { _task = task; }    
+    public void setTask(YTask task) { _task = task; }
+
+
+    public String getDocumentation() {
+        return (_parent != null) ? _parent.getDocumentation() : _documentation;
+    }
 
     public String toXML() {
         StringBuilder xml = new StringBuilder("<workItem");
@@ -842,7 +850,7 @@ public class YWorkItem {
         xml.append(StringUtil.wrap(getCaseID().toString(), "caseid"));
         xml.append(StringUtil.wrap(getUniqueID(), "uniqueid"));
         xml.append(StringUtil.wrap(_task.getName(), "taskname"));
-        xml.append(StringUtil.wrap(_task.getDocumentation(), "documentation"));
+        xml.append(StringUtil.wrap(getDocumentation(), "documentation"));
         if (_specID.getIdentifier() != null)
             xml.append(StringUtil.wrap(_specID.getIdentifier(), "specidentifier"));
 

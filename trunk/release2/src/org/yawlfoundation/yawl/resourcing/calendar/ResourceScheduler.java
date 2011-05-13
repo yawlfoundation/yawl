@@ -642,8 +642,8 @@ public class ResourceScheduler {
         _uLogger.log(logEntry, calEntry, false);
 
         if (logEntry.getPhase().equals("SOU")) {                 // start-of-utilisation
-            setResourceAvailable(logEntry.getCaseID(), reservation.getResource().getID(),
-                    false);
+            setResourceBusy(logEntry.getCaseID(), reservation.getResource().getID(),
+                    true);
         }
     }
 
@@ -680,7 +680,7 @@ public class ResourceScheduler {
         _uLogger.log(logEntry, calEntry, false);
 
         if (logEntry.getPhase().equals("SOU")) {                 // start-of-utilisation
-            setResourceAvailable(logEntry.getCaseID(), calEntry.getResourceID(), false);
+            setResourceBusy(logEntry.getCaseID(), calEntry.getResourceID(), true);
         }
     }
 
@@ -762,8 +762,8 @@ public class ResourceScheduler {
             CalendarEntry blockedEntry = getCalendarEntry(calEntry.getChainID());
             if ((blockedEntry != null) &&
                 (blockedEntry.getEndTime() < System.currentTimeMillis())) {
-                    setResourceAvailable(logEntry.getCaseID(),
-                            reservation.getResource().getID(), true);
+                    setResourceBusy(logEntry.getCaseID(),
+                            reservation.getResource().getID(), false);
             }
         }
     }
@@ -967,10 +967,10 @@ public class ResourceScheduler {
     /**
      * Marks a resource as being in use
      * @param id the id of the resource
-     * @param available true if 'available', false if 'in use'
+     * @param busy true if 'busy', false if 'released'
      */
-    private void setResourceAvailable(String caseID, String id, boolean available) {
-        _rm.getOrgDataSet().setResourceAvailability(caseID, id, available);
+    private void setResourceBusy(String caseID, String id, boolean busy) {
+        _rm.getOrgDataSet().logResourceBusy(caseID, id, busy);
     }
 
 

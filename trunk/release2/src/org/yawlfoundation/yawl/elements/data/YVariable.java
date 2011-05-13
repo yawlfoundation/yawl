@@ -19,19 +19,19 @@
 package org.yawlfoundation.yawl.elements.data;
 
 import org.jdom.Element;
-import org.yawlfoundation.yawl.elements.YDecomposition;
-import org.yawlfoundation.yawl.elements.YSpecification;
-import org.yawlfoundation.yawl.elements.YVerifiable;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.elements.YVerifiable;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.schema.XMLToolsForYAWL;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
-import java.util.Hashtable;
 
 /**
  *
@@ -220,12 +220,18 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
         return xml.toString();
     }
 
+
+    private boolean isSchemaVersionAtLeast2_1() {
+        return (_parentDecomposition != null) &&
+                _parentDecomposition.getSpecification().getSchemaVersion()
+                        .isVersionAtLeast((YSchemaVersion.TwoPointOne));
+    }
+
     protected String toXMLGuts() {
         StringBuilder xml = new StringBuilder();
 
-        // only 2.1 specs get an index element
-        if ((_parentDecomposition != null) &&
-           (_parentDecomposition.getSpecification().getSchemaVersion().equals(YSpecification.Version2_1))) {
+        // only 2.1 or later specs get an index element
+        if (isSchemaVersionAtLeast2_1()) {
             xml.append(StringUtil.wrap(String.valueOf(_ordering), "index"));
         }
         

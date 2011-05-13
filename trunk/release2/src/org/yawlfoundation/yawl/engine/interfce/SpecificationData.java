@@ -22,9 +22,9 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
-import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.io.IOException;
@@ -50,7 +50,7 @@ public class SpecificationData {
     private String _specAsXML;
     private Map<String, YParameter> _inputParams = new HashMap<String, YParameter>();
     private Map<String, String> _dataTypes = new HashMap<String, String>();
-    private String _schemaVersion;
+    private YSchemaVersion _schemaVersion;
     private String _rootNetID;
     private String _schema ;
     private String _title;
@@ -58,7 +58,7 @@ public class SpecificationData {
     private String _externalDataGateway;
 
     public SpecificationData(YSpecificationID specID, String specificationName,
-                             String documentation, String status, String version) {
+                             String documentation, String status, YSchemaVersion version) {
         _specificationID = specID ;
         _documentation = documentation;
         _specificationName = specificationName;
@@ -158,13 +158,13 @@ public class SpecificationData {
     }
 
 
-    public String getSchemaVersion() {
+    public YSchemaVersion getSchemaVersion() {
         return _schemaVersion;
     }
 
 
     public boolean isSecondGenSchemaVersion() {
-        return _schemaVersion.startsWith("2.");
+        return ! _schemaVersion.isBetaVersion();
     }
 
 
@@ -178,7 +178,7 @@ public class SpecificationData {
     }
 
 
-    public void setSchemaVersion(String version) {
+    public void setSchemaVersion(YSchemaVersion version) {
         _schemaVersion = version;
     }
 
@@ -203,8 +203,7 @@ public class SpecificationData {
     }
 
     public boolean usesSimpleRootData() {
-        return YSpecification.Beta2.equals(_schemaVersion) ||
-               YSpecification.Beta3.equals(_schemaVersion);
+        return _schemaVersion.usesSimpleRootData();
     }
 
     public String getMetaTitle() {

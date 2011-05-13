@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.elements;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.schema.YDataValidator;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.unmarshal.YMetaData;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -43,25 +44,9 @@ public final class YSpecification implements Cloneable, YVerifiable {
                                         new HashMap<String, YDecomposition>();
     private String _name;
     private String _documentation;
-    private String _version;
+    private YSchemaVersion _version;
     private YDataValidator _dataValidator;
     private YMetaData _metaData;
-
-    public static final String Beta2 = "Beta 2";
-    public static final String Beta3 = "Beta 3";
-    public static final String Beta4 = "Beta 4";
-    public static final String Beta6 = "Beta 6";
-    public static final String Beta7_1 = "Beta 7.1";
-    public static final String Version2_0 = "2.0";
-    public static final String Version2_1 = "2.1";
-
-    public static final String BetaNS = "http://www.citi.qut.edu.au/yawl";
-    public static final String BetaSchemaLocation = BetaNS +
-            " d:/yawl/schema/YAWL_SchemaBeta7.1.xsd";
-
-    public static final String Version2NS = "http://www.yawlfoundation.org/yawlschema";
-    public static final String Version2SchemaLocation = Version2NS +
-            " http://www.yawlfoundation.org/yawlschema/YAWL_Schema2.1.xsd";
 
     public static final String _loaded = "loaded";
     public static final String _unloaded = "unloaded";
@@ -71,12 +56,6 @@ public final class YSpecification implements Cloneable, YVerifiable {
 
     public YSpecification(String specURI) {
         _specURI = specURI;
-    }
-
-    public static boolean isValidVersion(String version) {
-        return Version2_1.equals(version) || Version2_0.equals(version) ||
-               Beta7_1.equals(version) || Beta6.equals(version) ||
-               Beta4.equals(version) || Beta3.equals(version) || Beta2.equals(version);
     }
 
 
@@ -98,10 +77,10 @@ public final class YSpecification implements Cloneable, YVerifiable {
      * @return the version of the engine that this specification was first designed for.
      */
     public String getBetaVersion() {
-        return getSchemaVersion();
+        return getSchemaVersion().toString();
     }
 
-    public String getSchemaVersion() {
+    public YSchemaVersion getSchemaVersion() {
         return _version;
     }
 
@@ -121,17 +100,6 @@ public final class YSpecification implements Cloneable, YVerifiable {
     }
 
     
-    public boolean usesSimpleRootData() {
-        return YSpecification.Beta2.equals(_version) ||
-               YSpecification.Beta3.equals(_version);
-    }
-
-
-    public boolean isSchemaValidating() {
-        return ! YSpecification.Beta2.equals(_version);
-    }
-
-
     /**
      * Sets the version number of the specification.
      * @param version
@@ -140,22 +108,17 @@ public final class YSpecification implements Cloneable, YVerifiable {
     public void setBetaVersion(String version) { setVersion(version) ; }
 
     public void setVersion(String version) {
-        if (Beta2.equals(version) ||
-                Beta3.equals(version) ||
-                Beta4.equals(version) ||
-                Beta6.equals(version) ||
-                Beta7_1.equals(version) ||
-                Version2_0.equals(version) ||
-                Version2_1.equals(version)) {
-            _version = version;
-        }
-        else if ("beta3".equals(version)) {
-            _version = Beta3;
-        }
-        else {
+        if (version.equals("beta3")) version = "Beta 3";
+        _version = YSchemaVersion.fromString(version);
+        if (_version == null) {
             throw new IllegalArgumentException("Param version [" +
                     version + "] is not allowed.");
         }
+    }
+
+    
+    public void setVersion(YSchemaVersion version) {
+        _version = version;
     }
 
 
@@ -200,7 +163,7 @@ public final class YSpecification implements Cloneable, YVerifiable {
                   if (decomposition.getCodelet() != null) {
                       xml.append(StringUtil.wrap(decomposition.getCodelet(), "codelet"));
                   }
-                  if (! _version.startsWith("Beta")) {
+                  if (! _version.isBetaVersion()) {
                       xml.append("<externalInteraction>")
                          .append(decomposition.requiresResourcingDecisions() ? "manual": "automated")
                          .append("</externalInteraction>");

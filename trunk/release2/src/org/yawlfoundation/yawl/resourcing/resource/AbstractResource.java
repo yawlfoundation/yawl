@@ -71,6 +71,8 @@ public abstract class AbstractResource implements Cloneable {
         setBlockedDuration(resource.getBlockedDuration());
     }
 
+    public abstract String getName();
+
     public String getID() { return _resourceID; }
 
     public void setID(String id) { _resourceID = id ; }      

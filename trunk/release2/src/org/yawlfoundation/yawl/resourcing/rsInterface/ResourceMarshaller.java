@@ -26,6 +26,7 @@ import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.unmarshal.YDecompositionParser;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -160,7 +161,7 @@ public class ResourceMarshaller {
                 xml.append("</params>");
             }
             xml.append(StringUtil.wrap(specData.getRootNetID(), "rootNetID"));
-            xml.append(StringUtil.wrap(specData.getSchemaVersion(),"version"));
+            xml.append(StringUtil.wrap(specData.getSchemaVersion().toString(), "version"));
             xml.append(StringUtil.wrap(specData.getSpecVersion(), "specversion"));
             xml.append(StringUtil.wrap(specData.getStatus(), "status"));
    
@@ -198,7 +199,8 @@ public class ResourceMarshaller {
             String dataGateway = specElement.getChildText("externalDataGateway");
             if (id != null && status != null) {
                 specID = new YSpecificationID(id, specVersion, uri);
-                result = new SpecificationData(specID, name, doco, status, version);
+                YSchemaVersion schemaVersion = YSchemaVersion.fromString(version);
+                result = new SpecificationData(specID, name, doco, status, schemaVersion);
                 result.setRootNetID(rootNetID);
                 result.setSpecVersion(specVersion);
                 result.setExternalDataGateway(dataGateway);

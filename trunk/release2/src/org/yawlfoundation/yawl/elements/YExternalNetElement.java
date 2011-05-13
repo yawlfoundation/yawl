@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.elements;
 
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.YNetElementDocoParser;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.util.*;
@@ -58,7 +59,9 @@ public abstract class YExternalNetElement extends YNetElement implements YVerifi
 
     public void setName(String name) { _name = name; }
 
-    public String getDocumentation() { return _documentation; }
+    public String getDocumentation() {
+        return preparseDocumentation();
+    }
 
     public void setDocumentation(String doco) { _documentation = doco; }
 
@@ -240,6 +243,15 @@ public abstract class YExternalNetElement extends YNetElement implements YVerifi
     public void addToYawlMappings(Set<YExternalNetElement> elements){
  	      _yawlMappingSet.addAll(elements);
     }
+
+
+    private String preparseDocumentation() {
+        if ((_documentation != null) && (_documentation.contains("${/"))) {
+            return new YNetElementDocoParser(_net.getInternalDataDocument()).parse(_documentation);
+        }
+        return _documentation;
+    }
+    
 
      /************************************************************************/
 

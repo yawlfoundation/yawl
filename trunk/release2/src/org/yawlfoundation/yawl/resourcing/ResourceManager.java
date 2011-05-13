@@ -50,6 +50,7 @@ import org.yawlfoundation.yawl.resourcing.datastore.PersistedAutoTask;
 import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.LogMiner;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataSource;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataSourceFactory;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.EmptyDataSource;
@@ -61,6 +62,7 @@ import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
 import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
+import org.yawlfoundation.yawl.resourcing.resource.AbstractResource;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
 import org.yawlfoundation.yawl.resourcing.rsInterface.*;
@@ -426,8 +428,16 @@ public class ResourceManager extends InterfaceBWebsideController {
     // Server methods (event announcements) //
 
     public void announceResourceUnavailable(WorkItemRecord wir) {
+        announceResourceUnavailable(null, wir, true);
+    }
+
+    public void announceResourceUnavailable(AbstractResource resource,
+                                            WorkItemRecord wir, boolean primary) {
         try {
-            if (_gatewayServer != null) _gatewayServer.announceResourceUnavailable(wir);
+            if (_gatewayServer != null) {
+                String id = (resource != null) ? resource.getID() : null;
+                _gatewayServer.announceResourceUnavailable(id, wir, primary);
+            }
         }
         catch (IOException ioe) {
             _log.error("Failed to announce unavailable resource to environment", ioe);
@@ -512,6 +522,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                 removeCaseFromAllQueues(caseID) ;                          // workqueues
                 removeCaseFromTaskCompleters(caseID);
                 cancelCodeletRunnersForCase(caseID);
+                freeSecondaryResourcesForCase(caseID);
                 _workItemCache.removeCase(caseID);
                 removeChain(caseID);
                 removeActiveCalendarEntriesForCase(caseID);
@@ -657,7 +668,12 @@ public class ResourceManager extends InterfaceBWebsideController {
             removeFromAll(wir) ;                                      // workqueues
             removed = _workItemCache.remove(wir);
             ResourceMap rMap = getResourceMap(wir);
-            if (rMap != null) rMap.removeIgnoreList(wir);
+            if (rMap != null) {
+                rMap.removeIgnoreList(wir);
+                if (wir.getStatus().equals(WorkItemRecord.statusExecuting)) {
+                    freeSecondaryResources(wir);
+                }
+            }
             cancelCodeletRunner(wir.getID());                         // if any
         }
         return (removed != null);
@@ -1418,7 +1434,6 @@ public class ResourceManager extends InterfaceBWebsideController {
      * @return true for a successful workitem start
      */
     public boolean start(Participant p, WorkItemRecord wir) {
-        WorkItemRecord oneToStart ;
 
         // if 'executing', it's already been started so move queues & we're done
         if (wir.getStatus().equals(WorkItemRecord.statusExecuting)) {
@@ -1427,29 +1442,8 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
 
         if (checkOutWorkItem(wir)) {
-
-            // get all the child instances of this workitem
-            List<WorkItemRecord> children = getChildren(wir.getID());
-
-            if (children == null) {
-                _log.error("Checkout of workitem '" + wir.getID() + "' unsuccessful.");
-                return false;
-            }
-
-            if (children.size() > 1) {                   // i.e. if multi atomic task
-
-                // which one got started with the checkout?
-                oneToStart = getExecutingChild(children) ;
-
-                // get the rest of the kids and distribute them
-                distributeChildren(oneToStart, children) ;
-            }
-            else if (children.size() == 0) {                  // a 'fired' workitem
-                oneToStart = refreshWIRFromEngine(wir) ;
-            }
-            else {                                            // exactly one child
-                oneToStart = children.get(0) ;
-            }
+            WorkItemRecord oneToStart = getStartedChild(wir);
+            if (oneToStart == null) return false;      // problem: no executing children            
 
             // replace the parent in the cache with the executing child
             oneToStart.setResourceStatus(WorkItemRecord.statusResourceStarted);
@@ -1463,7 +1457,10 @@ public class ResourceManager extends InterfaceBWebsideController {
 
             // cleanup deallocation list for started item (if any)
             ResourceMap rMap = getResourceMap(wir);
-            if (rMap != null) rMap.removeIgnoreList(wir);       
+            if (rMap != null) {
+                rMap.removeIgnoreList(wir);  // cleanup deallocation list for item (if any)
+                rMap.getSecondaryResources().engage(oneToStart);     // mark SR's as busy
+            }
             
             return true ;
         }
@@ -1471,6 +1468,35 @@ public class ResourceManager extends InterfaceBWebsideController {
             _log.error("Could not start workitem: " + wir.getID()) ;
             return false ;
         }
+    }
+
+
+    private WorkItemRecord getStartedChild(WorkItemRecord wir) {
+        WorkItemRecord startedChild;
+
+        // get all the child instances of this workitem
+        List<WorkItemRecord> children = getChildren(wir.getID());
+
+        if (children == null) {
+            _log.error("Checkout of workitem '" + wir.getID() + "' unsuccessful.");
+            return null;
+        }
+
+        if (children.size() > 1) {                   // i.e. if multi atomic task
+
+            // which one got started with the checkout?
+            startedChild = getExecutingChild(children) ;
+
+            // get the rest of the kids and distribute them
+            distributeChildren(startedChild, children) ;
+        }
+        else if (children.size() == 0) {                  // a 'fired' workitem
+            startedChild = refreshWIRFromEngine(wir) ;
+        }
+        else {                                            // exactly one child
+            startedChild = children.get(0) ;
+        }
+        return startedChild;
     }
 
 
@@ -2188,7 +2214,8 @@ public class ResourceManager extends InterfaceBWebsideController {
                             if (queue != null) queue.remove(wir);
                         }
                     }
-                    _workItemCache.remove(wir) ;
+                    freeSecondaryResources(wir);
+                    _workItemCache.remove(wir);
                 }
                 else {
                     removeTaskCompleter(p, wir);
@@ -2210,6 +2237,34 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
+    private void freeSecondaryResources(WorkItemRecord wir) {
+        ResourceMap rMap = getResourceMap(wir);
+        if (rMap != null) {
+            rMap.getSecondaryResources().disengage(wir);         // mark SR's as released
+        }
+    }
+
+
+    private void freeSecondaryResourcesForCase(String caseID) {
+        Set<String> busyItems = new HashSet<String>();
+        for (Object o : LogMiner.getInstance().getBusyResourcesForCase(caseID)) {
+            ResourceEvent row = (ResourceEvent) o;
+            if (row.get_event().equals("busy")) {
+                busyItems.add(row.get_itemID());
+            }
+            else if (row.get_event().equals("released")) {
+                busyItems.remove(row.get_itemID());
+            }
+        }
+        for (String itemID : busyItems) {
+            WorkItemRecord wir = _workItemCache.get(itemID);
+            if (wir != null) {
+                freeSecondaryResources(wir);
+            }
+        }
+    }
+
+    
     private String trimCheckinErrorMessage(String msg) {
         int start = msg.indexOf("XQuery [");
         int end = msg.lastIndexOf("Validation error message");
@@ -2682,6 +2737,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                     for (WorkItemRecord wir : liveItems) {
                         if (specID == null) specID = new YSpecificationID(wir);
                         removeFromAll(wir) ;
+                        freeSecondaryResources(wir);
                         _workItemCache.remove(wir);
                         EventLogger.log(wir, null, EventLogger.event.cancelled_by_case);
                     }

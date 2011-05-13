@@ -23,6 +23,7 @@ import org.jdom.Element;
 import org.jdom.Namespace;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ public class YMarshal {
      * schema
      */
     private static List<YSpecification> buildSpecifications(
-            Element specificationSetElem, Namespace ns, String version)
+            Element specificationSetElem, Namespace ns, YSchemaVersion version)
             throws YSyntaxException {
         List<YSpecification> specifications = new Vector<YSpecification>();
         List specificationElemList = specificationSetElem.getChildren("specification", ns);
@@ -99,7 +100,7 @@ public class YMarshal {
         Document document = JDOMUtil.stringToDocument(specStr);
         if (document != null) {
             Element specificationSetEl = document.getRootElement();
-            String version = getVersion(specificationSetEl);
+            YSchemaVersion version = getVersion(specificationSetEl);
             Namespace ns = specificationSetEl.getNamespace();
 
             // strip layout element, if any (the engine doesn't use it)
@@ -130,27 +131,9 @@ public class YMarshal {
      * @param version the appropriate schema version to use
      * @return the XML Document, rendered as a String
      */
-    public static String marshal(List<YSpecification> specificationList, String version) {
-
-        String header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
-                          "<specificationSet version=\"%s\" xmlns=\"%s\" " +
-                          "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-                          "xsi:schemaLocation=\"%s\">";
-
-        StringBuilder xml = new StringBuilder();
-
-        // generate version-specific header
-        if (version.startsWith("Beta")) {
-            xml.append(String.format(header, YSpecification.Beta7_1,
-                                             YSpecification.BetaNS,
-                                             YSpecification.BetaSchemaLocation));
-        }
-        else {                                            // version 2.0 or greater
-            xml.append(String.format(header, version,
-                                             YSpecification.Version2NS,
-                                             YSpecification.Version2SchemaLocation));
-        }
-
+    public static String marshal(List<YSpecification> specificationList,
+                                 YSchemaVersion version) {
+        StringBuilder xml = new StringBuilder(version.getHeader());
         for (YSpecification specification : specificationList) {
             xml.append(specification.toXML());
         }
@@ -167,10 +150,9 @@ public class YMarshal {
      * @return the XML Document, rendered as a String
      */
     public static String marshal(YSpecification specification) {
-        String version = specification.getSchemaVersion();
         List<YSpecification> spLst = new ArrayList<YSpecification>();
         spLst.add(specification);
-        return marshal(spLst, version);
+        return marshal(spLst, specification.getSchemaVersion());
     }
 
 
@@ -179,15 +161,12 @@ public class YMarshal {
      * @param specRoot the root Element of a specification set Document
      * @return the specification's schema version
      */
-    private static String getVersion(Element specRoot) {
+    private static YSchemaVersion getVersion(Element specRoot) {
         String version = specRoot.getAttributeValue("version");
 
         // version attribute was not mandatory in version 2
         // therefore a missing version number would likely be version 2
-        if (null == version) {
-            version = YSpecification.Beta2;
-        }
-        return version;
+        return (null == version) ? YSchemaVersion.Beta2 : YSchemaVersion.fromString(version);
     }
 
 }

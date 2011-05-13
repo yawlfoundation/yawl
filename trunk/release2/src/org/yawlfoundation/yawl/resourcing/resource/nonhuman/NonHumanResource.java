@@ -34,6 +34,11 @@ public class NonHumanResource extends AbstractResource implements Comparable, Cl
 
     public NonHumanResource() { super(); }
 
+    public NonHumanResource(String id) {
+        super();
+        setID(id);
+    }
+
     public NonHumanResource(String name, NonHumanCategory category, String subCategoryName) {
         super();
         _name = name;

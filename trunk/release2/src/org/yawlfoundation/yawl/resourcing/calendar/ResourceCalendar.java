@@ -383,6 +383,7 @@ public class ResourceCalendar {
                         entry.getEndTime(), entry.getAgent(), entry.getComment()); break;
             case requested:
             case reserved:
+            case busy:    
                 entryID = addEntryIfAvailable(resource, entry); break;
             default: throw new CalendarException(
                     "Invalid status change request: " + entry.getStatus());

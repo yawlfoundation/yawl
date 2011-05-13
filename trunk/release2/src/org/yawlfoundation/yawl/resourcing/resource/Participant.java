@@ -155,6 +155,10 @@ public class Participant extends AbstractResource implements Cloneable {
         if (_qSet != null) _qSet.setID(id);
     }
 
+    public String getName() {
+        return getFullName();
+    }
+
     public String getFirstName() { return _firstname ; }
 
     public void setFirstName(String name) {
