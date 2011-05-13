@@ -191,7 +191,7 @@ class UserPanel extends JPanel implements ListSelectionListener {
     gbc.gridx = 0;
     gbc.gridy = 0;
     gbc.weightx = 1;
-    gbc.weighty = 1;
+      gbc.weighty = 0.95;
     gbc.insets = new Insets(0,5,0,5);
     gbc.fill = GridBagConstraints.BOTH;
     
@@ -202,6 +202,7 @@ class UserPanel extends JPanel implements ListSelectionListener {
     private void addUnselectButton(GridBagConstraints gbc) {
         gbc.gridx = 0;
         gbc.gridy = 1;
+        gbc.weighty = 0.05;
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0,0,0,0);
@@ -330,7 +331,7 @@ class RolesPanel extends JPanel implements ListSelectionListener {
     gbc.gridx = 0;
     gbc.gridy = 0;
     gbc.weightx = 1;
-    gbc.weighty = 1;
+    gbc.weighty = 0.95;
     gbc.insets = new Insets(0,5,0,5);
     gbc.fill = GridBagConstraints.BOTH;
 
@@ -341,6 +342,7 @@ class RolesPanel extends JPanel implements ListSelectionListener {
   private void addUnselectButton(GridBagConstraints gbc) {
       gbc.gridx = 0;
       gbc.gridy = 1;
+      gbc.weighty = 0.05;
       gbc.anchor = GridBagConstraints.CENTER;
       gbc.fill = GridBagConstraints.NONE;
       gbc.insets = new Insets(0,0,0,0);

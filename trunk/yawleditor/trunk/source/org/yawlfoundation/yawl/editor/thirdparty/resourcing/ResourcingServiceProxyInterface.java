@@ -25,10 +25,7 @@ package org.yawlfoundation.yawl.editor.thirdparty.resourcing;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
-import org.yawlfoundation.yawl.editor.resourcing.AllocationMechanism;
-import org.yawlfoundation.yawl.editor.resourcing.ResourcingFilter;
-import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
-import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
+import org.yawlfoundation.yawl.editor.resourcing.*;
 
 import java.util.List;
 import java.util.Map;
@@ -54,6 +51,8 @@ public interface ResourcingServiceProxyInterface {
   
   public List<ResourcingParticipant> getAllParticipants();
   public List<ResourcingRole> getAllRoles();
+  public List<ResourcingAsset> getAllNonHumanResources();
+  public List<ResourcingCategory> getAllNonHumanCategories();
   public List<String> getAllParticipantIDs();
   public List<String> getAllRoleIDs();
 

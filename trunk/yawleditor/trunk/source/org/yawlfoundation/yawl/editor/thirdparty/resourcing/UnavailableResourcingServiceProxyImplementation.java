@@ -24,10 +24,7 @@
 package org.yawlfoundation.yawl.editor.thirdparty.resourcing;
 
 import org.yawlfoundation.yawl.editor.data.DataVariable;
-import org.yawlfoundation.yawl.editor.resourcing.AllocationMechanism;
-import org.yawlfoundation.yawl.editor.resourcing.ResourcingFilter;
-import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
-import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
+import org.yawlfoundation.yawl.editor.resourcing.*;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -52,6 +49,14 @@ public class UnavailableResourcingServiceProxyImplementation implements Resourci
   
   public List<ResourcingRole> getAllRoles() {
    return new LinkedList<ResourcingRole>();
+  }
+
+  public List<ResourcingAsset> getAllNonHumanResources() {
+      return new LinkedList<ResourcingAsset>();
+  }
+
+  public List<ResourcingCategory> getAllNonHumanCategories() {
+      return new LinkedList<ResourcingCategory>();
   }
 
   public List<String> getAllParticipantIDs() {

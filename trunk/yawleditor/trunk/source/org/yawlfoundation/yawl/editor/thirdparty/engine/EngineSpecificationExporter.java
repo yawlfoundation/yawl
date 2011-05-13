@@ -53,6 +53,8 @@ import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.AllocateInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.OfferInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
+import org.yawlfoundation.yawl.resourcing.resource.SecondaryResources;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.unmarshal.YMetaData;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -289,7 +291,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   private static void generateEngineMetaData(SpecificationModel editorSpec, 
                                              YSpecification engineSpec) {
     
-    engineSpec.setVersion(YSpecification.Version2_1);
+    engineSpec.setVersion(YSchemaVersion.TwoPointTwo);
     
     YMetaData metaData = new YMetaData();
 
@@ -1061,6 +1063,11 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       engineResourceMapping
     );
 
+    populateSecondaryResourcesDetail(
+      atomicEditorTask.getResourceMapping(),
+      engineResourceMapping
+    );  
+
     populateTaskPrivileges(
       atomicEditorTask.getResourceMapping(),
       engineResourceMapping
@@ -1250,6 +1257,27 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       )
     );
   }
+
+
+    private static void populateSecondaryResourcesDetail(
+            ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
+        SecondaryResources sr = new SecondaryResources();
+        for (Object o : editorResourceMapping.getSecondaryResourcesList()) {
+            if (o instanceof ResourcingParticipant) {
+                sr.addParticipantUnchecked(((ResourcingParticipant) o).getId());
+            }
+            else if (o instanceof ResourcingRole) {
+                sr.addRoleUnchecked(((ResourcingRole) o).getId());
+            }
+            else if (o instanceof ResourcingAsset) {
+                sr.addNonHumanResourceUnchecked(((ResourcingAsset) o).getId());
+            }
+            else if (o instanceof ResourcingCategory) {
+                sr.addNonHumanCategoryUnchecked(((ResourcingCategory) o).getId());
+            }
+        }
+        engineResourceMapping.setSecondaryResources(sr);
+    }
 
   private static int convertEditorInteractionToEngineInteraction(int editorInteraction)  {
     switch(editorInteraction) {
