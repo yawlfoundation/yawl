@@ -309,6 +309,7 @@ public class SessionBean extends AbstractSessionBean {
         }
         if (page != ApplicationBean.PageRef.calendarMgt) {
             setAddCalendarRowMode(true);
+            btnRefresh.setStyle(null);
         }
         if (page != ApplicationBean.PageRef.nonHumanMgt) {
             setSubCatAddMode(false);

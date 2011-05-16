@@ -52,7 +52,13 @@ public class YWorkItemRepository extends ConcurrentHashMap<String, YWorkItem> { 
 
     protected void add(YWorkItem workItem) {
         _logger.debug("--> YWorkItemRepository#add: " + workItem.getIDString());
-        this.putIfAbsent(workItem.getIDString(), workItem);
+        YWorkItem cachedItem = this.get(workItem.getIDString());
+        if (cachedItem == null) {
+            this.putIfAbsent(workItem.getIDString(), workItem);
+        }
+        else if (! cachedItem.equals(workItem)) {
+            this.replace(workItem.getIDString(), cachedItem, workItem);
+        }
     }
 
 
@@ -63,7 +69,7 @@ public class YWorkItemRepository extends ConcurrentHashMap<String, YWorkItem> { 
 
     public void remove(YWorkItem workItem) {
         _logger.debug("--> YWorkItemRepository#remove: " + workItem.getIDString());
-        this.remove(workItem.getIDString());
+        this.remove(workItem.getIDString(), workItem);
     }
 
 
