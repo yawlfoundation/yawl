@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.resourcing.resource;
 
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 /**
@@ -64,7 +65,6 @@ public abstract class AbstractResource implements Cloneable {
     }
 
     protected void merge(AbstractResource resource) {
-        setAvailable(resource.isAvailable());
         setDescription(resource.getDescription());
         setNotes(resource.getNotes());
         setBlockType(resource.getBlockType());
@@ -78,12 +78,16 @@ public abstract class AbstractResource implements Cloneable {
     public void setID(String id) { _resourceID = id ; }      
 
 
+    // returns true if this resource has no calendar entries for this moment
     public boolean isAvailable() {
-        return true;
-    //    return ResourceManager.getInstance().getCalendar().isAvailable(this);
+        return ResourceManager.getInstance().getCalendar().isAvailable(this);
     }
 
-    public void setAvailable(boolean available) { _isAvailable = available; }
+
+    // returns true if this resource has no calendar entries between 'from' and 'to' dates
+    public boolean isAvailable(long from, long to) {
+        return ResourceManager.getInstance().getCalendar().isAvailable(null, this, from, to);
+    }
 
 
     public String getNotes() { return _notes; }

@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * Manages a set of secondary resources for a single task (via a ResourceMap)
+ *
  * @author Michael Adams
  * @date 11/05/2011
  */
@@ -186,6 +188,7 @@ public class SecondaryResources {
 
 
     public void parse(Element e, Namespace nsYawl) throws ResourceParseException {
+        if (e == null) return;
         List participants = e.getChildren("participant", nsYawl);
         for (Object o : participants) {
             addParticipant(((Element) o).getText());
@@ -217,7 +220,7 @@ public class SecondaryResources {
             for (Role r : _roles) {
                 AbstractResource selection = selectOneFromRole(r);
                 if (selection != null) selected.add(selection);
-                else announceUnavailable("role " + r.getName(), wir);
+                else announceUnavailable("role '" + r.getName(), wir);
             }
             for (NonHumanResource r : _nonHumanResources) {
                 if (isAvailable(r)) selected.add(r);
@@ -248,8 +251,7 @@ public class SecondaryResources {
     /**************************************************************************/
 
     private boolean isAvailable(AbstractResource resource) {
-        return ResourceManager.getInstance().getCalendar().isAvailable(resource) &&
-               isAvailable(resource.getID());
+        return resource.isAvailable() && isDisengaged(resource.getID());
     }
 
 
@@ -299,7 +301,7 @@ public class SecondaryResources {
     }
 
 
-    public boolean isAvailable(String resourceID) {
+    public boolean isDisengaged(String resourceID) {
         List result = LogMiner.getInstance().getLastBusyOrReleaseEvents(resourceID);
         if (result.size() > 0) {
             long busyStamp = -1, releasedStamp = -1;
@@ -311,7 +313,7 @@ public class SecondaryResources {
                 else releasedStamp = (Long) content[1];
             }
 
-            // if two events, its available if released comes after busy
+            // if two events, it's available if released comes after busy
             return releasedStamp >= busyStamp;
         }
         return true;                                       // no result = available

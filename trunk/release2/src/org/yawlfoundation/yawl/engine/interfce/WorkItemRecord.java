@@ -391,8 +391,35 @@ public class WorkItemRecord implements Cloneable {
         return (_resourceStatus != null) && _resourceStatus.equals(status);
     }
 
-    
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o instanceof WorkItemRecord) {
+            WorkItemRecord other = (WorkItemRecord) o;
+            return getID().equals(other.getID()) &&
+                 _status.equals(other.getStatus()) &&
+                 _uniqueID != null ? _uniqueID.equals(other._uniqueID) :
+                    other._uniqueID == null;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = _caseID.hashCode();
+        result = 31 * result + _taskID.hashCode();
+        result = 31 * result + _status.hashCode();
+        result = 31 * result + (_uniqueID != null ? _uniqueID.hashCode() : 0);
+        return result;
+    }
+
     /********************************************************************************/
+
+    public String toString() {
+        return getID();
+    }
+
 
     public String toXML() {
         StringBuilder xml = new StringBuilder("<workItemRecord");
@@ -442,6 +469,9 @@ public class WorkItemRecord implements Cloneable {
 
         return xml.toString() ;
     }
+
+
+    /**************************************************************************/
 
 
     private String attributeTableToAttributeString() {

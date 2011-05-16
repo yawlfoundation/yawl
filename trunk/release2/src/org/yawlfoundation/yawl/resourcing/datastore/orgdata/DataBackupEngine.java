@@ -97,8 +97,6 @@ public class DataBackupEngine {
 
                 xml.append(StringUtil.wrapEscaped(String.valueOf(p.isAdministrator()),
                         "isAdministrator")) ;
-                xml.append(StringUtil.wrapEscaped(String.valueOf(p.isAvailable()),
-                        "isAvailable")) ;
 
                 xml.append("<roles>");
                 for (Role role : p.getRoles())
@@ -407,7 +405,6 @@ public class DataBackupEngine {
                         p = new Participant();
                         p.reconstitute(part);
                         p.setPassword(part.getChildText("password"));
-                        p.setAvailable(part.getChildText("isAvailable").equals("true"));
                         p.setDescription(part.getChildText("description"));
                         p.setNotes(part.getChildText("notes"));
                         addParticipantToResourceGroup(p, part, "roles");

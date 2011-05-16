@@ -2246,18 +2246,9 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     private void freeSecondaryResourcesForCase(String caseID) {
-        Set<String> busyItems = new HashSet<String>();
         for (Object o : LogMiner.getInstance().getBusyResourcesForCase(caseID)) {
             ResourceEvent row = (ResourceEvent) o;
-            if (row.get_event().equals("busy")) {
-                busyItems.add(row.get_itemID());
-            }
-            else if (row.get_event().equals("released")) {
-                busyItems.remove(row.get_itemID());
-            }
-        }
-        for (String itemID : busyItems) {
-            WorkItemRecord wir = _workItemCache.get(itemID);
+            WorkItemRecord wir = _workItemCache.get(row.get_itemID());
             if (wir != null) {
                 freeSecondaryResources(wir);
             }
@@ -2757,25 +2748,14 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     private List<WorkItemRecord> getLiveWorkItemsForCase(String caseID) {
-        List<WorkItemRecord> result = null ;
-        List<WorkItemRecord> childList = new ArrayList<WorkItemRecord>();
         try {
-            result = _interfaceBClient.getLiveWorkItemsForIdentifier("case", caseID,
+            return _interfaceBClient.getLiveWorkItemsForIdentifier("case", caseID,
                                                          getEngineSessionHandle()) ;
-            if (result != null) {
-
-                // the above method only gets parents, so get any child items too
-                for (WorkItemRecord wir : result) {
-                    List<WorkItemRecord> children = getChildren(wir.getID()) ;
-                    childList.addAll(children) ;
-                }
-                result.addAll(childList) ;
-            }    
         }
         catch (Exception e) {
             _log.error("Exception attempting to retrieve work item list from engine");
         }
-        return result;
+        return null;
     }
 
     public List<WorkItemRecord> getChildren(String parentID) {

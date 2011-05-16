@@ -144,11 +144,11 @@ public class YWorkItem {
                                 boolean allowsDynamicInstanceCreation)
                                 throws YPersistenceException {
         _workItemID = workItemID;
+        set_thisID(_workItemID.toString() + "!" + _workItemID.getUniqueID());
+        addToRepository();                            // doing this as early as possible
         _specID = specificationID;
         _allowsDynamicCreation = allowsDynamicInstanceCreation;
         _status = status ;
-        set_thisID(_workItemID.toString() + "!" + _workItemID.getUniqueID());
-        addToRepository();
     }
 
 
@@ -164,10 +164,8 @@ public class YWorkItem {
         }
 
         // set final status, log event and remove from persistence
-        set_status(pmgr, completionStatus);
-        _eventLog.logWorkItemEvent(pmgr, this, _status, createLogDataList(_status.name()));
-        if (pmgr != null) pmgr.deleteObject(this);
-
+        set_status(null, completionStatus);              // don't persist status update
+        logAndUnpersist(pmgr, this);
         completeParentPersistence(pmgr) ;
     }
 
@@ -176,22 +174,31 @@ public class YWorkItem {
     private void completeParentPersistence(YPersistenceManager pmgr)
             throws YPersistenceException {
 
-        // if all siblings are completed, then the parent is completed too
-        boolean parentcomplete = true;
-        Set<YWorkItem> siblings = _parent.getChildren();
+        synchronized(_parent) {                      // sequentially handle children
 
-        for (YWorkItem mysibling : siblings) {
-            if (mysibling.hasUnfinishedStatus()) {
-                parentcomplete = false;
-                break;
+            // if all siblings are completed, then the parent is completed too
+            boolean parentComplete = true;
+
+            if (_parent._children.size() >  1) {  // short-circuit if not multi-task
+                for (YWorkItem mysibling : _parent.getChildren()) {
+                    if (mysibling.hasUnfinishedStatus()) {
+                        parentComplete = false;
+                        break;
+                    }
+                }
             }
-        }
 
-        if (parentcomplete) {
-            _eventLog.logWorkItemEvent(pmgr, _parent, _status, createLogDataList(_status.name()));
-            if (pmgr != null) pmgr.deleteObject(_parent);
+            if (parentComplete) logAndUnpersist(pmgr, _parent);
         }
     }
+
+
+    private void logAndUnpersist(YPersistenceManager pmgr, YWorkItem item)
+            throws YPersistenceException {
+        _eventLog.logWorkItemEvent(pmgr, item, _status, createLogDataList(_status.name()));
+        if (pmgr != null) pmgr.deleteObject(item);
+    }
+
 
     /**
      * Finds the net-level param specified, then deconstructs its data to simple
@@ -566,9 +573,10 @@ public class YWorkItem {
            throws YPersistenceException {
         YWorkItemStatus completionStatus;
         switch (completionFlag) {
-            case Force : completionStatus = statusForcedComplete; break;
-            case Fail  : completionStatus = statusFailed; break;
-            default    : completionStatus = statusComplete;
+            case Normal : completionStatus = statusComplete; break;
+            case Force  : completionStatus = statusForcedComplete; break;
+            case Fail   : completionStatus = statusFailed; break;
+            default     : completionStatus = statusComplete;
         }
         completePersistence(pmgr, completionStatus) ;
     }

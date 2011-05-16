@@ -457,17 +457,39 @@ public class LogMiner {
 
 
     public List getBusyResources(String itemID) {
-        return getBusyResources("_itemID", itemID);
+        String query = String.format("%s WHERE re._itemID = '%s' AND re._event='busy' " +
+                "AND re._resourceID NOT IN (" +
+                "SELECT rx._resourceID FROM ResourceEvent AS rx " +
+                "WHERE rx._itemID = '%s' " +
+                "AND rx._event='released')", _baseQuery, itemID, itemID);
+        return execQuery(query);
     }
 
     
     public List getBusyResourcesForCase(String caseID) {
-        String query = String.format(
-             "%s WHERE (re._event='busy' OR re._event='released') " +
-                     "AND (re._caseID='%s' OR re._caseID LIKE '%s%s') " +
-                     "ORDER BY re._itemID, re._timeStamp",
-                _baseQuery, caseID, caseID, ".%");
+        String query = String.format("%s WHERE re._event='busy' " +
+                "AND (re._caseID='%s' OR re._caseID LIKE '%s%s') " +
+                "AND re._resourceID NOT IN (" +
+                "SELECT rx._resourceID FROM ResourceEvent AS rx " +
+                "WHERE rx._event='released' " +
+                "AND (re._caseID='%s' OR re._caseID LIKE '%s%s'))",
+                _baseQuery, caseID, caseID, ".%", caseID, caseID, ".%");
         return execQuery(query) ;
+    }
+
+
+    public Set<String> getBusyItemIDsForCase(String caseID) {
+        Set<String> busyItemIDs = new HashSet<String>();
+        for (Object o : getBusyResourcesForCase(caseID)) {
+            ResourceEvent row = (ResourceEvent) o;
+            if (row.get_event().equals("busy")) {
+                busyItemIDs.add(row.get_itemID());
+            }
+            else if (row.get_event().equals("released")) {
+                busyItemIDs.remove(row.get_itemID());
+            }
+        }
+        return busyItemIDs;
     }
 
 
@@ -556,11 +578,6 @@ public class LogMiner {
         String query = getWhereQuery("_resourceID", resourceID) +
                 getTimeRangeSubclause(from, to);
         return execQuery(query) ;
-    }
-
-    
-    private List getBusyResources(String key, String value) {
-        return execQuery(getWhereQuery(key, value) + " AND re._event='busy'");
     }
 
 
