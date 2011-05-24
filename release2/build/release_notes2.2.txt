@@ -1,0 +1,253 @@
+
+                        YAWL Release 2.2 (beta)  18/05/2011
+                       ======================================
+
+This is the 2.1 (final) release of the YAWL Environment. It primarily incorporates
+a number fixes over the 2.1 beta version, and a couple of new functionalities. Please
+take the time to read the change lists below, and refer to the user manual for more
+details.
+
+
+QUICK START: After installation, start Tomcat and point a browser to
+             http://localhost:8080/resourceService
+
+
+1. MINIMUM REQUIREMENTS
+-----------------------
+  * Tomcat 5.5.25 or higher
+  * Java 5 (1.5) or higher
+                                                     
+
+2. CHANGES IN THIS VERSION
+---------------------------
+
+(a) ENGINE & CUSTOM SERVICES:
+ * [New] Non-human Resources, which can be assigned for tasks at design time and are
+   allocated at run time. Non-human resources do not have a worklist.
+ * [New] Secondary Resources, a set of resources that are required so that a task can be
+   performed. A task's resources can comprise of one primary (human) resource, who
+   receives the task on their worklist at runtime, and zero or more secondary resources
+   (human and/or non-human), who don't see the task on a worklist.
+ * [New] Calendar Sub-service, a component of the Resource Service, which provides for
+   reservation of resources for tasks and to mark resources as available/unavailable
+   (holidays, maintenance, etc).
+ * [New] Scheduling Service, which interacts with the Resource Service and Calendar to
+   manage reservation of resources for activities (one or more tasks in a particular
+   case).
+ * [New] Documentation can be assigned to a task at design time and shown on worklists at
+   runtime. Can be dynamically updated during runtime, and all updates are logged. May
+   include some meta-text (date and time inserted) and XQueries against net parameters.
+ * [New] Administration forms for non-human resource and calendar management.
+ * [New] Plugin classes (allocators, codelets etc) may now be located anywhere on a local
+   disk (in one or more places), rather than in the YAWL packages, which saves having to
+   copy them in each time YAWL is updated, and allows developers to use their own
+   namespaces and package names.
+ * [New] Process logging may now be disabled in the Engine and/or Resource Service.
+ * [New] Process log for a specification can be now downloaded directly from the
+   'Case Mgt' form.
+ * [New] All Hibernate interaction statistics may be gathered and retrieved via the API.
+   Can be enabled/disabled via web.xml configuration.
+ * [New] Added two codelets to discover (i) who completed a previous task; and (ii) who
+   someone's supervisor is.
+ * [Enhancement] The Codelet framework has been greatly enhanced. They each now run in a
+   separate thread, and support shutdown, cancel and resume configurations. They can be
+   loaded from an external location, and can toggle persistence on or off. Codelet
+   parameters can be retrieved via the API.
+ * [Enhancement (issue 406)] task documentation may contain dynamic XQueries against net
+   parameters.
+ * [Enhancement] The size of the Visualiser's screen window is now configurable.
+ * [Enhancement] If the YAWL window/tab is closed in a browser session, then reopened, it
+   now redirects to last active page, rather than locking the user out.
+ * [Enhancement] Better handling of split and join behaviours during specification
+   verification on loading.
+ * [Enhancement] Extended the setting of deferred allocation variables (where resources
+   for a task are sourced from a net variable at runtime) to accept a CSV list of ids
+   (instead of being limiting to just one).
+ * [Enhancement (SF3203045)] Date ranges for dynamic form calendar components are now
+   configurable via data schema restrictions.
+ * [Enhancement] Multiple exception listeners may now be registered.
+ * [Enhancement] Specification Schema (to 2.2) to accommodate secondary resources.
+ * [Enhancement] In web UI, there are now separate menubars for users and administrators.
+ * [Enhancement (issue 401)] List of required data parameters for custom services may now
+   include optional parameters.
+ * [Enhancement] When a popup message dialog is displayed, focus moves to its OK button
+   so that it can be closed by pressing 'Enter'.
+ * [Enhancement (issue 408)] Improved duplication detection and error messaging when
+   loading specifications.
+ * [Enhancement] Added engine shutdown event announcement.
+ * [Enhancement] Added functionality for the Engine to redirect a workitem to a service
+   other than the one assigned at design time (by default the default worklist service),
+   if the service is unavailable, instead of going into limbo.
+ * [Enhancement] Added scheduling event announcements to resource gateway server.
+ * [Enhancement] Added new process log retrieval methods to Engine and Resource Service
+   APIs.
+ * [Enhancement] Added admin queue functionality to the workqueue gateway API.
+ * [Enhancement] Added JSONP support to ResourceGateway.getXXXXIdentifier methods.
+ * [Enhancement] Added support for multiple bindings and filters to LDAPSource.
+ * [Enhancement (issue 398)] Added servlet shutdown calls for observer gateways.
+ * [Enhancement] On workqueues, timed workitems now show how long before they expire,
+   rather than how long since they were created.
+ * [Bugfix (issue 431)] misaligned labels on dynamic forms when plain field(s) followed
+   one or more growable subpanels.
+ * [Bugfix] Verification of nets with one or more empty tasks was falsely reporting an
+   error in certain circumstances.
+ * [Bugfix] In tight checkout-checkin loops, some workitem enablements were
+   intermittently being announced twice to services.
+ * [Bugfix] Intermittent persistence errors with empty tasks.
+ * [Bugfix] On login error, focus was remaining on the login form rather than moving to
+   popup dialog.
+ * [Bugfix] Specification verification on loading was failing for some pre-2.0
+   specifications.
+ * [Bugfix] Incorrect error message when loading default client accounts with persistence
+   disabled.
+ * [Bugfix] Hibernate rollback & session closed errors when persistence is disabled.
+ * [Bugfix] Workitem creation NPE when its case id was set manually and was invalidly
+   formatted.
+ * [Bugfix] Length constraint on field in Resource Service process logs was too short.
+ * [Bugfix] Double-clicking Login button caused exception.
+ * [Bugfix] Errors when removing some workitem timers from persistence.
+ * [Bugfix (issues 429, 430)] Worklet Service exlet primitives ForceComplete and
+   ForceFail not progressing case as exepcted.
+ * [Bugfix (issue 428)] Worklet Service, explicit cancellation of worklet process
+   instance broke progression of parent instance.
+ * [Bugfix] ClassCastException when unpiling work items.
+ * [Bugfix] Double listing of piled work items in 'Edit Profile' page.
+ * [Bugfix] When a work item was suspended directly in Engine, the Resource Service was
+   not updating its status.
+ * [Bugfix] Resource Service cache synchronisation on startup was ignoring work items
+   originally assigned to a different service but had later been redirected to the
+   Resource Service.
+ * [Bugfix (issue 427)] Hibernate exception when a completing 'grandchild' net resulted
+   in the completion of its parent also (ie. returning control two nets up the hierarchy).
+ * [Bugfix] WorkQueueGateway#getWorkItemDurationsForParticipant returned malformed xml
+   when no matching rows are found.
+ * [Bugfix (SF3202911)] Extended attributes for output-only parameters were not being
+   written to specification xml file.
+ * [Bugfix (SF3203000)] Error when deleting certain user types in 'User Mgt'.
+ * [Bugfix (SF3202992)] Dynamic form TextArea components were losing values when saved
+   and re-viewed.
+ * [Bugfix (SF3202997)] Dynamic forms displayed an empty sub-panel when all of its
+   contents are hidden (sub-pnael is now hidden also).
+ * [Bugfix (issue 424)] Workitem firing after completion of their containing in certain
+   circumstances.
+ * [Bugfix (issue 422)] Monitor Service was not refreshing parameters when work item
+   status changed from enabled to started.
+ * [Bugfix] NPE when restoring a net runner with a null execution status from persistence.
+ * [Bugfix] Errors when explicitly disabling persistence in a non-persisting Engine
+   instance.
+ * [Bugfix] Starting a workitem directly from 'Offered' status via the API was leaving
+   dead items on some 'Offered' workqueues in some circumstances.
+ * [Bugfix (issue 415)] Popup message dialog sometimes too small to show entire message.
+ * [Bugfix] When two versions of the same specification were loaded, each with a
+   different data type definition schema, and processes were running for each of them,
+   when updating workitem data via the workqueue interface API, the Resource Service was
+   confusing which schema belonged to which version.
+ * [Bugfix (issues 420, 416)] Incorrect handling of default values for output variables.
+ * [Bugfix (issue 421)] renamed property in Monitor Service caused form display to fail.
+ * [Bugfix (issue 411)] Default client accounts were not being created when persistence
+   was disabled.
+ * [Bugfix] In certain cases, selecting a participant on the 'UserMgt' form removed them
+   from their roles, positions and capabilities.
+ * [Bugfix (issue 408)] Errors checking for duplications when specifications loaded.
+ * [Bugfix (SF3158779)] Codelets were not receiving populated workitem records as
+   expected.
+ * [Bugfix (SF3158324)] Mislabelled element in resource event log.
+ * [Bugfix] Occasional Hibernate StaleStateException when updating identifier persistence
+   on workitem checkin.
+ * [Bugfix] The reporting of a deadlocked net caused a ClassCastExcpetion in some
+   circumstances.
+ * [Bugfix] Started workitems were sometimes persisted with a resource status of
+   'unresourced' instead of 'started'.
+ * [Bugfix] NPE in Digital Signature service.
+ * [Bugfix] Errors with remote addresses in visualiser's code path configuration.
+ * [Bugfix] Errors caused when an allocator queried the process logs stored on a Derby
+   database.
+ * [Bugfix] Engine not correctly reannouncing a workitem rejected by a service in some
+   cases.
+ * [Bugfix] A completed subnet was occasionally being flagged as completed case.
+ * [Bugfix (issue 407)] Local variable verification on specification load cased an error
+   with Multiple Instance task output parameters.
+ * [Bugfix] NPE in UserConnectionCache.
+ * [Bugfix] XNodeParser going into infinite loop parsing multiline comments.
+ * [Bugfix] Client application password changes being saved as plain text in the Resource
+   Service.
+ * [Bugfix] Standalone version not always assigning task to user's worklist
+ * [Bugfix] NPE when getting information for pre-Beta4 specifications on the 'Case Mgt'
+   form.
+ * [Bugfix] NPE in YXESBuilder for certain complex type schemas.
+ * [Refactor] Large refactor of Engine and associated classes (tighter persistence,
+   better targeted synchronisation, removal of duplicated maps, general code cleanup,
+   etc.).
+ * [Refactor] Resource Service startup now up to 40% faster.
+ * [Refactor] Replaced unmanaged Thread creation on interfaces with Threadpools (better
+   resource management, faster event announcing).
+ * [Refactor] Improved performance of cache synchronisation on startup between Engine and
+   Resource Service.
+ * [Refactor] Revised 'equals' and 'hashcode' methods of all persisted engine-side
+   classes to better handle lazy loading.
+ * [Refactor] Completely reworked persistence layer towards more atomic units of work,
+   resulting in measurable performance gains.
+ * [Refactor] Improved Persistence layer thread safety.
+ * [Refactor] Updates to many third party libraries.
+ * [Refactor] Build processes improved.
+ * [Refactor] Improved management of system resources on shutdown.
+ * [Refactor] Improved thread safety for WorkQueue class.
+ * [Refactor] Stripped unneeded layout data from specifications when loading into engine.
+ * [Refactor] Twitter Service login changed from Basic to OAuth authentication, as
+   required by changes to Twitter API.
+ * [Refactor] Improved handling of announcing workitems to missing services.
+ * [Refactor] JDOMUtil now explicitly specifies SAXParser, rather than the default local
+   parser.
+
+
+(b) EDITOR:
+ * [New] Support for non-human and secondary resources.
+ * [New] 'Set Documentation' for tasks & conditions (task doco appears in the work queue
+   web pages at runtime).
+
+ * [Enhancement (issue 294)] Added confirm dialog to 'Drop Decomposition'.
+ * [Enhancement (issue 321)] Added the ability to permanently remove dropped
+   decompositions.
+ * [Enhancement] Resized multiple instance dialog so that queries and messages are more
+   easily seen.
+ * [Enhancement (issue 390) 'Stop' button added to analysis feedback dialog;
+ * [Enhancement (issue 280) File versioning (i.e saving each and every superseded version
+   of a specification to a unique file).
+ * [Enhancement (issue 260)] Added optional line numbering (plus auto formatting and find
+   functionality) to Data Definitions dialog.
+ * [Enhancement (issue 365)] On net canvas, Shift + mouse wheel = zoom in/out; Shift +
+   Ctrl + mouse wheel = scroll left/right.
+ * [Enhancement] Updates to accommodate externally loaded codelets, filters, allocators
+   and constraints.
+ * [Enhancement] Added auto-populate of codelet required params.
+
+ * [Bugfix] The external data gateway selection table was initially in an unselected
+   state.
+ * [Bugfix (issue 423)] The default specification URI included a '.yawl' extension in
+   error.
+ * [Bugfix] Redirect 'save as' to 'save' when spec has never been saved.
+ * [Bugfix] Errors when saving a file resulted in a 'null' file.
+ * [Bugfix (issues 261, 396, 400)] Errors at the bottom of entry screens now show on
+   several scrollable lines, instead of being limited to a single line.
+ * [Bugfix (issue 416)] Errors when loading default values for output only tasks.
+ * [Bugfix (issue 413)] Errors when setting infinite maximum and threshold values on
+   multi-instance bounds panel.
+ * [Bugfix (issue 412) Engine & Resource Service connection indicators showed 'can be'
+   not 'is' connected.
+ * [Bugfix] Erroneous error message when validating external data gateway mappings.
+ * [Bugfix] Configurable task modifications lost on specification save.
+ * [Bugfix (issue 409)] Incorrect formatting of complex XQueries in 'Edit Parameters' dialog.
+ * [Bugfix (issue 364)] Once opened, the bottom splitpane cannot be reclosed.
+
+ * [Refactor] Improved build process.
+
+
+                         #############################
+
+    Please report any bugs, problems or ideas for enhancements via the YAWL issues page:
+
+                     http://code.google.com/p/yawl/issues/list
+
+
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 

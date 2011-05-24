@@ -775,7 +775,7 @@ public class caseMgt extends AbstractPageBean {
             if (spec != null) {
                 String log = LogMiner.getInstance().getMergedXESLog(spec.getID(), true);
                 if (log != null) {
-                    String filename = String.format("%s%s_xes.xml", spec.getSpecURI(),
+                    String filename = String.format("%s%s.xes", spec.getSpecURI(),
                             spec.getSpecVersion());
                     FacesContext context = FacesContext.getCurrentInstance();
                     HttpServletResponse response =

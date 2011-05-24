@@ -78,6 +78,9 @@ public class OrgGroup extends AbstractResourceAttribute implements Comparable {
         _groupName = groupName;
     }
 
+    public String getName() { return getGroupName(); }
+
+
     public GroupType getGroupType() {
         return _groupType;
     }

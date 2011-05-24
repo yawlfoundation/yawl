@@ -21,10 +21,7 @@ package org.yawlfoundation.yawl.util;
 import org.jdom.Document;
 import org.jdom.Element;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A utility for building xml strings. Handles elements, attributes, comments, text
@@ -38,7 +35,7 @@ import java.util.Map;
  * Creation Date: 19/03/2010
  */
 
-public class XNode {
+public class XNode implements Comparable<XNode> {
 
     static final String newline = System.getProperty("line.separator");
     static final String _header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
@@ -51,6 +48,8 @@ public class XNode {
     private String _name;
     private String _text;
     private ContentType _contentType;
+    private List<String> _openingComments;                   // come before the root
+    private List<String> _closingComments;                   // come after all content
     private int _depth = 0;
     private static int _defTabSize = 2;
 
@@ -62,6 +61,15 @@ public class XNode {
     public XNode(String name, String text) {
         this(name);
         _text = text;
+    }
+
+
+    public int compareTo(XNode other) {
+        int compared = _name.compareTo(other._name);
+        if (compared == 0) {
+            compared = (_text != null) ? _text.compareTo(other._text) : 0;
+        }
+        return compared;
     }
 
     /**************************************************************************/
@@ -115,11 +123,17 @@ public class XNode {
     /**************************************************************************/
 
 
+    public XNode insertChild(int index, XNode child) {
+        if (child != null) {
+            acceptChild(child);
+            _children.add(index, child);
+        }
+        return child;
+    }
+
     public XNode addChild(XNode child) {
         if (child != null) {
-            if (_children == null) _children = new ArrayList<XNode>();
-            child.setParent(this);
-            child.setDepth(_depth + 1);
+            acceptChild(child);
             _children.add(child);
         }
         return child;
@@ -196,6 +210,17 @@ public class XNode {
     public boolean isComment() {
         return _contentType == ContentType.comment;
     }
+
+    public void addOpeningComment(String comment) {
+        if (_openingComments == null) _openingComments = new ArrayList<String>();
+        _openingComments.add(comment);
+    }
+
+      public void addClosingComment(String comment) {
+        if (_closingComments == null) _closingComments = new ArrayList<String>();
+        _closingComments.add(comment);
+    }
+
 
     public XNode addCDATA(String cdata) {
         XNode child = addChild("_[_", cdata);
@@ -392,6 +417,10 @@ public class XNode {
         return toString().length();
     }
 
+    public void sort() {
+        Collections.sort(_children);
+    }
+
 
     /**************************************************************************/
 
@@ -420,6 +449,18 @@ public class XNode {
         return toString(true, _depth, tabSize, header);
     }
 
+    public Element toElement() {
+        return JDOMUtil.stringToElement(toString());
+    }
+
+
+    public Document toDocument() {
+        return JDOMUtil.stringToDocument(toString());
+    }
+
+
+    /****************************************************************************/
+
     private String toString(boolean pretty, int offset, int tabSize, boolean header) {
         String tabs = getIndent(offset, tabSize);
         if (isComment()) return printComment(pretty, tabs);
@@ -427,6 +468,7 @@ public class XNode {
 
         StringBuilder s = new StringBuilder(getInitialToStringSize());
         if (header) s.append(_header).append(newline);
+        if (_depth == 0) s.append(printOpeningComments(pretty));
         if (pretty) s.append(tabs);
 
         s.append("<").append(_name);
@@ -456,6 +498,11 @@ public class XNode {
             s.append("</").append(_name);
         }
         s.append(">");
+
+        if (_depth == 0) {
+            if (pretty) s.append(newline);
+            s.append(printClosingComments(pretty));
+        }
         if (pretty) s.append(newline);
 
         return s.toString();
@@ -467,16 +514,6 @@ public class XNode {
         // Estimate after some testing: 15 for tag start & finish (each) + 30 for text +
         // 20 for each attribute + 100 for each child
         return 60 + (20 * getAttributeCount()) + (100 * getChildCount());
-    }
-
-
-    public Element toElement() {
-        return JDOMUtil.stringToElement(toString());
-    }
-
-
-    public Document toDocument() {
-        return JDOMUtil.stringToDocument(toString());
     }
 
 
@@ -500,6 +537,29 @@ public class XNode {
     }
 
 
+    private String printOpeningComments(boolean pretty) {
+        return printOutlyingComments(_openingComments, pretty);
+    }
+
+
+    private String printClosingComments(boolean pretty) {
+        return printOutlyingComments(_closingComments, pretty);
+    }
+
+
+    private String printOutlyingComments(List<String> commentList, boolean pretty) {
+        if (commentList != null) {
+            StringBuilder s = new StringBuilder(commentList.size() * 100);
+            for (String comment : commentList) {
+                s.append("<!-- ").append(comment).append(" -->");
+                if (pretty) s.append(newline);
+            }
+            return s.toString();
+        }
+        return "";
+    }
+
+
     private String printComment(boolean pretty, String tabs) {
         return isComment() ? printSpecialText("<!-- ", " -->", pretty, tabs) : "";
     }
@@ -508,6 +568,17 @@ public class XNode {
     private String printCDATA(boolean pretty, String tabs) {
         return isCDATA() ? printSpecialText("<![CDATA[", "]]>", pretty, tabs) : "";
     }
+
+
+    private XNode acceptChild(XNode child) {
+        if (child != null) {
+            if (_children == null) _children = new ArrayList<XNode>();
+            child.setParent(this);
+            child.setDepth(_depth + 1);
+        }
+        return child;
+    }
+
 
     private void setContentType(ContentType cType) {
         _contentType = cType;

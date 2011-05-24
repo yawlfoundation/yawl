@@ -114,6 +114,11 @@ public class ResourceGateway extends HttpServlet {
                     _rm.setExternalUserAuthentication(externalAuth.equalsIgnoreCase("TRUE"));
                 }
 
+                String blockOnMissingResources =
+                        context.getInitParameter("BlockOnUnavailableSecondaryResources");
+                _rm.setBlockOnUnavailableSecondaryResources(
+                        blockOnMissingResources.equalsIgnoreCase("TRUE")) ;
+
                 // enable/disable the dropping of task piling on logout
                 String dropPiling = context.getInitParameter("DropTaskPilingOnLogoff");
                 _rm.setPersistPiling(dropPiling.equalsIgnoreCase("FALSE")) ;

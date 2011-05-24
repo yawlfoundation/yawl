@@ -35,6 +35,8 @@ public class XNodeParser {
 
     private boolean _check;                                         // validation flag
     private Pattern _attributeSplitter;
+    private List<String> _openingComments;                          // if root node only
+    private List<String> _closingComments;                          // if root node only
 
     public XNodeParser() {
         this(false);
@@ -75,39 +77,43 @@ public class XNodeParser {
 
 
     /************************************************************************/
-    
+
     private XNode parse(String s, int depth) {
         XNode node;
-            try {
-                if ((s == null) || (! s.trim().startsWith("<"))) {
-                    throw new YAWLException("bad input string");
-                }
-                
-                // get the text inside the opening tag and use it to create a new XNode
-                String tagDef = s.trim().substring(1, s.indexOf('>'));
-                node = newNode(tagDef, depth);
+        init();
+        try {
+            if ((s == null) || (! s.trim().startsWith("<"))) {
+                throw new YAWLException("bad input string");
+            }
 
-                // if this element is not fully enclosed in a single tag
-                if (! tagDef.endsWith("/")) {                  // '>' is already removed
+            // handle any comments before or after the root element
+            if (depth == 0) s = processOutlyingComments(s.trim());
 
-                    // parse entire inner string to the matching closing tag (exclusive)
-                    for (String content : parseContent(s)) {
-                        if (content.startsWith("<!--")) {
-                            node.addComment(extractComment(content));
-                        }
-                        else if (content.startsWith("<![")) {
-                            node.addCDATA(extractCDATA(content));
-                        }
-                        else if (content.startsWith("<")) {
-                            node.addChild(parse(content, depth + 1));      // recurse
-                        }
-                        else {
-                            node.setText(content);
-                        }
+            // get the text inside the opening tag and use it to create a new XNode
+            String tagDef = s.trim().substring(1, s.indexOf('>'));
+            node = newNode(tagDef, depth);
+
+            // if this element is not fully enclosed in a single tag
+            if (! tagDef.endsWith("/")) {                  // '>' is already removed
+
+                // parse entire inner string to the matching closing tag (exclusive)
+                for (String content : parseContent(s)) {
+                    if (content.startsWith("<!--")) {
+                        node.addComment(extractComment(content));
+                    }
+                    else if (content.startsWith("<![")) {
+                        node.addCDATA(extractCDATA(content));
+                    }
+                    else if (content.startsWith("<")) {
+                        node.addChild(parse(content, depth + 1));      // recurse
+                    }
+                    else {
+                        node.setText(content);
                     }
                 }
-                return node;
             }
+            return node;
+        }
         catch (Exception e) {
             Logger.getLogger(this.getClass()).error(
                     "Invalid format parsing string [" + s + "] - " + e.getMessage());
@@ -135,6 +141,9 @@ public class XNodeParser {
                 node.addAttribute(attributeParts[i].trim(), attributeParts[i+1].trim());
             }    
         }
+
+        // if this is the root node and there's outlying comments, add them
+        if (depth == 0) addOutlyingComments(node);
 
         return node;
     }
@@ -250,8 +259,58 @@ public class XNodeParser {
         return closers.get(closeIndex);
     }
 
+
+    private void init() {
+        _openingComments = null;
+        _closingComments = null;
+    }
+
+    private String processOpeningComments(String s) {
+        if (! s.startsWith("<!--")) return s;
+        _openingComments = new ArrayList<String>();
+        while (s.startsWith("<!--")) {
+            String comment = extractComment(s);
+            _openingComments.add(comment);
+            s = s.substring(s.indexOf("-->") + 3).trim();
+        }
+        return s;
+    }
+
+
+    private String processClosingComments(String s) {
+        if (! s.endsWith("-->")) return s;
+        _closingComments = new ArrayList<String>();
+        while (s.endsWith("-->")) {
+            String comment = extractTrailingComment(s);
+            _closingComments.add(comment);
+            s = s.substring(0, s.lastIndexOf("<!--")).trim();
+        }
+        return s;
+    }
+
+
+    private String processOutlyingComments(String s) {
+        return processOpeningComments(processClosingComments(s));
+    }
+
+
+    private void addOutlyingComments(XNode node) {
+        if (_openingComments != null) {
+            for (String comment : _openingComments) node.addOpeningComment(comment);
+        }
+        if (_closingComments != null) {
+            for (String comment : _closingComments) node.addClosingComment(comment);
+        }
+    }
+
+
     private String extractComment(String rawComment) {
         return rawComment.substring(4, rawComment.indexOf("-->")).trim();
+    }
+
+    private String extractTrailingComment(String rawComment) {
+        return rawComment.substring(rawComment.lastIndexOf("<!--") + 4,
+                rawComment.length() - 3).trim();
     }
 
     private String extractCDATA(String rawCDATA) {

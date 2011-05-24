@@ -114,6 +114,10 @@ public abstract class AbstractResource implements Cloneable {
 
     public void setBlockType(String s) { set_blockType(s); }
 
+    public String toString() {
+        return String.format("%s: %s (%s)", getClass().getName(), getName(), getID());
+    }
+
 
     // for hibernate
     private String get_blockType() { return _blockType.name(); }

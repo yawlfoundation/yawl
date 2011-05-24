@@ -1046,7 +1046,8 @@ public class YLogServer {
 
     private List getInstanceEventObjects(long key) throws YPersistenceException {
         if (connected()) {
-            return _pmgr.createQuery("from YLogEvent as e where e.instanceID=:key")
+            return _pmgr.createQuery("from YLogEvent as e where e.instanceID=:key " +
+                       "order by e.timestamp")
                        .setLong("key", key)
                        .list();
         }

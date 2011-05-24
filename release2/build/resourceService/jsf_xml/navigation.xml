@@ -308,6 +308,10 @@
            <from-outcome>showCalendar</from-outcome>
            <to-view-id>/calendarMgt.jsp</to-view-id>
        </navigation-case>
+        <navigation-case>
+           <from-outcome>showSecondaryResources</from-outcome>
+           <to-view-id>/secResourceMgt.jsp</to-view-id>
+       </navigation-case>
     </navigation-rule>
     <navigation-rule>
         <from-view-id>/viewProfile.jsp</from-view-id>
@@ -607,6 +611,13 @@
         <navigation-case>
             <from-outcome>showDynForm</from-outcome>
             <to-view-id>/dynForm.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+    <navigation-rule>
+        <from-view-id>/secResourceMgt.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>showAdminQueues</from-outcome>
+            <to-view-id>/adminQueues.jsp</to-view-id>
         </navigation-case>
     </navigation-rule>
 

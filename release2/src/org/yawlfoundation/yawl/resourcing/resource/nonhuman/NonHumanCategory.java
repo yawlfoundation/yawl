@@ -207,6 +207,10 @@ public class NonHumanCategory implements Comparable {
         return (subCategory != null) && subCategory.hasResource(resource);
     }
 
+    public String toString() {
+        return String.format("NonHumanCategory: %s (%s)", getName(), getID());
+    }
+    
 
     public XNode toXNode() {
         XNode node = new XNode("nonHumanCategory");

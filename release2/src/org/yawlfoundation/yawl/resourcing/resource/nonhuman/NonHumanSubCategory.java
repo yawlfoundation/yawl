@@ -89,6 +89,10 @@ public class NonHumanSubCategory {
         return ! _resources.isEmpty();
     }
 
+    public String toString() {
+        return String.format("NonHumanSubCategory: %s (%s)", getName(), getID());
+    }
+
 
     public XNode toXNode() {
         XNode node = new XNode("nonHumanSubCategory");

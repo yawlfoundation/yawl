@@ -97,7 +97,7 @@ public class ApplicationBean extends AbstractApplicationBean {
 
     public enum PageRef { adminQueues, caseMgt, customServices, dynForm, Login,
         orgDataMgt, nonHumanMgt, participantData, selectUser, userWorkQueues,
-        viewProfile, addInstance, teamQueues, externalClients, calendarMgt;
+        viewProfile, addInstance, teamQueues, externalClients, calendarMgt, secResMgt;
 
         public String getFileName() { return name() + ".jsp"; }
     }

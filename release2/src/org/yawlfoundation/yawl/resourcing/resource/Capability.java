@@ -67,6 +67,8 @@ public class Capability extends AbstractResourceAttribute implements Comparable 
         return this.getCapability().compareTo(((Capability) o).getCapability());
     }
 
+    public String getName() { return getCapability(); }
+
    
     public String toXML() {
         StringBuilder xml = new StringBuilder() ;

@@ -108,6 +108,12 @@ public abstract class AbstractResourceAttribute {
        return 31 + (_id != null? _id.hashCode() : 0);
     }
 
+    public String toString() {
+        return String.format("%s: %s (%s)", getClass().getName(), getName(), getID());
+    }
+
+    public abstract String getName();
+
     // hibernate mappings
 
     protected Set get_resources() { return _resources; }

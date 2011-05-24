@@ -29,14 +29,12 @@ import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
-import org.yawlfoundation.yawl.resourcing.calendar.CalendarEntry;
-import org.yawlfoundation.yawl.resourcing.calendar.CalendarException;
-import org.yawlfoundation.yawl.resourcing.calendar.CalendarRow;
-import org.yawlfoundation.yawl.resourcing.calendar.ResourceCalendar;
+import org.yawlfoundation.yawl.resourcing.calendar.*;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.CalendarRowComparator;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.OptionComparator;
@@ -1279,6 +1277,12 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
+    public Option[] getSortedRoleList() {
+        Option[] options = getRoleList(_rm.getOrgDataSet().getRoleMap());
+        sortOptions(options);
+        return options;
+    }
+
     private Option[] getRoleList(HashMap<String, Role> roleMap) {
         if (roleMap != null) {
             Option[] result = new Option[roleMap.size()];
@@ -1377,6 +1381,148 @@ public class SessionBean extends AbstractSessionBean {
         else return null ;
     }
 
+
+    public Option[] getNhResourcesCategoryListExpanded() {
+        Map<String, NonHumanCategory> catMap = _rm.getOrgDataSet().getNonHumanCategoryMap();
+        if (catMap != null) {
+            Map<String, String> items = new HashMap<String, String>();
+            for (String id : catMap.keySet()) {
+                NonHumanCategory c = catMap.get(id);
+                items.put(id, c.getName());
+                for (String subcat : c.getSubCategoryNames()) {
+                    items.put(id + "::" + subcat, c.getName() + " -> " + subcat);
+                }
+            }
+
+            Option[] result = new Option[items.size()];
+            int i = 0 ;
+            for (String id : items.keySet()) {
+                result[i++] = new Option(id, items.get(id)) ;
+            }
+            Arrays.sort(result, new OptionComparator());
+            return result ;
+        }
+        else return null ;
+    }
+
+
+    private SecondaryResources.SecResDataSet secResDataSet =
+            new SecondaryResources().newDataSet();
+
+
+    public void addSecondaryParticipant(String id) {
+        secResDataSet.addParticipant(id);
+    }
+
+    public void addSecondaryRole(String id) {
+        secResDataSet.addRole(id);
+    }
+
+    public void addSecondaryNHResource(String id) {
+        secResDataSet.addNonHumanResource(id);
+    }
+
+    public void addSecondaryNHCategory(String id) {
+        if (id != null) {
+            secResDataSet.addNonHumanCategory(id);
+        }
+    }
+
+
+    private Option[] selectedSecondaryResources = new Option[0];
+
+    public Option[] getSelectedSecondaryResources() {
+        return selectedSecondaryResources;
+    }
+
+    public void setSecondaryResources(Option[] options) {
+        selectedSecondaryResources = options;
+    }
+
+    public void loadSecondaryResources() {
+        int queue = getActiveTab().equals("tabUnOffered") ? WorkQueue.UNOFFERED :
+                WorkQueue.WORKLISTED;
+        WorkItemRecord wir = getChosenWIR(queue);
+        if (wir != null) {
+            SecondaryResources resources = _rm.getSecondaryResources(wir);
+            if (resources != null) {
+                secResDataSet = resources.getDataSet(wir).copy();
+                refreshSelectedSecondaryResourcesOptions();
+            }
+            else setSecondaryResources(new Option[0]);
+
+            setSecondaryResourcesItemID(wir.getID());
+        }
+    }
+
+    private String secondaryResourcesItemID = "";
+
+    public String getSecondaryResourcesItemID() { return secondaryResourcesItemID; }
+
+    public void setSecondaryResourcesItemID(String s) { secondaryResourcesItemID = s; }
+
+    public String getSecondaryResourcesTitle() {
+        return "Selected Secondary Resources for Workitem: " + secondaryResourcesItemID;
+    }
+
+    public void refreshSelectedSecondaryResourcesOptions() {
+        Option[] options = new Option[secResDataSet.getResourcesCount()];
+        int i = 0;
+        for (Participant p : secResDataSet.getParticipants()) {
+            options[i++] = new Option(p.getID(),
+                    p.getLastName() + ", " + p.getFirstName());
+        }
+        for (Role r : secResDataSet.getRoles()) {
+            options[i++] = new Option(r.getID(), r.getName());
+        }
+        for (NonHumanResource r : secResDataSet.getNonHumanResources()) {
+            options[i++] = new Option(r.getID(), r.getName());
+        }
+        for (String id : secResDataSet.getNonHumanCategories().keySet()) {
+            for (String label : secResDataSet.getCategoryLabelList(id)) {
+                options[i++] = new Option(id, label);
+            }    
+        }
+        sortOptions(options);
+        setSecondaryResources(options);
+    }
+
+
+    public void saveSelectedSecondaryResources() {
+        int queue = getActiveTab().equals("tabUnOffered") ? WorkQueue.UNOFFERED :
+                WorkQueue.WORKLISTED;
+        WorkItemRecord wir = getChosenWIR(queue);
+        if (wir != null) {
+            SecondaryResources resources = _rm.getSecondaryResources(wir);
+            if (resources != null) {
+                resources.addDataSet(wir, secResDataSet);
+            }
+        }
+    }
+
+
+    public List<String> checkSelectedSecondaryResources() throws YAWLException{
+        int queue = getActiveTab().equals("tabUnOffered") ? WorkQueue.UNOFFERED :
+                WorkQueue.WORKLISTED;
+        WorkItemRecord wir = getChosenWIR(queue);
+        if (wir != null) {
+            return secResDataSet.checkAvailability();
+        }
+        throw new YAWLException("Could not locate secondary resources for workitem.");
+    }
+
+
+    public boolean removeSelectedSecondaryResource() {
+        return (selectedSecondaryResource != null) &&
+                secResDataSet.remove(selectedSecondaryResource);
+    }
+
+
+    private String selectedSecondaryResource = null;
+
+    public String getSelectedSecondaryResource() { return selectedSecondaryResource; }
+
+    public void setSelectedSecondaryResource(String s) { selectedSecondaryResource = s; }
 
     private boolean orgDataItemRemovedFlag ;
 
@@ -2103,6 +2249,7 @@ public class SessionBean extends AbstractSessionBean {
             case teamQueues      : return 796;
             case externalClients : return 666;
             case calendarMgt     : return 600;
+            case secResMgt       : return 800;
             case dynForm         : return getDynFormFactoryInstance().getFormWidth();
             default: return -1;
         }
@@ -2124,6 +2271,7 @@ public class SessionBean extends AbstractSessionBean {
             case teamQueues      : return 370;
             case externalClients : return 485;
             case calendarMgt     : return 648;
+            case secResMgt       : return 600;
             default: return -1;
         }
     }
@@ -2278,8 +2426,9 @@ public class SessionBean extends AbstractSessionBean {
             throws CalendarException {
         if (calFilterSelection.startsWith("All")) {
             ResourceCalendar.ResourceGroup group = getSelectedResourceGroup();
-            _rm.getCalendar().addEntry(group, startTime, endTime,
+            long entryID = _rm.getCalendar().addEntry(group, startTime, endTime,
                     ResourceCalendar.Status.unavailable, getUserid(), comments);
+            logCalendarEntry(entryID, group.name(), workload);
         }
         else if (calFilterSelection.startsWith("Selected")) {
             AbstractResource resource = _rm.getOrgDataSet().getResource(calResourceSelection);
@@ -2287,13 +2436,26 @@ public class SessionBean extends AbstractSessionBean {
                 CalendarEntry entry = new CalendarEntry(resource.getID(), startTime, endTime,
                     ResourceCalendar.Status.unavailable, workload, getUserid(), comments);
                 if (! clashesWithCalendar(entry, true)) {
-                    _rm.getCalendar().addEntry(entry);
+                    long entryID = _rm.getCalendar().addEntry(entry);
+                    logCalendarEntry(entryID, resource.getID(), workload);
                 }
                 else throw new CalendarException(
                         "Time(s) and/or workload clashes with an existing entry.");
             }
             else throw new CalendarException("Unknown resource.");
         }
+    }
+
+
+    private final CalendarLogger _calLogger = new CalendarLogger();
+
+
+    public void logCalendarEntry(long entryID, String resourceID, int workload) {
+        CalendarLogEntry logEntry = new CalendarLogEntry(null, null, resourceID, -1,
+                ResourceCalendar.Status.unavailable.name(), entryID);
+        logEntry.setAgent(getUserid());
+        logEntry.setWorkload(workload);
+        _calLogger.log(logEntry, true);
     }
 
 

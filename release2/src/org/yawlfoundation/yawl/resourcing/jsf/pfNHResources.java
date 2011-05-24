@@ -554,6 +554,7 @@ public class pfNHResources extends AbstractFragmentBean {
             String subCat = (String) cbbSubCategory.getSelected();
 
             NonHumanResource resource = _sb.getSelectedNonHumanResource();
+            if (resource == null) resource = new NonHumanResource();
             resource.setName(name);
             resource.setCategory(category);
             resource.setSubCategory(subCat);

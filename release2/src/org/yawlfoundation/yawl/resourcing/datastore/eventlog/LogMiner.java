@@ -852,7 +852,7 @@ public class LogMiner {
         long specKey = getSpecificationKey(specID);
         if (specKey > -1) {
             String query = String.format(
-                  "%s WHERE re._specKey=%d ORDER BY re._caseID, re._taskID, re._timeStamp",
+                  "%s WHERE re._specKey=%d ORDER BY re._caseID, re._timeStamp",
                     _baseQuery, specKey);
 
             List rows = _reader.execQuery(query) ;

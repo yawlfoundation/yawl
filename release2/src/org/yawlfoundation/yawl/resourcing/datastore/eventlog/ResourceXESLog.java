@@ -168,12 +168,35 @@ public class ResourceXESLog extends YXESBuilder {
                     removeEvent(master, getTaskName(event), transition);
                 }
 
-                // otherwise just add it
+                // otherwise just insert it
                 if (! masterHasPrecedence(transition)) {
-                    master.addChild(event);
+                    insertEvent(master, event);
                 }    
             }
         }
+    }
+
+
+    // inserts 'event' node into 'trace' in timestamp order
+    private XNode insertEvent(XNode trace, XNode event) {
+        String eventTimeStamp = getTimeStamp(event);
+        if (eventTimeStamp != null) {
+            int i = 0;
+            for (XNode node : trace.getChildren()) {
+                String nodeTimeStamp = getTimeStamp(node);
+                if ((nodeTimeStamp != null) && (eventTimeStamp.compareTo(nodeTimeStamp) < 1)) {
+                    return trace.insertChild(i, event);
+                }
+                i++;
+            }
+        }
+        return trace.addChild(event);
+    }
+
+
+    private String getTimeStamp(XNode event) {
+        XNode dateNode = event.getChild("date");
+        return (dateNode != null) ? dateNode.getAttributeValue("value") : null;
     }
 
 
