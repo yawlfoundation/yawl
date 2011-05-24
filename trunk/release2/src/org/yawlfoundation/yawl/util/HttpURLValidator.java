@@ -18,10 +18,12 @@
 
 package org.yawlfoundation.yawl.util;
 
+import org.jdom.Document;
+import org.jdom.Element;
+
+import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 
 /**
  * A simple static checker that (1) checks that the url string passed in is a valid
@@ -93,5 +95,58 @@ public class HttpURLValidator {
         }
         return result;
     }
+
+
+    public static boolean simplePing(String host, int port) {
+        if ((host == null) || (port < 0)) return false;
+        try {
+            InetAddress address = InetAddress.getByName(host);
+            Socket socket = new Socket(address, port);
+            socket.close();
+            return true;
+        }
+        catch (UnknownHostException uhe) {
+            return false;
+        }
+        catch (IOException ioe) {
+            return false;
+        }
+    }
+
+
+    public static boolean isTomcatRunning(String urlStr) {
+        try {
+            return simplePing(new URL(urlStr).getHost(), getTomcatServerPort());
+        }
+        catch (MalformedURLException mue) {
+            return false;
+        }    
+    }
+
+
+    private static int getTomcatServerPort() {
+        Document serverConfigDoc = loadTomcatConfigFile("server.xml");
+        if (serverConfigDoc != null) {
+            Element e = serverConfigDoc.getRootElement();
+            if (e != null) {
+                return StringUtil.strToInt(e.getAttributeValue("port"), -1);
+            }
+        }
+        return -1;
+    }
+
+
+    private static Document loadTomcatConfigFile(String filename) {
+        if (! filename.startsWith("conf")) {
+            filename = "conf" + File.separator + filename;
+        }
+        File configFile = new File(filename);
+        if (! configFile.isAbsolute()) {
+            configFile = new File(System.getProperty("catalina.base"), filename);
+        }
+        return (configFile.exists()) ? JDOMUtil.fileToDocument(configFile) : null;
+    }
+
+
 
 }

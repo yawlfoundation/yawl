@@ -98,15 +98,22 @@ public class JDOMUtil {
 
     /****************************************************************************/
 
-    public synchronized static Document fileToDocument(String path) {
+    public static Document fileToDocument(String path) {
+        return fileToDocument(new File(path));
+    }
+
+
+    public synchronized static Document fileToDocument(File file) {
         try {
-            return (path != null) ? _builder.build(new File(path)) : null ;
+            return (file != null) ? _builder.build(file) : null ;
         }
         catch (JDOMException jde) {
-            _log.error("JDOMException loading file into Document, filepath = " + path , jde);
+            _log.error("JDOMException loading file into Document, filepath = " +
+                    file.getAbsolutePath(), jde);
         }
         catch (IOException ioe) {
-            _log.error("IOException loading file into Document, filepath = " + path, ioe);
+            _log.error("IOException loading file into Document, filepath = " +
+                    file.getAbsolutePath(), ioe);
         }
         return null ;
     }

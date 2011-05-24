@@ -251,6 +251,13 @@ public class adminQueues extends AbstractPageBean {
     public void setBtnSynch(Button btn) { btnSynch = btn; }
 
 
+    private Button btnSecRes = new Button();
+
+    public Button getBtnSecRes() { return btnSecRes; }
+
+    public void setBtnSecRes(Button btn) { btnSecRes = btn; }
+
+
     private Meta metaRefresh = new Meta();
 
     public Meta getMetaRefresh() { return metaRefresh; }
@@ -340,6 +347,11 @@ public class adminQueues extends AbstractPageBean {
     public String btnSynch_action() {
         getApplicationBean().synch();
         return null ;
+    }
+
+    public String btnSecRes_action() {
+        _sb.loadSecondaryResources();
+        return "showSecondaryResources";
     }
 
     public String btnOffer_action() {
@@ -481,7 +493,10 @@ public class adminQueues extends AbstractPageBean {
             txtResourceState.setText(wir.getResourceStatus());
             processButtonEnablement(wir);
         }
-        else enableUnofferedButtons(! wir.hasStatus(WorkItemRecord.statusSuspended));
+        else {
+            enableUnofferedButtons(! wir.hasStatus(WorkItemRecord.statusSuspended));
+            btnSecRes.setDisabled(isBetaVersion(wir) || (! wir.isEnabledOrFired()));
+        }
     }
 
     
@@ -515,6 +530,7 @@ public class adminQueues extends AbstractPageBean {
      */
     private void processButtonEnablement(WorkItemRecord wir) {
         btnReoffer.setDisabled(! getApplicationBean().canReoffer(wir));
+        btnSecRes.setDisabled(isBetaVersion(wir) || (! wir.isEnabledOrFired()));
         String status = wir.getResourceStatus();
         if (status != null) {
             btnReallocate.setDisabled(status.equals(WorkItemRecord.statusResourceOffered));
@@ -525,6 +541,11 @@ public class adminQueues extends AbstractPageBean {
             btnReallocate.setDisabled(true);
             btnRestart.setDisabled(true);
         }
+    }
+
+
+    private boolean isBetaVersion(WorkItemRecord wir) {
+        return ResourceManager.getInstance().isSpecBetaVersion(wir);
     }
 
 
@@ -539,6 +560,7 @@ public class adminQueues extends AbstractPageBean {
             btnReallocate.setDisabled(true);
             btnRestart.setDisabled(true);
         }
+        btnSecRes.setDisabled(true);
     }
 
 

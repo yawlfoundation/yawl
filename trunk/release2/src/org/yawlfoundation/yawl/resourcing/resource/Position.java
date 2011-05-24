@@ -80,6 +80,8 @@ public class Position extends AbstractResourceAttribute implements Comparable {
         _title = title;
     }
 
+    public String getName() { return getTitle(); }
+
 
     public Position getReportsTo() {
         return _reportsTo;

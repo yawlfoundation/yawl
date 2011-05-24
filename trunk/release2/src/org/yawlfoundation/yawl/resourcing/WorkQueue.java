@@ -27,7 +27,6 @@ import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -42,7 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *  v0.1, 03/08/2007
  */
 
-public class WorkQueue implements Serializable {
+public class WorkQueue {
 
     // different queue types
     public final static int UNDEFINED = -1 ;

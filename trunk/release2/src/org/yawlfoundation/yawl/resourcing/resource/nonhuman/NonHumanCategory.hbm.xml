@@ -46,7 +46,7 @@
                   access="field"/>
 
         <set name="_subcategories" table="rs_Category_SubCategory"
-             access="field" lazy="false" cascade="save-update,delete">
+             access="field" lazy="false" cascade="all-delete-orphan">
            <key column="CategoryID"/>
            <one-to-many class="NonHumanSubCategory"/>
         </set>

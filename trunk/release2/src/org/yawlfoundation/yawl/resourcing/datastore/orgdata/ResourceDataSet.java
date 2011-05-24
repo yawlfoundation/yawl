@@ -514,6 +514,7 @@ public class ResourceDataSet {
     public void updateNonHumanCategory(NonHumanCategory r) {
         if (isDataEditable(ResUnit.NonHumanCategory)) {
             getDataSource(ResUnit.NonHumanCategory).update(r) ;    // persist it
+            removeOrphanedSubCategories();
             putNonHumanCategory(r) ;              // ... and update the data set
         }
     }
@@ -1519,6 +1520,11 @@ public class ResourceDataSet {
             chainStr.append(" --> ").append(chain.get(i));
         }
         return String.format(templateMsg, type, refType, type, refName, chainStr.toString());
+    }
+
+
+    private void removeOrphanedSubCategories() {
+        
     }
 
     /********************************/

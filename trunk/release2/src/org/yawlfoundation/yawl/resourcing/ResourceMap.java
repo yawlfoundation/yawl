@@ -338,7 +338,7 @@ public class ResourceMap {
            offerSet = (HashSet<Participant>) _offer.performOffer(wir);
            if (offerSet.isEmpty()) {
                _log.warn("Parse of resource specifications for workitem " + wir.getID() +
-                         " resulted in an empty distribution list. Workitem will be" +
+                         " resulted in an empty distribution set. The workitem will be" +
                          " passed to an administrator for manual distribution.");
 
                // put workitem in admin's unoffered queue & DONE

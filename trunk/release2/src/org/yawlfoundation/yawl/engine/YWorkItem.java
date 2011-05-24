@@ -179,7 +179,7 @@ public class YWorkItem {
             // if all siblings are completed, then the parent is completed too
             boolean parentComplete = true;
 
-            if (_parent._children.size() >  1) {  // short-circuit if not multi-task
+            if (_parent.getChildren().size() >  1) {  // short-circuit if not multi-task
                 for (YWorkItem mysibling : _parent.getChildren()) {
                     if (mysibling.hasUnfinishedStatus()) {
                         parentComplete = false;

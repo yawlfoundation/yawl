@@ -231,6 +231,10 @@
 	<xs:complexType name="SpecificationSetType">
 		<!--xs:attribute name="uri" type="yawl:URIType" use="required"/-->
 	</xs:complexType>
+    <xs:complexType name="NonHumanCategoryType">
+        <xs:attribute name="subcategory" type="xs:string" use="optional"/>
+    </xs:complexType>
+
 
   <!--
   #######################################################################################
@@ -575,7 +579,7 @@
 			<xs:element name="offer" type="yawl:ResourcingOfferFactsType"/>
 			<xs:element name="allocate" type="yawl:ResourcingAllocateFactsType"/>
 			<xs:element name="start" type="yawl:ResourcingInteractionInitiatorType"/>
-            <xs:element name="secondary" type="yawl:ResourcingSecondaryFactsType"/>
+            <xs:element name="secondary" type="yawl:ResourcingSecondaryFactsType" minOccurs="0"/>
 			<xs:element name="privileges" type="yawl:ResourcingPrivilegesFactsType" minOccurs="0">
 				<xs:unique name="uniquePrivilege">
 					<xs:selector xpath="yawl:privilege"/>
@@ -673,8 +677,17 @@
         <xs:complexContent>
             <xs:extension base="yawl:ResourcingSetFactsType">
                 <xs:sequence>
-                    <xs:element name="nonHumanResource" type="yawl:NameType" minOccurs="0" maxOccurs="unbounded"/>
-                    <xs:element name="nonHumanCategory" type="yawl:NameType" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="nonHumanResource" type="yawl:NameType"
+                                minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="nonHumanCategory" minOccurs="0" maxOccurs="unbounded">
+                       <xs:complexType>
+                         <xs:simpleContent>
+                           <xs:extension base="yawl:NameType">
+                              <xs:attribute name="subcategory" type="xs:string"/>
+                           </xs:extension>
+                         </xs:simpleContent>
+                       </xs:complexType>
+                     </xs:element>
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>

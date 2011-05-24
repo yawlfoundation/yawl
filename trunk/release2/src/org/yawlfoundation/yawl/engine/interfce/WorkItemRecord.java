@@ -362,6 +362,12 @@ public class WorkItemRecord implements Cloneable {
         return result ;
     }
 
+    public String getParentID() {
+        if (isEnabledOrFired()) return null;
+        int pos = _caseID.lastIndexOf('.');        
+        return (pos < 0) ? null : _caseID.substring(0, pos) + ":" + _taskID;
+    }
+
     public String getLogPredicateStarted() { return _logPredicateStarted; }
 
     public String getLogPredicateCompletion() { return _logPredicateCompletion; }

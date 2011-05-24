@@ -177,6 +177,13 @@
                                      styleClass="queuesCheckbox"
                                      selected="#{SessionBean.redirectToMe}"/>
 
+                        <ui:button action="#{adminQueues.btnSecRes_action}"
+                                   binding="#{adminQueues.btnSecRes}"
+                                   id="btnSecRes"
+                                   styleClass="queuesButton"
+                                   style="top: 250px"
+                                   text="Secondary..."/>
+
                         <div>
                             <jsp:include page="pfQueueUI.jspf"/>
                         </div>

@@ -85,7 +85,7 @@ public class CalendarLogEntry {
     }
 
     public void setTimestamp(long time) {
-        timestamp = time;
+        timestamp = (time < 0) ? System.currentTimeMillis() : time;
     }
 
     public String getStatus() {

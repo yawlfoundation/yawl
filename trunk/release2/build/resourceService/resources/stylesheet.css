@@ -16,6 +16,14 @@
     position:relative;
 }
 
+.secondaryResourcesContainerPanel {
+    height: 600px;
+    width: 800px;
+    top: 40px;
+    position:relative;
+    border: 2px solid gray;
+}
+
 .selectUserContainerPanel {
     background-color: #98ccfe;
     height: 280px;
@@ -133,6 +141,20 @@
     position:relative;
 }
 
+.secondaryResourcesAvailablePanel {
+    background-color: #d4e5f6;
+    height: 300px;
+    width: 250px;
+    position: absolute;
+}
+
+.secondaryResourcesListbox {
+    height: 250px;
+    left: 12px;
+    top: 35px;
+    position: absolute;
+    width: 226px;
+}
 
 .transPanel {
     position: absolute;

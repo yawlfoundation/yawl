@@ -13,7 +13,7 @@
     <description>
         This custom YAWL Service handles all workitem resource allocations, based on the
         resource patterns.
-        Copyright 2008 yawlfoundation.org. All rights reserved.
+        Copyright 2008-2011 yawlfoundation.org. All rights reserved.
         Author: Michael Adams
         For more information about the YAWL SOFTWARE LICENCE refer to the 'downloads'
         section at http://www.yawlfoundation.org/.
@@ -134,6 +134,18 @@
             refresh (this is the default, since the YAWL org data source is not
             modified externally). Common settings: 1440 = 24 hours; 360 = 6 hours;
             10080 = 1 week.
+        </description>
+    </context-param>
+
+    <context-param>
+	    <param-name>BlockOnUnavailableSecondaryResources</param-name>
+    	<param-value>false</param-value>
+    	<description>
+            For each workitem that has secondary resources allocated to it, setting this
+            parameter to 'true' will prevent the workitem from being started if any of
+            its secondary resources are unavailable.
+            When set to 'false' (the default), the missing resource(s) will be noted in
+            the log only, but the workitem will still start.
         </description>
     </context-param>
 
@@ -266,6 +278,7 @@
     </context-param>
 -->
 
+    <!-- END OF CONTEXT PARAMETERS -->
 
     <!--CharsetFilter -->
 

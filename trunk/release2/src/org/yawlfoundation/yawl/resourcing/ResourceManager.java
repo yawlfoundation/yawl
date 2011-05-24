@@ -64,6 +64,7 @@ import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.resource.AbstractResource;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.resourcing.resource.SecondaryResources;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
 import org.yawlfoundation.yawl.resourcing.rsInterface.*;
 import org.yawlfoundation.yawl.resourcing.util.*;
@@ -155,6 +156,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private ApplicationBean _jsfApplicationReference ;   // ref to jsf app manager bean
 
     public boolean _logOffers ;
+    private boolean _blockIfSecondaryResourcesUnavailable = false;
     private boolean _persistPiling ;
     private boolean _visualiserEnabled;
     private Dimension _visualiserDimension;
@@ -167,6 +169,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private String _enginePassword = "resource" ;
     private String _engineSessionHandle = null ;
     private String _serviceURI = null;
+    private String _engineURI = null;
     private String _exceptionServiceURI = null ;
     private String _schedulingServiceURI = null ;
     private Namespace _yNameSpace =
@@ -226,6 +229,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     
     public void initInterfaceClients(String engineURI, String exceptionURI,
                                      String schedulingURI) {
+        _engineURI = engineURI;
         _interfaceAClient = new InterfaceA_EnvironmentBasedClient(
                                                  engineURI.replaceFirst("/ib", "/ia"));
         _interfaceEClient = new YLogGatewayClient(
@@ -262,12 +266,11 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     private void reestablishInterfaceClients() {
         String uriA = _interfaceAClient.getBackEndURI();
-        String uriB = _interfaceBClient.getBackEndURI();
         String uriE = _interfaceEClient.getBackEndURI();
         _interfaceAClient = new InterfaceA_EnvironmentBasedClient(uriA);
-        setUpInterfaceBClient(uriB);
+        setUpInterfaceBClient(_engineURI);
         _interfaceEClient = new YLogGatewayClient(uriE);
-        HttpURLValidator.pingUntilAvailable(uriB, 5);
+        HttpURLValidator.pingUntilAvailable(_engineURI, 5);
     }
 
     
@@ -323,6 +326,15 @@ public class ResourceManager extends InterfaceBWebsideController {
         _workItemCache.setPersist(_persisting);
         if (_persisting) restoreWorkQueues();
         _calendar = ResourceCalendar.getInstance();
+
+        // if tomcat is up, it means this was a 'hot' reload, so the final initialisation
+        // things that need a running engine need to be re-run now. If tomcat is not yet
+        // fully started, we'll wait until the engine is available
+        if (HttpURLValidator.isTomcatRunning(_interfaceAClient.getBackEndURI())) {
+            doFinalServiceToEngineInitialisation(true);
+            _log.info("The Tomcat 'Invalid Command' warning above is a side-effect " +
+                "of the Resource Service being 'hot reloaded' and can be safely ignored.");
+        }
     }
 
 
@@ -542,30 +554,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public void handleEngineInitialisationCompletedEvent() {
-        synchronized(_ibEventMutex) {
-
-            // if the engine has been restarted during this service session
-            if (_initCompleted) {
-                _engineSessionHandle = null;
-                reestablishInterfaceClients();
-            }
-
-            setAuthorisedServiceConnections();
-            setServiceURI();
-            sanitiseCaches();
-
-            // if this is the first time the engine has started since service start...
-            // (these things are only to be done once per service start)
-            if (! _initCompleted) {
-                restoreAutoTasks();
-                if (_orphanedStartedItems != null) {
-                    for (WorkItemRecord wir : _orphanedStartedItems) {
-                        checkinItem(null, wir);
-                    }
-                }
-                _initCompleted = true;
-            }
-        }
+        doFinalServiceToEngineInitialisation(false);
     }
 
 
@@ -661,6 +650,33 @@ public class ResourceManager extends InterfaceBWebsideController {
         outStream.close();
     }
 
+
+    private void doFinalServiceToEngineInitialisation(boolean reloaded) {
+        synchronized(_ibEventMutex) {
+
+            // if the engine or the service has been restarted during this session
+            if (_initCompleted || reloaded) {
+                _engineSessionHandle = null;
+                reestablishInterfaceClients();
+            }
+
+            setAuthorisedServiceConnections();
+            setServiceURI();
+            sanitiseCaches();
+
+            // if this is the first time the engine has started since service start...
+            // (these things are only to be done once per service start)
+            if (! _initCompleted) {
+                restoreAutoTasks();
+                if (_orphanedStartedItems != null) {
+                    for (WorkItemRecord wir : _orphanedStartedItems) {
+                        checkinItem(null, wir);
+                    }
+                }
+                _initCompleted = true;
+            }
+        }
+    }
 
     private boolean cleanupWorkItemReferences(WorkItemRecord wir) {
         WorkItemRecord removed = null;
@@ -1238,8 +1254,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             rMap.withdrawOffer(wir);
             starter = rMap.getStartInteraction();
         }
-        else
-            withdrawOfferFromAll(wir);        // beta version spec
+        else withdrawOfferFromAll(wir);        // beta version spec
 
         // take the appropriate start action
         if ((starter != null) &&
@@ -1441,6 +1456,11 @@ public class ResourceManager extends InterfaceBWebsideController {
             return true ;
         }
 
+        if (_blockIfSecondaryResourcesUnavailable &&
+                (! secondaryResourcesAvailable(wir, p))) {
+            return false;
+        }
+
         if (checkOutWorkItem(wir)) {
             WorkItemRecord oneToStart = getStartedChild(wir);
             if (oneToStart == null) return false;      // problem: no executing children            
@@ -1509,6 +1529,25 @@ public class ResourceManager extends InterfaceBWebsideController {
             if (! started.getID().equals(child.getID()))
                 handleEnabledWorkItemEvent(child) ;
         }
+    }
+
+
+    private boolean secondaryResourcesAvailable(WorkItemRecord wir, Participant p) {
+        ResourceMap map = getResourceMap(wir);
+        if (map != null) {
+            if (! map.getSecondaryResources().available(wir)) {
+                _log.warn("Workitem '" + wir.getID() + "' could not be started due " +
+                        "to one or more unavailable secondary resources. The workitem " +
+                        "has been placed on the participant's allocated queue.");
+                if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceOffered)) {
+                    map.withdrawOffer(wir);
+                }
+                wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
+                p.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
+                return false;
+            }
+        }
+        return true;
     }
 
 
@@ -2051,6 +2090,11 @@ public class ResourceManager extends InterfaceBWebsideController {
     public boolean isPersistPiling() { return _persistPiling; }
 
 
+    public void setBlockOnUnavailableSecondaryResources(boolean block) {
+        _blockIfSecondaryResourcesUnavailable = block;
+    }
+
+
     public Set<Participant> getDistributionSet(String itemID) {
         ResourceMap map = getResourceMap(itemID);
         return (map != null) ? map.getDistributionSet() : null;
@@ -2253,6 +2297,12 @@ public class ResourceManager extends InterfaceBWebsideController {
                 freeSecondaryResources(wir);
             }
         }
+    }
+
+
+    public SecondaryResources getSecondaryResources(WorkItemRecord wir) {
+        ResourceMap rMap = getResourceMap(wir);
+        return (rMap != null) ? rMap.getSecondaryResources() : null;
     }
 
     
@@ -2636,6 +2686,13 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
         return result;
     }
+
+
+    public boolean isSpecBetaVersion(WorkItemRecord wir) {
+        SpecificationData specData = getSpecData(new YSpecificationID(wir));
+        return (specData != null) && specData.getSchemaVersion().isBetaVersion();
+    }
+
 
 
     public Set<String> getAllRunningCaseIDs() {

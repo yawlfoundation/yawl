@@ -24,7 +24,6 @@ import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -36,7 +35,7 @@ import java.util.Set;
  *  v0.1, 23/08/2007
  */
 
-public class QueueSet implements Serializable {
+public class QueueSet {
 
     // participant queues
     private WorkQueue _qOffered ;

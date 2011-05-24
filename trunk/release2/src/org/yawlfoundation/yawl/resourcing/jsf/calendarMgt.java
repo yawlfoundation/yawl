@@ -619,7 +619,7 @@ public class calendarMgt extends AbstractPageBean {
                     btnAddText = "Save";
                     txtStartTime.setText(startTimeStr);
                     setEndTimeFields(row);
-                    txtWorkload.setText(row.getWorkload());
+                    txtWorkload.setText(String.valueOf(row.getWorkload()));
                     txtComments.setText(row.getComment());
                     setMode(Mode.Edit);
                     setResourceName(row.getName());
@@ -749,6 +749,7 @@ public class calendarMgt extends AbstractPageBean {
             entry.setComment(comment);
             if (! _sb.clashesWithCalendar(entry, false)) {
                 _rm.getCalendar().updateEntry(entry);
+                _sb.logCalendarEntry(entry.getEntryID(), entry.getResourceID(), workload);
                 return true;
             }
             else _msgPanel.error("Cannot update entry. Times and/or workload" +
@@ -781,7 +782,7 @@ public class calendarMgt extends AbstractPageBean {
                 name = ((Participant) resource).getFullName();
             }
             else if (resource instanceof NonHumanResource) {
-                name = ((NonHumanResource) resource).getName();
+                name = resource.getName();
             }
         }
         else {
@@ -841,7 +842,7 @@ public class calendarMgt extends AbstractPageBean {
 
     private boolean validateTimeField(String time, String label) {
 
-        // accepts H:MM or HH:MM or H or HH
+        // accepts H:MM or HH:MM or H or HH, H -> 0-23, MM -> 00 - 59
         if (! time.matches("(([01]?\\d)|(2[0-3]))(:([0-5]\\d))?")) {
             _msgPanel.error(String.format("Invalid %s: %s", label, time));
             return false;
@@ -851,7 +852,7 @@ public class calendarMgt extends AbstractPageBean {
 
     private boolean validateWorkloadField(int load) {
         if ((load < 1) || (load > 100)) {
-            _msgPanel.error("Invalid workload: must be between 1 and 100");
+            _msgPanel.error("Invalid workload value: must be between 1 and 100");
             return false;
         }
         return true;
@@ -918,11 +919,7 @@ public class calendarMgt extends AbstractPageBean {
 
 
     private int getWorkloadValue() {
-        Object load = txtWorkload.getText();
-        if (load instanceof Integer) {
-            return (Integer) load;
-        }
-        return StringUtil.strToInt((String) load, 100);
+        return StringUtil.strToInt((String) txtWorkload.getText(), -1);
     }
 
 }
