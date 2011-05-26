@@ -91,6 +91,8 @@ public class SelectCodeletDialog extends AbstractDoneDialog {
     public void setSelectedCodelet() {
         String selectedCodelet =  decomposition.getCodelet();
         if (selectedCodelet != null) {
+            int lastDot = selectedCodelet.lastIndexOf('.');
+            if (lastDot > -1) selectedCodelet = selectedCodelet.substring(lastDot + 1);        
             codeletTable.setSelectedRowWithName(selectedCodelet);
         }
     }
