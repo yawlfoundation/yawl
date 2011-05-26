@@ -3315,7 +3315,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             String codelet = wir.getCodelet();
 
             // if wir has a codelet, execute it in its own thread
-            if ((codelet != null) && (codelet.length() > 0)) {
+            if (! StringUtil.isNullOrEmpty(codelet)) {
                 TaskInformation taskInfo = getTaskInformation(new YSpecificationID(wir),
                                                               wir.getTaskID(),
                                                               getEngineSessionHandle());

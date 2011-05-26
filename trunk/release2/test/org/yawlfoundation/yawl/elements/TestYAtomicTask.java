@@ -1,15 +1,16 @@
 package org.yawlfoundation.yawl.elements;
 
-import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.elements.data.YVariable;
-import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.util.YMessagePrinter;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
-import org.yawlfoundation.yawl.exceptions.*;
-import org.yawlfoundation.yawl.engine.YNetData;
 import junit.framework.TestCase;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.elements.data.YVariable;
+import org.yawlfoundation.yawl.elements.state.YIdentifier;
+import org.yawlfoundation.yawl.engine.YNetData;
+import org.yawlfoundation.yawl.exceptions.*;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
+import org.yawlfoundation.yawl.util.YMessagePrinter;
+import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -41,7 +42,7 @@ public class TestYAtomicTask extends TestCase{
 
     public void setUp() throws YPersistenceException {
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification.Beta2);
+        spec.setVersion(YSchemaVersion.Beta2);
         YNet deadNet = new YNet("aNet", spec);
         YVariable v = new YVariable(null);
         v.setName("stubList");

@@ -1,6 +1,7 @@
 package org.yawlfoundation.yawl.elements;
 
 import org.yawlfoundation.yawl.util.YMessagePrinter;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import junit.framework.TestCase;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class TestYInputCondition extends TestCase{
 
     public void setUp(){
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification.Beta2);
+        spec.setVersion(YSchemaVersion.Beta2);
 
         YNet deadNet = new YNet("aNetName", spec);
         _invalidInputCondition = new YInputCondition("ic1", "input", deadNet);

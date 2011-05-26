@@ -60,6 +60,10 @@ public abstract class YExternalNetElement extends YNetElement implements YVerifi
     public void setName(String name) { _name = name; }
 
     public String getDocumentation() {
+        return _documentation;
+    }
+
+    public String getDocumentationPreParsed() {
         return preparseDocumentation();
     }
 

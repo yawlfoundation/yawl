@@ -44,7 +44,7 @@ public final class YSpecification implements Cloneable, YVerifiable {
                                         new HashMap<String, YDecomposition>();
     private String _name;
     private String _documentation;
-    private YSchemaVersion _version;
+    private YSchemaVersion _version = YSchemaVersion.defaultVersion();
     private YDataValidator _dataValidator;
     private YMetaData _metaData;
 
@@ -326,8 +326,8 @@ public final class YSpecification implements Cloneable, YVerifiable {
                     if (visiting.contains(((YNet) decomposition).getOutputCondition())) {
                         messages.add(new YVerificationMessage(
                                 decomposition,
-                                "The net (" + decomposition +
-                                ") may complete without any generated work.  " +
+                                "It may be possible for the net (" + decomposition +
+                                ") to complete without any generated work. " +
                                 "Check the empty tasks linking from i to o.",
                                 YVerificationMessage.WARNING_STATUS));
                     }
@@ -345,11 +345,10 @@ public final class YSpecification implements Cloneable, YVerifiable {
         Set<YExternalNetElement> elements = YNet.getPostset(aSet);
         Set<YExternalNetElement> resultSet = new HashSet<YExternalNetElement>();
         for (YExternalNetElement element : elements) {
-            if ((element instanceof YTask) &&
-                    (((YTask) element).getDecompositionPrototype() != null)) {
-                return Collections.emptySet();      // short circuit on a non-empty task
+            if ((element instanceof YCondition) || ((element instanceof YTask) &&
+                    (((YTask) element).getDecompositionPrototype() == null))) {
+                resultSet.add(element);
             }
-            resultSet.add(element);
         }
         return resultSet;
     }

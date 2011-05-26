@@ -919,7 +919,9 @@ public class calendarMgt extends AbstractPageBean {
 
 
     private int getWorkloadValue() {
-        return StringUtil.strToInt((String) txtWorkload.getText(), -1);
+        String workload = (String) txtWorkload.getText();
+        if (StringUtil.isNullOrEmpty(workload)) return 100;
+        return StringUtil.strToInt(workload, -1);
     }
 
 }

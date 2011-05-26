@@ -1,6 +1,7 @@
 package org.yawlfoundation.yawl.elements;
 
 import org.yawlfoundation.yawl.util.YMessagePrinter;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import junit.framework.TestCase;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class TestYExternalNetElement extends TestCase{
 
     public void setUp(){
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification.Beta2);
+        spec.setVersion(YSchemaVersion.Beta2);
         YNet deadNet = new YNet("aNetName", spec);
         _aCondition = new YCondition("c1", deadNet);
         _aTask = new YAtomicTask("et1", YTask._AND, YTask._AND, deadNet);

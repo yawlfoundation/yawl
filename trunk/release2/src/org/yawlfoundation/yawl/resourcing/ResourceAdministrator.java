@@ -38,9 +38,7 @@ public class ResourceAdministrator {
 
     private static ResourceAdministrator _me ;
 
-    private ResourceAdministrator() {
-//        _qSet = new QueueSet("", QueueSet.setType.adminSet, false);
-    }
+    private ResourceAdministrator() { }
 
     public static ResourceAdministrator getInstance() {
         if (_me == null) _me = new ResourceAdministrator() ;

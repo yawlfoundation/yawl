@@ -1,6 +1,7 @@
 package org.yawlfoundation.yawl.elements;
 
 import org.yawlfoundation.yawl.util.YMessagePrinter;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -26,7 +27,7 @@ public class TestYOutputCondition extends TestCase{
 
     public void setUp(){
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification.Beta2);
+        spec.setVersion(YSchemaVersion.Beta2);
         YNet deadNet = new YNet("aNetName", spec);
         _invalidOutputCondition = new YOutputCondition("ic1", "input", deadNet);
         _invalidOutputCondition.addPostset(new YFlow(_invalidOutputCondition, new YCondition("c2", deadNet)));

@@ -41,6 +41,8 @@ public enum YSchemaVersion {
     TwoPointTwo  ("2.2", 2.2);
 
 
+    public static YSchemaVersion DEFAULT_VERSION = TwoPointTwo;
+
     private final String BetaNS = "http://www.citi.qut.edu.au/yawl";
     private final String BetaSchemaLocation = BetaNS +
             " d:/yawl/schema/YAWL_SchemaBeta7.1.xsd";
@@ -104,6 +106,9 @@ public enum YSchemaVersion {
     public static boolean isValidVersionString(String s) {
         return (fromString(s) != null);
     }
+
+
+    public static YSchemaVersion defaultVersion() { return DEFAULT_VERSION; }
 
 
     public boolean usesSimpleRootData() {
