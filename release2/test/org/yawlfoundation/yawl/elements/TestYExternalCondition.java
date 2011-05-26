@@ -1,12 +1,13 @@
 package org.yawlfoundation.yawl.elements;
 
-import org.yawlfoundation.yawl.elements.data.YVariable;
-import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.exceptions.*;
 import junit.framework.TestCase;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.yawlfoundation.yawl.engine.*;
+import org.yawlfoundation.yawl.elements.data.YVariable;
+import org.yawlfoundation.yawl.elements.state.YIdentifier;
+import org.yawlfoundation.yawl.engine.YNetData;
+import org.yawlfoundation.yawl.exceptions.*;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
 
 /**
  * @author aldredl
@@ -34,7 +35,7 @@ public class TestYExternalCondition extends TestCase {
 
     public void setUp() throws YPersistenceException {
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification.Beta2);
+        spec.setVersion(YSchemaVersion.Beta2);
         _net = new YNet("aNetName", spec);
         YVariable v = new YVariable(null);
         v.setName("stubList");

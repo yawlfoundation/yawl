@@ -655,7 +655,7 @@ public class pfNHResources extends AbstractFragmentBean {
         if ((name != null) && (name.length() > 0)) resource.setName(name);
         String desc = (String) txtDesc.getText();
         if (desc != null) resource.setDescription(desc);
-        String notes = (String) txtDesc.getText();
+        String notes = (String) txtNotes.getText();
         if (notes != null) resource.setNotes(notes);
     }
 

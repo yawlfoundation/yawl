@@ -2,8 +2,8 @@
                         YAWL Release 2.2 (beta)  18/05/2011
                        ======================================
 
-This is the 2.1 (final) release of the YAWL Environment. It primarily incorporates
-a number fixes over the 2.1 beta version, and a couple of new functionalities. Please
+This is the 2.2 (beta) release of the YAWL Environment. It contains several major
+functionality additions, and a significant number of bug fixes and enhancements. Please
 take the time to read the change lists below, and refer to the user manual for more
 details.
 
@@ -81,6 +81,7 @@ QUICK START: After installation, start Tomcat and point a browser to
  * [Enhancement] Added scheduling event announcements to resource gateway server.
  * [Enhancement] Added new process log retrieval methods to Engine and Resource Service
    APIs.
+ * [Enhancement] All nodes within each XES trace record are now sorted on timestamp.   
  * [Enhancement] Added admin queue functionality to the workqueue gateway API.
  * [Enhancement] Added JSONP support to ResourceGateway.getXXXXIdentifier methods.
  * [Enhancement] Added support for multiple bindings and filters to LDAPSource.
@@ -91,6 +92,8 @@ QUICK START: After installation, start Tomcat and point a browser to
    one or more growable subpanels.
  * [Bugfix] Verification of nets with one or more empty tasks was falsely reporting an
    error in certain circumstances.
+ * [Bugfix] The Resource Service was not being completely reinitialised when 'hot'
+   reloaded (ie. without stopping and restarting Tomcat).
  * [Bugfix] In tight checkout-checkin loops, some workitem enablements were
    intermittently being announced twice to services.
  * [Bugfix] Intermittent persistence errors with empty tasks.
@@ -107,7 +110,7 @@ QUICK START: After installation, start Tomcat and point a browser to
  * [Bugfix] Double-clicking Login button caused exception.
  * [Bugfix] Errors when removing some workitem timers from persistence.
  * [Bugfix (issues 429, 430)] Worklet Service exlet primitives ForceComplete and
-   ForceFail not progressing case as exepcted.
+   ForceFail not progressing case as expected.
  * [Bugfix (issue 428)] Worklet Service, explicit cancellation of worklet process
    instance broke progression of parent instance.
  * [Bugfix] ClassCastException when unpiling work items.
@@ -205,13 +208,14 @@ QUICK START: After installation, start Tomcat and point a browser to
  * [New] 'Set Documentation' for tasks & conditions (task doco appears in the work queue
    web pages at runtime).
 
+ * [Enhancement] Fixed error messaging at bottom of the various input dialogs. 
  * [Enhancement (issue 294)] Added confirm dialog to 'Drop Decomposition'.
  * [Enhancement (issue 321)] Added the ability to permanently remove dropped
    decompositions.
  * [Enhancement] Resized multiple instance dialog so that queries and messages are more
    easily seen.
- * [Enhancement (issue 390) 'Stop' button added to analysis feedback dialog;
- * [Enhancement (issue 280) File versioning (i.e saving each and every superseded version
+ * [Enhancement (issue 390)] 'Stop' button added to analysis feedback dialog.
+ * [Enhancement (issue 280)] File versioning (i.e saving each and every superseded version
    of a specification to a unique file).
  * [Enhancement (issue 260)] Added optional line numbering (plus auto formatting and find
    functionality) to Data Definitions dialog.
@@ -232,7 +236,7 @@ QUICK START: After installation, start Tomcat and point a browser to
  * [Bugfix (issue 416)] Errors when loading default values for output only tasks.
  * [Bugfix (issue 413)] Errors when setting infinite maximum and threshold values on
    multi-instance bounds panel.
- * [Bugfix (issue 412) Engine & Resource Service connection indicators showed 'can be'
+ * [Bugfix (issue 412)] Engine & Resource Service connection indicators showed 'can be'
    not 'is' connected.
  * [Bugfix] Erroneous error message when validating external data gateway mappings.
  * [Bugfix] Configurable task modifications lost on specification save.

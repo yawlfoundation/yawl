@@ -820,17 +820,15 @@ public class YNetRunner {
                 }
             }
 
-            if (pmgr != null) {
-                continueIfPossible(pmgr);
-                _busyTasks.remove(atomicTask);
-                _busyTaskNames.remove(atomicTask.getID());
+            continueIfPossible(pmgr);
+            _busyTasks.remove(atomicTask);
+            _busyTaskNames.remove(atomicTask.getID());
 
-                if (_engine.getRunningCaseIDs().contains(_caseIDForNet)) {
+            if ((pmgr != null) && _engine.getRunningCaseIDs().contains(_caseIDForNet)) {
                     pmgr.updateObject(this);
                 }
-                _logger.debug("NOTIFYING RUNNER");
-                kick(pmgr);
-            }    
+            _logger.debug("NOTIFYING RUNNER");
+            kick(pmgr);
         }
         _logger.debug("<-- completeTask: " + atomicTask.getID()
                 + ", Exited=" + taskExited);

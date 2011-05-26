@@ -114,7 +114,7 @@ public class NonHumanResource extends AbstractResource implements Comparable, Cl
 
     public int compareTo(Object o) {
         if ((o == null) || (! (o instanceof NonHumanResource))) return 1;
-        return this.getID().compareTo(((NonHumanResource) o).getID());
+        return this.getName().compareTo(((NonHumanResource) o).getName());
     }
 
     

@@ -1,8 +1,9 @@
 package org.yawlfoundation.yawl.elements;
 
+import junit.framework.TestCase;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.util.YMessagePrinter;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
-import junit.framework.TestCase;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class TestYMultiInstanceAttributes extends TestCase{
 
     public void setUp(){
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification.Beta2);
+        spec.setVersion(YSchemaVersion.Beta2);
 
         YNet deadNet = new YNet("aNet", spec);
         _aTask = new YAtomicTask("et1", YTask._AND, YTask._OR, deadNet);

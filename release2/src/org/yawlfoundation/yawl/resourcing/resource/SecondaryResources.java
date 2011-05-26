@@ -343,8 +343,11 @@ public class SecondaryResources {
 
 
         public boolean addNonHumanCategoryUnchecked(String id, String subcat) {
-            if (subcat != null) id += "::" + subcat;
-            return (addNonHumanCategoryUnchecked(id));
+            NonHumanCategory category = new NonHumanCategory();
+            category.setID(id);
+            String mapID = (subcat != null) ? id += "::" + subcat : id;
+            putNonHumanCategory(mapID, category);
+            return true;
         }
 
 

@@ -16,6 +16,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.yawlfoundation.yawl.engine.YNetData;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,7 +50,7 @@ public class TestYExternalTask extends TestCase{
 
     public void setUp() throws YPersistenceException {
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification.Beta2);
+        spec.setVersion(YSchemaVersion.Beta2);
         YNet deadNet = new YNet("aNetName", spec);
         YVariable v = new YVariable(null);
         v.setName("stubList");
@@ -243,7 +244,7 @@ public class TestYExternalTask extends TestCase{
         YAtomicTask t1 = new YAtomicTask("1", YAtomicTask._AND, YAtomicTask._XOR, null);
         YAtomicTask t2 = new YAtomicTask("2", YAtomicTask._AND, YAtomicTask._AND, null);
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification.Beta2);
+        spec.setVersion(YSchemaVersion.Beta2);
         t2.setDecompositionPrototype(new YAWLServiceGateway("blah", spec));
 
         YAtomicTask t3 = new YAtomicTask("3", YAtomicTask._AND, YAtomicTask._AND, null);
@@ -318,7 +319,7 @@ public class TestYExternalTask extends TestCase{
         YAtomicTask t2 = new YAtomicTask("2", YAtomicTask._AND, YAtomicTask._AND, null);
 
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification.Beta2);
+        spec.setVersion(YSchemaVersion.Beta2);
 
         t2.setDecompositionPrototype(new YAWLServiceGateway("blah2", spec));
         YAtomicTask t3 = new YAtomicTask("3", YAtomicTask._AND, YAtomicTask._AND, null);
@@ -382,7 +383,7 @@ public class TestYExternalTask extends TestCase{
 
     public void testSelfCancellation() throws YStateException, YQueryException, YDataStateException, YSchemaBuildingException, YPersistenceException {
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification.Beta2);
+        spec.setVersion(YSchemaVersion.Beta2);
         YNet n = new YNet("", spec);
         YTask t1 = new YAtomicTask("t1", 95, 95, n);
         YCondition c1, c2;

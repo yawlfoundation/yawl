@@ -27,7 +27,7 @@ import javax.faces.event.ValueChangeEvent;
 import java.util.List;
 
 /**
- * Backing bean for edit profile form
+ * Backing bean for the secondary resources mgt form
  *
  * @author Michael Adams
  *

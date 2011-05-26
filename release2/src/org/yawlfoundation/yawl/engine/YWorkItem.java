@@ -109,7 +109,7 @@ public class YWorkItem {
                        allowsDynamicCreation); 
 
         _task = task;
-        if (task != null) _documentation = task.getDocumentation(); 
+        if (task != null) _documentation = task.getDocumentationPreParsed(); 
         _enablementTime = new Date();
         _eventLog.logWorkItemEvent(pmgr, this, _status, null);
         if ((pmgr != null) && (! isDeadlocked)) pmgr.storeObject(this);

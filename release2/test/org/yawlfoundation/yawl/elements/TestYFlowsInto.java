@@ -1,10 +1,11 @@
 package org.yawlfoundation.yawl.elements;
 
-import org.yawlfoundation.yawl.util.YMessagePrinter;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
+import org.yawlfoundation.yawl.util.YMessagePrinter;
 
 /**
  * 
@@ -23,7 +24,7 @@ public class TestYFlowsInto extends TestCase{
 
     public void setUp(){
         YSpecification spec = new YSpecification("");
-        spec.setVersion(YSpecification.Beta2);
+        spec.setVersion(YSchemaVersion.Beta2);
 
         YNet net1 = new YNet("net1", spec);
         _XORSplit = new YAtomicTask("XORSplit_1", YTask._AND, YTask._XOR, net1);

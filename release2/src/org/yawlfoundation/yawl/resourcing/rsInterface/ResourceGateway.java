@@ -79,16 +79,16 @@ public class ResourceGateway extends HttpServlet {
 
                 // enable/or disable persistence
                 String persist = context.getInitParameter("EnablePersistence");
-                _rm.setPersisting(persist.equalsIgnoreCase("TRUE"));
+                _rm.setPersisting(getInitBooleanValue(persist, true));
                 if (_rm.isPersisting()) {
 
                     // enable/disable process logging
                     String enableLogging = context.getInitParameter("EnableLogging");
-                    EventLogger.setLogging(enableLogging.equalsIgnoreCase("TRUE"));
+                    EventLogger.setLogging(getInitBooleanValue(enableLogging, true));
 
                     // enable/disable logging of all offers
                     String logOffers = context.getInitParameter("LogOffers");
-                    EventLogger.setOfferLogging(logOffers.equalsIgnoreCase("TRUE"));
+                    EventLogger.setOfferLogging(getInitBooleanValue(logOffers, true));
                 }
 
                 // set the org data source and refresh rate
@@ -109,23 +109,23 @@ public class ResourceGateway extends HttpServlet {
                 // user authentication values
                 if (! orgDataSource.equals("HibernateImpl")) {
                     String allowMods = context.getInitParameter("AllowExternalOrgDataMods");
-                    _rm.setAllowExternalOrgDataMods(allowMods.equalsIgnoreCase("TRUE"));
+                    _rm.setAllowExternalOrgDataMods(getInitBooleanValue(allowMods, false));
                     String externalAuth = context.getInitParameter("ExternalUserAuthentication");
-                    _rm.setExternalUserAuthentication(externalAuth.equalsIgnoreCase("TRUE"));
+                    _rm.setExternalUserAuthentication(getInitBooleanValue(externalAuth, false));
                 }
 
                 String blockOnMissingResources =
                         context.getInitParameter("BlockOnUnavailableSecondaryResources");
                 _rm.setBlockOnUnavailableSecondaryResources(
-                        blockOnMissingResources.equalsIgnoreCase("TRUE")) ;
+                        getInitBooleanValue(blockOnMissingResources, false)) ;
 
                 // enable/disable the dropping of task piling on logout
                 String dropPiling = context.getInitParameter("DropTaskPilingOnLogoff");
-                _rm.setPersistPiling(dropPiling.equalsIgnoreCase("FALSE")) ;
+                _rm.setPersistPiling(! getInitBooleanValue(dropPiling, false)) ;
 
                 // enable the visualiser applet, if necessary
                 String enableVisualiser = context.getInitParameter("EnableVisualizer");
-                if (enableVisualiser.equalsIgnoreCase("TRUE")) {
+                if (getInitBooleanValue(enableVisualiser, false)) {
                     _rm.setVisualiserEnabled(true);
                     String visualiserSize = context.getInitParameter("VisualizerViewSize");
                     if (visualiserSize != null) {
@@ -162,6 +162,11 @@ public class ResourceGateway extends HttpServlet {
                 _orgDataSet = _rm.getOrgDataSet();
             }
         }
+    }
+
+
+    private boolean getInitBooleanValue(String param, boolean defValue) {
+        return (param != null) ? param.equalsIgnoreCase("TRUE") : defValue;
     }
 
 

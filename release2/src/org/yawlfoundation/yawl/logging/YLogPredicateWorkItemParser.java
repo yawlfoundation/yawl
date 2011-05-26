@@ -89,7 +89,7 @@ public class YLogPredicateWorkItemParser extends YPredicateParser {
             s = _workItem.getStatus().toString();
         }
         else if (s.equals("${task:doco}")) {
-            s = _workItem.getTask().getDocumentation();
+            s = _workItem.getTask().getDocumentationPreParsed();
         }
         else if (s.equals("${task:decomposition:name}")) {
             s = _workItem.getTask().getDecompositionPrototype().getName();
