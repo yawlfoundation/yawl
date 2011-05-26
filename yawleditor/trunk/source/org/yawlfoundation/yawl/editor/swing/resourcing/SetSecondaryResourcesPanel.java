@@ -234,6 +234,7 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
         public void valueChanged(ListSelectionEvent e) {
             if ((! e.getValueIsAdjusting()) && userList.isEnabled()) {
                 parent.addSelection(userList.getSelected());
+                userList.clearSelection();
             }
         }
     }
@@ -317,6 +318,7 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
         public void valueChanged(ListSelectionEvent e) {
             if ((! e.getValueIsAdjusting()) && roleList.isEnabled())  {
                 parent.addSelection(roleList.getSelected());
+                roleList.clearSelection();
             }
         }
     }
@@ -396,8 +398,9 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
         }
 
         public void valueChanged(ListSelectionEvent e) {
-            if ((! e.getValueIsAdjusting()) &&assetsList.isEnabled()) {
+            if ((! e.getValueIsAdjusting()) && assetsList.isEnabled()) {
                 parent.addSelection(assetsList.getSelected());
+                assetsList.clearSelection();
             }
         }
     }
@@ -481,6 +484,7 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
         public void valueChanged(ListSelectionEvent e) {
             if ((! e.getValueIsAdjusting()) && categoryList.isEnabled())  {
                 parent.addSelection(categoryList.getSelected());
+                categoryList.clearSelection();
             }
         }
     }
@@ -499,11 +503,11 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
         public void setCategories(List<ResourcingCategory> categories) {
             setEnabled(false);
             this.categories = categories;
-            String[] categoryNames = new String[categories.size()];
+            String[] categoryLabels = new String[categories.size()];
             for(int i = 0; i < categories.size(); i++) {
-                categoryNames[i] = categories.get(i).getName();
+                categoryLabels[i] = categories.get(i).getListLabel();
             }
-            setListData(categoryNames);
+            setListData(categoryLabels);
             setEnabled(true);
         }
 
@@ -578,6 +582,7 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
 
 
         public void initList() {
+            list.getResourceList().clearAll();
             List<Object> resources = getResourceMapping().getSecondaryResourcesList();
             if (resources != null) {
                 for (Object o : resources) {
@@ -697,7 +702,7 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
                 labels.add(role.getName());
             }
             for (ResourcingCategory category : categories) {
-                labels.add(category.getName());
+                labels.add(category.getListLabel());
             }
             return labels.toArray();
         }
@@ -709,6 +714,13 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
             contents.addAll(roles);
             contents.addAll(categories);
             return contents;
+        }
+
+        void clearAll() {
+            participants.clear();
+            resources.clear();
+            roles.clear();
+            categories.clear();
         }
     }
 

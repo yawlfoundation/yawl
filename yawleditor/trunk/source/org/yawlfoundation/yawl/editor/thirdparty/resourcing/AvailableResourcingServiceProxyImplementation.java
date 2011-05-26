@@ -35,10 +35,7 @@ import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.prefs.Preferences;
 
 public class AvailableResourcingServiceProxyImplementation implements ResourcingServiceProxyInterface {
@@ -185,10 +182,12 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
               }
           }
       }
+        Collections.sort(resourcesList);
       return resourcesList;
     }
 
 
+    // combines categories & their sub-categories
     public List<ResourcingCategory> getAllNonHumanCategories() {
         List<NonHumanCategory> engineCategories;
         LinkedList<ResourcingCategory> categoriesList = new LinkedList<ResourcingCategory>();
@@ -201,11 +200,16 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
 
             if ( engineCategories != null) {
                 for (NonHumanCategory category : engineCategories) {
-                    categoriesList.add(
-                            new ResourcingCategory(category.getID(), category.getName()));
+                    String catName = category.getName();
+                    String catID = category.getID();
+                    categoriesList.add(new ResourcingCategory(catID, catName));
+                    for (String subcat : category.getSubCategoryNames()) {
+                        categoriesList.add(new ResourcingCategory(catID, catName, subcat));
+                    }
                 }
             }
         }
+        Collections.sort(categoriesList);
         return categoriesList;
     }
 

@@ -101,7 +101,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       }
       catch (Exception e) {
           JOptionPane.showMessageDialog(null,
-                  "The attempt to save this specifcation to file failed.\n\n " +
+                  "The attempt to save this specification to file failed.\n " +
                   "Please see the log for details", "Save File Error",
                   JOptionPane.ERROR_MESSAGE);
           LogWriter.error("Error saving specification to file.", e);
@@ -204,10 +204,10 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       }
       catch (NoClassDefFoundError e) {
           JOptionPane.showMessageDialog(null,
-                  "The attempt to analyse this specifcation failed.\n\n " +
+                  "The attempt to analyse this specification failed.\n " +
                   "Please see the log for details", "Save File Error",
                   JOptionPane.ERROR_MESSAGE);
-          LogWriter.error("The attempt to analyse the specifcation failed", e);
+          LogWriter.error("The attempt to analyse the specification failed", e);
       }
       
 
@@ -1261,19 +1261,25 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
     private static void populateSecondaryResourcesDetail(
             ResourceMapping editorResourceMapping, ResourceMap engineResourceMapping) {
+
         SecondaryResources sr = new SecondaryResources();
         for (Object o : editorResourceMapping.getSecondaryResourcesList()) {
             if (o instanceof ResourcingParticipant) {
-                sr.addParticipantUnchecked(((ResourcingParticipant) o).getId());
+                sr.getDefaultDataSet().addParticipantUnchecked(((ResourcingParticipant) o).getId());
             }
             else if (o instanceof ResourcingRole) {
-                sr.addRoleUnchecked(((ResourcingRole) o).getId());
+                sr.getDefaultDataSet().addRoleUnchecked(((ResourcingRole) o).getId());
             }
             else if (o instanceof ResourcingAsset) {
-                sr.addNonHumanResourceUnchecked(((ResourcingAsset) o).getId());
+                sr.getDefaultDataSet().addNonHumanResourceUnchecked(((ResourcingAsset) o).getId());
             }
             else if (o instanceof ResourcingCategory) {
-                sr.addNonHumanCategoryUnchecked(((ResourcingCategory) o).getId());
+                ResourcingCategory category = (ResourcingCategory) o;
+                String subcat = category.getSubcategory();
+                if (subcat != null) {
+                    sr.getDefaultDataSet().addNonHumanCategoryUnchecked(category.getId(), subcat);
+                }
+                else sr.getDefaultDataSet().addNonHumanCategoryUnchecked(category.getId());
             }
         }
         engineResourceMapping.setSecondaryResources(sr);
@@ -1295,11 +1301,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     TaskPrivileges enginePrivileges = new TaskPrivileges();
 
     for(Integer enabledPrivilege : editorResourceMapping.getEnabledPrivileges()) {
-      enginePrivileges.allowAll(
-          convertPrivilege(
-            enabledPrivilege.intValue()    
-          )
-      );      
+        enginePrivileges.allowAll(convertPrivilege(enabledPrivilege));      
     }
 
     engineResourceMapping.setTaskPrivileges(

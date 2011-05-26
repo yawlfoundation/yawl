@@ -33,6 +33,8 @@ public class TextAreaDialog extends JDialog implements ActionListener {
     private JPanel getContent() {
         JPanel content = new JPanel();
         _textArea = new JTextArea(5, 20);
+        _textArea.setLineWrap(true);
+        _textArea.setWrapStyleWord(true);
         _textArea.setText(_text);
         JScrollPane scrollPane = new JScrollPane(_textArea);
         scrollPane.setPreferredSize(new Dimension(400, 200));

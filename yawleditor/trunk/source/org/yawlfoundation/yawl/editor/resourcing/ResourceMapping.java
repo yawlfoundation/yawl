@@ -155,7 +155,8 @@ public class ResourceMapping implements Serializable, Cloneable  {
     }
 
     public List<Object> getSecondaryResourcesList() {
-      return (List<Object>) serializationProofAttributeMap.get("secondaryResourcesList");
+        List<Object> list = (List<Object>) serializationProofAttributeMap.get("secondaryResourcesList");
+      return list != null ? list : new ArrayList<Object>();
     }
 
   public void setBaseRoleDistributionList(List<ResourcingRole> roles) {
@@ -594,7 +595,7 @@ public class ResourceMapping implements Serializable, Cloneable  {
                  ResourcingServiceProxy.getInstance().getAllNonHumanCategories();
          if (liveList != null) {
              for (ResourcingCategory category : liveList) {
-                 liveMap.put(category.getId(), category);
+                 liveMap.put(category.getKey(), category);
              }
          }
          return liveMap;
@@ -602,6 +603,7 @@ public class ResourceMapping implements Serializable, Cloneable  {
 
 
     private boolean parseSecondary(Element e, Namespace nsYawl) {
+        if (e == null) return false;                   // no secondary resources defined
         boolean badRef = false;
         List<Object> result = new LinkedList<Object>();
         Map<String, ResourcingParticipant> userMap = getUserMap();
@@ -646,6 +648,8 @@ public class ResourceMapping implements Serializable, Cloneable  {
         for (Object o : categories) {
             String id = ((Element) o).getText();
             if (id != null) {
+                String subcat = ((Element) o).getAttributeValue("subcategory");
+                if (subcat != null) id += "<>" + subcat;
                 ResourcingCategory r = categoryMap.get(id);
                 if (r != null) {
                     result.add(r);

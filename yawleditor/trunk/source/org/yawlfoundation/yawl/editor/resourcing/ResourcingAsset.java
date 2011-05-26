@@ -2,7 +2,7 @@ package org.yawlfoundation.yawl.editor.resourcing;
 
 import java.util.HashMap;
 
-public class ResourcingAsset {
+public class ResourcingAsset implements Comparable {
 
     /* ALL yawl-specific attributes of this object and its descendants
     * are to be stored in serializationProofAttributeMap, meaning we
@@ -50,5 +50,10 @@ public class ResourcingAsset {
                     getName().equals(otherParticipant.getName());
         }
         return false;
+    }
+
+    public int compareTo(Object o) {
+        if (! (o instanceof ResourcingAsset)) return 1;
+        return getName().compareTo(((ResourcingAsset) o).getName());
     }
 }
