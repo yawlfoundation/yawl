@@ -30,6 +30,7 @@ import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanSubCategory;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -56,7 +57,9 @@ public class DataBackupEngine {
         result.append(exportNonHumanResources());
         result.append(exportNonHumanCategories());
         result.append("</orgdata>");
-        return result.toString();
+        XNode node = new XNodeParser().parse(result.toString());
+        return node.toPrettyString(true);
+   //     return result.toString();
     }
 
     public List<String> importOrgData(String xml) {
@@ -147,7 +150,10 @@ public class DataBackupEngine {
             if (n.getNotes() != null) resource.addChild("notes", n.getNotes(), true);
             XNode category = resource.addChild("category");
             category.addAttribute("id", n.getCategory().getID());
-            resource.addChild("subcategory", n.getSubCategoryName(), true);
+            String subcat = n.getSubCategoryName();
+            if (! StringUtil.isNullOrEmpty(subcat)) {
+                resource.addChild("subcategory", subcat, true);
+            }
         }
         return top.toString();
     }
@@ -220,7 +226,10 @@ public class DataBackupEngine {
                         c.setDescription(nhc.getChildText("description"));
                         c.setNotes(nhc.getChildText("notes"));
                         for (Object ob : nhc.getChild("subcategories").getChildren()) {
-                            c.addSubCategory(((Element) ob).getText());
+                            String subcat = ((Element) ob).getText();
+                            if (! StringUtil.isNullOrEmpty(subcat)) {
+                                c.addSubCategory(subcat);
+                            }
                         }
                         orgDataSet.importNonHumanCategory(c);
                         added++;
@@ -253,7 +262,10 @@ public class DataBackupEngine {
                         NonHumanCategory category = orgDataSet.getNonHumanCategory(catID);
                         if (category != null) {
                             r.setCategory(category);
-                            r.setSubCategory(nhr.getChildText("subcategory"));
+                            String subcat = nhr.getChildText("subcategory");
+                            if (! StringUtil.isNullOrEmpty(subcat)) {
+                                r.setSubCategory(subcat);
+                            }
                         }    
                         orgDataSet.importNonHumanResource(r);
                         added++;
