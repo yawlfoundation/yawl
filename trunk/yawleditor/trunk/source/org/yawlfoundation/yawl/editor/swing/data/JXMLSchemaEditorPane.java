@@ -112,8 +112,11 @@ class JXMLSchemaEditor extends ValidityEditorPane {
             AbstractXMLStyledDocument.Validity.INVALID
         );
       }
-        DataTypeDialogToolBarMenu.getInstance().getButton("format")
-                .setEnabled(isContentValidity());
+        DataTypeDialogToolBarMenu menu = DataTypeDialogToolBarMenu.getInstance();
+        if (menu != null) {
+            YAWLToolBarButton formatBtn = menu.getButton("format");
+            if (formatBtn != null) formatBtn.setEnabled(isContentValidity());
+        }    
     }
   }
 
