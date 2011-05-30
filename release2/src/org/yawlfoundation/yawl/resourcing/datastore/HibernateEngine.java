@@ -192,7 +192,7 @@ public class HibernateEngine {
      * persists the object instance passed
      * @param obj - an instance of the object to persist
      * @param action - type type of action performed
-     * @params tx - an active Transaction object. NOTE: Any objects persisted via this
+     * @param tx - an active Transaction object. NOTE: Any objects persisted via this
      * method will not be permanently actioned until the transaction is committed via
      * a call to 'commit()'.
      * @return true if persist was successful, false if otherwise

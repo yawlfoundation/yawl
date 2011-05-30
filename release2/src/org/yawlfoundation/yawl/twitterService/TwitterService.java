@@ -32,7 +32,7 @@ import java.io.IOException;
  * A simple service that provides for status updates to the YAWL Twitter account
  *
  * @author Michael Adams
- * @date: 25/07/2009
+ * @date 25/07/2009
  */
 
 public class TwitterService extends InterfaceBWebsideController {

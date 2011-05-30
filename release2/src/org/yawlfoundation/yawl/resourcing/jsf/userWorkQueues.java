@@ -968,7 +968,8 @@ public class userWorkQueues extends AbstractPageBean {
     }
 
 
-    /** Enable/disable buttons depending on user/task privileges */
+    /** Enable/disable buttons depending on user/task privileges
+     *  Pre: wir != null */
     private void processTaskPrivileges(WorkItemRecord wir, int qType) {
         Participant p = _sb.getParticipant();
         boolean suspended = wir.hasStatus(WorkItemRecord.statusSuspended);
@@ -1002,12 +1003,9 @@ public class userWorkQueues extends AbstractPageBean {
             btnComplete.setDisabled(! (emptyItem || (wir.getUpdatedData() != null)));
 
             // set 'New Instance' button (not a task priv but convenient to do it here)
-            if (wir != null)  {
-                String canCreate = wir.getAllowsDynamicCreation();
-                if ((canCreate != null) && canCreate.equalsIgnoreCase("true")) {
-                    btnNewInstance.setDisabled(! _rm.canAddNewInstance(wir));
-                }
-            }
+            String niAllowed = wir.getAllowsDynamicCreation();
+            boolean canCreate = (niAllowed != null) && niAllowed.equalsIgnoreCase("true");
+            btnNewInstance.setDisabled(! (canCreate && _rm.canAddNewInstance(wir)));
         }
     }
 
