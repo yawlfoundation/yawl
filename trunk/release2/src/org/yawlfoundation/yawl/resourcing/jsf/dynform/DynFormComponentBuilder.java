@@ -469,6 +469,8 @@ public class DynFormComponentBuilder {
                 result = (defaultDate > -1) ? new Date(defaultDate) : new Date();
             }
         }
+        else result = new Date();
+        
         return result ;
     }
 

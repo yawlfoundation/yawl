@@ -106,7 +106,6 @@ public class ResourceCalendarGatewayClient extends Interface_Client {
      * Removes a URI as a listener for status change events.
      * @param uri the uri to remove as a listener for status change announcements
      * @param handle a valid session handle
-     * @return a diagnostic message
      * @throws IOException if the service can't be reached
      */
     public void removeStatusChangeListener(String uri, String handle) throws IOException {
