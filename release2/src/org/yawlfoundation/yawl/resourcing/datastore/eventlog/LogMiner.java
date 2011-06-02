@@ -28,6 +28,7 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
+import java.security.PublicKey;
 import java.util.*;
 
 /**
@@ -120,6 +121,10 @@ public class LogMiner {
 
     /*****************************************************************************/
 
+
+    public String getAllResourceEvents() {
+        return eventListToXML(getAllEvents());
+    }
 
     public String getCaseEvents(String caseID) {
         List events = getCaseEventsList(caseID);
@@ -558,6 +563,11 @@ public class LogMiner {
                 "%s WHERE re._caseID='%s' OR re._caseID LIKE '%s%s'",
                 _baseQuery, caseID, caseID, ".%");
         return execQuery(query) ;
+    }
+
+
+    private List getAllEvents() {
+        return execQuery(_baseQuery + " ORDER BY re._timeStamp");
     }
 
 

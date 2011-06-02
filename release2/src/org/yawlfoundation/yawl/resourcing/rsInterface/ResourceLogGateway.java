@@ -51,7 +51,7 @@ public class ResourceLogGateway extends HttpServlet {
     private ResourceManager _rm;
 
     private final String _noService = "<failure>Not connected to Resource Service.</failure>";
-    private final String _badPre = "<failure>Resource Log Gateway called with invalid";
+    private final String _badPre = "<failure>Resource Log Gateway called with invalid ";
     private final String _badAction = _badPre + "action.</failure>";
     private final String _badEvent = _badPre + "event name.</failure>";
     private final String _badSpecID = _badPre + "specification ID.</failure>";
@@ -204,6 +204,9 @@ public class ResourceLogGateway extends HttpServlet {
                String withDataStr = req.getParameter("withdata");
                boolean withData = (withDataStr != null) && withDataStr.equalsIgnoreCase("true");
                result = (specID != null) ? _logDB.getMergedXESLog(specID, withData) : _badSpecID;
+           }
+           else if (action.equals("getAllResourceEvents")) {
+               result = _logDB.getAllResourceEvents();
            }
            else result = _badAction;
        }

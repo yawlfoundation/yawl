@@ -123,6 +123,18 @@ public class ResourceLogGatewayClient extends Interface_Client {
     /*******************************************************************************/
 
     /**
+     * Gets an xml list of all the resource events logged
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the service
+     */
+    public String getAllResourceEvents(String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getAllResourceEvents", handle);
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
      * Gets an summary xml list of all the specifications logged
      * @param caseID the case id
      * @param handle an active sessionhandle

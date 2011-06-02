@@ -87,7 +87,7 @@ public class TestService extends InterfaceBWebsideController {
    //     output.append(getEngineParametersForRegisteredService());
   // output.append(testDynMultiCompTaskNewInst()) ;
   //       output.append(testJU()) ;
-  //      output.append(testGateway());
+   //     output.append(testGateway());
   //      output.append(getTaskParametersInOrder());
   //      output.append(testClientConnect());
   //      output.append(testXNode());
@@ -95,7 +95,8 @@ public class TestService extends InterfaceBWebsideController {
    //     output.append(testDynTextParser());
    //     output.append(testGetSpecID());
    //     output.append(getTaskPrivileges());
-        output.append(getDistributionSet());
+   //     output.append(getDistributionSet());
+        output.append(testResourceLogGateway());
          output.append("</pre></p></body></html>");
          outputWriter.write(output.toString());
          outputWriter.flush();
@@ -266,6 +267,21 @@ private static String getReply(InputStream is) throws IOException {
         return null;
     }
 
+    private String testResourceLogGateway() {
+        String resURL = "http://localhost:8080/resourceService/logGateway";
+        ResourceLogGatewayClient client = new ResourceLogGatewayClient(resURL);
+
+        try {
+            String engineHandle = client.connect("admin", "YAWL");
+            String result = client.getAllResourceEvents(engineHandle);
+            prn(result);
+        }
+        catch (Exception ioe) {
+              ioe.printStackTrace();
+        }
+        return "";
+    }
+
     private String testSummaries() {
         String result = "";
         try {
@@ -368,7 +384,7 @@ private static String getReply(InputStream is) throws IOException {
 //        try {
 //            return resClient.getWorkItemDurationsForParticipant(
 //                new YSpecificationID("bbb"),
-//                "abeŠen", "PA-ec2ddfbf-0a73-4fc7-ab95-bed876c145c5", handle);
+//                "abeï¿½en", "PA-ec2ddfbf-0a73-4fc7-ab95-bed876c145c5", handle);
 //        }
 //        catch (IOException ioe) {
 //            return "io exception";
