@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2004-2011 The YAWL Foundation. All rights reserved.
+  ~ The YAWL Foundation is a collaboration of individuals and
+  ~ organisations who are committed to improving workflow technology.
+  ~
+  ~ This file is part of YAWL. YAWL is free software: you can
+  ~ redistribute it and/or modify it under the terms of the GNU Lesser
+  ~ General Public License as published by the Free Software Foundation.
+  ~
+  ~ YAWL is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  ~ or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+  ~ Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<div xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://www.sun.com/web/ui">
+
+    <center>
+
+    <f:subview id="pfQueueUI">
+        <ui:listbox binding="#{pfQueueUI.lbxItems}"
+                    id="lbxItems"
+                    items="#{SessionBean.worklistOptions}"
+                    selected="#{SessionBean.worklistChoice}"
+                    onChange="common_timeoutSubmitForm(this.form, 'lbxItems');"
+                    onKeyPress="return disableEnterKey(event);"
+                    styleClass="queuesListbox"
+                    valueChangeListener="#{pfQueueUI.lbxItems_processValueChange}"/>
+
+        <ui:label binding="#{pfQueueUI.lblSpecID}"
+                  for="txtSpecID"
+                  id="lblSpecID"
+                  styleClass="queuesLabelLeft"
+                  style="top: 58px"
+                  text="Specification"/>
+
+        <ui:textField binding="#{pfQueueUI.txtSpecID}"
+                      id="txtSpecID"
+                      readOnly="true"
+                      styleClass="queuesTextField"
+                      style="left: 320px; top: 76px; align: left"
+                      text="#{SessionBean.initSpecID}"
+                      onKeyPress="return disableEnterKey(event);"
+                      trim="false"/>
+
+        <ui:label binding="#{pfQueueUI.lblCaseID}"
+                  for="txtCaseID"
+                  id="lblCaseID"
+                  styleClass="queuesLabelLeft"
+                  style="top: 124px"
+                  text="Case"/>
+
+        <ui:label binding="#{pfQueueUI.lblCreated}"
+                  for="txtCreated"
+                  id="lblCreated"
+                  styleClass="queuesLabelLeft"
+                  style="top: 190px"
+                  text="Created"/>
+
+        <ui:textField binding="#{pfQueueUI.txtCreated}"
+                      id="txtCreated"
+                      readOnly="true"
+                      styleClass="queuesTextField"
+                      style="left: 320px; top: 208px"
+                      text="#{SessionBean.initCreatedDate}"
+                      onKeyPress="return disableEnterKey(event);"
+                      trim="false"/>
+
+        <ui:textField binding="#{pfQueueUI.txtCaseID}"
+                      id="txtCaseID"
+                      readOnly="true"
+                      styleClass="queuesTextField"
+                      style="left: 320px; top: 142px"
+                      text="#{SessionBean.initCaseID}"
+                      onKeyPress="return disableEnterKey(event);"
+                      trim="false"/>
+
+        <ui:textField binding="#{pfQueueUI.txtAge}"
+                      id="txtAge"
+                      readOnly="true"
+                      styleClass="queuesTextField"
+                      style="left: 482px; top: 208px"
+                      text="#{SessionBean.initAge}"
+                      onKeyPress="return disableEnterKey(event);"
+                      trim="false"/>
+
+        <ui:textField binding="#{pfQueueUI.txtStatus}"
+                      id="txtStatus"
+                      readOnly="true"
+                      styleClass="queuesTextField"
+                      style="left: 482px; top: 142px"
+                      text="#{SessionBean.initStatus}"
+                      onKeyPress="return disableEnterKey(event);"
+                      trim="false"/>
+
+        <ui:textField binding="#{pfQueueUI.txtTaskID}"
+                      id="txtTaskID"
+                      readOnly="true"
+                      styleClass="queuesTextField"
+                      style="left: 482px; top: 76px"
+                      text="#{SessionBean.initTaskID}"
+                      onKeyPress="return disableEnterKey(event);"
+                      trim="false"/>
+
+        <ui:label binding="#{pfQueueUI.lblTaskID}"
+                  for="txtTaskID"
+                  id="lblTaskID"
+                  styleClass="queuesLabelRight"
+                  style="top: 58px"
+                  text="Task"/>
+
+        <ui:label binding="#{pfQueueUI.lblAge}"
+                  for="txtAge"
+                  id="lblAge"
+                  styleClass="queuesLabelRight"
+                  style="top: 190px"
+                  text="#{SessionBean.lblAgeText}"/>
+
+        <ui:label binding="#{pfQueueUI.lblStatus}"
+                  for="txtStatus"
+                  id="lblStatus"
+                  styleClass="queuesLabelRight"
+                  style="top: 124px"
+                  text="Status"/>
+
+        <ui:label binding="#{pfQueueUI.lblItems}"
+                  for="lbxItems"
+                  id="lblItems"
+                  style="left: 12px; top: 58px; position: absolute"
+                  text="Work Items"/>
+
+        <ui:label binding="#{pfQueueUI.lblDocumentation}"
+                  for="txtDocumentation"
+                  id="lblDocumentation"
+                  styleClass="queuesLabelLeft"
+                  style="#{SessionBean.lblDocumentationStyle}"
+                  text="Documentation"/>
+
+            <ui:textArea binding="#{pfQueueUI.txtDocumentation}"
+                    id="txtDocumentation"
+                    style="#{SessionBean.txtDocumentationStyle}"
+                    styleClass="docoTextArea"
+                    valueChangeListener="#{pfQueueUI.txtDocumentation_processValueChange}"/>
+
+    </f:subview>
+    </center>
+</div>

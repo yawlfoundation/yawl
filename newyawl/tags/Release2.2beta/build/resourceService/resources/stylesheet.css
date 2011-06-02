@@ -1,0 +1,906 @@
+
+.loginPanel {
+    /*padding: 6px;*/
+    background-color: #98ccfe;
+    height: 120px;
+    width: 240px;
+    top: 50px;
+    border: 2px solid gray;
+    position:relative;
+}
+
+.vpcontainerPanel {
+    height: 377px;
+    width: 538px;
+    top: 50px;
+    position:relative;
+}
+
+.secondaryResourcesContainerPanel {
+    height: 600px;
+    width: 800px;
+    top: 40px;
+    position:relative;
+    border: 2px solid gray;
+}
+
+.selectUserContainerPanel {
+    background-color: #98ccfe;
+    height: 280px;
+    width: 280px;
+    top: 50px;
+    border: 3px ridge black;
+    position:relative;
+}
+
+.addInstanceContainerPanel {
+    height: 370px;
+    width: 306px;
+    top: 50px;
+    position:relative;
+}
+
+.servicesContainerPanel {
+    height: 515px;
+    width: 666px;
+    top: 50px;
+    position:relative;
+}
+
+.externalClientsContainerPanel {
+    height: 485px;
+    width: 666px;
+    top: 50px;
+    position:relative;
+}
+
+.adminQueuesContainerPanel {
+    height: 378px;
+    width: 798px;
+    top: 50px;
+    position:relative;
+}
+
+.teamQueuesContainerPanel {
+    height: 370px;
+    width: 796px;
+    top: 50px;
+    position:relative;
+}
+
+.userQueuesContainerPanel {
+    height: 378px;
+    width: 798px;
+    top: 50px;
+    position:relative;
+}
+
+.caseMgtContainerPanel {
+    height: 590px;
+    width: 602px;
+    top: 50px;
+    position:relative;
+}
+
+.calendarMgtContainerPanel {
+    height: 648px;
+    width: 600px;
+    top: 50px;
+    position:relative;
+}
+
+.userMgtContainerPanel {
+    height: 543px;
+    width: 670px;
+    top: 50px;
+    position:relative;
+}
+
+.dynFormContainerPanel {
+    height: 10px;
+    width: 10px;
+    top: 0px;
+    position:relative;
+}
+
+.orgDataMgtContainerPanel {
+    height: 328px;
+    width: 698px;
+    top: 50px;
+    position:relative;
+}
+
+.visualiserContainerPanel {
+    height: 30px;
+    width: 110px;
+    top: 5px;
+    position:relative;
+}
+
+.addInstancePanel {
+    background-color: #98ccfe;
+    height: 300px;
+    width: 306px;
+    top: 30px;
+    border: 2px solid black;
+    position:relative;
+}
+
+.rssFormViewerPanel {
+    height: 200px;
+    width: 50%;
+    top: 50px;
+    position:relative;
+}
+
+.viewProfilePanel {
+    background-color: #d4e5f6;
+    height: 396px;
+    width: 540px;
+    top: 50px;
+    position:relative;
+}
+
+.secondaryResourcesAvailablePanel {
+    background-color: #d4e5f6;
+    height: 300px;
+    width: 250px;
+    position: absolute;
+}
+
+.secondaryResourcesListbox {
+    height: 250px;
+    left: 12px;
+    top: 35px;
+    position: absolute;
+    width: 226px;
+}
+
+.transPanel {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-color: white;
+    border:1px solid black;
+    /* for IE */
+    filter:alpha(opacity=60);
+    /* CSS3 standard */
+    opacity:0.6;    
+}
+
+
+.footerPanel {
+    /*top: 80px;*/
+    height: 100%;
+    width: 100%;
+}
+
+.footerTextPanel {
+    height: 20px;
+    top: 30px;
+    width: 100%;
+}
+
+.footerText {
+    width: 100%;
+    color: gray;
+    text-align: center;
+    top: 5px;
+    font-style: italic;
+    position: absolute;
+}
+
+.loginLabel {
+    left:18px;
+    position: absolute;
+}
+
+.loginField {
+    left: 95px;
+    position: absolute;
+    width: 120px;
+}
+
+.loginButton {
+    font-size: 18px;
+    left: 77px;
+    top: 84px;
+    position: absolute;
+    height: 30px;
+    width: 85px;
+}
+
+.rssCloseButton {
+    font-size: 16px;
+    left: 40%;
+    position: absolute;
+    height: 30px;
+    width: 120px;
+    top: 100px;
+}
+
+.visualiserButton {
+    height: 30px;
+    font-size: 18px;
+    position: absolute;
+    width: 105px;
+    left: 0px;
+}
+
+.selectUserListbox {
+    border: 1px solid black;
+    height: 180px;
+    left: 15px;
+    top: 40px; 
+    position: absolute;
+    width: 250px;
+}
+
+.messagePanel {
+    background-color: #f0f0f0;
+    border: 3px solid darkgray;
+}
+
+.msgPanelMessage {
+    background-color: #f0f0f0;
+    width: 100%;
+    text-align: left;
+    font-family: sans-serif;
+    font-size: 13px;
+}
+
+/* Rules for data tables */
+
+.tablePnlGroup {
+    position: absolute;
+    left: 12px;
+    top: 40px;
+    height: 170px;
+    width: 567px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    background-color: #f0f0f0;
+    border: 2px solid gray;
+}
+
+.dataTable {
+    left: 0;
+    top: 0px! important;
+    height: 170px;
+    position: absolute;    
+}
+
+.dataTable tbody {
+    width:95%;
+    /*height:90%;*/
+}
+
+.dataTable tbody tr {
+    height:20px;
+}
+
+.dataTableHeader {
+  background-color: #b0b0b0;
+  font-size: larger;
+  font-weight: bold;
+  height: 20px!important;
+}
+
+.dataTablePagingHeader {
+  background-color: white;
+}
+
+.dataTablePagingFooter {
+  background-color: white;
+}
+
+.dataTableRowEven {
+    background-color: white;
+}
+
+.dataTableRowOdd {
+  background-color: #e6f0fd;
+}
+
+.dataTableScrollBarCol {
+    width: 10px;
+}
+
+/* Rules for message severity levels */
+
+.infoMessage {
+  color: green;
+}
+
+.warnMessage {
+  color: gold;
+  font-weight: bold;
+}
+
+.errorMessage {
+  color: red;
+  font-weight: bold;
+}
+
+.fatalMessage {
+  color: red;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.errHighlight {
+    color: red ;
+}
+
+.menubar {
+    height: 30px;
+    position: relative;
+}
+
+.menubarButton {
+    font-size: 12px;
+    height: 30px;
+    width: 95px;
+    top: 0;
+    position: absolute;
+}
+
+
+.menubarButtonSelected {
+    font-size: 12px;
+    height: 30px;
+    width: 95px;
+    color: white;
+    background: none repeat scroll 0 0 #A0A0A0;
+    font-weight: bold;
+    top: 0;
+    position: absolute;
+}
+
+.addInstanceParamLabel {
+    left: 15px;
+    top: 60px;
+    position: absolute;
+    font-size: 13px;
+}
+
+.addInstanceParamValue {
+    left: 15px;
+    height: 150px;
+    top: 80px;
+    position: absolute;
+    width: 270px
+}
+
+/* General Rules used by several pages */
+
+.topPanel {
+    background-image: url( headbgright.jpg );
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+    height: 110px;
+    left: 0;
+    top: 0;
+    position: absolute;
+    width: 100%;
+}
+
+.pageHeading {
+    color: #3277ba;
+    font-size: 18px;
+    left: 0;
+    top: 40px;
+    position: relative;
+}
+
+.pageSubheading {
+    color: #3277ba;
+    font-size: 14px;
+    font-weight: bold;
+    position: absolute;    
+}
+
+.calTableHeading {
+    color: #3277ba;
+    font-size: 12px;
+    top: 75px;
+    font-weight: bold;
+    position: absolute;
+}
+
+.rssMessage {
+    color: #3333ff;
+    font-size: 16px;
+    position: relative;
+}
+
+.refreshButton {
+    left: 769px;
+    top: 8px;
+    width: 20px;
+    height: 20px;
+    position: absolute;    
+}
+
+.synchButton {
+    left: 740px;
+    top: 8px;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+}
+
+.refreshOrgDataButton {
+    left: 669px;
+    top: 8px;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+}
+
+.importButton {
+    left: 611px;
+    top: 8px;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+}
+
+.exportButton {
+    left: 640px;
+    top: 8px;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+}
+
+.refreshCasesButton {
+  /*  border: 1px solid; */
+    left: 577px;
+    top: 2px;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+}
+
+/* Rules for Org Data Page */
+
+.orgDataPrivCheckBox {
+    left: 24px;
+    position: absolute;
+}
+
+.teamQueuesRBGroup {
+    /*top: -200px;*/
+    /*left: 270px;*/
+    top: 60px;
+    left: 320px;
+    width: 100px;
+    height: 70px;
+    position: absolute;
+    border: 1px solid black;
+    background-color: #f0f0f0;
+}
+
+.teamQueuesRadioButton {
+    left: 5px;
+    position: absolute;
+}
+
+.teamQueuesRadioButtonDisabled {
+    left: 5px;
+    position: absolute;
+    color: gray;
+    font-style: italic;
+}
+
+
+/* Rules for dynamic forms */
+
+.dynformOuterPanel {
+   border-style: inset; 
+   border-color: gray;
+   background-color: #97cbfd; 
+   left: 0;
+   top: 80px;
+   position: absolute;
+}
+
+.dynformBottomPanel {
+    position: absolute;
+    height: 20px;
+    width: 76px;
+}
+
+.dynformSubPanel {
+    border: 1px solid gray;
+    background-color: #97cbfd;
+    position: absolute;
+}
+
+.dynformSubPanelAlt {
+    border: 1px solid gray;
+    background-color: rgb(227, 240, 252);
+    position: absolute;
+}
+
+.dynformButton {
+    font-size: 14px;
+    height: 30px;
+    position: absolute;
+    width: 76px;
+}
+
+.dynformOccursButton {
+    font-size: 10px;
+    font-weight: bold;
+    top: 0;
+    height: 18px ;
+    width: 20px;
+    position: absolute;
+}
+
+.dynFormPanelHeader {
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    color: #3277ba;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.dynformLabel {
+    position: absolute;
+    left: 10px;
+}
+
+.dynformInput {
+    position: absolute;
+}
+
+.dynformInputRequired {
+    position: absolute;
+    background-color: #ffffcc;                     /* pale yellow */
+}
+
+.dynformInputError {
+    position: absolute;
+    background-color: #ffcccc;                     /* pale red */
+}
+
+.dynformInputReadOnly {
+    position: absolute;
+    font-style: italic;
+    background-color: #e0e0e0;
+    color: black;
+}
+
+
+.dynformReadOnlyPanel {
+    border: 2px inset rgb(204, 204, 255);
+    background-color: #e0e0e0;
+    height: 14px;
+    left: 100px;
+    position: absolute;
+    width: 128px;
+}
+
+.dynformRadioButton {
+    position: absolute;
+    left: 5px;
+}
+
+
+.orgDataUploadPanel {
+    border: 2px solid gray;
+    background-color: #d4e5f6;
+    position: absolute;
+    width: 574px;
+    left: 60px;
+    top: 95px;
+    height: 120px;
+}
+
+
+/* Rules for Case Mgt Page */
+
+.fileUpload {
+    border: 1px solid black;
+    margin: 2px;
+    padding: 4px;
+    position: absolute;
+}
+
+.caseMgtPanel {
+   border: 2px solid gray;
+   background-color: #d4e5f6;
+   position: absolute;
+   width: 600px;
+}
+
+.caseMgtButton {
+    height: 30px;
+    position: absolute;
+    width: 105px;
+}
+
+.caseMgtListbox {
+    left: 12px;
+    top: 36px;
+    position: absolute;
+    width: 570px;
+    height: 110px;
+}
+
+
+/* Rules for Services Mgt Page */
+
+.servicesPanel {
+    border: 2px solid gray;
+    background-color: #d4e5f6;
+    position: absolute;
+    width: 664px;
+    -rave-layout: grid;
+}
+
+.servicesButton {
+    height: 30px;
+    position: absolute;
+    width: 95px;
+}
+
+.servicesNameCol {
+    width: 110px;
+}
+
+.servicesURICol {
+    width: 220px;
+}
+
+.servicesDescCol {
+    width: 296px;
+}
+
+.externalClientNameCol {
+    width: 100px;
+}
+
+.externalClientDescCol {
+    width: 526px;
+}
+
+.specsNameCol {
+    width: 150px;
+}
+
+.specsVersCol {
+    width: 50px;
+}
+
+.specsDescCol {
+    width: 360px;
+}
+
+.calTimeCol {
+    width: 22px;
+}
+
+.calNameCol {
+    width: 120px;
+}
+
+.calStatusCol {
+    width: 50px;
+}
+
+.calWorkloadCol {
+    width: 18px;
+}
+
+.calCommentCol {
+    width: 128px;
+}
+
+
+/* Rules for User Selection Page */
+
+.selectUserButton {
+    height: 30px;
+    top: 235px;
+    position: absolute;
+    width: 71px;
+}
+
+
+/* Rules for Work Queues Pages */
+
+.queueUI {
+    height: 266px;
+    top: 84px;
+    position: absolute;
+    width: 642px;
+    -rave-layout: grid;
+}
+
+.teamQueueUI {
+    height: 302px;
+    top: 10px;
+    position: absolute;
+    width: 642px;
+    -rave-layout: grid;
+}
+
+.userQueuesTabSet {
+    border: 1px solid black;
+    height: 376px;
+    left: 0;
+    position: absolute;
+    width: 796px;
+}
+
+.adminQueuesTabSet {
+    border: 1px solid black;
+    height: 376px;
+    left: 0;
+    position: absolute;
+    width: 796px;
+}
+
+.orgDataTabSet {
+    border: 1px solid black;
+    height: 326px;
+    left: 0;
+    position: absolute;
+    width: 696px;
+}
+
+.userQueuesTabPanel {
+    height: 339px;
+    position: absolute;
+    width: 796px;
+    background-color: #d4e5f6;
+    -rave-layout: grid;
+}
+
+.adminQueuesTabPanel {
+    height: 339px;
+    position: absolute;
+    width: 796px;
+    background-color: #d4e5f6;
+    -rave-layout: grid;
+}
+
+.orgDataTabPanel {
+    height: 289px;
+    position: absolute;
+    width: 696px;
+    background-color: #d4e5f6;
+    -rave-layout: grid;
+}
+
+.teamQueuesInnerPanel {
+    height: 339px;
+    position: absolute;
+    top: 40px;
+    width: 796px;
+    background-color: #d4e5f6;
+    border: 1px solid gray;
+    -rave-layout: grid;
+}
+
+.queuesButton {
+    position: absolute;
+    left: 665px;
+    height: 25px;
+    width: 95px;
+}
+
+.queuesCheckbox {
+    position: absolute;
+    left: 665px;
+    top: 180px;
+}
+
+.queuesListbox {
+    border: 2px inset rgb(204, 204, 255);
+    height: 290px;
+    left: 12px;
+    top: 76px;
+    position: absolute;
+    width: 284px;
+}
+
+.orgDataListbox {
+    border: 2px inset rgb(204, 204, 255);
+    height: 156px;
+    left: 12px;
+    top: 76px;
+    position: absolute;
+    width: 184px;
+}
+
+.nhSubCatListbox {
+    border: 2px inset rgb(204, 204, 255);
+    height: 100px;
+    left: 450px;
+    top: 76px;
+    position: absolute;
+    width: 184px;
+}
+
+.nhSubCatButton {
+    font-size: 10px;
+    font-weight: bold;
+    height: 21px;
+    width: 20px;
+    position: absolute;
+}
+
+.queuesTextField {
+    border: 2px inset #ccccff;
+    padding: 2px;
+    background-color: white;
+    color: rgb(102, 102, 102);
+    position: absolute;
+    width: 136px;
+}
+
+.docoTextArea {
+    border: 2px inset #ccccff;
+    padding-top: 3px;
+    padding-left: 3px;
+    background-color: white;
+    color: rgb(102, 102, 102);
+    left: 318px;
+    top: 274px;
+    height: 84px;
+    width: 299px;
+    position: absolute;
+    text-align: left;
+}
+
+.orgDataTextField {
+    position: absolute;
+    width: 136px;
+}
+
+.queuesLabelLeft  {
+    left: 320px;
+    position: absolute;
+}
+
+.queuesLabelRight  {
+    left: 482px;
+    position: absolute;
+}
+
+.orgDataPanel {
+    border: 2px solid gray;
+    background-color: #d4e5f6;
+    position: absolute;
+    width: 406px;
+    text-align: left;
+    -rave-layout: grid;
+}
+
+.orgDataButton {
+    height: 30px;
+    position: absolute;
+    width: 100px;
+}
+
+
+.userOrgDataTabPanel {
+    height: 165px;
+    background-color: #d4e5f6;
+    width: 100%;
+}
+
+.viewProfilePanel {
+    border: 2px solid gray;
+    background-color: #d4e5f6;
+    position: absolute;
+    text-align: left;
+    -rave-layout: grid;
+}
+

@@ -1,0 +1,324 @@
+
+.loginPanel {
+    padding: 6px;
+    background-color: #dce8cf;
+    height: 120px;
+    width: 240px;
+    top: 50px;
+    border: 2px solid gray;
+    position:relative;
+}
+
+.casesContainerPanel {
+    height: 580px;
+    width: 602px;
+    top: 50px;
+    position:relative;
+}
+
+.itemsContainerPanel {
+    height: 580px;
+    width: 920px;
+    top: 50px;
+    position:relative;
+}
+
+.transPanel {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-color: white;
+    /* for IE */
+    filter:alpha(opacity=60);
+    /* CSS3 standard */
+    opacity:0.6;
+}
+
+
+.loginLabel {
+    left:18px;
+    position: absolute;
+}
+
+.loginField {
+    left:105px;
+    position: absolute;
+    width: 120px;    
+}
+
+.loginButton {
+    font-size: 18px;
+    left: 80px;
+    top: 90px;
+    position: absolute;
+    height: 30px;
+    width: 85px;
+}
+
+.messagePanel {
+    width: 350px;
+    height: 100px;
+    background-color: #f0f0f0;
+    border: 2px solid gray;
+}
+
+/* Rules for data tables */
+
+.tablePnlGroup {
+    position: absolute;
+    left: 15px;
+    top: 50px;
+    width: 570px;
+}
+
+.casesTablePnlGroup {
+    position: absolute;
+    left: 15px;
+    top: 80px;
+    width: 570px;
+}
+
+.itemsTablePnlGroup {
+    position: absolute;
+    left: 0;
+    top: 200px;
+    width: 920px;
+}
+
+.caseDataPnlGroup {
+    position: absolute;
+    left: 160px;
+    top: 50px;
+    height: 140px;
+    width: 600px;
+    border: 2px solid gray;
+}
+
+.caseDataTextArea {
+    left: 202px;
+    top: 30px;
+    width: 380px;
+    height: 100px;
+    position: absolute;
+    border: 2px solid gray;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    text-align: left;
+    color: black;
+    background-color: white;    
+}
+
+.itemLogTablePnlGroup {
+    position: absolute;
+    top: 30px;
+    height: 100px;
+    width: 280px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    background-color: #f0f0f0;
+    border: 1px solid gray;
+}
+
+.dataTable {
+    left: 0;
+    top: 0px! important
+    /*height: 152px;*/
+    position: absolute;    
+    border: 2px solid gray;
+}
+
+.dataTable tbody {
+    width:95%;
+    /*height:150px;*/
+}
+
+.dataTable tbody tr {
+    height:20px;
+}
+
+.dataTableHeader {
+  background-color: #eeeeee;
+  font-size: larger;
+  font-weight: bold;
+}
+
+.dataTableSubHeader {
+  background-color: #eeeeee;
+  font-weight: bold;
+}
+
+.dataTablePagingHeader {
+  background-color: white;
+}
+
+.dataTablePagingFooter {
+  background-color: white;
+}
+
+.dataTableRowEven {
+    background-color: white;
+}
+
+.dataTableRowOdd {
+  background-color: #e6f0fd;
+}
+
+.dataTableText {
+    font-size: 14px;
+}
+
+.dataTableItemText {
+    font-size: 13px;
+    display: block;
+}
+
+/************************************/
+
+.caseIDCol {
+    width: 15%;
+    text-align: center;
+}
+
+.specNameCol {
+    width: 40%;
+}
+
+.versionCol {
+    width: 15%;
+    text-align: center;
+}
+
+.startTimeCol {
+    width: 30%;
+    text-align: right;
+}
+
+.ageCol {
+    width: 200px;
+}
+
+/***************************************/
+
+.itemIDCol {
+    width: 75px;
+    text-align: center;
+}
+
+.taskIDCol {
+    width: 180px;
+    text-align: center;
+}
+
+.statusCol {
+    width: 90px;
+    text-align: center;
+}
+
+.serviceCol {
+    width: 120px;
+    text-align: center;
+}
+
+.timeCol {
+    width: 95px;
+    text-align: right;
+}
+
+.dataCol {
+    width: 120px;
+}
+
+.timerStatusCol {
+    width: 70px;
+    text-align: center;
+}
+
+.timerExpiryCol {
+    width: 100px;
+    text-align: right;
+}
+
+
+
+/* General Rules used by several pages */
+
+.topPanel {
+    background-image: url( headbgright.jpg );
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+    height: 110px;
+    left: 0;
+    top: 0;
+    position: absolute;
+    width: 100%;
+}
+
+.pageHeading {
+   color: #3277ba; 
+   font-size: 18px; 
+   left: 0; 
+   top: 40px;
+   position: relative;
+}
+
+.pageSubheading {
+    color: #3277ba;
+    font-size: 14px;
+    font-weight: bold;
+    position: absolute;    
+}
+
+
+.refreshButton {
+  /*  border: 1px solid; */
+    left: 577px;
+    top: 5px;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+}
+
+.logoutButton {
+  /*  border: 1px solid; */
+    left: 547px;
+    top: 5px;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+}
+
+.backButton {
+  /*  border: 1px solid; */
+    left: 5px;
+    top: 5px;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+}
+
+
+
+
+.casesPanel {
+   border: 2px solid gray;
+   background-color: #dce8cf;
+   position: absolute;
+   width: 600px;
+   height: 40px;
+}
+
+.headerButton {
+    font-size: larger;
+    font-weight: bold;
+    position: absolute;
+    height: 25px;
+}
+
+.itemHeaderButton {
+    font-size: 13px;
+    font-weight: bold;
+    position: absolute;
+    height: 25px;
+}
+
+

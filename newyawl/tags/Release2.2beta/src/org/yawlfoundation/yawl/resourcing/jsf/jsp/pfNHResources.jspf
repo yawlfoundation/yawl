@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2004-2011 The YAWL Foundation. All rights reserved.
+  ~ The YAWL Foundation is a collaboration of individuals and
+  ~ organisations who are committed to improving workflow technology.
+  ~
+  ~ This file is part of YAWL. YAWL is free software: you can
+  ~ redistribute it and/or modify it under the terms of the GNU Lesser
+  ~ General Public License as published by the Free Software Foundation.
+  ~
+  ~ YAWL is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  ~ or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+  ~ Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<div style="height: 300px; width: 540px; top: 84px; position: absolute; -rave-layout: grid"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://www.sun.com/web/ui">
+
+    <f:subview id="pfNHResources">
+        <ui:label binding="#{pfNHResources.lblItems}"
+                  for="lbxItems"
+                  id="lblItems"
+                  style="left: 12px; top: 58px; position: absolute"
+                  text="#{SessionBean.nhResourceListLabelText}"/>
+
+        <ui:listbox binding="#{pfNHResources.lbxItems}"
+                    id="lbxItems"
+                    items="#{SessionBean.nhResourcesOptions}"
+                    selected="#{SessionBean.nhResourcesChoice}"
+                    onKeyPress="return disableEnterKey(event);"
+                    onChange="common_timeoutSubmitForm(this.form, 'lbxItems');"
+                    styleClass="orgDataListbox"
+                    valueChangeListener="#{pfNHResources.lbxItems_processValueChange}"/>
+
+        <ui:label binding="#{pfNHResources.lblName}"
+                  for="txtName"
+                  id="lblName"
+                  style="left: 12px; top: 250px; position: absolute"
+                  text="Name"/>
+
+        <ui:textField binding="#{pfNHResources.txtName}"
+                      id="txtName"
+                      styleClass="orgDataTextField"
+                      style="left: 12px; top: 270px; width: 184px"
+                      onKeyPress="return disableEnterKey(event);"
+                      trim="false"/>
+
+        <ui:label binding="#{pfNHResources.lblMembers}"
+                  for="cbbMembers"
+                  id="lblMembers"
+                  style="top: 250px; left: 230px; position: absolute"/>
+
+        <ui:dropDown binding="#{pfNHResources.cbbMembers}"
+                     id="cbbMembers"
+                     items="#{SessionBean.categoryMembers}"
+                     forgetValue="true"
+                     style="left: 230px; top: 270px; position: absolute; width: 175px"/>
+
+        <ui:label binding="#{pfNHResources.lblCategory}"
+                  for="cbbCategory"
+                  id="lblCategory"
+                  style="top: 58px; left: 450px; position: absolute"
+                  text="#{SessionBean.nhResourceCategoryLabelText}"/>
+
+        <ui:dropDown binding="#{pfNHResources.cbbCategory}"
+                     id="cbbCategory"
+                     items="#{SessionBean.nhResourcesCategoryList}"
+                     onChange="common_timeoutSubmitForm(this.form, 'cbbCategory');"
+                     valueChangeListener="#{pfNHResources.cbbCategory_processValueChange}"
+                     style="left: 450px; top: 76px; position: absolute; width: 200px"/>
+
+        <ui:label binding="#{pfNHResources.lblSubCategory}"
+                  for="cbbSubCategory"
+                  id="lblSubCategory"
+                  style="top: 112px; left: 450px; position: absolute"
+                  text="Subcategory"/>
+
+        <ui:dropDown binding="#{pfNHResources.cbbSubCategory}"
+                     id="cbbSubCategory"
+                     items="#{SessionBean.nhResourcesSubcategoryItems}"
+                     onChange="common_timeoutSubmitForm(this.form, 'cbbSubCategory');"
+                     valueChangeListener="#{pfNHResources.cbbSubCategory_processValueChange}"
+                     style="left: 450px; top: 130px; position: absolute; width: 200px"/>
+
+        <ui:label binding="#{pfNHResources.lblDesc}"
+                  for="txtDesc"
+                  id="lblDesc"
+                  styleClass="queuesLabelRight"
+                  style="top: 58px; left: 230px; position: absolute;"
+                  text="Description"/>
+
+        <ui:label binding="#{pfNHResources.lblNotes}"
+                  for="txtNotes"
+                  id="lblNotes"
+                  styleClass="queuesLabelRight"
+                  style="top: 148px; left: 230px; position: absolute;"
+                  text="Notes"/>
+
+        <ui:textArea binding="#{pfNHResources.txtDesc}"
+                     id="txtDesc"
+                     style="left: 230px; top: 76px; height: 60px; width: 170px; position: absolute"/>
+
+        <ui:textArea binding="#{pfNHResources.txtNotes}"
+                     id="txtNotes"
+                     style="left: 230px; top: 166px; height: 60px;  width: 170px; position: absolute"/>
+
+        <!-- Buttons -->
+
+        <ui:button action="#{nonHumanMgt.btnSave_action}"
+                   binding="#{nonHumanMgt.btnSave}"
+                    id="btnSave"
+                    styleClass="orgDataButton"
+                    style="left: 450px; top: 210px"
+                    toolTip="Save current changes"
+                    text="Save"/>
+
+         <ui:button action="#{nonHumanMgt.btnAdd_action}"
+                    binding="#{nonHumanMgt.btnAdd}"
+                    id="btnAdd"
+                    styleClass="orgDataButton"
+                    style="left: 570px; top: 210px"
+                    text="New"/>
+
+         <ui:button action="#{nonHumanMgt.btnReset_action}"
+                    binding="#{nonHumanMgt.btnReset}"
+                    id="btnReset"
+                    styleClass="orgDataButton"
+                    style="left:450px; top: 253px"
+                    text="Reset"/>
+
+         <ui:button action="#{nonHumanMgt.btnRemove_action}"
+                    binding="#{nonHumanMgt.btnRemove}"
+                    id="btnRemove"
+                    styleClass="orgDataButton"
+                    style="left: 570px;top: 253px"
+                    toolTip="Permanently remove the selected item"
+                    onClick="return confirmDelete()"
+                    text="Remove"/>
+
+            <ui:listbox binding="#{pfNHResources.lbxSubCatItems}"
+                        id="lbxSubCatItems"
+                        items="#{SessionBean.nhResourcesSubcategoryList}"
+                        onChange="common_timeoutSubmitForm(this.form, 'lbxSubCatItems');"
+                        selected="#{SessionBean.nhResourcesSubcategoryChoice}"
+                        styleClass="nhSubCatListbox"
+                        valueChangeListener="#{pfNHResources.lbxSubCatItems_processValueChange}"/>
+
+            <ui:button action="#{pfNHResources.btnAddSubCat_action}"
+                       binding="#{pfNHResources.btnAddSubCat}"
+                        id="btnAddSubCat"
+                        styleClass="nhSubCatButton"
+                        style="top: 76px;left: 640px;"
+                        toolTip="Add a new subcategory"
+                        noTextPadding="true"
+                        mini="true"
+                        text="+"/>
+
+            <ui:button action="#{pfNHResources.btnRemoveSubCat_action}"
+                       binding="#{pfNHResources.btnRemoveSubCat}"
+                        id="btnRemoveSubCat"
+                        styleClass="nhSubCatButton"
+                        style="top: 98px;left: 640px;"
+                        toolTip="Remove the selected subcategory"
+                        noTextPadding="true"
+                        mini="true"
+                        text="-"/>
+
+          <ui:textField binding="#{pfNHResources.txtSubCat}"
+                        id="txtSubCat"
+                        styleClass="orgDataTextField"
+                        style="left: 450px; top: 180px; width: 135px"
+                        trim="false"/>
+
+        <ui:button action="#{pfNHResources.btnConfirmAddSubCat_action}"
+                   binding="#{pfNHResources.btnConfirmAddSubCat}"
+                    id="btnConfirmAddSubCat"
+                    styleClass="nhSubCatButton"
+                    style="top: 180px; left: 592px; color:green"
+                    toolTip="Confirm adding a new subcategory"
+                    noTextPadding="true"
+                    mini="true"
+                    text="√"/>
+
+        <ui:button action="#{pfNHResources.btnCancelAddSubCat_action}"
+                   binding="#{pfNHResources.btnCancelAddSubCat}"
+                    id="btnCancelAddSubCat"
+                    styleClass="nhSubCatButton"
+                    style="top: 180px; left: 612px; color:red"
+                    toolTip="Cancel adding a new subcategory"
+                    noTextPadding="true"
+                    mini="true"
+                    text="x"/>
+
+
+    </f:subview>
+</div>
