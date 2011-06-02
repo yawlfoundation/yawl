@@ -26,13 +26,12 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Author: Michael Adams
- * Creation Date: 13/02/2009
+ * @author uthor Michael Adams
+ * @date: 13/02/2009
  */
 
 public class FourEyesCache {
 
-    class CaseCache {}
     private String _caseid ;
     private Map<String, TaskCompleterSet> _taskTable;
 

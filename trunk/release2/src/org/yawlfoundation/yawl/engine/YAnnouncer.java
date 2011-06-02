@@ -38,8 +38,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Author: Michael Adams
- * Creation Date: 10/04/2010
+ * Handles the announcement of engine-generated events to the environment.
+ *
+ * @author Michael Adams
+ * @date 10/04/2010
  */
 public class YAnnouncer {
 
@@ -52,7 +54,7 @@ public class YAnnouncer {
 
     /**
      * Reannouncement Contexts:
-     *  Normal =  posted due to an extra-engine request.
+     *  Normal = posted due to an extra-engine request.
      *  Recovering = posted due to restart processing within the engine. Note: In this
      *  context, the underlying engine status may be running rather than initialising!
      */
@@ -63,13 +65,12 @@ public class YAnnouncer {
     public YAnnouncer(YEngine engine) {
         _engine = engine;
         _logger = Logger.getLogger(this.getClass());
+        _interfaceXListeners = new HashSet<InterfaceX_EngineSideClient>();
 
-        // Initialise the standard Observer Gateways.
-        // Currently the only standard gateway is the HTTP driven Servlet client.        
+        // Initialise the standard Observer Gateway.
+        // Currently the only standard gateway is the HTTP driven IB Servlet client.
         _controller = new ObserverGatewayController();
         _controller.addGateway(new InterfaceB_EngineBasedClient());
-
-        _interfaceXListeners = new HashSet<InterfaceX_EngineSideClient>();
     }
 
     public ObserverGatewayController getObserverGatewayController() {
