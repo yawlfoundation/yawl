@@ -1,0 +1,3 @@
+Please download Java 1.5 (www.java.com) in order to run the YAWL installer.
+
+
