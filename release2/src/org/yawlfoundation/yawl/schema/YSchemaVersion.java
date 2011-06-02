@@ -48,8 +48,6 @@ public enum YSchemaVersion {
             " d:/yawl/schema/YAWL_SchemaBeta7.1.xsd";
 
     private final String TwoNS = "http://www.yawlfoundation.org/yawlschema";
-    private final String TwoSchemaLocation = TwoNS +
-            " http://www.yawlfoundation.org/yawlschema/YAWL_Schema2.2.xsd";
 
     private final String headerTemplate =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
@@ -95,7 +93,10 @@ public enum YSchemaVersion {
 
     public String twoNS() { return TwoNS; }
 
-    public String twoSchemaLocation() { return TwoSchemaLocation; }
+    public String twoSchemaLocation() {
+        return String.format("%s %s/%s", TwoNS, TwoNS, getSchemaFileName());
+    }
+
 
 
     public boolean isVersionAtLeast(YSchemaVersion referenceVersion) {
@@ -141,7 +142,7 @@ public enum YSchemaVersion {
     public String getHeader() {
         return isBetaVersion() ?
                 String.format(headerTemplate, Beta7, BetaNS, BetaSchemaLocation) :
-                String.format(headerTemplate, TwoPointTwo, TwoNS, TwoSchemaLocation);
+                String.format(headerTemplate, _name, TwoNS, twoSchemaLocation());
     }
 
 
@@ -164,13 +165,18 @@ public enum YSchemaVersion {
     /**********************************************************************/
 
     private URL getSchemaURL() {
-        return getClass().getResource(getSchemaFileName());
+        return getClass().getResource(getAbsoluteSchemaFileName());
+    }
+
+
+    private String getAbsoluteSchemaFileName() {
+        return SchemaPackagePath + getSchemaFileName();
     }
 
 
     private String getSchemaFileName() {
-        return SchemaPackagePath + (isBeta2() ? "YAWL_Schema.xsd"
-                    : String.format("YAWL_Schema%s.xsd", toCompactString()));
+        return isBeta2() ? "YAWL_Schema.xsd"
+                    : String.format("YAWL_Schema%s.xsd", toCompactString());
     }
 
     private String toCompactString() {
