@@ -66,7 +66,8 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
      * @param namespaceURI
      * @deprecated see new constructor and setter methods
      */
-    public YVariable(YDecomposition dec, String dataType, String name, String initialValue, String namespaceURI) {
+    public YVariable(YDecomposition dec, String dataType, String name,
+                     String initialValue, String namespaceURI) {
         this._parentDecomposition = dec;
         this._dataTypeName = dataType;
         this._name = name;
@@ -144,8 +145,9 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
     }
 
     /**
-     * Returns the namespace of the data type.  Expect either null if the type is a custom type
-     * or "http://www.w3.org/2001/XMLSchema" if the variable uses a "built in" Schema primitive type.
+     * Returns the namespace of the data type.  Expect either null if the type is
+     * a custom type or "http://www.w3.org/2001/XMLSchema" if the variable uses a
+     * "built in" Schema primitive type.
      * @return null or "http://www.w3.org/2001/XMLSchema"
      */
     public String getDataTypeNameSpace() {
@@ -412,6 +414,7 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
     }
 
     public void addAttribute(String key, String value) {
+        if ((key == null) || (value == null)) return;
         _attributes.put(key, value);
     }
 
