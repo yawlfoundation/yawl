@@ -145,6 +145,7 @@
     <property name="log4j" value="log4j-1.2.16.jar"/>                        <!-- mul -->
     <property name="mail" value="mail.jar"/>                                 <!-- mss -->
     <property name="mysql" value="mysql-connector-java-5.1.13-bin.jar"/>     <!-- dbd -->
+  	<property name="oracle" value="ojdbc6_9.jar"/>                           <!-- dbd -->
     <property name="postgres8" value="postgresql-8.3-603.jdbc3.jar"/>        <!-- dbd -->
     <property name="saaj" value="saaj.jar"/>                                 <!-- wsi -->
     <property name="saxon" value="saxon9.jar"/>                              <!-- mul -->
@@ -207,6 +208,9 @@
     <condition property="dbClient" value="${hsql}">
         <equals arg1="${database.type}" arg2="hypersonic"/>
     </condition>
+	<condition property="dbClient" value="${oracle}">
+	    <equals arg1="${database.type}" arg2="oracle" />
+	</condition>
 
     <condition property="use_mysql" value="true">
         <equals arg1="${database.type}" arg2="mysql"/>
@@ -226,6 +230,9 @@
     <condition property="use_hypersonic" value="true">
         <equals arg1="${database.type}" arg2="hypersonic"/>
     </condition>
+	<condition property="use_oracle" value="true">
+		<equals arg1="${database.type}" arg2="oracle" />
+	</condition>
 
     <!--
         JAR grouping properties. Used to define JAR groupings for dependencies
@@ -640,6 +647,9 @@
         <!-- prepare Log4J properties file -->
         <copy filtering="true" overwrite="true"
               file="${properties.dir}/log4j.properties" todir="${classes.dir}"/>
+
+        <!-- adjust hbm.xml files depending on db chosen -->
+        <antcall target="configureHbmXML"/>
     </target>
 
     <!--
@@ -649,7 +659,7 @@
 
     <target name="configureDatabaseAccess"
             depends="hibernate_postgres8, hibernate_mysql, hibernate_derby,
-                     hibernate_hypersonic">
+                     hibernate_hypersonic, hibernate_oracle">
         
         <echo message="Set up Hibernate properties for ${database.type}"/>
     </target>
@@ -677,6 +687,40 @@
               filtering="true" overwrite="true"
               tofile="${classes.dir}/hibernate.properties"/>
     </target>
+
+	<target name="hibernate_oracle" if="use_oracle">
+		<copy file="${properties.dir}/hibernate.properties.oracle"
+			  filtering="true" overwrite="true"
+			  tofile="${classes.dir}/hibernate.properties"/>
+	</target>
+
+
+    <!--
+        Adjust specific hibernate properties for the type of database selected.
+    -->
+
+    <target name="configureHbmXML" depends="configureOracleHbmXML">
+        <echo message="Adjusted hibernate properties for ${database.type} database"/>
+    </target>
+
+    <target name="configureOracleHbmXML" if="use_oracle">
+        <replace dir="${classes.dir}${packageRoot}" token="rowid" value="row_id">
+            <include name="**/resourcing/datastore/eventlog/*.hbm.xml"/>
+            <include name="**/logging/table/YAuditEvent.hbm.xml"/>
+        </replace>
+        <replace dir="${classes.dir}${packageRoot}" token="type=&quot;text&quot;"
+                 value="type=&quot;string&quot; length=&quot;4000&quot;">
+            <include name="**/engine/interfce/WorkItemRecord.hbm.xml"/>
+            <include name="**/logging/table/YLogDataType.hbm.xml"/>
+            <include name="**/resourcing/resource/Participant.hbm.xml"/>
+            <include name="**/resourcing/resource/NonHumanResource.hbm.xml"/>
+            <include name="**/worklet/admin/AdministrationTask.hbm.xml"/>
+            <include name="**/worklet/exception/CaseMonitor.hbm.xml"/>
+            <include name="**/worklet/exception/HandlerRunner.hbm.xml"/>
+            <include name="**/worklet/selection/CheckedOutChildItem.hbm.xml"/>
+        </replace>
+    </target>
+
 
     <!--
         Build the engine (yawl webapp) WAR

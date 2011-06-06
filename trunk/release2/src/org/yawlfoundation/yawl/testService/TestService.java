@@ -18,6 +18,7 @@ import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.allocators.AbstractAllocator;
 import org.yawlfoundation.yawl.resourcing.constraints.AbstractConstraint;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
 import org.yawlfoundation.yawl.resourcing.filters.AbstractFilter;
 import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.AllocateInteraction;
@@ -96,7 +97,8 @@ public class TestService extends InterfaceBWebsideController {
    //     output.append(testGetSpecID());
    //     output.append(getTaskPrivileges());
    //     output.append(getDistributionSet());
-        output.append(testResourceLogGateway());
+    //    output.append(testResourceLogGateway());
+        output.append(textMaxCases());
          output.append("</pre></p></body></html>");
          outputWriter.write(output.toString());
          outputWriter.flush();
@@ -274,13 +276,49 @@ private static String getReply(InputStream is) throws IOException {
         try {
             String engineHandle = client.connect("admin", "YAWL");
             String result = client.getAllResourceEvents(engineHandle);
+            List<ResourceEvent> eventList = new ArrayList<ResourceEvent>();
+            Element events = JDOMUtil.stringToElement(result);
+            if (events != null) {
+                for (Object event : events.getChildren()) {
+                    eventList.add(new ResourceEvent((Element) event));
+                }
+            }
             prn(result);
         }
-        catch (Exception ioe) {
+        catch (IOException ioe) {
               ioe.printStackTrace();
         }
         return "";
     }
+
+
+    private String textMaxCases() {
+        Runtime runtime = Runtime.getRuntime();
+        int nbrCases = 2000;
+        YSpecificationID specID = new YSpecificationID("UID_f4c0454c-5a82-49a6-8a96-5a5eb1c32613", "0.1", "maxCaseTester");
+        String caseParams = "<Net><M>The rain in Spain</M></Net>";
+        String template = "Cases: %d\tElapsed (ms): %d\tMem Free: %d\tMem Alloc: %d\tMem Total: %d";
+        String resURL = "http://localhost:8080/resourceService/workqueuegateway";
+        WorkQueueGatewayClientAdapter client = new WorkQueueGatewayClientAdapter(resURL);
+        String handle = client.connect("admin", "YAWL");
+        long start = System.currentTimeMillis();
+        try {
+            for (int i=0; i <= nbrCases; i++) {
+                if (i % 10 == 0) {
+                   long now = System.currentTimeMillis();
+                    System.out.println(String.format(template, i, now - start, runtime.freeMemory(),
+                            runtime.totalMemory(), runtime.maxMemory()));
+                    start = now;
+                }
+                client.launchCase(specID, caseParams, handle);
+            }
+        }
+        catch (IOException ioe) {
+            return "fail";
+        }
+        return "completed";
+    }
+
 
     private String testSummaries() {
         String result = "";
