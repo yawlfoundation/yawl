@@ -1199,17 +1199,14 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public WorkItemRecord offerToAll(WorkItemRecord wir) {
         if (_orgDataSet.getParticipantCount() > 0) {
-            wir.setResourceStatus(WorkItemRecord.statusResourceOffered);
+            _workItemCache.updateResourceStatus(wir, WorkItemRecord.statusResourceOffered);
             for (Participant p : _orgDataSet.getParticipants()) {
                 p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
                 announceModifiedQueue(p.getID()) ;
             }
         }
-        else {
-            wir.setResourceStatus(WorkItemRecord.statusResourceUnoffered);
-            _resAdmin.addToUnoffered(wir);
-        }
-        _workItemCache.update(wir);
+        else _resAdmin.addToUnoffered(wir);
+
         return wir ;
     }
 

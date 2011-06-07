@@ -77,7 +77,6 @@ public class adminQueues extends AbstractPageBean {
             log("userWorkQueues Initialization Failure", e);
             throw e instanceof FacesException ? (FacesException) e: new FacesException(e);
         }
-//        tabUnOffered_action();
     }
 
 

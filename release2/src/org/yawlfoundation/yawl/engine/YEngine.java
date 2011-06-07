@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.engine;
 
+import com.sun.jmx.snmp.tasks.Task;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -1287,6 +1288,15 @@ public class YEngine implements InterfaceADesign,
         }
     }
 
+    private void announceIfTimeServiceTimeout(YNetRunner netRunner, YWorkItem workItem) {
+        if (_announcer.hasInterfaceXListeners()) {
+            if (netRunner.isTimeServiceTask(workItem)) {
+                List timeOutSet = netRunner.getTimeOutTaskSet(workItem);
+                _announcer.announceTimeServiceExpiry(workItem, timeOutSet);
+            }
+        }
+    }
+
 
     /***************************************************************************/
 
@@ -1454,51 +1464,18 @@ public class YEngine implements InterfaceADesign,
             throws YStateException, YDataStateException, YQueryException,
             YPersistenceException, YEngineStateException{
 
-        debug("--> completeWorkItem", "\nWorkItem = ", workItem.get_thisID(), "\nXML = ", data);
+        debug("--> completeWorkItem", "\nWorkItem = ",
+                workItem != null ? workItem.get_thisID() : "null", "\nXML = ", data);
         checkEngineRunning();
-        YNetRunner netRunner = null;
 
         synchronized(_pmgr) {
             startTransaction();
             try {
                 if (workItem != null) {
+                    YNetRunner netRunner = getNetRunner(workItem.getCaseID().getParent());
                     if (workItem.getStatus().equals(YWorkItemStatus.statusExecuting)) {
-                        netRunner = getNetRunner(workItem.getCaseID().getParent());
-
-                        if (_announcer.hasInterfaceXListeners()) {
-                            if (netRunner.isTimeServiceTask(workItem)) {
-                                List timeOutSet = netRunner.getTimeOutTaskSet(workItem);
-                                _announcer.announceTimeServiceExpiry(workItem, timeOutSet);
-                            }
-                        }
-                        workItem.setExternalLogPredicate(logPredicate);
-                        workItem.setStatusToComplete(_pmgr, completionType);
-                        Document doc = getDataDocForWorkItemCompletion(workItem, data, completionType);
-                        workItem.completeData(_pmgr, doc);
-
-                        boolean taskExited = netRunner.completeWorkItemInTask(_pmgr,
-                                workItem, workItem.getCaseID(), workItem.getTaskID(), doc);
-                        if (taskExited) {
-
-                            /* Calling this to fix a problem.
-                      * When a Task is enabled twice by virtue of having two enabling sets of
-                      * tokens in the current marking the work items are not created twice.
-                      * Instead an Enabled work item is created for one of the enabling sets.
-                      * Once that task has well and truly finished it is then an appropriate
-                      * time to notify the worklists that it is enabled again.
-                      * This is done by calling continueIfPossible().*/
-                            _logger.debug("Recalling continue (looping bugfix???)");
-                            netRunner.continueIfPossible(_pmgr);
-                        }
-                        _instanceCache.closeWorkItem(workItem, doc);
-
-                        // remove any active timer for this item
-                        YTimer.getInstance().cancelTimerTask(workItem.getParent().getIDString());
-
-                        // If case is suspending, see if we can progress into a fully suspended state
-                        if (netRunner.isSuspending()) {
-                            progressCaseSuspension(_pmgr, workItem.getParent().getCaseID());
-                        }
+                        completeExecutingWorkitem(workItem, netRunner, data,
+                                logPredicate, completionType);
                     }
                     else if (workItem.getStatus().equals(YWorkItemStatus.statusDeadlocked)) {
                         _workItemRepository.removeWorkItemFamily(workItem);
@@ -1520,10 +1497,36 @@ public class YEngine implements InterfaceADesign,
             }
             catch (Exception e) {
                 rollbackTransaction();
-                _logger.error("Exception competing workitem", e);
+                _logger.error("Exception completing workitem", e);
             }
         }
         debug("<-- completeWorkItem");
+    }
+
+
+    private void completeExecutingWorkitem(YWorkItem workItem, YNetRunner netRunner,
+                                           String data, String logPredicate,
+                                           WorkItemCompletion completionType)
+            throws YStateException, YDataStateException, YQueryException,
+                   YPersistenceException, YEngineStateException {
+        workItem.setExternalLogPredicate(logPredicate);
+        if (completionType != WorkItemCompletion.Fail) {
+            announceIfTimeServiceTimeout(netRunner, workItem);
+            workItem.setStatusToComplete(_pmgr, completionType);
+            Document doc = getDataDocForWorkItemCompletion(workItem, data, completionType);
+            workItem.completeData(_pmgr, doc);
+            if (netRunner.completeWorkItemInTask(_pmgr, workItem, doc)) {
+
+                /* When a Task is enabled twice by virtue of having two enabling sets of
+                 * tokens in the current marking the work items are not created twice.
+                 * Instead an Enabled work item is created for one of the enabling sets.
+                 * Once that task has well and truly finished it is then an appropriate
+                 * time to notify the worklists that it is enabled again.*/
+                netRunner.continueIfPossible(_pmgr);
+            }
+            cleanupCompletedWorkItem(workItem, netRunner, doc);
+        }
+        else cancelWorkItem(workItem);
     }
 
 
@@ -1780,32 +1783,55 @@ public class YEngine implements InterfaceADesign,
     }
 
 
-       public void cancelWorkItem(YWorkItem workItem)  {
-           try {
-               if ((workItem != null) && workItem.getStatus().equals(YWorkItemStatus.statusExecuting)) {
-                   YNetRunner runner = getNetRunner(workItem.getCaseID().getParent());
-                   synchronized(_pmgr) {
-                       startTransaction();
-                       workItem.cancel(_pmgr);
-                       YWorkItem parent = workItem.getParent();
-                       workItem.setStatusToDeleted(_pmgr);
-                       if (workItem.hasTimerStarted()) {
-                           YTimer.getInstance().cancelTimerTask(workItem.getIDString());
-                       }
-                       _instanceCache.closeWorkItem(workItem, null);
-                       if ((parent != null) && (parent.getChildren() == null)) {
-                           runner.cancelTask(null, workItem.getTaskID());
-                       }
-                       runner.continueIfPossible(_pmgr);
-                       commitTransaction();
-                       announceEvents(runner.getCaseID());
-                   }
-               }
-           }
-           catch (Exception e) {
-               _logger.error("Failure whilst persisting workitem cancellation", e);
-           }
-       }
+    public void cancelWorkItem(YWorkItem workItem)  {
+        try {
+            if ((workItem != null) && workItem.getStatus().equals(YWorkItemStatus.statusExecuting)) {
+                YNetRunner runner = getNetRunner(workItem.getCaseID().getParent());
+                synchronized(_pmgr) {
+                    startTransaction();
+                    workItem.setStatusToDeleted(_pmgr);
+                    YWorkItem parent = workItem.getParent();
+                    if ((parent != null) && (parent.getChildren().size() == 1)) {
+                        runner.cancelTask(_pmgr, workItem.getTaskID());
+                    }
+                    else ((YAtomicTask) workItem.getTask()).cancel(_pmgr, workItem.getCaseID());
+
+                    runner.kick(_pmgr);
+                    cleanupCompletedWorkItem(workItem, runner, null);
+                    commitTransaction();
+                    announceEvents(runner.getCaseID());
+                }
+            }
+        }
+        catch (Exception e) {
+            _logger.error("Failure whilst cancelling workitem", e);
+        }
+    }
+
+
+    private void cleanupCompletedWorkItem(YWorkItem workItem, YNetRunner netRunner,
+                                          Document data)
+            throws YPersistenceException, YStateException {
+
+        YWorkItem parent = workItem.getParent();
+
+        // remove any active timer for this item
+        if (workItem.hasTimerStarted()) {
+            YTimer.getInstance().cancelTimerTask(workItem.getIDString());
+        }
+
+        _instanceCache.closeWorkItem(workItem, data);
+        if (parent != null) {
+            if (! parent.hasChildren() && parent.hasTimerStarted()) {
+               YTimer.getInstance().cancelTimerTask(parent.getIDString());
+            }
+
+            // If case is suspending, see if we can progress into a fully suspended state
+            if (netRunner.isSuspending()) {
+                progressCaseSuspension(_pmgr, parent.getCaseID());
+            }
+        }
+    }
 
     /*********************************************************************/
 
