@@ -1266,6 +1266,13 @@ public class EngineGatewayImpl implements EngineGateway {
         else {
             _engine.cancelWorkItem(item) ;
         }
+
+        // check if cancelling the item also caused the case to end
+        String rootCaseID = item.getCaseID().getRootAncestor().toString();
+        if (_engine.getCaseID(rootCaseID) == null) {
+            return successMessage("Case cancelled as a result");
+        }
+
         return SUCCESS ;
     }
 

@@ -147,13 +147,13 @@ public class InterfaceX_ServiceSideClient extends Interface_Client {
     }
 
 
-    public void cancelWorkItem(String workItemID, String data, boolean fail, String sessionHandle)
+    public String cancelWorkItem(String workItemID, String data, boolean fail, String sessionHandle)
                                                            throws IOException {
         Map<String, String> params = prepareParamMap("cancelWorkItem", sessionHandle);
         params.put("workitemID", workItemID);
         if (data != null) params.put("data", data);
         params.put("fail", String.valueOf(fail));
-        executePost(_backEndURIStr, params);
+        return executePost(_backEndURIStr, params);
     }
 
 }

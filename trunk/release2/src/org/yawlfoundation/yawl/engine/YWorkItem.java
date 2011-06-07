@@ -633,6 +633,8 @@ public class YWorkItem {
 
     public Set get_children() { return _children; }
 
+    public boolean hasChildren() { return _children != null; }
+
     public void add_child(YWorkItem child) { _children.add(child); }
 
 	  public void add_children(Set children) { _children.addAll(children); }

@@ -488,6 +488,15 @@ public class YNetRunner {
     }
 
 
+    public boolean completeWorkItemInTask(YPersistenceManager pmgr, YWorkItem workItem,
+                                          Document outputData)
+            throws YDataStateException, YStateException, YQueryException,
+                   YPersistenceException {
+        return completeWorkItemInTask(pmgr, workItem, workItem.getCaseID(),
+                workItem.getTaskID(), outputData);
+    }
+
+
     public synchronized boolean completeWorkItemInTask(YPersistenceManager pmgr,
                                                        YWorkItem workItem,
                                                        YIdentifier caseID,
@@ -1043,7 +1052,7 @@ public class YNetRunner {
 
 
     /** cancels the specified task */
-    public void cancelTask(YPersistenceManager pmgr, String taskID) {
+    public synchronized void cancelTask(YPersistenceManager pmgr, String taskID) {
         YAtomicTask task = (YAtomicTask) getNetElement(taskID);
 
         try {

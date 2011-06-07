@@ -25,6 +25,7 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_Service;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_ServiceSideClient;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.worklet.WorkletService;
 import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
 import org.yawlfoundation.yawl.worklet.rdr.RdrTree;
@@ -1166,9 +1167,16 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 wir = coi.getChildWorkItem(0);
             }
 
-            _ixClient.cancelWorkItem(wir.getID(), wir.getDataListString(), true, _sessionHandle);
-            _log.info("WorkItem successfully failed: " + wir.getID());
-
+            String result = _ixClient.cancelWorkItem(wir.getID(), wir.getDataListString(),
+                    true, _sessionHandle);
+            if (successful(result)) {
+                _log.info("WorkItem successfully failed: " + wir.getID());
+                if (result.contains("cancelled")) {
+                    _log.info("Case " + wir.getRootCaseID() +" was unable to continue as " +
+                            "a consequence of the workItem force fail, and was also cancelled.");
+                }
+            }
+            else _log.error(StringUtil.unwrap(result));
         }
         catch (IOException ioe) {
             _log.error("Exception attempting to fail workitem: " + wir.getID(), ioe);
