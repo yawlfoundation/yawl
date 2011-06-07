@@ -60,7 +60,6 @@ public class WorkQueue {
     private long _id ;                                       // hibernate primary key
     private String _ownerID ;                                // who owns this queue?
     private int _queueType ;
-    private Set<String> _itemIDs ;                           // for persistence
     private boolean _persisting ;
 
 
@@ -275,14 +274,6 @@ public class WorkQueue {
     /** returns the number of workitems in this queue */
     public int getQueueSize() { return _workitems.size() ; }
 
-    /** rebuilds the queue's workitem list after restart of service */
-    public void restore(WorkItemCache cache) {
-        for (String id : _itemIDs) {
-            WorkItemRecord wir = cache.get(id) ;
-            if (wir != null)
-                _workitems.put(id, wir) ;
-        }
-    }
 
     /** returns the apropriate String identifier for the queue type passed */
     public static String getQueueName(int qType) {
@@ -355,12 +346,5 @@ public class WorkQueue {
     private long get_id() { return _id; }
 
     private void set_id(long id) {_id = id; }
-
-    private Set get_itemIDs() {
-        _itemIDs = _workitems.keySet();
-        return _itemIDs ;
-    }
-
-    private void set_itemIDs(Set itemSet) { _itemIDs = itemSet ; }
 
 }

@@ -31,6 +31,7 @@ import org.yawlfoundation.yawl.schema.XSDType;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
+import twitter4j.internal.http.HttpParameter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -294,21 +295,23 @@ private static String getReply(InputStream is) throws IOException {
 
     private String textMaxCases() {
         Runtime runtime = Runtime.getRuntime();
-        int nbrCases = 2000;
-        YSpecificationID specID = new YSpecificationID("UID_f4c0454c-5a82-49a6-8a96-5a5eb1c32613", "0.1", "maxCaseTester");
+        int nbrCases = 10000;
+        YSpecificationID specID = new YSpecificationID(
+                "UID_f4c0454c-5a82-49a6-8a96-5a5eb1c32613", "0.1", "maxCaseTester");
         String caseParams = "<Net><M>The rain in Spain</M></Net>";
-        String template = "Cases: %d\tElapsed (ms): %d\tMem Free: %d\tMem Alloc: %d\tMem Total: %d";
+        String template = "Cases: %d\tElapsed (ms): %d\tMem Free: %d\tMem Alloc: %d\tMem Max: %d";
         String resURL = "http://localhost:8080/resourceService/workqueuegateway";
         WorkQueueGatewayClientAdapter client = new WorkQueueGatewayClientAdapter(resURL);
-        String handle = client.connect("admin", "YAWL");
         long start = System.currentTimeMillis();
         try {
+            String handle = client.connect("admin", "YAWL");
+            long substart = start;
             for (int i=0; i <= nbrCases; i++) {
                 if (i % 10 == 0) {
                    long now = System.currentTimeMillis();
-                    System.out.println(String.format(template, i, now - start, runtime.freeMemory(),
-                            runtime.totalMemory(), runtime.maxMemory()));
-                    start = now;
+                    System.out.println(String.format(template, i, now - substart,
+                            runtime.freeMemory(), runtime.totalMemory(), runtime.maxMemory()));
+                    substart = now;
                 }
                 client.launchCase(specID, caseParams, handle);
             }
@@ -316,7 +319,7 @@ private static String getReply(InputStream is) throws IOException {
         catch (IOException ioe) {
             return "fail";
         }
-        return "completed";
+        return "Total elapsed (ms): " +  (System.currentTimeMillis() - start);
     }
 
 

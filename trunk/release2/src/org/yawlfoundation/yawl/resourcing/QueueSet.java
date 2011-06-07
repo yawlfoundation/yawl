@@ -266,12 +266,6 @@ public class QueueSet {
             purgeQueue(queue);
     }
 
-    
-    public void restoreWorkQueue(WorkQueue q, WorkItemCache cache) {
-        q.restore(cache) ;
-        setQueue(q);
-    }
-
 
     private int getStartQueue() {
         return (_type == setType.adminSet) ? WorkQueue.UNOFFERED : WorkQueue.OFFERED;
