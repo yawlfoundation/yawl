@@ -102,9 +102,9 @@ public class ResourceAdministrator {
     }
 
 
-    public void restoreWorkQueue(WorkQueue q, WorkItemCache cache, boolean persisting) {
+    public void attachWorkQueue(WorkQueue q, boolean persisting) {
         if (_qSet == null) createWorkQueues(persisting) ;
-        _qSet.restoreWorkQueue(q, cache) ;
+        _qSet.setQueue(q) ;
     }
 
 

@@ -38,11 +38,13 @@
                   column="queueType"
                   type="int"/>
 
-        <set name="_itemIDs" table="rs_queueItems">
+        <map name="_workitems" access="field" table="rs_queueItems">
             <key column="q_id"/>
-            <element column="itemid" type="string"/>
-        </set>
+            <index column="key_id" type="string"/>
+            <many-to-many column="valueItem"
+                          class="org.yawlfoundation.yawl.engine.interfce.WorkItemRecord"/>
+        </map>
 
-     </class>
+    </class>
 	
 </hibernate-mapping>

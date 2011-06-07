@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.resourcing;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Hibernate;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
@@ -940,19 +941,21 @@ public class ResourceManager extends InterfaceBWebsideController {
         _workItemCache.restore() ;
         List<WorkQueue> orphanedQueues = new ArrayList<WorkQueue>();
 
-        // restore the queues to their owners
+        // restore the queues and attach to their owners
         List<WorkQueue> qList = _persister.select("WorkQueue") ;
 
         if (qList != null) {
             for (WorkQueue wq : qList) {
                 wq.setPersisting(true);
-                if (wq.getOwnerID().equals("admin"))
-                    _resAdmin.restoreWorkQueue(wq, _workItemCache, _persisting);
+                Hibernate.initialize(wq.getQueueAsMap());   // avoid lazy loading errors
+                if (wq.getOwnerID().equals("admin")) {
+                    _resAdmin.attachWorkQueue(wq, _persisting);
+                }
                 else {
                     if (_orgDataSet != null) {
                         Participant p = _orgDataSet.getParticipant(wq.getOwnerID()) ;
                         if (p != null) {
-                            p.restoreWorkQueue(wq, _workItemCache, _persisting);
+                            p.attachWorkQueue(wq, _persisting);
                         }
                         else {
                             orphanedQueues.add(wq);
@@ -970,12 +973,6 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     private void removeOrphanedQueues(List<WorkQueue> orphanedQueues) {
-
-        // have to restore the whole set first to avoid hibernate lazy refreshes
-        for (WorkQueue orphan : orphanedQueues) {
-            orphan.restore(_workItemCache);
-        }
-
         for (WorkQueue orphan : orphanedQueues) {
             handleWorkQueueOnRemoval(orphan);
             orphan.clear();                        // del persisted items
