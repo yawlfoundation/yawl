@@ -140,6 +140,11 @@ public class ConnectionCache extends Hashtable<String, ServiceConnection> {
         return _userdb.containsKey(userid);
     }
 
+
+    public boolean hasUsers() {
+        return ! _userdb.isEmpty();
+    }
+
     
     public String getPassword(String userid) {
         return _userdb.get(userid);

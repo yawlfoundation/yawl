@@ -80,6 +80,7 @@ import java.awt.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.List;
@@ -271,7 +272,6 @@ public class ResourceManager extends InterfaceBWebsideController {
         _interfaceAClient = new InterfaceA_EnvironmentBasedClient(uriA);
         setUpInterfaceBClient(_engineURI);
         _interfaceEClient = new YLogGatewayClient(uriE);
-        HttpURLValidator.pingUntilAvailable(_engineURI, 5);
     }
 
     
@@ -661,6 +661,8 @@ public class ResourceManager extends InterfaceBWebsideController {
                 reestablishInterfaceClients();
             }
 
+            if (! engineIsAvailable()) return;
+
             setAuthorisedServiceConnections();
             setServiceURI();
             sanitiseCaches();
@@ -696,6 +698,24 @@ public class ResourceManager extends InterfaceBWebsideController {
         return (removed != null);
     }
 
+
+    // make sure the engine is contactable
+    private boolean engineIsAvailable() {
+        String errMsg = "Failed to locate a running YAWL engine at URL '" +
+                        _engineURI + "'. ";
+        int timeout = 5;
+        boolean available = false;
+        try {
+            available = HttpURLValidator.pingUntilAvailable(_engineURI, timeout);
+            if (! available) {
+                _log.error(errMsg + "Service functionality may be limited.");
+            }
+        }
+        catch (MalformedURLException mue) {
+            _log.error(errMsg + mue.getMessage());
+        }
+        return available;
+    }
 
     /*********************************************************************************/
     /*********************************************************************************/
@@ -2473,6 +2493,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     
     private String loginAdmin(String password, String jSessionID) {
         String handle ;
+        if (! _connections.hasUsers()) setAuthorisedServiceConnections();
         String adminPassword = _connections.getPassword("admin");
         if (adminPassword == null) {
             adminPassword = getAdminUserPassword();    // from engine
@@ -2612,6 +2633,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
     public String serviceConnect(String userid, String password, long timeOutSeconds) {
+        if (! _connections.hasUsers()) setAuthorisedServiceConnections();
         return _connections.connect(userid, password, timeOutSeconds) ;
     }
 
@@ -3069,7 +3091,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                     users.put(service.getServiceName(), service.getServicePassword());
                 }
             }
-            _connections.clear();
+            _connections.clearUsers();
             _connections.addUsers(users);
         }
         catch (IOException ioe) {

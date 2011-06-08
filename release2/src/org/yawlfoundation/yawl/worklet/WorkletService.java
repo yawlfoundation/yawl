@@ -49,6 +49,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
 import java.util.*;
 
 
@@ -440,14 +441,33 @@ public class WorkletService extends InterfaceBWebsideController {
             String uriB = _interfaceBClient.getBackEndURI();
             _interfaceAClient = new InterfaceA_EnvironmentBasedClient(uriA);
             setUpInterfaceBClient(uriB);
-            HttpURLValidator.pingUntilAvailable(uriB, 5);
         }
-        setWorkletURI();
-        if (_exceptionServiceEnabled && (_exService != null)) {
-            _exService.setupInterfaceXListener(_workletURI);
+        if (engineIsAvailable()) {
+            setWorkletURI();
+            if (_exceptionServiceEnabled && (_exService != null)) {
+                _exService.setupInterfaceXListener(_workletURI);
+            }
         }
 
         _initCompleted = true;
+    }
+
+        // make sure the engine is contactable
+    private boolean engineIsAvailable() {
+        String errMsg = "Failed to locate a running YAWL engine at URL '" +
+                        _engineURI + "'. ";
+        int timeout = 5;
+        boolean available = false;
+        try {
+            available = HttpURLValidator.pingUntilAvailable(_engineURI, timeout);
+            if (! available) {
+                _log.error(errMsg + "Service functionality may be limited.");
+            }
+        }
+        catch (MalformedURLException mue) {
+            _log.error(errMsg + mue.getMessage());
+        }
+        return available;
     }
 
  //***************************************************************************//
@@ -1646,7 +1666,7 @@ public class WorkletService extends InterfaceBWebsideController {
  *********************/
 
     /** Checks if a worklet spec has already been loaded into engine
-     *  @param workletName
+     *  @param workletSpec the specification id to check
      *  @return true if the specification is already loaded in the engine
      */
     private boolean isUploaded(YSpecificationID workletSpec) {

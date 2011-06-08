@@ -81,6 +81,7 @@ public class TestCaseCancellation extends TestCase {
             public void announceCaseCancellation(Set<YAWLServiceReference> ys, YIdentifier i) {
                 _caseCancellationReceived.add(i);
             }
+            public void announceEngineInitialised(Set<YAWLServiceReference> ys, int i) {}
             public void announceCaseSuspended(YIdentifier id) {}
             public void announceCaseSuspending(YIdentifier id) {}
             public void announceCaseResumption(YIdentifier id) {}

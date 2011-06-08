@@ -112,7 +112,7 @@ public interface ObserverGateway
     /**
      * Notify the engine has completed initialisation and is running
      */
-    public void announceEngineInitialised(Set<YAWLServiceReference> services) ;
+    public void announceEngineInitialised(Set<YAWLServiceReference> services, int maxWaitSeconds) ;
 
     /**
      * Notify the engine has cancelled a case

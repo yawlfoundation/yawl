@@ -116,8 +116,8 @@ public class YAnnouncer {
         return _announcementContext;
     }
 
-    public void notifyServletInitialisationComplete() {
-        announceEngineInitialisationCompletion();
+    public void notifyServletInitialisationComplete(int maxWaitSeconds) {
+        announceEngineInitialisationCompletion(maxWaitSeconds);
     }
 
 
@@ -186,8 +186,8 @@ public class YAnnouncer {
         _controller.notifyRemoveWorkItems(announcements);
     }
 
-    public void announceEngineInitialisationCompletion() {
-        _controller.notifyEngineInitialised(_engine.getYAWLServices());
+    public void announceEngineInitialisationCompletion(int maxWaitSeconds) {
+        _controller.notifyEngineInitialised(_engine.getYAWLServices(), maxWaitSeconds);
     }
 
     public void announceCaseCancellationToEnvironment(YIdentifier id) {

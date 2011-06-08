@@ -25,6 +25,7 @@ import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -57,6 +58,7 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
 
 
     public void init() throws ServletException {
+        int maxWaitSeconds = 5;                             // a default
 
         try {
             ServletContext context = getServletContext();
@@ -91,10 +93,15 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                 _engine.setAllowAdminID(true);
             }
 
+            // override the max time that initialisation events wait for between
+            // final engine init and server start completion
+            int maxWait = StringUtil.strToInt(
+                    context.getInitParameter("InitialisationAnnouncementTimeout"), -1);
+            if (maxWait >= 0) maxWaitSeconds = maxWait;
+
             // read the current version properties
             _engine.initBuildProperties(context.getResourceAsStream(
                                "/WEB-INF/classes/version.properties"));
-
 
             // init any 3rd party observer gateways
             String gatewayStr = context.getInitParameter("ObserverGateway");
@@ -111,7 +118,9 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
             throw new UnavailableException("Persistence failure");
         }
 
-        if (_engine != null) _engine.notifyServletInitialisationComplete();
+        if (_engine != null) {
+            _engine.notifyServletInitialisationComplete(maxWaitSeconds);
+        }
     }
 
 
