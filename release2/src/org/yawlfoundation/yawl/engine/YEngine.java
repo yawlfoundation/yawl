@@ -18,7 +18,6 @@
 
 package org.yawlfoundation.yawl.engine;
 
-import com.sun.jmx.snmp.tasks.Task;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -1385,7 +1384,6 @@ public class YEngine implements InterfaceADesign,
             startTransaction();
             try {
                 if (workItem != null) {
-                    Element dataList;
                     if (workItem.getStatus().equals(YWorkItemStatus.statusEnabled)) {
                         netRunner = getNetRunner(workItem.getCaseID());
                         YTask task = (YTask) netRunner.getNetElement(workItem.getTaskID());
@@ -1403,7 +1401,7 @@ public class YEngine implements InterfaceADesign,
                                     startedItem = childItem;
                                     oneStarted = true;
                                 }
-                                dataList = task.getData(childID);
+                                Element dataList = task.getData(childID);
                                 childItem.setData(_pmgr, dataList);
                                 _instanceCache.addParameters(childItem, task, dataList);
                             }

@@ -259,10 +259,12 @@ public class dynForm extends AbstractPageBean {
     private void setupButtons() {
         if (getSessionBean().getDynFormType() == ApplicationBean.DynFormType.netlevel) {
             btnOK.setText("Start");                        // start new case
+            btnOK.setPrimary(true);
             btnComplete.setVisible(false);                 // hide for case starts
         }
         else {
             btnOK.setText("Save");                         // save workitem edits
+            btnComplete.setPrimary(true);
         }
     }
 
