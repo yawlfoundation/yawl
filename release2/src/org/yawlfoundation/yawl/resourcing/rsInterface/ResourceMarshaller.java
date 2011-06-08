@@ -164,7 +164,22 @@ public class ResourceMarshaller {
             xml.append(StringUtil.wrap(specData.getSchemaVersion().toString(), "version"));
             xml.append(StringUtil.wrap(specData.getSpecVersion(), "specversion"));
             xml.append(StringUtil.wrap(specData.getStatus(), "status"));
-   
+
+            String metaTitle = specData.getMetaTitle();
+            if (metaTitle != null) xml.append(StringUtil.wrap(metaTitle, "metaTitle"));
+
+            String authors = specData.getAuthors();
+            if (authors != null) {
+                xml.append("<authors>");
+                for (String author : authors.split(",")) {
+                    xml.append(StringUtil.wrap(author.trim(), "author"));
+                }
+                xml.append("</authors>");
+            }
+            String gateway = specData.getExternalDataGateway();
+            if (gateway != null) {
+                xml.append(StringUtil.wrap(gateway, "externalDataGateway"));
+            }
         xml.append("</specificationData>");
         return xml.toString() ;
     }
@@ -217,10 +232,9 @@ public class ResourceMarshaller {
                 result.setMetaTitle(specElement.getChildText("metaTitle"));
                 Element authors = specElement.getChild("authors");
                 if (authors != null) {
-                    List authorlist = authors.getChildren();
-                    for (Object e : authorlist) {
+                    for (Object e : authors.getChildren()) {
                         Element authorElem = (Element) e;
-                        result.setAuthors(authorElem.getText());
+                        result.addAuthor(authorElem.getText());
                     }
                 }
 
