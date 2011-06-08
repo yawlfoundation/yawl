@@ -481,7 +481,7 @@ public class ResourceGatewayClientAdapter {
     public Participant getParticipant(String pid, String handle)
             throws IOException, ResourceGatewayException {
         String pStr = successCheck(_rgclient.getParticipant(pid, handle)) ;
-        return new Participant(JDOMUtil.stringToElement(pStr)) ;
+        return _marshaller.unmarshallParticipant(pStr);
     }
 
 
@@ -786,7 +786,7 @@ public class ResourceGatewayClientAdapter {
     public Participant getParticipantFromUserID(String userID, String handle)
             throws IOException, ResourceGatewayException {
         String xml = successCheck(_rgclient.getParticipantFromUserID(userID, handle));
-        return new Participant(JDOMUtil.stringToElement(xml));
+        return _marshaller.unmarshallParticipant(xml);
     }
 
 
