@@ -34,6 +34,7 @@ import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
 import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.unmarshal.YDecompositionParser;
+import org.yawlfoundation.yawl.util.HttpURLValidator;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.io.IOException;
@@ -200,10 +201,11 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     /**
      * Called by the engine when it has completed initialisation and is running
      * @param services a set of custom services to receive the announcement
+     * @param maxWaitSeconds the maximum seconds to wait for services to be contactable
      */
-    public void announceEngineInitialised(Set<YAWLServiceReference> services) {
+    public void announceEngineInitialised(Set<YAWLServiceReference> services, int maxWaitSeconds) {
         for (YAWLServiceReference service : services) {
-            executor.execute(new Handler(service, ANNOUNCE_INIT_ENGINE));
+            executor.execute(new Handler(service, maxWaitSeconds, ANNOUNCE_INIT_ENGINE));
         }
     }
 
@@ -275,6 +277,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         private Document _casedata;
         private String _oldStatus;
         private String _newStatus;
+        private int _pingTimeout = 5;
 
         public Handler(YAWLServiceReference yawlService, YWorkItem workItem, String command) {
             _workItem = workItem;
@@ -301,6 +304,12 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
 
         public Handler(YAWLServiceReference yawlService, String command) {
             _yawlService = yawlService;
+            _command = command;
+        }
+
+        public Handler(YAWLServiceReference yawlService, int pingTimeout, String command) {
+            _yawlService = yawlService;
+            _pingTimeout = pingTimeout;
             _command = command;
         }
 
@@ -364,6 +373,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                 }
                 else if (ANNOUNCE_INIT_ENGINE.equals(_command)) {
                     String urlOfYawlService = _yawlService.getURI();
+                    HttpURLValidator.pingUntilAvailable(urlOfYawlService, _pingTimeout);
                     Map<String, String> paramsMap = prepareParamMap(_command, null);
                     executePost(urlOfYawlService, paramsMap);
                 }
@@ -379,6 +389,11 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
             catch (ConnectException ce) {
                 if (ADDWORKITEM_CMD.equals(_command)) {
                     redirectWorkItem(true);
+                }
+                else if (ANNOUNCE_INIT_ENGINE.equals(_command)) {
+                    logger.warn(MessageFormat.format(
+                            "Failed to announce engine initialisation to {0} at URI [{1}]",
+                            _yawlService.getServiceName(), _yawlService.getURI()));
                 }
             }
             catch (IOException e) {

@@ -57,7 +57,7 @@ public interface EngineGateway extends Remote {
 
     public void initBuildProperties(InputStream stream);
 
-    public void notifyServletInitialisationComplete();
+    public void notifyServletInitialisationComplete(int maxWaitSeconds);
     
     public void setActualFilePath(String path);
 

@@ -40,28 +40,22 @@ public class HttpURLValidator {
      * @return a message describing the success of failure of the validation
      */
     public static String validate(String urlStr) {
-        URL url ;
-
-        // escape early if urlStr is obviously bad
-        if (urlStr == null)
-            return getErrorMessage("URL is null");
-        else if (! urlStr.startsWith("http://"))
-            return getErrorMessage("URL does not begin with 'http://'") ;
-
         try {
+            return validate(createURL(urlStr));
+        }
+        catch (MalformedURLException mue) {
+            return getErrorMessage(mue.getMessage()) ;
+        }
+    }
 
-            // this will throw an exception if the URL is invalid
-            url = new URL(urlStr);
 
-            // ok - let's see if and how it responds
+    private static String validate(URL url) {
+        try {
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setRequestMethod("HEAD");
             int response = httpConnection.getResponseCode();
             if ((response < 0) || (response >= 300))             // indicates some error
                 return getErrorMessage(response + " " + httpConnection.getResponseMessage());
-        }
-        catch (MalformedURLException mue) {
-            return getErrorMessage("Malformed URL") ;
         }
         catch (IOException e) {
             return getErrorMessage("IO Exception when validating URL") ;
@@ -71,29 +65,40 @@ public class HttpURLValidator {
     }
 
 
+    private static URL createURL(String urlStr) throws MalformedURLException {
+
+        // escape early if urlStr is obviously bad
+        if (urlStr == null) throw new MalformedURLException("URL is null");
+        if (! urlStr.startsWith("http://"))
+            throw new MalformedURLException("URL does not begin with 'http://'") ;
+
+        // this will throw an exception if the URL is invalid
+        return new URL(urlStr);
+    }
+
+
     private static String getErrorMessage(String msg) {
         return StringUtil.wrap(msg, "failure");
     }
 
 
-    public synchronized static String pingUntilAvailable(String urlStr, int timeoutSeconds) {
-        String result = null;
+    public synchronized static boolean pingUntilAvailable(String urlStr, int timeoutSeconds)
+            throws MalformedURLException {
+        URL url = createURL(urlStr);                         // exception if URL is bad
         int timeoutMsecs = timeoutSeconds * 1000;
         int expiredMsecs = 0;
         long period = 100;
         while (expiredMsecs <= timeoutMsecs) {
-            result = validate(urlStr);
-            if (result.equals("<success/>")) break;
+            if (validate(url).equals("<success/>")) return true;
             try {
                 Thread.sleep(period);
                 expiredMsecs += period;
             }
             catch (InterruptedException ie) {
-                result = getErrorMessage("Exception while waiting for URL to be available.");
-                break;
+                return false;
             }
         }
-        return result;
+        return false;
     }
 
 

@@ -303,8 +303,11 @@ public class ObserverGatewayController
     /**
      * Notify the engine has completed initialisation and is running
      * @param services - all services registered with the engine
+     * @param maxWaitSeconds the maximum seconds to wait for services to be contactable
+     *
      */
-    public void notifyEngineInitialised(final Set<YAWLServiceReference> services)
+    public void notifyEngineInitialised(final Set<YAWLServiceReference> services,
+                                        final int maxWaitSeconds)
     {
         executor.execute(new Runnable()
         {
@@ -312,7 +315,7 @@ public class ObserverGatewayController
             {
                 for(ObserverGateway observerGateway : gateways)
                 {
-                    observerGateway.announceEngineInitialised(services);
+                    observerGateway.announceEngineInitialised(services, maxWaitSeconds);
                 }
             }
         });

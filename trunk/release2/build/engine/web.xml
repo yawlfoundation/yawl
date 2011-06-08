@@ -75,6 +75,22 @@
         </description>
     </context-param>
 
+    <context-param>
+        <param-name>InitialisationAnnouncementTimeout</param-name>
+        <param-value>5</param-value>
+        <description>
+            The maximum number of seconds the engine will spend trying to deliver an
+            'EngineInitialisationCompleted' event to each registered service before
+            giving up. The specified value should cover the period between the moment the
+            engine has fully initialised and the moment the host server is ready to accept
+            http connections.
+
+            The value can be any positive integer. Defaults to 5 seconds if the value
+            is missing or invalid.
+        </description>
+    </context-param>
+
+
 	<context-param>
 		<param-name>RMIServerName</param-name>
 		<param-value>//localhost/EngineGateway</param-value>

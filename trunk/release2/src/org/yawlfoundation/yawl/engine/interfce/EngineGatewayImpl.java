@@ -167,10 +167,11 @@ public class EngineGatewayImpl implements EngineGateway {
     /**
      * Triggers the announcement that engine startup is complete
      * Should only be called from InterfaceB_EngineBasedServer.init()
+     * @param maxWaitSeconds the maximum seconds to wait for services to be contactable
      */
-    public void notifyServletInitialisationComplete() {
+    public void notifyServletInitialisationComplete(int maxWaitSeconds) {
         _engine.initialised();
-        _engine.getAnnouncer().announceEngineInitialisationCompletion();
+        _engine.getAnnouncer().announceEngineInitialisationCompletion(maxWaitSeconds);
     }
 
     
