@@ -180,10 +180,7 @@ public class WorkQueueGatewayClientAdapter {
     public Participant getParticipantFromUserID(String userid, String handle)
             throws IOException, ResourceGatewayException {
         String xml = _wqclient.getParticipantFromUserID(userid, handle) ;
-        successCheck(xml);
-        Participant result = new Participant() ;
-        result.fromXML(xml);
-        return result;
+        return _marshaller.unmarshallParticipant(successCheck(xml));
     }
 
 
@@ -278,10 +275,7 @@ public class WorkQueueGatewayClientAdapter {
     public Participant getParticipant(String pid, String handle)
             throws IOException, ResourceGatewayException {
         String xml = _wqclient.getParticipant(pid, handle) ;
-        successCheck(xml);
-        Participant result = new Participant() ;
-        result.fromXML(xml);
-        return result;
+        return _marshaller.unmarshallParticipant(successCheck(xml));
     }
 
 

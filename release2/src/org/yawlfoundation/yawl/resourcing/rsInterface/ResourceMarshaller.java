@@ -25,7 +25,10 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.resourcing.resource.Capability;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.resourcing.resource.Position;
+import org.yawlfoundation.yawl.resourcing.resource.Role;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.unmarshal.YDecompositionParser;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -76,16 +79,44 @@ public class ResourceMarshaller {
         List eList = getChildren(xml);
         if (eList != null) {
             for (Object o : eList) {
-                Participant p = new Participant();
-
-                // repopulate the members from its xml
-                p.reconstitute((Element) o);
-                result.add(p);
+                result.add(unmarshallParticipant((Element) o));
             }
         }
         if (result.isEmpty()) return null;
         return result ;
     }
+
+
+    public Participant unmarshallParticipant(Element e) {
+        Participant p = new Participant();
+
+        // repopulate the members from its xml
+        p.reconstitute(e);
+        Element roles = e.getChild("roles");
+        if (roles != null) {
+            for (Object o : roles.getChildren()) {
+                p.addRole(new Role((Element) o));
+            }
+        }
+        Element positions = e.getChild("positions");
+        if (positions != null) {
+            for (Object o : positions.getChildren()) {
+                p.addPosition(new Position((Element) o));
+            }
+        }
+        Element capabilities = e.getChild("capabilities");
+        if (capabilities != null) {
+            for (Object o : capabilities.getChildren()) {
+                p.addCapability(new Capability((Element) o));
+            }
+        }
+        return p;
+    }
+
+    public Participant unmarshallParticipant(String xml) {
+        return unmarshallParticipant(JDOMUtil.stringToElement(xml));
+    }
+
 
     /******************************************************************************/
 
