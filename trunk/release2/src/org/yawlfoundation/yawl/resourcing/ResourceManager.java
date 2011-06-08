@@ -490,11 +490,10 @@ public class ResourceManager extends InterfaceBWebsideController {
                     handleAutoTask(wir, false);
                 }
                 else {
+
+                    // pre 2.0 specs don't have any resourcing info
                     ResourceMap rMap = getResourceMap(wir) ;
-                    if (rMap != null)
-                        wir = rMap.distribute(wir) ;
-                    else
-                        wir = offerToAll(wir) ;   // only when no resourcing spec for item
+                    wir = (rMap != null) ? rMap.distribute(wir) : offerToAll(wir);
                 }
             }
 
