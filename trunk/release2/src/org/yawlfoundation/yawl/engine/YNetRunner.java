@@ -479,6 +479,13 @@ public class YNetRunner {
     }
 
 
+    public void startWorkItemInTask(YPersistenceManager pmgr, YWorkItem workItem)
+            throws YDataStateException, YPersistenceException,
+                   YQueryException, YStateException {
+        startWorkItemInTask (pmgr, workItem.getCaseID(), workItem.getTaskID());
+    }
+
+
     public synchronized void startWorkItemInTask(YPersistenceManager pmgr,
                                                  YIdentifier caseID, String taskID)
             throws YDataStateException, YPersistenceException,
@@ -702,13 +709,16 @@ public class YNetRunner {
      * Announces all pending announcements for enabled and cancelled tasks to the
      * environment. Called by the engine after a case start/resume, or a workitem
      * completion or cancellation, once all state processing is fully completed.
+     * @param announcer a reference to the engine's announcer object
      */
     public void makeAnnouncements(YAnnouncer announcer) {
         synchronized(_cancelAnnouncements) {
-            announcer.announceCancellationToEnvironment(_cancelAnnouncements);
+            if (_cancelAnnouncements.size() > 0)
+                announcer.announceCancellationToEnvironment(_cancelAnnouncements);
         }
         synchronized(_firedAnnouncements) {
-            announcer.announceTasks(_firedAnnouncements);
+            if (_firedAnnouncements.size() > 0)
+                announcer.announceTasks(_firedAnnouncements);
         }
     }
 

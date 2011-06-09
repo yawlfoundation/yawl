@@ -19,18 +19,21 @@
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import org.apache.log4j.Logger;
+import org.jdom.Document;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.util.HttpURLValidator;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.SaxonUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 
 /**
  * Author: Michael Adams
@@ -108,7 +111,8 @@ public class FormViewer {
                 adjustSessionTimeout(wir);
                 return uriPlusParams;   // return validated custom form url incl. params
             }
-            else _log.warn("Missing or invalid custom form: '" + url + "', message: " +
+            else _log.warn("Missing or invalid custom form: '" +
+                    uriPlusParams.substring(0, uriPlusParams.indexOf('?')) + "', message: " +
                     StringUtil.unwrap(validateMsg) + ". Defaulting to dynamic form.");
         }
         else _log.warn("Unspecified form URI. Defaulting to dynamic form.");
@@ -117,8 +121,9 @@ public class FormViewer {
     }
 
 
+    // @pre: wir.getCustomFormURL() != null
     private String buildURI(WorkItemRecord wir) {
-        StringBuilder redir = new StringBuilder(wir.getCustomFormURL());
+        StringBuilder redir = new StringBuilder(parseCustomFormURI(wir));
         redir.append((redir.indexOf("?") == -1) ? "?" : "&")      // any static params?
              .append("workitem=")
              .append(wir.getID())
@@ -155,6 +160,35 @@ public class FormViewer {
                 // bad timeout value supplied - nothing further to do
             }
         }
+    }
+
+
+    private String parseCustomFormURI(WorkItemRecord wir) {
+        String formURI = wir.getCustomFormURL();
+        if (! formURI.contains("{")) return formURI;
+        try {
+            String dataStr = _rm.getCaseData(wir.getRootCaseID());
+            if (dataStr != null) {
+                Document dataDoc = JDOMUtil.stringToDocument(dataStr);
+                String[] parts = formURI.split("(?=\\{)|(?<=\\})");
+                for (int i=0; i < parts.length; i++) {
+                    String part = parts[i];
+                    if (part.startsWith("{")) {
+                        parts[i] = evaluateXQuery(
+                                part.substring(1, part.lastIndexOf('}')), dataDoc);
+                    }
+                }
+                StringBuilder joined = new StringBuilder();
+                for (String part : parts) {
+                    joined.append(part);
+                }
+                return joined.toString();
+            }
+        }
+        catch (IOException ioe) {
+            // fall through to default return value below
+        }
+        return formURI;
     }
 
 
@@ -216,6 +250,16 @@ public class FormViewer {
     private String completeWorkItem(WorkItemRecord wir) {
         String result = _rm.checkinItem(_sb.getParticipant(), wir);
         return _rm.successful(result) ? "<success/>" : result ;
+    }
+
+
+    protected String evaluateXQuery(String s, Document dataDoc) {
+        try {
+            return SaxonUtil.evaluateQuery(s, dataDoc);
+        }
+        catch (Exception e) {
+            return "__evaluation_error__";
+        }
     }
 
 }
