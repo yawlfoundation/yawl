@@ -50,7 +50,6 @@ import org.yawlfoundation.yawl.util.*;
 
 import java.io.InputStream;
 import java.net.URI;
-import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -1359,9 +1358,18 @@ public class YEngine implements InterfaceADesign,
     }
 
 
+    public YWorkItem startWorkItem(String itemID, YClient client)
+            throws YStateException, YDataStateException, YQueryException,
+                   YPersistenceException, YEngineStateException {
+        YWorkItem item = getWorkItem(itemID);
+        if (item == null) throw new YStateException("No work item found with id = " + itemID);
+        return startWorkItem(item, client);
+    }
+
+
     /**
      * Starts a work item.  If the workitem param is enabled this method fires the task
-     * and returns the first of its child instances in the exectuting state.
+     * and returns the first of its child instances in the executing state.
      * Else if the workitem is fired then it moves the state from fired to executing.
      * Either way the method returns the resultant work item.
      *
