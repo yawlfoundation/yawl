@@ -661,7 +661,7 @@ public class caseMgt extends AbstractPageBean {
 
                 DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");
                 df.setHeaderText("Starting an Instance of: " + specData.getID());
-                if (df.initDynForm("YAWL 2.0 Case Management - Launch Case")) {
+                if (df.initDynForm("YAWL 2.2 Case Management - Launch Case")) {
                     return "showDynForm" ;
                 }
                 else {

@@ -319,6 +319,14 @@ public class WorkQueueGatewayClient extends Interface_Client {
         return performGet("getWorkItemDataSchema", params, handle);
     }
 
+
+    public String getCaseDataSchema(YSpecificationID specID, String handle)
+            throws IOException {
+        params.clear();
+        params.putAll(specID.toMap());
+        return performGet("getCaseDataSchema", params, handle);
+    }
+
     
     public String getWorkItemOutputOnlyParameters(String itemID, String handle)
             throws IOException {
