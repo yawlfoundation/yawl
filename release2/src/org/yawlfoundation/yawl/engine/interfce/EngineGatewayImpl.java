@@ -379,17 +379,19 @@ public class EngineGatewayImpl implements EngineGateway {
         if (isFailureMessage(sessionMessage)) return sessionMessage;
 
         try {
-            YWorkItem item = _engine.getWorkItem(workItemID);
-            if (item != null) {
-                YWorkItem child = _engine.startWorkItem(item, getClient(sessionHandle));
-                if( child == null ) {
-                	throw new YAWLException(
-                			"Engine failed to start work item " + item.toString() +
-                			". The engine returned no work items." );
-                }
-                return successMessage(child.toXML());
-            }
-            return failureMessage("No work item found with id = " + workItemID);
+            YWorkItem child = _engine.startWorkItem(workItemID, getClient(sessionHandle));
+            return successMessage(child.toXML());
+//            YWorkItem item = _engine.getWorkItem(workItemID);
+//            if (item != null) {
+//                YWorkItem child = _engine.startWorkItem(item, getClient(sessionHandle));
+//                if( child == null ) {
+//                	throw new YAWLException(
+//                			"Engine failed to start work item " + item.toString() +
+//                			". The engine returned no work items." );
+//                }
+//                return successMessage(child.toXML());
+//            }
+//            return failureMessage("No work item found with id = " + workItemID);
         }
         catch (YAWLException e) {
             if (e instanceof YPersistenceException) {
