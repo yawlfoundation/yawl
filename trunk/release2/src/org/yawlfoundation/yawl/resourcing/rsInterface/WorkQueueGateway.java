@@ -164,6 +164,9 @@ public class WorkQueueGateway extends HttpServlet {
         String userid = req.getParameter("userid") ;
         String pid = req.getParameter("participantid");
         String itemid = req.getParameter("workitemid");
+        String specid = req.getParameter("specidentifier") ;
+        String specversion = req.getParameter("specversion");
+        String specuri = req.getParameter("specuri");
 
         if (action.equals("getParticipantFromUserID")) {
             Participant p = _rm.getParticipantFromUserID(userid);
@@ -243,6 +246,9 @@ public class WorkQueueGateway extends HttpServlet {
         else if (action.equals("getWorkItemDataSchema")) {
             result = _rm.getDataSchema(itemid);
         }
+        else if (action.equals("getCaseDataSchema")) {
+            result = _rm.getDataSchema(new YSpecificationID(specid, specversion, specuri));
+        }
         else if (action.equals("updateWorkItemData")) {
             String data = req.getParameter("data");
             result = _rm.updateWorkItemData(itemid, data);
@@ -272,11 +278,8 @@ public class WorkQueueGateway extends HttpServlet {
             else result = fail("Invalid queue type: " + req.getParameter("queue")) ;
         }
         else if (action.equals("getWorkItemDurationsForParticipant")) {
-            String id = req.getParameter("specidentifier") ;
-            String version = req.getParameter("specversion");
-            String uri = req.getParameter("specuri");
             String taskName = req.getParameter("taskname");
-            YSpecificationID specID = new YSpecificationID(id, version, uri);
+            YSpecificationID specID = new YSpecificationID(specid, specversion, specuri);
             result = _rm.getWorkItemDurationsForParticipant(specID, taskName, pid);
         }
         else if (action.equals("getLoadedSpecs")) {
@@ -288,18 +291,12 @@ public class WorkQueueGateway extends HttpServlet {
             result = _marshaller.marshallSpecificationDataSet(set) ;
         }
         else if (action.equals("getSpecData")) {
-            String specID = req.getParameter("specidentifier") ;
-            String version = req.getParameter("specversion");
-            String uri = req.getParameter("specuri");
             SpecificationData specData = _rm.getSpecData(
-                    new YSpecificationID(specID, version, uri));
+                    new YSpecificationID(specid, specversion, specuri));
             result = _marshaller.marshallSpecificationData(specData);
         }
         else if (action.equals("getRunningCases")) {
-            String specID = req.getParameter("specidentifier") ;
-            String version = req.getParameter("specversion");
-            String uri = req.getParameter("specuri");
-            result = _rm.getRunningCases(new YSpecificationID(specID, version, uri)) ;
+            result = _rm.getRunningCases(new YSpecificationID(specid, specversion, specuri)) ;
         }
         else if (action.equals("getDecompID")) {
             WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
@@ -395,17 +392,11 @@ public class WorkQueueGateway extends HttpServlet {
             result = response(_rm.uploadSpecification(fileContents, fileName));
         }
         else if (action.equals("unloadSpecification")) {
-            String id = req.getParameter("specidentifier") ;
-            String version = req.getParameter("specversion");
-            String uri = req.getParameter("specuri");
-            result = _rm.unloadSpecification(new YSpecificationID(id, version, uri));
+            result = _rm.unloadSpecification(new YSpecificationID(specid, specversion, specuri));
         }
         else if (action.equals("launchCase")) {
             String caseData = req.getParameter("casedata") ;
-            String id = req.getParameter("specidentifier") ;
-            String version = req.getParameter("specversion");
-            String uri = req.getParameter("specuri");
-            result = response(_rm.launchCase(new YSpecificationID(id, version, uri),
+            result = response(_rm.launchCase(new YSpecificationID(specid, specversion, specuri),
                     caseData, handle));
         }
         else if (action.equals("cancelCase")) {

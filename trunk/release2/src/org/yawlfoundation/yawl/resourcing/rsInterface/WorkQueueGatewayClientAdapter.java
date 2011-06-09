@@ -345,6 +345,11 @@ public class WorkQueueGatewayClientAdapter {
     }
 
 
+    public String getCaseDataSchema(YSpecificationID specID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.getCaseDataSchema(specID, handle));
+    }
+
 
     public boolean synchroniseCaches(String handle) throws IOException {
         return successful(_wqclient.synchroniseCaches(handle));
