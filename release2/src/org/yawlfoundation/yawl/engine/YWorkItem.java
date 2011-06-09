@@ -25,7 +25,6 @@ import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
@@ -41,6 +40,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
 
 /**
  * 
@@ -731,7 +732,7 @@ public class YWorkItem {
     }
 
 
-    public void set_status(YPersistenceManager pmgr, YWorkItemStatus status)
+    private void set_status(YPersistenceManager pmgr, YWorkItemStatus status)
                                                          throws YPersistenceException {
         _engine.getAnnouncer().announceWorkItemStatusChange(this, _status, status);
         _status = status;

@@ -333,13 +333,21 @@ public class WorkItemRecord implements Cloneable {
     /** @deprecated - use getDataList() */
     public Element getWorkItemData() { return getDataList(); }
 
-    public Element getDataList() { return _dataList; }
+    public Element getDataList() {
+        if (_dataList == null) _dataList = JDOMUtil.stringToElement(_dataListString);
+        return _dataList;
+    }
 
     public String getDataListString() { return _dataListString; }
 
     public String getTag() { return _tag ; }
 
-    public Element getUpdatedData() { return _dataListUpdated; }
+    public Element getUpdatedData() {
+        if (_dataListUpdated == null) {
+            _dataListUpdated = JDOMUtil.stringToElement(_dataListUpdatedString);
+        }
+        return _dataListUpdated;
+    }
 
     public String getIDForDisplay() {
         return _caseID + ":" + _taskName ;

@@ -50,6 +50,7 @@ import org.yawlfoundation.yawl.util.*;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -1378,48 +1379,34 @@ public class YEngine implements InterfaceADesign,
         debug("--> startWorkItem");
         checkEngineRunning();
         YWorkItem startedItem = null;
-        YNetRunner netRunner = null;
 
         synchronized(_pmgr) {
             startTransaction();
             try {
+                YNetRunner netRunner = null;
                 if (workItem != null) {
-                    if (workItem.getStatus().equals(YWorkItemStatus.statusEnabled)) {
-                        netRunner = getNetRunner(workItem.getCaseID());
-                        YTask task = (YTask) netRunner.getNetElement(workItem.getTaskID());
-                        List<YIdentifier> childCaseIDs =
-                                netRunner.attemptToFireAtomicTask(_pmgr, workItem.getTaskID());
+                    switch (workItem.getStatus()) {
+                        case statusEnabled:
+                            netRunner = getNetRunner(workItem.getCaseID());
+                            startedItem = startEnabledWorkItem(netRunner, workItem, client);
+                            break;
 
-                        if (childCaseIDs != null) {
-                            boolean oneStarted = false;
-                            for (YIdentifier childID : childCaseIDs) {
-                                YWorkItem childItem = workItem.createChild(_pmgr, childID);
-                                if (! oneStarted) {
-                                    netRunner.startWorkItemInTask(_pmgr, childItem.getCaseID(),
-                                            workItem.getTaskID());
-                                    childItem.setStatusToStarted(_pmgr, client);
-                                    startedItem = childItem;
-                                    oneStarted = true;
-                                }
-                                Element dataList = task.getData(childID);
-                                childItem.setData(_pmgr, dataList);
-                                _instanceCache.addParameters(childItem, task, dataList);
-                            }
-                        }
-                    }
-                    else if (workItem.getStatus().equals(YWorkItemStatus.statusFired)) {
-                        netRunner = getNetRunner(workItem.getCaseID().getParent());
-                        netRunner.startWorkItemInTask(_pmgr, workItem.getCaseID(), workItem.getTaskID());
-                        workItem.setStatusToStarted(_pmgr, client);
-                        startedItem = workItem;
-                    }
-                    else if (workItem.getStatus().equals(YWorkItemStatus.statusDeadlocked)) {
-                        startedItem = workItem;
-                    }
-                    else { // this work item is likely already executing.
-                        rollbackTransaction();
-                        throw new YStateException("Item (" + workItem.getIDString() + ") status (" +
-                                workItem.getStatus() + ") does not permit starting.");
+                        case statusFired:
+                            netRunner = getNetRunner(workItem.getCaseID().getParent());
+                            netRunner.startWorkItemInTask(_pmgr, workItem);
+                            workItem.setStatusToStarted(_pmgr, client);
+                            startedItem = workItem;
+                            break;
+
+                        case statusDeadlocked:
+                            startedItem = workItem;
+                            break;
+
+                        default: // this work item is likely already executing.
+                            rollbackTransaction();
+                            throw new YStateException(String.format(
+                                    "Item [%s]: status [%s] does not permit starting.",
+                                     workItem.getIDString(), workItem.getStatus()));
                     }
                 }
                 else {
@@ -1441,6 +1428,33 @@ public class YEngine implements InterfaceADesign,
                 rollbackTransaction();
                 _logger.error("Failure starting workitem " + workItem.getIDString(), e);
                 throw new YStateException(e.getMessage());
+            }
+        }
+        return startedItem;
+    }
+
+
+    private YWorkItem startEnabledWorkItem(YNetRunner netRunner, YWorkItem workItem, YClient client)
+            throws YStateException, YDataStateException, YQueryException,
+                   YPersistenceException, YEngineStateException {
+        YWorkItem startedItem = null;
+        YTask task = (YTask) netRunner.getNetElement(workItem.getTaskID());
+        List<YIdentifier> childCaseIDs =
+                netRunner.attemptToFireAtomicTask(_pmgr, workItem.getTaskID());
+
+        if (childCaseIDs != null) {
+            boolean oneStarted = false;
+            for (YIdentifier childID : childCaseIDs) {
+                YWorkItem childItem = workItem.createChild(_pmgr, childID);
+                if (! oneStarted) {
+                    netRunner.startWorkItemInTask(_pmgr, childItem);
+                    childItem.setStatusToStarted(_pmgr, client);
+                    startedItem = childItem;
+                    oneStarted = true;
+                }
+                Element dataList = task.getData(childID);
+                childItem.setData(_pmgr, dataList);
+                _instanceCache.addParameters(childItem, task, dataList);
             }
         }
         return startedItem;
