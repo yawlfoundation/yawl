@@ -23,13 +23,14 @@ import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
 
 /**
  * A cache of active workitems.
@@ -41,35 +42,38 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Michael Adams (refactored for v2.1, 2.2)
  * 
  */
-public class YWorkItemRepository extends ConcurrentHashMap<String, YWorkItem> { //[case&taskIDStr=YWorkItem]
+public class YWorkItemRepository {
+    private final ConcurrentHashMap<String, YWorkItem> _itemMap; //[case&taskIDStr=YWorkItem]
     private final Logger _logger;
 
     public YWorkItemRepository() {
-        super();
+        _itemMap = new ConcurrentHashMap<String, YWorkItem>(500, 0.75f, 1);
         _logger = Logger.getLogger(YWorkItemRepository.class);
     }
 
 
-    protected void add(YWorkItem workItem) {
+    protected YWorkItem add(YWorkItem workItem) {
         _logger.debug("--> YWorkItemRepository#add: " + workItem.getIDString());
-        YWorkItem cachedItem = this.get(workItem.getIDString());
-        if (cachedItem == null) {
-            this.putIfAbsent(workItem.getIDString(), workItem);
-        }
-        else if (! cachedItem.equals(workItem)) {
-            this.replace(workItem.getIDString(), cachedItem, workItem);
-        }
+//        YWorkItem cachedItem = _itemMap.get(workItem.getIDString());
+//        if (cachedItem == null) {
+//            return _itemMap.putIfAbsent(workItem.getIDString(), workItem);
+//        }
+//        else if (! cachedItem.equals(workItem)) {
+//            _itemMap.replace(workItem.getIDString(), cachedItem, workItem);
+//        }
+//        return cachedItem;
+        return _itemMap.put(workItem.getIDString(), workItem);
     }
 
 
     public YWorkItem get(String caseIDStr, String taskID) {
-        return get(caseIDStr + ":" + taskID);
+        return _itemMap.get(caseIDStr + ":" + taskID);
     }
 
 
     public void remove(YWorkItem workItem) {
         _logger.debug("--> YWorkItemRepository#remove: " + workItem.getIDString());
-        this.remove(workItem.getIDString(), workItem);
+        _itemMap.remove(workItem.getIDString(), workItem);
     }
 
 
@@ -96,7 +100,7 @@ public class YWorkItemRepository extends ConcurrentHashMap<String, YWorkItem> { 
      */
     public Set<YWorkItem> cancelNet(YIdentifier caseIDForNet) {
         Set<String> itemsToRemove = new HashSet<String>();
-        for (YWorkItem item : this.values()) {
+        for (YWorkItem item : _itemMap.values()) {
             YIdentifier identifier = item.getWorkItemID().getCaseID();
             if (identifier.isImmediateChildOf(caseIDForNet) ||
                     identifier.toString().equals(caseIDForNet.toString())) {
@@ -111,7 +115,7 @@ public class YWorkItemRepository extends ConcurrentHashMap<String, YWorkItem> { 
     private Set<YWorkItem> removeItems(Set<String> itemsToRemove) {
         Set<YWorkItem> removedSet = new HashSet<YWorkItem>();
         for (String workItemID : itemsToRemove) {
-            YWorkItem item = this.remove(workItemID);
+            YWorkItem item = _itemMap.remove(workItemID);
             if (item != null) removedSet.add(item);
         }
         return removedSet;
@@ -156,7 +160,7 @@ public class YWorkItemRepository extends ConcurrentHashMap<String, YWorkItem> { 
 
     public Set<YWorkItem> getWorkItems(YWorkItemStatus status) {
         Set<YWorkItem> itemSet = new HashSet<YWorkItem>();
-        for (YWorkItem workitem : this.values()) {
+        for (YWorkItem workitem : _itemMap.values()) {
             if (workitem.getStatus() == status) {
                 itemSet.add(workitem);
             }
@@ -167,14 +171,14 @@ public class YWorkItemRepository extends ConcurrentHashMap<String, YWorkItem> { 
 
     public Set<YWorkItem> getWorkItems() {
         cleanseRepository();
-        return new HashSet<YWorkItem>(this.values());
+        return new HashSet<YWorkItem>(_itemMap.values());
     }
 
 
     // check that the items in the repository are in synch with the engine
     public void cleanseRepository() {
         Set<String> itemsToRemove = new HashSet<String>();
-        for (YWorkItem workitem : this.values()) {
+        for (YWorkItem workitem : _itemMap.values()) {
             YNetRunner runner = YEngine.getInstance().getNetRunnerRepository().get(workitem);
 
             if (runner != null) {                                      //MLF can be null
@@ -195,7 +199,7 @@ public class YWorkItemRepository extends ConcurrentHashMap<String, YWorkItem> { 
 
 
     public Set<YWorkItem> getChildrenOf(String workItemID) {
-        YWorkItem item = this.get(workItemID);
+        YWorkItem item = _itemMap.get(workItemID);
         return (item != null) ? item.getChildren() : new HashSet<YWorkItem>();
     }
 
@@ -280,11 +284,11 @@ public class YWorkItemRepository extends ConcurrentHashMap<String, YWorkItem> { 
 
 
     public void dump(Logger logger) {
-        logger.debug("\n*** DUMPING " + this.size() +
+        logger.debug("\n*** DUMPING " + _itemMap.size() +
                      " ENTRIES IN ID_2_WORKITEMS_MAP ***");
         int sub = 1;
-        for (String key : this.keySet()) {
-            YWorkItem workitem = this.get(key);
+        for (String key : _itemMap.keySet()) {
+            YWorkItem workitem = _itemMap.get(key);
             if (workitem != null) {
                 logger.debug("Entry " + sub++ + " Key=" + key);
                 logger.debug(("    WorkitemID        " + workitem.getIDString()));
