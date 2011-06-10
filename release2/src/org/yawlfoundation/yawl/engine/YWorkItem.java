@@ -145,7 +145,7 @@ public class YWorkItem {
                                 boolean allowsDynamicInstanceCreation)
                                 throws YPersistenceException {
         _workItemID = workItemID;
-        addToRepository();                            // doing this as early as possible
+        addToRepository();
         set_thisID(_workItemID.toString() + "!" + _workItemID.getUniqueID());
         _specID = specificationID;
         _allowsDynamicCreation = allowsDynamicInstanceCreation;
