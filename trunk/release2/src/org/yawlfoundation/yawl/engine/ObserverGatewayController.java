@@ -73,6 +73,10 @@ public class ObserverGatewayController
         gateways.remove(observerGateway);
     }
 
+
+    int gatewayCount() { return gateways.size(); }
+
+
     /**
      * Notify affected gateways of a new work item being posted.<P>
      *

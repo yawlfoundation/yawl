@@ -24,10 +24,7 @@ import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
@@ -43,37 +40,34 @@ import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
  * 
  */
 public class YWorkItemRepository {
-    private final ConcurrentHashMap<String, YWorkItem> _itemMap; //[case&taskIDStr=YWorkItem]
+    private final Map<String, YWorkItem> _itemMap; //[case&taskIDStr=YWorkItem]
     private final Logger _logger;
 
     public YWorkItemRepository() {
-        _itemMap = new ConcurrentHashMap<String, YWorkItem>(500, 0.75f, 1);
+        _itemMap = new ConcurrentHashMap<String, YWorkItem>(500);
         _logger = Logger.getLogger(YWorkItemRepository.class);
     }
 
 
     protected YWorkItem add(YWorkItem workItem) {
         _logger.debug("--> YWorkItemRepository#add: " + workItem.getIDString());
-//        YWorkItem cachedItem = _itemMap.get(workItem.getIDString());
-//        if (cachedItem == null) {
-//            return _itemMap.putIfAbsent(workItem.getIDString(), workItem);
-//        }
-//        else if (! cachedItem.equals(workItem)) {
-//            _itemMap.replace(workItem.getIDString(), cachedItem, workItem);
-//        }
-//        return cachedItem;
         return _itemMap.put(workItem.getIDString(), workItem);
     }
 
 
     public YWorkItem get(String caseIDStr, String taskID) {
-        return _itemMap.get(caseIDStr + ":" + taskID);
+        return get(caseIDStr + ":" + taskID);
+    }
+
+
+    public YWorkItem get(String itemID) {
+        return _itemMap.get(itemID);
     }
 
 
     public void remove(YWorkItem workItem) {
         _logger.debug("--> YWorkItemRepository#remove: " + workItem.getIDString());
-        _itemMap.remove(workItem.getIDString(), workItem);
+        _itemMap.remove(workItem.getIDString());
     }
 
 

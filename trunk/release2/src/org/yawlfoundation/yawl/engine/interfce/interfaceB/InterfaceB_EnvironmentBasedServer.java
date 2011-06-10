@@ -124,7 +124,7 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
     }
 
 
-    private String processPostQuery(HttpServletRequest request) {
+    private synchronized String processPostQuery(HttpServletRequest request) {
         if (_debug) {
             _logger.debug("\nInterfaceB_Server_WebSide::doPost() " +
                     "request.getRequestURL = " + request.getRequestURL());
@@ -180,6 +180,5 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
         }
         return "<success/>";
     }
-
 
 }
