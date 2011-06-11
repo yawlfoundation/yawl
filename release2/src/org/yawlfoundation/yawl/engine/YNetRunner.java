@@ -24,7 +24,6 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.engine.announcement.Announcements;
 import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
 import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
 import org.yawlfoundation.yawl.engine.time.YTimer;
@@ -68,6 +67,7 @@ public class YNetRunner {
     private YSpecificationID _specID;
     private YCompositeTask _containingCompositeTask;
     private YEngine _engine;
+    private YAnnouncer _announcer;
     private boolean _cancelling;
     private final Set<String> _enabledTaskNames = new HashSet<String>();
     private final Set<String> _busyTaskNames = new HashSet<String>();
@@ -82,29 +82,19 @@ public class YNetRunner {
     // used to persist observers
     private String _caseObserverStr = null ;
 
-    // stored announcements for items fired or cancelled by this runner
-    private final Announcements<CancelWorkItemAnnouncement> _cancelAnnouncements =
-                                          new Announcements<CancelWorkItemAnnouncement>();
-    private final Announcements<NewWorkItemAnnouncement> _firedAnnouncements =
-                                          new Announcements<NewWorkItemAnnouncement>();
-
 
     // Constructors //
 
     protected YNetRunner() {
         _logger.debug("YNetRunner: <init>");
-
-        try {
-       	    _engine = YEngine.getInstance(YEngine.isPersisting());
-            _workItemRepository = _engine.getWorkItemRepository();
-        } catch (YPersistenceException e) {
-        	  _logger.error("Exception getting reference to running engine", e);
-        }
+        _engine = YEngine.getInstance();
+        init();
     }
 
 
     public YNetRunner(YPersistenceManager pmgr, YNet netPrototype, Element paramsData,
                       String caseID) throws YDataStateException, YPersistenceException {
+         this();
 
         // initialise and persist case identifier - if caseID is null, a new one is supplied
         _caseIDForNet = new YIdentifier(caseID);   
@@ -132,14 +122,18 @@ public class YNetRunner {
                       Element incomingData)
             throws YDataStateException, YPersistenceException {
 
+        this();
         initialise(pmgr, netPrototype, caseIDForNet, incomingData) ;
-
         _containingCompositeTask = container;
         setContainingTaskID(container.getID());
-
         if (pmgr != null) pmgr.storeObject(this);
     }
 
+
+    private void init() {
+        _workItemRepository = _engine.getWorkItemRepository();
+        _announcer = _engine.getAnnouncer();
+    }
 
     private void initialise(YPersistenceManager pmgr, YNet netPrototype,
                       YIdentifier caseIDForNet, Element incomingData)
@@ -152,8 +146,6 @@ public class YNetRunner {
         _net.initializeDataStore(pmgr, _netdata);
         _netTasks = new HashSet<YTask>(_net.getNetTasks());
         _specID = _net.getSpecification().getSpecificationID();
-        _engine = YEngine.getInstance();
-        _workItemRepository = _engine.getWorkItemRepository();
         _startTime = System.currentTimeMillis();
         prepare(pmgr);
         if (incomingData != null) _net.setIncomingData(pmgr, incomingData);
@@ -207,6 +199,7 @@ public class YNetRunner {
 
     public void setEngine(YEngine engine) {
         _engine = engine;
+        init();
     }
 
     public YSpecificationID getSpecificationID() {
@@ -338,16 +331,16 @@ public class YNetRunner {
 
     private void announceCaseCompletion() {
         if (_caseObserver != null)
-            _engine.getAnnouncer().announceCaseCompletionToEnvironment(_caseObserver,
+            _announcer.announceCaseCompletionToEnvironment(_caseObserver,
                     _caseIDForNet, _net.getOutputData());
         else
-            _engine.getAnnouncer().announceCaseCompletionToEnvironment(_caseIDForNet,
+            _announcer.announceCaseCompletionToEnvironment(_caseIDForNet,
                     _net.getOutputData());
 
         // notify exception checkpoint to listeners if any (post's for case end)
-        if (_engine.getAnnouncer().hasInterfaceXListeners()) {
+        if (_announcer.hasInterfaceXListeners()) {
             Document data = _net.getInternalDataDocument();
-            _engine.getAnnouncer().announceCheckCaseConstraints(_specID, _caseID,
+            _announcer.announceCheckCaseConstraints(_specID, _caseID,
                     JDOMUtil.documentToString(data), false);
         }
     }
@@ -516,8 +509,8 @@ public class YNetRunner {
         boolean success = completeTask(pmgr, workItem, task, caseID, outputData);
 
         // notify exception checkpoint to service if available
-        if (_engine.getAnnouncer().hasInterfaceXListeners()) {
-            _engine.getAnnouncer().announceCheckWorkItemConstraints(workItem, outputData, false);
+        if (_announcer.hasInterfaceXListeners()) {
+            _announcer.announceCheckWorkItemConstraints(workItem, outputData, false);
         }
         _logger.debug("<-- completeWorkItemInTask");
         return success;
@@ -555,7 +548,8 @@ public class YNetRunner {
                 // if the task is not an enabled transition, and it has been previously
                 // enabled by the engine, then it must be cancelled
                 if (_enabledTasks.contains(task)) {
-                    _cancelAnnouncements.addAnnouncement(cancelEnabledTask(task, pmgr));
+                    _announcer.raiseCancelledWorkItemAnnouncement(this,
+                            cancelEnabledTask(task, pmgr));
                 }
             }
 
@@ -598,7 +592,7 @@ public class YNetRunner {
                     if (! (enabledTasks.contains(atomic) || endOfNetReached())) {
                         NewWorkItemAnnouncement announcement = fireAtomicTask(atomic, groupID, pmgr) ;
                         if ((announcement != null) && (! groupHasEmptyTask)) {
-                            _firedAnnouncements.addAnnouncement(announcement);
+                            _announcer.raiseEnabledWorkItemAnnouncement(this, announcement);
                         }    
                         enabledTasks.add(atomic) ;
                     }
@@ -621,11 +615,10 @@ public class YNetRunner {
             YWorkItem item = createEnabledWorkItem(pmgr, _caseIDForNet, task);
             if (groupID != null) item.setDeferredChoiceGroupID(groupID);
 
-            announcement = _engine.getAnnouncer().createNewWorkItemAnnouncement(
-                    wsgw.getYawlService(), item);
+            announcement = createNewWorkItemAnnouncement(wsgw.getYawlService(), item);
 
-            if (_engine.getAnnouncer().hasInterfaceXListeners()) {
-                _engine.getAnnouncer().announceCheckWorkItemConstraints(item,
+            if (_announcer.hasInterfaceXListeners()) {
+                _announcer.announceCheckWorkItemConstraints(item,
                                                  _net.getInternalDataDocument(), true);
             }
             _enabledTasks.add(task);
@@ -705,21 +698,12 @@ public class YNetRunner {
     }
 
 
-    /**
-     * Announces all pending announcements for enabled and cancelled tasks to the
-     * environment. Called by the engine after a case start/resume, or a workitem
-     * completion or cancellation, once all state processing is fully completed.
-     * @param announcer a reference to the engine's announcer object
-     */
-    public void makeAnnouncements(YAnnouncer announcer) {
-        synchronized(_cancelAnnouncements) {
-            if (_cancelAnnouncements.size() > 0)
-                announcer.announceCancellationToEnvironment(_cancelAnnouncements);
-        }
-        synchronized(_firedAnnouncements) {
-            if (_firedAnnouncements.size() > 0)
-                announcer.announceTasks(_firedAnnouncements);
-        }
+    private NewWorkItemAnnouncement createNewWorkItemAnnouncement(YAWLServiceReference ys,
+                                                                 YWorkItem item) {
+        if (ys == null) ys = _engine.getDefaultWorklist();
+        return (ys != null) ?
+                new NewWorkItemAnnouncement(ys, item, _announcer.getAnnouncementContext()) :
+                null;
     }
 
     

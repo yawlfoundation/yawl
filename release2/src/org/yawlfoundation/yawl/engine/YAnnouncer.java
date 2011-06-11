@@ -25,17 +25,16 @@ import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YAtomicTask;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.engine.announcement.AnnouncementContext;
-import org.yawlfoundation.yawl.engine.announcement.Announcements;
-import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
-import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
+import org.yawlfoundation.yawl.engine.announcement.*;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
 import org.yawlfoundation.yawl.exceptions.YStateException;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Handles the announcement of engine-generated events to the environment.
@@ -48,8 +47,11 @@ public class YAnnouncer {
     private final ObserverGatewayController _controller;
     private final YEngine _engine;
     private final Logger _logger;
+    private final Map<YNetRunner, Announcements<CancelWorkItemAnnouncement>> _pendingCancels;
+    private final Map<YNetRunner, Announcements<NewWorkItemAnnouncement>> _pendingEnables;
+    private final Set<InterfaceX_EngineSideClient> _interfaceXListeners;
+
     private AnnouncementContext _announcementContext;
-    private Set<InterfaceX_EngineSideClient> _interfaceXListeners;
 
     /**
      * Reannouncement Contexts:
@@ -65,6 +67,10 @@ public class YAnnouncer {
         _engine = engine;
         _logger = Logger.getLogger(this.getClass());
         _interfaceXListeners = new HashSet<InterfaceX_EngineSideClient>();
+        _pendingEnables = new ConcurrentHashMap<YNetRunner,
+                Announcements<NewWorkItemAnnouncement>>();
+        _pendingCancels = new ConcurrentHashMap<YNetRunner,
+                Announcements<CancelWorkItemAnnouncement>>();
 
         // Initialise the standard Observer Gateway.
         // Currently the only standard gateway is the HTTP driven IB Servlet client.
@@ -272,14 +278,6 @@ public class YAnnouncer {
     }
 
 
-    protected NewWorkItemAnnouncement createNewWorkItemAnnouncement(YAWLServiceReference ys,
-                                                                 YWorkItem item) {
-        if (ys == null) ys = _engine.getDefaultWorklist();
-        return (ys != null) ?
-                new NewWorkItemAnnouncement(ys, item, getAnnouncementContext()) : null;
-    }
-
-
     /** These next four methods announce an exception event to the observer */
     protected void announceCheckWorkItemConstraints(YWorkItem item, Document data,
                                                     boolean preCheck) {
@@ -453,5 +451,45 @@ public class YAnnouncer {
     }
 
 
+    protected void raiseCancelledWorkItemAnnouncement(YNetRunner runner,
+                                              CancelWorkItemAnnouncement announcement) {
+        raiseAnnouncement(_pendingCancels, runner, announcement);
+    }
+
+
+    protected void raiseEnabledWorkItemAnnouncement(YNetRunner runner,
+                                              NewWorkItemAnnouncement announcement) {
+        raiseAnnouncement(_pendingEnables, runner, announcement);
+    }
+
+
+    protected void releaseAnnouncements(YNetRunner runner) {
+        Announcements<NewWorkItemAnnouncement> enables = _pendingEnables.remove(runner);
+        if (enables != null) announceTasks(enables);
+        Announcements<CancelWorkItemAnnouncement> cancels = _pendingCancels.remove(runner);
+        if (cancels != null) announceCancellationToEnvironment(cancels);
+    }
+
+    private <T extends Announcement> void raiseAnnouncement(Map<YNetRunner,
+            Announcements<T>> map, YNetRunner runner, T announcement) {
+        Announcements<T> announceSet = map.get(runner);
+        if (announceSet == null) {
+            announceSet = new Announcements<T>();
+            map.put(runner, announceSet);
+        }
+        addPendingAnnouncement(announceSet, announcement);
+    }
+
+
+    private <T extends Announcement> void addPendingAnnouncement(Announcements<T> announceSet,
+                                        T announcement) {
+        try {
+            announceSet.addAnnouncement(announcement);
+        }
+        catch (YStateException yse) {
+            _logger.error("Failed to add cancellation announcement for workitem: " +
+            announcement.getItem().getIDString() + ". " + yse.getMessage());
+        }
+    }
 
 }
