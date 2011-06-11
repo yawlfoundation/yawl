@@ -71,7 +71,8 @@ public class Announcements<A extends Announcement> implements Cloneable
         }
         catch (URISyntaxException e)
         {
-            throw new YStateException("YAWLServiceRefernce '" + announcement.getYawlService() + "' not a valid URI!");
+            throw new YStateException("YAWLServiceReference '" +
+                    announcement.getYawlService() + "' not a valid URI!");
         }
     }
 
