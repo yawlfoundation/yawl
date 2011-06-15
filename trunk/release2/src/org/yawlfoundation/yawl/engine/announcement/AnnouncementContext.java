@@ -20,7 +20,7 @@ package org.yawlfoundation.yawl.engine.announcement;
 
 /**
  * @author Mike Fowler
- *         Date: Apr 29, 2008
+ * @date Apr 29, 2008
  */
 
 public enum AnnouncementContext

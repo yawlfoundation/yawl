@@ -9,9 +9,7 @@ import org.jdom.JDOMException;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.engine.announcement.Announcements;
-import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
-import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
+import org.yawlfoundation.yawl.engine.announcement.YAnnouncement;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
@@ -42,7 +40,7 @@ public class TestCaseCancellation extends TestCase {
     private List _caseCancellationReceived = new ArrayList();
     private YLogDataItemList _logdata;
 
-    public void setUp() throws YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YStateException, YPersistenceException, YDataStateException, URISyntaxException, YEngineStateException, YQueryException {
+    public void setUp() throws YAWLException, YSchemaBuildingException, YSyntaxException, JDOMException, IOException, YStateException, YPersistenceException, YDataStateException, URISyntaxException, YEngineStateException, YQueryException {
         _engine = YEngine.getInstance();
         EngineClearer.clear(_engine);
         _engine.setDefaultWorklist("http://localhost:8080/resourceService/ib#resource");
@@ -62,9 +60,8 @@ public class TestCaseCancellation extends TestCase {
                 serviceURI, null, _logdata, service.getServiceName());
 
         ObserverGateway og = new ObserverGateway() {
-            public void cancelAllWorkItemsInGroupOf(
-                              Announcements<CancelWorkItemAnnouncement> announcements) {
-                _taskCancellationReceived.add(announcements);
+            public void announceCancelledWorkItem(YAnnouncement announcement) {
+                _taskCancellationReceived.add(announcement);
             }
             public void announceCaseCompletion(YAWLServiceReference yawlService, YIdentifier caseID, Document d) {
                 _caseCompletionReceived.add(caseID);
@@ -75,7 +72,7 @@ public class TestCaseCancellation extends TestCase {
             public String getScheme() {
                 return "mock";
             }
-            public void announceWorkItems(Announcements<NewWorkItemAnnouncement> a) {}
+            public void announceFiredWorkItem(YAnnouncement announcement) {}
             public void announceTimerExpiry(YAWLServiceReference ys, YWorkItem i) {}
             public void announceEngineInitialised(Set<YAWLServiceReference> ys) {}
             public void announceCaseCancellation(Set<YAWLServiceReference> ys, YIdentifier i) {

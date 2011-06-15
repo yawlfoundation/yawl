@@ -24,6 +24,7 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
+import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -155,6 +156,10 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
             logger.warn("Unable to instantiate external ObserverGateway '" +
                         gatewayClassName +
                        "'. Perhaps it is missing a no-argument constructor.", ie);
+        }
+        catch (YAWLException ye) {
+            logger.warn("Failed to register external ObserverGateway '" +
+                        gatewayClassName + "'.", ye);
         }
         catch (Exception e) {
             logger.warn("Unable to instantiate external ObserverGateway '" +

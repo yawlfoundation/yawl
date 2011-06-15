@@ -50,7 +50,7 @@ public interface InterfaceBClient {
      *  
      * @param gateway
      */
-    void registerInterfaceBObserverGateway(ObserverGateway gateway);
+    void registerInterfaceBObserverGateway(ObserverGateway gateway) throws YAWLException;
 
     /**
      * Returns a set of all availkable workitems from the engine.<P>
