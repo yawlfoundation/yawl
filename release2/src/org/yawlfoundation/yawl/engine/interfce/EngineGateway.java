@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.engine.interfce;
 
 import org.yawlfoundation.yawl.engine.ObserverGateway;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.exceptions.YAWLException;
 
 import java.net.URI;
 import java.rmi.Remote;
@@ -43,7 +44,7 @@ public interface EngineGateway extends Remote {
      */
     public boolean enginePersistenceFailure();
 
-    public void registerObserverGateway(ObserverGateway gateway);
+    public void registerObserverGateway(ObserverGateway gateway) throws YAWLException;
 
     public void setDefaultWorklist(String url);
 

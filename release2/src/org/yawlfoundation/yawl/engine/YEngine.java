@@ -320,7 +320,8 @@ public class YEngine implements InterfaceADesign,
 
 
     // called when servlet init() has completed
-    public void initialised() {
+    public void initialised(int maxWaitSeconds) {
+        _announcer.announceEngineInitialisationCompletion(getYAWLServices(), maxWaitSeconds);
 
         // Now that the engine's running, process any expired timers
         if (_expiredTimers != null) {
@@ -382,7 +383,7 @@ public class YEngine implements InterfaceADesign,
     *
     * @param gateway
     */
-    public void registerInterfaceBObserverGateway(ObserverGateway gateway) {
+    public void registerInterfaceBObserverGateway(ObserverGateway gateway) throws YAWLException {
         _announcer.registerInterfaceBObserverGateway(gateway);
     }
 
@@ -840,7 +841,7 @@ public class YEngine implements InterfaceADesign,
                         YWorkItemStatus.statusCancelledByCase, null);
             }
             commitTransaction();
-            _announcer.announceCaseCancellationToEnvironment(caseID);
+            _announcer.announceCaseCancellation(caseID, getYAWLServices());
         }
     }
     
@@ -1106,7 +1107,7 @@ public class YEngine implements InterfaceADesign,
                 debug("Current status of runner ", runner.get_caseID(),
                         " = ", runner.getExecutionStatus());
                 runner.setStateSuspending();
-                _announcer.notifyCaseSuspending(id);
+                _announcer.announceCaseSuspending(id, getYAWLServices());
                 if (pmgr != null) pmgr.updateObject(runner);
             }
             _logger.info("Case " + topLevelNet.getCaseID() + " is attempting to suspend");
@@ -1176,7 +1177,7 @@ public class YEngine implements InterfaceADesign,
 
             announceEvents(id);
            _logger.info("Case " + id + " has resumed execution");
-           _announcer.notifyCaseResumption(id);
+           _announcer.announceCaseResumption(id, getYAWLServices());
        }
        else {
            throw new YStateException("Case " + id +
@@ -1229,7 +1230,7 @@ public class YEngine implements InterfaceADesign,
                 if (pmgr != null) pmgr.updateObject(runner);
             }
             _logger.info("Case " + caseID +" has suspended successfully.");
-            _announcer.notifyCaseSuspended(topNetID);
+            _announcer.announceCaseSuspended(topNetID, getYAWLServices());
         }
         debug("<-- progressCaseSuspension");
     }
@@ -1283,7 +1284,7 @@ public class YEngine implements InterfaceADesign,
     private void announceEvents(YIdentifier caseID) {
         YIdentifier rootCaseID = caseID.getRootAncestor();
         for (YNetRunner runner : getRunnersForPrimaryCase(rootCaseID)) {
-            _announcer.releaseAnnouncements(runner);
+            _announcer.announceToGateways(runner.refreshAnnouncements());
         }
     }
 

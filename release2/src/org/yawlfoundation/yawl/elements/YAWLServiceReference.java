@@ -25,8 +25,6 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -214,12 +212,7 @@ public class YAWLServiceReference extends YClient implements YVerifiable {
      * @return  The scheme component of the URI
      */
     public String getScheme() {
-        try {
-            URI uri = new URI(getURI());
-            return uri.getScheme();
-        }
-        catch (URISyntaxException e) {
-            return null;
-        }
+        int pos = _yawlServiceID.indexOf(':');
+        return pos > -1 ? _yawlServiceID.substring(0, pos) : null;
     }
 }

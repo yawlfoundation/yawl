@@ -21,9 +21,7 @@ package org.yawlfoundation.yawl.engine;
 import org.jdom.Document;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.engine.announcement.Announcements;
-import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
-import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
+import org.yawlfoundation.yawl.engine.announcement.YAnnouncement;
 
 import java.util.Set;
 
@@ -42,24 +40,23 @@ public interface ObserverGateway
     /**
      * Called by the engine when a new workitem gets enabled.<P>
      *
-     * @param announcements
+     * @param announcement
      */
-    void announceWorkItems(Announcements<NewWorkItemAnnouncement> announcements);
+    void announceFiredWorkItem(final YAnnouncement announcement);
 
     /**
      * Called by the engine when a previously posted workitem has been cancelled.<P>
      *
-     * @param announcements
+     * @param announcement
      */
-    void cancelAllWorkItemsInGroupOf(Announcements<CancelWorkItemAnnouncement> announcements);
+    void announceCancelledWorkItem(final YAnnouncement announcement);
 
     /**
      * Called by the engine when a timer for a workitem expires.<P>
      *
-     * @param yawlService
-     * @param item
+     * @param announcement
      */
-    void announceTimerExpiry(YAWLServiceReference yawlService, YWorkItem item);
+    void announceTimerExpiry(final YAnnouncement announcement);
 
 
     /**
@@ -76,7 +73,8 @@ public interface ObserverGateway
      * @param caseID the case that completed
      * @param casedata the output data of the case
      */
-    void announceCaseCompletion(YIdentifier caseID, Document casedata);
+    void announceCaseCompletion(Set<YAWLServiceReference> services, YIdentifier caseID,
+                                Document casedata);
 
     /**
      * Called by the engine to annouce when a case suspends (i.e. becomes fully
@@ -84,7 +82,7 @@ public interface ObserverGateway
      *
      * @param caseID
      */
-    void announceCaseSuspended(YIdentifier caseID);
+    void announceCaseSuspended(Set<YAWLServiceReference> services, YIdentifier caseID);
 
     /**
      * Called by the engine to annouce when a case starts to suspends (i.e. enters the
@@ -92,14 +90,14 @@ public interface ObserverGateway
      *
      * @param caseID
      */
-    void announceCaseSuspending(YIdentifier caseID);
+    void announceCaseSuspending(Set<YAWLServiceReference> services, YIdentifier caseID);
 
     /**
      * Called by the engine to annouce when a case resumes from a previous 'suspending' or 'suspended' state.
      *
      * @param caseID
      */
-    void announceCaseResumption(YIdentifier caseID);
+    void announceCaseResumption(Set<YAWLServiceReference> services, YIdentifier caseID);
 
     /**
      * Notify of a change of status for a work item.
@@ -107,7 +105,10 @@ public interface ObserverGateway
      * @param oldStatus previous status
      * @param newStatus new status
      */
-    void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus oldStatus, YWorkItemStatus newStatus);
+    void announceWorkItemStatusChange(Set<YAWLServiceReference> services,
+                                      YWorkItem workItem,
+                                      YWorkItemStatus oldStatus,
+                                      YWorkItemStatus newStatus);
 
     /**
      * Notify the engine has completed initialisation and is running

@@ -29,9 +29,7 @@ import org.yawlfoundation.yawl.engine.ObserverGateway;
 import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.YWorkItemStatus;
-import org.yawlfoundation.yawl.engine.announcement.Announcements;
-import org.yawlfoundation.yawl.engine.announcement.CancelWorkItemAnnouncement;
-import org.yawlfoundation.yawl.engine.announcement.NewWorkItemAnnouncement;
+import org.yawlfoundation.yawl.engine.announcement.YAnnouncement;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.unmarshal.YDecompositionParser;
 import org.yawlfoundation.yawl.util.HttpURLValidator;
@@ -83,16 +81,19 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     /**
      * PRE: The work item is enabled.
      * announces a work item to a YAWL Service.
-     * @param announcements
+     * @param announcement
      */
-    public void announceWorkItems(Announcements<NewWorkItemAnnouncement> announcements)
-    {
-        for (NewWorkItemAnnouncement announcement :
-                announcements.getAnnouncementsForScheme(getScheme()).getAllAnnouncements())
-        {
-            executor.execute(new Handler(announcement.getYawlService(),
-                                            announcement.getItem(), ADDWORKITEM_CMD));
-        }
+    public void announceFiredWorkItem(YAnnouncement announcement) {
+        executor.execute(new Handler(announcement.getYawlService(),
+                announcement.getItem(), ADDWORKITEM_CMD));
+    }
+
+    public void announceCancelledWorkItem(YAnnouncement announcement) {
+        YAWLServiceReference yawlService = announcement.getYawlService();
+        YWorkItem workItem = announcement.getItem();
+        if (workItem.getParent() != null) workItem = workItem.getParent();
+        executor.execute(new Handler(yawlService, workItem,
+                "cancelAllInstancesUnderWorkItem"));
     }
 
     /**
@@ -104,58 +105,41 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         executor.execute(new Handler(yawlService, workItem, "cancelWorkItem"));
     }
 
-    /**
-     * Cancels the work item, and all child
-     * workitems under the provided work item.
-     * @param announcements
-     */
-    public void cancelAllWorkItemsInGroupOf(Announcements<CancelWorkItemAnnouncement> announcements)
-    {
-        for (CancelWorkItemAnnouncement announcement :
-                announcements.getAnnouncementsForScheme(getScheme()).getAllAnnouncements())
-        {
-            YAWLServiceReference yawlService = announcement.getYawlService();
-            YWorkItem workItem = announcement.getItem();
-            if (workItem.getParent() != null) workItem = workItem.getParent();
-            executor.execute(new Handler(yawlService, workItem,
-                    "cancelAllInstancesUnderWorkItem"));
-        }
-    }
-
 
     /**
      * Announces a workitem timer expiry
-     * @param yawlService the yawl service reference.
-     * @param workItem the work item that has expired
+     * @param announcement the yawl service reference.
      */
-    public void announceTimerExpiry(YAWLServiceReference yawlService, YWorkItem workItem) {
+    public void announceTimerExpiry(YAnnouncement announcement) {
+        YAWLServiceReference yawlService = announcement.getYawlService();
+        YWorkItem workItem = announcement.getItem();
         executor.execute(new Handler(yawlService, workItem, ANNOUNCE_TIMER_EXPIRY_CMD));
     }
 
 
     /**
-     * Called by the engine to annouce when a case suspends (i.e. becomes fully
+     * Called by the engine to announce when a case suspends (i.e. becomes fully
      * suspended) as opposed to entering the 'suspending' state.
      */
-    public void announceCaseSuspended(YIdentifier caseID)
+    public void announceCaseSuspended(Set<YAWLServiceReference> services, YIdentifier caseID)
     {
         //todo MLF: this has been stubbed
     }
 
     /**
-     * Called by the engine to annouce when a case starts to suspends (i.e. enters the
+     * Called by the engine to announce when a case starts to suspends (i.e. enters the
      * suspending state) as opposed to entering the fully 'suspended' state.
      */
-    public void announceCaseSuspending(YIdentifier caseID)
+    public void announceCaseSuspending(Set<YAWLServiceReference> services, YIdentifier caseID)
     {
         //todo MLF: this has been stubbed
     }
 
     /**
-     * Called by the engine to annouce when a case resumes from a previous 'suspending'
+     * Called by the engine to announce when a case resumes from a previous 'suspending'
      * or 'suspended' state.
      */
-    public void announceCaseResumption(YIdentifier caseID)
+    public void announceCaseResumption(Set<YAWLServiceReference> services, YIdentifier caseID)
     {
         //todo MLF: this has been stubbed
     }
@@ -167,10 +151,10 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param oldStatus previous status
      * @param newStatus new status
      */
-    public void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus oldStatus,
-                                             YWorkItemStatus newStatus)
-    {
-       Set<YAWLServiceReference> services = YEngine.getInstance().getYAWLServices() ;
+    public void announceWorkItemStatusChange(Set<YAWLServiceReference> services,
+                                             YWorkItem workItem,
+                                             YWorkItemStatus oldStatus,
+                                             YWorkItemStatus newStatus) {
         for (YAWLServiceReference service : services) {
             executor.execute(new Handler(service, workItem, oldStatus.toString(),
                                             newStatus.toString(), ANNOUNCE_ITEM_STATUS));
@@ -181,11 +165,13 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * Called by engine to announce when a case is complete.
      *
      * @param caseID   the case that completed
-     * @param casedata the output data of the case
+     * @param caseData the output data of the case
      */
-    public void announceCaseCompletion(YIdentifier caseID, Document casedata)
-    {
-        //todo MLF: this has been stubbed
+    public void announceCaseCompletion(Set<YAWLServiceReference> services,
+                                       YIdentifier caseID, Document caseData) {
+        for (YAWLServiceReference service : services) {
+            announceCaseCompletion(service, caseID, caseData);
+        }
     }
 
     /**
@@ -194,8 +180,8 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param caseID the case that completed
      */
     public void announceCaseCompletion(YAWLServiceReference yawlService, 
-                                       YIdentifier caseID, Document casedata) {
-        executor.execute(new Handler(yawlService, caseID, casedata, "announceCompletion"));
+                                       YIdentifier caseID, Document caseData) {
+        executor.execute(new Handler(yawlService, caseID, caseData, "announceCompletion"));
     }
 
     /**
@@ -227,7 +213,8 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      */
     public void shutdown() {
         executor.shutdownNow();
-    	  // Nothing else to do - Interface B Clients handle shutdown within their own servlet.
+
+    	// Nothing else to do - Interface B Clients handle shutdown within their own servlet.
     }
 
 

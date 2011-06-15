@@ -130,7 +130,7 @@ public class EngineGatewayImpl implements EngineGateway {
      * Registers an external observer gateway with the engine
      * @param gateway the gateway to register
      */
-    public void registerObserverGateway(ObserverGateway gateway) {
+    public void registerObserverGateway(ObserverGateway gateway) throws YAWLException {
         _engine.registerInterfaceBObserverGateway(gateway);
     }
 
@@ -170,8 +170,7 @@ public class EngineGatewayImpl implements EngineGateway {
      * @param maxWaitSeconds the maximum seconds to wait for services to be contactable
      */
     public void notifyServletInitialisationComplete(int maxWaitSeconds) {
-        _engine.initialised();
-        _engine.getAnnouncer().announceEngineInitialisationCompletion(maxWaitSeconds);
+        _engine.initialised(maxWaitSeconds);
     }
 
     
