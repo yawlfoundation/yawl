@@ -21,7 +21,6 @@ package org.yawlfoundation.yawl.elements;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.exceptions.YDataStateException;
@@ -134,7 +133,6 @@ public class YAtomicTask extends YTask {
             throws YPersistenceException {
         getWorkItemRepository().removeWorkItemFamily(workItem);
         workItem.cancel(pmgr);
-        YEngine.getInstance().getAnnouncer().announceCancelledWorkItem(workItem);
     }
 
 

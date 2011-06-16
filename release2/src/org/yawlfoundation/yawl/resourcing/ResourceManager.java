@@ -486,6 +486,11 @@ public class ResourceManager extends InterfaceBWebsideController {
     public void handleEnabledWorkItemEvent(WorkItemRecord wir) {
         synchronized(_ibEventMutex) {
             if (_serviceEnabled) {
+                if (_workItemCache.contains(wir)) {
+                    _log.warn("Duplicate post received for new work item [" + wir.getID() +
+                              "] - no further action required.");
+                    return;
+                }
                 if (isAutoTask(wir)) {
                     handleAutoTask(wir, false);
                 }

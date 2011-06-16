@@ -30,6 +30,7 @@ import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.YWorkItemStatus;
 import org.yawlfoundation.yawl.engine.announcement.YAnnouncement;
+import org.yawlfoundation.yawl.engine.announcement.YEngineEvent;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.unmarshal.YDecompositionParser;
 import org.yawlfoundation.yawl.util.HttpURLValidator;
@@ -41,6 +42,8 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static org.yawlfoundation.yawl.engine.announcement.YEngineEvent.*;
 
 
 /**
@@ -55,28 +58,16 @@ import java.util.concurrent.Executors;
 
 public class InterfaceB_EngineBasedClient extends Interface_Client implements ObserverGateway {
 
-    protected static final Logger logger = Logger.getLogger(InterfaceB_EngineBasedClient.class);
-    private static final int THREADPOOL_SIZE = Runtime.getRuntime().availableProcessors();
-    private static final ExecutorService executor = Executors.newFixedThreadPool(THREADPOOL_SIZE);
-
-    protected static final String ADDWORKITEM_CMD =             "announceWorkItem";
-    protected static final String CANCELALLWORKITEMS_CMD =      "cancelAllInstancesUnderWorkItem";
-    protected static final String CANCELWORKITEM_CMD =          "cancelWorkItem";
-    protected static final String ANNOUNCE_COMPLETE_CASE_CMD =  "announceCompletion";
-    protected static final String ANNOUNCE_TIMER_EXPIRY_CMD =   "announceTimerExpiry";
-    protected static final String ANNOUNCE_INIT_ENGINE =        "announceEngineInitialised";
-    protected static final String ANNOUNCE_CASE_CANCELLED =     "announceCaseCancelled";
-    protected static final String ANNOUNCE_ITEM_STATUS =        "announceItemStatus";
+    protected static final Logger _logger = Logger.getLogger(InterfaceB_EngineBasedClient.class);
+    private static final ExecutorService _executor =
+            Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
 
     /**
-     * Indicates which protocol this shim services.<P>
-     *
+     * Indicates which protocol this shim services.
      * @return the scheme
      */
-    public String getScheme() {
-        return "http";
-    }
+    public String getScheme() { return "http"; }
 
     /**
      * PRE: The work item is enabled.
@@ -84,17 +75,27 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param announcement
      */
     public void announceFiredWorkItem(YAnnouncement announcement) {
-        executor.execute(new Handler(announcement.getYawlService(),
-                announcement.getItem(), ADDWORKITEM_CMD));
+        _executor.execute(new Handler(announcement.getYawlService(),
+                announcement.getItem(), ITEM_ADD));
     }
+
 
     public void announceCancelledWorkItem(YAnnouncement announcement) {
         YAWLServiceReference yawlService = announcement.getYawlService();
         YWorkItem workItem = announcement.getItem();
-        if (workItem.getParent() != null) workItem = workItem.getParent();
-        executor.execute(new Handler(yawlService, workItem,
-                "cancelAllInstancesUnderWorkItem"));
+        if (workItem.getParent() != null) {
+            YWorkItem parent = workItem.getParent();
+            cancelWorkItem(yawlService, parent);
+            Set<YWorkItem> children = parent.getChildren();
+            if (children != null) {
+                for (YWorkItem item : children) {
+                    cancelWorkItem(yawlService, item);
+                }
+            }
+        }
+        else cancelWorkItem(yawlService, workItem);
     }
+
 
     /**
      * Announces work item cancellation to the YAWL Service.
@@ -102,7 +103,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * @param workItem the work item to cancel.
      */
     public void cancelWorkItem(YAWLServiceReference yawlService, YWorkItem workItem) {
-        executor.execute(new Handler(yawlService, workItem, "cancelWorkItem"));
+        _executor.execute(new Handler(yawlService, workItem, ITEM_CANCEL));
     }
 
 
@@ -113,7 +114,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     public void announceTimerExpiry(YAnnouncement announcement) {
         YAWLServiceReference yawlService = announcement.getYawlService();
         YWorkItem workItem = announcement.getItem();
-        executor.execute(new Handler(yawlService, workItem, ANNOUNCE_TIMER_EXPIRY_CMD));
+        _executor.execute(new Handler(yawlService, workItem, TIMER_EXPIRED));
     }
 
 
@@ -121,27 +122,30 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * Called by the engine to announce when a case suspends (i.e. becomes fully
      * suspended) as opposed to entering the 'suspending' state.
      */
-    public void announceCaseSuspended(Set<YAWLServiceReference> services, YIdentifier caseID)
-    {
-        //todo MLF: this has been stubbed
+    public void announceCaseSuspended(Set<YAWLServiceReference> services, YIdentifier caseID) {
+        for (YAWLServiceReference service : services) {
+            _executor.execute(new Handler(service, caseID, CASE_SUSPENDED));
+        }
     }
 
     /**
      * Called by the engine to announce when a case starts to suspends (i.e. enters the
      * suspending state) as opposed to entering the fully 'suspended' state.
      */
-    public void announceCaseSuspending(Set<YAWLServiceReference> services, YIdentifier caseID)
-    {
-        //todo MLF: this has been stubbed
+    public void announceCaseSuspending(Set<YAWLServiceReference> services, YIdentifier caseID) {
+        for (YAWLServiceReference service : services) {
+            _executor.execute(new Handler(service, caseID, CASE_SUSPENDING));
+        }
     }
 
     /**
      * Called by the engine to announce when a case resumes from a previous 'suspending'
      * or 'suspended' state.
      */
-    public void announceCaseResumption(Set<YAWLServiceReference> services, YIdentifier caseID)
-    {
-        //todo MLF: this has been stubbed
+    public void announceCaseResumption(Set<YAWLServiceReference> services, YIdentifier caseID) {
+        for (YAWLServiceReference service : services) {
+            _executor.execute(new Handler(service, caseID, CASE_RESUMED));
+        }
     }
 
     /**
@@ -156,8 +160,8 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                                              YWorkItemStatus oldStatus,
                                              YWorkItemStatus newStatus) {
         for (YAWLServiceReference service : services) {
-            executor.execute(new Handler(service, workItem, oldStatus.toString(),
-                                            newStatus.toString(), ANNOUNCE_ITEM_STATUS));
+            _executor.execute(new Handler(service, workItem, oldStatus.toString(),
+                                            newStatus.toString(), ITEM_STATUS));
         }
     }
 
@@ -181,7 +185,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      */
     public void announceCaseCompletion(YAWLServiceReference yawlService, 
                                        YIdentifier caseID, Document caseData) {
-        executor.execute(new Handler(yawlService, caseID, caseData, "announceCompletion"));
+        _executor.execute(new Handler(yawlService, caseID, caseData, CASE_COMPLETE));
     }
 
     /**
@@ -191,7 +195,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      */
     public void announceEngineInitialised(Set<YAWLServiceReference> services, int maxWaitSeconds) {
         for (YAWLServiceReference service : services) {
-            executor.execute(new Handler(service, maxWaitSeconds, ANNOUNCE_INIT_ENGINE));
+            _executor.execute(new Handler(service, maxWaitSeconds, ENGINE_INIT));
         }
     }
 
@@ -203,7 +207,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     public void announceCaseCancellation(Set<YAWLServiceReference> services,
                                                YIdentifier id) {
         for (YAWLServiceReference service : services) {
-            executor.execute(new Handler(service, id, ANNOUNCE_CASE_CANCELLED));
+            _executor.execute(new Handler(service, id, CASE_CANCELLED));
         }
     }
 
@@ -212,7 +216,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * Called by the engine to announce shutdown of the engine's servlet container
      */
     public void shutdown() {
-        executor.shutdownNow();
+        _executor.shutdownNow();
 
     	// Nothing else to do - Interface B Clients handle shutdown within their own servlet.
     }
@@ -259,21 +263,21 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
     private class Handler implements Runnable {
         private YWorkItem _workItem;
         private YAWLServiceReference _yawlService;
-        private String _command; 
+        private YEngineEvent _command;
         private YIdentifier _caseID;
-        private Document _casedata;
+        private Document _caseData;
         private String _oldStatus;
         private String _newStatus;
         private int _pingTimeout = 5;
 
-        public Handler(YAWLServiceReference yawlService, YWorkItem workItem, String command) {
+        public Handler(YAWLServiceReference yawlService, YWorkItem workItem, YEngineEvent command) {
             _workItem = workItem;
             _yawlService = yawlService;
             _command = command;
         }
 
         public Handler(YAWLServiceReference yawlService, YWorkItem workItem,
-                       String oldStatus, String newStatus, String command) {
+                       String oldStatus, String newStatus, YEngineEvent command) {
             _workItem = workItem;
             _yawlService = yawlService;
             _command = command;
@@ -282,25 +286,20 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         }
 
         public Handler(YAWLServiceReference yawlService, YIdentifier caseID,
-                        Document casedata, String command) {
+                        Document casedata, YEngineEvent command) {
             _yawlService = yawlService;
             _caseID = caseID;
             _command = command;
-            _casedata = casedata;
+            _caseData = casedata;
         }
 
-        public Handler(YAWLServiceReference yawlService, String command) {
-            _yawlService = yawlService;
-            _command = command;
-        }
-
-        public Handler(YAWLServiceReference yawlService, int pingTimeout, String command) {
+        public Handler(YAWLServiceReference yawlService, int pingTimeout, YEngineEvent command) {
             _yawlService = yawlService;
             _pingTimeout = pingTimeout;
             _command = command;
         }
 
-        public Handler(YAWLServiceReference yawlService, YIdentifier id, String command) {
+        public Handler(YAWLServiceReference yawlService, YIdentifier id, YEngineEvent command) {
             _yawlService = yawlService;
             _caseID = id;
             _command = command;
@@ -311,90 +310,46 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
          * Load parameter map as required, then POST the message to the custom service
          */
         public void run() {
+            Map<String, String> paramsMap = prepareParamMap(_command.label(), null);
+            if (_workItem != null) paramsMap.put("workItem", _workItem.toXML());
+            if (_caseID != null) paramsMap.put("caseID", _caseID.toString());
             try {
-                if (ADDWORKITEM_CMD.equals(_command)) {
-                    String urlOfYawlService = _yawlService.getURI();
-                    String workItemXML = _workItem.toXML();
-                    Map<String, String> paramsMap = prepareParamMap("handleEnabledItem", null);
-                    paramsMap.put("workItem", workItemXML);
-                    executePost(urlOfYawlService, paramsMap);
-                }
-                else if (CANCELALLWORKITEMS_CMD.equals(_command)) {
-                    cancelWorkItem(_yawlService, _workItem);
-                    Set<YWorkItem> children = _workItem.getChildren();
-                    if (children != null) {
-                        for (YWorkItem item : children) {
-                            cancelWorkItem(_yawlService, item);
-                        }    
+                switch (_command) {
+                    case ITEM_STATUS: {
+                        paramsMap.put("oldStatus", _oldStatus);
+                        paramsMap.put("newStatus", _newStatus);
+                        break;
+                    }
+                    case CASE_COMPLETE: {
+                        paramsMap.put("casedata", JDOMUtil.documentToString(_caseData));
+                        break;
+                    }
+                    case ENGINE_INIT: {
+                        HttpURLValidator.pingUntilAvailable(_yawlService.getURI(), _pingTimeout);
+                        break;
                     }
                 }
-                else if (CANCELWORKITEM_CMD.equals(_command)) {
-                    String urlOfYawlService = _yawlService.getURI();
-                    String workItemXML = _workItem.toXML();
-                    Map<String, String> paramsMap = prepareParamMap("cancelWorkItem", null);
-                    paramsMap.put("workItem", workItemXML);
-                    executePost(urlOfYawlService, paramsMap);
-                }
-                else if (ANNOUNCE_COMPLETE_CASE_CMD.equals(_command)) {
-                    String urlOfYawlService = _yawlService.getURI();
-                    String caseID = _caseID.toString();
-                    String casedataStr = JDOMUtil.documentToString(_casedata) ;
-                    Map<String, String> paramsMap = prepareParamMap(_command, null);
-                    paramsMap.put("caseID", caseID);
-                    paramsMap.put("casedata", casedataStr) ;
-                    executePost(urlOfYawlService, paramsMap);
-                }
-                else if (ANNOUNCE_CASE_CANCELLED.equals(_command)) {
-                    String urlOfYawlService = _yawlService.getURI();
-                    String caseID = _caseID.toString();
-                    Map<String, String> paramsMap = prepareParamMap(_command, null);
-                    paramsMap.put("caseID", caseID);
-                    executePost(urlOfYawlService, paramsMap);
-                }
-                else if (ANNOUNCE_TIMER_EXPIRY_CMD.equals(_command)) {
-                    String urlOfYawlService = _yawlService.getURI();
-                    String workItemXML = _workItem.toXML();
-                    Map<String, String> paramsMap = prepareParamMap("timerExpiry", null);
-                    paramsMap.put("workItem", workItemXML);
-                    executePost(urlOfYawlService, paramsMap);
-                }
-                else if (ANNOUNCE_INIT_ENGINE.equals(_command)) {
-                    String urlOfYawlService = _yawlService.getURI();
-                    HttpURLValidator.pingUntilAvailable(urlOfYawlService, _pingTimeout);
-                    Map<String, String> paramsMap = prepareParamMap(_command, null);
-                    executePost(urlOfYawlService, paramsMap);
-                }
-                else if (ANNOUNCE_ITEM_STATUS.equals(_command)) {
-                    String urlOfYawlService = _yawlService.getURI();
-                    Map<String, String> paramsMap = prepareParamMap(_command, null);
-                    paramsMap.put("workItem", _workItem.toXML());
-                    paramsMap.put("oldStatus", _oldStatus);
-                    paramsMap.put("newStatus", _newStatus);
-                    executePost(urlOfYawlService, paramsMap);
-                }
+                executePost(_yawlService.getURI(), paramsMap);
             }
             catch (ConnectException ce) {
-                if (ADDWORKITEM_CMD.equals(_command)) {
+                if (_command == ITEM_ADD) {
                     redirectWorkItem(true);
                 }
-                else if (ANNOUNCE_INIT_ENGINE.equals(_command)) {
-                    logger.warn(MessageFormat.format(
+                else if (_command == ENGINE_INIT) {
+                    _logger.warn(MessageFormat.format(
                             "Failed to announce engine initialisation to {0} at URI [{1}]",
                             _yawlService.getServiceName(), _yawlService.getURI()));
                 }
             }
             catch (IOException e) {
 
-                if (ADDWORKITEM_CMD.equals(_command)) {
+                if (_command == ITEM_ADD) {
                     redirectWorkItem(false);
                 }
 
                 // ignore broadcast announcements for missing services
-                else if (! (ANNOUNCE_INIT_ENGINE.equals(_command) ||
-                       ANNOUNCE_CASE_CANCELLED.equals(_command) ||
-                       ANNOUNCE_ITEM_STATUS.equals(_command))) {
-                    logger.error("Failed to call YAWL service", e);
-                    e.printStackTrace();
+                else if (! (_command == ENGINE_INIT) || _command.isBroadcast()) {
+                    _logger.warn("Failed to call YAWL service", e);
                 }
             }            
         }
@@ -403,7 +358,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         private void redirectWorkItem(boolean connect) {
             YAWLServiceReference defWorklist = YEngine.getInstance().getDefaultWorklist();
             if (defWorklist == null) {
-                logger.error(MessageFormat.format(
+                _logger.error(MessageFormat.format(
                         "Could not {0} YAWL Service at URL [{1}] to announce enabled workitem" +
                         " [{2}], and cannot redirect workitem to default worklist handler" +
                         " because there is no default handler known to the engine.",
@@ -411,7 +366,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                         _workItem.getIDString()));
             }
             else if (! defWorklist.getURI().equals(_yawlService.getURI())) {
-                logger.warn(MessageFormat.format(
+                _logger.warn(MessageFormat.format(
                         "Could not {0} YAWL Service at URL [{1}] to announce enabled workitem" +
                         " [{2}]. Redirecting workitem to default worklist handler.",
                         connect ? "connect to" : "find", _yawlService.getURI(),
@@ -419,7 +374,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                 YEngine.getInstance().getAnnouncer().rejectAnnouncedEnabledTask(_workItem);
             }
             else {
-                logger.error(MessageFormat.format(
+                _logger.error(MessageFormat.format(
                         "Could not announce enabled workitem [{0}] to default worklist " +
                         "handler at URL [{1}]. Either the handler is missing or offline, " +
                         "or the URL is invalid.",

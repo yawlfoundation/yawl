@@ -62,12 +62,6 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
         String controllerClassName =
                 context.getInitParameter("InterfaceBWebSideController");
 
-        //If there is an auth proxy firewall and it has been configured it in the
-        //web.xml file the settings be retrieved for use.
-        String userName = context.getInitParameter("UserName");
-        String password = context.getInitParameter("Password");
-        String proxyHost = context.getInitParameter("ProxyHost");
-        String proxyPort = context.getInitParameter("ProxyPort");
         try {
             Class controllerClass = Class.forName(controllerClassName);
 
@@ -84,10 +78,19 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
             // retrieve the URL of the YAWL Engine from the web.xml file.
             String engineBackendAddress = context.getInitParameter("InterfaceB_BackEnd");
             _controller.setUpInterfaceBClient(engineBackendAddress);
+
+            //If there is an auth proxy firewall and it has been configured it in the
+            //web.xml file the settings be retrieved for use.
+            String userName = context.getInitParameter("UserName");
+            String password = context.getInitParameter("Password");
+            String proxyHost = context.getInitParameter("ProxyHost");
+            String proxyPort = context.getInitParameter("ProxyPort");
             _controller.setRemoteAuthenticationDetails(
                     userName, password, proxyHost, proxyPort);
+
             context.setAttribute("controller", _controller);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -124,7 +127,7 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
     }
 
 
-    private synchronized String processPostQuery(HttpServletRequest request) {
+    private String processPostQuery(HttpServletRequest request) {
         if (_debug) {
             _logger.debug("\nInterfaceB_Server_WebSide::doPost() " +
                     "request.getRequestURL = " + request.getRequestURL());
@@ -138,37 +141,43 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
         }
 
         String action = request.getParameter("action");
+        String caseID = request.getParameter("caseID");
         String workItemXML = request.getParameter("workItem");
-        WorkItemRecord workItem = null;
-        if (workItemXML != null) {
-            workItem = Marshaller.unmarshalWorkItem(workItemXML);
-        }
-        
-        if ("handleEnabledItem".equals(action)) {
+        WorkItemRecord workItem = (workItemXML != null) ?
+                Marshaller.unmarshalWorkItem(workItemXML) : null;
+
+        if ("announceItemEnabled".equals(action)) {
             _controller.handleEnabledWorkItemEvent(workItem);
-        }
-        else if ("cancelWorkItem".equals(action)) {
-            _controller.handleCancelledWorkItemEvent(workItem);
-        }
-        else if ("timerExpiry".equals(action)) {
-            _controller.handleTimerExpiryEvent(workItem);
-        }
-        else if ("announceCompletion".equals(action)) {
-            String caseID = request.getParameter("caseID");
-            String casedata = request.getParameter("casedata");
-            _controller.handleCompleteCaseEvent(caseID, casedata);
-        }
-        else if ("announceCaseCancelled".equals(action)) {
-            String caseID = request.getParameter("caseID");
-            _controller.handleCancelledCaseEvent(caseID);
-        }
-        else if ("announceEngineInitialised".equals(action)) {
-            _controller.handleEngineInitialisationCompletedEvent();
         }
         else if ("announceItemStatus".equals(action)) {
             String oldStatus = request.getParameter("oldStatus");
             String newStatus = request.getParameter("newStatus");
             _controller.handleWorkItemStatusChangeEvent(workItem, oldStatus, newStatus);
+        }
+        else if ("announceCaseCompleted".equals(action)) {
+            String casedata = request.getParameter("casedata");
+            _controller.handleCompleteCaseEvent(caseID, casedata);
+        }
+        else if ("announceItemCancelled".equals(action)) {
+            _controller.handleCancelledWorkItemEvent(workItem);
+        }
+        else if ("announceCaseCancelled".equals(action)) {
+            _controller.handleCancelledCaseEvent(caseID);
+        }
+        else if ("announceTimerExpiry".equals(action)) {
+            _controller.handleTimerExpiryEvent(workItem);
+        }
+        else if ("announceEngineInitialised".equals(action)) {
+            _controller.handleEngineInitialisationCompletedEvent();
+        }
+        else if ("announceCaseSuspending".equals(action)) {
+            _controller.handleCaseSuspendingEvent(caseID);
+        }
+        else if ("announceCaseSuspended".equals(action)) {
+            _controller.handleCaseSuspendedEvent(caseID);
+        }
+        else if ("announceCaseResumed".equals(action)) {
+            _controller.handleCaseResumedEvent(caseID);
         }
         else if ("ParameterInfoRequest".equals(action)) {
             YParameter[] params = _controller.describeRequiredParams();
