@@ -152,6 +152,30 @@ public abstract class InterfaceBWebsideController {
 
 
     /**
+     * Receives notification from the engine that an active case has been
+     * cancelled.  Override this method to take any necessary action.
+     * @param caseID the id of the case that has been cancelled
+     */
+    public void handleCaseSuspendingEvent(String caseID) { }
+
+
+    /**
+     * Receives notification from the engine that an active case has been
+     * cancelled.  Override this method to take any necessary action.
+     * @param caseID the id of the case that has been cancelled
+     */
+    public void handleCaseSuspendedEvent(String caseID) { }
+
+
+    /**
+     * Receives notification from the engine that an active case has been
+     * cancelled.  Override this method to take any necessary action.
+     * @param caseID the id of the case that has been cancelled
+     */
+    public void handleCaseResumedEvent(String caseID) { }
+
+
+    /**
      * Override this method if you wish to allow other tools to find out what
      * input parameters are required for your custom YAWL service to work.
      * @return an array of input parameters.

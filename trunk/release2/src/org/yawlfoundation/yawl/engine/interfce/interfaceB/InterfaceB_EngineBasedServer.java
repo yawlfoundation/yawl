@@ -205,7 +205,7 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
     //      Start YAWL Processing methods
     //###############################################################################
 
-    private synchronized String processPostQuery(HttpServletRequest request) {
+    private String processPostQuery(HttpServletRequest request) {
         StringBuilder msg = new StringBuilder();
         String sessionHandle = request.getParameter("sessionHandle");
         String action = request.getParameter("action");

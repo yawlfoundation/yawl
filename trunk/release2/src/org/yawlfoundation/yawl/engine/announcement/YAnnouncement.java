@@ -33,10 +33,10 @@ public class YAnnouncement {
     private final YAWLServiceReference _yawlService;
     private final YWorkItem _item;
     private final AnnouncementContext _context;
-    private final YEvent _event;
+    private final YEngineEvent _event;
 
 
-    public YAnnouncement(YAWLServiceReference service, YWorkItem item, YEvent event,
+    public YAnnouncement(YAWLServiceReference service, YWorkItem item, YEngineEvent event,
                          AnnouncementContext context) {
         _yawlService = service;
         _item = item;
@@ -44,7 +44,7 @@ public class YAnnouncement {
         _event = event;
     }
 
-    public YAnnouncement(YAWLServiceReference service, YWorkItem item, YEvent event) {
+    public YAnnouncement(YAWLServiceReference service, YWorkItem item, YEngineEvent event) {
         this(service, item, event, AnnouncementContext.NORMAL);
     }
 
@@ -57,7 +57,7 @@ public class YAnnouncement {
 
     public AnnouncementContext getContext() { return _context; }
 
-    public YEvent getEvent() { return _event ; }
+    public YEngineEvent getEvent() { return _event ; }
 
 
     @Override

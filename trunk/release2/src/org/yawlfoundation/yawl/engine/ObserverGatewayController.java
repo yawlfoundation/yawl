@@ -38,7 +38,9 @@ import java.util.concurrent.Executors;
  */
 public class ObserverGatewayController {
 
+    // map [scheme, gateways for scheme] of registered gateways
     private final Map<String, Set<ObserverGateway>> _gateways;
+
     private final ExecutorService _executor;
 
     private static final int THREADPOOL_SIZE = Runtime.getRuntime().availableProcessors();
@@ -54,11 +56,11 @@ public class ObserverGatewayController {
 
     /**
      * Add an observerGateway, which will receive event callbacks from the engine.
-     * @param observerGateway the gateway to add
+     * @param gateway the gateway to add
      * @throws YAWLException if the observerGateway has a null scheme value.
      */
-    void addGateway(ObserverGateway observerGateway) throws YAWLException {
-        String scheme = observerGateway.getScheme();
+    void addGateway(ObserverGateway gateway) throws YAWLException {
+        String scheme = gateway.getScheme();
         if (scheme == null) {
             throw new YAWLException("Cannot add: ObserverGateway has a null scheme.");
         }
@@ -67,22 +69,22 @@ public class ObserverGatewayController {
             schemeGateways = new HashSet<ObserverGateway>();
             _gateways.put(scheme, schemeGateways);
         }
-        schemeGateways.add(observerGateway);
+        schemeGateways.add(gateway);
     }
 
 
     /**
-     * Removes a previously registered observer observerGateway.
-     * @param observerGateway the gateway to remove
+     * Removes a previously registered observer gateway.
+     * @param gateway the gateway to remove
      * @return the boolean result of the removal.
      */
-    boolean removeGateway(ObserverGateway observerGateway) {
+    boolean removeGateway(ObserverGateway gateway) {
         boolean result = false;
-        String scheme = observerGateway.getScheme();
+        String scheme = gateway.getScheme();
         if (scheme != null) {
             Set<ObserverGateway> schemeGateways = _gateways.get(scheme);
             if (schemeGateways != null) {
-                result = schemeGateways.remove(observerGateway);
+                result = schemeGateways.remove(gateway);
                 if (schemeGateways.isEmpty()) _gateways.remove(scheme);
             }
         }
@@ -91,11 +93,16 @@ public class ObserverGatewayController {
 
 
     /**
-     * Checks if there are any registered gateways.
+     * Checks if there are any currently registered gateways.
      * @return true if there are no registered gateways
      */
     boolean isEmpty() { return _gateways.isEmpty(); }
 
+
+    /**
+     * Announce a set of work item notifications to the relevant observers
+     * @param announcements the Set of announcements
+     */
     protected void announce(final Set<YAnnouncement> announcements) {
         for (YAnnouncement announcement : announcements) {
             announce(announcement);
@@ -103,6 +110,10 @@ public class ObserverGatewayController {
     }
 
 
+    /**
+     * Announce a work item notification to the relevant observers
+     * @param announcement the announcement
+     */
     protected void announce(final YAnnouncement announcement) {
         if (announcement == null) return;
         _executor.execute(new Runnable() {
@@ -110,16 +121,14 @@ public class ObserverGatewayController {
                 String scheme = announcement.getScheme();
                 for (ObserverGateway gateway : getGatewaysForScheme(scheme)) {
                     switch (announcement.getEvent()) {
-                        case FIRED_ITEM: gateway.announceFiredWorkItem(announcement); break;
-                        case CANCELLED_ITEM: gateway.announceCancelledWorkItem(announcement); break;
-                        case TIMER_EXPIRY: gateway.announceTimerExpiry(announcement); break;
+                        case ITEM_ADD: gateway.announceFiredWorkItem(announcement); break;
+                        case ITEM_CANCEL: gateway.announceCancelledWorkItem(announcement); break;
+                        case TIMER_EXPIRED: gateway.announceTimerExpiry(announcement); break;
                     }
                 }
             }
         });
     }
-
-
 
 
 
@@ -144,6 +153,7 @@ public class ObserverGatewayController {
 
     /**
      * Notify a case completion to all registered gateways.
+     * @param services a set of the current engine-registered services
      * @param caseID the completing case identifier
      * @param caseData the final case data document
      */
@@ -165,6 +175,7 @@ public class ObserverGatewayController {
 
     /**
      * Notify of a change of status for a work item to all registered gateways.
+     * @param services a set of the current engine-registered services
      * @param workItem the work item that has changed status
      * @param oldStatus previous status
      * @param newStatus new status
@@ -191,6 +202,7 @@ public class ObserverGatewayController {
     /**
      * Notify the case is suspending
      * @param caseID the suspending case identifier
+     * @param services a set of the current engine-registered services
      */
     public void notifyCaseSuspending(final YIdentifier caseID,
                                      final Set<YAWLServiceReference> services) {
@@ -211,6 +223,7 @@ public class ObserverGatewayController {
     /**
      * Notify the case is suspended
      * @param caseID the suspended case identifier
+     * @param services a set of the current engine-registered services
      */
     public void notifyCaseSuspended(final YIdentifier caseID,
                                     final Set<YAWLServiceReference> services) {
@@ -231,6 +244,7 @@ public class ObserverGatewayController {
     /**
      * Notify the case is resumption
      * @param caseID the resuming case identifier
+     * @param services a set of the current engine-registered services
      */
     public void notifyCaseResumption(final YIdentifier caseID,
                                      final Set<YAWLServiceReference> services) {
@@ -259,9 +273,9 @@ public class ObserverGatewayController {
         _executor.execute(new Runnable() {
             public void run() {
                 for (Set<ObserverGateway> gateways : _gateways.values()) {
-            	    for (ObserverGateway observerGateway : gateways) {
-                        String scheme = observerGateway.getScheme();
-                        observerGateway.announceEngineInitialised(
+            	    for (ObserverGateway gateway : gateways) {
+                        String scheme = gateway.getScheme();
+                        gateway.announceEngineInitialised(
                                 getServicesForScheme(services, scheme),
                                 maxWaitSeconds);
                     }
@@ -281,9 +295,9 @@ public class ObserverGatewayController {
         _executor.execute(new Runnable() {
             public void run() {
                 for (Set<ObserverGateway> gateways : _gateways.values()) {
-            	    for (ObserverGateway observerGateway : gateways) {
-                        String scheme = observerGateway.getScheme();
-                        observerGateway.announceCaseCancellation(
+            	    for (ObserverGateway gateway : gateways) {
+                        String scheme = gateway.getScheme();
+                        gateway.announceCaseCancellation(
                                 getServicesForScheme(services, scheme), id);
                     }
                 }
@@ -299,8 +313,8 @@ public class ObserverGatewayController {
         _executor.execute(new Runnable() {
             public void run() {
                 for (Set<ObserverGateway> gateways : _gateways.values()) {
-            	    for (ObserverGateway observerGateway : gateways) {
-                        observerGateway.shutdown();
+            	    for (ObserverGateway gateway : gateways) {
+                        gateway.shutdown();
                     }
                 }
             }
@@ -310,10 +324,9 @@ public class ObserverGatewayController {
 
 
     /**
-     * Helper method which returns a vector of gateways which satisfy the requested protocol.<P>
-     *
-     * @param scheme    The scheme or protocol the gateway needs to support.
-     * @return Gateways of protocol scheme
+     * Get the set of gateways which satisfy the requested scheme.
+     * @param scheme The scheme or protocol the gateway needs to support.
+     * @return Gateways of the scheme
      */
     private Set<ObserverGateway> getGatewaysForScheme(String scheme) {
         return _gateways.containsKey(scheme) ? _gateways.get(scheme) :
@@ -321,6 +334,12 @@ public class ObserverGatewayController {
     }
 
 
+    /**
+     * Gets the set of all services of a particular scheme
+     * @param services all services currently registered with the engine
+     * @param scheme the scheme supported by services
+     * @return the set of services that are endpoints for the scheme
+     */
     private Set<YAWLServiceReference> getServicesForScheme(
             Set<YAWLServiceReference> services, String scheme) {
         Set<YAWLServiceReference> matches = new HashSet<YAWLServiceReference>();
@@ -331,8 +350,5 @@ public class ObserverGatewayController {
         }
         return matches;
     }
-
-
-
 
 }

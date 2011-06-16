@@ -27,80 +27,93 @@ import java.util.Set;
 
 
 /**
- * Interface to be implemented by 'shim' classes which register with the engine to receive callbacks when tasks
- * are posted and cancelled.
+ * Interface to be implemented by 'shim' classes which register with the engine to
+ * receive callbacks when tasks are posted and cancelled.
  *
  * @author Andrew Hastie
  *         Creation Date: 23-Aug-2005
  */
-public interface ObserverGateway
-{
-    String getScheme();
+public interface ObserverGateway {
 
     /**
-     * Called by the engine when a new workitem gets enabled.<P>
-     *
-     * @param announcement
+     * Gets the scheme part of the url of an implementing gateway.
+     * @return the scheme of the gateway
+     */
+    String getScheme();
+
+
+    /**
+     * Called by the engine when a new workitem gets enabled.
+     * @param announcement the work item descriptors
      */
     void announceFiredWorkItem(final YAnnouncement announcement);
 
+
     /**
-     * Called by the engine when a previously posted workitem has been cancelled.<P>
-     *
-     * @param announcement
+     * Called by the engine when a previously posted workitem has been cancelled.
+     * @param announcement the work item descriptors
      */
     void announceCancelledWorkItem(final YAnnouncement announcement);
 
+
     /**
-     * Called by the engine when a timer for a workitem expires.<P>
-     *
-     * @param announcement
+     * Called by the engine when a timer for a workitem expires.
+     * @param announcement the work item descriptors
      */
     void announceTimerExpiry(final YAnnouncement announcement);
 
 
     /**
-     * Called by engine to announce when a case is complete.
-     * @param yawlService the yawl service
+     * Called by engine when a case is complete and a completion observer was
+     * specified at case launch.
+     * @param yawlService the yawl service nominated as the completion observer
      * @param caseID the case that completed
-     * @param casedata the output data of the case
+     * @param caseData the output data of the case
      */
     void announceCaseCompletion(YAWLServiceReference yawlService, 
-                                YIdentifier caseID, Document casedata);
+                                YIdentifier caseID, Document caseData);
 
     /**
-     * Called by engine to announce when a case is complete.
+     * Called by engine to announce when a case is complete and a completion
+     * observer was not specified at case launch. This announcement is sent to all
+     * services on all registered gateways.
+     * @param services the set of services currently registered with the engine
      * @param caseID the case that completed
-     * @param casedata the output data of the case
+     * @param caseData the output data of the case
      */
     void announceCaseCompletion(Set<YAWLServiceReference> services, YIdentifier caseID,
-                                Document casedata);
+                                Document caseData);
 
     /**
-     * Called by the engine to annouce when a case suspends (i.e. becomes fully
-     * suspended as opposed to entering the 'suspending' state.
-     *
-     * @param caseID
+     * Called by the engine to announce when a case suspends (i.e. becomes fully
+     * suspended as opposed to entering the 'suspending' state).
+     * @param services the set of services currently registered with the engine
+     * @param caseID the identifier of the suspended case
      */
     void announceCaseSuspended(Set<YAWLServiceReference> services, YIdentifier caseID);
 
+
     /**
-     * Called by the engine to annouce when a case starts to suspends (i.e. enters the
-     * suspending state as opposed to entering the fully 'suspended' state.
-     *
-     * @param caseID
+     * Called by the engine to announce when a case starts to suspends (i.e. enters the
+     * suspending state as opposed to entering the fully 'suspended' state).
+     * @param services the set of services currently registered with the engine
+     * @param caseID the identifier of the suspending case
      */
     void announceCaseSuspending(Set<YAWLServiceReference> services, YIdentifier caseID);
 
+
     /**
-     * Called by the engine to annouce when a case resumes from a previous 'suspending' or 'suspended' state.
-     *
-     * @param caseID
+     * Called by the engine to announce when a case resumes from a previous 'suspending'
+     * or 'suspended' state.
+     * @param services the set of services currently registered with the engine
+     * @param caseID the identifier of the suspended case
      */
     void announceCaseResumption(Set<YAWLServiceReference> services, YIdentifier caseID);
 
+
     /**
-     * Notify of a change of status for a work item.
+     * Called by the engine to notify of a change of status for a work item.
+     * @param services the set of services currently registered with the engine
      * @param workItem that has changed
      * @param oldStatus previous status
      * @param newStatus new status
@@ -111,19 +124,26 @@ public interface ObserverGateway
                                       YWorkItemStatus newStatus);
 
     /**
-     * Notify the engine has completed initialisation and is running
+     * Called by the engine to notify that it has completed initialisation and is running.
+     * @param services the set of services currently registered with the engine
+     * @param maxWaitSeconds the maximum amount of time to wait attempting to
+     * contact the services managed by the gateway before giving up
      */
-    public void announceEngineInitialised(Set<YAWLServiceReference> services, int maxWaitSeconds) ;
+    void announceEngineInitialised(Set<YAWLServiceReference> services, int maxWaitSeconds) ;
+
 
     /**
-     * Notify the engine has cancelled a case
+     * Called by the engine to announce a case has been cancelled.
+     * @param services the set of services currently registered with the engine
+     * @param id the identifier of the cancelled case
      */
-    public void announceCaseCancellation(Set<YAWLServiceReference> services, YIdentifier id) ;
+    void announceCaseCancellation(Set<YAWLServiceReference> services, YIdentifier id) ;
+
 
     /**
      * Called when the Engine is shutdown (servlet destroyed); the observer gateway should
-     * to do its own finalisation processing
+     * to do its own finalisation processing.
      */
-    public void shutdown();
+    void shutdown();
 
 }

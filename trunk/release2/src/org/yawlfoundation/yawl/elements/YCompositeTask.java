@@ -94,7 +94,6 @@ public final class YCompositeTask extends YTask {
                         item.cancel(pmgr);
                         YEventLogger.getInstance().logWorkItemEvent(pmgr, item,
                                 YWorkItemStatus.statusDeleted, null);
-                        YEngine.getInstance().getAnnouncer().announceCancelledWorkItem(item);
                     }
                     cancelledRunners.add(netRunner);
                 }

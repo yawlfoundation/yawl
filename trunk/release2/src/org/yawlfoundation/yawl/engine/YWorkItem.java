@@ -430,6 +430,7 @@ public class YWorkItem {
         pmgr.deleteObject(item);
         _eventLog.logWorkItemEvent(pmgr, item, YWorkItemStatus.statusDeleted,
                 createLogDataList(YWorkItemStatus.statusDeleted.name()));
+        _engine.getAnnouncer().announceCancelledWorkItem(item);
     }
 
 

@@ -26,7 +26,7 @@ import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.announcement.AnnouncementContext;
 import org.yawlfoundation.yawl.engine.announcement.YAnnouncement;
-import org.yawlfoundation.yawl.engine.announcement.YEvent;
+import org.yawlfoundation.yawl.engine.announcement.YEngineEvent;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
@@ -35,6 +35,8 @@ import org.yawlfoundation.yawl.exceptions.YStateException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static org.yawlfoundation.yawl.engine.announcement.YEngineEvent.*;
 
 /**
  * Handles the announcement of engine-generated events to the environment.
@@ -132,40 +134,84 @@ public class YAnnouncer {
     /******************************************************************************/
     // INTERFACE B (OBSERVER GATEWAY) ANNOUNCEMENTS //
 
-    public void announceEngineInitialisationCompletion(Set<YAWLServiceReference> services,
-                                                       int maxWaitSeconds) {
+    /**
+     * Called by the engine when its initialisation is complete. Broadcast to all
+     * registered services and gateways.
+     * @param services the set of currently registered services
+     * @param maxWaitSeconds timeout to announce to each service before giving up
+     */
+    protected void announceEngineInitialisationCompletion(
+            Set<YAWLServiceReference> services, int maxWaitSeconds) {
         _controller.notifyEngineInitialised(services, maxWaitSeconds);
     }
 
 
+    /**
+     * Called by the engine when a case is cancelled. Broadcast to all registered
+     * services and gateways.
+     * @param id the identifier of the cancelled case
+     * @param services the set of currently registered services
+     */
     protected void announceCaseCancellation(YIdentifier id, Set<YAWLServiceReference> services) {
         _controller.notifyCaseCancellation(services, id);
         announceCaseCancellationToInterfaceXListeners(id);
     }
 
 
+    /**
+     * Called by YWorkItemTimer when a work item's timer expires. Announced only to
+     * the designated service or gateway.
+     * @param item the work item that has had its timer expire
+     */
     public void announceTimerExpiryEvent(YWorkItem item) {
-        announceToGateways(createAnnouncement(item, YEvent.TIMER_EXPIRY));
+        announceToGateways(createAnnouncement(item, TIMER_EXPIRED));
         announceTimerExpiryToInterfaceXListeners(item);
         _engine.getInstanceCache().setTimerExpired(item);
     }
 
 
+    /**
+     * Called by the engine when a case is suspending. Broadcast to all registered
+     * services and gateways.
+     * @param id the identifier of the suspending case
+     * @param services the set of currently registered services
+     */
     protected void announceCaseSuspending(YIdentifier id, Set<YAWLServiceReference> services) {
         _controller.notifyCaseSuspending(id, services);
     }
 
 
+    /**
+     * Called by the engine when a case has suspended. Broadcast to all registered
+     * services and gateways.
+     * @param id the identifier of the suspended case
+     * @param services the set of currently registered services
+     */
     protected void announceCaseSuspended(YIdentifier id, Set<YAWLServiceReference> services) {
         _controller.notifyCaseSuspended(id, services);
     }
 
 
+    /**
+     * Called by the engine when a case has resumed from suspension. Broadcast to all
+     * registered services and gateways.
+     * @param id the identifier of the resumed case
+     * @param services the set of currently registered services
+     */
     protected void announceCaseResumption(YIdentifier id, Set<YAWLServiceReference> services) {
         _controller.notifyCaseResumption(id, services);
     }
 
 
+    /**
+     * Called by a case's net runner when it completes. Announced only to the designated
+     * service or gateway when the 'service' parameter is not null, otherwise it is
+     * broadcast to all registered services and gateways.
+     * @param service the name of the service or gateway to announce the case completion
+     * to. If null, the event will be announced to all registered services and gateways
+     * @param caseID the identifier of the completed case
+     * @param caseData the final output data for the case
+     */
     protected void announceCaseCompletion(YAWLServiceReference service,
                                           YIdentifier caseID, Document caseData) {
         if (service == null) {
@@ -175,41 +221,67 @@ public class YAnnouncer {
     }
 
 
-    protected void announceWorkItemStatusChange(YWorkItem workItem, YWorkItemStatus oldStatus,
+    /**
+     * Called by a workitem when it has a change of status. Broadcast to all
+     * registered services and gateways.
+     * @param item the work item that has had a change of status
+     * @param oldStatus the previous status of the work item
+     * @param newStatus the new status of the workitem
+     */
+    protected void announceWorkItemStatusChange(YWorkItem item, YWorkItemStatus oldStatus,
                                              YWorkItemStatus newStatus) {
         debug("Announcing workitem status change from '", oldStatus + "' to new status '",
-                newStatus + "' for workitem '", workItem.getWorkItemID().toString(), "'.");
-        _controller.notifyWorkItemStatusChange(_engine.getYAWLServices(), workItem,
+                newStatus + "' for workitem '", item.getWorkItemID().toString(), "'.");
+        _controller.notifyWorkItemStatusChange(_engine.getYAWLServices(), item,
                 oldStatus, newStatus);
     }
 
 
+    /**
+     * Called by a workitem when it is cancelled. Announced only to the designated
+     * service or gateway.
+     * @param item the work item that has had a change of status
+     */
+    public void announceCancelledWorkItem(YWorkItem item) {
+        announceToGateways(createAnnouncement(item, ITEM_CANCEL));
+    }
+
+
+    /**
+     * Called by the engine when it begins to shutdown. Broadcast to all registered
+     * services and gateways.
+     */
     protected void shutdownObserverGateways() {
     	  _controller.shutdownObserverGateways();
     }
 
 
+    /**
+     * Called by the engine each time a net runner advances a case, resulting in the
+     * enabling and/or cancelling of one or more work items.
+     * @param announcements A set of work item enabling or cancellation events
+     */
     protected void announceToGateways(Set<YAnnouncement> announcements) {
         debug("Announcing ", announcements.size() + " events.");
         _controller.announce(announcements);
     }
 
 
-    protected void announceToGateways(YAnnouncement announcement) {
+    private void announceToGateways(YAnnouncement announcement) {
         debug("Announcing one event.");
         _controller.announce(announcement);
     }
 
 
     protected YAnnouncement createAnnouncement(YAWLServiceReference ys, YWorkItem item,
-                                               YEvent event) {
+                                               YEngineEvent event) {
         if (ys == null) ys = _engine.getDefaultWorklist();
         return (ys != null) ?
                 new YAnnouncement(ys, item, event, getAnnouncementContext()) : null;
     }
 
 
-    protected YAnnouncement createAnnouncement(YWorkItem item, YEvent event) {
+    protected YAnnouncement createAnnouncement(YWorkItem item, YEngineEvent event) {
         YTask task = item.getTask();
         if ((task != null) && (task.getDecompositionPrototype() != null)) {
             YAWLServiceGateway wsgw = (YAWLServiceGateway) task.getDecompositionPrototype();
@@ -221,12 +293,6 @@ public class YAnnouncer {
     }
 
 
-    // called from a task's cancel method
-    public void announceCancelledWorkItem(YWorkItem item) {
-        announceToGateways(createAnnouncement(item, YEvent.CANCELLED_ITEM));
-    }
-
-
     // this method should be called by an IB service when it decides it is not going
     // to handle (i.e. checkout) a workitem announced to it. It passes the workitem to
     // the default worklist service for normal assignment.
@@ -235,7 +301,7 @@ public class YAnnouncer {
         if (defaultWorklist != null) {
             debug("Announcing enabled task ", item.getIDString(), " on service ",
                           defaultWorklist.getServiceID());
-            announceToGateways(createAnnouncement(item, YEvent.FIRED_ITEM));
+            announceToGateways(createAnnouncement(item, ITEM_ADD));
         }
     }
 
@@ -363,7 +429,7 @@ public class YAnnouncer {
     private int reannounceWorkItems(Set<YWorkItem> workItems) throws YStateException {
         Set<YAnnouncement> announcements = new HashSet<YAnnouncement>();
         for (YWorkItem workitem : workItems) {
-            YAnnouncement announcement = createAnnouncement(workitem, YEvent.FIRED_ITEM);
+            YAnnouncement announcement = createAnnouncement(workitem, ITEM_ADD);
             if (announcement != null) announcements.add(announcement);
         }
         announceToGateways(announcements);
@@ -376,7 +442,7 @@ public class YAnnouncer {
      */
     protected void reannounceWorkItem(YWorkItem workItem) throws YStateException {
         debug("--> reannounceWorkItem: WorkitemID=" + workItem.getWorkItemID().toString());
-        announceToGateways(createAnnouncement(workItem, YEvent.FIRED_ITEM));
+        announceToGateways(createAnnouncement(workItem, ITEM_ADD));
         debug("<-- reannounceEnabledWorkItem");
     }
 

@@ -25,7 +25,7 @@ import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.announcement.YAnnouncement;
-import org.yawlfoundation.yawl.engine.announcement.YEvent;
+import org.yawlfoundation.yawl.engine.announcement.YEngineEvent;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YTimerVariable;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
@@ -619,7 +619,7 @@ public class YNetRunner {
             if (groupID != null) item.setDeferredChoiceGroupID(groupID);
 
             announcement = _announcer.createAnnouncement(wsgw.getYawlService(), item,
-                    YEvent.FIRED_ITEM);
+                    YEngineEvent.ITEM_ADD);
 
             if (_announcer.hasInterfaceXListeners()) {
                 _announcer.announceCheckWorkItemConstraints(item,
@@ -675,7 +675,7 @@ public class YNetRunner {
 
             //announce all cancelled work items
             YAnnouncement announcement = _announcer.createAnnouncement(wItem,
-                    YEvent.CANCELLED_ITEM);
+                    YEngineEvent.ITEM_CANCEL);
             if (announcement != null) _announcements.add(announcement);
 
             // log it
