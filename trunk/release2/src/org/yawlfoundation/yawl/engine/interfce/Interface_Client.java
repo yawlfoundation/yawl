@@ -118,7 +118,7 @@ public class Interface_Client {
     /**
      * Sends data to the specified url via a HTTP POST, and returns the reply
      * @param urlStr the url to connect to
-     * @param paramsMap a map of atttribute=value pairs representing the data to send
+     * @param paramsMap a map of attribute=value pairs representing the data to send
      * @param post true if this was originally a POST request, false if a GET request
      * @return the response from the url
      * @throws IOException when there's some kind of communication problem
@@ -151,7 +151,11 @@ public class Interface_Client {
         URL url = new URL(urlStr);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setDoOutput(true);
-        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Accept-Charset", "UTF-8");
+
+        // required to ensure the connection is not reused. When not set, spurious
+        // intermittent problems (double posts, missing posts) occur under heavy load.
+        connection.setRequestProperty("Connection", "close");
         return connection ;
     }
 
