@@ -21,11 +21,14 @@ package org.yawlfoundation.yawl.resourcing.datastore.eventlog;
 import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Handles the logging of resource 'events'
@@ -37,8 +40,12 @@ public class EventLogger {
 
     private static boolean _loggingEnabled = false;
     private static boolean _logOffers = false;
-    private static Persister _persister = Persister.getInstance() ;
+    private static Persister _persister = Persister.getInstance();
     private static Map<String, Object> _specMap;
+
+    private static final ExecutorService _executor = Executors.newFixedThreadPool(
+            Runtime.getRuntime().availableProcessors());
+
 
     public static enum event { offer, allocate, start, suspend, deallocate, delegate,
         reallocate_stateless, reallocate_stateful, skip, pile, cancel, chain, complete,
@@ -55,6 +62,18 @@ public class EventLogger {
     public static void setLogging(boolean flag) { _loggingEnabled = flag; }
 
     public static void setOfferLogging(boolean flag) { _logOffers = flag ; }
+
+
+    public static List<Runnable> shutdown() {
+        List<Runnable> x = _executor.shutdownNow();
+        try {
+            _executor.awaitTermination(1, TimeUnit.SECONDS);
+        }
+        catch (InterruptedException ie) {
+            // we're done
+        }
+        return x;
+    }
 
 
     public static void log(WorkItemRecord wir, String pid, event eType) {
@@ -126,8 +145,12 @@ public class EventLogger {
     }
 
 
-    private static void insertEvent(Object event) {
-        if (_persister != null) _persister.insert(event);
+    private static void insertEvent(final Object event) {
+        _executor.execute(new Runnable() {
+            public void run() {
+                _persister.insert(event);
+            }
+        });
     }
 
 
@@ -136,37 +159,29 @@ public class EventLogger {
      * doesn't exist and returns its key.
      * @param ySpecID the identifiers of the specification
      * @return the primary key for the specification
-     * @throws YPersistenceException if there's a problem with the persistence layer
      */
     public static long getSpecificationKey(YSpecificationID ySpecID) {
-        long result = -1;
         if (ySpecID == null) return -1;
-        SpecLog specEntry = null;
+        if (_specMap == null) _specMap = _persister.selectMap("SpecLog");
         String key = ySpecID.getKey() + ySpecID.getVersionAsString();
-
-        if (_persister != null) {
-            if (_specMap == null) {
-                _specMap = _persister.selectMap("SpecLog");
-            }
-            if (! _specMap.isEmpty()) {
-                specEntry = (SpecLog) _specMap.get(key);
-                if (specEntry != null) {
-                    result = specEntry.getLogID();
-                }
-            }
-            if (specEntry == null) {
-                specEntry = new SpecLog(ySpecID);
-                _persister.insert(specEntry);
-                _specMap.put(key, specEntry);
-                result = specEntry.getLogID();               
-            }
-            _persister.commit();
+        long result = getSpecificationKey(key);
+        if (result < 0) {
+            SpecLog specEntry = new SpecLog(ySpecID);
+            _persister.insert(specEntry);
+            _specMap.put(key, specEntry);
+            result = specEntry.getLogID();
         }
         return result;
     }
 
-    public static long getSpecificationKey(WorkItemRecord wir) {
+    private static long getSpecificationKey(WorkItemRecord wir) {
         return getSpecificationKey(new YSpecificationID(wir));
+    }
+
+    // pre: specMap != null
+    private static long getSpecificationKey(String key) {
+        SpecLog specEntry = (SpecLog) _specMap.get(key);
+        return (specEntry != null) ? specEntry.getLogID() : -1;
     }
 
 

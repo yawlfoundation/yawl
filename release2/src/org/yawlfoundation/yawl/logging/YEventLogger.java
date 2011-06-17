@@ -19,21 +19,20 @@
 package org.yawlfoundation.yawl.logging;
 
 import org.apache.log4j.Logger;
-import org.yawlfoundation.yawl.authentication.*;
+import org.yawlfoundation.yawl.authentication.YClient;
+import org.yawlfoundation.yawl.authentication.YSession;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.*;
-import static org.yawlfoundation.yawl.engine.YWorkItemStatus.statusIsParent;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.logging.table.*;
 import org.yawlfoundation.yawl.schema.XSDType;
-import org.yawlfoundation.yawl.schema.YDataSchemaCache;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import static org.yawlfoundation.yawl.engine.YWorkItemStatus.statusIsParent;
 
 /**
  * Handles all process logging of case, subnet, workitem and workitem data events.
@@ -70,21 +69,15 @@ public class YEventLogger {
     public final static String NET_COMPLETE = "NetComplete";
     public final static String NET_CANCEL = "NetCancel";
 
-    private final String WARN_MSG = "WARNING: Exception writing %s to the process logs.";
-
-    // caches caseIDs <--> rootNetInstanceIDs for writing to event table rows
-    private Map<String, Long> _caseIDtoRootNetMap = new HashMap<String, Long>() ;
-
-    private Logger _log = Logger.getLogger(YEventLogger.class);
+    private final Logger _log = Logger.getLogger(YEventLogger.class);
     private boolean _enabled = true;
     private static YEventLogger _me = null;
     private YEngine _engine;
 
-    private YDataSchemaCache _dataSchemaCache = new YDataSchemaCache();
+    private final YEventKeyCache _keyCache = new YEventKeyCache();
 
 
     // PUBLIC INTERFACE METHODS //
-
 
     /**
      * Get a reference to the event logger object. This one is called by the engine on
@@ -119,11 +112,12 @@ public class YEventLogger {
 
     public String getDataSchema(YSpecificationID specID, String dataTypeName) {
         return XSDType.getInstance().isBuiltInType(dataTypeName) ? dataTypeName :
-                _dataSchemaCache.getSchemaTypeAsString(specID, dataTypeName);
+                _keyCache.dataSchema.getSchemaTypeAsString(specID, dataTypeName);
     }
 
-    public void removeSpecificationDataSchemas(YSpecificationID specID) {
-        _dataSchemaCache.remove(specID);
+    public void removeSpecificationFromCache(YSpecificationID specID) {
+        _keyCache.removeSpecification(specID);
+        _keyCache.dataSchema.remove(specID);
     }
 
 
@@ -131,9 +125,11 @@ public class YEventLogger {
 
     /**
      * Logs the launching of a new process instance.
+     * @param pmgr the active persistence manager object
      * @param ySpecID the id of the process specification
      * @param caseID the id of the case
      * @param datalist a list of data entries to log with this event
+     * @param serviceRef a reference to the client service that launched the case
      */
     public void logCaseCreated(YPersistenceManager pmgr, YSpecificationID ySpecID,
                                YIdentifier caseID, YLogDataItemList datalist,
@@ -144,7 +140,7 @@ public class YEventLogger {
                                                  getRootNetID(pmgr, ySpecID), -1);
                 long serviceID = getServiceID(pmgr, serviceRef);
                 logEvent(pmgr, netInstanceID, CASE_START, datalist, serviceID, netInstanceID);
-                _caseIDtoRootNetMap.put(caseID.toString(), netInstanceID);
+                _keyCache.netInstances.put(caseID, netInstanceID);
             }
             catch (YPersistenceException ype) {
                 _log.error(getWarnMsg("case creation"), ype);
@@ -155,6 +151,7 @@ public class YEventLogger {
 
     /**
      * Logs the launching of a sub-net (ie. the enablement of a composite task).
+     * @param pmgr the active persistence manager object
      * @param ySpecID the id of the process specification
      * @param runner the net runner launching this sub-net
      * @param engineTaskID the task id assigned by the engine
@@ -192,8 +189,10 @@ public class YEventLogger {
 
     /**
      * Logs a case cancellation.
+     * @param pmgr the active persistence manager object
      * @param caseID the id of the case
      * @param datalist a list of data entries to log with this event
+     * @param serviceRef a reference to the client service that launched the case
      */
     public void logCaseCancelled(YPersistenceManager pmgr, YIdentifier caseID,
                                  YLogDataItemList datalist, String serviceRef) {
@@ -203,6 +202,7 @@ public class YEventLogger {
                 long serviceID = getServiceID(pmgr, serviceRef);
                 logEvent(pmgr, netInstanceID, CASE_CANCEL, datalist, serviceID,
                          getRootNetInstanceID(pmgr, caseID));
+                _keyCache.removeCase(caseID);
             }
             catch (YPersistenceException ype) {
                 _log.error(getWarnMsg("case cancellation"), ype);
@@ -214,6 +214,7 @@ public class YEventLogger {
     /**
      * Logs the normal completion of a net. If the net is a root net, it means the
      * case has completed.
+     * @param pmgr the active persistence manager object
      * @param engineNetID the id of the net
      * @param datalist a list of data entries to log with this event
      */
@@ -231,7 +232,7 @@ public class YEventLogger {
                 }
                 else {
                     event = CASE_COMPLETE;
-                    _caseIDtoRootNetMap.remove(engineNetID.toString()) ;
+                    _keyCache.removeCase(engineNetID);
                 }
                 logEvent(pmgr, netInstanceID, event, datalist, -1, rootNetInstanceID);
             }
@@ -266,6 +267,7 @@ public class YEventLogger {
 
     /**
      * Logs a workitem event (change of status).
+     * @param pmgr the active persistence manager object
      * @param workItem the workitem that triggered the event
      * @param eventName the event that has occurred
      * @param datalist a list of data entries to log with this event
@@ -291,6 +293,7 @@ public class YEventLogger {
 
     /**
      * Logs a workitem event (change of status).
+     * @param pmgr the active persistence manager object
      * @param workItem the workitem that triggered the event
      * @param event the event that has occurred
      * @param datalist a list of data entries to log with this event
@@ -304,6 +307,7 @@ public class YEventLogger {
 
     /**
      * Logs data variables and values when mapped between net and workitem
+     * @param pmgr the active persistence manager object
      * @param workitem the workitem starting or completing
      * @param descriptor a label for the kind of data it is
      * @param datalist a list of data entries to log with this event
@@ -337,12 +341,13 @@ public class YEventLogger {
     }
 
     private String getWarnMsg(String value) {
-        return String.format(WARN_MSG, value);
+        return String.format("WARNING: Exception writing %s to the process logs.", value);
     }
 
 
     /**
      * Gets the row of the YLogSpecification table matching the spec data passed
+     * @param pmgr the active persistence manager object
      * @param ySpecID the identifiers of the specification
      * @return the matching table row as a YLogSpecification object, or null if no match
      * @throws YPersistenceException if there's a problem with the persistence layer
@@ -353,14 +358,22 @@ public class YEventLogger {
 
         // pre-2.0 specs don't have an identifier field
         String field = (ySpecID.getIdentifier() != null) ? "identifier" : "uri";
-        String where = String.format("%s='%s' AND tbl.version='%s'", field, ySpecID.getKey(),
-                                      ySpecID.getVersionAsString());
-        return (YLogSpecification) selectScalarWhere(pmgr, "YLogSpecification", where);
+
+        YLogSpecification specEntry = _keyCache.specEntries.get(ySpecID);
+        if (specEntry == null) {
+            String where = String.format("%s='%s' AND tbl.version='%s'", field,
+                    ySpecID.getKey(), ySpecID.getVersionAsString());
+            specEntry = (YLogSpecification) selectScalarWhere(pmgr,
+                    "YLogSpecification", where);
+            _keyCache.specEntries.put(ySpecID, specEntry);
+        }
+        return specEntry;
     }
 
 
     /**
      * Gets the primary key for a specification record.
+     * @param pmgr the active persistence manager object
      * @param ySpecID the identifiers of the specification
      * @return the primary key for the specification
      * @throws YPersistenceException if there's a problem with the persistence layer
@@ -375,26 +388,30 @@ public class YEventLogger {
     /**
      * Gets the (primary key) id for the root net of a specification, creating new
      * specification and root net records if they have never been logged.
+     * @param pmgr the active persistence manager object
      * @param ySpecID the identifiers of the specification
      * @return the primary key for the root net entry for the specification
      * @throws YPersistenceException if there's a problem with the persistence layer
      */
     private long getRootNetID(YPersistenceManager pmgr, YSpecificationID ySpecID)
             throws YPersistenceException {
-        long result;
-        YLogSpecification specEntry = getSpecificationEntry(pmgr, ySpecID);
-        if (specEntry != null) {
-            result = specEntry.getRootNetID();                          // entry exists
-        }
-        else {
+        Long result = _keyCache.rootNets.get(ySpecID);
+        if (result == null) {
+            YLogSpecification specEntry = getSpecificationEntry(pmgr, ySpecID);
+            if (specEntry != null) {
+                result = specEntry.getRootNetID();
+            }
+            else {
 
-            // insert new spec & root net entries
-            specEntry = insertSpecification(pmgr, ySpecID);
-            result = insertNet(pmgr, getRootNetName(ySpecID), specEntry.getRowKey());
+                // insert new spec & root net entries
+                specEntry = insertSpecification(pmgr, ySpecID);
+                result = insertNet(pmgr, getRootNetName(ySpecID), specEntry.getRowKey());
 
-            // now update spec entry with cross-ref to net entry
-            specEntry.setRootNetID(result);
-            updateRow(pmgr, specEntry);
+                // now update spec entry with cross-ref to net entry
+                specEntry.setRootNetID(result);
+                updateRow(pmgr, specEntry);
+            }
+            _keyCache.rootNets.put(ySpecID, result);
         }
         return result;
     }
@@ -404,6 +421,7 @@ public class YEventLogger {
      * Gets the (primary key) id for the net of the specification with the name specified,
      * and creates a new net record if the net has not yet been recorded.
      * Assumption: all (sub-)net names are unique within a specification.
+     * @param pmgr the active persistence manager object
      * @param ySpecID the identifiers of the specification
      * @param netName the name of the net or sub-net
      * @return the primary key for the net entry
@@ -412,14 +430,20 @@ public class YEventLogger {
     private long getNetID(YPersistenceManager pmgr, YSpecificationID ySpecID, String netName)
             throws YPersistenceException {
         long specKey = getSpecificationKey(pmgr, ySpecID);
-        String where = String.format("name='%s' AND tbl.specKey=%d", netName, specKey);
-        YLogNet net = (YLogNet) selectScalarWhere(pmgr, "YLogNet", where);
-        return (net != null) ? net.getNetID() : insertNet(pmgr, netName, specKey);
+        long netID = _keyCache.getNetID(ySpecID, netName);
+        if (netID < 0) {
+            String where = String.format("name='%s' AND tbl.specKey=%d", netName, specKey);
+            YLogNet net = (YLogNet) selectScalarWhere(pmgr, "YLogNet", where);
+            netID = (net != null) ? net.getNetID() : insertNet(pmgr, netName, specKey);
+            _keyCache.putNetID(ySpecID, netName, netID);
+        }
+        return netID;
     }
 
 
     /**
      * Gets the (primary key) id for a task
+     * @param pmgr the active persistence manager object
      * @param workItem a workitem instantiated from the task
      * @return the primary key for the task record
      * @throws YPersistenceException if there's a problem with the persistence layer
@@ -434,6 +458,7 @@ public class YEventLogger {
     /**
      * Gets the (primary key) id for a task, and creates a new task record if the task
      * has not yet been recorded.
+     * @param pmgr the active persistence manager object
      * @param ySpecID the identifiers of the specification
      * @param engineTaskID the task id assigned by the engine
      * @param childNetID the FK to the unfolded net of this task (composite tasks only)
@@ -444,52 +469,58 @@ public class YEventLogger {
                            String engineTaskID, long childNetID)
             throws YPersistenceException {
         YTask task = _engine.getTaskDefinition(ySpecID, engineTaskID);
-        long netID = getNetID(pmgr, ySpecID, task._net.getID()) ;
-        String where = String.format("name='%s' AND tbl.parentNetID=%d", task.getName(), netID);
-        YLogTask logTask = (YLogTask) selectScalarWhere(pmgr, "YLogTask", where);
-
-        return (logTask != null) ? logTask.getTaskID() :
-                insertTask(pmgr, task.getName(), netID, childNetID);
+        String taskName = task.getName();
+        long netID = getNetID(pmgr, ySpecID, task._net.getID());
+        long taskID = _keyCache.getTaskID(netID, taskName);
+        if (taskID < 0) {
+            String where = String.format("name='%s' AND tbl.parentNetID=%d",
+                    taskName, netID);
+            YLogTask logTask = (YLogTask) selectScalarWhere(pmgr, "YLogTask", where);
+            taskID = (logTask != null) ? logTask.getTaskID() :
+                    insertTask(pmgr, taskName, netID, childNetID);
+            _keyCache.putTaskID(netID, taskName, taskID);
+        }
+        return taskID;
     }
 
 
     /**
      * Gets the primary key for the root net of a process instance
+     * @param pmgr the active persistence manager object
      * @param caseID the case id
      * @return the primary key for the root net record
+     * @throws YPersistenceException if there's a problem with the persistence layer
      */
     private long getRootNetInstanceID(YPersistenceManager pmgr, YIdentifier caseID)
             throws YPersistenceException {
-        long result = -1;
-        String rootCaseID = caseID.getRootAncestor().toString();
-        if (_caseIDtoRootNetMap.containsKey(rootCaseID)) {
-            result = _caseIDtoRootNetMap.get(rootCaseID);
-        }
-        else {
-            Long key = getNetInstanceID(pmgr, caseID.getRootAncestor());
-            if (key != null) result = key;
-        }
-        return result;
+        return getNetInstanceID(pmgr, caseID.getRootAncestor());
     }
 
 
     /**
      * Gets the primary key of a net instance
+     * @param pmgr the active persistence manager object
      * @param engineID the 'case id' of the net instance
      * @return the primary key of a net instance record
      * @throws YPersistenceException if there's a problem with the persistence layer
      */
     private long getNetInstanceID(YPersistenceManager pmgr, YIdentifier engineID)
             throws YPersistenceException {
-        String where = String.format("engineInstanceID='%s'", engineID.toString());
-        YLogNetInstance instance =
-                (YLogNetInstance) selectScalarWhere(pmgr, "YLogNetInstance", where);
-        return (instance != null) ? instance.getNetInstanceID() : -1;
+        Long result = _keyCache.netInstances.get(engineID);
+        if (result == null) {
+            String where = String.format("engineInstanceID='%s'", engineID.toString());
+            YLogNetInstance instance =
+                    (YLogNetInstance) selectScalarWhere(pmgr, "YLogNetInstance", where);
+            result = (instance != null) ? instance.getNetInstanceID() : -1;
+            _keyCache.netInstances.put(engineID, result);
+        }
+        return result;
     }
 
 
     /**
      * Gets the (primary key) id for a task instance
+     * @param pmgr the active persistence manager object
      * @param workItem a workitem instantiated from the task
      * @return the primary key for the task record
      * @throws YPersistenceException if there's a problem with the persistence layer
@@ -503,6 +534,7 @@ public class YEventLogger {
 
     /**
      * Gets the primary key of a net instance
+     * @param pmgr the active persistence manager object
      * @param engineID the 'case id' of the task instance
      * @param taskID a foreign key to the corresponding YLogTask record
      * @return the primary key of a task instance record
@@ -510,11 +542,16 @@ public class YEventLogger {
      */
     private long getTaskInstanceID(YPersistenceManager pmgr, YIdentifier engineID, long taskID)
             throws YPersistenceException {
-        String where = String.format("engineInstanceID='%s' AND tbl.taskID=%d",
-                                    engineID.toString(), taskID);
-        YLogTaskInstance instance =
-                (YLogTaskInstance) selectScalarWhere(pmgr, "YLogTaskInstance", where);
-        return (instance != null) ? instance.getTaskInstanceID() : -1;
+        long taskInstanceID = _keyCache.getTaskInstanceID(engineID, taskID);
+        if (taskInstanceID < 0) {
+            String where = String.format("engineInstanceID='%s' AND tbl.taskID=%d",
+                                        engineID.toString(), taskID);
+            YLogTaskInstance instance =
+                    (YLogTaskInstance) selectScalarWhere(pmgr, "YLogTaskInstance", where);
+            taskInstanceID = (instance != null) ? instance.getTaskInstanceID() : -1;
+            _keyCache.putTaskInstanceID(engineID, taskID, taskInstanceID);
+        }
+        return taskInstanceID;
     }
 
 
@@ -545,6 +582,7 @@ public class YEventLogger {
 
     /**
      * Gets the primary key of a service record
+     * @param pmgr the active persistence manager object
      * @param name the name of the service
      * @param url the url of the service
      * @return the primary key
@@ -552,24 +590,38 @@ public class YEventLogger {
      */
     private long getServiceID(YPersistenceManager pmgr, String name, String url)
             throws YPersistenceException {
-        String template = (url != null) ? "name='%s' AND tbl.url='%s'" : "name='%s'";
-        String where = String.format(template, name, url);
-        YLogService instance = (YLogService) selectScalarWhere(pmgr, "YLogService", where);
-        return (instance != null) ? instance.getServiceID() : insertService(pmgr, name, url);
+        Long serviceID = _keyCache.services.get((url != null) ? url : name);
+        if (serviceID == null) {
+            String template = (url != null) ? "name='%s' AND tbl.url='%s'" : "name='%s'";
+            String where = String.format(template, name, url);
+            YLogService instance = (YLogService) selectScalarWhere(pmgr, "YLogService", where);
+            serviceID = (instance != null) ? instance.getServiceID() : insertService(pmgr, name, url);
+            _keyCache.services.put((url != null) ? url : name, serviceID);
+        }
+        return serviceID;
     }
 
 
     /**
      * Gets the primary key of a data type definition record
+     * @param pmgr the active persistence manager object
      * @param item the data item with the data type to get the id for
      * @return the primary key of a dataType record
      * @throws YPersistenceException if there's a problem with the persistence layer
      */
     private long getDataTypeID(YPersistenceManager pmgr, YLogDataItem item)
             throws YPersistenceException {
-        String where = String.format("definition='%s'", item.getDataTypeDefinition());
-        YLogDataType dataType = (YLogDataType) selectScalarWhere(pmgr, "YLogDataType", where);
-        return (dataType != null) ? dataType.getDataTypeID() : insertDataType(pmgr, item);
+        String def = item.getDataTypeDefinition();
+        Long dataTypeID = _keyCache.dataDefn.get(def);
+        if (dataTypeID == null) {
+            String where = String.format("definition='%s'", def);
+            YLogDataType dataType = (YLogDataType) selectScalarWhere(pmgr,
+                    "YLogDataType", where);
+            dataTypeID = (dataType != null) ? dataType.getDataTypeID() :
+                    insertDataType(pmgr, item);
+            _keyCache.dataDefn.put(def, dataTypeID);
+        }
+        return dataTypeID;
     }
 
 
@@ -586,6 +638,7 @@ public class YEventLogger {
 
     /**
      * Inserts a new specification record
+     * @param pmgr the active persistence manager object
      * @param ySpecID the id of the specification to insert
      * @return the inserted record
      * @throws YPersistenceException if there's a problem with the persistence layer
@@ -601,6 +654,7 @@ public class YEventLogger {
 
     /**
      * Inserts a new net record
+     * @param pmgr the active persistence manager object
      * @param netName the name of the net
      * @param specKey a foreign key to the parent specification
      * @return the primary key of the inserted record
@@ -616,6 +670,7 @@ public class YEventLogger {
 
     /**
      * Inserts a new net instance record
+     * @param pmgr the active persistence manager object
      * @param engineID the 'case id' of the net instance
      * @param netID a foreign key to the net record of which this is an instance
      * @param parentTaskInstanceID a foreign key to the parent task record that
@@ -635,6 +690,7 @@ public class YEventLogger {
 
     /**
      * Inserts a new task record
+     * @param pmgr the active persistence manager object
      * @param taskName the name of the task
      * @param netID a foreign key to the encapsulating net
      * @param childNetID a foreign key to the child net this task unfolds to (composite
@@ -652,6 +708,7 @@ public class YEventLogger {
 
     /**
      * Inserts a new task instance record
+     * @param pmgr the active persistence manager object
      * @param workItem the task instance
      * @return the primary key of the inserted record
      * @throws YPersistenceException if there's a problem with the persistence layer
@@ -682,6 +739,7 @@ public class YEventLogger {
 
     /**
      * Inserts a new task instance record
+     * @param pmgr the active persistence manager object
      * @param engineInstanceID the 'case id' of this task instance
      * @param taskID a foreign key to the task of which this is an instance
      * @param parentTaskInstanceID a foreign key to the parent task instance (child
@@ -703,10 +761,12 @@ public class YEventLogger {
 
     /**
      * Logs an event and its associated data items
+     * @param pmgr the active persistence manager object
      * @param instanceID a foreign key to either the net instance or the task instance
      * that generated the event
      * @param descriptor a label that describes the kind of event
      * @param datalist the list of data items to insert
+     * @param serviceID a foreign key to the client service initiating the event
      * @param rootNetInstanceID a foreign key to the root net instance that (eventually)
      * encapsulates this event
      * @throws YPersistenceException if there's a problem with the persistence layer
@@ -721,6 +781,7 @@ public class YEventLogger {
 
     /**
      * Inserts a new event record
+     * @param pmgr the active persistence manager object
      * @param instanceID a foreign key to either the net instance or the task instance
      * that generated the event
      * @param descriptor a label that describes the kind of event
@@ -742,6 +803,7 @@ public class YEventLogger {
 
     /**
      * Inserts a new service record
+     * @param pmgr the active persistence manager object
      * @param name the name of the service
      * @param url the url of the service
      * @return the primary key of the inserted record
@@ -757,6 +819,7 @@ public class YEventLogger {
 
     /**
      * Inserts a list of data items records for an event
+     * @param pmgr the active persistence manager object
      * @param eventID a foreign key to the event record associated with the data items
      * @param datalist the list of data items to insert
      * @throws YPersistenceException if there's a problem with the persistence layer
@@ -776,6 +839,7 @@ public class YEventLogger {
 
     /**
      * Inserts a new data type record
+     * @param pmgr the active persistence manager object
      * @param item the data item that contains the datatype to insert
      * @return the primary key of the inserted record
      * @throws YPersistenceException if there's a problem with the persistence layer
@@ -801,8 +865,8 @@ public class YEventLogger {
         if (datalist != null) {
 
             // make sure this spec is mapped
-            if (! _dataSchemaCache.contains(specID)) {
-                _dataSchemaCache.add(specID);
+            if (! _keyCache.dataSchema.contains(specID)) {
+                _keyCache.dataSchema.add(specID);
             }
             for (YLogDataItem item : datalist) {
                 String dataTypeName = item.getDataTypeName();
@@ -814,6 +878,7 @@ public class YEventLogger {
 
     /**
      * Performs a scalar selection for a specified table and constraint
+     * @param pmgr the active persistence manager object
      * @param objName the name of the object table to select from
      * @param whereClause the constraint clause
      * @return the first or only matching record, or null if there's no match
@@ -833,6 +898,7 @@ public class YEventLogger {
 
     /**
      * Inserts a row in the appropriate log table
+     * @param pmgr the active persistence manager object
      * @param o the object representing the contents of the row to insert
      * @throws YPersistenceException if there's a problem with the persistence layer
      */
@@ -846,6 +912,7 @@ public class YEventLogger {
 
     /**
      * Updates a row in the appropriate log table
+     * @param pmgr the active persistence manager object
      * @param o the object representing the contents of the row to update
      * @throws YPersistenceException if there's a problem with the persistence layer
      */

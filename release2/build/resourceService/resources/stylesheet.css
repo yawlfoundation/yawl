@@ -99,7 +99,7 @@
 .dynFormContainerPanel {
     height: 10px;
     width: 10px;
-    top: 0px;
+    top: 0;
     position:relative;
 }
 
@@ -224,7 +224,7 @@
     font-size: 18px;
     position: absolute;
     width: 105px;
-    left: 0px;
+    left: 0;
 }
 
 .selectUserListbox {
@@ -265,7 +265,7 @@
 
 .dataTable {
     left: 0;
-    top: 0px! important;
+    top: 0! important;
     height: 170px;
     position: absolute;    
 }
@@ -375,9 +375,8 @@
 /* General Rules used by several pages */
 
 .topPanel {
-    background-image: url( headbgright.jpg );
-    border-bottom-style: solid;
-    border-bottom-width: 2px;
+    background-image: url(headbgright.jpg);
+    border-bottom: 2px solid;
     height: 110px;
     left: 0;
     top: 0;
@@ -498,9 +497,8 @@
 /* Rules for dynamic forms */
 
 .dynformOuterPanel {
-   border-style: inset; 
-   border-color: gray;
-   background-color: #97cbfd; 
+   border: inset gray;
+   background-color: #97cbfd;
    left: 0;
    top: 80px;
    position: absolute;
