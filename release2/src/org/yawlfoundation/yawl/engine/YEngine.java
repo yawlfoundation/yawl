@@ -723,44 +723,18 @@ public class YEngine implements InterfaceADesign,
 
             YNetRunner runner = new YNetRunner(_pmgr, specification.getRootNet(), data, caseID);
             _netRunnerRepository.add(runner);
-            _announcer.announceCheckCaseConstraints(specID, runner.getCaseID().toString(),
-                    caseParams, true);
-
-            if (completionObserver != null) {
-                YAWLServiceReference observer =
-                        getRegisteredYawlService(completionObserver.toString());
-                if (observer != null) {
-                    runner.setObserver(observer);
-                } else {
-                    _logger.warn("Completion observer [" + completionObserver +
-                            "] is not a registered YAWL service.");
-                }
-            }
+            logCaseStarted(specID, runner, completionObserver, caseParams, logData, serviceRef);
 
             // persist it
             if ((! _restoring) && (_pmgr != null)) {
                 _pmgr.storeObject(runner);
             }
 
-            // log case start event
-            YIdentifier runnerCaseID = runner.getCaseID();
-            YLogPredicate logPredicate = runner.getNet().getLogPredicate();
-            if (logPredicate != null) {
-                String predicate = logPredicate.getParsedStartPredicate(runner.getNet());
-                if (predicate != null) {
-                    logData.add(new YLogDataItem("Predicate", "OnLaunch", predicate, "string"));
-                }
-            }
-            _yawllog.logCaseCreated(_pmgr, specID, runnerCaseID, logData, serviceRef);
-
-            // cache instance
-            _instanceCache.addCase(runnerCaseID.toString(), specID, caseParams,
-                    logData, runner.getStartTime());
-
             runner.continueIfPossible(_pmgr);
             runner.start(_pmgr);
+
+            YIdentifier runnerCaseID = runner.getCaseID();
             _runningCaseIDToSpecMap.put(runnerCaseID, specification);
-            announceEvents(runner.getCaseID());
 
             // announce the new case to the standalone gui (if any)
             if (_interfaceBClient != null) {
@@ -769,10 +743,9 @@ public class YEngine implements InterfaceADesign,
             }
             return runnerCaseID;
         }
-        else {
-            throw new YStateException("No specification found with ID [" + specID + "]");
-        }
+        else  throw new YStateException("No specification found with ID [" + specID + "]");
     }
+
 
     protected Element formatCaseParams(String paramStr, YSpecification spec) throws YStateException {
         Element data = null;
@@ -791,6 +764,38 @@ public class YEngine implements InterfaceADesign,
         return data;
     }
 
+
+    private void logCaseStarted(YSpecificationID specID, YNetRunner runner,
+                                URI completionObserver, String caseParams,
+                                YLogDataItemList logData, String serviceRef) {
+        YIdentifier caseID = runner.getCaseID();
+        _announcer.announceCheckCaseConstraints(specID, caseID.toString(), caseParams, true);
+
+        if (completionObserver != null) {
+            YAWLServiceReference observer =
+                    getRegisteredYawlService(completionObserver.toString());
+            if (observer != null) {
+                runner.setObserver(observer);
+            } else {
+                _logger.warn("Completion observer [" + completionObserver +
+                        "] is not a registered YAWL service.");
+            }
+        }
+
+        // log case start event
+        YLogPredicate logPredicate = runner.getNet().getLogPredicate();
+        if (logPredicate != null) {
+            String predicate = logPredicate.getParsedStartPredicate(runner.getNet());
+            if (predicate != null) {
+                logData.add(new YLogDataItem("Predicate", "OnLaunch", predicate, "string"));
+            }
+        }
+        _yawllog.logCaseCreated(_pmgr, specID, caseID, logData, serviceRef);
+
+        // cache instance
+        _instanceCache.addCase(caseID.toString(), specID, caseParams,
+                logData, runner.getStartTime());
+    }
 
     /**
      * Finalises a case completion.
@@ -893,6 +898,7 @@ public class YEngine implements InterfaceADesign,
                         caseID, logData, serviceHandle);
                 if (yCaseID != null) {
                     commitTransaction();
+                    announceEvents(yCaseID);
                     return yCaseID.toString();
                 }
                 else throw new YStateException("Unable to start case.");
@@ -1131,6 +1137,8 @@ public class YEngine implements InterfaceADesign,
             try {
                 resumeCase(_pmgr, id);
                 commitTransaction();
+                announceEvents(id);
+               _announcer.announceCaseResumption(id, getYAWLServices());
             }
             catch (Exception e) {
                 _logger.error("Failure to resume case " + id, e);
@@ -1175,9 +1183,7 @@ public class YEngine implements InterfaceADesign,
                }
            }
 
-            announceEvents(id);
            _logger.info("Case " + id + " has resumed execution");
-           _announcer.announceCaseResumption(id, getYAWLServices());
        }
        else {
            throw new YStateException("Case " + id +
