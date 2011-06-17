@@ -2606,11 +2606,6 @@ public class ResourceManager extends InterfaceBWebsideController {
         return _engineSessionHandle;
     }
 
-    //***************************************************************************//
-
-    private class OrgDataRefresh extends TimerTask {
-        public void run() { loadResources() ; }
-    }
 
     /*******************************************************************************/
 
@@ -3571,6 +3566,19 @@ public class ResourceManager extends InterfaceBWebsideController {
             }
         }
         return null;
+    }
+
+
+    //***************************************************************************//
+
+    private class OrgDataRefresh extends TimerTask {
+        public void run() {
+            boolean authenticatesExternally = _orgDataSet.isUserAuthenticationExternal();
+            boolean allowExternalMods = _orgDataSet.isExternalOrgDataModsAllowed();
+            loadResources() ;
+            _orgDataSet.setExternalUserAuthentication(authenticatesExternally);
+            _orgDataSet.setAllowExternalOrgDataMods(allowExternalMods);
+        }
     }
 
 }                                                                                  

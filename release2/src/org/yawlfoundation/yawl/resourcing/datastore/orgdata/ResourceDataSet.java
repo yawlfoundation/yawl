@@ -141,6 +141,8 @@ public class ResourceDataSet {
         _allowExternalOrgDataMods = allow;
     }
 
+    public boolean isExternalOrgDataModsAllowed() { return _allowExternalOrgDataMods; }
+
     public boolean isDataEditable(ResUnit resource) {
         return _allowExternalOrgDataMods || hasDefaultDataSource(resource) ;
     }
