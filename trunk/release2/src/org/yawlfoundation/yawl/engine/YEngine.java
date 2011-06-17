@@ -599,7 +599,7 @@ public class YEngine implements InterfaceADesign,
 
             _logger.info("Removing process specification " + specID);
             _specifications.unloadSpecification(specToUnload);
-            _yawllog.removeSpecificationDataSchemas(specID);
+            _yawllog.removeSpecificationFromCache(specID);
             deleteObject(specToUnload);
         }
         else {

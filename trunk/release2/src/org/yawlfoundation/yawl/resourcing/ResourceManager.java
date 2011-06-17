@@ -2624,6 +2624,8 @@ public class ResourceManager extends InterfaceBWebsideController {
                 }
             }
             _connections.shutdown();
+            Thread.sleep(200);       // give logger a moment to complete audit logging
+            EventLogger.shutdown();
 
             for (CodeletRunner runner : _codeletRunners.values()) {
                 runner.shutdown();

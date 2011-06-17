@@ -348,7 +348,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                 }
 
                 // ignore broadcast announcements for missing services
-                else if (! (_command == ENGINE_INIT) || _command.isBroadcast()) {
+                else if (! _command.isBroadcast()) {
                     _logger.warn("Failed to call YAWL service", e);
                 }
             }            
