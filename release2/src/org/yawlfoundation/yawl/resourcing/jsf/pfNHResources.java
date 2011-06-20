@@ -462,11 +462,13 @@ public class pfNHResources extends AbstractFragmentBean {
         lbxSubCatItems.setDisabled(adding);
         btnAddSubCat.setDisabled(adding);
         btnRemoveSubCat.setDisabled(adding);
-        cbbMembers.setDisabled(adding);
+        disableInputFields(! adding);
+        disableSubCatButtons(adding);
         if (adding) clearTextFields();
         txtName.setText("");
         lblMembers.setText("Members (0)");
         _sb.setCategoryMembers(null);
+
     }
 
 
@@ -709,14 +711,29 @@ public class pfNHResources extends AbstractFragmentBean {
     /* enables or disables fields depending on whether a sub category is being added */
     protected void setSubCatAddMode(boolean adding) {
         showSubCatAddFields(adding);
+        disableInputFields(adding);
         lbxItems.setDisabled(adding);
-        txtName.setDisabled(adding);
-        txtDesc.setDisabled(adding);
-        txtNotes.setDisabled(adding);
-        cbbMembers.setDisabled(adding);
         lbxSubCatItems.setDisabled(adding);
-        btnAddSubCat.setDisabled(adding);
-        btnRemoveSubCat.setDisabled(adding || subCatUnremovable());
+//        btnAddSubCat.setDisabled(adding);
+//        btnRemoveSubCat.setDisabled(adding || subCatUnremovable());
+    }
+
+
+    protected void disableInputFields(boolean disable) {
+        txtName.setDisabled(disable);
+        txtDesc.setDisabled(disable);
+        txtNotes.setDisabled(disable);
+        cbbMembers.setDisabled(disable);
+        cbbCategory.setDisabled(disable);
+        cbbSubCategory.setDisabled(disable);
+        btnAddSubCat.setDisabled(disable);
+        btnRemoveSubCat.setDisabled(disable || subCatUnremovable());
+    }
+
+
+    protected void disableSubCatButtons(boolean disable) {
+        btnAddSubCat.setDisabled(disable);
+        btnRemoveSubCat.setDisabled(disable || subCatUnremovable());
     }
     
 

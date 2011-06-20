@@ -365,7 +365,7 @@ public class YEventLogger {
                     ySpecID.getKey(), ySpecID.getVersionAsString());
             specEntry = (YLogSpecification) selectScalarWhere(pmgr,
                     "YLogSpecification", where);
-            _keyCache.specEntries.put(ySpecID, specEntry);
+            if (specEntry != null) _keyCache.specEntries.put(ySpecID, specEntry);
         }
         return specEntry;
     }

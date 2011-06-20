@@ -1382,6 +1382,12 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
+    public boolean hasAtLeastOneNonHumanCategory() {
+        Map<String, NonHumanCategory> catMap = _rm.getOrgDataSet().getNonHumanCategoryMap();
+        return ((catMap != null) && (! catMap.isEmpty()));
+    }
+
+
     public Option[] getNhResourcesCategoryListExpanded() {
         Map<String, NonHumanCategory> catMap = _rm.getOrgDataSet().getNonHumanCategoryMap();
         if (catMap != null) {
