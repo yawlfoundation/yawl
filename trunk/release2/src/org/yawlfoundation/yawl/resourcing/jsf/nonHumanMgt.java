@@ -276,10 +276,17 @@ public class nonHumanMgt extends AbstractPageBean {
 
         // if in edit mode - move to add mode
         if (! isAddMode()) {
-            setMode(SessionBean.Mode.add);
             if (getSelTypeForActiveTab() == SelType.resource) {
+                if (! _sb.hasAtLeastOneNonHumanCategory()) {
+                    _msgPanel.warn("Cannot add a new non-human resource yet, because " +
+                            "there are no non-human categories to add it to. Please " +
+                            "add at least one category first (on the 'Categories' tab), " +
+                            "then try again.");
+                    return null;
+                }
                 _innerForm.createNewResource();
             }
+            setMode(SessionBean.Mode.add);
         }
         else {
             if (_innerForm.addNewItem(getSelTypeForActiveTab())) {
@@ -353,8 +360,8 @@ public class nonHumanMgt extends AbstractPageBean {
         _sb.setNhResourceListLabelText("Categories");
         _sb.setNhResourceCategoryLabelText("Subcategories");
         if (! isAddMode()) {
-            populateForm(SelType.category);
             _innerForm.setSubCatAddMode(_sb.isSubCatAddMode());
+            populateForm(SelType.category);
         }
         if (_sb.isSubCatAddMode() && (! _msgPanel.hasMessage())) {
             body1.setFocus("form1:pfNHResources:txtSubCat");            
@@ -485,6 +492,9 @@ public class nonHumanMgt extends AbstractPageBean {
             else {
                 nullifyChoices();
                 _innerForm.clearAllFieldsAndLists();
+                if (getMode() == SessionBean.Mode.edit) {
+                    _innerForm.disableInputFields(true);
+                }
             }
         }
         return result ;

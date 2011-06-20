@@ -264,8 +264,10 @@ public class DynFormFactory extends AbstractSessionBean {
     private DynFormUserAttributes getUserAttributes() {
         if (_sb.getDynFormType() == ApplicationBean.DynFormType.netlevel)
             return null;
-        else
+        else {
+            if (_displayedWIR == null) return null;
             return new DynFormUserAttributes(_displayedWIR.getAttributeTable());
+        }
     }
 
 
