@@ -56,6 +56,7 @@ import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataSource;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataSourceFactory;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.EmptyDataSource;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
+import org.yawlfoundation.yawl.resourcing.datastore.orgdata.util.OrgDataRefresher;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.filters.AbstractFilter;
 import org.yawlfoundation.yawl.resourcing.filters.FilterFactory;
@@ -149,7 +150,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private final Object _ibEventMutex = new Object();    // for synchronizing ib events
     private final Object _removalMutex = new Object();    // for removing participants
 
-    private Timer _orgDataRefreshTimer;               // if set, reloads db at intervals
+    private OrgDataRefresher _orgDataRefresher;        // if set, reloads db at intervals
 
     private boolean _serviceEnabled = true ;          // will disable if no participants
     private boolean _initCompleted = false;               // guard for restarted engine
@@ -2087,17 +2088,16 @@ public class ResourceManager extends InterfaceBWebsideController {
     public boolean isPersisting() { return _persisting; }
 
      /**
-     * Starts a timer task to refresh the org data dataset at regular intervals
+     * Starts a timer task to refresh the org data dataset at regular intervals, or turns
+     * an existing timer off if interval < 0
      * @param interval the number of minutes between each refresh
      */
     public void startOrgDataRefreshTimer(long interval) {
-        if ((interval < 1) && (_orgDataRefreshTimer != null))
-            _orgDataRefreshTimer.cancel();            // disable timer
+        if ((interval < 1) && (_orgDataRefresher != null)) {
+            _orgDataRefresher.cancel();            // disable timer
+        }
         else {
-            interval = interval * 60000 ;            // convert minutes to milliseconds
-            _orgDataRefreshTimer = new Timer(true) ;
-            TimerTask tTask = new OrgDataRefresh();
-            _orgDataRefreshTimer.scheduleAtFixedRate(tTask, interval, interval);
+            _orgDataRefresher = new OrgDataRefresher(this, interval);
         }
     }
 
@@ -2626,7 +2626,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                 runner.shutdown();
             }
             _persister.closeDB();
-            if (_orgDataRefreshTimer != null) _orgDataRefreshTimer.cancel();
+            if (_orgDataRefresher != null) _orgDataRefresher.cancel();
         }
         catch (Exception e) {
             _log.error("Unsuccessful audit log update on shutdown.");
@@ -3570,15 +3570,5 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     //***************************************************************************//
-
-    private class OrgDataRefresh extends TimerTask {
-        public void run() {
-            boolean authenticatesExternally = _orgDataSet.isUserAuthenticationExternal();
-            boolean allowExternalMods = _orgDataSet.isExternalOrgDataModsAllowed();
-            loadResources() ;
-            _orgDataSet.setExternalUserAuthentication(authenticatesExternally);
-            _orgDataSet.setAllowExternalOrgDataMods(allowExternalMods);
-        }
-    }
 
 }                                                                                  

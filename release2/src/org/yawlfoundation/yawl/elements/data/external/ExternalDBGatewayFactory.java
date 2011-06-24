@@ -123,7 +123,8 @@ public class ExternalDBGatewayFactory {
             if (( new File(dir, name).isDirectory() ) ||           // ignore dirs
                 (name.startsWith("ExternalDBGatewayFactory")) ||   // and this class
                 (name.startsWith("AbstractExternalDBGateway")) ||  // and the base classes
-                (name.startsWith("HibernateEngine")))              // and the engine
+                (name.startsWith("HibernateEngine")) ||            // and the engine
+                (name.startsWith("package-info")))                 // and package-info
                 return false;
 
             return name.toLowerCase().endsWith( ".class" );     // only want .class files
