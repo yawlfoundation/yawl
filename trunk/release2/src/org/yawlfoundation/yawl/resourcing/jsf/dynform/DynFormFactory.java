@@ -772,6 +772,11 @@ public class DynFormFactory extends AbstractSessionBean {
     }
 
 
+    protected DynFormField getFieldForComponent(UIComponent component) {
+        return (component != null) ? _componentFieldTable.get(component) : null;
+    }
+
+
     private int getMaxDepthLevel() {
         int result = -1 ;
         for (SubPanelController spc : _subPanelTable.values())

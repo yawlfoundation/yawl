@@ -262,14 +262,18 @@ public class YAnnouncer {
      * @param announcements A set of work item enabling or cancellation events
      */
     protected void announceToGateways(Set<YAnnouncement> announcements) {
-        debug("Announcing ", announcements.size() + " events.");
-        _controller.announce(announcements);
+        if (announcements != null) {
+            debug("Announcing ", announcements.size() + " events.");
+            _controller.announce(announcements);
+        }
     }
 
 
     private void announceToGateways(YAnnouncement announcement) {
-        debug("Announcing one event.");
-        _controller.announce(announcement);
+        if (announcement != null) {
+            debug("Announcing one event.");
+            _controller.announce(announcement);
+        }
     }
 
 

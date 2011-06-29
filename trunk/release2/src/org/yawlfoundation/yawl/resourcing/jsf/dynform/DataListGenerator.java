@@ -166,6 +166,15 @@ public class DataListGenerator {
             }
         }
         else {
+
+            // first try to get field directly
+            Label label = (Label) component;
+            DynFormField formField = _factory.getFieldForComponent(
+                    (UIComponent) label.getLabeledComponent());
+            if (formField != null) return formField;
+
+            // fallback to label text for identification (may be ambiguous if two
+            // fields have the same label)
             id = (String) ((Label) component).getText();
             id = id.replaceAll(":", "").trim();
             for (DynFormField field : fieldList) {
