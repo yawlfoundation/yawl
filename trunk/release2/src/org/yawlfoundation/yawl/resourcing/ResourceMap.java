@@ -351,6 +351,7 @@ public class ResourceMap {
 
     private Participant doAllocate(HashSet<Participant> pSet, WorkItemRecord wir) {
         Participant chosenOne = null;
+        rm.getWorkItemCache().updateResourceStatus(wir, WorkItemRecord.statusResourceOffered);
         if (_allocate.getInitiator() == AbstractInteraction.USER_INITIATED) {
 
             // for each participant in set, place workitem on their offered queue
@@ -361,7 +362,6 @@ public class ResourceMap {
                 rm.announceModifiedQueue(p.getID()) ;
             }
             _offered.put(wir.getID(), pSet) ;
-            rm.getWorkItemCache().updateResourceStatus(wir, WorkItemRecord.statusResourceOffered);
         }
         else {
             chosenOne = _allocate.performAllocation(pSet, wir);

@@ -169,13 +169,18 @@ public class DataListGenerator {
 
             // first try to get field directly
             Label label = (Label) component;
-            DynFormField formField = _factory.getFieldForComponent(
-                    (UIComponent) label.getLabeledComponent());
-            if (formField != null) return formField;
+            try {
+                DynFormField formField = _factory.getFieldForComponent(
+                        (UIComponent) label.getLabeledComponent());
+                if (formField != null) return formField;
+            }
+            catch (ClassCastException cce) {
+                // fall through to code that follows...
+            }
 
             // fallback to label text for identification (may be ambiguous if two
             // fields have the same label)
-            id = (String) ((Label) component).getText();
+            id = (String) label.getText();
             id = id.replaceAll(":", "").trim();
             for (DynFormField field : fieldList) {
                 if (field.getLabelText().equals(id))
