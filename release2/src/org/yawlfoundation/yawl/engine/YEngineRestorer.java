@@ -425,6 +425,9 @@ public class YEngineRestorer {
 
             // restore case & exception observers (where they exist)
             runner.restoreObservers();
+
+            // create a clean announcement transport
+            runner.refreshAnnouncements();
         }
         removeOrphanedIdentifiers();
     }
