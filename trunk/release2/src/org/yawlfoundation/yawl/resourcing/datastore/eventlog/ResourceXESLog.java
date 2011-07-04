@@ -114,6 +114,7 @@ public class ResourceXESLog extends YXESBuilder {
         eventNode.addChild(stringNode("concept:name", yEvent.getChildText("taskname")));
         eventNode.addChild(stringNode("lifecycle:transition",
                 translateEvent(yEvent.getChildText("descriptor"))));
+        eventNode.addChild(stringNode("lifecycle:instance", yEvent.getChildText("instanceid")));
         eventNode.addChild(stringNode("org:resource", yEvent.getChildText("resource")));
         return eventNode;
     }
@@ -152,7 +153,7 @@ public class ResourceXESLog extends YXESBuilder {
         Map<String, XNode> caseMap = new Hashtable<String, XNode>();
         for (XNode trace : logNode.getChildren()) {  // rs log has 'trace' children only
             String caseID = trace.getChild("string").getAttributeValue("value");
-            caseMap.put(caseID , trace);
+            caseMap.put(caseID, trace);
         }
         return caseMap;
     }
@@ -165,7 +166,7 @@ public class ResourceXESLog extends YXESBuilder {
 
                 // choose which event to use for duplicated events
                 if (slaveHasPrecedence(transition)) {
-                    removeEvent(master, getTaskName(event), transition);
+                    removeEvent(master, getTaskName(event), getInstanceID(event), transition);
                 }
 
                 // otherwise just insert it
@@ -177,17 +178,47 @@ public class ResourceXESLog extends YXESBuilder {
     }
 
 
+//    // inserts 'event' node into 'trace' in timestamp order
+//    private XNode insertEvent(XNode trace, XNode event) {
+//        String eventTimeStamp = getTimeStamp(event);
+//        if (eventTimeStamp != null) {
+//            int i = 0;
+//            for (XNode node : trace.getChildren()) {
+//                String nodeTimeStamp = getTimeStamp(node);
+//                if ((nodeTimeStamp != null) && (eventTimeStamp.compareTo(nodeTimeStamp) < 1)) {
+//                    return trace.insertChild(i, event);
+//                }
+//                i++;
+//            }
+//        }
+//        return trace.addChild(event);
+//    }
+
+
     // inserts 'event' node into 'trace' in timestamp order
     private XNode insertEvent(XNode trace, XNode event) {
         String eventTimeStamp = getTimeStamp(event);
         if (eventTimeStamp != null) {
-            int i = 0;
-            for (XNode node : trace.getChildren()) {
-                String nodeTimeStamp = getTimeStamp(node);
-                if ((nodeTimeStamp != null) && (eventTimeStamp.compareTo(nodeTimeStamp) < 1)) {
-                    return trace.insertChild(i, event);
+            String eventName = getEventValue(event, "concept:name");
+            String eventID = getEventValue(event, "lifecycle:instance");
+            List<XNode> eventList = trace.getChildren();
+            boolean matched = false;
+            for (int i = 0; i < eventList.size(); i++) {
+                XNode traceNode = eventList.get(i);
+                if (traceNode.hasChildren()) {
+                    while (getEventValue(traceNode, "concept:name").equals(eventName) &&
+                           getEventValue(traceNode, "lifecycle:instance").equals(eventID)) {
+                        String nodeTimeStamp = getTimeStamp(traceNode);
+                        if ((nodeTimeStamp != null) &&
+                                (eventTimeStamp.compareTo(nodeTimeStamp) < 1)) {
+                            return trace.insertChild(i, event);
+                        }
+                        if (++i == eventList.size()) break;
+                        traceNode = eventList.get(i);
+                        matched = true;
+                    }
+                    if (matched) return trace.insertChild(i, event);
                 }
-                i++;
             }
         }
         return trace.addChild(event);
@@ -220,6 +251,11 @@ public class ResourceXESLog extends YXESBuilder {
     }
 
 
+    private String getInstanceID(XNode event) {
+        return getEventValue(event, "lifecycle:instance");
+    }
+
+
     // These transitions appear in both logs - the resource service will take
     // precedence since it contains the resource that triggered the event
     private boolean slaveHasPrecedence(String transition) {
@@ -235,10 +271,12 @@ public class ResourceXESLog extends YXESBuilder {
     }
 
 
-    private void removeEvent(XNode node, String taskName, String transition) {
+    private void removeEvent(XNode node, String taskName, String instanceID, String transition) {
         XNode toRemove = null;
         for (XNode event : node.getChildren("event")) {
-            if (getTransition(event).equals(transition) && getTaskName(event).equals(taskName)) {
+            if (getTransition(event).equals(transition) &&
+                    getInstanceID(event).equals(instanceID) &&
+                    getTaskName(event).equals(taskName)) {
                 toRemove = event;
                 break;
             }

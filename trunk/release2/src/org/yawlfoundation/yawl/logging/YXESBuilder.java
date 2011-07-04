@@ -168,6 +168,7 @@ public class YXESBuilder {
         gEvent.addChild(dateNode("time:timestamp", "1970-01-01T00:00:00.000+01:00"));
         gEvent.addChild(stringNode("concept:name", "UNKNOWN"));
         gEvent.addChild(stringNode("lifecycle:transition", "UNKNOWN"));
+        gEvent.addChild(stringNode("lifecycle:instance", "UNKNOWN"));
 
         XNode classifier = log.addChild(new XNode("classifier"));
         classifier.addAttribute("name", "Activity classifier");
@@ -203,12 +204,13 @@ public class YXESBuilder {
     }
 
 
-    private XNode eventNode(XNode yawlEvent, String taskName) {
+    private XNode eventNode(XNode yawlEvent, String taskName, String instanceID) {
         XNode eventNode = new XNode("event");
         eventNode.addChild(dateNode("time:timestamp", yawlEvent.getChildText("timestamp")));
         eventNode.addChild(stringNode("concept:name", taskName));
         eventNode.addChild(stringNode("lifecycle:transition",
                 translateEvent(yawlEvent.getChildText("descriptor"))));
+        eventNode.addChild(stringNode("lifecycle:instance", instanceID));
         addDataEvents(yawlEvent.getChild("dataItems"), eventNode);
         return eventNode;
     }
@@ -305,7 +307,7 @@ public class YXESBuilder {
         if (type.endsWith("date")) {
             String blankTime = "T00:00:00";
 
-            // a date type is of the form CCDD-MM-YY - but the year can have more than
+            // a date type is of the form CCYY-MM-DD - but the year can have more than
             // 4 chars and may start with '-', while the date may be followed by a Z or
             // timezone (like '+10:00'). We need to find the insertion position
             // immediately after the 2 day characters.
@@ -365,8 +367,9 @@ public class YXESBuilder {
 
     private void processTaskEvents(XNode taskInstance, XNode trace) {
         String taskName = taskInstance.getChildText("taskname");
+        String instanceID = taskInstance.getChildText("engineinstanceid");
         for (XNode event : taskInstance.getChildren("event")) {
-            trace.addChild(eventNode(event, taskName));
+            trace.addChild(eventNode(event, taskName, instanceID));
         }
     }
 

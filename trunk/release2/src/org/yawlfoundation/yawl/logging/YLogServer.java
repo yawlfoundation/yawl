@@ -662,6 +662,7 @@ public class YLogServer {
             YLogTask task = getTask(logTaskInstance.getTaskID());
             XNode taskInstance = netInstance.addChild("taskinstance");
             taskInstance.addChild("taskname", task.getName());
+            taskInstance.addChild("engineinstanceid", logTaskInstance.getEngineInstanceID());
 
             // for each event for the task
             for (Object o1 : getInstanceEventObjects(logTaskInstance.getTaskInstanceID())) {
