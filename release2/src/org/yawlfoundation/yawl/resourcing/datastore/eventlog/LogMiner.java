@@ -28,7 +28,6 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
-import java.security.PublicKey;
 import java.util.*;
 
 /**
@@ -879,6 +878,7 @@ public class LogMiner {
                 if ((caseNode != null) && (event.get_taskID() != null)) {
                     XNode eventNode = caseNode.addChild("event");
                     eventNode.addChild("taskname", event.get_taskID());
+                    eventNode.addChild("instanceid", event.get_caseID());
                     eventNode.addChild("descriptor", event.get_event());
                     eventNode.addChild("timestamp", event.getTimeStampString());
                     eventNode.addChild("resource", event.get_resourceID());
