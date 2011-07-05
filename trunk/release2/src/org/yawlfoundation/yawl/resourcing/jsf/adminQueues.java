@@ -288,6 +288,9 @@ public class adminQueues extends AbstractPageBean {
         // hide 'direct to me' checkbox if logged on with 'admin' userid
         cbxDirectToMe.setVisible(_sb.getParticipant() != null);
 
+        // abort load if org data isn't currently available
+        if (_sb.orgDataIsRefreshing()) return;
+
         // take appropriate postback action if required
         if (! _sb.performAdminQueueAction()) {
            _msgPanel.error("Could not complete workitem action." +

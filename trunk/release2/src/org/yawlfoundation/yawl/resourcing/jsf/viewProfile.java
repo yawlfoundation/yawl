@@ -481,6 +481,10 @@ public class viewProfile extends AbstractPageBean {
     public void prerender() {
         _sb.checkLogon();
         _sb.setActivePage(ApplicationBean.PageRef.viewProfile);
+
+        // abort load if org data isn't currently available
+        if (_sb.orgDataIsRefreshing()) return;
+
         showMessagePanel();
         populateFields(participant);
     }

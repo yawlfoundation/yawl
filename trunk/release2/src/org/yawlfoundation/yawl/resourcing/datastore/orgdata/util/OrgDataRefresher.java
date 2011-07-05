@@ -18,10 +18,14 @@
 
 package org.yawlfoundation.yawl.resourcing.datastore.orgdata.util;
 
+import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -56,13 +60,39 @@ public class OrgDataRefresher {
         _refresherTask = _scheduler.scheduleAtFixedRate(new Runnable() {
             public void run() {
                 ResourceDataSet orgDataSet = _rm.getOrgDataSet();
+                Map<String, QueueSet> qMap = saveQueueSets(orgDataSet);
                 boolean authenticatesExternally = orgDataSet.isUserAuthenticationExternal();
                 boolean allowExternalMods = orgDataSet.isExternalOrgDataModsAllowed();
+                _rm.setOrgDataRefreshing(true);
                 _rm.loadResources();
                 orgDataSet = _rm.getOrgDataSet();         // it changes after the load
+                reattachQueueSets(orgDataSet, qMap);
                 orgDataSet.setExternalUserAuthentication(authenticatesExternally);
                 orgDataSet.setAllowExternalOrgDataMods(allowExternalMods);
+                _rm.setOrgDataRefreshing(false);
             }
+
+            Map<String, QueueSet> saveQueueSets(ResourceDataSet orgDataSet) {
+                Map<String, QueueSet> qMap = new Hashtable<String, QueueSet>();
+                for (Participant p : orgDataSet.getParticipants()) {
+                    qMap.put(p.getID(), p.getWorkQueues());
+                }
+                return qMap;
+            }
+
+            void reattachQueueSets(ResourceDataSet orgDataSet, Map<String, QueueSet> qMap) {
+                for (Participant p : orgDataSet.getParticipants()) {
+                    if (qMap.containsKey(p.getID())) {
+                        p.setWorkQueues(qMap.remove(p.getID()));
+                    }
+                }
+
+                // leftover queues = deleted participants
+                for (QueueSet q : qMap.values()) {
+                    _rm.handleWorkQueuesOnRemoval(null, q);
+                }
+            }
+
         }, period, period, TimeUnit.MINUTES);
     }
 

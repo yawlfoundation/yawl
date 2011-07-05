@@ -356,6 +356,10 @@ public class userWorkQueues extends AbstractPageBean {
         }
         _sb.checkLogon();                                  // check session still live
         _sb.setActivePage(ApplicationBean.PageRef.userWorkQueues);
+
+        // abort load if org data isn't currently available
+        if (_sb.orgDataIsRefreshing()) return;
+
         showMessagePanel();                                   // show msgs (if any)
 
         // check flags & take post-roundtrip action if any are set

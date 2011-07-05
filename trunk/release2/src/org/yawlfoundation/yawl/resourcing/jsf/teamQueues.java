@@ -219,6 +219,10 @@ public class teamQueues extends AbstractPageBean {
     public void prerender() {
         _sb.checkLogon();
         _sb.setActivePage(ApplicationBean.PageRef.teamQueues);
+
+        // abort load if org data isn't currently available
+        if (_sb.orgDataIsRefreshing()) return;
+
         _sb.showMessagePanel();
         
         ((pfQueueUI) getBean("pfQueueUI")).clearQueueGUI();

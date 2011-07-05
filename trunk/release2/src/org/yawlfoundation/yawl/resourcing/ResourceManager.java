@@ -154,6 +154,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     private boolean _serviceEnabled = true ;          // will disable if no participants
     private boolean _initCompleted = false;               // guard for restarted engine
+    private boolean _orgDataRefreshing = false;           // flag during auto-refresh
     public static boolean serviceInitialised = false ;    // flag for init on restore
 
     private ApplicationBean _jsfApplicationReference ;   // ref to jsf app manager bean
@@ -397,6 +398,14 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public boolean hasOrgDataSource() {
         return (_orgdb != null);
+    }
+
+    public void setOrgDataRefreshing(boolean refreshing) {
+        _orgDataRefreshing = refreshing;
+    }
+
+    public boolean isOrgDataRefreshing() {
+        return _orgDataRefreshing;
     }
 
     public boolean hasExceptionServiceEnabled() {
@@ -1394,8 +1403,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
                 // get all items on all offered queues, except this part's queue
                 Set<WorkItemRecord> offerSet = new HashSet<WorkItemRecord>();
-                Set<Participant> allParticipants = _orgDataSet.getParticipants() ;
-                for (Participant temp : allParticipants) {
+                for (Participant temp : _orgDataSet.getParticipants()) {
                     if ((p == null) || (! temp.getID().equals(p.getID()))) {
                         WorkQueue q = temp.getWorkQueues().getQueue(WorkQueue.OFFERED) ;
                         if (q != null) offerSet.addAll(q.getAll());
