@@ -21,8 +21,8 @@ package org.yawlfoundation.yawl.resourcing.rsInterface;
 import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
-import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
+import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
@@ -53,7 +53,6 @@ import java.util.Map;
 public class ResourceGateway extends HttpServlet {
 
     private ResourceManager _rm = ResourceManager.getInstance(); 
-    private ResourceDataSet _orgDataSet;
     private static final String SUCCESS = "<success/>";
     private static final Logger _log = Logger.getLogger(ResourceGateway.class);
 
@@ -159,7 +158,6 @@ public class ResourceGateway extends HttpServlet {
             }
             finally {
                 ResourceManager.setServiceInitialised();
-                _orgDataSet = _rm.getOrgDataSet();
             }
         }
     }
@@ -281,62 +279,62 @@ public class ResourceGateway extends HttpServlet {
         }
         else if (action.equalsIgnoreCase("addNonHumanResource")) {
             String name = req.getParameter("name");
-            if ((name != null) && (! _orgDataSet.isKnownNonHumanResourceName(name))) {
+            if ((name != null) && (! getOrgDataSet().isKnownNonHumanResourceName(name))) {
                 String categoryName = req.getParameter("category");
                 String subcategory = req.getParameter("subcategory");
                 NonHumanCategory category =
-                        _orgDataSet.getNonHumanCategoryByName(categoryName);
+                        getOrgDataSet().getNonHumanCategoryByName(categoryName);
                 if (category == null) {
                     category = new NonHumanCategory(categoryName);
-                    _orgDataSet.addNonHumanCategory(category);
+                    getOrgDataSet().addNonHumanCategory(category);
                 }
                 NonHumanResource resource = new NonHumanResource(name, category, subcategory);
                 resource.setDescription(req.getParameter("description"));
                 resource.setNotes(req.getParameter("notes"));
-                result = _orgDataSet.addNonHumanResource(resource);
+                result = getOrgDataSet().addNonHumanResource(resource);
             }
             else result = fail("Add", "NonHumanResource", name);
         }        
         else if (action.equalsIgnoreCase("addCapability")) {
             String name = req.getParameter("name");
-            if ((name != null) && (! _orgDataSet.isKnownCapabilityName(name))) {
+            if ((name != null) && (! getOrgDataSet().isKnownCapabilityName(name))) {
                 Capability cap = new Capability(name, null);
                 updateCommonFields(cap, req);
-                result = _orgDataSet.addCapability(cap);
+                result = getOrgDataSet().addCapability(cap);
             }
             else result = fail("Add", "Capability", name);
         }
         else if (action.equalsIgnoreCase("addRole")) {
             String name = req.getParameter("name");
-            if ((name != null) && (! _orgDataSet.isKnownRoleName(name))) {
+            if ((name != null) && (! getOrgDataSet().isKnownRoleName(name))) {
                 Role role = new Role(name);
                 updateCommonFields(role, req);
                 role.setOwnerRole(req.getParameter("containingroleid"));
-                result = _orgDataSet.addRole(role);
+                result = getOrgDataSet().addRole(role);
             }
             else result = fail("Add", "Role", name);
         }
         else if (action.equalsIgnoreCase("addPosition")) {
             String name = req.getParameter("name");
-            if ((name != null) && (! _orgDataSet.isKnownPositionName(name))) {
+            if ((name != null) && (! getOrgDataSet().isKnownPositionName(name))) {
                 Position position = new Position(name);
                 updateCommonFields(position, req);
                 position.setPositionID(req.getParameter("positionid"));
                 position.setReportsTo(req.getParameter("containingpositionid"));
                 position.setOrgGroup(req.getParameter("orggroupid"));
-                result = _orgDataSet.addPosition(position);
+                result = getOrgDataSet().addPosition(position);
             }
             else result = fail("Add", "Position", name);
         }
         else if (action.equalsIgnoreCase("addOrgGroup")) {
             String name = req.getParameter("name");
-            if ((name != null) && (! _orgDataSet.isKnownOrgGroupName(name))) {
+            if ((name != null) && (! getOrgDataSet().isKnownOrgGroupName(name))) {
                 OrgGroup orgGroup = new OrgGroup();
                 orgGroup.setGroupName(name);
                 orgGroup.setGroupType(req.getParameter("grouptype"));
                 updateCommonFields(orgGroup, req);
                 orgGroup.setBelongsTo(req.getParameter("containinggroupid"));
-                result = _orgDataSet.addOrgGroup(orgGroup);
+                result = getOrgDataSet().addOrgGroup(orgGroup);
             }
             else result = fail("Add", "OrgGroup", name);
         }
@@ -352,9 +350,9 @@ public class ResourceGateway extends HttpServlet {
         else if (action.equalsIgnoreCase("addNonHumanCategory")) {
             String categoryName = req.getParameter("category");
             if (categoryName != null) {
-                if (_orgDataSet.getNonHumanCategoryByName(categoryName) == null) {
+                if (getOrgDataSet().getNonHumanCategoryByName(categoryName) == null) {
                     NonHumanCategory category = new NonHumanCategory(categoryName);
-                    result = _orgDataSet.addNonHumanCategory(category);
+                    result = getOrgDataSet().addNonHumanCategory(category);
                 }
                 else result = fail("Category '" + categoryName + "' already exists");
             }
@@ -365,11 +363,11 @@ public class ResourceGateway extends HttpServlet {
             String subcategory = req.getParameter("subcategory");
             boolean success = false;
             NonHumanCategory category = (categoryName != null) ?
-                 _orgDataSet.getNonHumanCategoryByName(categoryName) :
-                 _orgDataSet.getNonHumanCategory(req.getParameter("id"));
+                 getOrgDataSet().getNonHumanCategoryByName(categoryName) :
+                 getOrgDataSet().getNonHumanCategory(req.getParameter("id"));
             if (category != null) {
                 success = category.addSubCategory(subcategory);
-                if (success) _orgDataSet.updateNonHumanCategory(category);
+                if (success) getOrgDataSet().updateNonHumanCategory(category);
             }    
             result = success ? "<success/>" : fail("Subcategory '" + subcategory +
                         "' already exists OR category is invalid.");
@@ -383,7 +381,7 @@ public class ResourceGateway extends HttpServlet {
         if (action.equalsIgnoreCase("updateParticipant")) {
             String pid = req.getParameter("participantid");
             if (pid != null) {
-                Participant p = _orgDataSet.getParticipant(pid);
+                Participant p = getOrgDataSet().getParticipant(pid);
                 if (p != null) {
                     String userid = req.getParameter("userid");
                     if (userid != null) p.setUserID(userid);
@@ -416,7 +414,7 @@ public class ResourceGateway extends HttpServlet {
         else if (action.equalsIgnoreCase("updateNonHumanResource")) {
             String id = req.getParameter("resourceid");
             if (id != null) {
-                NonHumanResource resource = _orgDataSet.getNonHumanResource(id);
+                NonHumanResource resource = getOrgDataSet().getNonHumanResource(id);
                 if (resource != null) {
                     String desc = req.getParameter("description");
                     if (desc != null) resource.setDescription(desc);
@@ -427,13 +425,13 @@ public class ResourceGateway extends HttpServlet {
                     String categoryName = req.getParameter("category");
                     if (categoryName != null) {
                         NonHumanCategory category =
-                                _orgDataSet.getNonHumanCategoryByName(categoryName);
+                                getOrgDataSet().getNonHumanCategoryByName(categoryName);
                         if (category != null) {
                             resource.setCategory(category);
                             resource.setSubCategory(req.getParameter("subcategory"));
                         }
                     }
-                    _orgDataSet.updateNonHumanResource(resource);
+                    getOrgDataSet().updateNonHumanResource(resource);
                 }
                 else result = fail("NonHumanResource", id);
             }
@@ -442,7 +440,7 @@ public class ResourceGateway extends HttpServlet {
         else if (action.equalsIgnoreCase("updateCapability")) {
             String cid = req.getParameter("capabilityid");
             if (cid != null) {
-                Capability cap = _orgDataSet.getCapability(cid);
+                Capability cap = getOrgDataSet().getCapability(cid);
                 if (cap != null) {
                     updateCommonFields(cap, req);
                     String name = req.getParameter("capability");
@@ -456,7 +454,7 @@ public class ResourceGateway extends HttpServlet {
         else if (action.equalsIgnoreCase("updateRole")) {
             String rid = req.getParameter("roleid");
             if (rid != null) {
-                Role role = _orgDataSet.getRole(rid);
+                Role role = getOrgDataSet().getRole(rid);
                 if (role != null) {
                     updateCommonFields(role, req);
                     String name = req.getParameter("name");
@@ -472,7 +470,7 @@ public class ResourceGateway extends HttpServlet {
         else if (action.equalsIgnoreCase("updatePosition")) {
             String pid = req.getParameter("posid");
             if (pid != null) {
-                Position position = _orgDataSet.getPosition(pid);
+                Position position = getOrgDataSet().getPosition(pid);
                 if (position != null) {
                     updateCommonFields(position, req);
                     String name = req.getParameter("title");
@@ -492,7 +490,7 @@ public class ResourceGateway extends HttpServlet {
         else if (action.equalsIgnoreCase("updateOrgGroup")) {
             String oid = req.getParameter("groupid");
             if (oid != null) {
-                OrgGroup orgGroup = _orgDataSet.getOrgGroup(oid);
+                OrgGroup orgGroup = getOrgDataSet().getOrgGroup(oid);
                 if (orgGroup != null) {
                     updateCommonFields(orgGroup, req);
                     String name = req.getParameter("name");
@@ -510,7 +508,7 @@ public class ResourceGateway extends HttpServlet {
         else if (action.equalsIgnoreCase("updateNonHumanCategory")) {
             String cid = req.getParameter("categoryid");
             if (cid != null) {
-                NonHumanCategory category = _orgDataSet.getNonHumanCategory(cid);
+                NonHumanCategory category = getOrgDataSet().getNonHumanCategory(cid);
                 if (category != null) {
                     String name = req.getParameter("name");
                     if (name != null) category.setName(name);
@@ -518,7 +516,7 @@ public class ResourceGateway extends HttpServlet {
                     if (description != null) category.setDescription(description);
                     String notes = req.getParameter("notes");
                     if (notes != null) category.setNotes(notes);
-                    _orgDataSet.updateNonHumanCategory(category);
+                    getOrgDataSet().updateNonHumanCategory(category);
                 }
                 else result = fail("non-human category", cid);
             }
@@ -536,27 +534,27 @@ public class ResourceGateway extends HttpServlet {
             }
         }
         if (action.equalsIgnoreCase("removeNonHumanResource")) {
-            if (! _orgDataSet.removeNonHumanResource(req.getParameter("resourceid"))) {
+            if (! getOrgDataSet().removeNonHumanResource(req.getParameter("resourceid"))) {
                 result = fail("NonHumanResource", null);
             }
         }
         else if (action.equalsIgnoreCase("removeCapability")) {
-            if (! _orgDataSet.removeCapability(req.getParameter("capabilityid"))) {
+            if (! getOrgDataSet().removeCapability(req.getParameter("capabilityid"))) {
                 result = fail("capability", null);
             }
         }
         else if (action.equalsIgnoreCase("removeRole")) {
-            if (! _orgDataSet.removeRole(req.getParameter("roleid"))) {
+            if (! getOrgDataSet().removeRole(req.getParameter("roleid"))) {
                 result = fail("role", null);
             }
         }
         else if (action.equalsIgnoreCase("removePosition")) {
-            if (! _orgDataSet.removePosition(req.getParameter("positionid"))) {
+            if (! getOrgDataSet().removePosition(req.getParameter("positionid"))) {
                 result = fail("position", null);
             }
         }
         else if (action.equalsIgnoreCase("removeOrgGroup")) {
-            if (! _orgDataSet.removeOrgGroup(req.getParameter("groupid"))) {
+            if (! getOrgDataSet().removeOrgGroup(req.getParameter("groupid"))) {
                 result = fail("org group", null);
             }
         }
@@ -573,7 +571,7 @@ public class ResourceGateway extends HttpServlet {
             String categoryID = req.getParameter("id");
             boolean success = false;
             if (categoryID != null) {
-                success = _orgDataSet.removeNonHumanCategory(categoryID);
+                success = getOrgDataSet().removeNonHumanCategory(categoryID);
             }
             result = success ? "<success/>" : fail("category", categoryID);
         }
@@ -582,9 +580,9 @@ public class ResourceGateway extends HttpServlet {
             boolean success = false;
             if (categoryName != null) {
                 NonHumanCategory category =
-                        _orgDataSet.getNonHumanCategoryByName(categoryName);
+                        getOrgDataSet().getNonHumanCategoryByName(categoryName);
                 if (category != null) {
-                    success = _orgDataSet.removeNonHumanCategory(category.getID());
+                    success = getOrgDataSet().removeNonHumanCategory(category.getID());
                 }    
             }
             result = success ? "<success/>" : fail("Unknown category name: " + categoryName);
@@ -594,10 +592,10 @@ public class ResourceGateway extends HttpServlet {
             String subcategory = req.getParameter("subcategory");
             boolean success = false;
             if (categoryID != null) {
-                NonHumanCategory category = _orgDataSet.getNonHumanCategory(categoryID);
+                NonHumanCategory category = getOrgDataSet().getNonHumanCategory(categoryID);
                 if (category != null) {
                     success = category.removeSubCategory(subcategory);
-                    if (success) _orgDataSet.updateNonHumanCategory(category);
+                    if (success) getOrgDataSet().updateNonHumanCategory(category);
                 }    
             }
             result = success ? "<success/>" : fail("Subcategory '" + subcategory +
@@ -609,10 +607,10 @@ public class ResourceGateway extends HttpServlet {
             boolean success = false;
             if (categoryName != null) {
                 NonHumanCategory category =
-                        _orgDataSet.getNonHumanCategoryByName(categoryName);
+                        getOrgDataSet().getNonHumanCategoryByName(categoryName);
                 if (category != null) {
                     success = category.removeSubCategory(subcategory);
-                    if (success) _orgDataSet.updateNonHumanCategory(category);
+                    if (success) getOrgDataSet().updateNonHumanCategory(category);
                 }
             }
             result = success ? "<success/>" : fail("Subcategory '" + subcategory +
@@ -639,61 +637,61 @@ public class ResourceGateway extends HttpServlet {
             result = _rm.getAllSelectors() ;
         }
         else if (action.equalsIgnoreCase("getParticipants")) {
-            result = _orgDataSet.getParticipantsAsXML();
+            result = getOrgDataSet().getParticipantsAsXML();
         }
         else if (action.equalsIgnoreCase("getNonHumanResources")) {
-            result = _orgDataSet.getNonHumanResourcesAsXML();
+            result = getOrgDataSet().getNonHumanResourcesAsXML();
         }
         else if (action.equalsIgnoreCase("getRoles")) {
-            result = _orgDataSet.getRolesAsXML();
+            result = getOrgDataSet().getRolesAsXML();
         }
         else if (action.equalsIgnoreCase("getCapabilities")) {
-            result = _orgDataSet.getCapabilitiesAsXML();
+            result = getOrgDataSet().getCapabilitiesAsXML();
         }
         else if (action.equalsIgnoreCase("getPositions")) {
-            result = _orgDataSet.getPositionsAsXML();
+            result = getOrgDataSet().getPositionsAsXML();
         }
         else if (action.equalsIgnoreCase("getOrgGroups")) {
-            result = _orgDataSet.getOrgGroupsAsXML();
+            result = getOrgDataSet().getOrgGroupsAsXML();
         }
         else if (action.equalsIgnoreCase("getAllParticipantNames")) {
-            result = _orgDataSet.getParticipantNames();
+            result = getOrgDataSet().getParticipantNames();
         }
         else if (action.equalsIgnoreCase("getAllNonHumanResourceNames")) {
-            result = _orgDataSet.getNonHumanResourceNames();
+            result = getOrgDataSet().getNonHumanResourceNames();
         }
         else if (action.equalsIgnoreCase("getAllRoleNames")) {
-            result = _orgDataSet.getRoleNames();
+            result = getOrgDataSet().getRoleNames();
         }
         else if (action.equalsIgnoreCase("getParticipant")) {
-            Participant p = _orgDataSet.getParticipant(id);
+            Participant p = getOrgDataSet().getParticipant(id);
             result = (p != null) ? p.toXML() : fail("Unknown participant id: " + id) ;
         }
         else if (action.equalsIgnoreCase("getNonHumanResource")) {
-            NonHumanResource r = _orgDataSet.getNonHumanResource(id);
+            NonHumanResource r = getOrgDataSet().getNonHumanResource(id);
             result = (r != null) ? r.toXML() : fail("Unknown NonHumanResource id: " + id) ;
         }
         else if (action.equalsIgnoreCase("getNonHumanResourceByName")) {
-            NonHumanResource r = _orgDataSet.getNonHumanResourceByName(name);
+            NonHumanResource r = getOrgDataSet().getNonHumanResourceByName(name);
             result = (r != null) ? r.toXML() : fail("Unknown NonHumanResource name: " + name) ;
         }
         else if (action.equalsIgnoreCase("getParticipantRoles")) {
-            result = _orgDataSet.getParticipantRolesAsXML(id);
+            result = getOrgDataSet().getParticipantRolesAsXML(id);
         }
         else if (action.equalsIgnoreCase("getParticipantCapabilities")) {
-            result = _orgDataSet.getParticipantCapabilitiesAsXML(id);
+            result = getOrgDataSet().getParticipantCapabilitiesAsXML(id);
         }
         else if (action.equalsIgnoreCase("getParticipantPositions")) {
-            result = _orgDataSet.getParticipantPositionsAsXML(id);
+            result = getOrgDataSet().getParticipantPositionsAsXML(id);
         }
         else if (action.equalsIgnoreCase("getParticipantsWithRole")) {
-            result = _orgDataSet.getParticpantsWithRoleAsXML(name);
+            result = getOrgDataSet().getParticpantsWithRoleAsXML(name);
         }
         else if (action.equalsIgnoreCase("getParticipantsWithPosition")) {
-            result = _orgDataSet.getParticpantsWithPositionAsXML(name);
+            result = getOrgDataSet().getParticpantsWithPositionAsXML(name);
         }
         else if (action.equalsIgnoreCase("getParticipantsWithCapability")) {
-            result = _orgDataSet.getParticpantsWithCapabilityAsXML(name);
+            result = getOrgDataSet().getParticpantsWithCapabilityAsXML(name);
         }
         else if (action.equalsIgnoreCase("getActiveParticipants")) {
             result = _rm.getActiveParticipantsAsXML();
@@ -709,39 +707,39 @@ public class ResourceGateway extends HttpServlet {
             result = (p != null) ? p.toXML() : fail("Unknown userid: " + id) ;
         }
         else if (action.equalsIgnoreCase("getRole")) {
-            Role role = _orgDataSet.getRole(id);
+            Role role = getOrgDataSet().getRole(id);
             result = (role != null) ? role.toXML() : fail("Unknown role id: " + id) ; 
         }
         else if (action.equalsIgnoreCase("getRoleByName")) {
-            Role role = _orgDataSet.getRoleByName(name);
+            Role role = getOrgDataSet().getRoleByName(name);
             result = (role != null) ? role.toXML() : fail("Unknown role name: " + id) ;
         }
         else if (action.equalsIgnoreCase("getCapability")) {
-            Capability capability = _orgDataSet.getCapability(id);
+            Capability capability = getOrgDataSet().getCapability(id);
             result = (capability != null) ? capability.toXML()
                                           : fail("Unknown capability id: " + id) ;
         }
         else if (action.equalsIgnoreCase("getCapabilityByName")) {
-            Capability capability = _orgDataSet.getCapabilityByLabel(name);
+            Capability capability = getOrgDataSet().getCapabilityByLabel(name);
             result = (capability != null) ? capability.toXML()
                                           : fail("Unknown capability name: " + id) ;
         }
         else if (action.equalsIgnoreCase("getPosition")) {
-            Position position = _orgDataSet.getPosition(id);
+            Position position = getOrgDataSet().getPosition(id);
             result = (position != null) ? position.toXML()
                                         : fail("Unknown position id: " + id) ;
         }
         else if (action.equalsIgnoreCase("getPositionByName")) {
-            Position position = _orgDataSet.getPositionByLabel(name);
+            Position position = getOrgDataSet().getPositionByLabel(name);
             result = (position != null) ? position.toXML()
                                         : fail("Unknown position name: " + id) ;
         }
         else if (action.equalsIgnoreCase("getOrgGroup")) {
-            OrgGroup group = _orgDataSet.getOrgGroup(id);
+            OrgGroup group = getOrgDataSet().getOrgGroup(id);
             result = (group != null) ? group.toXML() : fail("Unknown group id: " + id);
         }
         else if (action.equalsIgnoreCase("getOrgGroupByName")) {
-            OrgGroup group = _orgDataSet.getOrgGroupByLabel(name);
+            OrgGroup group = getOrgDataSet().getOrgGroupByLabel(name);
             result = (group != null) ? group.toXML() : fail("Unknown group name: " + id);
         }
         else if (action.equalsIgnoreCase("getNonHumanCategories")) {
@@ -749,67 +747,67 @@ public class ResourceGateway extends HttpServlet {
             if ((format != null) && format.equals("JSON")) {
                 String callback = req.getParameter("callback");
                 result = stringMapToJSON(
-                        _orgDataSet.getNonHumanCategoryIdentifiers(), callback);
+                        getOrgDataSet().getNonHumanCategoryIdentifiers(), callback);
             }
-            else result = _orgDataSet.getNonHumanCategoriesAsXML();
+            else result = getOrgDataSet().getNonHumanCategoriesAsXML();
         }
         else if (action.equalsIgnoreCase("getNonHumanSubCategories")) {
-            NonHumanCategory category = _orgDataSet.getNonHumanCategory(id);
+            NonHumanCategory category = getOrgDataSet().getNonHumanCategory(id);
             if (category != null) {
                 String format = req.getParameter("format");
                 if ((format != null) && format.equals("JSON")) {
                     String callback = req.getParameter("callback");
                     result = stringSetToJSON(category.getSubCategoryNames(), callback);
                 }
-                else result = _orgDataSet.getNonHumanSubCategoriesAsXML(category.getID());
+                else result = getOrgDataSet().getNonHumanSubCategoriesAsXML(category.getID());
             }
             else result = fail("Unknown category id: " + id);
         }
         else if (action.equalsIgnoreCase("getNonHumanSubCategoriesByName")) {
             String categoryName = req.getParameter("category");
-            NonHumanCategory category = _orgDataSet.getNonHumanCategoryByName(categoryName);
+            NonHumanCategory category = getOrgDataSet().getNonHumanCategoryByName(categoryName);
             if (category != null) {
                 String format = req.getParameter("format");
                 if ((format != null) && format.equals("JSON")) {
                     String callback = req.getParameter("callback");
                     result = stringSetToJSON(category.getSubCategoryNames(), callback);
                 }
-                else result = _orgDataSet.getNonHumanSubCategoriesAsXML(category.getID());
+                else result = getOrgDataSet().getNonHumanSubCategoriesAsXML(category.getID());
             }
             else result = fail("Unknown category name: " + categoryName);
         }
         else if (action.equalsIgnoreCase("getNonHumanCategoryByName")) {
-            NonHumanCategory category = _orgDataSet.getNonHumanCategoryByName(name);
+            NonHumanCategory category = getOrgDataSet().getNonHumanCategoryByName(name);
             result = (category != null) ? category.toXML() : fail("Unknown category name: " + name);
         }
         else if (action.equalsIgnoreCase("getNonHumanCategory")) {
-            NonHumanCategory category = _orgDataSet.getNonHumanCategory(id);
+            NonHumanCategory category = getOrgDataSet().getNonHumanCategory(id);
             result = (category != null) ? category.toXML() : fail("Unknown category id: " + id);
         }                
         else if (action.equalsIgnoreCase("getNonHumanCategorySet")) {
-            result = _orgDataSet.getNonHumanCategorySet();
+            result = getOrgDataSet().getNonHumanCategorySet();
         }
         else if (action.equalsIgnoreCase("getParticipantIdentifiers")) {
             if (id == null) id = "0";
-            result = reformatMap(_orgDataSet.getParticipantIdentifiers(id), req);
+            result = reformatMap(getOrgDataSet().getParticipantIdentifiers(id), req);
         }
         else if (action.equalsIgnoreCase("getNonHumanResourceIdentifiers")) {
-            result = reformatMap(_orgDataSet.getNonHumanResourceIdentifiers(), req);
+            result = reformatMap(getOrgDataSet().getNonHumanResourceIdentifiers(), req);
         }
         else if (action.equalsIgnoreCase("getRoleIdentifiers")) {
-            result = reformatMap(_orgDataSet.getRoleIdentifiers(), req);
+            result = reformatMap(getOrgDataSet().getRoleIdentifiers(), req);
         }
         else if (action.equalsIgnoreCase("getPositionIdentifiers")) {
-            result = reformatMap(_orgDataSet.getPositionIdentifiers(), req);
+            result = reformatMap(getOrgDataSet().getPositionIdentifiers(), req);
         }
         else if (action.equalsIgnoreCase("getCapabilityIdentifiers")) {
-            result = reformatMap(_orgDataSet.getCapabilityIdentifiers(), req);
+            result = reformatMap(getOrgDataSet().getCapabilityIdentifiers(), req);
         }
         else if (action.equalsIgnoreCase("getOrgGroupIdentifiers")) {
-            result = reformatMap(_orgDataSet.getOrgGroupIdentifiers(), req);
+            result = reformatMap(getOrgDataSet().getOrgGroupIdentifiers(), req);
         }
         else if (action.equals("getUserPrivileges")) {
-            Participant p = _orgDataSet.getParticipant(id);
+            Participant p = getOrgDataSet().getParticipant(id);
             if (p != null) {
                 UserPrivileges up = p.getUserPrivileges();
                 result = (up != null) ? up.toXML() :
@@ -825,7 +823,7 @@ public class ResourceGateway extends HttpServlet {
         String result = "";
         if (action.equalsIgnoreCase("setContainingRole")) {
             String roleID = req.getParameter("roleid");
-            Role role = _orgDataSet.getRole(roleID);
+            Role role = getOrgDataSet().getRole(roleID);
             if (role != null) {
                 String ownerID = req.getParameter("containingroleid");
                 if (role.setOwnerRole(ownerID)) {
@@ -838,7 +836,7 @@ public class ResourceGateway extends HttpServlet {
         }
         else if (action.equalsIgnoreCase("setContainingOrgGroup")) {
             String groupID = req.getParameter("groupid");
-            OrgGroup orgGroup = _orgDataSet.getOrgGroup(groupID);
+            OrgGroup orgGroup = getOrgDataSet().getOrgGroup(groupID);
             if (orgGroup != null) {
                 String ownerID = req.getParameter("containinggroupid");
                 if (orgGroup.setBelongsTo(ownerID)) {
@@ -851,7 +849,7 @@ public class ResourceGateway extends HttpServlet {
         }
         else if (action.equalsIgnoreCase("setContainingPosition")) {
             String posID = req.getParameter("positionid");
-            Position position = _orgDataSet.getPosition(posID);
+            Position position = getOrgDataSet().getPosition(posID);
             if (position != null) {
                 String ownerID = req.getParameter("containingpositionid");
                 if (position.setReportsTo(ownerID)) {
@@ -864,7 +862,7 @@ public class ResourceGateway extends HttpServlet {
         }
         else if (action.equalsIgnoreCase("setPositionOrgGroup")) {
             String posID = req.getParameter("positionid");
-            Position position = _orgDataSet.getPosition(posID);
+            Position position = getOrgDataSet().getPosition(posID);
             if (position != null) {
                 String groupID = req.getParameter("groupid");
                 if (position.setOrgGroup(groupID)) {
@@ -878,7 +876,7 @@ public class ResourceGateway extends HttpServlet {
         else if (action.equalsIgnoreCase("setParticipantPrivileges")) {
             String pid = req.getParameter("participantid");
             if (pid != null) {
-                Participant p = _orgDataSet.getParticipant(pid);
+                Participant p = getOrgDataSet().getParticipant(pid);
                 if (p != null) {
                     String bits = req.getParameter("bitstring");
                     if (bits != null) {
@@ -902,25 +900,25 @@ public class ResourceGateway extends HttpServlet {
         String id = req.getParameter("id");
         if (id != null) {
             if (action.equalsIgnoreCase("isKnownParticipant")) {
-                result = String.valueOf(_orgDataSet.isKnownParticipant(id)) ;
+                result = String.valueOf(getOrgDataSet().isKnownParticipant(id)) ;
             }
             else if (action.equalsIgnoreCase("isKnownNonHumanResource")) {
-                result = String.valueOf(_orgDataSet.isKnownNonHumanResource(id)) ;
+                result = String.valueOf(getOrgDataSet().isKnownNonHumanResource(id)) ;
             }
             else if (action.equalsIgnoreCase("isKnownRole")) {
-                result = String.valueOf(_orgDataSet.isKnownRole(id)) ;
+                result = String.valueOf(getOrgDataSet().isKnownRole(id)) ;
             }
             else if (action.equalsIgnoreCase("isKnownCapability")) {
-                result = String.valueOf(_orgDataSet.isKnownCapability(id)) ;
+                result = String.valueOf(getOrgDataSet().isKnownCapability(id)) ;
             }
             else if (action.equalsIgnoreCase("isKnownPosition")) {
-                result = String.valueOf(_orgDataSet.isKnownPosition(id)) ;
+                result = String.valueOf(getOrgDataSet().isKnownPosition(id)) ;
             }
             else if (action.equalsIgnoreCase("isKnownOrgGroup")) {
-                result = String.valueOf(_orgDataSet.isKnownOrgGroup(id)) ;
+                result = String.valueOf(getOrgDataSet().isKnownOrgGroup(id)) ;
             }
             else if (action.equalsIgnoreCase("isKnownNonHumanCategory")) {
-                result = String.valueOf(_orgDataSet.isKnownNonHumanCategory(id)) ;
+                result = String.valueOf(getOrgDataSet().isKnownNonHumanCategory(id)) ;
             }
         }
         else result = fail("Invalid ID: null");
@@ -929,6 +927,19 @@ public class ResourceGateway extends HttpServlet {
 
 
     /*********************************/
+
+
+    private ResourceDataSet getOrgDataSet() {
+        while (_rm.isOrgDataRefreshing()) {
+            try {
+                Thread.sleep(200);
+            }
+            catch (InterruptedException ie) {
+                // deliberately do nothing
+            }
+        }
+        return _rm.getOrgDataSet();
+    }
     
     private void updateCommonFields(AbstractResourceAttribute resource,
                                    HttpServletRequest req) {
@@ -943,7 +954,7 @@ public class ResourceGateway extends HttpServlet {
         String result = SUCCESS;
         String pid = req.getParameter("participantid");
         if (pid != null) {
-            Participant p = _orgDataSet.getParticipant(pid);
+            Participant p = getOrgDataSet().getParticipant(pid);
             if (p != null) {
                 if (attributeType.equals("capability"))
                     p.addCapability(req.getParameter("capabilityid"));
@@ -966,7 +977,7 @@ public class ResourceGateway extends HttpServlet {
         String result = SUCCESS;
         String pid = req.getParameter("participantid");
         if (pid != null) {
-            Participant p = _orgDataSet.getParticipant(pid);
+            Participant p = getOrgDataSet().getParticipant(pid);
             if (p != null) {
                 if (attributeType.equals("capability"))
                     p.removeCapability(req.getParameter("capabilityid"));
