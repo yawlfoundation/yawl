@@ -781,10 +781,11 @@ public class caseMgt extends AbstractPageBean {
                     HttpServletResponse response =
                             ( HttpServletResponse ) context.getExternalContext().getResponse();
                     response.setContentType("text/xml");
+                    response.setCharacterEncoding("UTF-8");
                     response.setHeader("Content-Disposition",
                             "attachment;filename=\"" + filename + "\"");
                     OutputStream os = response.getOutputStream();
-                    OutputStreamWriter osw = new OutputStreamWriter(os);
+                    OutputStreamWriter osw = new OutputStreamWriter(os, "UTF-8");
                     osw.write(log);
                     osw.flush();
                     osw.close();

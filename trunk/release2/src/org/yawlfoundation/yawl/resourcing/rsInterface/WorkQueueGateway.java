@@ -63,7 +63,6 @@ import java.util.Set;
 public class WorkQueueGateway extends HttpServlet {
 
     private ResourceManager _rm = ResourceManager.getInstance() ;
-    private ResourceDataSet orgDataSet = _rm.getOrgDataSet();
     private ResourceMarshaller _marshaller = new ResourceMarshaller();
     private static final Logger _log = Logger.getLogger(WorkQueueGateway.class);
     private static WorkQueueGateway _me;
@@ -177,7 +176,7 @@ public class WorkQueueGateway extends HttpServlet {
             result = (name != null) ? name : fail("Unknown userid: " + userid) ;
         }
         else if (action.equals("getUserPrivileges")) {
-            Participant p = orgDataSet.getParticipant(pid);
+            Participant p = getOrgDataSet().getParticipant(pid);
             if (p != null) {
                 UserPrivileges up = p.getUserPrivileges();
                 result = (up != null) ? up.toXML() :
@@ -191,32 +190,32 @@ public class WorkQueueGateway extends HttpServlet {
                      fail("Unknown workitem id: " + itemid);
         }
         else if (action.equals("getParticipantsReportingTo")) {
-            Set<Participant> set = orgDataSet.getParticipantsReportingTo(pid);
+            Set<Participant> set = getOrgDataSet().getParticipantsReportingTo(pid);
             result = (set != null) ? _marshaller.marshallParticipants(set) :
                      fail("Invalid participant id or no participants reporting to: " + pid);
         }
         else if (action.equals("getOrgGroupMembers")) {
             String groupid = req.getParameter("groupid");
-            OrgGroup og = orgDataSet.getOrgGroup(groupid);
+            OrgGroup og = getOrgDataSet().getOrgGroup(groupid);
             if (og != null) {
-                Set<Participant> set = orgDataSet.getOrgGroupMembers(og); // set never null
+                Set<Participant> set = getOrgDataSet().getOrgGroupMembers(og); // set never null
                 result = _marshaller.marshallParticipants(set) ;
             }
             else result = fail("Unknown org group id: " + groupid);
         }        
         else if (action.equals("getRoleMembers")) {
             String rid = req.getParameter("roleid");
-            if (orgDataSet.isKnownRole(rid)) {
-                result = orgDataSet.getRoleParticipantsAsXML(rid);
+            if (getOrgDataSet().isKnownRole(rid)) {
+                result = getOrgDataSet().getRoleParticipantsAsXML(rid);
             }
             else result = fail("Unknown role id: " + rid);
         }
         else if (action.equals("getParticipant")) {
-            Participant p = orgDataSet.getParticipant(pid);
+            Participant p = getOrgDataSet().getParticipant(pid);
             result = (p != null) ? p.toXML() : fail("Unknown participant id: " + pid);
         }
         else if (action.equals("getParticipants")) {
-            Set<Participant> set = orgDataSet.getParticipants();
+            Set<Participant> set = getOrgDataSet().getParticipants();
             result = (set != null) ? _marshaller.marshallParticipants(set) :
                       fail("No participants found");
         }
@@ -256,7 +255,7 @@ public class WorkQueueGateway extends HttpServlet {
         else if (action.equals("getQueuedWorkItems")) {
             int queueType = getQueueType(req.getParameter("queue")) ;
             if (WorkQueue.isValidQueueType(queueType)) {
-                Participant p = orgDataSet.getParticipant(pid);
+                Participant p = getOrgDataSet().getParticipant(pid);
                 if (p != null) {
                     QueueSet qSet = p.getWorkQueues();
                     if (qSet != null) {
@@ -441,7 +440,7 @@ public class WorkQueueGateway extends HttpServlet {
         String pid = req.getParameter("participantid");
         String itemid = req.getParameter("workitemid");
 
-        Participant p = orgDataSet.getParticipant(pid);
+        Participant p = getOrgDataSet().getParticipant(pid);
         if (p != null) {
             WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
             if (wir != null) {
@@ -493,9 +492,9 @@ public class WorkQueueGateway extends HttpServlet {
         String pTo = req.getParameter("pto");
         String itemid = req.getParameter("workitemid");
 
-        Participant pOrig = orgDataSet.getParticipant(pFrom);
+        Participant pOrig = getOrgDataSet().getParticipant(pFrom);
         if (pOrig != null) {
-            Participant pDest = orgDataSet.getParticipant(pTo);
+            Participant pDest = getOrgDataSet().getParticipant(pTo);
             if (pDest != null) {
                 WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
                 if (wir != null) {
@@ -629,6 +628,19 @@ public class WorkQueueGateway extends HttpServlet {
         return response(result);
     }
 
+    
+    private ResourceDataSet getOrgDataSet() {
+        while (_rm.isOrgDataRefreshing()) {
+            try {
+                Thread.sleep(200);
+            }
+            catch (InterruptedException ie) {
+                // deliberately do nothing
+            }
+        }
+        return _rm.getOrgDataSet();
+    }
+        
 
     private int getQueueType(String queue) {
         try {

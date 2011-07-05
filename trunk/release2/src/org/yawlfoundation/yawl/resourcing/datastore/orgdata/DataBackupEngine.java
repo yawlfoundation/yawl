@@ -59,7 +59,6 @@ public class DataBackupEngine {
         result.append("</orgdata>");
         XNode node = new XNodeParser().parse(result.toString());
         return node.toPrettyString(true);
-   //     return result.toString();
     }
 
     public List<String> importOrgData(String xml) {
