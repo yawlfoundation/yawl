@@ -225,6 +225,10 @@ public class nonHumanMgt extends AbstractPageBean {
     public void prerender() {
         _sb.checkLogon();
         _sb.setActivePage(ApplicationBean.PageRef.nonHumanMgt);
+
+        // abort load if org data isn't currently available
+        if (_sb.orgDataIsRefreshing()) return;
+
         showMessagePanel();
 
         SelType sType = getSelTypeForTab();

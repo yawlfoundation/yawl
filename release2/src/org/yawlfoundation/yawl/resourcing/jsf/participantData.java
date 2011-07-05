@@ -440,6 +440,10 @@ public class participantData extends AbstractPageBean {
     public void prerender() {
         _sb.checkLogon();                // check if session still active
         _sb.setActivePage(ApplicationBean.PageRef.participantData);
+
+        // abort load if org data isn't currently available
+        if (_sb.orgDataIsRefreshing()) return;
+
         showMessagePanel();
 
         // a null btnAdd tooltip indicates the first rendering of this page

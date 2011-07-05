@@ -571,6 +571,10 @@ public class calendarMgt extends AbstractPageBean {
         _sb.checkLogon();
         _sb.refreshCalendarRows();
         setActivePage();
+
+        // abort load if org data isn't currently available
+        if (_sb.orgDataIsRefreshing()) return;
+
         showMessagePanel();
         processMode();
         setFilter();

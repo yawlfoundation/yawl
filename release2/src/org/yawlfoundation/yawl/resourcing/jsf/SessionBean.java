@@ -1004,6 +1004,17 @@ public class SessionBean extends AbstractSessionBean {
             return "Assigned To (" + adminQueueAssignedList.length + ")" ;
     }
 
+    public boolean orgDataIsRefreshing() {
+        if (_rm.isOrgDataRefreshing()) {
+            messagePanel.info("Organisational data is currently refreshing. " +
+                    "Please try again in a moment.");
+            showMessagePanel();
+            return true;
+        }
+        return false;
+    }
+
+
     private String adminQueueAction ;
 
     public String getAdminQueueAction() {

@@ -308,6 +308,10 @@ public class orgDataMgt extends AbstractPageBean {
     public void prerender() {
         _sb.checkLogon();
         _sb.setActivePage(ApplicationBean.PageRef.orgDataMgt);
+
+        // abort load if org data isn't currently available
+        if (_sb.orgDataIsRefreshing()) return;
+
         showMessagePanel();
 
         String selTabName = tabSet.getSelected() ;
