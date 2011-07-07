@@ -75,8 +75,8 @@ public abstract class InterfaceBWebsideController {
 
     
     /**
-     * Provided that you set up the web.xml file according to the YAWL doumentation
-     * you do not need to call this method.  It allows implementors to set up
+     * Provided that you set up the web.xml file according to the YAWL documentation
+     * you do not need to call this method.  It allows implementers to set up
      * their webapp so that it has the right objects, and correctly addressed
      * pointers to the engine.
      * @param backEndURI the uri of the engine.
@@ -251,7 +251,7 @@ public abstract class InterfaceBWebsideController {
 
     /**
      * Creates a session with the engine.  A session is automatically disconnected
-     * after 60 minutes of inactivty (although this value can be changed via config
+     * after 60 minutes of inactivity (although this value can be changed via config
      * value in the web.xml file).
      * @param userID the userID
      * @param password the password.
