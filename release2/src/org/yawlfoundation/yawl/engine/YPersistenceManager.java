@@ -388,19 +388,23 @@ public class YPersistenceManager {
     }
 
 
+    public List execQuery(String queryString) throws YPersistenceException {
+        return execQuery(createQuery(queryString));
+    }
+
+
      /**
       * executes a Query object based on the sql string passed
-      * @param queryString - the sql query to execute
+      * @param query - the sql query to execute
       * @throws YPersistenceException if there's a problem reading the db
       * @return the List of objects returned
       */
-     public List execQuery(String queryString) throws YPersistenceException {
+     public List execQuery(Query query) throws YPersistenceException {
          try {
-              Query query = createQuery(queryString);
               return (query != null) ? query.list() : null;
          }
          catch (HibernateException he) {
-              throw new YPersistenceException("Error executing query: " + queryString, he);
+              throw new YPersistenceException("Error executing query: " + query.getQueryString(), he);
          }
      }
 

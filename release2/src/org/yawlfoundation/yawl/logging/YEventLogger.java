@@ -614,10 +614,9 @@ public class YEventLogger {
         String def = item.getDataTypeDefinition();
         Long dataTypeID = _keyCache.dataDefn.get(def);
         if (dataTypeID == null) {
-            String where = String.format("definition='%s'", def);
-            YLogDataType dataType = (YLogDataType) selectScalarWhere(pmgr,
-                    "YLogDataType", where);
-            dataTypeID = (dataType != null) ? dataType.getDataTypeID() :
+            List list = pmgr.createQuery("from YLogDataType where definition=:def")
+                            .setString("def", def).list();
+            dataTypeID = (! list.isEmpty()) ? ((YLogDataType) list.get(0)).getDataTypeID() :
                     insertDataType(pmgr, item);
             _keyCache.dataDefn.put(def, dataTypeID);
         }
