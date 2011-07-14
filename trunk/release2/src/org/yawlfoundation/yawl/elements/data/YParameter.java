@@ -71,8 +71,8 @@ public class YParameter extends YVariable implements Comparable<YVariable> {
 
     /**
      * Set whether the param bypasses the decomposition's state space.  Can only be set
-     * on an input param.
-     * @param isCutThroughParam is yes then true.
+     * on an output param.
+     * @param isCutThroughParam if yes then true.
      */
     public void setIsCutThroughParam(boolean isCutThroughParam) {
         if (_paramType == _OUTPUT_PARAM_TYPE) {
