@@ -30,6 +30,7 @@ import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.text.Highlighter;
 import javax.swing.text.PlainDocument;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,9 +92,14 @@ class JXMLSchemaEditor extends ValidityEditorPane {
     }
     
     public List getProblemList() {
-      return YAWLEngineProxy.getInstance().getSchemaValidationResults(
-          getEditor().getText()
-      );
+        String content;
+        try {
+            content = new String(getEditor().getText().getBytes(), "UTF-8");
+        }
+        catch (UnsupportedEncodingException uee) {
+            content = getEditor().getText();
+        }
+      return YAWLEngineProxy.getInstance().getSchemaValidationResults(content);
     }
     
     public void setPreAndPostEditorText(String preEditorText, String postEditorText) {
