@@ -855,6 +855,14 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
     }
 
+
+    public void refreshOrgData() {
+        new OrgDataRefresher(this).refresh();
+        _resMapCache.clear();   // reset static resource sets
+        sanitiseCaches();
+    }
+
+
     /**
      * This does final initialisation tasks involved in ensuring the caches match
      * the engine's known work. It is called via the EngineInitialisationCompleted

@@ -230,7 +230,7 @@ public class ResourceGateway extends HttpServlet {
                result = _rm.validateUserCredentials(userid, password, admin);
            }
            else if (action.equalsIgnoreCase("refreshOrgDataSet")) {
-               _rm.loadResources();
+               _rm.refreshOrgData();
            }
            else if (action.equalsIgnoreCase("resetOrgDataRefreshRate")) {
                String rate = req.getParameter("rate");
