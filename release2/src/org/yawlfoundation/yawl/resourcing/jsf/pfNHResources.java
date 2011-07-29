@@ -457,18 +457,19 @@ public class pfNHResources extends AbstractFragmentBean {
 
 
     /* enable or disable fields depending on whether we are in browse/edit or add mode */
-    public void setAddMode(boolean adding) {
+    public void setAddMode(boolean adding, String selectedTab) {
         lbxItems.setDisabled(adding);
-        lbxSubCatItems.setDisabled(adding);
-        btnAddSubCat.setDisabled(adding);
-        btnRemoveSubCat.setDisabled(adding);
-        disableInputFields(! adding);
-        disableSubCatButtons(adding);
+        if (selectedTab.equals("tabCategories")) {
+            lbxSubCatItems.setDisabled(adding);
+            btnAddSubCat.setDisabled(adding);
+            btnRemoveSubCat.setDisabled(adding);
+            disableInputFields(! adding);
+            disableSubCatButtons(adding);
+            _sb.setCategoryMembers(null);
+        }
         if (adding) clearTextFields();
         txtName.setText("");
         lblMembers.setText("Members (0)");
-        _sb.setCategoryMembers(null);
-
     }
 
 

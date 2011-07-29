@@ -388,7 +388,7 @@ public class nonHumanMgt extends AbstractPageBean {
     /* enables/disables fields when the add mode changes */
     private void setMode(SessionBean.Mode mode) {
         if (mode == SessionBean.Mode.edit) {
-            _innerForm.setAddMode(false);
+            _innerForm.setAddMode(false, tabSet.getSelected());
             btnAdd.setText("New");
             btnAdd.setToolTip("Add a new item");
             btnReset.setToolTip("Discard unsaved changes");
@@ -397,7 +397,7 @@ public class nonHumanMgt extends AbstractPageBean {
             if (! _msgPanel.hasMessage()) body1.setFocus("form1:pfNHResources:lbxItems");
         }
         else {
-            _innerForm.setAddMode(true);
+            _innerForm.setAddMode(true, tabSet.getSelected());
             btnAdd.setText("Add");
             btnAdd.setToolTip("Save entered data to create a new " + getActiveAttribText());
             btnReset.setToolTip("Discard data and revert to edit mode");
