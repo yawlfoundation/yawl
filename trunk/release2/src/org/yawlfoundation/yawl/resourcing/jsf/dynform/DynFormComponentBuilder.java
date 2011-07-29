@@ -264,7 +264,7 @@ public class DynFormComponentBuilder {
         cal.setMaxDate(getMaxDate(input));
         cal.setColumns(15);
         cal.setStyleClass(getInputStyleClass(input));    
-        cal.setStyle(makeStyle(cal, input)) ;
+        cal.setStyle(makeStyle(cal, input));
         cal.setVisible(isVisible(input));
         return cal;
     }

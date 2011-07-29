@@ -188,6 +188,9 @@ public class DynFormFactory extends AbstractSessionBean {
     // user defined fonts store
     private DynFormFont _formFonts;
 
+    // overall height in pixels of the generated form
+    private int _overallHeight;
+
     public WorkItemRecord getDisplayedWIR() { return _displayedWIR; }
 
     public void setDisplayedWIR(WorkItemRecord wir) { _displayedWIR = wir; }
@@ -593,7 +596,8 @@ public class DynFormFactory extends AbstractSessionBean {
             int btnCompleteLeft = btnOKLeft + FORM_BUTTON_WIDTH + FORM_BUTTON_GAP;
             btnCompleteStyle = String.format("left: %dpx; top: %dpx", btnCompleteLeft, btnTop);
         }
-        bottomPanelStyle = String.format("top: %dpx", btnTop + FORM_BUTTON_HEIGHT);
+        _overallHeight = btnTop + FORM_BUTTON_HEIGHT;
+        bottomPanelStyle = String.format("top: %dpx", _overallHeight);
     }
 
 
@@ -894,9 +898,16 @@ public class DynFormFactory extends AbstractSessionBean {
 
 
     public int getFormWidth() {
-        return PANEL_BASE_WIDTH + (SUBPANEL_INSET * 2 * (getMaxDepthLevel() + 2));
+        int btnCount = getNumberOfVisibleButtons();
+        int btnBlockWidth = (btnCount * FORM_BUTTON_WIDTH) + (FORM_BUTTON_GAP * (btnCount - 1));
+        int outerPanelWidth = PANEL_BASE_WIDTH + (SUBPANEL_INSET * 2 * (getMaxDepthLevel() + 2));
+        return Math.max(btnBlockWidth, outerPanelWidth);
     }
 
+
+    public int getFormHeight() {
+        return _overallHeight;
+    }
 
     public boolean validateInputs() {
         return new DynFormValidator().validate(compPanel, _componentFieldTable,
