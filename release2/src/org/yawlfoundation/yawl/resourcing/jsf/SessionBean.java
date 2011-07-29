@@ -1834,7 +1834,11 @@ public class SessionBean extends AbstractSessionBean {
                         "border: none;";
         transparentPanel.setStyle(style);
         transparentPanel.setVisible(messagePanel.hasMessage());
-        messagePanel.show(getOuterPanelWidth());
+
+        if (activePage != ApplicationBean.PageRef.dynForm)
+            messagePanel.show(getOuterPanelWidth());
+        else
+            messagePanel.show(getOuterPanelWidth(), getOuterPanelHeight());
     }
 
     public String messagePanelOKBtnAction(ActionEvent event) {
@@ -2289,6 +2293,7 @@ public class SessionBean extends AbstractSessionBean {
             case externalClients : return 485;
             case calendarMgt     : return 648;
             case secResMgt       : return 600;
+            case dynForm         : return getDynFormFactoryInstance().getFormHeight();
             default: return -1;
         }
     }

@@ -67,6 +67,7 @@ public class MessagePanel extends PanelLayout {
     private int idSuffix = 0 ;                         // used in creation of unique ids
     private String _style = "";
     private int _parentWidth;                          // width of parent container
+    private int _parentHeight;                         // height of parent container
     private String _titleText;
     private int _height;
 
@@ -165,6 +166,11 @@ public class MessagePanel extends PanelLayout {
     public void show(int width) {
         _parentWidth = width;
         show();
+    }
+
+    public void show(int width, int height) {
+        _parentHeight = height;
+        show(width);
     }
 
     /* removes any surrounding xml tags from text */
@@ -398,6 +404,12 @@ public class MessagePanel extends PanelLayout {
 
 
     private void setStyle(int width, int height) {
+
+        // override positioning for long dyn forms
+        if (height < (_parentHeight - 150)) {
+            _style = "top:" + (_parentHeight - height - 150) + "px; position:absolute;";
+        }
+
         String style = String.format("%s height: %dpx; width: %dpx;",
                 _style, height, width);
 

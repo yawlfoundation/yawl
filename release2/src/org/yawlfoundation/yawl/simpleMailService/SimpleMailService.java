@@ -44,8 +44,8 @@ public class SimpleMailService extends InterfaceBWebsideController {
 
     private static SimpleMailService _instance;
 
-    private final String _engineUser = "simpleMailService";
-    private final String _enginePassword = "ySimpleMail";
+    private final String _engineUser = "mailService";
+    private final String _enginePassword = "yMail";
 
     private MailSettings _defaults = new MailSettings();
 

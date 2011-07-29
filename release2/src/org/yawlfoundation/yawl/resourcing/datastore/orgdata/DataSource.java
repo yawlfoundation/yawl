@@ -45,7 +45,7 @@ public abstract class DataSource {
      * implementations that use a different unique key format (or ignored in favour
      * of some other method that returns a unique ID).
      * @param prefix some (optional) characters to place at the start of the id
-     * @return a unique String identitifer
+     * @return a unique String identifier
      */
     protected String getNextID(String prefix) {
         return String.format("%s-%s", prefix, UUID.randomUUID().toString()) ;
