@@ -24,8 +24,10 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
+import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
-import java.text.SimpleDateFormat;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -89,7 +91,7 @@ public abstract class AbstractCodelet {
             if (dataType.endsWith("boolean")) 
                 result = value.equalsIgnoreCase("true");
             else if (dataType.endsWith("date"))
-                result = new SimpleDateFormat().parse(value);    
+                result = xmlDateToJavaDate(value);
             else if (dataType.endsWith("double"))
                 result = new Double(value);
             else if (dataType.endsWith("integer"))
@@ -163,6 +165,18 @@ public abstract class AbstractCodelet {
             throw new CodeletExecutionException("Parameter '" + paramName +
                     "' is required by the specified codelet but could not be found in " +
                     "the workitem's parameters.");
+    }
+
+
+    private Date xmlDateToJavaDate(String s) {
+        try {
+            XMLGregorianCalendar cal =
+                    DatatypeFactory.newInstance().newXMLGregorianCalendar(s);
+            return cal.toGregorianCalendar().getTime();
+        }
+        catch (DatatypeConfigurationException dce) {
+            return null;
+        }
     }
 
 
