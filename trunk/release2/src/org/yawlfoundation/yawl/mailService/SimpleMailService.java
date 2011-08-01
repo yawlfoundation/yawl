@@ -16,7 +16,7 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.simpleMailService;
+package org.yawlfoundation.yawl.mailService;
 
 import org.codemonkey.simplejavamail.Email;
 import org.codemonkey.simplejavamail.MailException;
