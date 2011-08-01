@@ -45,7 +45,7 @@
 
     <context-param>
         <param-name>InterfaceBWebSideController</param-name>
-        <param-value>org.yawlfoundation.yawl.simpleMailService.SimpleMailService</param-value>
+        <param-value>org.yawlfoundation.yawl.mailService.MailService</param-value>
         <description>
             The class name of the Interface B Server implementation.
         </description>
@@ -104,83 +104,6 @@
     </context-param>
 
 
-    <!--<context-param>-->
-        <!--<param-name>UserName</param-name>-->
-        <!--<param-value></param-value>-->
-        <!--<description>-->
-            <!--If you need to invoke a web service and this is deployed behind-->
-            <!--an authenticating proxy server then you ought to set this variable-->
-            <!--appropriately.-->
-        <!--</description>-->
-    <!--</context-param>-->
-    <!---->
-       <!---->
-    <!--<context-param>-->
-        <!--<param-name>UserPassword</param-name>-->
-        <!--<param-value></param-value>-->
-        <!--<description>-->
-            <!--If you need to invoke a web service and this is deployed behind-->
-            <!--an authenticating proxy server then you ought to set this variable-->
-            <!--appropriately.-->
-        <!--</description>-->
-    <!--</context-param>-->
-
-    <!--<context-param>-->
-        <!--<param-name>ProxyHost</param-name>-->
-        <!--<param-value></param-value>-->
-        <!--<description>-->
-            <!--If you need to invoke a web service and this is deployed behind-->
-            <!--an authenticating proxy server then you ought to set this variable-->
-            <!--appropriately.-->
-        <!--</description>-->
-    <!--</context-param>-->
-
-    <!--<context-param>-->
-        <!--<param-name>ProxyPort</param-name>-->
-        <!--<param-value></param-value>-->
-        <!--<description>-->
-            <!--If you need to invoke a web service and this is deployed behind-->
-            <!--an authenticating proxy server then you ought to set this variable-->
-            <!--appropriately.-->
-        <!--</description>-->
-    <!--</context-param>-->
-
-
-    <!-- Servlet definitions for the servlets that make up
-         your web application, including initialization
-         parameters.  With Tomcat, you can also send requests
-         to servlets not listed here with a request like this:
-
-           http://localhost:8080/{context-path}/servlet/{classname}
-
-         but this usage is not guaranteed to be portable.  It also
-         makes relative references to images and other resources
-         required by your servlet more complicated, so defining
-         all of your servlets (and defining a mapping to them with
-         a servlet-mapping element) is recommended.
-
-         Servlet initialization parameters can be retrieved in a
-         servlet or JSP page by calling:
-
-             String value =
-               getServletConfig().getInitParameter("name");
-
-         where "name" matches the <param-name> element of
-         one of these initialization parameters.
-
-         You can define any number of servlets, including zero.
-    -->
-
-    <!--servlet>
-        <servlet-name>ErrorServlet</servlet-name>
-        <description>
-            Reports that the URI request found nothing, hence the error report.
-        </description>
-        <servlet-class>org.yawlfoundation.yawl.engine.interfce.ErrorServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet-->
-
-
     <servlet>
         <servlet-name>InterfaceB_Servlet</servlet-name>
         <description>
@@ -219,7 +142,7 @@
         <description>
             Initialises the defaults set in this file.
         </description>
-        <servlet-class>org.yawlfoundation.yawl.simpleMailService.SimpleMailGateway</servlet-class>
+        <servlet-class>org.yawlfoundation.yawl.mailService.MailServiceGateway</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet> 
     

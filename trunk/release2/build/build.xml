@@ -84,7 +84,7 @@
     <property name="mailSender.app.name" value="mailSender"/>
     <property name="test.app.name" value="testService"/>
     <property name="twitter.app.name" value="twitterService"/>
-    <property name="simplemail.app.name" value="simpleMailService"/>
+    <property name="mail.app.name" value="mailService"/>
 
     <!--
         Properties for all third-party libraries
@@ -440,7 +440,7 @@
                      build_twitterService.war,
                      build_digitalSignature.war,
                      build_mailSender.war,
-                     build_simpleMailService.war">
+                     build_mailService.war">
     </target>
 
     <!--
@@ -613,7 +613,7 @@
         <delete dir="${temp.dir}/${twitter.app.name}"/>
         <delete dir="${temp.dir}/${digitalSignature.app.name}"/>
         <delete dir="${temp.dir}/${mailSender.app.name}"/>
-        <delete dir="${temp.dir}/${simplemail.app.name}"/>
+        <delete dir="${temp.dir}/${mail.app.name}"/>
     </target>
 
     <!--
@@ -1528,53 +1528,53 @@
         Build the simple mail service WAR
     -->
 
-    <target name="build_simpleMailService.war"
-            depends="compile, build_simplemailService_SharedTomcat">
+    <target name="build_mailService.war"
+            depends="compile, build_mailService_SharedTomcat">
 
-        <copy todir="${temp.dir}/${simplemail.app.name}${webinf.dir}/elements">
+        <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/elements">
             <fileset dir="${classes.dir}${packageRoot}/elements"/>
         </copy>
-        <copy todir="${temp.dir}/${simplemail.app.name}${webinf.dir}/elements/data">
+        <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/elements/data">
             <fileset dir="${classes.dir}${packageRoot}/elements/data"/>
         </copy>
-        <copy todir="${temp.dir}/${simplemail.app.name}${webinf.dir}/engine"
+        <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/engine"
               file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
-        <copy todir="${temp.dir}/${simplemail.app.name}${webinf.dir}/exceptions">
+        <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/exceptions">
               <fileset dir="${classes.dir}${packageRoot}/exceptions"/>
         </copy>
-        <copy todir="${temp.dir}/${simplemail.app.name}${webinf.dir}/unmarshal">
+        <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/unmarshal">
              <fileset dir="${classes.dir}${packageRoot}/unmarshal"
                       includes="YDecompositionParser.class"/>
              <fileset dir="${schema.dir}" includes="*.xsd"/>
         </copy>
-        <copy todir="${temp.dir}/${simplemail.app.name}${webinf.dir}/schema">
+        <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/schema">
                <fileset dir="${classes.dir}${packageRoot}/schema"
                         includes="XSDType.class YSchemaVersion.class"/>
         </copy>
-        <copy todir="${temp.dir}/${simplemail.app.name}${webinf.dir}/util">
+        <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/util">
             <fileset dir="${classes.dir}${packageRoot}/util"
                     includes="JDOMUtil.class StringUtil.class PasswordEncryptor.class"/>
         </copy>
-        <copy todir="${temp.dir}/${simplemail.app.name}${webinf.dir}/engine/interfce">
+        <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/engine/interfce">
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
         </copy>
-        <copy todir="${temp.dir}/${simplemail.app.name}${webinf.dir}/${simplemail.app.name}">
-            <fileset dir="${classes.dir}${packageRoot}/${simplemail.app.name}"/>
+        <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/${mail.app.name}">
+            <fileset dir="${classes.dir}${packageRoot}/${mail.app.name}"/>
         </copy>
-        <copy todir="${temp.dir}/${simplemail.app.name}/WEB-INF"
-              file="${build.dir}/${simplemail.app.name}/web.xml"/>
+        <copy todir="${temp.dir}/${mail.app.name}/WEB-INF"
+              file="${build.dir}/${mail.app.name}/web.xml"/>
 
-        <jar destfile="${output.dir}/${simplemail.app.name}.war">
-            <fileset dir="${temp.dir}/${simplemail.app.name}"/>
+        <jar destfile="${output.dir}/${mail.app.name}.war">
+            <fileset dir="${temp.dir}/${mail.app.name}"/>
         </jar>
-        <delete dir="${temp.dir}/${simplemail.app.name}"/>
+        <delete dir="${temp.dir}/${mail.app.name}"/>
     </target>
 
-    <target name="build_simplemailService_SharedTomcat" unless="tomcat.isDedicated">
-        <copy todir="${temp.dir}/${simplemail.app.name}/WEB-INF/classes">
+    <target name="build_mailService_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/${mail.app.name}/WEB-INF/classes">
             <fileset dir="${classes.dir}" includes="log4j.properties"/>
         </copy>
-        <copy todir="${temp.dir}/${simplemail.app.name}/WEB-INF/lib">
+        <copy todir="${temp.dir}/${mail.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_simplemail.libs}"/>
         </copy>
     </target>
@@ -1730,7 +1730,7 @@
                      deployMailSender,
                      deployTestService,
                      deployTwitterService,
-                     deploySimpleMailService,
+                     deployMailService,
                      deployNonCoreSharedLibs">
     </target>
 
@@ -1808,9 +1808,9 @@
         </copy>
     </target>
 
-    <target name="deploySimpleMailService" depends="build_simpleMailService.war">
+    <target name="deployMailService" depends="build_mailService.war">
         <copy todir="${webapps.dir}">
-            <fileset file="${output.dir}/${simplemail.app.name}.war"/>
+            <fileset file="${output.dir}/${mail.app.name}.war"/>
         </copy>
     </target>
 
