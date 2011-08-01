@@ -37,15 +37,15 @@ import java.io.IOException;
   *
   */
 
-public class SimpleMailGateway extends HttpServlet {
+public class MailServiceGateway extends HttpServlet {
 
-    private static final Logger _log = Logger.getLogger(SimpleMailGateway.class);
+    private static final Logger _log = Logger.getLogger(MailServiceGateway.class);
 
 
     /** Read settings from web.xml and use them to initialise the service */
     public void init() {
         try {
-            SimpleMailService service = SimpleMailService.getInstance();
+            MailService service = MailService.getInstance();
             ServletContext context = getServletContext();
             service.setHost(context.getInitParameter("host"));
             service.setUser(context.getInitParameter("mailUserName"));

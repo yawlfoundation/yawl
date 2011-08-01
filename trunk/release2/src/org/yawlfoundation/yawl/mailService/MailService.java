@@ -37,12 +37,12 @@ import java.io.IOException;
  * @date 25/07/2009
  */
 
-public class SimpleMailService extends InterfaceBWebsideController {
+public class MailService extends InterfaceBWebsideController {
 
     // holds a session handle to the engine
     private String _handle = null;
 
-    private static SimpleMailService _instance;
+    private static MailService _instance;
 
     private final String _engineUser = "mailService";
     private final String _enginePassword = "yMail";
@@ -50,10 +50,10 @@ public class SimpleMailService extends InterfaceBWebsideController {
     private MailSettings _defaults = new MailSettings();
 
 
-    private SimpleMailService() { }
+    private MailService() { }
 
-    public static SimpleMailService getInstance() {
-        if (_instance == null) _instance = new SimpleMailService();
+    public static MailService getInstance() {
+        if (_instance == null) _instance = new MailService();
         return _instance;
     }
 
