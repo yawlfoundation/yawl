@@ -211,12 +211,12 @@ public class YXESBuilder {
         eventNode.addChild(stringNode("lifecycle:transition",
                 translateEvent(yawlEvent.getChildText("descriptor"))));
         eventNode.addChild(stringNode("lifecycle:instance", instanceID));
-        addDataEvents(yawlEvent.getChild("dataItems"), eventNode);
+//        addDataEvents(yawlEvent.getChild("dataItems"), eventNode);
         return eventNode;
     }
 
 
-    private void addDataEvents(XNode dataItems, XNode eventNode) {
+    private void addDataEvents(XNode eventNode, XNode dataItems) {
         if (dataItems != null) {
             for (XNode dataItem : dataItems.getChildren()) {
                 String value = dataItem.getChildText("value");
@@ -368,9 +368,43 @@ public class YXESBuilder {
     private void processTaskEvents(XNode taskInstance, XNode trace) {
         String taskName = taskInstance.getChildText("taskname");
         String instanceID = taskInstance.getChildText("engineinstanceid");
+        XNode dataChanges = extractDataChangeEvents(taskInstance);
         for (XNode event : taskInstance.getChildren("event")) {
-            trace.addChild(eventNode(event, taskName, instanceID));
+            if (! getDescriptor(event).equals("DataValueChange")) {
+                XNode node = eventNode(event, taskName, instanceID);
+                if (getDescriptor(event).equals("Executing")) {
+                    addDataEvents(node, dataChanges.getChild("input"));
+                }
+                else if (getDescriptor(event).equals("Complete")) {
+                    addDataEvents(node, dataChanges.getChild("output"));
+                }
+                trace.addChild(node);
+            }
         }
+    }
+
+
+    private XNode extractDataChangeEvents(XNode taskInstance) {
+        XNode node = new XNode("dataItems");
+        XNode inputs = node.addChild("input");
+        XNode outputs = node.addChild("output");
+        for (XNode event : taskInstance.getChildren("event")) {
+            if (getDescriptor(event).equals("DataValueChange")) {
+                XNode items = event.getChild("dataItems");
+                for (XNode item : items.getChildren()) {
+                    if (getDescriptor(item).startsWith("Input")) {
+                        inputs.addChild(item);
+                    }
+                    else outputs.addChild(item);
+                }
+            }
+        }
+        return node;
+    }
+
+
+    private String getDescriptor(XNode node) {
+        return node.getChildText("descriptor");
     }
 
 }
