@@ -146,7 +146,10 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
         WorkItemRecord workItem = (workItemXML != null) ?
                 Marshaller.unmarshalWorkItem(workItemXML) : null;
 
-        if ("announceItemEnabled".equals(action)) {
+        // where there are two choices for 'action' below, those on the left are
+        // passed from 2.2 or later engine versions, while those on the right come
+        // from pre-2.2 engine versions
+        if ("announceItemEnabled".equals(action) || "handleEnabledItem".equals(action)) {
             _controller.handleEnabledWorkItemEvent(workItem);
         }
         else if ("announceItemStatus".equals(action)) {
@@ -154,17 +157,17 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
             String newStatus = request.getParameter("newStatus");
             _controller.handleWorkItemStatusChangeEvent(workItem, oldStatus, newStatus);
         }
-        else if ("announceCaseCompleted".equals(action)) {
+        else if ("announceCaseCompleted".equals(action) || "announceCompletion".equals(action)) {
             String casedata = request.getParameter("casedata");
             _controller.handleCompleteCaseEvent(caseID, casedata);
         }
-        else if ("announceItemCancelled".equals(action)) {
+        else if ("announceItemCancelled".equals(action) || "cancelWorkItem".equals(action)) {
             _controller.handleCancelledWorkItemEvent(workItem);
         }
         else if ("announceCaseCancelled".equals(action)) {
             _controller.handleCancelledCaseEvent(caseID);
         }
-        else if ("announceTimerExpiry".equals(action)) {
+        else if ("announceTimerExpiry".equals(action) || "timerExpiry".equals(action)) {
             _controller.handleTimerExpiryEvent(workItem);
         }
         else if ("announceEngineInitialised".equals(action)) {
