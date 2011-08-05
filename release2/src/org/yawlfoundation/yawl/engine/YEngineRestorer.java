@@ -150,7 +150,7 @@ public class YEngineRestorer {
                 }
                 catch (Exception e) {
                     // last resort - assumes tables must be empty
-                    caseNbrStore.setCaseNbr(1);
+                    caseNbrStore.setCaseNbr(0);           // will inc on first get
                 }
             }
         }

@@ -207,6 +207,12 @@ public class XNode implements Comparable<XNode> {
         return child;
     }
 
+    public XNode insertComment(int index, String comment) {
+        XNode child = new XNode("_!_", comment);
+        child.setContentType(ContentType.comment);
+        return insertChild(index, child);
+    }
+
     public boolean isComment() {
         return _contentType == ContentType.comment;
     }
@@ -328,6 +334,31 @@ public class XNode implements Comparable<XNode> {
     public String getChildText(String name, boolean escape) {
         XNode child = getChild(name);
         return (child != null) ? child.getText(escape) : null;
+    }
+
+
+    public int posChildWithName(String name) {
+        if (_children != null) {
+            for (int i=0; i<_children.size(); i++) {
+                if (_children.get(i).getName().equals(name)) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+
+    public int posChildWithAttribute(String key, String value) {
+        if (_children != null) {
+            for (int i=0; i<_children.size(); i++) {
+                String attrValue = _children.get(i).getAttributeValue(key);
+                if ((attrValue != null) && attrValue.equals(value)) {
+                    return i;
+                }
+            }
+        }
+        return -1;
     }
 
 

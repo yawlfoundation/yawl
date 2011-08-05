@@ -82,24 +82,28 @@ public class MailService extends InterfaceBWebsideController {
     // these parameters are automatically inserted (in the Editor) into a task
     // decomposition when this service is selected from the list
     public YParameter[] describeRequiredParams() {
-        YParameter[] params = new YParameter[9];
+        YParameter[] params = new YParameter[11];
         params[0] = createParameter(YParameter._INPUT_PARAM_TYPE, "string",
-                "recipientName", "The name of the person to send the email to", false);
+                "senderName", "The name of the person or system who is sending the email", false);
         params[1] = createParameter(YParameter._INPUT_PARAM_TYPE, "string",
+                "senderAddress", "The email address of the person or system who is sending the email", false);
+        params[2] = createParameter(YParameter._INPUT_PARAM_TYPE, "string",
+                "recipientName", "The name of the person to send the email to", false);
+        params[3] = createParameter(YParameter._INPUT_PARAM_TYPE, "string",
                 "recipientAddress", "The email address to send the email to", false);
-        params[2] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "subject",
+        params[4] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "subject",
                 "The subject of the email", false);
-        params[3] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "content",
+        params[5] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "content",
                 "The content of the email", false);
-        params[4] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "host",
+        params[6] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "host",
                 "The host mail server url (e.g. smtp.example.com)", true);
-        params[5] = createParameter(YParameter._INPUT_PARAM_TYPE, "int", "port",
+        params[7] = createParameter(YParameter._INPUT_PARAM_TYPE, "int", "port",
                 "The host email server's smtp port number", true);
-        params[6] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "user",
+        params[8] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "user",
                 "The user name of an account on the host email server", true);
-        params[7] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "password",
+        params[9] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "password",
                 "The password of the account on the host email server", true);
-        params[8] = createParameter(YParameter._OUTPUT_PARAM_TYPE, "string", "result",
+        params[10] = createParameter(YParameter._OUTPUT_PARAM_TYPE, "string", "result",
                 "The success or error message returned", false);
         return params;
     }

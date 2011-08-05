@@ -144,7 +144,7 @@ public class ResourceXESLog extends YXESBuilder {
                 mergeTraces(trace, rsCaseMap.get(caseID));
             }
         }
-        engLog.addComment("and then merged with the Resource Service log");
+        engLog.insertComment(1, "and then merged with the Resource Service log");
         return engLog;
     }
 
@@ -165,7 +165,10 @@ public class ResourceXESLog extends YXESBuilder {
             if (transition != null) {
 
                 // choose which event to use for duplicated events
-                if (slaveHasPrecedence(transition)) {
+                if (mergeableEvent(transition)) {               // start or complete
+                    mergeEvent(master, event, transition);
+                }
+                else if (slaveHasPrecedence(transition)) {
                     removeEvent(master, getTaskName(event), getInstanceID(event), transition);
                 }
 
@@ -176,23 +179,6 @@ public class ResourceXESLog extends YXESBuilder {
             }
         }
     }
-
-
-//    // inserts 'event' node into 'trace' in timestamp order
-//    private XNode insertEvent(XNode trace, XNode event) {
-//        String eventTimeStamp = getTimeStamp(event);
-//        if (eventTimeStamp != null) {
-//            int i = 0;
-//            for (XNode node : trace.getChildren()) {
-//                String nodeTimeStamp = getTimeStamp(node);
-//                if ((nodeTimeStamp != null) && (eventTimeStamp.compareTo(nodeTimeStamp) < 1)) {
-//                    return trace.insertChild(i, event);
-//                }
-//                i++;
-//            }
-//        }
-//        return trace.addChild(event);
-//    }
 
 
     // inserts 'event' node into 'trace' in timestamp order
@@ -256,18 +242,30 @@ public class ResourceXESLog extends YXESBuilder {
     }
 
 
+    private String getOrgResource(XNode event) {
+        return getEventValue(event, "org:resource");
+    }
+
+
+    // These transitions appear in both logs, but each has relevant data, so they
+    // have to be merged by individual elements
+    private boolean mergeableEvent(String transition) {
+        return transition.equals("start") || transition.equals("complete");
+    }
+
+
     // These transitions appear in both logs - the resource service will take
     // precedence since it contains the resource that triggered the event
     private boolean slaveHasPrecedence(String transition) {
-        return transition.equals("start") || transition.equals("complete") ||
-               transition.equals("suspend") || transition.equals("resume");
+        return transition.equals("suspend") || transition.equals("resume");
     }
 
 
     // These transitions describe cancelled items, so the engine log is used
     // for completeness
     private boolean masterHasPrecedence(String transition) {
-        return transition.equals("ate_abort") || transition.equals("pi_abort") ;
+        return mergeableEvent(transition) ||
+                transition.equals("ate_abort") || transition.equals("pi_abort") ;
     }
 
 
@@ -282,6 +280,27 @@ public class ResourceXESLog extends YXESBuilder {
             }
         }
         if (toRemove != null) node.removeChild(toRemove);
+    }
+
+
+    private void mergeEvent(XNode node, XNode rsEvent, String transition) {
+        String instanceID = getInstanceID(rsEvent);
+        String taskName = getTaskName(rsEvent);
+        String orgResource = getOrgResource(rsEvent);
+        if (orgResource == null) return;
+
+        for (XNode event : node.getChildren("event")) {
+            if (getTransition(event).equals(transition) &&
+                    getInstanceID(event).equals(instanceID) &&
+                    getTaskName(event).equals(taskName)) {
+                int pos = event.posChildWithAttribute("key", "lifecycle:instance");
+                if (pos > -1) {
+                    event.insertChild(pos + 1, stringNode("org:resource", orgResource));
+                }
+                else event.addChild(stringNode("org:resource", orgResource));
+                break;
+            }
+        }
     }
 
 }

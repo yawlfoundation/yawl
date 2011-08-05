@@ -30,7 +30,7 @@
     <filter token="WORKLET_LOGGING_LEVEL" value="${worklet.logging.level}"/>
     <filter token="RESOURCE_LOGGING_LEVEL" value="${resource.logging.level}"/>
 
-    <property name="app.version" value="2.2beta"/>
+    <property name="app.version" value="2.2"/>
     <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
                                            Mike Fowler et al."/>
 
@@ -1714,7 +1714,7 @@
 
     <!--
         Main deployment targets. The build and deploy tasks support the
-        user-defined tomcat.treatAsDedicated flag. If dedciated,
+        user-defined tomcat.treatAsDedicated flag. If dedicated,
         memory use is minimised by having all libraries and log4j settings in
         the main shared Tomcat lib folder. If not (shared), each webapp has its
         own set of required libraries and log4j settings, which significantly
@@ -1741,6 +1741,7 @@
                      deployResourceService,
                      deployWsInvoker,
                      deploySMS,
+                     deployMailService,
                      deployCoreSharedLibs">
     </target>
 
@@ -1825,6 +1826,7 @@
                                ${webapp_resourceService.libs}
                                ${webapp_wsInvoker.libs}
                                ${webapp_smsInvoker.libs}
+                               ${webapp_simplemail.libs}
                                ${webapp_worklet.libs}"/>
         </copy>
         <copy overwrite="true" todir="${sharedLibs.dir}">
@@ -1840,7 +1842,6 @@
                                ${webapp_mailSender.libs}
                                ${webapp_monitor.libs}
                                ${webapp_twitter.libs}
-                               ${webapp_simplemail.libs}
                                ${webapp_test.libs}"/>
         </copy>
     </target>
