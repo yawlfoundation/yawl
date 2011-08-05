@@ -578,6 +578,7 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
   public void setContent() {
     populateInputVariableComboBox();
     populateOutputVariableComboBox();
+    enableElementControls(true);          // default
 
     String query = parameter.getQuery();
     if ((query != null) && query.startsWith("#external:"))  {
@@ -585,7 +586,16 @@ public class ParameterUpdateDialog extends AbstractDoneDialog
         pane.setSelectedIndex(1);
     }
     else {
-        xQueryEditor.setText(formatQuery(query, true));
+        query = formatQuery(query, true);
+        if (! ((rbExpression == null) || (query.trim().length() == 0) || query.trim().startsWith("{"))) {
+            rbExpression.setSelected(true);
+            enableElementControls(false);
+        }
+        else if (rbElement != null) {
+            rbElement.setSelected(true);
+        }
+
+        xQueryEditor.setText(query);
     }    
     xQueryEditor.setTargetVariableName(
         (String) sinkVariableComboBox.getSelectedItem()

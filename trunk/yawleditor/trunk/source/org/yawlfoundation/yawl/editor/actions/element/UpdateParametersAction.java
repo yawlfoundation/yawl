@@ -85,10 +85,7 @@ public class UpdateParametersAction extends YAWLSelectedNetAction
   }
   
   public boolean shouldBeEnabled() {
-    if (task.getDecomposition() == null) {
-      return false;
-    }
-    return true;
+      return task.getDecomposition() != null;
   }
 }
 
@@ -345,14 +342,13 @@ abstract class ParameterUpdatePanel extends AbstractTableUpdatePanel {
     );
     
     updateDialog.setOutputVariableScope(
-        getParameterTable().getOutputVariableScope()
+            getParameterTable().getOutputVariableScope()
     );
     updateDialog.setParameter(
-        getParameterTable().getParameterAt(
-          getParameterTable().getSelectedRow()
-        )
+            getParameterTable().getParameterAt(
+                    getParameterTable().getSelectedRow()
+            )
     );
-    updateDialog.setRadioButtonSelected();
     updateState();
     updateDialog.setVisible(true);
     refreshSelectedRow();
