@@ -325,8 +325,12 @@ class XSD4YAWLBuilder {
     private XSDComplexTypeDefinition buildSelfContainedCopy(XSDComplexTypeDefinition origCompTypeDef) {
         XSDComplexTypeDefinition clonedTypeDef = (XSDComplexTypeDefinition)
                 origCompTypeDef.cloneConcreteComponent(false, false);
-        XSDParticle clonedContent = buildSelfContainedCopy((XSDParticle) origCompTypeDef.getContent());
-        clonedTypeDef.setContent(clonedContent);
+
+        // SPR: Allow for empty content ('marker flag' types <xs:complexType />)
+        XSDParticle content = (XSDParticle) origCompTypeDef.getContent();
+        if (content != null) {
+        	clonedTypeDef.setContent(buildSelfContainedCopy(content));
+        }
 
         EList originAttrList = origCompTypeDef.getAttributeContents();
         for (int i = 0; i < originAttrList.size(); i++) {

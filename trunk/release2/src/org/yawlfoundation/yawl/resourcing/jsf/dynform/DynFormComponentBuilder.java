@@ -113,8 +113,9 @@ public class DynFormComponentBuilder {
         fieldList.add(label);
 
         String type = input.getDataTypeUnprefixed();
-        if (type.equals("boolean"))
+        if (input.isEmptyComplexTypeFlag() || type.equals("boolean")) {
             field = makeCheckbox(input);
+        }
         else {
             _hasCheckboxOnly = false;
             if (type.equals("date")) {

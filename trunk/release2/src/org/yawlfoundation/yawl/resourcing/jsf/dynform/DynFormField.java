@@ -43,6 +43,7 @@ public class DynFormField implements Cloneable {
     private int _order;
     private boolean _required ;
     private boolean _hidden = false;
+    private boolean _emptyComplexTypeFlag = false;
     private Boolean _hideApplied = null;               // to avoid double hideIf eval
     private Font _font;                                // used for screen arithmetic
 
@@ -217,6 +218,14 @@ public class DynFormField implements Cloneable {
     public void setParent(DynFormField parent) {
         _parent = parent;
     }
+
+
+    public void setEmptyComplexTypeFlag(boolean flag) {
+        _emptyComplexTypeFlag = flag;
+    }
+
+
+    public boolean isEmptyComplexTypeFlag() { return _emptyComplexTypeFlag; }
 
 
     public void setRequired(boolean required) {
