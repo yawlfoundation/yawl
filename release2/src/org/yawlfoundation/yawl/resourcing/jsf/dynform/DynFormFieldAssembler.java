@@ -169,22 +169,34 @@ public class DynFormFieldAssembler {
                 result.add(field);
             }
             else {
-                // new complex type - recurse in a new field list
-                String groupID = getNextGroupID();                
-                List dataList = (data != null) ? data.getChildren(name) : null;
-                if ((dataList != null) && (! dataList.isEmpty())) {
-                    for (Object o : dataList) {
-                        field = addGroupField(name, eField, ns, (Element) o,
-                                              minOccurs, maxOccurs, level);
+                // check for empty complex type (flag defn)
+                Element complex = eField.getChild("complexType", ns);
+                if ((complex != null) && complex.getContentSize() == 0) {
+                    field = addField(name, null, data, minOccurs, maxOccurs, level);
+                    field.setEmptyComplexTypeFlag(true);
+                    if ((data != null) && (data.getChild(name) != null)) {
+                        field.setValue("true");
+                    }
+                    result.add(field);
+                }
+                else {
+                    // new populated complex type - recurse in a new field list
+                    String groupID = getNextGroupID();
+                    List dataList = (data != null) ? data.getChildren(name) : null;
+                    if ((dataList != null) && (! dataList.isEmpty())) {
+                        for (Object o : dataList) {
+                            field = addGroupField(name, eField, ns, (Element) o,
+                                    minOccurs, maxOccurs, level);
+                            field.setGroupID(groupID);
+                            result.add(field);
+                        }
+                    }
+                    else {
+                        field = addGroupField(name, eField, ns, null,
+                                minOccurs, maxOccurs, level);
                         field.setGroupID(groupID);
                         result.add(field);
                     }
-                }
-                else {
-                    field = addGroupField(name, eField, ns, null,
-                                          minOccurs, maxOccurs, level);
-                    field.setGroupID(groupID);
-                    result.add(field);
                 }
             }
         }

@@ -144,7 +144,16 @@ public class DataListGenerator {
             return "";
         }
 
+        // special case - empty complex type flag definition
+        if (field.isEmptyComplexTypeFlag()) {
+            if ((value == null) || value.equals("false")) {
+                return "";                         // no data element for this field
+            }
+            else value = "";                       // empty data element for this field
+        }
+
         if (field.hasBlackoutAttribute()) value = field.getValue();
+
         return StringUtil.wrap(value, field.getName());
     }
 
