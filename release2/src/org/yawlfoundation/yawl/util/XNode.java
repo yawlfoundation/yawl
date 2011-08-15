@@ -452,6 +452,10 @@ public class XNode implements Comparable<XNode> {
         Collections.sort(_children);
     }
 
+    public void sort(Comparator<XNode> comparator) {
+        Collections.sort(_children, comparator);
+    }
+
 
     /**************************************************************************/
 

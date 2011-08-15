@@ -49,6 +49,7 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
     protected String _defaultValue;
     protected String _namespaceURI;
     protected boolean _isUntyped = false;
+    protected boolean _isEmptyTyped = false;
     protected int _ordering;
     private String _documentation;
     private boolean _mandatory;
@@ -132,12 +133,10 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
     }
 
     public String getDataTypeNameUnprefixed() {
-        if (_dataTypeName.indexOf(":") < 0) {
-            return _dataTypeName;
-        }
-        else {
-            return _dataTypeName.substring(_dataTypeName.indexOf(":") + 1) ;
-        }
+        return _dataTypeName.contains(":") ?
+               _dataTypeName.substring(_dataTypeName.indexOf(":") + 1) :
+               _dataTypeName;
+
     }
 
     public String getDataTypePrefix() {
@@ -370,6 +369,11 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
     public boolean isUntyped(){
     	return _isUntyped;
     }
+
+
+    public boolean isEmptyTyped() { return _isEmptyTyped; }
+
+    public void setEmptyTyped(boolean empty) { _isEmptyTyped = empty; }
 
 
     /**

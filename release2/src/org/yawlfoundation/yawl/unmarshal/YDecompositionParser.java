@@ -158,6 +158,7 @@ public class YDecompositionParser {
             String outputExpressionText = outputExpressionElem.getAttributeValue("query");
             decomposition.setOutputExpression(outputExpressionText);
         }
+        markEmptyComplexTypeVariables(decomposition);
     }
 
     //done
@@ -515,6 +516,22 @@ public class YDecompositionParser {
     }
 
 
+    private void markEmptyComplexTypeVariables(YDecomposition decomposition) {
+        List<YVariable> varList = new ArrayList<YVariable>(decomposition.getInputParameters().values());
+        varList.addAll(decomposition.getOutputParameters().values());
+        if (decomposition instanceof YNet) {
+            varList.addAll(((YNet) decomposition).getLocalVariables().values());
+        }
+        List<String> emptyTypeNames = _specificationParser.getEmptyComplexTypeFlagTypeNames();
+        for (YVariable var : varList) {
+            String dataTypeName = var.getDataTypeNameUnprefixed();
+            if (emptyTypeNames.contains(dataTypeName)) {
+                var.setEmptyTyped(true);
+            }
+        }
+    }
+
+
     /**
      * Adds variable specific information to the YParameter argument (in &amp; out var).
      * @param localVariableElem
@@ -552,8 +569,7 @@ public class YDecompositionParser {
             namespace = localVariableElem.getChildText("namespace", ns);
 
             //check to see if the variable is untyped
-            boolean isUntyped = localVariableElem.getChild("isUntyped", ns) != null;
-            variable.setUntyped(isUntyped);
+            variable.setUntyped(localVariableElem.getChild("isUntyped", ns) != null);
 
             // set mandatory (default is false)
             variable.setMandatory(localVariableElem.getChild("mandatory", ns) != null);

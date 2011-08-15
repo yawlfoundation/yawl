@@ -77,9 +77,9 @@ public class SchemaHandler
     }
 
     /**
-     * Attempts to compile the scheama. If sucessful, allows an XML document to be validated.
+     * Attempts to compile the schema. If successful, allows an XML document to be validated.
      *
-     * @return true if the schema has compiled succesfully.
+     * @return true if the schema has compiled successfully.
      */
     public boolean compileSchema()
     {

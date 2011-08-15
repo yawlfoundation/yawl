@@ -28,10 +28,7 @@ import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -46,6 +43,7 @@ class YSpecificationParser {
     private YDecompositionParser[] _decompositionParser;
     private Map<String, String> _decompAndTypeMap = new HashMap<String, String>();
     private Namespace _yawlNS;
+    private List<String> _emptyComplexTypeFlagTypes = new ArrayList<String>();
 
     private static final String _schema4SchemaURI = XSDConstants.SCHEMA_FOR_SCHEMA_URI_2001;
     private static final String _defaultSchema =
@@ -77,8 +75,6 @@ class YSpecificationParser {
             String decompID = decompositionElem.getAttributeValue("id");
             Attribute type = decompositionElem.getAttribute("type", xsiNameSpc);
             if (type != null) {
-                //todo  fix it so when you load a spec with an empty decompostion JDOM doesn't
-                //todo  throw a null pointer exception.
                 String decompType = type.getValue();
                 _decompAndTypeMap.put(decompID, decompType);
             }
@@ -91,9 +87,10 @@ class YSpecificationParser {
         String documentation = specificationElem.getChildText("documentation", _yawlNS);
 
         Namespace schema4SchemaNS = Namespace.getNamespace(_schema4SchemaURI);
-        Element schemElem = specificationElem.getChild("schema", schema4SchemaNS);
-        if (null != schemElem) {
-            _specification.setSchema(JDOMUtil.elementToString(schemElem));
+        Element schemaElem = specificationElem.getChild("schema", schema4SchemaNS);
+        if (null != schemaElem) {
+            extractEmptyComplexTypeFlagTypeNames(schemaElem);
+            _specification.setSchema(JDOMUtil.elementToString(schemaElem));
         }
         else {
 
@@ -255,6 +252,21 @@ class YSpecificationParser {
         }
     }
 
+
+    private void extractEmptyComplexTypeFlagTypeNames(Element schemaElem) {
+        if (schemaElem != null) {
+            for (Object o : schemaElem.getChildren()) {
+                Element elem = (Element) o;
+                if (elem.getName().equals("complexType") && elem.getChildren().isEmpty()) {
+                    _emptyComplexTypeFlagTypes.add(elem.getAttributeValue("name"));
+                }
+            }
+        }
+    }
+
+    protected List<String> getEmptyComplexTypeFlagTypeNames() {
+        return _emptyComplexTypeFlagTypes;
+    }
 
     private void linkDecompositions() {
         for (int i = 0; i < _decompositionParser.length; i++) {
