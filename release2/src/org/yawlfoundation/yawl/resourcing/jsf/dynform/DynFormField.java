@@ -255,13 +255,17 @@ public class DynFormField implements Cloneable {
     }
 
     public List<String> getEnumeratedValues() {
+        List<String> values = null;
         if ((_union != null) && _union.hasEnumeration()) {
-            return _union.getEnumeration();
+            values = _union.getEnumeration();
         }
         else if ((_restriction != null) && _restriction.hasEnumeration()) {
-            return _restriction.getEnumeration();
+            values = _restriction.getEnumeration();
         }
-        else return null;
+        if ((values != null) && (! isRequired())) {
+            values.add(0, "<-- Choose (optional) -->");
+        }
+        return values;
     }
 
     public boolean hasEnumeratedValues() {

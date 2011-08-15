@@ -237,6 +237,7 @@ public class dynForm extends AbstractPageBean {
 
 
     private String getReferringPage() {
+        getDynFormFactory().resetFormHeight();  // for subsequent message panel location
         String result;
         if (_sb.getDynFormType() == ApplicationBean.DynFormType.netlevel) {
            result = "showCaseMgt";

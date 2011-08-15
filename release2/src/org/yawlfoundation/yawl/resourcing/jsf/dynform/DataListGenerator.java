@@ -144,7 +144,12 @@ public class DataListGenerator {
             return "";
         }
 
-        // special case - empty complex type flag definition
+        // special case (1) - optional enum list, no selection
+        if ((value != null) && value.equals("<-- Choose (optional) -->")) {
+            return "";
+        }
+
+        // special case (2) - empty complex type flag definition
         if (field.isEmptyComplexTypeFlag()) {
             if ((value == null) || value.equals("false")) {
                 return "";                         // no data element for this field
