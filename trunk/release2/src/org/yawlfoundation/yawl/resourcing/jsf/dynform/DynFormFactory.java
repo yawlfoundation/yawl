@@ -909,6 +909,8 @@ public class DynFormFactory extends AbstractSessionBean {
         return _overallHeight;
     }
 
+    public void resetFormHeight() { _overallHeight = -1; }
+
     public boolean validateInputs() {
         return new DynFormValidator().validate(compPanel, _componentFieldTable,
                                                _sb.getMessagePanel());
