@@ -932,12 +932,12 @@ public class DynFormFactory extends AbstractSessionBean {
 
     // replaces each internally occurring 'pre' char with a 'post' char
     private String replaceInternalChars(String text, char pre, char post) {
-        if ((text == null) || (text.length() < 3)) return text;
+        if ((text == null) || (text.length() < 3) || (text.indexOf(pre) < 0)) return text;
 
         char[] chars = text.toCharArray();
 
         // ignore leading and trailling underscores
-        for (int i = 1; i < chars.length - 2; i++) {
+        for (int i = 1; i < chars.length - 1; i++) {
             if (chars[i] == pre) chars[i] = post;
         }
         return new String(chars);
