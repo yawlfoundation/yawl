@@ -112,7 +112,6 @@ public class DataVariableTablePanel extends AbstractTableUpdatePanel {
     DataVariable var = getVariableTable().getVariableAt(oldSelectedRow);
 
     Decomposition decomp = var.getScope().getDecomposition();
-    decomp.removeVariable(var);
 
     if (decomp instanceof WebServiceDecomposition) {         // task level
       SpecificationModel.getInstance().propogateVariableSetChange(decomp);
