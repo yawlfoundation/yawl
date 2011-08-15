@@ -54,12 +54,12 @@ class XSD4YAWLBuilder {
 
     /**
      * Sets up an XSD4YAWLBuilder Object
-     * @param schemaElemement the w3c Element that is the root of an XML schema.
+     * @param schemaElement the w3c Element that is the root of an XML schema.
      * i.e. this element is the one written like so: "<xs:schema ..> ... </xs:schema>"
      */
-    public void setSchema(Element schemaElemement) throws YSyntaxException {
+    public void setSchema(Element schemaElement) throws YSyntaxException {
         XSDPrototypicalSchema proto = XSDPrototypicalSchema.getInstance();
-        _schema = proto.createSchema(schemaElemement);
+        _schema = proto.createSchema(schemaElement);
 
         if (_schema.getTargetNamespace() != null) {
             throw new YSyntaxException("YAWL does not support schemas with target namespaces.");
@@ -104,7 +104,7 @@ class XSD4YAWLBuilder {
 
 
     /**
-     * Gets a self containd element definition off a schema.  i.e. the method traces
+     * Gets a self contained element definition off a schema.  i.e. the method traces
      * down all references and collects them together.
      * @param elementName the name of the type
      * @return
@@ -115,7 +115,7 @@ class XSD4YAWLBuilder {
 
 
     /**
-     * Gets a self containd type definition off a schema.  i.e. the method traces
+     * Gets a self contained type definition off a schema.  i.e. the method traces
      * down all references and collects them together.
      * @param typeName the name of the type
      * @return

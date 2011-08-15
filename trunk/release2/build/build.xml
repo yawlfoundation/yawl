@@ -129,6 +129,7 @@
     <property name="hibernate-jpa" value="hibernate-jpa-2.0-api-1.0.0.Final.jar"/>
     <property name="hsql" value="hsqldb.jar"/>                               <!-- dbd -->
     <property name="javaAssist" value="javassist-3.12.0.GA.jar"/>            <!-- hbn -->
+    <property name="jaxen" value="jaxen-1.1.1.jar"/>                         <!-- eng -->
     <property name="jaxrpc" value="jaxrpc.jar"/>                             <!-- wsi -->
     <property name="jdom" value="jdom.jar"/>                                 <!-- mul -->
     <property name="jsf-api" value="jsf-api.jar"/>                           <!-- jsf -->
@@ -279,7 +280,7 @@
 
     <property name="webapp_yawl.libs"
               value="${persistence.libs} ${xsd.libs} ${common.libs} ${xerces}
-                     ${dbClient} ${saxon.libs} ${commonsLang} ${commonsCodec}"/>
+                     ${dbClient} ${saxon.libs} ${commonsLang} ${commonsCodec} ${jaxen}"/>
 
     <property name="webapp_resourceService.libs"
               value="${persistence.libs} ${xsd.libs} ${jdom} ${log4j}
@@ -519,7 +520,7 @@
             <fileset dir="${lib.dir}"
                      includes="${persistence.libs} ${xsd.libs} ${common.libs}
                                ${saxon.libs} ${xerces} ${commonsLang} ${dbClient}
-                               ${commonsCodec}"
+                               ${commonsCodec} ${jaxen}"
                      excludes="hibernate.cfg.xml"/>
         </unzip>
         
@@ -1110,7 +1111,7 @@
             <fileset dir="${classes.dir}${packageRoot}/logging"
                      includes="YLogDataItem.class YLogDataItemList.class
                        YLogPredicate.class YLogPredicateParser.class
-                       YXESBuilder.class"/>
+                       YXESBuilder.class XESTimestampComparator.class"/>
         </copy>
         
         <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/schema">
@@ -1394,7 +1395,8 @@
         </copy>
         <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/logging">
             <fileset dir="${classes.dir}${packageRoot}/logging"
-                     includes="YLogPredicate.class YLogPredicateParser.class"/>
+                     includes="YLogPredicate.class YLogPredicateParser.class
+                               XESTimestampComparator.class"/>
         </copy>
         <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/exceptions">
             <fileset dir="${classes.dir}${packageRoot}/exceptions"/>

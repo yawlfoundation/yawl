@@ -51,6 +51,7 @@ public class YXESBuilder {
         for (XNode yawlEvent : yawlEvents.getChildren()) {
             XNode trace = root.addChild(traceNode(yawlEvent.getAttributeValue("id")));
             processCaseEvents(yawlEvent, trace);
+            trace.sort(new XESTimestampComparator());
         }
     }
 

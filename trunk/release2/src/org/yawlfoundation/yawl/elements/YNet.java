@@ -445,6 +445,12 @@ public final class YNet extends YDecomposition {
     }
 
 
+    public YVariable getLocalOrInputVariable(String name) {
+        return _localVariables.containsKey(name) ? _localVariables.get(name) :
+               getInputParameters().get(name);
+    }
+
+
     public String toXML() {
         StringBuilder xml = new StringBuilder();
         xml.append(super.toXML());

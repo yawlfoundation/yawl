@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.resourcing.datastore.eventlog;
 
+import org.yawlfoundation.yawl.logging.XESTimestampComparator;
 import org.yawlfoundation.yawl.logging.YXESBuilder;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
@@ -142,6 +143,7 @@ public class ResourceXESLog extends YXESBuilder {
             String caseID = trace.getChild("string").getAttributeValue("value");
             if (rsCaseMap.containsKey(caseID)) {
                 mergeTraces(trace, rsCaseMap.get(caseID));
+                trace.sort(new XESTimestampComparator());
             }
         }
         engLog.insertComment(1, "and then merged with the Resource Service log");
@@ -172,48 +174,12 @@ public class ResourceXESLog extends YXESBuilder {
                     removeEvent(master, getTaskName(event), getInstanceID(event), transition);
                 }
 
-                // otherwise just insert it
+                // otherwise just add it
                 if (! masterHasPrecedence(transition)) {
-                    insertEvent(master, event);
+                    master.addChild(event);
                 }    
             }
         }
-    }
-
-
-    // inserts 'event' node into 'trace' in timestamp order
-    private XNode insertEvent(XNode trace, XNode event) {
-        String eventTimeStamp = getTimeStamp(event);
-        if (eventTimeStamp != null) {
-            String eventName = getEventValue(event, "concept:name");
-            String eventID = getEventValue(event, "lifecycle:instance");
-            List<XNode> eventList = trace.getChildren();
-            boolean matched = false;
-            for (int i = 0; i < eventList.size(); i++) {
-                XNode traceNode = eventList.get(i);
-                if (traceNode.hasChildren()) {
-                    while (getEventValue(traceNode, "concept:name").equals(eventName) &&
-                           getEventValue(traceNode, "lifecycle:instance").equals(eventID)) {
-                        String nodeTimeStamp = getTimeStamp(traceNode);
-                        if ((nodeTimeStamp != null) &&
-                                (eventTimeStamp.compareTo(nodeTimeStamp) < 1)) {
-                            return trace.insertChild(i, event);
-                        }
-                        if (++i == eventList.size()) break;
-                        traceNode = eventList.get(i);
-                        matched = true;
-                    }
-                    if (matched) return trace.insertChild(i, event);
-                }
-            }
-        }
-        return trace.addChild(event);
-    }
-
-
-    private String getTimeStamp(XNode event) {
-        XNode dateNode = event.getChild("date");
-        return (dateNode != null) ? dateNode.getAttributeValue("value") : null;
     }
 
 

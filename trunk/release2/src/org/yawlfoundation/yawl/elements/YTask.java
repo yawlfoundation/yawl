@@ -490,6 +490,12 @@ public abstract class YTask extends YExternalNetElement {
                             "The result of the output query (" + query + ") is null");
                 }
 
+                // handle empty complex type flag elements
+                if (queryResultElement.getContentSize() == 0) {
+                    handleEmptyComplexTypeFlagOutput(decompositionOutputData, queryResultElement,
+                            query, localVarThatQueryResultGetsAppliedTo);
+                }
+
                 if (query.equals(getPreJoiningMIQuery())) {
                     _groupedMultiInstanceOutputData.getRootElement().addContent(
                             (Element) queryResultElement.clone());
@@ -503,9 +509,7 @@ public abstract class YTask extends YExternalNetElement {
                 //to the net variable's type.
                 if (spec.getSchemaVersion().isSchemaValidating() &&
                         (! query.equals(getPreJoiningMIQuery()))) {
-                    YVariable var = _net.getLocalVariables().containsKey(localVarThatQueryResultGetsAppliedTo) ?
-                             _net.getLocalVariables().get(localVarThatQueryResultGetsAppliedTo) :
-                             _net.getInputParameters().get(localVarThatQueryResultGetsAppliedTo);
+                    YVariable var = _net.getLocalOrInputVariable(localVarThatQueryResultGetsAppliedTo);
                     try {
                         Element tempRoot = new Element(_decompositionPrototype.getID());
                         tempRoot.addContent((Element) queryResultElement.clone());
@@ -575,6 +579,29 @@ public abstract class YTask extends YExternalNetElement {
                 }
             }
         }
+    }
+
+
+    private void handleEmptyComplexTypeFlagOutput(Document outputDataDoc,
+                              Element queryResult, String query, String localVarName) {
+        YVariable localVar = _net.getLocalOrInputVariable(localVarName);
+        if (localVar.isEmptyTyped()) {
+
+            // extract the xpath part of the xquery and use it to check whether the
+            // optional element was included in the output data. If so, add an 'internal'
+            // attribute to remember the flag was set (and not just an empty xquery
+            // mapping). It will be used when the local var is next used as a source mapping.
+            if (getElementForXQuery(outputDataDoc, query) != null) {
+                queryResult.setAttribute("__emptyComplexTypeFlag__", "true");
+            }
+        }
+    }
+
+
+    private Element getElementForXQuery(Document outputDataDoc, String query) {
+        String innerQuery = StringUtil.unwrap(query);
+        String xpath = innerQuery.substring(innerQuery.indexOf('/'), innerQuery.lastIndexOf('/'));
+        return JDOMUtil.selectElement(outputDataDoc, xpath);
     }
 
 
@@ -701,6 +728,7 @@ public abstract class YTask extends YExternalNetElement {
                 break;
         }
         i.removeLocation(pmgr, this);
+        _caseToDataMap.remove(i);
         logger.debug("YTask::" + getID() + ".exit() caseID(" + _i + ") " +
                 "_parentDecomposition.getInternalDataDocument() = "
                 + JDOMUtil.documentToString(_net.getInternalDataDocument()));
@@ -1055,13 +1083,17 @@ public abstract class YTask extends YExternalNetElement {
 
         Element result = evaluateTreeQuery(expression, _net.getInternalDataDocument());
 
-        /**
-         * AJH: If we have an empty element and the element is not mandatory, don't pass 
-         * the element out to the task as input data.
-         */
-        if ((! inputParam.isRequired()) && (result.getChildren().size() == 0) &&
-                (result.getContentSize() == 0)) {
-             return null;
+        // if the param id of empty complex type flag type, don't return the query result
+        // as input data if the flag is not currently set
+        if (inputParam.isEmptyTyped()) {
+            if (! isPopulatedEmptyTypeFlag(expression)) return null;
+        }
+
+        // else if we have an empty element and the element is not mandatory, don't pass
+        // the element out to the task as input data.
+        else if ((! inputParam.isRequired()) && (result.getChildren().size() == 0) &&
+                (result.getContentSize() == 0))  {
+            return null;
         }
 
         /**
@@ -1073,6 +1105,12 @@ public abstract class YTask extends YExternalNetElement {
             performSchemaValidationOverExtractionResult(expression, inputParam, result);
         }
         return result;
+    }
+
+
+    protected boolean isPopulatedEmptyTypeFlag(String expression) {
+        Element elem = getElementForXQuery(_net.getInternalDataDocument(), expression);
+        return (elem != null) && (elem.getAttribute("__emptyComplexTypeFlag__") != null);
     }
 
 
@@ -1181,6 +1219,7 @@ public abstract class YTask extends YExternalNetElement {
         purgeLocations(pmgr);
         if (_i != null) {
             _i.removeLocation(pmgr, this);
+            _caseToDataMap.remove(_i);
             _i = null;
         }
     }

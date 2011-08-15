@@ -25,6 +25,7 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.jdom.xpath.XPath;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -164,6 +165,17 @@ public class JDOMUtil {
     }
 
     /****************************************************************************/
+
+    public static Element selectElement(Document doc, String path) {
+        try {
+            XPath xPath = XPath.newInstance(path);
+            return (Element) xPath.selectSingleNode(doc);
+        }
+        catch (JDOMException jde) {
+            return null;
+        }
+    }
+
 
     public static String formatXMLString(String s) {
         if (s == null) return null;
