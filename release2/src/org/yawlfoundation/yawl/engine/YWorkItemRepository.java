@@ -70,6 +70,8 @@ public class YWorkItemRepository {
         _itemMap.remove(workItem.getIDString());
     }
 
+    public void clear() { _itemMap.clear(); }
+
 
     public Set<YWorkItem> removeWorkItemFamily(YWorkItem workItem) {
         _logger.debug("--> removeWorkItemFamily: " + workItem.getIDString());
@@ -202,6 +204,7 @@ public class YWorkItemRepository {
      * ones that are related to the case id and removes them.
      * Called by YEngine.cancelCase()
      * @param caseID must be a case id (not a child of a caseid).
+     * @return the set of removed work items
      */
     public Set<YWorkItem> removeWorkItemsForCase(YIdentifier caseID) {
         if (caseID == null || caseID.getParent() != null) {
