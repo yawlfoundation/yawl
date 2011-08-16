@@ -1,6 +1,6 @@
 package org.yawlfoundation.yawl.editor.swing;
 
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 public abstract class AbstractWizardPanel extends JPanel {
@@ -12,6 +12,7 @@ public abstract class AbstractWizardPanel extends JPanel {
     this.dialog = dialog;
     this.setBorder(new EmptyBorder(10,10,10,10));
     dialog.setAlwaysOnTop(true);
+    dialog.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);  // disable the 'x'
     buildInterface();
     initialise();
   }

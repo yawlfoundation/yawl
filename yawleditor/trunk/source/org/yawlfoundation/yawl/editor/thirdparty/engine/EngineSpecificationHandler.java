@@ -68,10 +68,7 @@ public class EngineSpecificationHandler {
   
   
   public void validate(SpecificationModel editorSpec) {
-    YAWLEditor.getInstance().showProblemList(
-        editorSpec,
-        "Specification Validation Problems",
-        "Validating Specification...",
+    YAWLEditor.getInstance().showProblemList("Specification Validation Problems",
         EngineSpecificationValidator.getValidationResults(editorSpec)
     );
   }
