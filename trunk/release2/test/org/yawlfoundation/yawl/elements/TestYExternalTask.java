@@ -155,9 +155,9 @@ public class TestYExternalTask extends TestCase{
         task.setDataBindingForOutputExpression("><nn>", "localVar");
         assertTrue(task.verify().size() == 2);
         /*
-        Error:AtomicTask:1(id= 1) the XQuery could be successfully parsed. [XQuery syntax error in «dflkjbdfsk;jnbesdlk»:
+        Error:AtomicTask:1(id= 1) the XQuery could be successfully parsed. [XQuery syntax error in "dflkjbdfsk;jnbesdlk;":
             Unexpected token ; beyond end of query]
-        Error:AtomicTask:1(id= 1) the XQuery could be successfully parsed. [XQuery syntax error in «><»:
+        Error:AtomicTask:1(id= 1) the XQuery could be successfully parsed. [XQuery syntax error in "><":
             Unexpected token [>] in path expression]
         */
     }

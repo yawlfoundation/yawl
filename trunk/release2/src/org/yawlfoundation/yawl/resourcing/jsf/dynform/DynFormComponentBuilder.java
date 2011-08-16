@@ -317,7 +317,7 @@ public class DynFormComponentBuilder {
         dropdown.setStyleClass(getInputStyleClass(input));
         dropdown.setStyle(makeStyle(dropdown, input)) ;
         dropdown.setItems(getEnumeratedList(input));
-        dropdown.setSelected(input.getValue());
+        dropdown.setSelected(getEnumeratedListValue(input));
         dropdown.setDisabled(isDisabled(input));
         dropdown.setVisible(isVisible(input));
         return dropdown;
@@ -331,6 +331,12 @@ public class DynFormComponentBuilder {
             setMaxDropDownWidth(input, values.get(i));
         }
         return result;
+    }
+
+    private String getEnumeratedListValue(DynFormField input) {
+        String value = input.getValue();
+        if (StringUtil.isNullOrEmpty(value)) value = null;     // nullify empty strings
+        return value;
     }
 
 

@@ -71,19 +71,19 @@ public class TestImproperCompletion extends TestCase{
                 _workItemRepository.getExecutingWorkItems().size() > 0)) {
             YWorkItem item;
             while (_workItemRepository.getEnabledWorkItems().size() > 0) {
-                item = (YWorkItem) _workItemRepository.getEnabledWorkItems().iterator().next();
+                item = _workItemRepository.getEnabledWorkItems().iterator().next();
                 _engine.startWorkItem(item, _engine.getExternalClient("admin"));
                 try{ Thread.sleep(_sleepTime);}
                 catch(InterruptedException ie){ie.printStackTrace();}
             }
             while (_workItemRepository.getFiredWorkItems().size() > 0) {
-                item = (YWorkItem) _workItemRepository.getFiredWorkItems().iterator().next();
+                item = _workItemRepository.getFiredWorkItems().iterator().next();
                 _engine.startWorkItem(item, _engine.getExternalClient("admin"));
                 try{ Thread.sleep(_sleepTime);}
                 catch(InterruptedException ie){ie.printStackTrace();}
             }
             while (_workItemRepository.getExecutingWorkItems().size() > 0) {
-                item = (YWorkItem) _workItemRepository.getExecutingWorkItems().iterator().next();
+                item = _workItemRepository.getExecutingWorkItems().iterator().next();
                 _engine.completeWorkItem(item, "<data/>", null, YEngine.WorkItemCompletion.Normal);
                 try{ Thread.sleep(_sleepTime);}
                 catch(InterruptedException ie){ie.printStackTrace();}

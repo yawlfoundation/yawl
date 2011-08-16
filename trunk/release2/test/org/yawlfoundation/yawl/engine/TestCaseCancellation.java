@@ -66,23 +66,22 @@ public class TestCaseCancellation extends TestCase {
             public void announceCaseCompletion(YAWLServiceReference yawlService, YIdentifier caseID, Document d) {
                 _caseCompletionReceived.add(caseID);
             }
-            public void announceCaseCompletion(YIdentifier caseID, Document d) {
+            public void announceCaseCompletion(Set<YAWLServiceReference> ys, YIdentifier caseID, Document d) {
                 _caseCompletionReceived.add(caseID);
             }
             public String getScheme() {
                 return "mock";
             }
             public void announceFiredWorkItem(YAnnouncement announcement) {}
-            public void announceTimerExpiry(YAWLServiceReference ys, YWorkItem i) {}
-            public void announceEngineInitialised(Set<YAWLServiceReference> ys) {}
+            public void announceTimerExpiry(YAnnouncement announcement) {}
             public void announceCaseCancellation(Set<YAWLServiceReference> ys, YIdentifier i) {
                 _caseCancellationReceived.add(i);
             }
             public void announceEngineInitialised(Set<YAWLServiceReference> ys, int i) {}
-            public void announceCaseSuspended(YIdentifier id) {}
-            public void announceCaseSuspending(YIdentifier id) {}
-            public void announceCaseResumption(YIdentifier id) {}
-            public void announceWorkItemStatusChange(YWorkItem item, YWorkItemStatus old, YWorkItemStatus anew) {}
+            public void announceCaseSuspended(Set<YAWLServiceReference> ys, YIdentifier id) {}
+            public void announceCaseSuspending(Set<YAWLServiceReference> ys, YIdentifier id) {}
+            public void announceCaseResumption(Set<YAWLServiceReference> ys, YIdentifier id) {}
+            public void announceWorkItemStatusChange(Set<YAWLServiceReference> ys, YWorkItem item, YWorkItemStatus old, YWorkItemStatus anew) {}
             public void shutdown() {}
         };
         _engine.registerInterfaceBObserverGateway(og);

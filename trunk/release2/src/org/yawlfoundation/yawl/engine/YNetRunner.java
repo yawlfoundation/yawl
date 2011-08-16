@@ -850,7 +850,7 @@ public class YNetRunner {
             YEventLogger.getInstance().logNetCancelled(pmgr,
                     getSpecificationID(), this, _containingCompositeTask.getID(), null);
         }
-        
+        _workItemRepository.removeWorkItemsForCase(_caseIDForNet);
         _engine.getNetRunnerRepository().remove(_caseIDForNet);
     }
 

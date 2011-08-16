@@ -524,9 +524,11 @@ public class YDecompositionParser {
         }
         List<String> emptyTypeNames = _specificationParser.getEmptyComplexTypeFlagTypeNames();
         for (YVariable var : varList) {
-            String dataTypeName = var.getDataTypeNameUnprefixed();
-            if (emptyTypeNames.contains(dataTypeName)) {
-                var.setEmptyTyped(true);
+            if (var.getDataTypeName() != null) {
+                String dataTypeName = var.getDataTypeNameUnprefixed();
+                if (emptyTypeNames.contains(dataTypeName)) {
+                    var.setEmptyTyped(true);
+                }
             }
         }
     }
