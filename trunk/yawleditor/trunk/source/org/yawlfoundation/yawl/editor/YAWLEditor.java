@@ -29,7 +29,6 @@ import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.specification.SpecificationFileModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationFileModelListener;
-import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.*;
 import org.yawlfoundation.yawl.editor.swing.menu.Palette;
 import org.yawlfoundation.yawl.editor.swing.menu.ToolBarMenu;
@@ -306,12 +305,13 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     specificationBottomPanel.selectProblemsTab();
   }
 
-  public void showProblemList(SpecificationModel editgorSpec, String title, String statusBarText, List problemList) {
+  public void showProblemList(String title, List problemList) {
     try {
       ProblemMessagePanel.getInstance().setProblemList(
           title,
           problemList
       );
+      splitPane.setDividerLocation(0.8);
 
     } catch (Exception e) {
 
@@ -413,7 +413,6 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
   public static void hideBottomOfSplitPane() {
     if (!YAWLEngineProxy.engineLibrariesAvailable()) {
-      // splitPane.setEnabled(false);   Swing bug?
       splitPane.getBottomComponent().setVisible(false);
       splitPane.setDividerSize(0);
     }

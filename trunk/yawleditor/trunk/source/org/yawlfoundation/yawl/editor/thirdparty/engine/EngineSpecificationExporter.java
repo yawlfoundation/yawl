@@ -176,7 +176,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       List<String> results = new ArrayList<String>();
       results.addAll(EngineSpecificationValidator.checkUserDefinedDataTypes(editorSpec));
       if (! results.isEmpty()) {
-          YAWLEditor.getInstance().showProblemList(null, "Export Errors", null, results);
+          YAWLEditor.getInstance().showProblemList("Export Errors", results);
           JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
                "Could not export Specification due to missing or invalid user-defined " +
                "datatypes.\nPlease see the problem list below for details.",
@@ -211,12 +211,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       }
       
 
-    YAWLEditor.getInstance().showProblemList(
-        editorSpec, 
-        "Analysis Results", 
-        "Checking exported file...", 
-        results
-    );
+    YAWLEditor.getInstance().showProblemList("Analysis Results", results);
     
     return getEngineSpecificationXML(engineSpec);
   }
