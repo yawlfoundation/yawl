@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @author uthor Michael Adams
- * @date: 13/02/2009
+ * @author Michael Adams
+ * @date 13/02/2009
  */
 
 public class FourEyesCache {
