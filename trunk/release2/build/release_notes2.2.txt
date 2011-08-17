@@ -1,3 +1,112 @@
+                        YAWL Release 2.2 (final)  18/08/2011
+                       ======================================
+
+This is the final, production version 2.2 release of the YAWL Environment. It contains
+a number of additions, bug fixes and enhancements over the 2.2beta release. Please take
+the time to read the change lists below, and refer to the user manual for more details.
+
+
+QUICK START: After installation, start Tomcat and point a browser to
+             http://localhost:8080/resourceService
+
+
+1. MINIMUM REQUIREMENTS
+-----------------------
+  * Tomcat 5.5.25 or higher
+  * Java 6 (1.6) or higher
+
+
+2. IMPORTANT NOTES - PLEASE READ!!
+------------------
+  (a) THE OBSERVER GATEWAY INTERFACE HAS CHANGED: Any developers working with external
+      observer gateways will need to adjust their implementing class definitions to deal
+      with the changes in methods and signatures.
+  (b) NON-YAWL4Study USERS ONLY: If you are installing this version over a previous
+      version AND you have incomplete, persisted process instances in the database, then
+      you will need to run the script 'newQueueItems.sql' against the database before
+      starting Tomcat with the new wars. The script can downloaded from YAWL's sourceForge
+      download page. It will rebuild the persisted work queues table to an updated
+      structure. Note again that this is only necessary if there are running cases
+      between version updates.
+  (c) This version is the first to be released with a Java 6 minimum requirement (all
+      previous versions had a Java 5 minimum). All of the source code, with the
+      exception of the new Mail Service, will still successfully compile under Java 5,
+      if needed.
+
+
+3. CHANGES IN THIS VERSION
+---------------------------
+ * [New] Added a new mail service (superseding the mail sender service). See the
+   user manual for details.
+ * [Enhancement] Fixed performance slowdown when launching thousands of concurrent cases.
+ * [Enhancement] On dynamic forms, added optional default value to enumerated lists for
+   minOccurs=0 elements to allow a valid "no choice" to be made by the user.
+ * [Enhancement (issue 405)] Custom form URLs may now include embedded XQueries
+   referencing net-level parameter values that are dynamically resolved at runtime.
+ * [Enhancement] Moved popup message dialog towards browser viewport bottom for long
+   dynamic forms (so it can be immediately seen without scrolling).
+ * [Enhancement] In generated XES logs, all 'event' nodes within each 'trace' node are
+   now ordered on timestamp.
+ * [Enhancement] Merged data event nodes with their parent event nodes in generated XES
+   logs.
+ * [Enhancement] In generated XES logs, added instance value element to event nodes.
+ * [Enhancement (issue 420, 425)] Adding support for XML Schema empty complexType flag
+   elements in engine and dynamic forms.
+ * [Enhancement (issue 440)] added missing WorkQueueGatewayClientAdapter#getCaseDataSchema
+   method.
+ * [Enhancment (issue 435)] Added the ability for custom services to arbitrarily delay
+   acting on the engine initialisation completed event at startup until the containing
+   server is ready to receive connections (affected some non-Tomcat containers).
+ * [Enhancement] Added Oracle DB auto-configuration to default build process.
+ * [Bugfix (issue 367)] Editor's update task parameters dialog was not correctly selecting
+   the 'from expression' radio button when an expression forms the XQuery, rather than a
+   mapping from net-task or vice versa.
+ * [Bugfix (issue 371)] Disabled close button in titlebar of editor's resourcing wizard.
+ * [Bugfix (issue 386)] double deletion of task vars occurring in editor's task
+   decomposition dialog while in offline mode.
+ * [Bugfix (issue 432)] InterfaceX force fail action was not failing the work item
+   correctly.
+ * [Bugfix (issue 434)] reconstructed Participants on client side of work queue API
+   missing roles, positions & capabilities
+ * [Bugfix (issue 436)] WorkQueueGateway#startWorkItem exception when item was previously
+   started then reoffered or reallocated by an administrator.
+ * [Bugfix (issue 437)] added missing authors, metatitle and externaldatagateway data when
+   marshalling and unmarshalling specification in the resource service.
+ * [Bugfix (issue 441)] Could not export org data after adding an initial nonhuman
+   resource (because it wasn't being included in a category).
+ * [Bugfix (issue 442)] External org data settings were lost when org data was reloaded.
+ * [Bugfix (issue 443)] Work queues were detaching from their owners when org data was
+   externally refreshed.
+ * [Bugfix (issue 444)] NPE produced on admin queues web form if an org data external
+   refresh was currently in progress.
+ * [Bugfix (issue 445)] Inconsistent reading of dynamic form field data when two
+   components have identical labels set (as extended attributes).
+ * [Bugfix (issue 446)] Hibernate exception when logging some complex data types.
+ * [Bugfix (issue 448)] Unable to save specifications in the editor when entering extended
+   (UTF-8) characters into the datatype definition dialog.
+ * [Bugfix (issue 450)] Data schema validation failing for schemas with extended (UTF-8)
+   characters.
+ * [Bugfix (issue 451)] Task labels with spaces at n-1 characters not enspacing and
+   despacing correctly for display on dynamic forms.
+ * [Bugfix] fixed case number creation to start at 1 instead of 2 for new installs.
+ * [Bugfix] Error in the conversion of xsd:date types to java Date objects in
+   AbstractCodelet.
+ * [Bugfix] On Asset Management web form, the dropdown components were disabled on first
+   viewing.
+ * [Bugfix] Org data export was producing malformed extended (UTF-8) characters.
+ * [Bugfix] Occasional NPE produced when announcing new workitems from restored net
+   runners on system restarts.
+ * [Bugfix] Rare hibernate exception caused by race condition when persisting new work
+   items in the resource service.
+ * [Bugfix] Spurious error message when instantiating an ExternalDataGateway.
+ * [Bugfix] Rare double announcement of an enabled work item in tight checkout loops
+   (once every several thousand cases).
+ * [Refactor] Entire Interface B event announcement framework for Custom Services and
+   Observer Gateways rebuilt - now much faster and no errors under heavy load.
+ * [Refactor] Process logging now around 75% faster.
+ * [Refactor] Made external org data refreshing more robust.
+
+
 
                         YAWL Release 2.2 (beta)  18/05/2011
                        ======================================
