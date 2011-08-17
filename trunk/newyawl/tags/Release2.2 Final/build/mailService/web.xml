@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  ~ Copyright (c) 2004-2011 The YAWL Foundation. All rights reserved.
+  ~ The YAWL Foundation is a collaboration of individuals and
+  ~ organisations who are committed to improving workflow technology.
+  ~
+  ~ This file is part of YAWL. YAWL is free software: you can
+  ~ redistribute it and/or modify it under the terms of the GNU Lesser
+  ~ General Public License as published by the Free Software Foundation.
+  ~
+  ~ YAWL is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  ~ or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+  ~ Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+
+    <!-- General description of your web application -->
+
+    <display-name>YAWL Simple Mail Service</display-name>
+    <description>
+        This custom YAWL Service allows a process to send an email.
+        Copyright © 2011 The YAWL Foundation. All rights reserved.
+        Author: Michael Adams
+        For more information about the YAWL SOFTWARE LICENCE refer to the 'downloads' section under
+        http://www.yawlfoundation.org/.
+    </description>
+
+    <context-param>
+        <param-name>InterfaceB_BackEnd</param-name>
+        <param-value>http://localhost:8080/yawl/ib</param-value>
+        <description>
+            The URL of the engine's interface B.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>InterfaceBWebSideController</param-name>
+        <param-value>org.yawlfoundation.yawl.mailService.MailService</param-value>
+        <description>
+            The class name of the Interface B Server implementation.
+        </description>
+    </context-param>
+
+
+    <context-param>
+        <param-name>host</param-name>
+        <param-value>smtp.gmail.com</param-value>
+        <description>
+           The mail host. Can be left empty, to be provided at runtime.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>port</param-name>
+        <param-value>465</param-value>
+        <description>
+           The port number for smtp on the specified host. Can be left empty, to be
+            provided at runtime.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>mailUserName</param-name>
+        <param-value></param-value>
+        <description>
+           A user name registered on the specified host. Can be left empty, to be
+            provided at runtime.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>mailPassword</param-name>
+        <param-value></param-value>
+        <description>
+           The password of the user name specified above. Can be left empty, to be
+            provided at runtime.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>senderName</param-name>
+        <param-value></param-value>
+        <description>
+           The name of the sender. Can be left empty, to be provided at runtime.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>senderAddress</param-name>
+        <param-value></param-value>
+        <description>
+           A email address of the sender. Can be left empty, to be provided at runtime.
+        </description>
+    </context-param>
+
+
+    <servlet>
+        <servlet-name>InterfaceB_Servlet</servlet-name>
+        <description>
+            Listens to notification of work items from the engine.
+            Shouldn't need to change this.
+        </description>
+        <servlet-class>
+            org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EnvironmentBasedServer
+        </servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet>
+		<servlet-name>ErrorServlet</servlet-name>
+		<description>
+            Reports that the URI request found nothing, hence the error report.
+        </description>
+		<servlet-class>org.yawlfoundation.yawl.engine.interfce.ErrorServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+
+    <servlet-mapping>
+        <servlet-name>InterfaceB_Servlet</servlet-name>
+        <url-pattern>/ib</url-pattern>
+    </servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>ErrorServlet</servlet-name>
+		<url-pattern>/error</url-pattern>
+	</servlet-mapping>
+
+
+    <servlet>
+        <servlet-name>simpleMailGateway</servlet-name>
+        <description>
+            Initialises the defaults set in this file.
+        </description>
+        <servlet-class>org.yawlfoundation.yawl.mailService.MailServiceGateway</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet> 
+    
+    <servlet-mapping>
+        <servlet-name>simpleMailGateway</servlet-name>
+        <url-pattern>/gateway</url-pattern>
+    </servlet-mapping>
+
+    
+
+    <!--
+        Define the default session timeout for your application,
+        in minutes.  From a servlet or JSP page, you can modify
+        the timeout for a particular session dynamically by using
+        HttpSession.getMaxInactiveInterval().
+    -->
+
+    <session-config>
+        <session-timeout>60</session-timeout>    <!-- 60 minutes -->
+    </session-config>
+
+
+    <error-page>
+        <error-code>404</error-code>
+        <location>/error</location>
+    </error-page>
+
+</web-app>
