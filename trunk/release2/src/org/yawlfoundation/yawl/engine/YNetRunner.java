@@ -850,7 +850,7 @@ public class YNetRunner {
             YEventLogger.getInstance().logNetCancelled(pmgr,
                     getSpecificationID(), this, _containingCompositeTask.getID(), null);
         }
-        _workItemRepository.removeWorkItemsForCase(_caseIDForNet);
+        if (isRootNet()) _workItemRepository.removeWorkItemsForCase(_caseIDForNet);
         _engine.getNetRunnerRepository().remove(_caseIDForNet);
     }
 
@@ -971,8 +971,8 @@ public class YNetRunner {
                .append(_net.getID())
                .append("] of case [")
                .append(_caseIDForNet.toString())
-               .append("] has completed, there are ")
-               .append("still tokens remaining in the net, within these elements: [");
+               .append("] has successfully completed, there are one or more ")
+               .append("tokens remaining in the net, within these elements: [");
 
             msg.append(StringUtils.join(haveTokens, ", "));
             msg.append("], which usually indicates that the net is unsound. Those ")
