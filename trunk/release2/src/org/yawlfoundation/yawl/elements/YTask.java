@@ -758,12 +758,7 @@ public abstract class YTask extends YExternalNetElement {
                 String uniqueInstanceOutputQuery = _multiInstAttr.getMIFormalOutputQuery();
                 String localVarThatQueryResultGetsAppliedTo =
                         _dataMappingsForTaskCompletion.get(uniqueInstanceOutputQuery);
-
-                YVariable var = _net.getLocalVariables().containsKey(
-                        localVarThatQueryResultGetsAppliedTo) ?
-                        _net.getLocalVariables().get(localVarThatQueryResultGetsAppliedTo) :
-                        _net.getInputParameters().get(localVarThatQueryResultGetsAppliedTo);
-
+                YVariable var = _net.getLocalOrInputVariable(localVarThatQueryResultGetsAppliedTo);
                 Element tempRoot = new Element(_decompositionPrototype.getID());
                 tempRoot.addContent((Element) result.clone());
                 try {
