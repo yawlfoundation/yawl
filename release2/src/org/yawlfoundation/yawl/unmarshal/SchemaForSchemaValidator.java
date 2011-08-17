@@ -218,7 +218,8 @@ public class SchemaForSchemaValidator extends DefaultHandler {
         File userDir = new File(System.getProperty("java.io.tmpdir"));
         _tempSchema = new File(userDir, "_tempSchema.xsd");
         try {
-            FileWriter writer = new FileWriter(_tempSchema);
+            Writer writer = new OutputStreamWriter(
+                new FileOutputStream(_tempSchema), "UTF-8");
             writer.write(schema);
             writer.flush();
             writer.close();
