@@ -94,7 +94,7 @@
           - dbd: Database driver
           - dss: DigitalSignature Service
           - eng: the Engine
-          - hbn: Hibernate dependencies (used by serveral services)
+          - hbn: Hibernate dependencies (used by several services)
           - jsf: JSF dependencies (used by the Resource and Monitor Services)
           - mss: MailSender Service
           - mul: used by multiple services
