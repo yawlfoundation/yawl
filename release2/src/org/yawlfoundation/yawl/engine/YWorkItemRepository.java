@@ -65,9 +65,9 @@ public class YWorkItemRepository {
     }
 
 
-    public void remove(YWorkItem workItem) {
+    public YWorkItem remove(YWorkItem workItem) {
         _logger.debug("--> YWorkItemRepository#remove: " + workItem.getIDString());
-        _itemMap.remove(workItem.getIDString());
+        return _itemMap.remove(workItem.getIDString());
     }
 
     public void clear() { _itemMap.clear(); }

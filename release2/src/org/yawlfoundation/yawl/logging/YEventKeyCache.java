@@ -38,8 +38,8 @@ public class YEventKeyCache {
     // [service url or client name, YLogServiceID] - always active
     protected final Map<String, Long> services;
 
-    // [data schema, dataTypeID] - always active
-    protected final Map<String, Long> dataDefn;
+    // [datatype name, [datatype schema, dataTypeID]] - always active
+    protected final Map<String, Map<String, Long>> dataDefn;
 
     // [specID, YLogSpecification] - removed when spec unloaded
     protected final Map<YSpecificationID, YLogSpecification> specEntries;
@@ -69,7 +69,7 @@ public class YEventKeyCache {
         specEntries = new Hashtable<YSpecificationID, YLogSpecification>();
         netInstances = new Hashtable<YIdentifier, Long>();
         taskInstances = new Hashtable<YIdentifier, Map<Long, Long>>();
-        dataDefn = new Hashtable<String, Long>();
+        dataDefn = new Hashtable<String, Map<String, Long>>();
     }
 
 
@@ -102,6 +102,17 @@ public class YEventKeyCache {
 
     protected long putTaskInstanceID(YIdentifier caseID, Long taskID, long key) {
         Long id = putID(taskInstances, caseID, taskID, key);
+        return (id != null) ? id : -1;
+    }
+
+
+    protected long getDataTypeID(String name, String definition) {
+        Long id = getID(dataDefn, name, definition);
+        return (id != null) ? id : -1;
+    }
+
+    protected long putDataTypeID(String name, String definition, long key) {
+        Long id = putID(dataDefn, name, definition, key);
         return (id != null) ? id : -1;
     }
 

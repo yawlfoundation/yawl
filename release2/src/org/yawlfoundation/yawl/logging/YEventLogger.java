@@ -611,14 +611,25 @@ public class YEventLogger {
      */
     private long getDataTypeID(YPersistenceManager pmgr, YLogDataItem item)
             throws YPersistenceException {
+        String name = item.getDataTypeName();
         String def = item.getDataTypeDefinition();
-        Long dataTypeID = _keyCache.dataDefn.get(def);
-        if (dataTypeID == null) {
-            List list = pmgr.createQuery("from YLogDataType where definition=:def")
-                            .setString("def", def).list();
-            dataTypeID = (! list.isEmpty()) ? ((YLogDataType) list.get(0)).getDataTypeID() :
-                    insertDataType(pmgr, item);
-            _keyCache.dataDefn.put(def, dataTypeID);
+        long dataTypeID = _keyCache.getDataTypeID(name, def);
+        if (dataTypeID == -1) {
+            List list = pmgr.createQuery("from YLogDataType where dataTypeName=:name")
+                            .setString("name", name).list();
+            if (! list.isEmpty()) {
+                for (Object o : list) {
+                    YLogDataType logDataType = (YLogDataType) o;
+                    if (logDataType.getDefinition().equals(def)) {
+                        dataTypeID = logDataType.getDataTypeID();
+                        break;
+                    }
+                }
+            }
+            if (dataTypeID == -1) {                 // empty list or no match on defn.
+                dataTypeID = insertDataType(pmgr, item);
+            }
+            _keyCache.putDataTypeID(name, def, dataTypeID);
         }
         return dataTypeID;
     }
