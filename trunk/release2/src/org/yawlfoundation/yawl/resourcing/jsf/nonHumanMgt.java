@@ -496,9 +496,7 @@ public class nonHumanMgt extends AbstractPageBean {
             else {
                 nullifyChoices();
                 _innerForm.clearAllFieldsAndLists();
-                if (getMode() == SessionBean.Mode.edit) {
-                    _innerForm.disableInputFields(true);
-                }
+                _innerForm.disableInputFields(! isAddMode());
             }
         }
         return result ;

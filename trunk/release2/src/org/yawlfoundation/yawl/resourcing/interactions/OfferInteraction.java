@@ -480,34 +480,27 @@ public class OfferInteraction extends AbstractInteraction {
     /********************************************************************************/
     
     public String toXML() {
-        Iterator itr ;
         StringBuilder xml = new StringBuilder("<offer ");
 
         xml.append("initiator=\"").append(getInitiatorString()).append("\">");
 
-        // the rest of the xml is only needed if it's system intiated
+        // the rest of the xml is only needed if it's system initiated
         if (isSystemInitiated()) {
             xml.append("<distributionSet>") ;
             xml.append("<initialSet>");
 
             if (_participants != null) {
-                itr = _participants.iterator();
-                while (itr.hasNext()) {
-                    Participant p = (Participant) itr.next();
+                for (Participant p : _participants) {
                     xml.append("<participant>").append(p.getID()).append("</participant>");
                 }
             }
             if (_roles != null) {
-                itr = _roles.iterator() ;
-                while (itr.hasNext()) {
-                    Role r = (Role) itr.next();
+                for (Role r : _roles) {
                     xml.append("<role>").append(r.getID()).append("</role>");
                 }
             }
             if (_dynParams != null) {
-                itr = _dynParams.iterator() ;
-                while (itr.hasNext()) {
-                    DynParam p = (DynParam) itr.next();
+                for (DynParam p : _dynParams) {
                     xml.append(p.toXML());
                 }
             }
@@ -516,9 +509,7 @@ public class OfferInteraction extends AbstractInteraction {
 
             if ((_filters != null) && (! _filters.isEmpty())) {
                 xml.append("<filters>") ;
-                itr = _filters.iterator() ;
-                while (itr.hasNext()) {
-                    AbstractFilter filter = (AbstractFilter) itr.next();
+                for (AbstractFilter filter : _filters) {
                     xml.append(filter.toXML());
                 }
                 xml.append("</filters>") ;
@@ -526,9 +517,7 @@ public class OfferInteraction extends AbstractInteraction {
 
             if ((_constraints != null) && (! _constraints.isEmpty())) {
                 xml.append("<constraints>") ;
-                itr = _constraints.iterator() ;
-                while (itr.hasNext()) {
-                    AbstractConstraint constraint = (AbstractConstraint) itr.next();
+                for (AbstractConstraint constraint : _constraints) {
                     xml.append(constraint.toXML());
                 }
                 xml.append("</constraints>") ;

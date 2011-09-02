@@ -715,8 +715,6 @@ public class pfNHResources extends AbstractFragmentBean {
         disableInputFields(adding);
         lbxItems.setDisabled(adding);
         lbxSubCatItems.setDisabled(adding);
-//        btnAddSubCat.setDisabled(adding);
-//        btnRemoveSubCat.setDisabled(adding || subCatUnremovable());
     }
 
 

@@ -32,7 +32,7 @@ import java.util.Set;
  * @author Michael Adams
  * @date 25/11/2010
  */
-public class NonHumanCategory implements Comparable {
+public class NonHumanCategory implements Comparable<NonHumanCategory> {
 
     private String _id;                                                 // hibernate key
     protected String _categoryName;
@@ -52,9 +52,9 @@ public class NonHumanCategory implements Comparable {
     }
 
 
-    public int compareTo(Object o) {
-        if ((o == null) || (! (o instanceof NonHumanCategory))) return 1;
-        return this.getName().compareTo(((NonHumanCategory) o).getName());
+    public int compareTo(NonHumanCategory other) {
+        if (other == null) return 1;
+        return this.getName().compareTo(other.getName());
     }
 
 
