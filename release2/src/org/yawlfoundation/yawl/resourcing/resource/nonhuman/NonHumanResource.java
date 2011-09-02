@@ -128,8 +128,13 @@ public class NonHumanResource extends AbstractResource implements Comparable, Cl
     public void merge(NonHumanResource resource) {
         super.merge(resource);
         setName(resource.getName());
-        setCategory(resource.getCategory());
-        setSubCategory(resource.getSubCategoryName());
+        if ((_category == null) || (! _category.equals(resource.getCategory()))) {
+            setCategory(resource.getCategory());
+        }
+        String subCatName = getSubCategoryName();
+        if ((subCatName == null) || (! subCatName.equals(resource.getSubCategoryName()))) {
+            setSubCategory(resource.getSubCategoryName());
+        }
     }
 
 

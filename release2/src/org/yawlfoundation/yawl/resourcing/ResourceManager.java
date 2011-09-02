@@ -501,7 +501,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                               "] - no further action required.");
                     return;
                 }
-                if (isAutoTask(wir)) {
+                if (wir.isAutoTask()) {
                     handleAutoTask(wir, false);
                 }
                 else {
@@ -518,7 +518,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             if (wir.isDeferredChoiceGroupMember()) mapDeferredChoice(wir);
 
             // store all manually-resourced workitems in the local cache
-            if (! isAutoTask(wir)) _workItemCache.add(wir);
+            if (! wir.isAutoTask()) _workItemCache.add(wir);
         }
     }
 
@@ -533,7 +533,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public void handleTimerExpiryEvent(WorkItemRecord wir) {
-        if (isAutoTask(wir))
+        if (wir.isAutoTask())
             handleAutoTask(wir, true);
         else {
             if (cleanupWorkItemReferences(wir)) {                // remove from worklists
@@ -884,6 +884,8 @@ public class ResourceManager extends InterfaceBWebsideController {
 
             // check that a copy of each engine child item is stored locally
             for (WorkItemRecord wir : engineItems) {
+                if (wir.isAutoTask()) continue;                // ignore automated tasks
+
                 if (! _workItemCache.containsKey(wir.getID())) {
 
                     // Parent items are treated differently. If they have never been started
@@ -894,6 +896,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                             continue;                                       // so ignore
                         }
                     }
+
                     _workItemCache.add(wir);
                     _resAdmin.addToUnoffered(wir, false);
                     _log.warn("Engine workItem '" + wir.getID() +
@@ -3311,13 +3314,6 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public WorkItemRecord unMarshallWIR(String xml) {
         return Marshaller.unmarshalWorkItem(xml);
-    }
-
-
-    private boolean isAutoTask(WorkItemRecord wir) {
-        return ((wir != null) &&
-                (wir.getRequiresManualResourcing() != null) &&
-                (wir.getRequiresManualResourcing().equalsIgnoreCase("false")));
     }
 
 

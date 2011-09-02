@@ -387,6 +387,12 @@ public class WorkItemRecord implements Cloneable {
         return (_deferredChoiceGroupID != null) ;
     }
 
+    public boolean isAutoTask() {
+        return ((getRequiresManualResourcing() != null) &&
+                (getRequiresManualResourcing().equalsIgnoreCase("false")));
+    }
+
+
     public String getCustomFormURL() { return _customFormURL; }
 
     public boolean hasLiveStatus() {
