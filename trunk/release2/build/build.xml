@@ -125,6 +125,7 @@
     <property name="dom4j" value="dom4j-1.6.1.jar"/>                         <!-- hbn -->
     <property name="ecore" value="ecore.jar"/>                          <!-- eng, xsd -->
     <property name="ehcache" value="ehcache-1.5.0.jar"/>                     <!-- hbn -->
+    <property name="h2" value="h2-1.3.159.jar"/>                             <!-- dbd -->
     <property name="hibernate" value="hibernate3.jar"/>                      <!-- mul -->
     <property name="hibernate-jpa" value="hibernate-jpa-2.0-api-1.0.0.Final.jar"/>
     <property name="hsql" value="hsqldb.jar"/>                               <!-- dbd -->
@@ -211,6 +212,9 @@
     <condition property="dbClient" value="${derby}">
         <equals arg1="${database.type}" arg2="derby"/>
     </condition>
+    <condition property="dbClient" value="${h2}">
+        <equals arg1="${database.type}" arg2="h2"/>
+    </condition>
     <condition property="dbClient" value="${hsql}">
         <equals arg1="${database.type}" arg2="hypersonic"/>
     </condition>
@@ -232,6 +236,9 @@
     </condition>
     <condition property="use_derby" value="true">
         <equals arg1="${database.type}" arg2="derby"/>
+    </condition>
+    <condition property="use_h2" value="true">
+        <equals arg1="${database.type}" arg2="h2"/>
     </condition>
     <condition property="use_hypersonic" value="true">
         <equals arg1="${database.type}" arg2="hypersonic"/>
@@ -683,7 +690,7 @@
 
     <target name="configureDatabaseAccess"
             depends="hibernate_postgres8, hibernate_mysql, hibernate_derby,
-                     hibernate_hypersonic, hibernate_oracle">
+                     hibernate_h2, hibernate_hypersonic, hibernate_oracle">
         
         <echo message="Set up Hibernate properties for ${database.type}"/>
     </target>
@@ -706,6 +713,12 @@
               tofile="${classes.dir}/hibernate.properties"/>
     </target>
         
+    <target name="hibernate_h2" if="use_h2">
+        <copy file="${properties.dir}/hibernate.properties.h2"
+              filtering="true" overwrite="true"
+              tofile="${classes.dir}/hibernate.properties"/>
+    </target>
+
     <target name="hibernate_hypersonic" if="use_hypersonic">
         <copy file="${properties.dir}/hibernate.properties.hypersonic"
               filtering="true" overwrite="true"
