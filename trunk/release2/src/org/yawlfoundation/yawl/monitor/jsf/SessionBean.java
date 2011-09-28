@@ -91,24 +91,7 @@ public class SessionBean extends AbstractSessionBean {
 
     public void activate() { }
 
-    public void destroy() {
-
-        // getApplicationBean() will throw a NPE if the session has already
-        // timed out due to inactivity
-        try {
-            ApplicationBean app = getApplicationBean();
-            if (app != null) {
-              //  if (participant != null) {
-              //      app.removeSessionReference(participant.getID()) ;
-              //      app.removeLiveUser(userid);
-              //  }
-
-            }
-        }
-        catch (Exception e) {
-            // write to log that session has already expired
-        }
-    }
+    public void destroy() { }
 
     /*****************************************************************************/
 

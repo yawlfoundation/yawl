@@ -39,15 +39,15 @@ import java.util.Map;
  *  v0.1, 03/08/2007
  */
 
-public class Persister implements Serializable {
+public final class Persister implements Serializable {
 
     private HibernateEngine _db ;
     private static Persister _me;
 
     // persistence actions
-    public final int _UPDATE = HibernateEngine.DB_UPDATE;
-    public final int _DELETE = HibernateEngine.DB_DELETE;
-    public final int _INSERT = HibernateEngine.DB_INSERT;
+    private static final int _UPDATE = HibernateEngine.DB_UPDATE;
+    private static final int _DELETE = HibernateEngine.DB_DELETE;
+    private static final int _INSERT = HibernateEngine.DB_INSERT;
 
 
     private Persister() {

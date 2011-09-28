@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.engine;
 
 /**
- * An interface to handle problems.  Implement this interface to handle any probelms. Details
+ * An interface to handle problems.  Implement this interface to handle any problems. Details
  * of the problem are provided by the problem event.
  *
  *
@@ -30,5 +30,5 @@ package org.yawlfoundation.yawl.engine;
  * 
  */
 public interface YProblemHandler {
-    public void handleProblem(YProblemEvent problemEvent);
+    void handleProblem(YProblemEvent problemEvent);
 }

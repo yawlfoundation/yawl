@@ -403,7 +403,7 @@ public class WorkletRecord {
 
         String result = fName.toString();
         while (Library.fileExists(result + counter + extn)) {
-            counter = "_" + String.valueOf(++i);
+            counter = "_" + ++i;
         }
 
         return (result + counter + extn);

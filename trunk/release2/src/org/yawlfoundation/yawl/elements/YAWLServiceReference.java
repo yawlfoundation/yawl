@@ -137,18 +137,25 @@ public class YAWLServiceReference extends YClient implements YVerifiable {
 
     public List<YVerificationMessage> verify() {
         List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
-        if (YEngine.isRunning()) {
-            YEngine engine = YEngine.getInstance();
-            YAWLServiceReference service = engine.getRegisteredYawlService(_yawlServiceID);
-            if (service == null) {
-                messages.add(new YVerificationMessage(
-                                this,
-                                "YAWL service[" + _yawlServiceID + "] " +
-                                 (_webServiceGateway != null
+        try {
+            if (YEngine.isRunning()) {
+                YEngine engine = YEngine.getInstance();
+                YAWLServiceReference service = engine.getRegisteredYawlService(_yawlServiceID);
+                if (service == null) {
+                    messages.add(new YVerificationMessage(
+                                 this,
+                                 "YAWL service[" + _yawlServiceID + "] " +
+                                  (_webServiceGateway != null
                                      ? "at WSGateway[" + _webServiceGateway.getID() + "] "
                                      : " ") + "is not registered with engine.",
-                                YVerificationMessage.WARNING_STATUS));
+                                  YVerificationMessage.WARNING_STATUS));
+                }
             }
+        }
+        catch (NoClassDefFoundError e) {
+            // may occur if called in standalone mode (eg. from the editor), caused by
+            // the call to a static YEngine which attempts to create a
+            // YPersistenceManager object - ok to ignore the verify check in these instances
         }
         return messages;
     }

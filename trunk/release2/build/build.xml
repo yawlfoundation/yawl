@@ -1951,4 +1951,28 @@
         </jar>
     </target>
 
+    <!--
+       Sonar Task
+    -->
+
+    <!-- Define the Sonar task -->
+   <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
+       <classpath path="${sharedLibs.dir}/sonar-ant-task-1.1.jar" />
+   </taskdef>
+
+
+    <!-- The target -->
+    <target name="sonar">
+       <property name="sonar.host.url" value="http://localhost:8080/sonar" />
+       <property name="sonar.sources" value="${src.dir}" />
+       <property name="sonar.projectName" value="YAWL" />
+       <!--<property name="sonar.binaries" value="list of directories which contain for example the Java bytecode" />-->
+       <property name="sonar.tests" value="${test.dir}" />
+       <property name="sonar.libraries" value="${lib.dir}" />
+
+       <sonar:sonar key="OldEditor:Initial" version="0.1-SNAPSHOT"
+                    xmlns:sonar="antlib:org.sonar.ant"/>
+    </target>
+
+
 </project>

@@ -235,10 +235,8 @@ public class EngineGatewayImpl implements EngineGateway {
         if (spec == null) {
             return failureMessage("Specification with ID (" + specID + ") not found.");
         }
-        List<YSpecification> specList = new Vector<YSpecification>();
-        specList.add(spec);
         try {
-            return YMarshal.marshal(specList, spec.getSchemaVersion());
+            return YMarshal.marshal(spec);
         }
         catch (Exception e) {
             logger.error("Failed to marshal a specification into XML.", e);
@@ -666,6 +664,32 @@ public class EngineGatewayImpl implements EngineGateway {
             result.append("</caseID>");
         }
         return result.toString();
+    }
+
+
+    public String getSpecificationForCase(String caseIDStr, String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        YIdentifier caseID = _engine.getCaseID(caseIDStr);
+        if (caseID != null) {
+            YSpecification spec = _engine.getSpecificationForCase(caseID);
+            if (spec != null) {
+                try {
+                    return YMarshal.marshal(spec);
+                }
+                catch (Exception e) {
+                    logger.error("Failed to marshal a specification into XML.", e);
+                    return failureMessage("Failed to marshal the specification into XML.");
+                }
+            }
+            else {
+                return failureMessage("Specification for case (" + caseIDStr + ") not found.");
+            }
+        }
+        else {
+            return failureMessage("Running case with id (" + caseIDStr + ") not found.");
+        }
     }
 
 

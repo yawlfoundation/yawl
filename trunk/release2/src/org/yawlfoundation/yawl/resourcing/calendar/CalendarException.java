@@ -27,6 +27,9 @@ public class CalendarException extends Exception {
         super(msg);
     }
 
+    public CalendarException(String msg, Exception e) {
+        super(msg, e);
+    }
 
     public CalendarException() {
         super();

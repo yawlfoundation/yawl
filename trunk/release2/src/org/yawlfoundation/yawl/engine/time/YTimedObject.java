@@ -25,8 +25,8 @@ package org.yawlfoundation.yawl.engine.time;
 public interface YTimedObject {
 
     // do something when the timer for the implementing object expires
-    public void handleTimerExpiry() ;
+    void handleTimerExpiry() ;
 
     // do whatever necessary when a timer is cancelled before expiry
-    public void cancel();
+    void cancel();
 }

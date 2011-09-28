@@ -64,17 +64,6 @@ import java.util.prefs.Preferences;
 public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
         ActionListener,
         ItemListener {
-    private JButton _loadWorkFlowButton;
-    private JButton _unloadWorkFlowButton;
-//    private JCheckBox _ignoreErrorsCheckBox;
-//    private JCheckBox _oldFormatCheckBox;
-    private JButton _startCaseButton;
-    private JButton _exportToXMLButton;
-    private JButton _cancelCaseButton;
-    private JButton _inspectStateButton;
-    private JButton _suspendCaseButton;
-    private JButton _resumeCaseButton;
-    private JButton _dumpButton;
     private String _loadWorkflowCommand = "Load Workflow";
     private String _unloadWorkflowCommand = "Unload Workflow";
     private String _exportToXMLCommand = "Export to XML";
@@ -87,13 +76,10 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
     private String _resumeCaseCommand = "Resume";
     private String _dumpCommand = "Dump";
     private JTable _loadedSpecificationsTable;
-    private JButton _createWorklistButton;
-    private JButton _reannounceButton;
     private YWorklistTableModel _loadedSpecificationsTableModel;
     private JTable _activeWorklistsTable;
     private YWorklistTableModel _activeWorklistsTableModel;
     private static boolean _quickyLoad = false;
-    private boolean journalising = false;
 
     //engine state attributes
     private YWorklistTableModel _activeCasesTableModel;
@@ -101,7 +87,6 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
     private JFileChooser _fileChooser;
     public static Color _apiColour = new Color(192, 192, 170);
     private boolean _ignoreErrors = /*true*/false;
-    private static boolean _networked;
     private boolean _oldFormat = true;
     private JFrame _frame;
     private TabbedEngineGUI _tabbedGUI;
@@ -138,57 +123,55 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
      * @see java.awt.Component#setVisible
      * @see javax.swing.JComponent#getDefaultLocale
      */
-    public YAdminGUI(YSplash splash, JFrame frame, TabbedEngineGUI tabbedGUI, boolean journalise, boolean generateUIMetaData) {
+    public YAdminGUI(YSplash splash, JFrame frame, TabbedEngineGUI tabbedGUI, boolean journalising, boolean generateUIMetaData) {
         this();
 
         logger.debug("Initialising");
-
-        this.journalising = journalise;
 
         _tabbedGUI = tabbedGUI;
         _frame = frame;
         setBackground(_apiColour);
         setLayout(new BorderLayout(20, 20));
 
-        _loadWorkFlowButton = new JButton(_loadWorkflowCommand);
+        JButton _loadWorkFlowButton = new JButton(_loadWorkflowCommand);
         _loadWorkFlowButton.setBackground(new Color(150, 150, 255));
         _loadWorkFlowButton.addActionListener(this);
-        _unloadWorkFlowButton = new JButton(_unloadWorkflowCommand);
+        JButton _unloadWorkFlowButton = new JButton(_unloadWorkflowCommand);
         _unloadWorkFlowButton.setBackground(new Color(150, 150, 255));
         _unloadWorkFlowButton.addActionListener(this);
 
-        _startCaseButton = new JButton(_startCaseCommand);
+        JButton _startCaseButton = new JButton(_startCaseCommand);
         _startCaseButton.setBackground(new Color(150, 150, 255));
         _startCaseButton.addActionListener(this);
         _startCaseButton.setIcon(null);
 
-        _exportToXMLButton = new JButton(_exportToXMLCommand);
+        JButton _exportToXMLButton = new JButton(_exportToXMLCommand);
         _exportToXMLButton.setBackground(new Color(150, 150, 255));
         _exportToXMLButton.addActionListener(this);
 
-        _createWorklistButton = new JButton(_createWorklistCommand);
+        JButton _createWorklistButton = new JButton(_createWorklistCommand);
         _createWorklistButton.setBackground(new Color(150, 150, 255));
         _createWorklistButton.addActionListener(this);
 
-        _reannounceButton = new JButton(_reannounceEnabledWorkItems);
+        JButton _reannounceButton = new JButton(_reannounceEnabledWorkItems);
         _reannounceButton.setBackground(new Color(150, 150, 255));
         _reannounceButton.addActionListener(this);
 
-        _cancelCaseButton = new JButton(_cancelCaseCommand);
+        JButton _cancelCaseButton = new JButton(_cancelCaseCommand);
         _cancelCaseButton.setBackground(new Color(150, 150, 255));
         _cancelCaseButton.addActionListener(this);
-        _inspectStateButton = new JButton(_inspectStateCommand);
+        JButton _inspectStateButton = new JButton(_inspectStateCommand);
         _inspectStateButton.setBackground(new Color(150, 150, 255));
         _inspectStateButton.addActionListener(this);
 
-        _suspendCaseButton = new JButton(_suspendCaseCommand);
+        JButton _suspendCaseButton = new JButton(_suspendCaseCommand);
         _suspendCaseButton.setBackground(new Color(150, 150, 255));
         _suspendCaseButton.addActionListener(this);
-        _resumeCaseButton = new JButton(_resumeCaseCommand);
+        JButton _resumeCaseButton = new JButton(_resumeCaseCommand);
         _resumeCaseButton.setBackground(new Color(150, 150, 255));
         _resumeCaseButton.addActionListener(this);
 
-        _dumpButton = new JButton(_dumpCommand);
+        JButton _dumpButton = new JButton(_dumpCommand);
         _dumpButton.setBackground(new Color(150, 150, 255));
         _dumpButton.addActionListener(this);
 
@@ -824,9 +807,8 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
             logger.debug(args[i]);
             if (args[i].equalsIgnoreCase("quickyLoad")) {
                 _quickyLoad = true;
-            } else if (args[i].equalsIgnoreCase("networked")) {
-                _networked = true;
             }
+
             // If we have a -p flag, assuming a journalising engine
             if (args[i].equalsIgnoreCase("-p")) {
                 journalise = true;

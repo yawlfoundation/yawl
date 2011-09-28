@@ -26,9 +26,9 @@ import org.jdom.Element;
  */
 public interface YInstance {
 
-    public String toXML();
+    String toXML();
 
-    public void fromXML(String s);
+    void fromXML(String s);
 
-    public void fromXML(Element e);
+    void fromXML(Element e);
 }

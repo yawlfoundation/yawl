@@ -38,11 +38,13 @@ import java.util.Set;
 
 public class ExternalDBGatewayFactory {
 
+    private ExternalDBGatewayFactory() { }  // block initialisation - static methods only
+
     static String pkg = "org.yawlfoundation.yawl.elements.data.external." ;
     static String pkgDirs = "elements/data/external";
     static Logger _log = Logger.getLogger(ExternalDBGatewayFactory.class) ;
 
-    public final static String MAPPING_PREFIX = "#external:";
+    public static final String MAPPING_PREFIX = "#external:";
 
     public static boolean isExternalDBMappingExpression(String expression) {
         return (expression != null) && expression.startsWith(MAPPING_PREFIX);
