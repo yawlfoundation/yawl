@@ -57,14 +57,14 @@ public interface InterfaceBClient {
      *
      * @return  Set of available work items
      */
-    public Set getAvailableWorkItems();
+    Set<YWorkItem> getAvailableWorkItems();
 
     /**
      * Returns a set of all work items, regardless of state, from the engine.<P>
      *
      * @return  Set of work items
      */
-    public Set getAllWorkItems();
+    Set<YWorkItem> getAllWorkItems();
 
     YWorkItem startWorkItem(YWorkItem workItem, YClient client) throws YStateException, YDataStateException, YQueryException, YPersistenceException, YEngineStateException;
 
@@ -83,7 +83,7 @@ public interface InterfaceBClient {
      * @param caseID to retrieve net data of
      * @return XML representation of the net
      */
-    public String getCaseData(String caseID) throws YStateException;
+    String getCaseData(String caseID) throws YStateException;
 
     /**
      * Starts an instance of a specification (known as a 'case') within the engine.<P>

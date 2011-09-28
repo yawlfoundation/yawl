@@ -204,7 +204,6 @@ public class TestEngineSystem1 extends TestCase {
                 assertFalse(_workItemRepository.getWorkItems().contains(anItem));
                 Thread.sleep(_sleepTime);
             }
-//System.out.println("state after cancellation : \n " + YStateInspector.inspectState( _idForTopNet));
             assertTrue("" + _workItemRepository.getWorkItems(),
                     _workItemRepository.getWorkItems().size() == 0);
             Iterator iterator = leafNetRunners.iterator();

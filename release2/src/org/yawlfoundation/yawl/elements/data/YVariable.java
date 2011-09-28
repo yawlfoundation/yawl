@@ -300,12 +300,7 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
         if (null != _name) {
             boolean isSchemForSchemType =
                     xty.getSchema4SchemaNameSpace().equals(_namespaceURI);
-            if (true == _isUntyped) {
-                if (null != _dataTypeName) {
-                //todo [in future - if we ever disallow untyped elements]
-                //todo we may want to catch this and _report it.
-                }
-            } else if (!xty.isValidType(_dataTypeName, isSchemForSchemType)) {
+            if (! (_isUntyped || xty.isValidType(_dataTypeName, isSchemForSchemType))) {
                 messages.add(new YVerificationMessage(
                         this,
                         "The type library (Schema) in specification contains no " +

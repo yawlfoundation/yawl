@@ -54,7 +54,7 @@ public class ExampleCodelet extends AbstractCodelet {
     }
 
     /**
-     * The implentation of the abstact class that does the work of this codelet. Note
+     * The implementation of the abstract class that does the work of this codelet. Note
      * that calls to most of the base class methods may throw a CodeletExecutionException
      * which should be passed back to the caller,
      *
@@ -66,7 +66,8 @@ public class ExampleCodelet extends AbstractCodelet {
      */
     public Element execute(Element inData, List<YParameter> inParams,
                            List<YParameter> outParams) throws CodeletExecutionException {
-        // set the inputs passed in the base class
+
+        // set the inputs passed via methods in the base class
         setInputs(inData, inParams, outParams);
 
         // get the data values required - note that getParameterValue returns the value

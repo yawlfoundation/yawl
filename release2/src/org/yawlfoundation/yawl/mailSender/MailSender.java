@@ -150,11 +150,8 @@ public class MailSender extends InterfaceBWebsideController {
          // set the message body of email 
          final Multipart mimemultipart = new MimeMultipart();
          mimemultipart.addBodyPart(MessageContent);
-         if(filename == null);
-         else
-         {
-             MimeBodyPart mimebodypart1 = null;
-             mimebodypart1 = new MimeBodyPart();
+         if(filename != null) {
+             MimeBodyPart mimebodypart1 = new MimeBodyPart();
              FileDataSource filedatasource = new FileDataSource(System.getenv("CATALINA_HOME") + "/webapps/mailSender/files/" + filename);
              mimebodypart1.setDataHandler(new DataHandler(filedatasource));
              mimebodypart1.setFileName(filename);

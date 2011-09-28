@@ -46,6 +46,7 @@ public class ResourceCalendar {
     public static enum ResourceGroup { AllResources, HumanResources, NonHumanResources }
 
     private static final String TRANSIENT_FLAG = "__transient__entry__flag__";
+    private static final String UNKNOWN_ID_ERR = "Unknown calendar entry id: ";
 
     private static ResourceCalendar _me;
     private final Persister _persister;
@@ -163,7 +164,7 @@ public class ResourceCalendar {
     public int clean(long priorTo) {
         if (priorTo > System.currentTimeMillis()) return -1;
         return _persister.execUpdate("DELETE FROM CalendarEntry AS ce WHERE ce.endTime<" +
-                String.valueOf(priorTo), getCommitFlag());
+                priorTo, getCommitFlag());
     }
 
 
@@ -454,12 +455,9 @@ public class ResourceCalendar {
         CalendarEntry entry = getEntry(entryID);
         CalendarEntry blockedEntry = getEntry(entry.getChainID());
         entry.setStartTime(startTime);
-        long reservedEndTime = entry.getEndTime();
-        if (reservedEndTime != endTime) {
-            if (blockedEntry != null) {
-                updateBlockedEntry(blockedEntry, endTime);
-                checkForClashes(resource, blockedEntry);
-            }    
+        if (! ((entry.getEndTime() == endTime) || (blockedEntry == null))) {
+            updateBlockedEntry(blockedEntry, endTime);
+            checkForClashes(resource, blockedEntry);
         }
         entry.setEndTime(endTime);
         updateEntry(entry);
@@ -486,7 +484,7 @@ public class ResourceCalendar {
             removeBlockedEntry(entry.getChainID());
             notifyStatusChange(entry);
         }
-        else throw new CalendarException("Unknown calendar entry id: " + entryID);
+        else throw new CalendarException(UNKNOWN_ID_ERR + entryID);
     }
 
 
@@ -595,7 +593,7 @@ public class ResourceCalendar {
             return Status.valueOf(name);
         }
         catch (Exception e) {
-            throw new CalendarException("Invalid status: " + name);
+            throw new CalendarException("Invalid status: " + name, e);
         }
     }
 
@@ -660,14 +658,12 @@ public class ResourceCalendar {
                 CalendarLogEntry logEntry = (CalendarLogEntry) o;
                 CalendarEntry calEntry = (CalendarEntry) _persister.get(
                         CalendarEntry.class, logEntry.getCalendarKey());
-                if (calEntry != null) {
-                    if (! hasBlockedStatus(calEntry)) {
-                        if (logEntry.getPhase().equals("SOU")) {
-                            resourceIDs.add(calEntry.getResourceID());
-                        }    
-                        _persister.delete(calEntry, tx);
-                        notifyStatusChange(calEntry);
+                if (! ((calEntry == null) || hasBlockedStatus(calEntry))) {
+                    if (logEntry.getPhase().equals("SOU")) {
+                        resourceIDs.add(calEntry.getResourceID());
                     }
+                    _persister.delete(calEntry, tx);
+                    notifyStatusChange(calEntry);
                 }
             }
         }
@@ -852,14 +848,10 @@ public class ResourceCalendar {
      * Creates a list of ids to match against for a query. An entry may match the
      * resource's particular id, or 'AllResources' (applies to all) or all resources
      * of its type (human or non-human)
-     * @param resource the resource to query for
+     * @param resourceID the resource to query for
+     * @param isParticipant true for human resources, false for non-human resources
      * @return the list of possible id values to match
      */
-    private List<String> createIDListForQuery(AbstractResource resource) {
-        return createIDListForQuery(resource.getID(), (resource instanceof Participant));
-    }
-
-
     private List<String> createIDListForQuery(String resourceID, boolean isParticipant) {
         return Arrays.asList(
                    resourceID,
@@ -909,7 +901,7 @@ public class ResourceCalendar {
         if (entry != null) {
             return entry.getStatus().equals(requiredStatus.name());
         }
-        else throw new CalendarException("Unknown calendar entry id: " + entryID);
+        else throw new CalendarException(UNKNOWN_ID_ERR + entryID);
     }
 
 
@@ -918,7 +910,7 @@ public class ResourceCalendar {
         if (entry != null) {
             return entry.getStatus().equals(status);
         }
-        else throw new CalendarException("Unknown calendar entry id: " + entryID);
+        else throw new CalendarException(UNKNOWN_ID_ERR + entryID);
     }
 
 
@@ -990,7 +982,7 @@ public class ResourceCalendar {
                     status.name() + "' status, but has a status of '" +
                     entry.getStatus() + "'");
         }
-        else throw new CalendarException("Unknown calendar entry id: " + entryID);
+        else throw new CalendarException(UNKNOWN_ID_ERR + entryID);
     }
 
 
@@ -1094,12 +1086,6 @@ public class ResourceCalendar {
 
     private void notifyStatusChange(CalendarEntry entry) {
         ResourceScheduler.getInstance().notifyStatusChange(entry);
-    }
-
-
-    private Set<Long> getEntryIDsForCase(String caseID) {
-        Set<Long> ids = ResourceScheduler.getInstance().getCalendarEntryIDsForCase(caseID);
-        return (ids != null) ? ids : new HashSet<Long>();
     }
 
 

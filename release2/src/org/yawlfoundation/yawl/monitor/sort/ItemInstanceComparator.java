@@ -18,7 +18,6 @@
 
 package org.yawlfoundation.yawl.monitor.sort;
 
-import org.yawlfoundation.yawl.engine.instance.CaseInstance;
 import org.yawlfoundation.yawl.engine.instance.WorkItemInstance;
 
 import java.util.Comparator;

@@ -36,5 +36,5 @@ public interface YVerifiable {
      * @see org.yawlfoundation.yawl.util.YVerificationMessage
      * @return a List of YVerificationMessage objects
      */
-    public List<YVerificationMessage> verify();
+    List<YVerificationMessage> verify();
 }

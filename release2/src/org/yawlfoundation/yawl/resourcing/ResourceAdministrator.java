@@ -19,7 +19,6 @@
 package org.yawlfoundation.yawl.resourcing;
 
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
 import java.util.HashSet;

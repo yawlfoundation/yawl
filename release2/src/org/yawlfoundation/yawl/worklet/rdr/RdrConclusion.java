@@ -62,11 +62,11 @@ public class RdrConclusion {
     }
 
     public String getAction(int i) {
-        return getText("_" + String.valueOf(i), "action");
+        return getText("_" + i, "action");
     }
 
     public String getTarget(int i) {
-        return getText("_" + String.valueOf(i), "target");
+        return getText("_" + i, "target");
     }
 
     private String getText(String index, String child) {

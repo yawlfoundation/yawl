@@ -32,7 +32,6 @@ public final class E2WFOJNet {
     private Map _Places = new HashMap(100);
     private Map _OJ = new HashMap();
     private Map _YOJ = new HashMap();
-    private YTask _orJoin;
     private YNet _yNet;
     //testing for optimisation  
     private Set alreadyConsideredMarkings = new HashSet(100);
@@ -43,16 +42,13 @@ public final class E2WFOJNet {
      * Constructor for Reset net.
      *
      */
-    public E2WFOJNet(YNet yNet,YTask orJoin) {
-    	
-	_yNet = yNet;
-	_orJoin = orJoin;
-	ConvertToResetNet();
-    OJRemove(_orJoin);
-    _OJ = null;
-    _YOJ = null;
-    _orJoin = null;
-    _yNet = null;
+    public E2WFOJNet(YNet yNet, YTask orJoin) {
+        _yNet = yNet;
+        ConvertToResetNet();
+        OJRemove(orJoin);
+        _OJ = null;
+        _YOJ = null;
+        _yNet = null;
     }
     
     private E2WFOJNet(){

@@ -306,9 +306,7 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
         if (e.getValueIsAdjusting()) return;
         ListSelectionModel lsm =
                 (ListSelectionModel) e.getSource();
-        if (lsm.isSelectionEmpty()) {
-            //no rows are selected
-        } else {
+        if (!lsm.isSelectionEmpty()) {
             int selectedRow = lsm.getMinSelectionIndex();
             //selectedRow is selected
             String caseID = (String) _activeTable.getValueAt(selectedRow, 0);
@@ -327,7 +325,6 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
         JMenuItem _viewDataItem = new JMenuItem(_viewDataCommand);
         JMenuItem _newInstanceItem = new JMenuItem(_newInstanceCommand);
         JMenuItem _cancelItem = new JMenuItem(_suspendTaskCommand);
-
 
         public WorkListPopupMenu(YWorklistGUI ref) {
             super("File");

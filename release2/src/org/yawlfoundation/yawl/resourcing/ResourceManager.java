@@ -129,12 +129,18 @@ public class ResourceManager extends InterfaceBWebsideController {
             new Hashtable<String, FourEyesCache>();
 
     // map of workitem id -> CodeletRunner running codelet for it
-    private Hashtable<String, CodeletRunner> _codeletRunners =
+    private Map<String, CodeletRunner> _codeletRunners =
             new Hashtable<String, CodeletRunner>(); 
 
     // started workitems that have been restored for a no longer existing participant.
     // these are force-completed once start-up has completed
     private List<WorkItemRecord> _orphanedStartedItems ;
+
+    // String literals
+    private static final String ADMIN_STR = "admin";
+    private static final String FAIL_STR = "failure";
+    private static final String PASSWORD_ERR = "Incorrect Password";
+    private static final String WORKITEM_ERR = "Unknown workitem";
 
     private static ResourceManager _me ;                  // instance reference
     private ResourceAdministrator _resAdmin ;             // admin capabilities
@@ -159,7 +165,6 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     private ApplicationBean _jsfApplicationReference ;   // ref to jsf app manager bean
 
-    public boolean _logOffers ;
     private boolean _blockIfSecondaryResourcesUnavailable = false;
     private boolean _persistPiling ;
     private boolean _visualiserEnabled;
@@ -320,7 +325,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             return _interfaceAClient.getBuildProperties(getEngineSessionHandle());
         }
         catch (IOException ioe) {
-            return "<failure>IO Exception retrieving engine build properties.</failure>";
+            return fail("IO Exception retrieving engine build properties.");
         }
     }
 
@@ -431,7 +436,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public String registerCalendarStatusChangeListener(String uri, String handle) {
         String userid = getUserIDForSessionHandle(handle);
-        return (userid == null) ? "<failure>Invalid session handle</failure>" :
+        return (userid == null) ? fail("Invalid session handle") :
                 _gatewayServer.registerSchedulingInterfaceListener(userid, uri);
     }
 
@@ -577,58 +582,56 @@ public class ResourceManager extends InterfaceBWebsideController {
     // by services other than this one
     public void handleWorkItemStatusChangeEvent(WorkItemRecord wir,
                                                 String oldStatus, String newStatus) {
-        synchronized(_ibEventMutex) {
+        synchronized (_ibEventMutex) {
             WorkItemRecord cachedWir = _workItemCache.get(wir.getID());
-            if (cachedWir != null) {
 
-                // if its a status change this service didn't cause
-                if (! newStatus.equals(cachedWir.getStatus())) {
+            // if its a status change this service didn't cause
+            if (!((cachedWir == null) || newStatus.equals(cachedWir.getStatus()))) {
 
-                    // if it has been 'finished', remove it from all queues
-                    if ((newStatus.equals(WorkItemRecord.statusComplete)) ||
-                            (newStatus.equals(WorkItemRecord.statusDeadlocked)) ||
-                            (newStatus.equals(WorkItemRecord.statusFailed)) ||
-                            (newStatus.equals(WorkItemRecord.statusForcedComplete))) {
+                // if it has been 'finished', remove it from all queues
+                if ((newStatus.equals(WorkItemRecord.statusComplete)) ||
+                        (newStatus.equals(WorkItemRecord.statusDeadlocked)) ||
+                        (newStatus.equals(WorkItemRecord.statusFailed)) ||
+                        (newStatus.equals(WorkItemRecord.statusForcedComplete))) {
 
-                        cleanupWorkItemReferences(cachedWir);
+                    cleanupWorkItemReferences(cachedWir);
 
+                }
+
+                // if it has been 'suspended', find it on a 'started' queue & move it
+                else if (newStatus.equals(WorkItemRecord.statusSuspended)) {
+                    Participant p = getParticipantAssignedWorkItem(cachedWir, WorkQueue.STARTED);
+                    if (p != null) {
+                        p.getWorkQueues().movetoSuspend(wir);
+                        cachedWir.setResourceStatus(WorkItemRecord.statusResourceSuspended);
                     }
+                    _workItemCache.updateStatus(cachedWir, newStatus);
+                }
 
-                    // if it has been 'suspended', find it on a 'started' queue & move it
-                    else if (newStatus.equals(WorkItemRecord.statusSuspended)) {
-                        Participant p = getParticipantAssignedWorkItem(cachedWir, WorkQueue.STARTED);
+                // if it was 'suspended', it's been unsuspended or rolled back
+                else if (oldStatus.equals(WorkItemRecord.statusSuspended)) {
+                    _workItemCache.updateStatus(cachedWir, newStatus);
+                }
+
+                // if it has moved to started status
+                else if (newStatus.equals(WorkItemRecord.statusExecuting)) {
+
+                    // ...and was previously suspended
+                    if (cachedWir.hasStatus(WorkItemRecord.statusSuspended)) {
+                        Participant p = getParticipantAssignedWorkItem(cachedWir, WorkQueue.SUSPENDED);
                         if (p != null) {
-                            p.getWorkQueues().movetoSuspend(wir);
-                            cachedWir.setResourceStatus(WorkItemRecord.statusResourceSuspended);
-                        }
-                        _workItemCache.updateStatus(cachedWir, newStatus);
-                    }
-
-                    // if it was 'suspended', it's been unsuspended or rolled back
-                    else if (oldStatus.equals(WorkItemRecord.statusSuspended)) {
-                        _workItemCache.updateStatus(cachedWir, newStatus);
-                     }
-
-                    // if it has moved to started status
-                    else if (newStatus.equals(WorkItemRecord.statusExecuting)) {
-
-                        // ...and was previously suspended
-                        if (cachedWir.hasStatus(WorkItemRecord.statusSuspended)) {
-                            Participant p = getParticipantAssignedWorkItem(cachedWir, WorkQueue.SUSPENDED);
-                            if (p != null) {
-                                p.getWorkQueues().movetoUnsuspend(wir);
-                                cachedWir.setResourceStatus(WorkItemRecord.statusResourceStarted);
-                                _workItemCache.updateStatus(cachedWir, newStatus);
-                            }
+                            p.getWorkQueues().movetoUnsuspend(wir);
+                            cachedWir.setResourceStatus(WorkItemRecord.statusResourceStarted);
+                            _workItemCache.updateStatus(cachedWir, newStatus);
                         }
                     }
+                }
 
-                    // if it is 'Is Parent', its just been newly started and has spawned
-                    // child items. Since we don't know who started it, all we can do is
-                    // pass responsibility to the starting service & remove knowledge of it
-                    else if (newStatus.equals(WorkItemRecord.statusIsParent)) {
-                        cleanupWorkItemReferences(cachedWir);
-                    }
+                // if it is 'Is Parent', its just been newly started and has spawned
+                // child items. Since we don't know who started it, all we can do is
+                // pass responsibility to the starting service & remove knowledge of it
+                else if (newStatus.equals(WorkItemRecord.statusIsParent)) {
+                    cleanupWorkItemReferences(cachedWir);
                 }
             }
         }
@@ -812,15 +815,9 @@ public class ResourceManager extends InterfaceBWebsideController {
     public String getCodeletParametersAsXML(String codeletName) {
         AbstractCodelet codelet = CodeletFactory.getInstance(codeletName);
         return (codelet != null) ? codelet.getRequiredParamsToXML() :
-                "<failure>Could not locate codelet: '" + codeletName + "'.</failure>";
+                fail("Could not locate codelet: '" + codeletName + "'.");
     }
 
-
-   /******************************************************************************/
-
-    // LOGGING METHODS //
-
-    public void setOfferLogging(boolean log) { _logOffers = log ; }
 
    /******************************************************************************/
 
@@ -993,7 +990,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             for (WorkQueue wq : qList) {
                 wq.setPersisting(true);
                 Hibernate.initialize(wq.getQueueAsMap());   // avoid lazy loading errors
-                if (wq.getOwnerID().equals("admin")) {
+                if (wq.getOwnerID().equals(ADMIN_STR)) {
                     _resAdmin.attachWorkQueue(wq, _persisting);
                 }
                 else {
@@ -1044,7 +1041,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
     private String fail(String msg) {
-        return "<failure>" + msg + "</failure>";
+        return StringUtil.wrap(msg, FAIL_STR);
     }
 
     // ADD (NEW) ORG DATA OBJECTS //
@@ -1216,7 +1213,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public String getFullNameForUserID(String userID) {
-        if (userID.equals("admin")) return "Administrator" ;
+        if (userID.equals(ADMIN_STR)) return "Administrator" ;
 
         Participant p = getParticipantFromUserID(userID) ;
         return (p != null) ? p.getFullName() : null ;
@@ -1572,18 +1569,16 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     private boolean secondaryResourcesAvailable(WorkItemRecord wir, Participant p) {
         ResourceMap map = getResourceMap(wir);
-        if (map != null) {
-            if (! map.getSecondaryResources().available(wir)) {
-                _log.warn("Workitem '" + wir.getID() + "' could not be started due " +
-                        "to one or more unavailable secondary resources. The workitem " +
-                        "has been placed on the participant's allocated queue.");
-                if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceOffered)) {
-                    map.withdrawOffer(wir);
-                }
-                wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
-                p.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
-                return false;
+        if (! ((map == null) || map.getSecondaryResources().available(wir))) {
+            _log.warn("Workitem '" + wir.getID() + "' could not be started due " +
+                    "to one or more unavailable secondary resources. The workitem " +
+                    "has been placed on the participant's allocated queue.");
+            if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceOffered)) {
+                map.withdrawOffer(wir);
             }
+            wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
+            p.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
+            return false;
         }
         return true;
     }
@@ -1792,8 +1787,8 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public String getWorkItem(String itemID) {
-        String result = StringUtil.wrap("Unknown workitem ID", "failure");
-        WorkItemRecord wir = _workItemCache.get(itemID);
+        String result = fail(WORKITEM_ERR + " ID");
+                WorkItemRecord wir = _workItemCache.get(itemID);
         if (wir != null) {
             result = wir.toXML();
         }
@@ -1821,27 +1816,27 @@ public class ResourceManager extends InterfaceBWebsideController {
                         }
                         else {
                             result = StringUtil.wrap(
-                                    "Data failed validation: " + validate, "failure");
+                                    "Data failed validation: " + validate, FAIL_STR);
                         }
                     }
                     else {
-                        result = StringUtil.wrap("Data XML is malformed", "failure");
+                        result = StringUtil.wrap("Data XML is malformed", FAIL_STR);
                     }
                 }
                 else {
                     result = StringUtil.wrap(
                         "Workitem '" + itemID + "' has a status of '" + wir.getStatus() +
                         "' - data may only be updated for a workitem with 'Executing' status.",
-                        "failure"
+                        FAIL_STR
                     );
                 }
             }
             else {
-                result = StringUtil.wrap("Unknown workitem: " + itemID, "failure");
+                result = StringUtil.wrap(WORKITEM_ERR + ": " + itemID, FAIL_STR);
             }
         }
         else {
-            result = StringUtil.wrap("Data is null or empty.", "failure");
+            result = StringUtil.wrap("Data is null or empty.", FAIL_STR);
         }
         return result;
     }
@@ -1852,7 +1847,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (! data.getName().equals(wir.getTaskName().replace(' ', '_'))) {
             result = StringUtil.wrap(
                     "Invalid data structure: root element name doesn't match task name",
-                    "failure"
+                    FAIL_STR
             );
         }
         else {
@@ -1868,10 +1863,10 @@ public class ResourceManager extends InterfaceBWebsideController {
                     // a YDataValidationException is thrown here if validation fails
                     validator.validate(taskInfo.getParamSchema().getCombinedParams(), data, "");
                 }
-                else result = StringUtil.wrap("Invalid data schema", "failure");
+                else result = StringUtil.wrap("Invalid data schema", FAIL_STR);
             }
             catch (Exception e) {
-                result = StringUtil.wrap(e.getMessage(), "failure");
+                result = StringUtil.wrap(e.getMessage(), FAIL_STR);
             }
         }    
         return result;
@@ -2307,11 +2302,11 @@ public class ResourceManager extends InterfaceBWebsideController {
             }
         }
         catch (IOException ioe) {
-            result = "<failure>checkinItem method caused IO Exception</failure>";
+            result = fail("checkinItem method caused IO Exception");
             _log.error(result, ioe) ;
         }
         catch (JDOMException jde) {
-            result = "<failure>checkinItem method caused JDOM Exception</failure>" ;
+            result = fail("checkinItem method caused JDOM Exception");
             _log.error(result, jde) ;
         }
         return result ;
@@ -2399,7 +2394,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     
     private String getRootCaseID(String id) {
-        int firstDot = id.indexOf(".");
+        int firstDot = id.indexOf('.');
         return (firstDot > -1) ? id.substring(0, firstDot) : id;
     }
 
@@ -2464,7 +2459,7 @@ public class ResourceManager extends InterfaceBWebsideController {
      ************************/
 
     public String login(String userid, String password, String jSessionID) {
-        if (userid.equals("admin")) return loginAdmin(password, jSessionID) ;
+        if (userid.equals(ADMIN_STR)) return loginAdmin(password, jSessionID) ;
 
         String result ;
         Participant p = getParticipantFromUserID(userid) ;
@@ -2475,7 +2470,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                     validPassword = _orgdb.authenticate(userid, password);
                 }
                 catch (YAuthenticationException yae) {
-                    return StringUtil.wrap(yae.getMessage(), "failure") ;
+                    return StringUtil.wrap(yae.getMessage(), FAIL_STR) ;
                 }
             }
             else {
@@ -2487,12 +2482,12 @@ public class ResourceManager extends InterfaceBWebsideController {
                 EventLogger.audit(userid, EventLogger.audit.logon);
             }
             else {
-                result = "<failure>Incorrect Password</failure>" ;
+                result = fail(PASSWORD_ERR);
                 EventLogger.audit(userid, EventLogger.audit.invalid);
             }
         }
         else {
-            result = "<failure>Unknown user name</failure>" ;
+            result = fail("Unknown user name");
             EventLogger.audit(userid, EventLogger.audit.unknown);
         }
         return result ;
@@ -2506,10 +2501,10 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     private String getAdminUserPassword() {
         try {
-            return _interfaceAClient.getPassword("admin", getEngineSessionHandle());
+            return _interfaceAClient.getPassword(ADMIN_STR, getEngineSessionHandle());
         }
         catch (IOException ioe) {
-            return "<failure>Could not connect to YAWL Engine</failure>" ;
+            return fail("Could not connect to YAWL Engine");
         }
     }
 
@@ -2517,7 +2512,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private String loginAdmin(String password, String jSessionID) {
         String handle ;
         if (! _connections.hasUsers()) setAuthorisedServiceConnections();
-        String adminPassword = _connections.getPassword("admin");
+        String adminPassword = _connections.getPassword(ADMIN_STR);
         if (adminPassword == null) {
             adminPassword = getAdminUserPassword();    // from engine
         }
@@ -2525,11 +2520,11 @@ public class ResourceManager extends InterfaceBWebsideController {
             if (password.equals(adminPassword)) {
                 handle = newSessionHandle();
                 _liveSessions.add(handle, null, jSessionID);
-                EventLogger.audit("admin", EventLogger.audit.logon);
+                EventLogger.audit(ADMIN_STR, EventLogger.audit.logon);
             }
             else {
-                handle = "<failure>Incorrect Password</failure>";
-                EventLogger.audit("admin", EventLogger.audit.invalid);
+                handle = fail(PASSWORD_ERR);
+                EventLogger.audit(ADMIN_STR, EventLogger.audit.invalid);
             }
         }
         else handle = adminPassword;     // an error message
@@ -2545,7 +2540,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             if (p != null) {
                 removeChainedCasesForParticpant(p);
             }
-            String id = (p != null) ? p.getUserID() : "admin";
+            String id = (p != null) ? p.getUserID() : ADMIN_STR;
             EventLogger.audit(id, EventLogger.audit.logoff);
         }
     }
@@ -2556,11 +2551,11 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public String validateUserCredentials(String userid, String password, boolean admin) {
         String result = "<success/>";
-        if (userid.equals("admin")) {
+        if (userid.equals(ADMIN_STR)) {
             String adminPassword = getAdminUserPassword();
             if (successful(adminPassword)) {
                 if (! password.equals(adminPassword)) {
-                    result = "<failure>Incorrect Password</failure>" ;
+                    result = fail(PASSWORD_ERR);
                 }
             } else result = adminPassword;
 
@@ -2571,10 +2566,10 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (p != null) {
             if (p.getPassword().equals(password)) {
                 if (admin && ! p.isAdministrator()) {
-                    result = "<failure>Administrative privileges required.</failure>" ;
+                    result = fail("Administrative privileges required.");
                 }
-            } else result = "<failure>Incorrect Password</failure>" ;
-        } else result = "<failure>Unknown user name</failure>" ;
+            } else result = fail(PASSWORD_ERR);
+        } else result = fail("Unknown user name");
 
         return result ;
     }
@@ -2585,7 +2580,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         UserConnection connection = _liveSessions.removeSessionID(jSessionID);
         if (connection != null) {
             p = connection.getParticipant();
-            String id = (p != null) ? p.getUserID() : "admin";
+            String id = (p != null) ? p.getUserID() : ADMIN_STR;
             EventLogger.audit(id, EventLogger.audit.expired);
         }
         return p;
@@ -2633,7 +2628,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             for (UserConnection connection : _liveSessions.getAllSessions()) {
                 if (connection != null) {
                     Participant p = connection.getParticipant();
-                    String id = (p != null) ? p.getUserID() : "admin";
+                    String id = (p != null) ? p.getUserID() : ADMIN_STR;
                     EventLogger.audit(id, EventLogger.audit.shutdown);
                 }
             }
@@ -2793,8 +2788,8 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
         catch (IOException ioe) {
             _log.error("IOException uploading specification " + fileName, ioe);
-            return "<failure><reason><error>IOException uploading specification " +
-                    fileName + "</error></reason></failure>";
+            return fail("<reason><error>IOException uploading specification " +
+                    fileName + "</error></reason>");
         }
     }
 
@@ -2830,7 +2825,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
                 // log the cancellation
                 Participant p = getParticipantWithSessionHandle(userHandle);
-                String pid = (p != null) ? p.getID() : "admin" ;
+                String pid = (p != null) ? p.getID() : ADMIN_STR;
                 EventLogger.log(specID, caseID, pid, false);
             }
             else _log.error("Error attempting to Cancel Case.") ;
@@ -2897,7 +2892,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                           getEngineSessionHandle(), getLaunchLogData(), _serviceURI) ;
         if (successful(caseID)) {
             Participant p = getParticipantWithSessionHandle(handle);
-            String pid = (p != null) ? p.getID() : "admin" ;
+            String pid = (p != null) ? p.getID() : ADMIN_STR;
             EventLogger.log(specID, caseID, pid, true);
         }
         return caseID;
@@ -2915,7 +2910,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (wir != null) {
             return getTaskParamsAsXML(new YSpecificationID(wir), wir.getTaskID());
         }
-        else return "<failure>Unknown workitem: " + itemID + "</failure>";
+        else return fail(WORKITEM_ERR + ": " + itemID);
     }
 
 
@@ -2951,10 +2946,10 @@ public class ResourceManager extends InterfaceBWebsideController {
                 result += "\n</outputOnlyParameters>";
             }
             catch (IOException ioe) {
-                result = "<failure>Exception connecting to Engine.</failure>";
+                result = fail("Exception connecting to Engine.");
             }
         }
-        else result = "<failure>Unknown workitem '" + itemID + "'.</failure>";
+        else result = fail(WORKITEM_ERR + " '" + itemID + "'.");
 
         return result;
     }
@@ -3153,13 +3148,13 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (wir != null) {
             return getDataSchema(wir, new YSpecificationID(wir));
         }
-        else return "<failure>Unknown workitem ID '" + itemID + "'.</failure>";
+        else return fail(WORKITEM_ERR + " '" + itemID + "'.");
     }
 
     
     public String getDataSchema(WorkItemRecord wir) {
         return (wir != null) ? getDataSchema(wir, new YSpecificationID(wir)) :
-            "<failure>Null workitem.</failure>";
+            fail("Null workitem.");
     }
 
 
@@ -3562,7 +3557,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             else result = fail("Only work items with enabled or fired status may be " +
                     "redirected; work item [" + itemID + "] has status: " + wir.getStatus());
         }
-        else result = fail("Unknown work item: " + itemID);
+        else result = fail(WORKITEM_ERR + ": " + itemID);
 
         return result;
     }

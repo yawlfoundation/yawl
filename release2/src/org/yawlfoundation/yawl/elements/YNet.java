@@ -454,33 +454,14 @@ public final class YNet extends YDecomposition {
     public String toXML() {
         StringBuilder xml = new StringBuilder();
         xml.append(super.toXML());
-        List<YVariable> variables = new ArrayList<YVariable>(_localVariables.values());
-
-        Order order = new Order() {
-            public boolean lessThan(Object a, Object b) {
-                YVariable var1 = (YVariable) a;
-                YVariable var2 = (YVariable) b;
-                String var1Nm = var1.getPreferredName();
-                String var2Nm = var2.getPreferredName();
-
-                if (var1Nm != null && var2Nm != null) {
-                    return var1Nm.compareTo(var2Nm) < 0;
-                }
-                else return var1Nm == null;
-            }
-        };
-        Object[] sortedVars = Sorter.sort(order, variables.toArray());
-        if (null != sortedVars) {
-            for (int i = 0; i < sortedVars.length; i++) {
-                YVariable variable = (YVariable) sortedVars[i];
-                xml.append(variable.toXML());
-            }
+        for (YVariable variable : getLocalVarsSorted()) {
+            xml.append(variable.toXML());
         }
         xml.append("<processControlElements>");
         xml.append(_inputCondition.toXML());
 
-        Set visitedFw = new HashSet();
-        Set visitingFw = new HashSet();
+        Set<YExternalNetElement> visitedFw = new HashSet<YExternalNetElement>();
+        Set<YExternalNetElement> visitingFw = new HashSet<YExternalNetElement>();
         visitingFw.add(_inputCondition);
         do {
             visitedFw.addAll(visitingFw);
@@ -488,7 +469,9 @@ public final class YNet extends YDecomposition {
             visitingFw.removeAll(visitedFw);
             xml.append(produceXMLStringForSet(visitingFw));
         } while (visitingFw.size() > 0);
-        Collection remainingElements = new ArrayList(_netElements.values());
+
+        Set<YExternalNetElement> remainingElements =
+                new HashSet<YExternalNetElement>(_netElements.values());
         remainingElements.removeAll(visitedFw);
         xml.append(produceXMLStringForSet(remainingElements));
         xml.append(_outputCondition.toXML());
@@ -500,23 +483,34 @@ public final class YNet extends YDecomposition {
     }
 
 
-    private String produceXMLStringForSet(Collection elementCollection) {
+    private String produceXMLStringForSet(Set<YExternalNetElement> elements) {
         StringBuilder xml = new StringBuilder();
-        for (Iterator iterator = elementCollection.iterator(); iterator.hasNext();) {
-            YExternalNetElement element = (YExternalNetElement) iterator.next();
+        for (YExternalNetElement element : elements) {
             if (element instanceof YTask) {
                 xml.append(element.toXML());
-            } else {
+            }
+            else {
                 YCondition condition = (YCondition) element;
-                if (condition instanceof YInputCondition ||
-                        condition instanceof YOutputCondition || condition.isImplicit()) {
-                    //do nothing
-                } else {
+                if (! (condition instanceof YInputCondition ||
+                        condition instanceof YOutputCondition || condition.isImplicit())) {
                     xml.append(condition.toXML());
                 }
             }
         }
         return xml.toString();
+    }
+
+
+    private List<YVariable> getLocalVarsSorted() {
+        List<YVariable> variables = new ArrayList<YVariable>(_localVariables.values());
+        Collections.sort(variables, new Comparator<YVariable>() {
+            public int compare(YVariable var1, YVariable var2) {
+                if ((var1 == null) || (var1.getPreferredName() == null)) return -1;
+                if ((var2 == null) || (var2.getPreferredName() == null)) return 1;
+                return var1.getPreferredName().compareTo(var2.getPreferredName());
+            }
+        });
+        return variables;
     }
 
 

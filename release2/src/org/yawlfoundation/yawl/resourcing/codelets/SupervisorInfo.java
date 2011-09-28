@@ -64,7 +64,7 @@ public class SupervisorInfo extends AbstractCodelet {
 
         YParameter param = new YParameter(null, YParameter._INPUT_PARAM_TYPE);
         param.setDataTypeAndName("string", "userid", XSD_NAMESPACE);
-        param.setDocumentation("The userid of a particpant");
+        param.setDocumentation("The userid of a participant");
         params.add(param);
 
         param = new YParameter(null, YParameter._OUTPUT_PARAM_TYPE);

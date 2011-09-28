@@ -280,6 +280,22 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
+     * Gets an XML representation of a workflow specification for a specified, currently
+     * executing case.
+     * @param caseID the identifier of a currently executing case.
+     * @param sessionHandle the session handle
+     * @return the XML representation, or an XML diagnostic error message.
+     * @throws IOException if the engine can't be found.
+     */
+    public String getSpecificationForCase(String caseID, String sessionHandle)
+                                                                 throws IOException {
+        Map<String, String> params = prepareParamMap("getSpecificationForCase", sessionHandle);
+        params.put("caseID", caseID);
+        return stripOuterElement(executeGet(_backEndURIStr, params));
+    }
+
+
+    /**
      * Gets the user-defined data schema for a specification
      * @deprecated superseded by getSpecificationDataSchema(YSpecificationID, String)
      * @param specID the specification id

@@ -23,7 +23,6 @@ import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YNetData;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
-import org.yawlfoundation.yawl.engine.time.YTimerVariable;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -55,7 +54,6 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
     private YNetData _casedata = null;
     private YAttributeMap _attributes;
     private YLogPredicate _logPredicate;
-    private Map<YTask, YTimerVariable> _timerVariables;
 
     // if true, this decomposition requires resourcing decisions made at runtime
     protected boolean _manualInteraction = true;
@@ -71,7 +69,6 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
         _inputParameters = new HashMap<String, YParameter>();
         _outputParameters = new HashMap<String, YParameter>();
         _enablementParameters = new HashMap<String, YParameter>();
-        _timerVariables = new Hashtable<YTask, YTimerVariable>();
         _outputExpressions = new HashSet<String>();
         _data = new Document();
         _attributes = new YAttributeMap();

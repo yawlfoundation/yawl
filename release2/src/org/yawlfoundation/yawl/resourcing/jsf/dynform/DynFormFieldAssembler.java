@@ -381,11 +381,11 @@ public class DynFormFieldAssembler {
 
 
     private String getNextGroupID() {
-        return "group" + String.valueOf(_uniqueSuffix++);
+        return "group" + _uniqueSuffix++;
     }
     
     private String getNextChoiceID() {
-        return "choice" + String.valueOf(_uniqueSuffix++);
+        return "choice" + _uniqueSuffix++;
     }
 
     private YAttributeMap getAttributeMap(String name) {

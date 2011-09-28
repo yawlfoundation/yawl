@@ -317,6 +317,10 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                             new YSpecificationID(specIdentifier, specVersion, specURI);
                     msg.append(_engine.getCasesForSpecification(specID, sessionHandle));
                 }
+                else if (action.equals("getSpecificationForCase")) {
+                    String caseID = request.getParameter("caseID");
+                    msg.append(_engine.getSpecificationForCase(caseID, sessionHandle));
+                }
                 else if (action.equals("getCaseState")) {
                     String caseID = request.getParameter("caseID");
                     msg.append(_engine.getCaseState(caseID, sessionHandle));

@@ -79,7 +79,7 @@ public interface ExceptionGateway
      * Called when the Engine is shutdown (servlet destroyed); the listener should
      * to do its own finalisation processing
      */
-    public void shutdown();
+    void shutdown();
 
 
 
