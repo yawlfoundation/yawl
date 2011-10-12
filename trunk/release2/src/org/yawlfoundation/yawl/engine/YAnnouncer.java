@@ -305,7 +305,7 @@ public class YAnnouncer {
         if (defaultWorklist != null) {
             debug("Announcing enabled task ", item.getIDString(), " on service ",
                           defaultWorklist.getServiceID());
-            announceToGateways(createAnnouncement(item, ITEM_ADD));
+            announceToGateways(createAnnouncement(defaultWorklist, item, ITEM_ADD));
         }
     }
 
