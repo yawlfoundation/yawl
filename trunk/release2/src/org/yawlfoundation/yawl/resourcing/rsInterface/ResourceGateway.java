@@ -405,7 +405,12 @@ public class ResourceGateway extends HttpServlet {
                     if (desc != null) p.setDescription(desc);
                     String notes = req.getParameter("notes");
                     if (notes != null) p.setNotes(notes);
-                    p.save();
+                    try {
+                        p.save();
+                    }
+                    catch (ResourceGatewayException rge) {
+                        result = fail(rge.getMessage());
+                    }
                 }
                 else result = fail("participant", pid);
             }
@@ -956,14 +961,19 @@ public class ResourceGateway extends HttpServlet {
         if (pid != null) {
             Participant p = getOrgDataSet().getParticipant(pid);
             if (p != null) {
-                if (attributeType.equals("capability"))
-                    p.addCapability(req.getParameter("capabilityid"));
-                else if (attributeType.equals("role"))
-                    p.addRole(req.getParameter("roleid"));
-                else if (attributeType.equals("position"))
-                    p.addPosition(req.getParameter("positionid"));
+                try {
+                    if (attributeType.equals("capability"))
+                        p.addCapability(req.getParameter("capabilityid"));
+                    else if (attributeType.equals("role"))
+                        p.addRole(req.getParameter("roleid"));
+                    else if (attributeType.equals("position"))
+                        p.addPosition(req.getParameter("positionid"));
 
-                p.save();
+                    p.save();
+                }
+                catch (ResourceGatewayException rge) {
+                    result = fail(rge.getMessage());
+                }
             }
             else result = fail("participant", pid);
         }
@@ -985,8 +995,12 @@ public class ResourceGateway extends HttpServlet {
                     p.removeRole(req.getParameter("roleid"));
                 else if (attributeType.equals("position"))
                     p.removePosition(req.getParameter("positionid"));
-
-                p.save();
+                try {
+                    p.save();
+                }
+                catch (ResourceGatewayException rge) {
+                    result = rge.getMessage();
+                }
             }
             else result = fail("participant", pid);
         }

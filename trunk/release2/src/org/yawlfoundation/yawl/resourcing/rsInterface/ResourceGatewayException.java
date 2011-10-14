@@ -32,4 +32,9 @@ public class ResourceGatewayException extends Exception {
         super(msg);
     }
 
+    public ResourceGatewayException(String msg, Throwable throwable) {
+        super(msg, throwable);
+    }
+
+
 }

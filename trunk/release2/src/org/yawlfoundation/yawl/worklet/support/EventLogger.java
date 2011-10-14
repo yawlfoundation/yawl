@@ -63,7 +63,7 @@ public class EventLogger {
      *  @param event - the type of event to log
      *  @param caseId - the case that caused the event
      *  @param specId - the specification id of the case
-     *  @param taskId - the id of the task the workletwas subbed for
+     *  @param taskId - the id of the task the worklet was subbed for
      *  @param parentCaseId - the case id of the original workitem
      *  @param xType - the reason for raising a worklet case (maps to WorkletService.XTYPE)
      */

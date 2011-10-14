@@ -22,6 +22,7 @@ import org.jdom.Element;
 import org.yawlfoundation.yawl.resourcing.QueueSet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayException;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.PasswordEncryptor;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -53,11 +54,9 @@ public class Participant extends AbstractResource implements Cloneable {
     // participant's work queues
     private QueueSet _qSet ;
 
-    private ResourceManager _resMgr = ResourceManager.getInstance() ;
     private boolean _persisting ;
 
     /** CONSTRUCTORS **/
-
 
     public Participant() { super() ; }                   // for hibernate persistence
 
@@ -104,6 +103,16 @@ public class Participant extends AbstractResource implements Cloneable {
     }
 
 
+    private ResourceManager getResourceManager() throws ResourceGatewayException {
+        try {
+            return ResourceManager.getInstance() ;
+        }
+        catch (NoClassDefFoundError ndf) {
+            throw new ResourceGatewayException(
+               "Illegal access attempt to server-side method from resource gateway", ndf);
+        }
+    }
+
     public Participant clone() throws CloneNotSupportedException {
 
         // create a new Participant with persistence OFF
@@ -138,7 +147,9 @@ public class Participant extends AbstractResource implements Cloneable {
     }
 
 
-    public void save() { _resMgr.updateParticipant(this); }
+    public void save() throws ResourceGatewayException {
+        getResourceManager().updateParticipant(this);
+    }
 
     public void setPersisting(boolean persisting) {
         _persisting = persisting;
@@ -233,8 +244,8 @@ public class Participant extends AbstractResource implements Cloneable {
         }
     }
 
-    public void addRole(String rid) {
-        addRole(_resMgr.getOrgDataSet().getRole(rid));
+    public void addRole(String rid) throws ResourceGatewayException {
+        addRole(getResourceManager().getOrgDataSet().getRole(rid));
     }
 
     public void mergeRoles(Set<Role> roleSet) {
@@ -283,8 +294,8 @@ public class Participant extends AbstractResource implements Cloneable {
         }
     }
 
-    public void addCapability(String cid) {
-        addCapability(_resMgr.getOrgDataSet().getCapability(cid));
+    public void addCapability(String cid) throws ResourceGatewayException {
+        addCapability(getResourceManager().getOrgDataSet().getCapability(cid));
     }
 
     public void mergeCapabilities(Set<Capability> capSet) {
@@ -335,8 +346,8 @@ public class Participant extends AbstractResource implements Cloneable {
         }
     }
 
-    public void addPosition(String pid) {
-        addPosition(_resMgr.getOrgDataSet().getPosition(pid));
+    public void addPosition(String pid) throws ResourceGatewayException {
+        addPosition(getResourceManager().getOrgDataSet().getPosition(pid));
     }
 
 

@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanSubCategory;
+import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayException;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
@@ -442,12 +443,18 @@ public class DataBackupEngine {
             List list = groupElem.getChildren();
             for (Object o : list) {
                 String id = ((Element) o).getText();
-                if (resGroup.equals("roles"))
-                    p.addRole(id);
-                else if (resGroup.equals("positions"))
-                    p.addPosition(id);
-                else if (resGroup.equals("capabilities"))
-                    p.addCapability(id);
+                try {
+                    if (resGroup.equals("roles"))
+                        p.addRole(id);
+                    else if (resGroup.equals("positions"))
+                        p.addPosition(id);
+                    else if (resGroup.equals("capabilities"))
+                        p.addCapability(id);
+                }
+                catch (ResourceGatewayException rge) {
+                    _log.warn("Unable to add " + resGroup  + " for participant '"
+                            + p.getFullName() + "': " + rge.getMessage());
+                }
             }
         }
     }

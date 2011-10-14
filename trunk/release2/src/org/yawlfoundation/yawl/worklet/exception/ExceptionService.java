@@ -445,13 +445,15 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      *         or null if no rules are defined for these criteria
      */
     private RdrConclusion getExceptionHandler(CaseMonitor monitor, String taskID, int xType){
-        RdrTree tree = getTree(monitor.getSpecID(), taskID, xType);
-        if (tree != null) {
-            RdrConclusion conc = new RdrConclusion(tree.search(monitor.getCaseData()));
-            conc.setLastPair(tree.getLastPair());
-            return conc ;
+        if (monitor != null) {
+            RdrTree tree = getTree(monitor.getSpecID(), taskID, xType);
+            if (tree != null) {
+                RdrConclusion conc = new RdrConclusion(tree.search(monitor.getCaseData()));
+                conc.setLastPair(tree.getLastPair());
+                return conc ;
+            }
         }
-        else return null ;
+        return null ;
     }
 
     //***************************************************************************//
@@ -727,7 +729,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
          *   2. it is an pre-executing item level exception and the item is suspended,
          *      in which case the case-level data is updated (because the item has not
          *      yet received data values from the case before starting); or
-         *   3. it is an exectuing item exception and the item is suspended, in which
+         *   3. it is an executing item exception and the item is suspended, in which
          *      case the item-level data is updated
          */
 
@@ -741,8 +743,9 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
         // log the worklet's case completion event
         String event = cancelled ? EventLogger.eCancel : EventLogger.eComplete;
-        EventLogger.log(_dbMgr, event, caseId, new YSpecificationID(runner.getItem()),
-                "", runner.getCaseID(), -1) ;
+        YSpecificationID specID = runner.getItem() != null ?
+                new YSpecificationID(runner.getItem()) : getSpecIDForCaseID(caseId);
+        EventLogger.log(_dbMgr, event, caseId, specID, "", runner.getCaseID(), -1) ;
 
         runner.removeRunnerByCaseID(caseId);       // worklet's case id no longer needed
 
@@ -1578,7 +1581,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      * @return the (String) list of triggers
      */
     public List getExternalTriggersForCase(String caseID) {
-        if (caseID == null) {
+        if (caseID != null) {
             CaseMonitor mon = _monitoredCases.get(getIntegralID(caseID));
             if (mon != null) {
                 RdrTree tree = getTree(mon.getSpecID(), null, XTYPE_CASE_EXTERNAL_TRIGGER);

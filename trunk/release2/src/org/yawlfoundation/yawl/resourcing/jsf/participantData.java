@@ -22,6 +22,7 @@ import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
+import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayException;
 
 import javax.faces.FacesException;
 import javax.faces.event.ValueChangeEvent;
@@ -493,6 +494,9 @@ public class participantData extends AbstractPageBean {
             }
             catch (CloneNotSupportedException cnse) {
                 msgPanel.error("Could not save changes: cloning Exception");
+            }
+            catch (ResourceGatewayException rge) {
+                msgPanel.error("Could not save changes: " + rge.getMessage());
             }
         }
         return null;

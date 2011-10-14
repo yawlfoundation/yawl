@@ -48,7 +48,7 @@
                         <condition>TicketsSold &lt; (Seating * 0.5)</condition>
                         <conclusion>
                             <_1>
-                                <action>remove</action>
+                                <action>suspend</action>
                                 <target>workitem</target>
                             </_1>
                             <_2>
@@ -56,8 +56,8 @@
                                 <target>ChangeToSmallVenue</target>
                             </_2>
                             <_3>
-                                <action>remove</action>
-                                <target>case</target>
+                                <action>continue</action>
+                                <target>workitem</target>
                             </_3>
                         </conclusion>
                         <cornerstone>

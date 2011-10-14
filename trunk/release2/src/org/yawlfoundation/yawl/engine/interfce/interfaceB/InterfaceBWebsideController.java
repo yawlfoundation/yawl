@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -578,9 +579,11 @@ public abstract class InterfaceBWebsideController {
         if (!enabledWorkItem.getStatus().equals(WorkItemRecord.statusEnabled))
             throw new IllegalArgumentException("Param enabledWorkItem must be enabled.");
 
+        List<WorkItemRecord> instances = new ArrayList<WorkItemRecord>();
+
         // first of all checkout an enabled work item
         WorkItemRecord result = checkOut(enabledWorkItem.getID(), sessionHandle);
-
+        if (result != null) instances.add(result);
         _logger.debug("Result of item [" + enabledWorkItem.getID() +
                 "] checkout is : " + result);
 
@@ -588,12 +591,13 @@ public abstract class InterfaceBWebsideController {
         List<WorkItemRecord> mixedChildren = getChildren(enabledWorkItem.getID(), sessionHandle);
         for (WorkItemRecord itemRecord : mixedChildren) {
             if (WorkItemRecord.statusFired.equals(itemRecord.getStatus())) {
+                WorkItemRecord firedItem = checkOut(itemRecord.getID(), sessionHandle);
+                if (firedItem != null) instances.add(firedItem);
                 _logger.debug("Result of item [" +
-                        itemRecord.getID() + "] checkout is : " +
-                        checkOut(itemRecord.getID(), sessionHandle));
+                        itemRecord.getID() + "] checkout is : " + firedItem);
             }
         }
-        return getChildren(enabledWorkItem.getID(), sessionHandle);
+        return instances;
     }
 
 

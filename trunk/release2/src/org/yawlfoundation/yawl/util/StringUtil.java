@@ -488,6 +488,7 @@ public class StringUtil
     }
 
     public static long xmlDateToLong(String s) {
+        if (s == null) return -1;
         try {
             XMLGregorianCalendar cal =
                     DatatypeFactory.newInstance().newXMLGregorianCalendar(s);

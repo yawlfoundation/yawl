@@ -18,12 +18,12 @@
 
 package org.yawlfoundation.yawl.worklet.support;
 
-import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-
-import java.util.*;
-
 import org.jdom.Element;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.util.JDOMUtil;
+
+import java.util.Date;
+import java.util.HashMap;
 
 
 /**
@@ -56,6 +56,7 @@ public class RdrConditionFunctions {
     public static final String[] _functionNames = { "max",
                                                     "min",
                                                     "isNotCompleted",
+                                                    "hasTimerExpired",
                                                     "today"} ;
 
     public static boolean isRegisteredFunction(String s) {
@@ -75,6 +76,10 @@ public class RdrConditionFunctions {
         if (name.equalsIgnoreCase("isNotCompleted")) {
             String taskInfo = (String) args.get("this");
             return isNotCompleted(taskInfo);
+        }
+        else if (name.equalsIgnoreCase("hasTimerExpired")) {
+            String taskInfo = (String) args.get("this");
+            return hasTimerExpired(taskInfo);
         }
         else if (name.equalsIgnoreCase("max")) {
             int x = getArgAsInt(args, "x");
@@ -113,6 +118,12 @@ public class RdrConditionFunctions {
         Element eItem = JDOMUtil.stringToElement(itemInfo);
         String status = eItem.getChildText("status");
         return String.valueOf(! isFinishedStatus(status) );
+    }
+
+
+    private static String hasTimerExpired(String itemInfo) {
+        Element eItem = JDOMUtil.stringToElement(itemInfo);
+        return String.valueOf((eItem.getChildText("timerexpiry") != null));
     }
 
 

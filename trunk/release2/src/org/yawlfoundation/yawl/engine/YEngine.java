@@ -44,6 +44,7 @@ import org.yawlfoundation.yawl.logging.YLogDataItem;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.logging.table.YAuditEvent;
+import org.yawlfoundation.yawl.schema.XSDType;
 import org.yawlfoundation.yawl.schema.YDataValidator;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.*;
@@ -1577,7 +1578,8 @@ public class YEngine implements InterfaceADesign,
 
 
     private Document getDataDocForWorkItemCompletion(YWorkItem workItem, String data,
-                                                     WorkItemCompletion completionType) {
+                                                     WorkItemCompletion completionType)
+            throws YStateException {
         if (completionType != WorkItemCompletion.Normal) {
             data = mapOutputDataForSkippedWorkItem(workItem, data);
         }
@@ -1585,7 +1587,8 @@ public class YEngine implements InterfaceADesign,
     }
 
 
-    private String mapOutputDataForSkippedWorkItem(YWorkItem workItem, String data) {
+    private String mapOutputDataForSkippedWorkItem(YWorkItem workItem, String data)
+            throws YStateException {
 
         // get input and output params for task
         YSpecificationID specID = workItem.getSpecificationID();
@@ -1618,11 +1621,19 @@ public class YEngine implements InterfaceADesign,
                 Element outData = new Element(name) ;
                 YParameter outParam = outputs.get(name);
                 String defaultValue = outParam.getDefaultValue();
-                if (defaultValue != null)
-                    outData.setText(defaultValue) ;
-                else
+                if (defaultValue != null) {
+                    String value = StringUtil.wrap(defaultValue, name);
+                    outData = JDOMUtil.stringToElement(value);
+                }
+                else {
+                    String typeName = outParam.getDataTypeName();
+                    if (!XSDType.getInstance().isBuiltInType(typeName)) {
+                        throw new YStateException(String.format(
+                                "Could not skip work item [%s]: Output-Only parameter [%s]" +
+                                " requires a default value.", workItem.getIDString(), name));
+                    }
                     outData.setText(JDOMUtil.getDefaultValueForType(outParam.getDataTypeName()));
-
+                }
                 outputData.addContent(outData);
             }
         }

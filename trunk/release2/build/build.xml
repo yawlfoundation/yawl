@@ -85,6 +85,7 @@
     <property name="test.app.name" value="testService"/>
     <property name="twitter.app.name" value="twitterService"/>
     <property name="mail.app.name" value="mailService"/>
+    <property name="scheduling.app.name" value="schedulingService"/>
 
     <!--
         Properties for all third-party libraries
@@ -98,6 +99,7 @@
           - jsf: JSF dependencies (used by the Resource and Monitor Services)
           - mss: MailSender Service
           - mul: used by multiple services
+          - sch: Scheduling Service
           - sml: Simple Mail Service
           - twi: Twitter Service
           - wsi: WSInvoker Service
@@ -113,14 +115,16 @@
     <property name="c3p0" value="c3p0-0.9.1.jar"/>                           <!-- hbn -->
     <property name="common" value="common.jar"/>                        <!-- eng, xsd -->
     <property name="commonsBeanutils" value="commons-beanutils.jar"/>    <!-- eng Dom -->
-    <property name="commonsCodec" value="commons-codec-1.4.jar"/>            <!-- mul -->
+    <property name="commonsCodec" value="commons-codec-1.5.jar"/>            <!-- mul -->
     <property name="commonsCollections" value="commons-collections-3.2.jar"/> <!-- hbn -->
+    <property name="commonsDbcp" value="commons-dbcp-1.3.jar"/>              <!-- sch -->
     <property name="commonsDigester" value="commons-digester.jar"/>          <!-- mul -->
     <property name="commonsDiscovery" value="commons-discovery.jar"/>        <!-- wsi -->
     <property name="commonsFileupload" value="commons-fileupload-1.2.2.jar"/> <!-- jsf, dss, mss -->
     <property name="commonsIO" value="commons-io-2.0.1.jar"/>      <!-- jsf, dss, mss -->
     <property name="commonsLang" value="commons-lang-2.3.jar"/>              <!-- mul -->
     <property name="commonsLogging" value="commons-logging-1.1.1.jar"/>      <!-- mul -->
+    <property name="commonsPool" value="commons-pool-1.5.4.jar"/>            <!-- sch -->
     <property name="derby" value="derbyclient.jar"/>                         <!-- dbd -->
     <property name="dom4j" value="dom4j-1.6.1.jar"/>                         <!-- hbn -->
     <property name="ecore" value="ecore.jar"/>                          <!-- eng, xsd -->
@@ -130,7 +134,7 @@
     <property name="hibernate-jpa" value="hibernate-jpa-2.0-api-1.0.0.Final.jar"/>
     <property name="hsql" value="hsqldb.jar"/>                               <!-- dbd -->
     <property name="javaAssist" value="javassist-3.12.0.GA.jar"/>            <!-- hbn -->
-    <property name="jaxen" value="jaxen-1.1.1.jar"/>                         <!-- eng -->
+    <property name="jaxen" value="jaxen-1.1.3.jar"/>                    <!-- eng, sch -->
     <property name="jaxrpc" value="jaxrpc.jar"/>                             <!-- wsi -->
     <property name="jdom" value="jdom.jar"/>                                 <!-- mul -->
     <property name="jsf-api" value="jsf-api.jar"/>                           <!-- jsf -->
@@ -143,6 +147,7 @@
     <property name="jsf-rowset" value="rowset.jar"/>                         <!-- jsf -->
     <property name="jsf-standard" value="standard.jar"/>                     <!-- jsf -->
     <property name="jsf-webui" value="webui.jar"/>                           <!-- jsf -->
+    <property name="json" value="json.jar"/>                                 <!-- sch -->
     <property name="jstl" value="jstl.jar"/>                                 <!-- jsf -->
     <property name="jta" value="jta-1.1.jar"/>                               <!-- hbn -->
     <property name="junit" value="junit-4.5.jar"/>                           <!-- mul -->
@@ -151,7 +156,8 @@
     <property name="mailapi" value="mailapi.jar"/>                           <!-- sml -->
     <property name="mysql" value="mysql-connector-java-5.1.13-bin.jar"/>     <!-- dbd -->
   	<property name="oracle" value="ojdbc6_9.jar"/>                           <!-- dbd -->
-    <property name="postgres8" value="postgresql-8.3-603.jdbc3.jar"/>        <!-- dbd -->
+    <property name="postgres8" value="postgresql-9.0-801.jdbc4.jar"/>        <!-- dbd -->
+    <property name="quartz" value="quartz-1.8.4.jar"/>                       <!-- sch -->
     <property name="saaj" value="saaj.jar"/>                                 <!-- wsi -->
     <property name="saxon" value="saxon9.jar"/>                              <!-- mul -->
     <property name="saxonapi" value="saxon9-s9api.jar"/>                     <!-- mul -->
@@ -164,10 +170,15 @@
     <property name="smtp" value="smtp.jar"/>                                 <!-- sml -->
     <property name="soaprmi" value="soaprmi-1_1.jar"/>                       <!-- wsi -->
     <property name="twitter4j" value="twitter4j-core-2.1.8.jar"/>            <!-- twi -->
+    <property name="ucp" value="ucp.jar"/>                                   <!-- sch -->
     <property name="wsdl4j" value="wsdl4j-20030807.jar"/>                    <!-- wsi -->
     <property name="wsif" value="wsif.jar"/>                                 <!-- wsi -->
     <property name="wsif-j2c" value="wsif-j2c.jar"/>                         <!-- wsi -->
+    <property name="xalan" value="xalan.jar"/>                               <!-- sch -->
+    <property name="xdb" value="xdb.jar"/>                                   <!-- sch -->
     <property name="xerces" value="xercesImpl.jar"/>                         <!-- mul -->
+    <property name="xmlparserv" value="xmlparserv2.jar"/>                    <!-- sch -->
+    <property name="xmlunit" value="xmlunit-1.3.jar"/>                       <!-- sch -->
     <property name="xsd" value="xsd.jar"/>                              <!-- eng, xsd -->
     <property name="xsd.resources" value="xsd.resources.jar"/>          <!-- eng, xsd -->
 
@@ -281,6 +292,10 @@
     <property name="simplemail.libs"
               value="${mailapi} ${simplemail} ${smtp}"/>
 
+    <property name="scheduling.libs"
+              value="${json} ${commonsDbcp} ${commonsPool} ${jaxen} ${quartz} ${ucp}
+                     ${xdb} ${xalan} ${xmlparserv} ${xmlunit}"/>
+
     <!--
         Per webapp dependency lists
     -->
@@ -302,7 +317,7 @@
     <property name="webapp_wsInvoker.libs"
               value="${wsif.libs} ${apacheSoap} ${jdom} ${log4j}
                      ${soaprmi} ${wsif-j2c} ${xerces}
-                     ${commonsCodec} README.html"/>
+                     ${commonsCodec} ${commonsLang} README.html"/>
 
     <property name="webapp_smsInvoker.libs"
               value="${jdom} ${log4j} ${commonsCodec}"/>
@@ -324,6 +339,10 @@
 
     <property name="webapp_simplemail.libs"
               value="${jdom} ${log4j} ${simplemail.libs} ${commonsCodec}"/>
+
+    <property name="webapp_scheduling.libs"
+              value="${scheduling.libs} ${persistence.libs} ${jdom} ${log4j}
+                     ${commonsCodec} ${commonsDbcp} ${commonsPool}"/>
 
     <property name="webapp_test.libs"
               value="${jdom} ${xerces} ${log4j} ${twitter4j}
@@ -381,11 +400,13 @@
 
     <path id="cp.apacheCommons">
         <pathelement location="${lib.dir}/${commonsBeanutils}"/>
-        <pathelement location="${lib.dir}/${commonsLang}"/>
+        <pathelement location="${lib.dir}/${commonsCodec}"/>
+        <pathelement location="${lib.dir}/${commonsDbcp}"/>
         <pathelement location="${lib.dir}/${commonsDigester}"/>
         <pathelement location="${lib.dir}/${commonsFileupload}"/>
+        <pathelement location="${lib.dir}/${commonsLang}"/>
         <pathelement location="${lib.dir}/${commonsIO}"/>
-        <pathelement location="${lib.dir}/${commonsCodec}"/>
+        <pathelement location="${lib.dir}/${commonsPool}"/>
     </path>
 
     <path id="cp.jsf">
@@ -410,6 +431,18 @@
     <path id="cp.mail">
         <pathelement location="${lib.dir}/${mail}"/>
         <pathelement location="${lib.dir}/${activation}"/>
+    </path>
+
+    <path id="cp.scheduling">
+        <pathelement location="${lib.dir}/${json}"/>
+        <pathelement location="${lib.dir}/${jaxen}"/>
+        <pathelement location="${lib.dir}/${quartz}"/>
+        <pathelement location="${lib.dir}/${ucp}"/>
+        <pathelement location="${lib.dir}/${postgres8}"/>
+        <pathelement location="${lib.dir}/${xdb}"/>
+        <pathelement location="${lib.dir}/${xalan}"/>
+        <pathelement location="${lib.dir}/${xmlparserv}"/>
+        <pathelement location="${lib.dir}/${xmlunit}"/>
     </path>
 
     <path id="cp.simplemail">
@@ -446,6 +479,7 @@
                      build_resourceService.war,
                      build_monitorService.war,
                      build_twitterService.war,
+                     build_schedulingService.war,
                      build_digitalSignature.war,
                      build_mailSender.war,
                      build_mailService.war">
@@ -493,7 +527,7 @@
             <tag name="post" scope="all" description="Postcondition:"/>
         
             <!-- links to 3rd party javadocs -->
-            <link offline="false" href="http://java.sun.com/j2se/1.5.0/docs/api/"/>
+            <link offline="false" href="http://download.oracle.com/javase/6/docs/api/"/>
             <link offline="false" href="http://www.jdom.org/docs/apidocs/"/>
             <link offline="false" href="http://www.bouncycastle.org/docs/mdocs1.5/"/>
             <link offline="false"
@@ -508,6 +542,7 @@
             <classpath refid="cp.apacheCommons"/>
             <classpath refid="cp.jsf"/>
             <classpath refid="cp.mail"/>
+            <classpath refid="cp.scheduling"/>
             <classpath refid="cp.simplemail"/>
             <classpath refid="cp.ds"/>
             <classpath refid="cp.etc"/>
@@ -622,7 +657,8 @@
         <delete dir="${temp.dir}/${digitalSignature.app.name}"/>
         <delete dir="${temp.dir}/${mailSender.app.name}"/>
         <delete dir="${temp.dir}/${mail.app.name}"/>
-    </target>
+        <delete dir="${temp.dir}/${scheduling.app.name}"/>
+     </target>
 
     <!--
         Initialise build environment
@@ -653,6 +689,7 @@
             <classpath refid="cp.ds"/>
             <classpath refid="cp.mail"/>
             <classpath refid="cp.simplemail"/>
+            <classpath refid="cp.scheduling"/>
             <classpath refid="cp.etc"/>
         </javac>
         
@@ -866,6 +903,9 @@
             <fileset dir="${classes.dir}${packageRoot}/exceptions"
                      includes="*.class *.hbm.xml"/>
         </copy>
+        <copy todir="${temp.dir}/${wsInvoker.app.name}${webinf.dir}/schema"
+              file="${classes.dir}${packageRoot}/schema/YSchemaVersion.class"/>
+
         <copy todir="${temp.dir}/${wsInvoker.app.name}${webinf.dir}/wsif">
             <fileset dir="${classes.dir}${packageRoot}/wsif">
                 <include name="*.class"/>
@@ -1243,6 +1283,7 @@
                        org/yawlfoundation/yawl/elements/YSpecVersion.class
                        org/yawlfoundation/yawl/util/JDOMUtil.class
                        org/yawlfoundation/yawl/util/StringUtil.class
+                       org/yawlfoundation/yawl/util/XNode*.class
                        org/yawlfoundation/yawl/util/PasswordEncryptor.class">
             <fileset dir="${enumeratedClasses}"
                      includes="org/apache/commons/codec/BinaryEncoder.class
@@ -1595,6 +1636,76 @@
     </target>
 
     <!--
+         Build the scheduling service WAR
+     -->
+
+     <target name="build_schedulingService.war"
+             depends="compile, build_schedulingService_SharedTomcat">
+
+         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/resourcing/resource">
+             <fileset dir="${classes.dir}${packageRoot}/resourcing/resource"
+                      excludes="**/*.hbm.xml"/>
+         </copy>
+         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/resourcing/rsInterface">
+             <fileset dir="${classes.dir}${packageRoot}/resourcing/rsInterface"/>
+         </copy>
+
+         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/elements">
+             <fileset dir="${classes.dir}${packageRoot}/elements"
+                      excludes="**/*.hbm.xml"/>
+         </copy>
+         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/engine"
+               file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
+         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/exceptions"
+               file="${classes.dir}${packageRoot}/exceptions/YAWLException.class"/>
+
+         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/unmarshal">
+              <fileset dir="${classes.dir}${packageRoot}/unmarshal"
+                       includes="YDecompositionParser.class"/>
+              <fileset dir="${schema.dir}" includes="*.xsd"/>
+         </copy>
+         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/schema">
+                <fileset dir="${classes.dir}${packageRoot}/schema"
+                         includes="XSDType.class YSchemaVersion.class"/>
+         </copy>
+         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/util">
+             <fileset dir="${classes.dir}${packageRoot}/util"
+                     includes="JDOMUtil.class StringUtil.class CharsetFilter.class
+                               PasswordEncryptor.class XNode*.class"/>
+         </copy>
+         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/engine/interfce">
+             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+         </copy>
+         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/scheduling">
+             <fileset dir="${classes.dir}${packageRoot}/scheduling"/>
+         </copy>
+
+
+         <copy todir="${temp.dir}/${scheduling.app.name}">
+              <fileset dir="${build.dir}/${scheduling.app.name}/resources"/>
+         </copy>
+         <copy todir="${temp.dir}/${scheduling.app.name}/WEB-INF/classes">
+             <fileset dir="${build.dir}/${scheduling.app.name}/properties"/>
+             <fileset dir="${build.dir}/${scheduling.app.name}/schema"/>
+         </copy>
+
+         <war destfile="${output.dir}/${scheduling.app.name}.war"
+              webxml="${build.dir}/${scheduling.app.name}/web.xml">
+             <fileset dir="${temp.dir}/${scheduling.app.name}"/>
+         </war>
+         <delete dir="${temp.dir}/${scheduling.app.name}"/>
+     </target>
+
+     <target name="build_schedulingService_SharedTomcat" unless="tomcat.isDedicated">
+         <copy todir="${temp.dir}/${scheduling.app.name}/WEB-INF/classes">
+             <fileset dir="${classes.dir}" includes="log4j.properties"/>
+         </copy>
+         <copy todir="${temp.dir}/${scheduling.app.name}/WEB-INF/lib">
+             <fileset dir="${lib.dir}" includes="${webapp_scheduling.libs}"/>
+         </copy>
+     </target>
+
+     <!--
         Build the digital signature service WAR
     -->
 
@@ -1745,7 +1856,7 @@
                      deployMailSender,
                      deployTestService,
                      deployTwitterService,
-                     deployMailService,
+                     deploySchedulingService,
                      deployNonCoreSharedLibs">
     </target>
 
@@ -1830,7 +1941,13 @@
         </copy>
     </target>
 
-    <!--
+    <target name="deploySchedulingService" depends="build_schedulingService.war">
+         <copy todir="${webapps.dir}">
+             <fileset file="${output.dir}/${scheduling.app.name}.war"/>
+         </copy>
+     </target>
+
+     <!--
         Copies to Tomcat shared lib folder if this is a dedicated Tomcat installation
     -->
 
@@ -1857,6 +1974,7 @@
                                ${webapp_mailSender.libs}
                                ${webapp_monitor.libs}
                                ${webapp_twitter.libs}
+                               ${webapp_scheduling.libs}
                                ${webapp_test.libs}"/>
         </copy>
     </target>

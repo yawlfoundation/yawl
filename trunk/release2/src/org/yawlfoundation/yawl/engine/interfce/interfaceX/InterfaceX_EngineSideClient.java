@@ -227,7 +227,7 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
 
                 // additional params as required
                 switch (_command) {
-                    case InterfaceX_EngineSideClient.NOTIFY_CHECK_CASE_CONSTRAINTS:
+                    case NOTIFY_CHECK_CASE_CONSTRAINTS:
                         paramsMap.put("specID", _specID.getIdentifier());
                         paramsMap.put("specVersion", _specID.getVersionAsString());
                         paramsMap.put("specURI", _specID.getUri());
@@ -235,15 +235,15 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
                         paramsMap.put("preCheck", String.valueOf(_preCheck));
                         paramsMap.put("data", _dataStr);
                         break ;
-                    case InterfaceX_EngineSideClient.NOTIFY_CHECK_ITEM_CONSTRAINTS:
+                    case NOTIFY_CHECK_ITEM_CONSTRAINTS:
                         paramsMap.put("workItem", _workItem.toXML());
                         paramsMap.put("preCheck", String.valueOf(_preCheck));
                         paramsMap.put("data", JDOMUtil.documentToString(_dataDoc));
                         break ;
-                    case InterfaceX_EngineSideClient.NOTIFY_CANCELLED_CASE:
+                    case NOTIFY_CANCELLED_CASE:
                         paramsMap.put("caseID", _caseID);
                         break ;
-                    case InterfaceX_EngineSideClient.NOTIFY_TIMEOUT:
+                    case NOTIFY_TIMEOUT:
                         paramsMap.put("workItem", _workItem.toXML());
                         if (_taskList != null)
                             paramsMap.put("taskList", _taskList.toString());

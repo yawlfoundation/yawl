@@ -23,6 +23,7 @@ import com.sun.rave.web.ui.component.Button;
 import com.sun.rave.web.ui.component.Label;
 import com.sun.rave.web.ui.component.Listbox;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayException;
 
 import javax.faces.FacesException;
 
@@ -125,9 +126,17 @@ public class pfAddRemove extends AbstractFragmentBean {
     public String btnSelect_action() {
         String id = (String) lbxAvailable.getSelected() ;
         if (id != null) {
-            _sb.selectResourceAttribute(id) ;
-            populateLists(_sb.getActiveResourceAttributeTab(),
-                          _sb.getParticipantForCurrentMode());
+            try {
+                _sb.selectResourceAttribute(id) ;
+                populateLists(_sb.getActiveResourceAttributeTab(),
+                              _sb.getParticipantForCurrentMode());
+            }
+            catch (ResourceGatewayException rge) {
+
+                // this will only occur if this method is called from the client side
+                // which is nigh impossible, so a printStackTrace is OK in this instance
+                rge.printStackTrace();
+            }
         }
         return null;
     }
