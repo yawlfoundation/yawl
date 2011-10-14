@@ -122,7 +122,7 @@ public class WSIFController extends InterfaceBWebsideController {
                 }
             }
 
-        } catch (Exception e) {
+        } catch (Throwable e) {
             _logger.error(e.getMessage(), e);
         }
     }

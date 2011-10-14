@@ -26,6 +26,7 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
+import org.yawlfoundation.yawl.schema.XSDType;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -140,7 +141,8 @@ public class JDOMUtil {
     public static String getDefaultValueForType(String dataType) {
         if (dataType == null) return "null";
         else if (dataType.equalsIgnoreCase("boolean")) return "false" ;
-        else if (dataType.equalsIgnoreCase("string")) return "" ;
+        else if (dataType.equalsIgnoreCase("string") ||
+                (! XSDType.getInstance().isBuiltInType(dataType))) return "" ;
         else return "0";
     }
 

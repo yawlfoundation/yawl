@@ -12,7 +12,7 @@
     <description>
         This custom YAWL Service dynamically selects an appropriate sub-process for an executing
         workitem, and handles any process exceptions.
-        Copyright © 2006 Queensland University of Technology. All rights reserved.
+        Copyright 2006 Queensland University of Technology. All rights reserved.
         Author: Michael Adams
         For more information about the YAWL SOFTWARE LICENCE refer to the 'downloads' section under
         http://www.yawlfoundation.org/.
@@ -101,7 +101,7 @@
 
     <context-param>
         <param-name>EnableExceptionHandling</param-name>
-        <param-value>false</param-value>
+        <param-value>true</param-value>
         <description>
             'true' to enable exception handling functionality
             'false' to disable

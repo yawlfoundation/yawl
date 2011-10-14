@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <spec>
     <timeout>
-        <task name="Receive_Payment">
+        <task name="Receive Payment">
             <ruleNode>
                 <id>0</id>
                 <parent>-1</parent>
@@ -17,7 +17,7 @@
                 <parent>0</parent>
                 <trueChild>-1</trueChild>
                 <falseChild>-1</falseChild>
-                <condition>isNotCompleted(this)</condition>
+                <condition>hasTimerExpired(this)</condition>
                 <conclusion>
                     <_1>
                         <action>suspend</action>

@@ -289,7 +289,7 @@ public class visualiser extends AbstractPageBean {
               .append(view.height)
               .append("\"")
               .append(" archive=\"visualiser.jar,javax.servlet.jar,jdom.jar,")
-              .append(" resourceService.jar,saxon9.jar,log4j-1.2.14.jar,commons-codec-1.4.jar\"")
+              .append(" resourceService.jar,saxon9.jar,log4j-1.2.16.jar,commons-codec-1.5.jar\"")
               .append(" codebase=\"../../visualiserApplet\"")
               .append(" code=\"worklist.WRKLApplet.class\" MAYSCRIPT>")
               .append(" <param name=\"user\" value=\"")

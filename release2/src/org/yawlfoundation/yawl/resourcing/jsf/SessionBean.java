@@ -45,6 +45,7 @@ import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
+import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayException;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YPredicateParser;
@@ -1215,7 +1216,8 @@ public class SessionBean extends AbstractSessionBean {
     // the set of attributes held by a resource before it has been edited
     private Set<AbstractResourceAttribute> preEditAttributes;
 
-    public void saveParticipantUpdates(Participant cloned) throws CloneNotSupportedException  {
+    public void saveParticipantUpdates(Participant cloned)
+            throws CloneNotSupportedException, ResourceGatewayException {
         String actualID = cloned.getID().substring(7);
         Participant p = getParticipantMap().get(actualID);
         p.merge(cloned);
@@ -1587,7 +1589,7 @@ public class SessionBean extends AbstractSessionBean {
         getParticipantAttributeList(activeResourceAttributeTab, p) ;
     }
 
-    public void selectResourceAttribute(String id) {
+    public void selectResourceAttribute(String id) throws ResourceGatewayException {
         selectResourceAttribute(id, getParticipantForCurrentMode());
     }
 
@@ -1595,7 +1597,8 @@ public class SessionBean extends AbstractSessionBean {
         return isAddParticipantMode() ? addedParticipant : editedParticipant ;
     }
 
-    private void selectResourceAttribute(String id, Participant p) {
+    private void selectResourceAttribute(String id, Participant p)
+            throws ResourceGatewayException {
         if (activeResourceAttributeTab.equals("tabRoles"))
             p.addRole(id);
         else if (activeResourceAttributeTab.equals("tabPosition"))
