@@ -198,6 +198,43 @@ public class XNode implements Comparable<XNode> {
         return (_children != null) && _children.remove(child);
     }
 
+    public void addContent(String content) {
+        addChild(new XNodeParser().parse(content));
+    }
+
+
+    /**
+     * Adds a child node to this node for each object in a list
+     * @param list the list of objects to create child nodes from
+     * @param <E> a type extending the XNodeIO interface
+     */
+    public <E extends XNodeIO> void addList(List<E> list) {
+        if (! ((list == null) || list.isEmpty())) {
+            for (XNodeIO item : list) {
+                addChild(item.toXNode());
+            }
+        }
+    }
+
+
+    /**
+     * Creates and adds an object of type E to a list for each child node. It is assumed that
+     * each child of this node represents an object of type E.
+     * @param list the list of objects to populate
+     * @param instance an instance of an E type object
+     * @param <E> a type extending the XNodeIO interface
+     */
+    public <E extends XNodeIO> void populateListWithChildren(List<E> list, E instance) {
+        for (XNode child : getChildren(ContentType.text)) {
+
+            // The unchecked warning can be validly suppressed, because
+            // instance#newInstance will always produce an object of the same type as
+            // the those in the list, since the types match on the way in
+          //  @SuppressWarnings("unchecked")
+            list.add((E) instance.newInstance(child));
+        }
+    }
+
 
     /**************************************************************************/
 

@@ -67,8 +67,8 @@ public class YawlXMLSpecificationValidator extends DefaultHandler {
 
 
     private void addMessage(SAXParseException e, String errType) {
-        String lineNum = getLineNumber(e);
-        _errorsString.append(String.format("%s#%s#%s\n", errType, lineNum, e.getMessage()));
+        _errorsString.append(
+                String.format("%s#%s#%s\n", errType, getLineNumber(e), e.getMessage()));
     }
 
 
@@ -109,8 +109,7 @@ public class YawlXMLSpecificationValidator extends DefaultHandler {
      * @throws SAXException
      */
     private XMLReader setUpChecker(YSchemaVersion version) throws SAXException {
-        XMLReader parser = XMLReaderFactory.createXMLReader(
-                "org.apache.xerces.parsers.SAXParser");
+        XMLReader parser = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
         parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
                                 version.getSchemaLocation());
 

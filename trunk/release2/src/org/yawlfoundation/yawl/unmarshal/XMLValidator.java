@@ -18,15 +18,16 @@
 
 package org.yawlfoundation.yawl.unmarshal;
 
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringReader;
+import java.net.URL;
 
 /**
  * 
@@ -36,13 +37,19 @@ import java.io.IOException;
 
 public class XMLValidator extends DefaultHandler {
     StringBuilder _errorsString = new StringBuilder("");
-    private String _tempDataFileName = "data.xml";
-    private String _tempSchemaFileName = "theSchema.xsd";
-    private File _tempSchema;
-    private File _tempData;
+    private String _schemaLocation;
 
 
     public XMLValidator() {
+    }
+
+    /**
+     *
+     * @param location a location of the form "URI absolute_package_path_to_file"
+     *   E.g. "http://www.yawlfoundation.org/yawlschema /org/yawlfoundation/yawl/cost/costmodel.xsd"
+     */
+    public void setSchemaLocation(String location) {
+        _schemaLocation = location;
     }
 
 
@@ -62,40 +69,29 @@ public class XMLValidator extends DefaultHandler {
 
 
     private void addMessage(SAXParseException e, String errType) {
-        String lineNum = getLineNumber(e);
-        _errorsString.append(errType + "#" + lineNum + "# " + e.getMessage() + '\n');
+        _errorsString.append(
+                 String.format("%s#%s#%s\n", errType, getLineNumber(e), e.getMessage()));
     }
 
 
     private String getLineNumber(SAXParseException e) {
-        String fileURL = e.getSystemId();
-        if (fileURL != null) {
-            return
-                    //fileURL.substring(fileURL.lastIndexOf("/") + 1) +
-                    "[ln: " + e.getLineNumber() + " col: " + e.getColumnNumber() + "]";
-        }
-        return "";
+        return (e.getSystemId() != null) ?
+                "[ln: " + e.getLineNumber() + " col: " + e.getColumnNumber() + "]" : "";
     }
 
+    
+    public String checkSchema(URL schemaLocation, String XMLData) {
+        return (schemaLocation != null) ? checkSchema(schemaLocation.toExternalForm(), XMLData) : "";
+    }
 
-    public String checkSchema(String theSchemaAsString, String theXMLDataAsString) {
+    public String checkSchema(String schemaLocation, String XMLData) {
         _errorsString.delete(0, _errorsString.length());
         try {
-            XMLReader parser = setUpChecker(theSchemaAsString);
-
-            _tempData = new File(_tempDataFileName);
-            FileWriter fw = new FileWriter(_tempData);
-            fw.write(theXMLDataAsString);
-            fw.flush();
-            fw.close();
-
-            parser.parse(_tempData.getAbsolutePath());
-        } catch (SAXParseException e) {
-        } catch (Exception e) {
+            XMLReader parser = setUpChecker(schemaLocation);
+            parser.parse(new InputSource(new StringReader(XMLData)));
+        }
+        catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            _tempData.delete();
-            _tempSchema.delete();
         }
         return _errorsString.toString();
     }
@@ -103,24 +99,14 @@ public class XMLValidator extends DefaultHandler {
 
     /**
      * Sets the checker up for a run.
-     * @param theSchemaAsString the version of the schema
+     * @param schemaLocation the version of the schema
      * @return a reader configured to do the checking.
      * @throws SAXException
      */
-    private XMLReader setUpChecker(String theSchemaAsString) throws SAXException, IOException {
-        XMLReader parser = XMLReaderFactory.createXMLReader(
-                "org.apache.xerces.parsers.SAXParser");
-
-        _tempSchema = new File(_tempSchemaFileName);
-
-        FileWriter fw = new FileWriter(_tempSchema);
-        fw.write(theSchemaAsString);
-        fw.flush();
-        fw.close();
-        parser.setProperty("http://apache.org/xml/properties/schema/external" +
-                "-noNamespaceSchemaLocation",
-                "" + _tempSchema.toURI());
-
+    private XMLReader setUpChecker(String schemaLocation) throws SAXException, IOException {
+        XMLReader parser = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
+        parser.setProperty("http://apache.org/xml/properties/schema/external-noNamespaceSchemaLocation",
+                                        schemaLocation);
         parser.setContentHandler(this);
         parser.setErrorHandler(this);
         parser.setFeature("http://xml.org/sax/features/validation", true);
