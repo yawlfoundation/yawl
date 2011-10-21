@@ -141,7 +141,7 @@ public class PluginLoader {
      * Instantiates all the internal pluggable classes matching the parameters passed.
      * @param c the type of class to instantiate
      * @param pkg the classes package
-     * @parma category the type of class to load (eg. codelets, filters, allocators etc)
+     * @param category the type of class to load (eg. codelets, filters, allocators etc)
      * @param excludes an array of the class names to not instantiate from those found
      * @return a Set of instantiated classes, or null if there was a problem
      */
@@ -156,7 +156,7 @@ public class PluginLoader {
     /**
      * Instantiates all the external pluggable classes matching the parameters passed.
      * @param c the type of class to instantiate
-     * @parma category the type of class to load (eg. codelets, filters, allocators etc)
+     * @param category the type of class to load (eg. codelets, filters, allocators etc)
      * @return a Set of instantiated classes, or null if there was a problem
      */
     private static <T> Set<T> getExternalInstances(Class<T> c, String category) {
@@ -175,6 +175,7 @@ public class PluginLoader {
      * @param c the (base) type of class to instantiate
      * @param pkg the classes package
      * @param classNames an array of the class names to instantiate
+     * @param external true if classes are outside the default package
      * @return a Set of instantiated classes, or an empty set if there was a problem
      */
     private static <T> Set<T> getInstances(Class<T> c, String pkg,

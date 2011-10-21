@@ -83,6 +83,7 @@
     <property name="digitalSignature.app.name" value="digitalSignature"/>
     <property name="mailSender.app.name" value="mailSender"/>
     <property name="test.app.name" value="testService"/>
+    <property name="cost.app.name" value="costService"/>
     <property name="twitter.app.name" value="twitterService"/>
     <property name="mail.app.name" value="mailService"/>
     <property name="scheduling.app.name" value="schedulingService"/>
@@ -103,7 +104,7 @@
           - sml: Simple Mail Service
           - twi: Twitter Service
           - wsi: WSInvoker Service
-          - xsd: schema validation (used by serveral services)
+          - xsd: schema validation (used by several services)
     -->
     <property name="activation" value="activation.jar"/>                <!-- wsi, mss -->
     <property name="antlr" value="antlr-2.7.6.jar"/>                         <!-- hbn -->
@@ -348,6 +349,10 @@
               value="${jdom} ${xerces} ${log4j} ${twitter4j}
                      ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
 
+    <property name="webapp_cost.libs"
+               value="${jdom} ${xerces} ${log4j} ${twitter4j}
+                      ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
+
     <!--
         JAR grouping properties for compilation classpath usage
     -->
@@ -478,6 +483,7 @@
                      build_workletService.war,
                      build_resourceService.war,
                      build_monitorService.war,
+                     build_costService.war,
                      build_twitterService.war,
                      build_schedulingService.war,
                      build_digitalSignature.war,
@@ -653,6 +659,7 @@
         <delete dir="${temp.dir}/${resource.app.name}"/>
         <delete dir="${temp.dir}/${monitor.app.name}"/>
         <delete dir="${temp.dir}/${test.app.name}"/>
+        <delete dir="${temp.dir}/${cost.app.name}"/>
         <delete dir="${temp.dir}/${twitter.app.name}"/>
         <delete dir="${temp.dir}/${digitalSignature.app.name}"/>
         <delete dir="${temp.dir}/${mailSender.app.name}"/>
@@ -1437,12 +1444,15 @@
         </copy>
         <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/unmarshal">
             <fileset dir="${classes.dir}${packageRoot}/unmarshal"
-                     includes="YDecompositionParser.class"/>
+                     includes="YDecompositionParser.class XMLValidator.class"/>
             <fileset dir="${schema.dir}" includes="*.xsd"/>
         </copy>
         <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/engine">
             <fileset dir="${classes.dir}${packageRoot}/engine"/>
         </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/cost">
+              <fileset dir="${classes.dir}${packageRoot}/cost"/>
+          </copy>
         <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/schema">
             <fileset dir="${classes.dir}${packageRoot}/schema"
                      includes="XSDType.class YDataSchemaCache.class"/>
@@ -1511,6 +1521,87 @@
     </target>
 
     <target name="build_testService_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/${test.app.name}/WEB-INF/classes">
+            <fileset dir="${classes.dir}" includes="log4j.properties"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_test.libs}"/>
+        </copy>
+    </target>
+
+    <!--
+        Build the cost service WAR
+    -->
+
+    <target name="build_costService.war"
+            depends="compile, build_costService_SharedTomcat">
+
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/elements/data">
+            <fileset dir="${classes.dir}${packageRoot}/elements/data"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/elements">
+            <fileset dir="${classes.dir}${packageRoot}/elements"
+                     includes="**/*.class **/*.xsd"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/unmarshal">
+            <fileset dir="${classes.dir}${packageRoot}/unmarshal"
+                     includes="YDecompositionParser.class XMLValidator.class"/>
+            <fileset dir="${schema.dir}" includes="*.xsd"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/engine">
+            <fileset dir="${classes.dir}${packageRoot}/engine"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/cost">
+              <fileset dir="${classes.dir}${packageRoot}/cost"/>
+          </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/logging">
+            <fileset dir="${classes.dir}${packageRoot}/logging"
+                     includes="YLogPredicate.class YLogPredicateParser.class
+                               XESTimestampComparator.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/exceptions">
+            <fileset dir="${classes.dir}${packageRoot}/exceptions"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/schema">
+            <fileset dir="${classes.dir}${packageRoot}/schema"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/resourcing/rsInterface">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/rsInterface"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/resourcing">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/resourcing/resource">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/resource"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/resourcing/util"
+              file="${classes.dir}${packageRoot}/util/PasswordEncryptor.class"/>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/util">
+            <fileset dir="${classes.dir}${packageRoot}/util"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/unmarshal">
+            <fileset dir="${classes.dir}${packageRoot}/unmarshal"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/engine/interfce">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/cost">
+            <fileset dir="${classes.dir}${packageRoot}/cost"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}/graphics">
+            <fileset dir="${graphics.dir}"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}/WEB-INF">
+            <fileset file="${build.dir}/${cost.app.name}/web.xml"/>
+        </copy>
+        <jar destfile="${output.dir}/${cost.app.name}.war">
+            <fileset dir="${temp.dir}/${cost.app.name}"/>
+        </jar>
+        <delete dir="${temp.dir}/${cost.app.name}"/>
+    </target>
+
+
+    <target name="build_costService_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${test.app.name}/WEB-INF/classes">
             <fileset dir="${classes.dir}" includes="log4j.properties"/>
         </copy>
@@ -1855,6 +1946,7 @@
                      deployDigitalSignature,
                      deployMailSender,
                      deployTestService,
+                     deployCostService,
                      deployTwitterService,
                      deploySchedulingService,
                      deployNonCoreSharedLibs">
@@ -1929,6 +2021,12 @@
         </copy>
     </target>
         
+    <target name="deployCostService" depends="build_costService.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${cost.app.name}.war"/>
+        </copy>
+    </target>
+
     <target name="deployTwitterService" depends="build_twitterService.war">
         <copy todir="${webapps.dir}">
             <fileset file="${output.dir}/${twitter.app.name}.war"/>
@@ -1975,7 +2073,8 @@
                                ${webapp_monitor.libs}
                                ${webapp_twitter.libs}
                                ${webapp_scheduling.libs}
-                               ${webapp_test.libs}"/>
+                               ${webapp_test.libs}
+                               ${webapp_cost.libs}"/>
         </copy>
     </target>
 
