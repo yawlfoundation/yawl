@@ -21,8 +21,8 @@ package org.yawlfoundation.yawl.cost.data;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeIO;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Michael Adams
@@ -30,22 +30,39 @@ import java.util.List;
  */
 public class CostDriver implements XNodeIO {
 
+    private long driverID;                                // hibernate primary key
     private String id;
     private DriverMetaData metadata;
-    private List<DriverEntity> entities;
-    private List<CostType> costTypes;
+    private Set<DriverEntity> entities;
+    private Set<CostType> costTypes;
     private UnitCost unitCost;
 
 
     public CostDriver() {
-        entities = new ArrayList<DriverEntity>();
-        costTypes = new ArrayList<CostType>();
+        entities = new HashSet<DriverEntity>();
+        costTypes = new HashSet<CostType>();
     }
 
     public CostDriver(XNode node) {
         this();
         fromXNode(node);
     }
+
+
+    private long getDriverID() { return driverID; }
+
+    private void setDriverID(long id) { driverID = id; }
+    
+
+    public String getID() { return id; }
+
+
+    public UnitCost getUnitCost() { return unitCost; }
+    
+    public Set<DriverEntity> getEntities() { return entities; }
+    
+    public Set<CostType> getCostTypes() { return costTypes; }
+
 
     public String toXML() {
         return toXNode().toPrettyString();
@@ -55,8 +72,8 @@ public class CostDriver implements XNodeIO {
     public void fromXNode(XNode node) {
         id = node.getAttributeValue("id");
         metadata = new DriverMetaData(node.getChild("metadata"));
-        node.getChild("entities").populateListWithChildren(entities, new DriverEntity());
-        node.getChild("costtypes").populateListWithChildren(costTypes, new CostType());
+        node.getChild("entities").populateCollection(entities, new DriverEntity());
+        node.getChild("costtypes").populateCollection(costTypes, new CostType());
         unitCost = new UnitCost(node.getChild("unitcost"));
     }
 
@@ -64,8 +81,8 @@ public class CostDriver implements XNodeIO {
         XNode node = new XNode("driver");
         node.addAttribute("id", id);
         node.addChild(metadata.toXNode());
-        node.addChild("entities").addList(entities);
-        node.addChild("costtypes").addList(costTypes);
+        node.addChild("entities").addCollection(entities);
+        node.addChild("costtypes").addCollection(costTypes);
         node.addChild(unitCost.toXNode());
         return node;
     }

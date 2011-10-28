@@ -30,6 +30,7 @@ import org.yawlfoundation.yawl.util.XNodeParser;
  */
 public class CostType implements XNodeIO {
 
+    private long costTypeID;           // hibernate primary key
     private String type;
 
     public CostType() { }
@@ -37,6 +38,11 @@ public class CostType implements XNodeIO {
     public CostType(String unit) { setType(unit); }
 
     public CostType(XNode node) { fromXNode(node); }
+
+
+    public long getCostTypeID() { return costTypeID; }
+
+    public void setCostTypeID(long id) { costTypeID = id; }
 
 
     public String getType() { return type; }
@@ -54,7 +60,7 @@ public class CostType implements XNodeIO {
 
     public void fromXNode(XNode node) {
         if (node != null) {
-            type = node.getChildText("costtype");
+            type = node.getText();
         }
     }
 

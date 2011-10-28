@@ -19,12 +19,17 @@
 package org.yawlfoundation.yawl.cost;
 
 import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.cost.data.CostDriver;
 import org.yawlfoundation.yawl.cost.data.CostModel;
 import org.yawlfoundation.yawl.cost.data.CostModelCache;
+import org.yawlfoundation.yawl.cost.data.HibernateEngine;
+import org.yawlfoundation.yawl.cost.log.Annotator;
+import org.yawlfoundation.yawl.cost.log.CostEntry;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_Service;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_ServiceSideClient;
+import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceLogGatewayClient;
 import org.yawlfoundation.yawl.unmarshal.XMLValidator;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
@@ -33,8 +38,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -43,15 +51,46 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CostService implements InterfaceX_Service {
 
-    private Map<YSpecificationID, CostModelCache> models;
+    private Map<YSpecificationID, CostModelCache> _models;
+    private HibernateEngine _dataEngine;
     private InterfaceX_ServiceSideClient _ixClient ;    // interface client to engine
+    private ResourceLogGatewayClient _rsLogClient;
+    private String _engineLogonName;
+    private String _engineLogonPassword;
+    private static CostService INSTANCE;
     
     private Logger _log = Logger.getLogger(this.getClass());
 
-    public CostService() {
-        models = new ConcurrentHashMap<YSpecificationID, CostModelCache>();
+    private CostService() {
+        _models = new ConcurrentHashMap<YSpecificationID, CostModelCache>();
+        _dataEngine = HibernateEngine.getInstance(true);
+        restore();
     }
 
+
+    public static CostService getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new CostService();
+        }
+        return INSTANCE;
+    }
+
+
+    public void setInterfaceXBackend(String uri) {
+        _ixClient = new InterfaceX_ServiceSideClient(uri);
+    }
+
+    public void setResourceLogURI(String uri) {
+        _rsLogClient = new ResourceLogGatewayClient(uri);
+    }
+    
+    public void setEngineLogonName(String name) {
+        _engineLogonName = name;
+    }
+
+    public void setEngineLogonPassword(String password) {
+        _engineLogonPassword = password;
+    }
 
     public void importModel(String costModel) {
         importModel(new XNodeParser(true).parse(costModel));
@@ -60,19 +99,72 @@ public class CostService implements InterfaceX_Service {
 
     public void importModel(XNode costModel) {
         if (isValidModel(costModel)) {
-            addToCache(new CostModel(costModel));
+            addToCache(new CostModel(costModel), false);
         }
     }
+
+    public Set<CostModel> getModels(YSpecificationID specID) {
+        CostModelCache cache = _models.get(specID);
+        return (cache != null) ? cache.getModels() : null;
+    }
     
-    public String exportModel(CostModel model) {
+    
+    public CostModel getModel(YSpecificationID specID, String modelID) {
+        CostModelCache cache = _models.get(specID);
+        return (cache != null) ? cache.getModel(modelID) : null;
+    }
+
+
+    public boolean removeModel(YSpecificationID specID, String modelID) {
+        return removeModel(getModel(specID, modelID));
+    }
+
+
+    public boolean removeModel(CostModel model) {
+        if (model == null) return false;
+        CostModelCache cache = _models.get(model.getSpecID());
+        boolean removed = (cache != null) && cache.remove(model);
+        if (removed) {
+            _dataEngine.exec(model, HibernateEngine.DB_DELETE, true);
+        }
+        return removed;
+    }
+    
+    
+    public Set<CostModel> getModels(String specURI, String version) {
+        for (YSpecificationID specID : _models.keySet()) {
+            if (specID.getUri().equals(specURI) &&
+                    specID.getVersionAsString().equals(version)) {
+               return _models.get(specID).getModels();
+            }
+        }
         return null;
     }
     
-    public boolean removeModel(CostModel model) {
-        CostModelCache cache = models.get(model.getSpecID());
-        return (cache != null) && cache.remove(model);
-    }
     
+    public String getAnnotatedLog(YSpecificationID specID, boolean withData) {
+        if (! _models.containsKey(specID)) {
+            return "<failure>No cost models matching specification ID</failure>";
+        }
+        try {
+            String handle = _rsLogClient.connect(_engineLogonName, _engineLogonPassword);
+            String log = _rsLogClient.getMergedXESLog(specID.getIdentifier(),
+                    specID.getVersionAsString(), specID.getUri(), withData, handle);
+            if (log == null) throw new IOException();
+            Annotator annotator = new Annotator(log);
+            annotator.setSpecID(specID);
+            return annotator.annotate();
+        }
+        catch (IOException ioe) {
+            return "<failure>Could not get base log from resource service</failure>";
+        }
+        catch (IllegalStateException ise) {
+            return "<failure>" + ise.getMessage() + "</failure>";
+        }
+    }
+
+    /*********************************************************************************/
+
 
     private boolean isValidModel(XNode costModel) {
         if (costModel == null) return false;
@@ -85,48 +177,91 @@ public class CostService implements InterfaceX_Service {
     }
     
     
-    private CostModelCache addToCache(CostModel model) {
+    private CostModelCache addToCache(CostModel model, boolean restoring) {
         if (model == null) return null;
         YSpecificationID specID = model.getSpecID();
-        CostModelCache cache = models.get(specID);
+        CostModelCache cache = _models.get(specID);
         if (cache == null) {
             cache = new CostModelCache(specID);
-            models.put(specID, cache);
+            _models.put(specID, cache);
         }
-        cache.add(model);
+        if (cache.add(model) && (! restoring)) {
+            _dataEngine.exec(model, HibernateEngine.DB_INSERT, true);
+        }
         return cache;
     }
 
 
+    private void restore() {
+        List objects = _dataEngine.getObjectsForClass("CostModel");
+        if (objects != null) {
+            for (Object o : objects) {
+                addToCache((CostModel) o, true);
+            }
+        }
+    }
+
+
+    private void logItemStart(CostModelCache cache, WorkItemRecord wir, String data) {
+        for (CostDriver driver : cache.getTaskInvocationDrivers()) {
+            CostEntry entry = new CostEntry(cache.getSpecID(), wir.getID(), driver);
+            _dataEngine.exec(entry, HibernateEngine.DB_INSERT, true);
+        }
+    }
+
+
     /********************************************************************************/
+
+    // Implemented Interface Methods //
+
     public void handleCheckCaseConstraintEvent(YSpecificationID specID, String caseID,
                                                String data, boolean precheck) {
-
+        CostModelCache cache = _models.get(specID);
+//        if (cache != null) {
+//            if (precheck) {
+//                logCaseStart(cache, caseID, data);
+//            }
+//            else {
+//                logCaseEnd(cache, caseID, data);
+//            }
+//        }
     }
 
     public void handleCheckWorkItemConstraintEvent(WorkItemRecord wir, String data,
                                                    boolean precheck) {
-
-    }
-
-    public void handleWorkItemAbortException(WorkItemRecord wir) { }
-
-    public void handleTimeoutEvent(WorkItemRecord wir, String taskList) { }
-
-    public void handleResourceUnavailableException(String resourceID, WorkItemRecord wir,
-                                                   boolean primary) {
-    }
-
-    public void handleConstraintViolationException(WorkItemRecord wir) {
-
-    }
-
-    public void handleCaseCancellationEvent(String caseID) {
-
+        CostModelCache cache = _models.get(new YSpecificationID(wir));
+        if (cache != null) {
+            if (precheck) {
+                logItemStart(cache, wir, data);
+            }
+            else {
+ //               logItemEnd(cache, wir, data);
+            }
+        }
     }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
-
+        response.setContentType("text/html");
+        PrintWriter outputWriter = response.getWriter();
+        outputWriter.write(
+                "<html><head><title>YAWL Cost Service</title></head><body>" +
+                "<H3>Welcome to the YAWL Cost Service</H3></body></html>");
+        outputWriter.flush();
+        outputWriter.close();
     }
+
+
+    /****************************************************************************************/
+
+    // Unimplemented Methods //
+
+    public void handleWorkItemAbortException(WorkItemRecord wir) { }
+    public void handleTimeoutEvent(WorkItemRecord wir, String taskList) { }
+    public void handleConstraintViolationException(WorkItemRecord wir) { }
+    public void handleCaseCancellationEvent(String caseID) { }
+
+    public void handleResourceUnavailableException(String resourceID, WorkItemRecord wir,
+                                                   boolean primary) { }
+
 }

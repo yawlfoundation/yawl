@@ -61,8 +61,6 @@ public class SMSSender extends InterfaceBWebsideController implements Runnable {
     private static final String SMS_PHONENO_PARAMNAME = "SMSPhoneNumber";
     private static final String SMS_REPLYMESSAGE_PARAMNAME = "SMSReplyMessage";
 
-    private static final String _engineUser = "smsService";
-    private static final String _enginePassword = "ySMS";
 
     /**
      * Checks the work item out of the engine, sends an sms message, and
@@ -72,7 +70,7 @@ public class SMSSender extends InterfaceBWebsideController implements Runnable {
     public void handleEnabledWorkItemEvent(WorkItemRecord enabledWorkItem) {
         try {
             if (!checkConnection(_sessionHandle)) {
-                _sessionHandle = connect(_engineUser, _enginePassword);
+                _sessionHandle = connect(engineLogonName, engineLogonPassword);
             }
             if (successful(_sessionHandle)) {
                 List executingChildren = checkOutAllInstancesOfThisTask(enabledWorkItem, _sessionHandle);

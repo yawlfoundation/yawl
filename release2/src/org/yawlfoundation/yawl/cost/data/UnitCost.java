@@ -30,9 +30,9 @@ import org.yawlfoundation.yawl.util.XNodeParser;
  */
 public class UnitCost {
 
-    private enum EntityState { assigned, allocated, busy, active, inactive, suspended }
+    private enum TimeUnit { hour, minute, second, millisecond, fixed }
 
-    private String unit;
+    private TimeUnit unit;
     private CostValue costValue;
     private EntityState entityState;
 
@@ -44,17 +44,38 @@ public class UnitCost {
     protected UnitCost(XNode node) { fromXNode(node); }
 
 
-    public String getUnit() { return unit; }
+    public String getUnit() { return unit.name(); }
 
-    public void setUnit(String u) { unit = u; }
+    public void setUnit(String u) { unit = TimeUnit.valueOf(u); }
 
+
+    public EntityState getDuration() { return entityState; }
+
+
+    public CostValue getCostValue() { return costValue; }
+
+    public void setCostValue(CostValue value) { costValue = value; }
+
+
+    public double getCostPerMSec() {
+        long msecFactor = 1;
+        switch (unit) {
+            case hour   : msecFactor *= 60 ;
+            case minute : msecFactor *= 60 ;
+            case second : msecFactor *= 1000 ;
+            case millisecond : return costValue.getAmount() / msecFactor;
+            default: return costValue.getAmount();     // includes 'fixed'
+        }
+    }
 
 
     public XNode toXNode()  {
         XNode node = new XNode("unitcost");
         node.addChildren(costValue.toXNode().getChildren());
-        node.addChild("unit", unit);
-        node.addChild("state", entityState.name());
+        node.addChild("unit", unit.name());
+        if (entityState != EntityState.nil) {
+            node.addChild("state", entityState.name());
+        }
         return node;
     }
 
@@ -65,9 +86,10 @@ public class UnitCost {
 
     public void fromXNode(XNode node) {
         if (node != null) {
-            unit = node.getChildText("unit");
+            setUnit(node.getChildText("unit"));
             costValue = new CostValue(node);
-            entityState = EntityState.valueOf(node.getChildText("state"));
+            String state = node.getChildText("state");
+            entityState = (state != null) ? EntityState.valueOf(state) : EntityState.nil;
         }
     }
 

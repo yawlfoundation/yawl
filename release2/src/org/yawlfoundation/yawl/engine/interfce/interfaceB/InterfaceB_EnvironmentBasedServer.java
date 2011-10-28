@@ -87,6 +87,12 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
             String proxyPort = context.getInitParameter("ProxyPort");
             _controller.setRemoteAuthenticationDetails(
                     userName, password, proxyHost, proxyPort);
+            
+            // if there are overridden engine logon & password, set them for the service
+            String logonName = context.getInitParameter("EngineLogonUserName");
+            String logonPassword = context.getInitParameter("EngineLogonPassword");
+            if (logonName != null) _controller.setEngineLogonName(logonName);
+            if (logonPassword != null) _controller.setEngineLogonPassword(logonPassword);
 
             context.setAttribute("controller", _controller);
         }

@@ -23,19 +23,6 @@ import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.exception.JDBCConnectionException;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.resourcing.ResourceMap;
-import org.yawlfoundation.yawl.resourcing.WorkQueue;
-import org.yawlfoundation.yawl.resourcing.calendar.CalendarEntry;
-import org.yawlfoundation.yawl.resourcing.calendar.CalendarLogEntry;
-import org.yawlfoundation.yawl.resourcing.datastore.PersistedAutoTask;
-import org.yawlfoundation.yawl.resourcing.datastore.eventlog.AuditEvent;
-import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
-import org.yawlfoundation.yawl.resourcing.datastore.eventlog.SpecLog;
-import org.yawlfoundation.yawl.resourcing.resource.*;
-import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
-import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
-import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanSubCategory;
 
 import java.io.Serializable;
 import java.util.List;
@@ -65,7 +52,8 @@ public class HibernateEngine {
 
     // class references for config
     private static Class[] persistedClasses = {
-            CostDriver.class
+            CostModel.class, CostDriver.class, CostFunction.class, CostMapping.class,
+            CostType.class, DriverEntity.class, FunctionParameter.class
     };
 
 

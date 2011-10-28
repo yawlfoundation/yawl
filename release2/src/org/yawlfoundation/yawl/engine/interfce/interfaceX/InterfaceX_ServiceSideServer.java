@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Method;
 
 /**
  *  InterfaceX_ServiceSideServer passes exception event calls from the engine to the
@@ -38,8 +39,8 @@ import java.io.PrintWriter;
  *  This class is a member class of Interface X, which provides an interface
  *  between the YAWL Engine and a Custom YAWL Service that manages exception
  *  handling at the process level.
- *
- *  InterfaceB_EnvironmentBasedServer was used as a template for this class.
+ */
+/*  InterfaceB_EnvironmentBasedServer was used as a template for this class.
  *
  *  Schematic of Interface X:
  *                                          |
@@ -68,8 +69,16 @@ public class InterfaceX_ServiceSideServer extends HttpServlet {
                 context.getInitParameter("InterfaceX_Service");
         try {
             Class controllerClass = Class.forName(controllerClassName);
-            _controller = (InterfaceX_Service) controllerClass.newInstance();
-            context.setAttribute("controller", _controller);
+
+            // If the class has a getInstance() method, call that method rather than
+            // calling a constructor (& thus instantiating 2 instances of the class)
+            try {
+                Method instMethod = controllerClass.getDeclaredMethod("getInstance");
+                _controller = (InterfaceX_Service) instMethod.invoke(null);
+            }
+            catch (NoSuchMethodException nsme) {
+                _controller = (InterfaceX_Service) controllerClass.newInstance();
+            }
         }
         catch (Exception e) {
             e.printStackTrace();

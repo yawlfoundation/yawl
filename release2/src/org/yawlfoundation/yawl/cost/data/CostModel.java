@@ -22,8 +22,8 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeIO;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Michael Adams
@@ -31,17 +31,17 @@ import java.util.List;
  */
 public class CostModel implements XNodeIO {
 
-    public enum EntityType { flow, resource, data }
-
+    private long modelID;                                           // hibernate primary key
+    private String id;
     private YSpecificationID specID;
-    private List<CostMapping> mappings;
-    private List<CostDriver> drivers;
-    private List<CostFunction> functions;
+    private Set<CostMapping> mappings;
+    private Set<CostDriver> drivers;
+    private Set<CostFunction> functions;
 
     public CostModel() {
-        mappings = new ArrayList<CostMapping>();
-        drivers = new ArrayList<CostDriver>();
-        functions = new ArrayList<CostFunction>();
+        mappings = new HashSet<CostMapping>();
+        drivers = new HashSet<CostDriver>();
+        functions = new HashSet<CostFunction>();
     }
 
 
@@ -51,12 +51,26 @@ public class CostModel implements XNodeIO {
     }
 
 
+    private long getModelID() { return modelID; }
+
+    private void setModelID(long id) { modelID = id; }
+
+    
+    public String getId() { return id; }
+    
+    public void setId(String id) { this.id = id; }
+
+
     public YSpecificationID getSpecID() {
         return specID;
     }
 
     public void setSpecID(YSpecificationID specID) {
         this.specID = specID;
+    }
+
+    public Set<CostDriver> getDrivers() {
+        return drivers;
     }
 
     public void setSpecID(XNode node) {
@@ -75,33 +89,40 @@ public class CostModel implements XNodeIO {
 
 
     public void fromXNode(XNode node) {
-        setSpecID(node.getChild("specificationid"));
+        setSpecID(node.getChild("processid"));
+        id = node.getAttributeValue("id");
         XNode mappingsNode = node.getChild("mappings");
         if (mappingsNode != null) {
-            mappingsNode.populateListWithChildren(mappings, new CostMapping());
+            mappingsNode.populateCollection(mappings, new CostMapping());
         }
         XNode driversNode = node.getChild("drivers");
         if (driversNode != null) {
-            driversNode.populateListWithChildren(drivers, new CostDriver());
+            driversNode.populateCollection(drivers, new CostDriver());
         }
         XNode functionsNode = node.getChild("functions");
         if (functionsNode != null) {
-            functionsNode.populateListWithChildren(functions, new CostFunction());
+            functionsNode.populateCollection(functions, new CostFunction());
         }
     }
 
 
     public XNode toXNode() {
         XNode node = new XNode("costmodel");
-        if (specID != null) node.addContent(specID.toXML());
+        node.addAttribute("id", id);
+        if (specID != null) {
+            XNode specNode = new XNode("processid");
+            specNode.addChild("identifier", specID.getIdentifier());
+            specNode.addChild("version", specID.getVersion());
+            specNode.addChild("uri", specID.getUri());
+        }
         if (! mappings.isEmpty()) {
-            node.addChild("mappings").addList(mappings);
+            node.addChild("mappings").addCollection(mappings);
         }
         if (! drivers.isEmpty()) {
-            node.addChild("drivers").addList(drivers);
+            node.addChild("drivers").addCollection(drivers);
         }
         if (! functions.isEmpty()) {
-            node.addChild("functions").addList(functions);
+            node.addChild("functions").addCollection(functions);
         }
         return node;
     }

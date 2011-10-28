@@ -174,8 +174,6 @@ public class ResourceManager extends InterfaceBWebsideController {
     private ResourceMapCache _resMapCache = new ResourceMapCache() ;
 
     // required data members for interfacing with the engine
-    private String _engineUser = "DefaultWorklist" ;
-    private String _enginePassword = "resource" ;
     private String _engineSessionHandle = null ;
     private String _serviceURI = null;
     private String _engineURI = null;
@@ -2604,7 +2602,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                         (_engineSessionHandle.length() == 0) ||
                         (! checkConnection(_engineSessionHandle))) {
 
-                    _engineSessionHandle = connect(_engineUser, _enginePassword);
+                    _engineSessionHandle = connect(engineLogonName, engineLogonPassword);
                 }
             }
             catch (IOException ioe) {

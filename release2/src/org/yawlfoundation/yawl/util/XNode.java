@@ -208,7 +208,7 @@ public class XNode implements Comparable<XNode> {
      * @param list the list of objects to create child nodes from
      * @param <E> a type extending the XNodeIO interface
      */
-    public <E extends XNodeIO> void addList(List<E> list) {
+    public <E extends XNodeIO> void addCollection(Collection<E> list) {
         if (! ((list == null) || list.isEmpty())) {
             for (XNodeIO item : list) {
                 addChild(item.toXNode());
@@ -224,7 +224,7 @@ public class XNode implements Comparable<XNode> {
      * @param instance an instance of an E type object
      * @param <E> a type extending the XNodeIO interface
      */
-    public <E extends XNodeIO> void populateListWithChildren(List<E> list, E instance) {
+    public <E extends XNodeIO> void populateCollection(Collection<E> list, E instance) {
         for (XNode child : getChildren(ContentType.text)) {
 
             // The unchecked warning can be validly suppressed, because

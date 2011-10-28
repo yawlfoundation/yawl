@@ -43,10 +43,6 @@ public class MailService extends InterfaceBWebsideController {
     private String _handle = null;
 
     private static MailService _instance;
-
-    private final String _engineUser = "mailService";
-    private final String _enginePassword = "yMail";
-
     private MailSettings _defaults = new MailSettings();
 
 
@@ -62,7 +58,7 @@ public class MailService extends InterfaceBWebsideController {
         try {
 
             // connect only if not already connected
-            if (! connected()) _handle = connect(_engineUser, _enginePassword);
+            if (! connected()) _handle = connect(engineLogonName, engineLogonPassword);
 
             // checkout ... process ... checkin
             wir = checkOut(wir.getID(), _handle);

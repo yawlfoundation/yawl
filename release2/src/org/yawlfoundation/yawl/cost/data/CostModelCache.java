@@ -20,8 +20,8 @@ package org.yawlfoundation.yawl.cost.data;
 
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Michael Adams
@@ -29,11 +29,11 @@ import java.util.List;
  */
 public class CostModelCache {
 
-    private List<CostModel> models;
+    private Set<CostModel> models;
     private YSpecificationID specID;
 
-    public CostModelCache() { 
-        models = new ArrayList<CostModel>();
+    private CostModelCache() {
+        models = new HashSet<CostModel>();
     }
     
     public CostModelCache(YSpecificationID specID) {
@@ -50,11 +50,11 @@ public class CostModelCache {
     }
 
 
-    public List<CostModel> getModels() {
+    public Set<CostModel> getModels() {
         return models;
     }
 
-    public void setModels(List<CostModel> models) {
+    public void setModels(Set<CostModel> models) {
         this.models = models;
     }
 
@@ -65,6 +65,27 @@ public class CostModelCache {
 
     public boolean remove(CostModel model) {
         return models.remove(model);
+    }
+    
+    
+    public CostModel getModel(String modelID) {
+        for (CostModel model : models) {
+            if (model.getId().equals(modelID)) return model;
+        }
+        return null;
+    }
+    
+    
+    public Set<CostDriver> getTaskInvocationDrivers() {
+        Set<CostDriver> drivers = new HashSet<CostDriver>();
+        for (CostModel model : models) {
+            for (CostDriver driver : model.getDrivers()) {
+                if (driver.getUnitCost().getUnit().equals("invocation")) {
+                    drivers.add(driver);
+                }
+            }
+        }
+        return drivers;
     }
 
 }

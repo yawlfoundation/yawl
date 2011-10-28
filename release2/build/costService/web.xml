@@ -29,6 +29,45 @@
         The YAWL Cost Service calculates and logs the costs associated with process executions
     </description>
 
+    <context-param>
+        <param-name>InterfaceX_Service</param-name>
+        <param-value>org.yawlfoundation.yawl.cost.CostService</param-value>
+        <description>
+            The class name of the Interface X Service implementation.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>InterfaceX_BackEnd</param-name>
+        <param-value>http://localhost:8080/yawl/ix</param-value>
+        <description>
+            The URL of the engine's interface X.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>ResourceServiceLogGateway</param-name>
+        <param-value>http://localhost:8080/resourceService/logGateway</param-value>
+        <description>
+            The URL of the resource service's log interface.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>EngineLogonUserName</param-name>
+        <param-value>costService</param-value>
+        <description>
+            The name of the logon used by the service to connect with the engine.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>EngineLogonPassword</param-name>
+        <param-value>yCost</param-value>
+        <description>
+            The password for the logon used by the service to connect with the engine.
+        </description>
+    </context-param>
 
     <!--CharsetFilter -->
 
@@ -48,16 +87,32 @@
 
 
     <servlet>
-        <servlet-name>costService</servlet-name>
+        <servlet-name>costGateway</servlet-name>
         <servlet-class>
             org.yawlfoundation.yawl.cost.CostGateway
         </servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
 
+    <servlet>
+          <servlet-name>InterfaceX_Servlet</servlet-name>
+          <description>
+              Listens to notification of exceptions from the engine.
+          </description>
+          <servlet-class>
+              org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_ServiceSideServer
+          </servlet-class>
+          <load-on-startup>1</load-on-startup>
+    </servlet>
+
     <servlet-mapping>
-        <servlet-name>costService</servlet-name>
-        <url-pattern>/</url-pattern>
+        <servlet-name>costGateway</servlet-name>
+        <url-pattern>/gateway</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>InterfaceX_Servlet</servlet-name>
+        <url-pattern>/ix</url-pattern>
     </servlet-mapping>
 
 </web-app>

@@ -30,28 +30,26 @@ import java.util.List;
  */
 public class CostFunction implements XNodeIO {
 
-    String name;
-    String description;
-    String expression;
-    String returnType;
-    List<Parameter> parameters;
+    private long functionID;                    // hibernate primary key
+    private String name;
+    private String description;
+    private String expression;
+    private String returnType;
+    List<FunctionParameter> parameters;
 
-
-    class Parameter {
-        String key;
-        String type;
-        
-        Parameter(String k, String t) { key = k; type = t; } 
-    }
 
     public CostFunction() {
-        parameters = new ArrayList<Parameter>();
+        parameters = new ArrayList<FunctionParameter>();
     }
 
     public CostFunction(XNode node) {
         this();
         fromXNode(node);
     }
+
+    private  long getFunctionID() { return functionID; }
+
+    private  void setFunctionID(long id) { functionID = id; }
 
     public String toXML() {
         return toXNode().toPrettyString();
@@ -64,7 +62,7 @@ public class CostFunction implements XNodeIO {
         expression = node.getChildText("expression");
         returnType = node.getChildText("returnType");
         for (XNode pNode : node.getChild("parameters").getChildren(XNode.ContentType.text)) {
-             parameters.add(new Parameter(pNode.getAttributeValue("key"),
+             parameters.add(new FunctionParameter(pNode.getAttributeValue("key"),
                      pNode.getAttributeValue("type")));
         }
     }
@@ -77,7 +75,7 @@ public class CostFunction implements XNodeIO {
         node.addChild("expression", expression);
         node.addChild("returnType", returnType);
         XNode pNode = node.addChild("parameters");
-        for (Parameter p : parameters) {
+        for (FunctionParameter p : parameters) {
             XNode item = pNode.addChild("parameter");
             item.addAttribute("key", p.key);
             item.addAttribute("type", p.type);           

@@ -51,6 +51,21 @@
         </description>
     </context-param>
 
+    <context-param>
+        <param-name>EngineLogonUserName</param-name>
+        <param-value>mailService</param-value>
+        <description>
+            The name of the logon used by the service to connect with the engine.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>EngineLogonPassword</param-name>
+        <param-value>yMail</param-value>
+        <description>
+            The password for the logon used by the service to connect with the engine.
+        </description>
+    </context-param>
 
     <context-param>
         <param-name>host</param-name>

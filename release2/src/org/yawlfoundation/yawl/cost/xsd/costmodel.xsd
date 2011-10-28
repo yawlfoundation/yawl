@@ -21,23 +21,17 @@
     -->
 
     <xs:include schemaLocation="costinput.xsd"/>
+    <xs:include schemaLocation="costprocess.xsd"/>
 
     <xs:element name="costmodel">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="specificationid">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="identifier" type="xs:ID"/>
-                            <xs:element name="version" type="xs:double"/>
-                            <xs:element name="uri" type="xs:string"/>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
+                <xs:element ref="processid"/>
                 <xs:element ref="mappings" minOccurs="0"/>
                 <xs:element ref="drivers" minOccurs="0"/>
                 <xs:element ref="functions" minOccurs="0"/>
             </xs:sequence>
+            <xs:attribute name="id" type="xs:ID"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="mappings">
@@ -50,139 +44,14 @@
     <xs:element name="mapping">
         <xs:complexType>
             <xs:sequence>
-                <xs:element ref="identifier" minOccurs="2" maxOccurs="2"/>
+                <xs:element name="cost" type="mappingElementType"/>
+                <xs:element name="workflow" type="mappingElementType"/>
             </xs:sequence>
             <xs:attribute ref="perspective"/>
         </xs:complexType>
     </xs:element>
-    <xs:element name="identifier">
-        <xs:complexType>
-            <xs:attribute name="id" type="xs:ID"/>
-            <xs:attribute name="type" use="required">
-                <xs:simpleType>
-                    <xs:restriction base="xs:string">
-                        <xs:enumeration value="cost"/>
-                        <xs:enumeration value="workflow"/>
-                    </xs:restriction>
-                </xs:simpleType>
-            </xs:attribute>
-            <xs:attribute name="name" type="xs:string" use="required"/>
-        </xs:complexType>
-    </xs:element>
-    <!--<xs:element name="drivers">-->
-        <!--<xs:complexType>-->
-            <!--<xs:sequence>-->
-                <!--<xs:element name="driver" minOccurs="0" maxOccurs="unbounded">-->
-                    <!--<xs:complexType>-->
-                        <!--<xs:sequence>-->
-                            <!--<xs:element ref="metadata"/>-->
-                            <!--<xs:element ref="entities"/>-->
-                            <!--<xs:element ref="costtypes"/>-->
-                            <!--<xs:element ref="unitcost"/>-->
-                        <!--</xs:sequence>-->
-                        <!--<xs:attribute name="id" type="xs:ID"/>-->
-                    <!--</xs:complexType>-->
-                <!--</xs:element>-->
-            <!--</xs:sequence>-->
-        <!--</xs:complexType>-->
-    <!--</xs:element>-->
-    <!--<xs:element name="metadata">-->
-        <!--<xs:complexType>-->
-            <!--<xs:sequence>-->
-                <!--<xs:element name="name" type="xs:string"/>-->
-                <!--<xs:element name="description" type="xs:string"/>-->
-                <!--<xs:element name="type" type="xs:string"/>-->
-            <!--</xs:sequence>-->
-        <!--</xs:complexType>-->
-    <!--</xs:element>-->
-    <!--<xs:element name="entities">-->
-        <!--<xs:complexType>-->
-            <!--<xs:sequence>-->
-                <!--<xs:element name="entity" maxOccurs="unbounded">-->
-                    <!--<xs:complexType>-->
-                        <!--<xs:sequence>-->
-                            <!--<xs:element name="name" type="xs:string"/>-->
-                            <!--<xs:element name="value" type="xs:string" minOccurs="0"/>-->
-                        <!--</xs:sequence>-->
-                        <!--<xs:attribute name="id" type="xs:ID"/>-->
-                        <!--<xs:attribute ref="perspective" use="required"/>-->
-                    <!--</xs:complexType>-->
-                <!--</xs:element>-->
-            <!--</xs:sequence>-->
-        <!--</xs:complexType>-->
-    <!--</xs:element>-->
-    <!--<xs:element name="costtypes">-->
-        <!--<xs:complexType>-->
-            <!--<xs:sequence>-->
-                <!--<xs:element name="costtype" type="xs:string" maxOccurs="unbounded"/>-->
-            <!--</xs:sequence>-->
-        <!--</xs:complexType>-->
-    <!--</xs:element>-->
-    <!--<xs:element name="unitcost">-->
-        <!--<xs:complexType>-->
-            <!--<xs:sequence>-->
-                <!--<xs:element name="amount" type="xs:string"/>-->
-                <!--<xs:element name="currency" type="xs:string"/>-->
-                <!--<xs:element name="unit">-->
-                    <!--<xs:simpleType>-->
-                        <!--<xs:restriction base="xs:string">-->
-                            <!--<xs:enumeration value="minute"/>-->
-                            <!--<xs:enumeration value="hour"/>-->
-                            <!--<xs:enumeration value="invocation"/>-->
-                        <!--</xs:restriction>-->
-                    <!--</xs:simpleType>-->
-                <!--</xs:element>-->
-                <!--<xs:element name="state">-->
-                    <!--<xs:simpleType>-->
-                        <!--<xs:restriction base="xs:string">-->
-                            <!--<xs:enumeration value="suspended"/>-->
-                            <!--<xs:enumeration value="waiting"/>-->
-                            <!--<xs:enumeration value="busy"/>-->
-                            <!--<xs:enumeration value="assigned"/>-->
-                            <!--<xs:enumeration value="allocated"/>-->
-                            <!--<xs:enumeration value="working"/>-->
-                        <!--</xs:restriction>-->
-                    <!--</xs:simpleType>-->
-                <!--</xs:element>-->
-            <!--</xs:sequence>-->
-        <!--</xs:complexType>-->
-    <!--</xs:element>-->
-    <!--<xs:attribute name="perspective">-->
-        <!--<xs:simpleType>-->
-            <!--<xs:restriction base="xs:string">-->
-                <!--<xs:enumeration value="flow"/>-->
-                <!--<xs:enumeration value="resource"/>-->
-                <!--<xs:enumeration value="data"/>-->
-            <!--</xs:restriction>-->
-        <!--</xs:simpleType>-->
-    <!--</xs:attribute>-->
-    <!--<xs:element name="functions">-->
-        <!--<xs:complexType>-->
-            <!--<xs:sequence>-->
-                <!--<xs:element name="function" minOccurs="0" maxOccurs="unbounded">-->
-                    <!--<xs:complexType>-->
-                        <!--<xs:sequence>-->
-                            <!--<xs:element name="name" type="xs:string"/>-->
-                            <!--<xs:element name="description" type="xs:string"/>-->
-                            <!--<xs:element name="expression" type="xs:string"/>-->
-                            <!--<xs:element name="returnType" type="xs:string"/>-->
-                            <!--<xs:element ref="parameters"/>-->
-                        <!--</xs:sequence>-->
-                    <!--</xs:complexType>-->
-                <!--</xs:element>-->
-            <!--</xs:sequence>-->
-        <!--</xs:complexType>-->
-    <!--</xs:element>-->
-    <!--<xs:element name="parameters">-->
-        <!--<xs:complexType>-->
-            <!--<xs:sequence>-->
-                <!--<xs:element name="parameter" maxOccurs="unbounded">-->
-                    <!--<xs:complexType>-->
-                        <!--<xs:attribute name="key" type="xs:string" use="required"/>-->
-                        <!--<xs:attribute name="type" type="xs:string" use="required"/>-->
-                    <!--</xs:complexType>-->
-                <!--</xs:element>-->
-            <!--</xs:sequence>-->
-        <!--</xs:complexType>-->
-    <!--</xs:element>-->
+    <xs:complexType name="mappingElementType">
+        <xs:attribute name="id" type="xs:ID"/>
+        <xs:attribute name="term" type="xs:string" use="required"/>
+    </xs:complexType>
 </xs:schema>

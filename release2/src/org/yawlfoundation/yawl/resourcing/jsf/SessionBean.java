@@ -712,7 +712,7 @@ public class SessionBean extends AbstractSessionBean {
             try {
                 dispatchToActivePage();
             }
-            catch (IOException ioe) {
+            catch (Exception e) {
 
                 // could not redirect, so end session and start a new one
                 doLogout();
