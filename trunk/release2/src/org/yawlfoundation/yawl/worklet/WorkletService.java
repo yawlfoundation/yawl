@@ -128,8 +128,6 @@ public class WorkletService extends InterfaceBWebsideController {
 
 
     // required data for interfacing with the engine
-    protected String _engineUser = "workletService" ;
-    protected String _enginePassword = "yWorklet" ;
     protected String _sessionHandle = null ;
     protected String _engineURI ; 
     protected String _workletURI = null ;
@@ -1717,7 +1715,7 @@ public class WorkletService extends InterfaceBWebsideController {
         try {
             // if not connected
              if ((_sessionHandle == null) || (!checkConnection(_sessionHandle)))
-                _sessionHandle = connect(_engineUser, _enginePassword);
+                _sessionHandle = connect(engineLogonName, engineLogonPassword);
         }
         catch (IOException ioe) {
              _log.error("Exception attempting to connect to engine", ioe);

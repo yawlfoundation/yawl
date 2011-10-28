@@ -109,14 +109,14 @@
     <!--</context-param>-->
 
 
-    <!--<context-param>-->
-        <!--<param-name>InterfaceXListener</param-name>-->
-        <!--<param-value>http://localhost:8080/workletService/ix</param-value>-->
-        <!--<description>-->
-            <!--This value provides the URI of an Interface X listening service.-->
-            <!--Multiple uris can be specified, separated by semi-colons ';'-->
-        <!--</description>-->
-    <!--</context-param>-->
+    <context-param>
+        <param-name>InterfaceXListener</param-name>
+        <param-value>http://localhost:8080/costService/ix</param-value>
+        <description>
+            This value provides the URI of an Interface X listening service.
+            Multiple uris can be specified, separated by semi-colons ';'
+        </description>
+    </context-param>
 
     <!--CharsetFilter -->
 

@@ -60,8 +60,8 @@ public abstract class InterfaceBWebsideController {
     protected static final String XSD_NCNAME_TYPE = "NCName";
     protected static final String XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema";
 
-    protected static final String DEFAULT_ENGINE_USERNAME = "admin";
-    protected static final String DEFAULT_ENGINE_PASSWORD = "YAWL";
+    protected String engineLogonName = "admin";
+    protected String engineLogonPassword = "YAWL";
     protected Category _logger = Logger.getLogger(getClass());
     protected SAXBuilder _builder = new SAXBuilder();
 
@@ -203,6 +203,16 @@ public abstract class InterfaceBWebsideController {
     public void setRemoteAuthenticationDetails(String userName, String password,
                                                String httpProxyHost, String proxyPort) {
         _authConfig4WS.setProxyAuthentication(userName, password, httpProxyHost, proxyPort);
+    }
+
+
+    protected void setEngineLogonName(String logonName) {
+        engineLogonName = logonName;
+    }
+
+
+    protected void setEngineLogonPassword(String logonPassword) {
+        engineLogonPassword = logonPassword;
     }
 
 

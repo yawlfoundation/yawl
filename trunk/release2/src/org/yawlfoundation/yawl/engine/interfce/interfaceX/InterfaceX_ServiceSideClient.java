@@ -61,7 +61,7 @@ public class InterfaceX_ServiceSideClient extends Interface_Client {
      * Constructor.
      * @param backEndURIStr the back end uri of where to find
      * the engine.  A default deployment this value is
-     * http://localhost:8080/yawl/ib
+     * http://localhost:8080/yawl/ix
      */
     public InterfaceX_ServiceSideClient(String backEndURIStr) {
         _backEndURIStr = backEndURIStr;

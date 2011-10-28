@@ -22,11 +22,9 @@ import org.yawlfoundation.yawl.util.XNode;
 
 public class MappingIdentifier {
 
-    public enum IdType { cost, workflow }
-
     String id;
-    IdType type;
-    String name;
+    MappingIdType type;
+    String term;
 
     public MappingIdentifier() { }
 
@@ -38,27 +36,26 @@ public class MappingIdentifier {
 
     public void setId(String id) { this.id = id; }
 
-    public IdType getType() { return type; }
+    public MappingIdType getType() { return type; }
 
-    public void setType(IdType type) { this.type = type; }
+    public void setType(MappingIdType type) { this.type = type; }
 
-    public String getName() { return name; }
+    public String getTerm() { return term; }
 
-    public void setName(String name) { this.name = name; }
+    public void setTerm(String name) { this.term = name; }
 
 
     public XNode toXNode() {
-        XNode node = new XNode("identifier");
+        XNode node = new XNode(type.name());
         node.addAttribute("id", id);
-        node.addAttribute("type", type.name());
-        node.addAttribute("name", name);
+        node.addAttribute("term", term);
         return node;
     }
 
 
     public void fromXNode(XNode node) {
+        type = MappingIdType.valueOf(node.getName());
         id = node.getAttributeValue("id");
-        type = IdType.valueOf(node.getAttributeValue("type"));
-        name = node.getAttributeValue("name");
+        term = node.getAttributeValue("term");
     }
 }

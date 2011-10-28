@@ -26,23 +26,6 @@
         http://www.yawl-system.com.
     </description>
 
-    <!-- Context initialization parameters that define shared
-         String constants used within your application, which
-         can be customized by the system administrator who is
-         installing your application.  The values actually
-         assigned to these parameters can be retrieved in a
-         servlet or JSP page by calling:
-
-             String value =
-               getServletContext().getInitParameter("name");
-
-         where "name" matches the <param-name> element of
-         one of these initialization parameters.
-
-         You can define any number of context initialization
-         parameters, including zero.
-    -->
-
     <context-param>
         <param-name>InterfaceB_BackEnd</param-name>
         <param-value>http://localhost:8080/yawl/ib</param-value>
@@ -56,6 +39,22 @@
         <param-value>org.yawlfoundation.yawl.wsif.WSIFController</param-value>
         <description>
             The class name of the Interface B Server implementation.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>EngineLogonUserName</param-name>
+        <param-value>wsInvokerService</param-value>
+        <description>
+            The name of the logon used by the service to connect with the engine.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>EngineLogonPassword</param-name>
+        <param-value>yWSInvoker</param-value>
+        <description>
+            The password for the logon used by the service to connect with the engine.
         </description>
     </context-param>
 

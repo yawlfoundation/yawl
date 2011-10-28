@@ -25,22 +25,6 @@
         http://www.citi.qut.edu.au/yawl.
     </description>
 
-    <!-- Context initialization parameters that define shared
-         String constants used within your application, which
-         can be customized by the system administrator who is
-         installing your application.  The values actually
-         assigned to these parameters can be retrieved in a
-         servlet or JSP page by calling:
-
-             String value =
-               getServletContext().getInitParameter("name");
-
-         where "name" matches the <param-name> element of
-         one of these initialization parameters.
-
-         You can define any number of context initialization
-         parameters, including zero.
-    -->
 
     <context-param>
         <param-name>InterfaceB_BackEnd</param-name>
@@ -71,6 +55,22 @@
         <param-value>https://www.valuesms.com/rcv.php</param-value>
         <description>
             The URI of the sms provider service.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>EngineLogonUserName</param-name>
+        <param-value>smsService</param-value>
+        <description>
+            The name of the logon used by the service to connect with the engine.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>EngineLogonPassword</param-name>
+        <param-value>ySMS</param-value>
+        <description>
+            The password for the logon used by the service to connect with the engine.
         </description>
     </context-param>
 

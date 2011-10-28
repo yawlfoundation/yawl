@@ -25,17 +25,23 @@ import org.yawlfoundation.yawl.util.XNodeIO;
 * @author Michael Adams
 * @date 14/10/11
 */
-class DriverEntity implements XNodeIO {
+public class DriverEntity implements XNodeIO {
 
-    String id;
-    CostModel.EntityType entityType;
-    String name;
-    String value;        // data entity only
+    private long entityID;           // hibernate primary key
+    private String id;
+    private EntityType entityType;
+    private String name;
+    private String value;        // data entity only
     
     
     public DriverEntity() { }
     
     public DriverEntity(XNode node) { fromXNode(node); }
+
+
+    public long getEntityID() { return entityID; }
+
+    public void setEntityID(long id) { entityID = id;}
 
 
     public String getId() {
@@ -46,11 +52,11 @@ class DriverEntity implements XNodeIO {
         this.id = id;
     }
 
-    public CostModel.EntityType getEntityType() {
+    public EntityType getEntityType() {
         return entityType;
     }
 
-    public void setEntityType(CostModel.EntityType entityType) {
+    public void setEntityType(EntityType entityType) {
         this.entityType = entityType;
     }
 
@@ -72,7 +78,7 @@ class DriverEntity implements XNodeIO {
 
     public void fromXNode(XNode node) {
         id = node.getAttributeValue("id");
-        entityType = CostModel.EntityType.valueOf(node.getAttributeValue("perspective"));
+        entityType = EntityType.valueOf(node.getAttributeValue("perspective"));
         name = node.getChildText("name");
         value = node.getChildText("value");
     }

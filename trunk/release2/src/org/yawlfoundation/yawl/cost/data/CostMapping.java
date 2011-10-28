@@ -21,17 +21,16 @@ package org.yawlfoundation.yawl.cost.data;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeIO;
 
-import java.util.List;
-
 /**
  * @author Michael Adams
  * @date 3/10/11
  */
 public class CostMapping implements XNodeIO {
 
-    private MappingIdentifier left;
-    private MappingIdentifier right;
-    private CostModel.EntityType mappingType;
+    private long mappingID;                                        // hibernate primary key
+    private MappingIdentifier cost;
+    private MappingIdentifier workflow;
+    private EntityType mappingType;
 
     public CostMapping() { }
 
@@ -41,23 +40,27 @@ public class CostMapping implements XNodeIO {
     }
 
 
+    private long getMappingID() { return mappingID; }
+
+    private void setMappingID(long id) { mappingID = id; }
+
+
     public String toXML() {
         return toXNode().toPrettyString();
     }
 
 
     public void fromXNode(XNode node) {
-        List<XNode> idNodes = node.getChildren("identifier");
-        left = new MappingIdentifier(idNodes.get(0));
-        right = new MappingIdentifier(idNodes.get(1));
-        mappingType = CostModel.EntityType.valueOf(node.getAttributeValue("perspective"));
+        cost = new MappingIdentifier(node.getChild("cost"));
+        workflow = new MappingIdentifier(node.getChild("workflow"));
+        mappingType = EntityType.valueOf(node.getAttributeValue("perspective"));
     }
 
 
     public XNode toXNode() {
         XNode node = new XNode("mapping");
-        node.addChild(left.toXNode());
-        node.addChild(right.toXNode());
+        node.addChild(cost.toXNode());
+        node.addChild(workflow.toXNode());
         node.addAttribute("perspective", mappingType.name());
         return node;
     }

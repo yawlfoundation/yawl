@@ -43,6 +43,22 @@
     </context-param>
 
     <context-param>
+        <param-name>EngineLogonUserName</param-name>
+        <param-value>workletService</param-value>
+        <description>
+            The name of the logon used by the service to connect with the engine.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>EngineLogonPassword</param-name>
+        <param-value>yWorklet</param-value>
+        <description>
+            The password for the logon used by the service to connect with the engine.
+        </description>
+    </context-param>
+
+    <context-param>
         <param-name>UserName</param-name>
         <param-value></param-value>
         <description>
@@ -101,7 +117,7 @@
 
     <context-param>
         <param-name>EnableExceptionHandling</param-name>
-        <param-value>true</param-value>
+        <param-value>false</param-value>
         <description>
             'true' to enable exception handling functionality
             'false' to disable

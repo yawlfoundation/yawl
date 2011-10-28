@@ -110,7 +110,7 @@ public class YIdentifier {
         descendants.add(this);
 
         for (YIdentifier child : _children) {
-            descendants.addAll(child.getDescendants());
+            if (child != null) descendants.addAll(child.getDescendants());
         }
         return descendants;
     }

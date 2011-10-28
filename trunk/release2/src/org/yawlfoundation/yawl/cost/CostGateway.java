@@ -40,6 +40,7 @@ import java.io.PrintWriter;
 
 public class CostGateway extends HttpServlet {
 
+    private CostService _service;
     private static final Logger _log = Logger.getLogger(CostGateway.class);
 
 
@@ -47,7 +48,17 @@ public class CostGateway extends HttpServlet {
     public void init() {
         try {
             ServletContext context = getServletContext();
+            _service = CostService.getInstance();
+
             // load and process init params from web.xml
+            String ixURI = context.getInitParameter("InterfaceX_BackEnd");
+            if (ixURI != null) _service.setInterfaceXBackend(ixURI);
+            
+            String rsLogURI = context.getInitParameter("ResourceServiceLogGateway");
+            if (rsLogURI != null) _service.setResourceLogURI(rsLogURI);
+
+            _service.setEngineLogonName(context.getInitParameter("EngineLogonUserName"));
+            _service.setEngineLogonPassword(context.getInitParameter("EngineLogonPassword"));
         }
         catch (Exception e) {
             _log.error("Cost Service Initialisation Exception", e);
@@ -71,7 +82,15 @@ public class CostGateway extends HttpServlet {
         String taskID = req.getParameter("taskid");
         String result = null;
 
-        if (action.equals("getFunctionList")) {
+        if (action.equals("importModel")) {
+            _service.importModel(req.getParameter("model"));
+            result = "SUCCESS";
+        }
+        else if (action.equals("getAnnotatedLog")) {
+            boolean withData = req.getParameter("withData").equalsIgnoreCase("true");
+            result = _service.getAnnotatedLog(specID, withData);
+        }
+        else if (action.equals("getFunctionList")) {
             result = getFunctionList(specID, taskID);
         }
         else if (action.equals("getFixedCosts")) {

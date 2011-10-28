@@ -212,7 +212,6 @@ public class YXESBuilder {
         eventNode.addChild(stringNode("lifecycle:transition",
                 translateEvent(yawlEvent.getChildText("descriptor"))));
         eventNode.addChild(stringNode("lifecycle:instance", instanceID));
-//        addDataEvents(yawlEvent.getChild("dataItems"), eventNode);
         return eventNode;
     }
 

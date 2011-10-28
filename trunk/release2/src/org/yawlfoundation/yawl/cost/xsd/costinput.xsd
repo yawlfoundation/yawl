@@ -85,9 +85,11 @@
                 <xs:element name="unit">
                     <xs:simpleType>
                         <xs:restriction base="xs:string">
-                            <xs:enumeration value="minute"/>
                             <xs:enumeration value="hour"/>
-                            <xs:enumeration value="invocation"/>
+                            <xs:enumeration value="minute"/>
+                            <xs:enumeration value="second"/>
+                            <xs:enumeration value="millisecond"/>
+                            <xs:enumeration value="fixed"/>
                         </xs:restriction>
                     </xs:simpleType>
                 </xs:element>
@@ -109,7 +111,7 @@
     <xs:attribute name="perspective">
         <xs:simpleType>
             <xs:restriction base="xs:string">
-                <xs:enumeration value="flow"/>
+                <xs:enumeration value="task"/>
                 <xs:enumeration value="resource"/>
                 <xs:enumeration value="data"/>
             </xs:restriction>

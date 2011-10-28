@@ -40,14 +40,11 @@ public class TwitterService extends InterfaceBWebsideController {
     // holds a session handle to the engine
     private String _handle = null;
 
-    private final String _engineUser = "twitterService";
-    private final String _enginePassword = "yTwitter";
-
     public void handleEnabledWorkItemEvent(WorkItemRecord wir) {
         try {
 
             // connect only if not already connected
-            if (! connected()) _handle = connect(_engineUser, _enginePassword);
+            if (! connected()) _handle = connect(engineLogonName, engineLogonPassword);
 
             // checkout ... process ... checkin
             wir = checkOut(wir.getID(), _handle);

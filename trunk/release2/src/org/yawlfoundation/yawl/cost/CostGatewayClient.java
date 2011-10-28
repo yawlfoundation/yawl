@@ -67,6 +67,23 @@ public class CostGatewayClient extends Interface_Client {
 
     /*******************************************************************************/
 
+    public String importModel(String modelXML) throws IOException {
+        Map<String, String> params = prepareParamMap("importModel", null);
+        params.put("model", modelXML);
+        return executePost(_costURI, params);
+    }
+
+
+    public String getAnnotatedLog(YSpecificationID specID, boolean withData) throws IOException {
+        Map<String, String> params = prepareParamMap("getAnnotatedLog", null);
+        params.putAll(specID.toMap());
+        params.put("withData", String.valueOf(withData));
+        return executePost(_costURI, params);
+    }
+
+
+
+  
     /**
      * Gets an XML list of all cost functions for the specified specification - task
      * combination.
