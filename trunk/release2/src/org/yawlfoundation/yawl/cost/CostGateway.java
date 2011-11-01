@@ -156,10 +156,10 @@ public class CostGateway extends HttpServlet {
 
 
     private YSpecificationID constructSpecID(HttpServletRequest req) {
-        String version = req.getParameter("version") ;
-        String uri = req.getParameter("uri") ;
+        String version = req.getParameter("specversion") ;
+        String uri = req.getParameter("specuri") ;
         if ((uri != null) && (version != null)) {
-            String identifier = req.getParameter("identifier") ;
+            String identifier = req.getParameter("specidentifier") ;
             return new YSpecificationID(identifier, version, uri);
         }
         else return null;

@@ -3061,7 +3061,8 @@ public class ResourceManager extends InterfaceBWebsideController {
     public String addExternalClient(YExternalClient client) throws IOException {
         String result = _interfaceAClient.addClientAccount(client, getEngineSessionHandle());
         if (successful(result)) {
-            _connections.addUser(client.getUserName(), client.getPassword());
+            _connections.addUser(client.getUserName(),
+                    PasswordEncryptor.encrypt(client.getPassword(), ""));
         }
         return result;
     }

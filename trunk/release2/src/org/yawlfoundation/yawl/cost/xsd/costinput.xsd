@@ -96,12 +96,12 @@
                 <xs:element name="state">
                     <xs:simpleType>
                         <xs:restriction base="xs:string">
-                            <xs:enumeration value="suspended"/>
-                            <xs:enumeration value="waiting"/>
-                            <xs:enumeration value="busy"/>
                             <xs:enumeration value="assigned"/>
                             <xs:enumeration value="allocated"/>
-                            <xs:enumeration value="working"/>
+                            <xs:enumeration value="busy"/>
+                            <xs:enumeration value="active"/>
+                            <xs:enumeration value="inactive"/>
+                            <xs:enumeration value="suspended"/>
                         </xs:restriction>
                     </xs:simpleType>
                 </xs:element>

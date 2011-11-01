@@ -46,6 +46,7 @@ public class Annotator {
     }
     
     public Annotator(String unannotatedLog) {
+        this();
         setUnannotatedLog(unannotatedLog);
     }
 
@@ -81,17 +82,17 @@ public class Annotator {
     private String annotate(XNode head) {
         Set<CostModel> models = getModelsForLog(head);
         if (models != null) {
+            DriverMatrix driverMatrix = new DriverMatrix(models);
             for (XNode traceNode : head.getChildren("trace")) {   // each trace = one case
-                annotate(traceNode, models);
+                annotate(traceNode, driverMatrix);
             }
-            head.insertComment(2, "then annotated with cost information by the Cost Service");
+            head.insertComment(2, "and then annotated with cost information by the Cost Service");
         }
         return head.toPrettyString(true);
     }
     
     
-    private void annotate(XNode trace, Set<CostModel> models) {
-        DriverMatrix driverMatrix = new DriverMatrix(models);
+    private void annotate(XNode trace, DriverMatrix driverMatrix) {
         for (XNode eventNode : trace.getChildren("event")) {
             UnbundledEvent unbundled = new UnbundledEvent(eventNode);
             if (unbundled.transition.equals("unknown")) continue;         // ignore
@@ -116,7 +117,8 @@ public class Annotator {
             drivers.addAll(driverMatrix.resourceMap.get(unbundled.resource));
         }
         for (String dataName : unbundled.getDataMap().keySet()) {
-            drivers.addAll(driverMatrix.dataMap.get(dataName));
+            Set<CostDriver> dataDrivers = driverMatrix.dataMap.get(dataName);
+            if (dataDrivers != null) drivers.addAll(dataDrivers);
         }
         evaluateDrivers(unbundled, drivers, timings);
         timings.processed = true;
@@ -298,8 +300,11 @@ public class Annotator {
         }
         
         String getKey() {
-            String id = isPreStart() ? instance : instance.substring(0,
-                    instance.lastIndexOf('.'));
+            String id = instance;
+            if (! isPreStart()) {
+                int pos = instance.lastIndexOf('.');
+                if (pos > -1) id = instance.substring(0, pos);
+            }
             return id + ":" + name;
         }
 
