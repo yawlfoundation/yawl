@@ -121,8 +121,11 @@ public class CostService implements InterfaceX_Service {
 
 
     public boolean removeModel(CostModel model) {
-        if (model == null) return false;
-        CostModelCache cache = _models.get(model.getSpecID());
+        return (model != null) && removeModel(model, _models.get(model.getSpecID()));
+    }
+
+
+    public boolean removeModel(CostModel model, CostModelCache cache) {
         boolean removed = (cache != null) && cache.remove(model);
         if (removed) {
             _dataEngine.exec(model, HibernateEngine.DB_DELETE, true);
@@ -185,10 +188,19 @@ public class CostService implements InterfaceX_Service {
             cache = new CostModelCache(specID);
             _models.put(specID, cache);
         }
+        removePrevVersion(cache, model);      // if any
         if (cache.add(model) && (! restoring)) {
             _dataEngine.exec(model, HibernateEngine.DB_INSERT, true);
         }
         return cache;
+    }
+
+
+    private void removePrevVersion(CostModelCache cache, CostModel model) {
+        CostModel oldModel = cache.getModel(model.getId());   // get prev version if any
+        if (oldModel != null) {
+            removeModel(oldModel, cache);
+        }
     }
 
 
