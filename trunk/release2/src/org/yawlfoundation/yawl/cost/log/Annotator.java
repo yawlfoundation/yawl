@@ -32,39 +32,71 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Annotates the events an XES formatted log with corresponding cost information
+ * where applicable.
  * @author Michael Adams
  * @date 27/10/11
  */
 public class Annotator {
     
-    private String _unannotatedLog;
-    private YSpecificationID _specID;
-    private Map<String, TaskTimings> _timings;
-    
+    private String _unannotatedLog;              // raw engine of resource xes log
+    private YSpecificationID _specID;            // specification id for the log
+    private Map<String, TaskTimings> _timings;   // timestamp grouping per task
+
+    /**
+     * Constructs a new Annotator
+     */
     public Annotator() {
         _timings = new Hashtable<String, TaskTimings>();
     }
-    
+
+
+    /**
+     * Constructs a new Annotator with the log specified
+     * @param unannotatedLog an XES log to annotate with cost data
+     */
     public Annotator(String unannotatedLog) {
         this();
         setUnannotatedLog(unannotatedLog);
     }
 
-    
+
+    /**
+     * Sets the unannotated log
+     * @param unannotatedLog an XES log to annotate with cost data
+     */
     public void setUnannotatedLog(String unannotatedLog) {
         _unannotatedLog = unannotatedLog;
     }
 
 
+    /**
+     * Sets the specification id for this log
+     * @param id the specification id
+     */
     public void setSpecID(YSpecificationID id) { _specID = id; }
-    
-    
+
+
+    /**
+     * Annotates a log with applicable cost data
+     * @param unannotatedLog an XES log to annotate with cost data
+     * @return the cost-data annotated log
+     * @throws IllegalStateException if the unannotatedLog is null or has
+     * an invalid format
+     */
     public String annotate(String unannotatedLog) throws IllegalStateException {
         setUnannotatedLog(unannotatedLog); 
         return annotate();
     }
 
 
+    /**
+     * Annotates a log with applicable cost data
+     * @return the cost-data annotated log
+     * @throws IllegalStateException if the unannotatedLog is null (i.e. has
+     * not been previously set via the relevant constructor or mutator) or has
+     * an invalid format
+     */
     public String annotate() throws IllegalStateException {
         if (_unannotatedLog == null) {
             throw new IllegalStateException("Unannotated (input) log has a null value");
@@ -78,7 +110,12 @@ public class Annotator {
     
     
     /***************************************************************************************/
-    
+
+    /**
+     * Annotates a log with applicable cost data
+     * @param head a root node (hierarchically) containing the entire unannotated log
+     * @return the node with (hierarchically) annotated cost data
+     */
     private String annotate(XNode head) {
         Set<CostModel> models = getModelsForLog(head);
         if (models != null) {
@@ -86,20 +123,30 @@ public class Annotator {
             for (XNode traceNode : head.getChildren("trace")) {   // each trace = one case
                 annotate(traceNode, driverMatrix);
             }
-            head.insertComment(2, "and then annotated with cost information by the Cost Service");
+            addCostHeaders(head);           // augment the header defs with cost elements
         }
         return head.toPrettyString(true);
     }
-    
-    
+
+
+    /**
+     * Annotates a log trace (i.e. a single case) with applicable cost data
+     * @param trace a node containing all the events for a single case
+     * @param driverMatrix a matrix of all cost drivers for the log's specification
+     * mapped by task, resource and data
+     */
     private void annotate(XNode trace, DriverMatrix driverMatrix) {
         for (XNode eventNode : trace.getChildren("event")) {
             UnbundledEvent unbundled = new UnbundledEvent(eventNode);
-            if (unbundled.transition.equals("unknown")) continue;         // ignore
 
+            // ignore any events with a transition of "unknown"
+            if (unbundled.transition.equals("unknown")) continue;
+
+            // update the timestamps record for this task
             TaskTimings timings = getTaskTimings(unbundled);
             timings.update(unbundled);
 
+            // "completed" or "cancelled" events are candidates for cost annotation
             if (unbundled.isCompletedTransition() && (! timings.processed)) {
                 processDrivers(driverMatrix, unbundled, timings);
             }
@@ -107,25 +154,51 @@ public class Annotator {
     }
 
 
-    private void processDrivers(DriverMatrix driverMatrix, UnbundledEvent unbundled,
+    /**
+     * Find the cost drivers corresponding to this event and use them to calculate the
+     * relevant cost data, then annotate the data to the logged event
+     * @param driverMatrix a matrix of all cost drivers for the log's specification
+     * mapped by task, resource and data
+     * @param event the (unbundled) completed or cancelled event to process
+     * @param timings the set of timestamps for the task referenced by this event
+     */
+    private void processDrivers(DriverMatrix driverMatrix, UnbundledEvent event,
                                 TaskTimings timings) {
         Set<CostDriver> drivers = new HashSet<CostDriver>();
-        if (driverMatrix.taskMap.containsKey(unbundled.name)) {
-            drivers.addAll(driverMatrix.taskMap.get(unbundled.name));
+
+        // get all of the drivers for the task referenced by this event
+        if (driverMatrix.taskMap.containsKey(event.name)) {
+            drivers.addAll(driverMatrix.taskMap.get(event.name));
         }
-        if (driverMatrix.resourceMap.containsKey(unbundled.resource)) {
-            drivers.addAll(driverMatrix.resourceMap.get(unbundled.resource));
+
+        // get all of the drivers for the resource referenced by this event
+        if (driverMatrix.resourceMap.containsKey(event.resource)) {
+            drivers.addAll(driverMatrix.resourceMap.get(event.resource));
         }
-        for (String dataName : unbundled.getDataMap().keySet()) {
+
+        // get all of the drivers for each data variable referenced by this event
+        for (String dataName : event.getDataMap().keySet()) {
             Set<CostDriver> dataDrivers = driverMatrix.dataMap.get(dataName);
             if (dataDrivers != null) drivers.addAll(dataDrivers);
         }
-        evaluateDrivers(unbundled, drivers, timings);
+
+        // now that we've collected all possibly affected drivers, we can evealuate them
+        evaluateDrivers(event, drivers, timings);
+
+        // since there are two 'completed' events for each task (one for the child,
+        // one for the parent), we need to mark this task's evaluation as done
         timings.processed = true;
     }
-    
-    
+
+
+    /**
+     * Gets the cost models for the log's specification
+     * @param head
+     * @return
+     */
     private Set<CostModel> getModelsForLog(XNode head) {
+
+        // if the spec id has been set already, return that
         if (_specID != null) return CostService.getInstance().getModels(_specID);
 
         // no specID set - get spec details from log
@@ -137,56 +210,93 @@ public class Annotator {
         }
         return null;
     }
-    
-    
-    private void evaluateDrivers(UnbundledEvent unbundled, Set<CostDriver> drivers,
+
+
+    /**
+     * For each driver in a Set, checks that all of its entities are satisfied in an event,
+     * and if so, evaluates and annotates the cost data to the event
+     * @param event the event to annotate
+     * @param drivers the set of drivers that relate to this event
+     * @param timings the set of timestamps for the task this event relates to
+     */
+    private void evaluateDrivers(UnbundledEvent event, Set<CostDriver> drivers,
                                  TaskTimings timings) {
         for (CostDriver driver : drivers) {
+
+            // check that all the driver's entities appear in this event
             boolean satisfied = true;
             for (DriverEntity entity : driver.getEntities()) {
-                satisfied = evaluateEntity(entity, unbundled);
+                satisfied = evaluateEntity(entity, event);
                 if (! satisfied) break;
             }
+
+            // if all are satisfied, calculate and annotate
             if (satisfied) {
-                double cost = calcCost(unbundled, driver, timings);
-                unbundled.xnode.addChild(createCostNode(driver, cost));
+                double cost = calcCost(event, driver, timings);
+                event.xnode.addChild(createCostNode(driver, cost));
             }
         }
     }
 
 
-    private double calcCost(UnbundledEvent unbundled, CostDriver driver,
+    /**
+     * Calculate and return the costs associated with this event
+     * @param event the event to calculate the costs for
+     * @param driver the cost driver to use for the calculation
+     * @param timings the set of timestamps for the task this event relates to
+     * @return the calculated cost
+     */
+    private double calcCost(UnbundledEvent event, CostDriver driver,
                             TaskTimings timings) {
-        long period;
         UnitCost unitCost = driver.getUnitCost();
+
+        // if the unit cost duration is 'fixed', simply return the amount
+        if (unitCost.getUnit().equals("fixed")) {
+            return unitCost.getCostValue().getAmount();  // duration ignored for fixed
+        }
+
+        // get the duration in msecs for the duration type defined in the cost driver
+        long period;
         switch (unitCost.getDuration()) {
             case assigned  : period = timings.getAssignedTime(); break;
-            case allocated : period = timings.getAllocatedTime(unbundled); break;
-            case busy      : period = timings.getBusyTime(unbundled); break;
-            case active    : period = timings.getWorkingTime(unbundled); break;
-            case inactive  : period = timings.getWaitingTime(unbundled); break;
-            case suspended : period = timings.getSuspendedTime(unbundled); break;
+            case allocated : period = timings.getAllocatedTime(event); break;
+            case busy      : period = timings.getBusyTime(event); break;
+            case active    : period = timings.getWorkingTime(event); break;
+            case inactive  : period = timings.getWaitingTime(event); break;
+            case suspended : period = timings.getSuspendedTime(event); break;
             default        : return unitCost.getCostValue().getAmount();  // incl. nil
         }
 
-        // period is msec duration (-1 denotes calc error)
+        // -1 denotes calculation error, in which case return the simple amount
         return period > -1 ? period * unitCost.getCostPerMSec() :
                 unitCost.getCostValue().getAmount();
     }
 
 
+    /**
+     * Creates a properly formatted cost node for insertion into the log
+     * @param driver the driver which produced the cost annotation
+     * @param cost the calculated cost amount
+     * @return the cost node for insertion into the log
+     */
     private XNode createCostNode(CostDriver driver, double cost) {
-        CostValue costValue = driver.getUnitCost().getCostValue();
-        XNode costNode = floatNode("cost:driver:" + driver.getID(), cost);
-        int i = 1;
+        XNode costNode = stringNode("cost:driver", driver.getID());
+        costNode.addChild(floatNode("cost:amount", cost));
         for (CostType costType : driver.getCostTypes()) {
-            costNode.addChild(stringNode("cost:type:" + i++, costType.getType()));
+            costNode.addChild(stringNode("cost:type", costType.getType()));
         }
+        CostValue costValue = driver.getUnitCost().getCostValue();
         costNode.addChild(stringNode("cost:currency", costValue.getCurrency()));
         return costNode;
     }
-    
 
+
+    /**
+     * Creates a float node to insert into an event log
+     * @param key the value of the 'key' attribute
+     * @param value the value of the 'value' attribute
+     * @return the constructed node
+     */
     private XNode floatNode(String key, double value) {
         XNode floatNode = new XNode("float");
         addAttributes(floatNode, key, String.valueOf(value));
@@ -194,6 +304,12 @@ public class Annotator {
     }
 
 
+    /**
+     * Creates a string node to insert into an event log
+     * @param key the value of the 'key' attribute
+     * @param value the value of the 'value' attribute
+     * @return the constructed node
+     */
     private XNode stringNode(String key, String value) {
         XNode stringNode = new XNode("string");
         addAttributes(stringNode, key, value);
@@ -201,36 +317,76 @@ public class Annotator {
     }
 
     
+    /**
+     * Adds attributes to a node
+     * @param key the value of the 'key' attribute
+     * @param value the value of the 'value' attribute
+     */
     private void addAttributes(XNode node, String key, String value) {
         node.addAttribute("key", key);
         node.addAttribute("value", value);
     }
 
 
-    private boolean evaluateEntity(DriverEntity entity, UnbundledEvent unbundled) {
+    /**
+     * Adds the extra header information for cost annotations to the log headers
+     * @param head
+     */
+    private void addCostHeaders(XNode head) {
+
+        // add cost extension
+        XNode extNode = new XNode("extension");
+        extNode.addAttribute("name", "Cost");
+        extNode.addAttribute("prefix", "cost");
+        extNode.addAttribute("uri", "http://www.yawlfoundation.org/yawlschema/xes/cost.xesext");
+        int pos = head.posChildWithAttribute("name", "Organizational");     // insert after
+        head.insertChild(pos + 1, extNode);
+
+        // add definition to global event reference
+        for (XNode globalNode : head.getChildren("global")) {
+            if (globalNode.getAttributeValue("scope").equals("event")) {
+                XNode costNode = globalNode.addChild(stringNode("cost:driver", "UNKNOWN"));
+                costNode.addChild(floatNode("cost:amount", 0.0));
+                costNode.addChild(stringNode("cost:type", "UNKNOWN"));
+                costNode.addChild((stringNode("cost:currency", "UNKNOWN")));
+                break;
+            }
+        }
+
+        head.insertComment(2, "and then annotated with cost information by the Cost Service");
+    }
+
+
+    /**
+     * Checks whether an entity is referenced by an event
+     * @param entity the entity to check
+     * @param event the event in question
+     * @return true if the entity matches a value in the event
+     */
+    private boolean evaluateEntity(DriverEntity entity, UnbundledEvent event) {
         switch (entity.getEntityType()) {
-            case task     : return entity.getName().equals(unbundled.name);
-            case resource : return entity.getName().equals(unbundled.resource);
-            case data     : return unbundled.hasData &&
-                                unbundled.hasDataMatch(entity.getName(), entity.getValue());
+            case task     : return entity.getName().equals(event.name);
+            case resource : return entity.getName().equals(event.resource);
+            case data     : return event.hasData &&
+                                event.hasDataMatch(entity.getName(), entity.getValue());
             default       : return false;
         }
     }
-    
-    
+
+
+    /**
+     * Gets the grouping of task timestamps for an event
+     * @param event the event to get the timings object for
+     * @return the timings object
+     */
     private TaskTimings getTaskTimings(UnbundledEvent event) {
         String key = event.getKey();
         TaskTimings timings = _timings.get(key);
-        if (timings == null) {
+        if (timings == null) {                    // new task
             timings = new TaskTimings(event);
             _timings.put(key, timings);
         }
         return timings;
-    }
-
-
-    private void removeTaskTimings(UnbundledEvent event) {
-        _timings.remove(event.getKey());
     }
 
 

@@ -102,7 +102,7 @@ public class CostGateway extends HttpServlet {
         else throw new IOException("Unknown Cost Service action: " + action);
 
         // generate the output
-        res.setContentType("text/html");
+        res.setContentType("text/xml; charset=UTF-8");
         PrintWriter out = res.getWriter();
         out.write(result);
         out.flush();

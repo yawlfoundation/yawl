@@ -41,7 +41,7 @@ import java.util.Map;
 public class ServletUtils {
 
     public static OutputStreamWriter prepareResponse(HttpServletResponse response) throws IOException {
-        response.setContentType("text/xml");
+        response.setContentType("text/xml; charset=UTF-8");
         return new OutputStreamWriter(response.getOutputStream(), "UTF-8");
     }
 
@@ -65,7 +65,7 @@ public class ServletUtils {
 
 
     public static void doNotFound(HttpServletRequest request, HttpServletResponse response) {
-        response.setContentType("text/html");
+        response.setContentType("text/html; charset=UTF-8\"");
         try {
             PrintWriter outputWriter = response.getWriter();
 

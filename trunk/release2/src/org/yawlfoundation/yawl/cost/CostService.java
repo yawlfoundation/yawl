@@ -19,12 +19,10 @@
 package org.yawlfoundation.yawl.cost;
 
 import org.apache.log4j.Logger;
-import org.yawlfoundation.yawl.cost.data.CostDriver;
 import org.yawlfoundation.yawl.cost.data.CostModel;
 import org.yawlfoundation.yawl.cost.data.CostModelCache;
 import org.yawlfoundation.yawl.cost.data.HibernateEngine;
 import org.yawlfoundation.yawl.cost.log.Annotator;
-import org.yawlfoundation.yawl.cost.log.CostEntry;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_Service;
@@ -215,10 +213,6 @@ public class CostService implements InterfaceX_Service {
 
 
     private void logItemStart(CostModelCache cache, WorkItemRecord wir, String data) {
-        for (CostDriver driver : cache.getTaskInvocationDrivers()) {
-            CostEntry entry = new CostEntry(cache.getSpecID(), wir.getID(), driver);
-            _dataEngine.exec(entry, HibernateEngine.DB_INSERT, true);
-        }
     }
 
 
@@ -228,7 +222,7 @@ public class CostService implements InterfaceX_Service {
 
     public void handleCheckCaseConstraintEvent(YSpecificationID specID, String caseID,
                                                String data, boolean precheck) {
-        CostModelCache cache = _models.get(specID);
+//        CostModelCache cache = _models.get(specID);
 //        if (cache != null) {
 //            if (precheck) {
 //                logCaseStart(cache, caseID, data);
@@ -241,15 +235,15 @@ public class CostService implements InterfaceX_Service {
 
     public void handleCheckWorkItemConstraintEvent(WorkItemRecord wir, String data,
                                                    boolean precheck) {
-        CostModelCache cache = _models.get(new YSpecificationID(wir));
-        if (cache != null) {
-            if (precheck) {
-                logItemStart(cache, wir, data);
-            }
-            else {
- //               logItemEnd(cache, wir, data);
-            }
-        }
+//        CostModelCache cache = _models.get(new YSpecificationID(wir));
+//        if (cache != null) {
+//            if (precheck) {
+//                logItemStart(cache, wir, data);
+//            }
+//            else {
+// //               logItemEnd(cache, wir, data);
+//            }
+//        }
     }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response)
