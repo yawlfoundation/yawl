@@ -169,7 +169,7 @@ public class YXESBuilder {
         gEvent.addChild(dateNode("time:timestamp", "1970-01-01T00:00:00.000+01:00"));
         gEvent.addChild(stringNode("concept:name", "UNKNOWN"));
         gEvent.addChild(stringNode("lifecycle:transition", "UNKNOWN"));
-        gEvent.addChild(stringNode("lifecycle:instance", "UNKNOWN"));
+        gEvent.addChild(stringNode("concept:instance", "UNKNOWN"));
 
         XNode classifier = log.addChild(new XNode("classifier"));
         classifier.addAttribute("name", "Activity classifier");

@@ -213,7 +213,7 @@ public class ResourceLogGateway extends HttpServlet {
        else throw new IOException("Invalid or disconnected session handle.");
 
        // generate the output
-       res.setContentType("text/html");
+       res.setContentType("text/xml; charset=UTF-8");
        PrintWriter out = res.getWriter();
        out.write(result);
        out.flush();

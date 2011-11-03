@@ -4,7 +4,6 @@
           xmlns:h="http://java.sun.com/jsf/html"
           xmlns:jsp="http://java.sun.com/JSP/Page"
           xmlns:ui="http://www.sun.com/web/ui">
-    <jsp:directive.page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"/>
 
 <!--
   ~ Copyright (c) 2004-2011 The YAWL Foundation. All rights reserved.
@@ -24,6 +23,7 @@
   ~ License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
   -->
 
+    <jsp:directive.page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"/>
     <f:view>
         <ui:page binding="#{Login.page}" id="page1">
             <ui:html binding="#{Login.html}" id="html1">

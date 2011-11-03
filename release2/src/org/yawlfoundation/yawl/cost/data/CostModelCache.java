@@ -74,18 +74,6 @@ public class CostModelCache {
         }
         return null;
     }
-    
-    
-    public Set<CostDriver> getTaskInvocationDrivers() {
-        Set<CostDriver> drivers = new HashSet<CostDriver>();
-        for (CostModel model : models) {
-            for (CostDriver driver : model.getDrivers()) {
-                if (driver.getUnitCost().getUnit().equals("invocation")) {
-                    drivers.add(driver);
-                }
-            }
-        }
-        return drivers;
-    }
+
 
 }
