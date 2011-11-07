@@ -54,6 +54,14 @@
     </context-param>
 
     <context-param>
+        <param-name>ResourceServiceOrgDataGateway</param-name>
+        <param-value>http://localhost:8080/resourceService/gateway</param-value>
+        <description>
+            The URL of the resource service's org data interface.
+        </description>
+    </context-param>
+
+    <context-param>
         <param-name>EngineLogonUserName</param-name>
         <param-value>costService</param-value>
         <description>

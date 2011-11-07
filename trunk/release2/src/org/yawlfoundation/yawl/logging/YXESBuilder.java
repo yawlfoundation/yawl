@@ -147,7 +147,7 @@ public class YXESBuilder {
 
         log.addAttribute("xes.version", "1.0");
         log.addAttribute("xes.features", "arbitrary-depth");
-        log.addAttribute("openxes.version", "1.0RC7");
+        log.addAttribute("openxes.version", "1.5");
         log.addAttribute("xmlns", "http://code.deckfour.org/xes");
 
         log.addChild(extensionNode("Lifecycle", "lifecycle",
@@ -165,7 +165,6 @@ public class YXESBuilder {
         gTrace.addChild(stringNode("concept:name", "UNKNOWN"));
 
         XNode gEvent = log.addChild(globalNode("event"));
-        gEvent.addChild(stringNode("org:resource", "UNKNOWN"));
         gEvent.addChild(dateNode("time:timestamp", "1970-01-01T00:00:00.000+01:00"));
         gEvent.addChild(stringNode("concept:name", "UNKNOWN"));
         gEvent.addChild(stringNode("lifecycle:transition", "UNKNOWN"));
@@ -173,7 +172,8 @@ public class YXESBuilder {
 
         XNode classifier = log.addChild(new XNode("classifier"));
         classifier.addAttribute("name", "Activity classifier");
-        classifier.addAttribute("Keys", "concept:name lifecycle:transition");
+        classifier.addAttribute("keys",
+                "concept:name concept:instance lifecycle:transition");
 
         log.addChild(stringNode("concept:name", specid.toString()));
 

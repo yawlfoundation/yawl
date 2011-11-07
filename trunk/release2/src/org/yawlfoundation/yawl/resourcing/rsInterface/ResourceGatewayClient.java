@@ -883,6 +883,24 @@ public class ResourceGatewayClient extends Interface_Client {
         params.put("name", codeletName);
         return executeGet(_serviceURI, params) ;
     }
+    
+
+    /**
+     * Gets an XML list of participant ids referenced by the id string argument
+     * @param anyID the id of a Participant, Role, Capability, Position or OrgGroup
+     * @param handle a valid session handle
+     * @return the list of the ids of all participants who are members of the group
+     * object referenced; if anyID is the id of a single participant, then only that
+     * id is returned in the list
+     * @throws IOException if the service can't be reached
+     */
+    public String getReferencedParticipantIDs(String anyID, String handle)
+                throws IOException {
+        Map<String, String> params =
+                prepareParamMap("getReferencedParticipantIDsAsXML", handle);
+        params.put("id", anyID);
+        return executeGet(_serviceURI, params) ;
+    }
 
 
     /*****************************************************************************/

@@ -1084,6 +1084,11 @@ public class ResourceDataSet {
         return (r != null) ? castToParticipantSet(r.getResources()) : null ;
     }
 
+    public Set<Participant> getOrgGroupParticipants(String oid) {
+        OrgGroup o = orgGroupMap.get(oid);
+        return (o != null) ? getOrgGroupMembers(o) : null ;
+    }
+
 
     public Set<AbstractResource> getRoleParticipantsWithCapability(String rid, String cid) {
         Set<AbstractResource> resourceSet = new HashSet<AbstractResource>();
@@ -1160,6 +1165,45 @@ public class ResourceDataSet {
             if (p.isOrgGroupMember(o)) result.add(p);
         }
         return result;
+    }
+
+    
+    public Set<Participant> resolveParticipants(String anyID) {
+        Set<Participant> pSet = new HashSet<Participant>();
+        if (isKnownParticipant(anyID)) {
+            pSet.add(getParticipant(anyID));
+        }
+        else if (isKnownRole(anyID)) {
+            pSet.addAll(getRoleParticipants(anyID));
+        }
+        else if (isKnownCapability(anyID)) {
+            pSet.addAll(getCapabilityParticipants(anyID));
+        }
+        else if (isKnownPosition(anyID)) {
+            pSet.addAll(getPositionParticipants(anyID));
+        }
+        else if (isKnownOrgGroup(anyID)) {
+            pSet.addAll(getOrgGroupParticipants(anyID));
+        }
+        return pSet;
+    }
+
+
+    public Set<String> resolveParticipantIds(String anyID) {
+        Set<String> idSet = new HashSet<String>();
+        for (Participant p : resolveParticipants(anyID)) {
+            idSet.add(p.getID());
+        }
+        return idSet;
+    }
+    
+    
+    public String resolveParticipantIdsAsXML(String anyID) {
+        XNode node = new XNode("participantids");
+        for (Participant p : resolveParticipants(anyID)) {
+            node.addChild("id", p.getID());
+        }
+        return node.toString();
     }
 
 

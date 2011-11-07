@@ -600,7 +600,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                 else if (newStatus.equals(WorkItemRecord.statusSuspended)) {
                     Participant p = getParticipantAssignedWorkItem(cachedWir, WorkQueue.STARTED);
                     if (p != null) {
-                        p.getWorkQueues().movetoSuspend(wir);
+                        p.getWorkQueues().movetoSuspend(cachedWir);
                         cachedWir.setResourceStatus(WorkItemRecord.statusResourceSuspended);
                     }
                     _workItemCache.updateStatus(cachedWir, newStatus);
@@ -618,7 +618,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                     if (cachedWir.hasStatus(WorkItemRecord.statusSuspended)) {
                         Participant p = getParticipantAssignedWorkItem(cachedWir, WorkQueue.SUSPENDED);
                         if (p != null) {
-                            p.getWorkQueues().movetoUnsuspend(wir);
+                            p.getWorkQueues().movetoUnsuspend(cachedWir);
                             cachedWir.setResourceStatus(WorkItemRecord.statusResourceStarted);
                             _workItemCache.updateStatus(cachedWir, newStatus);
                         }
