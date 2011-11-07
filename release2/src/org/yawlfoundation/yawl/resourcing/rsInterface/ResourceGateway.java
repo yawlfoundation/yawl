@@ -792,6 +792,9 @@ public class ResourceGateway extends HttpServlet {
         else if (action.equalsIgnoreCase("getNonHumanCategorySet")) {
             result = getOrgDataSet().getNonHumanCategorySet();
         }
+        else if (action.equalsIgnoreCase("getReferencedParticipantIDsAsXML")) {
+            result = getOrgDataSet().resolveParticipantIdsAsXML(id);
+        }
         else if (action.equalsIgnoreCase("getParticipantIdentifiers")) {
             if (id == null) id = "0";
             result = reformatMap(getOrgDataSet().getParticipantIdentifiers(id), req);

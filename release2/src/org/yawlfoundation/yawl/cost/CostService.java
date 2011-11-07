@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_Service;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_ServiceSideClient;
+import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClient;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceLogGatewayClient;
 import org.yawlfoundation.yawl.unmarshal.XMLValidator;
 import org.yawlfoundation.yawl.util.XNode;
@@ -38,6 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,6 +55,8 @@ public class CostService implements InterfaceX_Service {
     private HibernateEngine _dataEngine;
     private InterfaceX_ServiceSideClient _ixClient ;    // interface client to engine
     private ResourceLogGatewayClient _rsLogClient;
+    private ResourceGatewayClient _rsOrgDataClient;
+    private String _rsHandle = null;
     private String _engineLogonName;
     private String _engineLogonPassword;
     private static CostService INSTANCE;
@@ -80,6 +84,10 @@ public class CostService implements InterfaceX_Service {
 
     public void setResourceLogURI(String uri) {
         _rsLogClient = new ResourceLogGatewayClient(uri);
+    }
+
+    public void setResourceOrgDataURI(String uri) {
+        _rsOrgDataClient = new ResourceGatewayClient(uri);
     }
     
     public void setEngineLogonName(String name) {
@@ -145,27 +153,67 @@ public class CostService implements InterfaceX_Service {
     
     public String getAnnotatedLog(YSpecificationID specID, boolean withData) {
         if (! _models.containsKey(specID)) {
-            return "<failure>No cost models matching specification ID</failure>";
+            return failMsg("No cost models matching specification ID");
         }
         try {
-            String handle = _rsLogClient.connect(_engineLogonName, _engineLogonPassword);
             String log = _rsLogClient.getMergedXESLog(specID.getIdentifier(),
-                    specID.getVersionAsString(), specID.getUri(), withData, handle);
+                    specID.getVersionAsString(), specID.getUri(), withData, getRSHandle());
             if (log == null) throw new IOException();
             Annotator annotator = new Annotator(log);
             annotator.setSpecID(specID);
             return annotator.annotate();
         }
         catch (IOException ioe) {
-            return "<failure>Could not get base log from resource service</failure>";
+            return failMsg("Could not get base log from resource service");
         }
         catch (IllegalStateException ise) {
-            return "<failure>" + ise.getMessage() + "</failure>";
+            return failMsg(ise.getMessage());
         }
+    }
+
+
+    /**
+     * Resolves an id to a set of participant ids
+     * @param resourceID can be the id of a Participant, Role, Position, Capability or
+     *                   OrgGroup
+     * @return the set of Participant ID's referenced
+     */
+    public Set<String> resolveResources(String resourceID) {
+        Set<String> resources = new HashSet<String>();
+        if (resourceID == null) return resources;
+        try {
+            String xml = _rsOrgDataClient.getReferencedParticipantIDs(
+                    resourceID, getRSHandle());
+            if (xml != null) {
+                XNode node = new XNodeParser().parse(xml);
+                if (node != null) {
+                    for (XNode idNode : node.getChildren()) {
+                        resources.add(idNode.getText());
+                    }
+                }
+            }
+        }
+        catch (IOException ioe) {
+            // nothing to do;
+        }
+        return resources;
     }
 
     /*********************************************************************************/
 
+    private String getRSHandle() throws IOException {
+        if (_rsHandle == null) {
+            _rsHandle = _rsLogClient.connect(_engineLogonName, _engineLogonPassword);
+            if (_rsHandle.startsWith("<fail")) throw new IOException();
+        }
+        return _rsHandle;
+    }
+    
+    
+    private String failMsg(String msg) {
+        return "<failure>" + msg + "</failure>";
+    }
+    
 
     private boolean isValidModel(XNode costModel) {
         if (costModel == null) return false;

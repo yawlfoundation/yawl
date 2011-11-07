@@ -483,6 +483,31 @@ public class ResourceGatewayClientAdapter {
         String pStr = successCheck(_rgclient.getParticipant(pid, handle)) ;
         return _marshaller.unmarshallParticipant(pStr);
     }
+    
+    
+    /**
+     * Gets a set of participant ids referenced by the id string argument
+     * @param anyID the id of a Participant, Role, Capability, Position or OrgGroup
+     * @param handle a valid session handle
+     * @return the set of the ids of all participants who are members of the group
+     * object referenced; if anyID is the id of a single participant, then only that
+     * id is returned in the set
+     * @throws IOException if the service can't be reached
+     */
+    public Set<String> getReferencedParticipantIDs(String anyID, String handle)
+                throws IOException {
+        Set<String> idSet = new HashSet<String>();
+        String xml = _rgclient.getReferencedParticipantIDs(anyID, handle);
+        if (xml != null) {
+            XNode node = new XNodeParser().parse(xml);
+            if (node != null) {
+                for (XNode idNode : node.getChildren()) {
+                    idSet.add(idNode.getText());
+                }
+            }
+        }
+        return idSet;
+    }
 
 
     /**
