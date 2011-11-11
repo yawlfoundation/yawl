@@ -104,11 +104,10 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
-     * Returns an XML string describing all the work items that are
-     * currently active in the engine.
+     * Returns an XML string describing all a current work item.
      * @param itemID the workitem id
      * @param sessionHandle the session handle
-     * @return an XML representation of the set of live workitems
+     * @return an XML representation of the of workitem
      * @throws IOException if engine can't be found.
      */
     public String getWorkItem(String itemID, String sessionHandle)
@@ -117,6 +116,24 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
         params.put("workItemID", itemID) ;
         return executeGet(_backEndURIStr, params);
     }
+    
+    
+    /**
+     * Returns the expiry time of a work item's timer.
+     * @param itemID the workitem id
+     * @param sessionHandle the session handle
+     * @return a long value representing the moment the timer will expire, or 0 if
+     * the work item does not have a timer or does not exist
+     * @throws IOException if engine can't be found.
+     */
+    public long getWorkItemExpiryTime(String itemID, String sessionHandle)
+               throws IOException {
+        Map<String, String> params = prepareParamMap("getWorkItemExpiryTime", sessionHandle);
+        params.put("workItemID", itemID) ;
+        String expiryTime = stripOuterElement(executeGet(_backEndURIStr, params));
+        return (successful(expiryTime)) ? Long.valueOf(expiryTime) : 0;
+    }
+    
 
 
     /**

@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.util.ArrayList;
@@ -176,6 +177,18 @@ public class YAWLServiceReference extends YClient implements YVerifiable {
         return root.toString();
     }
 
+    
+    public void fromXML(String xml) {
+        XNode node = new XNodeParser().parse(xml);
+        if (node != null) {
+            _yawlServiceID = node.getAttributeValue("id");
+            _documentation = node.getChildText("documentation");
+            _userName = node.getChildText("servicename");
+            _password = node.getChildText("servicepassword");
+            String assignStr = node.getChildText("assignable");
+            _assignable = (assignStr != null) && assignStr.equalsIgnoreCase("true");
+        }
+    }
 
     private XNode toBasicXNode() {
         XNode root = new XNode("yawlService");

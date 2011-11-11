@@ -124,6 +124,21 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
         params.put("serviceURI", serviceURI);
         return executePost(_backEndURIStr, params);
     }
+    
+    
+    public YAWLServiceReference getYAWLService(String serviceURI, String sessionHandle) 
+            throws IOException {
+        Map<String, String> params = prepareParamMap("getYAWLService", sessionHandle);
+        params.put("serviceURI", serviceURI);
+        String xml = executePost(_backEndURIStr, params);
+        if (xml != null && successful(xml)) {
+            YAWLServiceReference service = new YAWLServiceReference();
+            service.fromXML(xml);
+            return service;
+        }
+        return null;
+    }
+    
 
 
     /**

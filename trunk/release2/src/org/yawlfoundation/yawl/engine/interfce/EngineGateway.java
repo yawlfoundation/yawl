@@ -79,6 +79,9 @@ public interface EngineGateway extends Remote {
      */
     String getWorkItem(String workItemID, String sessionHandle) throws RemoteException;
 
+    String getWorkItemExpiryTime(String workItemID, String sessionHandle)
+            throws RemoteException;
+
     /**
      *
      * @param specID

@@ -21,10 +21,8 @@
 <xesextension name="Cost"
               prefix="cost"
               uri="http://www.yawlfoundation.org/yawlschema/xes/cost.xesext">
-    <event>
-   		<string key="driver"/>
-        <float key="amount"/>
+    <meta>
         <string key="type"/>
         <string key="currency"/>
-   	</event>
+   	</meta>
 </xesextension>

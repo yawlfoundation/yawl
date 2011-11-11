@@ -16,10 +16,14 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.cost;
+package org.yawlfoundation.yawl.cost.interfce;
 
 import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.cost.CostService;
+import org.yawlfoundation.yawl.cost.data.CostModelCache;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -28,6 +32,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -41,6 +47,7 @@ import java.io.PrintWriter;
 public class CostGateway extends HttpServlet {
 
     private CostService _service;
+    private Sessions _sessions;
     private static final Logger _log = Logger.getLogger(CostGateway.class);
 
 
@@ -60,9 +67,13 @@ public class CostGateway extends HttpServlet {
             String rsOrgDataURI = context.getInitParameter("ResourceServiceOrgDataGateway");
             if (rsOrgDataURI != null) _service.setResourceOrgDataURI(rsOrgDataURI);
 
-
-            _service.setEngineLogonName(context.getInitParameter("EngineLogonUserName"));
-            _service.setEngineLogonPassword(context.getInitParameter("EngineLogonPassword"));
+            String engineLogonName = context.getInitParameter("EngineLogonUserName");
+            String engineLogonPassword = context.getInitParameter("EngineLogonPassword");
+            String iaURI = (ixURI != null) ? ixURI.replace("/ix", "/ia") : null;
+            _service.setEngineLogonName(engineLogonName);
+            _service.setEngineLogonPassword(engineLogonPassword);
+            _sessions = new Sessions();
+            _sessions.setupInterfaceA(iaURI, engineLogonName, engineLogonPassword);
         }
         catch (Exception e) {
             _log.error("Cost Service Initialisation Exception", e);
@@ -70,7 +81,10 @@ public class CostGateway extends HttpServlet {
     }
 
 
-    public void destroy() { }
+    public void destroy() {
+        _service.shutdown();
+        _sessions.shutdown();
+    }
 
 
     public void doGet(HttpServletRequest req, HttpServletResponse res)
@@ -82,28 +96,43 @@ public class CostGateway extends HttpServlet {
     public void doPost(HttpServletRequest req, HttpServletResponse res)
                                throws IOException {
         String action = req.getParameter("action");
+        String handle = req.getParameter("sessionHandle");
         YSpecificationID specID = constructSpecID(req);
-        String taskID = req.getParameter("taskid");
-        String result = null;
+        String taskName = req.getParameter("taskname");
+        String result = "";
 
-        if (action.equals("importModel")) {
-            _service.importModel(req.getParameter("model"));
-            result = "SUCCESS";
+        if (action.equals("connect")) {
+            String userid = req.getParameter("userid");
+            String password = req.getParameter("password");
+            result = _sessions.connect(userid, password);
         }
-        else if (action.equals("getAnnotatedLog")) {
-            boolean withData = req.getParameter("withData").equalsIgnoreCase("true");
-            result = _service.getAnnotatedLog(specID, withData);
+        else if (action.equals("checkConnection")) {
+            result = String.valueOf(_sessions.checkConnection(handle));
         }
-        else if (action.equals("getFunctionList")) {
-            result = getFunctionList(specID, taskID);
+        else if (_sessions.checkConnection(handle)) {
+            if (action.equals("importModel")) {
+                _service.importModel(req.getParameter("model"));
+                result = "SUCCESS";
+            }
+            else if (action.equals("getAnnotatedLog")) {
+                boolean withData = req.getParameter("withData").equalsIgnoreCase("true");
+                result = _service.getAnnotatedLog(specID, withData);
+            }
+            else if (action.equals("getResourceCost")) {
+                result = getResourceCost(specID, taskName, req.getParameter("resources"));
+            }
+            else if (action.equals("getFunctionList")) {
+                result = getFunctionList(specID, taskName);
+            }
+            else if (action.equals("getFixedCosts")) {
+                result = getFixedCosts(specID, taskName);
+            }
+            else if (action.equals("disconnect")) {
+                result = String.valueOf(_sessions.disconnect(handle));
+            }
+            else throw new IOException("Unknown Cost Service action: " + action);
         }
-        else if (action.equals("getFixedCosts")) {
-            result = getFixedCosts(specID, taskID);
-        }
-        else if (action.equals("calcCost")) {
-            result = calcCost(specID, taskID, req.getParameter("costparams"));
-        }
-        else throw new IOException("Unknown Cost Service action: " + action);
+        else throw new IOException("Unknown or inactive session handle");
 
         // generate the output
         res.setContentType("text/xml; charset=UTF-8");
@@ -146,16 +175,29 @@ public class CostGateway extends HttpServlet {
     /**
      * Calculates the cost of an activity.
      * @param specID the specification identifier
-     * @param taskID the task identifier (may be null, in which case only the case level
+     * @param  taskName the task identifier (may be null, in which case only the case level
      * costs are required)
-     * @param costParams an XML document containing data variables to be used in the
-     * calculation (eg. resources, rates, time durations etc.)
-     * @return an XML document containing the actual result of applying the costParams
-     * to the relevant cost functions.
+     * @param resources an XML set of participant ids
+     * @return an XML string containing cost data for each listed resource for the task
      */
-    private String calcCost(YSpecificationID specID, String taskID, String costParams) {
-        // TODO
-        return "";
+    private String getResourceCost(YSpecificationID specID, String taskName,
+                                   String resources) {
+        String reply = "";
+        CostModelCache cache = _service.getModelCache(specID);
+        if (cache != null) {
+            XNode node = new XNodeParser().parse(resources);
+            if (node != null) {
+                Set<String> resourceSet = new HashSet<String>();
+                for (XNode resource : node.getChildren()) {
+                    resourceSet.add(resource.getText());
+                }
+                reply = cache.getDriverMatrix().getCostMapAsXML(taskName, resourceSet);
+            }
+            else reply = failMessage("Error parsing list of participant ids");
+        }
+        else reply = failMessage("No cost models for specification");
+
+        return reply;
     }
 
 

@@ -186,7 +186,7 @@ public class XNode implements Comparable<XNode> {
         return addChild(new XNode(name, text));
     }
 
-    public void addChildren(List<XNode> children) {
+    public void addChildren(Collection<XNode> children) {
         for (XNode child : children) addChild(child);
     }
 
