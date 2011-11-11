@@ -62,6 +62,15 @@ public class CostDriver implements XNodeIO {
     public Set<DriverEntity> getEntities() { return entities; }
     
     public Set<CostType> getCostTypes() { return costTypes; }
+    
+    public String getCostTypesAsCSV() {
+        String csv = "";
+        for (CostType costType : costTypes) {
+            if (csv.length() > 0) csv += ",";
+            csv += costType.getType();
+        }
+        return csv;
+    }
 
 
     public String toXML() {

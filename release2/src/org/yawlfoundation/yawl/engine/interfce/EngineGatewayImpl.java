@@ -219,7 +219,18 @@ public class EngineGatewayImpl implements EngineGateway {
                failureMessage("WorkItem with ID '" + workItemID + "' not found.");
     }
 
-
+    
+    public String getWorkItemExpiryTime(String workItemID, String sessionHandle) 
+            throws RemoteException {
+         String sessionMessage = checkSession(sessionHandle);
+         if (isFailureMessage(sessionMessage)) return sessionMessage;
+ 
+         YWorkItem workItem = _engine.getWorkItem(workItemID);
+         return (workItem != null) ? String.valueOf(workItem.getTimerExpiry()) :
+                failureMessage("WorkItem with ID '" + workItemID + "' not found.");
+     }
+ 
+  
     /**
      *
      * @param specID the specification (process definition id)

@@ -97,7 +97,7 @@
     <servlet>
         <servlet-name>costGateway</servlet-name>
         <servlet-class>
-            org.yawlfoundation.yawl.cost.CostGateway
+            org.yawlfoundation.yawl.cost.interfce.CostGateway
         </servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>

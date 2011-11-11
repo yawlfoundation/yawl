@@ -43,6 +43,7 @@ import org.yawlfoundation.yawl.resourcing.allocators.AbstractAllocator;
 import org.yawlfoundation.yawl.resourcing.allocators.AllocatorFactory;
 import org.yawlfoundation.yawl.resourcing.calendar.CalendarException;
 import org.yawlfoundation.yawl.resourcing.calendar.ResourceCalendar;
+import org.yawlfoundation.yawl.resourcing.client.CostClient;
 import org.yawlfoundation.yawl.resourcing.codelets.AbstractCodelet;
 import org.yawlfoundation.yawl.resourcing.codelets.CodeletFactory;
 import org.yawlfoundation.yawl.resourcing.constraints.AbstractConstraint;
@@ -186,7 +187,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private InterfaceA_EnvironmentBasedClient _interfaceAClient ;
     private YLogGatewayClient _interfaceEClient;
     private ResourceGatewayServer _gatewayServer;
-
+    private CostClient _costServiceClient;
 
     // Constructor - called exclusively by getInstance()
     private ResourceManager() {
@@ -235,7 +236,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     
     public void initInterfaceClients(String engineURI, String exceptionURI,
-                                     String schedulingURI) {
+                                     String schedulingURI, String costServiceURI) {
         _engineURI = engineURI;
         _interfaceAClient = new InterfaceA_EnvironmentBasedClient(
                                                  engineURI.replaceFirst("/ib", "/ia"));
@@ -248,6 +249,10 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (schedulingURI != null) {
             _schedulingServiceURI = schedulingURI;
             _gatewayServer.setSchedulingInterfaceURI(schedulingURI);
+        }
+        if (costServiceURI != null) {
+            _costServiceClient = new CostClient(
+                    costServiceURI, engineLogonName, engineLogonPassword);
         }
     }
 
@@ -426,6 +431,10 @@ public class ResourceManager extends InterfaceBWebsideController {
     public String getSchedulingServiceURI() {
         return _schedulingServiceURI;
     }
+
+    public boolean hasCostClient() { return _costServiceClient != null; }
+
+    public CostClient getCostClient() { return _costServiceClient; }
 
     public Logger getLogger() { return _log ; }
 

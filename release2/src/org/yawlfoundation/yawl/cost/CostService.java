@@ -78,6 +78,11 @@ public class CostService implements InterfaceX_Service {
     }
 
 
+    public void shutdown() {
+        if (_dataEngine != null) _dataEngine.closeFactory();
+    }
+
+
     public void setInterfaceXBackend(String uri) {
         _ixClient = new InterfaceX_ServiceSideClient(uri);
     }
@@ -109,14 +114,31 @@ public class CostService implements InterfaceX_Service {
         }
     }
 
+
+    public CostModelCache getModelCache(YSpecificationID specID) {
+        return _models.get(specID);
+    }
+
+
+    public CostModelCache getModelCache(String specURI, String version) {
+        for (YSpecificationID specID : _models.keySet()) {
+            if (specID.getUri().equals(specURI) &&
+                    specID.getVersionAsString().equals(version)) {
+               return getModelCache(specID);
+            }
+        }
+        return null;
+    }
+
+
     public Set<CostModel> getModels(YSpecificationID specID) {
-        CostModelCache cache = _models.get(specID);
+        CostModelCache cache = getModelCache(specID);
         return (cache != null) ? cache.getModels() : null;
     }
     
     
     public CostModel getModel(YSpecificationID specID, String modelID) {
-        CostModelCache cache = _models.get(specID);
+        CostModelCache cache = getModelCache(specID);
         return (cache != null) ? cache.getModel(modelID) : null;
     }
 
@@ -141,13 +163,8 @@ public class CostService implements InterfaceX_Service {
     
     
     public Set<CostModel> getModels(String specURI, String version) {
-        for (YSpecificationID specID : _models.keySet()) {
-            if (specID.getUri().equals(specURI) &&
-                    specID.getVersionAsString().equals(version)) {
-               return _models.get(specID).getModels();
-            }
-        }
-        return null;
+        CostModelCache cache = getModelCache(specURI, version);
+        return (cache != null) ? cache.getModels() : null;
     }
     
     

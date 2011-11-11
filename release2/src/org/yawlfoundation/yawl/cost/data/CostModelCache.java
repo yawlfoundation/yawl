@@ -31,9 +31,12 @@ public class CostModelCache {
 
     private Set<CostModel> models;
     private YSpecificationID specID;
+    private DriverMatrix driverMatrix;
+    private boolean dirtyMatrix;
 
     private CostModelCache() {
         models = new HashSet<CostModel>();
+        dirtyMatrix = false;
     }
     
     public CostModelCache(YSpecificationID specID) {
@@ -56,15 +59,20 @@ public class CostModelCache {
 
     public void setModels(Set<CostModel> models) {
         this.models = models;
+        refreshDriverMatrix();
     }
 
     public boolean add(CostModel model) {
-        return (model != null) && models.add(model);
+        boolean added = (model != null) && models.add(model);
+        dirtyMatrix = dirtyMatrix || added;
+        return added;
     }
 
 
     public boolean remove(CostModel model) {
-        return models.remove(model);
+        boolean removed = (model != null) && models.remove(model);
+        dirtyMatrix = dirtyMatrix || removed;
+        return removed;
     }
     
     
@@ -73,6 +81,20 @@ public class CostModelCache {
             if (model.getId().equals(modelID)) return model;
         }
         return null;
+    }
+    
+    
+    public DriverMatrix getDriverMatrix() {
+        if ((driverMatrix == null) || dirtyMatrix) {
+            refreshDriverMatrix();
+        }
+        return driverMatrix;
+    }
+
+
+    public void refreshDriverMatrix() {
+        driverMatrix = new DriverMatrix(models);
+        dirtyMatrix = false;
     }
 
 

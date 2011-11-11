@@ -267,6 +267,19 @@
     </context-param>
 
 
+    <!-- This param, when available, enables allocators to use cost information
+         provided by the cost service. -->
+
+     <context-param>
+        <param-name>CostService_BackEnd</param-name>
+        <param-value>http://localhost:8080/costService/gateway</param-value>
+        <description>
+           The URL of the cost service.
+        </description>
+     </context-param>
+
+
+
     <!-- This param, when available, enables the worklet exception
          service add-ins to the worklist. If the exception service
          is enabled in the engine, then this param should also be
@@ -418,8 +431,13 @@
 
     <error-page>
         <error-code>404</error-code>
-        <location>/error</location>
+        <location>/error404.html</location>
     </error-page>
+
+    <error-page>
+         <error-code>500</error-code>
+         <location>/error404.html</location>
+     </error-page>
 
 
     <!--

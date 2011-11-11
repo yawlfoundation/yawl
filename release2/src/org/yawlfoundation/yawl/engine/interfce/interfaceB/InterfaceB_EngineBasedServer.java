@@ -221,7 +221,10 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
             }
 
             if (action != null) {
-                if (action.equals("connect")) {
+                if (action.equals("checkConnection")) {
+                    msg.append(_engine.checkConnection(sessionHandle));
+                }
+                else if (action.equals("connect")) {
                     String userID = request.getParameter("userid");
                     String password = request.getParameter("password");
                     int interval = request.getSession().getMaxInactiveInterval();
@@ -273,9 +276,6 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                 else if (action.equals("getWorkItemsForService")) {
                     String serviceURI = request.getParameter("serviceuri");
                     msg.append(_engine.getWorkItemsForService(serviceURI, sessionHandle));
-                }
-                else if (action.equals("checkConnection")) {
-                    msg.append(_engine.checkConnection(sessionHandle));
                 }
                 else if (action.equals("taskInformation")) {
                     YSpecificationID specID =
@@ -331,6 +331,9 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                 }
                 else if (action.equals("getChildren")) {
                     msg.append(_engine.getChildrenOfWorkItem(workItemID, sessionHandle));
+                }
+                else if (action.equals("getWorkItemExpiryTime")) {
+                    msg.append(_engine.getWorkItemExpiryTime(workItemID, sessionHandle));
                 }
                 else if (action.equals("getCaseInstanceSummary")) {
                     msg.append(_engine.getCaseInstanceSummary(sessionHandle));
