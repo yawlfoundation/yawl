@@ -30,7 +30,7 @@ public class CostMapping implements XNodeIO {
     private long mappingID;                                        // hibernate primary key
     private MappingIdentifier cost;
     private MappingIdentifier workflow;
-    private EntityType mappingType;
+    private FacetAspect mappingType;
 
     public CostMapping() { }
 
@@ -53,7 +53,7 @@ public class CostMapping implements XNodeIO {
     public void fromXNode(XNode node) {
         cost = new MappingIdentifier(node.getChild("cost"));
         workflow = new MappingIdentifier(node.getChild("workflow"));
-        mappingType = EntityType.valueOf(node.getAttributeValue("perspective"));
+        mappingType = FacetAspect.valueOf(node.getAttributeValue("perspective"));
     }
 
 

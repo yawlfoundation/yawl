@@ -33,13 +33,13 @@ public class CostDriver implements XNodeIO {
     private long driverID;                                // hibernate primary key
     private String id;
     private DriverMetaData metadata;
-    private Set<DriverEntity> entities;
+    private Set<DriverFacet> facets;
     private Set<CostType> costTypes;
     private UnitCost unitCost;
 
 
     public CostDriver() {
-        entities = new HashSet<DriverEntity>();
+        facets = new HashSet<DriverFacet>();
         costTypes = new HashSet<CostType>();
     }
 
@@ -59,7 +59,7 @@ public class CostDriver implements XNodeIO {
 
     public UnitCost getUnitCost() { return unitCost; }
     
-    public Set<DriverEntity> getEntities() { return entities; }
+    public Set<DriverFacet> getFacets() { return facets; }
     
     public Set<CostType> getCostTypes() { return costTypes; }
     
@@ -81,7 +81,7 @@ public class CostDriver implements XNodeIO {
     public void fromXNode(XNode node) {
         id = node.getAttributeValue("id");
         metadata = new DriverMetaData(node.getChild("metadata"));
-        node.getChild("entities").populateCollection(entities, new DriverEntity());
+        node.getChild("facets").populateCollection(facets, new DriverFacet());
         node.getChild("costtypes").populateCollection(costTypes, new CostType());
         unitCost = new UnitCost(node.getChild("unitcost"));
     }
@@ -90,7 +90,7 @@ public class CostDriver implements XNodeIO {
         XNode node = new XNode("driver");
         node.addAttribute("id", id);
         node.addChild(metadata.toXNode());
-        node.addChild("entities").addCollection(entities);
+        node.addChild("facets").addCollection(facets);
         node.addChild("costtypes").addCollection(costTypes);
         node.addChild(unitCost.toXNode());
         return node;

@@ -38,9 +38,9 @@
             <property name="type" column="mdType"/>
         </component>
 
-        <set name="entities" table="cost_DriverEntities" access="field" cascade="all">
+        <set name="facets" table="cost_DriverEntities" access="field" cascade="all">
             <key column="driverID"/>
-            <one-to-many class="org.yawlfoundation.yawl.cost.data.DriverEntity"/>
+            <one-to-many class="org.yawlfoundation.yawl.cost.data.DriverFacet"/>
         </set>
 
         <set name="costTypes" table="cost_DriverCostTypes" access="field" cascade="all">
@@ -53,13 +53,13 @@
             <property name="unit" column="costUnit"/>
             <component name="costValue"
                        class="org.yawlfoundation.yawl.cost.data.CostValue" access="field">
-                <property name="amount" column="costValueAmount" type="double"/>
+                <property name="amount" column="costValueAmount"/>
                 <property name="currency" column="costValueCurrency"/>
             </component>
-            <property name="entityState" column="entityState" access="field">
+            <property name="facetStatus" access="field">
                 <type name="org.hibernate.type.EnumType">
                     <param name="enumClass">
-                        org.yawlfoundation.yawl.cost.data.EntityState
+                        org.yawlfoundation.yawl.cost.data.FacetStatus
                     </param>
                 </type>
             </property>

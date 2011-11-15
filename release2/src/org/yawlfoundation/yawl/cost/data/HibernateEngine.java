@@ -53,7 +53,7 @@ public class HibernateEngine {
     // class references for config
     private static Class[] persistedClasses = {
             CostModel.class, CostDriver.class, CostFunction.class, CostMapping.class,
-            CostType.class, DriverEntity.class, FunctionParameter.class
+            CostType.class, DriverFacet.class, FunctionParameter.class
     };
 
 

@@ -21,6 +21,8 @@ package org.yawlfoundation.yawl.cost.data;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
+import java.util.Map;
+
 /**
  * A unit of measure against which a cost may be allocated. Examples may be hour, week,
  * month, litre, tonne.
@@ -34,7 +36,7 @@ public class UnitCost {
 
     private TimeUnit unit;
     private CostValue costValue;
-    private EntityState entityState;
+    private FacetStatus facetStatus;
 
 
     public UnitCost() { }
@@ -49,7 +51,7 @@ public class UnitCost {
     public void setUnit(String u) { unit = TimeUnit.valueOf(u); }
 
 
-    public EntityState getDuration() { return entityState; }
+    public FacetStatus getDuration() { return facetStatus; }
 
 
     public CostValue getCostValue() { return costValue; }
@@ -57,14 +59,14 @@ public class UnitCost {
     public void setCostValue(CostValue value) { costValue = value; }
 
 
-    public double getCostPerMSec() {
+    public double getCostPerMSec(Map<String, String> dataMap) {
         long msecFactor = 1;
         switch (unit) {
             case hour   : msecFactor *= 60 ;
             case minute : msecFactor *= 60 ;
             case second : msecFactor *= 1000 ;
-            case millisecond : return costValue.getAmount() / msecFactor;
-            default: return costValue.getAmount();     // includes 'fixed'
+            case millisecond : return costValue.getAmount(dataMap) / msecFactor;
+            default: return costValue.getAmount(dataMap);     // includes 'fixed'
         }
     }
 
@@ -73,8 +75,8 @@ public class UnitCost {
         XNode node = new XNode("unitcost");
         node.addChildren(costValue.toXNode().getChildren());
         node.addChild("unit", unit.name());
-        if (entityState != EntityState.nil) {
-            node.addChild("state", entityState.name());
+        if (facetStatus != FacetStatus.nil) {
+            node.addChild("status", facetStatus.name());
         }
         return node;
     }
@@ -88,8 +90,8 @@ public class UnitCost {
         if (node != null) {
             setUnit(node.getChildText("unit"));
             costValue = new CostValue(node);
-            String state = node.getChildText("state");
-            entityState = (state != null) ? EntityState.valueOf(state) : EntityState.nil;
+            String status = node.getChildText("status");
+            facetStatus = (status != null) ? FacetStatus.valueOf(status) : FacetStatus.nil;
         }
     }
 

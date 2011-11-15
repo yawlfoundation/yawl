@@ -33,12 +33,12 @@ public class CostEntry {
     String driverID;
     String measure;
     String currency;
-    double amount;
+    String amount;
 
     public CostEntry() { }
 
     public CostEntry(YSpecificationID specID, String workItemID, String driverID,
-                     String measure, String currency, double amount) {
+                     String measure, String currency, String amount) {
         this.specID = specID;
         this.workItemID = workItemID;
         this.driverID = driverID;
@@ -80,8 +80,8 @@ public class CostEntry {
     public void setCurrency(String curr) { currency = curr; }
 
 
-    public double getAmount() { return amount; }
+    public String getAmount() { return amount; }
 
-    public void setAmount(double amt) { amount = amt; }
+    public void setAmount(String amt) { amount = amt; }
 
 }

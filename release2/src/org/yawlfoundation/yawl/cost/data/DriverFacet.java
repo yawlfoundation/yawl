@@ -25,18 +25,18 @@ import org.yawlfoundation.yawl.util.XNodeIO;
 * @author Michael Adams
 * @date 14/10/11
 */
-public class DriverEntity implements XNodeIO {
+public class DriverFacet implements XNodeIO {
 
     private long entityID;           // hibernate primary key
     private String id;
-    private EntityType entityType;
+    private FacetAspect facetAspect;
     private String name;
     private String value;        // data entity only
     
     
-    public DriverEntity() { }
+    public DriverFacet() { }
     
-    public DriverEntity(XNode node) { fromXNode(node); }
+    public DriverFacet(XNode node) { fromXNode(node); }
 
 
     public long getEntityID() { return entityID; }
@@ -52,12 +52,12 @@ public class DriverEntity implements XNodeIO {
         this.id = id;
     }
 
-    public EntityType getEntityType() {
-        return entityType;
+    public FacetAspect getFacetAspect() {
+        return facetAspect;
     }
 
-    public void setEntityType(EntityType entityType) {
-        this.entityType = entityType;
+    public void setFacetAspect(FacetAspect facetAspect) {
+        this.facetAspect = facetAspect;
     }
 
     public String getName() {
@@ -78,21 +78,21 @@ public class DriverEntity implements XNodeIO {
 
     public void fromXNode(XNode node) {
         id = node.getAttributeValue("id");
-        entityType = EntityType.valueOf(node.getAttributeValue("perspective"));
+        facetAspect = FacetAspect.valueOf(node.getAttributeValue("aspect"));
         name = node.getChildText("name");
         value = node.getChildText("value");
     }
 
     public XNode toXNode() {
-        XNode node = new XNode("entity");
+        XNode node = new XNode("facet");
         node.addAttribute("id", id);
-        node.addAttribute("perspective", entityType.name());
+        node.addAttribute("aspect", facetAspect.name());
         node.addChild("name", name);
         if (value != null) node.addChild("value", value);
         return node;
     }
 
     public XNodeIO newInstance(XNode node) {
-        return new DriverEntity(node); 
+        return new DriverFacet(node);
     }
 }

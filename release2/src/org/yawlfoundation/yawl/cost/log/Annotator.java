@@ -230,8 +230,8 @@ public class Annotator {
 
             // check that all the driver's entities appear in this event
             boolean satisfied = true;
-            for (DriverEntity entity : driver.getEntities()) {
-                satisfied = evaluateEntity(entity, event, driverMatrix);
+            for (DriverFacet facet : driver.getFacets()) {
+                satisfied = evaluateEntity(facet, event, driverMatrix);
                 if (! satisfied) break;
             }
 
@@ -254,10 +254,11 @@ public class Annotator {
     private double calcCost(UnbundledEvent event, CostDriver driver,
                             TaskTimings timings) {
         UnitCost unitCost = driver.getUnitCost();
+        Map<String, String> dataMap = event.getDataMap();
 
         // if the unit cost duration is 'fixed', simply return the amount
         if (unitCost.getUnit().equals("fixed")) {
-            return unitCost.getCostValue().getAmount();  // duration ignored for fixed
+            return unitCost.getCostValue().getAmount(dataMap);  // duration ignored for fixed
         }
 
         // get the duration in msecs for the duration type defined in the cost driver
@@ -267,15 +268,15 @@ public class Annotator {
             case assigned  : period = timings.getAssignedTime(); break;
             case allocated : period = timings.getAllocatedTime(instance); break;
             case busy      : period = timings.getBusyTime(instance); break;
-            case active    : period = timings.getWorkingTime(instance); break;
-            case inactive  : period = timings.getWaitingTime(instance); break;
+            case active    : period = timings.getActiveTime(instance); break;
+            case inactive  : period = timings.getInactiveTime(instance); break;
             case suspended : period = timings.getSuspendedTime(instance); break;
-            default        : return unitCost.getCostValue().getAmount();  // incl. nil
+            default        : return unitCost.getCostValue().getAmount(dataMap);  // incl. nil
         }
 
         // -1 denotes calculation error, in which case return the simple amount
-        return period > -1 ? period * unitCost.getCostPerMSec() :
-                unitCost.getCostValue().getAmount();
+        return period > -1 ? period * unitCost.getCostPerMSec(dataMap) :
+                unitCost.getCostValue().getAmount(dataMap);
     }
 
 
@@ -362,20 +363,20 @@ public class Annotator {
 
 
     /**
-     * Checks whether an entity is referenced by an event
-     * @param entity the entity to check
+     * Checks whether an facet is referenced by an event
+     * @param facet the facet to check
      * @param event the event in question
      * @param driverMatrix a matrix of all cost drivers for the log's specification
-     * @return true if the entity matches a value in the event
+     * @return true if the facet matches a value in the event
      */
-    private boolean evaluateEntity(DriverEntity entity, UnbundledEvent event,
+    private boolean evaluateEntity(DriverFacet facet, UnbundledEvent event,
                                    DriverMatrix driverMatrix) {
-        switch (entity.getEntityType()) {
-            case task     : return entity.getName().equals(event.getName());
+        switch (facet.getFacetAspect()) {
+            case task     : return facet.getName().equals(event.getName());
             case resource : return driverMatrix.hasResourceMatch(
-                                entity.getName(), event.getResource());
+                                facet.getName(), event.getResource());
             case data     : return event.hasData() &&
-                                event.hasDataMatch(entity.getName(), entity.getValue());
+                                event.hasDataMatch(facet.getName(), facet.getValue());
             default       : return false;
         }
     }

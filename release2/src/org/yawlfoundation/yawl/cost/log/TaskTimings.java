@@ -134,7 +134,7 @@ class TaskTimings {
      * @return the number of msecs that expired from when the work item was enabled
      * until when it was started
      */
-    public long getWaitingTime(String instance) {
+    public long getInactiveTime(String instance) {
         return timeDiff(started.get(instance), scheduled);
     }
 
@@ -144,7 +144,7 @@ class TaskTimings {
      * @return the number of msecs that expired from when the work item was started
      * until when it was completed or cancelled, less any time spent suspended
      */
-    public long getWorkingTime(String instance) {
+    public long getActiveTime(String instance) {
         return getBusyTime(instance) - getSuspendedTime(instance);
     }
 

@@ -23,7 +23,7 @@
 
 <hibernate-mapping>
 
-    <class name="org.yawlfoundation.yawl.cost.data.DriverEntity"
+    <class name="org.yawlfoundation.yawl.cost.data.DriverFacet"
            table="cost_DriverEntities">
 
         <id name="entityID" type="long">
@@ -32,10 +32,10 @@
 
         <property name="id" column="internalID" access="field"/>
 
-        <property name="entityType" column="entityType" access="field">
+        <property name="facetAspect" column="facetAspect" access="field">
             <type name="org.hibernate.type.EnumType">
                 <param name="enumClass">
-                    org.yawlfoundation.yawl.cost.data.EntityType
+                    org.yawlfoundation.yawl.cost.data.FacetAspect
                 </param>
             </type>
         </property>
