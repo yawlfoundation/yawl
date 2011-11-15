@@ -22,13 +22,4 @@ package org.yawlfoundation.yawl.cost.data;
 * @author Michael Adams
 * @date 25/10/11
 */
-public enum EntityState {
-    nil,                         // not specified
-    assigned,                    // for a resource, period between offered and allocated
-    allocated,                   // for a resource, period between allocated and started
-    busy,                        // for a resource, period between started and completed
-    inactive,                    // for a task, period between enabled and executing
-    active,                      // for a task, period between executing and completed...
-                                 // ...less any time spent suspended
-    suspended                    // for a task, period spent suspended
-}
+public enum FacetAspect { task, resource, data }

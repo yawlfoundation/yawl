@@ -47,7 +47,7 @@
                 <xs:element name="cost" type="mappingElementType"/>
                 <xs:element name="workflow" type="mappingElementType"/>
             </xs:sequence>
-            <xs:attribute ref="perspective"/>
+            <xs:attribute ref="aspect"/>
         </xs:complexType>
     </xs:element>
     <xs:complexType name="mappingElementType">

@@ -59,19 +59,19 @@ public class DriverMatrix {
     private void unbundleModels(Set<CostModel> models) {
         for (CostModel model : models) {
             for (CostDriver driver : model.getDrivers()) {
-                for (DriverEntity entity : driver.getEntities()) {
-                    if (entity.getEntityType() == EntityType.task) {
-                        addToMap(taskMap, driver, entity.getName());
+                for (DriverFacet facet : driver.getFacets()) {
+                    if (facet.getFacetAspect() == FacetAspect.task) {
+                        addToMap(taskMap, driver, facet.getName());
                     }
-                    else if (entity.getEntityType() == EntityType.resource) {
+                    else if (facet.getFacetAspect() == FacetAspect.resource) {
 
-                        // model's entity name may reference a set of resources
-                        for (String resourceID : resolveResource(entity.getName())) {
+                        // model's facet name may reference a set of resources
+                        for (String resourceID : resolveResource(facet.getName())) {
                             addToMap(resourceMap, driver, resourceID);
                         }
                     }
-                    else if (entity.getEntityType() == EntityType.data) {
-                        addToMap(dataMap, driver, entity.getName());
+                    else if (facet.getFacetAspect() == FacetAspect.data) {
+                        addToMap(dataMap, driver, facet.getName());
                     }
                 }
             }
@@ -191,9 +191,9 @@ public class DriverMatrix {
                 // we already know the entity contains the resource, and we don't care
                 // about data, but only if it contains a task that matches the one passed
                 boolean satisfied = true;
-                for (DriverEntity entity : driver.getEntities()) {
-                    if ((entity.getEntityType() == EntityType.task) &&
-                        (! entity.getName().equals(taskName))) {
+                for (DriverFacet facet : driver.getFacets()) {
+                    if ((facet.getFacetAspect() == FacetAspect.task) &&
+                        (! facet.getName().equals(taskName))) {
                         satisfied = false;
                         break;
                     }
@@ -202,7 +202,7 @@ public class DriverMatrix {
                     UnitCost unitCost = driver.getUnitCost();
                     XNode driverNode = costs.addChild("driver");
                     driverNode.addAttribute("id", driver.getID());
-                    driverNode.addChild("amount", unitCost.getCostPerMSec());
+                    driverNode.addChild("amount", unitCost.getCostPerMSec(null));
                     driverNode.addChild("currency", unitCost.getCostValue().getCurrency());
                     driverNode.addChild("duration", unitCost.getDuration().name());
                 }

@@ -44,7 +44,7 @@
         <property name="mappingType" column="mappingType" access="field">
             <type name="org.hibernate.type.EnumType">
                 <param name="enumClass">
-                    org.yawlfoundation.yawl.cost.data.EntityType
+                    org.yawlfoundation.yawl.cost.data.FacetAspect
                 </param>
             </type>
         </property>

@@ -20,13 +20,15 @@ package org.yawlfoundation.yawl.cost.data;
 
 import org.yawlfoundation.yawl.util.XNode;
 
+import java.util.Map;
+
 /**
 * @author Michael Adams
 * @date 14/10/11
 */
 public class CostValue {
 
-    double amount;
+    String amount;
     String currency;
 
     public CostValue() { }
@@ -34,11 +36,21 @@ public class CostValue {
     public CostValue(XNode node) { fromXNode(node); }
 
 
-    public double getAmount() {
+    public double getAmount(Map<String, String> dataMap) {
+        try {
+            return new ExpressionParser(amount, dataMap).evaluate();
+        }
+        catch (NumberFormatException nfe) {
+            return 0;
+        }
+    }
+
+    
+    public String getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(String amount) {
         this.amount = amount;
     }
 
@@ -58,7 +70,7 @@ public class CostValue {
     }
     
     public void fromXNode(XNode node) {
-        amount = Double.valueOf(node.getChildText("amount"));
+        amount = node.getChildText("amount");
         currency = node.getChildText("currency");
     }
 }
