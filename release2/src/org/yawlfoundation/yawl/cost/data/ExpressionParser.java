@@ -18,9 +18,14 @@
 
 package org.yawlfoundation.yawl.cost.data;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Map;
 
 /**
+ * Parses and evaluates a numeric expression. Valid operators are + - * and \ (note
+ * the backslash for division). Sub-expressions may be parenthesised to any level.
  * @author Michael Adams
  * @date 15/11/11
  */
@@ -29,47 +34,86 @@ public class ExpressionParser {
     private String expression;
     private Map<String, String> variables;
 
-    // reverse order of precedence
+    // operators grouped in reverse order of precedence
     private static final String[] ORDERED_OPERATORS = { "+-", "*\\" };
     
     
     public ExpressionParser() { }
-    
+
+    /**
+     * Creates a new parser
+     * @param expr the expression to parse
+     * @param vars a set of variables and their values
+     */
     public ExpressionParser(String expr, Map<String, String> vars) {
         setExpression(expr);
         setVariables(vars);
     }
 
 
+    /**
+     * sets the map of variables and their values for this parser
+     * @param vars the map of variables and their values
+     */
     public void setVariables(Map<String, String> vars) { variables = vars; }
 
+
+    /**
+     * Sets the primary expression for this parser
+     * @param expr the expression to parse
+     */
     public void setExpression(String expr) { expression = expr; }
 
 
+    /**
+     * Evaluates a previously added expression
+     * @return the result of the evaluation
+     * @throws NumberFormatException if the expression is malformed
+     */
     public double evaluate() {
-        BinaryNode root = parse(expression.trim());
-        return root.evaluate();
+        return evaluate(expression);
     }
 
 
+    /**
+     * Evaluates an expression
+     * @param expr the expression to evaluate
+     * @return the result of the evaluation
+     * @throws NumberFormatException if the expression is malformed
+     */
     public double evaluate(String expr) {
-        setExpression(expr);
-        return evaluate();
+        if (expr != null) {
+            BinaryNode root = parse(expr);
+            return root.evaluate();
+        }
+        throw new NumberFormatException("Null expression");
     }
     
 
     /********************************************************************************/
 
+    /**
+     * Parses an expression into a binary tree
+     * @param expr the expression to parse
+     * @return the root node of the tree
+     */
     private BinaryNode parse(String expr) {
-        BinaryNode node = new BinaryNode();
+        expr = expr.trim();
+
+        // sub-evaluate parenthesised sub-expressions
+        while (expr.contains("(")) {
+            expr = parenthesisParse(expr);
+        }
+
         char[] chars = expr.toCharArray();
+        BinaryNode node = new BinaryNode();
         for (String ops : ORDERED_OPERATORS) {
             for (int i = 1; i < chars.length; i++) {      // start at 1 handles unary ops
                 if (chars[i] == ' ') continue;            // ignore spaces
                 if (ops.indexOf(chars[i]) > -1) {
                     node.content = String.valueOf(chars[i]);
-                    if (i > 0) node.left = parse(expr.substring(0, i).trim());
-                    if ((i + 1) < expr.length()) node.right = parse(expr.substring(i + 1).trim());
+                    if (i > 0) node.left = parse(expr.substring(0, i));
+                    if ((i + 1) < expr.length()) node.right = parse(expr.substring(i + 1));
                     return node;
                 }    
             }
@@ -78,6 +122,33 @@ public class ExpressionParser {
         return node;
     }
 
+
+    /**
+     * Parses a parentheses sub-expression within an expression and replaces it in the
+     * expression with its evaluated result
+     * @param expr the full expression, containing a parentheses part
+     * @return the expression, with the part replaced with its evaluation
+     */
+    private String parenthesisParse(String expr) {
+        char[] chars = expr.toCharArray();
+        int start = expr.indexOf('(');
+        int open = 0;
+        for (int i = start; i < chars.length; i++) {
+            if (chars[i] == '(') open++;
+            if (chars[i] == ')') open--;
+            if (open == 0) {
+                StringBuilder sb = new StringBuilder(chars.length);
+                sb.append(chars, 0, start);
+                sb.append(parse(expr.substring(start + 1, i)).evaluate());
+                if (i < chars.length - 1) sb.append(chars, i + 1, chars.length - i - 1);
+                return sb.toString();
+            }
+        }
+        throw new NumberFormatException("Unbalanced parentheses in expression");
+    }
+
+
+    /**********************************************************************************/
 
     class BinaryNode {
         String content;
@@ -128,6 +199,30 @@ public class ExpressionParser {
                 return false;
             }
             return true;
+        }
+    }
+    
+    public static void main(String[] args) {
+        ExpressionParser parser = new ExpressionParser();
+        String expression;
+        BufferedReader c = new BufferedReader(new InputStreamReader(System.in));
+        while (true) {
+            try {
+                System.out.print("Enter expression ('X' to exit): ");
+                expression = c.readLine();
+                if (expression.equalsIgnoreCase("x")) break;
+                long start = System.currentTimeMillis();
+                double result = parser.evaluate(expression);
+                long duration = System.currentTimeMillis() - start;
+                System.out.println("Result: " + result + " (" + duration + " msecs)");
+            }
+            catch (NumberFormatException nfe) {
+                System.err.println("Result :" + nfe.getMessage());
+            }
+            catch (IOException ioe) {
+                System.err.println(ioe.getMessage());
+                break;
+            }            
         }
     }
 }
