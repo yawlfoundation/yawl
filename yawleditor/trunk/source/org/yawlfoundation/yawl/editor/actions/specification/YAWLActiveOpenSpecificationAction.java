@@ -31,33 +31,29 @@ import org.yawlfoundation.yawl.editor.specification.SpecificationFileModelListen
  * This class is an abstract class that supplies a basic Action for concrete Action classes
  * to build from. It becomes enabled only when there is a specification loaded, and some net
  * within the specification is active. It is disabled otherwise.
- * 
+ *
  * @author Lindsay Bradford
  */
 
-public class YAWLActiveOpenSpecificationAction extends YAWLOpenSpecificationAction 
-                               implements SpecificationFileModelListener {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+public class YAWLActiveOpenSpecificationAction extends YAWLOpenSpecificationAction
+        implements SpecificationFileModelListener {
 
-  {
-    getFileModel().subscribe(this);   
-  }                                  
-
-  public void specificationFileModelStateChanged(int state) {
-    switch(state) {
-      case SpecificationFileModel.IDLE: {
-        setEnabled(false);     
-        break;    
-      }
-      case SpecificationFileModel.EDITING: {
-        break;    
-      }
-      default: {
-        assert false : "Invalid state passed to updateState()";   
-      }    
+    {
+        getFileModel().subscribe(this);
     }
-  }
+
+    public void specificationFileModelStateChanged(int state) {
+        switch (state) {
+            case SpecificationFileModel.IDLE: {
+                setEnabled(false);
+                break;
+            }
+            case SpecificationFileModel.EDITING: {
+                break;
+            }
+            default: {
+                assert false : "Invalid state passed to updateState()";
+            }
+        }
+    }
 }

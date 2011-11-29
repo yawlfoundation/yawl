@@ -32,36 +32,34 @@ import java.awt.event.ActionEvent;
 
 public abstract class YAWLBaseAction extends AbstractAction {
 
-  protected static final String iconPath = "/org/yawlfoundation/yawl/editor/resources/menuicons/";
+    protected static final String iconPath = "/org/yawlfoundation/yawl/editor/resources/menuicons/";
 
-  protected ImageIcon getIconByName(String iconName) {
-    return ResourceLoader.getImageAsIcon(iconPath + iconName + "16.gif");
-  }
+    protected ImageIcon getIconByName(String iconName) {
+        return ResourceLoader.getImageAsIcon(iconPath + iconName + "16.gif");
+    }
 
-  protected ImageIcon getPNGIcon(String iconName) {
-      return ResourceLoader.getImageAsIcon(iconPath + iconName + ".png");
-  }
+    protected ImageIcon getPNGIcon(String iconName) {
+        return ResourceLoader.getImageAsIcon(iconPath + iconName + ".png");
+    }
 
 
-  public void actionPerformed(ActionEvent e) {
-    JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
-                                  "The action labelled \"" +
-                                  getValue(Action.NAME) + 
-                                  "\" is not yet implemented.\n\n" +
-                                  "We apologise for the inconvenience.",
-                                  "Oopsies!",
-                                  JOptionPane.INFORMATION_MESSAGE);
-  }
+    public void actionPerformed(ActionEvent e) {
+        JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
+                "The action labelled \"" + getValue(Action.NAME) +
+                        "\" is not yet implemented.\n\n",
+                "No Action",
+                JOptionPane.INFORMATION_MESSAGE);
+    }
 
-  public NetGraph getGraph() {
-    return YAWLEditorDesktop.getInstance().getSelectedGraph();
-  }
-  
-  public boolean shouldBeEnabled() {
-    return true;
-  }
-  
-  public boolean shouldBeVisible() {
-    return true;
-  }
+    public NetGraph getGraph() {
+        return YAWLEditorDesktop.getInstance().getSelectedGraph();
+    }
+
+    public boolean shouldBeEnabled() {
+        return true;
+    }
+
+    public boolean shouldBeVisible() {
+        return true;
+    }
 }

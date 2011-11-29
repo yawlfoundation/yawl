@@ -2,6 +2,7 @@ package org.yawlfoundation.yawl.editor.swing.resourcing;
 
 import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
 
 import javax.swing.*;
@@ -15,7 +16,7 @@ public class FamiliarTaskComboBox extends JComboBox {
 
   public void setTask(YAWLAtomicTask task) {
     this.task = task;
-    this.familiarTasks = NetUtilities.getPreceedingResourcingRequiredTasksOf(getTask());
+    this.familiarTasks = NetUtilities.getPreceedingResourcingRequiredTasksOf((YAWLVertex) getTask());
     generateFamiliarTaskItems();
   }
   

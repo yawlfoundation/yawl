@@ -1,9 +1,13 @@
 package org.yawlfoundation.yawl.editor.swing;
 
+import org.yawlfoundation.yawl.editor.client.YConnector;
 import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Author: Michael Adams
@@ -27,6 +31,7 @@ public class JConnectionStatus extends JPanel {
             )
         );
         addIndicators();
+        startHeartbeat();
     }
 
     private static ImageIcon getIconByName(String iconName) {
@@ -41,6 +46,16 @@ public class JConnectionStatus extends JPanel {
         add(resourceIndicator, BorderLayout.EAST);
     }
 
+
+    private void startHeartbeat() {
+        ScheduledExecutorService _heartbeat = Executors.newScheduledThreadPool(1);
+        _heartbeat.scheduleAtFixedRate(new Runnable() {
+            public void run() {
+                checkConnectionStatus();
+            }
+        }, 1, 10, TimeUnit.SECONDS);
+    }
+
     
     public void setStatusMode(String component, boolean online) {
         if (component.equals("engine")) {
@@ -49,6 +64,11 @@ public class JConnectionStatus extends JPanel {
         else if (component.equals("resource")) {
             resourceIndicator.setOnline(online);
         }
+    }
+
+    public void checkConnectionStatus() {
+        setStatusMode("engine", YConnector.isEngineConnected());
+        setStatusMode("resource", YConnector.isResourceConnected());
     }
 
     /*******************************************/

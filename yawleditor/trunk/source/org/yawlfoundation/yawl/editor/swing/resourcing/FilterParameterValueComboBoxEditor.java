@@ -1,6 +1,6 @@
 package org.yawlfoundation.yawl.editor.swing.resourcing;
 
-import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
+import org.yawlfoundation.yawl.editor.client.YConnector;
 import org.yawlfoundation.yawl.resourcing.resource.Capability;
 import org.yawlfoundation.yawl.resourcing.resource.OrgGroup;
 import org.yawlfoundation.yawl.resourcing.resource.Position;
@@ -10,6 +10,7 @@ import javax.swing.table.TableCellEditor;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -74,9 +75,17 @@ public class FilterParameterValueComboBoxEditor extends AbstractCellEditor
   }
 
     protected void makeMaps() {
-        java.util.List capabilities = ResourcingServiceProxy.getInstance().getCapabilities();
-        java.util.List positions = ResourcingServiceProxy.getInstance().getPositions();
-        java.util.List orgGroups = ResourcingServiceProxy.getInstance().getOrgGroups();
+        java.util.List<Capability> capabilities = null;
+        java.util.List<Position> positions = null;
+        java.util.List<OrgGroup> orgGroups = null;
+        try {
+            capabilities = YConnector.getCapabilities();
+            positions = YConnector.getPositions();
+            orgGroups = YConnector.getOrgGroups();
+        }
+        catch (IOException ioe) {
+            // nothing to do - proceed with nulls
+        }
 
         mapCapability = new HashMap<String, String>();
         mapPosition = new HashMap<String, String>();
@@ -84,20 +93,17 @@ public class FilterParameterValueComboBoxEditor extends AbstractCellEditor
 
         int i;
         if (capabilities != null) {
-            for (i=0; i<capabilities.size(); i++) {
-                Capability c = (Capability) capabilities.get(i) ;
+            for (Capability c : capabilities) {
                 mapCapability.put(c.getCapability(), c.getID());
             }
         }
         if (positions != null) {
-            for (i=0; i<positions.size() ; i++) {
-                Position p = (Position) positions.get(i) ;
+            for (Position p : positions) {
                 mapPosition.put(p.getTitle(), p.getID());
             }
         }
         if (orgGroups != null) {
-            for (i=0; i<orgGroups.size(); i++) {
-                OrgGroup o = (OrgGroup) orgGroups.get(i) ;
+            for (OrgGroup o : orgGroups) {
                 mapOrgGroup.put(o.getGroupName(), o.getID());
             }
         }

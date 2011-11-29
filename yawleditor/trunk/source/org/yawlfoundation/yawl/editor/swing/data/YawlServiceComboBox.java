@@ -23,95 +23,93 @@
 
 package org.yawlfoundation.yawl.editor.swing.data;
 
-import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.client.YConnector;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 
 import javax.swing.*;
+import java.io.IOException;
 import java.util.*;
 
 public class YawlServiceComboBox extends JComboBox {
-  
-  private static final long serialVersionUID = 1L;
-  private HashMap services = new HashMap();
-  
-  public YawlServiceComboBox() {
-    super();
-  }
-  
-  public void refresh() {
-    removeAllItems();
-    setEnabled(false);
-    
-    addYawlServices();
-    if (getItemCount() > 1) {
-      setEnabled(true);
-    }
-  }
 
-  private void addYawlServices() {
-    addYawlServicesFromEngine();    
-  }
-  
-  private void addYawlServicesFromEngine() {
-    services = YAWLEngineProxy.getInstance().getRegisteredYAWLServices();
-    if (services == null) {
-      return;
+    private static final long serialVersionUID = 1L;
+    private Map<String, String> services = new HashMap<String, String>();
+
+    public YawlServiceComboBox() {
+        super();
     }
 
-    LinkedList sortedServices = new LinkedList();
-    sortedServices.addAll(services.keySet());
-    Collections.sort(sortedServices);
-    
-    Iterator serviceIterator = sortedServices.iterator();
-    while(serviceIterator.hasNext()) {
-      String serviceDescription = (String) serviceIterator.next();
-      addItem(serviceDescription);                            // add service to combobox
+    public void refresh() {
+        removeAllItems();
+        setEnabled(false);
+        addYawlServicesFromEngine();
+        setEnabled(getItemCount() > 1);
     }
-  }
-  
-  public String getSelectedItemID() {
-    return (String) services.get(getSelectedItem());
-  }
 
-  public String getDescriptionFromID(String id) {
-      for (Object description : services.keySet()) {
-          String serviceID = (String) services.get(description);
-          if ((serviceID != null) && serviceID.equals(id)) {
-              return (String) description;
-          }
-      }
-      return null;
-  }
-  
-  /**
-   * Returns whether the selected item will need further web service detail
-   * to be specified for the selected item to be meaningful.
-   */
-  
-  public boolean needsWebServiceDetail() {
-    if (getSelectedItem() == null) {
-      return false;
-    }
-    
-    String serviceURI = (String) services.get(getSelectedItem());
-    if (serviceURI != null && serviceURI.matches(".*/yawlWSInvoker/$")) {
-      return true;
-    }
-    return false;
-  }
 
-  /**
-   * Returns whether the selected item represents a service 
-   * that specifies its own interface in terms of variables. 
-   */
-  
-  public boolean definesOwnVariableInterface() {
-    if (getSelectedItem() == null) {
-      return false;
+    private void addYawlServicesFromEngine() {
+        services.clear();
+        try {
+            for (YAWLServiceReference service : YConnector.getServices()) {
+                if (!service.canBeAssignedToTask()) {
+                    continue;  // ignore services that are not for tasks.
+                }
+
+                // Short and sweet description for the editor.
+                String doco = service.getDocumentation();
+                if (doco == null) doco = service.get_serviceName();
+                services.put(doco, service.getURI());
+            }
+        }
+        catch (IOException ioe) {
+
+            // do nothing - services remains an empty list
+            return;
+        }
+
+        List<String> sortedServiceLabels = new ArrayList<String>(services.keySet());
+        Collections.sort(sortedServiceLabels);
+        for (String label : sortedServiceLabels) {
+            addItem(label);                           // add service to combobox
+        }
     }
-    String serviceURI = (String) services.get(getSelectedItem());
-    if (serviceURI == null) {
-      return false;
+
+
+    public String getSelectedItemID() {
+        return services.get(getSelectedItem());
     }
-    return true;
-  }
+
+
+    public String getDescriptionFromID(String id) {
+        for (String description : services.keySet()) {
+            String serviceID = services.get(description);
+            if ((serviceID != null) && serviceID.equals(id)) {
+                return description;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns whether the selected item will need further web service detail
+     * to be specified for the selected item to be meaningful.
+     */
+    public boolean needsWebServiceDetail() {
+        if (getSelectedItem() == null) {
+            return false;
+        }
+
+        String serviceURI = services.get(getSelectedItem());
+        return (serviceURI != null) && serviceURI.matches(".*/yawlWSInvoker/$");
+    }
+
+
+    /**
+     * Returns whether the selected item represents a service
+     * that specifies its own interface in terms of variables.
+     */
+
+    public boolean definesOwnVariableInterface() {
+        return (getSelectedItem() != null) && (services.get(getSelectedItem()) != null);
+    }
 }

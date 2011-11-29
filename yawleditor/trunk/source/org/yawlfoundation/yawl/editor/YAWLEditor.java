@@ -23,6 +23,7 @@
 package org.yawlfoundation.yawl.editor;
 
 import org.yawlfoundation.yawl.editor.analyser.YAWLResetAnalyser;
+import org.yawlfoundation.yawl.editor.client.YConnector;
 import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
 import org.yawlfoundation.yawl.editor.foundations.LogWriter;
 import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
@@ -37,7 +38,6 @@ import org.yawlfoundation.yawl.editor.swing.specification.ProblemMessagePanel;
 import org.yawlfoundation.yawl.editor.swing.specification.SpecificationBottomPanel;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.EngineSpecificationExporter;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
-import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 import org.yawlfoundation.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
 
 import javax.swing.*;
@@ -77,6 +77,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   private static final JStatusBar statusBar = new JStatusBar();
 
 
+
   public static YAWLEditor getInstance() {
     if (INSTANCE == null) {
       INSTANCE = new YAWLEditor();
@@ -103,6 +104,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   private YAWLEditor() {
     super();
     updateLoadProgress(5);
+      establishConnections();
     buildInterface();
     SpecificationFileModel.getInstance().subscribe(this);
   }
@@ -207,7 +209,6 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     installEventListeners();
 
     updateLoadProgress(95);
-    attemptEngineConnectionIfApplicable();
   }
 
 
@@ -439,10 +440,17 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     }
   }
 
-  private void attemptEngineConnectionIfApplicable() {
-      setStatusMode("engine", YAWLEngineProxy.getInstance().connect());
-      setStatusMode("resource", ResourcingServiceProxy.getInstance().connect());
-  }
+
+    private void establishConnections() {
+        YConnector.setEngineUserID(prefs.get("engineUserID", null));
+        YConnector.setEnginePassword(prefs.get("engineUserPassword", null));
+        YConnector.setEngineURL(prefs.get("engineURI", null));
+
+        YConnector.setResourceUserID(prefs.get("resourcingServiceUserID", null));
+        YConnector.setResourcePassword(prefs.get("resourcingServiceUserPassword", null));
+        YConnector.setResourceURL(prefs.get("resourcingServiceURI", null));
+    }
+
 
   public static void pause(long milliseconds) {
     Object lock = new Object();

@@ -23,69 +23,60 @@
 
 package org.yawlfoundation.yawl.editor.data;
 
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+
 public class WebServiceDecomposition extends Decomposition {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+    public static final String DEFAULT_ENGINE_SERVICE_NAME = "Default Engine Worklist";
 
-  public static final String DEFAULT_ENGINE_SERVICE_NAME = "Default Engine Worklist";
-  
-  public static final WebServiceDecomposition DEFAULT_WS_DECOMPOSITION = 
-    new WebServiceDecomposition(
-      null,
-      DEFAULT_ENGINE_SERVICE_NAME
-    );
-  
-  public WebServiceDecomposition() {
-    super();
-    setYawlServiceID(null);
-    setYawlServiceDescription("");
-    setManualInteraction(true);
-  }
-  
-  public WebServiceDecomposition(String yawlServiceID,
-                                 String yawlServiceDescription) {
-    setYawlServiceID(yawlServiceID);
-    setYawlServiceDescription(yawlServiceDescription);
-    setManualInteraction(false);
-  }
+    private YAWLServiceReference _service;
 
-  public String getYawlServiceID() {
-    return (String) serializationProofAttributeMap.get("yawlServiceID");
-  }
-  
-  public void setYawlServiceID(String yawlServiceID) {
-    serializationProofAttributeMap.put("yawlServiceID", yawlServiceID);
-  }
-  
-  public String getYawlServiceDescription() {
-    return (String) serializationProofAttributeMap.get("yawlServiceDescription");
-  }
-  
-  public void setYawlServiceDescription(String yawlServiceDescription) {
-    serializationProofAttributeMap.put("yawlServiceDescription",yawlServiceDescription);
-  }
-  
-  public boolean invokesWorklist() {
-    return (this.getYawlServiceID() == null);
-  }
+    public WebServiceDecomposition() {
+        super();
+        setManualInteraction(true);
+    }
 
-  public void setManualInteraction(boolean isManual) {
-    serializationProofAttributeMap.put("manualInteraction", isManual);
-  }
+    public WebServiceDecomposition(String yawlServiceID,
+                                   String yawlServiceDescription) {
+        _service = new YAWLServiceReference(yawlServiceID, null);
+        setYawlServiceDescription(yawlServiceDescription);
+        setManualInteraction(false);
+    }
 
-  public boolean isManualInteraction() {
-    return (Boolean) serializationProofAttributeMap.get("manualInteraction");
-  }
+    public String getYawlServiceID() {
+        return invokesWorklist() ? null : _service.getURI();
+    }
 
-  public void setCodelet(String codelet) {
-    serializationProofAttributeMap.put("codelet", codelet);
-  }
+    public void setYawlServiceID(String yawlServiceID) {
+        _service.set_yawlServiceID(yawlServiceID);
+    }
 
-  public String getCodelet() {
-    return (String) serializationProofAttributeMap.get("codelet");
-  }
+    public String getYawlServiceDescription() {
+        return invokesWorklist() ? "" : _service.getDocumentation();
+    }
+
+    public void setYawlServiceDescription(String yawlServiceDescription) {
+        _service.setDocumentation(yawlServiceDescription);
+    }
+
+    public boolean invokesWorklist() {
+        return (_service == null);
+    }
+
+    public void setManualInteraction(boolean isManual) {
+        _decomposition.setExternalInteraction(isManual);
+    }
+
+    public boolean isManualInteraction() {
+        return _decomposition.requiresResourcingDecisions();
+    }
+
+    public void setCodelet(String codelet) {
+        _decomposition.setCodelet(codelet);
+    }
+
+    public String getCodelet() {
+        return _decomposition.getCodelet();
+    }
 
 }

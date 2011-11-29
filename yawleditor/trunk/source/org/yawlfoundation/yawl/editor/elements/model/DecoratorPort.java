@@ -26,24 +26,24 @@ package org.yawlfoundation.yawl.editor.elements.model;
 
 public class DecoratorPort extends YAWLPort {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-  public boolean acceptsIncomingFlows() {
-    return getDecorator().acceptsIncomingFlows();
-  }
+    public boolean acceptsIncomingFlows() {
+        return getDecorator().acceptsIncomingFlows();
+    }
 
-  public boolean generatesOutgoingFlows() {
-    return getDecorator().generatesOutgoingFlows();
-  }
-  
-  public Decorator getDecorator() {
-    return (Decorator) this.getParent();
-  }
-  
-  public boolean isLongEdgePort() {
-    return (getDecorator().isLongEdgePort(this));
-  }
+    public boolean generatesOutgoingFlows() {
+        return getDecorator().generatesOutgoingFlows();
+    }
+
+    public Decorator getDecorator() {
+        return (Decorator) this.getParent();
+    }
+
+    public boolean isLongEdgePort() {
+        return (getDecorator().isLongEdgePort(this));
+    }
 }

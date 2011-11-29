@@ -1,7 +1,8 @@
 package org.yawlfoundation.yawl.editor.swing.resourcing;
 
+import org.yawlfoundation.yawl.editor.client.YConnector;
 import org.yawlfoundation.yawl.editor.resourcing.*;
-import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
+import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -11,7 +12,9 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
@@ -224,7 +227,7 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
         }
 
         public void refresh() {
-            setUserList(ResourcingServiceProxy.getInstance().getAllParticipants());
+            setUserList(getUserList());
         }
 
         protected ResourceMapping getResourceMapping() {
@@ -308,7 +311,7 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
         }
 
         public void refresh() {
-            setRoleList(ResourcingServiceProxy.getInstance().getAllRoles());
+            setRoleList(getRoleList());
         }
 
         protected ResourceMapping getResourceMapping() {
@@ -390,7 +393,17 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
         }
 
         public void refresh() {
-            setUserList(ResourcingServiceProxy.getInstance().getAllNonHumanResources());
+            List<ResourcingAsset> assets = new ArrayList<ResourcingAsset>();
+            try {
+                for (NonHumanResource resource : YConnector.getNonHumanResources()) {
+                    assets.add(new ResourcingAsset(resource.getID(), resource.getName()));
+                }
+                Collections.sort(assets);
+            }
+            catch (IOException ioe) {
+                // nothing to do - use empty list
+            }
+            setUserList(assets);
         }
 
         protected ResourceMapping getResourceMapping() {
@@ -474,7 +487,7 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
         }
 
         public void refresh() {
-            setCategoryList(ResourcingServiceProxy.getInstance().getAllNonHumanCategories());
+            setCategoryList(YConnector.getResourcingCategories());
         }
 
         protected ResourceMapping getResourceMapping() {

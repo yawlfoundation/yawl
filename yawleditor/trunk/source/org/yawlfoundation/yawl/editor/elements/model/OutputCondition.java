@@ -24,65 +24,64 @@
 
 package org.yawlfoundation.yawl.editor.elements.model;
 
-import java.awt.geom.Point2D;
-
-import java.util.HashMap;
-
 import org.jgraph.graph.GraphConstants;
+
+import java.awt.geom.Point2D;
+import java.util.HashMap;
 
 public class OutputCondition extends YAWLCondition {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-  /**
-   * This constructor is ONLY to be invoked when we are reconstructing an
-   * output condition from saved state. Ports will not be created with this 
-   * constructor, as they are already part of the JGraph state-space.
-   */
+    /**
+     * This constructor is ONLY to be invoked when we are reconstructing an
+     * output condition from saved state. Ports will not be created with this
+     * constructor, as they are already part of the JGraph state-space.
+     */
 
-  public OutputCondition() {
-    super();
-  }
+    public OutputCondition() {
+        super();
+    }
 
-  
-  /**
-   * This constructor is to be invoked whenever we are creating a new 
-   * output condition from scratch. It also creates the correct ports needed 
-   * for the vertex as an intended side-effect.
-   */
 
-  public OutputCondition(Point2D startPoint) {
-    super(startPoint);
-  }
-  
-  protected void buildElement() {
-    HashMap map = new HashMap();
-    GraphConstants.setEditable(map,false);
-    getAttributes().applyMap(map);
+    /**
+     * This constructor is to be invoked whenever we are creating a new
+     * output condition from scratch. It also creates the correct ports needed
+     * for the vertex as an intended side-effect.
+     */
 
-    addDefaultPorts();
-  }
-  
-  public boolean isRemovable() {
-    return false; 
-  }
+    public OutputCondition(Point2D startPoint) {
+        super(startPoint);
+    }
 
-  public boolean isCopyable() {
-    return false; 
-  }
+    protected void buildElement() {
+        HashMap map = new HashMap();
+        GraphConstants.setEditable(map, false);
+        getAttributes().applyMap(map);
 
-  public boolean generatesOutgoingFlows() {
-    return false;
-  }
-  
-  public String getType() {
-    return "Output Condition";
-  }
-  
-  public String getEngineLabel() {
-    return "OutputCondition";    
-  }
+        addDefaultPorts();
+    }
+
+    public boolean isRemovable() {
+        return false;
+    }
+
+    public boolean isCopyable() {
+        return false;
+    }
+
+    public boolean generatesOutgoingFlows() {
+        return false;
+    }
+
+    public String getType() {
+        return "Output Condition";
+    }
+
+    public String getEngineLabel() {
+        return "OutputCondition";
+    }
 }

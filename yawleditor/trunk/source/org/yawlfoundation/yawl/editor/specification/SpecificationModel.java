@@ -24,6 +24,8 @@
 package org.yawlfoundation.yawl.editor.specification;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.api.YEditorSpecification;
+import org.yawlfoundation.yawl.editor.client.YConnector;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
@@ -42,7 +44,6 @@ import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
 import org.yawlfoundation.yawl.editor.swing.specification.ProblemMessagePanel;
 import org.yawlfoundation.yawl.editor.swing.undo.*;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
-import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 
 import java.awt.*;
@@ -71,6 +72,10 @@ public class SpecificationModel {
     "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n\n</xs:schema>";
   
   private String dataTypeDefinition = DEFAULT_TYPE_DEFINITION;
+
+    private static YEditorSpecification _specification = new YEditorSpecification();
+
+    public static YEditorSpecification getSpec() { return _specification; }
 
   /**
    * A mapping of possible selection states against subscribers that care to receive
@@ -616,11 +621,11 @@ public class SpecificationModel {
 
 
   public void checkResourcingObjects() {
-    if (ResourcingServiceProxy.getInstance().isLiveService()) { 
+    if (YConnector.isResourceConnected()) {
 
       // get live object id lists from resource service
-      List<String> pidList = ResourcingServiceProxy.getInstance().getAllParticipantIDs();
-      List<String> ridList = ResourcingServiceProxy.getInstance().getAllRoleIDs();
+      List<String> pidList = YConnector.getParticipantIDs();
+      List<String> ridList = YConnector.getRoleIDs();
       List<InvalidResourceReference> badRefs = new ArrayList<InvalidResourceReference>();
 
       Iterator netIterator = nets.iterator();

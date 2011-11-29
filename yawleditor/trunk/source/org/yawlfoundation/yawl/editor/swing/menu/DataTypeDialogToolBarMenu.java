@@ -34,30 +34,25 @@ import java.awt.*;
 
 public class DataTypeDialogToolBarMenu extends YAWLToolBar {
 
-  /**
-   *
-   */
-  private static final long serialVersionUID = 1L;
+    private static DataTypeDialogToolBarMenu _me;
+    private static JXMLSchemaEditorPane editorPane;
 
-  private static DataTypeDialogToolBarMenu _me ;
-  private static JXMLSchemaEditorPane editorPane ;
-
-  private YAWLToolBarButton cutButton ;
-  private YAWLToolBarButton copyButton ;
-  private YAWLToolBarButton pasteButton ;
-  private YAWLToolBarButton formatButton ;
-  private JTextField findText;
+    private YAWLToolBarButton cutButton;
+    private YAWLToolBarButton copyButton;
+    private YAWLToolBarButton pasteButton;
+    private YAWLToolBarButton formatButton;
+    private JTextField findText;
 
 
-  public DataTypeDialogToolBarMenu(JXMLSchemaEditorPane pane) {
-    super("DataType Dialog ToolBar");
-    setEditorPane(pane) ;
-    _me = this;
-  }
+    public DataTypeDialogToolBarMenu(JXMLSchemaEditorPane pane) {
+        super("DataType Dialog ToolBar");
+        setEditorPane(pane);
+        _me = this;
+    }
 
-  public static DataTypeDialogToolBarMenu getInstance() {
-      return _me ;
-  }
+    public static DataTypeDialogToolBarMenu getInstance() {
+        return _me;
+    }
 
     public static JXMLSchemaEditorPane getEditorPane() {
         return editorPane;
@@ -66,13 +61,13 @@ public class DataTypeDialogToolBarMenu extends YAWLToolBar {
     public static void setEditorPane(JXMLSchemaEditorPane pane) {
         editorPane = pane;
         AbstractXMLStyledDocument doc =
-                        (AbstractXMLStyledDocument) editorPane.getEditor().getDocument();
+                (AbstractXMLStyledDocument) editorPane.getEditor().getDocument();
         doc.addUndoableEditListener(UndoableDataTypeDialogActionListener.getInstance());
     }
 
     protected void buildInterface() {
-        setMargin(new Insets(3,2,2,0));
-        cutButton = new YAWLToolBarButton(new CutDataTypeDialogAction()) ;
+        setMargin(new Insets(3, 2, 2, 0));
+        cutButton = new YAWLToolBarButton(new CutDataTypeDialogAction());
         add(cutButton);
         copyButton = new YAWLToolBarButton(new CopyDataTypeDialogAction());
         add(copyButton);
@@ -94,22 +89,21 @@ public class DataTypeDialogToolBarMenu extends YAWLToolBar {
         findText = new JTextField(8);
         innerPanel.add(findText);
         innerPanel.add(new YAWLToolBarButton(new FindTextDataTypeDialogAction(this)));
-         add(innerPanel);
+        add(innerPanel);
 
     }
 
-  public YAWLToolBarButton getButton(String btype) {
-      if (btype.equals("cut")) return cutButton ;
-      if (btype.equals("copy")) return copyButton ;
-      if (btype.equals("paste")) return pasteButton ;
-      if (btype.equals("format")) return formatButton ;
-      return null;
-  }
+    public YAWLToolBarButton getButton(String btype) {
+        if (btype.equals("cut")) return cutButton;
+        if (btype.equals("copy")) return copyButton;
+        if (btype.equals("paste")) return pasteButton;
+        if (btype.equals("format")) return formatButton;
+        return null;
+    }
 
     public String getFindText() {
         return findText.getText();
     }
 
 
-    
 }

@@ -110,10 +110,10 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
         this.selectedType = Decorator.NO_TYPE;
       }
       
-      this.selectedPosition = getTask().hasJoinObjectAt();
+      this.selectedPosition = getTask().getJoinDecoratorPos();
 
       if (this.selectedPosition == Decorator.NOWHERE) {
-        if (getTask().hasSplitObjectAt() != Decorator.LEFT) {
+        if (getTask().getSplitDecoratorPos() != Decorator.LEFT) {
           this.selectedPosition = Decorator.LEFT;
         } else {
           this.selectedPosition = Decorator.RIGHT;
@@ -149,7 +149,7 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
         }
       }
 
-      setPositionDisabled(getTask().hasSplitObjectAt());
+      setPositionDisabled(getTask().getSplitDecoratorPos());
       doPositionSelection(this.selectedPosition);
 
       if (selectedType == Decorator.NO_TYPE) {
@@ -209,10 +209,10 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
         this.selectedType = Decorator.NO_TYPE;
       }
       
-      this.selectedPosition = getTask().hasSplitObjectAt();
+      this.selectedPosition = getTask().getSplitDecoratorPos();
       
       if (this.selectedPosition == Decorator.NOWHERE) {
-        if (getTask().hasJoinObjectAt() != Decorator.RIGHT) {
+        if (getTask().getJoinDecoratorPos() != Decorator.RIGHT) {
           this.selectedPosition = Decorator.RIGHT;
         } else {
           this.selectedPosition = Decorator.LEFT;
@@ -248,7 +248,7 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
         }
       }
 
-      setPositionDisabled(getTask().hasJoinObjectAt());
+      setPositionDisabled(getTask().getJoinDecoratorPos());
       doPositionSelection(this.selectedPosition);
 
       if (selectedType == Decorator.NO_TYPE) {

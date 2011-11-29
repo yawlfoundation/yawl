@@ -356,7 +356,7 @@ public final class NetUtilities {
    * @return
    */
   
-  public static Set<YAWLAtomicTask> getPreceedingResourcingRequiredTasksOf(YAWLAtomicTask task) {
+  public static Set<YAWLAtomicTask> getPreceedingResourcingRequiredTasksOf(YAWLVertex task) {
     HashSet<YAWLAtomicTask> returnTasks = new HashSet<YAWLAtomicTask>();
     for(YAWLAtomicTask thisTask: getPreceedingAtomicTasksOf((YAWLVertex) task)) {
       if (thisTask.getWSDecomposition() != null && 
@@ -364,6 +364,11 @@ public final class NetUtilities {
         returnTasks.add(thisTask);
       }
     }
+
+    // if this task is a subnet member, find its parent task and recurse
+
+
+
     return returnTasks;
   }
   

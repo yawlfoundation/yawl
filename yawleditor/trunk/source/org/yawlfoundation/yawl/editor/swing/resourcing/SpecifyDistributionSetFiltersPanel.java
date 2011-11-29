@@ -1,10 +1,10 @@
 package org.yawlfoundation.yawl.editor.swing.resourcing;
 
+import org.yawlfoundation.yawl.editor.client.YConnector;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingFilter;
 import org.yawlfoundation.yawl.editor.swing.JSingleSelectTable;
-import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -83,34 +83,13 @@ public class SpecifyDistributionSetFiltersPanel extends ResourcingWizardPanel {
              runtimeConstraintsPanel.hasMutexFamTasks();
   }
 
-  void refresh() {
-    
-    // If we get no registered filters returned, but the editor has previously allowed
-    // filters, use these cached filters in leu of ones from an engine connection.
-    
-    List<ResourcingFilter> filters =
-            ResourcingServiceProxy.getInstance().getRegisteredResourcingFilters();
-
-    if (filters.size() == 0) {
-       List<ResourcingFilter> cachedFilters =
-               getTask().getResourceMapping().getResourcingFilters();
-       if ((cachedFilters != null) && (cachedFilters.size() > 0))
-          filters = cachedFilters;      
+    void refresh() {
+        runtimeFiltersPanel.setFilters(YConnector.getResourcingFilters());
+        runtimeFiltersPanel.setTask((YAWLAtomicTask) getTask());
+        runtimeConstraintsPanel.setTask((YAWLAtomicTask) getTask());
     }
-    
-    runtimeFiltersPanel.setFilters(
-        filters
-    );
-    
-    runtimeFiltersPanel.setTask(
-        (YAWLAtomicTask) getTask()
-    );
-    
-    runtimeConstraintsPanel.setTask(
-        (YAWLAtomicTask) getTask()
-    );
-  }
-    
+
+
   public boolean shouldDoThisStep() {
     return getResourceMapping().getOfferInteractionPoint() == 
       ResourceMapping.SYSTEM_INTERACTION_POINT;

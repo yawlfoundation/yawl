@@ -29,23 +29,21 @@ import java.awt.event.ActionEvent;
 
 public class ToggleLineNumbersDataTypeDialogAction extends YAWLBaseAction {
 
-  private static final long serialVersionUID = 1L;
-
     private DataTypeDialogToolBarMenu toolbar;
 
-  {
-    putValue(Action.SHORT_DESCRIPTION, " Show or hide line numbers");
-    putValue(Action.NAME, "ToggleLineNumbers");
-    putValue(Action.LONG_DESCRIPTION, "Show or hide line numbers");
-    putValue(Action.SMALL_ICON, getPNGIcon("linenumbers")); 
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_L));
-  }
+    {
+        putValue(Action.SHORT_DESCRIPTION, " Show or hide line numbers");
+        putValue(Action.NAME, "ToggleLineNumbers");
+        putValue(Action.LONG_DESCRIPTION, "Show or hide line numbers");
+        putValue(Action.SMALL_ICON, getPNGIcon("linenumbers"));
+        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_L));
+    }
 
-  public ToggleLineNumbersDataTypeDialogAction(DataTypeDialogToolBarMenu bar) {
-      toolbar = bar;
-  }
+    public ToggleLineNumbersDataTypeDialogAction(DataTypeDialogToolBarMenu bar) {
+        toolbar = bar;
+    }
 
-  public void actionPerformed(ActionEvent event) {
-    toolbar.getEditorPane().toggleShowLineNumbers();
-  }
+    public void actionPerformed(ActionEvent event) {
+        toolbar.getEditorPane().toggleShowLineNumbers();
+    }
 }

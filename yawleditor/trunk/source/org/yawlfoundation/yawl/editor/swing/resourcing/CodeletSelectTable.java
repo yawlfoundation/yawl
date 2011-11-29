@@ -23,18 +23,20 @@
 
 package org.yawlfoundation.yawl.editor.swing.resourcing;
 
+import org.yawlfoundation.yawl.editor.client.YConnector;
 import org.yawlfoundation.yawl.editor.resourcing.CodeletData;
 import org.yawlfoundation.yawl.editor.resourcing.CodeletDataMap;
 import org.yawlfoundation.yawl.editor.swing.JOrderedSingleSelectTable;
-import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
-import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
+import org.yawlfoundation.yawl.resourcing.codelets.CodeletInfo;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 
 public class CodeletSelectTable extends JOrderedSingleSelectTable {
@@ -129,13 +131,17 @@ public class CodeletSelectTable extends JOrderedSingleSelectTable {
   }
 
   private List<CodeletData> getCodeletDataList(int source) {
-      Map<String, String> dataMap;
-
-      if (source == CODELET) {
-          dataMap = ResourcingServiceProxy.getInstance().getRegisteredCodelets();
+      Map<String, String> dataMap = null;
+      try {
+          if (source == CODELET) {
+              dataMap = getCodeletMap();
+          }
+          else {
+              dataMap = YConnector.getExternalDataGateways();
+          }
       }
-      else {
-          dataMap = YAWLEngineProxy.getInstance().getExternalDataGateways();
+      catch (IOException ioe) {
+          // nothing to do - proceed with null map
       }
 
       if (dataMap != null) {
@@ -144,6 +150,14 @@ public class CodeletSelectTable extends JOrderedSingleSelectTable {
       }
       return null;
   }
+
+    private Map<String, String> getCodeletMap() throws IOException {
+        Map<String, String> map = new TreeMap<String, String>();
+        for (CodeletInfo codelet : YConnector.getCodelets()) {
+            map.put(codelet.getCanonicalName(), codelet.getDescription());
+        }
+        return map;
+    }
 
 
   public CodeletSelectTableModel getCodeletModel() {

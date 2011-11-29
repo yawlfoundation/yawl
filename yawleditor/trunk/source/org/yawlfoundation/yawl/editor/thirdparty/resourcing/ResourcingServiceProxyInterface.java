@@ -53,8 +53,8 @@ public interface ResourcingServiceProxyInterface {
   public List<ResourcingRole> getAllRoles();
   public List<ResourcingAsset> getAllNonHumanResources();
   public List<ResourcingCategory> getAllNonHumanCategories();
-  public List<String> getAllParticipantIDs();
-  public List<String> getAllRoleIDs();
+//  public List<String> getAllParticipantIDs();
+//  public List<String> getAllRoleIDs();
 
   
   public List<ResourcingFilter> getRegisteredResourcingFilters();

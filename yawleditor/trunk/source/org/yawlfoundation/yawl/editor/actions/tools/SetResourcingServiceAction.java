@@ -24,21 +24,22 @@ package org.yawlfoundation.yawl.editor.actions.tools;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.client.YConnector;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
-import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxyInterface;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.prefs.Preferences;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.prefs.Preferences;
 
 public class SetResourcingServiceAction extends YAWLBaseAction {
   /**
@@ -105,7 +106,7 @@ class ResourceServiceDialog extends AbstractDoneDialog {
            return;
          }
 
-         ResourcingServiceProxy.getInstance().disconnect();
+         YConnector.disconnectResource();
          
          prefs.put(
              "resourcingServiceURI", 
@@ -122,9 +123,10 @@ class ResourceServiceDialog extends AbstractDoneDialog {
              new String(resourcingServicePasswordField.getPassword())
          );
 
-         ResourcingServiceProxy.getInstance().setImplementation(
-                 resourcingServiceURIField.getText());
-         YAWLEditor.setStatusMode("resource", ResourcingServiceProxy.getInstance().connect());
+         YConnector.setResourceUserID(resourcingServiceUserField.getText());
+         YConnector.setResourcePassword(Arrays.toString(resourcingServicePasswordField.getPassword()));
+         YConnector.setResourceURL(resourcingServiceURIField.getText());
+         YAWLEditor.setStatusMode("resource", YConnector.isResourceConnected());
 
          SpecificationUndoManager.getInstance().setDirty(true);                            
        }
@@ -314,38 +316,34 @@ class ResourceServiceDialog extends AbstractDoneDialog {
    }
    
    final ResourceServiceDialog detailDialog = this;
-   
-   testButton.addActionListener(new ActionListener(){
-     public void actionPerformed(ActionEvent e) {
-       String uriStr = resourcingServiceURIField.getText();
-       ResourcingServiceProxyInterface oldImpl = 
-               ResourcingServiceProxy.getInstance().getImplementation();
-       if (hasValidURIPath(uriStr)) {
-         ResourcingServiceProxy.getInstance().setImplementation(uriStr);
-         boolean connectionResult = ResourcingServiceProxy.getInstance().testConnection(
-             uriStr,
-             resourcingServiceUserField.getText(),
-             new String(resourcingServicePasswordField.getPassword())
-         );
-       
-         if (! connectionResult) {
-           testMessage.setText("Failed to connect to a running resource service with the specified details.");
-           testMessage.setForeground(Color.RED);
-         }
-         else {
-           testMessage.setText("Successfully connected to a running resource service.");
-           testMessage.setForeground(Color.BLACK);
-         }
-       }
-       else {
-           testMessage.setText("Invalid URI: it must be absolute and have the path '/resourceService/gateway'.");
-           testMessage.setForeground(Color.RED);
-       }
-       testMessage.setVisible(true);
-       ResourcingServiceProxy.getInstance().setImplementation(oldImpl);
-       detailDialog.pack();
-     }
-   });
+
+      testButton.addActionListener(new ActionListener(){
+          public void actionPerformed(ActionEvent e) {
+              String uriStr = resourcingServiceURIField.getText();
+              if (hasValidURIPath(uriStr)) {
+                  if (YConnector.testParameters(
+                          uriStr,
+                          resourcingServiceUserField.getText(),
+                          Arrays.toString(resourcingServicePasswordField.getPassword())
+                      )) {
+                      testMessage.setText("Successfully connected to a running resource service.");
+                      testMessage.setForeground(Color.BLACK);
+                  }
+                  else {
+                      testMessage.setText("Failed to connect to a running resource service " +
+                              "with the specified details.");
+                      testMessage.setForeground(Color.RED);
+                  }
+              }
+              else {
+                  testMessage.setText("Invalid URI: it must be absolute and have the path" +
+                          " '/resourceService/gateway'.");
+                  testMessage.setForeground(Color.RED);
+              }
+              testMessage.setVisible(true);
+              detailDialog.pack();
+          }
+      });
    
    return testButton;
   }

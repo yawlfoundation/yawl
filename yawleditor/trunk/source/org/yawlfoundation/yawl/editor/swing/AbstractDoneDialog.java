@@ -34,9 +34,6 @@ import java.util.LinkedList;
 
 public abstract class AbstractDoneDialog extends JDialog {
 
-//    public static final int DONE_BUTTON = 0;
-//    public static final int CANCEL_BUTTON = 1;
-
     private enum ButtonType { Done, Cancel }
 
     private JButton _doneButton = buildDoneButton();
@@ -47,7 +44,9 @@ public abstract class AbstractDoneDialog extends JDialog {
     protected boolean closeCancelled = false;
 
 
-    /***************************************************************/
+    /**
+     * ***********************************************************
+     */
 
     public AbstractDoneDialog(String title,
                               boolean modality,
@@ -80,10 +79,12 @@ public abstract class AbstractDoneDialog extends JDialog {
     }
 
 
-    /***************************************************************/
+    /**
+     * ***********************************************************
+     */
 
     public void setContentPanel(JPanel contentPanel) {
-        getContentPane().add( bindContentAndButton(contentPanel), BorderLayout.CENTER);
+        getContentPane().add(bindContentAndButton(contentPanel), BorderLayout.CENTER);
         makeLastAdjustments();
     }
 
@@ -103,7 +104,9 @@ public abstract class AbstractDoneDialog extends JDialog {
     }
 
 
-    /***************************************************************/
+    /**
+     * ***********************************************************
+     */
 
     protected JPanel getButtonPanel() {
         return _buttonPanel;
@@ -113,7 +116,9 @@ public abstract class AbstractDoneDialog extends JDialog {
     protected void makeLastAdjustments() {} // override as necessary
 
 
-    /***************************************************************/
+    /**
+     * ***********************************************************
+     */
 
     private JPanel bindContentAndButton(JPanel contentPanel) {
         JPanel panel = new JPanel(new BorderLayout());
@@ -126,19 +131,19 @@ public abstract class AbstractDoneDialog extends JDialog {
     private JButton buildDoneButton() {
         JButton button = new JButton("Done");
         button.setMnemonic(KeyEvent.VK_D);
-        button.setMargin(new Insets(2,11,3,12));
+        button.setMargin(new Insets(2, 11, 3, 12));
 
         final JDialog dialog = this;
         button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (! closeCancelled) dialog.setVisible(false);
+                if (!closeCancelled) dialog.setVisible(false);
                 SpecificationUndoManager.getInstance().setDirty(true);
                 buttonSelected = ButtonType.Done;
                 closeCancelled = false;            // reset for next time
             }
         });
 
-        if (! _showCancelButton) {
+        if (!_showCancelButton) {
             button.setDefaultCapable(true);
         }
         return button;
@@ -148,7 +153,7 @@ public abstract class AbstractDoneDialog extends JDialog {
     private JButton buildCancelButton() {
         JButton button = new JButton("Cancel");
         button.setMnemonic(KeyEvent.VK_C);
-        button.setMargin(new Insets(2,11,3,12));
+        button.setMargin(new Insets(2, 11, 3, 12));
 
         final JDialog dialog = this;
         button.addActionListener(new ActionListener() {
@@ -167,7 +172,7 @@ public abstract class AbstractDoneDialog extends JDialog {
 
     private JPanel buildButtonPanel() {
         _buttonPanel = new JPanel();
-        _buttonPanel.setBorder(new EmptyBorder(17,12,11,11));
+        _buttonPanel.setBorder(new EmptyBorder(17, 12, 11, 11));
         _buttonPanel.setLayout(new BoxLayout(_buttonPanel, BoxLayout.LINE_AXIS));
         _buttonPanel.add(Box.createHorizontalGlue());
         _buttonPanel.add(_doneButton);

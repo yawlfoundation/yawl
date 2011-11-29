@@ -24,6 +24,7 @@
 package org.yawlfoundation.yawl.editor.swing.data;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.client.YConnector;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.DataVariableSet;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
@@ -32,8 +33,6 @@ import org.yawlfoundation.yawl.editor.foundations.LogWriter;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.resourcing.SelectCodeletDialog;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
-import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -300,7 +299,7 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
     btnCodelet.setMnemonic(KeyEvent.VK_S);
     btnCodelet.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
-            if (ResourcingServiceProxy.getInstance().isLiveService()) {
+            if (YConnector.isResourceConnected()) {
                 if (codeletDialog == null) {
                     codeletDialog = new SelectCodeletDialog();
                     codeletDialog.setDecomposition(getWebServiceDecomposition());
@@ -377,9 +376,7 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
         if (decomp instanceof WebServiceDecomposition) {
             String codelet = ((WebServiceDecomposition) decomp).getCodelet();
             if (codelet != null) {
-                newVariableSet.addVariables(
-                        ResourcingServiceProxy.getInstance()
-                                .getCodeletParameters(codelet));
+                newVariableSet.addVariables(YConnector.getCodeletParameters(codelet));
             }
         }
         newVariableSet.addVariables(
@@ -405,11 +402,19 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
             return newVariableSet;
         }
 
-        newVariableSet.addVariables(
-                YAWLEngineProxy.getInstance().getEngineParametersForRegisteredService(
-                        yawlServiceComboBox.getSelectedItemID()
-                )
+        newVariableSet.addVariables(YConnector.getServiceParameters(
+            yawlServiceComboBox.getSelectedItemID())
         );
+
+        java.util.List<DataVariable> currentVars =
+                getDataVariablePanel().getVariables().getUserDefinedVariables();
+
+        int count = newVariableSet.size();
+        if (count > 0) {
+            for (DataVariable var : currentVars) {
+                var.setIndex(count++);
+            }
+        }
 
         newVariableSet.addVariables(
                 getDataVariablePanel().getVariables().getUserDefinedVariables()

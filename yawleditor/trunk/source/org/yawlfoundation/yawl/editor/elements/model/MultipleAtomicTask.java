@@ -29,191 +29,201 @@ import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
 
 import java.awt.geom.Point2D;
 
-public class MultipleAtomicTask extends YAWLTask 
-          implements YAWLMultipleInstanceTask, YAWLAtomicTask {
+public class MultipleAtomicTask extends YAWLTask
+        implements YAWLMultipleInstanceTask, YAWLAtomicTask {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private MultipleInstanceTaskConfigSet configureSet;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+    private MultipleInstanceTaskConfigSet configureSet;
 
-  /**
-   * This constructor is ONLY to be invoked when we are reconstructing an
-   * atomic multiple task from saved state. Ports will not be created with this 
-   * constructor, as they are already part of the JGraph state-space.
-   */
+    private long _minimumInstances;
+    private long _maximumInstances;
+    private long _continuationThreshold;
+    private int _instanceCreationType;
+    private DataVariable _multipleInstanceVariable;
+    private String _splitterQuery;
+    private String _aggregateQuery;
+    private DataVariable _resultNetVariable;
 
-  public MultipleAtomicTask() {
-    super();
-    initialise();
-  }
-  
-  /**
-   * This constructor is to be invoked whenever we are creating a new 
-   * multiple atomic task from scratch. It also creates the correct ports needed for 
-   * the task  as an intended side-effect.
-   */
 
-  public MultipleAtomicTask(Point2D startPoint) {
-    super(startPoint);
-    initialise();
-  }
-  
-  /**
-   * This constructor is to be invoked whenever we are creating a new 
-   * atomic task from scratch with an icon. It also creates the correct 
-   * ports needed for the task as an intended side-effect.
-   */
-  
-  public MultipleAtomicTask(Point2D startPoint, String iconPath) {
-    super(startPoint, iconPath);
-    initialise();
-  }
-  
-  public void iniConfigure(){
-	  configureSet = new MultipleInstanceTaskConfigSet(this);
-  }
+    /**
+     * This constructor is ONLY to be invoked when we are reconstructing an
+     * atomic multiple task from saved state. Ports will not be created with this
+     * constructor, as they are already part of the JGraph state-space.
+     */
 
-  private void initialise() {
-    setMinimumInstances(1);
-    setMaximumInstances(2);
-    setContinuationThreshold(1);
-    setInstanceCreationType(STATIC_INSTANCE_CREATION);
-    
-    setMultipleInstanceVariable(null);
-    setResultNetVariable(null);
-    setSplitterQuery("true()");
-    setAggregateQuery("true()");
-  }
-  
-  public long getMinimumInstances() {
-    return ((Long) serializationProofAttributeMap.get("minimumInstances")).longValue();
-  }
-
-  public void setMinimumInstances(long instanceBound) {
-    serializationProofAttributeMap.put("minimumInstances",new Long(instanceBound));
-  }
-  
-  public long getMaximumInstances() {
-    return ((Long) serializationProofAttributeMap.get("maximumInstances")).longValue();
-  }
-
-  public void setMaximumInstances(long instanceBound) {
-    serializationProofAttributeMap.put("maximumInstances",new Long(instanceBound));
-  }
-  
-  public long getContinuationThreshold() {
-    return ((Long) serializationProofAttributeMap.get("continuationThreshold")).longValue();
-  }
-
-  public void setContinuationThreshold(long continuationThreshold) {
-    serializationProofAttributeMap.put("continuationThreshold",new Long(continuationThreshold));
-  }
-  
-  public int  getInstanceCreationType() {
-    return ((Integer) serializationProofAttributeMap.get("instanceCreationType")).intValue();
-  }
-
-  public void setInstanceCreationType(int instanceCreationType) {
-    assert instanceCreationType == STATIC_INSTANCE_CREATION || 
-           instanceCreationType == DYNAMIC_INSTANCE_CREATION : "invalid type passed";
-    serializationProofAttributeMap.put("instanceCreationType",new Integer(instanceCreationType));
-  }
-  
-  public DataVariable getMultipleInstanceVariable() {
-    return (DataVariable) serializationProofAttributeMap.get("multipleInstanceVariable");
-  }
-  
-  public void setMultipleInstanceVariable(DataVariable variable) {
-    
-    if ( getMultipleInstanceVariable() != null && 
-        !getMultipleInstanceVariable().equals(variable)) {
-
-     // destroy now defunct accessor query for multiple instance variable */
-      getParameterLists().getInputParameters().remove(
-          getMultipleInstanceVariable()
-      );
-    }
-    
-    serializationProofAttributeMap.put("multipleInstanceVariable",variable);
-  }
-  
-  public String getAccessorQuery() {
-    return getParameterLists().getInputParameters().getQueryFor(
-      getMultipleInstanceVariable()
-    );
-  }
-
-  public void setAccessorQuery(String query) {
-    if (getMultipleInstanceVariable() != null) {
-      getParameterLists().getInputParameters().setQueryFor(
-          getMultipleInstanceVariable(), query
-      );
-    }
-  }
-
-  public String getSplitterQuery() {
-    return (String) serializationProofAttributeMap.get("splitterQuery");
-  }
-  
-  public void setSplitterQuery(String query) {
-    serializationProofAttributeMap.put("splitterQuery",query);
-  }
-
-  public String getInstanceQuery() {
-    return getParameterLists().getOutputParameters().getQueryFor(
-      getResultNetVariable()
-    );
-  }
-
-  public void setInstanceQuery(String query) {
-    if (getResultNetVariable() != null) {
-      getParameterLists().getOutputParameters().setQueryFor(
-          getResultNetVariable(), query
-      );
-    }
-  }
-  
-  public String getAggregateQuery() {
-    return (String) serializationProofAttributeMap.get("aggregateQuery");
-  }
-  
-  public void setAggregateQuery(String query) {
-    serializationProofAttributeMap.put("aggregateQuery",query);
-  }
-  
-  public DataVariable getResultNetVariable() {
-    return (DataVariable) serializationProofAttributeMap.get("resultNetVariable");
-  }
-  
-  public void setResultNetVariable(DataVariable variable) {
-    if ( getResultNetVariable() != null && 
-        !getResultNetVariable().equals(variable)) {
-
-     // destroy now defunct instance query for result net variable */
-      getParameterLists().getOutputParameters().remove(
-          getResultNetVariable()
-      );
+    public MultipleAtomicTask() {
+        this(null, null);
     }
 
-    serializationProofAttributeMap.put("resultNetVariable",variable);
-  }
- 
-  public void setWSDecomposition(WebServiceDecomposition decomposition) {
-    super.setDecomposition(decomposition);
-  }
-  
-  public WebServiceDecomposition getWSDecomposition() {
-    return (WebServiceDecomposition) super.getDecomposition();
-  }
-  
-  public String getType() {
-    return "Multiple Atomic Task";
-  }
+    /**
+     * This constructor is to be invoked whenever we are creating a new
+     * multiple atomic task from scratch. It also creates the correct ports needed for
+     * the task  as an intended side-effect.
+     */
+
+    public MultipleAtomicTask(Point2D startPoint) {
+        this(startPoint, null);
+    }
+
+    /**
+     * This constructor is to be invoked whenever we are creating a new
+     * atomic task from scratch with an icon. It also creates the correct
+     * ports needed for the task as an intended side-effect.
+     */
+
+    public MultipleAtomicTask(Point2D startPoint, String iconPath) {
+        super(startPoint, iconPath);
+        initialise();
+    }
+
+    public void iniConfigure() {
+        configureSet = new MultipleInstanceTaskConfigSet(this);
+    }
+
+    private void initialise() {
+        setMinimumInstances(1);
+        setMaximumInstances(2);
+        setContinuationThreshold(1);
+        setInstanceCreationType(STATIC_INSTANCE_CREATION);
+        setMultipleInstanceVariable(null);
+        setResultNetVariable(null);
+        setSplitterQuery("true()");
+        setAggregateQuery("true()");
+    }
 
 
-public MultipleInstanceTaskConfigSet getConfigurationInfor() {
-		return this.configureSet;
-}
+    public long getMinimumInstances() { return _minimumInstances; }
+
+    public void setMinimumInstances(long instanceBound) {
+        _minimumInstances = instanceBound;
+    }
+
+
+    public long getMaximumInstances() {
+        return _maximumInstances;
+    }
+
+    public void setMaximumInstances(long instanceBound) {
+        _maximumInstances = instanceBound;
+    }
+
+
+    public long getContinuationThreshold() {
+        return _continuationThreshold;
+    }
+
+    public void setContinuationThreshold(long threshold) {
+        _continuationThreshold = threshold;
+    }
+
+
+    public int getInstanceCreationType() {
+        return _instanceCreationType;
+    }
+
+    public void setInstanceCreationType(int creationType) {
+        _instanceCreationType = creationType;
+    }
+
+
+    public DataVariable getMultipleInstanceVariable() {
+        return _multipleInstanceVariable;
+    }
+
+    public void setMultipleInstanceVariable(DataVariable variable) {
+
+        if (! ((_multipleInstanceVariable == null) ||
+               _multipleInstanceVariable.equals(variable))) {
+
+            // destroy now defunct accessor query for multiple instance variable */
+            getParameterLists().getInputParameters().remove(_multipleInstanceVariable);
+        }
+
+        _multipleInstanceVariable = variable;
+    }
+
+
+    public String getAccessorQuery() {
+        return getParameterLists().getInputParameters().getQueryFor(
+                getMultipleInstanceVariable()
+        );
+    }
+
+    public void setAccessorQuery(String query) {
+        if (getMultipleInstanceVariable() != null) {
+            getParameterLists().getInputParameters().setQueryFor(
+                    getMultipleInstanceVariable(), query
+            );
+        }
+    }
+
+
+    public String getSplitterQuery() {
+        return _splitterQuery;
+    }
+
+    public void setSplitterQuery(String query) {
+        _splitterQuery = query;
+    }
+
+
+    public String getInstanceQuery() {
+        return getParameterLists().getOutputParameters().getQueryFor(
+                getResultNetVariable()
+        );
+    }
+
+    public void setInstanceQuery(String query) {
+        if (getResultNetVariable() != null) {
+            getParameterLists().getOutputParameters().setQueryFor(
+                    getResultNetVariable(), query
+            );
+        }
+    }
+
+
+    public String getAggregateQuery() {
+        return _aggregateQuery;
+    }
+
+    public void setAggregateQuery(String query) {
+        _aggregateQuery = query;
+    }
+
+
+    public DataVariable getResultNetVariable() {
+        return _resultNetVariable;
+    }
+
+    public void setResultNetVariable(DataVariable variable) {
+        if (! ((_resultNetVariable == null) ||
+               _resultNetVariable.equals(variable))) {
+
+            // destroy now defunct instance query for result net variable */
+            getParameterLists().getOutputParameters().remove(_resultNetVariable);
+        }
+
+        _resultNetVariable = variable;
+    }
+
+
+    public void setWSDecomposition(WebServiceDecomposition decomposition) {
+        super.setDecomposition(decomposition);
+    }
+
+    public WebServiceDecomposition getWSDecomposition() {
+        return (WebServiceDecomposition) super.getDecomposition();
+    }
+
+    public String getType() {
+        return "Multiple Atomic Task";
+    }
+
+
+    public MultipleInstanceTaskConfigSet getConfigurationInfor() {
+        return this.configureSet;
+    }
 }

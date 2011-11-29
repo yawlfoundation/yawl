@@ -28,18 +28,18 @@ import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 
 /**
  * @author linds
- * 
- * A library of standard utilities that return information in 
- * selected net elements. 
+ *         <p/>
+ *         A library of standard utilities that return information in
+ *         selected net elements.
  */
 public final class ElementUtilities {
 
-  public static YAWLCell getTargetOf(NetGraphModel net, Edge edge) {
-    return (YAWLCell) NetGraphModel.getTargetVertex(net, edge );
-  }
-  
-  public static YAWLCell getSourceOf(NetGraphModel net, Edge edge) {
-    return (YAWLCell) NetGraphModel.getSourceVertex(net, edge );
-  }
+    public static YAWLCell getTargetOf(NetGraphModel net, Edge edge) {
+        return (YAWLCell) NetGraphModel.getTargetVertex(net, edge);
+    }
+
+    public static YAWLCell getSourceOf(NetGraphModel net, Edge edge) {
+        return (YAWLCell) NetGraphModel.getSourceVertex(net, edge);
+    }
 
 }

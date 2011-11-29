@@ -160,8 +160,8 @@ class DecorationDialog extends AbstractTaskDoneDialog {
       setDefaultCloseOperation(AbstractTaskDoneDialog.DO_NOTHING_ON_CLOSE);
       getDoneButton().setEnabled(false);
     }     
-    joinPanel.setPositionDisabled(getTask().hasSplitObjectAt());
-    splitPanel.setPositionDisabled(getTask().hasJoinObjectAt());
+    joinPanel.setPositionDisabled(getTask().getSplitDecoratorPos());
+    splitPanel.setPositionDisabled(getTask().getJoinDecoratorPos());
   }
 }
 
