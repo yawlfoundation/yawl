@@ -1,14 +1,14 @@
 package org.yawlfoundation.yawl.editor.swing.resourcing;
 
+import org.yawlfoundation.yawl.editor.client.YConnector;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
+import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.AbstractWizardDialog;
 import org.yawlfoundation.yawl.editor.swing.AbstractWizardPanel;
 import org.yawlfoundation.yawl.editor.swing.JUtilities;
-import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
-import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 
 import javax.swing.*;
 
@@ -60,7 +60,7 @@ public class ManageResourcingDialog extends AbstractWizardDialog {
       ((ResourcingWizardPanel) panel).refresh();
     }
 
-    if (! ResourcingServiceProxy.getInstance().isLiveService()) {
+    if (! YConnector.isResourceConnected()) {
       JOptionPane.showMessageDialog(this,
               "A Connection to a running resource service could not be established.\n" +
               "Attempting to use a local cache of resource data, if possible.",

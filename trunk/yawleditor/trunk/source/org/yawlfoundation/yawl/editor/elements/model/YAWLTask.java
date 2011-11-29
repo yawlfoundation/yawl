@@ -38,316 +38,284 @@ import java.util.*;
 
 public abstract class YAWLTask extends YAWLVertex {
 
-   private boolean configurable;
-   private boolean hasBeenConfigureInitialised;
-   private List<CPort> inputCPorts = new ArrayList<CPort>();
-   private List<CPort> outputCPorts = new ArrayList<CPort>();
-   private boolean cancellationSetEnable = true;
+    private boolean _configurable;
+    private boolean _hasBeenConfigureInitialised;
+    private List<CPort> inputCPorts = new ArrayList<CPort>();
+    private List<CPort> outputCPorts = new ArrayList<CPort>();
+    private boolean _cancellationSetEnable = true;
 
-  /**
-   * This constructor is ONLY to be invoked when we are reconstructing a task
-   * from saved state. Ports will not be created with this constructor, as they
-   * are already part of the JGraph state-space.
-   */
+    private CancellationSet _cancellationSet;
+    private ParameterLists _parameterLists;
+    private Decomposition _decomposition;
+    private ResourceMapping _resourceMapping;
+    private String _customFormURL;
 
-  public YAWLTask() {
-    super();
-    initialize();
-    this.configurable = false;
-    this.cancellationSetEnable = true;
-  }
-
-  /**
-   * This constructor is to be invoked whenever we are creating a new task
-   * from scratch. It also creates the correct ports needed for the vertex
-   * as an intended side-effect.
-   */
-
-  public YAWLTask(Point2D startPoint) {
-    super(startPoint); 
-    initialize();
-  }
-  
-  public YAWLTask(Point2D startPoint, String iconPath) {
-    super(startPoint, iconPath); 
-    initialize();
-  }
-  
-  public void setSerializationProofAttributeMap(HashMap map) {
-    this.serializationProofAttributeMap = map;
-  }
-  
-  public HashMap getSerializationProofAttributeMap() {
-    return this.serializationProofAttributeMap;
-  }
-  
-  private void initialize() {
-    setCancellationSet(new CancellationSet(this));
-    setParameterLists(new ParameterLists());
-    setDecomposition(null);
-  }
-
-  public int hasSplitObjectAt() {
-    if (getSplitDecorator() != null) {
-      return getSplitDecorator().getCardinalPosition();
+    /**
+     * This constructor is ONLY to be invoked when we are reconstructing a task
+     * from saved state. Ports will not be created with this constructor, as they
+     * are already part of the JGraph state-space.
+     */
+    public YAWLTask() {
+        this(null, null);
+        _configurable = false;
+        _cancellationSetEnable = true;
     }
-    return this.getPositionOfOutgoingFlow();
-  }
 
-  public int hasJoinObjectAt() {
-    if (getJoinDecorator() != null) {
-      return getJoinDecorator().getCardinalPosition();
+    /**
+     * This constructor is to be invoked whenever we are creating a new task
+     * from scratch. It also creates the correct ports needed for the vertex
+     * as an intended side-effect.
+     */
+    public YAWLTask(Point2D startPoint) {
+        this(startPoint, null);
     }
-    return this.getPositionOfIncomingFlow();
-  }
-  
-  public int hasJoinDecoratorAt() {
-    return getJoinDecorator() != null ? 
-      getJoinDecorator().getCardinalPosition() : NOWHERE;
-  }
 
-  public int hasSplitDecoratorAt() {
-    return getSplitDecorator() != null ?
-      getSplitDecorator().getCardinalPosition() : NOWHERE;
-  }
-
-  public boolean hasSplitDecorator() {
-    return getSplitDecorator() != null ? true : false;
-  }
-
-  public boolean hasJoinDecorator() {
-    return getJoinDecorator() != null ? true : false;
-  }
-
-  public boolean hasDecoratorAtPosition(int position) {
-    return decoratorTypeAtPosition(position) == Decorator.NO_TYPE ? false:true;
-  }
-
-  public int decoratorTypeAtPosition(int position) {
-    if (getJoinDecorator() != null && 
-        getJoinDecorator().getCardinalPosition() == position) {
-      return getJoinDecorator().getType();
+    public YAWLTask(Point2D startPoint, String iconPath) {
+        super(startPoint, iconPath);
+        initialize();
     }
-    if (getSplitDecorator() != null && 
-        getSplitDecorator().getCardinalPosition() == position) {
-      return getSplitDecorator().getType();
-    }
-    return Decorator.NO_TYPE;
-  }
-  
-  public YAWLPort getDefaultSourcePort() {
-    if (hasSplitDecorator()) {
-      return getSplitDecorator().getDefaultPort();
-    }
-    return super.getDefaultSourcePort();
-  }
-  
-  public YAWLPort getDefaultTargetPort() {
-    if (hasJoinDecorator()) {
-      return getJoinDecorator().getDefaultPort();
-    }
-    return super.getDefaultTargetPort();
-  }
-  
-  public YAWLFlowRelation getOnlyOutgoingFlow() {
-    if (getPositionOfOutgoingFlow() != NOWHERE) {
-      return (YAWLFlowRelation) 
-        (getPortAt(getPositionOfOutgoingFlow()).getEdges().toArray())[0];
-    }
-    return null;
-  }
 
-  public YAWLFlowRelation getOnlyIncomingFlow() {
-    if (getPositionOfIncomingFlow() != NOWHERE) {
-
-      return (YAWLFlowRelation) 
-        (getPortAt(getPositionOfIncomingFlow()).getEdges().toArray())[0];
+    private void initialize() {
+        setCancellationSet(new CancellationSet(this));
+        setParameterLists(new ParameterLists());
+        setDecomposition(null);
     }
-    return null;
-  }
- 
-  public JoinDecorator getJoinDecorator() {
-  	VertexContainer container = (VertexContainer) this.getParent();
-  	if (container == null) {
-  		return null;
-  	}
-  	return container.getJoinDecorator();
-  }
 
-  public SplitDecorator getSplitDecorator() {
-		VertexContainer container = (VertexContainer) this.getParent();
-		if (container == null) {
-			return null;
-		}
-		return container.getSplitDecorator();
-  }
- 
-  public Rectangle2D getBounds() {
-    Map map = getAttributes();
-    return GraphConstants.getBounds(map);
-  }
-  
-  public Point2D getLocation() {
-    return new Point2D.Double(getBounds().getX(),
-                               getBounds().getY());
-  }
-
-  public HashSet<YAWLFlowRelation> getIncomingFlows() {
-    if(hasJoinDecorator()) {
-      return getJoinDecorator().getFlows();
+    public int getSplitDecoratorPos() {
+        if (getSplitDecorator() != null) {
+            return getSplitDecorator().getCardinalPosition();
+        }
+        return getPositionOfOutgoingFlow();
     }
-    return super.getIncomingFlows();
-  }
 
-  
-  public int getIncomingFlowCount() {
-    return getJoinDecorator() != null ? 
-      getJoinDecorator().getFlowCount() : super.getIncomingFlows().size();
-  }
-
-  public HashSet<YAWLFlowRelation> getOutgoingFlows() {
-    if(hasSplitDecorator()) {
-      return getSplitDecorator().getFlows();
+    public int getJoinDecoratorPos() {
+        if (getJoinDecorator() != null) {
+            return getJoinDecorator().getCardinalPosition();
+        }
+        return this.getPositionOfIncomingFlow();
     }
-    return super.getOutgoingFlows();
-  }
 
-  
-  public int getOutgoingFlowCount() {
-    return getSplitDecorator() != null ? 
-      getSplitDecorator().getFlowCount() : super.getOutgoingFlows().size();
-  }
-  
-  public CancellationSet getCancellationSet() {
-    return (CancellationSet) serializationProofAttributeMap.get("cancellationSet");
-  }
-  
-  public void setCancellationSet(CancellationSet cancellationSet) {
-    serializationProofAttributeMap.put("cancellationSet",cancellationSet);
-  }
+    public int hasJoinDecoratorAt() {
+        return getJoinDecorator() != null ?
+                getJoinDecorator().getCardinalPosition() : NOWHERE;
+    }
 
-  public boolean hasCancellationSetMembers() {
-      return getCancellationSet().hasMembers();
-  }
+    public int hasSplitDecoratorAt() {
+        return getSplitDecorator() != null ?
+                getSplitDecorator().getCardinalPosition() : NOWHERE;
+    }
 
-  public ParameterLists getParameterLists() {
-    return (ParameterLists) serializationProofAttributeMap.get("parameterLists");
-  }
-  
-  public void setParameterLists(ParameterLists parameterLists) {
-    if (parameterLists != null) {
-      serializationProofAttributeMap.put("parameterLists",parameterLists);
+    public boolean hasSplitDecorator() {
+        return getSplitDecorator() != null;
     }
-  }
-  
-  public void resetParameterLists() {
-    setParameterLists(new ParameterLists());
-  }
-  public void setDecomposition(Decomposition decomposition) {
-    serializationProofAttributeMap.put("decomposition",decomposition);
-  }
-  
-  public Decomposition getDecomposition() {
-    return (Decomposition) serializationProofAttributeMap.get("decomposition");
-  }
-  
-  public void setResourceMapping(ResourceMapping resourceMapping) {
-    serializationProofAttributeMap.put("resourceMapping",resourceMapping);
-  }
-  
-  public ResourceMapping getResourceMapping() {
-    return (ResourceMapping) serializationProofAttributeMap.get("resourceMapping");
-  }
 
-  public void setCustomFormURL(String urlStr) {
-    serializationProofAttributeMap.put("customFormURL", urlStr);
-  }
+    public boolean hasJoinDecorator() {
+        return getJoinDecorator() != null;
+    }
 
-  public String getCustomFormURL() {
-    return (String) serializationProofAttributeMap.get("customFormURL");
-  }
+    public boolean hasDecoratorAtPosition(int position) {
+        return decoratorTypeAtPosition(position) != Decorator.NO_TYPE;
+    }
 
-  public DataVariableSet getVariables() {
-    if (getDecomposition() != null) {
-      return getDecomposition().getVariables();
+    public int decoratorTypeAtPosition(int position) {
+        if (getJoinDecorator() != null &&
+                getJoinDecorator().getCardinalPosition() == position) {
+            return getJoinDecorator().getType();
+        }
+        if (getSplitDecorator() != null &&
+                getSplitDecorator().getCardinalPosition() == position) {
+            return getSplitDecorator().getType();
+        }
+        return Decorator.NO_TYPE;
     }
-    return null;
-  }
-  
-  public boolean hasBothDecorators() {
-    return (hasJoinDecorator() && hasSplitDecorator());
-  }
 
-  public boolean hasTopLeftAdjacentDecorators() {
-    if (hasDecoratorAtPosition(Decorator.LEFT) && 
-        hasDecoratorAtPosition(Decorator.TOP)) {
-      return true;
+    public YAWLPort getDefaultSourcePort() {
+        if (hasSplitDecorator()) {
+            return getSplitDecorator().getDefaultPort();
+        }
+        return super.getDefaultSourcePort();
     }
-    return false;    
-  }
-  
-  public boolean hasTopRightAdjacentDecorators() {
-    if (hasDecoratorAtPosition(Decorator.TOP) && 
-        hasDecoratorAtPosition(Decorator.RIGHT)) {
-      return true;
-    }
-    return false;    
-  }
 
-  public boolean hasBottomRightAdjacentDecorators() {
-    if (hasDecoratorAtPosition(Decorator.RIGHT) && 
-        hasDecoratorAtPosition(Decorator.BOTTOM)) {
-      return true;
+    public YAWLPort getDefaultTargetPort() {
+        if (hasJoinDecorator()) {
+            return getJoinDecorator().getDefaultPort();
+        }
+        return super.getDefaultTargetPort();
     }
-    return false;    
-  }
 
-  public boolean hasBottomLeftAdjacentDecorators() {
-    if (hasDecoratorAtPosition(Decorator.LEFT) && 
-        hasDecoratorAtPosition(Decorator.BOTTOM)) {
-      return true;
+    public YAWLFlowRelation getOnlyOutgoingFlow() {
+        if (getPositionOfOutgoingFlow() != NOWHERE) {
+            return (YAWLFlowRelation)
+                    (getPortAt(getPositionOfOutgoingFlow()).getEdges().toArray())[0];
+        }
+        return null;
     }
-    return false;    
-  }
-  
-  public boolean hasVerticallyAlignedDecorators() {
-    if (hasDecoratorAtPosition(Decorator.TOP) && 
-        hasDecoratorAtPosition(Decorator.BOTTOM)) {
-      return true;
-    }
-    return false;
-  }
-  
-  public boolean hasHorizontallyAlignedDecorators() {
-    if (hasDecoratorAtPosition(Decorator.LEFT) && 
-        hasDecoratorAtPosition(Decorator.RIGHT)) {
-      return true;
-    }
-    return false;    
-  }
-  
-  public boolean hasNoSelfReferencingFlows() {
-    HashSet flows = new HashSet();
-    
-    if (!hasBothDecorators()) {
-      return true;
-    }
-    
-    flows.addAll(getSplitDecorator().getFlows());
-    flows.addAll(getJoinDecorator().getFlows());
 
-    Iterator flowIterator = flows.iterator();
-    while(flowIterator.hasNext()) {
-      YAWLFlowRelation flow = (YAWLFlowRelation) flowIterator.next();
-      if (flow.connectsTaskToItself()) {
-        return false;
-      }
+    public YAWLFlowRelation getOnlyIncomingFlow() {
+        if (getPositionOfIncomingFlow() != NOWHERE) {
+
+            return (YAWLFlowRelation)
+                    (getPortAt(getPositionOfIncomingFlow()).getEdges().toArray())[0];
+        }
+        return null;
     }
-    return true;
-  }
+
+    public JoinDecorator getJoinDecorator() {
+        VertexContainer container = (VertexContainer) this.getParent();
+        if (container == null) {
+            return null;
+        }
+        return container.getJoinDecorator();
+    }
+
+    public SplitDecorator getSplitDecorator() {
+        VertexContainer container = (VertexContainer) this.getParent();
+        if (container == null) {
+            return null;
+        }
+        return container.getSplitDecorator();
+    }
+
+    public Rectangle2D getBounds() {
+        return GraphConstants.getBounds(getAttributes());
+    }
+
+    public Point2D getLocation() {
+        return new Point2D.Double(getBounds().getX(), getBounds().getY());
+    }
+
+    public HashSet<YAWLFlowRelation> getIncomingFlows() {
+        if (hasJoinDecorator()) {
+            return getJoinDecorator().getFlows();
+        }
+        return super.getIncomingFlows();
+    }
+
+
+    public int getIncomingFlowCount() {
+        return getJoinDecorator() != null ?
+                getJoinDecorator().getFlowCount() : super.getIncomingFlows().size();
+    }
+
+    public HashSet<YAWLFlowRelation> getOutgoingFlows() {
+        if (hasSplitDecorator()) {
+            return getSplitDecorator().getFlows();
+        }
+        return super.getOutgoingFlows();
+    }
+
+
+    public int getOutgoingFlowCount() {
+        return getSplitDecorator() != null ?
+                getSplitDecorator().getFlowCount() : super.getOutgoingFlows().size();
+    }
+
+    public CancellationSet getCancellationSet() {
+        return _cancellationSet;
+    }
+
+    public void setCancellationSet(CancellationSet set) {
+        _cancellationSet = set;
+    }
+
+    public boolean hasCancellationSetMembers() {
+        return getCancellationSet().hasMembers();
+    }
+
+    public ParameterLists getParameterLists() {
+        return _parameterLists;
+    }
+
+    public void setParameterLists(ParameterLists lists) {
+        if (lists != null) {
+            _parameterLists = lists;
+        }
+    }
+
+    public void resetParameterLists() {
+        setParameterLists(new ParameterLists());
+    }
+
+    public void setDecomposition(Decomposition decomposition) {
+        _decomposition = decomposition;
+    }
+
+    public Decomposition getDecomposition() {
+        return _decomposition;
+    }
+
+    public void setResourceMapping(ResourceMapping mapping) {
+        _resourceMapping = mapping;
+    }
+
+    public ResourceMapping getResourceMapping() {
+        return _resourceMapping;
+    }
+
+    public void setCustomFormURL(String urlStr) {
+        _customFormURL = urlStr;
+    }
+
+    public String getCustomFormURL() {
+        return _customFormURL;
+    }
+
+    public DataVariableSet getVariables() {
+        if (getDecomposition() != null) {
+            return getDecomposition().getVariables();
+        }
+        return null;
+    }
+
+    public boolean hasBothDecorators() {
+        return (hasJoinDecorator() && hasSplitDecorator());
+    }
+
+    public boolean hasTopLeftAdjacentDecorators() {
+        return hasDecoratorPairAt(Decorator.LEFT, Decorator.TOP);
+    }
+
+    public boolean hasTopRightAdjacentDecorators() {
+        return hasDecoratorPairAt(Decorator.TOP, Decorator.RIGHT);
+    }
+
+    public boolean hasBottomRightAdjacentDecorators() {
+        return hasDecoratorPairAt(Decorator.RIGHT, Decorator.BOTTOM);
+    }
+
+    public boolean hasBottomLeftAdjacentDecorators() {
+        return hasDecoratorPairAt(Decorator.LEFT, Decorator.BOTTOM);
+    }
+
+    public boolean hasVerticallyAlignedDecorators() {
+        return hasDecoratorPairAt(Decorator.TOP, Decorator.BOTTOM);
+    }
+
+    public boolean hasHorizontallyAlignedDecorators() {
+        return hasDecoratorPairAt(Decorator.LEFT, Decorator.RIGHT);
+    }
+
+    private boolean hasDecoratorPairAt(int first, int second) {
+        return hasDecoratorAtPosition(first) &&
+               hasDecoratorAtPosition(second);
+    }
+
+    public boolean hasNoSelfReferencingFlows() {
+        HashSet<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
+        if (! hasBothDecorators()) return true;
+
+        flows.addAll(getSplitDecorator().getFlows());
+        flows.addAll(getJoinDecorator().getFlows());
+        for (YAWLFlowRelation flow : flows) {
+            if (flow.connectsTaskToItself()) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     public void detachFlow(YAWLFlowRelation flow) {
-        if (! (hasSplitDecorator() || hasJoinDecorator())) {
+        if (!(hasSplitDecorator() || hasJoinDecorator())) {
             super.detachFlow(flow);
         }
         if (hasSplitDecorator()) {
@@ -363,7 +331,7 @@ public abstract class YAWLTask extends YAWLVertex {
         Decomposition decomp = getDecomposition();
         for (Object o : getParameterLists().getInputParameters().getParameters()) {
             Parameter parameter = (Parameter) o;
-            if (! decomp.hasVariableEqualTo(parameter.getVariable())) {
+            if (!decomp.hasVariableEqualTo(parameter.getVariable())) {
                 paramsToDelete.add(parameter);
             }
         }
@@ -391,176 +359,175 @@ public abstract class YAWLTask extends YAWLVertex {
             getParameterLists().getOutputParameters().remove(parameter.getVariable());
         }
     }
-  
-  public Object clone() {
-    YAWLTask clone = (YAWLTask) super.clone();
-    
-    CancellationSet clonedCancellationSet = (CancellationSet) getCancellationSet().clone();
-    clone.setCancellationSet(clonedCancellationSet);
-    clonedCancellationSet.setTriggeringTask(clone);
-    
-    clone.setParameterLists((ParameterLists) getParameterLists().clone());
 
-    // TODO: Clone the resource mapping
-    
-    return clone;
-  }
+    public Object clone() {
+        YAWLTask clone = (YAWLTask) super.clone();
 
-  /**
-   * Created by Jingxin Xu 13/01/2010
-   */
-  public List<CPort> getInputCPorts(){
-	  return this.inputCPorts;
-}
-  /**
-   * Created by Jingxin Xu 13/01/2010
-   */
-  public List<CPort> getOutputCPorts(){
-	  return this.outputCPorts;
-  }
+        CancellationSet clonedCancellationSet = (CancellationSet) getCancellationSet().clone();
+        clone.setCancellationSet(clonedCancellationSet);
+        clonedCancellationSet.setTriggeringTask(clone);
 
-  public int getNextCPortID(int portType) {
-      int id = -1;
-      switch (portType) {
-          case CPort.INPUTPORT: id = getMaxCPortID(inputCPorts) + 1; break;
-          case CPort.OUTPUTPORT: id = getMaxCPortID(outputCPorts) + 1; break;
-      }
-      return id;
-  }
+        clone.setParameterLists((ParameterLists) getParameterLists().clone());
+        clone.setDecomposition(_decomposition);
+        clone.setResourceMapping(_resourceMapping);
+        clone.setCustomFormURL(_customFormURL);
+        return clone;
+    }
 
-  public int getMaxCPortID(List<CPort> ports) {
-      int max = -1;
-      for (CPort port : ports) {
-          max = Math.max(max, port.getID());
-      }
-      return max;
-  }
 
-  /**
-   * Created by Jingxin XU 13/01/2010
-   * refactored MA 25/10/10
-   * This method construct the configurable input ports
-   */
-  public void generateInputCPorts(){
-	  if (hasJoinDecorator() && (getJoinDecorator().getType() == Decorator.XOR_TYPE)) {
-        int id = 0;
-        for (YAWLFlowRelation flow : getIncomingFlows()) {
-            if (! flow.isBroken()) {
-                CPort port = new CPort(this, CPort.INPUTPORT);
-                port.setID(id++);
-                port.getFlows().add(flow);
-                inputCPorts.add(port);
-            }
+    /**
+     * Created by Jingxin Xu 13/01/2010
+     */
+    public List<CPort> getInputCPorts() {
+        return inputCPorts;
+    }
+
+    /**
+     * Created by Jingxin Xu 13/01/2010
+     */
+    public List<CPort> getOutputCPorts() {
+        return outputCPorts;
+    }
+
+    public int getNextCPortID(int portType) {
+        int id = -1;
+        switch (portType) {
+            case CPort.INPUTPORT:
+                id = getMaxCPortID(inputCPorts) + 1;
+                break;
+            case CPort.OUTPUTPORT:
+                id = getMaxCPortID(outputCPorts) + 1;
+                break;
         }
-	  }
-    else if (getIncomingFlowCount() > 0) {
-        CPort port = new CPort(this, CPort.INPUTPORT);
-        port.setID(0);
-        for (YAWLFlowRelation flow : getIncomingFlows()) {
-            if (! flow.isBroken()) {
-                port.getFlows().add(flow);
-            }
-        }
-        inputCPorts.add(port);
-		}
-  }
+        return id;
+    }
 
-  /**
-   * Created by Jingxin XU 13/01/2010
-   * refactored MA 25/10/10
-   * This method construct the configurable output ports
-   */
-  public void generateOutputCPorts(){
-	  if ((! hasSplitDecorator()) ||
-			  (getSplitDecorator().getType() == Decorator.AND_TYPE)) {
+    public int getMaxCPortID(List<CPort> ports) {
+        int max = -1;
+        for (CPort port : ports) {
+            max = Math.max(max, port.getID());
+        }
+        return max;
+    }
 
-        CPort port = new CPort(this, CPort.OUTPUTPORT);
-        port.setID(0);
-        for (YAWLFlowRelation flow : getOutgoingFlows()) {
-            if (! flow.isBroken()) {
-                port.getFlows().add(flow);
-            }
-        }
-        outputCPorts.add(port);
-	  }
-    else if (getSplitDecorator().getType() == Decorator.XOR_TYPE) {
-        int id = 0;
-        for (YAWLFlowRelation flow : getOutgoingFlows()) {
-            if (! flow.isBroken()) {
-                CPort port = new CPort(this, CPort.OUTPUTPORT);
-                port.setID(id++);
-                port.getFlows().add(flow);
-                outputCPorts.add(port);
-            }
-        }
-	  }
-    else if (getSplitDecorator().getType() == Decorator.OR_TYPE) {
-        int id = 0;
-        for (Set<YAWLFlowRelation> flowsPowerSet : getPowerSet(getOutgoingFlows())) {
-            if ((flowsPowerSet != null) && (! flowsPowerSet.isEmpty())) {
-                CPort port = new CPort(this, CPort.OUTPUTPORT);
-                port.setID(id++);
-                for (YAWLFlowRelation flow : flowsPowerSet) {
-                    if (! flow.isBroken()) {
-                        port.getFlows().add(flow);
-                    }
+    /**
+     * Created by Jingxin XU 13/01/2010
+     * refactored MA 25/10/10
+     * This method construct the configurable input ports
+     */
+    public void generateInputCPorts() {
+        if (hasJoinDecorator() && (getJoinDecorator().getType() == Decorator.XOR_TYPE)) {
+            int id = 0;
+            for (YAWLFlowRelation flow : getIncomingFlows()) {
+                if (!flow.isBroken()) {
+                    CPort port = new CPort(this, CPort.INPUTPORT);
+                    port.setID(id++);
+                    port.getFlows().add(flow);
+                    inputCPorts.add(port);
                 }
-                outputCPorts.add(port);
             }
-	      }
-    }   
-  }
+        } else if (getIncomingFlowCount() > 0) {
+            CPort port = new CPort(this, CPort.INPUTPORT);
+            port.setID(0);
+            for (YAWLFlowRelation flow : getIncomingFlows()) {
+                if (!flow.isBroken()) {
+                    port.getFlows().add(flow);
+                }
+            }
+            inputCPorts.add(port);
+        }
+    }
+
+    /**
+     * Created by Jingxin XU 13/01/2010
+     * refactored MA 25/10/10
+     * This method construct the configurable output ports
+     */
+    public void generateOutputCPorts() {
+        if ((!hasSplitDecorator()) ||
+                (getSplitDecorator().getType() == Decorator.AND_TYPE)) {
+
+            CPort port = new CPort(this, CPort.OUTPUTPORT);
+            port.setID(0);
+            for (YAWLFlowRelation flow : getOutgoingFlows()) {
+                if (!flow.isBroken()) {
+                    port.getFlows().add(flow);
+                }
+            }
+            outputCPorts.add(port);
+        } else if (getSplitDecorator().getType() == Decorator.XOR_TYPE) {
+            int id = 0;
+            for (YAWLFlowRelation flow : getOutgoingFlows()) {
+                if (!flow.isBroken()) {
+                    CPort port = new CPort(this, CPort.OUTPUTPORT);
+                    port.setID(id++);
+                    port.getFlows().add(flow);
+                    outputCPorts.add(port);
+                }
+            }
+        } else if (getSplitDecorator().getType() == Decorator.OR_TYPE) {
+            int id = 0;
+            for (Set<YAWLFlowRelation> flowsPowerSet : getPowerSet(getOutgoingFlows())) {
+                if ((flowsPowerSet != null) && (!flowsPowerSet.isEmpty())) {
+                    CPort port = new CPort(this, CPort.OUTPUTPORT);
+                    port.setID(id++);
+                    for (YAWLFlowRelation flow : flowsPowerSet) {
+                        if (!flow.isBroken()) {
+                            port.getFlows().add(flow);
+                        }
+                    }
+                    outputCPorts.add(port);
+                }
+            }
+        }
+    }
 
 
+    /**
+     * This is the get method of configurable;
+     * Jingxin Xu
+     */
+    public boolean isConfigurable() {
+        return _configurable;
+    }
 
-
-
-  /**
-   * This is the get method of configurable;
-   * Jingxin Xu
-   */
-  public boolean isConfigurable(){
-	  return this.configurable;
-  }
-
-  /**
-   * This is the set method of configurable;
-   */
-  public void setConfigurable(boolean newSetting) {
-      if (configurable != newSetting) {
-          configurable = newSetting;
-          if (configurable && (! hasBeenConfigureInitialised)) {
-              configureReset();
-          }
-      }
-  }
+    /**
+     * This is the set method of configurable;
+     */
+    public void setConfigurable(boolean newSetting) {
+        if (_configurable != newSetting) {
+            _configurable = newSetting;
+            if (_configurable && (!_hasBeenConfigureInitialised)) {
+                configureReset();
+            }
+        }
+    }
 
     public void configureReset() {
-        if (configurable) {
+        if (_configurable) {
             inputCPorts.clear();
             outputCPorts.clear();
             generateInputCPorts();
             generateOutputCPorts();
-            if(this instanceof MultipleAtomicTask) {
+            if (this instanceof MultipleAtomicTask) {
                 MultipleAtomicTask multipleTask = (MultipleAtomicTask) this;
                 multipleTask.iniConfigure();
-            }
-            else if (this instanceof MultipleCompositeTask) {
+            } else if (this instanceof MultipleCompositeTask) {
                 MultipleCompositeTask multipleTask = (MultipleCompositeTask) this;
                 multipleTask.iniConfigure();
             }
-            hasBeenConfigureInitialised = true;
+            _hasBeenConfigureInitialised = true;
         }
     }
-    
 
-  public void removeInputPort(CPort port){
-	  this.inputCPorts.remove(port);
-  }
 
-  public void removeOutputPort(CPort port){
-	  this.outputCPorts.remove(port);
-  }
+    public void removeInputPort(CPort port) {
+        this.inputCPorts.remove(port);
+    }
+
+    public void removeOutputPort(CPort port) {
+        this.outputCPorts.remove(port);
+    }
 
     public void removeOutputPort(YAWLFlowRelation flow) {
         for (CPort port : outputCPorts) {
@@ -580,66 +547,67 @@ public abstract class YAWLTask extends YAWLVertex {
         }
     }
 
-  public void addInputPort(CPort port){
-	  this.inputCPorts.add(port);
-  }
+    public void addInputPort(CPort port) {
+        this.inputCPorts.add(port);
+    }
 
-  public void addOutputPort(CPort port){
-	  this.outputCPorts.add(port);
-  }
+    public void addOutputPort(CPort port) {
+        this.outputCPorts.add(port);
+    }
 
-  /**
-   * After applying configuration, some ports have been removed. Correspondingly the port Id should be reseted.
-   */
-  public void resetCPortsID(){
-	  int i=0;
-	  for(CPort port : this.inputCPorts){
-		port.setID(i);
-		i++;
-	  }
-	  i = 0;
-	  for(CPort port : this.outputCPorts){
-		  port.setID(i);
-		  i++;
-	  }
-  }
+    /**
+     * After applying configuration, some ports have been removed. Correspondingly the
+     * port Id should be reset.
+     */
+    public void resetCPortsID() {
+        int i = 0;
+        for (CPort port : this.inputCPorts) {
+            port.setID(i);
+            i++;
+        }
+        i = 0;
+        for (CPort port : this.outputCPorts) {
+            port.setID(i);
+            i++;
+        }
+    }
 
-public boolean isCancellationSetEnable() {
-	return cancellationSetEnable;
-}
+    public boolean isCancellationSetEnable() {
+        return _cancellationSetEnable;
+    }
 
-public void setCancellationSetEnable(boolean cancellationSetEnable) {
-	this.cancellationSetEnable = cancellationSetEnable;
-}
+    public void setCancellationSetEnable(boolean cancellationSetEnable) {
+        this._cancellationSetEnable = cancellationSetEnable;
+    }
 
-public void setInputCPorts(List<CPort> inputCPorts) {
-	this.inputCPorts = inputCPorts;
-}
+    public void setInputCPorts(List<CPort> inputCPorts) {
+        this.inputCPorts = inputCPorts;
+    }
 
-public void setOutputCPorts(List<CPort> outputCPorts) {
-	this.outputCPorts = outputCPorts;
-}
+    public void setOutputCPorts(List<CPort> outputCPorts) {
+        this.outputCPorts = outputCPorts;
+    }
 
-public boolean hasDefaultInputPorts(){
-	boolean flag = false;
-	for(CPort port : this.getInputCPorts()){
-		if(port.getDefaultValue() != null){
-			flag = true;
-		}
-	}
-	return flag;
-}
+    public boolean hasDefaultInputPorts() {
+        boolean flag = false;
+        for (CPort port : this.getInputCPorts()) {
+            if (port.getDefaultValue() != null) {
+                flag = true;
+            }
+        }
+        return flag;
+    }
 
 
-public boolean hasDefaultOutputPorts(){
-	boolean flag = false;
-	for(CPort port : this.getOutputCPorts()){
-		if(port.getDefaultValue() != null){
-			flag = true;
-		}
-	}
-	return flag;
-}
+    public boolean hasDefaultOutputPorts() {
+        boolean flag = false;
+        for (CPort port : this.getOutputCPorts()) {
+            if (port.getDefaultValue() != null) {
+                flag = true;
+            }
+        }
+        return flag;
+    }
 
     // this method accessed on 06/05/2010 from:
     // http://stackoverflow.com/questions/1670862/obtaining-powerset-of-a-set-in-java

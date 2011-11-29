@@ -2,6 +2,7 @@ package org.yawlfoundation.yawl.editor.resourcing;
 
 import org.jdom.Element;
 import org.jdom.Namespace;
+import org.yawlfoundation.yawl.editor.client.YConnector;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.DataVariableSet;
 import org.yawlfoundation.yawl.editor.data.DataVariableUtilities;
@@ -12,7 +13,6 @@ import org.yawlfoundation.yawl.editor.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
-import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 import org.yawlfoundation.yawl.schema.XSDType;
 
 import java.io.Serializable;
@@ -551,26 +551,19 @@ public class ResourceMapping implements Serializable, Cloneable  {
   }
 
 
-    private Map<String, ResourcingParticipant> getUserMap() {
-       List<ResourcingParticipant> liveList =
-              ResourcingServiceProxy.getInstance().getAllParticipants();
+  private Map<String, ResourcingParticipant> getUserMap() {
       Map<String, ResourcingParticipant> liveMap = new HashMap<String, ResourcingParticipant>();
-      if (liveList != null) {
-          for (ResourcingParticipant resp : liveList) {
-              liveMap.put(resp.getId(), resp);
-          }
+      for (ResourcingParticipant resp : YConnector.getResourcingParticipants()) {
+          liveMap.put(resp.getId(), resp);
       }
       return liveMap;
-    }
+  }
 
 
     private Map<String, ResourcingRole> getRoleMap() {
         Map<String, ResourcingRole> liveMap =  new HashMap<String, ResourcingRole>();
-        List<ResourcingRole> liveList = ResourcingServiceProxy.getInstance().getAllRoles();
-        if (liveList != null) {
-            for (ResourcingRole role : liveList) {
-                liveMap.put(role.getId(), role);
-            }
+        for (ResourcingRole role : YConnector.getResourcingRoles()) {
+            liveMap.put(role.getId(), role);
         }
         return liveMap;
     }
@@ -578,12 +571,8 @@ public class ResourceMapping implements Serializable, Cloneable  {
 
     private Map<String, ResourcingAsset> getAssetMap() {
         Map<String, ResourcingAsset> liveMap =  new HashMap<String, ResourcingAsset>();
-        List<ResourcingAsset> liveList =
-                ResourcingServiceProxy.getInstance().getAllNonHumanResources();
-        if (liveList != null) {
-            for (ResourcingAsset asset : liveList) {
+        for (ResourcingAsset asset : YConnector.getResourcingAssets()) {
                 liveMap.put(asset.getId(), asset);
-            }
         }
         return liveMap;
     }
@@ -591,12 +580,8 @@ public class ResourceMapping implements Serializable, Cloneable  {
 
     private Map<String, ResourcingCategory> getCategoryMap() {
          Map<String, ResourcingCategory> liveMap =  new HashMap<String, ResourcingCategory>();
-         List<ResourcingCategory> liveList =
-                 ResourcingServiceProxy.getInstance().getAllNonHumanCategories();
-         if (liveList != null) {
-             for (ResourcingCategory category : liveList) {
+         for (ResourcingCategory category : YConnector.getResourcingCategories()) {
                  liveMap.put(category.getKey(), category);
-             }
          }
          return liveMap;
      }

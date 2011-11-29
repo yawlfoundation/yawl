@@ -383,25 +383,25 @@ public class AvailableResourcingServiceProxyImplementation implements Resourcing
     }
 
 
-    // get live object id lists from resource service
-    public List<String> getAllParticipantIDs() {
-      List<ResourcingParticipant> liveList = getAllParticipants();
-      List<String> result = new ArrayList<String>();
-      for (ResourcingParticipant p : liveList) {
-        result.add(p.getId());
-      }
-      return result;
-    }
-
-
-    public List<String> getAllRoleIDs() {
-      List<ResourcingRole> liveRList = ResourcingServiceProxy.getInstance().getAllRoles();
-      List<String> result = new ArrayList<String>();
-      for (ResourcingRole r : liveRList) {
-        result.add(r.getId());
-      }
-      return result;
-    }
+//    // get live object id lists from resource service
+//    public List<String> getAllParticipantIDs() {
+//      List<ResourcingParticipant> liveList = getAllParticipants();
+//      List<String> result = new ArrayList<String>();
+//      for (ResourcingParticipant p : liveList) {
+//        result.add(p.getId());
+//      }
+//      return result;
+//    }
+//
+//
+//    public List<String> getAllRoleIDs() {
+//      List<ResourcingRole> liveRList = ResourcingServiceProxy.getInstance().getAllRoles();
+//      List<String> result = new ArrayList<String>();
+//      for (ResourcingRole r : liveRList) {
+//        result.add(r.getId());
+//      }
+//      return result;
+//    }
 
 
   

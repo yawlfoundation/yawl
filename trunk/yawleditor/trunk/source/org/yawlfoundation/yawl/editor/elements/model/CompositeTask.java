@@ -24,54 +24,52 @@
 
 package org.yawlfoundation.yawl.editor.elements.model;
 
-import java.awt.geom.Point2D;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
+
+import java.awt.geom.Point2D;
 
 public class CompositeTask extends YAWLTask implements YAWLCompositeTask {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-
-  
-  /**
-   * This constructor is ONLY to be invoked when we are reconstructing a composite task
-   * from saved state. Ports will not be created with this constructor, as they
-   * are already part of the JGraph state-space.
-   */
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
 
-  public CompositeTask() {
-    super();
-  }
+    /**
+     * This constructor is ONLY to be invoked when we are reconstructing a composite task
+     * from saved state. Ports will not be created with this constructor, as they
+     * are already part of the JGraph state-space.
+     */
 
-  /**
-   * This constructor is to be invoked whenever we are creating a new composite task
-   * from scratch. It also creates the correct ports needed for the vertex
-   * as an intended side-effect.
-   */
 
-  public CompositeTask(Point2D startPoint) {
-    super(startPoint);
-  }
-
-  public String getUnfoldingNetName() {
-    if (getDecomposition() != null) {
-      return getDecomposition().getLabel();
-    } 
-    return "";
-  }
-  
-  public void setDecomposition(Decomposition decomposition) {
-    if (getDecomposition() == null || 
-        !getDecomposition().equals(decomposition)) {
-      super.setDecomposition(decomposition);
-      resetParameterLists();
+    public CompositeTask() {
+        super();
     }
-  }
-  
-  public String getType() {
-    return "Composite Task";
-  }
+
+    /**
+     * This constructor is to be invoked whenever we are creating a new composite task
+     * from scratch. It also creates the correct ports needed for the vertex
+     * as an intended side-effect.
+     */
+
+    public CompositeTask(Point2D startPoint) {
+        super(startPoint);
+    }
+
+    public String getUnfoldingNetName() {
+        return (getDecomposition() != null) ? getDecomposition().getLabel() : "";
+    }
+
+    public void setDecomposition(Decomposition decomposition) {
+        if (getDecomposition() == null ||
+                !getDecomposition().equals(decomposition)) {
+            super.setDecomposition(decomposition);
+            resetParameterLists();
+        }
+    }
+
+    public String getType() {
+        return "Composite Task";
+    }
 }

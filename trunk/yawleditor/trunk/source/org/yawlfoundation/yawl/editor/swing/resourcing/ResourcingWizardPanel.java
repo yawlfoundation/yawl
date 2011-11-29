@@ -2,9 +2,17 @@ package org.yawlfoundation.yawl.editor.swing.resourcing;
 
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
+import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
+import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
 import org.yawlfoundation.yawl.editor.swing.AbstractWizardPanel;
 
+import java.util.List;
+
 abstract class ResourcingWizardPanel extends AbstractWizardPanel {
+
+    List<ResourcingParticipant> userList;
+    List<ResourcingRole> roleList;
+
   public ResourcingWizardPanel(ManageResourcingDialog dialog) {
     super(dialog);
   }
@@ -22,5 +30,21 @@ abstract class ResourcingWizardPanel extends AbstractWizardPanel {
     return getNewYAWLResourcingDialog().getTask();
   }
 
-  abstract void refresh();
+    public List<ResourcingParticipant> getUserList() {
+        return userList;
+    }
+
+    public void setUserList(List<ResourcingParticipant> userList) {
+        this.userList = userList;
+    }
+
+    public List<ResourcingRole> getRoleList() {
+        return roleList;
+    }
+
+    public void setRoleList(List<ResourcingRole> roleList) {
+        this.roleList = roleList;
+    }
+
+    abstract void refresh();
 }

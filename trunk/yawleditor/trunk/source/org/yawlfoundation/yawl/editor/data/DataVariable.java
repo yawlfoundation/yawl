@@ -57,6 +57,7 @@ public class DataVariable implements Serializable, Cloneable, Comparable<DataVar
 
   public static final String YAWL_SCHEMA_TIMER_TYPE = "YTimerType";
   public static final String YAWL_SCHEMA_STRINGLIST_TYPE = "YStringListType";
+  public static final String YAWL_SCHEMA_YDOCUMENT_TYPE = "YDocumentType";
 
   /**
    * A string array of base XMLSchema data types that can
@@ -195,13 +196,17 @@ public class DataVariable implements Serializable, Cloneable, Comparable<DataVar
       return getDataType().equals(YAWL_SCHEMA_STRINGLIST_TYPE);
   }
 
+    public boolean isYDocumentType() {
+        return getDataType().equals(YAWL_SCHEMA_YDOCUMENT_TYPE);
+    }
+
     public boolean isYInternalType() {
-        return isYTimerType() || isYStringListType();
+        return isYTimerType() || isYStringListType() || isYDocumentType();
     }
 
 
   public static boolean isBaseDataType(String type) {
-    return XSDType.getInstance().isBuiltInType(type);  
+    return XSDType.getInstance().isBuiltInType(type);
   }
   
   public static String[] getBaseDataTypes() {
@@ -213,6 +218,7 @@ public class DataVariable implements Serializable, Cloneable, Comparable<DataVar
                                   XSDType.getInstance().getBuiltInTypeList());
       typeList.add(YAWL_SCHEMA_TIMER_TYPE);
       typeList.add(YAWL_SCHEMA_STRINGLIST_TYPE);
+      typeList.add(YAWL_SCHEMA_YDOCUMENT_TYPE);
       Collections.sort(typeList, new StringIgnoreCaseComparator());
       return typeList.toArray(new String[typeList.size()]);
   }

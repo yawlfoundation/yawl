@@ -24,11 +24,11 @@ package org.yawlfoundation.yawl.editor.actions.tools;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.client.YConnector;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
-import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxyInterface;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -37,6 +37,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.prefs.Preferences;
 
 public class SetEngineDetailAction extends YAWLBaseAction {
@@ -106,8 +107,10 @@ class EngineDetailDialog extends AbstractDoneDialog {
            }
 
          String dataSchema = YAWLEngineProxy.getInstance().getDataTypeSchema();
-         YAWLEngineProxy.getInstance().disconnect(); 
-         
+           YConnector.disconnectEngine();
+
+         String password = Arrays.toString(enginePasswordField.getPassword());
+
          prefs.put(
              "engineURI", 
              engineURIField.getText()
@@ -119,14 +122,16 @@ class EngineDetailDialog extends AbstractDoneDialog {
          );
 
          prefs.put(
-             "engineUserPassword", 
-             new String(enginePasswordField.getPassword())
+             "engineUserPassword", password
          );
-           YAWLEngineProxy.getInstance().setImplementation(engineURIField.getText());
+
+           YConnector.setEngineUserID(engineURIField.getText());
+           YConnector.setEnginePassword(password);
+           YConnector.setEngineURL(engineURIField.getText());
            if (dataSchema != null) {
                YAWLEngineProxy.getInstance().setDataTypeSchema(dataSchema);
            }
-           YAWLEditor.setStatusMode("engine", YAWLEngineProxy.getInstance().connect());
+           YAWLEditor.setStatusMode("engine", YConnector.isEngineConnected());
 
          SpecificationUndoManager.getInstance().setDirty(true);
        }
@@ -318,36 +323,30 @@ class EngineDetailDialog extends AbstractDoneDialog {
    final EngineDetailDialog detailDialog = this;
    
    testButton.addActionListener(new ActionListener(){
-     public void actionPerformed(ActionEvent e) {
-         String uriStr = engineURIField.getText();
-         YAWLEngineProxyInterface oldImpl = YAWLEngineProxy.getInstance().getImplementation();
-
-         if (hasValidURIPath(uriStr)) {
-           YAWLEngineProxy.getInstance().setImplementation(uriStr);
-           boolean connectionResult = YAWLEngineProxy.getInstance().testConnection(
-               uriStr,
-               engineUserField.getText(),
-               new String(enginePasswordField.getPassword())
-           );
-       
-           if (! connectionResult) {
-             testMessage.setText("Failed to connect to a running engine with the specified details.");
-             testMessage.setForeground(Color.RED);
+       public void actionPerformed(ActionEvent e) {
+           String uriStr = engineURIField.getText();
+           if (hasValidURIPath(uriStr)) {
+               if (YConnector.testParameters(
+                       uriStr,
+                       engineUserField.getText(),
+                       new String(enginePasswordField.getPassword())
+                  )) {
+                   testMessage.setText("Successfully connected to a running YAWL engine.");
+                   testMessage.setForeground(Color.BLACK);
+               }
+               else {
+                   testMessage.setText("Failed to connect to a running engine with the specified details.");
+                   testMessage.setForeground(Color.RED);
+               }
            }
            else {
-             testMessage.setText("Successfully connected to a running YAWL engine.");
-             testMessage.setForeground(Color.BLACK);
+               testMessage.setText("Invalid URI: it must be absolute and have the path '/yawl/ia'.");
+               testMessage.setForeground(Color.RED);
            }
-         }
-         else {
-             testMessage.setText("Invalid URI: it must be absolute and have the path '/yawl/ia'.");
-             testMessage.setForeground(Color.RED);
-         }
 
-         testMessage.setVisible(true);
-         YAWLEngineProxy.getInstance().setImplementation(oldImpl);
-         detailDialog.pack();
-     }
+           testMessage.setVisible(true);
+           detailDialog.pack();
+       }
    });
    
    return testButton;

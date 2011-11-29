@@ -31,63 +31,63 @@ import java.util.HashMap;
 
 public class InputCondition extends YAWLCondition {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-  /**
-   * This constructor is ONLY to be invoked when we are reconstructing an
-   * input condition from saved state. Ports will not be created with this 
-   * constructor, as they are already part of the JGraph state-space.
-   */
+    /**
+     * This constructor is ONLY to be invoked when we are reconstructing an
+     * input condition from saved state. Ports will not be created with this
+     * constructor, as they are already part of the JGraph state-space.
+     */
 
-  public InputCondition() {
-     super();
-  }
-  
-  /**
-   * This constructor is to be invoked whenever we are creating a new 
-   * input condition from scratch. It also creates the correct ports needed 
-   * for the vertex as an intended side-effect.
-   */
+    public InputCondition() {
+        super();
+    }
 
-  public InputCondition(Point2D startPoint) {
-     super(startPoint);
-  }
+    /**
+     * This constructor is to be invoked whenever we are creating a new
+     * input condition from scratch. It also creates the correct ports needed
+     * for the vertex as an intended side-effect.
+     */
 
-  protected void buildElement() {
-    HashMap map = new HashMap();
+    public InputCondition(Point2D startPoint) {
+        super(startPoint);
+    }
 
-    GraphConstants.setEditable(map,false);
-    getAttributes().applyMap(map);
+    protected void buildElement() {
+        HashMap map = new HashMap();
 
-    addPorts();
-  }
-  
-  protected void addPorts() {
-    addDefaultRightPort();
-    addDefaultTopPort();
-    addDefaultBottomPort();
-  }
-  
-  public boolean isRemovable() {
-    return false; 
-  }
+        GraphConstants.setEditable(map, false);
+        getAttributes().applyMap(map);
 
-  public boolean isCopyable() {
-    return false; 
-  }
-  
-  public boolean acceptsIncomingFlows() {
-    return false; 
-  }
-  
-  public String getType() {
-    return "Input Condition";
-  }
-  
-  public String getEngineLabel() {
-    return "InputCondition";    
-  }
+        addPorts();
+    }
+
+    protected void addPorts() {
+        addDefaultRightPort();
+        addDefaultTopPort();
+        addDefaultBottomPort();
+    }
+
+    public boolean isRemovable() {
+        return false;
+    }
+
+    public boolean isCopyable() {
+        return false;
+    }
+
+    public boolean acceptsIncomingFlows() {
+        return false;
+    }
+
+    public String getType() {
+        return "Input Condition";
+    }
+
+    public String getEngineLabel() {
+        return "InputCondition";
+    }
 }

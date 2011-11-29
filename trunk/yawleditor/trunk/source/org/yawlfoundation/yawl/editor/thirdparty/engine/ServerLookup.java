@@ -1,8 +1,8 @@
 package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 
 /**
  * Author: Michael Adams
@@ -13,11 +13,12 @@ public class ServerLookup {
     public static boolean isReachable(String serviceURI)
             throws IOException {
         URL url = new URL(serviceURI);
-        URLConnection connection = url.openConnection();
-        connection.setDoOutput(true);
+        HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
+        httpConnection.setRequestMethod("HEAD");
+        httpConnection.setConnectTimeout(2000);     // max wait 2 secs
 
         // if the URI is down, the next line throws an exception
-        connection.getOutputStream();
+        httpConnection.getResponseCode();
 
         // if it gets here, the connection is ok, the URI is up
         return true;

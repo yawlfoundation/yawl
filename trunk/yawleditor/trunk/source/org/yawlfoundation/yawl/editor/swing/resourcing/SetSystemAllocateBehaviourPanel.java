@@ -1,8 +1,8 @@
 package org.yawlfoundation.yawl.editor.swing.resourcing;
 
+import org.yawlfoundation.yawl.editor.client.YConnector;
 import org.yawlfoundation.yawl.editor.resourcing.AllocationMechanism;
 import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
-import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -103,28 +103,13 @@ public class SetSystemAllocateBehaviourPanel extends ResourcingWizardPanel {
 
   public boolean doNext() {  return true; }
 
-  public void refresh() {
-    mechanismComboBox.reset();
-    
-    // JIC the option is currently not delivered (say the resourcing service is down)
-    // but the setting was previously allowed.   
-
-    if (!ResourcingServiceProxy.getInstance().getRegisteredAllocationMechanisms().contains(
-            getResourceMapping().getAllocationMechanism())) {
-
-      ResourcingServiceProxy.getInstance().getRegisteredAllocationMechanisms().add(
-          getResourceMapping().getAllocationMechanism()    
-      );
+    public void refresh() {
+        mechanismComboBox.reset();
+        mechanismComboBox.setAllocationMechanisms(YConnector.getAllocationMechanisms());
+        mechanismComboBox.setSelectedAllocationMechanism(
+                getResourceMapping().getAllocationMechanism()
+        );
     }
-    
-    mechanismComboBox.setAllocationMechanisms(
-        ResourcingServiceProxy.getInstance().getRegisteredAllocationMechanisms()
-    );
-    
-    mechanismComboBox.setSelectedAllocationMechanism(
-      getResourceMapping().getAllocationMechanism()    
-    );
-  }
 
   public boolean shouldDoThisStep() {
     return getResourceMapping().getAllocateInteractionPoint() == 

@@ -32,45 +32,38 @@ import org.yawlfoundation.yawl.editor.specification.SpecificationFileModelListen
  * This class is an abstract class that supplies a basic Action for concrete Action classes
  * to build from. It becomes enabled only when there is a specification loaded, and disabled
  * when there is no specification loaded.
- * 
+ *
  * @author Lindsay Bradford
  */
 
-public class YAWLOpenSpecificationAction extends YAWLBaseAction 
-                                         implements SpecificationFileModelListener {
+public class YAWLOpenSpecificationAction extends YAWLBaseAction
+        implements SpecificationFileModelListener {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private final SpecificationFileModel fileModel = 
-    SpecificationFileModel.getInstance();
-
-  {
-    getFileModel().subscribe(this);   
-  }                                  
-
-  public void specificationFileModelStateChanged(int state) {
-    switch(state) {
-      case SpecificationFileModel.IDLE: {
-        setEnabled(false);     
-        break;    
-      }
-      case SpecificationFileModel.EDITING: {
-        setEnabled(true);
-        break;    
-      }
-      case SpecificationFileModel.BUSY: {
-        setEnabled(false);     
-        break;
-      }
-      default: {
-        assert false : "Invalid state passed to updateState()";   
-      }    
+    {
+        getFileModel().subscribe(this);
     }
-  }
 
-  public SpecificationFileModel getFileModel() {
-    return fileModel;  
-  }
+    public void specificationFileModelStateChanged(int state) {
+        switch (state) {
+            case SpecificationFileModel.IDLE: {
+                setEnabled(false);
+                break;
+            }
+            case SpecificationFileModel.EDITING: {
+                setEnabled(true);
+                break;
+            }
+            case SpecificationFileModel.BUSY: {
+                setEnabled(false);
+                break;
+            }
+            default: {
+                assert false : "Invalid state passed to updateState()";
+            }
+        }
+    }
+
+    public SpecificationFileModel getFileModel() {
+        return SpecificationFileModel.getInstance() ;
+    }
 }

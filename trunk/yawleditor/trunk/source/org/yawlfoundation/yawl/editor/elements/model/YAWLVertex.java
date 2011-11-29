@@ -29,492 +29,410 @@ import org.jgraph.graph.Edge;
 import org.jgraph.graph.GraphConstants;
 import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.*;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
-public abstract class YAWLVertex extends DefaultGraphCell 
-                                 implements YAWLCell {
+public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
 
-  public static final int TOP       = Decorator.TOP;
-  public static final int BOTTOM    = Decorator.BOTTOM;
-  public static final int LEFT      = Decorator.LEFT;
-  public static final int RIGHT     = Decorator.RIGHT;
-  public static final int NOWHERE   = Decorator.NOWHERE;
-  
-  protected transient Point2D startPoint;
-  
-//  public static final Color DEFAULT_VERTEX_BACKGROUND = new Color(230,230,255);
-  public static final Color DEFAULT_VERTEX_FOREGROUND = Color.BLACK;
+    public static final int TOP = Decorator.TOP;
+    public static final int BOTTOM = Decorator.BOTTOM;
+    public static final int LEFT = Decorator.LEFT;
+    public static final int RIGHT = Decorator.RIGHT;
+    public static final int NOWHERE = Decorator.NOWHERE;
 
-  private Color backgroundColor = 
-          SpecificationModel.getInstance().getDefaultVertexBackgroundColor();
-  
-  public static final int DEFAULT_SIZE = 32;
+    protected transient Point2D _startPoint;
 
-  /* ALL yawl-specific attributes of this object and its descendants 
-   * are to be stored in serializationProofAttributeMap, meaning we 
-   * won't get problems with incompatible XML serializations as we add 
-   * new attributes in the future. 
-   */
-  
-  protected HashMap serializationProofAttributeMap = new HashMap();
+    public static final Color DEFAULT_VERTEX_FOREGROUND = Color.BLACK;
 
-  private transient static final Dimension size = new Dimension(DEFAULT_SIZE, DEFAULT_SIZE);
+    private Color _backgroundColor =
+            SpecificationModel.getInstance().getDefaultVertexBackgroundColor();
+
+    public static final int DEFAULT_SIZE = 32;
+
+    private transient static final Dimension size = new Dimension(DEFAULT_SIZE, DEFAULT_SIZE);
+
+    private String _actualEngineID;
+    private String _engineIdNumber;
+    private String _iconPath;
+    private String _designNotes;
+    private String _documentation;
 
     /**
-   * This constructor is ONLY to be invoked when we are reconstructing a vertex
-   * from saved state. Ports will not be created with this constructor, as they
-   * are already part of the JGraph state-space.
-   */
-  public YAWLVertex() {
-    super();
-    setEngineIdNumber(
-        Long.toString(
-            SpecificationModel.getInstance().getUniqueElementNumber()
-        )
-    );
-
-    initialize(new Point(10,10), null);
-  }
-
-  /**
-   * This constructor is to be invoked whenever we are creating a new vertex
-   * from scratch. It also creates the correct ports needed for the vertex
-   * as an intended side-effect.
-   */
-  public YAWLVertex(Point2D startPoint) {
-    super();
-    setEngineIdNumber(
-        Long.toString(
-            SpecificationModel.getInstance().getUniqueElementNumber()
-        )
-    );
-
-    initialize(startPoint, null);
-    addDefaultPorts();
-  }
-  
-  public YAWLVertex(Point2D startPoint, String iconPath) {
-    super();
-    setEngineIdNumber(
-        Long.toString(
-            SpecificationModel.getInstance().getUniqueElementNumber()
-        )
-    );
-
-    initialize(startPoint, iconPath);
-    addDefaultPorts();
-  }
-
-  private void initialize(Point2D startPoint, String iconPath) {
-    this.startPoint = startPoint;
-    buildElementDefaults();
-    setIconPath(iconPath);
-  }
-  
-  public void setSerializationProofAttributeMap(HashMap map) {
-    this.serializationProofAttributeMap = map;
-  }
-  
-  public HashMap getSerializationProofAttributeMap() {
-    return this.serializationProofAttributeMap;
-  }
-  
-  public String getEngineId() {
-    StringBuffer engineId = new StringBuffer();
-    if (getActualEngineID() != null)
-       engineId.append(getActualEngineID());
-    else
-       engineId.append(getEngineLabel());
-    if (getEngineIdNumber() != null && !getEngineIdNumber().equals("")) {
-      engineId.append("_" + getEngineIdNumber());
-    }
-    
-    return XMLUtilities.toValidXMLName(engineId.toString());
-  }
-  
-  public String getEngineLabel() {
-    return getLabel();
-  }
-
-  public Point2D getStartPoint() { return startPoint;}  
-  
-  public String getEngineIdNumber() {
-    return (String) serializationProofAttributeMap.get("engineIdNumber");
-  }
-  
-  public void setEngineIdNumber(String engineIdNumber) {
-    serializationProofAttributeMap.put("engineIdNumber",engineIdNumber);
-  }
-
-
-  public int setActualEngineID(String id) {
-      int result = -1;
-      if (id != null) {
-          int suffixPos = id.lastIndexOf("_");
-          if (suffixPos > -1) {
-              String suffix = id.substring(suffixPos + 1);
-              if (isValidInt(suffix)) {
-                  id = id.substring(0, suffixPos);
-                  result = new Integer(suffix);
-              }
-          }
-      }
-      serializationProofAttributeMap.put("actualEngineid", id);
-      return result;
-  }
-
-  public String getActualEngineID() {
-      return (String) serializationProofAttributeMap.get("actualEngineid");
-  }
-
-  private boolean isValidInt(String nStr) {
-      try {
-         new Integer(nStr);
-         return true;
-      }
-      catch (Exception e) {
-          return false;
-      }
-  }
-  
-  public void setIconPath(String iconPath) {
-    serializationProofAttributeMap.put("iconPath",iconPath);
-  }
-  
-  public String getIconPath() {
-    return (String) serializationProofAttributeMap.get("iconPath");
-  }
-
-  public void setDesignNotes(String designNotes) {
-    serializationProofAttributeMap.put("designNotes",designNotes);
-  }
-  
-  public String getDesignNotes() {
-    return (String) serializationProofAttributeMap.get("designNotes");
-  }
-  
-    public void setDocumentation(String doco) {
-      serializationProofAttributeMap.put("documentation",doco);
+     * This constructor is ONLY to be invoked when we are reconstructing a vertex
+     * from saved state. Ports will not be created with this constructor, as they
+     * are already part of the JGraph state-space.
+     */
+    public YAWLVertex() {
+        this(null, null);
     }
 
-    public String getDocumentation() {
-      return (String) serializationProofAttributeMap.get("documentation");
+    /**
+     * This constructor is to be invoked whenever we are creating a new vertex
+     * from scratch. It also creates the correct ports needed for the vertex
+     * as an intended side-effect.
+     */
+    public YAWLVertex(Point2D startPoint) {
+        this(startPoint, null);
     }
 
-  public String getToolTipText() {
-    if (getEngineIdToolTipText() != null) {
-      return "<html><body>" + getEngineIdToolTipText() + "</body></html>";
-    } 
-    return null;
-  }
-  
-  public String getEngineIdToolTipText() {
-    if (getEngineId() != null && !getEngineId().equals("")) {
-      return "&nbsp;<b>Engine Id:</b> " + getEngineId().trim() + "&nbsp;<p>";
+    public YAWLVertex(Point2D startPoint, String iconPath) {
+        super();
+        initialize(startPoint, iconPath);
     }
-    return null;
-  }
 
-  private void buildElementDefaults() {
-
-    Map map = new HashMap();
-    
-    GraphConstants.setBounds(
-        map, 
-        new Rectangle2D.Double(
-              startPoint.getX(),
-              startPoint.getY(), 
-              size.getWidth(),
-              size.getHeight()
-        )
-    );
-    GraphConstants.setOpaque(map, true);
-    GraphConstants.setSizeable(map, false);
-    GraphConstants.setBackground(map, backgroundColor);
-    GraphConstants.setForeground(map, DEFAULT_VERTEX_FOREGROUND);
-    GraphConstants.setEditable(map,false);
-    
-    getAttributes().applyMap(map);
-  }
-
-  public void setBackgroundColor(Color color) {
-      backgroundColor = color;
-  }
-
-  public Color getBackgroundColor() { return backgroundColor; }
-
-  public static Dimension getVertexSize() {
-    return size;
-  }
-
-  protected void addDefaultPorts() {
-    addDefaultLeftPort();
-    addDefaultTopPort();
-    addDefaultBottomPort();
-    addDefaultRightPort();
-  }
-  
-  protected void addDefaultLeftPort() {
-    if (getPortAt(LEFT) == null) {
-      addPort(0, GraphConstants.PERMILLE / 2, LEFT);  
+    private void initialize(Point2D startPoint, String iconPath) {
+        setEngineIdNumber(
+                String.valueOf(SpecificationModel.getInstance().getUniqueElementNumber()));
+        _startPoint = (startPoint != null) ? startPoint : new Point(10, 10);
+        buildElementDefaults();
+        setIconPath(iconPath);
+        if (startPoint != null) addDefaultPorts();
     }
-  }
 
-  protected void addDefaultRightPort() {
-    if (getPortAt(RIGHT) == null) {
-      addPort(GraphConstants.PERMILLE, GraphConstants.PERMILLE / 2, RIGHT);
-    }
-  }
-  
-  protected void addDefaultTopPort() {
-    if (getPortAt(TOP) == null) {
-      addPort(GraphConstants.PERMILLE / 2, 0, TOP);  
-    }
-  }
-  
-  protected void addDefaultBottomPort() {
-    if (getPortAt(BOTTOM) == null) {
-      addPort(GraphConstants.PERMILLE / 2, GraphConstants.PERMILLE, BOTTOM);
-    }
-  }
-  
-  private void addPort(int x, int y, int position) {
-    YAWLPort port = new YAWLPort();
-
-    HashMap map = new HashMap();
-
-    GraphConstants.setBounds(map, new Rectangle2D.Double(x-1,y-1,x+1,y+1));
-    port.setPosition(position);
-    GraphConstants.setOffset(map, new Point2D.Double(x, y));
-    port.getAttributes().applyMap(map);
-    
-    add(port);
-  }
-  
-  public YAWLPort getDefaultSourcePort() {
-    return getPortAt(RIGHT);
-  }
-  
-  public YAWLPort getDefaultTargetPort() {
-    return getPortAt(LEFT);
-  }
-  
-  public YAWLPort getPortAt(int position) {
-    List children = this.getChildren();
-    for (int i = 0; i < children.size(); i++) {
-      if (children.get(i) instanceof YAWLPort) {
-        YAWLPort port = (YAWLPort) children.get(i);
-        if (port.getPosition() == position) {
-          return port;
+    public String getEngineId() {
+        String engineId = (_actualEngineID != null) ? _actualEngineID : getEngineLabel();
+        if (!StringUtil.isNullOrEmpty(_engineIdNumber)) {
+            engineId += "_" + _engineIdNumber;
         }
-      }
+        return XMLUtilities.toValidXMLName(engineId);
     }
-    return null;
-  }
-  
-  public int getPositionOfIncomingFlow() {
-    List children = this.getChildren();
-    for (int i = 0; i < children.size(); i++) {
-      if (children.get(i) instanceof YAWLPort) {
-        YAWLPort port = (YAWLPort) children.get(i);
-        if (port.getEdges().size() == 1) {
-          Edge edge = (Edge) port.getEdges().toArray()[0];
-          if (edge.getTarget() == port) {
-            return port.getPosition();
-          }
-        }
-      }
-    }
-    return NOWHERE;    
-  }
 
-  public int getPositionOfOutgoingFlow() {
-    List children = this.getChildren();
-    for (int i = 0; i < children.size(); i++) {
-      if (children.get(i) instanceof YAWLPort) {
-        YAWLPort port = (YAWLPort) children.get(i);
-        if (port.getEdges().size() == 1) {
-          Edge edge = (Edge) port.getEdges().toArray()[0];
-          if (edge.getSource() == port) {
-            return port.getPosition();
-          }
-        }
-      }
-    }
-    return NOWHERE;    
-  }
+    public String getEngineLabel() { return getLabel(); }
 
-  public String getLabel() {
-    VertexContainer container = (VertexContainer) this.getParent();
-    if (container != null && container.getLabel() != null) {
-      return container.getLabel().getLabel();
+    public Point2D getStartPoint() { return _startPoint; }
+
+
+    public String getEngineIdNumber() { return _engineIdNumber; }
+
+    public void setEngineIdNumber(String id) { _engineIdNumber = id; }
+
+
+    public void setIconPath(String path) { _iconPath = path; }
+
+    public String getIconPath() { return _iconPath; }
+
+
+    public void setDesignNotes(String notes) { _designNotes = notes; }
+
+    public String getDesignNotes() { return _designNotes; }
+
+
+    public void setDocumentation(String doco) { _documentation = doco; }
+
+    public String getDocumentation() { return _documentation; }
+
+
+    public void setBackgroundColor(Color color) { _backgroundColor = color; }
+
+    public Color getBackgroundColor() { return _backgroundColor; }
+
+
+    public static Dimension getVertexSize() { return size; }
+
+
+    public String getActualEngineID() { return _actualEngineID; }
+
+    public int setActualEngineID(String id) {
+        int result = -1;
+        if (id != null) {
+            int suffixPos = id.lastIndexOf("_");
+            if (suffixPos > -1) {
+                String suffix = id.substring(suffixPos + 1);
+                if (isValidInt(suffix)) {
+                    id = id.substring(0, suffixPos);
+                    result = new Integer(suffix);
+                }
+            }
+        }
+        _actualEngineID = id;
+        return result;
     }
-    return null;
-  }
-  
-  public boolean hasLabel() {
-    return (getLabel() != null);
-  }
-  
+
+
+    private boolean isValidInt(String nStr) {
+        try {
+            new Integer(nStr);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+
+    public String getToolTipText() {
+        if (getEngineIdToolTipText() != null) {
+            return "<html><body>" + getEngineIdToolTipText() + "</body></html>";
+        }
+        return null;
+    }
+
+    public String getEngineIdToolTipText() {
+        String engineID = getEngineId();
+        if (! StringUtil.isNullOrEmpty(engineID)) {
+            return "&nbsp;<b>Engine Id:</b> " + engineID + "&nbsp;<p>";
+        }
+        return null;
+    }
+
+
+    private void buildElementDefaults() {
+        Map map = new HashMap();
+        GraphConstants.setBounds(map, new Rectangle2D.Double(
+                _startPoint.getX(), _startPoint.getY(),
+                size.getWidth(), size.getHeight()));
+        GraphConstants.setOpaque(map, true);
+        GraphConstants.setSizeable(map, false);
+        GraphConstants.setBackground(map, _backgroundColor);
+        GraphConstants.setForeground(map, DEFAULT_VERTEX_FOREGROUND);
+        GraphConstants.setEditable(map, false);
+
+        getAttributes().applyMap(map);
+    }
+
+
+    protected void addDefaultPorts() {
+        addDefaultLeftPort();
+        addDefaultTopPort();
+        addDefaultBottomPort();
+        addDefaultRightPort();
+    }
+
+    protected void addDefaultLeftPort() {
+        if (getPortAt(LEFT) == null) {
+            addPort(0, GraphConstants.PERMILLE / 2, LEFT);
+        }
+    }
+
+    protected void addDefaultRightPort() {
+        if (getPortAt(RIGHT) == null) {
+            addPort(GraphConstants.PERMILLE, GraphConstants.PERMILLE / 2, RIGHT);
+        }
+    }
+
+    protected void addDefaultTopPort() {
+        if (getPortAt(TOP) == null) {
+            addPort(GraphConstants.PERMILLE / 2, 0, TOP);
+        }
+    }
+
+    protected void addDefaultBottomPort() {
+        if (getPortAt(BOTTOM) == null) {
+            addPort(GraphConstants.PERMILLE / 2, GraphConstants.PERMILLE, BOTTOM);
+        }
+    }
+
+    private void addPort(int x, int y, int position) {
+        YAWLPort port = new YAWLPort();
+        HashMap map = new HashMap();
+        GraphConstants.setBounds(map, new Rectangle2D.Double(x - 1, y - 1, x + 1, y + 1));
+        port.setPosition(position);
+        GraphConstants.setOffset(map, new Point2D.Double(x, y));
+        port.getAttributes().applyMap(map);
+        add(port);
+    }
+
+    public YAWLPort getDefaultSourcePort() {
+        return getPortAt(RIGHT);
+    }
+
+    public YAWLPort getDefaultTargetPort() {
+        return getPortAt(LEFT);
+    }
+
+    public YAWLPort getPortAt(int position) {
+        for (Object o : getChildren()) {
+            if (o instanceof YAWLPort) {
+                YAWLPort port = (YAWLPort) o;
+                if (port.getPosition() == position) {
+                    return port;
+                }
+            }
+        }
+        return null;
+    }
+
+    public int getPositionOfIncomingFlow() {
+        for (Object o : getChildren()) {
+            if (o instanceof YAWLPort) {
+                YAWLPort port = (YAWLPort) o;
+                if (port.getEdges().size() == 1) {
+                    Edge edge = (Edge) port.getEdges().toArray()[0];
+                    if (edge.getTarget() == port) {
+                        return port.getPosition();
+                    }
+                }
+            }
+        }
+        return NOWHERE;
+    }
+
+    public int getPositionOfOutgoingFlow() {
+        for (Object o : getChildren()) {
+            if (o instanceof YAWLPort) {
+                YAWLPort port = (YAWLPort) o;
+                if (port.getEdges().size() == 1) {
+                    Edge edge = (Edge) port.getEdges().toArray()[0];
+                    if (edge.getSource() == port) {
+                        return port.getPosition();
+                    }
+                }
+            }
+        }
+        return NOWHERE;
+    }
+
+    public String getLabel() {
+        VertexContainer container = (VertexContainer) this.getParent();
+        if (container != null && container.getLabel() != null) {
+            return container.getLabel().getLabel();
+        }
+        return null;
+    }
+
+    public boolean hasLabel() {
+        return (getLabel() != null);
+    }
+
     public boolean hasDocumentation() {
-      return (getDocumentation() != null); 
+        return (getDocumentation() != null);
     }
 
-  public void setBounds(Rectangle2D bounds) {
-    Map map = new HashMap();
-    GraphConstants.setBounds(map, bounds);
-    getAttributes().applyMap(map);
-  }
-
-  public Rectangle2D getBounds() {
-    return GraphConstants.getBounds(getAttributes());
-  }
-  
-  public boolean isRemovable() {
-    return true; 
-  }
-  
-  public boolean isCopyable() {
-    return true; 
-  }
-  
-  public boolean generatesOutgoingFlows() {
-    return true;
-  }
-  
-  public boolean acceptsIncomingFlows() {
-    return true; 
-  }
-  
-  public YAWLPort[] getPorts() {
-    YAWLPort[] ports = new YAWLPort[4];
-    Object[] children = this.getChildren().toArray();
-    
-    int j = 0;
-    for(int i = 0; i < Math.min(children.length, 4); i++) {
-      if (children[i] instanceof YAWLPort) {
-        ports[j++] = (YAWLPort) children[i];
-      }
-    }
-    return ports;
-  }
-
-  
-  public int getFlowCount() {
-    int flowCount = 0;
-    for(int i = 0; i <= 3; i++) {
-      flowCount += getPorts()[i].getEdges().size();
-    }
-    return flowCount;
-  }
-  
-  public HashSet getFlows() {
-    HashSet flows = new HashSet();
-    
-    for(int i = 0; i <= 3; i++) {
-      flows.addAll(getPorts()[i].getEdges());
+    public void setBounds(Rectangle2D bounds) {
+        Map map = new HashMap();
+        GraphConstants.setBounds(map, bounds);
+        getAttributes().applyMap(map);
     }
 
-    return flows;
-  }
+    public Rectangle2D getBounds() {
+        return GraphConstants.getBounds(getAttributes());
+    }
 
-  public void detachFlow(YAWLFlowRelation flow) {
-      for(int i = 0; i <= 3; i++) {
-          for (Object o : getPorts()[i].getEdges()) {
-              YAWLFlowRelation f = (YAWLFlowRelation) o;
-              if (f.equals(flow)) {
-                  getPorts()[i].getEdges().remove(f);
-                  break;
-              }
-          }
-      }
-  }
-  
-  public HashSet<YAWLFlowRelation> getOutgoingFlows() {
-    HashSet<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
-    
-    for(int i = 0; i <= 3; i++) {
-      if (getPorts()[i] != null && 
-          getPorts()[i].getEdges().size() > 0) {
-        Iterator edgeIterator = getPorts()[i].getEdges().iterator();
-        while(edgeIterator.hasNext()) {
-          YAWLFlowRelation flow = (YAWLFlowRelation) edgeIterator.next();
-          if (flow.getSource().equals(getPorts()[i])) {
-            flows.add(flow);
-          }
+    public boolean isRemovable() { return true; }
+
+    public boolean isCopyable() { return true; }
+
+    public boolean generatesOutgoingFlows() { return true; }
+
+    public boolean acceptsIncomingFlows() { return true; }
+
+
+    public YAWLPort[] getPorts() {
+        YAWLPort[] ports = new YAWLPort[4];
+        int j = 0;
+        for (Object o : getChildren()) {
+            if (o instanceof YAWLPort) {
+                ports[j++] = (YAWLPort) o;
+            }
         }
-      }
+        return ports;
     }
-    return flows;
-  }
 
-  public HashSet<YAWLFlowRelation> getIncomingFlows() {
-    HashSet<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
-    
-    for(int i = 0; i <= 3; i++) {
-      if (getPorts()[i] != null && 
-          getPorts()[i].getEdges().size() > 0) {
-        Iterator edgeIterator = getPorts()[i].getEdges().iterator();
-        while(edgeIterator.hasNext()) {
-          YAWLFlowRelation flow = (YAWLFlowRelation) edgeIterator.next();
-          if (flow.getTarget().equals(getPorts()[i])) {
-            flows.add(flow);
-          }
+
+    public int getFlowCount() {
+        int flowCount = 0;
+        for (YAWLPort port : getPorts()) {
+            flowCount += port.getEdges().size();
         }
-      }
+        return flowCount;
     }
-    return flows;
-  }
 
-  
-  public YAWLFlowRelation getOnlyIncomingFlow() {
-    HashSet flows = getIncomingFlows();
-    if (flows.size() == 1) {
-      return (YAWLFlowRelation) flows.iterator().next();
+    public HashSet getFlows() {
+        HashSet flows = new HashSet();
+        for (YAWLPort port : getPorts()) {
+            flows.addAll(port.getEdges());
+        }
+        return flows;
     }
-    return null;
 
-  }
 
-  public YAWLFlowRelation getOnlyOutgoingFlow() {
-    HashSet flows = getOutgoingFlows();
-    if (flows.size() == 1) {
-      return (YAWLFlowRelation) flows.iterator().next();
+    public void detachFlow(YAWLFlowRelation flow) {
+        for (YAWLPort port : getPorts()) {
+            for (Object o : port.getEdges()) {
+                YAWLFlowRelation f = (YAWLFlowRelation) o;
+                if (f.equals(flow)) {
+                    port.getEdges().remove(f);
+                    break;
+                }
+            }
+        }
     }
-    return null;
-  }
 
-  public abstract String getType();
-  
-  public Object clone() {
-    YAWLVertex clone = (YAWLVertex) super.clone();
+    public HashSet<YAWLFlowRelation> getOutgoingFlows() {
+        HashSet<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
+        for (YAWLPort port : getPorts()) {
+            if (port != null) {
+                for (Object o : port.getEdges()) {
+                    YAWLFlowRelation flow = (YAWLFlowRelation) o;
+                    if (flow.getSource().equals(port)) {
+                        flows.add(flow);
+                    }
+                }
+            }
+        }
+        return flows;
+    }
 
-    Map map = new HashMap();
-    
-    GraphConstants.setForeground(map, DEFAULT_VERTEX_FOREGROUND);
-    GraphConstants.setBackground(map, backgroundColor);
+    public HashSet<YAWLFlowRelation> getIncomingFlows() {
+        HashSet<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
+        for (YAWLPort port : getPorts()) {
+            if (port != null) {
+                for (Object o : port.getEdges()) {
+                    YAWLFlowRelation flow = (YAWLFlowRelation) o;
+                    if (flow.getTarget().equals(port)) {
+                        flows.add(flow);
+                    }
+                }
+            }
+        }
+        return flows;
+    }
 
-    getAttributes().applyMap(map);
-    
-    clone.setSerializationProofAttributeMap(
-      (HashMap) getSerializationProofAttributeMap().clone()    
-    );
-    
-    clone.setEngineIdNumber(
-        Long.toString(
-            SpecificationModel.getInstance().getUniqueElementNumber()
-        )
-    );
-    
-    return clone;
-  }
-  
-  public String toString() {
-    return  "["+ this.hashCode() +"]\nengine id: "+ getEngineId();
-  }
+
+    public YAWLFlowRelation getOnlyIncomingFlow() {
+        HashSet flows = getIncomingFlows();
+        if (flows.size() == 1) {
+            return (YAWLFlowRelation) flows.iterator().next();
+        }
+        return null;
+
+    }
+
+    public YAWLFlowRelation getOnlyOutgoingFlow() {
+        HashSet flows = getOutgoingFlows();
+        if (flows.size() == 1) {
+            return (YAWLFlowRelation) flows.iterator().next();
+        }
+        return null;
+    }
+
+    public abstract String getType();
+
+    public Object clone() {
+        YAWLVertex clone = (YAWLVertex) super.clone();
+
+        Map map = new HashMap();
+        GraphConstants.setForeground(map, DEFAULT_VERTEX_FOREGROUND);
+        GraphConstants.setBackground(map, _backgroundColor);
+        getAttributes().applyMap(map);
+
+        clone.setActualEngineID(_actualEngineID);
+        clone.setEngineIdNumber(_engineIdNumber);
+        clone.setIconPath(_iconPath);
+        clone.setDesignNotes(_designNotes);
+        clone.setDocumentation(_documentation);
+        clone.setEngineIdNumber(String.valueOf(
+                        SpecificationModel.getInstance().getUniqueElementNumber()));
+        return clone;
+    }
+
+
+    public String toString() {
+        return "[" + this.hashCode() + "]\nengine id: " + getEngineId();
+    }
 }

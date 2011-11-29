@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.data.Parameter;
 import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
+import org.yawlfoundation.yawl.editor.data.internal.YDocumentType;
 import org.yawlfoundation.yawl.editor.data.internal.YStringListType;
 import org.yawlfoundation.yawl.editor.data.internal.YTimerType;
 import org.yawlfoundation.yawl.editor.elements.model.*;
@@ -278,8 +279,10 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     private static String adjustSchemaForInternalTypes(String specDataSchema) {
         String schema = YTimerType.adjustSchema(specDataSchema,
                                              SpecificationParametersIncludeYTimerType);
-        return YStringListType.adjustSchema(schema,
+        schema = YStringListType.adjustSchema(schema,
                                           SpecificationParametersIncludeYStringListType);
+        return YDocumentType.adjustSchema(schema,
+                                          SpecificationParametersIncludeYDocumentType);
     }
 
 
@@ -425,6 +428,9 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       }
       else if (dataType.equals(DataVariable.YAWL_SCHEMA_STRINGLIST_TYPE)) {
         SpecificationParametersIncludeYStringListType = true ;
+      }
+      else if (dataType.equals(DataVariable.YAWL_SCHEMA_YDOCUMENT_TYPE)) {
+        SpecificationParametersIncludeYDocumentType = true ;
       }
 
       engineNetVariable.setInitialValue(initialValue);
@@ -856,6 +862,9 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
       if (dataType.equals(DataVariable.YAWL_SCHEMA_STRINGLIST_TYPE)) {
           SpecificationParametersIncludeYStringListType = true ;
+      }
+      if (dataType.equals(DataVariable.YAWL_SCHEMA_YDOCUMENT_TYPE)) {
+        SpecificationParametersIncludeYDocumentType = true ;
       }
   }
   

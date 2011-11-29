@@ -34,78 +34,62 @@ import java.awt.event.ActionEvent;
 
 
 public class ShowAboutEditorAction extends YAWLBaseAction {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private static final AboutEditorDialog dialog = new AboutEditorDialog();
 
-  {
-    putValue(Action.SHORT_DESCRIPTION, "About this version of the YAWLEditor.");
-    putValue(Action.NAME, "About...");
-    putValue(Action.LONG_DESCRIPTION, "About this version of the YAWLEditor.");
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_A));
-  }
- 
-  public void actionPerformed(ActionEvent event) {
-    dialog.setVisible(true); 
-  }
+    private static final AboutEditorDialog dialog = new AboutEditorDialog();
+
+    {
+        putValue(Action.SHORT_DESCRIPTION, "About this version of the YAWLEditor.");
+        putValue(Action.NAME, "About...");
+        putValue(Action.LONG_DESCRIPTION, "About this version of the YAWLEditor.");
+        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_A));
+    }
+
+    public void actionPerformed(ActionEvent event) {
+        dialog.setVisible(true);
+    }
 }
 
 class AboutEditorDialog extends AbstractDoneDialog {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+    public AboutEditorDialog() {
+        super("About the YAWL Editor", false, getAboutPanel(), false);
+    }
 
-  public AboutEditorDialog() {
-    super("About the YAWL Editor", false, getAboutPanel(), false);
-  }
-  
-  protected void makeLastAdjustments() {
-    setSize(600,500);
-    setResizable(false);  
-    JUtilities.centerWindow(this);
-  }
-  
-  private static JPanel getAboutPanel() {
-    JPanel panel = new JPanel(new BorderLayout());
+    protected void makeLastAdjustments() {
+        setSize(600, 500);
+        setResizable(false);
+        JUtilities.centerWindow(this);
+    }
 
-    panel.setBorder(
-      new CompoundBorder(
-          new EmptyBorder(12,12,0,11),
-          new CompoundBorder(
-              new EtchedBorder(),
-              new EmptyBorder(12,12,11,11)
-          )
-       )
-    );
+    private static JPanel getAboutPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
 
-    JLabel message = new JLabel("<html><body>" +
-        "This is version @EditorReleaseNumber@ of the YAWL Process Editor.<br><br>" +
-        "The editor uses these tools:" +
-        "<ul>" +
-            "<li>YAWL Engine @CompatibleEngineReleaseNumber@"+
-            "<li>YAWL Resource Service @CompatibleEngineReleaseNumber@"+
-            "<li>JGraph @JGraphReleaseNumber@"+
-            "<li>WofYAWL @WofYawlReleaseNumber@" +
-            "<li>Wendy @WendyReleaseNumber@" +
-            "<li>JCalendar @JCalendarReleaseNumber@</ul>" +
+        panel.setBorder(new CompoundBorder(new EmptyBorder(12, 12, 0, 11),
+                new CompoundBorder(new EtchedBorder(), new EmptyBorder(12, 12, 11, 11))));
 
-        "This version of the editor requires:" +
-        "<ul>" +
-          "<li>Java @CompatibleJavaReleaseNumber@ or later</ul>"+
+        JLabel message = new JLabel("<html><body>" +
+                "This is version @EditorReleaseNumber@ of the YAWL Process Editor.<br><br>" +
+                "The editor uses these tools:" +
+                "<ul>" +
+                "<li>YAWL Engine @CompatibleEngineReleaseNumber@" +
+                "<li>YAWL Resource Service @CompatibleEngineReleaseNumber@" +
+                "<li>JGraph @JGraphReleaseNumber@" +
+                "<li>WofYAWL @WofYawlReleaseNumber@" +
+                "<li>Wendy @WendyReleaseNumber@" +
+                "<li>JCalendar @JCalendarReleaseNumber@</ul>" +
 
-        "Contributors to the editor source code:" +
-        "<ul><li>@EditorContributors@</ul>" +
-         "<br><center>Build Date: @BuildDate@</center>" +   
-        "</body></html>"
-    );
+                "This version of the editor requires:" +
+                "<ul>" +
+                "<li>Java @CompatibleJavaReleaseNumber@ or later</ul>" +
 
-    panel.add(message,BorderLayout.CENTER);
+                "Contributors to the editor source code:" +
+                "<ul><li>@EditorContributors@</ul>" +
+                "<br><center>Build Date: @BuildDate@</center>" +
+                "</body></html>"
+        );
 
-    return panel;    
-  }
+        panel.add(message, BorderLayout.CENTER);
+        return panel;
+    }
 }
 

@@ -27,33 +27,33 @@ package org.yawlfoundation.yawl.editor.elements.model;
 import java.awt.geom.Point2D;
 
 public class Condition extends YAWLCondition {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-  /**
-   * This constructor is ONLY to be invoked when we are reconstructing a condition
-   * from saved state. Ports will not be created with this constructor, as they
-   * are already part of the JGraph state-space.
-   */
+    /**
+     * This constructor is ONLY to be invoked when we are reconstructing a condition
+     * from saved state. Ports will not be created with this constructor, as they
+     * are already part of the JGraph state-space.
+     */
 
-  public Condition() {
-    super();
-  }
-  
-  /**
-   * This constructor is to be invoked whenever we are creating a new condition
-   * from scratch. It also creates the correct ports needed for the vertex
-   * as an intended side-effect.
-   */
+    public Condition() {
+        super();
+    }
 
-  public Condition(Point2D startPoint) {
-     super(startPoint);
-  }
-  
-  public String getType() {
-    return "Condition";
-  }
+    /**
+     * This constructor is to be invoked whenever we are creating a new condition
+     * from scratch. It also creates the correct ports needed for the vertex
+     * as an intended side-effect.
+     */
+
+    public Condition(Point2D startPoint) {
+        super(startPoint);
+    }
+
+    public String getType() {
+        return "Condition";
+    }
 
 }

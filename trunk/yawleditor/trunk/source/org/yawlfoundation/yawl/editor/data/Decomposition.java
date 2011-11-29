@@ -25,157 +25,157 @@ package org.yawlfoundation.yawl.editor.data;
 
 import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
 import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.elements.YAttributeMap;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.logging.YLogPredicate;
+
+import java.util.Map;
 
 
-public class Decomposition implements Serializable {
-  /* ALL yawl-specific attributes of this object and its descendants 
-   * are to be stored in serializationProofAttributeMap, meaning we 
-   * won't get problems with incompatible XML serializations as we add 
-   * new attributes in the future. 
-   */
-  
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+public class Decomposition {
 
-  protected HashMap serializationProofAttributeMap = new HashMap();
-  
-  public static final String PROPERTY_LOCATION = FileUtilities.getDecompositionPropertiesExtendeAttributePath();
+    public static final String PROPERTY_LOCATION = FileUtilities.getDecompositionPropertiesExtendeAttributePath();
 
-  public static final Decomposition DEFAULT = new Decomposition();
-  
-  public Decomposition() {
-    setLabel("");
-    setDescription("The default (empty) decomposition");
-    setVariables(new DataVariableSet());
-    setAttributes(new Hashtable());
-    setLogPredicateStarted(null);
-    setLogPredicateCompletion(null);
-    setExternalDataGateway(null);  
-  }
+    protected YDecomposition _decomposition;
+    private String _description;
+    private String _externalGateway;
+    private DataVariableSet _dataSet;
 
-  public void setLabel(String label) {
-    serializationProofAttributeMap.put("label",label);
-  }
-  
-  public String getLabel() {
-    return (String) serializationProofAttributeMap.get("label");
-  }
+    public Decomposition() {
+        _decomposition = SpecificationModel.getSpec().createSubNet("NewNet");
+        _decomposition.setName("");
+        setDescription("The default (empty) decomposition");
+        setVariables(new DataVariableSet());
+    }
 
-  public String getLabelAsElementName() {
-    return XMLUtilities.toValidXMLName(getLabel());
-  }
-  
-  public void setDescription(String description) {
-    serializationProofAttributeMap.put("description",description);
-  }
-  
-  public String getDescription() {
-    return (String) serializationProofAttributeMap.get("description");
-  }
+    public YDecomposition getNet() { return _decomposition; }
+
+    public void setLabel(String label) {
+        _decomposition.setName(label);
+    }
+
+    public String getLabel() {
+        return _decomposition.getName();
+    }
+
+    public String getLabelAsElementName() {
+        return XMLUtilities.toValidXMLName(getLabel());
+    }
+
+    public void setDescription(String description) {
+        _description = description;
+    }
+
+    public String getDescription() {
+        return _description;
+    }
 
     public void setLogPredicateStarted(String predicate) {
-        serializationProofAttributeMap.put("logPredicateStarted", predicate);
+        YLogPredicate ylp = _decomposition.getLogPredicate();
+        if (ylp == null) {
+            if (predicate == null) return;             // don't create if pred is null
+            ylp = new YLogPredicate();
+            _decomposition.setLogPredicate(ylp);
+        }
+        ylp.setStartPredicate(predicate);
     }
 
     public String getLogPredicateStarted() {
-        return (String) serializationProofAttributeMap.get("logPredicateStarted");
+        YLogPredicate predicate = _decomposition.getLogPredicate();
+        return predicate != null ? predicate.getStartPredicate() : null;
     }
 
     public void setLogPredicateCompletion(String predicate) {
-        serializationProofAttributeMap.put("logPredicateCompletion", predicate);
+        YLogPredicate ylp = _decomposition.getLogPredicate();
+        if (ylp == null) {
+            if (predicate == null) return;             // don't create if pred is null
+            ylp = new YLogPredicate();
+            _decomposition.setLogPredicate(ylp);
+        }
+        ylp.setCompletionPredicate(predicate);
     }
 
     public String getLogPredicateCompletion() {
-        return (String) serializationProofAttributeMap.get("logPredicateCompletion");
+        YLogPredicate predicate = _decomposition.getLogPredicate();
+        return predicate != null ? predicate.getCompletionPredicate() : null;
     }
 
 
-  public void setExternalDataGateway(String gateway) {
-      serializationProofAttributeMap.put("externalDataGateway", gateway);
-  }
-
-  public String getExternalDataGateway() {
-      return (String) serializationProofAttributeMap.get("externalDataGateway");
-  }
-  
-  public DataVariableSet getVariables() {
-    return (DataVariableSet) serializationProofAttributeMap.get("variables");
-  }
-
-  public void setVariables(DataVariableSet variables) {
-    if (variables != null) {
-      serializationProofAttributeMap.put("variables",variables);
-      variables.setDecomposition(this);
-    } 
-  }
-  
-  public void addVariable(DataVariable variable) {
-    getVariables().add(variable);
-  }
-  
-  public void removeVariable(DataVariable variable) {
-    getVariables().remove(variable);
-  }
-  
-  public DataVariable getVariableWithName(String name) {
-    return getVariables().getVariableWithName(name);
-  }
-  
-  public boolean hasVariableEqualTo(DataVariable variable) {
-    Iterator variableIterator = getVariables().getAllVariables().iterator();
-    while(variableIterator.hasNext()) {
-      DataVariable myVariable = (DataVariable) variableIterator.next();
-      if (myVariable.equalsIgnoreUsage(variable)) {
-        return true;
-      }
+    public void setExternalDataGateway(String gateway) {
+        _externalGateway = gateway;
     }
-    return false;
-  }
-  
-  public DataVariable getVariableAt(int position) {
-    return getVariables().getVariableAt(position);
-  }
-  
-  public int getVariableCount() {
-    return getVariables().size();
-  }
-  
-  //MLF: BEGIN
-  //LWB: Slight mods on MLF code to make extended attributes part of the typical decomposition attribute set.
-  public void setAttribute(String name, Object value) {
-      getAttributes().put(name, value);
-  }
 
-  public String getAttribute(String name) {
-    //todo MLF: returning empty String when null. is this right?
-    return (getAttributes().get(name) == null ? 
-               "" : getAttributes().get(name).toString());
-  }
-
-  public Hashtable getAttributes() {
-    return (Hashtable) serializationProofAttributeMap.get("extendedAttributes");
-  }
-
-  public void setAttributes(Hashtable attributes) {
-    if (attributes == null) {
-      attributes = new Hashtable();
+    public String getExternalDataGateway() {
+        return _externalGateway;
     }
-    serializationProofAttributeMap.put("extendedAttributes",attributes);
-  }
-  //MLF: END
 
-  
-  public boolean invokesWorklist() {
-    return false;
-  }
+    public DataVariableSet getVariables() {
+        return _dataSet;
+    }
 
-  public boolean isManualInteraction() {
-    return false;
-  }
+    public void setVariables(DataVariableSet variables) {
+        if (variables != null) {
+            _dataSet = variables;
+            variables.setDecomposition(this);
+        }
+    }
+
+    public void addVariable(DataVariable variable) {
+        getVariables().add(variable);
+    }
+
+    public void removeVariable(DataVariable variable) {
+        getVariables().remove(variable);
+    }
+
+    public DataVariable getVariableWithName(String name) {
+        return getVariables().getVariableWithName(name);
+    }
+
+    public boolean hasVariableEqualTo(DataVariable variable) {
+        for (Object o : _dataSet.getAllVariables()) {
+            DataVariable myVariable = (DataVariable) o;
+            if (myVariable.equalsIgnoreUsage(variable)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public DataVariable getVariableAt(int position) {
+        return getVariables().getVariableAt(position);
+    }
+
+    public int getVariableCount() {
+        return getVariables().size();
+    }
+
+    //MLF: BEGIN
+    //LWB: Slight mods on MLF code to make extended attributes part of the typical
+    // decomposition attribute set.
+    public void setAttribute(String name, Object value) {
+        _decomposition.setAttribute(name, (String) value);
+    }
+
+    public String getAttribute(String name) {
+        return _decomposition.getAttribute(name);
+    }
+
+    public YAttributeMap getAttributes() {
+        return _decomposition.getAttributes();
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        _decomposition.setAttributes(attributes);
+    }
+
+
+    public boolean invokesWorklist() {
+        return false;
+    }
+
+    public boolean isManualInteraction() {
+        return false;
+    }
 }

@@ -1,10 +1,10 @@
 package org.yawlfoundation.yawl.editor.swing.resourcing;
 
+import org.yawlfoundation.yawl.editor.client.YConnector;
 import org.yawlfoundation.yawl.editor.resourcing.DataVariableContent;
 import org.yawlfoundation.yawl.editor.resourcing.ResourceMapping;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
-import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -112,48 +112,18 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
   }
 
   public void refresh() {
-    List<ResourcingParticipant> liveList =
-                               ResourcingServiceProxy.getInstance().getAllParticipants();
-    userPanel.setUserList(liveList);
+      List<ResourcingParticipant> liveList = YConnector.getResourcingParticipants();
+      super.setUserList(liveList);
+      userPanel.setUserList(liveList);
+      userPanel.setSelectedUsers(getResourceMapping().getBaseUserDistributionList());
 
-    /* 
-     * We got nothing back, but we still have a list of users already
-     * recorded. Use this recorded list as the base list.
-     */
-    if (liveList.size() == 0) {
-      List<ResourcingParticipant> cacheList =
-                                  getResourceMapping().getBaseUserDistributionList() ;
-      if ((cacheList != null) && (cacheList.size() > 0))
-        userPanel.setUserList(cacheList);
-    }
+      List<ResourcingRole> liveRoles = YConnector.getResourcingRoles();
+      super.setRoleList(liveRoles);
+      rolesPanel.setRoles(liveRoles);
+      rolesPanel.setSelectedRoles(getResourceMapping().getBaseRoleDistributionList());
     
-    userPanel.setSelectedUsers(
-      getResourceMapping().getBaseUserDistributionList()    
-    );
-
-    List<ResourcingRole> liveRoles = ResourcingServiceProxy.getInstance().getAllRoles();
-    rolesPanel.setRoles(liveRoles);
-
-
-    /* 
-     * We got nothing back, but we still have a list of roles already
-     * recorded. Use this recorded list as the base list.
-     */
-
-    if (liveRoles.size() == 0) {
-       List<ResourcingRole> cacheRoles = getResourceMapping().getBaseRoleDistributionList();
-       if ((cacheRoles != null) && (cacheRoles.size() > 0))
-          rolesPanel.setRoles(cacheRoles);
-    }
-    
-    rolesPanel.setSelectedRoles(
-        getResourceMapping().getBaseRoleDistributionList()    
-    );
-    
-    getResourceMapping().syncWithDataPerspective();
-    parameterPanel.setVariableContentList(
-        getResourceMapping().getBaseVariableContentList()
-    );
+      getResourceMapping().syncWithDataPerspective();
+      parameterPanel.setVariableContentList(getResourceMapping().getBaseVariableContentList());
   }
   
   public ManageResourcingDialog getResourcingDialog() {

@@ -26,6 +26,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.client.YConnector;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.DataVariableSet;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
@@ -42,7 +43,6 @@ import org.yawlfoundation.yawl.editor.specification.*;
 import org.yawlfoundation.yawl.editor.swing.DefaultLayoutArranger;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.swing.specification.ProblemMessagePanel;
-import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
@@ -107,14 +107,13 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
 
     if (! _invalidResourceReferences.isEmpty()) {
         showInvalidResourceReferences();
-        if (! ResourcingServiceProxy.getInstance().isLiveService()) {
+        if (! YConnector.isResourceConnected()) {
             if (showDisconnectedResourceServiceWarning() == JOptionPane.YES_OPTION) {
                 SpecificationArchiveHandler.getInstance().processCloseRequest();
             }
         }
     }
 
- //   reset();
     ConfigurationImporter.ApplyConfiguration();
     reset();
 

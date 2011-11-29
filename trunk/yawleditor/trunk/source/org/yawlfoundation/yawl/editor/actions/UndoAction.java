@@ -31,28 +31,25 @@ import java.awt.event.ActionEvent;
 
 public class UndoAction extends YAWLActiveOpenSpecificationAction {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private static final UndoAction INSTANCE = new UndoAction();
+    private static final UndoAction INSTANCE = new UndoAction();
 
-  {
-    putValue(Action.SHORT_DESCRIPTION, " Undo the last action ");
-    putValue(Action.NAME, "Undo");
-    putValue(Action.LONG_DESCRIPTION, "Undoes last action");
-    putValue(Action.SMALL_ICON, getPNGIcon("arrow_undo"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_U));
-    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("Z"));
-  }
-  
-  private UndoAction() {};  
-  
-  public static UndoAction getInstance() {
-    return INSTANCE; 
-  }
-  
-  public void actionPerformed(ActionEvent event) {
-    SpecificationUndoManager.getInstance().undo();
-  }
+    {
+        putValue(Action.SHORT_DESCRIPTION, " Undo the last action ");
+        putValue(Action.NAME, "Undo");
+        putValue(Action.LONG_DESCRIPTION, "Undo the last action");
+        putValue(Action.SMALL_ICON, getPNGIcon("arrow_undo"));
+        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_U));
+        putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("Z"));
+    }
+
+    private UndoAction() {}
+
+
+    public static UndoAction getInstance() {
+        return INSTANCE;
+    }
+
+    public void actionPerformed(ActionEvent event) {
+        SpecificationUndoManager.getInstance().undo();
+    }
 }
