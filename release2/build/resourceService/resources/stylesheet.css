@@ -522,6 +522,10 @@
     position: absolute;
 }
 
+.dynformDocComponent {
+    position: absolute;
+}
+
 .dynformButton {
     font-size: 14px;
     height: 30px;
@@ -534,6 +538,15 @@
     font-weight: bold;
     top: 0;
     height: 18px ;
+    width: 20px;
+    position: absolute;
+}
+
+.dynformDocButton {
+    font-size: 11px;
+    font-weight: bold;
+    top: 1px;
+    height: 20px;
     width: 20px;
     position: absolute;
 }

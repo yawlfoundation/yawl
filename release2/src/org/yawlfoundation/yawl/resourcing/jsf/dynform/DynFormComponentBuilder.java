@@ -121,6 +121,9 @@ public class DynFormComponentBuilder {
             if (type.equals("date")) {
                 field = makeCalendar(input);
             }
+            else if (type.equals("YDocumentType")) {
+                field = makeDocumentField(input, label);
+            }
             else if (input.hasEnumeratedValues()) {
                 field = makeEnumeratedList(input);
             }
@@ -130,7 +133,7 @@ public class DynFormComponentBuilder {
             else field = makeTextField(input);
         }
         fieldList.add(field);
-        label.setFor(field.getId());
+        if (! (field instanceof DocComponent)) label.setFor(field.getId());
         if (! focusSet) focusSet = setFocus(field) ;
         _componentFieldTable.put(field, input);            // store for validation later
 
@@ -377,6 +380,19 @@ public class DynFormComponentBuilder {
         }
         input.setRestrictionAttributes();
         return textField ;
+    }
+
+    public DocComponent makeDocumentField(DynFormField input, Label label) {
+        DynFormField name = input.getSubField("name");
+        DynFormField id = input.getSubField("id");
+        TextField textField = makeTextField(name);
+        String uniqueID = _factory.createUniqueID("doc" + input.getName());
+        DocComponent docField =
+                new DocComponent(id.getValue(), name.getValue(), uniqueID, textField);
+        docField.setId(uniqueID);
+        docField.setStyleClass("dynformDocComponent");
+        docField.setLabel(label);
+        return docField;
     }
 
 

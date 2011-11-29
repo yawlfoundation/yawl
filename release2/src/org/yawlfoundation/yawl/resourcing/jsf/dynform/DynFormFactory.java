@@ -379,6 +379,8 @@ public class DynFormFactory extends AbstractSessionBean {
             style = ((StaticText) component).getStyle();
         else if ((component instanceof ImageComponent))
             style = ((ImageComponent) component).getStyle();
+        else if ((component instanceof DocComponent))
+            style = ((DocComponent) component).getStyle();
         return style;
     }
 
@@ -404,6 +406,8 @@ public class DynFormFactory extends AbstractSessionBean {
             ((StaticText) component).setStyle(style);
         else if ((component instanceof ImageComponent))
             ((ImageComponent) component).setStyle(style);
+        else if ((component instanceof DocComponent))
+            ((DocComponent) component).setStyle(style);
     }
 
 
@@ -469,6 +473,14 @@ public class DynFormFactory extends AbstractSessionBean {
                 FlatPanel field = (FlatPanel) o;
                 field.setStyle(String.format("%s; width:%dpx;", field.getStyle(),
                                              getFormWidth() - 20));
+            }
+            else if (o instanceof DocComponent) {
+                DocComponent field = (DocComponent) o;
+                field.setStyle(String.format(template, field.getStyle(),
+                                             X_FIELD_OFFSET, FIELD_WIDTH));
+                field.setSubComponentStyles(FIELD_WIDTH);
+                field.setFormWidth(getFormWidth());
+                field.setCaseID(_displayedWIR.getRootCaseID());
             }
             else if (o instanceof StaticTextBlock) {
                 StaticTextBlock field = (StaticTextBlock) o;
@@ -616,8 +628,7 @@ public class DynFormFactory extends AbstractSessionBean {
                 if (! (component instanceof Button)) {
                     if (component instanceof Label) {
                         top = Math.max(top, 25);                      // if no header
-                        String forID = ((Label) component).getFor();
-                        if (isComponentVisible(panel.findComponent(forID))) {
+                        if (isComponentVisible(getComponentForLabel(panel, (Label) component))) {
                             setTopStyle(component, top + LABEL_V_OFFSET);
                         }
                     }
@@ -634,6 +645,25 @@ public class DynFormFactory extends AbstractSessionBean {
             }
         }
         return top;
+    }
+    
+    
+    private UIComponent getComponentForLabel(PanelLayout panel, Label label) {
+        String forID = label.getFor();
+        if (forID != null) {
+            return panel.findComponent(forID);
+        }
+        else {          // must be a doc component
+            for (Object o : panel.getChildren()) {
+                if (o instanceof DocComponent) {
+                    DocComponent docComponent = (DocComponent) o;
+                    if (docComponent.getLabel().equals(label)) {
+                        return docComponent;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private void setTopStyle(UIComponent component, int top) {
@@ -677,7 +707,7 @@ public class DynFormFactory extends AbstractSessionBean {
             else if (! field.isEmptyOptionalInputOnly()) {  // create the field (inside a panel)
 
                 // if min and/or max defined at the field level, enclose it in a subpanel
-                if (field.getGroupID() != null) {
+                if (field.isGroupedField()) {
                     componentList.addAll(buildSubPanel(builder, field));
                 }
                 else {

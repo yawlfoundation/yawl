@@ -279,6 +279,16 @@
      </context-param>
 
 
+    <!-- This param, when available, enables the service to handle store documents. -->
+
+     <context-param>
+        <param-name>DocStore_BackEnd</param-name>
+        <param-value>http://localhost:8080/documentStore/</param-value>
+        <description>
+           The URL of the document store.
+        </description>
+     </context-param>
+
 
     <!-- This param, when available, enables the worklet exception
          service add-ins to the worklist. If the exception service

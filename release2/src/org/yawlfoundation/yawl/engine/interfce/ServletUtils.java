@@ -65,7 +65,7 @@ public class ServletUtils {
 
 
     public static void doNotFound(HttpServletRequest request, HttpServletResponse response) {
-        response.setContentType("text/html; charset=UTF-8\"");
+        response.setContentType("text/html; charset=UTF-8");
         try {
             PrintWriter outputWriter = response.getWriter();
 

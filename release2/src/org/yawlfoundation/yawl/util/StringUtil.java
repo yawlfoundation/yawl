@@ -289,10 +289,15 @@ public class StringUtil
      * @return the encased string (e.g. "<wrapTag>core</wrapTag>")
      */
     public static String wrap(String core, String wrapTag) {
-        if (core != null)
-            return String.format("<%s>%s</%s>", wrapTag, core, wrapTag) ;
-        else
-            return String.format("<%s/>", wrapTag);
+        StringBuilder sb = new StringBuilder(50);
+        sb.append('<').append(wrapTag);
+        if (core != null) {
+            sb.append('>').append(core).append("</").append(wrapTag).append('>');
+        }
+        else {
+            sb.append("/>");
+        }
+        return sb.toString();
     }
 
     public static String wrapEscaped(String core, String wrapTag) {

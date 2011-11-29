@@ -100,7 +100,7 @@ public class DynFormField implements Cloneable {
     }
 
     public String getDatatype() {
-        return _datatype;
+        return _datatype != null ? _datatype : _param.getDataTypeName();
     }
 
     public void setDatatype(String datatype) {
@@ -108,10 +108,9 @@ public class DynFormField implements Cloneable {
     }
 
     public String getDataTypeUnprefixed() {
-        if ((_datatype != null) && (_datatype.indexOf(':') > -1))
-            return _datatype.split(":")[1] ;
-        else
-            return _datatype ;
+        String datatype = getDatatype();
+        return (datatype != null) && datatype.contains(":") ?
+                datatype.substring(datatype.indexOf(':') + 1) : datatype;
     }
 
     public String getNamespacePrefix() {
@@ -280,9 +279,20 @@ public class DynFormField implements Cloneable {
     public List<DynFormField> getSubFieldList() {
         return _subFieldList;
     }
+    
+    public DynFormField getSubField(String name) {
+        if (_subFieldList != null) {
+            for (DynFormField field : _subFieldList) {
+                if (field.getName().equals(name)) {
+                    return field;
+                }
+            }
+        }
+        return null;
+    }
 
     public boolean isFieldContainer() {
-        return _subFieldList != null ;
+        return ! (isSimpleField() || isYDocument());
     }
 
     public void addSubField(DynFormField field) {
@@ -322,6 +332,10 @@ public class DynFormField implements Cloneable {
     }
 
     public boolean isChoiceField() { return _choiceID != null; }
+
+    public boolean isGroupedField() {
+        return ! ((getGroupID() == null) || isYDocument());
+    }
 
     public boolean isSimpleField() {
         return _subFieldList == null ;
@@ -521,6 +535,10 @@ public class DynFormField implements Cloneable {
 
     public boolean isTextArea() {
         return _attributes.isTextArea();
+    }
+
+    public boolean isYDocument() {
+        return getDataTypeUnprefixed().equals("YDocumentType");
     }
 
     public String getImageAbove() {

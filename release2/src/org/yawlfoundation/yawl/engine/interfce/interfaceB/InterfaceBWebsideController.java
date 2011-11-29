@@ -624,7 +624,8 @@ public abstract class InterfaceBWebsideController {
             throws IOException {
         YSpecificationID specID = new YSpecificationID(enabledWorkItem);
         SpecificationData sdata = getSpecificationData(specID, sessionHandle);
-        String rootName = sdata.usesSimpleRootData() ?"data" : enabledWorkItem.getTaskName();
+        String rootName = sdata.usesSimpleRootData() ? "data" :
+                enabledWorkItem.getTaskName().replaceAll(" ", "_");
         return new Element(rootName);
     }
 

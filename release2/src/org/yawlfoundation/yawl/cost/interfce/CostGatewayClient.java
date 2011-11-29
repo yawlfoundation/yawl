@@ -42,7 +42,7 @@ public class CostGatewayClient extends Interface_Client {
     protected String _costURI;
 
     /** the constructors
-     * @param uri the uri of the YAWL Resource Service's log gateway
+     * @param uri the uri of the YAWL Cost Service
      */
     public CostGatewayClient(String uri) {
         _costURI = uri ;
@@ -58,7 +58,7 @@ public class CostGatewayClient extends Interface_Client {
     /*******************************************************************************/
 
     /**
-     * Connects an external entity to the resource service
+     * Connects an external entity to the cost service
      * @param userID the userid
      * @param password the corresponding password
      * @return a sessionHandle if successful, or a failure message if not
@@ -84,7 +84,7 @@ public class CostGatewayClient extends Interface_Client {
 
 
     /**
-     * Disconnects an external entity from the resource service
+     * Disconnects an external entity from the cost service
      * @param handle the sessionHandle to disconnect
      * @throws IOException if the service can't be reached
      */

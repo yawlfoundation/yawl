@@ -87,6 +87,7 @@
     <property name="twitter.app.name" value="twitterService"/>
     <property name="mail.app.name" value="mailService"/>
     <property name="scheduling.app.name" value="schedulingService"/>
+    <property name="docStore.app.name" value="documentStore"/>
 
     <!--
         Properties for all third-party libraries
@@ -350,8 +351,11 @@
                      ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
 
     <property name="webapp_cost.libs"
-               value="${jdom} ${xerces} ${log4j} ${twitter4j}
+               value="${jdom} ${xerces} ${log4j}
                       ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
+
+    <property name="webapp_docStore.libs"
+               value="${persistence.libs} ${commonsCodec}"/>
 
     <!--
         JAR grouping properties for compilation classpath usage
@@ -488,7 +492,8 @@
                      build_schedulingService.war,
                      build_digitalSignature.war,
                      build_mailSender.war,
-                     build_mailService.war">
+                     build_mailService.war,
+                     build_docStore.war">
     </target>
 
     <!--
@@ -665,6 +670,7 @@
         <delete dir="${temp.dir}/${mailSender.app.name}"/>
         <delete dir="${temp.dir}/${mail.app.name}"/>
         <delete dir="${temp.dir}/${scheduling.app.name}"/>
+        <delete dir="${temp.dir}/${docStore.app.name}"/>
      </target>
 
     <!--
@@ -1143,7 +1149,10 @@
         </copy>
         <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/cost/interfce"
               file="${classes.dir}${packageRoot}/cost/interfce/CostGatewayClient.class"/>
-
+        <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/documentStore">
+              <fileset dir="${classes.dir}${packageRoot}/documentStore"
+                       includes="DocumentStoreClient.class YDocument.class"/>
+        </copy>
         <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/engine/interfce">
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
         </copy>
@@ -1440,6 +1449,10 @@
         
         <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/elements/data">
             <fileset dir="${classes.dir}${packageRoot}/elements/data"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/documentStore">
+              <fileset dir="${classes.dir}${packageRoot}/documentStore"
+                       includes="DocumentStoreClient.class YDocument.class"/>
         </copy>
         <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/elements">
             <fileset dir="${classes.dir}${packageRoot}/elements"
@@ -1934,6 +1947,46 @@
     </target>
 
 
+    <target name="build_docStore.war"
+             depends="compile, build_docStore_SharedTomcat">
+
+         <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/${docStore.app.name}">
+             <fileset dir="${classes.dir}${packageRoot}/${docStore.app.name}"/>
+         </copy>
+        <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/authentication">
+            <fileset dir="${classes.dir}${packageRoot}/authentication"
+                     includes="YExternalClient.class YClient.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/elements">
+            <fileset dir="${classes.dir}${packageRoot}/elements"
+                     includes="YAWLServiceReference.class YVerifiable.class"/>
+        </copy>
+         <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/util">
+             <fileset dir="${classes.dir}${packageRoot}/util"
+                      includes="StringUtil.class CharsetFilter.class Sessions*.class
+                          PasswordEncryptor.class HibernateEngine.class"/>
+         </copy>
+         <copy todir="${temp.dir}/${docStore.app.name}/WEB-INF">
+             <fileset file="${build.dir}/${docStore.app.name}/web.xml"/>
+         </copy>
+         <jar destfile="${output.dir}/${docStore.app.name}.war">
+             <fileset dir="${temp.dir}/${docStore.app.name}"/>
+         </jar>
+         <checksum file="${output.dir}/${docStore.app.name}.war"/>
+         <delete dir="${temp.dir}/${docStore.app.name}"/>
+    </target>
+
+    <target name="build_docStore_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/${docStore.app.name}/WEB-INF/classes">
+            <fileset dir="${classes.dir}" includes="log4j.properties"/>
+        </copy>
+        <copy todir="${temp.dir}/${docStore.app.name}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_docStore.libs}"/>
+        </copy>
+    </target>
+
+
+
     <!-- ==================DEPLOYMENT RELATED TARGETS====================== -->
 
     <!--
@@ -1956,6 +2009,7 @@
                      deployCostService,
                      deployTwitterService,
                      deploySchedulingService,
+                     deployDocStore,
                      deployNonCoreSharedLibs">
     </target>
 
@@ -2031,6 +2085,12 @@
     <target name="deployCostService" depends="build_costService.war">
         <copy todir="${webapps.dir}">
             <fileset file="${output.dir}/${cost.app.name}.war"/>
+        </copy>
+    </target>
+
+    <target name="deployDocStore" depends="build_docStore.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${docStore.app.name}.war"/>
         </copy>
     </target>
 

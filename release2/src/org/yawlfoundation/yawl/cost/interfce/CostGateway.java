@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.cost.CostService;
 import org.yawlfoundation.yawl.cost.data.CostModelCache;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.util.Sessions;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
@@ -108,6 +109,9 @@ public class CostGateway extends HttpServlet {
         }
         else if (action.equals("checkConnection")) {
             result = String.valueOf(_sessions.checkConnection(handle));
+        }
+        else if (action.equals("disconnect")) {
+            result = String.valueOf(_sessions.disconnect(handle));
         }
         else if (_sessions.checkConnection(handle)) {
             if (action.equals("importModel")) {
