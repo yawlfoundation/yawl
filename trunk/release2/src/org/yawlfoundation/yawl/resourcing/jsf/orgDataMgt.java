@@ -425,7 +425,7 @@ public class orgDataMgt extends AbstractPageBean {
                 List<String> result = importer.importOrgData(uploadedFile.getAsString());
                 if (! ((result == null) || result.isEmpty())) {
                     if (result.size() == 1) {
-                        msgPanel.error(result);                       
+                        msgPanel.error(result);
                     }
                     else {
                         _sb.refreshOrgDataParticipantList();

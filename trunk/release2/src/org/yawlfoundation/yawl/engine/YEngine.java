@@ -381,8 +381,8 @@ public class YEngine implements InterfaceADesign,
 
    /**
     * Registers an InterfaceB Observer Gateway with the engine in order to receive callbacks.
-    *
-    * @param gateway
+    * @param gateway the gateway to register
+    * @throws YAWLException if the observerGateway has a null scheme value.
     */
     public void registerInterfaceBObserverGateway(ObserverGateway gateway) throws YAWLException {
         _announcer.registerInterfaceBObserverGateway(gateway);

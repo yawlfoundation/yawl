@@ -16,11 +16,10 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.cost.interfce;
+package org.yawlfoundation.yawl.util;
 
 import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
-import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
 import java.io.IOException;
 import java.util.Hashtable;
@@ -145,7 +144,7 @@ public class Sessions {
 
 
     private String getCredentialsFromEngine(String userid) {
-        if ((iaUserid == null) || (iaPassword == null)) {
+        if ((iaUserid == null) || (iaPassword == null) || (iaURI == null)) {
             return NO_IA_CREDENTIALS;
         }
         if (iaClient == null) {

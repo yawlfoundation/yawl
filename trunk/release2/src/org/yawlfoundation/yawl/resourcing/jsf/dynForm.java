@@ -20,10 +20,12 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
+import org.yawlfoundation.yawl.resourcing.jsf.dynform.DocComponent;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.SubPanel;
 
 import javax.faces.FacesException;
+import javax.faces.component.UIComponent;
 import javax.faces.event.ActionEvent;
 
 /**
@@ -293,6 +295,49 @@ public class dynForm extends AbstractPageBean {
         getApplicationBean().refresh();
         getDynFormFactory().processOccursAction(parent, btnType);
         return null;
+    }
+
+
+    public String btnDocumentAction(ActionEvent event) {
+        DocComponent docComponent = getDocComponentForEvent(event);
+        if (docComponent != null) {
+            String errorMsg = docComponent.processButtonAction((Button) event.getComponent());
+            if (errorMsg != null) {
+                _sb.getMessagePanel().error(errorMsg);
+            }
+        }
+        return null;
+    }
+
+
+    public String btnUploadAction(ActionEvent event) {
+        DocComponent docComponent = getDocComponentForEvent(event);
+        if (docComponent != null) {
+            String errorMsg = docComponent.doUpload();
+            if (errorMsg != null) {
+                _sb.getMessagePanel().error(errorMsg);
+            }
+        }
+        return null;
+    }
+
+
+    public String btnCancelUploadAction(ActionEvent event) {
+        DocComponent docComponent = getDocComponentForEvent(event);
+        if (docComponent != null) docComponent.completeUpload();
+        return null;
+    }
+
+
+    private DocComponent getDocComponentForEvent(ActionEvent event) {
+        Button source = (Button) event.getComponent();
+        UIComponent parent = source.getParent();
+        if (parent instanceof DocComponent) {     // if doc component button clicked
+            return (DocComponent) parent;
+        }
+        else {
+            return (DocComponent) parent.getAttributes().get("docComponent");
+        }
     }
 
 }

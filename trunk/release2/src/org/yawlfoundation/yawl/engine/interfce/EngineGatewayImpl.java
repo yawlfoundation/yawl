@@ -66,35 +66,48 @@ public class EngineGatewayImpl implements EngineGateway {
     private static final String OPEN_FAILURE = "<failure><reason>";
     private static final String CLOSE_FAILURE = "</reason></failure>";
     private static final String SUCCESS = "<success/>";
-    private static final String OPEN_SUCCESS = "<success>";
-    private static final String CLOSE_SUCCESS = "</success>";
+
 
     /**
      *  Constructor
+     *  @param persist true if a reference to a persisting engine is required
+     *  @throws YPersistenceException if persist is true and a persisting engine is
+     *  unavailable
      */
     public EngineGatewayImpl(boolean persist) throws YPersistenceException {
         _engine = YEngine.getInstance(persist);
         _sessionCache = _engine.getSessionCache();
     }
 
+    /**
+      *  Constructor
+      *  @param persist true if a reference to a persisting engine is required
+     *   @param gatherHbnStats true to turn on hibernate statistics gathering
+      *  @throws YPersistenceException if persist is true and a persisting engine is
+      *  unavailable
+      */
     public EngineGatewayImpl(boolean persist, boolean gatherHbnStats) throws YPersistenceException {
         _engine = YEngine.getInstance(persist, gatherHbnStats);
         _sessionCache = _engine.getSessionCache();
     }
 
+
+    /*******************************************************************************/
+
     // PRIVATE METHODS
 
-    /** encases a message in "<failure><reason>...</reason></failure>"
-     *
+    /**
+     * Encases a message in "<failure><reason>...</reason></failure>"
      * @param msg the text to encase
      * @return the encased message
      */
     private String failureMessage(String msg) {
-        return  StringUtil.wrap(StringUtil.wrap(msg, "reason"), "failure");
+        return StringUtil.wrap(StringUtil.wrap(msg, "reason"), "failure");
     }
 
-    /** encases a message in "<success>...</success>
-     *
+
+    /**
+     * Encases a message in "<success>...</success>"
      * @param msg the text to encase
      * @return the encased message
      */
@@ -103,25 +116,36 @@ public class EngineGatewayImpl implements EngineGateway {
     }
 
 
+    /**
+     * Checks that a session handle is currently active
+     * @param sessionHandle the handle to check
+     * @return true if the handle is valid and active
+     */
     private String checkSession(String sessionHandle) {
         return _sessionCache.checkConnection(sessionHandle) ? SUCCESS
                                : failureMessage("Invalid or expired session.");
     }
 
+
+    /**
+     * Checks whether a message is a failure message
+     * @param msg the message to check
+     * @return true if its a failure message
+     */
     private boolean isFailureMessage(String msg) {
         return msg.startsWith("<fail");
     }
 
-    //**************************************************//
+
+    /********************************************************************************/
     
 
     /**
-     * Indicates if the engine has encountered some form of persistence failure in its lifetime.<P>
-     *
-     * @return whether or not the engine failed to achieve persistence
+     * Indicates if the engine has encountered some form of persistence failure in
+     * its lifetime.
+     * @return whether or not the engine has failed to achieve persistence
      */
-    public boolean enginePersistenceFailure()
-    {
+    public boolean enginePersistenceFailure() {
         return enginePersistenceFailure;
     }
 
@@ -129,43 +153,69 @@ public class EngineGatewayImpl implements EngineGateway {
     /**
      * Registers an external observer gateway with the engine
      * @param gateway the gateway to register
+     * @throws YAWLException if the observerGateway has a null scheme value.
      */
     public void registerObserverGateway(ObserverGateway gateway) throws YAWLException {
         _engine.registerInterfaceBObserverGateway(gateway);
     }
 
-    
+
+    /**
+     * Sets the URL for the 'default' worklist - i.e. the service that will receive
+     * task enabled notifications for those tasks that are not explicitly
+     * associated with a custom service
+     * @param url the URL of the service that will serve as the default worklist
+     */
     public void setDefaultWorklist(String url) {
         _engine.setDefaultWorklist(url);
     }
 
 
+    /**
+     * Enables or disables the use of the generic 'admin' user
+     * @param allow true to enable, false to disable
+     */
     public void setAllowAdminID(boolean allow) {
         _engine.setAllowAdminID(allow);
     }
 
 
+    /**
+     * Disables the recording of events in the process logs
+     */
     public void disableLogging() {
         _engine.disableProcessLogging();
     }
 
 
+    /**
+     * Enables or disables the gathering of hibernate statistics
+     * @param enabled true to enable, false to disable
+     */
     public void setHibernateStatisticsEnabled(boolean enabled) {
         _engine.setHibernateStatisticsEnabled(enabled);
     }
 
 
+    /**
+     * Loads build properties from the stream (build number, date, version)
+     * @param stream a stream of the file containing the build properties
+     */
     public void initBuildProperties(InputStream stream) {
         _engine.initBuildProperties(stream);
     }
 
 
+    /**
+     * Notifies the engine that its servlet is shutting down
+     */
     public void shutdown() {
         _engine.shutdown();
     }
-    
+
+
     /**
-     * Triggers the announcement that engine startup is complete
+     * Triggers the announcement that engine startup is complete.
      * Should only be called from InterfaceB_EngineBasedServer.init()
      * @param maxWaitSeconds the maximum seconds to wait for services to be contactable
      */
@@ -173,7 +223,11 @@ public class EngineGatewayImpl implements EngineGateway {
         _engine.initialised(maxWaitSeconds);
     }
 
-    
+
+    /**
+     * Sets the actual absolute file location which contains the engine's class file root
+     * @param path the file path
+     */
     public void setActualFilePath(String path) {
         path = path.replace('\\', '/' );             // switch slashes
         if (! path.endsWith("/")) path += "/";       // make sure it has ending slash
@@ -183,9 +237,9 @@ public class EngineGatewayImpl implements EngineGateway {
 
 
     /**
-     *
-     * @param sessionHandle
-     * @return a list of the ids of all currently active workitems
+     * Gets a list of the ids of all currently active workitems
+     * @param sessionHandle a valid session handle
+     * @return a list of the ids
      * @throws RemoteException
      */
     public String getAvailableWorkItemIDs(String sessionHandle) throws RemoteException {
@@ -948,8 +1002,12 @@ public class EngineGatewayImpl implements EngineGateway {
         if (isFailureMessage(sessionMessage)) return sessionMessage;
 
         try {
-            _engine.addExternalClient(new YExternalClient(userName, password, doco));
-            return SUCCESS;
+            if (_engine.getExternalClient(userName) != null) {
+                return failureMessage("A client with that name already exists");
+            }
+            boolean success = _engine.addExternalClient(
+                    new YExternalClient(userName, password, doco));
+            return success ? SUCCESS : failureMessage("Null username or password");
         }
         catch (YPersistenceException ype) {
             return failureMessage("Persistence exception attempting to create account");

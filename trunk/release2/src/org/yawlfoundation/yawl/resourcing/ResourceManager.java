@@ -44,6 +44,7 @@ import org.yawlfoundation.yawl.resourcing.allocators.AllocatorFactory;
 import org.yawlfoundation.yawl.resourcing.calendar.CalendarException;
 import org.yawlfoundation.yawl.resourcing.calendar.ResourceCalendar;
 import org.yawlfoundation.yawl.resourcing.client.CostClient;
+import org.yawlfoundation.yawl.resourcing.client.DocStoreClient;
 import org.yawlfoundation.yawl.resourcing.codelets.AbstractCodelet;
 import org.yawlfoundation.yawl.resourcing.codelets.CodeletFactory;
 import org.yawlfoundation.yawl.resourcing.constraints.AbstractConstraint;
@@ -188,6 +189,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private YLogGatewayClient _interfaceEClient;
     private ResourceGatewayServer _gatewayServer;
     private CostClient _costServiceClient;
+    private DocStoreClient _docStoreClient;
 
     // Constructor - called exclusively by getInstance()
     private ResourceManager() {
@@ -236,7 +238,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     
     public void initInterfaceClients(String engineURI, String exceptionURI,
-                                     String schedulingURI, String costServiceURI) {
+                        String schedulingURI, String costServiceURI, String docStoreURI) {
         _engineURI = engineURI;
         _interfaceAClient = new InterfaceA_EnvironmentBasedClient(
                                                  engineURI.replaceFirst("/ib", "/ia"));
@@ -253,6 +255,10 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (costServiceURI != null) {
             _costServiceClient = new CostClient(
                     costServiceURI, engineLogonName, engineLogonPassword);
+        }
+        if (docStoreURI != null) {
+            _docStoreClient = new DocStoreClient(
+                    docStoreURI, engineLogonName, engineLogonPassword);
         }
     }
 
@@ -435,6 +441,10 @@ public class ResourceManager extends InterfaceBWebsideController {
     public boolean hasCostClient() { return _costServiceClient != null; }
 
     public CostClient getCostClient() { return _costServiceClient; }
+
+    public boolean hasDocStoreClient() { return _docStoreClient != null; }
+
+    public DocStoreClient getDocStoreClient() { return _docStoreClient; }
 
     public Logger getLogger() { return _log ; }
 

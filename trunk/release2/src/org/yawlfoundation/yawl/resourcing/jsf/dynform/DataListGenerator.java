@@ -114,6 +114,10 @@ public class DataListGenerator {
 
     private String getFieldValue(PanelLayout panel, Label label, DynFormField field) {
 
+        if (field.isYDocument()) {
+            return formatField(getDocValue(panel, label), field);
+        }
+
         // get the component this label is 'for', then get its value
         String forID = label.getFor();
         String value = "";
@@ -134,6 +138,19 @@ public class DataListGenerator {
             value = (String) ((FieldBase) component).getText();    // default fallthrough
 
         return formatField(value, field);
+    }
+    
+    
+    private String getDocValue(PanelLayout panel, Label label) {
+        for (Object o : panel.getChildren()) {
+            if (o instanceof DocComponent) {
+                DocComponent docComponent = (DocComponent) o;
+                if (docComponent.getLabel().equals(label)) {
+                    return docComponent.getOutputXML();
+                }
+            }
+        }
+        return "<name/>";                                           // default minimum
     }
 
 
